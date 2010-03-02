@@ -21,11 +21,9 @@
 #include "hwkbcharloopsmanager_stub.h"
 #include "mhardwarekeyboard.h"
 #include <MApplication>
-#include <mplainwindow.h>
-#include <MNamespace>
 #include <QDebug>
 #include <QSignalSpy>
-#include <QKeyEvent>
+#include <QEvent>
 
 namespace
 {

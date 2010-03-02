@@ -17,7 +17,7 @@
 #ifndef MXKB_H
 #define MXKB_H
 
-#include <QKeyEvent>
+#include <Qt>
 
 /*!
   \brief MXkb provides some functionalities to manipulate the Xkb keyboard.

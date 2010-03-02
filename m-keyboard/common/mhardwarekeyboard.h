@@ -21,14 +21,12 @@
 
 #include <QObject>
 #include <QMap>
+#include <Qt>
+#include <QEvent>
 #include "mxkb.h"
 #include "hwkbcharloopsmanager.h"
 #include "mkeyboardcommon.h"
-#include "keyevent.h"
 #include <MNamespace>
-
-class QKeyEvent;
-class MVirtualKeyboard;
 
 /*!
   \brief MHardwareKeyboard implement the hardware keyboard for inputmethod plugin.

@@ -17,7 +17,7 @@
 #ifndef MXKB_P_H
 #define MXKB_P_H
 
-#include <QKeyEvent>
+#include <Qt>
 #include <X11/Xlib.h>
 
 class MXkb;

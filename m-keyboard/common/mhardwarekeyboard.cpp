@@ -18,7 +18,6 @@
 
 #include "mhardwarekeyboard.h"
 #include "mvirtualkeyboard.h"
-#include <QKeyEvent>
 #include <QDebug>
 
 namespace
