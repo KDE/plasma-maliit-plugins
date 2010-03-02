@@ -1,16 +1,14 @@
 CONFIG += ordered
 TEMPLATE = subdirs
 SUBDIRS = \
-          ut_buttonbar \
           ut_mvirtualkeyboard \
+          ut_mkeyboardhost \
+          ut_buttonbar \
           ut_mkeyboardplugin \
           ut_mimcorrectioncandidatewidget \
           ut_keybutton \
           ut_keybuttonarea \
           ut_symbolview \
-          bm_keybuttonarea \
-          bm_symbols \
-          ut_mkeyboardhost \
           ut_notification \
           ut_limitedtimer \
           ut_vkbdatakey \
@@ -20,6 +18,8 @@ SUBDIRS = \
           ut_toolbarmanager \
           ut_mhardwarekeyboard \
           ut_hwkbcharloopsmanager \
+          bm_keybuttonarea \
+          bm_symbols \
 
 target.commands += $$system(touch tests.xml)
 target.path = /usr/share/meego-keyboard-tests
