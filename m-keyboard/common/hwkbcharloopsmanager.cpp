@@ -58,7 +58,8 @@ HwKbCharLoopParseParameters::HwKbCharLoopParseParameters()
 }
 
 HwKbCharLoopsManager::HwKbCharLoopsManager()
-    : configLanguage(SystemDisplayLanguage)
+    : current(0),
+      configLanguage(SystemDisplayLanguage)
 {
     loadCharLoops(HardwareKeyboardCharLoopsFile);
     // Read settings for the first time to set active character loop
@@ -80,9 +81,9 @@ bool HwKbCharLoopsManager::setCharLoopsLanguage(const QString &language)
     bool val = true;
     if (currentCharLoopLanguage != language) {
         if (charLoops.contains(language)) {
-            current = charLoops.constFind(language);
+            current = charLoops.constFind(language).value();
         } else {
-            current = charLoops.constEnd();
+            current = 0;
             val = false;
         }
         currentCharLoopLanguage = language;
@@ -100,8 +101,8 @@ void HwKbCharLoopsManager::syncLanguage()
 QString HwKbCharLoopsManager::characterLoop(const QChar &c) const
 {
     QString charLoop;
-    if (current != charLoops.constEnd()) {
-        charLoop = current.value()->loops.value(c);
+    if (current != 0) {
+        charLoop = current->loops.value(c);
     }
     return charLoop;
 }
@@ -118,6 +119,7 @@ bool HwKbCharLoopsManager::loadCharLoops(const QString &fileName)
         qDeleteAll(charLoops);
         charLoops.clear();
     }
+    current = 0;
     return success;
 }
 

@@ -67,6 +67,7 @@ private:
     * The file is loaded from the path /usr/share/meegotouch/virtual-keyboard/layout/.
     * \param fileName XML file name without directory part
     * \return true if loading succeeded, false otherwise
+    * \post \a current is set to 0
     */
     bool loadCharLoops(const QString &fileName);
 
@@ -110,10 +111,8 @@ private:
     //! The map key is language name as read from settings.
     QHash<QString, HwKbCharacterLoops *> charLoops;
 
-    //! Iterator that points to current language and character loop.
-    //! Current character loop is used when no language name is specified
-    //! in calls to public methods of this class.
-    QHash<QString, HwKbCharacterLoops *>::const_iterator current;
+    //! Loops for the current language
+    const HwKbCharacterLoops *current;
 
     //! MGConfItem for system display language.
     //! The settings are set by control panel applet.
