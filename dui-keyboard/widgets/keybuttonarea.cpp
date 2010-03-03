@@ -373,7 +373,7 @@ void KeyButtonArea::setActiveKey(IKeyButton *key)
 {
     if (activeKey && (activeKey != key)) {
         // Release key
-        activeKey->setState(IKeyButton::Normal); update();
+        activeKey->setState(IKeyButton::Normal);
         KeyEvent releaseEvent = keyToKeyEvent(*activeKey, QEvent::KeyRelease);
         emit keyReleased(releaseEvent);
         activeKey = 0;
@@ -382,7 +382,7 @@ void KeyButtonArea::setActiveKey(IKeyButton *key)
     if (key && (activeKey != key)) {
         // Press key
         activeKey = key;
-        activeKey->setState(IKeyButton::Pressed); update();
+        activeKey->setState(IKeyButton::Pressed);
         KeyEvent pressEvent = keyToKeyEvent(*activeKey, QEvent::KeyPress);
         emit keyPressed(pressEvent);
     }

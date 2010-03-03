@@ -122,7 +122,7 @@ void SingleWidgetButtonArea::loadKeys()
             bool stretchesHorizontally;
             buttonInformation(row, col, dataKey, buttonSize, stretchesHorizontally);
 
-            SingleWidgetButton *button = new SingleWidgetButton(*dataKey, style());
+            SingleWidgetButton *button = new SingleWidgetButton(*dataKey, style(), *this);
             button->width = buttonSize.width();
 
             const int vSpacing = style()->spacingVertical();

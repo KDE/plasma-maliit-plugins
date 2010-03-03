@@ -20,14 +20,18 @@
 #include "duivirtualkeyboardstyle.h"
 
 #include <DuiTheme>
+#include <QGraphicsItem>
 #include <QPainter>
 
-SingleWidgetButton::SingleWidgetButton(const VKBDataKey &key, const DuiVirtualKeyboardStyleContainer &style)
+SingleWidgetButton::SingleWidgetButton(const VKBDataKey &key,
+                                       const DuiVirtualKeyboardStyleContainer &style,
+                                       QGraphicsItem &parent)
     : dataKey(key),
       shift(false),
       currentLabel(dataKey.binding(false)->label()),
       currentState(Normal),
-      styleContainer(style)
+      styleContainer(style),
+      parentItem(parent)
 {
     icons[0] = (dataKey.binding(false) ? loadIcon(dataKey.binding(false)->action()) : 0);
     icons[1] = (dataKey.binding(true) ? loadIcon(dataKey.binding(true)->action()) : 0);
@@ -64,12 +68,16 @@ void SingleWidgetButton::setModifiers(bool shift, QChar accent)
         this->shift = shift;
         this->accent = accent;
         currentLabel = binding().accented(accent);
+        update();
     }
 }
 
 void SingleWidgetButton::setState(ButtonState state)
 {
-    currentState = state;
+    if (currentState != state) {
+        currentState = state;
+        update();
+    }
 }
 
 SingleWidgetButton::ButtonState SingleWidgetButton::state() const
@@ -105,6 +113,11 @@ void SingleWidgetButton::drawIcon(const QRect &rectangle, QPainter *painter) con
                         rectangle.y() + (rectangle.height() - iconPixmap->height()) / 2);
         painter->drawPixmap(iconPos, *iconPixmap);
     }
+}
+
+void SingleWidgetButton::update()
+{
+    parentItem.update(buttonRect());
 }
 
 const QPixmap *SingleWidgetButton::loadIcon(KeyBinding::KeyAction action) const

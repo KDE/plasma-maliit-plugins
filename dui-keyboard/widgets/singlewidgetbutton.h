@@ -22,12 +22,15 @@
 #include "ikeybutton.h"
 
 class DuiVirtualKeyboardStyleContainer;
+class QGraphicsItem;
 
 //! Represents a key model with the key's current binding state, and also contains its visible area.
 class SingleWidgetButton : public IKeyButton
 {
 public:
-    SingleWidgetButton(const VKBDataKey &key, const DuiVirtualKeyboardStyleContainer &style);
+    SingleWidgetButton(const VKBDataKey &key,
+                       const DuiVirtualKeyboardStyleContainer &style,
+                       QGraphicsItem &parent);
     virtual ~SingleWidgetButton();
 
     //! \reimp
@@ -48,6 +51,8 @@ public:
     //! \brief Draws the icon of this button, if it has one, to the given rectangle.
     void drawIcon(const QRect &rectangle, QPainter *painter) const;
 
+    //! \brief Calls parent item's QGraphicsItem::update() who actually draws the button.
+    void update();
     //! Cache for the buttons position and size. They can always
     //! be calculated but are faster to access this way.
     QRect cachedBoundingRect;
@@ -72,6 +77,8 @@ private:
     const QPixmap *icons[2];
 
     const DuiVirtualKeyboardStyleContainer &styleContainer;
+
+    QGraphicsItem &parentItem;
 };
 
 #endif // SINGLEWIDGETBUTTON_H
