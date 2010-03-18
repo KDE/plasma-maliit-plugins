@@ -79,18 +79,6 @@ static void waitForSignal(const QObject* object, const char* signal, int timeout
 
 // Stubbing..................................................................
 
-void SymbolView::showSymbolView(SymbolView::ShowMode mode)
-{
-    Q_UNUSED(mode);
-    activity = Active;
-}
-
-void SymbolView::hideSymbolView(SymbolView::HideMode mode)
-{
-    Q_UNUSED(mode);
-    activity = Inactive;
-}
-
 void DuiVirtualKeyboard::setKeyboardState(DuiIMHandlerState state)
 {
     ++gSetKeyboardStateCallCount;
@@ -629,13 +617,24 @@ void Ut_DuiKeyboardHost::testRegionSignals()
     QCOMPARE(spy2.count(), 2);
     QCOMPARE(region(spy, 5), region(spy2, 1));
 
+    // But symbol view also changes input method area
+    subject->showSymbolView();
+    waitForSignal(subject, SIGNAL(regionUpdated(const QRegion &)));
+    QCOMPARE(spy.count(), 7);
+    QCOMPARE(spy2.count(), 3);
+    subject->symbolView->hideSymbolView();
+    waitForSignal(subject, SIGNAL(regionUpdated(const QRegion &)));
+    QCOMPARE(spy.count(), 8);
+    QCOMPARE(spy2.count(), 4);
+    QCOMPARE(region(spy, 5), region(spy, 7)); // the same as before opening it
+
     // Hide the keyboard -> empty region and input method area
     subject->hide();
     QTest::qWait(DuiVirtualKeyboard::ShowHideTime + 50); // really hidden after animation is finished
-    QCOMPARE(spy.count(), 7);
-    QCOMPARE(spy2.count(), 3);
-    QCOMPARE(region(spy, 6), QRegion());
-    QCOMPARE(region(spy2, 2), QRegion());
+    QCOMPARE(spy.count(), 9);
+    QCOMPARE(spy2.count(), 5);
+    QCOMPARE(region(spy, 8), QRegion());
+    QCOMPARE(region(spy2, 4), QRegion());
 
     // Regions and rotation
 

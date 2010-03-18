@@ -133,7 +133,7 @@ DuiKeyboardHost::DuiKeyboardHost(DuiInputContextConnection* icConnection, QObjec
     connect(vkbWidget, SIGNAL(regionUpdated(const QRegion &)),
             this, SLOT(handleRegionUpdate(const QRegion &)));
     connect(vkbWidget, SIGNAL(regionUpdated(const QRegion &)),
-            this, SIGNAL(inputMethodAreaUpdated(const QRegion &)));
+            this, SLOT(handleInputMethodAreaUpdate(const QRegion &)));
 
     connect(vkbWidget, SIGNAL(userInitiatedHide()),
             this, SLOT(userHide()));
@@ -186,6 +186,8 @@ DuiKeyboardHost::DuiKeyboardHost(DuiInputContextConnection* icConnection, QObjec
                                 vkbWidget->selectedLanguage(), sceneWindow);
     connect(symbolView, SIGNAL(regionUpdated(const QRegion &)),
             this, SLOT(handleRegionUpdate(const QRegion &)));
+    connect(symbolView, SIGNAL(regionUpdated(const QRegion &)),
+            this, SLOT(handleInputMethodAreaUpdate(const QRegion &)));
 
     connect(symbolView, SIGNAL(keyClicked(const KeyEvent &)),
             this, SLOT(handleKeyClick(const KeyEvent &)));
@@ -988,17 +990,29 @@ void DuiKeyboardHost::showLayoutMenu()
     layoutMenu->show();
 }
 
-void DuiKeyboardHost::handleRegionUpdate(const QRegion &region)
+QRegion DuiKeyboardHost::combineRegionTo(RegionMap &regionStore,
+                                         const QRegion &region, const QObject &widget)
 {
-    widgetRegions[QObject::sender()] = region;
+    regionStore[&widget] = region;
 
     QRegion combinedRegion;
-    foreach (const QRegion &partialRegion, widgetRegions) {
+    foreach (const QRegion &partialRegion, regionStore) {
         combinedRegion |= partialRegion;
     }
 
-    emit regionUpdated(combinedRegion);
+    return combinedRegion;
+}
+
+void DuiKeyboardHost::handleRegionUpdate(const QRegion &region)
+{
+    emit regionUpdated(combineRegionTo(widgetRegions, region, *QObject::sender()));
     updateReactionMaps();
+}
+
+void DuiKeyboardHost::handleInputMethodAreaUpdate(const QRegion &region)
+{
+    emit inputMethodAreaUpdated(combineRegionTo(inputMethodAreaWidgetRegions,
+                                                region, *QObject::sender()));
 }
 
 void DuiKeyboardHost::sendKeyEvent(const QKeyEvent &key)

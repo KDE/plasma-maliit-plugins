@@ -133,6 +133,14 @@ private slots:
      */
     void handleRegionUpdate(const QRegion &region);
 
+    /*!
+     * Receive region updates from widgets, combine them and signal as input
+     * method area using \a DuiInputMethodBase::inputMethodAreaUpdated.
+     *
+     * \param region updated region
+     */
+    void handleInputMethodAreaUpdate(const QRegion &region);
+
     //! Sends key event
     void sendKeyEvent(const QKeyEvent &);
 
@@ -186,6 +194,16 @@ private:
      */
     void clearReactionMaps(const QString &clearValue);
 
+    //! QObject -> Region mapping for widget regions
+    typedef QMap<const QObject *, QRegion> RegionMap;
+
+    /*!
+     * \brief Add \a region to \a regionStore with key \a widget.
+     * \return Union of all regions in \a regionStore after adding \a region to it.
+     */
+    static QRegion combineRegionTo(RegionMap &regionStore,
+                                   const QRegion &region, const QObject &widget);
+
 private:
     QString preedit;
     QString correctedPreedit;
@@ -232,7 +250,10 @@ private:
     DuiSceneWindow *sceneWindow;
 
     //! Regions of widgets created by DuiKeyboardHost
-    QMap<const QObject *, QRegion> widgetRegions;
+    RegionMap widgetRegions;
+
+    //! Regions of widgets that affect the input method area
+    RegionMap inputMethodAreaWidgetRegions;
 
     //! current active state
     DuiIMHandlerState activeState;
