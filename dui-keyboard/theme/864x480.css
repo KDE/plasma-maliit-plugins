@@ -1,0 +1,245 @@
+@const MARGIN_DOUBLE:    1.2mm;
+@const PADDING_MEDIUM:   0.6mm;
+@const PADDING_LARGE:    1.2mm;
+
+/*
+    FlickUpButtonStyle is only used in conjunction with real button widgets as keyboard keys.
+    This also applies to object names dedicated for these buttons such as #Backspace or #Enter.
+
+    Alternative styling is used when the keyboard keys are not actual widgets, i.e. the
+    "single widget" approach. These are defined in DuiVirtualKeyboardStyle.
+*/
+
+/*  FlickUpButton related styling */
+
+FlickUpButtonStyle {
+    background-image: "keyboard-key-background" 10px 10px 10px 10px;
+    font: "Nokia Sans Light" 24;
+    minimum-size: 30 56;
+    preferred-size: 8.2mm 5.6mm;
+    maximum-size: -1 -1;
+    icon: ;
+    releaseFeedback: ;
+    pressFeedback: ;
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    margin-right: 0;
+
+    reactive-margin-left: 2;
+    reactive-margin-right: 2;
+    reactive-margin-top: 6;
+    reactive-margin-bottom: 6;
+
+    text-margin-left: 0;
+    text-margin-right: 0;
+}
+
+FlickUpButtonStyle:pressed {
+    background-image: "keyboard-key-background-pressed" 10px 10px 10px 10px;
+}
+
+FlickUpButtonStyle:selected {
+    background-image: "keyboard-key-background-selected" 10px 10px 10px 10px;
+}
+
+#Backspace {
+    icon-size: 48 26;
+    icon: "icon-m-keyboard-backspace";
+}
+
+#LayoutMenu {
+    icon-size: 64 33;
+    icon: "icon-m-keyboard-menu";
+}
+
+#Enter {
+    icon-size: 38 28;
+    icon: "icon-m-keyboard-enter";
+}
+
+#ShiftNormal {
+    icon-size: 38 38;
+    icon: "icon-m-shift-lowercase";
+}
+
+#ShiftLatched {
+    icon-size: 38 38;
+    icon: "icon-m-shift-uppercase";
+}
+
+#ShiftLocked {
+    icon-size: 38 38;
+    icon: "icon-m-keyboard-shift-capslock";
+}
+
+/* End of FlickUpButton related styling */
+
+#VirtualKeyboardSymTabs {
+    background-image: "keyboard-tabs-background" 10px 10px 10px 10px;
+}
+
+#VirtualKeyboardSymCloseButton {
+    preferred-size: 10.6mm 5.1mm;
+}
+
+#VirtualKeyboardSymTabsButton {
+    preferred-size: 100 48;
+    maximum-size: 100 48;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    background-image: "keyboard-tab-optional" 10px 10px 10px 10px;
+}
+
+#VirtualKeyboardSymTabsButton:selected {
+    background-image: "keyboard-tab-active" 10px 10px 10px 10px;
+}
+
+DuiVirtualKeyboardStyle {
+    background-image: "keyboard-background" 10px 10px 10px 10px;
+    font: "Nokia Sans Light" 24;
+    font-opacity: 0.9;
+    font-color: #FFFFFF;
+
+    padding-top: $PADDING_LARGE;
+    padding-bottom: $PADDING_LARGE;
+
+    spacing-vertical: $MARGIN_DOUBLE;
+    spacing-horizontal: 0.3mm;
+
+    candidate-background: "textinput-candidates-background";
+    candidate-highlight-opacity: 1.0;
+    candidate-highlight-color: #BA55D3;
+
+    deadkey-locked-color: #FFA500;
+
+    notification-font: "Nokia Sans Light" 24;
+    notification-border-color: #808080;
+    notification-background-color: #323232;
+    notification-text-color: #FFFFFF;
+    notification-opacity: 0.9;
+
+    toolbar-background-image: "keyboard-toolbar-background" 10px 10px 10px 10px;
+
+    releaseFeedback: ;
+    pressFeedback: ;
+
+    /* Single widget keyboard button styling */
+    key-background-id: "keyboard-key-background";
+    key-background-pressed-id: "keyboard-key-background-pressed";
+    key-background-selected-id: "keyboard-key-background-selected";
+
+    key-backspace-icon-size: 48 48;
+    key-backspace-icon-id: "icon-m-common-backspace";
+
+    key-menu-icon-size: 48 48;
+    key-menu-icon-id: "icon-m-input-methods-menu";
+
+    key-enter-icon-size: 48 48;
+    key-enter-icon-id: "icon-m-input-methods-enter";
+
+    key-shift-icon-size: 48 48;
+    key-shift-icon-id: "icon-m-input-methods-shift";
+    /* End of single widget keyboard button styling */
+}
+
+DuiVirtualKeyboardStyle.Portrait {
+    keyboard-area-size: 480 280;
+
+    padding-left: $PADDING_MEDIUM;
+    padding-right: 0.7mm;
+
+    tab-button-size: 91 70;
+    menu-size: 470 342;
+
+    /* Single widget keyboard button styling */
+    key-normal-size: 4.4mm 8mm;
+    key-phone-number-normal-size: 15.3mm 8mm;
+    key-function-normal-size: 8mm 8mm;
+    key-function-large-size: 8mm 8mm;
+    key-number-backspace-size: 15.3mm 8mm;
+    key-sym-normal-size: 7.5mm 8mm;
+    /* End of single widget keyboard button styling */
+}
+
+DuiVirtualKeyboardStyle.Landscape {
+    keyboard-area-size: 864 280;
+
+    padding-left: $PADDING_LARGE;
+    padding-right: 0.9mm;
+
+    tab-button-size: 108 70;
+
+    menu-size: 790 342;
+
+    /* Single widget keyboard button styling */
+    key-normal-size: 8.2mm 5.6mm;
+    key-phone-number-normal-size: 8.2mm 8.4mm;
+    key-function-normal-size: 8.2mm 5.6mm;
+    key-function-large-size: 12.4mm 5.6mm;
+    key-number-backspace-size: 12.4mm 5.6mm;
+    key-sym-normal-size: 8.2mm 5.6mm;
+    /* End of single widget keyboard button styling */
+}
+
+
+#MenuToggleButton {
+    background-image: "Toggle-btn-normal" 0 0 0 0;
+    background-opacity: 1.0;
+    background-color: #000000;
+    text-color: #FFFFFF;
+}
+
+
+#MenuToggleButton:pressed {
+    background-image: "Toggle-btn-selected" 0 0 0 0;
+    background-opacity: 1.0;
+    background-color: #F9A427;
+    text-color: #555555;    
+}
+
+
+#MenuLanguageList {
+    background-image: "Single-line-input-field" 0 0 0 0;
+    text-left-offset: 12;
+    text-right-offset: 12;
+
+    font: "Nokia Sans" 20;
+    text-color: #000000;
+
+    preferred-size: 414 56;
+    minimum-size: 414 56;
+    maximum-size: 414 56;
+}
+
+#VirtualKeyboardToolbarButton {
+    background-image: "keyboard-toolbar-button-background" 10px 10px 10px 10px;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    preferred-size: 100 48;
+    maximum-size: 100 48;
+    reactive-margin-left: 2;
+    reactive-margin-right: 2;
+    reactive-margin-top: 5;
+    reactive-margin-bottom: 5;
+}
+
+#VirtualKeyboardToolbarButton:pressed {
+    background-image: "keyboard-toolbar-button-background-pressed" 10px 10px 10px 10px;
+}
+
+ButtonBarStyle {
+    margin-left: 0;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+
+    padding-top: 3;
+    padding-left: 3;
+    padding-right: 3;
+}
+

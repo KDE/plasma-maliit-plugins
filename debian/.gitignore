@@ -1,0 +1,9 @@
+dui-im-virtualkeyboard-dbg
+dui-im-virtualkeyboard-tests.substvars
+dui-im-virtualkeyboard-tests
+dui-im-virtualkeyboard.substvars
+dui-im-virtualkeyboard
+files
+tmp
+*.debhelper
+

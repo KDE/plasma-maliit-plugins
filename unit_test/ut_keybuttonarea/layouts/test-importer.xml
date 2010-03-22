@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE VirtualKeyboardLayoutDTD SYSTEM 'VirtualKeyboardLayoutDTD.dtd'>
+<keyboard title="test-importer-title" version="1.0" catalog="en_GB" language="test-importer-language" >
+    <import file="test-import1.xml" />
+    <import file="test-import2.xml" />
+</keyboard>

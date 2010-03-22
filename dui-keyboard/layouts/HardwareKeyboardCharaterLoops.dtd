@@ -1,0 +1,15 @@
+<!ELEMENT keyboard (language+)*>
+<!ELEMENT language (character+)>
+<!ELEMENT character EMPTY>
+
+<!ATTLIST keyboard
+  version CDATA "1.0">
+
+<!ATTLIST language
+  iso639_code CDATA #REQUIRED
+  name CDATA #IMPLIED>
+
+<!ATTLIST character
+  label CDATA #REQUIRED
+  movable (true | false) "true"
+  accented_labels CDATA #IMPLIED>

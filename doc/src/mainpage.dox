@@ -1,0 +1,9 @@
+/*! \mainpage DirectUI Input Method Framework Documentation
+
+\section general General documentation
+- <a href="layoutxml.html">Keyboard Layout XML Specification</a>
+
+\section api API reference
+<a href="classes.html">All Classes</a>
+
+*/

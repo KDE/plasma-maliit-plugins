@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<gconfschemafile>
+  <schemalist>
+    <schema>
+      <key>/schemas/Dui/InputMethods/Languages</key>
+      <applyto>/Dui/InputMethods/Languages</applyto>
+      <owner>dui</owner>
+      <type>list</type>
+      <list_type>string</list_type>
+      <default>[en,ar,cs,da,de,en,es,fi,fr,it,nl,no,pl,pt,ru,sv]</default>
+      <locale name="C">
+        <short>Language list</short>
+        <long>Language list</long>
+      </locale>
+    </schema>
+
+    <schema>
+      <key>/schemas/Dui/InputMethods/Languages/Default</key>
+      <applyto>/Dui/InputMethods/Languages/Default</applyto>
+      <owner>dui</owner>
+      <type>string</type>
+      <default>en</default>
+      <locale name="C">
+        <short>Default language</short>
+        <long>Default language</long>
+      </locale>
+    </schema>
+
+    <schema>
+      <key>/schemas/Dui/InputMethods/CorrectionEnabled</key>
+      <applyto>/Dui/InputMethods/CorrectionEnabled</applyto>
+      <owner>dui</owner>
+      <type>bool</type>
+      <default>true</default>
+      <locale name="C">
+        <short>Whether error correction is enabled</short>
+        <long>Whether error correction is enabled</long>
+      </locale>
+    </schema>
+
+  </schemalist>
+</gconfschemafile>

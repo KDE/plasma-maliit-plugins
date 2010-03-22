@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
+<keyboard version="1.0" title="الْعَرَبيّة" language="ar_SA" catalog="ar_SA">
+    <layout type="general" orientation="landscape">
+        <section id="main" movable="false" vertical_alignment="center" horizontal_alignment="center">
+          <row>
+            <key>
+              <binding label="ض"/>
+            </key>
+            <key>
+              <binding label="ص"/>
+            </key>
+            <key>
+              <binding label="ث"/>
+            </key>
+            <key>
+              <binding label="ق"/>
+            </key>
+            <key>
+              <binding label="ف"/>
+            </key>
+            <key>
+              <binding label="غ"/>
+              <binding shift="true" label="إ"/>
+            </key>
+            <key>
+              <binding label="ع"/>
+            </key>
+            <key>
+              <binding label="ه"/>
+            </key>
+            <key>
+              <binding label="خ"/>
+            </key>
+            <key>
+              <binding label="ح"/>
+            </key>
+            <key>
+              <binding label="ج"/>
+            </key>
+          </row>
+          <row>
+            <key>
+              <binding label="ش"/>
+            </key>
+            <key>
+              <binding label="س"/>
+            </key>
+            <key>
+              <binding label="ي"/>
+            </key>
+            <key>
+              <binding label="ب"/>
+            </key>
+            <key>
+              <binding label="ل"/>
+            </key>
+            <key>
+              <binding label="ا"/>
+              <binding shift="true" label="أ"/>
+            </key>
+            <key>
+              <binding label="ت"/>
+            </key>
+            <key>
+              <binding label="ن"/>
+            </key>
+            <key>
+              <binding label="م"/>
+            </key>
+            <key>
+              <binding label="ك"/>
+            </key>
+            <key>
+              <binding label="د"/>
+            </key>
+          </row>
+          <row>
+            <key>
+              <binding label="ئ"/>
+            </key>
+            <key>
+              <binding label="ء"/>
+            </key>
+            <key>
+              <binding label="ؤ"/>
+            </key>
+            <key>
+              <binding label="ر"/>
+            </key>
+            <key>
+              <binding label="ى"/>
+            </key>
+            <key>
+              <binding label="ة"/>
+              <binding shift="true" label="آ"/>
+            </key>
+            <key>
+              <binding label="و"/>
+            </key>
+            <key>
+              <binding label="ز"/>
+            </key>
+            <key>
+              <binding label="ظ"/>
+            </key>
+            <key>
+              <binding label="ط"/>
+            </key>
+            <key>
+              <binding label="ذ"/>
+            </key>
+          </row>
+        </section>
+        <section id="functionkey" movable="false" horizontal_alignment="left" vertical_alignment="center">
+          <row>
+            <key>
+              <binding action="shift" label=""/>
+            </key>
+            <key>
+              <binding action="sym" label="Sym"/>
+              <binding shift="true" action="layout_menu" label=""/>
+            </key>
+            <key>
+              <binding label="-"/>
+              <binding shift="true" label="&apos;"/>
+            </key>
+            <key>
+              <binding action="space" label=""/>
+              <binding shift="true" action="return" label=""/>
+            </key>
+            <key>
+              <binding label="؟"/>
+              <binding shift="true" label="!"/>
+            </key>
+            <key>
+              <binding label="."/>
+              <binding shift="true" label=","/>
+            </key>
+            <key>
+              <binding action="backspace" label=""/>
+            </key>
+          </row>
+        </section>
+    </layout>
+    <layout type="general" orientation="portrait">
+        <section id="functionkey" movable="false" horizontal_alignment="left" vertical_alignment="center">
+          <row>
+            <key>
+              <binding action="shift" label=""/>
+            </key>
+            <key>
+              <binding action="sym" label="Sym"/>
+              <binding shift="true" action="layout_menu" label=""/>
+            </key>
+            <key>
+              <binding action="space" label=""/>
+              <binding shift="true" action="return" label=""/>
+            </key>
+            <key>
+              <binding label="."/>
+              <binding shift="true" label=","/>
+            </key>
+            <key>
+              <binding action="backspace" label=""/>
+            </key>
+          </row>
+        </section>
+    </layout>
+    <import file="symbols.xml"/>
+</keyboard>
+

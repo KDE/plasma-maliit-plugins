@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE keyboard SYSTEM 'HardwareKeyboardCharaterLoops.dtd'>
+<keyboard version="1.0">
+    <language language_code="cs" name="Czech">
+        <character label="A" accented_labels="&#x00C1;&#x00C4;&#x0102;&#x00C2;&#x0104;"/>
+        <character label="C" accented_labels="&#x010C;&#x0106;&#x00C7;"/>
+        <character label="D" accented_labels="&#x010E;&#x0110;"/>
+        <character label="E" accented_labels="&#x011A;&#x00C9;&#x0118;"/>
+        <character label="I" accented_labels="&#x00CD;&#x00CE;"/>
+        <character label="L" accented_labels="&#x013D;&#x0139;&#x0141;"/>
+        <character label="N" accented_labels="&#x0147;&#x0143;&#x00D1;"/>
+        <character label="O" accented_labels="&#x00D3;&#x00D6;&#x0150;&#x00D4;"/>
+        <character label="R" accented_labels="&#x0158;&#x0154;"/>
+        <character label="S" accented_labels="&#x0160;&#x015A;&#x015E;"/>
+        <character label="T" accented_labels="&#x0164;&#x0162;"/>
+        <character label="U" accented_labels="&#x016E;&#x00DA;&#x00DC;&#x0170;&#x00D9;&#x00DB;"/>
+        <character label="Y" accented_labels="&#x00DD;"/>
+        <character label="Z" accented_labels="&#x017D;&#x0179;&#x017B;"/>
+        <character label="a" accented_labels="&#x00E1;&#x00E4;&#x0103;&#x00E2;&#x0105;"/>
+        <character label="c" accented_labels="&#x010D;&#x0107;&#x00E7;"/>
+        <character label="d" accented_labels="&#x010F;&#x0111;"/>
+        <character label="e" accented_labels="&#x011B;&#x00E9;&#x0119;"/>
+        <character label="i" accented_labels="&#x00ED;&#x00EE;"/>
+        <character label="l" accented_labels="&#x013E;&#x013A;&#x0142;"/>
+        <character label="n" accented_labels="&#x0148;&#x0144;&#x00F1;"/>
+        <character label="o" accented_labels="&#x00F3;&#x00F6;&#x0151;&#x00F4;"/>
+        <character label="r" accented_labels="&#x0159;&#x0155;"/>
+        <character label="s" accented_labels="&#x0161;&#x00DF;&#x015B;&#x015F;"/>
+        <character label="t" accented_labels="&#x0165;&#x0163;"/>
+        <character label="u" accented_labels="&#x016F;&#x00FA;&#x00FC;&#x0171;&#x00F9;&#x00FB;"/>
+        <character label="y" accented_labels="&#x00FD;"/>
+        <character label="z" accented_labels="&#x017E;&#x017A;&#x017C;"/>
+    </language>
+    <language language_code="en_gb" name="English UK">
+        <character label="A" accented_labels="&#x00C4;&#x00C0;&#x00C2;&#x00C1;&#x00C3;&#x00C5;"/>
+        <character label="C" accented_labels="&#x00C7;"/>
+        <character label="D" accented_labels="&#x00D0;"/>
+        <character label="E" accented_labels="&#x00C8;&#x00C9;&#x00CA;&#x00CB;"/>
+        <character label="I" accented_labels="&#x00CE;&#x00CF;&#x00CC;&#x00CD;"/>
+        <character label="N" accented_labels="&#x00D1;"/>
+        <character label="O" accented_labels="&#x00D6;&#x00D4;&#x00D2;&#x00D3;"/>
+        <character label="T" accented_labels="&#x00DE;"/>
+        <character label="U" accented_labels="&#x00DB;&#x00D9;&#x00DA;&#x00DC;"/>
+        <character label="Y" accented_labels="&#x00DD;"/>
+        <character label="a" accented_labels="&#x00E4;&#x00E0;&#x00E2;&#x00E1;&#x00E3;&#x00E5;"/>
+        <character label="c" accented_labels="&#x00E7;"/>
+        <character label="d" accented_labels="&#x00F0;"/>
+        <character label="e" accented_labels="&#x00E8;&#x00E9;&#x00EA;&#x00EB;"/>
+        <character label="i" accented_labels="&#x00EE;&#x00EF;&#x00EC;&#x00ED;"/>
+        <character label="n" accented_labels="&#x00F1;"/>
+        <character label="o" accented_labels="&#x00F6;&#x00F4;&#x00F2;&#x00F3;"/>
+        <character label="s" accented_labels="&#x00DF;"/>
+        <character label="t" accented_labels="&#x00FE;"/>
+        <character label="u" accented_labels="&#x00FB;&#x00F9;&#x00FA;&#x00FC;"/>
+        <character label="y" accented_labels="&#x00FD;"/>
+    </language>
+    <language language_code="en_us" name="English US">
+        <character label="A" accented_labels="&#x00C0;&#x00C2;&#x00C6;&#x00C1;&#x00C3;&#x00C4;"/>
+        <character label="C" accented_labels="&#x00C7;"/>
+        <character label="E" accented_labels="&#x00C8;&#x00C9;&#x00CA;&#x00CB;"/>
+        <character label="I" accented_labels="&#x00CE;&#x00CF;&#x00CC;&#x00CD;"/>
+        <character label="N" accented_labels="&#x00D1;"/>
+        <character label="O" accented_labels="&#x00D3;&#x00D4;&#x00D2;&#x00D5;"/>
+        <character label="U" accented_labels="&#x00DB;&#x00D9;&#x00DA;&#x00DC;"/>
+        <character label="a" accented_labels="&#x00E0;&#x00E2;&#x00E6;&#x00E1;&#x00E3;&#x00E4;"/>
+        <character label="c" accented_labels="&#x00E7;"/>
+        <character label="e" accented_labels="&#x00E8;&#x00E9;&#x00EA;&#x00EB;"/>
+        <character label="i" accented_labels="&#x00EE;&#x00EF;&#x00EC;&#x00ED;"/>
+        <character label="n" accented_labels="&#x00F1;"/>
+        <character label="o" accented_labels="&#x00F3;&#x00F4;&#x00F2;&#x00F5;"/>
+        <character label="s" accented_labels="&#x00DF;"/>
+        <character label="u" accented_labels="&#x00FB;&#x00F9;&#x00FA;&#x00FC;"/>
+    </language>
+</keyboard>

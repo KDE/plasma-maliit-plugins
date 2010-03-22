@@ -1,0 +1,78 @@
+DuiVirtualKeyboardStyle {
+    background-image: "keyboard-qwerty-background" 0 0 0 0;
+    divider: "keyboard-divider-vertical";
+    font: "Nokia Sans Light" 24;
+    font-opacity: 0.9;
+    font-color: #FFFFFF;
+    secondaryFont: "Nokia Sans Light" 14;
+
+    sym-background : "keyboard-sym-background";
+    sym-highlight-opacity: 0.6;
+    sym-highlight-color: #505050;
+
+    accurate-background:"keyboard-acc-thumb";
+
+    candidate-background:"textinput-candidates-background";
+    candidate-highlight-opacity: 1.0;
+    candidate-highlight-color:#BA55D3;
+
+    close-button-margin : 10;
+
+    notification-font: "Nokia Sans Light" 42;
+    notification-border-color: #00FF00;
+    notification-background-color: #FF0000;
+    notification-text-color: #0000FF;
+    notification-opacity: 1.0;
+
+    releaseFeedback: ;
+    pressFeedback: ;
+}
+
+DuiVirtualKeyboardStyle.Portrait {
+    size: 280 864;
+    left-margin:6;
+    top-margin:4;
+    divider-width:4;
+    divider-height:58;
+    spacebar-width:91;
+
+    keyboard-area-size: 480 280;
+    layout-size: 480 210;
+
+    tab-button-size: 91 70;
+    function-button-size: 96 70;
+    sym-size: 480 425;
+
+    menu-size: 470 342;
+    baseline-margin:19;
+
+    menu-margin: 20;
+    menu-margin-box: 10;
+    menu-max-opacity-frame: 500;
+    menu-max-title-text-width: 200;
+}
+
+DuiVirtualKeyboardStyle.Landscape {
+    size: 864 280;
+    left-margin: 6;
+    top-margin: 4;
+    divider-width: 4;
+    divider-height: 58;
+    spacebar-width: 216;
+
+    keyboard-area-size: 864 280;
+    layout-size: 864 210;
+
+    function-button-size: 108 70;
+    tab-button-size: 108 70;
+    sym-size: 864 355;
+
+    menu-size: 790 342;
+    baseline-margin:19;
+
+    menu-margin: 20;
+    menu-margin-box: 10;
+    menu-max-opacity-frame: 500;
+    menu-max-title-text-width: 200;
+}
+

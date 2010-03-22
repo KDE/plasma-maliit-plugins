@@ -1,0 +1,195 @@
+/*! \page layoutxml Keyboard Layout XML Specification
+<b>Version</b>: 0.1
+
+
+\section docover Document Overview
+
+This document provides information about the keyboard layout XML
+schema described by the DTD <tt>VirtualKeyboardLayout.dtd</tt>.
+The DTD alone can neither express all constraints nor explain the use
+of the layout.  This is intended to be read alongside the DTD and does
+not purport to repeat information such as default values sufficiently
+described by the schema.  The DTD is included at the end of the
+document for convenience but the canonical version is maintained in a
+separate file.
+
+
+\section layover Layouts Overview
+
+Layout files are like shops where you can buy keyboards for various purposes,
+such as inputting normal text, number or URLs.  Somewhat confusingly the shop
+is described by a \c keyboard element and contains \c language (with region)
+for which the keyboards for sale are intended and a descriptive \c title that
+is intended for the user for selecting the right shop.  The actual keyboards
+are described by the \c layout element.
+
+Each keyboard may consist of multiple sections, like physical keyboards often
+have a numpad, arrow keys and alphanumeric in distinct areas.  Each section
+contains one or more rows which again contain keys.  Keys may have different
+label and behaviour depending on modifier (such as shift) state.  These
+behaviours are described using \c binding elements.
+
+Aside \c layout elements one may also have \c import elements.  Import is
+used to include other layout XML files in order to facilitate reuse of
+layouts or layout parts with multiple languages.
+
+
+\section Elements
+
+
+\subsection Keyboard
+
+Keyboard is the top level element.
+
+Attributes:
+
+\li \c version Arbitrary file version.
+\li \c title Descriptive title based on which a layout file can be selected.
+For example, "English (UK)".  This must always be specified unless the file
+is intended to be imported only.
+\li \c language Language and optionally a region in format \c
+\<language\>[_\<region\>] where \c language is a ISO 639-1 code and \c region
+a ISO 3166-1 code.  This must always be specified unless the file
+is intended to be imported only.
+\li \c catalog The translation catalog used to localize the labels.  Unused
+as of this writing.
+
+
+\subsection Import
+
+Import includes a \c file that complies to the
+<tt>VirtualKeyboardLayoutDTD.dtd</tt>.  The \c keyboard element in the
+imported file is effectively ignored.  That is, one may think of \c import
+element expanding to a list of \c layout elements found in the given XML
+file.  \b Note: since the order of \c layout elements is significant, so is
+the placement of \c import elements.
+
+Attributes:
+
+\li \c file Name of the file to import without path.
+
+
+\subsection Layout
+
+Layout describes the actual layout for a given screen orientation.  If the
+layout doesn't have a portrait variant, the software shall use the landscape
+variant when the device is in portrait orientation.
+
+A layout inherits content from a previously read layout of same type and same
+orientation, if available.  The previously read layout is then forgotten.  If
+such a layout is not available, the layout inherits content from a previously
+read layout of same type and different orientation, if available.  That is,
+in this case the sections of the previously read layout are effectively
+copied to this layout.  Those inherited sections are overridden by sections
+within the current layout element.
+
+Attributes:
+
+\li \c type The input context in which this layout should be used.  Not all
+types are necessarily supported by the software using the layout.
+\li \c orientation Device orientation in which this layout should be used.
+
+
+\subsection Section
+
+Section is an area of one or more rows in the layout.  All sections may not
+be visible at the same time.  Some sections may have different looking keys.
+Use of different sections depends on the software for which the layout is
+intended.
+
+Maemo virtual keyboard requires sections named "main" (normal key area, all
+keys except those that belong to the function key row), "functionkey"
+(function key row) and one or more sections with names starting with "symbols "
+(symbol key sections that are not visible at the same time with the other
+sections).  The part of the name after "symbols " is used as the symbol key
+set title in the user interface.
+
+Attributes:
+
+\li \c id Name of the section.  See above.
+\li \c movable Unused as of this writing.
+\li \c type \c Non-sloppy type means that accurate input method (no error
+correction) is used with keys of this section by default.
+\li \c vertical_alignment Vertical alignment of rows in this section.  \c
+full is similar to a \c center but key sizes are expanded to fill the
+section.
+\li \c horizontal_alignment Horizontal alignment of keys in this section.  \c
+full is similar to a \c center but key sizes are expanded to fill the
+section.
+
+
+\subsection Row
+
+Row element describes a row of keys on the keyboard.  It has no attributes,
+just keys.  A row may be empty.
+
+
+\subsection Key
+
+Key element describes a visible key on the keyboard.  It has no attributes,
+just one, two or three bindings.
+
+
+\subsection Binding
+
+Binding describes the look and the behaviour of a key when current modifier
+state matches the \c shift and \c alt attributes.  Attributes affecting the
+behaviour are \c action, \c label, \c cycleset and \dead.  Attributes
+affecting the look are \c action, \c label, \c secondary_label, \c accents
+and \c accented_labels.
+
+Attributes:
+
+\li \c action Action is the primary attribute for determining what the
+key does.  Various actions are listed separately below.
+\li \c shift If true, this binding applies when the shift modifier is
+active.  If there is no binding with a true \c shift attribute, binding with
+false \c shift attribute shall be used when shift modifier is active.
+\li \c alt Just like \c shift, except for the alt modifier.
+\li \c label Contains text that is displayed as the keyboard label
+except when either a) action is not \c insert, \c cycle or \c
+plus_minus_toggle or b) a dead key whose label can be found in \c accents
+attribute has been clicked.  If the \c action is \c insert, \c label also
+determines the text that is inserted when the key is clicked.  The text can
+be one or more characters.
+\li \c secondary_label This is displayed next to the text of \c label
+attribute in small font.  Intended for phone number keyboards.
+\li \c accents Contains a string of characters of equal length to the \c
+accented_labels attribute.  For each character in the string there should be
+a binding that has that character as the \c label and a true \c dead
+attribute.
+\li \c accented_labels This is a string of characters of equal length to the \c
+accents attribute.  If a dead key has been clicked and its \c label can be
+found in the \c accents attribute, the index of that character in \c accents
+is used to index \c accented_labels string and the found character is
+temporarily used in place of the value of the \c label attribute.
+\li \c cycleset This is used together with the \c cycle \c action to provide
+multitap functionality for the key.  That is, repeated key clicks cycle
+through the characters in the \c cycleset string.
+
+Actions:
+
+The precise semantics of each action are determined by the software using the
+layout and are out of the scope of this document.  The descriptions here are
+brief and describe only a part of the functionality at a high level.
+
+\li \c insert Insert value of \c label attribute or character from \c
+accented_labels, if applicable.
+\li \c shift Shift modifier.
+\li \c backspace Delete character or word to the left.
+\li \c space Insert space character.
+\li \c cycle Insert first character of \c cycleset attribure or replace the
+previously inserted character with the following character of \c cycleset
+attribute.
+\li \c layout_menu Open layout configuration menu.
+\li \c sym Open symbol section.
+\li \c return Insert newline, accept the input or whatever is applicable in
+the context.
+\li \c decimal_separator Insert , or . depending on the locale settings.
+\li \c plus_minus_toggle Toggle the sign of the number being typed.
+
+\section DTD
+
+\verbinclude VirtualKeyboardLayout.dtd
+
+*/

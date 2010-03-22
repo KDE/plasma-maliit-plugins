@@ -1,0 +1,361 @@
+/* * This file is part of dui-keyboard *
+ *
+ * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+ * All rights reserved.
+ * Contact: Nokia Corporation (directui@nokia.com)
+ *
+ * If you have questions regarding the use of this file, please contact
+ * Nokia at directui@nokia.com.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License version 2.1 as published by the Free Software Foundation
+ * and appearing in the file LICENSE.LGPL included in the packaging
+ * of this file.
+ */
+
+
+
+#include "duivirtualkeyboardstyle.h"
+#include "singlewidgetbuttonarea.h"
+#include "vkbdatakey.h"
+#include "limitedtimer.h"
+
+#include <QDebug>
+#include <QEvent>
+#include <QGraphicsLinearLayout>
+#include <QGraphicsSceneMouseEvent>
+#include <QPainter>
+#include <QTextLine>
+#include <DuiApplication>
+#include <DuiComponentData>
+#include <DuiFeedbackPlayer>
+#include <duireactionmap.h>
+#include <DuiScalableImage>
+#include <DuiTheme>
+
+SingleWidgetButtonArea::SingleWidgetButtonArea(DuiVirtualKeyboardStyleContainer *style,
+                                               QSharedPointer<const LayoutSection> sectionModel,
+                                               ButtonSizeScheme buttonSizeScheme,
+                                               bool usePopup,
+                                               QGraphicsWidget *parent)
+    : KeyButtonArea(style, sectionModel, buttonSizeScheme, usePopup, parent),
+      rowHeight(0),
+      rowList(sectionModel->rowCount()),
+      equalWidthButtons(false)
+{
+    textLayout.setCacheEnabled(true);
+
+    // Resize the background images for DuiScalableImage so that we use the size of the most
+    // common button. This way DuiScalableImage will use painter->drawPixmap() directly. There
+    // is some overhead when drawing the image in 9 rectangles.
+    const QSize mostUsedKeySize = (*style)->keyNormalSize();
+    pixmap1 = DuiTheme::pixmap((*style)->keyBackgroundId(), mostUsedKeySize);
+    pixmap2 = DuiTheme::pixmap((*style)->keyBackgroundPressedId(), mostUsedKeySize);
+    pixmap3 = DuiTheme::pixmap((*style)->keyBackgroundSelectedId(), mostUsedKeySize);
+    keyBackground = new DuiScalableImage(pixmap1, 10,10,10,10);
+    keyBackgroundPressed = new DuiScalableImage(pixmap2, 10,10,10,10);
+    keyBackgroundSelected = new DuiScalableImage(pixmap3, 10,10,10,10);
+
+    loadKeys();
+}
+
+SingleWidgetButtonArea::~SingleWidgetButtonArea()
+{
+    // Release any key that might be pressed before destroying them.
+    setActiveKey(0);
+
+    for (RowIterator rowIter(rowList.begin()); rowIter != rowList.end(); ++rowIter) {
+        qDeleteAll(rowIter->buttons);
+        rowIter->buttons.clear();
+    }
+
+    delete keyBackground;
+    delete keyBackgroundPressed;
+    delete keyBackgroundSelected;
+    DuiTheme::releasePixmap(pixmap3);
+    DuiTheme::releasePixmap(pixmap2);
+    DuiTheme::releasePixmap(pixmap1);
+}
+
+QSizeF SingleWidgetButtonArea::sizeHint(Qt::SizeHint which, const QSizeF &/*constraint*/) const
+{
+    const int widgetHeight = rowList.count() * rowHeight - style()->spacingVertical();
+
+    int width = 0;
+    if (which == Qt::MaximumSize || which == Qt::PreferredSize) {
+        width = QWIDGETSIZE_MAX;
+    }
+    return QSizeF(width, widgetHeight);
+}
+
+void SingleWidgetButtonArea::drawReactiveAreas(DuiReactionMap *reactionMap, QGraphicsView *view)
+{
+    reactionMap->setTransform(this, view);
+    reactionMap->setReactiveDrawingValue();
+
+    int y = -style()->spacingVertical() / 2;
+    for (RowIterator row(rowList.begin()); row != rowList.end(); ++row) {
+        reactionMap->fillRectangle(row->offset, y, row->cachedWidth, rowHeight);
+        y += rowHeight;
+    }
+}
+
+void SingleWidgetButtonArea::loadKeys()
+{
+    const int numRows = rowCount();
+
+    RowIterator rowIter(rowList.begin());
+
+    for (int row = 0; row != numRows; ++row, ++rowIter) {
+        const int numColumns = sectionModel()->columnsAt(row);
+
+        rowIter->offset = 0;
+        rowIter->stretchButton = 0;
+
+        // Add buttons
+        for (int col = 0; col < numColumns; ++col) {
+
+            // Parameters to fetch from base class.
+            const VKBDataKey *dataKey;
+            QSize buttonSize;
+            bool stretchesHorizontally;
+            buttonInformation(row, col, dataKey, buttonSize, stretchesHorizontally);
+
+            SingleWidgetButton *button = new SingleWidgetButton(*dataKey, style());
+            button->width = buttonSize.width();
+
+            const int vSpacing = style()->spacingVertical();
+            rowHeight = qMax(rowHeight - vSpacing, buttonSize.height()) + vSpacing;
+
+            // Only one stretching item per row.
+            if (stretchesHorizontally && !rowIter->stretchButton) {
+                rowIter->stretchButton = button;
+            }
+
+            rowIter->buttons.append(button);
+        }
+    } // end foreach row
+}
+
+void SingleWidgetButtonArea::buildTextLayout()
+{
+    textLayout.clearLayout();
+
+    // QTextLayout requires text content to be set before creating QTextLines.
+    QString labelContent;
+    foreach (const ButtonRow &row, rowList) {
+        foreach (const SingleWidgetButton *button, row.buttons) {
+            QString label = button->label();
+            if (!label.isEmpty()) {
+                // Add whitespace for QTextLine to be able to cut.
+                labelContent += label + " ";
+            }
+        }
+    }
+
+    QFontMetrics fm(style()->font());
+
+    textLayout.setFont(style()->font());
+    textLayout.setText(labelContent);
+
+    textLayout.beginLayout();
+
+    for (RowIterator row(rowList.begin()); row != rowList.end(); ++row) {
+        foreach (SingleWidgetButton *button, row->buttons) {
+
+            const QString &label(button->label());
+
+            // We must not create a new QTextLine if there is no label.
+            if (label.isEmpty()) {
+                continue;
+            }
+
+            QTextLine line = textLayout.createLine();
+            if (!line.isValid())
+                continue;
+
+            const int labelWidth = fm.width(label);
+            const int labelHeight = fm.height();
+
+            line.setNumColumns(1); // at least one character, will be seeked forward until next whitespace
+            line.setPosition(button->cachedBoundingRect.center() - QPoint(labelWidth / 2, labelHeight / 2));
+        }
+    }
+
+    textLayout.endLayout();
+}
+
+void SingleWidgetButtonArea::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
+{
+    // Draw images first.
+    foreach (const ButtonRow &row, rowList) {
+        foreach (const SingleWidgetButton *button, row.buttons) {
+            const DuiScalableImage *image = 0;
+            switch (button->state()) {
+            case IKeyButton::Normal:
+                image = keyBackground;
+                break;
+            case IKeyButton::Pressed:
+                image = keyBackgroundPressed;
+                break;
+            case IKeyButton::Selected:
+                image = keyBackgroundSelected;
+                break;
+            }
+
+            // Draw button background.
+            image->draw(button->cachedButtonRect, painter);
+
+            // Draw icon.
+            button->drawIcon(button->cachedButtonRect, painter);
+        }
+    }
+
+    // Draw text next.
+    textLayout.draw(painter, QPoint());
+}
+
+IKeyButton *SingleWidgetButtonArea::keyAt(const QPoint &pos) const
+{
+    const int numRows = rowList.count();
+    const int halfVSpacing = style()->spacingVertical() / 2;
+    const int translatedY = pos.y() + halfVSpacing;
+
+    if (numRows == 0 || translatedY < 0) {
+        return 0;
+    }
+
+    const int rowIndex = (numRows > 1) ? (translatedY / rowHeight) : 0;
+
+    if (rowIndex >= numRows) {
+        return 0;
+    }
+
+    const ButtonRow &row(rowList[rowIndex]);
+
+    if (pos.x() < row.offset || row.buttons.isEmpty()) {
+        return 0;
+    }
+
+    if (equalWidthButtons) {
+        const int column = (pos.x() - row.offset) / (row.buttons.first()->width + style()->spacingHorizontal());
+        if (column < row.buttons.count()) {
+            return row.buttons.at(column);
+        }
+    } else {
+        // Buttons not equally spaced, we have to walk through them.
+        int x = row.offset;
+        QList<SingleWidgetButton*>::const_iterator buttonIter(row.buttons.begin());
+        for (; buttonIter != row.buttons.end(); ++buttonIter) {
+
+            x += (*buttonIter)->width + style()->spacingHorizontal();
+            if (pos.x() < x) {
+                return (*buttonIter);
+            }
+        }
+    }
+
+    return 0;
+}
+
+void SingleWidgetButtonArea::modifiersChanged(const bool shift, const QChar accent)
+{
+    for (RowIterator row(rowList.begin()); row != rowList.end(); ++row) {
+        foreach (SingleWidgetButton *button, row->buttons) {
+            button->setModifiers(shift, accent);
+        }
+    }
+
+    buildTextLayout();
+}
+
+void SingleWidgetButtonArea::updateButtonGeometries(const int availableWidth, const int equalButtonWidth)
+{
+    if (sectionModel()->maxColumns() == 0) {
+        return;
+    }
+
+    this->equalWidthButtons = (equalButtonWidth >= 0);
+
+    const int HorizontalSpacing = style()->spacingHorizontal();
+    const int VerticalSpacing = style()->spacingVertical();
+    const Qt::Alignment alignment = sectionModel()->horizontalAlignment();
+
+    // This is used to update the button rectangles
+    int y = 0;
+
+    // Button margins
+    const int leftMargin = HorizontalSpacing / 2;
+    const int rightMargin = HorizontalSpacing - leftMargin;
+    const int topMargin = VerticalSpacing / 2;
+    const int bottomMargin = VerticalSpacing - topMargin;
+
+    QRect br; // button bounding rectangle
+    br.setHeight(rowHeight); // Constant height
+
+    for (RowIterator row(rowList.begin()); row != rowList.end(); ++row) {
+
+        // Update row width
+        int rowWidth = 0;
+        foreach (SingleWidgetButton *button, row->buttons) {
+
+            // Restrict button width.
+            if (equalWidthButtons) {
+                button->width = equalButtonWidth;
+            }
+
+            rowWidth += button->width + HorizontalSpacing;
+        }
+        rowWidth -= HorizontalSpacing;
+
+        // If row has a stretching button all width is used.
+        if (row->stretchButton) {
+            rowWidth -= row->stretchButton->width; // this was already added, we recalculate it. leave spacings though
+            row->stretchButton->width = qMax(0, availableWidth - rowWidth);
+            rowWidth = availableWidth;
+        }
+
+        // Save row width for easier use.
+        row->cachedWidth = rowWidth + HorizontalSpacing;
+
+        // Width is calculated, we can now set row offset according to alignment.
+        if (alignment & Qt::AlignRight) {
+            row->offset = (availableWidth - rowWidth);
+        } else if (alignment & Qt::AlignCenter) {
+            row->offset = (availableWidth - rowWidth) / 2;
+        } else {
+            row->offset = 0;
+        }
+        row->offset -= HorizontalSpacing / 2;
+
+        // Row offset is ready. We can precalculate button rectangles.
+        br.moveTop(y - topMargin);
+        int x = row->offset;
+        foreach (SingleWidgetButton *button, row->buttons) {
+            br.moveLeft(x);
+            br.setWidth(button->width + HorizontalSpacing);
+
+            // save it
+            button->cachedBoundingRect = br;
+            button->cachedButtonRect = br.adjusted(leftMargin, topMargin, -rightMargin, -bottomMargin);
+
+            // Increase x to the next button bounding rect border.
+            x += button->width + HorizontalSpacing;
+        }
+        y += rowHeight;
+    }
+
+    // Positions may have changed, rebuild text layout.
+    buildTextLayout();
+}
+
+QRectF SingleWidgetButtonArea::boundingRect() const
+{
+    // Extend the bounding rectangle to all directions by the amount of spacing.
+    return QRectF(-QPoint(style()->spacingHorizontal() / 2, style()->spacingVertical() / 2),
+                  size() + QSizeF(style()->spacingHorizontal(), style()->spacingVertical()));
+}
+
+
+

@@ -1,0 +1,39 @@
+<!ELEMENT keyboard (layout | import)*>
+<!ELEMENT import EMPTY>
+<!ELEMENT layout (section+)>
+<!ELEMENT section (row+)>
+<!ELEMENT row (key*)>
+<!ELEMENT key (binding+)>
+<!ELEMENT binding EMPTY>
+
+<!ATTLIST keyboard
+  version CDATA "1.0"
+  title CDATA #IMPLIED
+  language CDATA #IMPLIED
+  catalog CDATA #IMPLIED>
+
+<!ATTLIST import
+  file CDATA #REQUIRED>
+
+<!ATTLIST layout
+  type (general | url | email | number | phonenumber | common) "general"
+  orientation (landscape | portrait) "landscape">
+
+<!ATTLIST section
+  id CDATA #REQUIRED
+  movable (true | false) "true"
+  type (sloppy | non-sloppy) "sloppy"
+  vertical_alignment (center | full | top | bottom) #REQUIRED
+  horizontal_alignment (center | full | left | right) #REQUIRED>
+
+<!ATTLIST binding
+  action (insert | shift | backspace | space | cycle | layout_menu | sym
+          | return | decimal_separator | plus_minus_toggle) "insert"
+  shift (true|false) "false"
+  alt (true|false) "false"
+  label CDATA #IMPLIED
+  secondary_label CDATA #IMPLIED
+  accents CDATA #IMPLIED
+  accented_labels CDATA #IMPLIED
+  cycleset CDATA #IMPLIED
+  dead (true | false) "false">

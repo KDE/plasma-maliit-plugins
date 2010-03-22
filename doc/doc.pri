@@ -1,0 +1,27 @@
+DOXYGEN_BIN=doxygen
+
+QMAKE_EXTRA_UNIX_TARGETS += doc
+doc.target = doc
+isEmpty(DOXYGEN_BIN) {
+    doc.commands = @echo "Unable to detect doxygen in PATH"
+} else {
+  doc.commands = mkdir -p $${OUT_PWD}/doc/html/ ;
+  doc.commands+= ( cat $${IN_PWD}/duidoxy.cfg.in | \
+      perl -pe \"s:\@DUI_SRC_DIR\@:$${IN_PWD}:\" > $${OUT_PWD}/doc/duidoxy.cfg );
+
+  doc.commands+= ( cd doc ; $${DOXYGEN_BIN} duidoxy.cfg );
+  doc.commands+= cp $${IN_PWD}/src/images/* $${OUT_PWD}/doc/html ;
+  doc.commands+= ( cd doc ; $${IN_PWD}/xmlize.pl );
+
+  # Install rules
+  htmldocs.files = $${OUT_PWD}/doc/html
+
+  htmldocs.path = /usr/share/doc/dui-im-framework
+  htmldocs.CONFIG += no_check_exist
+  INSTALLS += htmldocs
+
+  # TODO: how to remove the html directory?
+  QMAKE_CLEAN += $${OUT_PWD}/doc/duidoxy.cfg $${OUT_PWD}/doc/doxygen.log $${OUT_PWD}/doc/doxygen.log.xml
+}
+
+doc.depends = FORCE
