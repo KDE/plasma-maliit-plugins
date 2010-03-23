@@ -45,10 +45,6 @@ public:
 
     DUI_STYLE_ATTRIBUTE(QSize, menuSize, MenuSize)
 
-    DUI_STYLE_ATTRIBUTE(QColor, candidateHighlightColor, CandidateHighlightColor)
-    DUI_STYLE_ATTRIBUTE(qreal, candidateHighlightOpacity, CandidateHighlightOpacity)
-    DUI_STYLE_ATTRIBUTE(QString, candidateBackground, CandidateBackground)
-
     DUI_STYLE_ATTRIBUTE(QFont, notificationFont, NotificationFont)
     DUI_STYLE_ATTRIBUTE(QColor, notificationBorderColor, NotificationBorderColor)
     DUI_STYLE_ATTRIBUTE(QColor, notificationBackgroundColor, NotificationBackgroundColor)

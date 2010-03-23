@@ -19,13 +19,14 @@
 #ifndef DUIIMCORRECTIONCANDIDATEWIDGET_H
 #define DUIIMCORRECTIONCANDIDATEWIDGET_H
 
+#include <QModelIndex>
 #include <DuiWidget>
 
-class QFontMetrics;
-class QFont;
-
-class DuiVirtualKeyboardStyleContainer;
 class DuiSceneManager;
+class DuiList;
+class DuiImCorrectionContentItemCreator;
+class QStringListModel;
+class QFontMetrics;
 
 /*!
   \class DuiImCorrectionCandidateWidget
@@ -41,8 +42,7 @@ public:
     /*! Constructor
      *
      */
-    DuiImCorrectionCandidateWidget(DuiVirtualKeyboardStyleContainer *,
-                                   QGraphicsWidget *parent = 0);
+    explicit DuiImCorrectionCandidateWidget(QGraphicsWidget *parent = 0);
 
     /*! Destructor
      *
@@ -55,10 +55,6 @@ public:
     void setCandidates(QStringList candidate);
 
     virtual void showWidget();
-
-    /*! \reimp */
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *);
-    /* \reimp_end */
 
     /*! \brief Sets the position of candidate list. The list cannot be outside screen.
      *
@@ -77,15 +73,11 @@ public:
      */
     void setPosition(const QRect &preeditRect, int bottomLimit = -1);
 
-    /*! Sets the activeWordIndex
+    /*! Returns the index of preedit string in the candidate list.
      */
-    void setActiveIndex(int index);
+    int activeIndex() const;
 
-    /*! Returns the activeWordIndex
-     */
-    int activeIndex();
-
-    /*! Sets the preedit String
+    /*! Sets the preedit string
      */
     void setPreeditString(const QString &);
 
@@ -136,32 +128,20 @@ protected:
     virtual void hideEvent(QHideEvent *event);
     /*! \reimp_end */
 
+protected slots:
+    void select(const QModelIndex &);
+
 private:
-    /*! \Update the width and height of the candidate list
-     */
-    void updateSize();
-
-    //! Get attributes from CSS file
-    void getStyleValues();
-
-    //! Getter for style container
-    DuiVirtualKeyboardStyleContainer &style();
-
     bool rotationInProgress;
-    int activeWordIndex;
-    int width;
-    int height;
-    int row;
-    QColor candidateHighlightColor;
-    QStringList m_candidates; // prefix to avoid name collision with method
     QString m_preeditString;
-    const QPixmap *background;
-    QPoint *pos;
-    DuiVirtualKeyboardStyleContainer *styleContainer;
-    QFontMetrics *fm;
-    QColor fontColor;
-    QFont font;
+    QPoint candidatePosition;
+    QFontMetrics *fontMetrics;
     DuiSceneManager *sceneManager;
+    DuiWidget *containerWidget;
+    DuiList *candidatesWidget;
+    DuiImCorrectionContentItemCreator *cellCreator;
+    QStringListModel *candidatesModel;
+    int candidateWidth;
 
     Q_DISABLE_COPY(DuiImCorrectionCandidateWidget)
 };

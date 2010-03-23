@@ -17,166 +17,230 @@
 
 
 #include "duiimcorrectioncandidatewidget.h"
-#include "duivirtualkeyboardstyle.h"
 
 #include <QGraphicsSceneMouseEvent>
-#include <QFontMetrics>
-#include <QFont>
 #include <QDebug>
 #include <QString>
+#include <QFontMetrics>
 
-#include <DuiTheme>
 #include <DuiSceneManager>
 #include <duireactionmap.h>
 #include <duiplainwindow.h>
+#include <DuiContentItem>
+#include <DuiWidgetRecycler>
+#include <DuiList>
+#include <DuiLabel>
+#include <QGraphicsLinearLayout>
+#include <QStringListModel>
 
 namespace
 {
-    const int Margin = 10;
-    const int CandidateMargin = 10; // Margin between two candidates
     const int ZValue = 10;
     const int CandidatesPreeditMargin = 10; // Margin between pre-edit rectangle and candidates
+    const int MaximumCandidateLength = 100; // Maximum length of a candidate.
+    const QString CandidatesListObjectName("CorrectionCandidateList");
+    const QString CandidatesItemObjectName("CorrectionCandidateItem");
+    const QString CandidatesItemLabelObjectName("CorrectionCandidateItemTitle");
 };
 
-
-DuiImCorrectionCandidateWidget::DuiImCorrectionCandidateWidget(DuiVirtualKeyboardStyleContainer *style,
-        QGraphicsWidget *parent) :
-    DuiWidget(parent),
-    rotationInProgress(false),
-    activeWordIndex(0),
-    width(0),
-    height(0),
-    row(-1),
-    background(0),
-    pos(new QPoint(0, 0)),
-    styleContainer(style),
-    fm(0),
-    sceneManager(DuiPlainWindow::instance()->sceneManager())
+class DuiImCorrectionContentItemCreator : public DuiAbstractCellCreator<DuiContentItem>
 {
-    getStyleValues();
+public:
+    DuiImCorrectionContentItemCreator();
+    /*! \reimp */
+    virtual DuiWidget *createCell(const QModelIndex &index, DuiWidgetRecycler &recycler) const;
+    virtual void updateCell(const QModelIndex &index, DuiWidget *cell) const;
+    virtual QSizeF cellSize() const;
+    /*! \reimp_end */
+private:
+    void updateContentItemMode(const QModelIndex &index, DuiContentItem *contentItem) const;
+
+    QSizeF size;
+};
+
+DuiImCorrectionContentItemCreator::DuiImCorrectionContentItemCreator()
+{
+    // Initializes size
+    DuiContentItem cell(DuiContentItem::SingleTextLabel);
+    cell.setObjectName(CandidatesItemObjectName);
+    size = cell.effectiveSizeHint(Qt::PreferredSize);
+}
+
+DuiWidget *DuiImCorrectionContentItemCreator::createCell(const QModelIndex &index, DuiWidgetRecycler &recycler) const
+{
+    DuiWidget *cell = recycler.take(DuiContentItem::staticMetaObject.className());
+    if (cell == NULL) {
+        cell = new DuiContentItem(DuiContentItem::SingleTextLabel);
+        cell->setObjectName(CandidatesItemObjectName);
+    }
+    updateCell(index, cell);
+    return cell;
+}
+
+void DuiImCorrectionContentItemCreator::updateCell(const QModelIndex &index, DuiWidget *cell) const
+{
+    if (cell == NULL)
+        return;
+    DuiContentItem *contentItem = qobject_cast<DuiContentItem *>(cell);
+    const QVariant data = index.data(Qt::DisplayRole);
+    const QStringList rowData = data.value<QStringList>();
+    if (rowData.size() > 0) {
+        // Restrict the candidate length to MaximumCandidateLength characters.
+        contentItem->setTitle(rowData[0].left(MaximumCandidateLength));
+    }
+    updateContentItemMode(index, contentItem);
+}
+
+QSizeF DuiImCorrectionContentItemCreator::cellSize() const
+{
+    return size;
+}
+
+void DuiImCorrectionContentItemCreator::updateContentItemMode(const QModelIndex &index,
+        DuiContentItem *contentItem) const
+{
+    const int row = index.row();
+    bool thereIsNextRow = index.sibling(row + 1, 0).isValid();
+    if (row == 0) {
+        contentItem->setItemMode(DuiContentItem::SingleColumnTop);
+    } else if (thereIsNextRow) {
+        contentItem->setItemMode(DuiContentItem::SingleColumnCenter);
+    } else {
+        contentItem->setItemMode(DuiContentItem::SingleColumnBottom);
+    }
+}
+
+DuiImCorrectionCandidateWidget::DuiImCorrectionCandidateWidget(QGraphicsWidget *parent)
+    : DuiWidget(parent),
+      rotationInProgress(false),
+      candidatePosition(0, 0),
+      fontMetrics(0),
+      sceneManager(DuiPlainWindow::instance()->sceneManager()),
+      containerWidget(new DuiWidget(this)),
+      candidatesWidget(new DuiList(containerWidget)),
+      cellCreator(new DuiImCorrectionContentItemCreator),
+      candidatesModel(new QStringListModel()),
+      candidateWidth(0)
+{
     setGeometry(0, 0, sceneManager->visibleSceneSize().width(),
                 sceneManager->visibleSceneSize().height());
 
     // The z-value should always be more than vkb and text widget's z-value
     setZValue(ZValue);
+
+    QGraphicsLinearLayout *layout = new QGraphicsLinearLayout;
+    containerWidget->setLayout(layout);
+    candidatesWidget = new DuiList(containerWidget);
+
+    layout->addItem(candidatesWidget);
+    candidatesWidget->setObjectName(CandidatesListObjectName);
+    candidatesWidget->setCellCreator(cellCreator);
+    candidatesWidget->setItemModel(candidatesModel);
+    connect(candidatesWidget, SIGNAL(itemClicked(const QModelIndex &)), this, SLOT(select(const QModelIndex &)));
+
+    //TODO: This is a hack way to get font information from DuiList.
+    //Could be refined later if DuiList provides other better way.
+    DuiLabel label;
+    label.setObjectName(CandidatesItemLabelObjectName);
+    fontMetrics  = new QFontMetrics(label.font());
 }
 
 
 DuiImCorrectionCandidateWidget::~DuiImCorrectionCandidateWidget()
 {
-    delete fm;
-    fm = 0;
-    delete pos;
-    pos = 0;
-    DuiTheme::releasePixmap(background);
+    delete fontMetrics;
+    fontMetrics = 0;
+    delete candidatesModel;
 }
-
 
 void DuiImCorrectionCandidateWidget::setCandidates(const QStringList candidateList)
 {
-    qDebug() << __PRETTY_FUNCTION__ ;
-    m_candidates.clear();
-    m_candidates = candidateList;
-
-    if (m_candidates.size() > 1) {
-        QString string(m_candidates.at(m_candidates.size() - 1));
-
-        if (string.compare(m_preeditString) == 0) {
-            activeWordIndex = m_candidates.size() - 1;
-            m_preeditString.clear();
+    // Filter the preedit from the candidate list.
+    QStringList filteredCandidateList = candidateList;
+    for (int i = 0; i < filteredCandidateList.size(); i++) {
+        if (m_preeditString.compare(filteredCandidateList.at(i), Qt::CaseInsensitive) == 0) {
+            filteredCandidateList.removeAt(i);
+            break;
         }
     }
-    updateSize();
-    update();
-}
 
+    // Below is the QT way to update model size
+    if (candidatesModel->rowCount() > 0)
+        candidatesModel->removeRows(0, candidatesModel->rowCount());
+    candidatesModel->insertRows(0, filteredCandidateList.size());
+    candidatesModel->setStringList(filteredCandidateList);
+
+    // Calculate the width for DuiConentItem dynamically.
+    // To ensure the whole words in candidate list could be shown.
+    candidateWidth = 0;
+    foreach (const QString &candidate, filteredCandidateList) {
+        candidateWidth = qMax(candidateWidth, fontMetrics->width(candidate));
+    }
+    candidateWidth += candidatesWidget->preferredWidth();
+}
 
 void DuiImCorrectionCandidateWidget::setPreeditString(const QString &string)
 {
     m_preeditString = string;
 }
 
-
 QPoint DuiImCorrectionCandidateWidget::position() const
 {
-    return *pos;
+    return candidatePosition;
 }
-
 
 QStringList DuiImCorrectionCandidateWidget::candidates() const
 {
-    return m_candidates;
+    return candidatesModel->stringList();
 }
-
 
 QString DuiImCorrectionCandidateWidget::preeditString() const
 {
     return m_preeditString;
 }
 
-
-void DuiImCorrectionCandidateWidget::setActiveIndex(int index)
-{
-    activeWordIndex = index;
-}
-
-
-void DuiImCorrectionCandidateWidget::updateSize()
-{
-    for (int i = 0; i < m_candidates.size(); i++) {
-        int candidateWidth = fm->width(m_candidates.at(i));
-
-        if (candidateWidth > width) {
-            width = candidateWidth;
-        }
-    }
-    height = ((m_candidates.size() - 1) * (fm->height() + CandidateMargin));
-}
-
-
 void DuiImCorrectionCandidateWidget::setPosition(const QPoint &position, int bottomLimit)
 {
+    qDebug() << __PRETTY_FUNCTION__;
     QSize sceneSize = sceneManager->visibleSceneSize();
-    int popupWidth = width + Margin;
-    int popupHeight = height + Margin;
-
+    int popupWidth = candidateWidth;
+    int popupHeight = candidatesWidget->preferredSize().height();
     if (bottomLimit < 0) {
         bottomLimit = sceneManager->visibleSceneSize().height();
     }
 
-    *pos = position;
+    candidatePosition = position;
 
     // Adjust candidates list so that it doesn't
     // overlap with scene boundary, if possible.
 
-    if (pos->x() + popupWidth > sceneSize.width())
-        pos->setX(sceneSize.width() - popupWidth);
+    if (candidatePosition.x() + popupWidth > sceneSize.width())
+        candidatePosition.setX(sceneSize.width() - popupWidth);
 
-    if (pos->y() + popupHeight > bottomLimit)
-        pos->setY(bottomLimit - popupHeight);
+    if (candidatePosition.y() + popupHeight > bottomLimit)
+        candidatePosition.setY(bottomLimit - popupHeight);
 
-    if (pos->x() < 0)
-        pos->setX(0);
-    if (pos->y() < 0)
-        pos->setY(0);
+    if (candidatePosition.x() < 0)
+        candidatePosition.setX(0);
+    if (candidatePosition.y() < 0)
+        candidatePosition.setY(0);
 
-    update();
+    containerWidget->setPos(candidatePosition.x(), candidatePosition.y());
 }
-
 
 void DuiImCorrectionCandidateWidget::setPosition(const QRect &preeditRect, const int bottomLimit)
 {
     qDebug() << "in " << __PRETTY_FUNCTION__;
 
     if (preeditRect.isNull() || !preeditRect.isValid()) {
-        *pos = QPoint(0, 0);
+        candidatePosition = QPoint(0, 0);
         return;
     }
 
     QPoint position;
     QSize sceneSize = sceneManager->visibleSceneSize();
-    int popupWidth = width + Margin;
-    int popupHeight = height;
+    int popupWidth = candidateWidth;
+    int popupHeight = candidatesWidget->preferredSize().height();
 
     // Set horizontal position
 
@@ -201,16 +265,20 @@ void DuiImCorrectionCandidateWidget::setPosition(const QRect &preeditRect, const
 
     // Set vertical position
 
-    // Vertically the list is centered at the pre-edit rectangle.
+    // Vertically the candidatesWidget is centered at the pre-edit rectangle.
     position.setY(preeditRect.y() + preeditRect.height() / 2 - popupHeight / 2);
 
     // Finally handle scene boundaries.
     setPosition(position, bottomLimit);
 }
 
-
 void DuiImCorrectionCandidateWidget::showWidget()
 {
+    // The hight of DuiList is automatically expanded.
+    // But the width of DuiList is not automatically expanded.
+    // So set the container widget's width to candidateWidth,
+    // to make DuiList have the enough width to show whole words.
+    containerWidget->setPreferredWidth(candidateWidth);
     show();
 
     // Extend overlay window to whole screen area.
@@ -218,107 +286,49 @@ void DuiImCorrectionCandidateWidget::showWidget()
     emit opened();
 }
 
-
-void DuiImCorrectionCandidateWidget::paint(QPainter *painter,
-        const QStyleOptionGraphicsItem *option,
-        QWidget *widget)
-{
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
-
-    if (m_candidates.size() > 1) {
-
-        QRectF areaRect(pos->x(), pos->y(), width + Margin, height + Margin);
-
-        if (background)
-            painter->drawPixmap(areaRect, *background, background->rect());
-
-        painter->setFont(font);
-
-        painter->setPen(fontColor);
-        int y = pos->y() + fm->height();
-
-        for (int i = 0; i < m_candidates.size(); i++) {
-            if (i == row) {
-                painter->fillRect(pos->x(),
-                                  (pos->y() + Margin + row *(fm->height() + CandidateMargin)),
-                                  width + Margin, fm->height(), QBrush(candidateHighlightColor));
-            }
-
-            if (i != activeWordIndex) {
-                painter->drawText(pos->x() + Margin / 2, y, m_candidates.at(i));
-                y += fm->height() + CandidateMargin;
-            }
-        }
-    }
-}
-
-
 void DuiImCorrectionCandidateWidget::mousePressEvent(QGraphicsSceneMouseEvent *e)
 {
-    if ((e->pos().x() > pos->x())  &&
-            (e->pos().x() < (pos->x() + width + Margin)) &&
-            (e->pos().y() < (pos->y() + height + Margin)) &&
-            (e->pos().y() > pos->y())) {
-
-        row = (e->pos().y() - pos->y()) / (fm->height() + CandidateMargin);
-
-        if (row >= m_candidates.size() - 1)
-            row = m_candidates.size() - 2;
-
-        update();
-    }
+    Q_UNUSED(e);
 }
-
 
 void DuiImCorrectionCandidateWidget::mouseReleaseEvent(QGraphicsSceneMouseEvent *e)
 {
-    if ((e->pos().x() > pos->x()) &&
-            (e->pos().x() < (pos->x() + width + Margin)) &&
-            (e->pos().y() < (pos->y() + height + Margin)) &&
-            (e->pos().y() > pos->y())) {
-
-        row = (e->pos().y() - pos->y()) / (fm->height() + CandidateMargin);
-
-        if (row >= m_candidates.size() - 1)
-            row = m_candidates.size() - 2;
-
-        QString candidate;
-
-        if (row >= 0 && row < m_candidates.size() - 1) {
-            if (row < activeWordIndex) {
-                candidate = m_candidates.at(row);
-                activeWordIndex = row;
-            } else {
-                candidate = m_candidates.at(row + 1);
-                activeWordIndex = row + 1;
-            }
-        } else
-            candidate.clear();
-
-        emit candidateClicked(candidate);
-    }
-
+    Q_UNUSED(e);
     hide();
-    width = 0;
-    return;
 }
 
+void DuiImCorrectionCandidateWidget::select(const QModelIndex &index)
+{
+    if (!index.isValid())
+        return;
+    const QVariant selectedVariant = candidatesModel->data(index, Qt::DisplayRole);
+    Q_ASSERT(selectedVariant.isValid());
+    const QString candidate = selectedVariant.toString();
+    if (candidate != m_preeditString) {
+        emit candidateClicked(candidate);
+    }
+    hide();
+}
 
 void DuiImCorrectionCandidateWidget::hideEvent(QHideEvent *event)
 {
     DuiWidget::hideEvent(event);
-    row = -1;
     emit hidden();
     emit regionUpdated(QRegion());
 }
 
-
-int DuiImCorrectionCandidateWidget::activeIndex()
+int DuiImCorrectionCandidateWidget::activeIndex() const
 {
+    int activeWordIndex = -1;
+    QStringList candidateList = candidatesModel->stringList();
+    for (int i = 0; i < candidateList.size(); i++) {
+        if (m_preeditString.compare(candidateList.at(i), Qt::CaseInsensitive) == 0) {
+            activeWordIndex = i;
+            break;
+        }
+    }
     return activeWordIndex;
 }
-
 
 void DuiImCorrectionCandidateWidget::prepareToOrientationChange()
 {
@@ -327,7 +337,6 @@ void DuiImCorrectionCandidateWidget::prepareToOrientationChange()
         this->hide();
     }
 }
-
 
 void DuiImCorrectionCandidateWidget::finalizeOrientationChange()
 {
@@ -338,40 +347,11 @@ void DuiImCorrectionCandidateWidget::finalizeOrientationChange()
     }
 }
 
-
-void  DuiImCorrectionCandidateWidget::getStyleValues()
-{
-    QString name;
-
-    if (styleContainer) {
-        name = style()->candidateBackground();
-        DuiTheme::releasePixmap(background);
-        background = 0;
-        if (!name.isEmpty()) {
-            background = DuiTheme::pixmap(name);
-        }
-
-        font = style()->font();
-        delete fm;
-        fm = new QFontMetrics(font);
-        candidateHighlightColor = style()->candidateHighlightColor();
-        float candidateHighlightOpacity = style()->candidateHighlightOpacity();
-        candidateHighlightColor.setAlphaF(candidateHighlightOpacity);
-
-        fontColor = style()->fontColor();
-        float fontOpacity = style()->fontOpacity();
-        fontColor.setAlphaF(fontOpacity);
-    }
-}
-
 void DuiImCorrectionCandidateWidget::redrawReactionMaps()
 {
     if (!scene()) {
         return;
     }
-
-    int listHeight = ((m_candidates.size() - 1) * (fm->height() + CandidateMargin));
-    QRectF areaRect(pos->x(), pos->y(), width + Margin, listHeight + Margin);
 
     foreach(QGraphicsView * view, scene()->views()) {
         DuiReactionMap *reactionMap = DuiReactionMap::instance(view);
@@ -383,15 +363,9 @@ void DuiImCorrectionCandidateWidget::redrawReactionMaps()
         reactionMap->setTransform(QTransform());
         reactionMap->fillRectangle(0, 0, reactionMap->width(), reactionMap->height());
 
-        // Draw the actual candidate list area.
+        // Draw the actual candidate candidatesWidget area.
         reactionMap->setTransform(this, view);
         reactionMap->setReactiveDrawingValue();
-        reactionMap->fillRectangle(areaRect);
+        reactionMap->fillRectangle(candidatesWidget->geometry());
     }
 }
-
-DuiVirtualKeyboardStyleContainer &DuiImCorrectionCandidateWidget::style()
-{
-    return *styleContainer;
-}
-

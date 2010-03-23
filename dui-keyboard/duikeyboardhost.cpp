@@ -157,8 +157,7 @@ DuiKeyboardHost::DuiKeyboardHost(DuiInputContextConnection* icConnection, QObjec
     Q_ASSERT(ok);
 
     // construct correction candidate widget
-    correctionCandidateWidget = new DuiImCorrectionCandidateWidget(&vkbWidget->style(),
-            sceneWindow);
+    correctionCandidateWidget = new DuiImCorrectionCandidateWidget(sceneWindow);
     correctionCandidateWidget->hide();
 
     connect(correctionCandidateWidget, SIGNAL(regionUpdated(const QRegion &)),
@@ -395,7 +394,7 @@ void DuiKeyboardHost::reset()
         preedit.clear();
         correctedPreedit.clear();
         candidates.clear();
-        correctionCandidateWidget->setActiveIndex(0);
+        correctionCandidateWidget->setPreeditString("");
         imCorrectionEngine->clearEngineBuffer();
         break;
     case Hardware:
@@ -539,9 +538,11 @@ void DuiKeyboardHost::mouseClickedOnPreedit(const QPoint &mousePos, const QRect 
 
     // Use preeditRect if one was passed (not null).
     if (!preeditRect.isNull() && rotateRect(preeditRect, localRect)) {
+        correctionCandidateWidget->setPreeditString(correctedPreedit);
         correctionCandidateWidget->setCandidates(candidates);
         correctionCandidateWidget->setPosition(localRect, bottomLimit);
     } else if (rotatePoint(mousePos, localMousePos)) {
+        correctionCandidateWidget->setPreeditString(correctedPreedit);
         correctionCandidateWidget->setCandidates(candidates);
         correctionCandidateWidget->setPosition(localMousePos, bottomLimit);
     } else {
@@ -584,6 +585,7 @@ void DuiKeyboardHost::updatePreedit(const QString &updatedString)
 
     inputContextConnection()->sendPreeditString(updatedString, face);
     correctedPreedit = updatedString;
+    correctionCandidateWidget->setPreeditString(correctedPreedit);
 }
 
 
@@ -810,7 +812,7 @@ void DuiKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
         if (lastClickEvent.specialKey() != KeyEvent::CycleSet) {
             imCorrectionEngine->setSuggestedCandidateIndex(correctionCandidateWidget->activeIndex());
             imCorrectionEngine->saveAndClearEngineBuffer();
-            correctionCandidateWidget->setActiveIndex(0);
+            correctionCandidateWidget->setPreeditString("");
         } else {
             imCorrectionEngine->clearEngineBuffer();
         }
@@ -843,7 +845,7 @@ void DuiKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
                     if (candidate.size() == preedit.size()) {
                         findEqualLength = true;
                         correctedPreedit = candidate;
-                        correctionCandidateWidget->setActiveIndex(i);
+                        correctionCandidateWidget->setPreeditString(correctedPreedit);
                         break;
                     }
                 }
