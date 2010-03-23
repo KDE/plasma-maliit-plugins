@@ -14,6 +14,7 @@ STYLE_HEADERS += \
 HEADERS += \
     $$STYLE_HEADERS \
     $$WIDGETS_DIR/buttonbar.h \
+    $$WIDGETS_DIR/duiimcorrectioncandidatewindow.h \
     $$WIDGETS_DIR/duiimcorrectioncandidatewidget.h \
     $$WIDGETS_DIR/duiimtoolbar.h \
     $$WIDGETS_DIR/duivirtualkeyboard.h \
@@ -35,6 +36,7 @@ HEADERS += \
 
 SOURCES += \
     $$WIDGETS_DIR/buttonbar.cpp \
+    $$WIDGETS_DIR/duiimcorrectioncandidatewindow.cpp \
     $$WIDGETS_DIR/duiimcorrectioncandidatewidget.cpp \
     $$WIDGETS_DIR/duiimtoolbar.cpp \
     $$WIDGETS_DIR/duivirtualkeyboard.cpp \

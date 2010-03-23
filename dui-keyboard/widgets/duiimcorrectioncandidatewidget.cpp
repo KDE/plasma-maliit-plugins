@@ -274,7 +274,7 @@ void DuiImCorrectionCandidateWidget::setPosition(const QRect &preeditRect, const
 
 void DuiImCorrectionCandidateWidget::showWidget()
 {
-    // The hight of DuiList is automatically expanded.
+    // The height of DuiList is automatically expanded.
     // But the width of DuiList is not automatically expanded.
     // So set the container widget's width to candidateWidth,
     // to make DuiList have the enough width to show whole words.

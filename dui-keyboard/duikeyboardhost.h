@@ -36,6 +36,7 @@ class DuiVirtualKeyboard;
 class DuiHardwareKeyboard;
 class LayoutMenu;
 class SymbolView;
+class QWidget;
 
 //! Logic class for virtual keyboard
 class DuiKeyboardHost: public DuiInputMethodBase
@@ -157,6 +158,8 @@ private slots:
     void showSymbolView();
 
 private:
+    void createCorrectionCandidateWidget();
+
     //! Rotates coodinates from screen to window
     bool rotatePoint(const QPoint &screen, QPoint &window);
     bool rotateRect(const QRect &screenRect, QRect &windowRect);
@@ -248,6 +251,10 @@ private:
     unsigned int multitapIndex;
 
     DuiSceneWindow *sceneWindow;
+#ifdef DUI_IM_DISABLE_TRANSLUCENCY
+    QWidget *correctionWindow;
+    DuiSceneWindow *correctionSceneWindow;
+#endif
 
     //! Regions of widgets created by DuiKeyboardHost
     RegionMap widgetRegions;

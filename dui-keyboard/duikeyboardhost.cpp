@@ -19,6 +19,9 @@
 #include "duikeyboardhost.h"
 #include "duivirtualkeyboard.h"
 #include "duihardwarekeyboard.h"
+#ifdef DUI_IM_DISABLE_TRANSLUCENCY
+#include "duiimcorrectioncandidatewindow.h"
+#endif
 #include "duiimcorrectioncandidatewidget.h"
 #include "keyboarddata.h"
 #include "layoutmenu.h"
@@ -156,15 +159,7 @@ DuiKeyboardHost::DuiKeyboardHost(DuiInputContextConnection* icConnection, QObjec
     Q_UNUSED(ok); // if Q_NO_DEBUG is defined then the assert won't be used
     Q_ASSERT(ok);
 
-    // construct correction candidate widget
-    correctionCandidateWidget = new DuiImCorrectionCandidateWidget(sceneWindow);
-    correctionCandidateWidget->hide();
-
-    connect(correctionCandidateWidget, SIGNAL(regionUpdated(const QRegion &)),
-            this, SLOT(handleRegionUpdate(const QRegion &)));
-
-    connect(correctionCandidateWidget, SIGNAL(candidateClicked(const QString &)),
-            this, SLOT(updatePreedit(const QString &)));
+    createCorrectionCandidateWidget();
 
     // Ideally we would adjust the hiding/showing animation of vkb according to
     // animation of the application receiving input. For example, with 3-phase
@@ -264,6 +259,12 @@ DuiKeyboardHost::~DuiKeyboardHost()
     correctionCandidateWidget = 0;
     delete sceneWindow;
     sceneWindow = 0;
+#ifdef DUI_IM_DISABLE_TRANSLUCENCY
+    delete correctionSceneWindow;
+    correctionSceneWindow = 0;
+    delete correctionWindow;
+    correctionWindow = 0;
+#endif
     delete inputMethodCorrectionSettings;
     inputMethodCorrectionSettings = 0;
     //TODO imCorrectionEngine is not deleted. memory loss
@@ -272,6 +273,46 @@ DuiKeyboardHost::~DuiKeyboardHost()
     LayoutsManager::destroyInstance();
 }
 
+void DuiKeyboardHost::createCorrectionCandidateWidget()
+{
+#ifdef DUI_IM_DISABLE_TRANSLUCENCY
+    // Use a separate translucent window for correction candidate widget
+    correctionWindow = new DuiImCorrectionCandidateWindow();
+    DuiWindow *correctionView = new DuiWindow(new DuiSceneManager, correctionWindow);
+    // Enable translucent in hardware rendering
+    correctionView->setTranslucentBackground(!DuiApplication::softwareRendering());
+
+    // No auto fill in software rendering
+    if (DuiApplication::softwareRendering())
+        correctionView->viewport()->setAutoFillBackground(false);
+    QSize sceneSize = correctionView->visibleSceneSize(Dui::Landscape);
+    int w = correctionView->visibleSceneSize().width();
+    int h = correctionView->visibleSceneSize().height();
+    correctionView->scene()->setSceneRect(0, 0, w, h);
+    correctionWindow->resize(sceneSize);
+    correctionView->setMinimumSize(1, 1);
+    correctionView->setMaximumSize(w, h);
+
+    correctionSceneWindow = new DuiSceneWindow;
+    correctionSceneWindow->setManagedManually(true); // we want the scene window to remain in origin
+    correctionView->sceneManager()->showWindowNow(correctionSceneWindow);
+
+    // construct correction candidate widget
+    correctionCandidateWidget = new DuiImCorrectionCandidateWidget(correctionSceneWindow);
+    correctionCandidateWidget->hide();
+    connect(correctionCandidateWidget, SIGNAL(regionUpdated(const QRegion &)),
+            correctionWindow, SLOT(handleRegionUpdate(const QRegion &)));
+#else
+    // construct correction candidate widget
+    correctionCandidateWidget = new DuiImCorrectionCandidateWidget(sceneWindow);
+    correctionCandidateWidget->hide();
+
+    connect(correctionCandidateWidget, SIGNAL(regionUpdated(const QRegion &)),
+            this, SLOT(handleRegionUpdate(const QRegion &)));
+#endif
+    connect(correctionCandidateWidget, SIGNAL(candidateClicked(const QString &)),
+            this, SLOT(updatePreedit(const QString &)));
+}
 
 void DuiKeyboardHost::show()
 {
