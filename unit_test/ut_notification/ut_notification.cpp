@@ -65,7 +65,7 @@ void Ut_Notification::initTestCase()
 
     QString cssFile("./test.css");
     if (!QFile::exists(cssFile)) {
-        cssFile = "/usr/share/dui-im-virtualkeyboard-tests/ut_notification/test.css";
+        cssFile = "/usr/share/dui-keyboard-tests/ut_notification/test.css";
         QVERIFY(QFile::exists(cssFile));
     }
     QVERIFY(DuiTheme::instance()->loadCSS(cssFile));

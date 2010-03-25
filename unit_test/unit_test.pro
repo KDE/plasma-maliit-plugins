@@ -22,7 +22,7 @@ SUBDIRS = \
           ut_hwkbcharloopsmanager \
 
 target.commands += $$system(touch tests.xml)
-target.path = /usr/share/dui-im-virtualkeyboard-tests
+target.path = /usr/share/dui-keyboard-tests
 target.files += qtestlib2junitxml.xsl runtests.sh tests.xml
 INSTALLS += target
 

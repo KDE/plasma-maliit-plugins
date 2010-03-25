@@ -8,7 +8,7 @@ SUBDIRS = dui-keyboard \
 include (doc/doc.pri)
 
 #error-correction 
-GCONF_DATA = dui-im-virtualkeyboard.schemas
+GCONF_DATA = dui-keyboard.schemas
 gconf_data.path = /usr/share/gconf/schemas
 gconf_data.files = $$GCONF_DATA
 

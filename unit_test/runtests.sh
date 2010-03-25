@@ -55,8 +55,8 @@ case "$TESTCONTEXT" in
 	;;
 	*)
 		# tests are run automated on TATAM infrastructure
-		TMPDIR=/tmp/dui-im-virtualkeyboard-tests
-		TESTBASE=/usr/share/dui-im-virtualkeyboard-tests/
+		TMPDIR=/tmp/dui-keyboard-tests
+		TESTBASE=/usr/share/dui-keyboard-tests/
 		rm -fr $TMPDIR && mkdir -p $TMPDIR
 		OUTSTYLE="xml"
 	;;

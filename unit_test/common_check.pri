@@ -10,7 +10,7 @@ check-xml.depends += $$TARGET
 
 QMAKE_CLEAN += *.log *.xml *~
 
-target.path = /usr/lib/dui-im-virtualkeyboard-tests/$$TARGET
+target.path = /usr/lib/dui-keyboard-tests/$$TARGET
 INSTALLS += target
 
 QMAKE_CXXFLAGS += -Werror
