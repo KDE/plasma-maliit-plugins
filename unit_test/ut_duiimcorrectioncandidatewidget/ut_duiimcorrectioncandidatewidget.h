@@ -24,8 +24,6 @@
 #include <QtTest/QTest>
 #include <QObject>
 
-class DuiVirtualKeyboardStyleContainer;
-
 class Ut_DuiImCorrectionCandidateWidget : public QObject
 {
     Q_OBJECT
@@ -33,7 +31,6 @@ class Ut_DuiImCorrectionCandidateWidget : public QObject
 private:
     DuiApplication *app;
     DuiImCorrectionCandidateWidget *m_subject;
-    DuiVirtualKeyboardStyleContainer *style;
 
 private slots:
     //! initialize application and class
@@ -41,14 +38,16 @@ private slots:
     void init();
     void cleanup();
     void cleanupTestCase();
-    //void checkCandidates();
     void checkPositionByPoint_data();
     void checkPositionByPoint();
     void checkPositionByPreeditRect();
     void checkActiveIndex();
     void checkPreeditString();
-    void setCandidatesAndClick();
-    void paint();
+    void setCandidatesAndSelect();
+    void checkShowWidget();
+
+private:
+    QSize testCandidateWidgetSize;
 };
 
 #endif
