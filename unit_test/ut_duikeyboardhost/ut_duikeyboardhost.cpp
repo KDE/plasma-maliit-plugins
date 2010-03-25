@@ -42,6 +42,7 @@
 namespace
 {
     const QString InputMethodCorrectionSetting("/Dui/InputMethods/CorrectionEnabled");
+    const QString InputMethodCorrectionEngine("/Dui/InputMethods/CorrectionEngine");
     bool gAccurateMode = false;
     int gSetKeyboardStateCallCount = 0;
     DuiIMHandlerState gSetKeyboardStateParam = OnScreen;
@@ -138,6 +139,10 @@ void Ut_DuiKeyboardHost::cleanupTestCase()
 
 void Ut_DuiKeyboardHost::init()
 {
+    // Uses dummy driver
+    DuiGConfItem engineConfig(InputMethodCorrectionEngine);
+    engineConfig.set(QVariant(QString("dummyimdriver")));
+
     subject = new DuiKeyboardHost(inputContext, 0);
     inputContext->clear();
 

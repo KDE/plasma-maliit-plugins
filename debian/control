@@ -27,7 +27,7 @@ Description: DirectUI Input Method Keyboard header files
 
 Package: dui-keyboard-tests
 Architecture: any
-Depends:  testrunner, dui-keyboard (= ${binary:Version}), ${misc:Depends}, ${shlibs:Depends}
+Depends:  testrunner, libduiimengine-dummydriver, dui-keyboard (= ${binary:Version}), ${misc:Depends}, ${shlibs:Depends}
 XB-Maemo-CI-Packages: dui-keyboard 
 XB-Maemo-CI-Stage: fast, staging
 Description: DirectUI Input Method Keyboard unit test suite 
