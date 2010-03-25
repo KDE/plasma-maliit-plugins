@@ -146,9 +146,6 @@ DuiKeyboardHost::DuiKeyboardHost(DuiInputContextConnection* icConnection, QObjec
     connect(hardwareKeyboard, SIGNAL(symbolKeyClicked()),
             this, SLOT(handleSymbolKeyClick()));
 
-    connect(hardwareKeyboard, SIGNAL(modifierStateChanged(Qt::KeyboardModifier, ModifierState)),
-            vkbWidget, SLOT(setIndicatorButtonState(Qt::KeyboardModifier, ModifierState)));
-
     //TODO: handle signal symbolCharacterKeyClicked() from hardwareKeyboard.
 
     connect(vkbWidget, SIGNAL(indicatorClicked()),
@@ -1113,9 +1110,15 @@ void DuiKeyboardHost::setState(const QList<DuiIMHandlerState> &state)
     if (activeState == OnScreen) {
         symbolView->setLanguage(vkbWidget->selectedLanguage());
         symbolView->showFunctionRow();
+        disconnect(hardwareKeyboard, SIGNAL(modifierStateChanged(Qt::KeyboardModifier, ModifierState)),
+                   vkbWidget, SLOT(setIndicatorButtonState(Qt::KeyboardModifier, ModifierState)));
     } else {
         symbolView->setLanguage(LayoutsManager::instance().hardwareKeyboardLanguage());
         symbolView->hideFunctionRow();
+        if (activeState == Hardware) {
+            connect(hardwareKeyboard, SIGNAL(modifierStateChanged(Qt::KeyboardModifier, ModifierState)),
+                    vkbWidget, SLOT(setIndicatorButtonState(Qt::KeyboardModifier, ModifierState)));
+        }
     }
 
     vkbWidget->setKeyboardState(actualState);
