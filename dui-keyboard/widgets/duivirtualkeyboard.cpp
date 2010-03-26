@@ -370,12 +370,6 @@ void DuiVirtualKeyboard::hideKeyboard(bool fadeOnly, bool temporary)
             showHideTimeline.start();
         }
 
-        // Assuming here we don't want to reset vkb state if temporarily hiding.
-        // For example, don't reset state when hiding for screen rotation.
-        if (!temporary) {
-            resetState();
-        }
-
         activity = temporary ? TemporarilyInactive : Inactive;
     }
 }
@@ -456,6 +450,12 @@ DuiVirtualKeyboard::showHideFinished()
     const bool hiding = (showHideTimeline.direction() == QTimeLine::Backward);
 
     if (hiding) {
+        // Assuming here we don't want to reset vkb state if temporarily hiding.
+        // For example, don't reset state when hiding for screen rotation.
+        if (activity == Inactive) {
+            resetState();
+        }
+
         hide();
         emit hidden();
     } else {
