@@ -20,6 +20,7 @@
 
 #include "duivirtualkeyboardstyle.h"
 #include "singlewidgetbutton.h"
+#include "singlewidgetbuttonarea.h"
 #include "vkbdatakey.h"
 
 #include <DuiApplication>
@@ -27,7 +28,6 @@
 
 #include <QSignalSpy>
 #include <QDebug>
-
 
 void Ut_KeyButton::initTestCase()
 {
@@ -42,6 +42,7 @@ void Ut_KeyButton::initTestCase()
     style = new DuiVirtualKeyboardStyleContainer;
     style->initialize("DuiVirtualKeyboard", "DuiVirtualKeyboardView", 0);
 
+    parent = new QGraphicsWidget;
     dataKey = createDataKey();
 }
 
@@ -51,11 +52,12 @@ void Ut_KeyButton::cleanupTestCase()
     delete dataKey;
     delete app;
     app = 0;
+    delete parent;
 }
 
 void Ut_KeyButton::init()
 {
-    subject = new SingleWidgetButton(*dataKey, *style);
+    subject = new SingleWidgetButton(*dataKey, *style, *parent);
 }
 
 void Ut_KeyButton::cleanup()
@@ -114,7 +116,7 @@ void Ut_KeyButton::testIsDead()
     KeyBinding *binding = new KeyBinding;
     key->bindings[VKBDataKey::NoShift] = binding;
 
-    IKeyButton *subject = new SingleWidgetButton(*key, *style);
+    IKeyButton *subject = new SingleWidgetButton(*key, *style, *parent);
 
     for (int i = 0; i < 2; ++i) {
         bool isDead = (i != 0);

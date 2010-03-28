@@ -26,6 +26,8 @@ class DuiApplication;
 class IKeyButton;
 class VKBDataKey;
 class DuiVirtualKeyboardStyleContainer;
+class QGraphicsItem;
+class KeyboardData;
 
 class Ut_KeyButton: public QObject
 {
@@ -33,6 +35,7 @@ class Ut_KeyButton: public QObject
 private:
     DuiApplication *app;
     IKeyButton *subject;
+    QGraphicsItem *parent;
     VKBDataKey *dataKey;
     DuiVirtualKeyboardStyleContainer *style;
 

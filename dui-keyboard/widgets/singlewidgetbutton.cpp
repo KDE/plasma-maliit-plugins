@@ -17,6 +17,7 @@
 
 
 #include "singlewidgetbutton.h"
+#include "singlewidgetbuttonarea.h"
 #include "duivirtualkeyboardstyle.h"
 
 #include <DuiTheme>
@@ -52,6 +53,11 @@ const QString SingleWidgetButton::label() const
     return currentLabel;
 }
 
+const QString SingleWidgetButton::secondaryLabel() const
+{
+    return binding().secondaryLabel();
+}
+
 QRect SingleWidgetButton::buttonRect() const
 {
     return cachedButtonRect;
@@ -68,6 +74,7 @@ void SingleWidgetButton::setModifiers(bool shift, QChar accent)
         this->shift = shift;
         this->accent = accent;
         currentLabel = binding().accented(accent);
+
         update();
     }
 }
@@ -117,6 +124,7 @@ void SingleWidgetButton::drawIcon(const QRect &rectangle, QPainter *painter) con
 
 void SingleWidgetButton::update()
 {
+    // Invalidate this button's area.
     parentItem.update(buttonRect());
 }
 

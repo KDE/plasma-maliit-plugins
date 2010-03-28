@@ -134,7 +134,7 @@
               <binding action="shift" label=""/>
             </key>
             <key>
-              <binding action="sym" label="Sym"/>
+              <binding action="sym" label="Sym" secondary_label="áçè"/>
               <binding shift="true" action="layout_menu" label=""/>
             </key>
             <key>
@@ -166,7 +166,7 @@
               <binding action="shift" label=""/>
             </key>
             <key>
-              <binding action="sym" label="Sym"/>
+              <binding action="sym" label="Sym" secondary_label="áçè"/>
               <binding shift="true" action="layout_menu" label=""/>
             </key>
             <key>

@@ -34,6 +34,9 @@ public:
     //! \brief Returns current label. It is affected by active modifiers.
     virtual const QString label() const = 0;
 
+    //! \brief Returns the secondary label.
+    virtual const QString secondaryLabel() const = 0;
+
     //! \brief Returns the smallest rectangle that contains the button.
     virtual QRect buttonRect() const = 0;
 

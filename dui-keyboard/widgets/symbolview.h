@@ -39,6 +39,7 @@ class QGraphicsSceneMouseEvent;
 class QTimeLine;
 class KeyEvent;
 class LayoutSection;
+class SymIndicatorButton;
 
 
 /*!
@@ -248,6 +249,9 @@ private:
 
     //! Retrieves title of a symbol section from given page.
     QString pageTitle(int pageIndex) const;
+
+    //! \brief Updates the Sym button to visually indicate the current active page.
+    void updateSymIndicator();
 
 private:
     //! Current style being used.

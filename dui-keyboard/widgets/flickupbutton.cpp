@@ -150,6 +150,11 @@ const QString FlickUpButton::label() const
     return text();
 }
 
+const QString FlickUpButton::secondaryLabel() const
+{
+    return binding().secondaryLabel();
+}
+
 QRect FlickUpButton::buttonRect() const
 {
     return geometry().toRect();

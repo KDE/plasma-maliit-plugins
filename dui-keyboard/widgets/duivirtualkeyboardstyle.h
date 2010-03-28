@@ -41,6 +41,8 @@ public:
     DUI_STYLE_ATTRIBUTE(QColor, fontColor, FontColor)
     DUI_STYLE_ATTRIBUTE(qreal, fontOpacity, FontOpacity)
     DUI_STYLE_ATTRIBUTE(QFont, font, Font)
+    DUI_STYLE_ATTRIBUTE(int, labelMarginTop, LabelMarginTop)
+    DUI_STYLE_ATTRIBUTE(int, labelMarginBottom, LabelMarginBottom)
     DUI_STYLE_ATTRIBUTE(QSize, tabButtonSize, TabButtonSize)
 
     DUI_STYLE_ATTRIBUTE(QSize, menuSize, MenuSize)
@@ -65,6 +67,9 @@ public:
     DUI_STYLE_ATTRIBUTE(QString, keyBackgroundId, KeyBackgroundId)
     DUI_STYLE_ATTRIBUTE(QString, keyBackgroundPressedId, KeyBackgroundPressedId)
     DUI_STYLE_ATTRIBUTE(QString, keyBackgroundSelectedId, KeyBackgroundSelectedId)
+
+    DUI_STYLE_PTR_ATTRIBUTE(DuiScalableImage *, keyBackgroundSymIndicatorSym, KeyBackgroundSymIndicatorSym)
+    DUI_STYLE_PTR_ATTRIBUTE(DuiScalableImage *, keyBackgroundSymIndicatorAce, KeyBackgroundSymIndicatorAce)
 
     DUI_STYLE_ATTRIBUTE(QSize, keyBackspaceIconSize, KeyBackspaceIconSize)
     DUI_STYLE_ATTRIBUTE(QString, keyBackspaceIconId, KeyBackspaceIconId)

@@ -1,4 +1,5 @@
 @const MARGIN_DOUBLE:    1.2mm;
+@const MARGIN_LARGE:     0.8mm;
 @const PADDING_MEDIUM:   0.6mm;
 @const PADDING_LARGE:    1.2mm;
 
@@ -143,6 +144,9 @@ DuiVirtualKeyboardStyle {
 
 DuiVirtualKeyboardStyle.Portrait {
     keyboard-area-size: 480 280;
+    
+    label-margin-top: 2mm;
+    label-margin-bottom: 2mm;
 
     padding-left: $PADDING_MEDIUM;
     padding-right: 0.7mm;
@@ -158,10 +162,16 @@ DuiVirtualKeyboardStyle.Portrait {
     key-number-backspace-size: 15.3mm 8mm;
     key-sym-normal-size: 7.5mm 8mm;
     /* End of single widget keyboard button styling */
+
+    key-background-sym-indicator-sym: "keyboard-key-sym-selected-portrait";
+    key-background-sym-indicator-ace: "keyboard-key-ace-selected-portrait";
 }
 
 DuiVirtualKeyboardStyle.Landscape {
     keyboard-area-size: 864 280;
+    
+    label-margin-top: $MARGIN_LARGE;
+    label-margin-bottom: $MARGIN_LARGE;
 
     padding-left: $PADDING_LARGE;
     padding-right: 0.9mm;
@@ -178,6 +188,9 @@ DuiVirtualKeyboardStyle.Landscape {
     key-number-backspace-size: 12.4mm 5.6mm;
     key-sym-normal-size: 8.2mm 5.6mm;
     /* End of single widget keyboard button styling */
+
+    key-background-sym-indicator-sym: "keyboard-key-sym-selected-landscape";
+    key-background-sym-indicator-ace: "keyboard-key-ace-selected-landscape";
 }
 
 

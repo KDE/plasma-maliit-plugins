@@ -120,6 +120,11 @@ QSharedPointer<const LayoutSection> KeyButtonArea::sectionModel() const
     return section;
 }
 
+ISymIndicator *KeyButtonArea::symIndicator()
+{
+	return 0;
+}
+
 void KeyButtonArea::updatePopup(const QPoint &pointerPosition, const IKeyButton *key)
 {
     // Use prefetched key if given.

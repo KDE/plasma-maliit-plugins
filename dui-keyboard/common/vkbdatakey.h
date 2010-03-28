@@ -63,6 +63,9 @@ public:
     //! \return label in normal case (not accented)
     QString label() const;
 
+    //! \return Secondary label for the binding. Used in phone number keyboard, for example.
+    QString secondaryLabel() const;
+
     //! \return label with a given \a accent
     QString accented(QChar accent) const;
 
@@ -108,6 +111,11 @@ inline QString KeyBinding::label() const
     // TODO: get localized decimal separator from some singleton class
     // which has up-to-date localization setting information
     return keyAction == ActionDecimalSeparator ? "." : keyLabel;
+}
+
+inline QString KeyBinding::secondaryLabel() const
+{
+    return secondary_label;
 }
 
 inline  bool KeyBinding::isDead() const

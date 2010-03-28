@@ -18,6 +18,7 @@
 
 #include "fixture_virtualkeyboard.h"
 #include "singlewidgetbuttonarea.h"
+#include "singlewidgetbutton.h"
 #include "ikeybutton.h"
 
 #include <QDebug>

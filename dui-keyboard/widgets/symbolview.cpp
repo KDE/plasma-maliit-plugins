@@ -38,6 +38,8 @@
 namespace
 {
     const int DefaultAnimationDuration = 100;
+    const QString SymLabel("Sym");
+    const QString AceLabel(QString(0xE1) + QChar(0xE7) + QChar(0xE8)); // "áçè"
     const QString SymbolSectionPrefix = "symbols ";
     const QString SymbolSectionSym = SymbolSectionPrefix + "Sym";
     const int AnimationFrameCount = 20;
@@ -107,12 +109,13 @@ void SymbolView::setupLayout()
 void SymbolView::reloadContent()
 {
     // Get layout model which for current language and orientation.
-    const LayoutData *layoutData = layoutsMgr.layout(
-                                       currentLanguage, LayoutData::General, currentOrientation);
+    const LayoutData *layoutData = layoutsMgr.layout(currentLanguage, LayoutData::General, currentOrientation);
     Q_ASSERT(layoutData);
 
     loadSwitcherPages(*layoutData, activePage);
     loadFunctionRow(*layoutData);
+
+    updateSymIndicator();
 }
 
 void SymbolView::setupShowAndHide()
@@ -320,6 +323,8 @@ SymbolView::changePage(int id)
 
     selectedLayout = qobject_cast<KeyButtonArea *>(pageSwitcher->currentWidget());
     Q_ASSERT(selectedLayout);
+
+    updateSymIndicator();
 }
 
 void SymbolView::loadSwitcherPages(const LayoutData &kbLayout, const unsigned int selectPage)
@@ -452,6 +457,7 @@ void SymbolView::switchLevel(int level)
         shift = level;
 
         emit levelSwitched(shift);
+        updateSymIndicator();
     }
 }
 
@@ -596,6 +602,27 @@ QString SymbolView::pageTitle(const int pageIndex) const
     Q_ASSERT(pageSwitcher && (pageSwitcher->count() > pageIndex));
     const QString sectionName = qobject_cast<const KeyButtonArea *>(pageSwitcher->widget(pageIndex))->sectionModel()->name();
     return sectionName.mid(SymbolSectionPrefix.length());
+}
+
+void SymbolView::updateSymIndicator()
+{
+    ISymIndicator *symIndicator = functionRow->symIndicator();
+
+     if (symIndicator) {
+         if (currentLevel() == 0) {
+             QString title = pageTitle(activePage);
+
+             if (title == SymLabel) {
+                 symIndicator->activateSymIndicator();
+             } else if (title == AceLabel) {
+                 symIndicator->activateAceIndicator();
+             } else {
+                 symIndicator->deactivateIndicator();
+             }
+         } else {
+             symIndicator->deactivateIndicator();
+         }
+    }
 }
 
 QRegion SymbolView::interactiveRegion() const

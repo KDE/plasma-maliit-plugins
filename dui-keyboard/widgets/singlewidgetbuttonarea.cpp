@@ -18,7 +18,8 @@
 
 #include "duivirtualkeyboardstyle.h"
 #include "singlewidgetbuttonarea.h"
-#include "vkbdatakey.h"
+
+#include "singlewidgetbutton.h"
 #include "limitedtimer.h"
 
 #include <QDebug>
@@ -42,6 +43,9 @@ SingleWidgetButtonArea::SingleWidgetButtonArea(DuiVirtualKeyboardStyleContainer 
     : KeyButtonArea(style, sectionModel, buttonSizeScheme, usePopup, parent),
       rowHeight(0),
       rowList(sectionModel->rowCount()),
+      symState(SymIndicatorInactive),
+      symIndicatorButton(0),
+      textDirty(false),
       equalWidthButtons(false)
 {
     textLayout.setCacheEnabled(true);
@@ -53,9 +57,12 @@ SingleWidgetButtonArea::SingleWidgetButtonArea(DuiVirtualKeyboardStyleContainer 
     pixmap1 = DuiTheme::pixmap((*style)->keyBackgroundId(), mostUsedKeySize);
     pixmap2 = DuiTheme::pixmap((*style)->keyBackgroundPressedId(), mostUsedKeySize);
     pixmap3 = DuiTheme::pixmap((*style)->keyBackgroundSelectedId(), mostUsedKeySize);
-    keyBackground = new DuiScalableImage(pixmap1, 10,10,10,10);
-    keyBackgroundPressed = new DuiScalableImage(pixmap2, 10,10,10,10);
-    keyBackgroundSelected = new DuiScalableImage(pixmap3, 10,10,10,10);
+    keyBackgrounds[0] = new DuiScalableImage(pixmap1, 10,10,10,10); // normal
+    keyBackgrounds[1] = new DuiScalableImage(pixmap2, 10,10,10,10); // pressed
+    keyBackgrounds[2] = new DuiScalableImage(pixmap3, 10,10,10,10); // selected
+
+    // Initially deactivate sym page indicator.
+    deactivateIndicator();
 
     loadKeys();
 }
@@ -70,9 +77,9 @@ SingleWidgetButtonArea::~SingleWidgetButtonArea()
         rowIter->buttons.clear();
     }
 
-    delete keyBackground;
-    delete keyBackgroundPressed;
-    delete keyBackgroundSelected;
+    delete keyBackgrounds[0];
+    delete keyBackgrounds[1];
+    delete keyBackgrounds[2];
     DuiTheme::releasePixmap(pixmap3);
     DuiTheme::releasePixmap(pixmap2);
     DuiTheme::releasePixmap(pixmap1);
@@ -123,6 +130,12 @@ void SingleWidgetButtonArea::loadKeys()
             buttonInformation(row, col, dataKey, buttonSize, stretchesHorizontally);
 
             SingleWidgetButton *button = new SingleWidgetButton(*dataKey, style(), *this);
+
+            if (dataKey->binding()->action() == KeyBinding::ActionSym) {
+                // Save pointer for easier use.
+                symIndicatorButton = button;
+            }
+
             button->width = buttonSize.width();
 
             const int vSpacing = style()->spacingVertical();
@@ -140,21 +153,47 @@ void SingleWidgetButtonArea::loadKeys()
 
 void SingleWidgetButtonArea::buildTextLayout()
 {
+    textDirty = false;
+
     textLayout.clearLayout();
 
     // QTextLayout requires text content to be set before creating QTextLines.
     QString labelContent;
     foreach (const ButtonRow &row, rowList) {
         foreach (const SingleWidgetButton *button, row.buttons) {
+
+            // primary label
             QString label = button->label();
             if (!label.isEmpty()) {
                 // Add whitespace for QTextLine to be able to cut.
                 labelContent += label + " ";
+
+                // We don't support styling of text for invidual buttons. Therefore,
+                // we handle sym button as an exception here. Its style differs from
+                // that of its neighbours.
+                if (button == symIndicatorButton && symState == SymIndicatorInactive) {
+                    // Only show "Sym" as the button text.
+                    continue;
+                }
+
+                // try secondary label
+                label = button->secondaryLabel();
+                if (!label.isEmpty()) {
+                    labelContent += label + " ";
+                }
             }
         }
     }
 
     QFontMetrics fm(style()->font());
+    const int labelHeight = fm.height();
+
+    // Margins for text bounding box relative to buttonRect. Primary label will be set
+    // based on the top margin only so font size will determine the height. Bottom margin
+    // is used to set position for the secondary label (no support yet for horizontally
+    // positioned secondary labels).
+    const int topMargin = style()->labelMarginTop();
+    const int bottomMargin = style()->labelMarginBottom();
 
     textLayout.setFont(style()->font());
     textLayout.setText(labelContent);
@@ -171,18 +210,51 @@ void SingleWidgetButtonArea::buildTextLayout()
                 continue;
             }
 
+            const QRect &buttonRect = button->cachedButtonRect;
+            const int xmiddle = buttonRect.center().x();
+
+            // this is the top of the primary label's bounding box
+            int top = buttonRect.top() + topMargin;
+
+            // this is the top of the secondary label's bounding box
+            int topSecondary = buttonRect.bottom() - bottomMargin - labelHeight;
+
+            // Handle sym
+            bool skipSecondary = false;
+            if (button == symIndicatorButton) {
+                if (symState == SymIndicatorInactive) {
+                    skipSecondary = true;
+                } else {
+                    // No top and bottom margins.
+                    top = buttonRect.top();
+                    topSecondary = buttonRect.bottom() - labelHeight;
+                }
+            }
+
+            // Create the primary label
             QTextLine line = textLayout.createLine();
-            if (!line.isValid())
-                continue;
-
-            const int labelWidth = fm.width(label);
-            const int labelHeight = fm.height();
-
+            if (!line.isValid()) {
+                // We are getting out of sync anyway so no point in continuing.
+                goto endLayout;
+            }
             line.setNumColumns(1); // at least one character, will be seeked forward until next whitespace
-            line.setPosition(button->cachedBoundingRect.center() - QPoint(labelWidth / 2, labelHeight / 2));
+            line.setPosition(QPoint(xmiddle - fm.width(label) / 2, top));
+
+            const QString &secondary(button->secondaryLabel());
+
+            // Same for secondary label
+            if (!secondary.isEmpty() && !skipSecondary) {
+                line = textLayout.createLine();
+                if (!line.isValid()) {
+                    goto endLayout;
+                }
+                line.setNumColumns(1);
+                line.setPosition(QPoint(xmiddle - fm.width(secondary) / 2, topSecondary));
+            }
         }
     }
 
+endLayout:
     textLayout.endLayout();
 }
 
@@ -191,27 +263,30 @@ void SingleWidgetButtonArea::paint(QPainter *painter, const QStyleOptionGraphics
     // Draw images first.
     foreach (const ButtonRow &row, rowList) {
         foreach (const SingleWidgetButton *button, row.buttons) {
-            const DuiScalableImage *image = 0;
-            switch (button->state()) {
-            case IKeyButton::Normal:
-                image = keyBackground;
-                break;
-            case IKeyButton::Pressed:
-                image = keyBackgroundPressed;
-                break;
-            case IKeyButton::Selected:
-                image = keyBackgroundSelected;
-                break;
-            }
+
+            const DuiScalableImage *background = 0;
+            const int backgroundIndex = qBound(0, static_cast<int>(button->state()), 3);
 
             // Draw button background.
-            image->draw(button->cachedButtonRect, painter);
+            if (symState != SymIndicatorInactive
+                && button->binding().action() == KeyBinding::ActionSym) {
+                background = symIndicatorBackgrounds[backgroundIndex];
+            } else {
+                background = keyBackgrounds[backgroundIndex];
+            }
+
+            if (background) {
+                background->draw(button->cachedButtonRect, painter);
+            }
 
             // Draw icon.
             button->drawIcon(button->cachedButtonRect, painter);
         }
     }
 
+    if (textDirty) {
+        buildTextLayout();
+    }
     // Draw text next.
     textLayout.draw(painter, QPoint());
 }
@@ -267,7 +342,7 @@ void SingleWidgetButtonArea::modifiersChanged(const bool shift, const QChar acce
         }
     }
 
-    buildTextLayout();
+    textDirty = true;
 }
 
 void SingleWidgetButtonArea::updateButtonGeometries(const int availableWidth, const int equalButtonWidth)
@@ -347,7 +422,7 @@ void SingleWidgetButtonArea::updateButtonGeometries(const int availableWidth, co
     }
 
     // Positions may have changed, rebuild text layout.
-    buildTextLayout();
+    textDirty = true;
 }
 
 QRectF SingleWidgetButtonArea::boundingRect() const
@@ -358,4 +433,54 @@ QRectF SingleWidgetButtonArea::boundingRect() const
 }
 
 
+ISymIndicator *SingleWidgetButtonArea::symIndicator()
+{
+	return this;
+}
+
+// ISymIndicator implementation
+void SingleWidgetButtonArea::activateSymIndicator()
+{
+    // Use same image for all button states for now. Some different graphics may
+    // be introduced later for the intermediate step between sym and ace modes.
+    // while holding button down.
+	const DuiScalableImage *image = style()->keyBackgroundSymIndicatorSym();
+    symIndicatorBackgrounds[0] = image;
+    symIndicatorBackgrounds[1] = image;
+    symIndicatorBackgrounds[2] = image;
+    update();
+
+    if (symState == SymIndicatorInactive) {
+        // We have changed the text. Sym has two-line text in active mode.
+        textDirty = true;
+    }
+    symState = AceActive;
+}
+
+// ISymIndicator implementation
+void SingleWidgetButtonArea::activateAceIndicator()
+{
+    const DuiScalableImage *image = style()->keyBackgroundSymIndicatorAce();
+    symIndicatorBackgrounds[0] = image;
+    symIndicatorBackgrounds[1] = image;
+    symIndicatorBackgrounds[2] = image;
+    update();
+
+    if (symState == SymIndicatorInactive) {
+        // We have changed the text. Sym has two-line text in active mode.
+        textDirty = true;
+    }
+    symState = SymActive;
+}
+
+// ISymIndicator implementation
+void SingleWidgetButtonArea::deactivateIndicator()
+{
+    if (symState != SymIndicatorInactive) {
+        update();
+        // We have changed the text. Sym has one-line text in inactive mode.
+        textDirty = true;
+        symState = SymIndicatorInactive;
+    }
+}
 

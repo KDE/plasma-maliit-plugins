@@ -20,17 +20,17 @@
 #define SINGLEWIDGETBUTTONAREA_H
 
 #include "keybuttonarea.h"
-#include "singlewidgetbutton.h"
 
 #include <QTextLayout>
 
 class DuiScalableImage;
+class SingleWidgetButton;
 
 /*!
  * \brief SingleWidgetButtonArea is an implementation of KeyButtonArea which
  * does not use separate widgets for buttons, but instead draws them explicitly.
  */
-class SingleWidgetButtonArea : public KeyButtonArea
+class SingleWidgetButtonArea : public KeyButtonArea, public ISymIndicator
 {
 public:
     SingleWidgetButtonArea(DuiVirtualKeyboardStyleContainer *,
@@ -44,6 +44,12 @@ public:
     //! \reimp
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *view);
     virtual QRectF boundingRect() const;
+    virtual ISymIndicator *symIndicator();
+
+    // From ISymIndicator
+    virtual void activateSymIndicator();
+    virtual void activateAceIndicator();
+    virtual void deactivateIndicator();
     //! \reimp_end
 
 protected:
@@ -56,6 +62,13 @@ protected:
     /*! \reimp_end */
 
 private:
+    //! Enumeration to keep track of the sym indicator state.
+    enum SymIndicatorState {
+        SymActive,
+        AceActive,
+        SymIndicatorInactive
+    };
+
     //! \brief Creates buttons for key data models
     void loadKeys();
 
@@ -76,19 +89,30 @@ private:
     
     typedef QVector<ButtonRow> ButtonRowList;
     typedef ButtonRowList::iterator RowIterator;
+    typedef ButtonRowList::const_iterator ConstRowIterator;
 
     int rowHeight; //! constant row height, includes margins
     ButtonRowList rowList;
 
-    const DuiScalableImage *keyBackground;
-    const DuiScalableImage *keyBackgroundPressed;
-    const DuiScalableImage *keyBackgroundSelected;
+    //! Normal button backgrounds
+    const DuiScalableImage *keyBackgrounds[3];
+
+    //! Special set of button backgrounds for sym state indicator.
+    const DuiScalableImage *symIndicatorBackgrounds[3];
+
+    //! Current state of the sym indicator
+    SymIndicatorState symState;
+
+    //! This is provided for easier access to sym indicator button
+    //! if such exists in the current layout.
+    const SingleWidgetButton *symIndicatorButton;
 
     const QPixmap *pixmap1;
     const QPixmap *pixmap2;
     const QPixmap *pixmap3;
 
     QTextLayout textLayout;
+    bool textDirty;
 
     bool equalWidthButtons;
 

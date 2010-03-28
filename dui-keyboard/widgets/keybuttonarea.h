@@ -34,6 +34,7 @@ class DuiFeedbackPlayer;
 class DuiReactionMap;
 class DuiScalableImage;
 class DuiVirtualKeyboardStyleContainer;
+class ISymIndicator;
 class LayoutData;
 class LimitedTimer;
 class QGraphicsLinearLayout;
@@ -99,6 +100,9 @@ public:
 
     //! \return layout model
     QSharedPointer<const LayoutSection> sectionModel() const;
+
+    //! Allows sym indicator to be controlled from outside.
+    virtual ISymIndicator *symIndicator();
 
 public slots:
     /*!
@@ -321,6 +325,17 @@ private:
     friend class Ut_SymbolView;
     friend class Bm_KeyButtonArea; //benchmarks
 #endif
+};
+
+/*!
+ * This provides interface to change sym indicator status.
+ */
+class ISymIndicator
+{
+public:
+	virtual void activateSymIndicator() = 0;
+	virtual void activateAceIndicator() = 0;
+	virtual void deactivateIndicator() = 0;
 };
 
 #endif

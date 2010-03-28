@@ -35,6 +35,7 @@ public:
 
     //! \reimp
     virtual const QString label() const;
+    virtual const QString secondaryLabel() const;
     virtual QRect buttonRect() const;
     virtual QRect buttonBoundingRect() const;
     virtual void setModifiers(bool shift, QChar accent = QChar());
@@ -53,6 +54,7 @@ public:
 
     //! \brief Calls parent item's QGraphicsItem::update() who actually draws the button.
     void update();
+
     //! Cache for the buttons position and size. They can always
     //! be calculated but are faster to access this way.
     QRect cachedBoundingRect;
@@ -61,6 +63,7 @@ public:
     //! The width for this button. Not managed by this class.
     //! It is used by SingleWidgetButtonArea to store the correct button size.
     int width;
+
 private:
     const QPixmap *loadIcon(KeyBinding::KeyAction action) const;
 

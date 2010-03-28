@@ -17,6 +17,7 @@
 #include "ut_keybuttonarea.h"
 #include "duivirtualkeyboardstyle.h"
 #include "singlewidgetbuttonarea.h"
+#include "singlewidgetbutton.h"
 #include "flickupbutton.h"
 #include "duibuttonarea.h"
 #include "keyboarddata.h"
