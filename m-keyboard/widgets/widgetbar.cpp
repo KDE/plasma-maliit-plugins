@@ -16,9 +16,9 @@
 
 
 
-#include "buttonbar.h"
+#include "widgetbar.h"
 
-#include <MButton>
+#include <MWidget>
 
 #include <QDebug>
 #include <QGraphicsLinearLayout>
@@ -26,9 +26,9 @@
 
 // No use for us but prevents MClassFactory bitching about it.
 #include <MWidgetCreator>
-M_REGISTER_WIDGET_NO_CREATE(ButtonBar)
+M_REGISTER_WIDGET_NO_CREATE(WidgetBar)
 
-ButtonBar::ButtonBar(bool useDividers, QGraphicsItem *parent)
+WidgetBar::WidgetBar(bool useDividers, QGraphicsItem *parent)
     : MStylableWidget(parent),
       mainLayout(*new QGraphicsLinearLayout(Qt::Horizontal, this)),
       useDividers(useDividers)
@@ -41,74 +41,74 @@ ButtonBar::ButtonBar(bool useDividers, QGraphicsItem *parent)
     styleChanged();
 }
 
-ButtonBar::~ButtonBar()
+WidgetBar::~WidgetBar()
 {
 }
 
-int ButtonBar::count() const
+int WidgetBar::count() const
 {
-    return buttons.count();
+    return widgets.count();
 }
 
-void ButtonBar::insert(int index, MButton *button)
+void WidgetBar::insert(int index, MWidget *widget)
 {
-    Q_ASSERT(button);
+    Q_ASSERT(widget);
 
     if (index < 0 || index > count()) {
-        qWarning() << "Invalid index given when inserting a button to ButtonBar.";
+        qWarning() << "Invalid index given when inserting a widget to WidgetBar.";
         return;
     }
 
-    buttons.insert(index, button);
+    widgets.insert(index, widget);
 
-    mainLayout.insertItem(index, button);
-    mainLayout.setAlignment(button, Qt::AlignVCenter); // In case we have buttons that differs in height.
+    mainLayout.insertItem(index, widget);
+    mainLayout.setAlignment(widget, Qt::AlignVCenter); // In case we have widgets that differs in height.
 }
 
-void ButtonBar::append(MButton *button)
+void WidgetBar::append(MWidget *widget)
 {
-    insert(count(), button);
+    insert(count(), widget);
 }
 
-void ButtonBar::remove(MButton *button)
+void WidgetBar::remove(MWidget *widget)
 {
-    mainLayout.removeItem(button);
-    buttons.removeOne(button);
+    mainLayout.removeItem(widget);
+    widgets.removeOne(widget);
 }
 
-void ButtonBar::clear()
+void WidgetBar::clear()
 {
-    buttons.clear();
+    widgets.clear();
     while (mainLayout.count() > 0) {
         mainLayout.removeAt(0);
     }
 }
 
-MButton *ButtonBar::buttonAt(int index) const
+MWidget *WidgetBar::widgetAt(int index) const
 {
-    MButton *button = 0;
+    MWidget *widget = 0;
     if (index >= 0 && index < count()) {
-        button = buttons.at(index);
+        widget = widgets.at(index);
     }
-    return button;
+    return widget;
 }
 
-bool ButtonBar::contains(const MButton *button) const
+bool WidgetBar::contains(const MWidget *widget) const
 {
-    return buttons.contains(const_cast<MButton *>(button));
+    return widgets.contains(const_cast<MWidget *>(widget));
 }
 
-int ButtonBar::indexOf(const MButton *button) const
+int WidgetBar::indexOf(const MWidget *widget) const
 {
-    return buttons.indexOf(const_cast<MButton *>(button));
+    return widgets.indexOf(const_cast<MWidget *>(widget));
 }
 
-void ButtonBar::mousePressEvent(QGraphicsSceneMouseEvent *)
+void WidgetBar::mousePressEvent(QGraphicsSceneMouseEvent *)
 {
     // Stop propagating
 }
 
-void ButtonBar::styleChanged()
+void WidgetBar::styleChanged()
 {
     setContentsMargins(style()->paddingLeft(), style()->paddingTop(),
                        style()->paddingRight(), 0);

@@ -23,7 +23,6 @@
 #include <MButtonGroup>
 #include <MWidget>
 
-#include "buttonbar.h"
 #include "singlewidgetbuttonarea.h"
 #include "mbuttonarea.h"
 

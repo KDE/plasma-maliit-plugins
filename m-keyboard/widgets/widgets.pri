@@ -7,13 +7,13 @@ INSTALL_HEADERS += \
     $$WIDGETS_DIR/popupplugin.h \
 
 STYLE_HEADERS += \
-    $$WIDGETS_DIR/buttonbarstyle.h \
+    $$WIDGETS_DIR/widgetbarstyle.h \
     $$WIDGETS_DIR/flickupbuttonstyle.h \
     $$WIDGETS_DIR/mvirtualkeyboardstyle.h \
 
 HEADERS += \
     $$STYLE_HEADERS \
-    $$WIDGETS_DIR/buttonbar.h \
+    $$WIDGETS_DIR/widgetbar.h \
     $$WIDGETS_DIR/mimcorrectioncandidatewindow.h \
     $$WIDGETS_DIR/mimcorrectioncandidatewidget.h \
     $$WIDGETS_DIR/mimtoolbar.h \
@@ -35,7 +35,7 @@ HEADERS += \
 
 
 SOURCES += \
-    $$WIDGETS_DIR/buttonbar.cpp \
+    $$WIDGETS_DIR/widgetbar.cpp \
     $$WIDGETS_DIR/mimcorrectioncandidatewindow.cpp \
     $$WIDGETS_DIR/mimcorrectioncandidatewidget.cpp \
     $$WIDGETS_DIR/mimtoolbar.cpp \

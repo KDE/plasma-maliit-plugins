@@ -19,12 +19,14 @@
 #include "mimtoolbar.h"
 #include "toolbardata.h"
 #include "toolbarmanager.h"
+#include "toolbarwidget.h"
 #include "layoutsmanager.h"
 #include "mhardwarekeyboard.h"
 #include "mvirtualkeyboardstyle.h"
 
 #include <MNamespace>
 #include <MButton>
+#include <MLabel>
 #include <QKeySequence>
 #include <QGraphicsLinearLayout>
 #include <QDebug>
@@ -125,7 +127,7 @@ void MImToolbar::setupLayout()
     QGraphicsLinearLayout *mainLayout = new QGraphicsLinearLayout(Qt::Horizontal, this);
     mainLayout->setContentsMargins(0, 0, 0, 0);
 
-    // Add the left and right side ButtonBar widgets with a stretch item in between.
+    // Add the left and right side WidgetBar widgets with a stretch item in between.
     mainLayout->addItem(&leftBar);
     mainLayout->addStretch();
     mainLayout->addItem(&rightBar);
@@ -166,34 +168,34 @@ void MImToolbar::handleButtonClick()
     const MButton *button = qobject_cast<MButton *>(this->sender());
     Q_ASSERT(button);
 
-    const ToolbarButton *toolbarButton = toolbarMgr->toolbarButton(button);
+    const ToolbarWidget *toolbarButton = toolbarMgr->toolbarWidget(button);
     if (!toolbarButton)
         return;
 
-    foreach(const ToolbarButton::Action * action, toolbarButton->actions) {
+    foreach(const ToolbarWidget::Action *action, toolbarButton->actions) {
         switch (action->type) {
-        case ToolbarButton::SendKeySequence:
+        case ToolbarWidget::SendKeySequence:
             sendKeySequence(action->keys);
             break;
-        case ToolbarButton::SendString:
+        case ToolbarWidget::SendString:
             sendStringRequest(action->text);
             break;
-        case ToolbarButton::SendCommand:
+        case ToolbarWidget::SendCommand:
             //TODO:not support yet
             break;
-        case ToolbarButton::Copy:
+        case ToolbarWidget::Copy:
             emit copyPasteRequest(InputMethodCopy);
             break;
-        case ToolbarButton::Paste:
+        case ToolbarWidget::Paste:
             emit copyPasteRequest(InputMethodPaste);
             break;
-        case ToolbarButton::ShowGroup:
+        case ToolbarWidget::ShowGroup:
             showGroup(action->group);
             break;
-        case ToolbarButton::HideGroup:
+        case ToolbarWidget::HideGroup:
             hideGroup(action->group);
             break;
-        case ToolbarButton::Unknown:
+        case ToolbarWidget::Unknown:
             break;
         }
     }
@@ -211,60 +213,60 @@ void MImToolbar::setSelectionStatus(bool selection)
 void MImToolbar::updateVisibility()
 {
     qDebug() << __PRETTY_FUNCTION__;
-    //set button visibility according showOn and hideOn premiss and current selection status
-    foreach(ToolbarButton * b, toolbarMgr->buttonList()) {
-        if ((textSelected && b->hideOn != ToolbarButton::WhenSelectingText)
-                || (b->showOn == ToolbarButton::Always)) {
-            b->setVisible(true);
+    //set widget's visibility according showOn and hideOn premiss and current selection status
+    foreach(ToolbarWidget *w, toolbarMgr->widgetList()) {
+        if ((textSelected && w->hideOn != ToolbarWidget::WhenSelectingText)
+                || (w->showOn == ToolbarWidget::Always)) {
+            w->setVisible(true);
         } else {
-            b->setVisible(false);
+            w->setVisible(false);
         }
     }
 
-    // Update button widgets according to toolbar models.
-    updateButtons();
+    // Update widgets according to toolbar models.
+    updateWidgets();
 }
 
-void MImToolbar::loadCustomButtons(Qt::Alignment align)
+void MImToolbar::loadCustomWidgets(Qt::Alignment align)
 {
     qDebug() << __PRETTY_FUNCTION__ << align;
-    //the buttons gotten from toolbarMgr are already ordered acording their priority with alignment.
-    QList<ToolbarButton *> buttons = toolbarMgr->buttonList(align);
-    //show buttons according their status and priority
-    int buttonCount = 0;
-    foreach(ToolbarButton * toolbarButton, buttons) {
-        MButton *button = toolbarMgr->button(toolbarButton->name);
-        if (!button)
+    //the widgets gotten from toolbarMgr are already ordered acording their priority with alignment.
+    QList<ToolbarWidget *> widgets = toolbarMgr->widgetList(align);
+    //show widgets according their status and priority
+    int widgetCount = 0;
+    foreach(ToolbarWidget *toolbarWidget, widgets) {
+        MWidget *widget = toolbarMgr->widget(toolbarWidget->name());
+        if (!widget)
             continue;
-        if (toolbarButton->isVisible()) {
-            button->setVisible(true);
-            //if button is Visible, then insert it to the right position
-            insertItem(buttonCount, button, align);
-            ++buttonCount;
+        if (toolbarWidget->isVisible()) {
+            widget->setVisible(true);
+            //if widget is Visible, then insert it to the right position
+            insertItem(widgetCount, widget, align);
+            ++widgetCount;
         } else {
-            button->setVisible(false);
-            removeItem(button);
+            widget->setVisible(false);
+            removeItem(widget);
         }
     }
 }
 
-void MImToolbar::unloadCustomButtons(Qt::Alignment align)
+void MImToolbar::unloadCustomWidgets(Qt::Alignment align)
 {
-    QList<ToolbarButton *> buttons = toolbarMgr->buttonList(align);
-    foreach(ToolbarButton * toolbarButton, buttons) {
-        MButton *button = toolbarMgr->button(toolbarButton->name);
-        if (!button)
+    QList<ToolbarWidget *> widgets = toolbarMgr->widgetList(align);
+    foreach(ToolbarWidget *toolbarWidget, widgets) {
+        MWidget *widget = toolbarMgr->widget(toolbarWidget->name());
+        if (!widget)
             continue;
-        button->setVisible(false);
-        removeItem(button);
+        widget->setVisible(false);
+        removeItem(widget);
     }
 }
 
-void MImToolbar::updateButtons(bool customButtonsChanged)
+void MImToolbar::updateWidgets(bool customWidgetsChanged)
 {
-    if (customButtonsChanged) {
-        loadCustomButtons(Qt::AlignLeft);
-        loadCustomButtons(Qt::AlignRight);
+    if (customWidgetsChanged) {
+        loadCustomWidgets(Qt::AlignLeft);
+        loadCustomWidgets(Qt::AlignRight);
     }
 
     if (isVisible()) {
@@ -277,29 +279,29 @@ void MImToolbar::updateButtons(bool customButtonsChanged)
 void MImToolbar::showGroup(const QString &group)
 {
     bool changed = false;
-    foreach(ToolbarButton * b, toolbarMgr->buttonList()) {
-        if (b->group == group && !(b->isVisible())) {
-            b->setVisible(true);
+    foreach(ToolbarWidget *w, toolbarMgr->widgetList()) {
+        if (w->group == group && !(w->isVisible())) {
+            w->setVisible(true);
             changed = true;
         }
     }
 
     if (changed) {
-        updateButtons();
+        updateWidgets();
     }
 }
 
 void MImToolbar::hideGroup(const QString &group)
 {
     bool changed = false;
-    foreach(ToolbarButton * b, toolbarMgr->buttonList()) {
-        if (b->group == group && b->isVisible()) {
-            b->setVisible(false);
+    foreach(ToolbarWidget *w, toolbarMgr->widgetList()) {
+        if (w->group == group && w->isVisible()) {
+            w->setVisible(false);
             changed = true;
         }
     }
     if (changed) {
-        updateButtons(true);
+        updateWidgets(true);
     }
 }
 
@@ -342,8 +344,8 @@ void MImToolbar::showToolbarWidget(const QString &name)
 {
     qDebug() << __PRETTY_FUNCTION__ << name;
     if (name != toolbarMgr->currentToolbar()) {
-        unloadCustomButtons(Qt::AlignLeft);
-        unloadCustomButtons(Qt::AlignRight);
+        unloadCustomWidgets(Qt::AlignLeft);
+        unloadCustomWidgets(Qt::AlignRight);
     }
     if (toolbarMgr->loadToolbar(name) && isVisible())
         updateVisibility();
@@ -352,8 +354,8 @@ void MImToolbar::showToolbarWidget(const QString &name)
 void MImToolbar::hideToolbarWidget()
 {
     qDebug() << __PRETTY_FUNCTION__;
-    unloadCustomButtons(Qt::AlignLeft);
-    unloadCustomButtons(Qt::AlignRight);
+    unloadCustomWidgets(Qt::AlignLeft);
+    unloadCustomWidgets(Qt::AlignRight);
     toolbarMgr->reset();
     if (isVisible())
         updateVisibility();
@@ -444,17 +446,17 @@ void MImToolbar::setCopyPasteButton(bool copyAvailable, bool pasteAvailable)
     }
     if (changed) {
         // Update only positions.
-        updateButtons(false);
+        updateWidgets(false);
     }
     qDebug() << __PRETTY_FUNCTION__ << copyPaste->isVisible();
 }
 
-void MImToolbar::insertItem(const int index, MButton *button, Qt::Alignment align)
+void MImToolbar::insertItem(const int index, MWidget *widget, Qt::Alignment align)
 {
     Q_ASSERT((align == Qt::AlignLeft) || (align == Qt::AlignRight));
-    ButtonBar *sidebar = (align == Qt::AlignLeft) ? &leftBar : &rightBar;
-    if (!sidebar->contains(button)) {
-        sidebar->insert(index, button);
+    WidgetBar *sidebar = (align == Qt::AlignLeft) ? &leftBar : &rightBar;
+    if (!sidebar->contains(widget)) {
+        sidebar->insert(index, widget);
     }
 
     if (leftBar.count() == 1) {
@@ -468,10 +470,10 @@ void MImToolbar::insertItem(const int index, MButton *button, Qt::Alignment alig
     layout()->activate();
 }
 
-void MImToolbar::removeItem(MButton *button)
+void MImToolbar::removeItem(MWidget *widget)
 {
-    leftBar.remove(button);
-    rightBar.remove(button);
+    leftBar.remove(widget);
+    rightBar.remove(widget);
 
     if (leftBar.count() == 0) {
         leftBar.hide();
@@ -491,18 +493,18 @@ void MImToolbar::drawReactiveAreas(DuiReactionMap *reactionMap, QGraphicsView *v
     reactionMap->setInactiveDrawingValue();
     reactionMap->fillRectangle(rect());
 
-    // Draw all button geometries.
+    // Draw all widgets geometries.
     reactionMap->setReactiveDrawingValue();
 
     for (int j = 0; j < 2; ++j) {
-        ButtonBar *sidebar = ((j == 0) ? &leftBar : &rightBar);
+        WidgetBar *sidebar = ((j == 0) ? &leftBar : &rightBar);
         if (!sidebar->isVisible()) {
             continue;
         }
         reactionMap->setTransform(sidebar, view);
 
         for (int i = 0; i < sidebar->count(); ++i) {
-            reactionMap->fillRectangle(sidebar->buttonAt(i)->geometry());
+            reactionMap->fillRectangle(sidebar->widgetAt(i)->geometry());
         }
     }
 }

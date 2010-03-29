@@ -15,22 +15,28 @@
  */
 
 
-#ifndef TOOLBARBUTTON_H
-#define TOOLBARBUTTON_H
+#ifndef TOOLBARWIDGET_H
+#define TOOLBARWIDGET_H
 
 #include <MNamespace>
-#include <QHash>
 #include <QList>
 #include <QString>
 #include <QStringList>
 /*!
- * \brief ToolbarButton represents a named button in a customized toolbar for virtual keyboard.
+ * \brief ToolbarWidget represents a named widget in a customized toolbar for virtual keyboard.
  */
-class ToolbarButton
+class ToolbarWidget
 {
-    Q_DISABLE_COPY(ToolbarButton)
+    Q_DISABLE_COPY(ToolbarWidget)
 
 public:
+    //! Type of toolbar widget
+    enum WidgetType {
+        Button,
+        Label,
+        UndefinedWidgetType
+    };
+
     //! Type of visible premiss for toolbar button
     enum VisibleType {
         WhenSelectingText,
@@ -53,34 +59,45 @@ public:
     /*!
     * \brief Constructor
     */
-    ToolbarButton();
+    ToolbarWidget(WidgetType type = UndefinedWidgetType);
 
     /*!
     * \brief Destructor
     */
-    ~ToolbarButton();
+    virtual ~ToolbarWidget();
 
     /*!
-    * \brief Returns visibility of the button.
+     * \brief Returns the WidgetType of the widget.
+     * \sa WidgetType.
+     */
+    WidgetType type() const;
+
+    /*!
+     * \brief Returns the name of the widget.
+     */
+    QString name() const;
+
+    /*!
+    * \brief Returns visibility of the widget.
     */
     bool isVisible() const;
 
     /*!
-    * \brief Sets the visibility of the button.
+    * \brief Sets the visibility of the widget.
     */
     void setVisible(bool);
 
-private:
-    //!The NAME attribute should be unique and it is used as a reference in the toolbar system.
-    QString name;
-    //! the group name which the button belongs to
+protected:
+    WidgetType widgetType;
+    //! The NAME attribute should be unique and it is used as a reference in the toolbar system.
+    QString widgetName;
+    //! The group name which the button belongs to
     QString group;
     int priority;
     M::Orientation orientation;
     VisibleType showOn;
     VisibleType hideOn;
     Qt::Alignment alignment;
-    QString icon;
     QString text;
     QString textId;
     bool visible;
@@ -94,7 +111,11 @@ private:
         QString group;
     };
 
-    //! actions when clicking the button
+    // below attributes are only valid for Button
+    bool toggle;
+    bool pressed;
+    QString icon;
+    //! actions when clicking the widget
     QList<Action *> actions;
 
     friend class ToolbarData;

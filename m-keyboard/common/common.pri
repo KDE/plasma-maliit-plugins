@@ -12,7 +12,7 @@ HEADERS += \
     $$COMMON_DIR/layoutsmanager.h \
     $$COMMON_DIR/limitedtimer.h \
     $$COMMON_DIR/toolbardata.h \
-    $$COMMON_DIR/toolbarbutton.h \
+    $$COMMON_DIR/toolbarwidget.h \
     $$COMMON_DIR/toolbarmanager.h \
     $$COMMON_DIR/vkbdatakey.h \
     $$COMMON_DIR/mxkb.h \
@@ -27,7 +27,7 @@ SOURCES += \
     $$COMMON_DIR/layoutsmanager.cpp\
     $$COMMON_DIR/limitedtimer.cpp\
     $$COMMON_DIR/toolbardata.cpp\
-    $$COMMON_DIR/toolbarbutton.cpp \
+    $$COMMON_DIR/toolbarwidget.cpp \
     $$COMMON_DIR/toolbarmanager.cpp\
     $$COMMON_DIR/vkbdatakey.cpp\
     $$COMMON_DIR/mxkb.cpp \

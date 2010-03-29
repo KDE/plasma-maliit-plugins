@@ -21,7 +21,7 @@
 
 #include <QObject>
 #include <QList>
-#include "toolbarbutton.h"
+#include "toolbarwidget.h"
 
 class QDomElement;
 struct TBParseParameters;
@@ -79,12 +79,15 @@ private:
     static M::Orientation orientation(const QString &orientationString);
 
     /*!
-     * \brief Translate visibleTypeString to ToolbarButton::VisibleType.
+     * \brief Translate visibleTypeString to ToolbarWidget::VisibleType.
      */
-    static ToolbarButton::VisibleType visibleType(const QString &visibleTypeString);
+    static ToolbarWidget::VisibleType visibleType(const QString &visibleTypeString);
 
     //! Parse XML tag for button.
     void parseTagButton(const QDomElement &element, TBParseParameters &params);
+
+    //! Parse XML tag for label.
+    void parseTagLabel(const QDomElement &element, TBParseParameters &params);
 
     //! Parse XML tag for action.
     void parseTagActions(const QDomElement &element, TBParseParameters &params);
@@ -123,7 +126,8 @@ private:
     void parseChildren(const QDomElement &element, TBParseParameters &params,
                        const TBParseStructure *parserList, int parserCount = 1);
 protected:
-    QList<ToolbarButton *> buttons;
+    QList<ToolbarWidget *> widgets;
+    QString toolbarPixmapDirectory;
     QString toolbarFileName;
     friend class ToolbarManager;
     friend struct TBParseStructure;

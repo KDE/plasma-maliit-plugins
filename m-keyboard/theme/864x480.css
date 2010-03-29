@@ -245,6 +245,10 @@ MVirtualKeyboardStyle.Landscape {
     background-image: "keyboard-toolbar-button-background-pressed" 10px 10px 10px 10px;
 }
 
+#VirtualKeyboardToolbarButton:selected {
+    background-image: "keyboard-toolbar-button-background-pressed" 10px 10px 10px 10px;
+}
+
 ButtonBarStyle {
     margin-left: 0;
     margin-top: 0;

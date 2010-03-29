@@ -20,17 +20,21 @@
 #include "toolbardata.h"
 #include "mimtoolbar.h"
 #include <MGConfItem>
+#include <MTheme>
 #include <MButton>
+#include <MLabel>
 #include <MLocale>
 #include <QDebug>
 
 namespace
 {
-    const QString ObjectNameToolbarButtons("VirtualKeyboardToolbarButton");
+    const QString ObjectNameToolbarButton("VirtualKeyboardToolbarButton");
+    const QString ObjectNameToolbarLabel("VirtualKeyboardToolbarLabel");
     const int MaximumToolbarCount = 10;
 }
 
-const int ToolbarManager::buttonNameDataKey(1000);
+const int ToolbarManager::widgetNameDataKey(1000);
+const int ToolbarManager::widgetTypeDataKey(1001);
 
 ToolbarManager::ToolbarManager(MImToolbar *parent)
     : imToolbar(parent),
@@ -43,47 +47,47 @@ ToolbarManager::~ToolbarManager()
     qDeleteAll(toolbars);
     toolbars.clear();
 
-    qDeleteAll(toolbarButtonPool);
-    toolbarButtonPool.clear();
+    qDeleteAll(toolbarWidgetPool);
+    toolbarWidgetPool.clear();
 }
 
-int ToolbarManager::buttonCount() const
+int ToolbarManager::widgetCount() const
 {
     if (current != 0)
-        return current->buttons.count();
+        return current->widgets.count();
     else
         return 0;
 }
 
-QList<ToolbarButton *> ToolbarManager::buttonList() const
+QList<ToolbarWidget *> ToolbarManager::widgetList() const
 {
-    QList<ToolbarButton *> list;
+    QList<ToolbarWidget *> list;
     if (current != 0)
-        list = current->buttons;
+        list = current->widgets;
 
     return list;
 }
 
-QList<ToolbarButton *> ToolbarManager::buttonList(Qt::Alignment align) const
+QList<ToolbarWidget *> ToolbarManager::widgetList(Qt::Alignment align) const
 {
-    QList<ToolbarButton *> list;
+    QList<ToolbarWidget *> list;
     if (current != 0) {
-        foreach(ToolbarButton * b, current->buttons) {
-            if (b->alignment == align) {
+        foreach(ToolbarWidget *tw, current->widgets) {
+            if (tw->alignment == align) {
                 //sort according priority
                 bool inserted = false;
                 for (int i = 0; i < list.count(); ++i) {
-                    if (((align == Qt::AlignLeft) && (list[i]->priority < b->priority))
-                            || ((align == Qt::AlignRight) && (list[i]->priority > b->priority)))
+                    if (((align == Qt::AlignLeft) && (list[i]->priority < tw->priority))
+                            || ((align == Qt::AlignRight) && (list[i]->priority > tw->priority)))
                         continue;
                     else {
                         inserted = true;
-                        list.insert(i, b);
+                        list.insert(i, tw);
                         break;
                     }
                 }
                 if (!inserted) {
-                    list.append(b);
+                    list.append(tw);
                     continue;
                 }
             }
@@ -92,38 +96,39 @@ QList<ToolbarButton *> ToolbarManager::buttonList(Qt::Alignment align) const
     return list;
 }
 
-ToolbarButton *ToolbarManager::toolbarButton(const QString &name) const
+ToolbarWidget *ToolbarManager::toolbarWidget(const QString &name) const
 {
-    foreach(ToolbarButton * tb, current->buttons)
-    if (tb->name == name)
-        return tb;
+    foreach(ToolbarWidget *tw, current->widgets) {
+        if (tw->name() == name)
+            return tw;
+    }
     return 0;
 }
 
-ToolbarButton *ToolbarManager::toolbarButton(const MButton *b) const
+ToolbarWidget *ToolbarManager::toolbarWidget(const MWidget *w) const
 {
-    if (b)
-        return toolbarButton(b->data(buttonNameDataKey).toString());
+    if (w)
+        return toolbarWidget(w->data(widgetNameDataKey).toString());
     return 0;
 }
 
-MButton *ToolbarManager::button(const QString &name) const
+MWidget *ToolbarManager::widget(const QString &name) const
 {
-    MButton *b = 0;
-    for (int i = 0; i < toolbarButtonPool.count(); i++) {
-        if (toolbarButtonPool[i]->data(buttonNameDataKey).toString() == name) {
-            b = toolbarButtonPool[i];
+    MWidget *w = 0;
+    for (int i = 0; i < toolbarWidgetPool.count(); i++) {
+        if (toolbarWidgetPool[i]->data(widgetNameDataKey).toString() == name) {
+            w = toolbarWidgetPool[i];
             break;
         }
     }
-    return b;
+    return w;
 }
 
 QStringList ToolbarManager::toolbarList() const
 {
     QStringList names;
-    foreach(const ToolbarData * t, toolbars)
-    names << t->fileName();
+    foreach(const ToolbarData *t, toolbars)
+        names << t->fileName();
     return names;
 }
 
@@ -154,7 +159,7 @@ bool ToolbarManager::loadToolbar(const QString &name)
     }
 
     if (current != 0) {
-        loadToolbarButtons();
+        loadToolbarWidgets();
         return true;
     }
     //can't find
@@ -164,7 +169,7 @@ bool ToolbarManager::loadToolbar(const QString &name)
 
 ToolbarData *ToolbarManager::findToolbar(const QString &name)
 {
-    foreach (ToolbarData *t, toolbars) {
+    foreach(ToolbarData *t, toolbars) {
         if (t->equal(name))
             return t;
     }
@@ -199,51 +204,91 @@ void ToolbarManager::reset()
     current = 0;
 }
 
-void ToolbarManager::loadToolbarButtons()
+void ToolbarManager::loadToolbarWidgets()
 {
     qDebug() << __PRETTY_FUNCTION__;
-    resetButtonPool();
-    foreach (const ToolbarButton *b, buttonList()) {
-        createButton(b);
+    if (!current->toolbarPixmapDirectory.isEmpty()) {
+        MTheme::instance()->addPixmapDirectory(current->toolbarPixmapDirectory);
+    }
+    resetWidgetPool();
+    foreach(const ToolbarWidget *tw, widgetList()) {
+        createWidget(tw);
     }
 }
 
-void ToolbarManager::createButton(const ToolbarButton *tb)
+void ToolbarManager::createWidget(const ToolbarWidget *tw)
 {
-    if (!tb)
+    if (!tw)
         return;
 
-    MButton *b = button(tb->name);
+    MWidget *w = widget(tw->name());
     //because name is the unique id, so if there is already created, then just use it
-    if (!b) {
+    if (!w) {
         //find the first unused pool item, or create a new one
-        for (int i = 0; i < toolbarButtonPool.count(); i++) {
-            if (toolbarButtonPool[i]->data(buttonNameDataKey).toString().isEmpty()) {
-                b = toolbarButtonPool[i];
+        for (int i = 0; i < toolbarWidgetPool.count(); i++) {
+            if (toolbarWidgetPool[i]->data(widgetNameDataKey).toString().isEmpty()
+                && toolbarWidgetPool[i]->data(widgetTypeDataKey).toInt() == tw->type()) {
+                w = toolbarWidgetPool[i];
                 break;
             }
         }
-        if (!b) {
-            b = new MButton();
-            b->setObjectName(ObjectNameToolbarButtons);
-            toolbarButtonPool.append(b);
+        if (!w) {
+            switch (tw->type()) {
+            case ToolbarWidget::Button:
+                w = new MButton();
+                w->setObjectName(ObjectNameToolbarButton);
+                break;
+            case ToolbarWidget::Label:
+                w = new MLabel();
+                w->setObjectName(ObjectNameToolbarLabel);
+                break;
+            default:
+                //unknown widget type.
+                return;
+            }
+            toolbarWidgetPool.append(w);
         }
     }
-    b->setData(buttonNameDataKey, tb->name);
-    if (!tb->textId.isEmpty())
-        b->setText(qtTrId(tb->textId.toUtf8().data()));
-    else
-        b->setText(tb->text);
-    b->setIconID(tb->icon);
-    // Common signals
-    connect(b, SIGNAL(clicked()), imToolbar, SLOT(handleButtonClick()));
+    w->setData(widgetNameDataKey, tw->name());
+    w->setData(widgetTypeDataKey, tw->type());
+
+    switch (tw->type()) {
+    case ToolbarWidget::Button: {
+        MButton *b = qobject_cast<MButton*>(w);
+        if (b) {
+            if (!tw->textId.isEmpty()) {
+                b->setText(qtTrId(tw->textId.toUtf8().data()));
+            } else {
+                b->setText(tw->text);
+            }
+            b->setIconID(tw->icon);
+            b->setCheckable(tw->toggle);
+            if (tw->toggle) {
+                b->setChecked(tw->pressed);
+            }
+            connect(b, SIGNAL(clicked()), imToolbar, SLOT(handleButtonClick()));
+        }
+        break;
+    }
+    case ToolbarWidget::Label: {
+        MLabel *l = qobject_cast<MLabel*>(w);
+        if (!tw->textId.isEmpty()) {
+            l->setText(qtTrId(tw->textId.toUtf8().data()));
+        } else {
+            l->setText(tw->text);
+        }
+        break;
+    }
+    default:
+        break;
+    }
 }
 
-void ToolbarManager::resetButtonPool()
+void ToolbarManager::resetWidgetPool()
 {
-    for (int i = 0; i < toolbarButtonPool.count(); i++) {
-        toolbarButtonPool[i]->setData(buttonNameDataKey, "");
-        toolbarButtonPool[i]->setVisible(false);
-        toolbarButtonPool[i]->disconnect();
+    for (int i = 0; i < toolbarWidgetPool.count(); i++) {
+        toolbarWidgetPool[i]->setData(widgetNameDataKey, "");
+        toolbarWidgetPool[i]->setVisible(false);
+        toolbarWidgetPool[i]->disconnect();
     }
 }

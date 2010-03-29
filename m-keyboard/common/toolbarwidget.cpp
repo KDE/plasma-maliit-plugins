@@ -17,33 +17,46 @@
 
 
 #include <QtAlgorithms>
-#include "toolbarbutton.h"
+#include "toolbarwidget.h"
 
-ToolbarButton::ToolbarButton()
-    : orientation(M::Portrait),
+ToolbarWidget::ToolbarWidget(WidgetType t)
+    : widgetType(t),
+      orientation(M::Portrait),
       showOn(Always),
       hideOn(Undefined),
       alignment(Qt::AlignRight),
-      visible(false)
+      visible(false),
+      toggle(false),
+      pressed(false)
 {
 }
 
-ToolbarButton::~ToolbarButton()
-{
-    qDeleteAll(actions);
-}
-
-ToolbarButton::Action::Action(ToolbarButton::ActionType t)
+ToolbarWidget::Action::Action(ToolbarWidget::ActionType t)
     : type(t)
 {
 }
 
-bool ToolbarButton::isVisible() const
+ToolbarWidget::~ToolbarWidget()
+{
+    qDeleteAll(actions);
+}
+
+ToolbarWidget::WidgetType ToolbarWidget::type() const
+{
+    return widgetType;
+}
+
+QString ToolbarWidget::name() const
+{
+    return widgetName;
+}
+
+bool ToolbarWidget::isVisible() const
 {
     return visible;
 }
 
-void ToolbarButton::setVisible(bool v)
+void ToolbarWidget::setVisible(bool v)
 {
     visible = v;
 }

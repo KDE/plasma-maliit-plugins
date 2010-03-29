@@ -16,25 +16,25 @@
 
 
 
-#ifndef BUTTONBARSTYLE_H
-#define BUTTONBARSTYLE_H
+#ifndef WIDGETBARSTYLE_H
+#define WIDGETBARSTYLE_H
 
 #include <MWidgetStyle>
 
 /*!
-    \brief This defines style that is common to all ButtonBar class based widgets.
+    \brief This defines style that is common to all WidgetBar class based widgets.
            Currently such classes are tab buttons of Sym view and toolbar of the keyboard.
 */
-class M_EXPORT ButtonBarStyle : public MWidgetStyle
+class M_EXPORT WidgetBarStyle : public MWidgetStyle
 {
     Q_OBJECT
-    M_STYLE(ButtonBarStyle)
+    M_STYLE(WidgetBarStyle)
 };
 
-class M_EXPORT ButtonBarStyleContainer : public MWidgetStyleContainer
+class M_EXPORT WidgetBarStyleContainer : public MWidgetStyleContainer
 {
-    M_STYLE_CONTAINER(ButtonBarStyle)
+    M_STYLE_CONTAINER(WidgetBarStyle)
 };
 
 
-#endif // BUTTONBARSTYLE_H
+#endif

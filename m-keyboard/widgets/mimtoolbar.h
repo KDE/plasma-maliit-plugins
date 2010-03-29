@@ -20,13 +20,14 @@
 #define MIMTOOLBAR_H
 
 #include <MWidget>
-#include "buttonbar.h"
+#include "widgetbar.h"
 #include "mkeyboardcommon.h"
 
 class DuiReactionMap;
 class ToolbarManager;
 class MInfoBanner;
 class MVirtualKeyboardStyleContainer;
+class MButton;
 class QTimer;
 
 /*!
@@ -38,11 +39,11 @@ class QTimer;
   The layout for toolbar is this:
   \code
     |---------------------------------------------------|
-    | ButtonBar |      stretch item         | ButtonBar |
+    | WidgetBar |      stretch item         | WidgetBar |
     |---------------------------------------------------|
   \endcode
   Depending on the alignment attribute of the toolbar buttons they
-  will be placed into left or right side ButtonBar widget. Toolbar
+  will be placed into left or right side WidgetBar widget. Toolbar
   takes all available space horizontally.
 */
 class MImToolbar : public MWidget
@@ -171,11 +172,11 @@ private:
 
     void updateRegion();
 
-    void loadCustomButtons(Qt::Alignment align);
+    void loadCustomWidgets(Qt::Alignment align);
 
-    void unloadCustomButtons(Qt::Alignment align);
+    void unloadCustomWidgets(Qt::Alignment align);
 
-    void updateButtons(bool customButtonsChanged = true);
+    void updateWidgets(bool customWidgetsChanged = true);
 
     Qt::KeyboardModifiers keyModifiers(int key) const;
 
@@ -184,16 +185,16 @@ private:
      * or before any item that is currently at index in \a align part of the toolbar.
      *  This doesn't do anything if the item has already been added.
      * \param index Index to be inserted.
-     * \param button The MButton to be added.
+     * \param button The MWidget to be added.
      * \param align Indicate which part of the toolbar, Qt::AlignLeft or Qt::AlignRight.
      */
-    void insertItem(int index, MButton *button, Qt::Alignment align);
+    void insertItem(int index, MWidget *widget, Qt::Alignment align);
 
     /*!
      * \brief Removes an item from its layout.
      * \param button Button to remove from either side.
      */
-    void removeItem(MButton *button);
+    void removeItem(MWidget *widget);
 
     void updateReactiveAreas();
 
@@ -208,8 +209,8 @@ private:
     //! Copy/paste button status
     CopyPasteState copyPasteStatus;
 
-    ButtonBar leftBar;  //! Widget to hold left-aligned toolbar buttons
-    ButtonBar rightBar; //! Widget to hold right-aligned toolbar buttons
+    WidgetBar leftBar;  //! Widget to hold left-aligned toolbar widgets
+    WidgetBar rightBar; //! Widget to hold right-aligned toolbar widgets
 
     MInfoBanner *modifierLockOnInfoBanner; //! widget to show modifier is in locked state
     QTimer *modifierLockOnTimer;

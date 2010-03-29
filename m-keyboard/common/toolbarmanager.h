@@ -19,13 +19,12 @@
 #define TOOLBARMANAGER_H
 
 #include <QObject>
-#include <QMap>
-#include "toolbarbutton.h"
+#include "toolbarwidget.h"
 
 class MImToolbar;
 class ToolbarData;
 class MGConfItem;
-class MButton;
+class MWidget;
 
 /*!
  \brief The ToolbarManager class manager the virtual keyboard toolbar.
@@ -50,35 +49,35 @@ public:
     ~ToolbarManager();
 
     /*!
-     *\brief Returns the button count in current loaded customized toolbar.
+     *\brief Returns the widget count in current loaded customized toolbar.
      */
-    int buttonCount() const;
+    int widgetCount() const;
 
     /*!
-     *\brief Returns the button list in current loaded customized toolbar.
+     *\brief Returns the widget list in current loaded customized toolbar.
      */
-    QList<ToolbarButton *> buttonList() const;
+    QList<ToolbarWidget *> widgetList() const;
 
     /*!
-     *\brief Returns the button list with \a align in current loaded customized toolbar.
-     * And the button list is already sorted by priorities
+     *\brief Returns the widget list with \a align in current loaded customized toolbar.
+     * And the widget list is already sorted by priorities
      */
-    QList<ToolbarButton *> buttonList(Qt::Alignment align) const;
+    QList<ToolbarWidget *> widgetList(Qt::Alignment align) const;
 
     /*!
-     *\brief Returns a ToolbarButton pointer to the button with \a name in current loaded customized toolbar.
+     *\brief Returns a ToolbarWidget pointer to the widget with \a name in current loaded customized toolbar.
      */
-    ToolbarButton *toolbarButton(const QString &name) const;
+    ToolbarWidget *toolbarWidget(const QString &name) const;
 
     /*!
-     *\brief Returns a ToolbarButton pointer to the button with \a button in current loaded customized toolbar.
+     *\brief Returns a ToolbarWidget pointer to the widget with \a widget in current loaded customized toolbar.
      */
-    ToolbarButton *toolbarButton(const MButton *button) const;
+    ToolbarWidget *toolbarWidget(const MWidget *widget) const;
 
     /*!
-     *\brief Returns a MButton pointer to the button with \a name in current loaded customized toolbar.
+     *\brief Returns a MWidget pointer to the widget with \a name in current loaded customized toolbar.
      */
-    MButton *button(const QString &name) const;
+    MWidget *widget(const QString &name) const;
 
     /*!
      *\brief Returns current loaded toolbar's name.
@@ -98,10 +97,11 @@ public:
     void reset();
 
 private slots:
-    void loadToolbarButtons();
+    void loadToolbarWidgets();
 
 public:
-    static const int buttonNameDataKey;
+    static const int widgetNameDataKey;
+    static const int widgetTypeDataKey;
 
 private:
     /*!
@@ -109,20 +109,20 @@ private:
      */
     QStringList toolbarList() const;
 
-    const QString *buttonName(const MButton *) const;
+    const QString *widgetName(const MWidget *) const;
 
-    void resetButtonPool();
+    void resetWidgetPool();
 
     ToolbarData *findToolbar(const QString &);
 
     ToolbarData *createToolbar(const QString &);
 
-    void createButton(const ToolbarButton *b);
+    void createWidget(const ToolbarWidget *b);
 
     MImToolbar *imToolbar;
     QList<ToolbarData *> toolbars;
     ToolbarData *current;
-    QList<MButton *> toolbarButtonPool;
+    QList<MWidget *> toolbarWidgetPool;
 
     friend class Ut_MImToolbar;
     friend class Ut_ToolbarManager;
