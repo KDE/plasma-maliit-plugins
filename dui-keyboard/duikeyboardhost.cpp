@@ -110,7 +110,7 @@ DuiKeyboardHost::DuiKeyboardHost(DuiInputContextConnection* icConnection, QObjec
     // It uses animation to carry out the orientation change transform
     // (e.g. rotation and position animation). We do this because transform
     // happens in the scene, not in the view (DuiWindow) anymore.
-    DuiPlainWindow::instance()->sceneManager()->showWindowNow(sceneWindow);
+    DuiPlainWindow::instance()->sceneManager()->appearSceneWindowNow(sceneWindow);
 
     // Because we set vkbWidget as a child of sceneWindow the vkb
     // will always be in correct orientation. However the animation will be
@@ -169,11 +169,11 @@ DuiKeyboardHost::DuiKeyboardHost(DuiInputContextConnection* icConnection, QObjec
     // 3) Navigation bar showing -> vkb showing
     // There is currently, however, no signals at that level we could follow.
     connect(DuiPlainWindow::instance()->sceneManager(),
-            SIGNAL(orientationAboutToChange(const Dui::Orientation &)),
+            SIGNAL(orientationAboutToChange(Dui::Orientation)),
             SLOT(prepareOrientationChange()));
 
     connect(DuiPlainWindow::instance()->sceneManager(),
-            SIGNAL(orientationChangeFinished(const Dui::Orientation &)),
+            SIGNAL(orientationChangeFinished(Dui::Orientation)),
             SLOT(finalizeOrientationChange()));
 
     symbolView = new SymbolView(LayoutsManager::instance(), &vkbWidget->style(),

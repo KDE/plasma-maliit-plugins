@@ -97,7 +97,7 @@ void Ut_SymbolView::init()
     // SymView needs scene window as parent so positions itself correctly
     // in the scene in portrait mode.
     parent = new DuiSceneWindow;
-    DuiPlainWindow::instance()->sceneManager()->showWindowNow(parent);
+    DuiPlainWindow::instance()->sceneManager()->appearSceneWindowNow(parent);
     subject->setParentItem(parent);
 }
 

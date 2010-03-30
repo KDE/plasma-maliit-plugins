@@ -106,7 +106,8 @@ void Ut_DuiVirtualKeyboard::initTestCase()
 
     vkbParent = new DuiSceneWindow;
     vkbParent->setManagedManually(true); // we want the scene window to remain in origin
-    DuiPlainWindow::instance()->sceneManager()->showWindowNow(vkbParent); // Adds scene window to scene.
+    // Adds scene window to scene.
+    DuiPlainWindow::instance()->sceneManager()->appearSceneWindowNow(vkbParent);
 
     LayoutsManager::createInstance();
 }

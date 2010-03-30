@@ -651,7 +651,7 @@ void Ut_DuiKeyboardHost::testRegionSignals()
     rotateToAngle(Dui::Angle0);
 
     QSignalSpy orientationSpy(DuiPlainWindow::instance()->sceneManager(),
-                              SIGNAL(orientationChangeFinished(const Dui::Orientation &)));
+                              SIGNAL(orientationChangeFinished(Dui::Orientation)));
 
     subject->show();
     QTest::qWait(DuiVirtualKeyboard::ShowHideTime + 50);

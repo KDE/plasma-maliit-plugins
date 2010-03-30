@@ -601,7 +601,7 @@ void DuiImToolbar::setIndicatorButtonState(Qt::KeyboardModifier modifier, Modifi
         } else {
             modifierLockOnInfoBanner = new DuiInfoBanner(DuiInfoBanner::Information);
             modifierLockOnInfoBanner->setBodyText(lockOnNotificationLabel);
-            DuiPlainWindow::instance()->sceneManager()->showWindow(modifierLockOnInfoBanner,
+            DuiPlainWindow::instance()->sceneManager()->appearSceneWindow(modifierLockOnInfoBanner,
                     DuiSceneWindow::DestroyWhenDone);
             modifierLockOnTimer->start();
         }
@@ -613,6 +613,6 @@ void DuiImToolbar::setIndicatorButtonState(Qt::KeyboardModifier modifier, Modifi
 void DuiImToolbar::hideLockOnInfoBanner()
 {
     if (modifierLockOnInfoBanner)
-        DuiPlainWindow::instance()->sceneManager()->hideWindow(modifierLockOnInfoBanner);
+        DuiPlainWindow::instance()->sceneManager()->disappearSceneWindow(modifierLockOnInfoBanner);
     modifierLockOnInfoBanner = 0;
 }
