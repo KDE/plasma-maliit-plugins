@@ -94,8 +94,8 @@ void LayoutMenu::loadLanguageMenu()
     centralWidget->setGeometry(0, 0, baseSize.width(), baseSize.height() + buttonSize.height());
 
     //% "Keyboard options"
-    keyboardOptionDialog = new DuiDialog(qtTrId("qtn_vkb_keyboard_options"),
-                                         centralWidget, Dui::NoButton);
+    keyboardOptionDialog = new DuiDialog(qtTrId("qtn_vkb_keyboard_options"), Dui::NoButton);
+    keyboardOptionDialog->setCentralWidget(centralWidget);
 
     connect(keyboardOptionDialog, SIGNAL(visibilityChanged(bool)), SLOT(visibilityChangeHandler(bool)));
 
