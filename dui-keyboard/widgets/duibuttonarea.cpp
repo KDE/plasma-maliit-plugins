@@ -130,6 +130,10 @@ void DuiButtonArea::loadKeys()
 
             FlickUpButton *button = new FlickUpButton(*dataKey);
 
+            if (dataKey->binding()->action() == KeyBinding::ActionShift) {
+                shiftButton = button;
+            }
+
             if (stretchesHorizontally) {
                 button->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
             } else {

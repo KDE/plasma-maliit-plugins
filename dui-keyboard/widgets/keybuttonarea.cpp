@@ -55,6 +55,7 @@ KeyButtonArea::KeyButtonArea(DuiVirtualKeyboardStyleContainer *style,
                              bool usePopup,
                              QGraphicsWidget *parent)
     : DuiWidget(parent),
+      shiftButton(0),
       currentLevel(0),
       popup(PopupFactory::instance()->createPopup(*style, this)),
       styleContainer(style),
@@ -170,9 +171,13 @@ KeyButtonArea::onHide()
 }
 
 void
-KeyButtonArea::switchLevel(int level)
+KeyButtonArea::switchLevel(int level, bool capslock)
 {
     currentLevel = level;
+
+    if (shiftButton) {
+        shiftButton->setSelected(capslock);
+    }
 
     // Update uppercase / lowercase
     updateButtonModifiers();
@@ -376,9 +381,11 @@ void KeyButtonArea::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
 void KeyButtonArea::setActiveKey(IKeyButton *key)
 {
+    // Selected buttons are currently skipped.
+
     if (activeKey && (activeKey != key)) {
         // Release key
-        activeKey->setState(IKeyButton::Normal);
+        activeKey->setDownState(false);
         KeyEvent releaseEvent = keyToKeyEvent(*activeKey, QEvent::KeyRelease);
         emit keyReleased(releaseEvent);
         activeKey = 0;
@@ -387,7 +394,7 @@ void KeyButtonArea::setActiveKey(IKeyButton *key)
     if (key && (activeKey != key)) {
         // Press key
         activeKey = key;
-        activeKey->setState(IKeyButton::Pressed);
+        activeKey->setDownState(true);
         KeyEvent pressEvent = keyToKeyEvent(*activeKey, QEvent::KeyPress);
         emit keyPressed(pressEvent);
     }

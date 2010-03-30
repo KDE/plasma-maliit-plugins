@@ -31,11 +31,12 @@ SingleWidgetButton::SingleWidgetButton(const VKBDataKey &key,
       shift(false),
       currentLabel(dataKey.binding(false)->label()),
       currentState(Normal),
+      selected(false),
       styleContainer(style),
       parentItem(parent)
 {
-    icons[0] = (dataKey.binding(false) ? loadIcon(dataKey.binding(false)->action()) : 0);
-    icons[1] = (dataKey.binding(true) ? loadIcon(dataKey.binding(true)->action()) : 0);
+    icons[0] = (dataKey.binding(false) ? loadIcon(dataKey.binding(false)->action(), false) : 0);
+    icons[1] = (dataKey.binding(true) ? loadIcon(dataKey.binding(true)->action(), true) : 0);
 }
 
 SingleWidgetButton::~SingleWidgetButton()
@@ -79,11 +80,30 @@ void SingleWidgetButton::setModifiers(bool shift, QChar accent)
     }
 }
 
-void SingleWidgetButton::setState(ButtonState state)
+void SingleWidgetButton::setDownState(bool down)
 {
-    if (currentState != state) {
-        currentState = state;
+    ButtonState newState;
+
+    if (down) {
+        // Pressed state is the same for selectable and non-selectable.
+        newState = Pressed;
+    } else {
+        newState = (selected ? Selected : Normal);
+    }
+
+    if (newState != currentState) {
+        currentState = newState;
         update();
+    }
+}
+
+void SingleWidgetButton::setSelected(bool select)
+{
+    if (selected != select) {
+        selected = select;
+
+        // refresh state
+        setDownState(currentState == Pressed);
     }
 }
 
@@ -128,7 +148,7 @@ void SingleWidgetButton::update()
     parentItem.update(buttonRect());
 }
 
-const QPixmap *SingleWidgetButton::loadIcon(KeyBinding::KeyAction action) const
+const QPixmap *SingleWidgetButton::loadIcon(KeyBinding::KeyAction action, const bool shift) const
 {
     const QPixmap *pixmap = 0;
     const QString *id = 0;
@@ -140,7 +160,11 @@ const QPixmap *SingleWidgetButton::loadIcon(KeyBinding::KeyAction action) const
             size = styleContainer->keyBackspaceIconSize();
             break;
         case KeyBinding::ActionShift:
-            id = &styleContainer->keyShiftIconId();
+            if (shift) {
+                id = &styleContainer->keyShiftUppercaseIconId();
+            } else {
+                id = &styleContainer->keyShiftIconId();
+            }
             size = styleContainer->keyShiftIconSize();
             break;
         case KeyBinding::ActionReturn:

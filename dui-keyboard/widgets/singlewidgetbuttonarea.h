@@ -107,6 +107,8 @@ private:
     //! if such exists in the current layout.
     const SingleWidgetButton *symIndicatorButton;
 
+    bool shiftCapsLock;
+
     const QPixmap *pixmap1;
     const QPixmap *pixmap2;
     const QPixmap *pixmap3;

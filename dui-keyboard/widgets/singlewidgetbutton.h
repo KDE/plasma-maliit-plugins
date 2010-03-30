@@ -39,7 +39,8 @@ public:
     virtual QRect buttonRect() const;
     virtual QRect buttonBoundingRect() const;
     virtual void setModifiers(bool shift, QChar accent = QChar());
-    virtual void setState(ButtonState state);
+    virtual void setDownState(bool down);
+    virtual void setSelected(bool select);
     virtual ButtonState state() const;
     virtual const VKBDataKey &key() const;
     virtual const KeyBinding &binding() const;
@@ -65,7 +66,7 @@ public:
     int width;
 
 private:
-    const QPixmap *loadIcon(KeyBinding::KeyAction action) const;
+    const QPixmap *loadIcon(KeyBinding::KeyAction action, bool shift) const;
 
     //! The key this button represents
     const VKBDataKey &dataKey;
@@ -75,6 +76,7 @@ private:
 
     QString currentLabel;
     ButtonState currentState;
+    bool selected;
 
     //! One icon for both shift states.
     const QPixmap *icons[2];

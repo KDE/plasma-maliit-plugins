@@ -45,6 +45,7 @@ SingleWidgetButtonArea::SingleWidgetButtonArea(DuiVirtualKeyboardStyleContainer 
       rowList(sectionModel->rowCount()),
       symState(SymIndicatorInactive),
       symIndicatorButton(0),
+      shiftCapsLock(false),
       textDirty(false),
       equalWidthButtons(false)
 {
@@ -133,7 +134,9 @@ void SingleWidgetButtonArea::loadKeys()
 
             if (dataKey->binding()->action() == KeyBinding::ActionSym) {
                 // Save pointer for easier use.
-                symIndicatorButton = button;
+                this->symIndicatorButton = button;
+            } else if (dataKey->binding()->action() == KeyBinding::ActionShift) {
+                this->shiftButton = button;
             }
 
             button->width = buttonSize.width();

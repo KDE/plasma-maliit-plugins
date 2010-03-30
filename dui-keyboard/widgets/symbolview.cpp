@@ -420,7 +420,7 @@ KeyButtonArea *SymbolView::createKeyButtonArea(QSharedPointer<const LayoutSectio
         keysWidget = new SingleWidgetButtonArea(styleContainer, section, sizeScheme, enablePopup);
         keysWidget->setFont(style()->font());
 
-        connect(this, SIGNAL(levelSwitched(int)), keysWidget, SLOT(switchLevel(int)));
+        connect(this, SIGNAL(levelSwitched(int, bool)), keysWidget, SLOT(switchLevel(int, bool)));
 
         connect(keysWidget, SIGNAL(keyClicked(const KeyEvent &)),
                 SIGNAL(keyClicked(const KeyEvent &)));
@@ -450,15 +450,11 @@ void SymbolView::organizeContent()
 }
 
 
-void SymbolView::switchLevel(int level)
+void SymbolView::switchLevel(int level, bool capslock)
 {
-    // shift state changed?
-    if (shift != level) {
-        shift = level;
-
-        emit levelSwitched(shift);
-        updateSymIndicator();
-    }
+    shift = level;
+    emit levelSwitched(shift, capslock);
+    updateSymIndicator();
 }
 
 int SymbolView::currentLevel() const

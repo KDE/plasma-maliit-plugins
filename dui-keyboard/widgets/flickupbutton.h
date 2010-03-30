@@ -70,8 +70,9 @@ public:
     virtual QRect buttonRect() const;
     virtual QRect buttonBoundingRect() const;
     virtual void setModifiers(bool shift, QChar accent = QChar());
-    virtual void setState(ButtonState state);
-    virtual IKeyButton::ButtonState state() const;
+    virtual void setSelected(bool select);
+    virtual void setDownState(bool down);
+    virtual ButtonState state() const;
     virtual const VKBDataKey &key() const;
     virtual const KeyBinding &binding() const;
     virtual bool isDeadKey() const;

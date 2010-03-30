@@ -26,9 +26,9 @@ class IKeyButton
 {
 public:
     enum ButtonState {
-        Normal,
-        Pressed,
-        Selected
+        Normal,  //! Normal is the "up" state for not selected buttons.
+        Pressed, //! Button is Pressed when it's set down.
+        Selected //! Selected is the "up" state for selected buttons.
     };
 
     //! \brief Returns current label. It is affected by active modifiers.
@@ -46,10 +46,13 @@ public:
     //! \brief Sets shift and accent. Affects label and/or icon.
     virtual void setModifiers(bool shift, QChar accent = QChar()) = 0;
 
-    //! \brief Set the pressed-state of the button.
-    virtual void setState(ButtonState state) = 0;
+    //! \brief Sets the button's state to pressed. Selectable has this too.
+    virtual void setDownState(bool down) = 0;
 
-    //! \brief Returns the pressed-state of the button.
+    //! \brief Selected button
+    virtual void setSelected(bool selected) = 0;
+
+    //! \brief Returns the pressed state of the button.
     virtual ButtonState state() const = 0;
 
     //! \return the key this button represents

@@ -1168,7 +1168,8 @@ void DuiKeyboardHost::updateSymbolViewLevel()
             break;
         }
     }
-    symbolView->switchLevel(shiftLevel > 0 ? 1 : 0);
+    symbolView->switchLevel(shiftLevel > 0 ? 1 : 0,
+                            shiftLevel == DuiVirtualKeyboard::ShiftLock);
 }
 
 void DuiKeyboardHost::showSymbolView()

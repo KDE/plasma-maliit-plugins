@@ -82,6 +82,7 @@ public:
 
     DUI_STYLE_ATTRIBUTE(QSize, keyShiftIconSize, KeyShiftIconSize)
     DUI_STYLE_ATTRIBUTE(QString, keyShiftIconId, KeyShiftIconId)
+    DUI_STYLE_ATTRIBUTE(QString, keyShiftUppercaseIconId, KeyShiftUppercaseIconId)
 };
 
 class DuiVirtualKeyboardStyleContainer : public DuiWidgetStyleContainer

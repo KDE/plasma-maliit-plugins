@@ -143,7 +143,7 @@ void Ut_KeyButtonArea::testLandscapeBoxSize()
         subject->resize(defaultLayoutSize());
 
         for (int level = 0; level < 2; level++) {
-            subject->switchLevel(level);
+            subject->switchLevel(level, false);
 
             box = keyAt(0, 0)->buttonRect().size();
             qDebug() << "Current level" << level << "; Box size=" << box;
@@ -188,7 +188,7 @@ void Ut_KeyButtonArea::testPortraitBoxSize()
 
         subject->resize(defaultLayoutSize());
         for (int level = 0; level < 2; level++) {
-            subject->switchLevel(level);
+            subject->switchLevel(level, false);
 
             box = keyAt(0, 0)->buttonRect().size();
             qDebug() << "Current level" << level << "; Box size=" << box << subject->size();
@@ -460,7 +460,7 @@ void Ut_KeyButtonArea::testDeadkeys()
     }
 
     //test for shift status
-    subject->switchLevel(1);
+    subject->switchLevel(1, false);
     for (i = 0; i < positions.count(); i++) {
         QCOMPARE(keyAt(0, positions[i])->label(), upperDKUnicodes.at(i));
     }
@@ -472,7 +472,7 @@ void Ut_KeyButtonArea::testDeadkeys()
     }
 
     //test for shift off status
-    subject->switchLevel(0);
+    subject->switchLevel(0, false);
     for (i = 0; i < positions.count(); i++) {
         QCOMPARE(keyAt(0, positions[i])->label(), lowerUnicodes.at(i));
     }
@@ -692,6 +692,37 @@ void Ut_KeyButtonArea::testFunctionRowAlignmentBug()
 
     QVERIFY(!buttonFoundFromLeft); // button should not be found from left side
     QVERIFY(buttonFoundFromRight); // button should be found from right side
+}
+
+void Ut_KeyButtonArea::testShiftCapsLock_data()
+{
+    QTest::addColumn<KBACreator>("createKba");
+    QTest::newRow("SingleWidgetArea") << &createSingleWidgetKeyButtonArea;
+    QTest::newRow("DuiButtonArea") << &createDuiButtonArea;
+}
+
+void Ut_KeyButtonArea::testShiftCapsLock()
+{
+    QFETCH(KBACreator, createKba);
+
+    // Load any layout that has function row with shift
+    keyboard = new KeyboardData;
+    QVERIFY(keyboard->loadNokiaKeyboard("en.xml"));
+    const LayoutData *layout = keyboard->layout(LayoutData::General, Dui::Landscape);
+    QVERIFY(layout);
+    QSharedPointer<const LayoutSection> functionRowSection = layout->section(LayoutData::functionkeySection);
+
+    subject = createKba(style, functionRowSection, KeyButtonArea::ButtonSizeFunctionRow, false, 0);
+
+    IKeyButton *shiftButton = subject->shiftButton;
+    QVERIFY(shiftButton);
+    QVERIFY(shiftButton->state() == IKeyButton::Normal);
+
+    subject->switchLevel(0, true);
+    QVERIFY(shiftButton->state() == IKeyButton::Selected);
+
+    subject->switchLevel(0, false);
+    QVERIFY(shiftButton->state() == IKeyButton::Normal);
 }
 
 void Ut_KeyButtonArea::changeOrientation(Dui::OrientationAngle angle)

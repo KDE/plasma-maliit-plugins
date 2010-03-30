@@ -190,33 +190,28 @@ void FlickUpButton::setModifiers(bool shift, QChar accent)
     }
 }
 
-void FlickUpButton::setState(ButtonState state)
+void FlickUpButton::setSelected(bool select)
 {
-    // Update DuiButton down/checked state.
-    switch (state) {
-    case IKeyButton::Normal:
-        setDown(false);
-        setChecked(false);
-        break;
-    case IKeyButton::Pressed:
-        setDown(true);
-        break;
-    case IKeyButton::Selected:
+    setCheckable(select);
+    if (select) {
         setChecked(true);
-        break;
     }
+}
+
+void FlickUpButton::setDownState(bool down)
+{
+    // Update DuiButton down state.
+    setDown(down);
 }
 
 IKeyButton::ButtonState FlickUpButton::state() const
 {
     IKeyButton::ButtonState currentState;
 
-    if (isChecked()) {
-        currentState = IKeyButton::Selected;
-    } else if (isDown()) {
+    if (isDown()) {
         currentState = IKeyButton::Pressed;
     } else {
-        currentState = IKeyButton::Normal;
+        currentState = isCheckable() ? IKeyButton::Selected : IKeyButton::Normal;
     }
 
     return currentState;

@@ -80,8 +80,9 @@ public:
     /*!
     * Method to switch layout when shift button is pressed
     * \param level int 1 for upper case, otherwise 0
+    * \param capslock Shift locked state
     */
-    void switchLevel(int level);
+    void switchLevel(int level, bool capslock);
 
     //! Returns current level.
     int currentLevel() const;
@@ -156,7 +157,7 @@ public slots:
 
 signals:
     //! Used to broadcast shift state to all pages/KeyButtonAreas.
-    void levelSwitched(int);
+    void levelSwitched(int, bool);
 
     /*!
      * Emitted on clicked on layout

@@ -245,16 +245,18 @@ DuiVirtualKeyboard::switchLevel()
         break;
     }
 
+    const bool capsLock = (shiftLevel == ShiftLock);
+
     for (int i = 0; i < mainKeyboardSwitcher->count(); ++i) {
         // the subwidgets have main section as first item in their layout, function row as second.
         // handling main section:
         static_cast<KeyButtonArea *>(mainKeyboardSwitcher->widget(i)->layout()->itemAt(0))->
-            switchLevel(currentLevel);
+                switchLevel(currentLevel, capsLock);
 
         // TODO: When introducing multitouch we should make function row to change level
         // according to pressed state of the shift button rather than general level.
         static_cast<KeyButtonArea *>(mainKeyboardSwitcher->widget(i)->layout()->itemAt(1))->
-            switchLevel(currentLevel);
+                switchLevel(currentLevel, capsLock);
     }
 }
 
