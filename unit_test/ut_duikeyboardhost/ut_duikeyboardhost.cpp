@@ -688,7 +688,7 @@ void Ut_DuiKeyboardHost::testRegionSignals()
 
 void Ut_DuiKeyboardHost::rotateToAngle(Dui::OrientationAngle angle)
 {
-    DuiPlainWindow::instance()->setOrientationAngle(angle);
+    subject->appOrientationChanged(angle);
     QTest::qWait(SceneRotationTime); // wait until rotation animation is finished
 }
 
