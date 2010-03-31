@@ -113,7 +113,7 @@ private slots:
     //! Opens language settings page in duicontrolpanel.
     void openLanguageApplet();
 
-    void visibilityChangeHandler(bool visibility);
+    void visibleChangeHandler();
 
 private:
     /*!

@@ -106,7 +106,7 @@ void Ut_SymbolView::cleanup()
     // Make sure default stub is restored.
     gDuiReactionMapStub = &gDefaultDuiReactionMapStub;
 
-    parent->disappearNow();
+    DuiPlainWindow::instance()->sceneManager()->appearSceneWindowNow(parent);
     subject->setParentItem(0);
     delete parent;
     delete subject;

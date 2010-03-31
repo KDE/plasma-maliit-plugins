@@ -97,7 +97,7 @@ void LayoutMenu::loadLanguageMenu()
     keyboardOptionDialog = new DuiDialog(qtTrId("qtn_vkb_keyboard_options"), Dui::NoButton);
     keyboardOptionDialog->setCentralWidget(centralWidget);
 
-    connect(keyboardOptionDialog, SIGNAL(visibilityChanged(bool)), SLOT(visibilityChangeHandler(bool)));
+    connect(keyboardOptionDialog, SIGNAL(visibleChanged()), SLOT(visibleChangeHandler()));
 
     /* Create widgets and put then into the layout policy */
 
@@ -241,8 +241,12 @@ LayoutMenu::show()
     }
 }
 
-void LayoutMenu::visibilityChangeHandler(bool visibility)
+void LayoutMenu::visibleChangeHandler()
 {
+    QGraphicsObject *dialog = qobject_cast<QGraphicsObject *>(sender());
+    Q_ASSERT(dialog);
+    bool visibility = dialog->isVisible();
+
     if (!visibility) {
         active = false;
         emit hidden();
