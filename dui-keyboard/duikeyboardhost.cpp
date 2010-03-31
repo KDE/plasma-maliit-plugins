@@ -234,7 +234,8 @@ DuiKeyboardHost::DuiKeyboardHost(DuiInputContextConnection* icConnection, QObjec
             connect(vkbWidget, SIGNAL(languageChanged(const QString &)),
                     this, SLOT(initializeInputEngine()));
         } else {
-            qDebug() << __PRETTY_FUNCTION__ << "Failed to load correction engine";
+            qDebug() << __PRETTY_FUNCTION__ << "Failed to load correction engine"
+                     << inputMethodCorrectionEngine->value().toString();
         }
     }
 
