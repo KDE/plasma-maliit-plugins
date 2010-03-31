@@ -19,9 +19,11 @@
 #define TOOLBARMANAGER_H
 
 #include <QObject>
+#include <QHash>
+#include <QPointer>
 #include "toolbarwidget.h"
+#include <memory>
 
-class MImToolbar;
 class ToolbarData;
 class MGConfItem;
 class MWidget;
@@ -39,15 +41,39 @@ class ToolbarManager : public QObject
 
 public:
     /*!
-     * \brief Default constructor.
-     */
-    ToolbarManager(MImToolbar *parent);
-
-    /*!
      *\brief Destructor.
      */
-    ~ToolbarManager();
+    virtual ~ToolbarManager();
 
+    //! \brief Get singleton instance
+    //! \return singleton instance
+    static ToolbarManager &instance();
+
+    //! \brief Create singleton
+    static void createInstance();
+
+    //! \brief Destroy singleton
+    static void destroyInstance();
+
+    /*!
+     * \brief Register an input method toolbar which is defined in \a fileName with the unique identifier \a id.
+     * ToolbarManager can load a custom toolbar's content according \a id and \a fileName, and cache it for the
+     * future use. The \a id should be unique, and the \a fileName is the absolute file name of the custom toolbar.
+     */
+    void registerToolbar(qlonglong id, const QString &fileName);
+
+    /*!
+     * \brief Unregister an input method \a toolbar which unique identifier is \a id.
+     * ToolbarManager will remove the cached toolbar according \a id.
+     */
+    void unregisterToolbar(qlonglong id);
+
+    /*!
+     * \brief Sets the \a attribute for the \a item in the custom toolbar which has the unique \a id to \a value.
+     */
+    void setToolbarItemAttribute(qlonglong id, const QString &item, const QString &attribute, const QVariant &value);
+
+    QRegion region(bool includeToolbar = true) const;
     /*!
      *\brief Returns the widget count in current loaded customized toolbar.
      */
@@ -65,6 +91,11 @@ public:
     QList<ToolbarWidget *> widgetList(Qt::Alignment align) const;
 
     /*!
+     *\brief Returns a ToolbarWidget pointer to the widget with \a name in cached customized toolbar with \a id.
+     */
+    ToolbarWidget *toolbarWidget(qlonglong id, const QString &name) const;
+
+    /*!
      *\brief Returns a ToolbarWidget pointer to the widget with \a name in current loaded customized toolbar.
      */
     ToolbarWidget *toolbarWidget(const QString &name) const;
@@ -80,24 +111,31 @@ public:
     MWidget *widget(const QString &name) const;
 
     /*!
-     *\brief Returns current loaded toolbar's name.
+     *\brief Returns current loaded toolbar's identifier.
      */
-    QString currentToolbar() const;
+    qlonglong currentToolbar() const;
 
     /*!
-     * \brief Loads the toolbar with \a name
-     * ToolbarManager can load a custom toolbar's content according \a name, and cache it for the future use.
+     * \brief Loads the toolbar according the unique \a id.
+     * The \a uuid must be registered before by registerToolbar().
      * \return true if the toolbar \a name is loaded successfully or already cached before.
+     * \sa registerToolbar().
      */
-    bool loadToolbar(const QString &name);
+    bool loadToolbar(qlonglong id);
 
     /*!
      *\brief Reset current loaded customized toolbar to 0.
      */
     void reset();
 
+signals:
+    //! Emitted when a button is clicked
+    void buttonClicked(const ToolbarWidget &);
+
 private slots:
     void loadToolbarWidgets();
+
+    void handleButtonClick();
 
 public:
     static const int widgetNameDataKey;
@@ -105,28 +143,52 @@ public:
 
 private:
     /*!
+     * \brief Default constructor.
+     */
+    ToolbarManager();
+
+    /*!
      *\brief Returns a list of the name for all toolbars.
      */
-    QStringList toolbarList() const;
+    QList<qlonglong> toolbarList() const;
 
     const QString *widgetName(const MWidget *) const;
 
     void resetWidgetPool();
 
-    ToolbarData *findToolbar(const QString &);
+    bool validateWidgetPool();
 
-    ToolbarData *createToolbar(const QString &);
+    ToolbarData *createToolbar(const QString &name);
 
     void createWidget(const ToolbarWidget *b);
 
-    MImToolbar *imToolbar;
-    QList<ToolbarData *> toolbars;
-    ToolbarData *current;
-    QList<MWidget *> toolbarWidgetPool;
+    typedef QHash<qlonglong, QString> ToolbarContainer;
+    //! all registered toolbars
+    ToolbarContainer toolbars;
+
+    typedef QHash<qlonglong, ToolbarData *> CachedToolbarContainer;
+    //! cached toolbars
+    CachedToolbarContainer cachedToolbars;
+
+    //! the list of identifier of the cached toolbars, sorted by used frequency.
+    QList<qlonglong> cachedToolbarIds;
+
+    //! current used toolbar iterator
+    CachedToolbarContainer::const_iterator current;
+
+    QList< QPointer<MWidget> > toolbarWidgetPool;
+
+    //! Singleton instance
+    static ToolbarManager *toolbarMgrInstance;
 
     friend class Ut_MImToolbar;
     friend class Ut_ToolbarManager;
 };
 
+inline ToolbarManager &ToolbarManager::instance()
+{
+    Q_ASSERT(toolbarMgrInstance);
+    return *toolbarMgrInstance;
+}
 
 #endif

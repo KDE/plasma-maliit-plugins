@@ -26,7 +26,6 @@
 
 #include <MNamespace>
 #include <MButton>
-#include <MLabel>
 #include <QKeySequence>
 #include <QGraphicsLinearLayout>
 #include <QDebug>
@@ -80,7 +79,7 @@ namespace
 
 MImToolbar::MImToolbar(MVirtualKeyboardStyleContainer &style, QGraphicsWidget *parent)
     : MWidget(parent),
-      toolbarMgr(new ToolbarManager(this)),
+      toolbarMgr(ToolbarManager::instance()),
       textSelected(false),
       indicator(new MButton),
       copyPaste(new MButton),
@@ -109,12 +108,11 @@ MImToolbar::MImToolbar(MVirtualKeyboardStyleContainer &style, QGraphicsWidget *p
 
     modifierLockOnTimer->setInterval(ModifierLockOnInfoDuration);
     connect(modifierLockOnTimer, SIGNAL(timeout()), this, SLOT(hideLockOnInfoBanner()));
+    connect(&toolbarMgr, SIGNAL(buttonClicked(ToolbarWidget)), this, SLOT(handleButtonClick(ToolbarWidget)));
 }
 
 MImToolbar::~MImToolbar()
 {
-    delete toolbarMgr;
-    toolbarMgr = 0;
     delete indicator;
     indicator = 0;
     delete copyPaste;
@@ -163,16 +161,12 @@ QRegion MImToolbar::region() const
     return region;
 }
 
-void MImToolbar::handleButtonClick()
+void MImToolbar::handleButtonClick(const ToolbarWidget &button)
 {
-    const MButton *button = qobject_cast<MButton *>(this->sender());
-    Q_ASSERT(button);
-
-    const ToolbarWidget *toolbarButton = toolbarMgr->toolbarWidget(button);
-    if (!toolbarButton)
+    if (button.type() != ToolbarWidget::Button)
         return;
 
-    foreach(const ToolbarWidget::Action *action, toolbarButton->actions) {
+    foreach(const ToolbarWidget::Action *action, button.actions) {
         switch (action->type) {
         case ToolbarWidget::SendKeySequence:
             sendKeySequence(action->keys);
@@ -214,7 +208,7 @@ void MImToolbar::updateVisibility()
 {
     qDebug() << __PRETTY_FUNCTION__;
     //set widget's visibility according showOn and hideOn premiss and current selection status
-    foreach(ToolbarWidget *w, toolbarMgr->widgetList()) {
+    foreach(ToolbarWidget *w, toolbarMgr.widgetList()) {
         if ((textSelected && w->hideOn != ToolbarWidget::WhenSelectingText)
                 || (w->showOn == ToolbarWidget::Always)) {
             w->setVisible(true);
@@ -231,11 +225,11 @@ void MImToolbar::loadCustomWidgets(Qt::Alignment align)
 {
     qDebug() << __PRETTY_FUNCTION__ << align;
     //the widgets gotten from toolbarMgr are already ordered acording their priority with alignment.
-    QList<ToolbarWidget *> widgets = toolbarMgr->widgetList(align);
+    QList<ToolbarWidget *> widgets = toolbarMgr.widgetList(align);
     //show widgets according their status and priority
     int widgetCount = 0;
     foreach(ToolbarWidget *toolbarWidget, widgets) {
-        MWidget *widget = toolbarMgr->widget(toolbarWidget->name());
+        MWidget *widget = toolbarMgr.widget(toolbarWidget->name());
         if (!widget)
             continue;
         if (toolbarWidget->isVisible()) {
@@ -252,9 +246,9 @@ void MImToolbar::loadCustomWidgets(Qt::Alignment align)
 
 void MImToolbar::unloadCustomWidgets(Qt::Alignment align)
 {
-    QList<ToolbarWidget *> widgets = toolbarMgr->widgetList(align);
+    QList<ToolbarWidget *> widgets = toolbarMgr.widgetList(align);
     foreach(ToolbarWidget *toolbarWidget, widgets) {
-        MWidget *widget = toolbarMgr->widget(toolbarWidget->name());
+        MWidget *widget = toolbarMgr.widget(toolbarWidget->name());
         if (!widget)
             continue;
         widget->setVisible(false);
@@ -279,7 +273,7 @@ void MImToolbar::updateWidgets(bool customWidgetsChanged)
 void MImToolbar::showGroup(const QString &group)
 {
     bool changed = false;
-    foreach(ToolbarWidget *w, toolbarMgr->widgetList()) {
+    foreach(ToolbarWidget *w, toolbarMgr.widgetList()) {
         if (w->group == group && !(w->isVisible())) {
             w->setVisible(true);
             changed = true;
@@ -294,7 +288,7 @@ void MImToolbar::showGroup(const QString &group)
 void MImToolbar::hideGroup(const QString &group)
 {
     bool changed = false;
-    foreach(ToolbarWidget *w, toolbarMgr->widgetList()) {
+    foreach(ToolbarWidget *w, toolbarMgr.widgetList()) {
         if (w->group == group && w->isVisible()) {
             w->setVisible(false);
             changed = true;
@@ -340,14 +334,18 @@ Qt::KeyboardModifiers MImToolbar::keyModifiers(int key) const
     return modify;
 }
 
-void MImToolbar::showToolbarWidget(const QString &name)
+void MImToolbar::showToolbarWidget(qlonglong id)
 {
-    qDebug() << __PRETTY_FUNCTION__ << name;
-    if (name != toolbarMgr->currentToolbar()) {
+    qDebug() << __PRETTY_FUNCTION__ << id;
+    if (id != toolbarMgr.currentToolbar()) {
         unloadCustomWidgets(Qt::AlignLeft);
         unloadCustomWidgets(Qt::AlignRight);
     }
-    if (toolbarMgr->loadToolbar(name) && isVisible())
+    if (!ToolbarManager::instance().loadToolbar(id)) {
+        leftBar.clear();
+        rightBar.clear();
+    }
+    if (isVisible())
         updateVisibility();
 }
 
@@ -356,7 +354,7 @@ void MImToolbar::hideToolbarWidget()
     qDebug() << __PRETTY_FUNCTION__;
     unloadCustomWidgets(Qt::AlignLeft);
     unloadCustomWidgets(Qt::AlignRight);
-    toolbarMgr->reset();
+    ToolbarManager::instance().reset();
     if (isVisible())
         updateVisibility();
 }

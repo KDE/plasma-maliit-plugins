@@ -142,12 +142,12 @@ public:
     void finalizeOrientationChange();
 
     /*!
-     * \brief Shows a custom toolbar with \a name.
-     * Loads a custom toolbar according \a name, if successfuly loads,
+     * \brief Shows a custom toolbar with unique \a id.
+     * Loads a custom toolbar according \a id, if successfuly loads,
      * the toolbar will be visible when virtual keyboard is shown.
-     * \param name      Name of the custom toolbar.
+     * \param id      Unique identifier of the custom toolbar.
      */
-    void showToolbarWidget(const QString &name);
+    void showToolbarWidget(qlonglong id);
 
     /*!
      * \brief Hides all custom toolbars, this means they are removed from visible virtual keyboard.

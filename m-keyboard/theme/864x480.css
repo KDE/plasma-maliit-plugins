@@ -249,7 +249,7 @@ MVirtualKeyboardStyle.Landscape {
     background-image: "keyboard-toolbar-button-background-pressed" 10px 10px 10px 10px;
 }
 
-ButtonBarStyle {
+WidgetBarStyle {
     margin-left: 0;
     margin-top: 0;
     margin-right: 0;

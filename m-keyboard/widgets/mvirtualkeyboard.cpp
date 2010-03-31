@@ -178,9 +178,9 @@ void MVirtualKeyboard::createToolbar()
             this, SIGNAL(indicatorClicked()));
 }
 
-void MVirtualKeyboard::showToolbarWidget(const QString &name)
+void MVirtualKeyboard::showToolbarWidget(qlonglong id)
 {
-    imToolbar->showToolbarWidget(name);
+    imToolbar->showToolbarWidget(id);
 }
 
 void MVirtualKeyboard::hideToolbarWidget()

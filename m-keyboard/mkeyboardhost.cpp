@@ -27,6 +27,7 @@
 #include "layoutmenu.h"
 #include "layoutsmanager.h"
 #include "symbolview.h"
+#include "toolbarmanager.h"
 
 #include <duiimenginewords.h>
 #include <minputcontextconnection.h>
@@ -102,6 +103,7 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
     theme->loadCSS(css);
 
     LayoutsManager::createInstance();
+    ToolbarManager::createInstance();
 
     sceneWindow = new MSceneWindow;
     sceneWindow->setManagedManually(true); // we want the scene window to remain in origin
@@ -268,6 +270,7 @@ MKeyboardHost::~MKeyboardHost()
     backSpaceTimer.stop();
     delete layoutMenu;
     LayoutsManager::destroyInstance();
+    ToolbarManager::destroyInstance();
 }
 
 void MKeyboardHost::createCorrectionCandidateWidget()
@@ -1065,12 +1068,29 @@ void MKeyboardHost::sendString(const QString &text)
     inputContextConnection()->sendCommitString(text);
 }
 
-void MKeyboardHost::setToolbar(const QString &toolbar)
+void MKeyboardHost::registerToolbar(qlonglong id, const QString &fileName)
 {
-    if (!toolbar.isEmpty())
-        vkbWidget->showToolbarWidget(toolbar);
+    ToolbarManager::instance().registerToolbar(id, fileName);
+}
+
+void MKeyboardHost::unregisterToolbar(qlonglong id)
+{
+    ToolbarManager::instance().unregisterToolbar(id);
+}
+
+void MKeyboardHost::setToolbar(qlonglong id)
+{
+    qDebug() << __PRETTY_FUNCTION__ << id;
+    if (id)
+        vkbWidget->showToolbarWidget(id);
     else
         vkbWidget->hideToolbarWidget();
+}
+
+void MKeyboardHost::setToolbarItemAttribute(qlonglong id, const QString &item,
+                                              const QString &attribute, const QVariant &value)
+{
+    ToolbarManager::instance().setToolbarItemAttribute(id, item, attribute, value);
 }
 
 void MKeyboardHost::processKeyEvent(QEvent::Type keyType, Qt::Key keyCode,

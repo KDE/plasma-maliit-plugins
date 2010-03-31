@@ -29,6 +29,7 @@ class MInfoBanner;
 class MVirtualKeyboardStyleContainer;
 class MButton;
 class QTimer;
+class ToolbarWidget;
 
 /*!
   \brief MImToolbar implement the toolbar for virtualkeyboard.
@@ -68,12 +69,12 @@ public:
     QRegion region() const;
 
     /*!
-     * \brief Shows a custom toolbar with \a name.
-     * Loads a custom toolbar according \a name, if successfuly loads,
+     * \brief Shows a custom toolbar with unique \a id.
+     * Loads a custom toolbar according \a id, if successfuly loads,
      * the toolbar will be visible when show().
-     * \param name      Name of the custom toolbar.
+     * \param id      Unique identifier of the custom toolbar.
      */
-    void showToolbarWidget(const QString &name);
+    void showToolbarWidget(qlonglong id);
 
     /*!
      * \brief Hides all custom toolbars, this also means they are removed from visible virtual keyboard.
@@ -125,7 +126,7 @@ public slots:
     void setIndicatorButtonState(Qt::KeyboardModifier modifier, ModifierState state);
 
 private slots:
-    void handleButtonClick();
+    void handleButtonClick(const ToolbarWidget &);
 
     void showGroup(const QString &);
 
@@ -200,7 +201,7 @@ private:
 
     void clearReactiveAreas();
 
-    ToolbarManager *toolbarMgr;
+    const ToolbarManager &toolbarMgr;
     bool textSelected;
     //! Input Mode indicator button
     MButton *indicator;
