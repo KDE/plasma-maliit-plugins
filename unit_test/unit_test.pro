@@ -1,9 +1,9 @@
 CONFIG += ordered
 TEMPLATE = subdirs
 SUBDIRS = \
+          ut_widgetbar \
           ut_mvirtualkeyboard \
           ut_mkeyboardhost \
-          ut_buttonbar \
           ut_mkeyboardplugin \
           ut_mimcorrectioncandidatewidget \
           ut_keybutton \

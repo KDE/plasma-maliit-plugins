@@ -14,22 +14,22 @@
  * of this file.
  */
 
-#ifndef UT_BUTTONBAR_H
-#define UT_BUTTONBAR_H
+#ifndef UT_WIDGETBAR_H
+#define UT_WIDGETBAR_H
 
 #include <QtTest/QtTest>
 #include <QObject>
 
 class MApplication;
 class MButton;
-class ButtonBar;
+class WidgetBar;
 
-class Ut_ButtonBar : public QObject
+class Ut_WidgetBar : public QObject
 {
     Q_OBJECT
 private:
     MApplication *app;
-    ButtonBar *subject;
+    WidgetBar *subject;
 
 private slots:
     void initTestCase();
@@ -49,4 +49,4 @@ private slots:
     void testIndexOf();
 };
 
-#endif // UT_BUTTONBAR_H
+#endif // UT_WIDGETBAR_H

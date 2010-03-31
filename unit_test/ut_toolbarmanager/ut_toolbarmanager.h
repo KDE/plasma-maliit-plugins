@@ -23,9 +23,6 @@
 #include <QtTest/QTest>
 
 class MApplication;
-class ToolbarManager;
-class MImToolbar;
-class MVirtualKeyboardStyleContainer;
 
 class Ut_ToolbarManager : public QObject
 {
@@ -40,9 +37,6 @@ private slots:
 
 private:
     MApplication *app;
-    ToolbarManager *subject;
-    MImToolbar *m_parent;
-    MVirtualKeyboardStyleContainer *style;
 };
 
 #endif

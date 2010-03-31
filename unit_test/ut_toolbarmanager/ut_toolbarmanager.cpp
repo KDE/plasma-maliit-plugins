@@ -17,8 +17,6 @@
 
 
 #include "ut_toolbarmanager.h"
-#include "mvirtualkeyboardstyle.h"
-#include <mimtoolbar.h>
 #include <toolbarmanager.h>
 #include <toolbardata.h>
 #include <MApplication>
@@ -45,34 +43,28 @@ void Ut_ToolbarManager::initTestCase()
     static char *argv[1] = {(char *) "ut_toolbarmanager"};
     static int argc = 1;
     app = new MApplication(argc, argv);
-    style = new MVirtualKeyboardStyleContainer;
-    style->initialize("MVirtualKeyboard", "MVirtualKeyboardView", 0);
-    m_parent = new MImToolbar(*style);
 }
 
 void Ut_ToolbarManager::cleanupTestCase()
 {
-    delete m_parent;
-    m_parent = 0;
-    delete style;
-    style = 0;
     delete app;
     app = 0;
 }
 
 void Ut_ToolbarManager::init()
 {
-    subject = new ToolbarManager(m_parent);
 }
 
 void Ut_ToolbarManager::cleanup()
 {
-    delete subject;
-    subject = 0;
 }
 
 void Ut_ToolbarManager::testLoadToolbar()
 {
+    std::auto_ptr<ToolbarManager> subject(new ToolbarManager);
+    QList<qlonglong> toolbarIds;
+    for (qlonglong i = 1; i <= 14; i ++)
+        toolbarIds <<  i;
     QStringList toolbars;
     toolbars << "testToolbar1"
              << "testToolbar2"
@@ -88,9 +80,11 @@ void Ut_ToolbarManager::testLoadToolbar()
              << "testToolbar12"
              << "testToolbar13"
              << "testToolbar14";
+
     int toolbarCount = 0;
-    foreach (const QString &toolbar, toolbars) {
-        QVERIFY(subject->loadToolbar(toolbar));
+    // register all toolbars
+    for (int i = 0; i < toolbarIds.count(); i++) {
+        subject->registerToolbar(toolbarIds.at(i), toolbars.at(i));
         toolbarCount ++;
         QTest::qWait(50);
         //toolbar loop can only cache no more than MaximumToolbarCount toolbars
@@ -99,14 +93,27 @@ void Ut_ToolbarManager::testLoadToolbar()
         else
             QCOMPARE(subject->toolbarList().count(), MaximumToolbarCount);
     }
-    //the most rarely used toolbar will be removed if reach MaximumToolbarCount
-    QVERIFY(subject->toolbarList().count() == MaximumToolbarCount);
-    QVERIFY(!subject->toolbarList().contains(toolbars.at(0)));
-    QVERIFY(!subject->toolbarList().contains(toolbars.at(1)));
-    QVERIFY(!subject->toolbarList().contains(toolbars.at(2)));
-    QVERIFY(!subject->toolbarList().contains(toolbars.at(3)));
-    for (int i = 4; i < toolbars.count(); i++)
-        QVERIFY(subject->toolbarList().contains(toolbars.at(i)));
+
+    for (int i = 0; i < toolbarIds.count(); i++) {
+        QVERIFY(subject->loadToolbar(toolbarIds.at(i)));
+        QTest::qWait(50);
+        // the loaded toolbar is the current toolbar
+        QCOMPARE(subject->currentToolbar(), toolbarIds.at(i));
+        QVERIFY(subject->toolbarList().contains(toolbarIds.at(i)));
+        if (i > MaximumToolbarCount) {
+            // the rarely used toolbar will be removed from cached toolbars
+            QVERIFY(!subject->toolbarList().contains(toolbarIds.at(i - MaximumToolbarCount)));
+        }
+    }
+
+    toolbarCount = toolbarIds.count();
+    foreach (qlonglong id, toolbarIds) {
+        QVERIFY(subject->toolbars.contains(id));
+        subject->unregisterToolbar(id);
+        toolbarCount --;
+        QCOMPARE(subject->toolbars.count(), toolbarCount);
+        QVERIFY(!subject->toolbars.contains(id));
+    }
 }
 
 QTEST_APPLESS_MAIN(Ut_ToolbarManager);

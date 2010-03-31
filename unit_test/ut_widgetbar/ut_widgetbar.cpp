@@ -14,15 +14,16 @@
  * of this file.
  */
 
-#include "ut_buttonbar.h"
-#include "buttonbar.h"
+#include "ut_widgetbar.h"
+#include "widgetbar.h"
 
 #include <MApplication>
 #include <MButton>
+#include <MLabel>
 
 #include <QGraphicsLayout>
 
-void Ut_ButtonBar::initTestCase()
+void Ut_WidgetBar::initTestCase()
 {
     MApplication::setLoadMInputContext(false);
     static char *argv[1] = { (char *) "ut_buttonbar" };
@@ -30,24 +31,24 @@ void Ut_ButtonBar::initTestCase()
     app = new MApplication(argc, argv);
 }
 
-void Ut_ButtonBar::cleanupTestCase()
+void Ut_WidgetBar::cleanupTestCase()
 {
     delete app;
 }
 
-void Ut_ButtonBar::init()
+void Ut_WidgetBar::init()
 {
-    subject = new ButtonBar(true);
+    subject = new WidgetBar(true);
 }
 
-void Ut_ButtonBar::cleanup()
+void Ut_WidgetBar::cleanup()
 {
     delete subject;
     subject = 0;
 }
 
 // Just a simple sanity test for adding buttons.
-void Ut_ButtonBar::testInsert_data()
+void Ut_WidgetBar::testInsert_data()
 {
     QTest::addColumn<int>("initialButtonCount");
     QTest::addColumn<int>("insertionIndex");
@@ -63,7 +64,7 @@ void Ut_ButtonBar::testInsert_data()
     QTest::newRow("Negative index")  << 3 << -2;
 }
 
-void Ut_ButtonBar::testInsert()
+void Ut_WidgetBar::testInsert()
 {
     QFETCH(int, initialButtonCount);
     QFETCH(int, insertionIndex);
@@ -88,13 +89,13 @@ void Ut_ButtonBar::testInsert()
 
     QCOMPARE(subject->count(), buttons.count());
     for (int i = 0; i < initialButtonCount; ++i) {
-        QCOMPARE(subject->buttonAt(i), buttons.at(i));
+        QCOMPARE(subject->widgetAt(i), buttons.at(i));
     }
 
     qDeleteAll(buttons);
 }
 
-void Ut_ButtonBar::testRemove_data()
+void Ut_WidgetBar::testRemove_data()
 {
     QTest::addColumn<int>("initialButtonCount");
     QTest::addColumn<int>("removeIndex");
@@ -107,7 +108,7 @@ void Ut_ButtonBar::testRemove_data()
     QTest::newRow("End")       << 3 << 2;
 }
 
-void Ut_ButtonBar::testRemove()
+void Ut_WidgetBar::testRemove()
 {
     QFETCH(int, initialButtonCount);
     QFETCH(int, removeIndex);
@@ -133,7 +134,7 @@ void Ut_ButtonBar::testRemove()
     // Make sure contents match.
     QCOMPARE(subject->count(), buttons.count());
     for (int i = 0; i < buttons.count(); ++i) {
-        QCOMPARE(subject->buttonAt(i), buttons.at(i));
+        QCOMPARE(subject->widgetAt(i), buttons.at(i));
     }
 
     qDeleteAll(buttons);
@@ -144,7 +145,7 @@ void Ut_ButtonBar::testRemove()
 }
 
 
-void Ut_ButtonBar::testLayoutContent_data()
+void Ut_WidgetBar::testLayoutContent_data()
 {
     QTest::addColumn<int>("buttonCount");
 
@@ -155,7 +156,7 @@ void Ut_ButtonBar::testLayoutContent_data()
     QTest::newRow("Three buttons") << 3;
 }
 
-void Ut_ButtonBar::testLayoutContent()
+void Ut_WidgetBar::testLayoutContent()
 {
     QFETCH(int, buttonCount);
 
@@ -179,21 +180,26 @@ void Ut_ButtonBar::testLayoutContent()
 }
 
 
-void Ut_ButtonBar::testIndexOf()
+void Ut_WidgetBar::testIndexOf()
 {
     MButton *button1 = new MButton;
     MButton *button2 = new MButton;
     MButton *button3 = new MButton;
+    MLabel *label1 = new MLabel;
     int index = -1;
 
     subject->insert(0, button1);
     subject->insert(1, button2);
+    subject->insert(2, label1);
 
     index = subject->indexOf(button1);
     QCOMPARE(index, 0);
 
     index = subject->indexOf(button2);
     QCOMPARE(index, 1);
+
+    index = subject->indexOf(label1);
+    QCOMPARE(index, 2);
 
     index = subject->indexOf(button3);
     QCOMPARE(index, -1);
@@ -203,4 +209,4 @@ void Ut_ButtonBar::testIndexOf()
 }
 
 
-QTEST_APPLESS_MAIN(Ut_ButtonBar);
+QTEST_APPLESS_MAIN(Ut_WidgetBar);
