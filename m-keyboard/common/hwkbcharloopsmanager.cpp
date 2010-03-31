@@ -28,6 +28,7 @@ namespace
     const QString SystemDisplayLanguage("/meegotouch/i18n/language");
     const QString HardwareKeyboardCharLoopsFile("hwkbcharloops.xml");
     const QString HwKbCharLoopConfigurationPath = "/usr/share/meegotouch/virtual-keyboard/layouts/";
+    const QString DefaultDisplayLanguage("en_gb");
 
     const QString HWKBTagKeyboard           = QString("keyboard");
     const QString HWKBTagVersion            = QString("version");
@@ -93,9 +94,11 @@ bool HwKbCharLoopsManager::setCharLoopsLanguage(const QString &language)
 
 void HwKbCharLoopsManager::syncLanguage()
 {
-    if (!configLanguage.value().isNull()) {
-        setCharLoopsLanguage(configLanguage.value().toString());
+    QString language(configLanguage.value().toString());
+    if (language.isEmpty()) {
+        language = DefaultDisplayLanguage;
     }
+    setCharLoopsLanguage(language);
 }
 
 QString HwKbCharLoopsManager::characterLoop(const QChar &c) const
