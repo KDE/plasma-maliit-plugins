@@ -96,6 +96,9 @@ void LayoutMenu::loadLanguageMenu()
     //% "Keyboard options"
     keyboardOptionDialog = new DuiDialog(qtTrId("qtn_vkb_keyboard_options"), Dui::NoButton);
     keyboardOptionDialog->setCentralWidget(centralWidget);
+    // Note: current (pre 0.20) libdui doesn't have dialog hidden on construction.
+    // do that explicitly here so the signals are emitted correctly
+    keyboardOptionDialog->hide();
 
     connect(keyboardOptionDialog, SIGNAL(visibleChanged()), SLOT(visibleChangeHandler()));
 
