@@ -296,7 +296,7 @@ void DuiKeyboardHost::createCorrectionCandidateWidget()
 
     correctionSceneWindow = new DuiSceneWindow;
     correctionSceneWindow->setManagedManually(true); // we want the scene window to remain in origin
-    correctionView->sceneManager()->showWindowNow(correctionSceneWindow);
+    correctionView->sceneManager()->appearSceneWindowNow(correctionSceneWindow);
 
     // construct correction candidate widget
     correctionCandidateWidget = new DuiImCorrectionCandidateWidget(correctionSceneWindow);
