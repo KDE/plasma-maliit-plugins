@@ -87,7 +87,9 @@ MImToolbar::MImToolbar(MVirtualKeyboardStyleContainer &style, QGraphicsWidget *p
       rightBar(true, this),
       modifierLockOnInfoBanner(0),
       modifierLockOnTimer(new QTimer(this)),
-      style(style)
+      style(style),
+      shiftState(ModifierClearState),
+      fnState(ModifierClearState)
 {
     // Empty button bars are hidden.
     leftBar.hide();
@@ -540,8 +542,12 @@ void MImToolbar::setIndicatorButtonState(Qt::KeyboardModifier modifier, Modifier
     const QString currentDisplayLanguage = LayoutsManager::instance().systemDisplayLanguage();
     switch (modifier) {
     case Qt::ShiftModifier:
+        shiftState = state;
         switch (state) {
         case ModifierClearState:
+            if (fnState != ModifierClearState) {
+                return;
+            }
             if (currentDisplayLanguage == "ar") {
                 indicatorLabel = ArabicIndicatorLabel;
             } else if (LayoutsManager::isCyrillicLanguage(currentDisplayLanguage)) {
@@ -573,8 +579,12 @@ void MImToolbar::setIndicatorButtonState(Qt::KeyboardModifier modifier, Modifier
         }
         break;
     case FnLevelModifier:
+        fnState = state;
         switch (state) {
         case ModifierClearState:
+            if (shiftState != ModifierClearState) {
+                return;
+            }
             // when fn key change back to clear, shows default label "abc"
             indicatorLabel = LatinShiftOffIndicatorLabel;
             break;

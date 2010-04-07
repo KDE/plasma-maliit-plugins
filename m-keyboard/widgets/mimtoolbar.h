@@ -217,6 +217,9 @@ private:
     MVirtualKeyboardStyleContainer &style; //! Styling information
 
     friend class Ut_MImToolbar;
+
+    ModifierState shiftState;
+    ModifierState fnState;
 };
 
 #endif
