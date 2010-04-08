@@ -435,6 +435,7 @@ void DuiKeyboardHost::reset()
         candidates.clear();
         correctionCandidateWidget->setPreeditString("");
         imCorrectionEngine->clearEngineBuffer();
+        vkbWidget->stopAccurateMode();
         break;
     case Hardware:
         hardwareKeyboard->reset();
