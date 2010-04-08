@@ -103,6 +103,7 @@ MVirtualKeyboardStyle {
     font: "Nokia Sans Light" 24;
     font-opacity: 0.9;
     font-color: #FFFFFF;
+    secondary-font: $FONT_SMALL;
 
     padding-top: $PADDING_LARGE;
     padding-bottom: $PADDING_LARGE;
@@ -147,7 +148,8 @@ MVirtualKeyboardStyle.Portrait {
     keyboard-area-size: 480 280;
     
     label-margin-top: 2mm;
-    label-margin-bottom: 2mm;
+    label-margin-left-with-secondary: 4.6mm;
+    secondary-label-separation: 0.9mm;
 
     padding-left: $PADDING_MEDIUM;
     padding-right: 0.7mm;
@@ -172,7 +174,8 @@ MVirtualKeyboardStyle.Landscape {
     keyboard-area-size: 864 280;
     
     label-margin-top: $MARGIN_LARGE;
-    label-margin-bottom: $MARGIN_LARGE;
+    label-margin-left-with-secondary: -1; /* not used, labels are centered horizontally */
+    secondary-label-separation: 0;
 
     padding-left: $PADDING_LARGE;
     padding-right: 0.9mm;

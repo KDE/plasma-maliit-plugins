@@ -27,10 +27,13 @@
 #include <QGraphicsLinearLayout>
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
+#include <QTextCharFormat>
 #include <QTextLine>
+
 #include <MApplication>
 #include <MComponentData>
 #include <MFeedbackPlayer>
+#include <mplainwindow.h>
 #include <duireactionmap.h>
 #include <MTheme>
 
@@ -200,7 +203,13 @@ void SingleWidgetButtonArea::buildTextLayout()
 
     textLayout.clearLayout();
 
+    QList<QTextLayout::FormatRange> formatList;
+    QTextCharFormat secondaryFormat;
+    secondaryFormat.setFont(style()->secondaryFont());
+
     // QTextLayout requires text content to be set before creating QTextLines.
+    // While concatenating the text, also build 'additional formats' used for secondary
+    // labels. This must be done before QTextLayout::beginLayout().
     QString labelContent;
     foreach (const ButtonRow &row, rowList) {
         foreach (const SingleWidgetButton *button, row.buttons) {
@@ -222,21 +231,32 @@ void SingleWidgetButtonArea::buildTextLayout()
                 // try secondary label
                 label = button->secondaryLabel();
                 if (!label.isEmpty()) {
+
+                    if (button != symIndicatorButton) {
+                        // Add formatting for this secondary label.
+                        QTextLayout::FormatRange formatRange = {labelContent.length(), label.length(), secondaryFormat};
+                        formatList.append(formatRange);
+                    }
+
                     labelContent += label + " ";
                 }
             }
         }
     }
 
-    QFontMetrics fm(style()->font());
-    const int labelHeight = fm.height();
+    // Apply the formats
+    if (!formatList.isEmpty()) {
+        textLayout.setAdditionalFormats(formatList);
+    }
 
-    // Margins for text bounding box relative to buttonRect. Primary label will be set
-    // based on the top margin only so font size will determine the height. Bottom margin
-    // is used to set position for the secondary label (no support yet for horizontally
-    // positioned secondary labels).
+    QFontMetrics fm(style()->font());
+    QFontMetrics secondaryFm(secondaryFormat.font());
+    const int labelHeight = fm.height();
+    const int secondaryLabelHeight = secondaryFm.height();
     const int topMargin = style()->labelMarginTop();
-    const int bottomMargin = style()->labelMarginBottom();
+    const int labelLeftWithSecondary = style()->labelMarginLeftWithSecondary();
+    const int secondarySeparation = style()->secondaryLabelSeparation();
+    const bool landscape = (MPlainWindow::instance()->orientation() == M::Landscape);
 
     textLayout.setFont(style()->font());
     textLayout.setText(labelContent);
@@ -247,32 +267,68 @@ void SingleWidgetButtonArea::buildTextLayout()
         foreach (SingleWidgetButton *button, row->buttons) {
 
             const QString &label(button->label());
+            const QString &secondary(button->secondaryLabel());
+            QPoint labelPos;
+            QPoint secondaryLabelPos;
 
             // We must not create a new QTextLine if there is no label.
             if (label.isEmpty()) {
                 continue;
             }
 
-            const QRect &buttonRect = button->cachedButtonRect;
-            const int xmiddle = buttonRect.center().x();
-
-            // this is the top of the primary label's bounding box
-            int top = buttonRect.top() + topMargin;
-
-            // this is the top of the secondary label's bounding box
-            int topSecondary = buttonRect.bottom() - bottomMargin - labelHeight;
-
-            // Handle sym
+            // This is for sym, where we might skip creation of secondary label
+            // even if we have it.
             bool skipSecondary = false;
-            if (button == symIndicatorButton) {
+
+            const QRect &buttonRect = button->cachedButtonRect;
+
+            if (secondary.isEmpty()) {
+                // All horizontally centered, portrait vs. landscape only differs in top & bottom margins.
+                labelPos = QPoint(buttonRect.center().x() - fm.width(label) / 2,
+                                  buttonRect.top() + topMargin);
+            } else if (button == symIndicatorButton) {
+
+                // Handle sym
                 if (symState == SymIndicatorInactive) {
                     skipSecondary = true;
+                    labelPos.setY(buttonRect.top() + topMargin);
                 } else {
                     // No top and bottom margins.
-                    top = buttonRect.top();
-                    topSecondary = buttonRect.bottom() - labelHeight;
+                    labelPos.setY(buttonRect.top());
+                    secondaryLabelPos = QPoint(buttonRect.center().x() - fm.width(secondary) / 2,
+                                               buttonRect.bottom() - labelHeight);
+                }
+
+                labelPos.setX(buttonRect.center().x() - fm.width(label) / 2);
+
+            } else {
+                // Calculate position for both primary and secondary label.
+                // We only have secondary labels in phone number layouts (with sym being exception)
+                // so this follows their styling.
+
+                // In landscape the secondary labels are below the primary ones. In portrait,
+                // secondary labels are horizontally next to primary labels.
+
+                if (landscape) {
+                    // primary label: horizontally centered, top margin defines y
+                    // secondary: horizontally centered, primary bottom + separation margin defines y
+                    const int primaryY = buttonRect.top() + topMargin;
+                    labelPos.setX(buttonRect.center().x() - fm.width(label) / 2);
+                    labelPos.setY(primaryY);
+                    secondaryLabelPos.setX(buttonRect.center().x() - secondaryFm.width(secondary) / 2);
+                    secondaryLabelPos.setY(primaryY + labelHeight + secondarySeparation);
+                } else {
+                    // primary label: horizontally according to left margin, vertically centered
+                    // secondary: horizontally on right of primary + separation margin, vertically centered
+                    const int primaryX = buttonRect.left() + labelLeftWithSecondary;
+                    labelPos.setX(primaryX);
+                    labelPos.setY(buttonRect.center().y() - labelHeight / 2);
+                    secondaryLabelPos.setX(primaryX + fm.width(label) + secondarySeparation);
+                    secondaryLabelPos.setY(buttonRect.center().y() - secondaryLabelHeight / 2);
                 }
             }
+
+            // We now have positions, let's create some QTextLines.
 
             // Create the primary label
             QTextLine line = textLayout.createLine();
@@ -281,9 +337,7 @@ void SingleWidgetButtonArea::buildTextLayout()
                 goto endLayout;
             }
             line.setNumColumns(1); // at least one character, will be seeked forward until next whitespace
-            line.setPosition(QPoint(xmiddle - fm.width(label) / 2, top));
-
-            const QString &secondary(button->secondaryLabel());
+            line.setPosition(labelPos);
 
             // Same for secondary label
             if (!secondary.isEmpty() && !skipSecondary) {
@@ -292,7 +346,7 @@ void SingleWidgetButtonArea::buildTextLayout()
                     goto endLayout;
                 }
                 line.setNumColumns(1);
-                line.setPosition(QPoint(xmiddle - fm.width(secondary) / 2, topSecondary));
+                line.setPosition(secondaryLabelPos);
             }
         }
     }

@@ -41,8 +41,10 @@ public:
     M_STYLE_ATTRIBUTE(QColor, fontColor, FontColor)
     M_STYLE_ATTRIBUTE(qreal, fontOpacity, FontOpacity)
     M_STYLE_ATTRIBUTE(QFont, font, Font)
+    M_STYLE_ATTRIBUTE(QFont, secondaryFont, SecondaryFont)
     M_STYLE_ATTRIBUTE(int, labelMarginTop, LabelMarginTop)
-    M_STYLE_ATTRIBUTE(int, labelMarginBottom, LabelMarginBottom)
+    M_STYLE_ATTRIBUTE(int, labelMarginLeftWithSecondary, LabelMarginLeftWithSecondary)
+    M_STYLE_ATTRIBUTE(int, secondaryLabelSeparation, SecondaryLabelSeparation)
     M_STYLE_ATTRIBUTE(QSize, tabButtonSize, TabButtonSize)
 
     M_STYLE_ATTRIBUTE(QSize, menuSize, MenuSize)
