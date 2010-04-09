@@ -152,9 +152,6 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
 
     //TODO: handle signal symbolCharacterKeyClicked() from hardwareKeyboard.
 
-    connect(vkbWidget, SIGNAL(indicatorClicked()),
-            hardwareKeyboard, SLOT(handleIndicatorButtonClick()));
-
     bool ok = connect(vkbWidget, SIGNAL(copyPasteClicked(CopyPasteState)),
                       this, SLOT(sendCopyPaste(CopyPasteState)));
     Q_UNUSED(ok); // if Q_NO_DEBUG is defined then the assert won't be used

@@ -446,27 +446,6 @@ bool MHardwareKeyboard::isValidModifierState(Qt::KeyboardModifier modifier, Modi
     return valid;
 }
 
-void MHardwareKeyboard::handleIndicatorButtonClick()
-{
-    qDebug() << __PRETTY_FUNCTION__;
-    //input mode indicator interactions
-    //TODO: indicator button click in deadkey mode
-    int index = -1;
-    for (int i = 0; i < sensitiveKeys.count(); i++) {
-        if (sensitiveKeys[i].modifier.modifier != Qt::NoModifier
-                && sensitiveKeys[i].modifier.state != ModifierClearState) {
-            index = i;
-            break;
-        }
-    }
-    if (index == -1)
-        index = redirectedKeyIndex(Qt::ShiftModifier);
-    ModifierKey &targetModifierKey = sensitiveKeys[index].modifier;
-
-    modifierKeyPress(targetModifierKey);
-    modifierKeyRelease(targetModifierKey);
-}
-
 void MHardwareKeyboard::commitAccentedCharacter()
 {
     qDebug() << __PRETTY_FUNCTION__;

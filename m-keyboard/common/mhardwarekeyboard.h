@@ -115,10 +115,6 @@ public:
      */
     bool symViewAvailable() const;
 
-public slots:
-    //! Handle indicator button click.
-    void handleIndicatorButtonClick();
-
 signals:
 
     //! Emitted when symbol key is clicked.
