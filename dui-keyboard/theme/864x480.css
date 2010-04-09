@@ -139,7 +139,7 @@ DuiVirtualKeyboardStyle {
 
     key-shift-icon-size: 48 48;
     key-shift-icon-id: "icon-m-input-methods-shift";
-    key-shift-uppercase-icon-id: "icon-m-input-methods-shift-uppercase";
+    key-shift-uppercase-icon-id: "icon-m-input-methods-capslock";
     /* End of single widget keyboard button styling */
 }
 
