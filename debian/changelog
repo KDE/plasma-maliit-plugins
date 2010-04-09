@@ -1,3 +1,15 @@
+dui-keyboard (0.3.1-1) unstable; urgency=low
+
+  * Implemented SWP#TINME-551
+  * Adapted to libdui 0.20
+  * Using libdui widget for correction candidates
+  * Two-state sym indicator button
+  * Visual appearance for shift button states
+  * Unit test updates
+  * Bug fixes
+
+ -- Pekka Vuorela <pekka.ta.vuorela@nokia.com>  Fri, 09 Apr 2010 11:35:05 +0300
+
 dui-keyboard (0.3.0-1) unstable; urgency=low
 
   * Public release 
