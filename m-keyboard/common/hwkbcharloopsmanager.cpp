@@ -169,7 +169,7 @@ bool HwKbCharLoopsManager::loadCharLoopsImpl(const QString &fileName, HwKbCharLo
 }
 
 void HwKbCharLoopsManager::parseChildren(const QDomElement &element, HwKbCharLoopParseParameters &params,
-        const QString *tag1, TagParser parser1)
+                                         const QString *tag1, TagParser parser1)
 {
     Q_ASSERT(tag1);
     Q_ASSERT(parser1);

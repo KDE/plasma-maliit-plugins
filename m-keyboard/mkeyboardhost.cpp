@@ -822,10 +822,9 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
         vkbWidget->stopAccurateMode();
 
         if (engineReady
-                && imCorrectionEngine->correctionEnabled()
-                && (candidates.count() < 2)
-                && !preedit.isEmpty()) {
-
+            && imCorrectionEngine->correctionEnabled()
+            && (candidates.count() < 2)
+            && !preedit.isEmpty()) {
             if (feedbackPlayer) {
                 feedbackPlayer->play(MFeedbackPlayer::Cancel);
             }
