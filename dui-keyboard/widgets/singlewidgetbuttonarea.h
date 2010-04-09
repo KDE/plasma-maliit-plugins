@@ -21,9 +21,9 @@
 
 #include "keybuttonarea.h"
 
+#include <DuiScalableImage>
 #include <QTextLayout>
 
-class DuiScalableImage;
 class SingleWidgetButton;
 
 /*!
@@ -75,6 +75,9 @@ private:
     //! \brief Builds QTextLayout representation of current button labels for faster drawing.
     void buildTextLayout();
 
+    //! \brief Fetches optimum size image from DuiTheme to be used in DuiScalableImage.
+    void fetchOptimumSizeButtonBackgrounds(QSize size);
+
     struct ButtonRow {
         QList<SingleWidgetButton*> buttons;
 
@@ -95,7 +98,7 @@ private:
     ButtonRowList rowList;
 
     //! Normal button backgrounds
-    const DuiScalableImage *keyBackgrounds[3];
+    DuiScalableImage keyBackgrounds[3];
 
     //! Special set of button backgrounds for sym state indicator.
     const DuiScalableImage *symIndicatorBackgrounds[3];

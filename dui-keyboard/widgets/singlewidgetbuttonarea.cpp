@@ -32,7 +32,6 @@
 #include <DuiComponentData>
 #include <DuiFeedbackPlayer>
 #include <duireactionmap.h>
-#include <DuiScalableImage>
 #include <DuiTheme>
 
 SingleWidgetButtonArea::SingleWidgetButtonArea(DuiVirtualKeyboardStyleContainer *style,
@@ -46,26 +45,63 @@ SingleWidgetButtonArea::SingleWidgetButtonArea(DuiVirtualKeyboardStyleContainer 
       symState(SymIndicatorInactive),
       symIndicatorButton(0),
       shiftCapsLock(false),
+      pixmap1(0),
+      pixmap2(0),
+      pixmap3(0),
       textDirty(false),
       equalWidthButtons(false)
 {
     textLayout.setCacheEnabled(true);
 
-    // Resize the background images for DuiScalableImage so that we use the size of the most
-    // common button. This way DuiScalableImage will use painter->drawPixmap() directly. There
-    // is some overhead when drawing the image in 9 rectangles.
-    const QSize mostUsedKeySize = (*style)->keyNormalSize();
-    pixmap1 = DuiTheme::pixmap((*style)->keyBackgroundId(), mostUsedKeySize);
-    pixmap2 = DuiTheme::pixmap((*style)->keyBackgroundPressedId(), mostUsedKeySize);
-    pixmap3 = DuiTheme::pixmap((*style)->keyBackgroundSelectedId(), mostUsedKeySize);
-    keyBackgrounds[0] = new DuiScalableImage(pixmap1, 10,10,10,10); // normal
-    keyBackgrounds[1] = new DuiScalableImage(pixmap2, 10,10,10,10); // pressed
-    keyBackgrounds[2] = new DuiScalableImage(pixmap3, 10,10,10,10); // selected
-
     // Initially deactivate sym page indicator.
     deactivateIndicator();
 
     loadKeys();
+}
+
+void SingleWidgetButtonArea::fetchOptimumSizeButtonBackgrounds(QSize size)
+{
+    // if one is valid, they all are
+    if (pixmap1) {
+        // First check if we already have correct size
+        // or bail out also if we use different size buttons
+        // (no need to remake them).
+        if ((size.width() < 0) || (pixmap1->size() == size)) {
+            return;
+        }
+
+        DuiTheme::releasePixmap(pixmap3);
+        DuiTheme::releasePixmap(pixmap2);
+        DuiTheme::releasePixmap(pixmap1);
+    }
+
+    const QSize defaultSize = style()->keyNormalSize();
+
+    if (size.width() < 0) {
+        // No specific size set for all buttons. Use default and we then scale it.
+        size = defaultSize;
+    }
+
+    // Resize the background images for DuiScalableImage so that we use the size of the most
+    // used button. This way DuiScalableImage will use painter->drawPixmap() directly. There
+    // is some overhead when drawing the image in 9 rectangles.
+    pixmap1 = DuiTheme::pixmap(style()->keyBackgroundId(), size);
+
+    // Let's use one default size for all pressed & selected backgrounds accross
+    // SingleWidgetButtonAreas since there is never many of these backgrounds
+    // drawn at the same time.
+    pixmap2 = DuiTheme::pixmap(style()->keyBackgroundPressedId(), defaultSize);
+    pixmap3 = DuiTheme::pixmap(style()->keyBackgroundSelectedId(), defaultSize);
+
+    keyBackgrounds[0].setPixmap(pixmap1); // normal
+    keyBackgrounds[1].setPixmap(pixmap2); // pressed
+    keyBackgrounds[2].setPixmap(pixmap3); // selected
+
+    // Border size 10 is suitable for all sane size buttons we're using.
+    const int border = 10;
+    keyBackgrounds[0].setBorders(border, border, border, border);
+    keyBackgrounds[1].setBorders(border, border, border, border);
+    keyBackgrounds[2].setBorders(border, border, border, border);
 }
 
 SingleWidgetButtonArea::~SingleWidgetButtonArea()
@@ -78,9 +114,6 @@ SingleWidgetButtonArea::~SingleWidgetButtonArea()
         rowIter->buttons.clear();
     }
 
-    delete keyBackgrounds[0];
-    delete keyBackgrounds[1];
-    delete keyBackgrounds[2];
     DuiTheme::releasePixmap(pixmap3);
     DuiTheme::releasePixmap(pixmap2);
     DuiTheme::releasePixmap(pixmap1);
@@ -275,7 +308,7 @@ void SingleWidgetButtonArea::paint(QPainter *painter, const QStyleOptionGraphics
                 && button->binding().action() == KeyBinding::ActionSym) {
                 background = symIndicatorBackgrounds[backgroundIndex];
             } else {
-                background = keyBackgrounds[backgroundIndex];
+                background = &keyBackgrounds[backgroundIndex];
             }
 
             if (background) {
@@ -355,6 +388,8 @@ void SingleWidgetButtonArea::updateButtonGeometries(const int availableWidth, co
     }
 
     this->equalWidthButtons = (equalButtonWidth >= 0);
+
+    fetchOptimumSizeButtonBackgrounds(QSize(equalButtonWidth, rowHeight - style()->spacingVertical()));
 
     const int HorizontalSpacing = style()->spacingHorizontal();
     const int VerticalSpacing = style()->spacingVertical();
