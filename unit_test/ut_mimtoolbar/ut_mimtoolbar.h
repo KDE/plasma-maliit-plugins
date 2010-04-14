@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,25 +16,25 @@
 
 
 
-#ifndef UT_DUIIMTOOLBAR
-#define UT_DUIIMTOOLBAR
+#ifndef UT_MIMTOOLBAR
+#define UT_MIMTOOLBAR
 
 #include <QtTest/QTest>
 #include <QObject>
-class DuiApplication;
-class DuiImToolbar;
+class MApplication;
+class MImToolbar;
 class QKeyEvent;
-class DuiVirtualKeyboardStyleContainer;
+class MVirtualKeyboardStyleContainer;
 
-class Ut_DuiImToolbar : public QObject
+class Ut_MImToolbar : public QObject
 {
     Q_OBJECT
 
 private:
-    DuiApplication *app;
-    DuiImToolbar *m_subject;
+    MApplication *app;
+    MImToolbar *m_subject;
     int keyEvents;
-    DuiVirtualKeyboardStyleContainer *style;
+    MVirtualKeyboardStyleContainer *style;
 
 private slots:
     //! initialize application and class

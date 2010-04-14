@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -22,15 +22,15 @@
 #include <QMap>
 #include "toolbarbutton.h"
 
-class DuiImToolbar;
+class MImToolbar;
 class ToolbarData;
-class DuiGConfItem;
-class DuiButton;
+class MGConfItem;
+class MButton;
 
 /*!
  \brief The ToolbarManager class manager the virtual keyboard toolbar.
 
-  ToolbarManager loads and managers not only the toolbars which defined with GConf key "/Dui/InputMethods/Toolbars",
+  ToolbarManager loads and managers not only the toolbars which defined with GConf key "/M/InputMethods/Toolbars",
   but also the copy/paste button and close button.
 */
 class ToolbarManager : public QObject
@@ -41,7 +41,7 @@ public:
     /*!
      * \brief Default constructor.
      */
-    ToolbarManager(DuiImToolbar *parent);
+    ToolbarManager(MImToolbar *parent);
 
     /*!
      *\brief Destructor.
@@ -72,12 +72,12 @@ public:
     /*!
      *\brief Returns a ToolbarButton pointer to the button with \a button in current loaded customized toolbar.
      */
-    ToolbarButton *toolbarButton(const DuiButton *button) const;
+    ToolbarButton *toolbarButton(const MButton *button) const;
 
     /*!
-     *\brief Returns a DuiButton pointer to the button with \a name in current loaded customized toolbar.
+     *\brief Returns a MButton pointer to the button with \a name in current loaded customized toolbar.
      */
-    DuiButton *button(const QString &name) const;
+    MButton *button(const QString &name) const;
 
     /*!
      *\brief Returns current loaded toolbar's name.
@@ -108,7 +108,7 @@ private:
      */
     QStringList toolbarList() const;
 
-    const QString *buttonName(const DuiButton *) const;
+    const QString *buttonName(const MButton *) const;
 
     void resetButtonPool();
 
@@ -118,12 +118,12 @@ private:
 
     void createButton(const ToolbarButton *b);
 
-    DuiImToolbar *imToolbar;
+    MImToolbar *imToolbar;
     QList<ToolbarData *> toolbars;
     ToolbarData *current;
-    QList<DuiButton *> toolbarButtonPool;
+    QList<MButton *> toolbarButtonPool;
 
-    friend class Ut_DuiImToolbar;
+    friend class Ut_MImToolbar;
     friend class Ut_ToolbarManager;
 };
 

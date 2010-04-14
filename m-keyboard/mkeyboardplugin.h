@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,29 +16,29 @@
 
 
 
-#ifndef DUIKEYBOARDPLUGIN_H
-#define DUIKEYBOARDPLUGIN_H
+#ifndef MKEYBOARDPLUGIN_H
+#define MKEYBOARDPLUGIN_H
 
 #include <QObject>
 
-#include "duiinputmethodplugin.h"
+#include "minputmethodplugin.h"
 
 
 /*!
- * \class DuiVirtualKeyboardPlugin
+ * \class MVirtualKeyboardPlugin
  *
- * \brief Implements plugin for DuiVirtualKeyboard
+ * \brief Implements plugin for MVirtualKeyboard
  */
-class DuiKeyboardPlugin: public QObject, public DuiInputMethodPlugin
+class MKeyboardPlugin: public QObject, public MInputMethodPlugin
 {
     Q_OBJECT
-    Q_INTERFACES(DuiInputMethodPlugin)
+    Q_INTERFACES(MInputMethodPlugin)
 
 public:
     //! \reimp
     virtual QString name() const;
     virtual QStringList languages() const;
-    virtual DuiInputMethodBase *createInputMethod(DuiInputContextConnection *icConnection);
+    virtual MInputMethodBase *createInputMethod(MInputContextConnection *icConnection);
     //! \reimp_end
 };
 

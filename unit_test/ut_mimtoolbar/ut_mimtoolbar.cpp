@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,20 +16,20 @@
 
 
 
-#include "ut_duiimtoolbar.h"
-#include "duiimtoolbar.h"
+#include "ut_mimtoolbar.h"
+#include "mimtoolbar.h"
 #include "toolbarmanager.h"
 #include "toolbardata.h"
-#include "duiapplication.h"
-#include "duivirtualkeyboard.h"
+#include "mapplication.h"
+#include "mvirtualkeyboard.h"
 #include "layoutsmanager.h"
-#include "duivirtualkeyboardstyle.h"
-#include <duiplainwindow.h>
-#include <DuiTheme>
-#include <DuiSceneWindow>
-#include <DuiButton>
-#include <DuiInfoBanner>
-#include "duigconfitem_stub.h"
+#include "mvirtualkeyboardstyle.h"
+#include <mplainwindow.h>
+#include <MTheme>
+#include <MSceneWindow>
+#include <MButton>
+#include <MInfoBanner>
+#include "mgconfitem_stub.h"
 
 #include <QtTest/QTest>
 #include <QObject>
@@ -46,7 +46,7 @@ namespace
 {
     // This file doesn't really exist in filesystem, its memory representation
     // is constructed in init().
-    QString toolbarFileName("/usr/share/dui/imtoolbars/testtoolbar.xml");
+    QString toolbarFileName("/usr/share/meegotouch/imtoolbars/testtoolbar.xml");
     //! indicator label for latin
     const QString LatinShiftOffIndicatorLabel("abc");
     const QString LatinShiftOnIndicatorLabel("Abc");
@@ -75,7 +75,7 @@ namespace
     const QString FNOnIndicatorLabel("123");
     const QString FNLockedIndicatorLabel("<U>123</U>");
     const Qt::KeyboardModifier FnLevelModifier = Qt::GroupSwitchModifier;
-    const QString SystemDisplayLanguage("/Dui/i18n/Language");
+    const QString SystemDisplayLanguage("/M/i18n/Language");
 
     int indexOf(const QGraphicsLayout *layout, const QGraphicsLayoutItem *item)
     {
@@ -92,38 +92,38 @@ namespace
     }
     int hideLockOnInfoBannerCalls = 0;
 }
-void DuiImToolbar::hideLockOnInfoBanner()
+void MImToolbar::hideLockOnInfoBanner()
 {
     //reimplement hideLockOnInfoBanner to avoid to show/hide infobanner.
     ++hideLockOnInfoBannerCalls;
 }
 
-void Ut_DuiImToolbar::initTestCase()
+void Ut_MImToolbar::initTestCase()
 {
     static int dummyArgc = 1;
-    static char *dummyArgv[1] = { (char *) "./ut_duiimtoolbar" };
+    static char *dummyArgv[1] = { (char *) "./ut_mimtoolbar" };
     // Avoid waiting if im server is not responding
-    DuiApplication::setLoadDuiInputContext(false);
-    app = new DuiApplication(dummyArgc, dummyArgv);
+    MApplication::setLoadMInputContext(false);
+    app = new MApplication(dummyArgc, dummyArgv);
 
     qRegisterMetaType<CopyPasteState>("CopyPasteState");
     LayoutsManager::createInstance();
 
-    QString cssFile("../../dui-keyboard/theme/864x480.css");
+    QString cssFile("../../m-keyboard/theme/864x480.css");
     if (!QFile::exists(cssFile)) {
-        cssFile = "/usr/share/dui/virtual-keyboard/css/864x480.css";
+        cssFile = "/usr/share/meegotouch/virtual-keyboard/css/864x480.css";
         QVERIFY(QFile::exists(cssFile));
     }
-    DuiTheme::instance()->loadCSS(cssFile);
+    MTheme::instance()->loadCSS(cssFile);
 
-    style = new DuiVirtualKeyboardStyleContainer;
-    style->initialize("DuiVirtualKeyboard", "DuiVirtualKeyboardView", 0);
+    style = new MVirtualKeyboardStyleContainer;
+    style->initialize("MVirtualKeyboard", "MVirtualKeyboardView", 0);
 }
 
 
-void Ut_DuiImToolbar::init()
+void Ut_MImToolbar::init()
 {
-    m_subject = new DuiImToolbar(*style);
+    m_subject = new MImToolbar(*style);
 
     //fill up toolbar with some data
     ToolbarData *toolbar = new ToolbarData;
@@ -132,7 +132,7 @@ void Ut_DuiImToolbar::init()
     b1->name = "test1";
     b1->group = "group1";
     b1->priority = 0;
-    b1->orientation = Dui::Landscape;
+    b1->orientation = M::Landscape;
     b1->showOn = ToolbarButton::Always;
     b1->hideOn = ToolbarButton::Undefined;
     b1->alignment = Qt::AlignLeft;
@@ -152,7 +152,7 @@ void Ut_DuiImToolbar::init()
     b2->name = "test2";
     b2->group = "group2";
     b2->priority = 0;
-    b2->orientation = Dui::Landscape;
+    b2->orientation = M::Landscape;
     b2->showOn = ToolbarButton::Always;
     b2->hideOn = ToolbarButton::Undefined;
     b2->alignment = Qt::AlignRight;
@@ -172,7 +172,7 @@ void Ut_DuiImToolbar::init()
     b3->name = "test3";
     b3->group = "group3";
     b3->priority = 1;
-    b3->orientation = Dui::Landscape;
+    b3->orientation = M::Landscape;
     b3->showOn = ToolbarButton::WhenSelectingText;
     b3->hideOn = ToolbarButton::Undefined;
     b3->alignment = Qt::AlignRight;
@@ -183,12 +183,12 @@ void Ut_DuiImToolbar::init()
 }
 
 
-void Ut_DuiImToolbar::cleanup()
+void Ut_MImToolbar::cleanup()
 {
     delete m_subject;
 }
 
-void Ut_DuiImToolbar::cleanupTestCase()
+void Ut_MImToolbar::cleanupTestCase()
 {
     delete style;
     style = 0;
@@ -197,7 +197,7 @@ void Ut_DuiImToolbar::cleanupTestCase()
     app = 0;
 }
 
-void Ut_DuiImToolbar::testCopyPasteButton()
+void Ut_MImToolbar::testCopyPasteButton()
 {
     QList<bool> copyAvailable;
     QList<bool> pasteAvailable;
@@ -206,7 +206,7 @@ void Ut_DuiImToolbar::testCopyPasteButton()
     QList<int> expectedSignal;
     QList<CopyPasteState> signalParameter;
 
-    DuiButton *button = m_subject->copyPaste;
+    MButton *button = m_subject->copyPaste;
     QSignalSpy spy(m_subject, SIGNAL(copyPasteClicked(CopyPasteState)));
 
     QVERIFY(button != 0);
@@ -253,7 +253,7 @@ void Ut_DuiImToolbar::testCopyPasteButton()
     }
 }
 
-void Ut_DuiImToolbar::testShowToolbarWidget()
+void Ut_MImToolbar::testShowToolbarWidget()
 {
     QSignalSpy spy(m_subject, SIGNAL(regionUpdated()));
     QVERIFY(spy.isValid());
@@ -266,42 +266,42 @@ void Ut_DuiImToolbar::testShowToolbarWidget()
     spy.clear();
 }
 
-void Ut_DuiImToolbar::testShowGroup()
+void Ut_MImToolbar::testShowGroup()
 {
     m_subject->showToolbarWidget(toolbarFileName);
     //find button test2, which click will show group test
-    DuiButton *button = m_subject->toolbarMgr->button("test1");
+    MButton *button = m_subject->toolbarMgr->button("test1");
     QVERIFY(button != 0);
     button->click();
     QCOMPARE(m_subject->leftBar.count(), 1);
     QCOMPARE(m_subject->rightBar.count(), 2);
 }
 
-void Ut_DuiImToolbar::testHideGroup()
+void Ut_MImToolbar::testHideGroup()
 {
     m_subject->showToolbarWidget(toolbarFileName);
     //find button test3, which click will hide group test
-    DuiButton *button = m_subject->toolbarMgr->button("test2");
+    MButton *button = m_subject->toolbarMgr->button("test2");
     QVERIFY(button != 0);
     button->click();
     QCOMPARE(m_subject->leftBar.count(), 0);
     QCOMPARE(m_subject->rightBar.count(), 1);
 }
 
-void Ut_DuiImToolbar::testSendString()
+void Ut_MImToolbar::testSendString()
 {
     m_subject->showToolbarWidget(toolbarFileName);
     QSignalSpy spy(m_subject, SIGNAL(sendStringRequest(const QString &)));
     QVERIFY(spy.isValid());
     //find button test2, which click will send string
-    DuiButton *button = m_subject->toolbarMgr->button("test2");
+    MButton *button = m_subject->toolbarMgr->button("test2");
     QVERIFY(button != 0);
     button->click();
     QVERIFY(spy.count() == 1);
     spy.clear();
 }
 
-void Ut_DuiImToolbar::testKeySequenceString()
+void Ut_MImToolbar::testKeySequenceString()
 {
     m_subject->showToolbarWidget(toolbarFileName);
     //find button test3, which click will send key sequence (QKeyEvent)
@@ -309,31 +309,31 @@ void Ut_DuiImToolbar::testKeySequenceString()
     keyEvents = 0;
     connect(m_subject, SIGNAL(sendKeyEventRequest(const QKeyEvent &)),
             this, SLOT(receiveKeyEvent(const QKeyEvent &)));
-    DuiButton *button = m_subject->toolbarMgr->button("test1");
+    MButton *button = m_subject->toolbarMgr->button("test1");
     QVERIFY(button != 0);
     button->click();
     QVERIFY(keyEvents > 0);
     keyEvents = 0;
 }
 
-void Ut_DuiImToolbar::testHideToolbarWidget()
+void Ut_MImToolbar::testHideToolbarWidget()
 {
     m_subject->hideToolbarWidget();
 }
 
-void Ut_DuiImToolbar::receiveKeyEvent(const QKeyEvent &)
+void Ut_MImToolbar::receiveKeyEvent(const QKeyEvent &)
 {
     keyEvents ++;
 }
 
-void Ut_DuiImToolbar::testCopy()
+void Ut_MImToolbar::testCopy()
 {
     QSignalSpy spy(m_subject, SIGNAL(copyPasteRequest(CopyPasteState)));
     QVERIFY(spy.isValid());
 
     m_subject->showToolbarWidget(toolbarFileName);
     //find button test2, which click will copy
-    DuiButton *button = m_subject->toolbarMgr->button("test1");
+    MButton *button = m_subject->toolbarMgr->button("test1");
     QVERIFY(button != 0);
     button->click();
     QVERIFY(spy.count() == 1);
@@ -343,14 +343,14 @@ void Ut_DuiImToolbar::testCopy()
     spy.clear();
 }
 
-void Ut_DuiImToolbar::testPaste()
+void Ut_MImToolbar::testPaste()
 {
     QSignalSpy spy(m_subject, SIGNAL(copyPasteRequest(CopyPasteState)));
     QVERIFY(spy.isValid());
 
     m_subject->showToolbarWidget(toolbarFileName);
     //find button test3, which click will paste
-    DuiButton *button = m_subject->toolbarMgr->button("test2");
+    MButton *button = m_subject->toolbarMgr->button("test2");
     QVERIFY(button != 0);
     button->click();
     QVERIFY(spy.count() == 1);
@@ -361,7 +361,7 @@ void Ut_DuiImToolbar::testPaste()
 }
 
 
-void Ut_DuiImToolbar::testRegion()
+void Ut_MImToolbar::testRegion()
 {
     QSignalSpy regionSignals(m_subject, SIGNAL(regionUpdated()));
 
@@ -378,7 +378,7 @@ void Ut_DuiImToolbar::testRegion()
 
     // We need to add a new button, let's use groups.
     // Clicking test1 will add one button to the right.
-    DuiButton *button = m_subject->toolbarMgr->button("test1");
+    MButton *button = m_subject->toolbarMgr->button("test1");
     QVERIFY(button != 0);
     button->click();
     QCOMPARE(m_subject->rightBar.count(), 2);
@@ -405,7 +405,7 @@ void Ut_DuiImToolbar::testRegion()
     QVERIFY(m_subject->region().isEmpty());
 }
 
-void Ut_DuiImToolbar::testShowHideIndicatorButton()
+void Ut_MImToolbar::testShowHideIndicatorButton()
 {
     int count = 0;
     QGraphicsLayoutItem *item = m_subject->indicator;
@@ -424,9 +424,9 @@ void Ut_DuiImToolbar::testShowHideIndicatorButton()
     QVERIFY(indexOf(m_subject->rightBar.layout(), item) == -1);
 }
 
-void Ut_DuiImToolbar::testIndicatorButton()
+void Ut_MImToolbar::testIndicatorButton()
 {
-    DuiButton *button = m_subject->indicator;
+    MButton *button = m_subject->indicator;
     QSignalSpy spy(m_subject, SIGNAL(indicatorClicked()));
     QVERIFY(button != 0);
     QVERIFY(!button->isVisible());
@@ -442,13 +442,13 @@ void Ut_DuiImToolbar::testIndicatorButton()
 }
 
 
-void Ut_DuiImToolbar::testSetIndicatorButtonState()
+void Ut_MImToolbar::testSetIndicatorButtonState()
 {
     //create modifierLockOnInfoBanner manualy before changing indicator state
     //to avoid show/hide infobanner, which will cause crash
-    m_subject->modifierLockOnInfoBanner = new DuiInfoBanner(DuiInfoBanner::Information);
+    m_subject->modifierLockOnInfoBanner = new MInfoBanner(MInfoBanner::Information);
     m_subject->showIndicatorButton();
-    DuiGConfItem systemDisplayLanguage(SystemDisplayLanguage);
+    MGConfItem systemDisplayLanguage(SystemDisplayLanguage);
 
     //latin
     systemDisplayLanguage.set(QVariant("en_gb"));
@@ -501,5 +501,5 @@ void Ut_DuiImToolbar::testSetIndicatorButtonState()
     m_subject->hideIndicatorButton();
 }
 
-QTEST_APPLESS_MAIN(Ut_DuiImToolbar);
+QTEST_APPLESS_MAIN(Ut_MImToolbar);
 

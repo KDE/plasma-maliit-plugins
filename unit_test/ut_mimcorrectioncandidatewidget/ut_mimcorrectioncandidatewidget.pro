@@ -1,5 +1,5 @@
 TEMPLATE = app
-CONFIG += QtTest Dui duiimframework
+CONFIG += QtTest meegotouch mimframework
 QT += testlib
 
 DEPENDPATH += .
@@ -10,9 +10,9 @@ MOC_DIR = .moc
 
 include(../common_check.pri)
 
-LIBS += -Wl,-rpath=/usr/lib/dui-im-plugins/ -lduikeyboard
+LIBS += -Wl,-rpath=/usr/lib/m-im-plugins/ -lmkeyboard
 
-HEADERS += ut_duiimcorrectioncandidatewidget.h \
+HEADERS += ut_mimcorrectioncandidatewidget.h \
 
-SOURCES += ut_duiimcorrectioncandidatewidget.cpp \
+SOURCES += ut_mimcorrectioncandidatewidget.cpp \
 

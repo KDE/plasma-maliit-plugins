@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,23 +16,23 @@
 
 
 
-#ifndef UT_DUIVIRTUALKEYBOARDPLUGIN_H
-#define UT_DUIVIRTUALKEYBOARDPLUGIN_H
+#ifndef UT_MVIRTUALKEYBOARDPLUGIN_H
+#define UT_MVIRTUALKEYBOARDPLUGIN_H
 
 
-#include "duikeyboardplugin.h"
-#include "duiapplication.h"
+#include "mkeyboardplugin.h"
+#include "mapplication.h"
 
 #include <QtTest/QTest>
 #include <QObject>
 
-class Ut_DuiKeyboardPlugin : public QObject
+class Ut_MKeyboardPlugin : public QObject
 {
     Q_OBJECT
 
 private:
-    DuiApplication *app;
-    DuiKeyboardPlugin *m_subject;
+    MApplication *app;
+    MKeyboardPlugin *m_subject;
 
 private slots:
     //! initialize application and class

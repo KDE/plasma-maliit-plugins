@@ -1,14 +1,14 @@
 TEMPLATE = app
-CONFIG += QtTest Dui DuiImServer duiimframework
+CONFIG += QtTest meegotouch MImServer mimframework
 DEPENDPATH += .
 INCLUDEPATH += 	. \
 		../stubs/
 
-LIBS += -Wl,-rpath=/usr/lib/dui-im-plugins/ -lduikeyboard
+LIBS += -Wl,-rpath=/usr/lib/m-im-plugins/ -lmkeyboard
 
 # Input
 HEADERS += ut_layoutsmanager.h \
-           ../stubs/duigconfitem_stub.h \
+           ../stubs/mgconfitem_stub.h \
            ../stubs/fakegconf.h
 
 SOURCES += ut_layoutsmanager.cpp \

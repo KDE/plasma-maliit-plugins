@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -21,7 +21,7 @@
 
 #include "keybuttonarea.h"
 
-#include <DuiScalableImage>
+#include <MScalableImage>
 #include <QTextLayout>
 
 class SingleWidgetButton;
@@ -33,7 +33,7 @@ class SingleWidgetButton;
 class SingleWidgetButtonArea : public KeyButtonArea, public ISymIndicator
 {
 public:
-    SingleWidgetButtonArea(DuiVirtualKeyboardStyleContainer *,
+    SingleWidgetButtonArea(MVirtualKeyboardStyleContainer *,
                            QSharedPointer<const LayoutSection>,
                            ButtonSizeScheme buttonSizeScheme = ButtonSizeEqualExpanding,
                            bool usePopup = false,
@@ -75,7 +75,7 @@ private:
     //! \brief Builds QTextLayout representation of current button labels for faster drawing.
     void buildTextLayout();
 
-    //! \brief Fetches optimum size image from DuiTheme to be used in DuiScalableImage.
+    //! \brief Fetches optimum size image from MTheme to be used in MScalableImage.
     void fetchOptimumSizeButtonBackgrounds(QSize size);
 
     struct ButtonRow {
@@ -98,10 +98,10 @@ private:
     ButtonRowList rowList;
 
     //! Normal button backgrounds
-    DuiScalableImage keyBackgrounds[3];
+    MScalableImage keyBackgrounds[3];
 
     //! Special set of button backgrounds for sym state indicator.
-    const DuiScalableImage *symIndicatorBackgrounds[3];
+    const MScalableImage *symIndicatorBackgrounds[3];
 
     //! Current state of the sym indicator
     SymIndicatorState symState;

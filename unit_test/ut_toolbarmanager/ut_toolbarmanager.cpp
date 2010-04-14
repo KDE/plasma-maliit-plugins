@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -17,11 +17,11 @@
 
 
 #include "ut_toolbarmanager.h"
-#include "duivirtualkeyboardstyle.h"
-#include <duiimtoolbar.h>
+#include "mvirtualkeyboardstyle.h"
+#include <mimtoolbar.h>
 #include <toolbarmanager.h>
 #include <toolbardata.h>
-#include <DuiApplication>
+#include <MApplication>
 #include <QDebug>
 
 
@@ -40,14 +40,14 @@ bool ToolbarData::loadNokiaToolbarXml(const QString &fileName)
 void Ut_ToolbarManager::initTestCase()
 {
     // Avoid waiting if im server is not responding
-    DuiApplication::setLoadDuiInputContext(false);
+    MApplication::setLoadMInputContext(false);
 
     static char *argv[1] = {(char *) "ut_toolbarmanager"};
     static int argc = 1;
-    app = new DuiApplication(argc, argv);
-    style = new DuiVirtualKeyboardStyleContainer;
-    style->initialize("DuiVirtualKeyboard", "DuiVirtualKeyboardView", 0);
-    m_parent = new DuiImToolbar(*style);
+    app = new MApplication(argc, argv);
+    style = new MVirtualKeyboardStyleContainer;
+    style->initialize("MVirtualKeyboard", "MVirtualKeyboardView", 0);
+    m_parent = new MImToolbar(*style);
 }
 
 void Ut_ToolbarManager::cleanupTestCase()

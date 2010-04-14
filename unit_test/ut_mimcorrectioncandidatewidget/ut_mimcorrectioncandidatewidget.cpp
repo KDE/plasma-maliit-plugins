@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,10 +16,10 @@
 
 
 
-#include "ut_duiimcorrectioncandidatewidget.h"
-#include "duiplainwindow.h"
-#include <DuiTheme>
-#include <DuiList>
+#include "ut_mimcorrectioncandidatewidget.h"
+#include "mplainwindow.h"
+#include <MTheme>
+#include <MList>
 #include <QtTest/QTest>
 #include <QObject>
 #include <QDebug>
@@ -27,27 +27,27 @@
 #include <QStringListModel>
 #include <QSignalSpy>
 #include <QGraphicsSceneMouseEvent>
-#include <DuiSceneManager>
+#include <MSceneManager>
 
-void Ut_DuiImCorrectionCandidateWidget::initTestCase()
+void Ut_MImCorrectionCandidateWidget::initTestCase()
 {
     static int dummyArgc = 1;
-    static char *dummyArgv[1] = { (char *) "./ut_duiimcorrectioncandidatewidget" };
+    static char *dummyArgv[1] = { (char *) "./ut_mimcorrectioncandidatewidget" };
     // Avoid waiting if im server is not responding
-    DuiApplication::setLoadDuiInputContext(false);
-    app = new DuiApplication(dummyArgc, dummyArgv);
+    MApplication::setLoadMInputContext(false);
+    app = new MApplication(dummyArgc, dummyArgv);
 
-    DuiTheme::instance()->loadCSS("/usr/share/dui/virtual-keyboard/css/864x480.css");
+    MTheme::instance()->loadCSS("/usr/share/meegotouch/virtual-keyboard/css/864x480.css");
 
-    // DuiImCorrectionCandidateWidget uses this internally
-    new DuiPlainWindow;
-    if (DuiPlainWindow::instance()->orientationAngle() != Dui::Angle0) {
-        DuiPlainWindow::instance()->setOrientationAngle(Dui::Angle0);
+    // MImCorrectionCandidateWidget uses this internally
+    new MPlainWindow;
+    if (MPlainWindow::instance()->orientationAngle() != M::Angle0) {
+        MPlainWindow::instance()->setOrientationAngle(M::Angle0);
         QTest::qWait(1000);
     }
 
     // initialize testCandidateWidgetSize
-    m_subject = new DuiImCorrectionCandidateWidget();
+    m_subject = new MImCorrectionCandidateWidget();
     QStringList candidates;
     candidates << "1" << "2" << "3";
     m_subject->setCandidates(candidates);
@@ -57,36 +57,36 @@ void Ut_DuiImCorrectionCandidateWidget::initTestCase()
 }
 
 
-void Ut_DuiImCorrectionCandidateWidget::init()
+void Ut_MImCorrectionCandidateWidget::init()
 {
-    m_subject = new DuiImCorrectionCandidateWidget();
+    m_subject = new MImCorrectionCandidateWidget();
 
-    if (DuiPlainWindow::instance()->orientationAngle() != Dui::Angle0) {
-        DuiPlainWindow::instance()->setOrientationAngle(Dui::Angle0);
+    if (MPlainWindow::instance()->orientationAngle() != M::Angle0) {
+        MPlainWindow::instance()->setOrientationAngle(M::Angle0);
         QTest::qWait(1000);
     }
 }
 
 
-void Ut_DuiImCorrectionCandidateWidget::cleanup()
+void Ut_MImCorrectionCandidateWidget::cleanup()
 {
     delete m_subject;
 }
 
-void Ut_DuiImCorrectionCandidateWidget::cleanupTestCase()
+void Ut_MImCorrectionCandidateWidget::cleanupTestCase()
 {
-    delete DuiPlainWindow::instance();
+    delete MPlainWindow::instance();
     delete app;
     app = 0;
 }
 
-void Ut_DuiImCorrectionCandidateWidget::checkPositionByPoint_data()
+void Ut_MImCorrectionCandidateWidget::checkPositionByPoint_data()
 {
     QTest::addColumn<QPoint>("pos");
     QTest::addColumn<int>("bottomLimit");
     QTest::addColumn<QPoint>("expected");
 
-    const int sceneHeight = DuiPlainWindow::instance()->visibleSceneSize().height();
+    const int sceneHeight = MPlainWindow::instance()->visibleSceneSize().height();
 
     QTest::newRow("null")      << QPoint() << -1 << QPoint();
     QTest::newRow("origo")     << QPoint(0, 0) << -1 << QPoint(0, 0);
@@ -105,7 +105,7 @@ void Ut_DuiImCorrectionCandidateWidget::checkPositionByPoint_data()
     QTest::newRow("bottom limit 2") << QPoint(10, 250) << 220 << QPoint(10, 220 - testCandidateWidgetSize.height());
 }
 
-void Ut_DuiImCorrectionCandidateWidget::checkPositionByPoint()
+void Ut_MImCorrectionCandidateWidget::checkPositionByPoint()
 {
     QStringList candidates;
     candidates << "1" << "2" << "3";
@@ -119,10 +119,10 @@ void Ut_DuiImCorrectionCandidateWidget::checkPositionByPoint()
 }
 
 
-void Ut_DuiImCorrectionCandidateWidget::checkPositionByPreeditRect()
+void Ut_MImCorrectionCandidateWidget::checkPositionByPreeditRect()
 {
     const int CandidatesPreeditMargin = 10;
-    const QSize sceneSize = DuiPlainWindow::instance()->visibleSceneSize();
+    const QSize sceneSize = MPlainWindow::instance()->visibleSceneSize();
 
     QList<QRect> rects;
     QList<QPoint> positionsCheck;
@@ -187,7 +187,7 @@ void Ut_DuiImCorrectionCandidateWidget::checkPositionByPreeditRect()
     }
 }
 
-void Ut_DuiImCorrectionCandidateWidget::checkActiveIndex()
+void Ut_MImCorrectionCandidateWidget::checkActiveIndex()
 {
     QStringList candidates;
     candidates << "1" << "2" << "3" << "4" << "5"
@@ -208,7 +208,7 @@ void Ut_DuiImCorrectionCandidateWidget::checkActiveIndex()
 }
 
 
-void Ut_DuiImCorrectionCandidateWidget::checkPreeditString()
+void Ut_MImCorrectionCandidateWidget::checkPreeditString()
 {
     QStringList str;
     str << "autobahnraststaettenbetreiber" << "Nobody_is_there" <<
@@ -220,7 +220,7 @@ void Ut_DuiImCorrectionCandidateWidget::checkPreeditString()
     }
 }
 
-void Ut_DuiImCorrectionCandidateWidget::setCandidatesAndSelect()
+void Ut_MImCorrectionCandidateWidget::setCandidatesAndSelect()
 {
     QStringList candidates;
     QStringList expectedWord;
@@ -248,7 +248,7 @@ void Ut_DuiImCorrectionCandidateWidget::setCandidatesAndSelect()
         release->setPos(positions.at(n));
 
         delete m_subject;
-        m_subject = new DuiImCorrectionCandidateWidget();
+        m_subject = new MImCorrectionCandidateWidget();
         QSignalSpy spyRegion(m_subject, SIGNAL(regionUpdated(const QRegion &)));
         QSignalSpy spyCandidate(m_subject, SIGNAL(candidateClicked(const QString &)));
         QSignalSpy spyHidden(m_subject, SIGNAL(hidden()));
@@ -289,7 +289,7 @@ void Ut_DuiImCorrectionCandidateWidget::setCandidatesAndSelect()
     }
 }
 
-void Ut_DuiImCorrectionCandidateWidget::checkShowWidget()
+void Ut_MImCorrectionCandidateWidget::checkShowWidget()
 {
     QStringList candidates;
     candidates << "1" << "2" << "3" << "4" << "5";
@@ -299,5 +299,5 @@ void Ut_DuiImCorrectionCandidateWidget::checkShowWidget()
     m_subject->hide();
 }
 
-QTEST_APPLESS_MAIN(Ut_DuiImCorrectionCandidateWidget);
+QTEST_APPLESS_MAIN(Ut_MImCorrectionCandidateWidget);
 

@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,80 +16,81 @@
 
 
 
-#include "duikeyboardhost.h"
-#include "duivirtualkeyboard.h"
-#include "duihardwarekeyboard.h"
-#ifdef DUI_IM_DISABLE_TRANSLUCENCY
-#include "duiimcorrectioncandidatewindow.h"
+#include "mkeyboardhost.h"
+#include "mvirtualkeyboard.h"
+#include "mhardwarekeyboard.h"
+#ifdef M_IM_DISABLE_TRANSLUCENCY
+#include "mimcorrectioncandidatewindow.h"
 #endif
-#include "duiimcorrectioncandidatewidget.h"
+#include "mimcorrectioncandidatewidget.h"
 #include "keyboarddata.h"
 #include "layoutmenu.h"
 #include "layoutsmanager.h"
 #include "symbolview.h"
 
 #include <duiimenginewords.h>
-#include <duiinputcontextconnection.h>
-#include <duiplainwindow.h>
-#include <duigconfitem.h>
-#include <duitheme.h>
+#include <minputcontextconnection.h>
+#include <mplainwindow.h>
+#include <mgconfitem.h>
+#include <mtheme.h>
 
 #include <QDebug>
 #include <QCoreApplication>
 #include <QKeyEvent>
 #include <QFile>
 
-#include <DuiApplication>
-#include <DuiComponentData>
-#include <DuiFeedbackPlayer>
+#include <MApplication>
+#include <MComponentData>
+#include <MFeedbackPlayer>
 #include <duireactionmap.h>
-#include <DuiScene>
-#include <DuiSceneManager>
-#include <DuiSceneWindow>
-#include <DuiLibrary>
-DUI_LIBRARY // to avoid a crash from duitheme. FIXME - is this the proper way for us?
+#include <MScene>
+#include <MSceneManager>
+#include <MSceneWindow>
+#include <MLibrary>
+M_LIBRARY // to avoid a crash from mtheme. FIXME - is this the proper way for us?
 
 
 namespace
 {
-    const QString InputMethodList("DuiInputMethodList");
+    const QString InputMethodList("MInputMethodList");
     const QString DefaultInputLanguage("en_GB");
-    const QString InputMethodCorrectionSetting("/Dui/InputMethods/CorrectionEnabled");
-    const QString InputMethodCorrectionEngine("/Dui/InputMethods/CorrectionEngine");
+    // TODO: check that these paths still hold
+    const QString InputMethodCorrectionSetting("/Meego/InputMethods/CorrectionEnabled");
+    const QString InputMethodCorrectionEngine("/Meego/InputMethods/CorrectionEngine");
     const QString AutocapsTrigger(".?!¡¿");
     const int RotationDuration = 750; //! After vkb hidden, how long to wait until shown again
     const int AutoBackspaceDelay = 500;      // in ms
     const int BackspaceRepeatInterval = 100; // in ms
     const int MultitapTime = 1500;           // in ms
-    const char * const PixmapDirectory = "/usr/share/dui/virtual-keyboard/images";
-    const QString CssFile("/usr/share/dui/virtual-keyboard/css/%1x%2.css");
+    const char * const PixmapDirectory = "/usr/share/meegotouch/virtual-keyboard/images";
+    const QString CssFile("/usr/share/meegotouch/virtual-keyboard/css/%1x%2.css");
     const QString DefaultCss = CssFile.arg(864).arg(480); // Default screen resolution is 864x480
 }
 
 
-DuiKeyboardHost::DuiKeyboardHost(DuiInputContextConnection* icConnection, QObject *parent)
-    : DuiInputMethodBase(icConnection, parent),
+MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *parent)
+    : MInputMethodBase(icConnection, parent),
       vkbWidget(0),
       symbolView(0),
-      inputMethodCorrectionSettings(new DuiGConfItem(InputMethodCorrectionSetting)),
-      inputMethodCorrectionEngine(new DuiGConfItem(InputMethodCorrectionEngine)),
+      inputMethodCorrectionSettings(new MGConfItem(InputMethodCorrectionSetting)),
+      inputMethodCorrectionEngine(new MGConfItem(InputMethodCorrectionEngine)),
       engineReady(false),
-      angle(Dui::Angle0),
+      angle(M::Angle0),
       rotationInProgress(false),
       correctionEnabled(false),
       feedbackPlayer(0),
       autoCapsEnabled(true),
       cursorPos(-1),
-      inputMethodMode(Dui::InputMethodModeNormal),
+      inputMethodMode(M::InputMethodModeNormal),
       backSpaceTimer(this),
       multitapIndex(0),
       activeState(OnScreen)
 {
-    displayHeight = DuiPlainWindow::instance()->visibleSceneSize(Dui::Landscape).height();
-    displayWidth  = DuiPlainWindow::instance()->visibleSceneSize(Dui::Landscape).width();
+    displayHeight = MPlainWindow::instance()->visibleSceneSize(M::Landscape).height();
+    displayWidth  = MPlainWindow::instance()->visibleSceneSize(M::Landscape).width();
 
     //TODO get this from settings
-    DuiTheme *theme = DuiTheme::instance();
+    MTheme *theme = MTheme::instance();
     theme->addPixmapDirectory(PixmapDirectory);
 
     QString css = CssFile.arg(displayWidth, displayHeight);
@@ -102,27 +103,27 @@ DuiKeyboardHost::DuiKeyboardHost(DuiInputContextConnection* icConnection, QObjec
 
     LayoutsManager::createInstance();
 
-    sceneWindow = new DuiSceneWindow;
+    sceneWindow = new MSceneWindow;
     sceneWindow->setManagedManually(true); // we want the scene window to remain in origin
 
-    // This will add scene window as child of DuiSceneManager's root element
+    // This will add scene window as child of MSceneManager's root element
     // which is the QGraphicsItem that is rotated when orientation changes.
     // It uses animation to carry out the orientation change transform
     // (e.g. rotation and position animation). We do this because transform
-    // happens in the scene, not in the view (DuiWindow) anymore.
-    DuiPlainWindow::instance()->sceneManager()->appearSceneWindowNow(sceneWindow);
+    // happens in the scene, not in the view (MWindow) anymore.
+    MPlainWindow::instance()->sceneManager()->appearSceneWindowNow(sceneWindow);
 
     // Because we set vkbWidget as a child of sceneWindow the vkb
     // will always be in correct orientation. However the animation will be
     // affected as well. If we want to keep the current hiding/showing animation
     // (up & down) without getting it combined with the rotation animation
     // we have at least two options:
-    // 1) Make our own DuiOrientationAnimation when libdui begins supporting
+    // 1) Make our own MOrientationAnimation when libdui begins supporting
     //    setting it, through theme probably.
-    // 2) Add widgets directly to scene (detached from DuiSceneManager) and
+    // 2) Add widgets directly to scene (detached from MSceneManager) and
     //    update their transformations by hand.
 
-    vkbWidget = new DuiVirtualKeyboard(LayoutsManager::instance(), sceneWindow);
+    vkbWidget = new MVirtualKeyboard(LayoutsManager::instance(), sceneWindow);
 
     connect(vkbWidget, SIGNAL(keyClicked(const KeyEvent &)),
             this, SLOT(handleKeyClick(const KeyEvent &)));
@@ -142,7 +143,7 @@ DuiKeyboardHost::DuiKeyboardHost(DuiInputContextConnection* icConnection, QObjec
             this, SLOT(userHide()));
 
     // construct hardware keyboard object
-    hardwareKeyboard = new DuiHardwareKeyboard(this);
+    hardwareKeyboard = new MHardwareKeyboard(this);
     connect(hardwareKeyboard, SIGNAL(symbolKeyClicked()),
             this, SLOT(handleSymbolKeyClick()));
 
@@ -160,17 +161,17 @@ DuiKeyboardHost::DuiKeyboardHost(DuiInputContextConnection* icConnection, QObjec
 
     // Ideally we would adjust the hiding/showing animation of vkb according to
     // animation of the application receiving input. For example, with 3-phase
-    // DuiBasicOrientationAnimation we would probably want to sync like this:
+    // MBasicOrientationAnimation we would probably want to sync like this:
     // 1) Navigation bar hiding (altough it's probably already hidden) -> vkb hiding
     // 2) Rotation in progress -> vkb not visible
     // 3) Navigation bar showing -> vkb showing
     // There is currently, however, no signals at that level we could follow.
-    connect(DuiPlainWindow::instance()->sceneManager(),
-            SIGNAL(orientationAboutToChange(Dui::Orientation)),
+    connect(MPlainWindow::instance()->sceneManager(),
+            SIGNAL(orientationAboutToChange(M::Orientation)),
             SLOT(prepareOrientationChange()));
 
-    connect(DuiPlainWindow::instance()->sceneManager(),
-            SIGNAL(orientationChangeFinished(Dui::Orientation)),
+    connect(MPlainWindow::instance()->sceneManager(),
+            SIGNAL(orientationChangeFinished(M::Orientation)),
             SLOT(finalizeOrientationChange()));
 
     symbolView = new SymbolView(LayoutsManager::instance(), &vkbWidget->style(),
@@ -236,7 +237,7 @@ DuiKeyboardHost::DuiKeyboardHost(DuiInputContextConnection* icConnection, QObjec
         }
     }
 
-    feedbackPlayer = DuiComponentData::feedbackPlayer();
+    feedbackPlayer = MComponentData::feedbackPlayer();
 
     backSpaceTimer.setSingleShot(true);
     connect(&backSpaceTimer, SIGNAL(timeout()), this, SLOT(autoBackspace()));
@@ -247,7 +248,7 @@ DuiKeyboardHost::DuiKeyboardHost(DuiInputContextConnection* icConnection, QObjec
 }
 
 
-DuiKeyboardHost::~DuiKeyboardHost()
+MKeyboardHost::~MKeyboardHost()
 {
     delete hardwareKeyboard;
     hardwareKeyboard = 0;
@@ -257,7 +258,7 @@ DuiKeyboardHost::~DuiKeyboardHost()
     correctionCandidateWidget = 0;
     delete sceneWindow;
     sceneWindow = 0;
-#ifdef DUI_IM_DISABLE_TRANSLUCENCY
+#ifdef M_IM_DISABLE_TRANSLUCENCY
     delete correctionSceneWindow;
     correctionSceneWindow = 0;
     delete correctionWindow;
@@ -271,19 +272,19 @@ DuiKeyboardHost::~DuiKeyboardHost()
     LayoutsManager::destroyInstance();
 }
 
-void DuiKeyboardHost::createCorrectionCandidateWidget()
+void MKeyboardHost::createCorrectionCandidateWidget()
 {
-#ifdef DUI_IM_DISABLE_TRANSLUCENCY
+#ifdef M_IM_DISABLE_TRANSLUCENCY
     // Use a separate translucent window for correction candidate widget
-    correctionWindow = new DuiImCorrectionCandidateWindow();
-    DuiWindow *correctionView = new DuiWindow(new DuiSceneManager, correctionWindow);
+    correctionWindow = new MImCorrectionCandidateWindow();
+    MWindow *correctionView = new MWindow(new MSceneManager, correctionWindow);
     // Enable translucent in hardware rendering
-    correctionView->setTranslucentBackground(!DuiApplication::softwareRendering());
+    correctionView->setTranslucentBackground(!MApplication::softwareRendering());
 
     // No auto fill in software rendering
-    if (DuiApplication::softwareRendering())
+    if (MApplication::softwareRendering())
         correctionView->viewport()->setAutoFillBackground(false);
-    QSize sceneSize = correctionView->visibleSceneSize(Dui::Landscape);
+    QSize sceneSize = correctionView->visibleSceneSize(M::Landscape);
     int w = correctionView->visibleSceneSize().width();
     int h = correctionView->visibleSceneSize().height();
     correctionView->scene()->setSceneRect(0, 0, w, h);
@@ -291,18 +292,18 @@ void DuiKeyboardHost::createCorrectionCandidateWidget()
     correctionView->setMinimumSize(1, 1);
     correctionView->setMaximumSize(w, h);
 
-    correctionSceneWindow = new DuiSceneWindow;
+    correctionSceneWindow = new MSceneWindow;
     correctionSceneWindow->setManagedManually(true); // we want the scene window to remain in origin
     correctionView->sceneManager()->appearSceneWindowNow(correctionSceneWindow);
 
     // construct correction candidate widget
-    correctionCandidateWidget = new DuiImCorrectionCandidateWidget(correctionSceneWindow);
+    correctionCandidateWidget = new MImCorrectionCandidateWidget(correctionSceneWindow);
     correctionCandidateWidget->hide();
     connect(correctionCandidateWidget, SIGNAL(regionUpdated(const QRegion &)),
             correctionWindow, SLOT(handleRegionUpdate(const QRegion &)));
 #else
     // construct correction candidate widget
-    correctionCandidateWidget = new DuiImCorrectionCandidateWidget(sceneWindow);
+    correctionCandidateWidget = new MImCorrectionCandidateWidget(sceneWindow);
     correctionCandidateWidget->hide();
 
     connect(correctionCandidateWidget, SIGNAL(regionUpdated(const QRegion &)),
@@ -312,9 +313,9 @@ void DuiKeyboardHost::createCorrectionCandidateWidget()
             this, SLOT(updatePreedit(const QString &)));
 }
 
-void DuiKeyboardHost::show()
+void MKeyboardHost::show()
 {
-    QWidget *p = DuiPlainWindow::instance();
+    QWidget *p = MPlainWindow::instance();
 
     if (p->nativeParentWidget()) {
         p = p->nativeParentWidget();
@@ -340,7 +341,7 @@ void DuiKeyboardHost::show()
 }
 
 
-void DuiKeyboardHost::hide()
+void MKeyboardHost::hide()
 {
     symbolView->hideSymbolView();
     vkbWidget->hideKeyboard();
@@ -349,7 +350,7 @@ void DuiKeyboardHost::hide()
 }
 
 
-void DuiKeyboardHost::setPreedit(const QString &preeditString)
+void MKeyboardHost::setPreedit(const QString &preeditString)
 {
     preedit = preeditString;
     correctedPreedit = preeditString;
@@ -361,7 +362,7 @@ void DuiKeyboardHost::setPreedit(const QString &preeditString)
 }
 
 
-void DuiKeyboardHost::update()
+void MKeyboardHost::update()
 {
     bool valid = false;
 
@@ -372,14 +373,14 @@ void DuiKeyboardHost::update()
 
     const int type = inputContextConnection()->contentType(valid);
     if (valid) {
-        hardwareKeyboard->setKeyboardType(static_cast<Dui::TextContentType>(type));
+        hardwareKeyboard->setKeyboardType(static_cast<M::TextContentType>(type));
         vkbWidget->setKeyboardType(type);
     }
 
     autoCapsEnabled = (inputContextConnection()->autoCapitalizationEnabled(valid)
                        && valid
-                       && (type != Dui::NumberContentType)
-                       && (type != Dui::PhoneNumberContentType));
+                       && (type != M::NumberContentType)
+                       && (type != M::PhoneNumberContentType));
 
     if (autoCapsEnabled) {
         valid = inputContextConnection()->surroundingText(surroundingText, cursorPos);
@@ -395,7 +396,7 @@ void DuiKeyboardHost::update()
 }
 
 
-void DuiKeyboardHost::updateShiftState()
+void MKeyboardHost::updateShiftState()
 {
     if (!autoCapsEnabled)
         return;
@@ -416,16 +417,16 @@ void DuiKeyboardHost::updateShiftState()
                     && AutocapsTrigger.contains(preText.at(preText.length() - 2)));
     }
 
-    if ((activeState == OnScreen) && (vkbWidget->shiftStatus() != DuiVirtualKeyboard::ShiftLock)) {
+    if ((activeState == OnScreen) && (vkbWidget->shiftStatus() != MVirtualKeyboard::ShiftLock)) {
         vkbWidget->setShiftState(autoCaps ?
-                                 DuiVirtualKeyboard::ShiftOn : DuiVirtualKeyboard::ShiftOff);
+                                 MVirtualKeyboard::ShiftOn : MVirtualKeyboard::ShiftOff);
     } else if ((activeState == Hardware) &&
                (hardwareKeyboard->modifierState(Qt::ShiftModifier) != ModifierLockedState)) {
         hardwareKeyboard->setAutoCapitalization(autoCaps);
     }
 }
 
-void DuiKeyboardHost::reset()
+void MKeyboardHost::reset()
 {
     qDebug() << __PRETTY_FUNCTION__;
     switch (activeState) {
@@ -446,7 +447,7 @@ void DuiKeyboardHost::reset()
 }
 
 
-void DuiKeyboardHost::prepareOrientationChange()
+void MKeyboardHost::prepareOrientationChange()
 {
     if (rotationInProgress) {
         return;
@@ -459,9 +460,9 @@ void DuiKeyboardHost::prepareOrientationChange()
     correctionCandidateWidget->prepareToOrientationChange();
 }
 
-void DuiKeyboardHost::finalizeOrientationChange()
+void MKeyboardHost::finalizeOrientationChange()
 {
-    angle = DuiPlainWindow::instance()->orientationAngle();
+    angle = MPlainWindow::instance()->orientationAngle();
 
     vkbWidget->finalizeOrientationChange();
 
@@ -497,24 +498,24 @@ void DuiKeyboardHost::finalizeOrientationChange()
     rotationInProgress = false;
 }
 
-bool DuiKeyboardHost::rotatePoint(const QPoint &screen, QPoint &window)
+bool MKeyboardHost::rotatePoint(const QPoint &screen, QPoint &window)
 {
     bool res = true;
 
     switch (angle) {
-    case Dui::Angle90:
+    case M::Angle90:
         window.setX(screen.y());
         window.setY(displayWidth - screen.x());
         break;
-    case Dui::Angle270:
+    case M::Angle270:
         window.setX(displayHeight - screen.y());
         window.setY(screen.x());
         break;
-    case Dui::Angle180:
+    case M::Angle180:
         window.setX(displayWidth - screen.x());
         window.setY(displayHeight - screen.y());
         break;
-    case Dui::Angle0:
+    case M::Angle0:
         window.setX(screen.x());
         window.setY(screen.y());
         break;
@@ -527,7 +528,7 @@ bool DuiKeyboardHost::rotatePoint(const QPoint &screen, QPoint &window)
 }
 
 
-bool DuiKeyboardHost::rotateRect(const QRect &screenRect, QRect &windowRect)
+bool MKeyboardHost::rotateRect(const QRect &screenRect, QRect &windowRect)
 {
     bool res = true;
 
@@ -537,22 +538,22 @@ bool DuiKeyboardHost::rotateRect(const QRect &screenRect, QRect &windowRect)
     }
 
     switch (angle) {
-    case Dui::Angle90:
+    case M::Angle90:
         windowRect.setRect(screenRect.y(),
                            displayWidth - screenRect.x() - screenRect.width(),
                            screenRect.height(), screenRect.width());
         break;
-    case Dui::Angle270:
+    case M::Angle270:
         windowRect.setRect(displayHeight - screenRect.y() - screenRect.height(),
                            screenRect.x(),
                            screenRect.height(), screenRect.width());
         break;
-    case Dui::Angle180:
+    case M::Angle180:
         windowRect.setRect(displayWidth - screenRect.x() - screenRect.width(),
                            displayHeight - screenRect.y() - screenRect.height(),
                            screenRect.width(), screenRect.height());
         break;
-    case Dui::Angle0:
+    case M::Angle0:
         windowRect = screenRect;
         break;
     default:
@@ -565,7 +566,7 @@ bool DuiKeyboardHost::rotateRect(const QRect &screenRect, QRect &windowRect)
 }
 
 
-void DuiKeyboardHost::mouseClickedOnPreedit(const QPoint &mousePos, const QRect &preeditRect)
+void MKeyboardHost::mouseClickedOnPreedit(const QPoint &mousePos, const QRect &preeditRect)
 {
     if (candidates.size() <= 1)
         return;
@@ -593,7 +594,7 @@ void DuiKeyboardHost::mouseClickedOnPreedit(const QPoint &mousePos, const QRect 
 }
 
 
-void DuiKeyboardHost::visualizationPriorityChanged(bool priority)
+void MKeyboardHost::visualizationPriorityChanged(bool priority)
 {
     if (priority == true) {
         vkbWidget->hideKeyboard(true, true);
@@ -603,20 +604,20 @@ void DuiKeyboardHost::visualizationPriorityChanged(bool priority)
 }
 
 
-void DuiKeyboardHost::appOrientationChanged(int angle)
+void MKeyboardHost::appOrientationChanged(int angle)
 {
     // The application receiving input has changed its orientation. Let's change ours.
-    DuiPlainWindow::instance()->setOrientationAngle((Dui::OrientationAngle)angle);
+    MPlainWindow::instance()->setOrientationAngle((M::OrientationAngle)angle);
 }
 
 
-void DuiKeyboardHost::setCopyPasteState(bool copyAvailable, bool pasteAvailable)
+void MKeyboardHost::setCopyPasteState(bool copyAvailable, bool pasteAvailable)
 {
     vkbWidget->setCopyPasteButton(copyAvailable, pasteAvailable);
 }
 
 
-void DuiKeyboardHost::updatePreedit(const QString &updatedString)
+void MKeyboardHost::updatePreedit(const QString &updatedString)
 {
     PreeditFace face = PreeditDefault;
 
@@ -629,7 +630,7 @@ void DuiKeyboardHost::updatePreedit(const QString &updatedString)
 }
 
 
-void DuiKeyboardHost::doBackspace()
+void MKeyboardHost::doBackspace()
 {
     // note: backspace shouldn't start accurate mode
     if (preedit.length() > 0) {
@@ -645,28 +646,28 @@ void DuiKeyboardHost::doBackspace()
     } else {
         static const KeyEvent event("\b", QEvent::KeyRelease, Qt::Key_Backspace,
                                     KeyEvent::NotSpecial,
-                                    vkbWidget->shiftStatus() != DuiVirtualKeyboard::ShiftOff
+                                    vkbWidget->shiftStatus() != MVirtualKeyboard::ShiftOff
                                     ? Qt::ShiftModifier : Qt::NoModifier);
         inputContextConnection()->sendKeyEvent(KeyEvent(event, QEvent::KeyPress).toQKeyEvent());
         inputContextConnection()->sendKeyEvent(event.toQKeyEvent());
     }
     // Backspace toggles shift off if it's on (not locked)
     // except if autoCaps is on and cursor is at 0 position.
-    if (vkbWidget->shiftStatus() == DuiVirtualKeyboard::ShiftOn
+    if (vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn
         && (!autoCapsEnabled || cursorPos != 0)) {
-        vkbWidget->setShiftState(DuiVirtualKeyboard::ShiftOff);
+        vkbWidget->setShiftState(MVirtualKeyboard::ShiftOff);
     }
 }
 
-void DuiKeyboardHost::autoBackspace()
+void MKeyboardHost::autoBackspace()
 {
     backSpaceTimer.start(BackspaceRepeatInterval); // Must restart before doBackspace
     doBackspace();
 }
 
-void DuiKeyboardHost::handleKeyPress(const KeyEvent &event)
+void MKeyboardHost::handleKeyPress(const KeyEvent &event)
 {
-    if (((inputMethodMode == Dui::InputMethodModeDirect)
+    if (((inputMethodMode == M::InputMethodModeDirect)
          && (event.specialKey() == KeyEvent::NotSpecial))
         || (event.qtKey() == Qt::Key_plusminus)) { // plusminus key makes an exception
 
@@ -677,9 +678,9 @@ void DuiKeyboardHost::handleKeyPress(const KeyEvent &event)
     }
 }
 
-void DuiKeyboardHost::handleKeyRelease(const KeyEvent &event)
+void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
 {
-    if (((inputMethodMode == Dui::InputMethodModeDirect)
+    if (((inputMethodMode == M::InputMethodModeDirect)
          && (event.specialKey() == KeyEvent::NotSpecial))
         || (event.qtKey() == Qt::Key_plusminus)) { // plusminus key makes an exception
 
@@ -691,7 +692,7 @@ void DuiKeyboardHost::handleKeyRelease(const KeyEvent &event)
     }
 }
 
-void DuiKeyboardHost::updateReactionMaps()
+void MKeyboardHost::updateReactionMaps()
 {
     if (rotationInProgress) {
         return;
@@ -712,13 +713,13 @@ void DuiKeyboardHost::updateReactionMaps()
     }
 }
 
-void DuiKeyboardHost::clearReactionMaps(const QString &clearValue)
+void MKeyboardHost::clearReactionMaps(const QString &clearValue)
 {
-    if (!DuiPlainWindow::instance()->scene()) {
+    if (!MPlainWindow::instance()->scene()) {
         return;
     }
 
-    foreach (QGraphicsView *view, DuiPlainWindow::instance()->scene()->views()) {
+    foreach (QGraphicsView *view, MPlainWindow::instance()->scene()->views()) {
         DuiReactionMap *reactionMap = DuiReactionMap::instance(view);
         if (reactionMap) {
             reactionMap->setDrawingValue(clearValue, clearValue);
@@ -728,9 +729,9 @@ void DuiKeyboardHost::clearReactionMaps(const QString &clearValue)
     }
 }
 
-void DuiKeyboardHost::handleKeyClick(const KeyEvent &event)
+void MKeyboardHost::handleKeyClick(const KeyEvent &event)
 {
-    if ((inputMethodMode != Dui::InputMethodModeDirect)) {
+    if ((inputMethodMode != M::InputMethodModeDirect)) {
         handleTextInputKeyClick(event);
     }
 
@@ -740,25 +741,25 @@ void DuiKeyboardHost::handleKeyClick(const KeyEvent &event)
     lastClickEventTime = QTime::currentTime();
 }
 
-void DuiKeyboardHost::handleGeneralKeyClick(const KeyEvent &event)
+void MKeyboardHost::handleGeneralKeyClick(const KeyEvent &event)
 {
     if (event.qtKey() == Qt::Key_Shift) {
         switch (vkbWidget->shiftStatus()) {
-        case DuiVirtualKeyboard::ShiftOn:
-            vkbWidget->setShiftState(DuiVirtualKeyboard::ShiftLock);
+        case MVirtualKeyboard::ShiftOn:
+            vkbWidget->setShiftState(MVirtualKeyboard::ShiftLock);
             break;
-        case DuiVirtualKeyboard::ShiftOff:
-            vkbWidget->setShiftState(DuiVirtualKeyboard::ShiftOn);
+        case MVirtualKeyboard::ShiftOff:
+            vkbWidget->setShiftState(MVirtualKeyboard::ShiftOn);
             break;
-        case DuiVirtualKeyboard::ShiftLock:
-            vkbWidget->setShiftState(DuiVirtualKeyboard::ShiftOff);
+        case MVirtualKeyboard::ShiftLock:
+            vkbWidget->setShiftState(MVirtualKeyboard::ShiftOff);
             break;
         }
-    } else if (vkbWidget->shiftStatus() == DuiVirtualKeyboard::ShiftOn
+    } else if (vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn
                && (event.qtKey() != Qt::Key_Backspace)) {
         // Any key except shift toggles shift off if it's on (not locked).
         // backspace toggles shift off is handled in doBackspace().
-        vkbWidget->setShiftState(DuiVirtualKeyboard::ShiftOff);
+        vkbWidget->setShiftState(MVirtualKeyboard::ShiftOff);
     }
 
     if (event.specialKey() == KeyEvent::LayoutMenu) {
@@ -768,7 +769,7 @@ void DuiKeyboardHost::handleGeneralKeyClick(const KeyEvent &event)
     }
 }
 
-void DuiKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
+void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
 {
     // Discard KeyPress & Drop type of events.
     if (event.type() != QEvent::KeyRelease
@@ -814,7 +815,7 @@ void DuiKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
     }
 
     // Word separator stops accurate mode
-    if (DuiVirtualKeyboard::WordSeparators.indexOf(text) >= 0) {
+    if (MVirtualKeyboard::WordSeparators.indexOf(text) >= 0) {
         vkbWidget->stopAccurateMode();
 
         if (engineReady
@@ -823,10 +824,10 @@ void DuiKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
                 && !preedit.isEmpty()) {
 
             if (feedbackPlayer) {
-                feedbackPlayer->play(DuiFeedbackPlayer::Cancel);
+                feedbackPlayer->play(MFeedbackPlayer::Cancel);
             }
         } else if (feedbackPlayer) {
-            feedbackPlayer->play(DuiFeedbackPlayer::Release);
+            feedbackPlayer->play(MFeedbackPlayer::Release);
         }
     }
 
@@ -910,7 +911,7 @@ void DuiKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
     }
 }
 
-void DuiKeyboardHost::initializeInputEngine()
+void MKeyboardHost::initializeInputEngine()
 {
     // init correction engine
     // set language according current displayed language in virtual keyboard
@@ -941,7 +942,7 @@ void DuiKeyboardHost::initializeInputEngine()
 }
 
 
-void DuiKeyboardHost::errorCorrectionToggled(bool on)
+void MKeyboardHost::errorCorrectionToggled(bool on)
 {
     if (engineReady && (on != imCorrectionEngine->correctionEnabled())) {
         bool correction = true;
@@ -954,7 +955,7 @@ void DuiKeyboardHost::errorCorrectionToggled(bool on)
 }
 
 
-void DuiKeyboardHost::synchronizeCorrectionSetting()
+void MKeyboardHost::synchronizeCorrectionSetting()
 {
     bool correction = true;
     if (!inputMethodCorrectionSettings->value().isNull())
@@ -972,7 +973,7 @@ void DuiKeyboardHost::synchronizeCorrectionSetting()
 }
 
 
-void DuiKeyboardHost::updateCorrectionState()
+void MKeyboardHost::updateCorrectionState()
 {
     if (activeState == Hardware) {
         inputContextConnection()->setGlobalCorrectionEnabled(false);
@@ -996,13 +997,13 @@ void DuiKeyboardHost::updateCorrectionState()
 }
 
 
-void DuiKeyboardHost::userHide()
+void MKeyboardHost::userHide()
 {
     inputContextConnection()->notifyImInitiatedHiding();
 }
 
 
-void DuiKeyboardHost::sendCopyPaste(CopyPasteState action)
+void MKeyboardHost::sendCopyPaste(CopyPasteState action)
 {
     switch (action) {
     case InputMethodCopy:
@@ -1017,7 +1018,7 @@ void DuiKeyboardHost::sendCopyPaste(CopyPasteState action)
     }
 }
 
-void DuiKeyboardHost::showLayoutMenu()
+void MKeyboardHost::showLayoutMenu()
 {
     const QStringList languageList = LayoutsManager::instance().languageList();
     const int currentIndex = languageList.indexOf(vkbWidget->selectedLanguage());
@@ -1032,7 +1033,7 @@ void DuiKeyboardHost::showLayoutMenu()
     layoutMenu->show();
 }
 
-QRegion DuiKeyboardHost::combineRegionTo(RegionMap &regionStore,
+QRegion MKeyboardHost::combineRegionTo(RegionMap &regionStore,
                                          const QRegion &region, const QObject &widget)
 {
     regionStore[&widget] = region;
@@ -1045,29 +1046,29 @@ QRegion DuiKeyboardHost::combineRegionTo(RegionMap &regionStore,
     return combinedRegion;
 }
 
-void DuiKeyboardHost::handleRegionUpdate(const QRegion &region)
+void MKeyboardHost::handleRegionUpdate(const QRegion &region)
 {
     emit regionUpdated(combineRegionTo(widgetRegions, region, *QObject::sender()));
     updateReactionMaps();
 }
 
-void DuiKeyboardHost::handleInputMethodAreaUpdate(const QRegion &region)
+void MKeyboardHost::handleInputMethodAreaUpdate(const QRegion &region)
 {
     emit inputMethodAreaUpdated(combineRegionTo(inputMethodAreaWidgetRegions,
                                                 region, *QObject::sender()));
 }
 
-void DuiKeyboardHost::sendKeyEvent(const QKeyEvent &key)
+void MKeyboardHost::sendKeyEvent(const QKeyEvent &key)
 {
     inputContextConnection()->sendKeyEvent(key);
 }
 
-void DuiKeyboardHost::sendString(const QString &text)
+void MKeyboardHost::sendString(const QString &text)
 {
     inputContextConnection()->sendCommitString(text);
 }
 
-void DuiKeyboardHost::setToolbar(const QString &toolbar)
+void MKeyboardHost::setToolbar(const QString &toolbar)
 {
     if (!toolbar.isEmpty())
         vkbWidget->showToolbarWidget(toolbar);
@@ -1075,9 +1076,9 @@ void DuiKeyboardHost::setToolbar(const QString &toolbar)
         vkbWidget->hideToolbarWidget();
 }
 
-void DuiKeyboardHost::processKeyEvent(QEvent::Type keyType, Qt::Key keyCode,
-                                      Qt::KeyboardModifiers modifiers, const QString &text,
-                                      bool autoRepeat, int count, int nativeScanCode)
+void MKeyboardHost::processKeyEvent(QEvent::Type keyType, Qt::Key keyCode,
+                                    Qt::KeyboardModifiers modifiers, const QString &text,
+                                    bool autoRepeat, int count, int nativeScanCode)
 {
     if ((activeState != Hardware) ||
         !hardwareKeyboard->filterKeyEvent(false, keyType, keyCode, modifiers, text,
@@ -1087,19 +1088,19 @@ void DuiKeyboardHost::processKeyEvent(QEvent::Type keyType, Qt::Key keyCode,
     }
 }
 
-void DuiKeyboardHost::clientChanged()
+void MKeyboardHost::clientChanged()
 {
     reset();
     hide(); // could do some quick hide also
 }
 
-void DuiKeyboardHost::setState(const QList<DuiIMHandlerState> &state)
+void MKeyboardHost::setState(const QList<MIMHandlerState> &state)
 {
     if (state.isEmpty()) {
         return;
     }
 
-    const DuiIMHandlerState actualState = state.last();
+    const MIMHandlerState actualState = state.last();
     if (activeState == actualState)
         return;
 
@@ -1127,7 +1128,7 @@ void DuiKeyboardHost::setState(const QList<DuiIMHandlerState> &state)
     updateShiftState();
 }
 
-void DuiKeyboardHost::handleSymbolKeyClick()
+void MKeyboardHost::handleSymbolKeyClick()
 {
     if (!symbolView->isActive()) {
 
@@ -1148,31 +1149,31 @@ void DuiKeyboardHost::handleSymbolKeyClick()
     }
 }
 
-void DuiKeyboardHost::updateSymbolViewLevel()
+void MKeyboardHost::updateSymbolViewLevel()
 {
     if (!symbolView->isActive())
         return;
 
-    DuiVirtualKeyboard::ShiftLevel shiftLevel = DuiVirtualKeyboard::ShiftOff;
+    MVirtualKeyboard::ShiftLevel shiftLevel = MVirtualKeyboard::ShiftOff;
     if (activeState == OnScreen) {
         shiftLevel = vkbWidget->shiftStatus();
     } else {
         switch (hardwareKeyboard->modifierState(Qt::ShiftModifier)) {
         case ModifierLatchedState:
-            shiftLevel = DuiVirtualKeyboard::ShiftOn;
+            shiftLevel = MVirtualKeyboard::ShiftOn;
             break;
         case ModifierLockedState:
-            shiftLevel = DuiVirtualKeyboard::ShiftLock;
+            shiftLevel = MVirtualKeyboard::ShiftLock;
             break;
         default:
             break;
         }
     }
     symbolView->switchLevel(shiftLevel > 0 ? 1 : 0,
-                            shiftLevel == DuiVirtualKeyboard::ShiftLock);
+                            shiftLevel == MVirtualKeyboard::ShiftLock);
 }
 
-void DuiKeyboardHost::showSymbolView()
+void MKeyboardHost::showSymbolView()
 {
     symbolView->showSymbolView(SymbolView::FollowMouseShowMode);
     //give the symbolview right shift level(for hardware state)

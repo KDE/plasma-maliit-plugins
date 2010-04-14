@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,36 +16,36 @@
 
 
 
-#ifndef DUIKEYBOARDHOST_H
-#define DUIKEYBOARDHOST_H
+#ifndef MKEYBOARDHOST_H
+#define MKEYBOARDHOST_H
 
-#include "duikeyboardcommon.h"
-#include "duiinputmethodbase.h"
+#include "mkeyboardcommon.h"
+#include "minputmethodbase.h"
 #include "keyevent.h"
-#include <DuiNamespace>
+#include <MNamespace>
 #include <QStringList>
 #include <QTime>
 #include <QTimer>
 
-class DuiFeedbackPlayer;
-class DuiGConfItem;
-class DuiImCorrectionCandidateWidget;
-class DuiImEngineWords;
-class DuiSceneWindow;
-class DuiVirtualKeyboard;
-class DuiHardwareKeyboard;
+class MFeedbackPlayer;
+class MGConfItem;
+class MImCorrectionCandidateWidget;
+class MSceneWindow;
+class MVirtualKeyboard;
+class MHardwareKeyboard;
 class LayoutMenu;
 class SymbolView;
+class DuiImEngineWords;
 class QWidget;
 
 //! Logic class for virtual keyboard
-class DuiKeyboardHost: public DuiInputMethodBase
+class MKeyboardHost: public MInputMethodBase
 {
     Q_OBJECT
 
 public:
-    DuiKeyboardHost(DuiInputContextConnection *icConnection, QObject *parent = 0);
-    virtual ~DuiKeyboardHost();
+    MKeyboardHost(MInputContextConnection *icConnection, QObject *parent = 0);
+    virtual ~MKeyboardHost();
 
     //! reimp
     virtual void show();
@@ -58,7 +58,7 @@ public:
     virtual void appOrientationChanged(int angle);
     virtual void setCopyPasteState(bool copyAvailable, bool pasteAvailable);
     virtual void setToolbar(const QString &);
-    virtual void setState(const QList<DuiIMHandlerState> &state);
+    virtual void setState(const QList<MIMHandlerState> &state);
     virtual void processKeyEvent(QEvent::Type keyType, Qt::Key keyCode,
                                  Qt::KeyboardModifiers modifiers,
                                  const QString &text, bool autoRepeat, int count,
@@ -128,7 +128,7 @@ private slots:
     void initializeInputEngine();
 
     /*! Receive region updates from widgets, combine them and signal as input method's region
-     * using \a DuiInputMethodBase::regionUpdated.
+     * using \a MInputMethodBase::regionUpdated.
      *
      * \param region updated region
      */
@@ -136,7 +136,7 @@ private slots:
 
     /*!
      * Receive region updates from widgets, combine them and signal as input
-     * method area using \a DuiInputMethodBase::inputMethodAreaUpdated.
+     * method area using \a MInputMethodBase::inputMethodAreaUpdated.
      *
      * \param region updated region
      */
@@ -211,21 +211,21 @@ private:
     QString preedit;
     QString correctedPreedit;
 
-    DuiImCorrectionCandidateWidget *correctionCandidateWidget;
-    DuiVirtualKeyboard *vkbWidget;
-    DuiHardwareKeyboard *hardwareKeyboard;
+    MImCorrectionCandidateWidget *correctionCandidateWidget;
+    MVirtualKeyboard *vkbWidget;
+    MHardwareKeyboard *hardwareKeyboard;
     LayoutMenu *layoutMenu;
     SymbolView *symbolView;
 
     DuiImEngineWords *imCorrectionEngine;
     //! default input method error correction setting
-    DuiGConfItem *inputMethodCorrectionSettings;
-    DuiGConfItem *inputMethodCorrectionEngine;
+    MGConfItem *inputMethodCorrectionSettings;
+    MGConfItem *inputMethodCorrectionEngine;
 
     QStringList candidates;
     bool engineReady;
 
-    Dui::OrientationAngle angle;
+    M::OrientationAngle angle;
     int displayWidth;
     int displayHeight;
 
@@ -235,7 +235,7 @@ private:
     bool correctionEnabled;
 
     //! Feedback player instance
-    DuiFeedbackPlayer *feedbackPlayer;
+    MFeedbackPlayer *feedbackPlayer;
 
     //! FIXME: should we provide such a flag to on/off auto caps
     bool autoCapsEnabled;
@@ -250,23 +250,23 @@ private:
     QTime lastClickEventTime;
     unsigned int multitapIndex;
 
-    DuiSceneWindow *sceneWindow;
-#ifdef DUI_IM_DISABLE_TRANSLUCENCY
+    MSceneWindow *sceneWindow;
+#ifdef M_IM_DISABLE_TRANSLUCENCY
     QWidget *correctionWindow;
-    DuiSceneWindow *correctionSceneWindow;
+    MSceneWindow *correctionSceneWindow;
 #endif
 
-    //! Regions of widgets created by DuiKeyboardHost
+    //! Regions of widgets created by MKeyboardHost
     RegionMap widgetRegions;
 
     //! Regions of widgets that affect the input method area
     RegionMap inputMethodAreaWidgetRegions;
 
     //! current active state
-    DuiIMHandlerState activeState;
+    MIMHandlerState activeState;
 
 #ifdef UNIT_TEST
-    friend class Ut_DuiKeyboardHost;
+    friend class Ut_MKeyboardHost;
 #endif
 };
 

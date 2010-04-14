@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -20,18 +20,18 @@
 #define LAYOUTMENU_H
 
 #include <QObject>
-#include <DuiNamespace>
+#include <MNamespace>
 
 class QGraphicsLinearLayout;
 class QGraphicsWidget;
-class DuiLayout;
-class DuiLabel;
-class DuiButton;
-class DuiButtonGroup;
-class DuiPopupList;
-class DuiVirtualKeyboardStyleContainer;
-class DuiDialog;
-class DuiWidget;
+class MLayout;
+class MLabel;
+class MButton;
+class MButtonGroup;
+class MPopupList;
+class MVirtualKeyboardStyleContainer;
+class MDialog;
+class MWidget;
 
 
 /*!
@@ -40,7 +40,7 @@ class DuiWidget;
 class LayoutMenu : public QObject
 {
     Q_OBJECT
-    friend class Ut_DuiKeyboardHost;
+    friend class Ut_MKeyboardHost;
 
 public:
     /*!
@@ -48,7 +48,7 @@ public:
      * \param style style container
      * \param parent parent widget -- currently unused
      */
-    LayoutMenu(DuiVirtualKeyboardStyleContainer *style, QGraphicsWidget *parent = 0);
+    LayoutMenu(MVirtualKeyboardStyleContainer *style, QGraphicsWidget *parent = 0);
 
     /*!
      * Destructor
@@ -60,7 +60,7 @@ public:
     void setLanguageList(const QStringList &titles, int selected);
 
     //!  organize content when orientation is changed
-    void organizeContent(Dui::Orientation orientation);
+    void organizeContent(M::Orientation orientation);
 
     //! Save state before rotation
     void save();
@@ -110,7 +110,7 @@ private slots:
 
     void showLanguageList();
 
-    //! Opens language settings page in duicontrolpanel.
+    //! Opens language settings page in mcontrolpanel.
     void openLanguageApplet();
 
     void visibleChangeHandler();
@@ -129,10 +129,10 @@ private:
     void loadLanguageMenu();
 
     //! Getter for style container
-    DuiVirtualKeyboardStyleContainer &style();
+    MVirtualKeyboardStyleContainer &style();
 
     //! Style attributes
-    DuiVirtualKeyboardStyleContainer *styleContainer;
+    MVirtualKeyboardStyleContainer *styleContainer;
 
     QSize buttonSize;
 
@@ -146,20 +146,20 @@ private:
     QSize baseSize;
 
     //! Menu item
-    DuiWidget *centralWidget;
-    DuiLabel *titleLabel;
-    DuiLabel *errorCorrectionLabel;
-    DuiButton *errorCorrectionButton;
-    DuiButtonGroup *errorCorectionButtonGroup;
-    DuiLabel *layoutListLabel;
-    DuiButton *layoutListHeader;
-    DuiPopupList *layoutList;
-    DuiLabel *languageSettingLabel;
-    DuiButton *languageSettingButton;
+    MWidget *centralWidget;
+    MLabel *titleLabel;
+    MLabel *errorCorrectionLabel;
+    MButton *errorCorrectionButton;
+    MButtonGroup *errorCorectionButtonGroup;
+    MLabel *layoutListLabel;
+    MButton *layoutListHeader;
+    MPopupList *layoutList;
+    MLabel *languageSettingLabel;
+    MButton *languageSettingButton;
 
-    DuiDialog *keyboardOptionDialog;
-    DuiWidget *menuWidget;
-    DuiLayout *mainLayout;
+    MDialog *keyboardOptionDialog;
+    MWidget *menuWidget;
+    MLayout *mainLayout;
     QGraphicsLinearLayout *correctionAndLanguageLandscapeLayout;
 };
 

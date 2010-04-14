@@ -1,15 +1,15 @@
 TEMPLATE = app
-CONFIG += QtTest Dui DuiImServer duiimframework
+CONFIG += QtTest meegotouch MImServer mimframework
 DEPENDPATH += .
 INCLUDEPATH += . \
-        ../../dui-keyboard/
+        ../../m-keyboard/
 
 
-LIBS += -Wl,-rpath=/usr/lib/dui-im-plugins/ -L../../dui-keyboard/ -lduikeyboard
+LIBS += -Wl,-rpath=/usr/lib/m-im-plugins/ -L../../m-keyboard/ -lmkeyboard
 
 # Input
-HEADERS += ft_duixkb.h
+HEADERS += ft_mxkb.h
 
-SOURCES += ft_duixkb.cpp
+SOURCES += ft_mxkb.cpp
 
 include(../common_check.pri)

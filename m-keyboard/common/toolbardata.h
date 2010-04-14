@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -49,7 +49,8 @@ public:
     /*!
     * \brief Load a custom toolbar's content from \a fileName xml file.
     * \a fileName is the xml file name (with ".xml" postfix). And \a fileName could have absolute path.
-    * If no absolute path specified, then it will be taken from the default path "/usr/share/dui/imtoolbars/".
+    * If no absolute path specified, then it will be taken from the default path
+    * "/usr/share/meegotouch/imtoolbars/".
     * \param fileName Name of the xml file which contains the content of a custom toolbar.
     */
     bool loadNokiaToolbarXml(const QString &fileName);
@@ -73,9 +74,9 @@ private:
     static Qt::Alignment alignment(const QString &alignmentString);
 
     /*!
-    * \brief Translate orientationString to Dui::Orientation.
+    * \brief Translate orientationString to M::Orientation.
     */
-    static Dui::Orientation orientation(const QString &orientationString);
+    static M::Orientation orientation(const QString &orientationString);
 
     /*!
      * \brief Translate visibleTypeString to ToolbarButton::VisibleType.
@@ -126,7 +127,7 @@ protected:
     QString toolbarFileName;
     friend class ToolbarManager;
     friend struct TBParseStructure;
-    friend class Ut_DuiImToolbar;
+    friend class Ut_MImToolbar;
 };
 
 #endif //TOOLBAR_H

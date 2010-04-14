@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -18,14 +18,14 @@
 
 #include "singlewidgetbutton.h"
 #include "singlewidgetbuttonarea.h"
-#include "duivirtualkeyboardstyle.h"
+#include "mvirtualkeyboardstyle.h"
 
-#include <DuiTheme>
+#include <MTheme>
 #include <QGraphicsItem>
 #include <QPainter>
 
 SingleWidgetButton::SingleWidgetButton(const VKBDataKey &key,
-                                       const DuiVirtualKeyboardStyleContainer &style,
+                                       const MVirtualKeyboardStyleContainer &style,
                                        QGraphicsItem &parent)
     : dataKey(key),
       shift(false),
@@ -42,10 +42,10 @@ SingleWidgetButton::SingleWidgetButton(const VKBDataKey &key,
 SingleWidgetButton::~SingleWidgetButton()
 {
     if (icons[0]) {
-        DuiTheme::releasePixmap(icons[0]);
+        MTheme::releasePixmap(icons[0]);
     }
     if (icons[1]) {
-        DuiTheme::releasePixmap(icons[1]);
+        MTheme::releasePixmap(icons[1]);
     }
 }
 
@@ -180,7 +180,7 @@ const QPixmap *SingleWidgetButton::loadIcon(KeyBinding::KeyAction action, const 
     }
 
     if (id) {
-        pixmap = DuiTheme::pixmap(*id, size);
+        pixmap = MTheme::pixmap(*id, size);
     }
 
     return pixmap;

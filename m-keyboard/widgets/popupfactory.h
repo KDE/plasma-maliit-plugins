@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -21,7 +21,7 @@
 
 #include "popupbase.h"
 
-class DuiVirtualKeyboardStyleContainer;
+class MVirtualKeyboardStyleContainer;
 class QGraphicsItem;
 class PopupPlugin;
 
@@ -30,7 +30,7 @@ class PopupFactory
 {
 public:
     static PopupFactory *instance();
-    PopupBase *createPopup(const DuiVirtualKeyboardStyleContainer &styleContainer,
+    PopupBase *createPopup(const MVirtualKeyboardStyleContainer &styleContainer,
                            QGraphicsItem *parent) const;
 
 private:

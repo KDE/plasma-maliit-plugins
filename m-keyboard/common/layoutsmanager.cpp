@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -22,11 +22,11 @@
 
 namespace
 {
-    const QString InputMethodLanguages("/Dui/InputMethods/Languages");
-    const QString NumberFormatSettingName("/Dui/InputMethods/NumberFormat");
-    const QString InputMethodDefaultLanguage("/Dui/InputMethods/Languages/Default");
-    const QString HardwareKeyboardLayout("/Dui/InputMethods/HWKeyboard/Layout");
-    const QString SystemDisplayLanguage("/Dui/i18n/Language");
+    const QString InputMethodLanguages("/M/InputMethods/Languages");
+    const QString NumberFormatSettingName("/M/InputMethods/NumberFormat");
+    const QString InputMethodDefaultLanguage("/M/InputMethods/Languages/Default");
+    const QString HardwareKeyboardLayout("/M/InputMethods/HWKeyboard/Layout");
+    const QString SystemDisplayLanguage("/M/i18n/Language");
     const QString DefaultNumberFormat("latin");
     const QString LayoutFileExtension(".xml");
     const QString FallbackLanguage("en");
@@ -114,7 +114,7 @@ QString LayoutsManager::keyboardLanguage(const QString &language) const
 
 const LayoutData *LayoutsManager::layout(const QString &language,
         LayoutData::LayoutType type,
-        Dui::Orientation orientation) const
+        M::Orientation orientation) const
 {
     const LayoutData *lm = NULL;
 
@@ -137,19 +137,19 @@ const LayoutData *LayoutsManager::layout(const QString &language,
 
 QString LayoutsManager::defaultLanguage() const
 {
-    return DuiGConfItem(InputMethodDefaultLanguage).value(FallbackLanguage).toString();
+    return MGConfItem(InputMethodDefaultLanguage).value(FallbackLanguage).toString();
 }
 
 QString LayoutsManager::systemDisplayLanguage() const
 {
-    return DuiGConfItem(SystemDisplayLanguage).value().toString();
+    return MGConfItem(SystemDisplayLanguage).value().toString();
 }
 
 QString LayoutsManager::hardwareKeyboardLanguage() const
 {
     //TODO: this is a temporary method, should get the hw layout, then return the
     //language (symbol view variant) according Table 4 in HW Keyboard UI spec.
-    return DuiGConfItem(HardwareKeyboardLayout).value(FallbackLanguage).toString();
+    return MGConfItem(HardwareKeyboardLayout).value(FallbackLanguage).toString();
 }
 
 bool LayoutsManager::loadLanguage(const QString &language)
@@ -223,7 +223,7 @@ void LayoutsManager::reloadNumberKeyboards()
 
     if (numberFormat == NumArabic) {
         loaded = phoneNumberKeyboard.loadNokiaKeyboard(PhoneNumberKeyboardFileArabic);
-    } else if (locale.categoryLanguage(DuiLocale::DuiLcMessages) == "ru") {
+    } else if (locale.categoryLanguage(MLocale::MLcMessages) == "ru") {
         loaded = phoneNumberKeyboard.loadNokiaKeyboard(PhoneNumberKeyboardFileRussian);
     }
 

@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,7 +16,7 @@
 
 
 
-#include "duivirtualkeyboardstyle.h"
+#include "mvirtualkeyboardstyle.h"
 #include "singlewidgetbuttonarea.h"
 
 #include "singlewidgetbutton.h"
@@ -28,13 +28,13 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
 #include <QTextLine>
-#include <DuiApplication>
-#include <DuiComponentData>
-#include <DuiFeedbackPlayer>
+#include <MApplication>
+#include <MComponentData>
+#include <MFeedbackPlayer>
 #include <duireactionmap.h>
-#include <DuiTheme>
+#include <MTheme>
 
-SingleWidgetButtonArea::SingleWidgetButtonArea(DuiVirtualKeyboardStyleContainer *style,
+SingleWidgetButtonArea::SingleWidgetButtonArea(MVirtualKeyboardStyleContainer *style,
                                                QSharedPointer<const LayoutSection> sectionModel,
                                                ButtonSizeScheme buttonSizeScheme,
                                                bool usePopup,
@@ -70,9 +70,9 @@ void SingleWidgetButtonArea::fetchOptimumSizeButtonBackgrounds(QSize size)
             return;
         }
 
-        DuiTheme::releasePixmap(pixmap3);
-        DuiTheme::releasePixmap(pixmap2);
-        DuiTheme::releasePixmap(pixmap1);
+        MTheme::releasePixmap(pixmap3);
+        MTheme::releasePixmap(pixmap2);
+        MTheme::releasePixmap(pixmap1);
     }
 
     const QSize defaultSize = style()->keyNormalSize();
@@ -82,16 +82,16 @@ void SingleWidgetButtonArea::fetchOptimumSizeButtonBackgrounds(QSize size)
         size = defaultSize;
     }
 
-    // Resize the background images for DuiScalableImage so that we use the size of the most
-    // used button. This way DuiScalableImage will use painter->drawPixmap() directly. There
+    // Resize the background images for MScalableImage so that we use the size of the most
+    // used button. This way MScalableImage will use painter->drawPixmap() directly. There
     // is some overhead when drawing the image in 9 rectangles.
-    pixmap1 = DuiTheme::pixmap(style()->keyBackgroundId(), size);
+    pixmap1 = MTheme::pixmap(style()->keyBackgroundId(), size);
 
     // Let's use one default size for all pressed & selected backgrounds accross
     // SingleWidgetButtonAreas since there is never many of these backgrounds
     // drawn at the same time.
-    pixmap2 = DuiTheme::pixmap(style()->keyBackgroundPressedId(), defaultSize);
-    pixmap3 = DuiTheme::pixmap(style()->keyBackgroundSelectedId(), defaultSize);
+    pixmap2 = MTheme::pixmap(style()->keyBackgroundPressedId(), defaultSize);
+    pixmap3 = MTheme::pixmap(style()->keyBackgroundSelectedId(), defaultSize);
 
     keyBackgrounds[0].setPixmap(pixmap1); // normal
     keyBackgrounds[1].setPixmap(pixmap2); // pressed
@@ -114,9 +114,9 @@ SingleWidgetButtonArea::~SingleWidgetButtonArea()
         rowIter->buttons.clear();
     }
 
-    DuiTheme::releasePixmap(pixmap3);
-    DuiTheme::releasePixmap(pixmap2);
-    DuiTheme::releasePixmap(pixmap1);
+    MTheme::releasePixmap(pixmap3);
+    MTheme::releasePixmap(pixmap2);
+    MTheme::releasePixmap(pixmap1);
 }
 
 QSizeF SingleWidgetButtonArea::sizeHint(Qt::SizeHint which, const QSizeF &/*constraint*/) const
@@ -300,7 +300,7 @@ void SingleWidgetButtonArea::paint(QPainter *painter, const QStyleOptionGraphics
     foreach (const ButtonRow &row, rowList) {
         foreach (const SingleWidgetButton *button, row.buttons) {
 
-            const DuiScalableImage *background = 0;
+            const MScalableImage *background = 0;
             const int backgroundIndex = qBound(0, static_cast<int>(button->state()), 3);
 
             // Draw button background.
@@ -482,7 +482,7 @@ void SingleWidgetButtonArea::activateSymIndicator()
     // Use same image for all button states for now. Some different graphics may
     // be introduced later for the intermediate step between sym and ace modes.
     // while holding button down.
-	const DuiScalableImage *image = style()->keyBackgroundSymIndicatorSym();
+	const MScalableImage *image = style()->keyBackgroundSymIndicatorSym();
     symIndicatorBackgrounds[0] = image;
     symIndicatorBackgrounds[1] = image;
     symIndicatorBackgrounds[2] = image;
@@ -498,7 +498,7 @@ void SingleWidgetButtonArea::activateSymIndicator()
 // ISymIndicator implementation
 void SingleWidgetButtonArea::activateAceIndicator()
 {
-    const DuiScalableImage *image = style()->keyBackgroundSymIndicatorAce();
+    const MScalableImage *image = style()->keyBackgroundSymIndicatorAce();
     symIndicatorBackgrounds[0] = image;
     symIndicatorBackgrounds[1] = image;
     symIndicatorBackgrounds[2] = image;

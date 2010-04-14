@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -17,12 +17,12 @@
 
 
 #include "bm_keybuttonarea.h"
-#include "duivirtualkeyboardstyle.h"
+#include "mvirtualkeyboardstyle.h"
 #include "singlewidgetbuttonarea.h"
 #include "keyboarddata.h"
 
-#include <DuiApplication>
-#include <DuiTheme>
+#include <MApplication>
+#include <MTheme>
 
 #include <QDir>
 
@@ -33,12 +33,12 @@ void Bm_KeyButtonArea::initTestCase()
     static char *app_name[1] = { (char *) "bm_keybuttonarea" };
 
     // Avoid waiting if im server is not responding
-    DuiApplication::setLoadDuiInputContext(false);
-    app = new DuiApplication(argc, app_name);
+    MApplication::setLoadMInputContext(false);
+    app = new MApplication(argc, app_name);
 
-    DuiTheme::instance()->loadCSS("/usr/share/dui/virtual-keyboard/css/864x480.css");
-    style = new DuiVirtualKeyboardStyleContainer;
-    style->initialize("DuiVirtualKeyboard", "DuiVirtualKeyboardView", 0);
+    MTheme::instance()->loadCSS("/usr/share/meegotouch/virtual-keyboard/css/864x480.css");
+    style = new MVirtualKeyboardStyleContainer;
+    style->initialize("MVirtualKeyboard", "MVirtualKeyboardView", 0);
 }
 
 void Bm_KeyButtonArea::cleanupTestCase()
@@ -65,7 +65,7 @@ void Bm_KeyButtonArea::cleanup()
 
 void Bm_KeyButtonArea::benchmarkPreDraw_data()
 {
-    QDir dir("/usr/share/dui/virtual-keyboard/layouts/");
+    QDir dir("/usr/share/meegotouch/virtual-keyboard/layouts/");
     QStringList filters;
     QFileInfoList files;
     QFileInfo info;
@@ -89,7 +89,7 @@ void Bm_KeyButtonArea::benchmarkPreDraw()
 
     keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard(filename));
-    subject = new SingleWidgetButtonArea(style, keyboard->layout(LayoutData::General, Dui::Landscape)->section(LayoutData::mainSection));
+    subject = new SingleWidgetButtonArea(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection));
 
     QBENCHMARK {
         subject->updateButtonGeometries(864, -1); // given width does not affect speed of calculation
@@ -99,7 +99,7 @@ void Bm_KeyButtonArea::benchmarkPreDraw()
 
 void Bm_KeyButtonArea::benchmarkLoadXML_data()
 {
-    QDir dir("/usr/share/dui/virtual-keyboard/layouts/");
+    QDir dir("/usr/share/meegotouch/virtual-keyboard/layouts/");
     QStringList filters;
     QFileInfoList files;
     QFileInfo info;
@@ -131,7 +131,7 @@ void Bm_KeyButtonArea::benchmarkLoadXML()
 
 void Bm_KeyButtonArea::benchmarkPaint_data()
 {
-    QDir dir("/usr/share/dui/virtual-keyboard/layouts/");
+    QDir dir("/usr/share/meegotouch/virtual-keyboard/layouts/");
     QStringList filters;
     QFileInfoList files;
     QFileInfo info;
@@ -159,7 +159,7 @@ void Bm_KeyButtonArea::benchmarkPaint()
     QVERIFY(painter.begin(image) == true);
     keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard(filename));
-    subject = new SingleWidgetButtonArea(style, keyboard->layout(LayoutData::General, Dui::Landscape)->section(LayoutData::mainSection));
+    subject = new SingleWidgetButtonArea(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection));
 
     QBENCHMARK {
         subject->paint(&painter, 0 , 0);

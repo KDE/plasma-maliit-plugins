@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,15 +16,15 @@
 
 
 
-#ifndef DUIVIRTUALKEYBOARD_H
-#define DUIVIRTUALKEYBOARD_H
+#ifndef MVIRTUALKEYBOARD_H
+#define MVIRTUALKEYBOARD_H
 
-#include "duikeyboardcommon.h"
+#include "mkeyboardcommon.h"
 #include "singlewidgetbuttonarea.h"
-#include "duibuttonarea.h"
+#include "mbuttonarea.h"
 #include "layoutdata.h"
-#include <duiimhandlerstate.h>
-#include <DuiWidget>
+#include <mimhandlerstate.h>
+#include <MWidget>
 #include <QPixmap>
 #include <QSharedPointer>
 #include <QTimeLine>
@@ -32,33 +32,33 @@
 class QGraphicsGridLayout;
 class QGraphicsLinearLayout;
 class QGraphicsWidget;
-class DuiButton;
-class DuiScalableImage;
-class DuiSceneManager;
-class DuiVirtualKeyboardStyleContainer;
+class MButton;
+class MScalableImage;
+class MSceneManager;
+class MVirtualKeyboardStyleContainer;
 class HorizontalSwitcher;
 class KeyEvent;
 class LayoutsManager;
 class Notification;
 class VKBDataKey;
 class VkbToolbar;
-class DuiImToolbar;
+class MImToolbar;
 class DuiReactionMap;
 
 /*!
-  \class DuiVirtualKeyboard
+  \class MVirtualKeyboard
 
-  \brief The DuiVirtualKeyboard class provides interfaces for the usage of the
+  \brief The MVirtualKeyboard class provides interfaces for the usage of the
    virtual keyboard. The interfaces include hide/show/orientation of the keyboard.
    It also provides interfaces to get keystatus
 
 */
-class DuiVirtualKeyboard : public DuiWidget
+class MVirtualKeyboard : public MWidget
 {
     Q_OBJECT
 
-    friend class Ut_DuiVirtualKeyboard;
-    friend class Ut_DuiKeyboardHost;
+    friend class Ut_MVirtualKeyboard;
+    friend class Ut_MKeyboardHost;
 
 public:
     //! Shift key states
@@ -73,10 +73,10 @@ public:
      * \brief Constructor for creating an virtual keyboard object.
      * \param parent Parent object.
      */
-    DuiVirtualKeyboard(const LayoutsManager &layoutsManager, QGraphicsWidget *parent = 0);
+    MVirtualKeyboard(const LayoutsManager &layoutsManager, QGraphicsWidget *parent = 0);
 
     //! Destructor
-    ~DuiVirtualKeyboard();
+    ~MVirtualKeyboard();
 
     //! \reimp
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *);
@@ -103,9 +103,9 @@ public:
     QString selectedLanguage() const;
 
     //! Getter for style container
-    DuiVirtualKeyboardStyleContainer &style();
+    MVirtualKeyboardStyleContainer &style();
 
-    //! Sets keyboard type according text entry type, type matches Dui::TextContentType
+    //! Sets keyboard type according text entry type, type matches M::TextContentType
     void setKeyboardType(const int type);
 
     // for unit tests
@@ -161,14 +161,14 @@ public:
      * Any other value requires to hide everything except for toolbar.
      * \param newState actual state
      */
-    void setKeyboardState(DuiIMHandlerState newState);
+    void setKeyboardState(MIMHandlerState newState);
 
     /*!
      * \brief Returns current active state of the virtual keyboard.
-     * The virtual keyboard has three kinds of modes, OnScreen, Hardware, and Accessory, \sa DuiIMHandlerState.
+     * The virtual keyboard has three kinds of modes, OnScreen, Hardware, and Accessory, \sa MIMHandlerState.
      * \sa setKeyboardState().
      */
-    DuiIMHandlerState keyboardState() const;
+    MIMHandlerState keyboardState() const;
 
     /*!
      * \brief Returns whether the symbol view is available for current layout.
@@ -204,9 +204,9 @@ public slots:
 
     /*!
      * Method to change the orientation
-     * \param orientation Dui::Orientation
+     * \param orientation M::Orientation
      */
-    void organizeContent(Dui::Orientation orientation);
+    void organizeContent(M::Orientation orientation);
 
     void setLanguage(int languageIndex);
 
@@ -291,7 +291,7 @@ signals:
      */
     void keyClicked(const KeyEvent &event);
 
-    //! \see DuiInputMethodBase::regionUpdated()
+    //! \see MInputMethodBase::regionUpdated()
     void regionUpdated(const QRegion &);
 
     //! This signal is emitted when input language is changed
@@ -370,13 +370,13 @@ private:
     //! Creates a new section widget of given keyboard/layout type and orientation.
     KeyButtonArea *createMainSectionView(const QString &language,
                                          LayoutData::LayoutType,
-                                         Dui::Orientation orientation,
+                                         M::Orientation orientation,
                                          QGraphicsWidget *parent = 0);
 
     // creates a new section widget
     KeyButtonArea *createSectionView(const QString &language,
                                      LayoutData::LayoutType layoutType,
-                                     Dui::Orientation orientation,
+                                     M::Orientation orientation,
                                      const QString &section,
                                      KeyButtonArea::ButtonSizeScheme sizeScheme,
                                      bool usePopup,
@@ -433,10 +433,10 @@ private:
     Activity activity;
 
     //! Current Style being used
-    DuiVirtualKeyboardStyleContainer *styleContainer;
+    MVirtualKeyboardStyleContainer *styleContainer;
 
     //! Scene manager to get the device width and height
-    DuiSceneManager *sceneManager;
+    MSceneManager *sceneManager;
 
     //! Shift key status
     int shiftLevel;
@@ -446,7 +446,7 @@ private:
 
     LayoutData::LayoutType currentLayoutType;
 
-    Dui::Orientation currentOrientation;
+    M::Orientation currentOrientation;
 
     QString currentLanguage;
 
@@ -464,7 +464,7 @@ private:
     Notification *notification;
 
     //! Toolbar for virtual keyboard
-    DuiImToolbar *imToolbar;
+    MImToolbar *imToolbar;
 
     QGraphicsWidget *numberKeyboard;
     QGraphicsLinearLayout *numberLayout;
@@ -474,7 +474,7 @@ private:
 
     QSharedPointer<QPixmap> backgroundPixmap;
 
-    DuiIMHandlerState activeState;
+    MIMHandlerState activeState;
 };
 
 #endif

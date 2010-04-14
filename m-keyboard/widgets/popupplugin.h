@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -21,7 +21,7 @@
 
 #include <QtPlugin>
 
-class DuiVirtualKeyboardStyleContainer;
+class MVirtualKeyboardStyleContainer;
 class QGraphicsItem;
 class PopupBase;
 
@@ -29,12 +29,12 @@ class PopupBase;
 class PopupPlugin
 {
 public:
-    virtual PopupBase *createPopup(const DuiVirtualKeyboardStyleContainer &styleContainer,
+    virtual PopupBase *createPopup(const MVirtualKeyboardStyleContainer &styleContainer,
                                    QGraphicsItem *parent) = 0;
 };
 
 
 Q_DECLARE_INTERFACE(PopupPlugin,
-                    "com.nokia.maemo.DuiImPluginPopupPlugin/1.0")
+                    "com.nokia.maemo.MeegoImPluginPopupPlugin/1.0")
 
 #endif

@@ -1,9 +1,9 @@
 TEMPLATE = app
-CONFIG += QtTest Dui DuiImServer duiimframework
+CONFIG += QtTest meegotouch MImServer mimframework
 DEPENDPATH += .
 INCLUDEPATH += . \
 
-LIBS += -L/usr/lib -Wl,-rpath=/usr/lib/dui-im-plugins/ -lduikeyboard
+LIBS += -L/usr/lib -Wl,-rpath=/usr/lib/m-im-plugins/ -lmkeyboard
 
 
 # Input

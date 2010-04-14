@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -20,15 +20,15 @@
 #include <QtTest/QtTest>
 #include <QObject>
 
-class DuiApplication;
-class DuiButton;
+class MApplication;
+class MButton;
 class ButtonBar;
 
 class Ut_ButtonBar : public QObject
 {
     Q_OBJECT
 private:
-    DuiApplication *app;
+    MApplication *app;
     ButtonBar *subject;
 
 private slots:

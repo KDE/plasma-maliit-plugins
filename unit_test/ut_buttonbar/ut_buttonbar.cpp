@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -17,17 +17,17 @@
 #include "ut_buttonbar.h"
 #include "buttonbar.h"
 
-#include <DuiApplication>
-#include <DuiButton>
+#include <MApplication>
+#include <MButton>
 
 #include <QGraphicsLayout>
 
 void Ut_ButtonBar::initTestCase()
 {
-    DuiApplication::setLoadDuiInputContext(false);
+    MApplication::setLoadMInputContext(false);
     static char *argv[1] = { (char *) "ut_buttonbar" };
     static int argc = 1;
-    app = new DuiApplication(argc, argv);
+    app = new MApplication(argc, argv);
 }
 
 void Ut_ButtonBar::cleanupTestCase()
@@ -70,14 +70,14 @@ void Ut_ButtonBar::testInsert()
 
     Q_ASSERT(initialButtonCount >= 0);
 
-    QList<DuiButton *> buttons;
+    QList<MButton *> buttons;
     for (int i = 0; i < initialButtonCount; ++i) {
-        DuiButton *button = new DuiButton;
+        MButton *button = new MButton;
         buttons.append(button);
         subject->insert(subject->count(), button);
     }
 
-    DuiButton *button = new DuiButton;
+    MButton *button = new MButton;
     subject->insert(insertionIndex, button);
 
     // Insertion happens only if we have valid index which is
@@ -114,15 +114,15 @@ void Ut_ButtonBar::testRemove()
 
     Q_ASSERT(initialButtonCount >= 0);
 
-    QList<DuiButton *> buttons;
+    QList<MButton *> buttons;
     for (int i = 0; i < initialButtonCount; ++i) {
-        DuiButton *button = new DuiButton;
+        MButton *button = new MButton;
         buttons.append(button);
         subject->append(button);
     }
     QCOMPARE(subject->count(), buttons.count());
 
-    DuiButton *buttonToRemove = 0;
+    MButton *buttonToRemove = 0;
     if (removeIndex >= 0 && removeIndex < buttons.count()) {
         buttonToRemove = buttons.at(removeIndex);
         buttons.removeAt(removeIndex);
@@ -159,10 +159,10 @@ void Ut_ButtonBar::testLayoutContent()
 {
     QFETCH(int, buttonCount);
 
-    QVector<DuiButton *> buttons(buttonCount);
+    QVector<MButton *> buttons(buttonCount);
 
     for (int i = 0; i < buttonCount; ++i) {
-        DuiButton *button = new DuiButton;
+        MButton *button = new MButton;
         buttons[i] = button;
         subject->insert(subject->count(), button);
     }
@@ -181,9 +181,9 @@ void Ut_ButtonBar::testLayoutContent()
 
 void Ut_ButtonBar::testIndexOf()
 {
-    DuiButton *button1 = new DuiButton;
-    DuiButton *button2 = new DuiButton;
-    DuiButton *button3 = new DuiButton;
+    MButton *button1 = new MButton;
+    MButton *button2 = new MButton;
+    MButton *button3 = new MButton;
     int index = -1;
 
     subject->insert(0, button1);

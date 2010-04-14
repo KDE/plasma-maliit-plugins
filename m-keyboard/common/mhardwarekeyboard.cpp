@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,8 +16,8 @@
 
 
 
-#include "duihardwarekeyboard.h"
-#include "duivirtualkeyboard.h"
+#include "mhardwarekeyboard.h"
+#include "mvirtualkeyboard.h"
 #include <QKeyEvent>
 #include <QDebug>
 
@@ -28,14 +28,14 @@ namespace
     const Qt::Key SymKey = Qt::Key_Multi_key;
 };
 
-DuiHardwareKeyboard::ModifierKey::ModifierKey(Qt::KeyboardModifier m, ModifierState s)
+MHardwareKeyboard::ModifierKey::ModifierKey(Qt::KeyboardModifier m, ModifierState s)
     : modifier(m),
       state(s),
       inBetweenPressRelease(false)
 {
 }
 
-DuiHardwareKeyboard::RedirectedKey::RedirectedKey(Qt::Key key, bool eatKey, bool eatSelf)
+MHardwareKeyboard::RedirectedKey::RedirectedKey(Qt::Key key, bool eatKey, bool eatSelf)
     : keyCode(key),
       eatInBetweenKeys(eatKey),
       eatItself(eatSelf),
@@ -44,13 +44,13 @@ DuiHardwareKeyboard::RedirectedKey::RedirectedKey(Qt::Key key, bool eatKey, bool
       lastClickedCharacter(QChar()),
       charKeyClickedCount(0)
 {
-    const Qt::KeyboardModifier m = DuiHardwareKeyboard::keyToModifier(keyCode);
+    const Qt::KeyboardModifier m = MHardwareKeyboard::keyToModifier(keyCode);
     if (m != Qt::NoModifier) {
         modifier = ModifierKey(m, ModifierClearState);
     }
 }
 
-void DuiHardwareKeyboard::RedirectedKey::reset()
+void MHardwareKeyboard::RedirectedKey::reset()
 {
     pressed = false;
     charKeyClicked = false;
@@ -62,26 +62,26 @@ void DuiHardwareKeyboard::RedirectedKey::reset()
     }
 }
 
-DuiHardwareKeyboard::DuiHardwareKeyboard(QObject *parent)
+MHardwareKeyboard::MHardwareKeyboard(QObject *parent)
     : QObject(parent),
-      keyboardType(Dui::FreeTextContentType),
+      keyboardType(M::FreeTextContentType),
       autoCaps(false)
 {
     init();
 }
 
 
-DuiHardwareKeyboard::~DuiHardwareKeyboard()
+MHardwareKeyboard::~MHardwareKeyboard()
 {
 }
 
-void DuiHardwareKeyboard::setKeyboardType(Dui::TextContentType type)
+void MHardwareKeyboard::setKeyboardType(M::TextContentType type)
 {
     qDebug() << __PRETTY_FUNCTION__ << ":" << type;
     keyboardType = type;
     switch (keyboardType) {
-    case Dui::NumberContentType:
-    case Dui::PhoneNumberContentType:
+    case M::NumberContentType:
+    case M::PhoneNumberContentType:
         // With number and phone number content type, FnLevelModifier must be permanently locked
         setModifierState(FnLevelModifier, ModifierLockedState);
         break;
@@ -90,13 +90,13 @@ void DuiHardwareKeyboard::setKeyboardType(Dui::TextContentType type)
     }
 }
 
-void DuiHardwareKeyboard::reset()
+void MHardwareKeyboard::reset()
 {
     qDebug() << __PRETTY_FUNCTION__;
     for (int i = 0; i < sensitiveKeys.count(); i++) {
         if (sensitiveKeys[i].modifier.modifier != Qt::NoModifier) {
             //call unlockModifier to ensure clean.
-            duiXkb.unlockModifiers(sensitiveKeys[i].modifier.modifier);
+            mXkb.unlockModifiers(sensitiveKeys[i].modifier.modifier);
         }
         sensitiveKeys[i].reset();
     }
@@ -105,14 +105,14 @@ void DuiHardwareKeyboard::reset()
     emit modifierStateChanged(Qt::ShiftModifier, ModifierClearState);
 }
 
-void DuiHardwareKeyboard::init()
+void MHardwareKeyboard::init()
 {
-    sensitiveKeys.append(DuiHardwareKeyboard::RedirectedKey(Qt::Key_Shift, false, false));
-    sensitiveKeys.append(DuiHardwareKeyboard::RedirectedKey(FnLevelKey, false, false));
-    sensitiveKeys.append(DuiHardwareKeyboard::RedirectedKey(SymKey, true, false));
+    sensitiveKeys.append(MHardwareKeyboard::RedirectedKey(Qt::Key_Shift, false, false));
+    sensitiveKeys.append(MHardwareKeyboard::RedirectedKey(FnLevelKey, false, false));
+    sensitiveKeys.append(MHardwareKeyboard::RedirectedKey(SymKey, true, false));
 }
 
-Qt::KeyboardModifier DuiHardwareKeyboard::keyToModifier(Qt::Key keyCode)
+Qt::KeyboardModifier MHardwareKeyboard::keyToModifier(Qt::Key keyCode)
 {
     switch (keyCode) {
     case Qt::Key_Shift:
@@ -131,7 +131,7 @@ Qt::KeyboardModifier DuiHardwareKeyboard::keyToModifier(Qt::Key keyCode)
     return Qt::NoModifier;
 }
 
-int DuiHardwareKeyboard::redirectedKeyIndex(Qt::Key keyCode) const
+int MHardwareKeyboard::redirectedKeyIndex(Qt::Key keyCode) const
 {
     int matchedIndex = -1;
     for (int i = 0; i < sensitiveKeys.count(); i++) {
@@ -143,7 +143,7 @@ int DuiHardwareKeyboard::redirectedKeyIndex(Qt::Key keyCode) const
     return matchedIndex;
 }
 
-int DuiHardwareKeyboard::redirectedKeyIndex(Qt::KeyboardModifier modifier) const
+int MHardwareKeyboard::redirectedKeyIndex(Qt::KeyboardModifier modifier) const
 {
     int matchedIndex = -1;
     for (int i = 0; i < sensitiveKeys.count(); i++) {
@@ -155,7 +155,7 @@ int DuiHardwareKeyboard::redirectedKeyIndex(Qt::KeyboardModifier modifier) const
     return matchedIndex;
 }
 
-bool DuiHardwareKeyboard::isSensitiveKeyPressed() const
+bool MHardwareKeyboard::isSensitiveKeyPressed() const
 {
     foreach (const RedirectedKey &key, sensitiveKeys) {
         if (key.pressed) {
@@ -165,9 +165,9 @@ bool DuiHardwareKeyboard::isSensitiveKeyPressed() const
     return false;
 }
 
-bool DuiHardwareKeyboard::filterKeyEvent(bool forceProcessing, QEvent::Type keyType, Qt::Key keyCode,
-                                         Qt::KeyboardModifiers /* modifiers */, const QString &text,
-                                         bool /* autoRepeat */, int /* count */, int /* nativeScanCode */)
+bool MHardwareKeyboard::filterKeyEvent(bool forceProcessing, QEvent::Type keyType, Qt::Key keyCode,
+                                       Qt::KeyboardModifiers /* modifiers */, const QString &text,
+                                       bool /* autoRepeat */, int /* count */, int /* nativeScanCode */)
 {
     bool eaten = false;
     const bool pressed = (keyType == QEvent::KeyPress);
@@ -221,7 +221,7 @@ bool DuiHardwareKeyboard::filterKeyEvent(bool forceProcessing, QEvent::Type keyT
     return eaten;
 }
 
-void DuiHardwareKeyboard::setModifierState(Qt::KeyboardModifier modifier,
+void MHardwareKeyboard::setModifierState(Qt::KeyboardModifier modifier,
         ModifierState targetState)
 {
     int matchedIndex = redirectedKeyIndex(modifier);
@@ -231,7 +231,7 @@ void DuiHardwareKeyboard::setModifierState(Qt::KeyboardModifier modifier,
     setModifierState(targetModifierKey, targetState);
 }
 
-void DuiHardwareKeyboard::setModifierState(ModifierKey &modifierKey, ModifierState targetState)
+void MHardwareKeyboard::setModifierState(ModifierKey &modifierKey, ModifierState targetState)
 {
     if (modifierKey.modifier == Qt::NoModifier
         || !isValidModifierState(modifierKey.modifier, targetState))
@@ -246,10 +246,10 @@ void DuiHardwareKeyboard::setModifierState(ModifierKey &modifierKey, ModifierSta
         //use lockModifiers() for both ModifierLatchedState and ModifierLockedState,
         //we don't want hardware keyboard to change the modifier state by itself
         //(e.g pressing any after latching will unlatch the modifier)
-        duiXkb.lockModifiers(modifier);
+        mXkb.lockModifiers(modifier);
         break;
     case ModifierClearState:
-        duiXkb.unlockModifiers(modifier);
+        mXkb.unlockModifiers(modifier);
         modifierKey.inBetweenPressRelease = false;
         break;
     }
@@ -260,7 +260,7 @@ void DuiHardwareKeyboard::setModifierState(ModifierKey &modifierKey, ModifierSta
     emit modifierStateChanged(modifier, targetState);
 }
 
-void DuiHardwareKeyboard::setAutoCapitalization(bool caps)
+void MHardwareKeyboard::setAutoCapitalization(bool caps)
 {
     if (autoCaps != caps) {
         //set auto caps lock/unlock when there is no custom state being set for shift modifier
@@ -271,7 +271,7 @@ void DuiHardwareKeyboard::setAutoCapitalization(bool caps)
     }
 }
 
-ModifierState DuiHardwareKeyboard::modifierState(Qt::KeyboardModifier modifier) const
+ModifierState MHardwareKeyboard::modifierState(Qt::KeyboardModifier modifier) const
 {
     ModifierState state = ModifierClearState;
     int matchedIndex = redirectedKeyIndex(modifier);
@@ -281,7 +281,7 @@ ModifierState DuiHardwareKeyboard::modifierState(Qt::KeyboardModifier modifier) 
     return state;
 }
 
-void DuiHardwareKeyboard::modifierKeyPress(ModifierKey &targetModifierKey)
+void MHardwareKeyboard::modifierKeyPress(ModifierKey &targetModifierKey)
 {
     if (targetModifierKey.modifier == Qt::NoModifier)
         return;
@@ -300,7 +300,7 @@ void DuiHardwareKeyboard::modifierKeyPress(ModifierKey &targetModifierKey)
         setModifierState(targetModifierKey, ModifierLatchedState);
 }
 
-void DuiHardwareKeyboard::modifierKeyRelease(ModifierKey &targetModifierKey)
+void MHardwareKeyboard::modifierKeyRelease(ModifierKey &targetModifierKey)
 {
     if (targetModifierKey.modifier == Qt::NoModifier) {
         return;
@@ -333,7 +333,7 @@ void DuiHardwareKeyboard::modifierKeyRelease(ModifierKey &targetModifierKey)
     }
 }
 
-void DuiHardwareKeyboard::symbolKeyClick()
+void MHardwareKeyboard::symbolKeyClick()
 {
     qDebug() << __PRETTY_FUNCTION__;
     const int matchedIndex = redirectedKeyIndex(SymKey);
@@ -354,7 +354,7 @@ void DuiHardwareKeyboard::symbolKeyClick()
     }
 }
 
-void DuiHardwareKeyboard::composeAccentedCharacter(Qt::Key /* keyCode */, const QString &text)
+void MHardwareKeyboard::composeAccentedCharacter(Qt::Key /* keyCode */, const QString &text)
 {
     qDebug() << __PRETTY_FUNCTION__;
     if (text.isEmpty() && (text.length() != 1))
@@ -387,7 +387,7 @@ void DuiHardwareKeyboard::composeAccentedCharacter(Qt::Key /* keyCode */, const 
     emit symbolCharacterKeyClicked(character, accentedKeyCode, false);
 }
 
-void DuiHardwareKeyboard::characterKeyClick(Qt::Key keyCode, const QString &text)
+void MHardwareKeyboard::characterKeyClick(Qt::Key keyCode, const QString &text)
 {
     //clear all the modifiers in latched state, and handle symbol + character.
     for (int i = 0; i < sensitiveKeys.count(); i++) {
@@ -417,12 +417,12 @@ void DuiHardwareKeyboard::characterKeyClick(Qt::Key keyCode, const QString &text
     }
 }
 
-bool DuiHardwareKeyboard::symViewAvailable() const
+bool MHardwareKeyboard::symViewAvailable() const
 {
     bool available = true;
     switch (keyboardType) {
-    case Dui::NumberContentType:
-    case Dui::PhoneNumberContentType:
+    case M::NumberContentType:
+    case M::PhoneNumberContentType:
         available = false;
         break;
     default:
@@ -431,11 +431,11 @@ bool DuiHardwareKeyboard::symViewAvailable() const
     return available;
 }
 
-bool DuiHardwareKeyboard::isValidModifierState(Qt::KeyboardModifier modifier, ModifierState state)
+bool MHardwareKeyboard::isValidModifierState(Qt::KeyboardModifier modifier, ModifierState state)
 {
     bool valid = false;
     switch (keyboardType) {
-    case Dui::NumberContentType:
+    case M::NumberContentType:
         // number content type keeps fn lock, disable other modifier and other state
         if (modifier == FnLevelModifier && state == ModifierLockedState)
             valid = true;
@@ -447,7 +447,7 @@ bool DuiHardwareKeyboard::isValidModifierState(Qt::KeyboardModifier modifier, Mo
     return valid;
 }
 
-void DuiHardwareKeyboard::handleIndicatorButtonClick()
+void MHardwareKeyboard::handleIndicatorButtonClick()
 {
     qDebug() << __PRETTY_FUNCTION__;
     //input mode indicator interactions
@@ -468,7 +468,7 @@ void DuiHardwareKeyboard::handleIndicatorButtonClick()
     modifierKeyRelease(targetModifierKey);
 }
 
-void DuiHardwareKeyboard::commitAccentedCharacter()
+void MHardwareKeyboard::commitAccentedCharacter()
 {
     qDebug() << __PRETTY_FUNCTION__;
     const int symIndex = redirectedKeyIndex(SymKey);

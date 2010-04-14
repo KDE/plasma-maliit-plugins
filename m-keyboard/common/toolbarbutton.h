@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -18,7 +18,7 @@
 #ifndef TOOLBARBUTTON_H
 #define TOOLBARBUTTON_H
 
-#include <DuiNamespace>
+#include <MNamespace>
 #include <QHash>
 #include <QList>
 #include <QString>
@@ -76,7 +76,7 @@ private:
     //! the group name which the button belongs to
     QString group;
     int priority;
-    Dui::Orientation orientation;
+    M::Orientation orientation;
     VisibleType showOn;
     VisibleType hideOn;
     Qt::Alignment alignment;
@@ -99,9 +99,9 @@ private:
 
     friend class ToolbarData;
     friend class ToolbarManager;
-    friend class DuiImToolbar;
+    friend class MImToolbar;
     friend class ParseParameters;
-    friend class Ut_DuiImToolbar;
+    friend class Ut_MImToolbar;
 };
 
 #endif

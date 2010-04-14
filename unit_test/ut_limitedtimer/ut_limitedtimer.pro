@@ -1,5 +1,5 @@
 TEMPLATE = app
-CONFIG += QtTest Dui DuiImServer duiimframework
+CONFIG += QtTest meegotouch MImServer mimframework
 DEPENDPATH += .
 INCLUDEPATH += 	. \
 

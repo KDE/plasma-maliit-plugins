@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,8 +16,8 @@
 
 
 
-#include "duivirtualkeyboardstyle.h"
-#include "duibuttonarea.h"
+#include "mvirtualkeyboardstyle.h"
+#include "mbuttonarea.h"
 #include "flickupbutton.h"
 #include "limitedtimer.h"
 #include "popupbase.h"
@@ -28,24 +28,24 @@
 #include <QPainter>
 #include <QTextLayout>
 #include <QTextLine>
-#include <DuiApplication>
-#include <DuiComponentData>
-#include <DuiFeedbackPlayer>
+#include <MApplication>
+#include <MComponentData>
+#include <MFeedbackPlayer>
 #include <duireactionmap.h>
-#include <DuiScalableImage>
-#include <DuiTheme>
+#include <MScalableImage>
+#include <MTheme>
 
-DuiButtonArea::DuiButtonArea(DuiVirtualKeyboardStyleContainer *style,
-                             QSharedPointer<const LayoutSection> sectionModel,
-                             ButtonSizeScheme buttonSizeScheme,
-                             bool usePopup,
-                             QGraphicsWidget *parent)
+MButtonArea::MButtonArea(MVirtualKeyboardStyleContainer *style,
+                         QSharedPointer<const LayoutSection> sectionModel,
+                         ButtonSizeScheme buttonSizeScheme,
+                         bool usePopup,
+                         QGraphicsWidget *parent)
     : KeyButtonArea(style, sectionModel, buttonSizeScheme, usePopup, parent),
       mainLayout(*new QGraphicsLinearLayout(Qt::Vertical, this)),
       buttons(sectionModel->keyCount())
 {
     // This call in addition to sceneEventFilter enables KeyButtonArea to work correctly with
-    // mouse events. Otherwise DuiButtons and DuiLabels would get them.
+    // mouse events. Otherwise MButtons and MLabels would get them.
     setFiltersChildEvents(true);
 
     setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
@@ -53,7 +53,7 @@ DuiButtonArea::DuiButtonArea(DuiVirtualKeyboardStyleContainer *style,
     loadKeys();
 }
 
-DuiButtonArea::~DuiButtonArea()
+MButtonArea::~MButtonArea()
 {
     // Release any key that might be pressed before destroying them.
     setActiveKey(0);
@@ -63,7 +63,7 @@ DuiButtonArea::~DuiButtonArea()
 }
 
 
-bool DuiButtonArea::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
+bool MButtonArea::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
 {
     bool stopPropagation = false;
 
@@ -85,7 +85,7 @@ bool DuiButtonArea::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
     return stopPropagation;
 }
 
-void DuiButtonArea::drawReactiveAreas(DuiReactionMap *reactionMap, QGraphicsView *view)
+void MButtonArea::drawReactiveAreas(DuiReactionMap *reactionMap, QGraphicsView *view)
 {
     reactionMap->setTransform(this, view);
     reactionMap->setReactiveDrawingValue();
@@ -103,7 +103,7 @@ void DuiButtonArea::drawReactiveAreas(DuiReactionMap *reactionMap, QGraphicsView
     }
 }
 
-void DuiButtonArea::loadKeys()
+void MButtonArea::loadKeys()
 {
     // Init layout containing the rows.
     mainLayout.setSpacing(static_cast<qreal>(style()->spacingVertical()));
@@ -170,14 +170,14 @@ void DuiButtonArea::loadKeys()
     } // end foreach row
 }
 
-IKeyButton *DuiButtonArea::keyAt(const QPoint &pos) const
+IKeyButton *MButtonArea::keyAt(const QPoint &pos) const
 {
     FlickUpButton *result = NULL;
     QPointF scenePos = mapToScene(pos);
 
     // The drawback of using items() is that we can also get button label or popup.
     // We use "point rect" to obtain the list of items because it allows the use of IntersectsItemBoundingRect
-    // and wil not use items' shape() methods. At the time of writing DuiButton's shape() returns invalid rectangle.
+    // and wil not use items' shape() methods. At the time of writing MButton's shape() returns invalid rectangle.
     QList<QGraphicsItem *> itemList = scene()->items(QRectF(scenePos, QSizeF(1, 1)), Qt::IntersectsItemBoundingRect, Qt::DescendingOrder);
     QGraphicsItem *item = itemList.isEmpty() ? 0 : itemList.first();
 
@@ -205,14 +205,14 @@ IKeyButton *DuiButtonArea::keyAt(const QPoint &pos) const
     return result;
 }
 
-void DuiButtonArea::modifiersChanged(const bool shift, const QChar accent)
+void MButtonArea::modifiersChanged(const bool shift, const QChar accent)
 {
     foreach (FlickUpButton *button, buttons) {
         button->setModifiers(shift, accent);
     }
 }
 
-void DuiButtonArea::updateButtonGeometries(const int /*availableWidth*/, const int equalButtonWidth)
+void MButtonArea::updateButtonGeometries(const int /*availableWidth*/, const int equalButtonWidth)
 {
     if (equalButtonWidth < 0 || !layout() || layout()->count() == 0) {
         return;

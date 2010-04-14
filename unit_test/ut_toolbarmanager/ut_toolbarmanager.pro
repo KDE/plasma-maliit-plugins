@@ -1,11 +1,11 @@
 TEMPLATE = app
-CONFIG += QtTest Dui
+CONFIG += QtTest meegotouch
 DEPENDPATH += .
 INCLUDEPATH += 	. \
-		../../dui-keyboard/ \
+		../../m-keyboard/ \
 		../stubs/
 
-LIBS += -Wl,-rpath=/usr/lib/dui-im-plugins/ -L../../dui-keyboard -lduikeyboard
+LIBS += -Wl,-rpath=/usr/lib/m-im-plugins/ -L../../m-keyboard -lmkeyboard
 
 # Input
 HEADERS += ut_toolbarmanager.h \

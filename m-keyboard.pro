@@ -1,14 +1,14 @@
 CONFIG += ordered 
-TARGET = dui-im-plugins
+TARGET = m-im-plugins
 TEMPLATE = subdirs
-SUBDIRS = dui-keyboard \
+SUBDIRS = m-keyboard \
       unit_test \
       fixture_virtualkeyboard \
 
 include (doc/doc.pri)
 
 #error-correction 
-GCONF_DATA = dui-keyboard.schemas
+GCONF_DATA = m-keyboard.schemas
 gconf_data.path = /usr/share/gconf/schemas
 gconf_data.files = $$GCONF_DATA
 

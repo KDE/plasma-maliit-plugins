@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,16 +16,16 @@
 
 
 
-#include "duivirtualkeyboardstyle.h"
+#include "mvirtualkeyboardstyle.h"
 #include "horizontalswitcher.h"
 #include "layoutsmanager.h"
 #include "symbolview.h"
 
-#include <DuiSceneManager>
-#include <DuiScalableImage>
+#include <MSceneManager>
+#include <MScalableImage>
 #include <duireactionmap.h>
-#include <duitheme.h>
-#include <duiplainwindow.h>
+#include <mtheme.h>
+#include <mplainwindow.h>
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -53,11 +53,11 @@ namespace
 
 
 
-SymbolView::SymbolView(const LayoutsManager &layoutsManager, DuiVirtualKeyboardStyleContainer *style,
+SymbolView::SymbolView(const LayoutsManager &layoutsManager, MVirtualKeyboardStyleContainer *style,
                        const QString &language, QGraphicsWidget *parent)
-    : DuiWidget(parent),
+    : MWidget(parent),
       styleContainer(style),
-      sceneManager(*DuiPlainWindow::instance()->sceneManager()),
+      sceneManager(*MPlainWindow::instance()->sceneManager()),
       selectedLayout(0),
       activity(Inactive),
       activePage(0),
@@ -159,7 +159,7 @@ void SymbolView::updateAnimPos(int top, int bottom)
 void
 SymbolView::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
-    const DuiScalableImage *background = style()->backgroundImage();
+    const MScalableImage *background = style()->backgroundImage();
 
     if (background) {
         // Background covers everything except top layout.
@@ -229,7 +229,7 @@ void SymbolView::reposition(const int height)
 
 void SymbolView::resizeEvent(QGraphicsSceneResizeEvent *event)
 {
-    DuiWidget::resizeEvent(event);
+    MWidget::resizeEvent(event);
 
     if (!qFuzzyCompare(event->oldSize().height(), event->newSize().height())) {
         reposition(event->newSize().height());
@@ -434,7 +434,7 @@ KeyButtonArea *SymbolView::createKeyButtonArea(QSharedPointer<const LayoutSectio
 
 void SymbolView::organizeContent()
 {
-    const Dui::Orientation orientation(sceneManager.orientation());
+    const M::Orientation orientation(sceneManager.orientation());
     const int sceneWidth = sceneManager.visibleSceneSize().width();
 
     setPreferredWidth(sceneWidth);
@@ -567,7 +567,7 @@ void SymbolView::redrawReactionMaps()
 }
 
 
-DuiVirtualKeyboardStyleContainer &SymbolView::style()
+MVirtualKeyboardStyleContainer &SymbolView::style()
 {
     return *styleContainer;
 }

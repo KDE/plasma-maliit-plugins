@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -19,7 +19,7 @@
 #ifndef HWKBCHARLOOPS_H
 #define HWKBCHARLOOPS_H
 
-#include <DuiNamespace>
+#include <MNamespace>
 #include <QString>
 #include <QHash>
 

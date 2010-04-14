@@ -1,5 +1,5 @@
 TEMPLATE = app
-CONFIG += dui duiimframework
+CONFIG += meegotouch mimframework
 QT += testlib
 
 DEPENDPATH += .
@@ -10,9 +10,9 @@ MOC_DIR = .moc
 
 include(../common_check.pri)
 
-LIBS += -Wl,-rpath=/usr/lib/dui-im-plugins/ -lduikeyboard
+LIBS += -Wl,-rpath=/usr/lib/m-im-plugins/ -lmkeyboard
 
-HEADERS += ut_duikeyboardplugin.h
+HEADERS += ut_mkeyboardplugin.h
 
-SOURCES += ut_duikeyboardplugin.cpp
+SOURCES += ut_mkeyboardplugin.cpp
 

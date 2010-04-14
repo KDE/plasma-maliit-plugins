@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -18,23 +18,23 @@
 
 #include "duireactionmaptester.h"
 
-#include "duigconfitem_stub.h"
-#include "duivirtualkeyboard.h"
-#include "duivirtualkeyboardstyle.h"
+#include "mgconfitem_stub.h"
+#include "mvirtualkeyboard.h"
+#include "mvirtualkeyboardstyle.h"
 #include "horizontalswitcher.h"
 #include "keyevent.h"
 #include "keybuttonarea.h"
 #include "layoutsmanager.h"
 #include "symbolview.h"
 #include "ut_symbolview.h"
-#include "duiplainwindow.h"
+#include "mplainwindow.h"
 
-#include <DuiApplication>
-#include <DuiButton>
-#include <DuiScene>
-#include <DuiSceneManager>
-#include <DuiSceneWindow>
-#include <DuiTheme>
+#include <MApplication>
+#include <MButton>
+#include <MScene>
+#include <MSceneManager>
+#include <MSceneWindow>
+#include <MTheme>
 
 #include <QDir>
 #include <QGraphicsLinearLayout>
@@ -42,8 +42,8 @@
 
 namespace
 {
-    const QString InputMethodSettingName("/Dui/InputMethods/Languages");
-    const QString DefaultLanguageSettingName("/Dui/InputMethods/Languages/Default");
+    const QString InputMethodSettingName("/M/InputMethods/Languages");
+    const QString DefaultLanguageSettingName("/M/InputMethods/Languages/Default");
     const QString DefaultLanguage("en");
 
     const int SceneRotationTime = 1400;
@@ -57,31 +57,31 @@ void Ut_SymbolView::initTestCase()
     static char *app_name[1] = { (char *) "ut_symbolview" };
 
     // Avoid waiting if im server is not responding
-    DuiApplication::setLoadDuiInputContext(false);
-    app = new DuiApplication(argc, app_name);
-    DuiTheme::instance()->loadCSS("/usr/share/dui/virtual-keyboard/css/864x480.css");
-    style = new DuiVirtualKeyboardStyleContainer;
-    style->initialize("DuiVirtualKeyboard", "DuiVirtualKeyboardView", 0);
+    MApplication::setLoadMInputContext(false);
+    app = new MApplication(argc, app_name);
+    MTheme::instance()->loadCSS("/usr/share/meegotouch/virtual-keyboard/css/864x480.css");
+    style = new MVirtualKeyboardStyleContainer;
+    style->initialize("MVirtualKeyboard", "MVirtualKeyboardView", 0);
 
-    DuiGConfItem inputMethodSetting(InputMethodSettingName);
+    MGConfItem inputMethodSetting(InputMethodSettingName);
 
     QStringList langlist;
     langlist << "en";
     inputMethodSetting.set(QVariant(langlist));
 
-    DuiGConfItem defaultLanguageSetting(DefaultLanguageSettingName);
+    MGConfItem defaultLanguageSetting(DefaultLanguageSettingName);
     defaultLanguageSetting.set(QVariant(DefaultLanguage));
 
     LayoutsManager::createInstance();
 
     qRegisterMetaType<KeyEvent>("KeyEvent");
 
-    new DuiPlainWindow;
+    new MPlainWindow;
 }
 
 void Ut_SymbolView::cleanupTestCase()
 {
-    delete DuiPlainWindow::instance();
+    delete MPlainWindow::instance();
     LayoutsManager::destroyInstance();
     delete style;
     style = 0;
@@ -96,8 +96,8 @@ void Ut_SymbolView::init()
     // Add to scene so reaction maps are drawn.
     // SymView needs scene window as parent so positions itself correctly
     // in the scene in portrait mode.
-    parent = new DuiSceneWindow;
-    DuiPlainWindow::instance()->sceneManager()->appearSceneWindowNow(parent);
+    parent = new MSceneWindow;
+    MPlainWindow::instance()->sceneManager()->appearSceneWindowNow(parent);
     subject->setParentItem(parent);
 }
 
@@ -106,7 +106,7 @@ void Ut_SymbolView::cleanup()
     // Make sure default stub is restored.
     gDuiReactionMapStub = &gDefaultDuiReactionMapStub;
 
-    DuiPlainWindow::instance()->sceneManager()->appearSceneWindowNow(parent);
+    MPlainWindow::instance()->sceneManager()->appearSceneWindowNow(parent);
     subject->setParentItem(0);
     delete parent;
     delete subject;
@@ -140,12 +140,12 @@ void Ut_SymbolView::testReactiveButtonAreas()
     QFETCH(int, orientationAngle);
     QFETCH(QList<QPoint>, transparentLocations);
 
-    rotateToAngle(static_cast<Dui::OrientationAngle>(orientationAngle));
+    rotateToAngle(static_cast<M::OrientationAngle>(orientationAngle));
 
     DuiReactionMapTester tester;
     gDuiReactionMapStub = &tester;
 
-    QGraphicsView *view = DuiPlainWindow::instance();
+    QGraphicsView *view = MPlainWindow::instance();
 
     // Clear with transparent color
     gDuiReactionMapStub->setTransparentDrawingValue();
@@ -203,7 +203,7 @@ void Ut_SymbolView::testReactiveWholeScreen()
 {
     QFETCH(int, orientationAngle);
 
-    rotateToAngle(static_cast<Dui::OrientationAngle>(orientationAngle));
+    rotateToAngle(static_cast<M::OrientationAngle>(orientationAngle));
 
     DuiReactionMapTester tester;
     gDuiReactionMapStub = &tester;
@@ -219,7 +219,7 @@ void Ut_SymbolView::testReactiveWholeScreen()
     subject->redrawReactionMaps();
 
     const bool gridpass = tester.testReactionMapGrid(
-                              DuiPlainWindow::instance(),
+                              MPlainWindow::instance(),
                               20, 50, subject->interactiveRegion());
 
     QVERIFY(gridpass);
@@ -296,11 +296,11 @@ void Ut_SymbolView::testHideWithFlick()
     QCOMPARE(subject->isActive(), false);
 }
 
-void Ut_SymbolView::rotateToAngle(Dui::OrientationAngle angle)
+void Ut_SymbolView::rotateToAngle(M::OrientationAngle angle)
 {
     subject->prepareToOrientationChange();
-    DuiPlainWindow::instance()->setOrientationAngle(angle);
-    QTest::qWait(SceneRotationTime);// wait until DuiSceneManager::orientationAngle() is updated.
+    MPlainWindow::instance()->setOrientationAngle(angle);
+    QTest::qWait(SceneRotationTime);// wait until MSceneManager::orientationAngle() is updated.
     subject->finalizeOrientationChange();
 }
 

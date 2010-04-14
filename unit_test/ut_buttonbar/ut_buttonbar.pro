@@ -1,5 +1,5 @@
 TEMPLATE = app
-CONFIG += QtTest Dui
+CONFIG += QtTest meegotouch
 
 include(../common_check.pri)
 

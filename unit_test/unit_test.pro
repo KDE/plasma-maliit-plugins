@@ -2,27 +2,27 @@ CONFIG += ordered
 TEMPLATE = subdirs
 SUBDIRS = \
           ut_buttonbar \
-          ut_duivirtualkeyboard \
-          ut_duikeyboardplugin \
-          ut_duiimcorrectioncandidatewidget \
+          ut_mvirtualkeyboard \
+          ut_mkeyboardplugin \
+          ut_mimcorrectioncandidatewidget \
           ut_keybutton \
           ut_keybuttonarea \
           ut_symbolview \
           bm_keybuttonarea \
           bm_symbols \
-          ut_duikeyboardhost \
+          ut_mkeyboardhost \
           ut_notification \
           ut_limitedtimer \
           ut_vkbdatakey \
           ut_horizontalswitcher \
           ut_layoutsmanager \
-          ut_duiimtoolbar \
+          ut_mimtoolbar \
           ut_toolbarmanager \
-          ut_duihardwarekeyboard \
+          ut_mhardwarekeyboard \
           ut_hwkbcharloopsmanager \
 
 target.commands += $$system(touch tests.xml)
-target.path = /usr/share/dui-keyboard-tests
+target.path = /usr/share/m-keyboard-tests
 target.files += qtestlib2junitxml.xsl runtests.sh tests.xml
 INSTALLS += target
 

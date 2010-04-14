@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,22 +16,22 @@
 
 
 
-#ifndef FT_DUIVIRTUALKEYBOARD_H
-#define FT_DUIVIRTUALKEYBOARD_H
+#ifndef FT_MVIRTUALKEYBOARD_H
+#define FT_MVIRTUALKEYBOARD_H
 
 #include <QObject>
 #include <QSharedPointer>
 #include <QtTest/QTest>
 
-class DuiApplication;
-class DuiHardwareKeyboard;
+class MApplication;
+class MHardwareKeyboard;
 
-class Ft_DuiHardwareKeyboard : public QObject
+class Ft_MHardwareKeyboard : public QObject
 {
     Q_OBJECT
 private:
-    DuiApplication *app;
-    DuiHardwareKeyboard *m_hkb;
+    MApplication *app;
+    MHardwareKeyboard *m_hkb;
 
 private slots:
     void initTestCase();

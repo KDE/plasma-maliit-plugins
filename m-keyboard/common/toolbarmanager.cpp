@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -18,10 +18,10 @@
 
 #include "toolbarmanager.h"
 #include "toolbardata.h"
-#include "duiimtoolbar.h"
-#include <DuiGConfItem>
-#include <DuiButton>
-#include <DuiLocale>
+#include "mimtoolbar.h"
+#include <MGConfItem>
+#include <MButton>
+#include <MLocale>
 #include <QDebug>
 
 namespace
@@ -32,7 +32,7 @@ namespace
 
 const int ToolbarManager::buttonNameDataKey(1000);
 
-ToolbarManager::ToolbarManager(DuiImToolbar *parent)
+ToolbarManager::ToolbarManager(MImToolbar *parent)
     : imToolbar(parent),
       current(0)
 {
@@ -100,16 +100,16 @@ ToolbarButton *ToolbarManager::toolbarButton(const QString &name) const
     return 0;
 }
 
-ToolbarButton *ToolbarManager::toolbarButton(const DuiButton *b) const
+ToolbarButton *ToolbarManager::toolbarButton(const MButton *b) const
 {
     if (b)
         return toolbarButton(b->data(buttonNameDataKey).toString());
     return 0;
 }
 
-DuiButton *ToolbarManager::button(const QString &name) const
+MButton *ToolbarManager::button(const QString &name) const
 {
-    DuiButton *b = 0;
+    MButton *b = 0;
     for (int i = 0; i < toolbarButtonPool.count(); i++) {
         if (toolbarButtonPool[i]->data(buttonNameDataKey).toString() == name) {
             b = toolbarButtonPool[i];
@@ -213,7 +213,7 @@ void ToolbarManager::createButton(const ToolbarButton *tb)
     if (!tb)
         return;
 
-    DuiButton *b = button(tb->name);
+    MButton *b = button(tb->name);
     //because name is the unique id, so if there is already created, then just use it
     if (!b) {
         //find the first unused pool item, or create a new one
@@ -224,7 +224,7 @@ void ToolbarManager::createButton(const ToolbarButton *tb)
             }
         }
         if (!b) {
-            b = new DuiButton();
+            b = new MButton();
             b->setObjectName(ObjectNameToolbarButtons);
             toolbarButtonPool.append(b);
         }

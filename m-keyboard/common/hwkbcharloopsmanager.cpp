@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -25,9 +25,9 @@
 
 namespace
 {
-    const QString SystemDisplayLanguage("/Dui/i18n/Language");
+    const QString SystemDisplayLanguage("/M/i18n/Language");
     const QString HardwareKeyboardCharLoopsFile("hwkbcharloops.xml");
-    const QString HwKbCharLoopConfigurationPath = "/usr/share/dui/virtual-keyboard/layouts/";
+    const QString HwKbCharLoopConfigurationPath = "/usr/share/meegotouch/virtual-keyboard/layouts/";
 
     const QString HWKBTagKeyboard           = QString("keyboard");
     const QString HWKBTagVersion            = QString("version");

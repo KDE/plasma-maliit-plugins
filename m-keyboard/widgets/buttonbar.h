@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -21,11 +21,11 @@
 
 #include "buttonbarstyle.h"
 
-#include <DuiStylableWidget>
+#include <MStylableWidget>
 
 #include <QList>
 
-class DuiButton;
+class MButton;
 class QGraphicsLinearLayout;
 
 /*!
@@ -36,7 +36,7 @@ class QGraphicsLinearLayout;
 
     Buttons are not owned by this class, though they are reparented.
 */
-class ButtonBar : public DuiStylableWidget
+class ButtonBar : public MStylableWidget
 {
     Q_OBJECT
 public:
@@ -47,26 +47,26 @@ public:
     int count() const;
 
     //! \brief Inserts a \a button to specified \a index.
-    void insert(int index, DuiButton *button);
+    void insert(int index, MButton *button);
 
     //! \brief Appends \a button to the right end of the row.
-    void append(DuiButton *button);
+    void append(MButton *button);
 
     //! \brief Removes the specified \a button from the widget.
-    void remove(DuiButton *button);
+    void remove(MButton *button);
 
     //! \brief Removes all buttons from the widget.
     void clear();
 
     //! \brief Retrieves a \a button at specific \a index.
-    DuiButton *buttonAt(int index) const;
+    MButton *buttonAt(int index) const;
 
     //! \brief Check if \a button has been added.
-    bool contains(const DuiButton *button) const;
+    bool contains(const MButton *button) const;
 
     //! \brief Returns index of specified \a button or -1
     // if button was not found
-    int indexOf(const DuiButton *button) const;
+    int indexOf(const MButton *button) const;
 
 protected:
     //! \reimp
@@ -75,7 +75,7 @@ protected:
     //! \reimp_end
 
 private:
-    typedef QList<DuiButton *> ButtonList;
+    typedef QList<MButton *> ButtonList;
 
     QGraphicsLinearLayout &mainLayout;
 
@@ -83,7 +83,7 @@ private:
 
     ButtonList buttons;
 
-    DUI_STYLABLE_WIDGET(ButtonBarStyle)
+    M_STYLABLE_WIDGET(ButtonBarStyle)
 };
 
 #endif // BUTTONBAR_H

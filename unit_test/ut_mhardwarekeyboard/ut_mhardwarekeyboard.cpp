@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,13 +16,13 @@
 
 
 
-#include "ut_duihardwarekeyboard.h"
-#include "duixkb_stub.h"
+#include "ut_mhardwarekeyboard.h"
+#include "mxkb_stub.h"
 #include "hwkbcharloopsmanager_stub.h"
-#include "duihardwarekeyboard.h"
-#include <DuiApplication>
-#include <duiplainwindow.h>
-#include <DuiNamespace>
+#include "mhardwarekeyboard.h"
+#include <MApplication>
+#include <mplainwindow.h>
+#include <MNamespace>
 #include <QDebug>
 #include <QSignalSpy>
 #include <QKeyEvent>
@@ -34,34 +34,34 @@ namespace
     const Qt::Key SymKey = Qt::Key_Multi_key;
 };
 
-void Ut_DuiHardwareKeyboard::initTestCase()
+void Ut_MHardwareKeyboard::initTestCase()
 {
     // Avoid waiting if im server is not responding
-    DuiApplication::setLoadDuiInputContext(false);
+    MApplication::setLoadMInputContext(false);
 
-    static char *argv[2] = {(char *) "ut_duihardwarekeyboard", (char *) "-software"};
+    static char *argv[2] = {(char *) "ut_mhardwarekeyboard", (char *) "-software"};
     static int argc = 2;
-    app = new DuiApplication(argc, argv);
+    app = new MApplication(argc, argv);
 }
 
-void Ut_DuiHardwareKeyboard::cleanupTestCase()
+void Ut_MHardwareKeyboard::cleanupTestCase()
 {
     delete app;
     app = 0;
 }
 
-void Ut_DuiHardwareKeyboard::init()
+void Ut_MHardwareKeyboard::init()
 {
-    m_hkb = new DuiHardwareKeyboard(0);
-    m_hkb->setKeyboardType(Dui::FreeTextContentType);
+    m_hkb = new MHardwareKeyboard(0);
+    m_hkb->setKeyboardType(M::FreeTextContentType);
 }
 
-void Ut_DuiHardwareKeyboard::cleanup()
+void Ut_MHardwareKeyboard::cleanup()
 {
     delete m_hkb;
 }
 
-void Ut_DuiHardwareKeyboard::testSetModifierState()
+void Ut_MHardwareKeyboard::testSetModifierState()
 {
     QSignalSpy mySpy(m_hkb, SIGNAL(modifierStateChanged(Qt::KeyboardModifier, ModifierState)));
     QVERIFY(mySpy.isValid());
@@ -87,11 +87,11 @@ void Ut_DuiHardwareKeyboard::testSetModifierState()
 }
 
 
-void Ut_DuiHardwareKeyboard::testRedirectKey()
+void Ut_MHardwareKeyboard::testRedirectKey()
 {
     QVERIFY(m_hkb->sensitiveKeys.count() > 0);
 
-    foreach(const DuiHardwareKeyboard::RedirectedKey & key, m_hkb->sensitiveKeys) {
+    foreach(const MHardwareKeyboard::RedirectedKey & key, m_hkb->sensitiveKeys) {
         if (key.modifier.modifier != Qt::NoModifier)
             testModifierRedirectKey(key.keyCode);
         else if (key.keyCode == SymKey)
@@ -109,7 +109,7 @@ void Ut_DuiHardwareKeyboard::testRedirectKey()
     QCOMPARE(m_hkb->modifierState(FnLevelModifier), ModifierLatchedState);
 }
 
-void Ut_DuiHardwareKeyboard::testModifierRedirectKey(Qt::Key modifierKey)
+void Ut_MHardwareKeyboard::testModifierRedirectKey(Qt::Key modifierKey)
 {
     Qt::KeyboardModifier modifier = m_hkb->keyToModifier(modifierKey);
     QVERIFY(modifier != Qt::NoModifier);
@@ -149,7 +149,7 @@ void Ut_DuiHardwareKeyboard::testModifierRedirectKey(Qt::Key modifierKey)
     QCOMPARE(m_hkb->modifierState(modifier), ModifierClearState);
 }
 
-void Ut_DuiHardwareKeyboard::testSymbolRedirectKey()
+void Ut_MHardwareKeyboard::testSymbolRedirectKey()
 {
     m_hkb->reset();
     QSignalSpy mySpy(m_hkb, SIGNAL(symbolKeyClicked()));
@@ -172,9 +172,9 @@ void Ut_DuiHardwareKeyboard::testSymbolRedirectKey()
     QCOMPARE(mySpy2.count(), 1);
 }
 
-void Ut_DuiHardwareKeyboard::testModifierInNumberContentType()
+void Ut_MHardwareKeyboard::testModifierInNumberContentType()
 {
-    m_hkb->setKeyboardType(Dui::NumberContentType);
+    m_hkb->setKeyboardType(M::NumberContentType);
     QCOMPARE(m_hkb->modifierState(FnLevelModifier), ModifierLockedState);
     //with number content type, the FN modifier key input can not change the locked state
     m_hkb->filterKeyEvent(false, QEvent::KeyPress, FnLevelKey, Qt::NoModifier, "", false, 1, 0);
@@ -183,9 +183,9 @@ void Ut_DuiHardwareKeyboard::testModifierInNumberContentType()
     QCOMPARE(m_hkb->modifierState(FnLevelModifier), ModifierLockedState);
 }
 
-void Ut_DuiHardwareKeyboard::testModifierInPhoneNumberContentType()
+void Ut_MHardwareKeyboard::testModifierInPhoneNumberContentType()
 {
-    m_hkb->setKeyboardType(Dui::PhoneNumberContentType);
+    m_hkb->setKeyboardType(M::PhoneNumberContentType);
     QCOMPARE(m_hkb->modifierState(FnLevelModifier), ModifierLockedState);
     //with phone number content type, the FN modifier key input still can change the locked state back to clear state
     m_hkb->filterKeyEvent(false, QEvent::KeyPress, FnLevelKey, Qt::NoModifier, "", false, 1, 0);
@@ -194,7 +194,7 @@ void Ut_DuiHardwareKeyboard::testModifierInPhoneNumberContentType()
     QCOMPARE(m_hkb->modifierState(FnLevelModifier), ModifierClearState);
 }
 
-void Ut_DuiHardwareKeyboard::testReset()
+void Ut_MHardwareKeyboard::testReset()
 {
     m_hkb->reset();
     QCOMPARE(m_hkb->modifierState(Qt::ShiftModifier), ModifierClearState);
@@ -211,7 +211,7 @@ void Ut_DuiHardwareKeyboard::testReset()
     QCOMPARE(m_hkb->modifierState(Qt::ShiftModifier), ModifierClearState);
 }
 
-void Ut_DuiHardwareKeyboard::testAutoCaps()
+void Ut_MHardwareKeyboard::testAutoCaps()
 {
     m_hkb->reset();
     QCOMPARE(m_hkb->autoCaps, false);
@@ -240,7 +240,7 @@ void Ut_DuiHardwareKeyboard::testAutoCaps()
     QCOMPARE(m_hkb->modifierState(Qt::ShiftModifier), ModifierClearState);
 }
 
-void Ut_DuiHardwareKeyboard::testMultiKeys()
+void Ut_MHardwareKeyboard::testMultiKeys()
 {
     //Shift-press
     //Fn-press
@@ -342,7 +342,7 @@ void Ut_DuiHardwareKeyboard::testMultiKeys()
     QCOMPARE(m_hkb->modifierState(FnLevelModifier), ModifierClearState);
 }
 
-void Ut_DuiHardwareKeyboard::testHandleIndicatorButtonClick()
+void Ut_MHardwareKeyboard::testHandleIndicatorButtonClick()
 {
 
     //default handleIndicatorButtonClick is clicking on shift button
@@ -394,10 +394,10 @@ void Ut_DuiHardwareKeyboard::testHandleIndicatorButtonClick()
     QCOMPARE(m_hkb->modifierState(FnLevelModifier), ModifierClearState);
 }
 
-void Ut_DuiHardwareKeyboard::testSymbolPlusCharKeys()
+void Ut_MHardwareKeyboard::testSymbolPlusCharKeys()
 {
     //set display language to en_gb
-    DuiGConfItem systemDisplayLanguage(SystemDisplayLanguage);
+    MGConfItem systemDisplayLanguage(SystemDisplayLanguage);
     systemDisplayLanguage.set(QVariant("en_gb"));
     m_hkb->reset();
     QSignalSpy mySpy(m_hkb, SIGNAL(symbolCharacterKeyClicked(const QChar &, int, bool)));
@@ -485,4 +485,4 @@ void Ut_DuiHardwareKeyboard::testSymbolPlusCharKeys()
     m_hkb->filterKeyEvent(false, QEvent::KeyRelease, SymKey, Qt::NoModifier, "", false, 1, 0);
 }
 
-QTEST_APPLESS_MAIN(Ut_DuiHardwareKeyboard);
+QTEST_APPLESS_MAIN(Ut_MHardwareKeyboard);

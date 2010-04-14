@@ -6,13 +6,13 @@ OBJECTS_DIR = .obj
 MOC_DIR = .moc
 TEMPLATE = lib
 TARGET = fixture_virtualkeyboard
-CONFIG += plugin dui
+CONFIG += plugin meegotouch
 
 target.path = $$[QT_INSTALL_PLUGINS]/tasfixtures
 
 
 DEPENDPATH += .
-INCLUDEPATH += . ../dui-keyboard/common/ ../dui-keyboard/widgets/
+INCLUDEPATH += . ../m-keyboard/common/ ../m-keyboard/widgets/
 
 # Input
 HEADERS += fixture_virtualkeyboard.h \

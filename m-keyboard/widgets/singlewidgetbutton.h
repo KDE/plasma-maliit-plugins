@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -21,7 +21,7 @@
 
 #include "ikeybutton.h"
 
-class DuiVirtualKeyboardStyleContainer;
+class MVirtualKeyboardStyleContainer;
 class QGraphicsItem;
 
 //! Represents a key model with the key's current binding state, and also contains its visible area.
@@ -29,7 +29,7 @@ class SingleWidgetButton : public IKeyButton
 {
 public:
     SingleWidgetButton(const VKBDataKey &key,
-                       const DuiVirtualKeyboardStyleContainer &style,
+                       const MVirtualKeyboardStyleContainer &style,
                        QGraphicsItem &parent);
     virtual ~SingleWidgetButton();
 
@@ -81,7 +81,7 @@ private:
     //! One icon for both shift states.
     const QPixmap *icons[2];
 
-    const DuiVirtualKeyboardStyleContainer &styleContainer;
+    const MVirtualKeyboardStyleContainer &styleContainer;
 
     QGraphicsItem &parentItem;
 };

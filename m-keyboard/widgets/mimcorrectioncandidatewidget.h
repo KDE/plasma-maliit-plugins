@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,38 +16,38 @@
 
 
 
-#ifndef DUIIMCORRECTIONCANDIDATEWIDGET_H
-#define DUIIMCORRECTIONCANDIDATEWIDGET_H
+#ifndef MIMCORRECTIONCANDIDATEWIDGET_H
+#define MIMCORRECTIONCANDIDATEWIDGET_H
 
 #include <QModelIndex>
-#include <DuiWidget>
+#include <MWidget>
 
-class DuiSceneManager;
-class DuiList;
-class DuiImCorrectionContentItemCreator;
+class MSceneManager;
+class MList;
+class MImCorrectionContentItemCreator;
 class QStringListModel;
 class QFontMetrics;
 
 /*!
-  \class DuiImCorrectionCandidateWidget
-  \brief The DuiImCorrectionCandidateWidget class is used to show error correction candidate list
+  \class MImCorrectionCandidateWidget
+  \brief The MImCorrectionCandidateWidget class is used to show error correction candidate list
 */
-class DuiImCorrectionCandidateWidget: public DuiWidget
+class MImCorrectionCandidateWidget: public MWidget
 {
     Q_OBJECT
 
-    friend class Ut_DuiImCorrectionCandidateWidget;
+    friend class Ut_MImCorrectionCandidateWidget;
 
 public:
     /*! Constructor
      *
      */
-    explicit DuiImCorrectionCandidateWidget(QGraphicsWidget *parent = 0);
+    explicit MImCorrectionCandidateWidget(QGraphicsWidget *parent = 0);
 
     /*! Destructor
      *
      */
-    ~DuiImCorrectionCandidateWidget();
+    ~MImCorrectionCandidateWidget();
 
     /*! Set the candidate list
      *
@@ -136,14 +136,14 @@ private:
     QString m_preeditString;
     QPoint candidatePosition;
     QFontMetrics *fontMetrics;
-    DuiSceneManager *sceneManager;
-    DuiWidget *containerWidget;
-    DuiList *candidatesWidget;
-    DuiImCorrectionContentItemCreator *cellCreator;
+    MSceneManager *sceneManager;
+    MWidget *containerWidget;
+    MList *candidatesWidget;
+    MImCorrectionContentItemCreator *cellCreator;
     QStringListModel *candidatesModel;
     int candidateWidth;
 
-    Q_DISABLE_COPY(DuiImCorrectionCandidateWidget)
+    Q_DISABLE_COPY(MImCorrectionCandidateWidget)
 };
 
 #endif

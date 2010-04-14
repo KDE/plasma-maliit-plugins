@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,35 +16,35 @@
 
 
 
-#include "duikeyboardplugin.h"
-#include "duikeyboardhost.h"
+#include "mkeyboardplugin.h"
+#include "mkeyboardhost.h"
 
 #include <QtPlugin>
 
-#include <duitimestamp.h>
+#include <mtimestamp.h>
 
 
-QString DuiKeyboardPlugin::name() const
+QString MKeyboardPlugin::name() const
 {
-    return "DuiKeyboard";
+    return "MeegoKeyboard";
 }
 
 
-QStringList DuiKeyboardPlugin::languages() const
+QStringList MKeyboardPlugin::languages() const
 {
     return QStringList("en");
 }
 
 
-DuiInputMethodBase *
-DuiKeyboardPlugin::createInputMethod(DuiInputContextConnection *icConnection)
+MInputMethodBase *
+MKeyboardPlugin::createInputMethod(MInputContextConnection *icConnection)
 {
-    duiTimestamp("DuiKeyboardPlugin", "start");
-    DuiInputMethodBase *inputMethod = new DuiKeyboardHost(icConnection);
-    duiTimestamp("DuiKeyboardPlugin", "end");
+    mTimestamp("MKeyboardPlugin", "start");
+    MInputMethodBase *inputMethod = new MKeyboardHost(icConnection);
+    mTimestamp("MKeyboardPlugin", "end");
     return inputMethod;
 }
 
 
-Q_EXPORT_PLUGIN2(duivirtualkeyboard, DuiKeyboardPlugin)
+Q_EXPORT_PLUGIN2(mvirtualkeyboard, MKeyboardPlugin)
 

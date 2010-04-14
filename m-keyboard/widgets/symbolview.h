@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -19,17 +19,17 @@
 #ifndef SYMBOLVIEW_H
 #define SYMBOLVIEW_H
 
-#include <DuiButton>
-#include <DuiButtonGroup>
-#include <DuiWidget>
+#include <MButton>
+#include <MButtonGroup>
+#include <MWidget>
 
 #include "buttonbar.h"
 #include "singlewidgetbuttonarea.h"
-#include "duibuttonarea.h"
+#include "mbuttonarea.h"
 
 class QGraphicsLinearLayout;
-class DuiSceneManager;
-class DuiVirtualKeyboardStyleContainer;
+class MSceneManager;
+class MVirtualKeyboardStyleContainer;
 class HorizontalSwitcher;
 class LayoutData;
 class LayoutsManager;
@@ -45,7 +45,7 @@ class SymIndicatorButton;
 /*!
  * \brief SymbolView is used to show different layouts symbols/upper case/lower case
  */
-class SymbolView : public DuiWidget
+class SymbolView : public MWidget
 {
     Q_OBJECT
 
@@ -65,7 +65,7 @@ public:
      * \param baseSize QSize
      * \param parent Parent object.
      */
-    SymbolView(const LayoutsManager &layoutsManager, DuiVirtualKeyboardStyleContainer *,
+    SymbolView(const LayoutsManager &layoutsManager, MVirtualKeyboardStyleContainer *,
                const QString &language, QGraphicsWidget *parent = 0);
 
     /*!
@@ -246,7 +246,7 @@ private:
                                        bool enablePopup = true);
 
     //! Getter for style container
-    DuiVirtualKeyboardStyleContainer &style();
+    MVirtualKeyboardStyleContainer &style();
 
     //! Retrieves title of a symbol section from given page.
     QString pageTitle(int pageIndex) const;
@@ -256,14 +256,14 @@ private:
 
 private:
     //! Current style being used.
-    DuiVirtualKeyboardStyleContainer *styleContainer;
+    MVirtualKeyboardStyleContainer *styleContainer;
 
     //! Manage animation
     QGraphicsItemAnimation *showAnimation;
     QGraphicsItemAnimation *hideAnimation;
 
     //! scene manager
-    const DuiSceneManager &sceneManager;
+    const MSceneManager &sceneManager;
 
     //! Current visible KeyButtonArea widget
     KeyButtonArea *selectedLayout;
@@ -285,7 +285,7 @@ private:
     HorizontalSwitcher *pageSwitcher;
     KeyButtonArea *functionRow;
 
-    Dui::Orientation currentOrientation;
+    M::Orientation currentOrientation;
 
     QString currentLanguage;
 

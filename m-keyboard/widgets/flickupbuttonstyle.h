@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -20,20 +20,20 @@
 #define FLICKUPBUTTONSTYLE_H
 
 #include <QString>
-#include <duibuttoniconstyle.h>
+#include <mbuttoniconstyle.h>
 
-class FlickUpButtonStyle : public DuiButtonIconStyle
+class FlickUpButtonStyle : public MButtonIconStyle
 {
     Q_OBJECT
-    DUI_STYLE(FlickUpButtonStyle)
+    M_STYLE(FlickUpButtonStyle)
 
 public:
-    DUI_STYLE_ATTRIBUTE(QString, icon, Icon)
+    M_STYLE_ATTRIBUTE(QString, icon, Icon)
 };
 
-class FlickUpButtonStyleContainer : public DuiButtonIconStyleContainer
+class FlickUpButtonStyleContainer : public MButtonIconStyleContainer
 {
-    DUI_STYLE_CONTAINER(FlickUpButtonStyle)
+    M_STYLE_CONTAINER(FlickUpButtonStyle)
 };
 
 #endif

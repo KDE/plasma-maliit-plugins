@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -22,14 +22,14 @@
 #include <QtTest/QTest>
 #include <QObject>
 
-class DuiApplication;
+class MApplication;
 class VKBDataKey;
 
 class Ut_VKBDataKey : public QObject
 {
     Q_OBJECT
 private:
-    DuiApplication *app;
+    MApplication *app;
     VKBDataKey *subject;
 
 private slots:

@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -14,24 +14,24 @@
  * of this file.
  */
 
-#ifndef DUIXKB_P_H
-#define DUIXKB_P_H
+#ifndef MXKB_P_H
+#define MXKB_P_H
 
 #include <QKeyEvent>
 #include <X11/Xlib.h>
 
-class DuiXkb;
+class MXkb;
 
-class DuiXkbPrivate
+class MXkbPrivate
 {
 public:
     /*!
      * \brief Constructor.
      */
-    DuiXkbPrivate();
+    MXkbPrivate();
 
     //! Destructor
-    ~DuiXkbPrivate();
+    ~MXkbPrivate();
 
     //! Translates the Qt::KeyboardModifiers to xkb modifier.
     unsigned int translateModifiers(Qt::KeyboardModifiers modifier) const;
@@ -55,9 +55,9 @@ private:
     unsigned char qtMetaMask;
     unsigned char qtModeSwitchMask;
 
-    friend class DuiXkb;
-    friend class Ft_DuiXkb;
-    friend class Ft_DuiHardwareKeyboard;
+    friend class MXkb;
+    friend class Ft_MXkb;
+    friend class Ft_MHardwareKeyboard;
 };
 
 #endif

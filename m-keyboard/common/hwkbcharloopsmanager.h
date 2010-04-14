@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -19,8 +19,8 @@
 #ifndef HWKBCHARLOOPSMANAGER_H
 #define HWKBCHARLOOPSMANAGER_H
 
-#include <DuiNamespace>
-#include <DuiGConfItem>
+#include <MNamespace>
+#include <MGConfItem>
 #include <QObject>
 #include <QHash>
 #include <QChar>
@@ -34,7 +34,8 @@ class HwKbCharacterLoops;
  * \brief HwKbCharLoopsManager managers the hardware keyboard character loops.
  *
  * The hardware keyboard character loops store the accented characters' loops for each language.
- * HwKbCharLoopsManager loads the loops from /usr/share/dui/virtual-keyboard/layouts/hwkbcharloops.xml
+ * HwKbCharLoopsManager loads the loops from
+ * /usr/share/meegotouch/virtual-keyboard/layouts/hwkbcharloops.xml
  * and managers them. Using characterLoop() one can get the related accented characters for a character.
  */
 class HwKbCharLoopsManager : public QObject
@@ -63,7 +64,7 @@ private slots:
 private:
     /*!
     * \brief Load character loops from the specified xml file.
-    * The file is loaded from the path /usr/share/dui/virtual-keyboard/layout/.
+    * The file is loaded from the path /usr/share/meegotouch/virtual-keyboard/layout/.
     * \param fileName XML file name without directory part
     * \return true if loading succeeded, false otherwise
     */
@@ -114,9 +115,9 @@ private:
     //! in calls to public methods of this class.
     QHash<QString, HwKbCharacterLoops *>::const_iterator current;
 
-    //! DuiGConfItem for system display language.
+    //! MGConfItem for system display language.
     //! The settings are set by control panel applet.
-    DuiGConfItem configLanguage;
+    MGConfItem configLanguage;
 
     //! Current language for the character loop
     QString currentCharLoopLanguage;

@@ -1,16 +1,16 @@
 TEMPLATE = lib 
-TARGET = $$qtLibraryTarget(duikeyboard)
+TARGET = $$qtLibraryTarget(mkeyboard)
 
 OBJECTS_DIR = .obj
 MOC_DIR = .moc
 
 QMAKE_CXXFLAGS += -Werror
 
-# we have this line temporarily until new libdui without rpath is integrated
+# we have this line temporarily until new libmeegotouch without rpath is integrated
 QT += xml
 
-CONFIG += plugin dui duiimengine duiimenginewords duiimframework duireactionmap
-#CONFIG += duicontrolpanel
+CONFIG += plugin meegotouch duiimengine duiimenginewords mimframework duireactionmap
+#CONFIG += mcontrolpanel
 DEFINES += NOCONTROLPANEL
 
 CONFIG += link_pkgconfig
@@ -34,16 +34,16 @@ include(theme/theme.pri)
 include(layouts/layouts.pri)
 
 HEADERS += \
-    duikeyboardhost.h \
-    duikeyboardplugin.h \
+    mkeyboardhost.h \
+    mkeyboardplugin.h \
 
 SOURCES += \
-    duikeyboardhost.cpp \
-    duikeyboardplugin.cpp \
+    mkeyboardhost.cpp \
+    mkeyboardplugin.cpp \
 
-target.path += /usr/lib/dui-im-plugins
+target.path += /usr/lib/m-im-plugins
 
-install_headers.path = /usr/include/dui-keyboard
+install_headers.path = /usr/include/m-keyboard
 install_headers.files = $$INSTALL_HEADERS
 
 

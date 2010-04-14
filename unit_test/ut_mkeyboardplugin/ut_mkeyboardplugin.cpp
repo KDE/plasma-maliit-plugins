@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,41 +16,41 @@
 
 
 
-#include "ut_duikeyboardplugin.h"
+#include "ut_mkeyboardplugin.h"
 
 #include <QtTest/QTest>
 #include <QObject>
 #include <QDebug>
 
-void Ut_DuiKeyboardPlugin::initTestCase()
+void Ut_MKeyboardPlugin::initTestCase()
 {
     // check that Plugin can be accessed
-    m_subject = new DuiKeyboardPlugin();
+    m_subject = new MKeyboardPlugin();
 }
 
 
-void Ut_DuiKeyboardPlugin::cleanupTestCase()
+void Ut_MKeyboardPlugin::cleanupTestCase()
 {
     delete m_subject;
     m_subject = 0;
 }
 
 
-void Ut_DuiKeyboardPlugin::init()
+void Ut_MKeyboardPlugin::init()
 {
 }
 
 
-void Ut_DuiKeyboardPlugin::cleanup()
+void Ut_MKeyboardPlugin::cleanup()
 {
 }
 
 
-void Ut_DuiKeyboardPlugin::testMethods()
+void Ut_MKeyboardPlugin::testMethods()
 {
     // some simple checks that the functions seems to work
     // check name of plugin
-    QVERIFY(m_subject->name() == "DuiKeyboard");
+    QVERIFY(m_subject->name() == "MeegoKeyboard");
 
     // check possible languages
     QVERIFY(m_subject->languages().count() == 1);
@@ -60,5 +60,5 @@ void Ut_DuiKeyboardPlugin::testMethods()
 }
 
 
-QTEST_MAIN(Ut_DuiKeyboardPlugin);
+QTEST_MAIN(Ut_MKeyboardPlugin);
 

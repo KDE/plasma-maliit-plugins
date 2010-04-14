@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -27,7 +27,7 @@
 #include <QPixmap>
 
 class IKeyButton;
-class DuiVirtualKeyboardStyleContainer;
+class MVirtualKeyboardStyleContainer;
 class QGraphicsItem;
 
 /*!
@@ -37,7 +37,7 @@ class PopupBase
 {
 public:
     //! Constructor
-    PopupBase(const DuiVirtualKeyboardStyleContainer &styleContainer);
+    PopupBase(const MVirtualKeyboardStyleContainer &styleContainer);
 
     //! \brief Destructor
     virtual ~PopupBase();
@@ -66,7 +66,7 @@ public:
     virtual bool isPopupVisible() const = 0;
 
 protected:
-    const DuiVirtualKeyboardStyleContainer &styleContainer;
+    const MVirtualKeyboardStyleContainer &styleContainer;
 
 #ifdef UNIT_TEST
     friend class Ut_IPopup;

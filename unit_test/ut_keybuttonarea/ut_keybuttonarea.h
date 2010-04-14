@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -19,10 +19,10 @@
 
 #include <QtTest/QtTest>
 #include <QObject>
-#include "duinamespace.h"
+#include "mnamespace.h"
 
-class DuiApplication;
-class DuiVirtualKeyboardStyleContainer;
+class MApplication;
+class MVirtualKeyboardStyleContainer;
 class KeyButtonArea;
 class KeyboardData;
 class IKeyButton;
@@ -31,8 +31,8 @@ class Ut_KeyButtonArea : public QObject
 {
     Q_OBJECT
 private:
-    DuiApplication *app;
-    DuiVirtualKeyboardStyleContainer *style;
+    MApplication *app;
+    MVirtualKeyboardStyleContainer *style;
     KeyButtonArea *subject;
     KeyboardData *keyboard;
 
@@ -70,7 +70,7 @@ private slots:
     void testShiftCapsLock();
 
 private:
-    void changeOrientation(Dui::OrientationAngle angle);
+    void changeOrientation(M::OrientationAngle angle);
     QSize defaultLayoutSize();
     const IKeyButton *keyAt(unsigned int row, unsigned int column) const;
 };

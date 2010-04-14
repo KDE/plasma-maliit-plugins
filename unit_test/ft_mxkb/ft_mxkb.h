@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,22 +16,22 @@
 
 
 
-#ifndef FT_DUIXKB_H
-#define FT_DUIXKB_H
+#ifndef FT_MXKB_H
+#define FT_MXKB_H
 
 #include <QObject>
 #include <QSharedPointer>
 #include <QtTest/QTest>
 
-class DuiApplication;
-class DuiXkb;
+class MApplication;
+class MXkb;
 
-class Ft_DuiXkb : public QObject
+class Ft_MXkb : public QObject
 {
     Q_OBJECT
 private:
-    DuiApplication *app;
-    DuiXkb *m_subject;
+    MApplication *app;
+    MXkb *m_subject;
 
 private slots:
     void initTestCase();

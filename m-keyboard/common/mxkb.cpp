@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -15,13 +15,13 @@
  */
 
 #include <QDebug>
-#include "duixkb.h"
-#include "duixkb_p.h"
+#include "mxkb.h"
+#include "mxkb_p.h"
 #include <X11/XKBlib.h>
 #include <X11/keysym.h>
 #include <X11/keysymdef.h>
 
-DuiXkbPrivate::DuiXkbPrivate()
+MXkbPrivate::MXkbPrivate()
     : display(0),
       deviceSpec(0),
       qtAltMask(0),
@@ -32,11 +32,11 @@ DuiXkbPrivate::DuiXkbPrivate()
     init();
 }
 
-DuiXkbPrivate::~DuiXkbPrivate()
+MXkbPrivate::~MXkbPrivate()
 {
 }
 
-void DuiXkbPrivate::init()
+void MXkbPrivate::init()
 {
     char *displayName = static_cast<char *>(getenv("DISPLAY"));
 
@@ -67,7 +67,7 @@ void DuiXkbPrivate::init()
     getMask();
 }
 
-unsigned int DuiXkbPrivate::translateModifiers(Qt::KeyboardModifiers modifier) const
+unsigned int MXkbPrivate::translateModifiers(Qt::KeyboardModifiers modifier) const
 {
     unsigned int ret = 0;
     if (modifier & Qt::ShiftModifier)
@@ -81,9 +81,9 @@ unsigned int DuiXkbPrivate::translateModifiers(Qt::KeyboardModifiers modifier) c
     return ret;
 }
 
-void DuiXkbPrivate::getMask()
+void MXkbPrivate::getMask()
 {
-    //TODO:The xkb keymap could be changed at anytime when user chooses a new keymap in the DuiSettings.
+    //TODO:The xkb keymap could be changed at anytime when user chooses a new keymap in the MSettings.
     //But the Gconf which will be used to notify reloading keymap is not yet defined.
     XkbDescPtr xkbDesc = XkbGetMap(display, XkbAllClientInfoMask, deviceSpec);
     for (int i = xkbDesc->min_key_code; i < xkbDesc->max_key_code; ++i) {
@@ -102,7 +102,7 @@ void DuiXkbPrivate::getMask()
     XkbFreeKeyboard(xkbDesc, XkbAllComponentsMask, true);
 }
 
-inline void DuiXkbPrivate::setMask(const KeySym &sym, unsigned int mask)
+inline void MXkbPrivate::setMask(const KeySym &sym, unsigned int mask)
 {
     if (qtAltMask == 0
             && qtMetaMask != mask
@@ -122,7 +122,7 @@ inline void DuiXkbPrivate::setMask(const KeySym &sym, unsigned int mask)
     }
 }
 
-inline bool DuiXkbPrivate::testModifierLatchedState(int xModifier) const
+inline bool MXkbPrivate::testModifierLatchedState(int xModifier) const
 {
     Window dummy1, dummy2;
     int dummy3, dummy4, dummy5, dummy6;
@@ -132,20 +132,20 @@ inline bool DuiXkbPrivate::testModifierLatchedState(int xModifier) const
     return (mask & xModifier);
 }
 
-DuiXkb::DuiXkb()
-    : d_ptr(new DuiXkbPrivate())
+MXkb::MXkb()
+    : d_ptr(new MXkbPrivate())
 {
 }
 
-DuiXkb::~DuiXkb()
+MXkb::~MXkb()
 {
-    Q_D(DuiXkb);
+    Q_D(MXkb);
     delete d;
 }
 
-void DuiXkb::lockModifiers(Qt::KeyboardModifiers modifiers)
+void MXkb::lockModifiers(Qt::KeyboardModifiers modifiers)
 {
-    Q_D(DuiXkb);
+    Q_D(MXkb);
     //FIXME: a tricky case, have to call both XkbLatchModifiers and XkbLockModifiers here,
     //otherwise can not lock the modifiers.
     const unsigned int xModifiers = d->translateModifiers(modifiers);
@@ -155,9 +155,9 @@ void DuiXkb::lockModifiers(Qt::KeyboardModifiers modifiers)
         qWarning() << __PRETTY_FUNCTION__ << " failed!";
 }
 
-void DuiXkb::unlockModifiers(Qt::KeyboardModifiers modifiers)
+void MXkb::unlockModifiers(Qt::KeyboardModifiers modifiers)
 {
-    Q_D(DuiXkb);
+    Q_D(MXkb);
     const unsigned int xModifiers = d->translateModifiers(modifiers);
     if (!XkbLockModifiers(d->display, d->deviceSpec, xModifiers, 0))
         qWarning() << __PRETTY_FUNCTION__ << " failed!";
@@ -165,9 +165,9 @@ void DuiXkb::unlockModifiers(Qt::KeyboardModifiers modifiers)
         qWarning() << __PRETTY_FUNCTION__ << " failed!";
 }
 
-bool DuiXkb::isLatched(Qt::KeyboardModifier modifier) const
+bool MXkb::isLatched(Qt::KeyboardModifier modifier) const
 {
-    Q_D(const DuiXkb);
+    Q_D(const MXkb);
     int xModifier = d->translateModifiers(modifier);
     return d->testModifierLatchedState(xModifier);
 }

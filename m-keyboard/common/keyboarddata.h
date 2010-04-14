@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -51,7 +51,7 @@ public:
 
     /*!
     * \brief Load keyboard and its layouts from the specified xml file.
-    * The file is loaded from the path /usr/share/dui/virtual-keyboard/layout/.
+    * The file is loaded from the path /usr/share/meegotouch/virtual-keyboard/layout/.
     * This method can be called multiple times to reload another keyboard file,
     * whether previous call failed or not.
     * \param fileName XML file name without directory part
@@ -72,7 +72,7 @@ public:
      * \param portraitFallback if true and if no landscape layout is available, return
      * portrait layout instead (if available)
      */
-    const LayoutData *layout(LayoutData::LayoutType type, Dui::Orientation orientation,
+    const LayoutData *layout(LayoutData::LayoutType type, M::Orientation orientation,
                              bool portraitFallback = true) const;
 
     /*! \brief Determines whether given language is of "en_GB" style as opposed to "en".
@@ -95,7 +95,7 @@ private:
                                bool importedLayout = false);
 
     //! \brief Get layout model by type and orientation
-    LayoutData *layoutPrivate(LayoutData::LayoutType type, Dui::Orientation orientation,
+    LayoutData *layoutPrivate(LayoutData::LayoutType type, M::Orientation orientation,
                               bool portraitFallback = true) const;
 
     /*!
@@ -104,9 +104,9 @@ private:
     static Qt::Alignment alignment(const QString &alignmentString, bool vertical);
 
     /*!
-    * \brief Translate orientationString to Dui::Orientation
+    * \brief Translate orientationString to M::Orientation
     */
-    static Dui::Orientation orientation(const QString &orientationString);
+    static M::Orientation orientation(const QString &orientationString);
 
     //! \brief Translate key action string into a KeyBinding::KeyAction
     static KeyBinding::KeyAction keyActionFromString(const QString &typeStr);

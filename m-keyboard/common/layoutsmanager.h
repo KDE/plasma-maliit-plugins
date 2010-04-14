@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -20,8 +20,8 @@
 
 #include "keyboarddata.h"
 #include "layoutdata.h"
-#include <DuiGConfItem>
-#include <DuiLocale>
+#include <MGConfItem>
+#include <MLocale>
 #include <QMap>
 #include <QObject>
 #include <memory>
@@ -63,7 +63,7 @@ public:
 
     //! \brief Get layout model by language, type, and orientation
     const LayoutData *layout(const QString &language, LayoutData::LayoutType type,
-                             Dui::Orientation orientation) const;
+                             M::Orientation orientation) const;
 
     //! \brief Returns currently set default language
     QString defaultLanguage() const;
@@ -107,12 +107,12 @@ private:
     //! The map key is language name as read from settings.
     QMap<QString, KeyboardData *> keyboards;
 
-    //! DuiGConfItem for selected languages available for
+    //! MGConfItem for selected languages available for
     //! vkb's use. The settings are set by control panel applet.
-    DuiGConfItem configLanguages;
+    MGConfItem configLanguages;
 
     //! Setting that determines whether number format is Arabic or Latin
-    DuiGConfItem numberFormatSetting;
+    MGConfItem numberFormatSetting;
 
     //! Iterator that points to current language and keyboard.
     //! Current keyboard is used when no language name is specified
@@ -129,7 +129,7 @@ private:
     NumberFormat numberFormat;
 
     //! System locale
-    DuiLocale locale;
+    MLocale locale;
 
     //! Singleton instance
     static LayoutsManager *Instance;

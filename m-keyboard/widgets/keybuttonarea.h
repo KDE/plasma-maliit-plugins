@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -24,16 +24,16 @@
 #include "layoutdata.h"
 #include "vkbdatakey.h"
 
-#include <DuiWidget>
+#include <MWidget>
 #include <QColor>
 #include <QHash>
 #include <QList>
 #include <QStringList>
 
-class DuiFeedbackPlayer;
+class MFeedbackPlayer;
 class DuiReactionMap;
-class DuiScalableImage;
-class DuiVirtualKeyboardStyleContainer;
+class MScalableImage;
+class MVirtualKeyboardStyleContainer;
 class ISymIndicator;
 class LayoutData;
 class LimitedTimer;
@@ -45,7 +45,7 @@ class PopupBase;
  * \class KeyButtonArea
  * \brief KeyButtonArea is a view for virtual keyboard layout represented by LayoutModel
  */
-class KeyButtonArea : public DuiWidget
+class KeyButtonArea : public MWidget
 {
     Q_OBJECT
     Q_DISABLE_COPY(KeyButtonArea)
@@ -73,7 +73,7 @@ public:
     * \param usePopup Sets whether popup should be used when long press occurs.
     * \param parent The widget's parent.
     */
-    KeyButtonArea(DuiVirtualKeyboardStyleContainer *,
+    KeyButtonArea(MVirtualKeyboardStyleContainer *,
                   QSharedPointer<const LayoutSection> section,
                   ButtonSizeScheme buttonSizeScheme = ButtonSizeEqualExpanding,
                   bool usePopup = false,
@@ -248,7 +248,7 @@ protected:
     virtual void updateButtonGeometries(int availableWidth, int equalButtonWidth) = 0;
 
     //! \brief Getter for style container
-    const DuiVirtualKeyboardStyleContainer &style() const;
+    const MVirtualKeyboardStyleContainer &style() const;
 
     const PopupBase &popupWidget() const;
 
@@ -272,7 +272,7 @@ private:
     PopupBase *popup;
 
     //! style
-    DuiVirtualKeyboardStyleContainer *styleContainer;
+    MVirtualKeyboardStyleContainer *styleContainer;
 
     //! Flicktimer
     LimitedTimer *flickTimer;
@@ -313,7 +313,7 @@ private:
     /*!
      * Feedback player instance
      */
-    DuiFeedbackPlayer *feedbackPlayer;
+    MFeedbackPlayer *feedbackPlayer;
 
     //! layout section viewed by this class
     QSharedPointer<const LayoutSection> section;

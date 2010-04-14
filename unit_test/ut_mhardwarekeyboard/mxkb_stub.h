@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -14,26 +14,26 @@
  * of this file.
  */
 
-#ifndef DUIXKB_STUB_H
-#define DUIXKB_STUB_H
+#ifndef MXKB_STUB_H
+#define MXKB_STUB_H
 
-#include "duixkb.h"
+#include "mxkb.h"
 
-DuiXkb::DuiXkb()
+MXkb::MXkb()
     : d_ptr(0)
 {
 }
 
-DuiXkb::~DuiXkb()
+MXkb::~MXkb()
 {
 }
 
-void DuiXkb::lockModifiers(Qt::KeyboardModifiers modifiers)
+void MXkb::lockModifiers(Qt::KeyboardModifiers modifiers)
 {
     Q_UNUSED(modifiers);
 }
 
-void DuiXkb::unlockModifiers(Qt::KeyboardModifiers modifiers)
+void MXkb::unlockModifiers(Qt::KeyboardModifiers modifiers)
 {
     Q_UNUSED(modifiers);
 }

@@ -1,14 +1,14 @@
 TEMPLATE = app
-CONFIG += QtTest Dui DuiImServer duiimframework duireactionmap
+CONFIG += QtTest meegotouch MImServer mimframework duireactionmap
 DEPENDPATH += .
 INCLUDEPATH += 	. \
 		../stubs/ \
 
-LIBS += -L/usr/lib -Wl,-rpath=/usr/lib/dui-im-plugins/ -lduikeyboard
+LIBS += -L/usr/lib -Wl,-rpath=/usr/lib/m-im-plugins/ -lmkeyboard
 
 # Input
 HEADERS += ut_symbolview.h \
-           ../stubs/duigconfitem_stub.h \
+           ../stubs/mgconfitem_stub.h \
            ../stubs/fakegconf.h \
            ../stubs/duireactionmaptester.h
 

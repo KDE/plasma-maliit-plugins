@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,23 +16,23 @@
 
 
 
-#ifndef DUIIMTOOLBAR_H
-#define DUIIMTOOLBAR_H
+#ifndef MIMTOOLBAR_H
+#define MIMTOOLBAR_H
 
-#include <DuiWidget>
+#include <MWidget>
 #include "buttonbar.h"
-#include "duikeyboardcommon.h"
+#include "mkeyboardcommon.h"
 
 class DuiReactionMap;
 class ToolbarManager;
-class DuiInfoBanner;
-class DuiVirtualKeyboardStyleContainer;
+class MInfoBanner;
+class MVirtualKeyboardStyleContainer;
 class QTimer;
 
 /*!
-  \brief DuiImToolbar implement the toolbar for virtualkeyboard.
+  \brief MImToolbar implement the toolbar for virtualkeyboard.
 
-  The DuiImToolbar class provides interfaces for the usage of the custom
+  The MImToolbar class provides interfaces for the usage of the custom
   toolbar for virtualkeyboard. The interfaces include load/unload/hide/show of the toolbar.
 
   The layout for toolbar is this:
@@ -45,7 +45,7 @@ class QTimer;
   will be placed into left or right side ButtonBar widget. Toolbar
   takes all available space horizontally.
 */
-class DuiImToolbar : public DuiWidget
+class MImToolbar : public MWidget
 {
     Q_OBJECT
 
@@ -55,11 +55,11 @@ public:
      * \param style Styling information.
      * \param parent Parent object.
      */
-    explicit DuiImToolbar(DuiVirtualKeyboardStyleContainer &style,
-                          QGraphicsWidget *parent = 0);
+    explicit MImToolbar(MVirtualKeyboardStyleContainer &style,
+                        QGraphicsWidget *parent = 0);
 
     //! Destructor
-    ~DuiImToolbar();
+    ~MImToolbar();
 
     /*!
      * \brief Returns toolbar's region.
@@ -184,16 +184,16 @@ private:
      * or before any item that is currently at index in \a align part of the toolbar.
      *  This doesn't do anything if the item has already been added.
      * \param index Index to be inserted.
-     * \param button The DuiButton to be added.
+     * \param button The MButton to be added.
      * \param align Indicate which part of the toolbar, Qt::AlignLeft or Qt::AlignRight.
      */
-    void insertItem(int index, DuiButton *button, Qt::Alignment align);
+    void insertItem(int index, MButton *button, Qt::Alignment align);
 
     /*!
      * \brief Removes an item from its layout.
      * \param button Button to remove from either side.
      */
-    void removeItem(DuiButton *button);
+    void removeItem(MButton *button);
 
     void updateReactiveAreas();
 
@@ -202,21 +202,21 @@ private:
     ToolbarManager *toolbarMgr;
     bool textSelected;
     //! Input Mode indicator button
-    DuiButton *indicator;
+    MButton *indicator;
     //! Copy/Paste button
-    DuiButton *copyPaste;
+    MButton *copyPaste;
     //! Copy/paste button status
     CopyPasteState copyPasteStatus;
 
     ButtonBar leftBar;  //! Widget to hold left-aligned toolbar buttons
     ButtonBar rightBar; //! Widget to hold right-aligned toolbar buttons
 
-    DuiInfoBanner *modifierLockOnInfoBanner; //! widget to show modifier is in locked state
+    MInfoBanner *modifierLockOnInfoBanner; //! widget to show modifier is in locked state
     QTimer *modifierLockOnTimer;
 
-    DuiVirtualKeyboardStyleContainer &style; //! Styling information
+    MVirtualKeyboardStyleContainer &style; //! Styling information
 
-    friend class Ut_DuiImToolbar;
+    friend class Ut_MImToolbar;
 };
 
 #endif

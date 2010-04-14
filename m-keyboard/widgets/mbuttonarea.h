@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,26 +16,26 @@
 
 
 
-#ifndef DUIBUTTONAREA_H
-#define DUIBUTTONAREA_H
+#ifndef MBUTTONAREA_H
+#define MBUTTONAREA_H
 
 #include "keybuttonarea.h"
 
 class FlickUpButton;
 
 /*!
- * \brief DuiButtonArea is a DuiButton implementation of KeyButtonArea.
+ * \brief MButtonArea is a MButton implementation of KeyButtonArea.
  */
-class DuiButtonArea : public KeyButtonArea
+class MButtonArea : public KeyButtonArea
 {
 public:
-    DuiButtonArea(DuiVirtualKeyboardStyleContainer *,
-                  QSharedPointer<const LayoutSection>,
-                  ButtonSizeScheme buttonSizeScheme = ButtonSizeEqualExpanding,
-                  bool usePopup = false,
-                  QGraphicsWidget *parent = 0);
+    MButtonArea(MVirtualKeyboardStyleContainer *,
+                QSharedPointer<const LayoutSection>,
+                ButtonSizeScheme buttonSizeScheme = ButtonSizeEqualExpanding,
+                bool usePopup = false,
+                QGraphicsWidget *parent = 0);
 
-    virtual ~DuiButtonArea();
+    virtual ~MButtonArea();
 
 protected:
     /*! \reimp */
@@ -61,4 +61,4 @@ private:
 #endif
 };
 
-#endif // DUIBUTTONAREA_H
+#endif // MBUTTONAREA_H

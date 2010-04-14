@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -22,22 +22,22 @@
 #include <QtTest/QTest>
 #include <QObject>
 
-#include <DuiNamespace>
+#include <MNamespace>
 
-class DuiApplication;
-class DuiSceneWindow;
-class DuiVirtualKeyboard;
-class DuiVirtualKeyboardStyleContainer;
+class MApplication;
+class MSceneWindow;
+class MVirtualKeyboard;
+class MVirtualKeyboardStyleContainer;
 class SymbolView;
 
 class Ut_SymbolView : public QObject
 {
     Q_OBJECT
 private:
-    DuiApplication *app;
-    DuiVirtualKeyboardStyleContainer *style;
+    MApplication *app;
+    MVirtualKeyboardStyleContainer *style;
     SymbolView *subject;
-    DuiSceneWindow *parent;
+    MSceneWindow *parent;
 
 private slots:
     void init();
@@ -58,7 +58,7 @@ private slots:
     void testHideWithFlick();
 
 private:
-    void rotateToAngle(Dui::OrientationAngle angle);
+    void rotateToAngle(M::OrientationAngle angle);
 };
 
 #endif

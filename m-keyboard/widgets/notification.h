@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -19,11 +19,11 @@
 #ifndef NOTIFICATION_H
 #define NOTIFICATION_H
 
-#include <DuiWidget>
+#include <MWidget>
 #include <QTimeLine>
 #include <QTimer>
 
-class DuiVirtualKeyboardStyleContainer;
+class MVirtualKeyboardStyleContainer;
 
 
 /*!
@@ -32,7 +32,7 @@ class DuiVirtualKeyboardStyleContainer;
  *
  *  Using this class to show textual notification on the virtual keyboard
  */
-class Notification : public DuiWidget
+class Notification : public MWidget
 {
     Q_OBJECT
 
@@ -42,7 +42,7 @@ public:
      * \brief Constructor for creating notification object.
      * \param parent QGraphicsWidget.
      */
-    Notification(DuiVirtualKeyboardStyleContainer *style, QGraphicsWidget *parent);
+    Notification(MVirtualKeyboardStyleContainer *style, QGraphicsWidget *parent);
 
     //! Destructor
     ~Notification();
@@ -75,7 +75,7 @@ private:
     void resetGeometry();
 
     //! Getter for style container
-    const DuiVirtualKeyboardStyleContainer &style() const;
+    const MVirtualKeyboardStyleContainer &style() const;
 
 private:
     //! Timeline for animating fade in and out
@@ -91,7 +91,7 @@ private:
     QFont font;
 
     //! CSS style container
-    DuiVirtualKeyboardStyleContainer *styleContainer;
+    MVirtualKeyboardStyleContainer *styleContainer;
 
     //! CSS attributes
     QColor border;

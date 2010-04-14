@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -18,18 +18,18 @@
 
 #include "buttonbar.h"
 
-#include <DuiButton>
+#include <MButton>
 
 #include <QDebug>
 #include <QGraphicsLinearLayout>
 #include <QPixmap>
 
-// No use for us but prevents DuiClassFactory bitching about it.
-#include <DuiWidgetCreator>
-DUI_REGISTER_WIDGET_NO_CREATE(ButtonBar)
+// No use for us but prevents MClassFactory bitching about it.
+#include <MWidgetCreator>
+M_REGISTER_WIDGET_NO_CREATE(ButtonBar)
 
 ButtonBar::ButtonBar(bool useDividers, QGraphicsItem *parent)
-    : DuiStylableWidget(parent),
+    : MStylableWidget(parent),
       mainLayout(*new QGraphicsLinearLayout(Qt::Horizontal, this)),
       useDividers(useDividers)
 {
@@ -50,7 +50,7 @@ int ButtonBar::count() const
     return buttons.count();
 }
 
-void ButtonBar::insert(int index, DuiButton *button)
+void ButtonBar::insert(int index, MButton *button)
 {
     Q_ASSERT(button);
 
@@ -65,12 +65,12 @@ void ButtonBar::insert(int index, DuiButton *button)
     mainLayout.setAlignment(button, Qt::AlignVCenter); // In case we have buttons that differs in height.
 }
 
-void ButtonBar::append(DuiButton *button)
+void ButtonBar::append(MButton *button)
 {
     insert(count(), button);
 }
 
-void ButtonBar::remove(DuiButton *button)
+void ButtonBar::remove(MButton *button)
 {
     mainLayout.removeItem(button);
     buttons.removeOne(button);
@@ -84,23 +84,23 @@ void ButtonBar::clear()
     }
 }
 
-DuiButton *ButtonBar::buttonAt(int index) const
+MButton *ButtonBar::buttonAt(int index) const
 {
-    DuiButton *button = 0;
+    MButton *button = 0;
     if (index >= 0 && index < count()) {
         button = buttons.at(index);
     }
     return button;
 }
 
-bool ButtonBar::contains(const DuiButton *button) const
+bool ButtonBar::contains(const MButton *button) const
 {
-    return buttons.contains(const_cast<DuiButton *>(button));
+    return buttons.contains(const_cast<MButton *>(button));
 }
 
-int ButtonBar::indexOf(const DuiButton *button) const
+int ButtonBar::indexOf(const MButton *button) const
 {
-    return buttons.indexOf(const_cast<DuiButton *>(button));
+    return buttons.indexOf(const_cast<MButton *>(button));
 }
 
 void ButtonBar::mousePressEvent(QGraphicsSceneMouseEvent *)

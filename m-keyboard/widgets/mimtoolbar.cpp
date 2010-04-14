@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,24 +16,24 @@
 
 
 
-#include "duiimtoolbar.h"
+#include "mimtoolbar.h"
 #include "toolbardata.h"
 #include "toolbarmanager.h"
 #include "layoutsmanager.h"
-#include "duihardwarekeyboard.h"
-#include "duivirtualkeyboardstyle.h"
+#include "mhardwarekeyboard.h"
+#include "mvirtualkeyboardstyle.h"
 
-#include <DuiNamespace>
-#include <DuiButton>
+#include <MNamespace>
+#include <MButton>
 #include <QKeySequence>
 #include <QGraphicsLinearLayout>
 #include <QDebug>
 #include <QTimer>
-#include <DuiSceneManager>
-#include <duiplainwindow.h>
-#include <DuiInfoBanner>
+#include <MSceneManager>
+#include <mplainwindow.h>
+#include <MInfoBanner>
 #include <duireactionmap.h>
-#include <DuiScalableImage>
+#include <MScalableImage>
 
 namespace
 {
@@ -41,7 +41,7 @@ namespace
     const QString ObjectNameToolbarButtons("VirtualKeyboardToolbarButton");
     const QString ObjectNameCloseButton("VirtualKeyboardCloseButton");
     const QString ObjectNameIndicatorButton("VirtualKeyboardIndicatorButton");
-    const QString ObjectNameToolbar("DuiImToolbar");
+    const QString ObjectNameToolbar("MImToolbar");
     const QString ObjectNameToolbarLeft("VirtualKeyboardToolbarLeft");
     const QString ObjectNameToolbarRight("VirtualKeyboardToolbarRight");
     const QString IconNameCloseButton("icon-m-input-methods-close");
@@ -76,12 +76,12 @@ namespace
     const int ModifierLockOnInfoDuration = 1000;
 };
 
-DuiImToolbar::DuiImToolbar(DuiVirtualKeyboardStyleContainer &style, QGraphicsWidget *parent)
-    : DuiWidget(parent),
+MImToolbar::MImToolbar(MVirtualKeyboardStyleContainer &style, QGraphicsWidget *parent)
+    : MWidget(parent),
       toolbarMgr(new ToolbarManager(this)),
       textSelected(false),
-      indicator(new DuiButton),
-      copyPaste(new DuiButton),
+      indicator(new MButton),
+      copyPaste(new MButton),
       copyPasteStatus(InputMethodNoCopyPaste),
       leftBar(true, this),
       rightBar(true, this),
@@ -107,7 +107,7 @@ DuiImToolbar::DuiImToolbar(DuiVirtualKeyboardStyleContainer &style, QGraphicsWid
     connect(modifierLockOnTimer, SIGNAL(timeout()), this, SLOT(hideLockOnInfoBanner()));
 }
 
-DuiImToolbar::~DuiImToolbar()
+MImToolbar::~MImToolbar()
 {
     delete toolbarMgr;
     toolbarMgr = 0;
@@ -118,7 +118,7 @@ DuiImToolbar::~DuiImToolbar()
     hideLockOnInfoBanner();
 }
 
-void DuiImToolbar::setupLayout()
+void MImToolbar::setupLayout()
 {
     QGraphicsLinearLayout *mainLayout = new QGraphicsLinearLayout(Qt::Horizontal, this);
     mainLayout->setContentsMargins(0, 0, 0, 0);
@@ -134,7 +134,7 @@ void DuiImToolbar::setupLayout()
     resize(geometry().width(), layout()->preferredHeight());
 }
 
-void DuiImToolbar::loadDefaultButtons()
+void MImToolbar::loadDefaultButtons()
 {
     // Setup indicator button.
     indicator->setObjectName(ObjectNameToolbarButtons);
@@ -149,7 +149,7 @@ void DuiImToolbar::loadDefaultButtons()
     connect(copyPaste, SIGNAL(clicked()), this, SLOT(copyPasteButtonHandler()));
 }
 
-QRegion DuiImToolbar::region() const
+QRegion MImToolbar::region() const
 {
     QRegion region;
 
@@ -159,9 +159,9 @@ QRegion DuiImToolbar::region() const
     return region;
 }
 
-void DuiImToolbar::handleButtonClick()
+void MImToolbar::handleButtonClick()
 {
-    const DuiButton *button = qobject_cast<DuiButton *>(this->sender());
+    const MButton *button = qobject_cast<MButton *>(this->sender());
     Q_ASSERT(button);
 
     const ToolbarButton *toolbarButton = toolbarMgr->toolbarButton(button);
@@ -197,7 +197,7 @@ void DuiImToolbar::handleButtonClick()
     }
 }
 
-void DuiImToolbar::setSelectionStatus(bool selection)
+void MImToolbar::setSelectionStatus(bool selection)
 {
     if (textSelected != selection) {
         textSelected = selection;
@@ -206,7 +206,7 @@ void DuiImToolbar::setSelectionStatus(bool selection)
     }
 }
 
-void DuiImToolbar::updateVisibility()
+void MImToolbar::updateVisibility()
 {
     qDebug() << __PRETTY_FUNCTION__;
     //set button visibility according showOn and hideOn premiss and current selection status
@@ -223,7 +223,7 @@ void DuiImToolbar::updateVisibility()
     updateButtons();
 }
 
-void DuiImToolbar::loadCustomButtons(Qt::Alignment align)
+void MImToolbar::loadCustomButtons(Qt::Alignment align)
 {
     qDebug() << __PRETTY_FUNCTION__ << align;
     //the buttons gotten from toolbarMgr are already ordered acording their priority with alignment.
@@ -231,7 +231,7 @@ void DuiImToolbar::loadCustomButtons(Qt::Alignment align)
     //show buttons according their status and priority
     int buttonCount = 0;
     foreach(ToolbarButton * toolbarButton, buttons) {
-        DuiButton *button = toolbarMgr->button(toolbarButton->name);
+        MButton *button = toolbarMgr->button(toolbarButton->name);
         if (!button)
             continue;
         if (toolbarButton->isVisible()) {
@@ -246,11 +246,11 @@ void DuiImToolbar::loadCustomButtons(Qt::Alignment align)
     }
 }
 
-void DuiImToolbar::unloadCustomButtons(Qt::Alignment align)
+void MImToolbar::unloadCustomButtons(Qt::Alignment align)
 {
     QList<ToolbarButton *> buttons = toolbarMgr->buttonList(align);
     foreach(ToolbarButton * toolbarButton, buttons) {
-        DuiButton *button = toolbarMgr->button(toolbarButton->name);
+        MButton *button = toolbarMgr->button(toolbarButton->name);
         if (!button)
             continue;
         button->setVisible(false);
@@ -258,7 +258,7 @@ void DuiImToolbar::unloadCustomButtons(Qt::Alignment align)
     }
 }
 
-void DuiImToolbar::updateButtons(bool customButtonsChanged)
+void MImToolbar::updateButtons(bool customButtonsChanged)
 {
     if (customButtonsChanged) {
         loadCustomButtons(Qt::AlignLeft);
@@ -272,7 +272,7 @@ void DuiImToolbar::updateButtons(bool customButtonsChanged)
     emit regionUpdated();
 }
 
-void DuiImToolbar::showGroup(const QString &group)
+void MImToolbar::showGroup(const QString &group)
 {
     bool changed = false;
     foreach(ToolbarButton * b, toolbarMgr->buttonList()) {
@@ -287,7 +287,7 @@ void DuiImToolbar::showGroup(const QString &group)
     }
 }
 
-void DuiImToolbar::hideGroup(const QString &group)
+void MImToolbar::hideGroup(const QString &group)
 {
     bool changed = false;
     foreach(ToolbarButton * b, toolbarMgr->buttonList()) {
@@ -301,7 +301,7 @@ void DuiImToolbar::hideGroup(const QString &group)
     }
 }
 
-void DuiImToolbar::sendKeySequence(const QString &keys)
+void MImToolbar::sendKeySequence(const QString &keys)
 {
     const QKeySequence keysequence(keys);
     //translate the keys string to QKeyEvent by QKeySequence
@@ -322,7 +322,7 @@ void DuiImToolbar::sendKeySequence(const QString &keys)
     }
 }
 
-Qt::KeyboardModifiers DuiImToolbar::keyModifiers(int key) const
+Qt::KeyboardModifiers MImToolbar::keyModifiers(int key) const
 {
     Qt::KeyboardModifiers modify = Qt::NoModifier;
     if (key & Qt::CTRL)
@@ -336,7 +336,7 @@ Qt::KeyboardModifiers DuiImToolbar::keyModifiers(int key) const
     return modify;
 }
 
-void DuiImToolbar::showToolbarWidget(const QString &name)
+void MImToolbar::showToolbarWidget(const QString &name)
 {
     qDebug() << __PRETTY_FUNCTION__ << name;
     if (name != toolbarMgr->currentToolbar()) {
@@ -347,7 +347,7 @@ void DuiImToolbar::showToolbarWidget(const QString &name)
         updateVisibility();
 }
 
-void DuiImToolbar::hideToolbarWidget()
+void MImToolbar::hideToolbarWidget()
 {
     qDebug() << __PRETTY_FUNCTION__;
     unloadCustomButtons(Qt::AlignLeft);
@@ -357,13 +357,13 @@ void DuiImToolbar::hideToolbarWidget()
         updateVisibility();
 }
 
-void DuiImToolbar::hideIndicatorButton()
+void MImToolbar::hideIndicatorButton()
 {
     indicator->setVisible(false);
     removeItem(indicator);
 }
 
-void DuiImToolbar::showIndicatorButton()
+void MImToolbar::showIndicatorButton()
 {
     if (indicator->isVisible())
         return;
@@ -384,7 +384,7 @@ void DuiImToolbar::showIndicatorButton()
     insertItem(rightBar.count(), indicator, Qt::AlignRight);
 }
 
-void DuiImToolbar::copyPasteButtonHandler()
+void MImToolbar::copyPasteButtonHandler()
 {
     if (copyPasteStatus == InputMethodNoCopyPaste)
         return;
@@ -392,7 +392,7 @@ void DuiImToolbar::copyPasteButtonHandler()
     emit copyPasteClicked(copyPasteStatus);
 }
 
-void DuiImToolbar::setCopyPasteButton(bool copyAvailable, bool pasteAvailable)
+void MImToolbar::setCopyPasteButton(bool copyAvailable, bool pasteAvailable)
 {
     CopyPasteState newStatus = InputMethodNoCopyPaste;
 
@@ -447,7 +447,7 @@ void DuiImToolbar::setCopyPasteButton(bool copyAvailable, bool pasteAvailable)
     qDebug() << __PRETTY_FUNCTION__ << copyPaste->isVisible();
 }
 
-void DuiImToolbar::insertItem(const int index, DuiButton *button, Qt::Alignment align)
+void MImToolbar::insertItem(const int index, MButton *button, Qt::Alignment align)
 {
     Q_ASSERT((align == Qt::AlignLeft) || (align == Qt::AlignRight));
     ButtonBar *sidebar = (align == Qt::AlignLeft) ? &leftBar : &rightBar;
@@ -466,7 +466,7 @@ void DuiImToolbar::insertItem(const int index, DuiButton *button, Qt::Alignment 
     layout()->activate();
 }
 
-void DuiImToolbar::removeItem(DuiButton *button)
+void MImToolbar::removeItem(MButton *button)
 {
     leftBar.remove(button);
     rightBar.remove(button);
@@ -482,7 +482,7 @@ void DuiImToolbar::removeItem(DuiButton *button)
     layout()->activate();
 }
 
-void DuiImToolbar::drawReactiveAreas(DuiReactionMap *reactionMap, QGraphicsView *view)
+void MImToolbar::drawReactiveAreas(DuiReactionMap *reactionMap, QGraphicsView *view)
 {
     // TODO: support for translucent keyboard
     reactionMap->setTransform(this, view);
@@ -505,16 +505,16 @@ void DuiImToolbar::drawReactiveAreas(DuiReactionMap *reactionMap, QGraphicsView 
     }
 }
 
-void DuiImToolbar::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
+void MImToolbar::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
-    const DuiScalableImage *background = style->toolbarBackgroundImage();
+    const MScalableImage *background = style->toolbarBackgroundImage();
 
     if (background) {
         background->draw(rect().toRect(), painter);
     }
 }
 
-void DuiImToolbar::clearReactiveAreas()
+void MImToolbar::clearReactiveAreas()
 {
     if (!scene())
         return;
@@ -532,7 +532,7 @@ void DuiImToolbar::clearReactiveAreas()
     reactionMap->fillRectangle(rightBar.geometry());
 }
 
-void DuiImToolbar::setIndicatorButtonState(Qt::KeyboardModifier modifier, ModifierState state)
+void MImToolbar::setIndicatorButtonState(Qt::KeyboardModifier modifier, ModifierState state)
 {
     //TODO: consider the indicator label for Arabic and Cyrillic (maybe Chinese also)?
     QString indicatorLabel;
@@ -599,10 +599,10 @@ void DuiImToolbar::setIndicatorButtonState(Qt::KeyboardModifier modifier, Modifi
             modifierLockOnInfoBanner->setBodyText(lockOnNotificationLabel);
             modifierLockOnTimer->start();
         } else {
-            modifierLockOnInfoBanner = new DuiInfoBanner(DuiInfoBanner::Information);
+            modifierLockOnInfoBanner = new MInfoBanner(MInfoBanner::Information);
             modifierLockOnInfoBanner->setBodyText(lockOnNotificationLabel);
-            DuiPlainWindow::instance()->sceneManager()->appearSceneWindow(modifierLockOnInfoBanner,
-                    DuiSceneWindow::DestroyWhenDone);
+            MPlainWindow::instance()->sceneManager()->appearSceneWindow(modifierLockOnInfoBanner,
+                    MSceneWindow::DestroyWhenDone);
             modifierLockOnTimer->start();
         }
     } else if (modifierLockOnInfoBanner) {
@@ -610,9 +610,9 @@ void DuiImToolbar::setIndicatorButtonState(Qt::KeyboardModifier modifier, Modifi
     }
 }
 
-void DuiImToolbar::hideLockOnInfoBanner()
+void MImToolbar::hideLockOnInfoBanner()
 {
     if (modifierLockOnInfoBanner)
-        DuiPlainWindow::instance()->sceneManager()->disappearSceneWindow(modifierLockOnInfoBanner);
+        MPlainWindow::instance()->sceneManager()->disappearSceneWindow(modifierLockOnInfoBanner);
     modifierLockOnInfoBanner = 0;
 }

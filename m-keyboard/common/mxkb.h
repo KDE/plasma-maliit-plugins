@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -14,28 +14,28 @@
  * of this file.
  */
 
-#ifndef DUIXKB_H
-#define DUIXKB_H
+#ifndef MXKB_H
+#define MXKB_H
 
 #include <QKeyEvent>
 
 /*!
-  \brief DuiXkb provides some functionalities to manipulate the Xkb keyboard.
+  \brief MXkb provides some functionalities to manipulate the Xkb keyboard.
 
-  Class DuiXkb provides some functionalities to manipulate the Xkb keyboard, e.g. latch/unlatch, lock/unlock
+  Class MXkb provides some functionalities to manipulate the Xkb keyboard, e.g. latch/unlatch, lock/unlock
   Modifier keys.
 */
-class DuiXkbPrivate;
-class DuiXkb
+class MXkbPrivate;
+class MXkb
 {
 public:
     /*!
      * \brief Constructor.
      */
-    DuiXkb();
+    MXkb();
 
     //! Destructor
-    ~DuiXkb();
+    ~MXkb();
 
     /*!
      * \brief lock \a modifiers.
@@ -52,11 +52,11 @@ private:
     //! For unit test, returns true if \a modifier is in latched or locked state.
     bool isLatched(Qt::KeyboardModifier modifier) const;
 
-    DuiXkbPrivate *const d_ptr;
-    Q_DECLARE_PRIVATE(DuiXkb)
+    MXkbPrivate *const d_ptr;
+    Q_DECLARE_PRIVATE(MXkb)
 
-    friend class Ft_DuiXkb;
-    friend class Ft_DuiHardwareKeyboard;
+    friend class Ft_MXkb;
+    friend class Ft_MHardwareKeyboard;
 };
 
 #endif

@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,15 +16,15 @@
 
 
 
-#include "duivirtualkeyboardstyle.h"
+#include "mvirtualkeyboardstyle.h"
 #include "notification.h"
 
 #include <QDebug>
 #include <QFontMetrics>
 #include <QPainter>
 
-#include <DuiSceneManager>
-#include <duiplainwindow.h>
+#include <MSceneManager>
+#include <mplainwindow.h>
 
 namespace
 {
@@ -35,8 +35,8 @@ namespace
 };
 
 
-Notification::Notification(DuiVirtualKeyboardStyleContainer *style, QGraphicsWidget *parent)
-    : DuiWidget(parent),
+Notification::Notification(MVirtualKeyboardStyleContainer *style, QGraphicsWidget *parent)
+    : MWidget(parent),
       styleContainer(style)
 {
     // Notification sets its own absolute opacity
@@ -168,7 +168,7 @@ void Notification::resetGeometry()
     const int width = fm.width(message) + Margin * 2;
     const int height = fm.height() + Margin * 2;
 
-    const QSize sceneSize = DuiPlainWindow::instance()->visibleSceneSize();
+    const QSize sceneSize = MPlainWindow::instance()->visibleSceneSize();
 
     setGeometry(sceneSize.width() / 2 - width / 2,
                 -height,
@@ -176,7 +176,7 @@ void Notification::resetGeometry()
 }
 
 
-const DuiVirtualKeyboardStyleContainer &Notification::style() const
+const MVirtualKeyboardStyleContainer &Notification::style() const
 {
     return *styleContainer;
 }

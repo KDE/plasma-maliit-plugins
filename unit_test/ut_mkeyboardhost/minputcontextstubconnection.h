@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,19 +16,19 @@
 
 
 
-#ifndef DUIINPUTCONTEXTSTUBCONNECTION_H
+#ifndef MINPUTCONTEXTSTUBCONNECTION_H
 
 #include <QObject>
 #include <QString>
-#include <duiinputcontextconnection.h>
+#include <minputcontextconnection.h>
 
-class DuiInputContextStubConnection: public DuiInputContextConnection
+class MInputContextStubConnection: public MInputContextConnection
 {
     Q_OBJECT
 
 public:
-    DuiInputContextStubConnection();
-    virtual ~DuiInputContextStubConnection();
+    MInputContextStubConnection();
+    virtual ~MInputContextStubConnection();
 
     void clear();
 

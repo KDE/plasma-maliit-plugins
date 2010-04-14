@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,27 +16,27 @@
 
 
 
-#ifndef UT_DUIVIRTUALKEYBOARDHOST_H
-#define UT_DUIVIRTUALKEYBOARDHOST_H
+#ifndef UT_MVIRTUALKEYBOARDHOST_H
+#define UT_MVIRTUALKEYBOARDHOST_H
 
 #include <QtTest/QtTest>
 #include <QObject>
 
-#include <duinamespace.h>
+#include <mnamespace.h>
 
-class DuiApplication;
-class DuiKeyboardHost;
-class DuiInputContextStubConnection;
-class DuiWindow;
+class MApplication;
+class MKeyboardHost;
+class MInputContextStubConnection;
+class MWindow;
 
-class Ut_DuiKeyboardHost : public QObject
+class Ut_MKeyboardHost : public QObject
 {
     Q_OBJECT
 private:
-    DuiApplication *app;
-    DuiKeyboardHost *subject;
-    DuiInputContextStubConnection *inputContext;
-    DuiWindow *window;
+    MApplication *app;
+    MKeyboardHost *subject;
+    MInputContextStubConnection *inputContext;
+    MWindow *window;
 
 private slots:
     void init();
@@ -71,7 +71,7 @@ private slots:
     void testKeyCycle();
 
 private:
-    void rotateToAngle(Dui::OrientationAngle);
+    void rotateToAngle(M::OrientationAngle);
 };
 
 #endif

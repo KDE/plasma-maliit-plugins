@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -19,8 +19,8 @@
 #include "ut_limitedtimer.h"
 #include <limitedtimer.h>
 
-#include <DuiApplication>
-#include <DuiTheme>
+#include <MApplication>
+#include <MTheme>
 #include <QSignalSpy>
 
 void Ut_LimitedTimer::initTestCase()
@@ -29,8 +29,8 @@ void Ut_LimitedTimer::initTestCase()
     static char *app_name[] = { (char *)"ut_limitedtimer" };
 
     // Avoid waiting if im server is not responding
-    DuiApplication::setLoadDuiInputContext(false);
-    app = new DuiApplication(argc, app_name);
+    MApplication::setLoadMInputContext(false);
+    app = new MApplication(argc, app_name);
 }
 
 void Ut_LimitedTimer::cleanupTestCase()

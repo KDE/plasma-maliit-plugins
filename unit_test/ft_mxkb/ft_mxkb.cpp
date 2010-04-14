@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,43 +16,43 @@
 
 
 
-#include "ft_duixkb.h"
-#include <DuiApplication>
-#include <duiplainwindow.h>
-#include <DuiNamespace>
+#include "ft_mxkb.h"
+#include <MApplication>
+#include <mplainwindow.h>
+#include <MNamespace>
 #include <QDebug>
 #include <QSignalSpy>
 #include <QKeyEvent>
-#include "duixkb.h"
-//#include "duixkb_p.h"
+#include "mxkb.h"
+//#include "mxkb_p.h"
 
-void Ft_DuiXkb::initTestCase()
+void Ft_MXkb::initTestCase()
 {
     // Avoid waiting if im server is not responding
-    DuiApplication::setLoadDuiInputContext(false);
+    MApplication::setLoadMInputContext(false);
 
-    static char *argv[2] = {(char *) "ft_duixkb", (char *) "-software"};
+    static char *argv[2] = {(char *) "ft_mxkb", (char *) "-software"};
     static int argc = 2;
-    app = new DuiApplication(argc, argv);
+    app = new MApplication(argc, argv);
 }
 
-void Ft_DuiXkb::cleanupTestCase()
+void Ft_MXkb::cleanupTestCase()
 {
     delete app;
     app = 0;
 }
 
-void Ft_DuiXkb::init()
+void Ft_MXkb::init()
 {
-    m_subject = new DuiXkb();
+    m_subject = new MXkb();
 }
 
-void Ft_DuiXkb::cleanup()
+void Ft_MXkb::cleanup()
 {
     delete m_subject;
 }
 
-void Ft_DuiXkb::testLockModifiers()
+void Ft_MXkb::testLockModifiers()
 {
     m_subject->lockModifiers(Qt::ShiftModifier);
     QCOMPARE(m_subject->isLatched(Qt::ShiftModifier), true);
@@ -70,7 +70,7 @@ void Ft_DuiXkb::testLockModifiers()
     m_subject->unlockModifiers(modifiers);
 }
 
-void Ft_DuiXkb::testUnlockModifiers()
+void Ft_MXkb::testUnlockModifiers()
 {
     m_subject->lockModifiers(Qt::ShiftModifier);
     QCOMPARE(m_subject->isLatched(Qt::ShiftModifier), true);
@@ -82,4 +82,4 @@ void Ft_DuiXkb::testUnlockModifiers()
     QCOMPARE(m_subject->isLatched(Qt::GroupSwitchModifier), false);
 }
 
-QTEST_APPLESS_MAIN(Ft_DuiXkb);
+QTEST_APPLESS_MAIN(Ft_MXkb);

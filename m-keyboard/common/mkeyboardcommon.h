@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,8 +16,8 @@
 
 
 
-#ifndef DUIKEYBOARDCOMMON_H
-#define DUIKEYBOARDCOMMON_H
+#ifndef MKEYBOARDCOMMON_H
+#define MKEYBOARDCOMMON_H
 
 /*!
  * \brief State of Copy/Paste button.

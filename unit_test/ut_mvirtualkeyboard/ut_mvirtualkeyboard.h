@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,27 +16,27 @@
 
 
 
-#ifndef UT_DUIVIRTUALKEYBOARD_H
-#define UT_DUIVIRTUALKEYBOARD_H
+#ifndef UT_MVIRTUALKEYBOARD_H
+#define UT_MVIRTUALKEYBOARD_H
 
 #include "layoutdata.h"
 #include <QObject>
 #include <QSharedPointer>
 #include <QtTest/QTest>
 
-class DuiApplication;
-class DuiVirtualKeyboard;
+class MApplication;
+class MVirtualKeyboard;
 class QGraphicsScene;
 class LayoutSection;
-class DuiSceneWindow;
+class MSceneWindow;
 
-class Ut_DuiVirtualKeyboard : public QObject
+class Ut_MVirtualKeyboard : public QObject
 {
     Q_OBJECT
 private:
-    DuiApplication *app;
-    DuiVirtualKeyboard *m_vkb;
-    DuiSceneWindow *vkbParent;
+    MApplication *app;
+    MVirtualKeyboard *m_vkb;
+    MSceneWindow *vkbParent;
     QSharedPointer<const LayoutSection> functionkeySection;
     int numFunctionKeys;
 
@@ -55,7 +55,7 @@ private slots:
     void fadeTest();
     void regionSuppressionTest();
     // To avoid code duplication, more extensive region testing is at
-    // the moment done in Ut_DuiKeyboardHost::testRegionSignals, which
+    // the moment done in Ut_MKeyboardHost::testRegionSignals, which
     // should become a functional test at some point.
     void showKeyboardTest();
     void hideKeyboardTest();
@@ -81,7 +81,7 @@ signals:
     void fade(int);
 
 private:
-    void rotateToAngle(Dui::OrientationAngle angle);
+    void rotateToAngle(M::OrientationAngle angle);
 };
 
 #endif

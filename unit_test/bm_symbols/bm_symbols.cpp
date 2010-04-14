@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -17,13 +17,13 @@
 
 
 #include "bm_symbols.h"
-#include "duivirtualkeyboard.h"
-#include "duivirtualkeyboardstyle.h"
+#include "mvirtualkeyboard.h"
+#include "mvirtualkeyboardstyle.h"
 #include "keyboarddata.h"
 #include "keybuttonarea.h"
 
-#include <DuiApplication>
-#include <DuiTheme>
+#include <MApplication>
+#include <MTheme>
 
 #include <QDir>
 
@@ -33,12 +33,12 @@ void Bm_Symbols::initTestCase()
     static char *app_name[1] = { (char *) "bm_symbols" };
 
     // Avoid waiting if im server is not responding
-    DuiApplication::setLoadDuiInputContext(false);
-    app = new DuiApplication(argc, app_name);
+    MApplication::setLoadMInputContext(false);
+    app = new MApplication(argc, app_name);
 
-    DuiTheme::instance()->loadCSS("/usr/share/dui/virtual-keyboard/css/864x480.css");
-    style = new DuiVirtualKeyboardStyleContainer;
-    style->initialize("DuiVirtualKeyboard", "DuiVirtualKeyboardView", 0);
+    MTheme::instance()->loadCSS("/usr/share/meegotouch/virtual-keyboard/css/864x480.css");
+    style = new MVirtualKeyboardStyleContainer;
+    style->initialize("MVirtualKeyboard", "MVirtualKeyboardView", 0);
 }
 
 void Bm_Symbols::cleanupTestCase()
@@ -65,7 +65,7 @@ void Bm_Symbols::cleanup()
 
 void Bm_Symbols::benchmarkDraw_data()
 {
-    QDir dir("/usr/share/dui/virtual-keyboard/layouts/");
+    QDir dir("/usr/share/meegotouch/virtual-keyboard/layouts/");
     QStringList filters;
     QFileInfoList files;
     QFileInfo info;
@@ -89,7 +89,7 @@ void Bm_Symbols::benchmarkDraw()
     keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard(filename));
 
-    QSharedPointer<const LayoutSection> section = keyboard->layout(LayoutData::General, Dui::Landscape)->section(LayoutData::symbolsSymSection);
+    QSharedPointer<const LayoutSection> section = keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::symbolsSymSection);
     QVERIFY(!section.isNull());
 
     subject = new SingleWidgetButtonArea(style, section);
@@ -102,7 +102,7 @@ void Bm_Symbols::benchmarkDraw()
 
 void Bm_Symbols::benchmarkLoadXML_data()
 {
-    QDir dir("/usr/share/dui/virtual-keyboard/layouts/");
+    QDir dir("/usr/share/meegotouch/virtual-keyboard/layouts/");
     QStringList filters;
     QFileInfoList files;
     QFileInfo info;

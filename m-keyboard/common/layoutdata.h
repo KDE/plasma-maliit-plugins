@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -19,7 +19,7 @@
 #ifndef LAYOUTDATA_H
 #define LAYOUTDATA_H
 
-#include <DuiNamespace>
+#include <MNamespace>
 #include <QHash>
 #include <QList>
 #include <QSharedPointer>
@@ -160,10 +160,10 @@ public:
     LayoutType type() const;
 
     //! \return layout orientation
-    Dui::Orientation orientation() const;
+    M::Orientation orientation() const;
 
 protected:
-    Dui::Orientation layoutOrientation;
+    M::Orientation layoutOrientation;
     LayoutType layoutType;
     //! this is the top level data structure of a layout
     QList<QSharedPointer<LayoutSection> > sections;

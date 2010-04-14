@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -19,7 +19,7 @@
 #include "flickupbutton.h"
 #include "flickupbuttonview.h"
 #include "vkbdatakey.h"
-#include <DuiTheme>
+#include <MTheme>
 #include <QDebug>
 
 namespace
@@ -37,7 +37,7 @@ namespace
 }
 
 FlickUpButton::FlickUpButton(const VKBDataKey &dataKey, QGraphicsItem *parent)
-    : DuiButton(parent),
+    : MButton(parent),
       flickEnabled(true),
       dataKey(dataKey),
       shift(false)
@@ -200,7 +200,7 @@ void FlickUpButton::setSelected(bool select)
 
 void FlickUpButton::setDownState(bool down)
 {
-    // Update DuiButton down state.
+    // Update MButton down state.
     setDown(down);
 }
 

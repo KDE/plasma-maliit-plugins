@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,15 +16,15 @@
 
 
 
-#include "duivirtualkeyboard.h"
-#include "duivirtualkeyboardstyle.h"
+#include "mvirtualkeyboard.h"
+#include "mvirtualkeyboardstyle.h"
 #include "horizontalswitcher.h"
 #include "keyboarddata.h"
 #include "layoutdata.h"
 #include "layoutsmanager.h"
 #include "notification.h"
 #include "vkbdatakey.h"
-#include "duiimtoolbar.h"
+#include "mimtoolbar.h"
 
 #include <QDebug>
 #include <QPainter>
@@ -32,27 +32,27 @@
 #include <QStyleOptionGraphicsItem>
 #include <QGraphicsWidget>
 
-#include <DuiButton>
-#include <DuiScalableImage>
-#include <DuiSceneManager>
+#include <MButton>
+#include <MScalableImage>
+#include <MSceneManager>
 #include <duireactionmap.h>
-#include <duitimestamp.h>
-#include <duiplainwindow.h>
-#include <DuiApplication>
+#include <mtimestamp.h>
+#include <mplainwindow.h>
+#include <MApplication>
 
 
-const QString DuiVirtualKeyboard::WordSeparators("-.,!? \n");
+const QString MVirtualKeyboard::WordSeparators("-.,!? \n");
 
 
-DuiVirtualKeyboard::DuiVirtualKeyboard(const LayoutsManager &layoutsManager,
+MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
                                        QGraphicsWidget *parent)
-    : DuiWidget(parent),
+    : MWidget(parent),
       mainLayout(new QGraphicsLinearLayout(Qt::Vertical, this)),
       currentLevel(0),
       numLevels(2),
       activity(Inactive),
       styleContainer(0),
-      sceneManager(DuiPlainWindow::instance()->sceneManager()),
+      sceneManager(MPlainWindow::instance()->sceneManager()),
       shiftLevel(ShiftOff),
       currentLayoutType(LayoutData::General),
       currentOrientation(sceneManager->orientation()),
@@ -69,11 +69,11 @@ DuiVirtualKeyboard::DuiVirtualKeyboard(const LayoutsManager &layoutsManager,
       phoneNumberLayout(0),
       activeState(OnScreen)
 {
-    setObjectName("DuiVirtualKeyboard");
+    setObjectName("MVirtualKeyboard");
     hide();
 
-    styleContainer = new DuiVirtualKeyboardStyleContainer;
-    styleContainer->initialize(objectName(), "DuiVirtualKeyboardView", 0);
+    styleContainer = new MVirtualKeyboardStyleContainer;
+    styleContainer->initialize(objectName(), "MVirtualKeyboardView", 0);
 
     notification = new Notification(styleContainer, this);
 
@@ -111,7 +111,7 @@ DuiVirtualKeyboard::DuiVirtualKeyboard(const LayoutsManager &layoutsManager,
 }
 
 
-DuiVirtualKeyboard::~DuiVirtualKeyboard()
+MVirtualKeyboard::~MVirtualKeyboard()
 {
     delete mainKeyboardSwitcher;
     mainKeyboardSwitcher = 0;
@@ -128,7 +128,7 @@ DuiVirtualKeyboard::~DuiVirtualKeyboard()
 
 
 void
-DuiVirtualKeyboard::prepareToOrientationChange()
+MVirtualKeyboard::prepareToOrientationChange()
 {
     qDebug() << __PRETTY_FUNCTION__ << geometry();
 
@@ -142,7 +142,7 @@ DuiVirtualKeyboard::prepareToOrientationChange()
 
 
 void
-DuiVirtualKeyboard::finalizeOrientationChange()
+MVirtualKeyboard::finalizeOrientationChange()
 {
     qDebug() << __PRETTY_FUNCTION__ << geometry();
 
@@ -154,9 +154,9 @@ DuiVirtualKeyboard::finalizeOrientationChange()
     showKeyboard(true);
 }
 
-void DuiVirtualKeyboard::createToolbar()
+void MVirtualKeyboard::createToolbar()
 {
-    imToolbar = new DuiImToolbar(style(), this);
+    imToolbar = new MImToolbar(style(), this);
 
     // Set z value below default level (0.0) so popup will be on top of toolbar.
     // More correct way to fix this, though more difficult, would be to have only one
@@ -177,28 +177,28 @@ void DuiVirtualKeyboard::createToolbar()
             this, SIGNAL(indicatorClicked()));
 }
 
-void DuiVirtualKeyboard::showToolbarWidget(const QString &name)
+void MVirtualKeyboard::showToolbarWidget(const QString &name)
 {
     imToolbar->showToolbarWidget(name);
 }
 
-void DuiVirtualKeyboard::hideToolbarWidget()
+void MVirtualKeyboard::hideToolbarWidget()
 {
     imToolbar->hideToolbarWidget();
 }
 
 void
-DuiVirtualKeyboard::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
+MVirtualKeyboard::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
 {
-    duiTimestamp("DuiVirtualKeyboard", "start");
+    mTimestamp("MVirtualKeyboard", "start");
 
     // The second item in layout holds the currently used keyboard. Draw under it.
     const QRectF backgroundGeometry = layout()->itemAt(1)->geometry();
 
-    if (DuiApplication::softwareRendering()) {
+    if (MApplication::softwareRendering()) {
         if (backgroundPixmap.isNull()
             || backgroundPixmap->size() != backgroundGeometry.size().toSize()) {
-            const DuiScalableImage *background = style()->backgroundImage();
+            const MScalableImage *background = style()->backgroundImage();
             QPainter pixmapPainter;
 
             backgroundPixmap = QSharedPointer<QPixmap>(
@@ -214,16 +214,16 @@ DuiVirtualKeyboard::paint(QPainter *painter, const QStyleOptionGraphicsItem *opt
         mappedRect.translate(-backgroundGeometry.left(), -backgroundGeometry.top());
         painter->drawPixmap(option->exposedRect, *backgroundPixmap, mappedRect);
     } else {
-        const DuiScalableImage *background = style()->backgroundImage();
+        const MScalableImage *background = style()->backgroundImage();
 
         if (background) {
             background->draw(backgroundGeometry.toRect(), painter);
         }
     }
-    duiTimestamp("DuiVirtualKeyboard", "end");
+    mTimestamp("MVirtualKeyboard", "end");
 }
 
-bool DuiVirtualKeyboard::isFullyVisible() const
+bool MVirtualKeyboard::isFullyVisible() const
 {
     return ((activity == Active)
             && isVisible()
@@ -231,7 +231,7 @@ bool DuiVirtualKeyboard::isFullyVisible() const
 }
 
 void
-DuiVirtualKeyboard::switchLevel()
+MVirtualKeyboard::switchLevel()
 {
     switch (shiftLevel) {
     case ShiftOff:
@@ -262,7 +262,7 @@ DuiVirtualKeyboard::switchLevel()
 
 
 void
-DuiVirtualKeyboard::setShiftState(ShiftLevel level)
+MVirtualKeyboard::setShiftState(ShiftLevel level)
 {
     if (shiftLevel != level) {
         shiftLevel = level;
@@ -273,7 +273,7 @@ DuiVirtualKeyboard::setShiftState(ShiftLevel level)
 
 
 void
-DuiVirtualKeyboard::setupTimeLine()
+MVirtualKeyboard::setupTimeLine()
 {
     showHideTimeline.setCurveShape(QTimeLine::EaseInCurve);
     showHideTimeline.setFrameRange(0, ShowHideFrames);
@@ -285,7 +285,7 @@ DuiVirtualKeyboard::setupTimeLine()
 
 
 void
-DuiVirtualKeyboard::flickLeftHandler()
+MVirtualKeyboard::flickLeftHandler()
 {
     if (!mainKeyboardSwitcher->isRunning()) {
         mainKeyboardSwitcher->switchTo(HorizontalSwitcher::Right);
@@ -295,7 +295,7 @@ DuiVirtualKeyboard::flickLeftHandler()
 
 
 void
-DuiVirtualKeyboard::flickUpHandler(const KeyBinding *binding)
+MVirtualKeyboard::flickUpHandler(const KeyBinding *binding)
 {
     if (binding && binding->action() == KeyBinding::ActionSym) {
         emit showSymbolViewRequested();
@@ -304,7 +304,7 @@ DuiVirtualKeyboard::flickUpHandler(const KeyBinding *binding)
 
 
 void
-DuiVirtualKeyboard::flickRightHandler()
+MVirtualKeyboard::flickRightHandler()
 {
     if (!mainKeyboardSwitcher->isRunning()) {
         mainKeyboardSwitcher->switchTo(HorizontalSwitcher::Left);
@@ -313,7 +313,7 @@ DuiVirtualKeyboard::flickRightHandler()
 }
 
 
-void DuiVirtualKeyboard::showKeyboard(bool fadeOnly)
+void MVirtualKeyboard::showKeyboard(bool fadeOnly)
 {
     organizeContent(sceneManager->orientation());
 
@@ -352,7 +352,7 @@ void DuiVirtualKeyboard::showKeyboard(bool fadeOnly)
 }
 
 
-void DuiVirtualKeyboard::hideKeyboard(bool fadeOnly, bool temporary)
+void MVirtualKeyboard::hideKeyboard(bool fadeOnly, bool temporary)
 {
     if (scene() && scene()->views().count() > 0) {
         DuiReactionMap *reactionMap = DuiReactionMap::instance(scene()->views()[0]);
@@ -376,7 +376,7 @@ void DuiVirtualKeyboard::hideKeyboard(bool fadeOnly, bool temporary)
     }
 }
 
-void DuiVirtualKeyboard::resetState()
+void MVirtualKeyboard::resetState()
 {
     // Default state for shift is ShiftOff.
     setShiftState(ShiftOff);
@@ -386,7 +386,7 @@ void DuiVirtualKeyboard::resetState()
     // hideKeyboard(), we don't have to explicitly unlock them.
 }
 
-QGraphicsLinearLayout *DuiVirtualKeyboard::createKeyAreaLayout(QGraphicsWidget *parent)
+QGraphicsLinearLayout *MVirtualKeyboard::createKeyAreaLayout(QGraphicsWidget *parent)
 {
     QGraphicsLinearLayout *layout = new QGraphicsLinearLayout(Qt::Vertical, parent);
     layout->setContentsMargins(style()->paddingLeft(), style()->paddingTop(),
@@ -397,7 +397,7 @@ QGraphicsLinearLayout *DuiVirtualKeyboard::createKeyAreaLayout(QGraphicsWidget *
 }
 
 
-int DuiVirtualKeyboard::actualHeight() const
+int MVirtualKeyboard::actualHeight() const
 {
     int result = size().height();
 
@@ -408,7 +408,7 @@ int DuiVirtualKeyboard::actualHeight() const
     return result;
 }
 
-void DuiVirtualKeyboard::organizeContent(Dui::Orientation orientation)
+void MVirtualKeyboard::organizeContent(M::Orientation orientation)
 {
     if (currentOrientation != orientation) {
         currentOrientation = orientation;
@@ -424,7 +424,7 @@ void DuiVirtualKeyboard::organizeContent(Dui::Orientation orientation)
         phoneNumberKeyboard->layout()->invalidate();
     }
 
-    resize(DuiPlainWindow::instance()->visibleSceneSize().width(), mainLayout->preferredHeight());
+    resize(MPlainWindow::instance()->visibleSceneSize().width(), mainLayout->preferredHeight());
     if ((activity == Active) && (showHideTimeline.state() != QTimeLine::Running)) {
         setPos(0, sceneManager->visibleSceneSize().height() - actualHeight());
     }
@@ -432,7 +432,7 @@ void DuiVirtualKeyboard::organizeContent(Dui::Orientation orientation)
 
 
 void
-DuiVirtualKeyboard::fade(int frame)
+MVirtualKeyboard::fade(int frame)
 {
     const float opacity = float(frame) / ShowHideFrames;
     const QSize sceneSize = sceneManager->visibleSceneSize();
@@ -447,7 +447,7 @@ DuiVirtualKeyboard::fade(int frame)
 
 
 void
-DuiVirtualKeyboard::showHideFinished()
+MVirtualKeyboard::showHideFinished()
 {
     const bool hiding = (showHideTimeline.direction() == QTimeLine::Backward);
 
@@ -469,7 +469,7 @@ DuiVirtualKeyboard::showHideFinished()
 }
 
 
-void DuiVirtualKeyboard::sendVKBRegion()
+void MVirtualKeyboard::sendVKBRegion()
 {
     regionUpdateRequested = true;
 
@@ -479,7 +479,7 @@ void DuiVirtualKeyboard::sendVKBRegion()
     emit regionUpdated(region());
 }
 
-QRegion DuiVirtualKeyboard::region(const bool includeToolbar) const
+QRegion MVirtualKeyboard::region(const bool includeToolbar) const
 {
     QRegion region;
 
@@ -500,7 +500,7 @@ QRegion DuiVirtualKeyboard::region(const bool includeToolbar) const
     return region;
 }
 
-void DuiVirtualKeyboard::setKeyboardState(DuiIMHandlerState newState)
+void MVirtualKeyboard::setKeyboardState(MIMHandlerState newState)
 {
     if (activeState == newState) {
         return;
@@ -523,12 +523,12 @@ void DuiVirtualKeyboard::setKeyboardState(DuiIMHandlerState newState)
     }
 }
 
-DuiIMHandlerState DuiVirtualKeyboard::keyboardState() const
+MIMHandlerState MVirtualKeyboard::keyboardState() const
 {
     return activeState;
 }
 
-void DuiVirtualKeyboard::drawButtonsReactionMaps(DuiReactionMap *reactionMap, QGraphicsView *view)
+void MVirtualKeyboard::drawButtonsReactionMaps(DuiReactionMap *reactionMap, QGraphicsView *view)
 {
     // Depending on which keyboard type is currently shown
     // we must pick the correct KeyButtonArea(s).
@@ -555,17 +555,17 @@ void DuiVirtualKeyboard::drawButtonsReactionMaps(DuiReactionMap *reactionMap, QG
 }
 
 
-QString DuiVirtualKeyboard::layoutLanguage() const
+QString MVirtualKeyboard::layoutLanguage() const
 {
     return layoutsMgr.keyboardLanguage(currentLanguage);
 }
 
-QString DuiVirtualKeyboard::selectedLanguage() const
+QString MVirtualKeyboard::selectedLanguage() const
 {
     return currentLanguage;
 }
 
-void DuiVirtualKeyboard::redrawReactionMaps()
+void MVirtualKeyboard::redrawReactionMaps()
 {
     if ((activity != Active) || !scene()) {
         return;
@@ -598,24 +598,24 @@ void DuiVirtualKeyboard::redrawReactionMaps()
 }
 
 
-DuiVirtualKeyboardStyleContainer &DuiVirtualKeyboard::style()
+MVirtualKeyboardStyleContainer &MVirtualKeyboard::style()
 {
     return *styleContainer;
 }
 
 
-void DuiVirtualKeyboard::setKeyboardType(const int type)
+void MVirtualKeyboard::setKeyboardType(const int type)
 {
-    // map dui content type to layout model type
+    // map m content type to layout model type
     LayoutData::LayoutType newLayoutType = LayoutData::General;
     QGraphicsWidget *newWidget = 0;
 
     switch (type) {
-    case Dui::NumberContentType:
+    case M::NumberContentType:
         newLayoutType = LayoutData::Number;
         break;
 
-    case Dui::PhoneNumberContentType:
+    case M::PhoneNumberContentType:
         newLayoutType = LayoutData::PhoneNumber;
         break;
     }
@@ -660,7 +660,7 @@ void DuiVirtualKeyboard::setKeyboardType(const int type)
     }
 }
 
-void DuiVirtualKeyboard::suppressRegionUpdate(bool suppress)
+void MVirtualKeyboard::suppressRegionUpdate(bool suppress)
 {
     // Call sendVKBRegion if suppress is now released and was previously
     // set on, and at least one region update has been requested.
@@ -678,7 +678,7 @@ void DuiVirtualKeyboard::suppressRegionUpdate(bool suppress)
 }
 
 
-void DuiVirtualKeyboard::stopAccurateMode()
+void MVirtualKeyboard::stopAccurateMode()
 {
     for (int i = 0; i < mainKeyboardSwitcher->count(); ++i) {
         // accurate only used for qwerty part of main keyboards
@@ -688,13 +688,13 @@ void DuiVirtualKeyboard::stopAccurateMode()
 }
 
 
-DuiVirtualKeyboard::ShiftLevel DuiVirtualKeyboard::shiftStatus() const
+MVirtualKeyboard::ShiftLevel MVirtualKeyboard::shiftStatus() const
 {
     return ShiftLevel(shiftLevel);
 }
 
 
-bool DuiVirtualKeyboard::isAccurateMode() const
+bool MVirtualKeyboard::isAccurateMode() const
 {
     KeyButtonArea *activeSection = 0;
     QGraphicsWidget *current = mainKeyboardSwitcher->currentWidget();
@@ -707,13 +707,13 @@ bool DuiVirtualKeyboard::isAccurateMode() const
 }
 
 
-const LayoutData *DuiVirtualKeyboard::currentLayoutModel() const
+const LayoutData *MVirtualKeyboard::currentLayoutModel() const
 {
     return layoutsMgr.layout(currentLanguage, currentLayoutType, currentOrientation);
 }
 
 
-void DuiVirtualKeyboard::setLanguage(int languageIndex)
+void MVirtualKeyboard::setLanguage(int languageIndex)
 {
     qDebug() << __PRETTY_FUNCTION__;
     if ((languageIndex < 0) || (languageIndex >= layoutsMgr.languageCount())) {
@@ -740,7 +740,7 @@ void DuiVirtualKeyboard::setLanguage(int languageIndex)
 }
 
 
-void DuiVirtualKeyboard::languageReset()
+void MVirtualKeyboard::languageReset()
 {
     int languageIndex = -1; // Language to apply after reload.
 
@@ -772,7 +772,7 @@ void DuiVirtualKeyboard::languageReset()
 }
 
 
-void DuiVirtualKeyboard::onSectionSwitchStarting(int current, int next)
+void MVirtualKeyboard::onSectionSwitchStarting(int current, int next)
 {
     if (mainKeyboardSwitcher->currentWidget()) {
         // Current widget is animated off the screen but if mouse is not moved
@@ -789,7 +789,7 @@ void DuiVirtualKeyboard::onSectionSwitchStarting(int current, int next)
 }
 
 
-void DuiVirtualKeyboard::onSectionSwitched(QGraphicsWidget *previous, QGraphicsWidget *current)
+void MVirtualKeyboard::onSectionSwitched(QGraphicsWidget *previous, QGraphicsWidget *current)
 {
     // Note: only does changes on the main sections.
     KeyButtonArea *currentView = static_cast<KeyButtonArea *>(current->layout()->itemAt(0));
@@ -811,7 +811,7 @@ void DuiVirtualKeyboard::onSectionSwitched(QGraphicsWidget *previous, QGraphicsW
 }
 
 
-void DuiVirtualKeyboard::createSwitcher()
+void MVirtualKeyboard::createSwitcher()
 {
     delete mainKeyboardSwitcher; // Delete previous views
     mainKeyboardSwitcher = new HorizontalSwitcher(this);
@@ -827,7 +827,7 @@ void DuiVirtualKeyboard::createSwitcher()
 }
 
 
-void DuiVirtualKeyboard::reloadSwitcherContent()
+void MVirtualKeyboard::reloadSwitcherContent()
 {
     // delete previous pages
     mainKeyboardSwitcher->deleteAll();
@@ -866,10 +866,10 @@ void DuiVirtualKeyboard::reloadSwitcherContent()
 }
 
 
-KeyButtonArea *DuiVirtualKeyboard::createMainSectionView(const QString &language,
-                                                         LayoutData::LayoutType layoutType,
-                                                         Dui::Orientation orientation,
-                                                         QGraphicsWidget *parent)
+KeyButtonArea *MVirtualKeyboard::createMainSectionView(const QString &language,
+                                                       LayoutData::LayoutType layoutType,
+                                                       M::Orientation orientation,
+                                                       QGraphicsWidget *parent)
 {
     KeyButtonArea *buttonArea = createSectionView(language, layoutType, orientation,
                                                   LayoutData::mainSection,
@@ -883,13 +883,13 @@ KeyButtonArea *DuiVirtualKeyboard::createMainSectionView(const QString &language
     return buttonArea;
 }
 
-KeyButtonArea * DuiVirtualKeyboard::createSectionView(const QString &language,
-                                                      LayoutData::LayoutType layoutType,
-                                                      Dui::Orientation orientation,
-                                                      const QString &section,
-                                                      KeyButtonArea::ButtonSizeScheme sizeScheme,
-                                                      bool usePopup,
-                                                      QGraphicsWidget *parent)
+KeyButtonArea * MVirtualKeyboard::createSectionView(const QString &language,
+                                                    LayoutData::LayoutType layoutType,
+                                                    M::Orientation orientation,
+                                                    const QString &section,
+                                                    KeyButtonArea::ButtonSizeScheme sizeScheme,
+                                                    bool usePopup,
+                                                    QGraphicsWidget *parent)
 {
     const LayoutData *model = layoutsMgr.layout(language, layoutType, orientation);
 
@@ -922,7 +922,7 @@ KeyButtonArea * DuiVirtualKeyboard::createSectionView(const QString &language,
 }
 
 
-void DuiVirtualKeyboard::setCopyPasteButton(bool copyAvailable, bool pasteAvailable)
+void MVirtualKeyboard::setCopyPasteButton(bool copyAvailable, bool pasteAvailable)
 {
     imToolbar->setCopyPasteButton(copyAvailable, pasteAvailable);
     organizeContent(currentOrientation);
@@ -931,19 +931,19 @@ void DuiVirtualKeyboard::setCopyPasteButton(bool copyAvailable, bool pasteAvaila
     }
 }
 
-void DuiVirtualKeyboard::setSelectionStatus(bool hasSelection)
+void MVirtualKeyboard::setSelectionStatus(bool hasSelection)
 {
     imToolbar->setSelectionStatus(hasSelection);
 }
 
-void DuiVirtualKeyboard::recreateKeyboards()
+void MVirtualKeyboard::recreateKeyboards()
 {
     reloadSwitcherContent(); // main keyboards
     recreateSpecialKeyboards(); // numbers
 }
 
 
-void DuiVirtualKeyboard::recreateSpecialKeyboards()
+void MVirtualKeyboard::recreateSpecialKeyboards()
 {
     // delete old number keyboards
     for (int i = numberLayout->count(); i > 0; --i) {
@@ -994,17 +994,17 @@ void DuiVirtualKeyboard::recreateSpecialKeyboards()
     }
 }
 
-void DuiVirtualKeyboard::showToolbar()
+void MVirtualKeyboard::showToolbar()
 {
     imToolbar->show();
 }
 
-void DuiVirtualKeyboard::hideToolbar()
+void MVirtualKeyboard::hideToolbar()
 {
     imToolbar->hide();
 }
 
-bool DuiVirtualKeyboard::symViewAvailable() const
+bool MVirtualKeyboard::symViewAvailable() const
 {
     bool available = true;
     switch (currentLayoutType) {
@@ -1018,13 +1018,13 @@ bool DuiVirtualKeyboard::symViewAvailable() const
     return available;
 }
 
-void DuiVirtualKeyboard::setIndicatorButtonState(Qt::KeyboardModifier modifier, ModifierState state)
+void MVirtualKeyboard::setIndicatorButtonState(Qt::KeyboardModifier modifier, ModifierState state)
 {
     imToolbar->setIndicatorButtonState(modifier, state);
 }
 
 
-void DuiVirtualKeyboard::hideMainArea()
+void MVirtualKeyboard::hideMainArea()
 {
     QGraphicsItem *item = dynamic_cast<QGraphicsItem*>(mainLayout->itemAt(1));
     if (item) {
@@ -1033,7 +1033,7 @@ void DuiVirtualKeyboard::hideMainArea()
 }
 
 
-void DuiVirtualKeyboard::showMainArea()
+void MVirtualKeyboard::showMainArea()
 {
     QGraphicsItem *item = dynamic_cast<QGraphicsItem*>(mainLayout->itemAt(1));
     if (item) {

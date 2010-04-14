@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -14,28 +14,28 @@
  * of this file.
  */
 
-#include "duiinputcontextstubconnection.h"
-#include <duinamespace.h>
+#include "minputcontextstubconnection.h"
+#include <mnamespace.h>
 #include <QKeyEvent>
 
-DuiInputContextStubConnection::DuiInputContextStubConnection()
+MInputContextStubConnection::MInputContextStubConnection()
 {
     clear();
     predictionEnabled_ = true;
     correctionEnabled_ = true;
     autoCapitalizationEnabled_ = true;
     contentType_ = 0;
-    inputmethodMode_ = Dui::InputMethodModeNormal;
+    inputmethodMode_ = M::InputMethodModeNormal;
     keyRedirectionEnabled = false;
 }
 
-DuiInputContextStubConnection::~DuiInputContextStubConnection()
+MInputContextStubConnection::~MInputContextStubConnection()
 {
     qDeleteAll(keyEvents);
     keyEvents.clear();
 }
 
-void DuiInputContextStubConnection::clear()
+void MInputContextStubConnection::clear()
 {
     preedit.clear();
     commit.clear();
@@ -59,7 +59,7 @@ void DuiInputContextStubConnection::clear()
     keyRedirectionEnabled = false;
 }
 
-void DuiInputContextStubConnection::sendPreeditString(const QString &string, PreeditFace preeditFace)
+void MInputContextStubConnection::sendPreeditString(const QString &string, PreeditFace preeditFace)
 {
     Q_UNUSED(preeditFace);
 
@@ -67,90 +67,90 @@ void DuiInputContextStubConnection::sendPreeditString(const QString &string, Pre
     ++sendPreeditCalls;
 }
 
-void DuiInputContextStubConnection::sendCommitString(const QString &string)
+void MInputContextStubConnection::sendCommitString(const QString &string)
 {
     commit += string;
     ++sendCommitStringCalls;
 }
 
 
-void DuiInputContextStubConnection::sendKeyEvent(const QKeyEvent &keyEvent_)
+void MInputContextStubConnection::sendKeyEvent(const QKeyEvent &keyEvent_)
 {
     keyEvents.append(new QKeyEvent(keyEvent_));
     ++sendKeyEventCalls;
 }
 
-void DuiInputContextStubConnection::notifyImInitiatedHiding()
+void MInputContextStubConnection::notifyImInitiatedHiding()
 {
     ++notifyImInitiatedHidingCalls;
 }
 
-int DuiInputContextStubConnection::contentType(bool &val)
+int MInputContextStubConnection::contentType(bool &val)
 {
     val = true;
     return contentType_;
 }
 
-bool DuiInputContextStubConnection::correctionEnabled(bool &val)
+bool MInputContextStubConnection::correctionEnabled(bool &val)
 {
     val = true;
     return correctionEnabled_;
 }
 
-bool DuiInputContextStubConnection::predictionEnabled(bool &val)
+bool MInputContextStubConnection::predictionEnabled(bool &val)
 {
     val = true;
     return predictionEnabled_;
 }
 
-bool DuiInputContextStubConnection::surroundingText(QString &text, int &cursorPosition)
+bool MInputContextStubConnection::surroundingText(QString &text, int &cursorPosition)
 {
     text = surrodingString;
     cursorPosition = cursorPos;
     return true;
 }
 
-int DuiInputContextStubConnection::inputMethodMode(bool &valid)
+int MInputContextStubConnection::inputMethodMode(bool &valid)
 {
     valid = true;
     return inputmethodMode_;
 }
 
-bool DuiInputContextStubConnection::hasSelection(bool &valid)
+bool MInputContextStubConnection::hasSelection(bool &valid)
 {
     valid = true;
     return textSelected;
 }
 
-QRect DuiInputContextStubConnection::preeditRectangle(bool &valid)
+QRect MInputContextStubConnection::preeditRectangle(bool &valid)
 {
     valid = true;
     return QRect();
 }
 
-bool DuiInputContextStubConnection::autoCapitalizationEnabled(bool &val)
+bool MInputContextStubConnection::autoCapitalizationEnabled(bool &val)
 {
     val = true;
     return autoCapitalizationEnabled_;
 }
 
-void DuiInputContextStubConnection::copy()
+void MInputContextStubConnection::copy()
 {
     ++copyCalls;
 }
 
-void DuiInputContextStubConnection::paste()
+void MInputContextStubConnection::paste()
 {
     ++pasteCalls;
 }
 
-void DuiInputContextStubConnection::setGlobalCorrectionEnabled(bool enabled)
+void MInputContextStubConnection::setGlobalCorrectionEnabled(bool enabled)
 {
     globalCorrectionEnabled = enabled;
     ++setGlobalCorrectionEnabledCalls;
 }
 
-void DuiInputContextStubConnection::setRedirectKeys(bool enabled)
+void MInputContextStubConnection::setRedirectKeys(bool enabled)
 {
     keyRedirectionEnabled = enabled;
 }

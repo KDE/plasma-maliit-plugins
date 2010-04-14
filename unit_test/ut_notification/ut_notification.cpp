@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -18,11 +18,11 @@
 
 #include "ut_notification.h"
 #include <notification.h>
-#include "duiplainwindow.h"
-#include <duivirtualkeyboardstyle.h>
+#include "mplainwindow.h"
+#include <mvirtualkeyboardstyle.h>
 
-#include <DuiApplication>
-#include <DuiTheme>
+#include <MApplication>
+#include <MTheme>
 
 #include <QDebug>
 #include <QFile>
@@ -60,25 +60,25 @@ void Ut_Notification::initTestCase()
     static char *app_name[1] = { (char *) "ut_notification" };
 
     // Avoid waiting if im server is not responding
-    DuiApplication::setLoadDuiInputContext(false);
-    app = new DuiApplication(argc, app_name);
+    MApplication::setLoadMInputContext(false);
+    app = new MApplication(argc, app_name);
 
     QString cssFile("./test.css");
     if (!QFile::exists(cssFile)) {
-        cssFile = "/usr/share/dui-keyboard-tests/ut_notification/test.css";
+        cssFile = "/usr/share/m-keyboard-tests/ut_notification/test.css";
         QVERIFY(QFile::exists(cssFile));
     }
-    QVERIFY(DuiTheme::instance()->loadCSS(cssFile));
+    QVERIFY(MTheme::instance()->loadCSS(cssFile));
 
-    style = new DuiVirtualKeyboardStyleContainer;
-    style->initialize("DuiVirtualKeyboard", "DuiVirtualKeyboardView", 0);
+    style = new MVirtualKeyboardStyleContainer;
+    style->initialize("MVirtualKeyboard", "MVirtualKeyboardView", 0);
 
-    new DuiPlainWindow;
+    new MPlainWindow;
 }
 
 void Ut_Notification::cleanupTestCase()
 {
-    delete DuiPlainWindow::instance();
+    delete MPlainWindow::instance();
     delete app;
     app = 0;
 }
@@ -124,7 +124,7 @@ void Ut_Notification::testFadeInFadeOut()
 //This test depends on values in test.css
 void Ut_Notification::testCSS()
 {
-    //construct font in the same way as duistylesheet.cpp
+    //construct font in the same way as mstylesheet.cpp
     QFont expected("Nokia Sans Light");
     expected.setPixelSize(42);
 

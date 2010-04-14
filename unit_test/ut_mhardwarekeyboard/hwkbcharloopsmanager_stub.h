@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -17,13 +17,13 @@
 #ifndef HWKBCHARLOOPSMANAGER_STUB_H
 #define HWKBCHARLOOPSMANAGER_STUB_H
 
-#include "duigconfitem_stub.h"
+#include "mgconfitem_stub.h"
 #include "hwkbcharloopsmanager.h"
 #include <QDebug>
 
 namespace
 {
-    const QString SystemDisplayLanguage("/Dui/i18n/Language");
+    const QString SystemDisplayLanguage("/M/i18n/Language");
     const QString StubAccentedCharacters = QString("%1%2%3%4%5%6")
                                            .arg(QChar(0x00E4))
                                            .arg(QChar(0x00E0))

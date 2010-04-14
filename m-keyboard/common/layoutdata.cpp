@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -42,7 +42,7 @@ LayoutData::LayoutType LayoutData::type() const
     return layoutType;
 }
 
-Dui::Orientation LayoutData::orientation() const
+M::Orientation LayoutData::orientation() const
 {
     return layoutOrientation;
 }

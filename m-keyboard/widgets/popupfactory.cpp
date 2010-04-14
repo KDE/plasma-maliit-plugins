@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -28,7 +28,7 @@
 
 namespace
 {
-    const char * const PluginDir = "/usr/lib/dui-im-plugins/dui-keyboard/";
+    const char * const PluginDir = "/usr/lib/m-im-plugins/meego-keyboard/";
 }
 
 
@@ -36,7 +36,7 @@ namespace
 class DummyPopup: public PopupBase
 {
 public:
-    DummyPopup(const DuiVirtualKeyboardStyleContainer &styleContainer);
+    DummyPopup(const MVirtualKeyboardStyleContainer &styleContainer);
     ~DummyPopup();
 
     //! \reimp
@@ -61,7 +61,7 @@ PopupFactory *PopupFactory::instance()
 
 
 PopupBase *
-PopupFactory::createPopup(const DuiVirtualKeyboardStyleContainer &styleContainer,
+PopupFactory::createPopup(const MVirtualKeyboardStyleContainer &styleContainer,
                           QGraphicsItem *parent) const
 {
     // if plugin present, use it to create popup, otherwise return dummy popup
@@ -95,7 +95,7 @@ PopupFactory::PopupFactory()
         plugin = qobject_cast<PopupPlugin *>(pluginInstance);
         
         if (!plugin) {
-            qDebug() << "Error loading duivkb sub-plugin:" << loader.errorString();
+            qDebug() << "Error loading mvkb sub-plugin:" << loader.errorString();
         }
     }
 }
@@ -108,7 +108,7 @@ PopupFactory::~PopupFactory()
 
 /////////////////////////////////
 // Dummy popup implementation
-DummyPopup::DummyPopup(const DuiVirtualKeyboardStyleContainer &styleContainer)
+DummyPopup::DummyPopup(const MVirtualKeyboardStyleContainer &styleContainer)
     : PopupBase(styleContainer),
       visible(false)
 {

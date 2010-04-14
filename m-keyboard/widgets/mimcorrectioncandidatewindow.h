@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -14,14 +14,14 @@
  * of this file.
  */
 
-#ifndef DUIIMCORRECTIONCANDIDATEWINDOW_H
-#define DUIIMCORRECTIONCANDIDATEWINDOW_H
+#ifndef MIMCORRECTIONCANDIDATEWINDOW_H
+#define MIMCORRECTIONCANDIDATEWINDOW_H
 
 #include <QWidget>
 
 /*!
 */
-class DuiImCorrectionCandidateWindow: public QWidget
+class MImCorrectionCandidateWindow: public QWidget
 {
     Q_OBJECT
 
@@ -29,13 +29,13 @@ public:
     /*! Constructor
      *
      */
-    DuiImCorrectionCandidateWindow(QWidget *parent = 0);
+    MImCorrectionCandidateWindow(QWidget *parent = 0);
 
 public slots:
     void handleRegionUpdate(const QRegion &region);
 
 private:
-    Q_DISABLE_COPY(DuiImCorrectionCandidateWindow)
+    Q_DISABLE_COPY(MImCorrectionCandidateWindow)
 };
 
 #endif

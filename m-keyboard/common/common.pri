@@ -5,7 +5,7 @@ INSTALL_HEADERS += \
     $$COMMON_DIR/keyevent.h \
 
 HEADERS += \
-    $$COMMON_DIR/duikeyboardcommon.h \
+    $$COMMON_DIR/mkeyboardcommon.h \
     $$COMMON_DIR/keyboarddata.h \
     $$COMMON_DIR/keyevent.h \
     $$COMMON_DIR/layoutdata.h \
@@ -15,9 +15,9 @@ HEADERS += \
     $$COMMON_DIR/toolbarbutton.h \
     $$COMMON_DIR/toolbarmanager.h \
     $$COMMON_DIR/vkbdatakey.h \
-    $$COMMON_DIR/duixkb_p.h \
-    $$COMMON_DIR/duixkb.h \
-    $$COMMON_DIR/duihardwarekeyboard.h \
+    $$COMMON_DIR/mxkb_p.h \
+    $$COMMON_DIR/mxkb.h \
+    $$COMMON_DIR/mhardwarekeyboard.h \
     $$COMMON_DIR/hwkbcharloops.h \
     $$COMMON_DIR/hwkbcharloopsmanager.h \
 
@@ -31,8 +31,8 @@ SOURCES += \
     $$COMMON_DIR/toolbarbutton.cpp \
     $$COMMON_DIR/toolbarmanager.cpp\
     $$COMMON_DIR/vkbdatakey.cpp\
-    $$COMMON_DIR/duixkb.cpp \
-    $$COMMON_DIR/duihardwarekeyboard.cpp \
+    $$COMMON_DIR/mxkb.cpp \
+    $$COMMON_DIR/mhardwarekeyboard.cpp \
     $$COMMON_DIR/hwkbcharloops.cpp \
     $$COMMON_DIR/hwkbcharloopsmanager.cpp \
 

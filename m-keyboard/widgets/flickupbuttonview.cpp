@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -21,10 +21,10 @@
 
 #include <QGraphicsSceneMouseEvent>
 
-#include <DuiTheme>
+#include <MTheme>
 
 FlickUpButtonView::FlickUpButtonView(FlickUpButton *controller)
-    : DuiButtonView(controller),
+    : MButtonView(controller),
       controller(controller)
 {
 }
@@ -39,7 +39,7 @@ void FlickUpButtonView::applyStyle()
 {
     QString name;
 
-    DuiButtonView::applyStyle();
+    MButtonView::applyStyle();
 
     name = style()->icon();
 
@@ -52,9 +52,9 @@ void FlickUpButtonView::applyStyle()
 
 void FlickUpButtonView::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    DuiButtonView::mouseMoveEvent(event);
+    MButtonView::mouseMoveEvent(event);
 
     if (controller->onMove(event->pos()))
-        DuiButtonView::mouseReleaseEvent(event);
+        MButtonView::mouseReleaseEvent(event);
 }
 

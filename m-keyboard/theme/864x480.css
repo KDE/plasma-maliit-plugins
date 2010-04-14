@@ -8,7 +8,7 @@
     This also applies to object names dedicated for these buttons such as #Backspace or #Enter.
 
     Alternative styling is used when the keyboard keys are not actual widgets, i.e. the
-    "single widget" approach. These are defined in DuiVirtualKeyboardStyle.
+    "single widget" approach. These are defined in MVirtualKeyboardStyle.
 */
 
 /*  FlickUpButton related styling */
@@ -98,7 +98,7 @@ FlickUpButtonStyle:selected {
     background-image: "keyboard-tab-active" 10px 10px 10px 10px;
 }
 
-DuiVirtualKeyboardStyle {
+MVirtualKeyboardStyle {
     background-image: "keyboard-background" 10px 10px 10px 10px;
     font: "Nokia Sans Light" 24;
     font-opacity: 0.9;
@@ -143,7 +143,7 @@ DuiVirtualKeyboardStyle {
     /* End of single widget keyboard button styling */
 }
 
-DuiVirtualKeyboardStyle.Portrait {
+MVirtualKeyboardStyle.Portrait {
     keyboard-area-size: 480 280;
     
     label-margin-top: 2mm;
@@ -168,7 +168,7 @@ DuiVirtualKeyboardStyle.Portrait {
     key-background-sym-indicator-ace: "keyboard-key-ace-selected-portrait";
 }
 
-DuiVirtualKeyboardStyle.Landscape {
+MVirtualKeyboardStyle.Landscape {
     keyboard-area-size: 864 280;
     
     label-margin-top: $MARGIN_LARGE;

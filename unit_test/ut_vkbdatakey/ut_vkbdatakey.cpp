@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -19,8 +19,8 @@
 #include "ut_vkbdatakey.h"
 #include <vkbdatakey.h>
 
-#include <DuiApplication>
-#include <DuiTheme>
+#include <MApplication>
+#include <MTheme>
 
 #include <QSignalSpy>
 
@@ -30,9 +30,9 @@ void Ut_VKBDataKey::initTestCase()
     static char *app_name[1] = { (char *) "ut_vkbdatakey" };
 
     // Avoid waiting if im server is not responding
-    DuiApplication::setLoadDuiInputContext(false);
-    app = new DuiApplication(argc, app_name);
-    DuiTheme::instance()->loadCSS("/usr/share/dui/virtual-keyboard/css/864x480.css");
+    MApplication::setLoadMInputContext(false);
+    app = new MApplication(argc, app_name);
+    MTheme::instance()->loadCSS("/usr/share/meegotouch/virtual-keyboard/css/864x480.css");
 }
 
 void Ut_VKBDataKey::cleanupTestCase()

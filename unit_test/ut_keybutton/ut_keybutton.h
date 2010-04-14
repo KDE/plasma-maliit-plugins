@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -22,10 +22,10 @@
 #include <QtTest/QTest>
 #include <QObject>
 
-class DuiApplication;
+class MApplication;
 class IKeyButton;
 class VKBDataKey;
-class DuiVirtualKeyboardStyleContainer;
+class MVirtualKeyboardStyleContainer;
 class QGraphicsItem;
 class KeyboardData;
 
@@ -33,11 +33,11 @@ class Ut_KeyButton: public QObject
 {
     Q_OBJECT
 private:
-    DuiApplication *app;
+    MApplication *app;
     IKeyButton *subject;
     QGraphicsItem *parent;
     VKBDataKey *dataKey;
-    DuiVirtualKeyboardStyleContainer *style;
+    MVirtualKeyboardStyleContainer *style;
 
 private slots:
     void init();

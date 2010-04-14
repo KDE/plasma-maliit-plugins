@@ -1,4 +1,4 @@
-DuiVirtualKeyboardStyle {
+MVirtualKeyboardStyle {
     background-image: "keyboard-qwerty-background" 0 0 0 0;
     divider: "keyboard-divider-vertical";
     font: "Nokia Sans Light" 24;
@@ -28,7 +28,7 @@ DuiVirtualKeyboardStyle {
     pressFeedback: ;
 }
 
-DuiVirtualKeyboardStyle.Portrait {
+MVirtualKeyboardStyle.Portrait {
     size: 280 864;
     left-margin:6;
     top-margin:4;
@@ -52,7 +52,7 @@ DuiVirtualKeyboardStyle.Portrait {
     menu-max-title-text-width: 200;
 }
 
-DuiVirtualKeyboardStyle.Landscape {
+MVirtualKeyboardStyle.Landscape {
     size: 864 280;
     left-margin: 6;
     top-margin: 4;

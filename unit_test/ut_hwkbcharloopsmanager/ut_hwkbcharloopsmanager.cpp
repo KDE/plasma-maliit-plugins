@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,7 +16,7 @@
 
 
 
-#include <duigconfitem_stub.h>
+#include <mgconfitem_stub.h>
 #include "hwkbcharloopsmanager.h"
 #include "hwkbcharloops.h"
 #include "ut_hwkbcharloopsmanager.h"
@@ -26,7 +26,7 @@
 
 namespace
 {
-    const QString SystemDisplayLanguage("/Dui/i18n/Language");
+    const QString SystemDisplayLanguage("/M/i18n/Language");
 }
 
 bool HwKbCharLoopsManager::loadCharLoops(const QString &fileName)
@@ -74,7 +74,7 @@ void Ut_HwKbCharLoopsManager::testLoadLanguage()
 void Ut_HwKbCharLoopsManager::testSyncLanguage()
 {
     QCOMPARE(m_subject->currentCharLoopLanguage, QString("en_gb"));
-    DuiGConfItem systemDisplayLanguage(SystemDisplayLanguage);
+    MGConfItem systemDisplayLanguage(SystemDisplayLanguage);
     systemDisplayLanguage.set(QVariant("fi"));
     QCOMPARE(m_subject->currentCharLoopLanguage, QString("fi"));
     systemDisplayLanguage.set(QVariant("ar"));

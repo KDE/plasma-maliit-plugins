@@ -1,11 +1,11 @@
 TEMPLATE = app
-CONFIG += QtTest Dui
+CONFIG += QtTest meegotouch
 DEPENDPATH += .
 INCLUDEPATH += .
 
 include(../common_check.pri)
 
-STYLE_HEADERS += $$WIDGETS_DIR/duivirtualkeyboardstyle.h
+STYLE_HEADERS += $$WIDGETS_DIR/mvirtualkeyboardstyle.h
 
 # Input
 HEADERS += ut_keybutton.h \

@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -102,7 +102,7 @@ private:
     friend class KeyboardData;
     friend class Ut_VKBDataKey;
     friend class Ut_KeyButton;
-    friend class Ut_DuiVirtualKeyboard;
+    friend class Ut_MVirtualKeyboard;
 };
 
 

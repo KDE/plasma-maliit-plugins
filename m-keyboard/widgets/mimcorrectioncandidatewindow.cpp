@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -14,7 +14,7 @@
  * of this file.
  */
 
-#include "duiimcorrectioncandidatewindow.h"
+#include "mimcorrectioncandidatewindow.h"
 #include <QDebug>
 #include <QString>
 #include <QX11Info>
@@ -22,10 +22,10 @@
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
 
-DuiImCorrectionCandidateWindow::DuiImCorrectionCandidateWindow(QWidget *parent)
+MImCorrectionCandidateWindow::MImCorrectionCandidateWindow(QWidget *parent)
     : QWidget(parent)
 {
-    setWindowTitle("DuiImCorrectionCandidateWindow");
+    setWindowTitle("MImCorrectionCandidateWindow");
     setAttribute(Qt::WA_TranslucentBackground);
     Display *dpy =  QX11Info::display();
     const Qt::WindowFlags windowFlags = Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint;
@@ -44,14 +44,14 @@ DuiImCorrectionCandidateWindow::DuiImCorrectionCandidateWindow(QWidget *parent)
     setFocusPolicy(Qt::NoFocus);
 }
 
-void DuiImCorrectionCandidateWindow::handleRegionUpdate(const QRegion &region)
+void MImCorrectionCandidateWindow::handleRegionUpdate(const QRegion &region)
 {
     qDebug() << __PRETTY_FUNCTION__ << ":" << region;
     // selective compositing
     if (isVisible() && region.isEmpty()) {
         hide();
     } else if (!isVisible() && !region.isEmpty()) {
-        qDebug() << "show  DuiImCorrectionCandidateWindow!";
+        qDebug() << "show  MImCorrectionCandidateWindow!";
         show();
         raise();
     }

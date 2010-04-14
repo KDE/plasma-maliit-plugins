@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -25,7 +25,7 @@
 
 namespace
 {
-    const QString ToolbarConfigurationPath = "/usr/share/dui/imtoolbars/";
+    const QString ToolbarConfigurationPath = "/usr/share/meegotouch/imtoolbars/";
     const QString ImTagToolbar               = QString("toolbar");
     const QString ImTagButton                = QString("button");
     const QString ImTagActions               = QString("actions");
@@ -192,11 +192,11 @@ Qt::Alignment ToolbarData::alignment(const QString &alignmentString)
     return align;
 }
 
-Dui::Orientation ToolbarData::orientation(const QString &orientationString)
+M::Orientation ToolbarData::orientation(const QString &orientationString)
 {
-    Dui::Orientation orient = Dui::Portrait;
+    M::Orientation orient = M::Portrait;
     if (orientationString == ImTagOrientationLandscape)
-        orient = Dui::Landscape;
+        orient = M::Landscape;
     return orient;
 }
 

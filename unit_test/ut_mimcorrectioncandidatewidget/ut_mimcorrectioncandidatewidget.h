@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,21 +16,21 @@
 
 
 
-#ifndef UT_DUIIMCORRECTIONCANDIDATEWIDGET_H
-#define UT_DUIIMCORRECTIONCANDIDATEWIDGET_H
+#ifndef UT_MIMCORRECTIONCANDIDATEWIDGET_H
+#define UT_MIMCORRECTIONCANDIDATEWIDGET_H
 
-#include "duiimcorrectioncandidatewidget.h"
-#include "duiapplication.h"
+#include "mimcorrectioncandidatewidget.h"
+#include "mapplication.h"
 #include <QtTest/QTest>
 #include <QObject>
 
-class Ut_DuiImCorrectionCandidateWidget : public QObject
+class Ut_MImCorrectionCandidateWidget : public QObject
 {
     Q_OBJECT
 
 private:
-    DuiApplication *app;
-    DuiImCorrectionCandidateWidget *m_subject;
+    MApplication *app;
+    MImCorrectionCandidateWidget *m_subject;
 
 private slots:
     //! initialize application and class

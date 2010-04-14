@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -17,28 +17,28 @@
 
 
 #include "layoutmenu.h"
-#include "duivirtualkeyboardstyle.h"
+#include "mvirtualkeyboardstyle.h"
 
-#include <DuiButtonGroup>
+#include <MButtonGroup>
 
 #ifndef NOCONTROLPANEL
-#include <DuiControlPanelIf>
+#include <MControlPanelIf>
 #endif
 
-#include <DuiButton>
-#include <DuiDialog>
-#include <DuiGridLayoutPolicy>
-#include <DuiLabel>
-#include <DuiLayout>
-#include <DuiLinearLayoutPolicy>
-#include <DuiLocale>
-#include <DuiPopupList>
-#include <DuiSceneManager>
-#include <DuiTheme>
-#include <DuiNamespace>
-#include <DuiWidget>
+#include <MButton>
+#include <MDialog>
+#include <MGridLayoutPolicy>
+#include <MLabel>
+#include <MLayout>
+#include <MLinearLayoutPolicy>
+#include <MLocale>
+#include <MPopupList>
+#include <MSceneManager>
+#include <MTheme>
+#include <MNamespace>
+#include <MWidget>
 #include <duireactionmap.h>
-#include <duiplainwindow.h>
+#include <mplainwindow.h>
 
 #include <QDebug>
 #include <QGraphicsItemAnimation>
@@ -61,7 +61,7 @@ namespace
 
 // FIXME: parent
 
-LayoutMenu::LayoutMenu(DuiVirtualKeyboardStyleContainer *style,
+LayoutMenu::LayoutMenu(MVirtualKeyboardStyleContainer *style,
                        QGraphicsWidget */* parent */)
     : styleContainer(style),
       active(false),
@@ -90,11 +90,11 @@ LayoutMenu::LayoutMenu(DuiVirtualKeyboardStyleContainer *style,
 void LayoutMenu::loadLanguageMenu()
 {
     //create dialog and widgets
-    centralWidget = new DuiWidget;
+    centralWidget = new MWidget;
     centralWidget->setGeometry(0, 0, baseSize.width(), baseSize.height() + buttonSize.height());
 
     //% "Keyboard options"
-    keyboardOptionDialog = new DuiDialog(qtTrId("qtn_vkb_keyboard_options"), Dui::NoButton);
+    keyboardOptionDialog = new MDialog(qtTrId("qtn_vkb_keyboard_options"), M::NoButton);
     keyboardOptionDialog->setCentralWidget(centralWidget);
     // Note: current (pre 0.20) libdui doesn't have dialog hidden on construction.
     // do that explicitly here so the signals are emitted correctly
@@ -105,13 +105,13 @@ void LayoutMenu::loadLanguageMenu()
     /* Create widgets and put then into the layout policy */
 
     //% "Error correction"
-    errorCorrectionLabel = new DuiLabel(qtTrId("qtn_vkb_error_correction"),
+    errorCorrectionLabel = new MLabel(qtTrId("qtn_vkb_error_correction"),
                                         centralWidget);
     errorCorrectionLabel->setAlignment(Qt::AlignCenter);
     errorCorrectionLabel->setWordWrap(true);
 
     //% "On"
-    errorCorrectionButton = new DuiButton(qtTrId("qtn_comm_on"), centralWidget);
+    errorCorrectionButton = new MButton(qtTrId("qtn_comm_on"), centralWidget);
     errorCorrectionButton->setObjectName("MenuToggleButton");
     errorCorrectionButton->setCheckable(true);
     errorCorrectionButton->setChecked(true);
@@ -119,24 +119,24 @@ void LayoutMenu::loadLanguageMenu()
     connect(errorCorrectionButton, SIGNAL(clicked()), this, SLOT(synchronizeErrorCorrection()));
 
     //% "Input language"
-    layoutListLabel = new DuiLabel(qtTrId("qtn_vkb_input_language"), centralWidget);
+    layoutListLabel = new MLabel(qtTrId("qtn_vkb_input_language"), centralWidget);
     layoutListLabel->setAlignment(Qt::AlignCenter);
 
-    layoutListHeader = new DuiButton(centralWidget);
+    layoutListHeader = new MButton(centralWidget);
     layoutListHeader->setMaximumWidth(baseSize.width() / 2);
 
-    layoutList = new DuiPopupList();
+    layoutList = new MPopupList();
     layoutList->setItemModel(new QStringListModel());
 
     connect(layoutListHeader, SIGNAL(clicked()), this, SLOT(showLanguageList()));
 
     //% "To modify the input languages, go to"
-    languageSettingLabel = new DuiLabel(qtTrId("qtn_vkb_language_setting_label"), centralWidget);
+    languageSettingLabel = new MLabel(qtTrId("qtn_vkb_language_setting_label"), centralWidget);
     languageSettingLabel->setAlignment(Qt::AlignHCenter);
 
     //TODO: connect languageSettingButton with language setting
     //% "Language settings"
-    languageSettingButton = new DuiButton(qtTrId("qtn_vkb_language_setting"), centralWidget);
+    languageSettingButton = new MButton(qtTrId("qtn_vkb_language_setting"), centralWidget);
     languageSettingButton->setMaximumWidth(baseSize.width() / 2);
     connect(languageSettingButton, SIGNAL(clicked()), this, SLOT(openLanguageApplet()));
 
@@ -167,16 +167,16 @@ void LayoutMenu::loadLanguageMenu()
     languageSettingLayout->setAlignment(languageSettingLabel, Qt::AlignCenter);
     languageSettingLayout->setAlignment(languageSettingButton, Qt::AlignCenter);
 
-    mainLayout = new DuiLayout;
+    mainLayout = new MLayout;
 
     //for landscape
-    DuiLinearLayoutPolicy *landscapePolicy = new DuiLinearLayoutPolicy(mainLayout, Qt::Vertical);
+    MLinearLayoutPolicy *landscapePolicy = new MLinearLayoutPolicy(mainLayout, Qt::Vertical);
     landscapePolicy->setSpacing(2 * Spacing);
     landscapePolicy->addItem(correctionAndLanguageLandscapeLayout);
     landscapePolicy->addItem(languageSettingLayout);
 
     //for portrait
-    DuiLinearLayoutPolicy *portraitPolicy = new DuiLinearLayoutPolicy(mainLayout, Qt::Vertical);
+    MLinearLayoutPolicy *portraitPolicy = new MLinearLayoutPolicy(mainLayout, Qt::Vertical);
     portraitPolicy->setSpacing(2 * Spacing);
     portraitPolicy->addItem(correctionLayout);
     portraitPolicy->addItem(languageLayout);
@@ -199,7 +199,7 @@ LayoutMenu::~LayoutMenu()
     //mainlayout will delete correctionAndLanguageLandscapeLayout within removeItem
     mainLayout->removeItem(correctionAndLanguageLandscapeLayout);
 
-    // DuiPopupList does not take ownership of its model
+    // MPopupList does not take ownership of its model
     if (layoutList->itemModel()) {
         QAbstractItemModel *model = layoutList->itemModel();
         layoutList->setItemModel(0);
@@ -216,7 +216,7 @@ LayoutMenu::~LayoutMenu()
     delete layoutListHeader;
     delete layoutList;
 
-    // DuiDialog's view will destroy centralWidget
+    // MDialog's view will destroy centralWidget
     delete keyboardOptionDialog;
 }
 
@@ -237,10 +237,10 @@ LayoutMenu::show()
 {
     if (!active) {
         active = true;
-        QSize visibleSceneSize = DuiPlainWindow::instance()->visibleSceneSize();
+        QSize visibleSceneSize = MPlainWindow::instance()->visibleSceneSize();
         centralWidget->setPos(0, visibleSceneSize.height() - baseSize.height());
 
-        DuiPlainWindow::instance()->sceneManager()->execDialog(keyboardOptionDialog);
+        MPlainWindow::instance()->sceneManager()->execDialog(keyboardOptionDialog);
     }
 }
 
@@ -255,7 +255,7 @@ void LayoutMenu::visibleChangeHandler()
         emit hidden();
         emit regionUpdated(QRegion());
     } else {
-        const QSize visibleSceneSize = DuiPlainWindow::instance()->visibleSceneSize();
+        const QSize visibleSceneSize = MPlainWindow::instance()->visibleSceneSize();
         emit regionUpdated(QRegion(0, 0, visibleSceneSize.width(), visibleSceneSize.height()));
     }
 }
@@ -290,7 +290,7 @@ LayoutMenu::getStyleValues()
 }
 
 
-void LayoutMenu::organizeContent(Dui::Orientation /* orientation */)
+void LayoutMenu::organizeContent(M::Orientation /* orientation */)
 {
     getStyleValues();
     keyboardOptionDialog->reject();
@@ -333,7 +333,7 @@ void LayoutMenu::redrawReactionMaps()
 }
 
 
-DuiVirtualKeyboardStyleContainer &LayoutMenu::style()
+MVirtualKeyboardStyleContainer &LayoutMenu::style()
 {
     return *styleContainer;
 }
@@ -342,7 +342,7 @@ DuiVirtualKeyboardStyleContainer &LayoutMenu::style()
 void LayoutMenu::showLanguageList()
 {
     if (layoutList && layoutListHeader) {
-        DuiPlainWindow::instance()->sceneManager()->execDialog(layoutList);
+        MPlainWindow::instance()->sceneManager()->execDialog(layoutList);
         QModelIndex index = layoutList->currentIndex();
         layoutListHeader->setText(index.data(Qt::DisplayRole).toString());
         emit languageSelected(index.row()); // QStringListModel has only rows.
@@ -366,7 +366,7 @@ void LayoutMenu::synchronizeErrorCorrection()
 void LayoutMenu::openLanguageApplet()
 {
 #ifndef NOCONTROLPANEL
-    DuiControlPanelIf *dcpIf = new DuiControlPanelIf();
+    MControlPanelIf *dcpIf = new MControlPanelIf();
     if (dcpIf->isValid()) {
         dcpIf->appletPage(CpLanguagePage);
     }

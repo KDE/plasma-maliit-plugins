@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,83 +16,83 @@
 
 
 
-#ifndef DUIVIRTUALKEYBOARDSTYLE_H
-#define DUIVIRTUALKEYBOARDSTYLE_H
+#ifndef MVIRTUALKEYBOARDSTYLE_H
+#define MVIRTUALKEYBOARDSTYLE_H
 
-#include <duiwidgetstyle.h>
+#include <mwidgetstyle.h>
 #include <QFont>
 
-class DuiVirtualKeyboard;
-class DuiScalableImage;
+class MVirtualKeyboard;
+class MScalableImage;
 
 /*!
- * \class DuiVirtualKeyboardStyle
- * \brief This class provides access to style attributes for DuiVirtualKeyboard
+ * \class MVirtualKeyboardStyle
+ * \brief This class provides access to style attributes for MVirtualKeyboard
  */
-class DuiVirtualKeyboardStyle : public DuiWidgetStyle
+class MVirtualKeyboardStyle : public MWidgetStyle
 {
     Q_OBJECT
-    DUI_STYLE(DuiVirtualKeyboardStyle)
+    M_STYLE(MVirtualKeyboardStyle)
 
 public:
-    DUI_STYLE_ATTRIBUTE(QSize, keyboardAreaSize, KeyboardAreaSize)
-    DUI_STYLE_ATTRIBUTE(int, spacingVertical, SpacingVertical)
-    DUI_STYLE_ATTRIBUTE(int, spacingHorizontal, SpacingHorizontal)
-    DUI_STYLE_ATTRIBUTE(QColor, fontColor, FontColor)
-    DUI_STYLE_ATTRIBUTE(qreal, fontOpacity, FontOpacity)
-    DUI_STYLE_ATTRIBUTE(QFont, font, Font)
-    DUI_STYLE_ATTRIBUTE(int, labelMarginTop, LabelMarginTop)
-    DUI_STYLE_ATTRIBUTE(int, labelMarginBottom, LabelMarginBottom)
-    DUI_STYLE_ATTRIBUTE(QSize, tabButtonSize, TabButtonSize)
+    M_STYLE_ATTRIBUTE(QSize, keyboardAreaSize, KeyboardAreaSize)
+    M_STYLE_ATTRIBUTE(int, spacingVertical, SpacingVertical)
+    M_STYLE_ATTRIBUTE(int, spacingHorizontal, SpacingHorizontal)
+    M_STYLE_ATTRIBUTE(QColor, fontColor, FontColor)
+    M_STYLE_ATTRIBUTE(qreal, fontOpacity, FontOpacity)
+    M_STYLE_ATTRIBUTE(QFont, font, Font)
+    M_STYLE_ATTRIBUTE(int, labelMarginTop, LabelMarginTop)
+    M_STYLE_ATTRIBUTE(int, labelMarginBottom, LabelMarginBottom)
+    M_STYLE_ATTRIBUTE(QSize, tabButtonSize, TabButtonSize)
 
-    DUI_STYLE_ATTRIBUTE(QSize, menuSize, MenuSize)
+    M_STYLE_ATTRIBUTE(QSize, menuSize, MenuSize)
 
-    DUI_STYLE_ATTRIBUTE(QFont, notificationFont, NotificationFont)
-    DUI_STYLE_ATTRIBUTE(QColor, notificationBorderColor, NotificationBorderColor)
-    DUI_STYLE_ATTRIBUTE(QColor, notificationBackgroundColor, NotificationBackgroundColor)
-    DUI_STYLE_ATTRIBUTE(QColor, notificationTextColor, NotificationTextColor)
-    DUI_STYLE_ATTRIBUTE(qreal, notificationOpacity, NotificationOpacity)
+    M_STYLE_ATTRIBUTE(QFont, notificationFont, NotificationFont)
+    M_STYLE_ATTRIBUTE(QColor, notificationBorderColor, NotificationBorderColor)
+    M_STYLE_ATTRIBUTE(QColor, notificationBackgroundColor, NotificationBackgroundColor)
+    M_STYLE_ATTRIBUTE(QColor, notificationTextColor, NotificationTextColor)
+    M_STYLE_ATTRIBUTE(qreal, notificationOpacity, NotificationOpacity)
 
-    DUI_STYLE_PTR_ATTRIBUTE(DuiScalableImage *, toolbarBackgroundImage, ToolbarBackgroundImage);
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, toolbarBackgroundImage, ToolbarBackgroundImage);
 
-    DUI_STYLE_ATTRIBUTE(QColor, deadkeyLockedColor, DeadkeyLockedColor)
+    M_STYLE_ATTRIBUTE(QColor, deadkeyLockedColor, DeadkeyLockedColor)
 
-    DUI_STYLE_ATTRIBUTE(QSize, keyNormalSize, KeyNormalSize)
-    DUI_STYLE_ATTRIBUTE(QSize, keyFunctionNormalSize, KeyFunctionNormalSize)
-    DUI_STYLE_ATTRIBUTE(QSize, keyFunctionLargeSize, KeyFunctionLargeSize)
-    DUI_STYLE_ATTRIBUTE(QSize, keyPhoneNumberNormalSize, KeyPhoneNumberNormalSize)
-    DUI_STYLE_ATTRIBUTE(QSize, keyNumberBackspaceSize, KeyNumberBackspaceSize)
-    DUI_STYLE_ATTRIBUTE(QSize, keySymNormalSize, KeySymNormalSize)
+    M_STYLE_ATTRIBUTE(QSize, keyNormalSize, KeyNormalSize)
+    M_STYLE_ATTRIBUTE(QSize, keyFunctionNormalSize, KeyFunctionNormalSize)
+    M_STYLE_ATTRIBUTE(QSize, keyFunctionLargeSize, KeyFunctionLargeSize)
+    M_STYLE_ATTRIBUTE(QSize, keyPhoneNumberNormalSize, KeyPhoneNumberNormalSize)
+    M_STYLE_ATTRIBUTE(QSize, keyNumberBackspaceSize, KeyNumberBackspaceSize)
+    M_STYLE_ATTRIBUTE(QSize, keySymNormalSize, KeySymNormalSize)
 
-    DUI_STYLE_ATTRIBUTE(QString, keyBackgroundId, KeyBackgroundId)
-    DUI_STYLE_ATTRIBUTE(QString, keyBackgroundPressedId, KeyBackgroundPressedId)
-    DUI_STYLE_ATTRIBUTE(QString, keyBackgroundSelectedId, KeyBackgroundSelectedId)
+    M_STYLE_ATTRIBUTE(QString, keyBackgroundId, KeyBackgroundId)
+    M_STYLE_ATTRIBUTE(QString, keyBackgroundPressedId, KeyBackgroundPressedId)
+    M_STYLE_ATTRIBUTE(QString, keyBackgroundSelectedId, KeyBackgroundSelectedId)
 
-    DUI_STYLE_PTR_ATTRIBUTE(DuiScalableImage *, keyBackgroundSymIndicatorSym, KeyBackgroundSymIndicatorSym)
-    DUI_STYLE_PTR_ATTRIBUTE(DuiScalableImage *, keyBackgroundSymIndicatorAce, KeyBackgroundSymIndicatorAce)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSymIndicatorSym, KeyBackgroundSymIndicatorSym)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSymIndicatorAce, KeyBackgroundSymIndicatorAce)
 
-    DUI_STYLE_ATTRIBUTE(QSize, keyBackspaceIconSize, KeyBackspaceIconSize)
-    DUI_STYLE_ATTRIBUTE(QString, keyBackspaceIconId, KeyBackspaceIconId)
+    M_STYLE_ATTRIBUTE(QSize, keyBackspaceIconSize, KeyBackspaceIconSize)
+    M_STYLE_ATTRIBUTE(QString, keyBackspaceIconId, KeyBackspaceIconId)
 
-    DUI_STYLE_ATTRIBUTE(QSize, keyMenuIconSize, KeyMenuIconSize)
-    DUI_STYLE_ATTRIBUTE(QString, keyMenuIconId, KeyMenuIconId)
+    M_STYLE_ATTRIBUTE(QSize, keyMenuIconSize, KeyMenuIconSize)
+    M_STYLE_ATTRIBUTE(QString, keyMenuIconId, KeyMenuIconId)
 
-    DUI_STYLE_ATTRIBUTE(QSize, keyEnterIconSize, KeyEnterIconSize)
-    DUI_STYLE_ATTRIBUTE(QString, keyEnterIconId, KeyEnterIconId)
+    M_STYLE_ATTRIBUTE(QSize, keyEnterIconSize, KeyEnterIconSize)
+    M_STYLE_ATTRIBUTE(QString, keyEnterIconId, KeyEnterIconId)
 
-    DUI_STYLE_ATTRIBUTE(QSize, keyShiftIconSize, KeyShiftIconSize)
-    DUI_STYLE_ATTRIBUTE(QString, keyShiftIconId, KeyShiftIconId)
-    DUI_STYLE_ATTRIBUTE(QString, keyShiftUppercaseIconId, KeyShiftUppercaseIconId)
+    M_STYLE_ATTRIBUTE(QSize, keyShiftIconSize, KeyShiftIconSize)
+    M_STYLE_ATTRIBUTE(QString, keyShiftIconId, KeyShiftIconId)
+    M_STYLE_ATTRIBUTE(QString, keyShiftUppercaseIconId, KeyShiftUppercaseIconId)
 };
 
-class DuiVirtualKeyboardStyleContainer : public DuiWidgetStyleContainer
+class MVirtualKeyboardStyleContainer : public MWidgetStyleContainer
 {
-    DUI_STYLE_CONTAINER(DuiVirtualKeyboardStyle)
+    M_STYLE_CONTAINER(MVirtualKeyboardStyle)
 
-    DUI_STYLE_MODE(Landscape)
-    DUI_STYLE_MODE(Portrait)
+    M_STYLE_MODE(Landscape)
+    M_STYLE_MODE(Portrait)
 
-    friend class DuiVirtualKeyboard;
+    friend class MVirtualKeyboard;
 };
 
 #endif

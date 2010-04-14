@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,36 +16,37 @@
 
 
 
-#include <duiimcorrectioncandidatewidget.h>
-#include <duivirtualkeyboard.h>
-#include <duihardwarekeyboard.h>
-#include <duikeyboardhost.h>
-#include <duivirtualkeyboardstyle.h>
+#include <mimcorrectioncandidatewidget.h>
+#include <mvirtualkeyboard.h>
+#include <mhardwarekeyboard.h>
+#include <mkeyboardhost.h>
+#include <mvirtualkeyboardstyle.h>
 #include <layoutmenu.h>
 #include <symbolview.h>
 
-#include "duigconfitem_stub.h"
 #include "duiimenginewords.h"
-#include "duiinputcontextstubconnection.h"
-#include "ut_duikeyboardhost.h"
 
-#include <DuiApplication>
-#include <DuiSceneManager>
-#include <DuiTheme>
-#include "duiplainwindow.h"
-#include <duinamespace.h>
-#include <DuiWidgetController>
-#include <DuiDialog>
+#include "mgconfitem_stub.h"
+#include "minputcontextstubconnection.h"
+#include "ut_mkeyboardhost.h"
+
+#include <MApplication>
+#include <MSceneManager>
+#include <MTheme>
+#include "mplainwindow.h"
+#include <mnamespace.h>
+#include <MWidgetController>
+#include <MDialog>
 
 #include <QDir>
 
 namespace
 {
-    const QString InputMethodCorrectionSetting("/Dui/InputMethods/CorrectionEnabled");
-    const QString InputMethodCorrectionEngine("/Dui/InputMethods/CorrectionEngine");
+    const QString InputMethodCorrectionSetting("/M/InputMethods/CorrectionEnabled");
+    const QString InputMethodCorrectionEngine("/M/InputMethods/CorrectionEngine");
     bool gAccurateMode = false;
     int gSetKeyboardStateCallCount = 0;
-    DuiIMHandlerState gSetKeyboardStateParam = OnScreen;
+    MIMHandlerState gSetKeyboardStateParam = OnScreen;
     const int LayoutMenuShowTime = 300; // in ms
     const int SceneRotationTime = 1400; // in ms
 }
@@ -64,8 +65,8 @@ namespace QTest
     }
 }
 
-Q_DECLARE_METATYPE(QList<DuiIMHandlerState>)
-Q_DECLARE_METATYPE(DuiIMHandlerState)
+Q_DECLARE_METATYPE(QList<MIMHandlerState>)
+Q_DECLARE_METATYPE(MIMHandlerState)
 
 
 static void waitForSignal(const QObject* object, const char* signal, int timeout = 500)
@@ -79,18 +80,18 @@ static void waitForSignal(const QObject* object, const char* signal, int timeout
 
 // Stubbing..................................................................
 
-void DuiVirtualKeyboard::setKeyboardState(DuiIMHandlerState state)
+void MVirtualKeyboard::setKeyboardState(MIMHandlerState state)
 {
     ++gSetKeyboardStateCallCount;
     gSetKeyboardStateParam = state;
 }
 
-bool DuiVirtualKeyboard::isAccurateMode() const
+bool MVirtualKeyboard::isAccurateMode() const
 {
     return gAccurateMode;
 }
 
-QString DuiVirtualKeyboard::layoutLanguage() const
+QString MVirtualKeyboard::layoutLanguage() const
 {
     return QString("fi");
 }
@@ -98,24 +99,24 @@ QString DuiVirtualKeyboard::layoutLanguage() const
 
 // Actual test...............................................................
 
-void Ut_DuiKeyboardHost::initTestCase()
+void Ut_MKeyboardHost::initTestCase()
 {
     static int argc = 1;
-    static char *app_name[1] = { (char *)"ut_duivirtualkeyboardhost" };
+    static char *app_name[1] = { (char *)"ut_mvirtualkeyboardhost" };
 
     // Avoid waiting if im server is not responding
-    DuiApplication::setLoadDuiInputContext(false);
-    app = new DuiApplication(argc, app_name);
-    DuiTheme::instance()->loadCSS("/usr/share/dui/virtual-keyboard/css/864x480.css");
-    inputContext = new DuiInputContextStubConnection;
-    window = new DuiPlainWindow;
-    if (DuiPlainWindow::instance()->orientationAngle() != Dui::Angle0) {
-        DuiPlainWindow::instance()->setOrientationAngle(Dui::Angle0);
+    MApplication::setLoadMInputContext(false);
+    app = new MApplication(argc, app_name);
+    MTheme::instance()->loadCSS("/usr/share/meegotouch/virtual-keyboard/css/864x480.css");
+    inputContext = new MInputContextStubConnection;
+    window = new MPlainWindow;
+    if (MPlainWindow::instance()->orientationAngle() != M::Angle0) {
+        MPlainWindow::instance()->setOrientationAngle(M::Angle0);
         QTest::qWait(1000);
     }
 }
 
-void Ut_DuiKeyboardHost::cleanupTestCase()
+void Ut_MKeyboardHost::cleanupTestCase()
 {
     delete window;
     window = 0;
@@ -125,59 +126,59 @@ void Ut_DuiKeyboardHost::cleanupTestCase()
     app = 0;
 }
 
-void Ut_DuiKeyboardHost::init()
+void Ut_MKeyboardHost::init()
 {
     // Uses dummy driver
-    DuiGConfItem engineConfig(InputMethodCorrectionEngine);
+    MGConfItem engineConfig(InputMethodCorrectionEngine);
     engineConfig.set(QVariant(QString("dummyimdriver")));
 
-    subject = new DuiKeyboardHost(inputContext, 0);
+    subject = new MKeyboardHost(inputContext, 0);
     inputContext->clear();
 
-    if (DuiPlainWindow::instance()->orientationAngle() != Dui::Angle0) {
-        DuiPlainWindow::instance()->setOrientationAngle(Dui::Angle0);
+    if (MPlainWindow::instance()->orientationAngle() != M::Angle0) {
+        MPlainWindow::instance()->setOrientationAngle(M::Angle0);
         QTest::qWait(1000);
     }
 }
 
-void Ut_DuiKeyboardHost::cleanup()
+void Ut_MKeyboardHost::cleanup()
 {
     delete subject;
     subject = 0;
 }
 
-void Ut_DuiKeyboardHost::testCreate()
+void Ut_MKeyboardHost::testCreate()
 {
     QVERIFY(subject != 0);
 }
 
-void Ut_DuiKeyboardHost::testRotatePoint()
+void Ut_MKeyboardHost::testRotatePoint()
 {
     QPoint position(100, 200);
     QPoint result;
-    int displayWidth = DuiPlainWindow::instance()->visibleSceneSize().width();
-    int displayHeight = DuiPlainWindow::instance()->visibleSceneSize().height();
+    int displayWidth = MPlainWindow::instance()->visibleSceneSize().width();
+    int displayHeight = MPlainWindow::instance()->visibleSceneSize().height();
     bool isOk = false;
 
-    rotateToAngle(Dui::Angle0);
+    rotateToAngle(M::Angle0);
 
     isOk = subject->rotatePoint(position, result);
     QVERIFY(isOk == true);
     QCOMPARE(result, position);
 
-    rotateToAngle(Dui::Angle90);
+    rotateToAngle(M::Angle90);
 
     isOk = subject->rotatePoint(position, result);
     QVERIFY(isOk == true);
     QCOMPARE(result, QPoint(200, displayWidth - 100));
 
-    rotateToAngle(Dui::Angle270);
+    rotateToAngle(M::Angle270);
 
     isOk = subject->rotatePoint(position, result);
     QVERIFY(isOk == true);
     QCOMPARE(result, QPoint(displayHeight - 200, 100));
 
-    rotateToAngle(Dui::Angle180);
+    rotateToAngle(M::Angle180);
 
     isOk = subject->rotatePoint(position, result);
     QVERIFY(isOk == true);
@@ -185,49 +186,49 @@ void Ut_DuiKeyboardHost::testRotatePoint()
 }
 
 
-void Ut_DuiKeyboardHost::testRotateRect()
+void Ut_MKeyboardHost::testRotateRect()
 {
     QRect rect;
     QRect result(1, 2, 3, 4);
-    int displayWidth = DuiPlainWindow::instance()->visibleSceneSize().width();
-    int displayHeight = DuiPlainWindow::instance()->visibleSceneSize().height();
+    int displayWidth = MPlainWindow::instance()->visibleSceneSize().width();
+    int displayHeight = MPlainWindow::instance()->visibleSceneSize().height();
 
     QList<QRect> rects;
-    QList<Dui::OrientationAngle> angles;
+    QList<M::OrientationAngle> angles;
     QList<QRect> expected;
 
     // invalid rectangles
     rects.append(QRect(100, 200, -20, 40));
-    angles.append(Dui::Angle0);
+    angles.append(M::Angle0);
     expected.append(QRect());
 
     rects.append(QRect(0, 0, -1, -1));
-    angles.append(Dui::Angle90);
+    angles.append(M::Angle90);
     expected.append(QRect());
 
     rects.append(QRect(1, 1, 1, -1));
-    angles.append(Dui::Angle180);
+    angles.append(M::Angle180);
     expected.append(QRect());
 
     // invalid angle
     rects.append(QRect(1, 1, 1, 1));
-    angles.append((Dui::OrientationAngle)(-1));
+    angles.append((M::OrientationAngle)(-1));
     expected.append(QRect());
 
     // valid rectangles
     rect = QRect(100, 200, 20, 40);
     rects.append(rect);
-    angles.append(Dui::Angle0);
+    angles.append(M::Angle0);
     expected.append(rect);
 
     rect = QRect(100, 200, 20, 40);
     rects.append(rect);
-    angles.append(Dui::Angle90);
+    angles.append(M::Angle90);
     expected.append(QRect(rect.y(), displayWidth - rect.x() - rect.width(), rect.height(), rect.width()));
 
     rect = QRect(-4, 4, 20, 40);
     rects.append(rect);
-    angles.append(Dui::Angle180);
+    angles.append(M::Angle180);
     expected.append(QRect(
                         displayWidth - rect.x() - rect.width(),
                         displayHeight - rect.y() - rect.height(),
@@ -235,21 +236,21 @@ void Ut_DuiKeyboardHost::testRotateRect()
 
     rect = QRect(10, 200, 20, 40);
     rects.append(rect);
-    angles.append(Dui::Angle270);
+    angles.append(M::Angle270);
     expected.append(QRect(
                         displayHeight - rect.y() - rect.height(), rect.x(),
                         rect.height(), rect.width()));
 
     for (int i = 0; i < rects.length(); ++i) {
         rect = rects.at(i);
-        Dui::OrientationAngle angle = angles.at(i);
+        M::OrientationAngle angle = angles.at(i);
         rotateToAngle(angle);
 
         bool validAngle = (
-                              angle == Dui::Angle0   ||
-                              angle == Dui::Angle90  ||
-                              angle == Dui::Angle180 ||
-                              angle == Dui::Angle270);
+                              angle == M::Angle0   ||
+                              angle == M::Angle90  ||
+                              angle == M::Angle180 ||
+                              angle == M::Angle270);
         bool rotated = subject->rotateRect(rect, result);
         QCOMPARE(rotated, rect.isValid() && validAngle);
         QCOMPARE(result, expected.at(i));
@@ -257,9 +258,9 @@ void Ut_DuiKeyboardHost::testRotateRect()
 }
 
 
-void Ut_DuiKeyboardHost::testHandleClick()
+void Ut_MKeyboardHost::testHandleClick()
 {
-    DuiGConfItem config(InputMethodCorrectionSetting);
+    MGConfItem config(InputMethodCorrectionSetting);
     config.set(QVariant(true));
 
     gAccurateMode = false;
@@ -303,7 +304,7 @@ void Ut_DuiKeyboardHost::testHandleClick()
     inputContext->clear();
 }
 
-void Ut_DuiKeyboardHost::testDirectMode()
+void Ut_MKeyboardHost::testDirectMode()
 {
     QList<KeyEvent> testData;
     QList<Qt::Key> expectedKeys;
@@ -314,7 +315,7 @@ void Ut_DuiKeyboardHost::testDirectMode()
     expectedKeys << Qt::Key_Backspace << Qt::Key_Return << Qt::Key_Space;
     QVERIFY(testData.count() == expectedKeys.count());
 
-    subject->inputMethodMode = Dui::InputMethodModeDirect;
+    subject->inputMethodMode = M::InputMethodModeDirect;
 
     for (int n = 0; n < testData.count(); ++n) {
         inputContext->clear();
@@ -335,7 +336,7 @@ void Ut_DuiKeyboardHost::testDirectMode()
     }
 }
 
-void Ut_DuiKeyboardHost::testNotCrash()
+void Ut_MKeyboardHost::testNotCrash()
 {
     //at least we should not crash
     subject->show();
@@ -346,10 +347,10 @@ void Ut_DuiKeyboardHost::testNotCrash()
     subject->mouseClickedOnPreedit(QPoint(0, 0), QRect(0, 0, 1, 1));
 }
 
-void Ut_DuiKeyboardHost::testErrorCorrectionOption()
+void Ut_MKeyboardHost::testErrorCorrectionOption()
 {
     subject->show();
-    DuiGConfItem config(InputMethodCorrectionSetting);
+    MGConfItem config(InputMethodCorrectionSetting);
 
     QVERIFY(subject->imCorrectionEngine != 0);
     //default error correction option is true;
@@ -369,29 +370,29 @@ void Ut_DuiKeyboardHost::testErrorCorrectionOption()
     subject->hide();
 }
 
-void Ut_DuiKeyboardHost::testAutoCaps()
+void Ut_MKeyboardHost::testAutoCaps()
 {
     inputContext->surrodingString = "Test string. You can using it!    ";
     inputContext->autoCapitalizationEnabled_ = true;
     subject->correctionEnabled = true;
-    inputContext->contentType_ = Dui::FreeTextContentType;
+    inputContext->contentType_ = M::FreeTextContentType;
     subject->show();
 
     inputContext->cursorPos = 0;
     subject->update();
-    QVERIFY(subject->vkbWidget->shiftStatus() == DuiVirtualKeyboard::ShiftOn);
+    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn);
 
     inputContext->cursorPos = 1;
     subject->update();
-    QVERIFY(subject->vkbWidget->shiftStatus() == DuiVirtualKeyboard::ShiftOff);
+    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOff);
 
     inputContext->cursorPos = 12;
     subject->update();
-    QVERIFY(subject->vkbWidget->shiftStatus() == DuiVirtualKeyboard::ShiftOff);
+    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOff);
 
     inputContext->cursorPos = 13;
     subject->update();
-    QVERIFY(subject->vkbWidget->shiftStatus() == DuiVirtualKeyboard::ShiftOn);
+    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn);
 
 
     subject->hide();
@@ -399,23 +400,23 @@ void Ut_DuiKeyboardHost::testAutoCaps()
 
     inputContext->cursorPos = 13;
     subject->update();
-    QVERIFY(subject->vkbWidget->shiftStatus() == DuiVirtualKeyboard::ShiftOn);
+    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn);
 
     inputContext->cursorPos = 16;
     subject->update();
-    QVERIFY(subject->vkbWidget->shiftStatus() == DuiVirtualKeyboard::ShiftOff);
+    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOff);
 
     inputContext->cursorPos = 31;
     subject->update();
-    QVERIFY(subject->vkbWidget->shiftStatus() == DuiVirtualKeyboard::ShiftOn);
+    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn);
 
     inputContext->cursorPos = 33;
     subject->update();
-    QVERIFY(subject->vkbWidget->shiftStatus() == DuiVirtualKeyboard::ShiftOff);
+    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOff);
 
     inputContext->cursorPos = 0;
     subject->update();
-    QVERIFY(subject->vkbWidget->shiftStatus() == DuiVirtualKeyboard::ShiftOn);
+    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn);
     // When autoCaps is on and shift is latched, any key input except shift and backspace (in an sepcial case)
     // will turn off shift.
     KeyEvent press("a", QEvent::KeyPress);
@@ -423,11 +424,11 @@ void Ut_DuiKeyboardHost::testAutoCaps()
     subject->handleKeyPress(press);
     subject->handleKeyRelease(release);
     subject->handleKeyClick(release);
-    QVERIFY(subject->vkbWidget->shiftStatus() == DuiVirtualKeyboard::ShiftOff);
+    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOff);
 
     inputContext->cursorPos = 0;
     subject->update();
-    QVERIFY(subject->vkbWidget->shiftStatus() == DuiVirtualKeyboard::ShiftOn);
+    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn);
     // The special case for backspace when autoCaps is on, that is cursor is at 0 position,
     // should not change the shift state.
     press = KeyEvent("", QEvent::KeyPress, Qt::Key_Backspace);
@@ -435,17 +436,17 @@ void Ut_DuiKeyboardHost::testAutoCaps()
     subject->handleKeyPress(press);
     subject->handleKeyRelease(release);
     subject->handleKeyClick(release);
-    QVERIFY(subject->vkbWidget->shiftStatus() == DuiVirtualKeyboard::ShiftOn);
+    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn);
 
     // If cursor is not at 0 position, backspace should also change the shift state.
     inputContext->cursorPos = 2;
     subject->update();
-    subject->vkbWidget->setShiftState(DuiVirtualKeyboard::ShiftOn);
-    QVERIFY(subject->vkbWidget->shiftStatus() == DuiVirtualKeyboard::ShiftOn);
+    subject->vkbWidget->setShiftState(MVirtualKeyboard::ShiftOn);
+    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn);
     subject->handleKeyPress(press);
     subject->handleKeyRelease(release);
     subject->handleKeyClick(release);
-    QVERIFY(subject->vkbWidget->shiftStatus() == DuiVirtualKeyboard::ShiftOff);
+    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOff);
 
     // Test holding backspace with preedit.
     press = KeyEvent("", QEvent::KeyPress, Qt::Key_Backspace);
@@ -454,9 +455,9 @@ void Ut_DuiKeyboardHost::testAutoCaps()
     subject->preedit = "You can use";
     // initial state: preedit("You can use"), shift state:latched, start holding backspace
     subject->update();
-    QVERIFY(subject->vkbWidget->shiftStatus() == DuiVirtualKeyboard::ShiftOff);
-    subject->vkbWidget->setShiftState(DuiVirtualKeyboard::ShiftOn);
-    QVERIFY(subject->vkbWidget->shiftStatus() == DuiVirtualKeyboard::ShiftOn);
+    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOff);
+    subject->vkbWidget->setShiftState(MVirtualKeyboard::ShiftOn);
+    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn);
 
     // press and release backspace before timeout will only delete one character,
     subject->handleKeyPress(press);
@@ -464,7 +465,7 @@ void Ut_DuiKeyboardHost::testAutoCaps()
     subject->handleKeyRelease(release);
     subject->handleKeyClick(release);
     subject->update();
-    QVERIFY(subject->vkbWidget->shiftStatus() == DuiVirtualKeyboard::ShiftOff);
+    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOff);
     QCOMPARE(subject->preedit, QString("You can us"));
 
     // but hold backspace longer than timeout, will delete the whole preedit.
@@ -473,65 +474,65 @@ void Ut_DuiKeyboardHost::testAutoCaps()
     QTest::qWait(interval / 2);
     QVERIFY(subject->backSpaceTimer.isActive());
     subject->update();
-    QVERIFY(subject->vkbWidget->shiftStatus() == DuiVirtualKeyboard::ShiftOff);
+    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOff);
     QTest::qWait((interval / 2) + 50);
     // final state: preedit(""), shift state:on, after holding backspace enough time.
     QVERIFY(subject->preedit.isEmpty());
     QVERIFY(!subject->backSpaceTimer.isActive());
     inputContext->cursorPos = 13;
     subject->update();
-    QVERIFY(subject->vkbWidget->shiftStatus() == DuiVirtualKeyboard::ShiftOn);
+    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn);
     subject->handleKeyRelease(release);
     subject->handleKeyClick(release);
-    QVERIFY(subject->vkbWidget->shiftStatus() == DuiVirtualKeyboard::ShiftOn);
+    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn);
 
     subject->hide();
-    QTest::qWait(DuiVirtualKeyboard::ShowHideTime + 50);
+    QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
 
     // Disable autoCaps
     inputContext->autoCapitalizationEnabled_ = false;
     inputContext->cursorPos = 0;
     subject->show();
     subject->update();
-    QTest::qWait(DuiVirtualKeyboard::ShowHideTime + 50);
-    QVERIFY(subject->vkbWidget->shiftStatus() == DuiVirtualKeyboard::ShiftOff);
+    QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
+    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOff);
 
     // When shift is latched, any key input except shift will turn off shift.
-    subject->vkbWidget->setShiftState(DuiVirtualKeyboard::ShiftOn);
-    QVERIFY(subject->vkbWidget->shiftStatus() == DuiVirtualKeyboard::ShiftOn);
+    subject->vkbWidget->setShiftState(MVirtualKeyboard::ShiftOn);
+    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn);
     press = KeyEvent("a", QEvent::KeyPress);
     release = KeyEvent(press, QEvent::KeyRelease);
     subject->handleKeyPress(press);
     subject->handleKeyRelease(release);
     subject->handleKeyClick(release);
-    QVERIFY(subject->vkbWidget->shiftStatus() == DuiVirtualKeyboard::ShiftOff);
+    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOff);
 
     // Backspace will also change the shift state when cursor is at 0 position.
     inputContext->cursorPos = 0;
-    subject->vkbWidget->setShiftState(DuiVirtualKeyboard::ShiftOn);
-    QVERIFY(subject->vkbWidget->shiftStatus() == DuiVirtualKeyboard::ShiftOn);
+    subject->vkbWidget->setShiftState(MVirtualKeyboard::ShiftOn);
+    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn);
     press = KeyEvent("", QEvent::KeyPress, Qt::Key_Backspace);
     release = KeyEvent(press, QEvent::KeyRelease);
     subject->handleKeyPress(press);
     subject->handleKeyRelease(release);
     subject->handleKeyClick(release);
-    QVERIFY(subject->vkbWidget->shiftStatus() == DuiVirtualKeyboard::ShiftOff);
+    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOff);
 }
 
-void Ut_DuiKeyboardHost::testApplicationOrientationChanged()
+void Ut_MKeyboardHost::testApplicationOrientationChanged()
 {
-    DuiInputMethodBase *im = subject;
-    Dui::OrientationAngle angles[] = { Dui::Angle0, Dui::Angle90, Dui::Angle180, Dui::Angle270 };
+    MInputMethodBase *im = subject;
+    M::OrientationAngle angles[] = { M::Angle0, M::Angle90, M::Angle180, M::Angle270 };
 
     for (int i = 0; i < 5; ++i) {
-        Dui::OrientationAngle currentAngle = angles[i % 4];
+        M::OrientationAngle currentAngle = angles[i % 4];
         im->appOrientationChanged(static_cast<int>(currentAngle));
         QTest::qWait(1500);
-        QCOMPARE(currentAngle, DuiPlainWindow::instance()->orientationAngle());
+        QCOMPARE(currentAngle, MPlainWindow::instance()->orientationAngle());
     }
 }
 
-void Ut_DuiKeyboardHost::testCopyPaste()
+void Ut_MKeyboardHost::testCopyPaste()
 {
     inputContext->clear();
 
@@ -549,7 +550,7 @@ void Ut_DuiKeyboardHost::testCopyPaste()
     QVERIFY(inputContext->pasteCalls == 1);
 }
 
-void Ut_DuiKeyboardHost::testPlusMinus()
+void Ut_MKeyboardHost::testPlusMinus()
 {
     QString text = QChar(0xb1);
     inputContext->sendKeyEventCalls = 0;
@@ -573,7 +574,7 @@ static QRegion region(const QSignalSpy &spy, int index)
     return spy.at(index).at(0).value<QRegion>();
 }
 
-void Ut_DuiKeyboardHost::testRegionSignals()
+void Ut_MKeyboardHost::testRegionSignals()
 {
     qRegisterMetaType<QRegion>("QRegion");
     QSignalSpy spy(subject, SIGNAL(regionUpdated(QRegion)));
@@ -588,7 +589,7 @@ void Ut_DuiKeyboardHost::testRegionSignals()
     QVERIFY(!region(spy, 0).isEmpty());
 
     // We must get another, larger region when the vkb is fully visible
-    QTest::qWait(DuiVirtualKeyboard::ShowHideTime + 50);
+    QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
     QCOMPARE(spy.count(), 2);
     QCOMPARE(spy2.count(), 2);
     qDebug() << "Passthrough region: " << region(spy, 1);
@@ -630,7 +631,7 @@ void Ut_DuiKeyboardHost::testRegionSignals()
 
     // Hide the keyboard -> empty region and input method area
     subject->hide();
-    QTest::qWait(DuiVirtualKeyboard::ShowHideTime + 50); // really hidden after animation is finished
+    QTest::qWait(MVirtualKeyboard::ShowHideTime + 50); // really hidden after animation is finished
     QCOMPARE(spy.count(), 9);
     QCOMPARE(spy2.count(), 5);
     QCOMPARE(region(spy, 8), QRegion());
@@ -641,39 +642,39 @@ void Ut_DuiKeyboardHost::testRegionSignals()
     // Preparation: store 270deg-angle region obtained as safely as possible
     spy.clear();
     spy2.clear();
-    rotateToAngle(Dui::Angle270);
+    rotateToAngle(M::Angle270);
     subject->show();
-    QTest::qWait(DuiVirtualKeyboard::ShowHideTime + 50);
+    QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
     QCOMPARE(region(spy, 1), region(spy2, 1));
     QRegion region270(region(spy, 1));
     subject->hide();
-    QTest::qWait(DuiVirtualKeyboard::ShowHideTime + 50);
-    rotateToAngle(Dui::Angle0);
+    QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
+    rotateToAngle(M::Angle0);
 
-    QSignalSpy orientationSpy(DuiPlainWindow::instance()->sceneManager(),
-                              SIGNAL(orientationChangeFinished(Dui::Orientation)));
+    QSignalSpy orientationSpy(MPlainWindow::instance()->sceneManager(),
+                              SIGNAL(orientationChangeFinished(M::Orientation)));
 
     subject->show();
-    QTest::qWait(DuiVirtualKeyboard::ShowHideTime + 50);
+    QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
     spy.clear();
     spy2.clear();
 
     // Rotate three times repeatedly with long and short waits in between.  We
     // should end up with a region identical to that stored in region270.  The
     // wait times mimic user operations that have been found to cause a problem.
-    DuiPlainWindow::instance()->sceneManager()->setOrientationAngle(Dui::Angle90);
+    MPlainWindow::instance()->sceneManager()->setOrientationAngle(M::Angle90);
     QTest::qWait(800);
     qDebug() << "Orientations finished:" << orientationSpy.count();
-    DuiPlainWindow::instance()->sceneManager()->setOrientationAngle(Dui::Angle180);
+    MPlainWindow::instance()->sceneManager()->setOrientationAngle(M::Angle180);
     QTest::qWait(5);
-    DuiPlainWindow::instance()->sceneManager()->setOrientationAngle(Dui::Angle270);
+    MPlainWindow::instance()->sceneManager()->setOrientationAngle(M::Angle270);
     qDebug() << "Orientations finished:" << orientationSpy.count();
     qDebug() << "Waiting for rotation animation to finish...";
     QTest::qWait(SceneRotationTime); // wait until rotation animation is finished
     qDebug() << "Waiting for rotation animation to finish...done!";
     // Sanity checks
     qDebug() << "Orientations finished:" << orientationSpy.count();
-    QCOMPARE(DuiPlainWindow::instance()->sceneManager()->orientationAngle(), Dui::Angle270);
+    QCOMPARE(MPlainWindow::instance()->sceneManager()->orientationAngle(), M::Angle270);
     QVERIFY(spy.count() > 0);
     QCOMPARE(spy.count(), spy2.count());
     qDebug() << "Region after animation is finished:" << subject->vkbWidget->region();
@@ -686,19 +687,19 @@ void Ut_DuiKeyboardHost::testRegionSignals()
     //QCOMPARE(region(spy, spy.count() - 1), region270);
 }
 
-void Ut_DuiKeyboardHost::rotateToAngle(Dui::OrientationAngle angle)
+void Ut_MKeyboardHost::rotateToAngle(M::OrientationAngle angle)
 {
     subject->appOrientationChanged(angle);
     QTest::qWait(SceneRotationTime); // wait until rotation animation is finished
 }
 
-void Ut_DuiKeyboardHost::testSetState_data()
+void Ut_MKeyboardHost::testSetState_data()
 {
-    QList<DuiIMHandlerState> state;
+    QList<MIMHandlerState> state;
 
-    QTest::addColumn<QList<DuiIMHandlerState> >("state");
+    QTest::addColumn<QList<MIMHandlerState> >("state");
     QTest::addColumn<int>("expectedCallCount");
-    QTest::addColumn<DuiIMHandlerState>("expectedParameter");
+    QTest::addColumn<MIMHandlerState>("expectedParameter");
 
     QTest::newRow("Empty") << state << 0 << OnScreen;
 
@@ -723,11 +724,11 @@ void Ut_DuiKeyboardHost::testSetState_data()
     QTest::newRow("Sequence2") << state << 0 << OnScreen;
 }
 
-void Ut_DuiKeyboardHost::testSetState()
+void Ut_MKeyboardHost::testSetState()
 {
-    QFETCH(QList<DuiIMHandlerState>, state);
+    QFETCH(QList<MIMHandlerState>, state);
     QFETCH(int, expectedCallCount);
-    QFETCH(DuiIMHandlerState, expectedParameter);
+    QFETCH(MIMHandlerState, expectedParameter);
 
     qDebug() << "Probe state=" << state;
 
@@ -740,9 +741,9 @@ void Ut_DuiKeyboardHost::testSetState()
     }
 }
 
-void Ut_DuiKeyboardHost::testSetStateCombination()
+void Ut_MKeyboardHost::testSetStateCombination()
 {
-    QList<DuiIMHandlerState> state;
+    QList<MIMHandlerState> state;
 
     gSetKeyboardStateCallCount = 0;
     state << Hardware;
@@ -768,7 +769,7 @@ void Ut_DuiKeyboardHost::testSetStateCombination()
     gSetKeyboardStateCallCount = 0;
 }
 
-void Ut_DuiKeyboardHost::testSymbolKeyClick()
+void Ut_MKeyboardHost::testSymbolKeyClick()
 {
     QVERIFY(subject->symbolView);
     QVERIFY(!subject->symbolView->isActive());
@@ -785,10 +786,10 @@ void Ut_DuiKeyboardHost::testSymbolKeyClick()
     QVERIFY(!subject->symbolView->isActive());
 }
 
-void Ut_DuiKeyboardHost::testUpdateSymbolViewLevel()
+void Ut_MKeyboardHost::testUpdateSymbolViewLevel()
 {
     subject->show();
-    QList<DuiIMHandlerState> state;
+    QList<MIMHandlerState> state;
 
     //hardware state
     QVERIFY(subject->hardwareKeyboard);
@@ -841,27 +842,27 @@ void Ut_DuiKeyboardHost::testUpdateSymbolViewLevel()
     subject->symbolView->showSymbolView();
     QVERIFY(subject->symbolView->isActive());
     QCOMPARE(subject->symbolView->currentLevel(), 0);
-    QCOMPARE(subject->vkbWidget->shiftStatus(), DuiVirtualKeyboard::ShiftOff);
+    QCOMPARE(subject->vkbWidget->shiftStatus(), MVirtualKeyboard::ShiftOff);
 
-    subject->vkbWidget->setShiftState(DuiVirtualKeyboard::ShiftOn);
-    QCOMPARE(subject->vkbWidget->shiftStatus(), DuiVirtualKeyboard::ShiftOn);
+    subject->vkbWidget->setShiftState(MVirtualKeyboard::ShiftOn);
+    QCOMPARE(subject->vkbWidget->shiftStatus(), MVirtualKeyboard::ShiftOn);
     QCOMPARE(spy1.count(), 1);
     QCOMPARE(subject->symbolView->currentLevel(), 1);
 
-    subject->vkbWidget->setShiftState(DuiVirtualKeyboard::ShiftLock);
+    subject->vkbWidget->setShiftState(MVirtualKeyboard::ShiftLock);
     QCOMPARE(spy1.count(), 2);
-    QCOMPARE(subject->vkbWidget->shiftStatus(), DuiVirtualKeyboard::ShiftLock);
+    QCOMPARE(subject->vkbWidget->shiftStatus(), MVirtualKeyboard::ShiftLock);
     QCOMPARE(subject->symbolView->currentLevel(), 1);
 
-    subject->vkbWidget->setShiftState(DuiVirtualKeyboard::ShiftOff);
+    subject->vkbWidget->setShiftState(MVirtualKeyboard::ShiftOff);
     QCOMPARE(spy1.count(), 3);
-    QCOMPARE(subject->vkbWidget->shiftStatus(), DuiVirtualKeyboard::ShiftOff);
+    QCOMPARE(subject->vkbWidget->shiftStatus(), MVirtualKeyboard::ShiftOff);
     QCOMPARE(subject->symbolView->currentLevel(), 0);
 
     subject->hide();
 }
 
-void Ut_DuiKeyboardHost::testKeyCycle_data()
+void Ut_MKeyboardHost::testKeyCycle_data()
 {
     QTest::addColumn<bool>("accurateMode");
     QTest::addColumn<QString>("preedit");
@@ -871,7 +872,7 @@ void Ut_DuiKeyboardHost::testKeyCycle_data()
     QTest::newRow("accurate mode") << true << "";
 }
 
-void Ut_DuiKeyboardHost::testKeyCycle()
+void Ut_MKeyboardHost::testKeyCycle()
 {
     QFETCH(bool, accurateMode);
     QFETCH(QString, preedit);
@@ -880,7 +881,7 @@ void Ut_DuiKeyboardHost::testKeyCycle()
     KeyEvent event2("456", QEvent::KeyRelease, Qt::Key_unknown, KeyEvent::CycleSet);
     KeyEvent space ( " ",  QEvent::KeyRelease, Qt::Key_Space);
 
-    //this value must be greater that MultitapTime in the file duikeyboardhost.cpp
+    //this value must be greater that MultitapTime in the file mkeyboardhost.cpp
     const int MultitapTime = 2000;
 
     subject->update();
@@ -920,4 +921,4 @@ void Ut_DuiKeyboardHost::testKeyCycle()
     QCOMPARE(inputContext->commit, QString(event2.text()[0]) + " ");
 }
 
-QTEST_APPLESS_MAIN(Ut_DuiKeyboardHost);
+QTEST_APPLESS_MAIN(Ut_MKeyboardHost);

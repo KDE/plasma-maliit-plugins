@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -19,21 +19,21 @@
 #ifndef BUTTONBARSTYLE_H
 #define BUTTONBARSTYLE_H
 
-#include <DuiWidgetStyle>
+#include <MWidgetStyle>
 
 /*!
     \brief This defines style that is common to all ButtonBar class based widgets.
            Currently such classes are tab buttons of Sym view and toolbar of the keyboard.
 */
-class DUI_EXPORT ButtonBarStyle : public DuiWidgetStyle
+class M_EXPORT ButtonBarStyle : public MWidgetStyle
 {
     Q_OBJECT
-    DUI_STYLE(ButtonBarStyle)
+    M_STYLE(ButtonBarStyle)
 };
 
-class DUI_EXPORT ButtonBarStyleContainer : public DuiWidgetStyleContainer
+class M_EXPORT ButtonBarStyleContainer : public MWidgetStyleContainer
 {
-    DUI_STYLE_CONTAINER(ButtonBarStyle)
+    M_STYLE_CONTAINER(ButtonBarStyle)
 };
 
 

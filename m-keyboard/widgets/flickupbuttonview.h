@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -19,7 +19,7 @@
 #ifndef FLICKUPBUTTONVIEW_H
 #define FLICKUPBUTTONVIEW_H
 
-#include <DuiButtonView>
+#include <MButtonView>
 #include "flickupbuttonstyle.h"
 
 class FlickUpButton;
@@ -28,10 +28,10 @@ class FlickUpButton;
  * \class FlickUpButtonView
  * \brief FlickUpButtonView implements a view for FlickUpButton
  */
-class FlickUpButtonView : public DuiButtonView
+class FlickUpButtonView : public MButtonView
 {
     Q_OBJECT
-    DUI_VIEW(DuiButtonModel, FlickUpButtonStyle)
+    M_VIEW(MButtonModel, FlickUpButtonStyle)
 
 public:
     /*!

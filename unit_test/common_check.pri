@@ -1,6 +1,6 @@
 QMAKE_EXTRA_TARGETS += check
 check.target = check
-check.commands = LD_LIBRARY_PATH=../../dui-keyboard/:$(LD_LIBRARY_PATH) ./$$TARGET
+check.commands = LD_LIBRARY_PATH=../../m-keyboard/:$(LD_LIBRARY_PATH) ./$$TARGET
 check.depends += $$TARGET
 
 QMAKE_EXTRA_TARGETS += check-xml
@@ -10,7 +10,7 @@ check-xml.depends += $$TARGET
 
 QMAKE_CLEAN += *.log *.xml *~
 
-target.path = /usr/lib/dui-keyboard-tests/$$TARGET
+target.path = /usr/lib/m-keyboard-tests/$$TARGET
 INSTALLS += target
 
 QMAKE_CXXFLAGS += -Werror
@@ -19,17 +19,17 @@ DEFINES += UNIT_TEST
 
 QT += testlib
 
-DUIKEYBOARD_DIR = ../../dui-keyboard
-WIDGETS_DIR = $$DUIKEYBOARD_DIR/widgets
-COMMON_DIR = $$DUIKEYBOARD_DIR/common
+MKEYBOARD_DIR = ../../m-keyboard
+WIDGETS_DIR = $$MKEYBOARD_DIR/widgets
+COMMON_DIR = $$MKEYBOARD_DIR/common
 
 INCLUDEPATH += \
     $$WIDGETS_DIR \
     $$COMMON_DIR \
-    $$DUIKEYBOARD_DIR \
+    $$MKEYBOARD_DIR \
 
 LIBS += \
-    -L $$DUIKEYBOARD_DIR \
+    -L $$MKEYBOARD_DIR \
 
 # coverage flags are off per default, but can be turned on via qmake COV_OPTION=on
 for(OPTION,$$list($$lower($$COV_OPTION))){
@@ -41,4 +41,4 @@ for(OPTION,$$list($$lower($$COV_OPTION))){
 
 QMAKE_CLEAN += *.gcno *.gcda
 
-CONFIG += duiimframework
+CONFIG += mimframework

@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -19,7 +19,7 @@
 #ifndef FLICKUPBUTTON_H
 #define FLICKUPBUTTON_H
 
-#include <DuiButton>
+#include <MButton>
 #include "ikeybutton.h"
 
 class VKBDataKey;
@@ -32,14 +32,14 @@ class KeyBinding;
  *  Such buttons emit signal flicked() when mouse is released
  *  above the button
  */
-class FlickUpButton : public DuiButton, public IKeyButton
+class FlickUpButton : public MButton, public IKeyButton
 {
     Q_OBJECT
 public:
     /*!
      * \Brief Constructor
      * \param name QString object name
-     * \param parent DuiWidget* parent widget
+     * \param parent MWidget* parent widget
      */
     explicit FlickUpButton(const VKBDataKey &dataKey, QGraphicsItem *parent = 0);
 

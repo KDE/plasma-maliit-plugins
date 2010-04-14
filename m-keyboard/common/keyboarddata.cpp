@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,7 +16,7 @@
 
 
 
-#include "duivirtualkeyboardstyle.h"
+#include "mvirtualkeyboardstyle.h"
 #include "keyboarddata.h"
 
 #include <QDebug>
@@ -26,7 +26,7 @@
 
 namespace
 {
-    const QString VKBConfigurationPath = "/usr/share/dui/virtual-keyboard/layouts/";
+    const QString VKBConfigurationPath = "/usr/share/meegotouch/virtual-keyboard/layouts/";
 
     const QString VKBTagKeyboard             = QString("keyboard");
     const QString VKBTagVersion              = QString("version");
@@ -146,14 +146,14 @@ inline bool KeyboardData::toBoolean(const QString &attributeValue)
 }
 
 const LayoutData *KeyboardData::layout(LayoutData::LayoutType type,
-                                       Dui::Orientation orientation,
+                                       M::Orientation orientation,
                                        bool portaitFallback) const
 {
     return layoutPrivate(type, orientation, portaitFallback);
 }
 
 LayoutData *KeyboardData::layoutPrivate(LayoutData::LayoutType type,
-                                        Dui::Orientation orientation,
+                                        M::Orientation orientation,
                                         bool portraitFallback) const
 {
     LayoutData *bestMatch = NULL;
@@ -161,7 +161,7 @@ LayoutData *KeyboardData::layoutPrivate(LayoutData::LayoutType type,
         if (layoutModel->type() == type) {
             if (layoutModel->orientation() == orientation) {
                 return layoutModel;
-            } else if (portraitFallback && (orientation == Dui::Portrait)) {
+            } else if (portraitFallback && (orientation == M::Portrait)) {
                 // According to requirements, when portrait layout is needed,
                 // landscape is used as a fallback
                 bestMatch = layoutModel;
@@ -302,11 +302,11 @@ void KeyboardData::parseTagImport(const QDomElement &element, ParseParameters &p
     }
 }
 
-Dui::Orientation KeyboardData::orientation(const QString &orientationString)
+M::Orientation KeyboardData::orientation(const QString &orientationString)
 {
-    Dui::Orientation orient = Dui::Portrait;
+    M::Orientation orient = M::Portrait;
     if (orientationString == VKBTagOrientationLandscape)
-        orient = Dui::Landscape;
+        orient = M::Landscape;
     return orient;
 }
 
@@ -329,7 +329,7 @@ void KeyboardData::parseTagLayout(const QDomElement &element, ParseParameters &p
     // same type and different orientation (copy sections to a new
     // layout model), if available.
 
-    const Dui::Orientation orient = orientation(element.attribute(VKBTagOrientation));
+    const M::Orientation orient = orientation(element.attribute(VKBTagOrientation));
     LayoutData *layoutModel = layoutPrivate(type, orient, false);
 
     if (layoutModel == NULL) {
@@ -338,11 +338,11 @@ void KeyboardData::parseTagLayout(const QDomElement &element, ParseParameters &p
         layoutModel->layoutType = type;
         layoutModel->layoutOrientation = orient;
 
-        Dui::Orientation otherOrientation;
-        if (orient == Dui::Portrait) {
-            otherOrientation = Dui::Landscape;
+        M::Orientation otherOrientation;
+        if (orient == M::Portrait) {
+            otherOrientation = M::Landscape;
         } else {
-            otherOrientation = Dui::Portrait;
+            otherOrientation = M::Portrait;
         }
         const LayoutData *const parentLayout = layoutPrivate(type, otherOrientation, false);
         if (parentLayout) {

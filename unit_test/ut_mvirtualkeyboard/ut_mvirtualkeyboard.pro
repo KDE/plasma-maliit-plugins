@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = app
-CONFIG += QtTest Dui DuiImServer duiimframework duireactionmap
+CONFIG += QtTest meegotouch MImServer mimframework duireactionmap
 DEPENDPATH += .
 INCLUDEPATH += . \
 		../stubs/
@@ -11,14 +11,14 @@ INCLUDEPATH += . \
 
 include(../common_check.pri)
 
-LIBS += -Wl,-rpath=/usr/lib/dui-im-plugins/ -lduikeyboard
+LIBS += -Wl,-rpath=/usr/lib/m-im-plugins/ -lmkeyboard
 
 # Input
-HEADERS += ut_duivirtualkeyboard.h \
-           ../stubs/duigconfitem_stub.h \
+HEADERS += ut_mvirtualkeyboard.h \
+           ../stubs/mgconfitem_stub.h \
            ../stubs/fakegconf.h \
            ../stubs/duireactionmaptester.h
 
-SOURCES += ut_duivirtualkeyboard.cpp \
+SOURCES += ut_mvirtualkeyboard.cpp \
            ../stubs/fakegconf.cpp
 

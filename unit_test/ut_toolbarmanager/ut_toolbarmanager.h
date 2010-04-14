@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -22,10 +22,10 @@
 #include <QObject>
 #include <QtTest/QTest>
 
-class DuiApplication;
+class MApplication;
 class ToolbarManager;
-class DuiImToolbar;
-class DuiVirtualKeyboardStyleContainer;
+class MImToolbar;
+class MVirtualKeyboardStyleContainer;
 
 class Ut_ToolbarManager : public QObject
 {
@@ -39,10 +39,10 @@ private slots:
     void testLoadToolbar();
 
 private:
-    DuiApplication *app;
+    MApplication *app;
     ToolbarManager *subject;
-    DuiImToolbar *m_parent;
-    DuiVirtualKeyboardStyleContainer *style;
+    MImToolbar *m_parent;
+    MVirtualKeyboardStyleContainer *style;
 };
 
 #endif

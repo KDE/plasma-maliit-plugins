@@ -1,9 +1,9 @@
 TEMPLATE = app
-CONFIG += QtTest Dui DuiImServer duiimframework
+CONFIG += QtTest meegotouch MImServer mimframework
 DEPENDPATH += .
 INCLUDEPATH += 	. \
 
-LIBS += -L/usr/lib -Wl,-rpath=/usr/lib/dui-im-plugins/ -lduikeyboard
+LIBS += -L/usr/lib -Wl,-rpath=/usr/lib/m-im-plugins/ -lmkeyboard
 
 
 # Input
@@ -13,7 +13,7 @@ SOURCES += ut_notification.cpp
 include(../common_check.pri)
 
 CSS_DATA = test.css
-css_data.path = /usr/share/dui-keyboard-tests/ut_notification/
+css_data.path = /usr/share/m-keyboard-tests/ut_notification/
 css_data.files = $$CSS_DATA
 
 INSTALLS += css_data

@@ -1,5 +1,5 @@
 TEMPLATE = app
-CONFIG += QtTest Dui duiimframework
+CONFIG += QtTest meegotouch mimframework
 QT += testlib
 
 DEPENDPATH += .
@@ -9,15 +9,15 @@ INCLUDEPATH +=  . \
 OBJECTS_DIR = .obj
 MOC_DIR = .moc
 
-LIBS += -Wl,-rpath=/usr/lib/dui-im-plugins/ -lduikeyboard
+LIBS += -Wl,-rpath=/usr/lib/m-im-plugins/ -lmkeyboard
 
 
-HEADERS += ut_duiimtoolbar.h \
-           ../stubs/duigconfitem_stub.h \
+HEADERS += ut_mimtoolbar.h \
+           ../stubs/mgconfitem_stub.h \
            ../stubs/fakegconf.h
 
 
-SOURCES += ut_duiimtoolbar.cpp \
+SOURCES += ut_mimtoolbar.cpp \
            ../stubs/fakegconf.cpp
 
 include(../common_check.pri)

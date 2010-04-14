@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,22 +16,22 @@
 
 
 
-#include "duivirtualkeyboardstyle.h"
+#include "mvirtualkeyboardstyle.h"
 #include "keybuttonarea.h"
 #include "limitedtimer.h"
 #include "popupbase.h"
 #include "popupfactory.h"
 
-#include <DuiApplication>
-#include <DuiComponentData>
-#include <DuiFeedbackPlayer>
+#include <MApplication>
+#include <MComponentData>
+#include <MFeedbackPlayer>
 #include <QDebug>
 #include <QEvent>
 #include <QGraphicsLinearLayout>
 #include <QGraphicsSceneMouseEvent>
 #include <QHash>
 #include <QKeyEvent>
-#include <duitimestamp.h>
+#include <mtimestamp.h>
 
 namespace
 {
@@ -49,12 +49,12 @@ namespace
     const qreal ZValueButtons = 0.0;
 };
 
-KeyButtonArea::KeyButtonArea(DuiVirtualKeyboardStyleContainer *style,
+KeyButtonArea::KeyButtonArea(MVirtualKeyboardStyleContainer *style,
                              QSharedPointer<const LayoutSection> sectionModel,
                              ButtonSizeScheme buttonSizeScheme,
                              bool usePopup,
                              QGraphicsWidget *parent)
-    : DuiWidget(parent),
+    : MWidget(parent),
       shiftButton(0),
       currentLevel(0),
       popup(PopupFactory::instance()->createPopup(*style, this)),
@@ -82,7 +82,7 @@ KeyButtonArea::KeyButtonArea(DuiVirtualKeyboardStyleContainer *style,
 
     popup->hidePopup();
 
-    feedbackPlayer = DuiComponentData::feedbackPlayer();
+    feedbackPlayer = MComponentData::feedbackPlayer();
 }
 
 KeyButtonArea::~KeyButtonArea()
@@ -138,7 +138,7 @@ void KeyButtonArea::updatePopup(const QPoint &pointerPosition, const IKeyButton 
     }
 
     const QRect &buttonRect = key->buttonRect();
-    // duiimframework guarantees that scene positions matches with
+    // mimframework guarantees that scene positions matches with
     // screen position, so we can use mapToScene to calculate screen position
     const QPoint pos = mapToScene(buttonRect.topLeft()).toPoint();
 
@@ -239,7 +239,7 @@ KeyButtonArea::mousePressEvent(QGraphicsSceneMouseEvent *event)
         return;
     }
 
-    duiTimestamp("KeyButtonArea", key->label());
+    mTimestamp("KeyButtonArea", key->label());
 
     fingerInsideArea = true;
 
@@ -284,7 +284,7 @@ KeyButtonArea::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     IKeyButton *key = keyAt(pointerPos);
 
     if (key) {
-        duiTimestamp("KeyButtonArea", key->label());
+        mTimestamp("KeyButtonArea", key->label());
     }
 
     // It's presumably possible that we're getting this release event on top
@@ -343,7 +343,7 @@ void KeyButtonArea::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
         // Finger has slid off the keys
         if (fingerInsideArea) {
             if (accurateMode && feedbackPlayer)
-                feedbackPlayer->play(DuiFeedbackPlayer::Cancel);
+                feedbackPlayer->play(MFeedbackPlayer::Cancel);
 
             popup->hidePopup();
 
@@ -368,7 +368,7 @@ void KeyButtonArea::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
             if (accurateMode && feedbackPlayer) {
                 // Finger has slid from a key to an adjacent one.
-                feedbackPlayer->play(DuiFeedbackPlayer::Press);
+                feedbackPlayer->play(MFeedbackPlayer::Press);
             }
 
             // Use has to keep finger still to generate long press.
@@ -550,7 +550,7 @@ KeyButtonArea::flickCheck()
     return res;
 }
 
-const DuiVirtualKeyboardStyleContainer &KeyButtonArea::style() const
+const MVirtualKeyboardStyleContainer &KeyButtonArea::style() const
 {
     return *styleContainer;
 }

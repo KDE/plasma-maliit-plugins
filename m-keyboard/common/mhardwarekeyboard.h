@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -16,31 +16,31 @@
 
 
 
-#ifndef DUIHARDWAREKEYBOARD_H
-#define DUIHARDWAREKEYBOARD_H
+#ifndef MHARDWAREKEYBOARD_H
+#define MHARDWAREKEYBOARD_H
 
 #include <QObject>
 #include <QMap>
-#include "duixkb.h"
+#include "mxkb.h"
 #include "hwkbcharloopsmanager.h"
-#include "duikeyboardcommon.h"
+#include "mkeyboardcommon.h"
 #include "keyevent.h"
-#include <DuiNamespace>
+#include <MNamespace>
 
 class QKeyEvent;
-class DuiVirtualKeyboard;
+class MVirtualKeyboard;
 
 /*!
-  \brief DuiHardwareKeyboard implement the hardware keyboard for inputmethod plugin.
+  \brief MHardwareKeyboard implement the hardware keyboard for inputmethod plugin.
 
-  Class DuiHardwareKeyboard provides some functionality for hardware keyboard, e.g. recording input sensitive
+  Class MHardwareKeyboard provides some functionality for hardware keyboard, e.g. recording input sensitive
   modifiers(current sensitive modifier keys are Shift key and Fn key); latch/unlatch, lock/unlock the modifiers,
   auto-capitalization; auto-lock Fn key when focus changing to number/phone number content type etc.
-  There are three states of a modifier key: \a Clear, \a Latched, and \a Locked. The DuiHardWareKeyboard keeps
+  There are three states of a modifier key: \a Clear, \a Latched, and \a Locked. The MHardWareKeyboard keeps
   the states of modifier keys (Shift, Sym and Fn) until the widget loses the focus.
-  See dui-im-framework/doc/src/internals.dox section KeyEventFiltering for more detail.
+  See m-im-framework/doc/src/internals.dox section KeyEventFiltering for more detail.
 */
-class DuiHardwareKeyboard : public QObject
+class MHardwareKeyboard : public QObject
 {
     Q_OBJECT
 
@@ -75,18 +75,18 @@ public:
     };
 
     /*!
-     * \brief Constructor for creating an DuiHardwareKeyboard object.
+     * \brief Constructor for creating an MHardwareKeyboard object.
      * \param parent Parent object.
      */
-    DuiHardwareKeyboard(QObject *parent = 0);
+    MHardwareKeyboard(QObject *parent = 0);
 
     //! Destructor
-    ~DuiHardwareKeyboard();
+    ~MHardwareKeyboard();
 
     /*!
      *  \brief Sets keyboard type according text entry type.
      */
-    void setKeyboardType(Dui::TextContentType type);
+    void setKeyboardType(M::TextContentType type);
 
     /*!
      * \brief Gets current state for \a modifier key in hardware keyboard.
@@ -104,7 +104,7 @@ public:
      *
      * Exception: the key event may also come from the symbol view.
      *
-     * See dui-im-framework/doc/src/internals.dox section KeyEventFiltering for more detail.
+     * See m-im-framework/doc/src/internals.dox section KeyEventFiltering for more detail.
      *
      * \return true if the event was handled, false otherwise
      */
@@ -205,15 +205,15 @@ private:
     //! Return true if the \a state is valid for \a modifier.
     bool isValidModifierState(Qt::KeyboardModifier modifier, ModifierState state);
 
-    Dui::TextContentType keyboardType;
-    DuiXkb duiXkb;
+    M::TextContentType keyboardType;
+    MXkb mXkb;
     bool autoCaps;
     QList<RedirectedKey> sensitiveKeys;
     bool filterNextKey;
     HwKbCharLoopsManager hwkbCharLoopsManager;
 
-    friend class Ut_DuiHardwareKeyboard;
-    friend class Ft_DuiHardwareKeyboard;
+    friend class Ut_MHardwareKeyboard;
+    friend class Ft_MHardwareKeyboard;
 };
 
 #endif
