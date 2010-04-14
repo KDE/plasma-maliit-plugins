@@ -10,7 +10,8 @@ QMAKE_CXXFLAGS += -Werror
 QT += xml
 
 CONFIG += plugin dui duiimengine duiimenginewords duiimframework duireactionmap
-CONFIG += duicontrolpanel
+#CONFIG += duicontrolpanel
+DEFINES += NOCONTROLPANEL
 
 CONFIG += link_pkgconfig
 PKGCONFIG += gconf-2.0
