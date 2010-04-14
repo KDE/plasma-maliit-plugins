@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -34,8 +34,8 @@ public:
     DuiReactionMapStub();
     virtual ~DuiReactionMapStub();
 
-    virtual void duiReactionMapConstructor(QWidget *topLevelWidget, const QString &appIdentifier, QObject *parent);
-    virtual void duiReactionMapDestructor();
+    virtual void duireactionMapConstructor(QWidget *topLevelWidget, const QString &appIdentifier, QObject *parent);
+    virtual void duireactionMapDestructor();
 
     virtual DuiReactionMap *instance(QWidget *anyWidget);
     virtual void setInactiveDrawingValue();
@@ -63,11 +63,11 @@ DuiReactionMapStub::~DuiReactionMapStub()
 {
 }
 
-void DuiReactionMapStub::duiReactionMapConstructor(QWidget */*topLevelWidget*/, const QString &/*appIdentifier*/, QObject */*parent*/)
+void DuiReactionMapStub::duireactionMapConstructor(QWidget */*topLevelWidget*/, const QString &/*appIdentifier*/, QObject */*parent*/)
 {
 }
 
-void DuiReactionMapStub::duiReactionMapDestructor()
+void DuiReactionMapStub::duireactionMapDestructor()
 {
 }
 
@@ -155,12 +155,12 @@ DuiReactionMapStub *gDuiReactionMapStub = &gDefaultDuiReactionMapStub;
 
 DuiReactionMap::DuiReactionMap(QWidget *topLevelWidget, const QString &appIdentifier, QObject *parent)
 {
-    gDuiReactionMapStub->duiReactionMapConstructor(topLevelWidget, appIdentifier, parent);
+    gDuiReactionMapStub->duireactionMapConstructor(topLevelWidget, appIdentifier, parent);
 }
 
 DuiReactionMap::~DuiReactionMap()
 {
-    gDuiReactionMapStub->duiReactionMapDestructor();
+    gDuiReactionMapStub->duireactionMapDestructor();
 }
 
 DuiReactionMap *DuiReactionMap::instance(QWidget *anyWidget)

@@ -1,4 +1,4 @@
-/* * This file is part of dui-keyboard *
+/* * This file is part of m-keyboard *
  *
  * Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
  * All rights reserved.
@@ -25,9 +25,9 @@
 
 #include "keybuttonarea.h"
 
-#include <DuiButton>
-#include <DuiDeviceProfile>
-#include <DuiLabel>
+#include <MButton>
+#include <MDeviceProfile>
+#include <MLabel>
 
 #include <string.h>
 
@@ -77,7 +77,7 @@ public:
     virtual void clear();
     //! \reimp_end
 
-    //! \brief Checks that every DuiButton child of \a item has reactive area drawn on it.
+    //! \brief Checks that every MButton child of \a item has reactive area drawn on it.
     bool testChildButtonReactiveAreas(const QGraphicsView *view, const QGraphicsItem *item);
 
     /*! \brief Checks whether correct reaction color is drawn at different grid points of the view.
@@ -244,19 +244,19 @@ void DuiReactionMapTester::clear()
 
 bool DuiReactionMapTester::testChildButtonReactiveAreas(const QGraphicsView *view, const QGraphicsItem *item)
 {
-    // This test does not walk through every button in vkb because most of them are not DuiButtons anymore.
+    // This test does not walk through every button in vkb because most of them are not MButtons anymore.
     // However, it does check the few buttons that are so this is still useful. Also, we still have the
     // grid test to cover all buttons.
     bool success = true;
 
     if (item->isVisible()) {
-        if (dynamic_cast<const DuiButton *>(item)) {
+        if (dynamic_cast<const MButton *>(item)) {
             setTransform(item, view);
             success = isReactiveArea(item->boundingRect().toRect());
 
             if (!success) {
                 qDebug() << "Button with scene rect " << item->mapRectToScene(item->boundingRect())
-                         << " and label " << static_cast<const DuiButton *>(item)->text()
+                         << " and label " << static_cast<const MButton *>(item)->text()
                          << " has incomplete reactive area.";
             }
         } else {
@@ -312,10 +312,10 @@ bool DuiReactionMapTester::testReactionMapGrid(const QGraphicsView *view,
                 item = 0;
             }
 
-            // If we hit DuiLabel take the parent item which is DuiButton
-            if (dynamic_cast<const DuiLabel *>(item)) {
+            // If we hit MLabel take the parent item which is MButton
+            if (dynamic_cast<const MLabel *>(item)) {
                 item = item->parentItem();
-                Q_ASSERT(dynamic_cast<const DuiButton *>(item));
+                Q_ASSERT(dynamic_cast<const MButton *>(item));
             }
 
             DuiReactionMapTester::ReactionColorValue expectedColor;
@@ -327,7 +327,7 @@ bool DuiReactionMapTester::testReactionMapGrid(const QGraphicsView *view,
             if (!item) {
                 // No scene item -> we should be transparent
                 expectedColor = Transparent;
-            } else if (dynamic_cast<const DuiButton *>(item)
+            } else if (dynamic_cast<const MButton *>(item)
                        || (kba && kba->keyAt(kba->mapFromScene(scenePoint).toPoint()))) {
                 // Buttons should always have reactive color.
                 expectedColor = ReactivePressRelease;
@@ -436,12 +436,12 @@ DuiReactionMapTester::ReactionColorValue DuiReactionMapTester::colorAt(const QPo
 
 int DuiReactionMapTester::screenWidth() const
 {
-    return DuiDeviceProfile::instance()->resolution().width();
+    return MDeviceProfile::instance()->resolution().width();
 }
 
 int DuiReactionMapTester::screenHeight() const
 {
-    return DuiDeviceProfile::instance()->resolution().height();
+    return MDeviceProfile::instance()->resolution().height();
 }
 
 void DuiReactionMapTester::tmpDump() const
@@ -516,4 +516,4 @@ bool DuiReactionMapTester::isInsideReactionMap(const QRect &rect) const
     return QRect(0, 0, width(), height()).contains(rect);
 }
 
-#endif // DUIREACTIONMAPTESTER_H
+#endif // MREACTIONMAPTESTER_H
