@@ -30,7 +30,8 @@ class MButton;
 /*!
  \brief The ToolbarManager class manager the virtual keyboard toolbar.
 
-  ToolbarManager loads and managers not only the toolbars which defined with GConf key "/M/InputMethods/Toolbars",
+  ToolbarManager loads and managers not only the toolbars which defined with GConf key
+  "/meegotouch/inputmethods/toolbars",
   but also the copy/paste button and close button.
 */
 class ToolbarManager : public QObject

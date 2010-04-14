@@ -75,7 +75,7 @@ namespace
     const QString FNOnIndicatorLabel("123");
     const QString FNLockedIndicatorLabel("<U>123</U>");
     const Qt::KeyboardModifier FnLevelModifier = Qt::GroupSwitchModifier;
-    const QString SystemDisplayLanguage("/M/i18n/Language");
+    const QString SystemDisplayLanguage("/meegotouch/i18n/language");
 
     int indexOf(const QGraphicsLayout *layout, const QGraphicsLayoutItem *item)
     {

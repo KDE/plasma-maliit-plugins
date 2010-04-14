@@ -26,7 +26,7 @@
 
 namespace
 {
-    const QString SystemDisplayLanguage("/M/i18n/Language");
+    const QString SystemDisplayLanguage("/meegotouch/i18n/language");
 }
 
 bool HwKbCharLoopsManager::loadCharLoops(const QString &fileName)

@@ -25,7 +25,7 @@
 
 namespace
 {
-    const QString SystemDisplayLanguage("/M/i18n/Language");
+    const QString SystemDisplayLanguage("/meegotouch/i18n/language");
     const QString HardwareKeyboardCharLoopsFile("hwkbcharloops.xml");
     const QString HwKbCharLoopConfigurationPath = "/usr/share/meegotouch/virtual-keyboard/layouts/";
 

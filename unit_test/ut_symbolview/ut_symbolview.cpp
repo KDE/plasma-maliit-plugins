@@ -42,8 +42,8 @@
 
 namespace
 {
-    const QString InputMethodSettingName("/M/InputMethods/Languages");
-    const QString DefaultLanguageSettingName("/M/InputMethods/Languages/Default");
+    const QString InputMethodSettingName("/meegotouch/inputmethods/languages");
+    const QString DefaultLanguageSettingName("/meegotouch/inputmethods/languages/default");
     const QString DefaultLanguage("en");
 
     const int SceneRotationTime = 1400;

@@ -22,11 +22,11 @@
 
 namespace
 {
-    const QString InputMethodLanguages("/M/InputMethods/Languages");
-    const QString NumberFormatSettingName("/M/InputMethods/NumberFormat");
-    const QString InputMethodDefaultLanguage("/M/InputMethods/Languages/Default");
-    const QString HardwareKeyboardLayout("/M/InputMethods/HWKeyboard/Layout");
-    const QString SystemDisplayLanguage("/M/i18n/Language");
+    const QString InputMethodLanguages("/meegotouch/inputmethods/languages");
+    const QString NumberFormatSettingName("/meegotouch/inputmethods/numberformat");
+    const QString InputMethodDefaultLanguage("/meegotouch/inputmethods/languages/default");
+    const QString HardwareKeyboardLayout("/meegotouch/inputmethods/hwkeyboard/layout");
+    const QString SystemDisplayLanguage("/meegotouch/i18n/language");
     const QString DefaultNumberFormat("latin");
     const QString LayoutFileExtension(".xml");
     const QString FallbackLanguage("en");

@@ -75,14 +75,14 @@ void Ut_MVirtualKeyboard::initTestCase()
     static int argc = 2;
     app = new MApplication(argc, argv);
 
-    QString InputMethodSetting("/M/InputMethods/Languages");
+    QString InputMethodSetting("/meegotouch/inputmethods/languages");
     MGConfItem item1(InputMethodSetting);
 
     QStringList langlist;
     langlist << "en_GB" << "fi" << "ar_SA";
     item1.set(QVariant(langlist));
 
-    QString DefaultLanguageSetting("/M/InputMethods/Languages/Default");
+    QString DefaultLanguageSetting("/meegotouch/inputmethods/languages/default");
     MGConfItem item2(DefaultLanguageSetting);
     QString defaultlanguage = "en_GB";
     item2.set(QVariant(defaultlanguage));
@@ -379,7 +379,7 @@ void Ut_MVirtualKeyboard::switchLevelTest()
 
 void Ut_MVirtualKeyboard::flickRightHandlerTest()
 {
-    QStringList langList = MGConfItem("/M/InputMethods/Languages").value().toStringList();
+    QStringList langList = MGConfItem("/meegotouch/inputmethods/languages").value().toStringList();
     langList.sort();
 
     // Vkb has just been created and is running an animation.
@@ -418,7 +418,7 @@ void Ut_MVirtualKeyboard::flickRightHandlerTest()
 
 void Ut_MVirtualKeyboard::flickLeftHandlerTest()
 {
-    QStringList langList = MGConfItem("/M/InputMethods/Languages").value().toStringList();
+    QStringList langList = MGConfItem("/meegotouch/inputmethods/languages").value().toStringList();
     langList.sort();
 
     // Vkb has just been created and is running an animation.

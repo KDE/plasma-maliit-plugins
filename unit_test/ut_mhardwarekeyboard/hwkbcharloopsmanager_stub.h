@@ -23,7 +23,7 @@
 
 namespace
 {
-    const QString SystemDisplayLanguage("/M/i18n/Language");
+    const QString SystemDisplayLanguage("/meegotouch/i18n/language");
     const QString StubAccentedCharacters = QString("%1%2%3%4%5%6")
                                            .arg(QChar(0x00E4))
                                            .arg(QChar(0x00E0))

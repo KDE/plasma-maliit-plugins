@@ -27,9 +27,9 @@
 
 namespace
 {
-    const QString LanguageListSettingName("/M/InputMethods/Languages");
-    const QString NumberFormatSettingName("/M/InputMethods/NumberFormat");
-    const QString DisplayLanguageSettingName("/M/i18n/Language");
+    const QString LanguageListSettingName("/meegotouch/inputmethods/languages");
+    const QString NumberFormatSettingName("/meegotouch/inputmethods/numberformat");
+    const QString DisplayLanguageSettingName("/meegotouch/i18n/language");
     const QString LatinNumberFormat("latin");
     const QString ArabicNumberFormat("arabic");
     const QString NumberKeyboardFileArabic("number_ar.xml");
