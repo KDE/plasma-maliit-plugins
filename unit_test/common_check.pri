@@ -10,7 +10,7 @@ check-xml.depends += $$TARGET
 
 QMAKE_CLEAN += *.log *.xml *~
 
-target.path = /usr/lib/m-keyboard-tests/$$TARGET
+target.path = /usr/lib/meego-keyboard-tests/$$TARGET
 INSTALLS += target
 
 QMAKE_CXXFLAGS += -Werror
