@@ -3,7 +3,7 @@
 RVAL=0
 
 #
-# Stolen from Jani Mikkonen's rt.sh for libdui tests
+# Stolen from Jani Mikkonen's rt.sh for libmeegotouch tests
 #
 function emptylog() {
     FILENAME=$1
@@ -55,8 +55,8 @@ case "$TESTCONTEXT" in
 	;;
 	*)
 		# tests are run automated on TATAM infrastructure
-		TMPDIR=/tmp/dui-keyboard-tests
-		TESTBASE=/usr/share/dui-keyboard-tests/
+		TMPDIR=/tmp/meego-keyboard-tests
+		TESTBASE=/usr/share/meego-keyboard-tests/
 		rm -fr $TMPDIR && mkdir -p $TMPDIR
 		OUTSTYLE="xml"
 	;;

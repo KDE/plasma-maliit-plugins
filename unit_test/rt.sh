@@ -38,7 +38,7 @@ JUNITLOG=./$BASENAME.log.xml
 if [ ! -f ./$BASENAME ]; then
     EXIT_CODE=255
 else
-    LD_LIBRARY_PATH="../../dui-keyboard" ./$BASENAME -xml -o ./$BASENAME.log
+    LD_LIBRARY_PATH="../../m-keyboard" ./$BASENAME -xml -o ./$BASENAME.log
     xsltproc --nonet ../qtestlib2junitxml.xsl $QTESTLOG > $JUNITLOG
     EXIT_CODE=$?
 fi

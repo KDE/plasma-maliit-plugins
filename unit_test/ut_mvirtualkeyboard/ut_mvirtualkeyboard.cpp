@@ -56,7 +56,7 @@ MApplication::~MApplication()
 
 LayoutMenu::~LayoutMenu()
 {
-//this stub allows to avoid crash in libdui
+//this stub allows to avoid crash in libmeegotouch
 }
 
 void Notification::displayText(const QString &message)

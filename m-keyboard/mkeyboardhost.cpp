@@ -118,7 +118,7 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
     // affected as well. If we want to keep the current hiding/showing animation
     // (up & down) without getting it combined with the rotation animation
     // we have at least two options:
-    // 1) Make our own MOrientationAnimation when libdui begins supporting
+    // 1) Make our own MOrientationAnimation when libmeegotouch begins supporting
     //    setting it, through theme probably.
     // 2) Add widgets directly to scene (detached from MSceneManager) and
     //    update their transformations by hand.

@@ -96,7 +96,7 @@ void LayoutMenu::loadLanguageMenu()
     //% "Keyboard options"
     keyboardOptionDialog = new MDialog(qtTrId("qtn_vkb_keyboard_options"), M::NoButton);
     keyboardOptionDialog->setCentralWidget(centralWidget);
-    // Note: current (pre 0.20) libdui doesn't have dialog hidden on construction.
+    // Note: current (pre 0.20) libmeegotouch doesn't have dialog hidden on construction.
     // do that explicitly here so the signals are emitted correctly
     keyboardOptionDialog->hide();
 

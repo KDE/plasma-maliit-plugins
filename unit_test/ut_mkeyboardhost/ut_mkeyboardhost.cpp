@@ -593,7 +593,7 @@ void Ut_MKeyboardHost::testRegionSignals()
     QCOMPARE(spy.count(), 2);
     QCOMPARE(spy2.count(), 2);
     qDebug() << "Passthrough region: " << region(spy, 1);
-    qDebug() << "libdui region: " << region(spy2, 1);
+    qDebug() << "libmeegotouch region: " << region(spy2, 1);
     QCOMPARE(region(spy, 1), region(spy2, 1));
     QVERIFY(!(region(spy, 1) - region(spy, 0)).isEmpty());
 
@@ -683,7 +683,7 @@ void Ut_MKeyboardHost::testRegionSignals()
     // Remove the next two lines when QCOMPARE is enabled
     qDebug() << "Actual region:" << region(spy, spy.count() - 1);
     qDebug() << "Expected region:" << region270;
-    // This fails at the moment. libdui/Qt bug suspected.
+    // This fails at the moment. libmeegotouch/Qt bug suspected.
     //QCOMPARE(region(spy, spy.count() - 1), region270);
 }
 
