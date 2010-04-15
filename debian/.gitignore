@@ -1,8 +1,8 @@
-dui-im-virtualkeyboard-dbg
-dui-im-virtualkeyboard-tests.substvars
-dui-im-virtualkeyboard-tests
-dui-im-virtualkeyboard.substvars
-dui-im-virtualkeyboard
+m-im-virtualkeyboard-dbg
+m-im-virtualkeyboard-tests.substvars
+m-im-virtualkeyboard-tests
+m-im-virtualkeyboard.substvars
+m-im-virtualkeyboard
 files
 tmp
 *.debhelper

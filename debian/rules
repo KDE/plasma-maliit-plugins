@@ -80,16 +80,14 @@ install: build
 	# generate tests.xml
 	cd unit_test && ./gen-tests-xml.sh > tests.xml
 
-	#libdui0 package 
+	#libmeegotouch0 package 
 	INSTALL_ROOT=$(CURDIR)/debian/tmp make  $(PARALLEL_MAKEFLAGS) install
 
-	#libdui-doc package
+	#libmeegotouch-doc package
 
 	#make  $(PARALLEL_MAKEFLAGS) doc
-	#mkdir -p ${CURDIR}/debian/tmp/usr/share/doc/libdui/api
-	#cp -r doc/html/*  ${CURDIR}/debian/tmp/usr/share/doc/libdui/api/
-	
-	
+	#mkdir -p ${CURDIR}/debian/tmp/usr/share/doc/libmeegotouch/api
+	#cp -r doc/html/*  ${CURDIR}/debian/tmp/usr/share/doc/libmeegotouch/api/
 
 
 # Build architecture-independent files here.
@@ -117,7 +115,7 @@ binary-arch: build install
 #	dh_installinfo
 #	dh_installman
 	dh_link
-	dh_strip --dbg-package=dui-keyboard
+	dh_strip --dbg-package=meego-keyboard
 	dh_compress
 	dh_fixperms
 #	dh_perl
