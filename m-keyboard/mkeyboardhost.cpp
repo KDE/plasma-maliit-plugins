@@ -55,8 +55,8 @@ namespace
     const QString InputMethodList("MInputMethodList");
     const QString DefaultInputLanguage("en_GB");
     // TODO: check that these paths still hold
-    const QString InputMethodCorrectionSetting("/Meego/InputMethods/CorrectionEnabled");
-    const QString InputMethodCorrectionEngine("/Meego/InputMethods/CorrectionEngine");
+    const QString InputMethodCorrectionSetting("/meegotouch/inputmethods/correctionenabled");
+    const QString InputMethodCorrectionEngine("/meegotouch/inputmethods/correctionengine");
     const QString AutocapsTrigger(".?!¡¿");
     const int RotationDuration = 750; //! After vkb hidden, how long to wait until shown again
     const int AutoBackspaceDelay = 500;      // in ms
