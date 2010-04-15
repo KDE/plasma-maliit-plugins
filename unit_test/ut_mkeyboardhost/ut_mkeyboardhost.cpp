@@ -835,6 +835,7 @@ void Ut_MKeyboardHost::testUpdateSymbolViewLevel()
     QSignalSpy spy1(subject->vkbWidget, SIGNAL(shiftLevelChanged()));
 
     subject->autoCapsEnabled = false; // disable auto caps
+    subject->vkbWidget->setShiftState(MVirtualKeyboard::ShiftOff);
     state.clear();
     state << OnScreen;
     subject->setState(state);
