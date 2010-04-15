@@ -8,7 +8,7 @@ SUBDIRS = m-keyboard \
 include (doc/doc.pri)
 
 #error-correction 
-GCONF_DATA = m-keyboard.schemas
+GCONF_DATA = meego-keyboard.schemas
 gconf_data.path = /usr/share/gconf/schemas
 gconf_data.files = $$GCONF_DATA
 
