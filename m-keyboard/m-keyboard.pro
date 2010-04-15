@@ -43,7 +43,7 @@ SOURCES += \
 
 target.path += /usr/lib/m-im-plugins
 
-install_headers.path = /usr/include/m-keyboard
+install_headers.path = /usr/include/meego-keyboard
 install_headers.files = $$INSTALL_HEADERS
 
 
