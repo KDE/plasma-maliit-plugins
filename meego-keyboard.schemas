@@ -2,9 +2,9 @@
 <gconfschemafile>
   <schemalist>
     <schema>
-      <key>/schemas/Dui/InputMethods/Languages</key>
-      <applyto>/Dui/InputMethods/Languages</applyto>
-      <owner>dui</owner>
+      <key>/schemas/meegotouch/inputmethods/languages</key>
+      <applyto>/meegotouch/inputmethods/languages</applyto>
+      <owner>meegotouch</owner>
       <type>list</type>
       <list_type>string</list_type>
       <default>[en,ar,cs,da,de,en,es,fi,fr,it,nl,no,pl,pt,ru,sv]</default>
@@ -15,9 +15,9 @@
     </schema>
 
     <schema>
-      <key>/schemas/Dui/InputMethods/Languages/Default</key>
-      <applyto>/Dui/InputMethods/Languages/Default</applyto>
-      <owner>dui</owner>
+      <key>/schemas/meegotouch/inputmethods/languages/default</key>
+      <applyto>/meegotouch/inputmethods/languages/default</applyto>
+      <owner>meegotouch</owner>
       <type>string</type>
       <default>en</default>
       <locale name="C">
@@ -27,9 +27,9 @@
     </schema>
 
     <schema>
-      <key>/schemas/Dui/InputMethods/CorrectionEnabled</key>
-      <applyto>/Dui/InputMethods/CorrectionEnabled</applyto>
-      <owner>dui</owner>
+      <key>/schemas/meegotouch/inputmethods/correctionenabled</key>
+      <applyto>/meegotouch/inputmethods/correctionenabled</applyto>
+      <owner>meegotouch</owner>
       <type>bool</type>
       <default>true</default>
       <locale name="C">
