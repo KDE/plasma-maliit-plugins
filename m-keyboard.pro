@@ -1,5 +1,5 @@
 CONFIG += ordered 
-TARGET = m-im-plugins
+TARGET = meego-im-plugins
 TEMPLATE = subdirs
 SUBDIRS = m-keyboard \
       unit_test \

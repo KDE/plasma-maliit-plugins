@@ -38,7 +38,7 @@ class MVirtualKeyboard;
   auto-capitalization; auto-lock Fn key when focus changing to number/phone number content type etc.
   There are three states of a modifier key: \a Clear, \a Latched, and \a Locked. The MHardWareKeyboard keeps
   the states of modifier keys (Shift, Sym and Fn) until the widget loses the focus.
-  See m-im-framework/doc/src/internals.dox section KeyEventFiltering for more detail.
+  See meego-im-framework/doc/src/internals.dox section KeyEventFiltering for more detail.
 */
 class MHardwareKeyboard : public QObject
 {
@@ -104,7 +104,7 @@ public:
      *
      * Exception: the key event may also come from the symbol view.
      *
-     * See m-im-framework/doc/src/internals.dox section KeyEventFiltering for more detail.
+     * See meego-im-framework/doc/src/internals.dox section KeyEventFiltering for more detail.
      *
      * \return true if the event was handled, false otherwise
      */

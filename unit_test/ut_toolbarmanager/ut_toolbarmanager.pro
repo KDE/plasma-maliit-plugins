@@ -5,7 +5,7 @@ INCLUDEPATH += 	. \
 		../../m-keyboard/ \
 		../stubs/
 
-LIBS += -Wl,-rpath=/usr/lib/m-im-plugins/ -L../../m-keyboard -lmkeyboard
+LIBS += -Wl,-rpath=/usr/lib/meego-im-plugins/ -L../../m-keyboard -lmeego-keyboard
 
 # Input
 HEADERS += ut_toolbarmanager.h \

@@ -28,7 +28,7 @@
 
 namespace
 {
-    const char * const PluginDir = "/usr/lib/m-im-plugins/meego-keyboard/";
+    const char * const PluginDir = "/usr/lib/meego-im-plugins/meego-keyboard/";
 }
 
 

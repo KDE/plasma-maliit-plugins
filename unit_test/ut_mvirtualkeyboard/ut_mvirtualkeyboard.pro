@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = app
-CONFIG += QtTest meegotouch MImServer mimframework duireactionmap
+CONFIG += QtTest meegotouch MImServer meegoimframework duireactionmap
 DEPENDPATH += .
 INCLUDEPATH += . \
 		../stubs/
@@ -11,7 +11,7 @@ INCLUDEPATH += . \
 
 include(../common_check.pri)
 
-LIBS += -Wl,-rpath=/usr/lib/m-im-plugins/ -lmkeyboard
+LIBS += -Wl,-rpath=/usr/lib/meego-im-plugins/ -lmeego-keyboard
 
 # Input
 HEADERS += ut_mvirtualkeyboard.h \

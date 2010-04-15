@@ -1,5 +1,5 @@
 TEMPLATE = app
-CONFIG += QtTest meegotouch mimframework
+CONFIG += QtTest meegotouch meegoimframework
 QT += testlib
 
 DEPENDPATH += .
@@ -10,7 +10,7 @@ MOC_DIR = .moc
 
 include(../common_check.pri)
 
-LIBS += -Wl,-rpath=/usr/lib/m-im-plugins/ -lmkeyboard
+LIBS += -Wl,-rpath=/usr/lib/meego-im-plugins/ -lmeego-keyboard
 
 HEADERS += ut_mimcorrectioncandidatewidget.h \
 

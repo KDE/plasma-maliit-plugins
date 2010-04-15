@@ -5,7 +5,7 @@ INCLUDEPATH += . \
         ../../m-keyboard/
 
 
-LIBS += -Wl,-rpath=/usr/lib/m-im-plugins/ -L../../m-keyboard/ -lmkeyboard
+LIBS += -Wl,-rpath=/usr/lib/meego-im-plugins/ -L../../m-keyboard/ -lmkeyboard
 
 # Input
 HEADERS += ft_mhardwarekeyboard.h

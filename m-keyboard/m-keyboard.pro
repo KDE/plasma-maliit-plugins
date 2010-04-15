@@ -1,5 +1,5 @@
 TEMPLATE = lib 
-TARGET = $$qtLibraryTarget(mkeyboard)
+TARGET = $$qtLibraryTarget(meego-keyboard)
 
 OBJECTS_DIR = .obj
 MOC_DIR = .moc
@@ -9,7 +9,7 @@ QMAKE_CXXFLAGS += -Werror
 # we have this line temporarily until new libmeegotouch without rpath is integrated
 QT += xml
 
-CONFIG += plugin meegotouch duiimengine duiimenginewords mimframework duireactionmap
+CONFIG += plugin meegotouch duiimengine duiimenginewords meegoimframework duireactionmap
 #CONFIG += mcontrolpanel
 DEFINES += NOCONTROLPANEL
 
@@ -41,7 +41,7 @@ SOURCES += \
     mkeyboardhost.cpp \
     mkeyboardplugin.cpp \
 
-target.path += /usr/lib/m-im-plugins
+target.path += /usr/lib/meego-im-plugins
 
 install_headers.path = /usr/include/meego-keyboard
 install_headers.files = $$INSTALL_HEADERS

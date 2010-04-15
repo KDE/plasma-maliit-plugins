@@ -16,7 +16,7 @@ isEmpty(DOXYGEN_BIN) {
   # Install rules
   htmldocs.files = $${OUT_PWD}/doc/html
 
-  htmldocs.path = /usr/share/doc/m-im-framework
+  htmldocs.path = /usr/share/doc/meego-im-framework
   htmldocs.CONFIG += no_check_exist
   INSTALLS += htmldocs
 

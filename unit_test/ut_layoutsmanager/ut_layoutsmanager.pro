@@ -1,10 +1,10 @@
 TEMPLATE = app
-CONFIG += QtTest meegotouch MImServer mimframework
+CONFIG += QtTest meegotouch MImServer meegoimframework
 DEPENDPATH += .
 INCLUDEPATH += 	. \
 		../stubs/
 
-LIBS += -Wl,-rpath=/usr/lib/m-im-plugins/ -lmkeyboard
+LIBS += -Wl,-rpath=/usr/lib/meego-im-plugins/ -lmeego-keyboard
 
 # Input
 HEADERS += ut_layoutsmanager.h \

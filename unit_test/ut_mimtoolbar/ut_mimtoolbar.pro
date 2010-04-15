@@ -1,5 +1,5 @@
 TEMPLATE = app
-CONFIG += QtTest meegotouch mimframework
+CONFIG += QtTest meegotouch meegoimframework
 QT += testlib
 
 DEPENDPATH += .
@@ -9,7 +9,7 @@ INCLUDEPATH +=  . \
 OBJECTS_DIR = .obj
 MOC_DIR = .moc
 
-LIBS += -Wl,-rpath=/usr/lib/m-im-plugins/ -lmkeyboard
+LIBS += -Wl,-rpath=/usr/lib/meego-im-plugins/ -lmeego-keyboard
 
 
 HEADERS += ut_mimtoolbar.h \

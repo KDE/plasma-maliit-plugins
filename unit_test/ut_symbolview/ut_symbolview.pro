@@ -1,10 +1,10 @@
 TEMPLATE = app
-CONFIG += QtTest meegotouch MImServer mimframework duireactionmap
+CONFIG += QtTest meegotouch MImServer meegoimframework duireactionmap
 DEPENDPATH += .
 INCLUDEPATH += 	. \
 		../stubs/ \
 
-LIBS += -L/usr/lib -Wl,-rpath=/usr/lib/m-im-plugins/ -lmkeyboard
+LIBS += -L/usr/lib -Wl,-rpath=/usr/lib/meego-im-plugins/ -lmeego-keyboard
 
 # Input
 HEADERS += ut_symbolview.h \
