@@ -1,9 +1,12 @@
-m-im-virtualkeyboard-dbg
-m-im-virtualkeyboard-tests.substvars
-m-im-virtualkeyboard-tests
-m-im-virtualkeyboard.substvars
-m-im-virtualkeyboard
+meego-keyboard-dbg.substvars
+meego-keyboard-dbg
+meego-keyboard-tests.substvars
+meego-keyboard-tests
+meego-keyboard.substvars
+meego-keyboard
+meego-keyboard-dev
+meego-keyboard-dev.substvars
 files
 tmp
-*.debhelper
+*.debhelper*
 
