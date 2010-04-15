@@ -110,10 +110,6 @@ void Ut_MKeyboardHost::initTestCase()
     MTheme::instance()->loadCSS("/usr/share/meegotouch/virtual-keyboard/css/864x480.css");
     inputContext = new MInputContextStubConnection;
     window = new MPlainWindow;
-    if (MPlainWindow::instance()->orientationAngle() != M::Angle0) {
-        MPlainWindow::instance()->setOrientationAngle(M::Angle0);
-        QTest::qWait(1000);
-    }
 }
 
 void Ut_MKeyboardHost::cleanupTestCase()
@@ -135,9 +131,11 @@ void Ut_MKeyboardHost::init()
     subject = new MKeyboardHost(inputContext, 0);
     inputContext->clear();
 
-    if (MPlainWindow::instance()->orientationAngle() != M::Angle0) {
-        MPlainWindow::instance()->setOrientationAngle(M::Angle0);
-        QTest::qWait(1000);
+    window->hide();
+    if (window->orientationAngle() != M::Angle0) {
+        window->setOrientationAngle(M::Angle0);
+        QCOMPARE(window->orientationAngle(), M::Angle0);
+        // Rotation is immediate if window is hidden.
     }
 }
 
@@ -154,35 +152,35 @@ void Ut_MKeyboardHost::testCreate()
 
 void Ut_MKeyboardHost::testRotatePoint()
 {
-    QPoint position(100, 200);
+    const QPoint screenPos(100, 200);
     QPoint result;
-    int displayWidth = MPlainWindow::instance()->visibleSceneSize().width();
-    int displayHeight = MPlainWindow::instance()->visibleSceneSize().height();
+    int displayWidth = window->visibleSceneSize(M::Landscape).width();
+    int displayHeight = window->visibleSceneSize(M::Landscape).height();
     bool isOk = false;
 
     rotateToAngle(M::Angle0);
-
-    isOk = subject->rotatePoint(position, result);
+    QCOMPARE(static_cast<int>(subject->angle), 0);
+    isOk = subject->rotatePoint(screenPos, result);
     QVERIFY(isOk == true);
-    QCOMPARE(result, position);
+    QCOMPARE(result, screenPos);
 
     rotateToAngle(M::Angle90);
-
-    isOk = subject->rotatePoint(position, result);
+    QCOMPARE(static_cast<int>(subject->angle), 90);
+    isOk = subject->rotatePoint(screenPos, result);
     QVERIFY(isOk == true);
     QCOMPARE(result, QPoint(200, displayWidth - 100));
 
-    rotateToAngle(M::Angle270);
-
-    isOk = subject->rotatePoint(position, result);
-    QVERIFY(isOk == true);
-    QCOMPARE(result, QPoint(displayHeight - 200, 100));
-
     rotateToAngle(M::Angle180);
-
-    isOk = subject->rotatePoint(position, result);
+    QCOMPARE(static_cast<int>(subject->angle), 180);
+    isOk = subject->rotatePoint(screenPos, result);
     QVERIFY(isOk == true);
     QCOMPARE(result, QPoint(displayWidth - 100, displayHeight - 200));
+
+    rotateToAngle(M::Angle270);
+    QCOMPARE(static_cast<int>(subject->angle), 270);
+    isOk = subject->rotatePoint(screenPos, result);
+    QVERIFY(isOk == true);
+    QCOMPARE(result, QPoint(displayHeight - 200, 100));
 }
 
 
@@ -651,8 +649,7 @@ void Ut_MKeyboardHost::testRegionSignals()
     QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
     rotateToAngle(M::Angle0);
 
-    QSignalSpy orientationSpy(MPlainWindow::instance()->sceneManager(),
-                              SIGNAL(orientationChangeFinished(M::Orientation)));
+    QSignalSpy orientationSpy(window, SIGNAL(orientationChangeFinished(M::Orientation)));
 
     subject->show();
     QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
@@ -662,19 +659,19 @@ void Ut_MKeyboardHost::testRegionSignals()
     // Rotate three times repeatedly with long and short waits in between.  We
     // should end up with a region identical to that stored in region270.  The
     // wait times mimic user operations that have been found to cause a problem.
-    MPlainWindow::instance()->sceneManager()->setOrientationAngle(M::Angle90);
+    window->setOrientationAngle(M::Angle90);
     QTest::qWait(800);
     qDebug() << "Orientations finished:" << orientationSpy.count();
-    MPlainWindow::instance()->sceneManager()->setOrientationAngle(M::Angle180);
+    window->setOrientationAngle(M::Angle180);
     QTest::qWait(5);
-    MPlainWindow::instance()->sceneManager()->setOrientationAngle(M::Angle270);
+    window->setOrientationAngle(M::Angle270);
     qDebug() << "Orientations finished:" << orientationSpy.count();
     qDebug() << "Waiting for rotation animation to finish...";
     QTest::qWait(SceneRotationTime); // wait until rotation animation is finished
     qDebug() << "Waiting for rotation animation to finish...done!";
     // Sanity checks
     qDebug() << "Orientations finished:" << orientationSpy.count();
-    QCOMPARE(MPlainWindow::instance()->sceneManager()->orientationAngle(), M::Angle270);
+    QCOMPARE(window->orientationAngle(), M::Angle270);
     QVERIFY(spy.count() > 0);
     QCOMPARE(spy.count(), spy2.count());
     qDebug() << "Region after animation is finished:" << subject->vkbWidget->region();
