@@ -7,7 +7,7 @@ Standards-Version: 3.7.2
 
 Package: meego-keyboard
 Architecture: any
-Depends:  ${misc:Depends}, ${shlibs:Depends}
+Depends:  ${misc:Depends}, ${shlibs:Depends}, meego-im-uiserver
 Description: MeegoTouch Input Method Keyboard 
  Meego Keyboard 
 
