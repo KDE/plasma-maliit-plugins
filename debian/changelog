@@ -1,8 +1,8 @@
-meego-keyboard (0.4.0~1) unstable; urgency=low
+meego-keyboard (0.4.0-1) unstable; urgency=low
 
   * Adaptation to MeegoTouch
 
- -- Pekka Vuorela <pekka.ta.vuorela@nokia.com>  Thu, 15 Apr 2010 11:49:44 +0300
+ -- Pekka Vuorela <pekka.ta.vuorela@nokia.com>  Fri, 16 Apr 2010 10:33:48 +0300
 
 dui-keyboard (0.3.1-1) unstable; urgency=low
 
