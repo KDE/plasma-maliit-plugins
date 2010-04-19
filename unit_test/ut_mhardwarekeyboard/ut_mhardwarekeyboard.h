@@ -15,16 +15,15 @@
  */
 
 
-
-#ifndef UT_MVIRTUALKEYBOARD_H
-#define UT_MVIRTUALKEYBOARD_H
+#ifndef UT_MHARDWAREKEYBOARD_H
+#define UT_MHARDWAREKEYBOARD_H
 
 #include <QObject>
-#include <QSharedPointer>
 #include <QtTest/QTest>
 
 class MApplication;
 class MHardwareKeyboard;
+class TestInputContextConnection;
 
 class Ut_MHardwareKeyboard : public QObject
 {
@@ -32,6 +31,7 @@ class Ut_MHardwareKeyboard : public QObject
 private:
     MApplication *app;
     MHardwareKeyboard *m_hkb;
+    TestInputContextConnection *inputContextConnection;
 
 private slots:
     void initTestCase();
@@ -39,19 +39,25 @@ private slots:
     void init();
     void cleanup();
 
-    void testSetModifierState();
-    void testRedirectKey();
-    void testModifierInNumberContentType();
-    void testModifierInPhoneNumberContentType();
-    void testReset();
+    void testBasicModifierCycles_data();
+    void testBasicModifierCycles();
     void testAutoCaps();
-    void testMultiKeys();
-    void testHandleIndicatorButtonClick();
-    void testSymbolPlusCharKeys();
+    void testModifierInNonTextContentType_data();
+    void testModifierInNonTextContentType();
+    void testShiftShiftCapsLock_data();
+    void testShiftShiftCapsLock();
+    void testOtherModifier_data();
+    void testOtherModifier();
+
+    void testSymClick();
+    void testSymPlusCharacterBasic_data();
+    void testSymPlusCharacterBasic();
+    void testSymPlusCharSwitchs();
 
 private:
-    void testModifierRedirectKey(Qt::Key modifierKey);
-    void testSymbolRedirectKey();
+    bool checkLatchedState(unsigned int mask, unsigned int value) const;
+    bool checkLockedState(unsigned int mask, unsigned int value) const;
+    void setState(int state) const;
 };
 
 #endif

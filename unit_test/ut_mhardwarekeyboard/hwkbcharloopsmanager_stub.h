@@ -23,14 +23,21 @@
 
 namespace
 {
-    const QString SystemDisplayLanguage("/meegotouch/i18n/language");
-    const QString StubAccentedCharacters = QString("%1%2%3%4%5%6")
-                                           .arg(QChar(0x00E4))
-                                           .arg(QChar(0x00E0))
-                                           .arg(QChar(0x00E2))
-                                           .arg(QChar(0x00E1))
-                                           .arg(QChar(0x00E3))
-                                           .arg(QChar(0x00E5));
+    const QString SystemDisplayLanguage("/meegotouch/i18n/Language");
+    const QString StubAccentedCharactersA = QString("%1%2%3%4%5%6")
+        .arg(QChar(0x00E4))
+        .arg(QChar(0x00E0))
+        .arg(QChar(0x00E2))
+        .arg(QChar(0x00E1))
+        .arg(QChar(0x00E3))
+        .arg(QChar(0x00E5));
+    const QString StubAccentedCharactersO = QString("%1%2%3%4%5%6")
+        .arg(QChar(0x00F6))
+        .arg(QChar(0x00F2))
+        .arg(QChar(0x00F3))
+        .arg(QChar(0x00F4))
+        .arg(QChar(0x00F5))
+        .arg(QChar(0x00F8));
 };
 
 HwKbCharLoopsManager::HwKbCharLoopsManager()
@@ -44,11 +51,13 @@ HwKbCharLoopsManager::~HwKbCharLoopsManager()
 
 QString HwKbCharLoopsManager::characterLoop(const QChar &c) const
 {
-    // Return empty text for 'b' character for one test case.
-    if (c == QChar('b'))
+    if (c == QChar('a')) {
+        return StubAccentedCharactersA;
+    } else if (c == QChar('o')) {
+        return StubAccentedCharactersO;
+    } else {
         return QString();
-    else
-        return StubAccentedCharacters;
+    }
 }
 
 #endif

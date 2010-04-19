@@ -62,7 +62,7 @@ public:
     virtual void processKeyEvent(QEvent::Type keyType, Qt::Key keyCode,
                                  Qt::KeyboardModifiers modifiers,
                                  const QString &text, bool autoRepeat, int count,
-                                 int nativeScanCode);
+                                 quint32 nativeScanCode, quint32 nativeModifiers);
     virtual void clientChanged();
     virtual void switchContext(M::InputMethodSwitchDirection direction, bool enableAnimation);
     //! reimp_end

@@ -146,11 +146,9 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
             this, SIGNAL(pluginSwitchRequired(M::InputMethodSwitchDirection)));
 
     // construct hardware keyboard object
-    hardwareKeyboard = new MHardwareKeyboard(this);
+    hardwareKeyboard = new MHardwareKeyboard(*icConnection, this);
     connect(hardwareKeyboard, SIGNAL(symbolKeyClicked()),
             this, SLOT(handleSymbolKeyClick()));
-
-    //TODO: handle signal symbolCharacterKeyClicked() from hardwareKeyboard.
 
     bool ok = connect(vkbWidget, SIGNAL(copyPasteClicked(CopyPasteState)),
                       this, SLOT(sendCopyPaste(CopyPasteState)));
@@ -194,7 +192,7 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
     connect(vkbWidget, SIGNAL(shiftLevelChanged()),
             this, SLOT(updateSymbolViewLevel()));
 
-    connect(hardwareKeyboard, SIGNAL(shiftLevelChanged()),
+    connect(hardwareKeyboard, SIGNAL(shiftStateChanged()),
             this, SLOT(updateSymbolViewLevel()));
 
     // Construct layout menu dialog
@@ -731,7 +729,16 @@ void MKeyboardHost::clearReactionMaps(const QString &clearValue)
 
 void MKeyboardHost::handleKeyClick(const KeyEvent &event)
 {
-    if ((inputMethodMode != M::InputMethodModeDirect)) {
+    if (activeState == Hardware) {
+        // In hardware keyboard mode symbol view is just another source for
+        // events that will be handled by duihardwarekeyboard.  The native
+        // modifiers may not be correct (depending on the current hwkbd modifier
+        // state) but that doesn't matter.
+        processKeyEvent(QEvent::KeyPress, event.qtKey(), event.modifiers(),
+                        event.text(), false, 1, 0, 0);
+        processKeyEvent(QEvent::KeyRelease, event.qtKey(), event.modifiers(),
+                        event.text(), false, 1, 0, 0);
+    } else if ((inputMethodMode != M::InputMethodModeDirect)) {
         handleTextInputKeyClick(event);
     }
 
@@ -898,15 +905,6 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
         }
         const PreeditFace face = candidates.count() < 2 ? PreeditNoCandidates : PreeditDefault;
         inputContextConnection()->sendPreeditString(correctedPreedit, face);
-    }
-    if ((activeState == Hardware) && symbolView->isActive()) {
-        // If the key input is on Hardware state,
-        // also need redirect the input character key to hardwareKeyboard
-
-        (void)hardwareKeyboard->filterKeyEvent(true, QEvent::KeyPress, event.qtKey(), event.modifiers(),
-                                               text, false, 1, 0);
-        (void)hardwareKeyboard->filterKeyEvent(true, QEvent::KeyRelease, event.qtKey(), event.modifiers(),
-                                               text, false, 1, 0);
     }
 }
 
@@ -1077,11 +1075,13 @@ void MKeyboardHost::setToolbar(const QString &toolbar)
 
 void MKeyboardHost::processKeyEvent(QEvent::Type keyType, Qt::Key keyCode,
                                     Qt::KeyboardModifiers modifiers, const QString &text,
-                                    bool autoRepeat, int count, int nativeScanCode)
+                                    bool autoRepeat, int count, quint32 nativeScanCode,
+                                    quint32 nativeModifiers)
 {
     if ((activeState != Hardware) ||
-        !hardwareKeyboard->filterKeyEvent(false, keyType, keyCode, modifiers, text,
-                                          autoRepeat, count, nativeScanCode)) {
+        !hardwareKeyboard->filterKeyEvent(keyType, keyCode, modifiers, text,
+                                          autoRepeat, count, nativeScanCode,
+                                          nativeModifiers)) {
         inputContextConnection()->sendKeyEvent(QKeyEvent(keyType, keyCode, modifiers, text,
                                                          autoRepeat, count));
     }

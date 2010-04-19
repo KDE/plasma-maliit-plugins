@@ -14,59 +14,44 @@
  * of this file.
  */
 
+#include <QDebug>
+#include <QX11Info>
+#include <algorithm>
 
+#include <minputcontextconnection.h>
 
 #include "mhardwarekeyboard.h"
 #include "mvirtualkeyboard.h"
-#include <QDebug>
+
+#include <X11/X.h>
+#undef KeyPress
+#undef KeyRelease
+#include <X11/XKBlib.h>
+
+#define ELEMENTS(array) (sizeof(array)/sizeof((array)[0]))
 
 namespace
 {
     const Qt::KeyboardModifier FnLevelModifier = Qt::GroupSwitchModifier;
     const Qt::Key FnLevelKey = Qt::Key_AltGr;
     const Qt::Key SymKey = Qt::Key_Multi_key;
+    const unsigned int SymModifierMask = Mod4Mask;
+    const unsigned int FnModifierMask = Mod5Mask;
 };
 
-MHardwareKeyboard::ModifierKey::ModifierKey(Qt::KeyboardModifier m, ModifierState s)
-    : modifier(m),
-      state(s),
-      inBetweenPressRelease(false)
-{
-}
-
-MHardwareKeyboard::RedirectedKey::RedirectedKey(Qt::Key key, bool eatKey, bool eatSelf)
-    : keyCode(key),
-      eatInBetweenKeys(eatKey),
-      eatItself(eatSelf),
-      pressed(false),
-      charKeyClicked(false),
-      lastClickedCharacter(QChar()),
-      charKeyClickedCount(0)
-{
-    const Qt::KeyboardModifier m = MHardwareKeyboard::keyToModifier(keyCode);
-    if (m != Qt::NoModifier) {
-        modifier = ModifierKey(m, ModifierClearState);
-    }
-}
-
-void MHardwareKeyboard::RedirectedKey::reset()
-{
-    pressed = false;
-    charKeyClicked = false;
-    lastClickedCharacter = QChar();
-    charKeyClickedCount = 0;
-    if (modifier.modifier != Qt::NoModifier) {
-        modifier.state = ModifierClearState;
-        modifier.inBetweenPressRelease = false;
-    }
-}
-
-MHardwareKeyboard::MHardwareKeyboard(QObject *parent)
+MHardwareKeyboard::MHardwareKeyboard(MInputContextConnection& icConnection, QObject *parent)
     : QObject(parent),
       keyboardType(M::FreeTextContentType),
-      autoCaps(false)
+      autoCaps(false),
+      inputContextConnection(icConnection),
+      lastEventType(QEvent::KeyRelease),
+      currentLatchedMods(0),
+      currentLockedMods(0),
+      characterLoopIndex(-1),
+      stateTransitionsDisabled(false),
+      shiftsPressed(0),
+      shiftShiftCapsLock(false)
 {
-    init();
 }
 
 
@@ -74,393 +59,281 @@ MHardwareKeyboard::~MHardwareKeyboard()
 {
 }
 
+
 void MHardwareKeyboard::setKeyboardType(M::TextContentType type)
 {
     qDebug() << __PRETTY_FUNCTION__ << ":" << type;
     keyboardType = type;
+
     switch (keyboardType) {
     case M::NumberContentType:
     case M::PhoneNumberContentType:
-        // With number and phone number content type, FnLevelModifier must be permanently locked
-        setModifierState(FnLevelModifier, ModifierLockedState);
+        // With number and phone number content type Fn must be permanently locked
+        lockModifiers(FnModifierMask, FnModifierMask);
+        stateTransitionsDisabled = true;
         break;
     default:
+        stateTransitionsDisabled = false;
         break;
     }
 }
+
 
 void MHardwareKeyboard::reset()
 {
     qDebug() << __PRETTY_FUNCTION__;
-    for (int i = 0; i < sensitiveKeys.count(); i++) {
-        if (sensitiveKeys[i].modifier.modifier != Qt::NoModifier) {
-            //call unlockModifier to ensure clean.
-            mXkb.unlockModifiers(sensitiveKeys[i].modifier.modifier);
-        }
-        sensitiveKeys[i].reset();
-    }
+    // TODO: this is a temporary hack until we have proper autorepeat setup
+    XAutoRepeatOff(QX11Info::display());
+
+    shiftShiftCapsLock = false;
+    shiftsPressed = 0;
+    pressedKeys.clear();
+    currentLatchedMods = 0;
+    currentLockedMods = 0;
     autoCaps = false;
-    filterNextKey = false;
+    mXkb.lockModifiers(LockMask | FnModifierMask, 0);
+    mXkb.latchModifiers(ShiftMask | FnModifierMask, 0);
     emit modifierStateChanged(Qt::ShiftModifier, ModifierClearState);
+    emit modifierStateChanged(FnLevelModifier, ModifierClearState);
 }
 
-void MHardwareKeyboard::init()
+
+bool MHardwareKeyboard::passKeyOnPress(Qt::Key keyCode, const QString &text) const
 {
-    sensitiveKeys.append(MHardwareKeyboard::RedirectedKey(Qt::Key_Shift, false, false));
-    sensitiveKeys.append(MHardwareKeyboard::RedirectedKey(FnLevelKey, false, false));
-    sensitiveKeys.append(MHardwareKeyboard::RedirectedKey(SymKey, true, false));
+    static const Qt::Key pressPassKeys[] = {
+        Qt::Key_Backspace, Qt::Key_Delete, Qt::Key_Left, Qt::Key_Right, Qt::Key_Up, Qt::Key_Down };
+    static const Qt::Key * const keysEnd = pressPassKeys + ELEMENTS(pressPassKeys);
+
+    return text.isEmpty() || (keysEnd != std::find(pressPassKeys, keysEnd, keyCode));
 }
 
-Qt::KeyboardModifier MHardwareKeyboard::keyToModifier(Qt::Key keyCode)
+
+void MHardwareKeyboard::notifyModifierChange(
+    unsigned char previousModifiers, ModifierState onState, unsigned int shiftMask,
+    unsigned int affect, unsigned int value) const
 {
-    switch (keyCode) {
-    case Qt::Key_Shift:
-        return Qt::ShiftModifier;
-    case FnLevelKey:
-        return FnLevelModifier;
-    case Qt::Key_Control:
-        return Qt::ControlModifier;
-    case Qt::Key_Meta:
-        return Qt::MetaModifier;
-    case Qt::Key_Alt:
-        return Qt::AltModifier;
-    default:
-        break;
+    if ((affect & shiftMask) && ((value & shiftMask) != (previousModifiers & shiftMask))) {
+        emit shiftStateChanged();
+        emit modifierStateChanged(
+            Qt::ShiftModifier, (value & shiftMask) ? onState : ModifierClearState);
     }
-    return Qt::NoModifier;
+    if ((affect & FnModifierMask)
+        && ((value & FnModifierMask) != (previousModifiers & FnModifierMask))) {
+        emit modifierStateChanged(
+            FnLevelModifier, (value & FnModifierMask) ? onState : ModifierClearState);
+    }
 }
 
-int MHardwareKeyboard::redirectedKeyIndex(Qt::Key keyCode) const
+
+void MHardwareKeyboard::latchModifiers(unsigned int affect, unsigned int value)
 {
-    int matchedIndex = -1;
-    for (int i = 0; i < sensitiveKeys.count(); i++) {
-        if (sensitiveKeys[i].keyCode == keyCode) {
-            matchedIndex = i;
-            break;
+    mXkb.latchModifiers(affect, value);
+    const unsigned int savedLatchedMods = currentLatchedMods;
+    currentLatchedMods = (currentLatchedMods & ~affect) | (value & affect);
+    if (!(currentLatchedMods & ShiftMask)) {
+        autoCaps = false;
+    }
+    notifyModifierChange(savedLatchedMods, ModifierLatchedState, ShiftMask, affect, value);
+}
+
+
+void MHardwareKeyboard::lockModifiers(unsigned int affect, unsigned int value)
+{
+    mXkb.lockModifiers(affect, value);
+    const unsigned int savedLockedMods = currentLockedMods;
+    currentLockedMods = (currentLockedMods & ~affect) | (value & affect);
+    notifyModifierChange(savedLockedMods, ModifierLockedState, LockMask, affect, value);
+}
+
+
+void MHardwareKeyboard::cycleModifierState(Qt::Key keyCode, unsigned int lockMask,
+                                             unsigned int latchMask, unsigned int unlockMask,
+                                             unsigned int unlatchMask)
+{
+    if (currentLockedMods & lockMask) {
+        lockModifiers(lockMask, 0);
+    } else if (currentLatchedMods & latchMask) {
+        const bool savedAutoCaps = autoCaps;
+        latchModifiers(latchMask, 0);
+        if (!((keyCode == Qt::Key_Shift) && savedAutoCaps)) {
+            lockModifiers(lockMask, lockMask);
         }
+    } else {
+        lockModifiers(unlockMask, 0);
+        latchModifiers(latchMask | unlatchMask, latchMask);
     }
-    return matchedIndex;
 }
 
-int MHardwareKeyboard::redirectedKeyIndex(Qt::KeyboardModifier modifier) const
+
+void MHardwareKeyboard::handleCyclableModifierRelease(
+    Qt::Key keyCode, unsigned int lockMask, unsigned int latchMask,
+    unsigned int unlockMask, unsigned int unlatchMask)
 {
-    int matchedIndex = -1;
-    for (int i = 0; i < sensitiveKeys.count(); i++) {
-        if (sensitiveKeys[i].modifier.modifier == modifier) {
-            matchedIndex = i;
-            break;
-        }
+    if (!stateTransitionsDisabled && (lastKeyCode == keyCode) && (lastEventType == QEvent::KeyPress)) {
+        cycleModifierState(keyCode, lockMask, latchMask, unlockMask, unlatchMask);
     }
-    return matchedIndex;
 }
 
-bool MHardwareKeyboard::isSensitiveKeyPressed() const
+bool MHardwareKeyboard::filterKeyEvent(QEvent::Type eventType,
+                                       Qt::Key keyCode, Qt::KeyboardModifiers modifiers,
+                                       const QString &text, bool autoRepeat, int count,
+                                       quint32 nativeScanCode, quint32 nativeModifiers)
 {
-    foreach (const RedirectedKey &key, sensitiveKeys) {
-        if (key.pressed) {
-            return true;
-        }
-    }
-    return false;
-}
+    XkbStateRec xkbState;
+    XkbGetState(QX11Info::display(), XkbUseCoreKbd, &xkbState); // TODO: XkbUseCoreKbd
+    currentLockedMods = xkbState.locked_mods;
 
-bool MHardwareKeyboard::filterKeyEvent(bool forceProcessing, QEvent::Type keyType, Qt::Key keyCode,
-                                       Qt::KeyboardModifiers /* modifiers */, const QString &text,
-                                       bool /* autoRepeat */, int /* count */, int /* nativeScanCode */)
-{
     bool eaten = false;
-    const bool pressed = (keyType == QEvent::KeyPress);
-    const bool filterThisKey = filterNextKey;
-    filterNextKey = false;
 
-    int matchedIndex = redirectedKeyIndex(keyCode);
-    if (matchedIndex >= 0) {
-        //for redirected key input
-        if (sensitiveKeys[matchedIndex].modifier.modifier != Qt::NoModifier) {
-            //modifier key press and release
-            ModifierKey &targetModifierKey = sensitiveKeys[matchedIndex].modifier;
-            if (pressed) {
-                modifierKeyPress(targetModifierKey);
-            } else {
-                modifierKeyRelease(targetModifierKey);
-            }
+    if (eventType == QEvent::KeyPress) {
+        pressedKeys.insert(nativeScanCode, true);
+
+        // TODO: arrow keys
+        if (keyCode == SymKey) {
+            characterLoopIndex = -1;
+        } else if ((keyCode == Qt::Key_Delete) && (currentLatchedMods & ShiftMask)
+                   && !shiftsPressed) {
+            inputContextConnection.sendKeyEvent(
+                QKeyEvent(QEvent::KeyPress, Qt::Key_Backspace,
+                          modifiers & ~Qt::KeyboardModifiers(Qt::ShiftModifier),
+                          "\b", autoRepeat, count));
+            eaten = true;
+        } else if ((keyCode == Qt::Key_Shift) && (++shiftsPressed == 2)
+                   && !stateTransitionsDisabled) {
+            shiftShiftCapsLock = true;
+            latchModifiers(FnModifierMask | ShiftMask, 0);
+            lockModifiers(FnModifierMask | LockMask, LockMask);
+            eaten = false;
         } else {
-            //other sensitive key
-            if (!pressed && keyCode == SymKey) {
-                symbolKeyClick();
-            }
-        }
-        //record key state
-        sensitiveKeys[matchedIndex].pressed = pressed;
-        sensitiveKeys[matchedIndex].charKeyClicked = false;
-        sensitiveKeys[matchedIndex].lastClickedCharacter = QChar();
-        sensitiveKeys[matchedIndex].charKeyClickedCount = 0;
-
-        eaten = sensitiveKeys[matchedIndex].eatItself;
-    } else if (filterThisKey || forceProcessing || isSensitiveKeyPressed()) {
-        // other modifier key (e.g. Ctrl, Alt) should not unlatch the latched modifier
-        // TODO: if the comment above is correct, shouldn't the code have requested the next
-        // key to be redirected in case this one was redirected due to nextKeyRedirectedRequest?
-        if (keyToModifier(keyCode) == Qt::NoModifier) {
-            //incoming key event is not a registered "redirectedKey" (modifier key, or symbol key),
-            //but a character key. And only handle the key events which is pressed.
-            if (pressed) {
-                characterKeyClick(keyCode, text);
-            }
+            eaten = !passKeyOnPress(keyCode, text);
         }
 
-        for (int i = 0; i < sensitiveKeys.count(); ++i) {
-            if (sensitiveKeys[i].pressed && sensitiveKeys[i].eatInBetweenKeys) {
+        // Relatch modifiers, X unlatches them on press but we want to unlatch on release
+        // (and not even always on release, e.g. with Sym+aaab we unlatch only after the
+        // last "a").
+        if (currentLatchedMods) {
+            mXkb.latchModifiers(currentLatchedMods, currentLatchedMods);
+        }
+    } else {
+        if (nativeModifiers & SymModifierMask) {
+            eaten = handleReleaseWithSymModifier(keyCode, text);
+        }
+
+        if (keyCode == Qt::Key_Shift) {
+            if (!shiftShiftCapsLock) {
+                handleCyclableModifierRelease(Qt::Key_Shift, LockMask, ShiftMask, FnModifierMask,
+                                              FnModifierMask);
+            }
+            if (--shiftsPressed == 0) {
+                shiftShiftCapsLock = false;
+            }
+        } else if (keyCode == FnLevelKey) {
+            handleCyclableModifierRelease(FnLevelKey, FnModifierMask, FnModifierMask, LockMask,
+                                          ShiftMask);
+        } else if (!eaten && !passKeyOnPress(keyCode, text)) {
+            const bool keyWasPressed(pressedKeys.contains(nativeScanCode));
+            if (keyWasPressed) {
+                inputContextConnection.sendKeyEvent(
+                    QKeyEvent(QEvent::KeyPress, keyCode, modifiers, text, false, 1));
+                // TODO: should we send release too?  MTextEdit seems to be happy with
+                // just press but what about others?
                 eaten = true;
-                break;
             }
+
+            latchModifiers(FnModifierMask | ShiftMask, 0);
         }
+        // This case works around the problem of host calling setAutoCapitalization()
+        // after backspace press event but before backspace release.  That turns the
+        // release event into a Delete release!  We eat backspace releases for consistency
+        // as well.  If the answer the the above "should we send release too?" question is
+        // "yes", presumably we need other kind of trickery here.
+        else if ((keyCode == Qt::Key_Backspace) || (keyCode == Qt::Key_Delete)) {
+            eaten = true;
+        }
+
+        pressedKeys.remove(nativeScanCode);
     }
+
+    lastEventType = eventType;
+    lastKeyCode = keyCode;
 
     return eaten;
 }
 
-void MHardwareKeyboard::setModifierState(Qt::KeyboardModifier modifier,
-        ModifierState targetState)
-{
-    int matchedIndex = redirectedKeyIndex(modifier);
-    if (matchedIndex < 0)
-        return;
-    ModifierKey &targetModifierKey = sensitiveKeys[matchedIndex].modifier;
-    setModifierState(targetModifierKey, targetState);
-}
 
-void MHardwareKeyboard::setModifierState(ModifierKey &modifierKey, ModifierState targetState)
+bool MHardwareKeyboard::handleReleaseWithSymModifier(Qt::Key keyCode, const QString &text)
 {
-    if (modifierKey.modifier == Qt::NoModifier
-        || !isValidModifierState(modifierKey.modifier, targetState))
-        return;
-    Qt::KeyboardModifier modifier = modifierKey.modifier;
-    if (targetState == modifierKey.state)
-        return;
-
-    switch (targetState) {
-    case ModifierLatchedState:
-    case ModifierLockedState:
-        //use lockModifiers() for both ModifierLatchedState and ModifierLockedState,
-        //we don't want hardware keyboard to change the modifier state by itself
-        //(e.g pressing any after latching will unlatch the modifier)
-        mXkb.lockModifiers(modifier);
-        break;
-    case ModifierClearState:
-        mXkb.unlockModifiers(modifier);
-        modifierKey.inBetweenPressRelease = false;
-        break;
+    if ((lastKeyCode == SymKey) && (keyCode == SymKey)) {
+        emit symbolKeyClicked();
+        return true;            // TODO: or false?
     }
-    modifierKey.state = targetState;
-    if (modifier == Qt::ShiftModifier)
-        emit shiftLevelChanged();
 
-    emit modifierStateChanged(modifier, targetState);
+    if ((characterLoopIndex != -1) && ((lastSymText != text) || (keyCode == SymKey))) {
+        const QString accentedCharacters = hwkbCharLoopsManager.characterLoop(lastSymText[0]);
+        inputContextConnection.sendCommitString(QString(accentedCharacters[characterLoopIndex]));
+        characterLoopIndex = -1;
+        latchModifiers(FnModifierMask | ShiftMask, 0);
+        // TODO: sym+character with latched shift.  Also note the return false cases.
+    }
+
+    if (text.length() != 1) {
+        return false;
+    }
+
+    const QString accentedCharacters = hwkbCharLoopsManager.characterLoop(text[0]);
+    if (accentedCharacters.isEmpty()) {
+        return false;
+    }
+
+    lastSymText = text;
+    characterLoopIndex = (characterLoopIndex + 1) % accentedCharacters.length();
+    inputContextConnection.sendPreeditString(accentedCharacters[characterLoopIndex],
+                                             PreeditNoCandidates);
+    return true;
 }
 
-void MHardwareKeyboard::setAutoCapitalization(bool caps)
+
+void MHardwareKeyboard::setAutoCapitalization(bool state)
 {
-    if (autoCaps != caps) {
-        //set auto caps lock/unlock when there is no custom state being set for shift modifier
-        if ((modifierState(Qt::ShiftModifier) == ModifierClearState) || autoCaps) {
-            setModifierState(Qt::ShiftModifier, (caps ? ModifierLatchedState : ModifierClearState));
-            autoCaps = caps;
+    if (autoCaps != state) {
+        // Set auto caps when there is no custom state being set for shift/fn modifier.
+        // Also ignore host's attempts to set autocaps to false while Sym+c looping is in
+        // progress.
+        if (((((currentLockedMods & (FnModifierMask | LockMask)) == 0)
+              && ((currentLatchedMods & (FnModifierMask | ShiftMask)) == 0))
+             || autoCaps)
+            && !stateTransitionsDisabled && (characterLoopIndex == -1)) {
+            latchModifiers(ShiftMask, state ? ShiftMask : 0);
+            autoCaps = state;
         }
     }
 }
+
 
 ModifierState MHardwareKeyboard::modifierState(Qt::KeyboardModifier modifier) const
 {
-    ModifierState state = ModifierClearState;
-    int matchedIndex = redirectedKeyIndex(modifier);
-    if (matchedIndex >= 0) {
-        state = sensitiveKeys[matchedIndex].modifier.state;
-    }
-    return state;
-}
+    unsigned int latchMask = 0;
+    unsigned int lockMask = 0;
 
-void MHardwareKeyboard::modifierKeyPress(ModifierKey &targetModifierKey)
-{
-    if (targetModifierKey.modifier == Qt::NoModifier)
-        return;
-
-    //release the other latched/locked modifier key
-    for (int i = 0; i < sensitiveKeys.count(); i++) {
-        if ((sensitiveKeys[i].modifier.state != ModifierClearState)
-            && (sensitiveKeys[i].modifier.modifier != targetModifierKey.modifier)) {
-            setModifierState(sensitiveKeys[i].modifier, ModifierClearState);
-        }
+    if (modifier == Qt::ShiftModifier) {
+        latchMask = ShiftMask;
+        lockMask = LockMask;
+    } else if (modifier == FnLevelModifier) {
+        latchMask = lockMask = FnModifierMask;
     }
 
-    const ModifierState state = targetModifierKey.state;
-    //modifier key press in clear state, clear -> latched,
-    if (state == ModifierClearState)
-        setModifierState(targetModifierKey, ModifierLatchedState);
-}
-
-void MHardwareKeyboard::modifierKeyRelease(ModifierKey &targetModifierKey)
-{
-    if (targetModifierKey.modifier == Qt::NoModifier) {
-        return;
-    }
-
-    const ModifierState state = targetModifierKey.state;
-    //modifier key release
-    if (state != ModifierClearState) {
-        //cycling: latched-> latched + inBetweenPressRelease -> locked -> clear
-        ModifierState nextState = ModifierClearState;
-        if (state == ModifierLockedState) {
-            nextState = ModifierClearState;
-        } else if (state == ModifierLatchedState) {
-            if ((targetModifierKey.modifier == Qt::ShiftModifier) && autoCaps) {
-                //if the latched state is turn on by autoCaps,
-                //then this shift modifier input will change the state -> clear
-                nextState = ModifierClearState;
-                autoCaps = false;
-            } else if (targetModifierKey.inBetweenPressRelease) {
-                //latched -> locked
-                nextState = ModifierLockedState;
-            } else {
-                //latched -> latched + inBetweenPressRelease
-                targetModifierKey.inBetweenPressRelease = true;
-                nextState = ModifierLatchedState;
-            }
-        }
-        setModifierState(targetModifierKey, nextState);
-        filterNextKey = true;
-    }
-}
-
-void MHardwareKeyboard::symbolKeyClick()
-{
-    qDebug() << __PRETTY_FUNCTION__;
-    const int matchedIndex = redirectedKeyIndex(SymKey);
-    if (!sensitiveKeys[matchedIndex].charKeyClicked) {
-        emit symbolKeyClicked();
-        // If there are some latched/locked modifiers
-        // also need the next input key to be redirected to plugin.
-        for (int i = 0; i < sensitiveKeys.count(); i++) {
-            if ((sensitiveKeys[i].modifier.modifier != Qt::NoModifier)
-                    && (sensitiveKeys[i].modifier.state != ModifierClearState)) {
-                filterNextKey = true;
-                break;
-            }
-        }
+    if (currentLatchedMods & latchMask) {
+        return ModifierLatchedState;
+    } else if (currentLockedMods & lockMask) {
+        return ModifierLockedState;
     } else {
-        // Commits the accented character.
-        commitAccentedCharacter();
+        return ModifierClearState;
     }
 }
 
-void MHardwareKeyboard::composeAccentedCharacter(Qt::Key /* keyCode */, const QString &text)
-{
-    qDebug() << __PRETTY_FUNCTION__;
-    if (text.isEmpty() && (text.length() != 1))
-        return;
-
-    // Sym + Character key to enter an accented character
-    const int symKeyIndex = redirectedKeyIndex(SymKey);
-    QChar character = text.at(0);
-    const QString accentedCharacters = hwkbCharLoopsManager.characterLoop(character);
-    const int accentedKeyCode = QKeySequence(character)[0];
-    const bool sameKey = (sensitiveKeys[symKeyIndex].lastClickedCharacter == character);
-
-    if (!accentedCharacters.isEmpty()) {
-        if (sameKey) {
-            // If there is only one accented character (already input), don't need update again.
-            if (accentedCharacters.length() <= 1)
-                return;
-            const int index = sensitiveKeys[symKeyIndex].charKeyClickedCount % accentedCharacters.length();
-            character = accentedCharacters[index];
-        } else {
-            character = accentedCharacters[0];
-        }
-    }
-
-    if (!sameKey) {
-        // Commits the accented character
-        commitAccentedCharacter();
-    }
-    // Inserts the accented character
-    emit symbolCharacterKeyClicked(character, accentedKeyCode, false);
-}
-
-void MHardwareKeyboard::characterKeyClick(Qt::Key keyCode, const QString &text)
-{
-    //clear all the modifiers in latched state, and handle symbol + character.
-    for (int i = 0; i < sensitiveKeys.count(); i++) {
-        if (sensitiveKeys[i].modifier.modifier != Qt::NoModifier) {
-            if (sensitiveKeys[i].modifier.state == ModifierLatchedState) {
-                //latched -> clear
-                setModifierState(sensitiveKeys[i].modifier, ModifierClearState);
-            }
-        } else if (sensitiveKeys[i].pressed) {
-            //symbol + character
-            if (sensitiveKeys[i].keyCode == SymKey) {
-                composeAccentedCharacter(keyCode, text);
-            }
-            //record there is a character key being pressed, to avoid to show/switch symbol view.
-            sensitiveKeys[i].charKeyClicked = true;
-            if (!text.isEmpty() && (text.at(0) == sensitiveKeys[i].lastClickedCharacter)) {
-                ++sensitiveKeys[i].charKeyClickedCount;
-            } else {
-                //new character key
-                if (text.isEmpty())
-                    sensitiveKeys[i].lastClickedCharacter = QChar();
-                else
-                    sensitiveKeys[i].lastClickedCharacter = text.at(0);
-                sensitiveKeys[i].charKeyClickedCount = 1;
-            }
-        }
-    }
-}
 
 bool MHardwareKeyboard::symViewAvailable() const
 {
-    bool available = true;
-    switch (keyboardType) {
-    case M::NumberContentType:
-    case M::PhoneNumberContentType:
-        available = false;
-        break;
-    default:
-        break;
-    }
-    return available;
-}
-
-bool MHardwareKeyboard::isValidModifierState(Qt::KeyboardModifier modifier, ModifierState state)
-{
-    bool valid = false;
-    switch (keyboardType) {
-    case M::NumberContentType:
-        // number content type keeps fn lock, disable other modifier and other state
-        if (modifier == FnLevelModifier && state == ModifierLockedState)
-            valid = true;
-        break;
-    default:
-        valid = true;
-        break;
-    }
-    return valid;
-}
-
-void MHardwareKeyboard::commitAccentedCharacter()
-{
-    qDebug() << __PRETTY_FUNCTION__;
-    const int symIndex = redirectedKeyIndex(SymKey);
-    if (sensitiveKeys[symIndex].lastClickedCharacter.isNull())
-        return;
-
-    QChar character = sensitiveKeys[symIndex].lastClickedCharacter;
-    const QString accentedCharacters =
-        hwkbCharLoopsManager.characterLoop(sensitiveKeys[symIndex].lastClickedCharacter);
-    if (!accentedCharacters.isEmpty()) {
-        const int index = (sensitiveKeys[symIndex].charKeyClickedCount - 1) % accentedCharacters.length();
-        if (index >= 0)
-            character = accentedCharacters[index];
-    }
-    const int accentedKeyCode = QKeySequence(character)[0];
-    emit symbolCharacterKeyClicked(character, accentedKeyCode, true);
+    return (keyboardType != M::NumberContentType)
+        && (keyboardType != M::PhoneNumberContentType);
 }

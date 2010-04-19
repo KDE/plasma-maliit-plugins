@@ -19,192 +19,189 @@
 #ifndef MHARDWAREKEYBOARD_H
 #define MHARDWAREKEYBOARD_H
 
-#include <QObject>
-#include <QMap>
 #include <Qt>
+#include <QObject>
+#include <QString>
 #include <QEvent>
 #include "mxkb.h"
 #include "hwkbcharloopsmanager.h"
 #include "mkeyboardcommon.h"
 #include <MNamespace>
 
-/*!
-  \brief MHardwareKeyboard implement the hardware keyboard for inputmethod plugin.
+class MInputContextConnection;
 
-  Class MHardwareKeyboard provides some functionality for hardware keyboard, e.g. recording input sensitive
-  modifiers(current sensitive modifier keys are Shift key and Fn key); latch/unlatch, lock/unlock the modifiers,
-  auto-capitalization; auto-lock Fn key when focus changing to number/phone number content type etc.
-  There are three states of a modifier key: \a Clear, \a Latched, and \a Locked. The MHardWareKeyboard keeps
-  the states of modifier keys (Shift, Sym and Fn) until the widget loses the focus.
-  See meego-im-framework/doc/src/internals.dox section KeyEventFiltering for more detail.
+/*!
+  \brief MHardwareKeyboard implements the hardware keyboard for inputmethod plugin.
+
+  Class MHardwareKeyboard provides enhanced functionality for hardware keyboard, such as
+  latch/unlatch and lock/unlock Shift/Fn modifiers; Symbol key functionality; auto-lock Fn
+  key when focus is in number/phone number content type etc.  See
+  meego-im-framework/doc/src/internals.dox section KeyEventFiltering for more detail.
 */
 class MHardwareKeyboard : public QObject
 {
     Q_OBJECT
 
 public:
-    class  ModifierKey
-    {
-    public:
-        ModifierKey(Qt::KeyboardModifier m = Qt::NoModifier, ModifierState s = ModifierClearState);
-
-        Qt::KeyboardModifier modifier;
-        ModifierState state;
-        //! For some state, e.g Latched state, which need a middle state before being able to move to lock state.
-        bool inBetweenPressRelease;
-    };
-
-    class RedirectedKey
-    {
-    public:
-        RedirectedKey(Qt::Key key, bool eatKey, bool eatSelf);
-        void reset();
-
-        Qt::Key keyCode;
-        bool eatInBetweenKeys;
-        bool eatItself;
-        bool pressed;
-        //! For symbol key, indicates whether there are some character keys being pressed when
-        //it is held (pressed equal true).
-        bool charKeyClicked;
-        QChar lastClickedCharacter;
-        int charKeyClickedCount;
-        ModifierKey modifier;
-    };
-
     /*!
      * \brief Constructor for creating an MHardwareKeyboard object.
+     * \param icConnection input context connection to use for sending events and
+     * pre-edit and commit strings
      * \param parent Parent object.
      */
-    MHardwareKeyboard(QObject *parent = 0);
+    MHardwareKeyboard(MInputContextConnection& icConnection, QObject *parent = 0);
 
     //! Destructor
     ~MHardwareKeyboard();
 
-    /*!
-     *  \brief Sets keyboard type according text entry type.
-     */
+    //! \brief Set keyboard type according text entry type.
     void setKeyboardType(M::TextContentType type);
 
-    /*!
-     * \brief Gets current state for \a modifier key in hardware keyboard.
-     */
+    //! \return current state for \a modifier key in hardware keyboard.
     ModifierState modifierState(Qt::KeyboardModifier modifier) const;
 
     //! Set auto capitalization state.
-    void setAutoCapitalization(bool caps);
+    void setAutoCapitalization(bool state);
 
-    //! Reset state, clear recorded modifiers.
+    /*! \brief Reset internal state of the hardware keyboard code.
+     * \post modifiers in clear state
+     */
     void reset();
 
     /*!
      * \brief Filter input key events that come from the hardware keyboard.
      *
-     * Exception: the key event may also come from the symbol view.
+     * Exception: the key event may also come from the symbol view.  In that case
+     * nativeModifiers is allowed not to be correct (always 0).  nativeScanCode is
+     * 0 as well.
      *
      * See meego-im-framework/doc/src/internals.dox section KeyEventFiltering for more detail.
      *
      * \return true if the event was handled, false otherwise
      */
-    bool filterKeyEvent(bool forceProcessing, QEvent::Type keyType, Qt::Key keyCode,
+    bool filterKeyEvent(QEvent::Type eventType, Qt::Key keyCode,
                         Qt::KeyboardModifiers modifiers, const QString &text,
-                        bool autoRepeat, int count, int nativeScanCode);
+                        bool autoRepeat, int count, quint32 nativeScanCode,
+                        quint32 nativeModifiers);
 
-    /*!
-     * \brief Returns whether the symbol view is available for current layout.
-     */
+    //! \return whether the symbol view is available for the current layout.
     bool symViewAvailable() const;
 
 signals:
 
-    //! Emitted when symbol key is clicked.
+    //! \bried Emitted when symbol key is clicked (pressed and released consecutively).
     void symbolKeyClicked();
 
-    //! Emitted when shift state is changed.
-    void shiftLevelChanged();
+    //! \brief Emitted when shift state is changed.
+    void shiftStateChanged() const;
 
-    //! Emitted when the state of one modifier is changed
-    void modifierStateChanged(Qt::KeyboardModifier modifier, ModifierState state);
-
-    /*!
-     * \brief Emitted when symbol key and character key are clicked together.
+    /*! \brief Emitted when the state of \a modifier is changed to \a state.
      *
-     * Accented letter can be entered by holding down the Sym key and pressing a character key. E.g. by pressing
-     * Sym + a (in lower case mode), the user could enter lower case accented versions of "a" (e.g. האגבדו).
-     * The accented character should be \a committed, when pressing another character key or releasing Sym key.
-     *
-     * \param c Accented character generated by symbol key and character key clicking.
-     * \param keyCode The key code of the accented character. \sa Qt::Key.
-     * \param committed Indicate whether this accented character should be committed.
+     * Can be emitted also when the modifier state has not changed.
      */
-    void symbolCharacterKeyClicked(const QChar &c, int keyCode, bool committed = false);
+    void modifierStateChanged(Qt::KeyboardModifier modifier, ModifierState state) const;
 
 private:
-
-    //! Initialize
-    void init();
-
-    /*!
-     * \brief Translates the input key code to Qt::KeyboardModifiers.
+    /*! \brief Process key release event when symbol modifier is pressed.
      *
-     *  If the input key is not a modifier key, return Qt::NoModifier.
+     * \return true if the event was processed/consumed, false otherwise
      */
-    static Qt::KeyboardModifier keyToModifier(Qt::Key keyCode);
+    bool handleReleaseWithSymModifier(Qt::Key keyCode, const QString &text);
 
-    /*!
-     *\brief Returns the index of the matched redirected key in sensitiveKeys according \a keyCode.
+    //! \return true if the key press event is such that it should be passed to the application
+    bool passKeyOnPress(Qt::Key keyCode, const QString &text) const;
+
+    /*! When X11 modifier bits indicated by \a affect mask in \a value are changed
+     * compared to their state in \a previousModifiers, emit modifierStateChanged signal
+     * with a modifier corresponding to the changed bit and state that is either
+     * ModifierClearState (modifier off) or \a onState (modifier on).  \a shiftMask can be
+     * either ShiftMask or LockMask, corresponding to different shift modifier masks used
+     * for latching and locking, respectively.
+     *
+     * Only Fn and Shift modifiers are checked.
+     *
+     * Also emit shiftStateChanged if shift modifier state changes.
+     *
+     * \sa modifierStateChanged
+     * \sa shiftLevelChanged
      */
-    int redirectedKeyIndex(Qt::Key keyCode) const;
+    void notifyModifierChange(unsigned char previousModifiers, ModifierState onState,
+                              unsigned int shiftMask, unsigned int affect, unsigned int value) const;
 
-    /*!
-     *\brief Returns the index of the matched redirected key in sensitiveKeys according \a modifier.
+    /*! \brief Set latch state of modifiers indicated by \a affect to that indicated by \a value.
+     *
+     * \param affect X modifier mask
+     * \param value modifier states indicated with bits corresponding to \a affect mask
+     *
+     * \post X11 latch state updated using Xkb.
+     * \post changes notified using notifyModifierChange
+     * \post autoCaps cleared if needed
+     * \post currentLatchedMods updated
      */
-    int redirectedKeyIndex(Qt::KeyboardModifier modifier) const;
+    void latchModifiers(unsigned int affect, unsigned int value);
 
-    /*!
-     * \brief Sets state for \a modifier.
-     * \param modifier Describes the modifier key.
-     * \param targetState The state to be set.
+    //! Just like \a latchModifiers but set lock state instead.
+    void lockModifiers(unsigned int affect, unsigned int value);
+
+    /*! \brief Cycle Shift/Fn clear/latched/locked states as specified for modifier click.
+     *
+     * \param keyCode key code of released modifier
+     * \param lockMask X11 modifier mask indicating what to lock in latched->locked transition
+     * and what to unlock in locked->clear transition.
+     * \param latchMask just like lockMask but for clear->latched, latched->locked and
+     * latched->clear transitions
+     * \param unlockMask mask that indicates what to unlock in clear->latched transition.
+     * \param unlatchMask Just like unlockMask but indicates what to unlatch.
      */
-    void setModifierState(Qt::KeyboardModifier modifier, ModifierState targetState);
+    void cycleModifierState(Qt::Key keyCode, unsigned int lockMask,
+                            unsigned int latchMask, unsigned int unlockMask,
+                            unsigned int unlatchMask);
 
-    /*!
-     * \brief Sets state for \a modifierKey.
-     * \param modifierKey Describes the modifier key.
-     * \param targetState The state to be set.
+    /*! \brief Handle Fn/Shift release, cycling state using cycleModifierState if applicable.
+     *
+     * Parameters are as described for cycleModifierState.
      */
-    void setModifierState(ModifierKey &modifierKey, ModifierState targetState);
-
-    //! Handle modifier key press.
-    void modifierKeyPress(ModifierKey &targetModifierKey);
-
-    //! Handle modifier key release.
-    void modifierKeyRelease(ModifierKey &targetModifierKey);
-
-    //! Handle symbol key click.
-    void symbolKeyClick();
-
-    //! Composes a accented character for symbol key + character key press.
-    void composeAccentedCharacter(Qt::Key keyCode, const QString &text);
-
-    //! Handle character key click.
-    void characterKeyClick(Qt::Key keyCode, const QString &text);
-
-    //! commit last clicked accented character.
-    void commitAccentedCharacter();
-
-    //! Return true if there's currently one or more sensitive keys in pressed state
-    bool isSensitiveKeyPressed() const;
-
-    //! Return true if the \a state is valid for \a modifier.
-    bool isValidModifierState(Qt::KeyboardModifier modifier, ModifierState state);
+    void handleCyclableModifierRelease(Qt::Key keyCode, unsigned int lockMask,
+                                       unsigned int latchMask, unsigned int unlockMask,
+                                       unsigned int unlatchMask);
 
     M::TextContentType keyboardType;
     MXkb mXkb;
     bool autoCaps;
-    QList<RedirectedKey> sensitiveKeys;
-    bool filterNextKey;
     HwKbCharLoopsManager hwkbCharLoopsManager;
+    MInputContextConnection& inputContextConnection;
+
+    //! An attribute of the last key event passed to filterKeyEvent.
+    QEvent::Type lastEventType;
+    //! An attribute of the last key event passed to filterKeyEvent.
+    Qt::Key lastKeyCode;
+
+    // TODO: this isn't used at the moment but might serve as a starting point
+    // for the key filtering feature later
+    typedef QHash<quint32, bool> PressedKeyMap; // key is native scan code / X keycode
+    PressedKeyMap pressedKeys;
+
+    //! X modifier mask of currently latched modifiers.  This approximates X modifier state and
+    //! is updated in reset and latchModifiers.
+    unsigned char currentLatchedMods;
+    //! X modifier mask of currently locked modifiers.  This approximates X modifier state and
+    //! is updated from X state on entry to filterKeyEvent and by lockModifiers.
+    unsigned char currentLockedMods;
+
+    //! When Sym+<character>... is in progress, index to the character loop currently
+    //! being cycled, if any.  -1 otherwise.
+    int characterLoopIndex;
+    //! Text attribute of the last release event with sym modifier and for which a
+    //! character loop was found.
+    QString lastSymText;
+
+    bool stateTransitionsDisabled;
+    //! Number of shift keys in pressed state at the same time.
+    unsigned char shiftsPressed;
+    //! If true, user has activated caps lock by pressing two shift keys at once.  Until
+    //! both of them have been released, no state transitions are done on shift release.
+    //! TODO: what about on Fn release?
+    bool shiftShiftCapsLock;
 
     friend class Ut_MHardwareKeyboard;
     friend class Ft_MHardwareKeyboard;

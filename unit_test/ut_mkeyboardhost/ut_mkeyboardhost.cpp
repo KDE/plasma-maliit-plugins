@@ -40,6 +40,10 @@
 
 #include <QDir>
 
+#include <X11/X.h>
+#undef KeyPress
+#undef KeyRelease
+
 namespace
 {
     const QString InputMethodCorrectionSetting("/meegotouch/inputmethods/correctionenabled");
@@ -811,7 +815,7 @@ void Ut_MKeyboardHost::testUpdateSymbolViewLevel()
 
     //hardware state
     QVERIFY(subject->hardwareKeyboard);
-    QSignalSpy spy(subject->hardwareKeyboard, SIGNAL(shiftLevelChanged()));
+    QSignalSpy spy(subject->hardwareKeyboard, SIGNAL(shiftStateChanged()));
 
     state << Hardware;
     subject->update();
@@ -829,21 +833,22 @@ void Ut_MKeyboardHost::testUpdateSymbolViewLevel()
 
     spy.clear();
     //! first shift key press+release will latch the shift modifier, and then switch the symbolview level to 1
-    subject->processKeyEvent(QEvent::KeyPress, Qt::Key_Shift, Qt::NoModifier, QString(""), false, 1, 0);
-    subject->processKeyEvent(QEvent::KeyRelease, Qt::Key_Shift, Qt::ShiftModifier, QString(""), false, 1, 0);
+    // Note that the native modifier parameters are not correct but that doesn't matter for this test.
+    subject->processKeyEvent(QEvent::KeyPress, Qt::Key_Shift, Qt::NoModifier, QString(""), false, 1, 0, 0);
+    subject->processKeyEvent(QEvent::KeyRelease, Qt::Key_Shift, Qt::ShiftModifier, QString(""), false, 1, 0, 0);
     QCOMPARE(spy.count(), 1);
     QCOMPARE(subject->hardwareKeyboard->modifierState(Qt::ShiftModifier), ModifierLatchedState);
     QCOMPARE(subject->symbolView->currentLevel(), 1);
-    //! second shift key press+release will lock the shift modifier, and still keep the symbolview level as 1
-    subject->processKeyEvent(QEvent::KeyPress, Qt::Key_Shift, Qt::NoModifier, QString(""), false, 1, 0);
-    subject->processKeyEvent(QEvent::KeyRelease, Qt::Key_Shift, Qt::ShiftModifier, QString(""), false, 1, 0);
-    QCOMPARE(spy.count(), 2);
+    // second shift key press+release will lock the shift modifier, shift state changes but symbolview level stays 1
+    subject->processKeyEvent(QEvent::KeyPress, Qt::Key_Shift, Qt::NoModifier, QString(""), false, 1, 0, 0);
+    subject->processKeyEvent(QEvent::KeyRelease, Qt::Key_Shift, Qt::ShiftModifier, QString(""), false, 1, 0, 0);
+    QCOMPARE(spy.count(), 3);
     QCOMPARE(subject->hardwareKeyboard->modifierState(Qt::ShiftModifier), ModifierLockedState);
     QCOMPARE(subject->symbolView->currentLevel(), 1);
     //! third shift key press+release will clear the shift modifier, and switch the symbolview level back to 0
-    subject->processKeyEvent(QEvent::KeyPress, Qt::Key_Shift, Qt::NoModifier, QString(""), false, 1, 0);
-    subject->processKeyEvent(QEvent::KeyRelease, Qt::Key_Shift, Qt::ShiftModifier, QString(""), false, 1, 0);
-    QCOMPARE(spy.count(), 3);
+    subject->processKeyEvent(QEvent::KeyPress, Qt::Key_Shift, Qt::NoModifier, QString(""), false, 1, 0, 0);
+    subject->processKeyEvent(QEvent::KeyRelease, Qt::Key_Shift, Qt::ShiftModifier, QString(""), false, 1, 0, 0);
+    QCOMPARE(spy.count(), 4);
     QCOMPARE(subject->hardwareKeyboard->modifierState(Qt::ShiftModifier), ModifierClearState);
     QCOMPARE(subject->symbolView->currentLevel(), 0);
     subject->symbolView->hideSymbolView();

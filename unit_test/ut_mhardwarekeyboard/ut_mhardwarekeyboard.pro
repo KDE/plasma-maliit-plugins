@@ -10,6 +10,7 @@ LIBS += -Wl,-rpath=/usr/lib/meego-im-plugins/ -L../../m-keyboard/ -lmeego-keyboa
 
 # Input
 HEADERS += ut_mhardwarekeyboard.h \
+           testinputcontextconnection.h \
            ../stubs/mgconfitem_stub.h \
            ../stubs/fakegconf.h
 

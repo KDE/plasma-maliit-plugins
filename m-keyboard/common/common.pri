@@ -15,7 +15,6 @@ HEADERS += \
     $$COMMON_DIR/toolbarbutton.h \
     $$COMMON_DIR/toolbarmanager.h \
     $$COMMON_DIR/vkbdatakey.h \
-    $$COMMON_DIR/mxkb_p.h \
     $$COMMON_DIR/mxkb.h \
     $$COMMON_DIR/mhardwarekeyboard.h \
     $$COMMON_DIR/hwkbcharloops.h \

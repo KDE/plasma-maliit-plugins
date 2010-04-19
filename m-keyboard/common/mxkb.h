@@ -17,43 +17,32 @@
 #ifndef MXKB_H
 #define MXKB_H
 
-#include <Qt>
-
 /*!
   \brief MXkb provides some functionalities to manipulate the Xkb keyboard.
 
-  Class MXkb provides some functionalities to manipulate the Xkb keyboard, e.g. latch/unlatch, lock/unlock
-  Modifier keys.
+  Class MXkb provides some functionality to manipulate the Xkb keyboard,
+  e.g. latch/unlatch, lock/unlock Modifier keys.
 */
-class MXkbPrivate;
 class MXkb
 {
 public:
-    /*!
-     * \brief Constructor.
-     */
+    //! \brief Constructor.
     MXkb();
 
-    //! Destructor
+    //! Destructor.
     ~MXkb();
 
-    /*!
-     * \brief lock \a modifiers.
+    /*! \brief XkbLatchModifiers wrapper
+     *
+     * Set latch state of of modifiers indicated by \a affect mask to
+     * what is indicated by \a values mask.
      */
-    void lockModifiers(Qt::KeyboardModifiers modifiers);
-
-    /*!
-     * \brief unlock \a modifiers.
-     */
-    void unlockModifiers(Qt::KeyboardModifiers modifiers);
+    void latchModifiers(unsigned int affect, unsigned int values);
+    //! \brief Just like \a latchModifiers but change the lock state.
+    void lockModifiers(unsigned int affect, unsigned int values);
 
 private:
-
-    //! For unit test, returns true if \a modifier is in latched or locked state.
-    bool isLatched(Qt::KeyboardModifier modifier) const;
-
-    MXkbPrivate *const d_ptr;
-    Q_DECLARE_PRIVATE(MXkb)
+    unsigned int deviceSpec;
 
     friend class Ft_MXkb;
     friend class Ft_MHardwareKeyboard;
