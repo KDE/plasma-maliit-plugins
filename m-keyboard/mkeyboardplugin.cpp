@@ -45,6 +45,13 @@ MKeyboardPlugin::createInputMethod(MInputContextConnection *icConnection)
     return inputMethod;
 }
 
+QSet<MIMHandlerState> MKeyboardPlugin::supportedStates() const
+{
+    QSet<MIMHandlerState> result;
+
+    result << OnScreen << Hardware;
+    return result;
+}
 
 Q_EXPORT_PLUGIN2(mvirtualkeyboard, MKeyboardPlugin)
 

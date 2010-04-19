@@ -53,6 +53,13 @@ public:
     //!        Widget must exist in the switcher.
     void switchTo(QGraphicsWidget *widget);
 
+    /*!
+     * \brief Returns true if it is not possible to switch to the next
+     * widget of current with given direction without looping.
+     * \param direction Direction of switching
+     */
+    bool isAtBoundary(Direction direction) const;
+
     //! \brief Show given widget without animation.
     //!        The widget must be already added.
     void setCurrent(QGraphicsWidget *widget);

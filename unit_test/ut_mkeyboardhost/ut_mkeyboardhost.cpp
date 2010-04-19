@@ -65,7 +65,7 @@ namespace QTest
     }
 }
 
-Q_DECLARE_METATYPE(QList<MIMHandlerState>)
+Q_DECLARE_METATYPE(QSet<MIMHandlerState>)
 Q_DECLARE_METATYPE(MIMHandlerState)
 
 
@@ -713,9 +713,9 @@ void Ut_MKeyboardHost::rotateToAngle(M::OrientationAngle angle)
 
 void Ut_MKeyboardHost::testSetState_data()
 {
-    QList<MIMHandlerState> state;
+    QSet<MIMHandlerState> state;
 
-    QTest::addColumn<QList<MIMHandlerState> >("state");
+    QTest::addColumn<QSet<MIMHandlerState> >("state");
     QTest::addColumn<int>("expectedCallCount");
     QTest::addColumn<MIMHandlerState>("expectedParameter");
 
@@ -735,16 +735,16 @@ void Ut_MKeyboardHost::testSetState_data()
 
     state.clear();
     state << OnScreen << Hardware;
-    QTest::newRow("Sequence1") << state << 1 << Hardware;
+    QTest::newRow("Sequence1") << state << 0 << Hardware;
 
     state.clear();
-    state << Hardware << OnScreen;
-    QTest::newRow("Sequence2") << state << 0 << OnScreen;
+    state << Hardware << Accessory;
+    QTest::newRow("Sequence2") << state << 1 << Hardware;
 }
 
 void Ut_MKeyboardHost::testSetState()
 {
-    QFETCH(QList<MIMHandlerState>, state);
+    QFETCH(QSet<MIMHandlerState>, state);
     QFETCH(int, expectedCallCount);
     QFETCH(MIMHandlerState, expectedParameter);
 
@@ -761,7 +761,7 @@ void Ut_MKeyboardHost::testSetState()
 
 void Ut_MKeyboardHost::testSetStateCombination()
 {
-    QList<MIMHandlerState> state;
+    QSet<MIMHandlerState> state;
 
     gSetKeyboardStateCallCount = 0;
     state << Hardware;
@@ -807,7 +807,7 @@ void Ut_MKeyboardHost::testSymbolKeyClick()
 void Ut_MKeyboardHost::testUpdateSymbolViewLevel()
 {
     subject->show();
-    QList<MIMHandlerState> state;
+    QSet<MIMHandlerState> state;
 
     //hardware state
     QVERIFY(subject->hardwareKeyboard);

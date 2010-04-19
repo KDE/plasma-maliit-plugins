@@ -44,6 +44,7 @@ private slots:
     void testSwitchLeftRight();
     void testSwitchSignals();
     void testInitialSwitchTo();
+    void testIsAtBoundary();
 };
 
 #endif // UT_HORIZONTALSWITCHER_H

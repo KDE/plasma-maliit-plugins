@@ -134,6 +134,21 @@ void HorizontalSwitcher::switchTo(QGraphicsWidget *widget)
     switchTo(slides.indexOf(widget));
 }
 
+bool HorizontalSwitcher::isAtBoundary(Direction direction) const
+{
+    if (direction == Right) {
+        if (currentIndex == slides.count() - 1) {
+            return true;
+        }
+    } else { // Left
+        if (currentIndex == 0) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void HorizontalSwitcher::setCurrent(QGraphicsWidget *widget)
 {
     Q_ASSERT(widget && slides.contains(widget));

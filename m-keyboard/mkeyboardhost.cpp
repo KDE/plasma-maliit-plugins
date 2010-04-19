@@ -142,6 +142,9 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
     connect(vkbWidget, SIGNAL(userInitiatedHide()),
             this, SLOT(userHide()));
 
+    connect(vkbWidget, SIGNAL(pluginSwitchRequired(M::InputMethodSwitchDirection)),
+            this, SIGNAL(pluginSwitchRequired(M::InputMethodSwitchDirection)));
+
     // construct hardware keyboard object
     hardwareKeyboard = new MHardwareKeyboard(this);
     connect(hardwareKeyboard, SIGNAL(symbolKeyClicked()),
@@ -1094,13 +1097,20 @@ void MKeyboardHost::clientChanged()
     hide(); // could do some quick hide also
 }
 
-void MKeyboardHost::setState(const QList<MIMHandlerState> &state)
+void MKeyboardHost::switchContext(M::InputMethodSwitchDirection direction, bool enableAnimation)
+{
+    if (activeState == OnScreen) {
+        vkbWidget->switchLanguage(direction, enableAnimation);
+    }
+}
+
+void MKeyboardHost::setState(const QSet<MIMHandlerState> &state)
 {
     if (state.isEmpty()) {
         return;
     }
 
-    const MIMHandlerState actualState = state.last();
+    const MIMHandlerState actualState = *state.begin();
     if (activeState == actualState)
         return;
 

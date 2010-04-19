@@ -289,6 +289,11 @@ void
 MVirtualKeyboard::flickLeftHandler()
 {
     if (!mainKeyboardSwitcher->isRunning()) {
+        if (mainKeyboardSwitcher->isAtBoundary(HorizontalSwitcher::Right)) {
+            emit pluginSwitchRequired(M::SwitchForward);
+            return;
+        }
+
         mainKeyboardSwitcher->switchTo(HorizontalSwitcher::Right);
         setLanguage(mainKeyboardSwitcher->current());
     }
@@ -308,6 +313,11 @@ void
 MVirtualKeyboard::flickRightHandler()
 {
     if (!mainKeyboardSwitcher->isRunning()) {
+        if (mainKeyboardSwitcher->isAtBoundary(HorizontalSwitcher::Left)) {
+            emit pluginSwitchRequired(M::SwitchBackward);
+            return;
+        }
+
         mainKeyboardSwitcher->switchTo(HorizontalSwitcher::Left);
         setLanguage(mainKeyboardSwitcher->current());
     }
@@ -1021,6 +1031,35 @@ bool MVirtualKeyboard::symViewAvailable() const
         break;
     }
     return available;
+}
+
+void MVirtualKeyboard::switchLanguage(M::InputMethodSwitchDirection direction, bool enableAnimation)
+{
+    qDebug() << __PRETTY_FUNCTION__ << direction << enableAnimation;
+    if (direction == M::SwitchUndefined) {
+        return;
+    }
+
+    if (enableAnimation) {
+        if (direction == M::SwitchForward) {
+            mainKeyboardSwitcher->switchTo(HorizontalSwitcher::Right);
+        } else {
+            mainKeyboardSwitcher->switchTo(HorizontalSwitcher::Left);
+        }
+    } else {
+        int current = mainKeyboardSwitcher->current();
+        if (direction == M::SwitchForward) {
+            current = (current + 1) % mainKeyboardSwitcher->count();
+        } else {
+            --current;
+            if (current < 0) {
+                current = mainKeyboardSwitcher->count() - 1;
+            }
+        }
+
+        mainKeyboardSwitcher->setCurrent(current);
+    }
+    setLanguage(mainKeyboardSwitcher->current());
 }
 
 void MVirtualKeyboard::setIndicatorButtonState(Qt::KeyboardModifier modifier, ModifierState state)

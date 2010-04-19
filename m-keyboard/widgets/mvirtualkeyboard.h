@@ -24,6 +24,7 @@
 #include "mbuttonarea.h"
 #include "layoutdata.h"
 #include <mimhandlerstate.h>
+#include <mimdirection.h>
 #include <MWidget>
 #include <QPixmap>
 #include <QSharedPointer>
@@ -174,6 +175,11 @@ public:
      * \brief Returns whether the symbol view is available for current layout.
      */
     bool symViewAvailable() const;
+
+    /*!
+     * Switch language to given direction, \sa MInputMethodBase::swipe
+     */
+    void switchLanguage(M::InputMethodSwitchDirection direction, bool enableAnimation);
 
 public slots:
     /*!
@@ -332,6 +338,18 @@ signals:
 
     //! Emitted when symbol view should be shown
     void showSymbolViewRequested();
+
+    /*!
+     * Inform that plugin should be switched in according to \a direction.
+     */
+    void pluginSwitchRequired(M::InputMethodSwitchDirection direction);
+
+    /*!
+     * Inform that active plugin should be replaced with specified one.
+     * \param pluginName Name orf plugin which will be activated
+     */
+    void pluginSwitchRequired(const QString &pluginName);
+
 
 private:
     const LayoutData *currentLayoutModel() const;

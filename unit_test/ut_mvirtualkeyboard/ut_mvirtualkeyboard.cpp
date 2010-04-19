@@ -27,6 +27,7 @@
 #include "vkbdatakey.h"
 #include "mimtoolbar.h"
 #include "mplainwindow.h"
+#include <mimdirection.h>
 #include <MScene>
 #include <MSceneManager>
 #include <MSceneWindow>
@@ -47,6 +48,7 @@ namespace
 }
 
 Q_DECLARE_METATYPE(KeyBinding::KeyAction);
+Q_DECLARE_METATYPE(M::InputMethodSwitchDirection);
 
 // STUBS
 
@@ -68,6 +70,8 @@ void Notification::displayText(const QString &message)
 
 void Ut_MVirtualKeyboard::initTestCase()
 {
+    qRegisterMetaType<M::InputMethodSwitchDirection>("M::InputMethodSwitchDirection");
+
     // Avoid waiting if im server is not responding
     MApplication::setLoadMInputContext(false);
 
@@ -381,9 +385,13 @@ void Ut_MVirtualKeyboard::flickRightHandlerTest()
 {
     QStringList langList = MGConfItem("/meegotouch/inputmethods/languages").value().toStringList();
     langList.sort();
+    qDebug() << langList;
 
     // Vkb has just been created and is running an animation.
     QTest::qWait(550);
+
+    QSignalSpy spySwitchRequested(m_vkb, SIGNAL(pluginSwitchRequired(M::InputMethodSwitchDirection)));
+    QVERIFY(spySwitchRequested.isValid());
 
     // flick right, switch direction left
     QSignalSpy spy(m_vkb, SIGNAL(languageChanged(const QString &)));
@@ -398,7 +406,13 @@ void Ut_MVirtualKeyboard::flickRightHandlerTest()
     QTest::qWait(550);
 
     index = m_vkb->mainKeyboardSwitcher->current();
+    spySwitchRequested.clear();
     m_vkb->flickRightHandler();
+    if (spySwitchRequested.count()) {
+        QCOMPARE(index, 0);
+        m_vkb->switchLanguage(spySwitchRequested.first().first().value<M::InputMethodSwitchDirection>(),
+                              false);
+    }
     QVERIFY(m_vkb->mainKeyboardSwitcher->current() != index);
     QCOMPARE(spy.count(), 2);
     QCOMPARE(spy.at(1).count(), 1);
@@ -408,7 +422,13 @@ void Ut_MVirtualKeyboard::flickRightHandlerTest()
     QTest::qWait(550);
 
     index = m_vkb->mainKeyboardSwitcher->current();
+    spySwitchRequested.clear();
     m_vkb->flickRightHandler();
+    if (spySwitchRequested.count()) {
+        QCOMPARE(index, 0);
+        m_vkb->switchLanguage(spySwitchRequested.first().first().value<M::InputMethodSwitchDirection>(),
+                              false);
+    }
     QVERIFY(m_vkb->mainKeyboardSwitcher->current() != index);
     QCOMPARE(spy.count(), 3);
     QCOMPARE(spy.at(2).count(), 1);
@@ -424,10 +444,19 @@ void Ut_MVirtualKeyboard::flickLeftHandlerTest()
     // Vkb has just been created and is running an animation.
     QTest::qWait(550);
 
+    QSignalSpy spySwitchRequested(m_vkb, SIGNAL(pluginSwitchRequired(M::InputMethodSwitchDirection)));
+    QVERIFY(spySwitchRequested.isValid());
+
     QSignalSpy spy(m_vkb, SIGNAL(languageChanged(const QString &)));
     int index = m_vkb->mainKeyboardSwitcher->current();
     qDebug() << "index1: " << index << " lang:" << m_vkb->currentLanguage;
+    spySwitchRequested.clear();
     m_vkb->flickLeftHandler();
+    if (spySwitchRequested.count()) {
+        QCOMPARE(index, langList.count() - 1);
+        m_vkb->switchLanguage(spySwitchRequested.first().first().value<M::InputMethodSwitchDirection>(),
+                              false);
+    }
     qDebug() << "index2: " << m_vkb->mainKeyboardSwitcher->current() << " lang:" << m_vkb->currentLanguage;
     QVERIFY(m_vkb->mainKeyboardSwitcher->current() != index);
     QCOMPARE(spy.count(), 1);
@@ -438,7 +467,13 @@ void Ut_MVirtualKeyboard::flickLeftHandlerTest()
     QTest::qWait(550);
 
     index = m_vkb->mainKeyboardSwitcher->current();
+    spySwitchRequested.clear();
     m_vkb->flickLeftHandler();
+    if (spySwitchRequested.count()) {
+        QCOMPARE(index, langList.count() - 1);
+        m_vkb->switchLanguage(spySwitchRequested.first().first().value<M::InputMethodSwitchDirection>(),
+                              false);
+    }
     QVERIFY(m_vkb->mainKeyboardSwitcher->current() != index);
     QCOMPARE(spy.count(), 2);
     QCOMPARE(spy.at(1).count(), 1);
@@ -448,7 +483,13 @@ void Ut_MVirtualKeyboard::flickLeftHandlerTest()
     QTest::qWait(550);
 
     index = m_vkb->mainKeyboardSwitcher->current();
+    spySwitchRequested.clear();
     m_vkb->flickLeftHandler();
+    if (spySwitchRequested.count()) {
+        QCOMPARE(index, langList.count() - 1);
+        m_vkb->switchLanguage(spySwitchRequested.first().first().value<M::InputMethodSwitchDirection>(),
+                              false);
+    }
     QVERIFY(m_vkb->mainKeyboardSwitcher->current() != index);
     QCOMPARE(spy.count(), 3);
     QCOMPARE(spy.at(2).count(), 1);

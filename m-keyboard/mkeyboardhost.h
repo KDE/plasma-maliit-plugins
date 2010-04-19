@@ -58,12 +58,13 @@ public:
     virtual void appOrientationChanged(int angle);
     virtual void setCopyPasteState(bool copyAvailable, bool pasteAvailable);
     virtual void setToolbar(const QString &);
-    virtual void setState(const QList<MIMHandlerState> &state);
+    virtual void setState(const QSet<MIMHandlerState> &state);
     virtual void processKeyEvent(QEvent::Type keyType, Qt::Key keyCode,
                                  Qt::KeyboardModifiers modifiers,
                                  const QString &text, bool autoRepeat, int count,
                                  int nativeScanCode);
     virtual void clientChanged();
+    virtual void switchContext(M::InputMethodSwitchDirection direction, bool enableAnimation);
     //! reimp_end
 
 private slots:
