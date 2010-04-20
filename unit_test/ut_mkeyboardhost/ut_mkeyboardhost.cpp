@@ -578,22 +578,30 @@ void Ut_MKeyboardHost::testRegionSignals()
     QSignalSpy spy(subject, SIGNAL(regionUpdated(QRegion)));
     QSignalSpy spy2(subject, SIGNAL(inputMethodAreaUpdated(QRegion)));
 
+    // Counts for signal spy
+    int c1 = 0;
+    int c2 = 0;
+
     subject->show();
+    ++c1;
+    ++c2;
     // We must immediately get non-empty region so that passthrough window
     // is made visible right before the animation starts.
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy2.count(), 1);
-    QCOMPARE(region(spy, 0), region(spy2, 0));
-    QVERIFY(!region(spy, 0).isEmpty());
+    QCOMPARE(spy.count(), c1);
+    QCOMPARE(spy2.count(), c2);
+    QCOMPARE(region(spy, c1 - 1), region(spy2, 0));
+    QVERIFY(!region(spy, c1 - 1).isEmpty());
 
     // We must get another, larger region when the vkb is fully visible
     QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
-    QCOMPARE(spy.count(), 2);
-    QCOMPARE(spy2.count(), 2);
+    ++c1;
+    ++c2;
+    QCOMPARE(spy.count(), c1);
+    QCOMPARE(spy2.count(), c2);
     qDebug() << "Passthrough region: " << region(spy, 1);
     qDebug() << "libmeegotouch region: " << region(spy2, 1);
-    QCOMPARE(region(spy, 1), region(spy2, 1));
-    QVERIFY(!(region(spy, 1) - region(spy, 0)).isEmpty());
+    QCOMPARE(region(spy, c1 - 1), region(spy2, 1));
+    QVERIFY(!(region(spy, c1 - 1) - region(spy, 0)).isEmpty());
 
     // When layout menu is shown, input method area doesn't change...
     QTimer::singleShot(LayoutMenuShowTime, subject->layoutMenu->keyboardOptionDialog, SLOT(reject()));
@@ -601,39 +609,52 @@ void Ut_MKeyboardHost::testRegionSignals()
     subject->showLayoutMenu();
     waitForSignal(subject->layoutMenu, SIGNAL(regionUpdated(const QRegion&)));
     qDebug() << "...layout menu closed.";
-    QCOMPARE(spy.count(), 4);
-    QCOMPARE(spy2.count(), 2);
+    c1 += 2;
+    QCOMPARE(spy.count(), c1);
+    QCOMPARE(spy2.count(), c2);
     // ...and after closing the region is again the same as the input method area
-    QCOMPARE(region(spy, 3), region(spy2, 1));
+    QCOMPARE(region(spy, c1 - 1), region(spy2, c2 - 1));
 
+    // In opaque mode, candidate widget has its own window, so no regions are sent to kbhost.
+#ifndef DUI_IM_DISABLE_TRANSLUCENCY
     // Ditto for correction candidate widget
     subject->correctionCandidateWidget->showWidget();
-    QCOMPARE(spy.count(), 5);
-    QCOMPARE(spy2.count(), 2);
+    ++c1;
+    QCOMPARE(spy.count(), c1);
+    QCOMPARE(spy2.count(), c2);
 
     subject->correctionCandidateWidget->hide();
-    QCOMPARE(spy.count(), 6);
+    ++c1;
+    QCOMPARE(spy.count(), c1);
     QCOMPARE(spy2.count(), 2);
-    QCOMPARE(region(spy, 5), region(spy2, 1));
+    QCOMPARE(region(spy, c1 - 1), region(spy2, c2 - 1));
+#endif
 
     // But symbol view also changes input method area
+    const int c1BeforeSymOpen = c1;
     subject->showSymbolView();
     waitForSignal(subject, SIGNAL(regionUpdated(const QRegion &)));
-    QCOMPARE(spy.count(), 7);
-    QCOMPARE(spy2.count(), 3);
+    ++c1;
+    ++c2;
+    QCOMPARE(spy.count(), c1);
+    QCOMPARE(spy2.count(), c2);
     subject->symbolView->hideSymbolView();
     waitForSignal(subject, SIGNAL(regionUpdated(const QRegion &)));
-    QCOMPARE(spy.count(), 8);
-    QCOMPARE(spy2.count(), 4);
-    QCOMPARE(region(spy, 5), region(spy, 7)); // the same as before opening it
+    ++c1;
+    ++c2;
+    QCOMPARE(spy.count(), c1);
+    QCOMPARE(spy2.count(), c2);
+    QCOMPARE(region(spy, c1BeforeSymOpen - 1), region(spy, c1 - 1)); // the same as before opening it
 
     // Hide the keyboard -> empty region and input method area
     subject->hide();
     QTest::qWait(MVirtualKeyboard::ShowHideTime + 50); // really hidden after animation is finished
-    QCOMPARE(spy.count(), 9);
-    QCOMPARE(spy2.count(), 5);
-    QCOMPARE(region(spy, 8), QRegion());
-    QCOMPARE(region(spy2, 4), QRegion());
+    ++c1;
+    ++c2;
+    QCOMPARE(spy.count(), c1);
+    QCOMPARE(spy2.count(), c2);
+    QCOMPARE(region(spy, c1 - 1), QRegion());
+    QCOMPARE(region(spy2, c2 - 1), QRegion());
 
     // Regions and rotation
 
