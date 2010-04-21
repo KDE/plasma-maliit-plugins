@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
+<keyboard version="1.0" title="Phone Number" language="phonenumber" catalog="phonenumber">
+    <layout type="phonenumber" orientation="landscape">
+        <section id="main" movable="false" horizontal_alignment="center" vertical_alignment="center">
+          <row>
+            <key>
+              <binding label="&#x0661;"/>
+            </key>
+            <key>
+              <binding label="&#x0662;"/>
+            </key>
+            <key>
+              <binding label="&#x0663;"/>
+            </key>
+            <key>
+              <binding label="&#x0664;"/>
+            </key>
+            <key>
+              <binding label="&#x0665;"/>
+            </key>
+            <key>
+              <binding label="&#x0666;"/>
+            </key>
+            <key>
+              <binding label="&#x0667;"/>
+            </key>
+            <key>
+              <binding label="&#x0668;"/>
+            </key>
+            <key>
+              <binding label="&#x0669;"/>
+            </key>
+            <key>
+              <binding label="&#x0660;"/>
+            </key>
+          </row>
+        </section>
+        <section id="functionkey" movable="false" horizontal_alignment="right" vertical_alignment="center">
+          <row>
+            <key>
+              <binding label="&#x002A;&#x002B;" cycleset="&#x002A;&#x002B;pw" action="cycle"/>
+            </key>
+            <key>
+              <binding label="&#x0023;"/>
+            </key>
+            <key>
+              <binding label="" action="backspace"/>
+            </key>
+          </row>
+        </section>
+    </layout>
+    <layout type="phonenumber" orientation="portrait">
+        <section id="main" movable="false" horizontal_alignment="center" vertical_alignment="center">
+          <row>
+            <key>
+              <binding label="&#x0661;"/>
+            </key>
+            <key>
+              <binding label="&#x0662;"/>
+            </key>
+            <key>
+              <binding label="&#x0663;"/>
+            </key>
+          </row>
+          <row>
+            <key>
+              <binding label="&#x0664;"/>
+            </key>
+            <key>
+              <binding label="&#x0665;"/>
+            </key>
+            <key>
+              <binding label="&#x0666;"/>
+            </key>
+          </row>
+          <row>
+            <key>
+              <binding label="&#x0667;"/>
+            </key>
+            <key>
+              <binding label="&#x0668;"/>
+            </key>
+            <key>
+              <binding label="&#x0669;"/>
+            </key>
+          </row>
+          <row>
+            <key>
+              <binding label="&#x002A;&#x002B;" cycleset="&#x002A;&#x002B;pw" action="cycle"/>
+            </key>
+            <key>
+              <binding label="&#x0660;"/>
+            </key>
+            <key>
+              <binding label="&#x0023;"/>
+            </key>
+          </row>
+        </section>
+        <section id="functionkey" movable="false" horizontal_alignment="right" vertical_alignment="center">
+          <row>
+            <key>
+              <binding label="" action="backspace"/>
+            </key>
+          </row>
+        </section>
+    </layout>
+</keyboard>
+
