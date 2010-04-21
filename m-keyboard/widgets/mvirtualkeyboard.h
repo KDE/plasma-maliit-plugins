@@ -256,6 +256,8 @@ private slots:
 
     void languageReset();
 
+    void numberKeyboardReset();
+
     void onSectionSwitchStarting(int current, int next);
 
     void onSectionSwitched(QGraphicsWidget *previous, QGraphicsWidget *current);

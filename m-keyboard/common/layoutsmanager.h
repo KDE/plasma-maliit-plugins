@@ -79,6 +79,9 @@ signals:
     //! be reloaded using new languages returned by languageList().
     void languagesChanged();
 
+    //! Signals that number format have been reset and number/phonenumber
+    //! keyboard data can be reloaded.
+    void numberFormatChanged();
 private:
     //! Default constructor
     LayoutsManager();

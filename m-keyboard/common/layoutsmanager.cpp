@@ -230,6 +230,7 @@ void LayoutsManager::reloadNumberKeyboards()
     if (!loaded) {
         phoneNumberKeyboard.loadNokiaKeyboard(PhoneNumberKeyboardFileLatin);
     }
+    emit numberFormatChanged();
 }
 
 void LayoutsManager::syncLanguages()

@@ -105,6 +105,7 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
     phoneNumberLayout = createKeyAreaLayout(phoneNumberKeyboard);
 
     connect(&layoutsMgr, SIGNAL(languagesChanged()), this, SLOT(languageReset()));
+    connect(&layoutsMgr, SIGNAL(numberFormatChanged()), this, SLOT(numberKeyboardReset()));
     languageReset(); // creates keyboard widgets
 
     organizeContent(currentOrientation);
@@ -771,6 +772,10 @@ void MVirtualKeyboard::languageReset()
     }
 }
 
+void MVirtualKeyboard::numberKeyboardReset()
+{
+    recreateSpecialKeyboards(); // number and phone number keyboard
+}
 
 void MVirtualKeyboard::onSectionSwitchStarting(int current, int next)
 {
@@ -939,7 +944,7 @@ void MVirtualKeyboard::setSelectionStatus(bool hasSelection)
 void MVirtualKeyboard::recreateKeyboards()
 {
     reloadSwitcherContent(); // main keyboards
-    recreateSpecialKeyboards(); // numbers
+    recreateSpecialKeyboards(); // number and phone number keyboard
 }
 
 
