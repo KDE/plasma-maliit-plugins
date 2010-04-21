@@ -65,7 +65,7 @@ void Ut_Notification::initTestCase()
 
     QString cssFile("./test.css");
     if (!QFile::exists(cssFile)) {
-        cssFile = "/usr/share/m-keyboard-tests/ut_notification/test.css";
+        cssFile = "/usr/share/meego-keyboard-tests/ut_notification/test.css";
         QVERIFY(QFile::exists(cssFile));
     }
     QVERIFY(MTheme::instance()->loadCSS(cssFile));
