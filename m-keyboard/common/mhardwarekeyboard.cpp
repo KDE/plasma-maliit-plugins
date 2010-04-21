@@ -183,6 +183,98 @@ void MHardwareKeyboard::handleCyclableModifierRelease(
     }
 }
 
+bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers modifiers,
+                                       const QString &text, bool autoRepeat, int count,
+                                       quint32 nativeScanCode, quint32 nativeModifiers)
+{
+    bool eaten = false;
+    pressedKeys.insert(nativeScanCode, true);
+
+    // TODO: arrow keys
+    if (keyCode == SymKey) {
+        characterLoopIndex = -1;
+    } else if ((keyCode == Qt::Key_Delete) && (currentLatchedMods & ShiftMask)
+               && !shiftsPressed) {
+        inputContextConnection.sendKeyEvent(
+            QKeyEvent(QEvent::KeyPress, Qt::Key_Backspace,
+                      modifiers & ~Qt::KeyboardModifiers(Qt::ShiftModifier),
+                      "\b", autoRepeat, count));
+        eaten = true;
+    } else if ((keyCode == Qt::Key_Shift) && (++shiftsPressed == 2)
+               && !stateTransitionsDisabled) {
+        shiftShiftCapsLock = true;
+        latchModifiers(FnModifierMask | ShiftMask, 0);
+        lockModifiers(FnModifierMask | LockMask, LockMask);
+        eaten = false;
+    } else {
+        eaten = !passKeyOnPress(keyCode, text, nativeScanCode);
+
+        // Long press feature, only applies for the latest keypress (i.e. the latest
+        // keypress event cancels the long press logic for the previous keypress)
+        if (eaten) {
+            longPressKey = nativeScanCode;
+            longPressModifiers = nativeModifiers;
+            longPressTimer.start();
+        }
+    }
+
+    // Relatch modifiers, X unlatches them on press but we want to unlatch on release
+    // (and not even always on release, e.g. with Sym+aaab we unlatch only after the
+    // last "a").
+    if (currentLatchedMods) {
+        mXkb.latchModifiers(currentLatchedMods, currentLatchedMods);
+    }
+
+    return eaten;
+}
+
+bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers modifiers,
+                                         const QString &text,
+                                         quint32 nativeScanCode, quint32 nativeModifiers)
+{
+    bool eaten = false;
+
+    if (nativeModifiers & SymModifierMask) {
+        eaten = handleReleaseWithSymModifier(keyCode, text);
+    }
+
+    if (keyCode == Qt::Key_Shift) {
+        if (!shiftShiftCapsLock) {
+            handleCyclableModifierRelease(Qt::Key_Shift, LockMask, ShiftMask, FnModifierMask,
+                                          FnModifierMask);
+        }
+        if (--shiftsPressed == 0) {
+            shiftShiftCapsLock = false;
+        }
+    } else if (keyCode == FnLevelKey) {
+        handleCyclableModifierRelease(FnLevelKey, FnModifierMask, FnModifierMask, LockMask,
+                                      ShiftMask);
+    } else if (!eaten && !passKeyOnPress(keyCode, text, nativeScanCode)) {
+        const bool keyWasPressed(pressedKeys.contains(nativeScanCode));
+        if (keyWasPressed) {
+            inputContextConnection.sendKeyEvent(
+                QKeyEvent(QEvent::KeyPress, keyCode, modifiers, text, false, 1));
+            // TODO: should we send release too?  MTextEdit seems to be happy with
+            // just press but what about others?
+            eaten = true;
+        }
+
+        latchModifiers(FnModifierMask | ShiftMask, 0);
+    }
+    // This case works around the problem of host calling setAutoCapitalization()
+    // after backspace press event but before backspace release.  That turns the
+    // release event into a Delete release!  We eat backspace releases for consistency
+    // as well.  If the answer the the above "should we send release too?" question is
+    // "yes", presumably we need other kind of trickery here.
+    else if ((keyCode == Qt::Key_Backspace) || (keyCode == Qt::Key_Delete)) {
+        eaten = true;
+    }
+
+    pressedKeys.remove(nativeScanCode);
+
+    return eaten;
+}
+
 bool MHardwareKeyboard::filterKeyEvent(QEvent::Type eventType,
                                        Qt::Key keyCode, Qt::KeyboardModifiers modifiers,
                                        const QString &text, bool autoRepeat, int count,
@@ -194,80 +286,10 @@ bool MHardwareKeyboard::filterKeyEvent(QEvent::Type eventType,
     bool eaten = false;
 
     if (eventType == QEvent::KeyPress) {
-        pressedKeys.insert(nativeScanCode, true);
-
-        // TODO: arrow keys
-        if (keyCode == SymKey) {
-            characterLoopIndex = -1;
-        } else if ((keyCode == Qt::Key_Delete) && (currentLatchedMods & ShiftMask)
-                   && !shiftsPressed) {
-            inputContextConnection.sendKeyEvent(
-                QKeyEvent(QEvent::KeyPress, Qt::Key_Backspace,
-                          modifiers & ~Qt::KeyboardModifiers(Qt::ShiftModifier),
-                          "\b", autoRepeat, count));
-            eaten = true;
-        } else if ((keyCode == Qt::Key_Shift) && (++shiftsPressed == 2)
-                   && !stateTransitionsDisabled) {
-            shiftShiftCapsLock = true;
-            latchModifiers(FnModifierMask | ShiftMask, 0);
-            lockModifiers(FnModifierMask | LockMask, LockMask);
-            eaten = false;
-        } else {
-            eaten = !passKeyOnPress(keyCode, text, nativeScanCode);
-
-            // Long press feature, only applies for the latest keypress (i.e. the latest
-            // keypress event cancels the long press logic for the previous keypress)
-            if (eaten) {
-                longPressKey = nativeScanCode;
-                longPressModifiers = nativeModifiers;
-                longPressTimer.start();
-            }
-        }
-
-        // Relatch modifiers, X unlatches them on press but we want to unlatch on release
-        // (and not even always on release, e.g. with Sym+aaab we unlatch only after the
-        // last "a").
-        if (currentLatchedMods) {
-            mXkb.latchModifiers(currentLatchedMods, currentLatchedMods);
-        }
+        eaten = filterKeyPress(keyCode, modifiers, text, autoRepeat, count,
+                               nativeScanCode, nativeModifiers);
     } else {
-        if (nativeModifiers & SymModifierMask) {
-            eaten = handleReleaseWithSymModifier(keyCode, text);
-        }
-
-        if (keyCode == Qt::Key_Shift) {
-            if (!shiftShiftCapsLock) {
-                handleCyclableModifierRelease(Qt::Key_Shift, LockMask, ShiftMask, FnModifierMask,
-                                              FnModifierMask);
-            }
-            if (--shiftsPressed == 0) {
-                shiftShiftCapsLock = false;
-            }
-        } else if (keyCode == FnLevelKey) {
-            handleCyclableModifierRelease(FnLevelKey, FnModifierMask, FnModifierMask, LockMask,
-                                          ShiftMask);
-        } else if (!eaten && !passKeyOnPress(keyCode, text, nativeScanCode)) {
-            const bool keyWasPressed(pressedKeys.contains(nativeScanCode));
-            if (keyWasPressed) {
-                inputContextConnection.sendKeyEvent(
-                    QKeyEvent(QEvent::KeyPress, keyCode, modifiers, text, false, 1));
-                // TODO: should we send release too?  MTextEdit seems to be happy with
-                // just press but what about others?
-                eaten = true;
-            }
-
-            latchModifiers(FnModifierMask | ShiftMask, 0);
-        }
-        // This case works around the problem of host calling setAutoCapitalization()
-        // after backspace press event but before backspace release.  That turns the
-        // release event into a Delete release!  We eat backspace releases for consistency
-        // as well.  If the answer the the above "should we send release too?" question is
-        // "yes", presumably we need other kind of trickery here.
-        else if ((keyCode == Qt::Key_Backspace) || (keyCode == Qt::Key_Delete)) {
-            eaten = true;
-        }
-
-        pressedKeys.remove(nativeScanCode);
+        eaten = filterKeyRelease(keyCode, modifiers, text, nativeScanCode, nativeModifiers);
     }
 
     lastEventType = eventType;

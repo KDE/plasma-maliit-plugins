@@ -180,6 +180,16 @@ private:
      */
     QString keycodeToString(unsigned int keycode, unsigned int shiftLevel) const;
 
+    //! Helper for filterKeyEvent, handles press events
+    bool filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers modifiers,
+                        const QString &text, bool autoRepeat, int count,
+                        quint32 nativeScanCode, quint32 nativeModifiers);
+
+    //! Helper for filterKeyEvent, handles release events
+    bool filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers modifiers,
+                          const QString &text,
+                          quint32 nativeScanCode, quint32 nativeModifiers);
+
     M::TextContentType keyboardType;
     MXkb mXkb;
     bool autoCaps;
