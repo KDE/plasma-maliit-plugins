@@ -368,7 +368,7 @@ void SymbolView::loadSwitcherPages(const LayoutData &kbLayout, const unsigned in
         Q_ASSERT(selectedLayout);
     }
 
-    pageSwitcher->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+    pageSwitcher->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
     keyAreaLayout.addItem(pageSwitcher);
 }
 

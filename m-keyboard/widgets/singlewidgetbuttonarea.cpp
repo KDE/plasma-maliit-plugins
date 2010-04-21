@@ -53,6 +53,8 @@ SingleWidgetButtonArea::SingleWidgetButtonArea(MVirtualKeyboardStyleContainer *s
 {
     textLayout.setCacheEnabled(true);
 
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+
     // Initially deactivate sym page indicator.
     deactivateIndicator();
 
@@ -124,7 +126,9 @@ QSizeF SingleWidgetButtonArea::sizeHint(Qt::SizeHint which, const QSizeF &/*cons
     const int widgetHeight = rowList.count() * rowHeight - style()->spacingVertical();
 
     int width = 0;
-    if (which == Qt::MaximumSize || which == Qt::PreferredSize) {
+    if (which == Qt::MaximumSize) {
+        // We're willing to grow as much as we can. Some parent widget
+        // will apply a constraint for this.
         width = QWIDGETSIZE_MAX;
     }
     return QSizeF(width, widgetHeight);
@@ -185,6 +189,9 @@ void SingleWidgetButtonArea::loadKeys()
             rowIter->buttons.append(button);
         }
     } // end foreach row
+
+    // Update height
+    updateGeometry();
 }
 
 void SingleWidgetButtonArea::buildTextLayout()
