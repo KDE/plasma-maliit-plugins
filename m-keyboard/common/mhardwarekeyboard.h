@@ -182,10 +182,12 @@ private:
     PressedKeyMap pressedKeys;
 
     //! X modifier mask of currently latched modifiers.  This approximates X modifier state and
-    //! is updated in reset and latchModifiers.
+    //! is updated in reset and latchModifiers.  Note that if another application (un)latches
+    //! a modifier, we don't know about that and end up out of sync with X.
     unsigned char currentLatchedMods;
     //! X modifier mask of currently locked modifiers.  This approximates X modifier state and
-    //! is updated from X state on entry to filterKeyEvent and by lockModifiers.
+    //! is updated in reset and lockModifiers.  Note that if another application (un)locks
+    //! a modifier, we don't know about that and end up out of sync with X.
     unsigned char currentLockedMods;
 
     //! When Sym+<character>... is in progress, index to the character loop currently

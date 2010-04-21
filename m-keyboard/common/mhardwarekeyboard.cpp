@@ -181,7 +181,6 @@ bool MHardwareKeyboard::filterKeyEvent(QEvent::Type eventType,
 {
     XkbStateRec xkbState;
     XkbGetState(QX11Info::display(), XkbUseCoreKbd, &xkbState); // TODO: XkbUseCoreKbd
-    currentLockedMods = xkbState.locked_mods;
 
     bool eaten = false;
 
