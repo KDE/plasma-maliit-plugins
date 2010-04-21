@@ -195,13 +195,13 @@ KeyButtonArea::isObservableMove(const QPointF &prevPos, const QPointF &pos)
 
 KeyEvent KeyButtonArea::keyToKeyEvent(const IKeyButton &key, QKeyEvent::Type eventType) const
 {
-    Qt::KeyboardModifiers modifiers = (currentLevel == 1) ? Qt::ShiftModifier : Qt::NoModifier;
+    const bool shift = (currentLevel == 1);
     KeyEvent event;
 
     if (activeDeadkey != NULL) {
-        event = key.key().toKeyEvent(eventType, activeDeadkey->label().at(0), modifiers);
+        event = key.key().toKeyEvent(eventType, activeDeadkey->label().at(0), shift);
     } else {
-        event = key.key().toKeyEvent(eventType, modifiers);
+        event = key.key().toKeyEvent(eventType, shift);
     }
 
     return event;
