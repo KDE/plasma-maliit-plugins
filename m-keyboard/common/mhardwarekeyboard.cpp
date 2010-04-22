@@ -16,6 +16,7 @@
 
 #include <QDebug>
 #include <QX11Info>
+#include <QTextCodec>
 #include <algorithm>
 
 #include <minputcontextconnection.h>
@@ -37,6 +38,7 @@ namespace
     const Qt::Key SymKey = Qt::Key_Multi_key;
     const unsigned int SymModifierMask = Mod4Mask;
     const unsigned int FnModifierMask = Mod5Mask;
+    const unsigned int longPressTime = 600; // in milliseconds
 };
 
 MHardwareKeyboard::MHardwareKeyboard(MInputContextConnection& icConnection, QObject *parent)
@@ -50,8 +52,12 @@ MHardwareKeyboard::MHardwareKeyboard(MInputContextConnection& icConnection, QObj
       characterLoopIndex(-1),
       stateTransitionsDisabled(false),
       shiftsPressed(0),
-      shiftShiftCapsLock(false)
+      shiftShiftCapsLock(false),
+      longPressTimer(this)
 {
+    longPressTimer.setSingleShot(true);
+    longPressTimer.setInterval(longPressTime);
+    connect(&longPressTimer, SIGNAL(timeout()), this, SLOT(handleLongPressTimeout()));
 }
 
 
@@ -98,13 +104,16 @@ void MHardwareKeyboard::reset()
 }
 
 
-bool MHardwareKeyboard::passKeyOnPress(Qt::Key keyCode, const QString &text) const
+bool MHardwareKeyboard::passKeyOnPress(Qt::Key keyCode, const QString &text,
+                                       unsigned int nativeScanCode) const
 {
     static const Qt::Key pressPassKeys[] = {
-        Qt::Key_Backspace, Qt::Key_Delete, Qt::Key_Left, Qt::Key_Right, Qt::Key_Up, Qt::Key_Down };
+        Qt::Key_Backspace, Qt::Key_Delete };
     static const Qt::Key * const keysEnd = pressPassKeys + ELEMENTS(pressPassKeys);
 
-    return text.isEmpty() || (keysEnd != std::find(pressPassKeys, keysEnd, keyCode));
+    const unsigned int shiftLevel(3); // Fn.
+    return (text.isEmpty() && keycodeToString(nativeScanCode, shiftLevel).isEmpty())
+        || keysEnd != std::find(pressPassKeys, keysEnd, keyCode);
 }
 
 
@@ -204,7 +213,15 @@ bool MHardwareKeyboard::filterKeyEvent(QEvent::Type eventType,
             lockModifiers(FnModifierMask | LockMask, LockMask);
             eaten = false;
         } else {
-            eaten = !passKeyOnPress(keyCode, text);
+            eaten = !passKeyOnPress(keyCode, text, nativeScanCode);
+
+            // Long press feature, only applies for the latest keypress (i.e. the latest
+            // keypress event cancels the long press logic for the previous keypress)
+            if (eaten) {
+                longPressKey = nativeScanCode;
+                longPressModifiers = nativeModifiers;
+                longPressTimer.start();
+            }
         }
 
         // Relatch modifiers, X unlatches them on press but we want to unlatch on release
@@ -229,7 +246,7 @@ bool MHardwareKeyboard::filterKeyEvent(QEvent::Type eventType,
         } else if (keyCode == FnLevelKey) {
             handleCyclableModifierRelease(FnLevelKey, FnModifierMask, FnModifierMask, LockMask,
                                           ShiftMask);
-        } else if (!eaten && !passKeyOnPress(keyCode, text)) {
+        } else if (!eaten && !passKeyOnPress(keyCode, text, nativeScanCode)) {
             const bool keyWasPressed(pressedKeys.contains(nativeScanCode));
             if (keyWasPressed) {
                 inputContextConnection.sendKeyEvent(
@@ -257,6 +274,49 @@ bool MHardwareKeyboard::filterKeyEvent(QEvent::Type eventType,
     lastKeyCode = keyCode;
 
     return eaten;
+}
+
+
+QString MHardwareKeyboard::keycodeToString(unsigned int keycode, unsigned int shiftLevel) const
+{
+    const unsigned int group(0);
+    KeySym keySym(XkbKeycodeToKeysym(QX11Info::display(), static_cast<KeyCode>(keycode),
+                                     group, shiftLevel));
+    const int stringBufferSize(8);
+    char stringBuffer[stringBufferSize];
+    int stringBufferOverflow;
+    const unsigned int modifiers(0);
+    const int stringLength(XkbTranslateKeySym(QX11Info::display(), &keySym, modifiers,
+                                              stringBuffer, stringBufferSize, &stringBufferOverflow));
+
+    if (stringBufferOverflow) {
+        qWarning() << "Unable to convert keycode" << keycode
+                   << "to string with shift level" << shiftLevel << ": insufficient buffer.";
+        return QString();
+    }
+
+    const QString text(QTextCodec::codecForLocale()->toUnicode(stringBuffer, stringLength));
+    return text;
+}
+
+
+void MHardwareKeyboard::handleLongPressTimeout()
+{
+    if (!pressedKeys.contains(longPressKey)) {
+        return;
+    }
+
+    const unsigned int shiftAndLock(longPressModifiers & (ShiftMask | LockMask));
+    const unsigned int shiftLevel((shiftAndLock == ShiftMask) || (shiftAndLock == LockMask)
+                                  ? 3 : 2);
+    const QString text(keycodeToString(longPressKey, shiftLevel));
+    if (!text.isEmpty()) {
+        inputContextConnection.sendKeyEvent(
+            QKeyEvent(QEvent::KeyPress, static_cast<Qt::Key>(QKeySequence(text)[0]), Qt::NoModifier,
+                      text, false, 1));
+        latchModifiers(FnModifierMask | ShiftMask, 0);
+        pressedKeys.remove(longPressKey);
+    }
 }
 
 

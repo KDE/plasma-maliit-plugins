@@ -23,6 +23,7 @@
 #include <QObject>
 #include <QString>
 #include <QEvent>
+#include <QTimer>
 #include "mxkb.h"
 #include "hwkbcharloopsmanager.h"
 #include "mkeyboardcommon.h"
@@ -101,6 +102,10 @@ signals:
      */
     void modifierStateChanged(Qt::KeyboardModifier modifier, ModifierState state) const;
 
+private slots:
+    //! Called when long press timer started on key press timeouts.
+    void handleLongPressTimeout();
+
 private:
     /*! \brief Process key release event when symbol modifier is pressed.
      *
@@ -109,7 +114,7 @@ private:
     bool handleReleaseWithSymModifier(Qt::Key keyCode, const QString &text);
 
     //! \return true if the key press event is such that it should be passed to the application
-    bool passKeyOnPress(Qt::Key keyCode, const QString &text) const;
+    bool passKeyOnPress(Qt::Key keyCode, const QString &text, unsigned int nativeScanCode) const;
 
     /*! When X11 modifier bits indicated by \a affect mask in \a value are changed
      * compared to their state in \a previousModifiers, emit modifierStateChanged signal
@@ -165,6 +170,16 @@ private:
                                        unsigned int latchMask, unsigned int unlockMask,
                                        unsigned int unlatchMask);
 
+    /*! \brief Convert X keycode to Unicode string
+     *
+     * \param keycode X keycode
+     * \param shiftLevel desired X shift level
+     * (0 = no shift, 1 = shift, 2 = fn, 3 = shift+fn)
+     * \return conversion result.  Valid empty result cannot be distinguished
+     * from a conversion error, which also results to an empty string.
+     */
+    QString keycodeToString(unsigned int keycode, unsigned int shiftLevel) const;
+
     M::TextContentType keyboardType;
     MXkb mXkb;
     bool autoCaps;
@@ -204,6 +219,10 @@ private:
     //! both of them have been released, no state transitions are done on shift release.
     //! TODO: what about on Fn release?
     bool shiftShiftCapsLock;
+
+    QTimer longPressTimer;
+    quint32 longPressKey;       // native scan code / X keycode
+    quint32 longPressModifiers; // X modifier mask
 
     friend class Ut_MHardwareKeyboard;
     friend class Ft_MHardwareKeyboard;

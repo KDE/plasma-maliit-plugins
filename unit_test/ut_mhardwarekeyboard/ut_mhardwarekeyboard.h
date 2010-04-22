@@ -58,6 +58,12 @@ private:
     bool checkLatchedState(unsigned int mask, unsigned int value) const;
     bool checkLockedState(unsigned int mask, unsigned int value) const;
     void setState(int state) const;
+
+    // Wrappers for MHardwareKeyboard::filterKeyEvent() to make calls shorter
+    bool filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers modifiers,
+                          const QString &text, quint32 nativeScanCode, quint32 nativeModifiers) const;
+    bool filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers modifiers,
+                        const QString &text, quint32 nativeScanCode, quint32 nativeModifiers) const;
 };
 
 #endif
