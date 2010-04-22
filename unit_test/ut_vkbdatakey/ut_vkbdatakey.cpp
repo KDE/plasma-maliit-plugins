@@ -23,6 +23,11 @@
 #include <MTheme>
 
 #include <QSignalSpy>
+#include <QDebug>
+
+
+Q_DECLARE_METATYPE(Qt::Key)
+
 
 void Ut_VKBDataKey::initTestCase()
 {
@@ -92,6 +97,30 @@ void Ut_VKBDataKey::testAccent()
                  testExpected.at(i));
     }
     QCOMPARE(subject->binding(true), static_cast<KeyBinding *>(0));
+}
+
+void Ut_VKBDataKey::testKeyCode_data()
+{
+    QTest::addColumn<QString>("label");
+    QTest::addColumn<Qt::Key>("keyCode");
+    QTest::newRow("a") << "a" << Qt::Key_A;
+    QTest::newRow("d") << "d" << Qt::Key_D;
+    QTest::newRow("o") << "o" << Qt::Key_O;
+    QTest::newRow("b") << "b" << Qt::Key_B;
+    QTest::newRow("e") << "e" << Qt::Key_E;
+}
+
+void Ut_VKBDataKey::testKeyCode()
+{
+    QFETCH(QString, label);
+    QFETCH(Qt::Key, keyCode);
+
+    KeyBinding *noShiftBinding = new KeyBinding;
+    subject->bindings[VKBDataKey::NoShift] = noShiftBinding;
+    noShiftBinding->keyLabel = label;
+
+    QCOMPARE(static_cast<Qt::Key>(subject->toKeyEvent(QEvent::KeyPress, false).toQKeyEvent().key()),
+             keyCode);
 }
 
 QTEST_APPLESS_MAIN(Ut_VKBDataKey);

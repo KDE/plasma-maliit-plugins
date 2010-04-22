@@ -15,6 +15,7 @@
  */
 
 #include "vkbdatakey.h"
+#include <QKeySequence>
 
 KeyBinding::KeyBinding()
     : keyAction(ActionInsert),
@@ -79,7 +80,10 @@ KeyEvent KeyBinding::toKeyEventImpl(QKeyEvent::Type eventType,
         break;
     case ActionDecimalSeparator:
     case ActionInsert:
-        // just provide the text
+        if (!text.isEmpty()) {
+            key = static_cast<Qt::Key>(QKeySequence(text)[0]);
+        }
+
         break;
     case NumActions:
         Q_ASSERT(false);

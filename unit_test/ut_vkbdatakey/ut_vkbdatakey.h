@@ -40,6 +40,8 @@ private slots:
 
     void testCreate();
     void testAccent();
+    void testKeyCode_data();
+    void testKeyCode();
 };
 
 #endif
