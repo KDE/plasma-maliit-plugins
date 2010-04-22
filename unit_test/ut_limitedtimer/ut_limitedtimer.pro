@@ -1,5 +1,5 @@
 TEMPLATE = app
-CONFIG += QtTest meegotouch MImServer mimframework
+CONFIG += QtTest meegotouch MImServer
 DEPENDPATH += .
 INCLUDEPATH += 	. \
 

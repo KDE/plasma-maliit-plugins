@@ -41,4 +41,4 @@ for(OPTION,$$list($$lower($$COV_OPTION))){
 
 QMAKE_CLEAN += *.gcno *.gcda
 
-CONFIG += mimframework
+CONFIG += meegoimframework
