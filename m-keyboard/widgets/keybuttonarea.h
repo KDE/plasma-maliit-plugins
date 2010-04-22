@@ -104,11 +104,16 @@ public:
     //! Allows sym indicator to be controlled from outside.
     virtual ISymIndicator *symIndicator();
 
+    //! Returns current level of this layout.
+    int level() const;
+
 public slots:
     /*!
      * This slot is used to switch levels
      */
-    void switchLevel(int level, bool capslock);
+    void switchLevel(int level);
+
+    virtual void setShiftStatus(bool shiftOn, bool capslock);
 
     /*!
      * \brief Shows popup
@@ -254,9 +259,6 @@ protected:
 
     //! Sets button state and sends release & press events.
     void setActiveKey(IKeyButton *key);
-
-    //! Derived classes must set this if they have shift button and want it be locked.
-    IKeyButton *shiftButton;
 
 private:
     //! Turn key button into a KeyEvent, considering current dead key and modifier state

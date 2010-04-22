@@ -55,7 +55,6 @@ KeyButtonArea::KeyButtonArea(MVirtualKeyboardStyleContainer *style,
                              bool usePopup,
                              QGraphicsWidget *parent)
     : MWidget(parent),
-      shiftButton(0),
       currentLevel(0),
       popup(PopupFactory::instance()->createPopup(*style, this)),
       styleContainer(style),
@@ -171,18 +170,26 @@ KeyButtonArea::onHide()
 }
 
 void
-KeyButtonArea::switchLevel(int level, bool capslock)
+KeyButtonArea::switchLevel(int level)
 {
-    currentLevel = level;
+    if (level != currentLevel) {
+        currentLevel = level;
 
-    if (shiftButton) {
-        shiftButton->setSelected(capslock);
+        // Update uppercase / lowercase
+        updateButtonModifiers();
+
+        update();
     }
+}
 
-    // Update uppercase / lowercase
-    updateButtonModifiers();
+int KeyButtonArea::level() const
+{
+    return currentLevel;
+}
 
-    update();
+void KeyButtonArea::setShiftStatus(bool /*shiftOn*/, bool /*capslock*/)
+{
+    // Empty default implementation
 }
 
 bool

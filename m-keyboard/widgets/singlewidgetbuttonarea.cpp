@@ -47,7 +47,7 @@ SingleWidgetButtonArea::SingleWidgetButtonArea(MVirtualKeyboardStyleContainer *s
       rowList(sectionModel->rowCount()),
       symState(SymIndicatorInactive),
       symIndicatorButton(0),
-      shiftCapsLock(false),
+      shiftButton(0),
       pixmap1(0),
       pixmap2(0),
       pixmap3(0),
@@ -431,11 +431,23 @@ IKeyButton *SingleWidgetButtonArea::keyAt(const QPoint &pos) const
     return 0;
 }
 
+void SingleWidgetButtonArea::setShiftStatus(bool shiftOn, bool capslock)
+{
+    // Empty default implementation
+    if (shiftButton) {
+        shiftButton->setModifiers(shiftOn);
+        shiftButton->setSelected(capslock);
+    }
+}
+
 void SingleWidgetButtonArea::modifiersChanged(const bool shift, const QChar accent)
 {
     for (RowIterator row(rowList.begin()); row != rowList.end(); ++row) {
         foreach (SingleWidgetButton *button, row->buttons) {
-            button->setModifiers(shift, accent);
+            // Shift button is separated from the normal level changing.
+            if (button != this->shiftButton) {
+                button->setModifiers(shift, accent);
+            }
         }
     }
 

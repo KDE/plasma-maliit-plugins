@@ -1222,8 +1222,8 @@ void MKeyboardHost::updateSymbolViewLevel()
             break;
         }
     }
-    symbolView->switchLevel(shiftLevel > 0 ? 1 : 0,
-                            shiftLevel == MVirtualKeyboard::ShiftLock);
+    symbolView->switchLevel(shiftLevel > 0 ? 1 : 0);
+    symbolView->setShiftStatus(shiftLevel > 0, shiftLevel == MVirtualKeyboard::ShiftLock);
 }
 
 void MKeyboardHost::showSymbolView()

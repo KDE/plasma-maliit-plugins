@@ -143,7 +143,7 @@ void Ut_KeyButtonArea::testLandscapeBoxSize()
         subject->resize(defaultLayoutSize());
 
         for (int level = 0; level < 2; level++) {
-            subject->switchLevel(level, false);
+            subject->switchLevel(level);
 
             box = keyAt(0, 0)->buttonRect().size();
             qDebug() << "Current level" << level << "; Box size=" << box;
@@ -188,7 +188,7 @@ void Ut_KeyButtonArea::testPortraitBoxSize()
 
         subject->resize(defaultLayoutSize());
         for (int level = 0; level < 2; level++) {
-            subject->switchLevel(level, false);
+            subject->switchLevel(level);
 
             box = keyAt(0, 0)->buttonRect().size();
             qDebug() << "Current level" << level << "; Box size=" << box << subject->size();
@@ -460,7 +460,7 @@ void Ut_KeyButtonArea::testDeadkeys()
     }
 
     //test for shift status
-    subject->switchLevel(1, false);
+    subject->switchLevel(1);
     for (i = 0; i < positions.count(); i++) {
         QCOMPARE(keyAt(0, positions[i])->label(), upperDKUnicodes.at(i));
     }
@@ -472,7 +472,7 @@ void Ut_KeyButtonArea::testDeadkeys()
     }
 
     //test for shift off status
-    subject->switchLevel(0, false);
+    subject->switchLevel(0);
     for (i = 0; i < positions.count(); i++) {
         QCOMPARE(keyAt(0, positions[i])->label(), lowerUnicodes.at(i));
     }
@@ -694,17 +694,8 @@ void Ut_KeyButtonArea::testFunctionRowAlignmentBug()
     QVERIFY(buttonFoundFromRight); // button should be found from right side
 }
 
-void Ut_KeyButtonArea::testShiftCapsLock_data()
-{
-    QTest::addColumn<KBACreator>("createKba");
-    QTest::newRow("SingleWidgetArea") << &createSingleWidgetKeyButtonArea;
-    QTest::newRow("MButtonArea") << &createMButtonArea;
-}
-
 void Ut_KeyButtonArea::testShiftCapsLock()
 {
-    QFETCH(KBACreator, createKba);
-
     // Load any layout that has function row with shift
     keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("en.xml"));
@@ -712,16 +703,18 @@ void Ut_KeyButtonArea::testShiftCapsLock()
     QVERIFY(layout);
     QSharedPointer<const LayoutSection> functionRowSection = layout->section(LayoutData::functionkeySection);
 
-    subject = createKba(style, functionRowSection, KeyButtonArea::ButtonSizeFunctionRow, false, 0);
+    subject = createSingleWidgetKeyButtonArea(style, functionRowSection,
+                                              KeyButtonArea::ButtonSizeFunctionRow,
+                                              false, 0);
 
-    IKeyButton *shiftButton = subject->shiftButton;
+    SingleWidgetButton *shiftButton = static_cast<SingleWidgetButtonArea *>(subject)->shiftButton;
     QVERIFY(shiftButton);
     QVERIFY(shiftButton->state() == IKeyButton::Normal);
 
-    subject->switchLevel(0, true);
+    subject->setShiftStatus(true, true);
     QVERIFY(shiftButton->state() == IKeyButton::Selected);
 
-    subject->switchLevel(0, false);
+    subject->setShiftStatus(true, false);
     QVERIFY(shiftButton->state() == IKeyButton::Normal);
 }
 

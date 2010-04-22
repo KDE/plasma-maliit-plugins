@@ -250,12 +250,11 @@ MVirtualKeyboard::switchLevel()
         // the subwidgets have main section as first item in their layout, function row as second.
         // handling main section:
         static_cast<KeyButtonArea *>(mainKeyboardSwitcher->widget(i)->layout()->itemAt(0))->
-                switchLevel(currentLevel, capsLock);
+                switchLevel(currentLevel);
 
-        // TODO: When introducing multitouch we should make function row to change level
-        // according to pressed state of the shift button rather than general level.
+        // Function row shift update, level does not change for the layout.
         static_cast<KeyButtonArea *>(mainKeyboardSwitcher->widget(i)->layout()->itemAt(1))->
-                switchLevel(currentLevel, capsLock);
+                setShiftStatus(currentLevel == 1, capsLock);
     }
 }
 
@@ -922,10 +921,10 @@ KeyButtonArea * MVirtualKeyboard::createSectionView(const QString &language,
     Q_ASSERT(view);
 
     connect(view, SIGNAL(keyPressed(const KeyEvent &)),
-            this, SIGNAL(keyPressed(const KeyEvent &)));
+            this, SLOT(handleKeyPress(const KeyEvent &)));
 
     connect(view, SIGNAL(keyReleased(const KeyEvent &)),
-            this, SIGNAL(keyReleased(const KeyEvent &)));
+            this, SLOT(handleKeyRelease(const KeyEvent &)));
 
     connect(view, SIGNAL(keyClicked(const KeyEvent &)),
             this, SIGNAL(keyClicked(const KeyEvent &)));
@@ -936,6 +935,27 @@ KeyButtonArea * MVirtualKeyboard::createSectionView(const QString &language,
             this, SLOT(flickUpHandler(const KeyBinding *)));
 
     return view;
+}
+
+void MVirtualKeyboard::handleKeyPress(const KeyEvent &event)
+{
+    emit keyPressed(event);
+
+    if (event.qtKey() == Qt::Key_Shift) {
+        //TODO: time treshold to avoid flickering?
+        static_cast<KeyButtonArea *>(mainKeyboardSwitcher->currentWidget()->layout()->itemAt(1))->
+            switchLevel(1);
+    }
+}
+
+void MVirtualKeyboard::handleKeyRelease(const KeyEvent &event)
+{
+    emit keyReleased(event);
+
+    if (event.qtKey() == Qt::Key_Shift) {
+        static_cast<KeyButtonArea *>(mainKeyboardSwitcher->currentWidget()->layout()->itemAt(1))->
+            switchLevel(0);
+    }
 }
 
 

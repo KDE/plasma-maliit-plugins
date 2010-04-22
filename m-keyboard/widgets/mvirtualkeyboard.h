@@ -229,6 +229,9 @@ public slots:
     void showMainArea();
 
 private slots:
+    void handleKeyPress(const KeyEvent &);
+    void handleKeyRelease(const KeyEvent &);
+
     /*!
      * Handler for Right flick operation
      */

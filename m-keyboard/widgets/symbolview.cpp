@@ -381,9 +381,9 @@ void SymbolView::loadFunctionRow(const LayoutData &layout)
 
     functionRow = createKeyButtonArea(layout.section(LayoutData::functionkeySection),
                                       KeyButtonArea::ButtonSizeFunctionRow, false);
-    functionRow->setObjectName("SymbolFunctionRow");
 
     if (functionRow) {
+        functionRow->setObjectName("SymbolFunctionRow");
         functionRow->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
         keyAreaLayout.addItem(functionRow);
     }
@@ -392,9 +392,12 @@ void SymbolView::loadFunctionRow(const LayoutData &layout)
 void SymbolView::addPage(QSharedPointer<const LayoutSection> symbolSection)
 {
     KeyButtonArea *page = createKeyButtonArea(symbolSection);
-    page->setObjectName("SymbolMainRow");
 
     if (page) {
+        page->setObjectName("SymbolMainRow");
+
+        connect(this, SIGNAL(levelSwitched(int)), page, SLOT(switchLevel(int)));
+
         connect(page, SIGNAL(flickLeft()), SLOT(switchToNextPage()));
         connect(page, SIGNAL(flickRight()), SLOT(switchToPrevPage()));
         connect(page, SIGNAL(flickDown()), SLOT(hideSymbolView()));
@@ -420,16 +423,31 @@ KeyButtonArea *SymbolView::createKeyButtonArea(QSharedPointer<const LayoutSectio
         keysWidget = new SingleWidgetButtonArea(styleContainer, section, sizeScheme, enablePopup);
         keysWidget->setFont(style()->font());
 
-        connect(this, SIGNAL(levelSwitched(int, bool)), keysWidget, SLOT(switchLevel(int, bool)));
-
         connect(keysWidget, SIGNAL(keyClicked(const KeyEvent &)),
                 SIGNAL(keyClicked(const KeyEvent &)));
         connect(keysWidget, SIGNAL(keyPressed(const KeyEvent &)),
-                SIGNAL(keyPressed(const KeyEvent &)));
+                SLOT(handleKeyPress(const KeyEvent &)));
         connect(keysWidget, SIGNAL(keyReleased(const KeyEvent &)),
-                SIGNAL(keyReleased(const KeyEvent &)));
+                SLOT(handleKeyRelease(const KeyEvent &)));
     }
     return keysWidget;
+}
+
+void SymbolView::handleKeyPress(const KeyEvent &event)
+{
+    emit keyPressed(event);
+
+    if ((event.qtKey() == Qt::Key_Shift) && functionRow) {
+        functionRow->switchLevel(1);
+    }
+}
+void SymbolView::handleKeyRelease(const KeyEvent &event)
+{
+    emit keyReleased(event);
+
+    if ((event.qtKey() == Qt::Key_Shift) && functionRow) {
+        functionRow->switchLevel(0);
+    }
 }
 
 void SymbolView::organizeContent()
@@ -450,11 +468,18 @@ void SymbolView::organizeContent()
 }
 
 
-void SymbolView::switchLevel(int level, bool capslock)
+void SymbolView::switchLevel(int level)
 {
     shift = level;
-    emit levelSwitched(shift, capslock);
+    emit levelSwitched(shift);
     updateSymIndicator();
+}
+
+void SymbolView::setShiftStatus(bool shiftOn, bool capslock)
+{
+    if (functionRow) {
+        functionRow->setShiftStatus(shiftOn, capslock);
+    }
 }
 
 int SymbolView::currentLevel() const
@@ -605,7 +630,7 @@ void SymbolView::updateSymIndicator()
     ISymIndicator *symIndicator = functionRow->symIndicator();
 
      if (symIndicator) {
-         if (currentLevel() == 0) {
+         if (functionRow->level() == 0) {
              QString title = pageTitle(activePage);
 
              if (title == SymLabel) {

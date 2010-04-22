@@ -45,6 +45,7 @@ public:
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *view);
     virtual QRectF boundingRect() const;
     virtual ISymIndicator *symIndicator();
+    virtual void setShiftStatus(bool shiftOn, bool capslock);
 
     // From ISymIndicator
     virtual void activateSymIndicator();
@@ -110,7 +111,8 @@ private:
     //! if such exists in the current layout.
     const SingleWidgetButton *symIndicatorButton;
 
-    bool shiftCapsLock;
+    //! Shift button is stored here if current layout has a shift button.
+    SingleWidgetButton *shiftButton;
 
     const QPixmap *pixmap1;
     const QPixmap *pixmap2;

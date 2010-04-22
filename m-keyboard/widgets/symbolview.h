@@ -77,11 +77,12 @@ public:
     void finalizeOrientationChange();
 
     /*!
-    * Method to switch layout when shift button is pressed
+    * Method to switch layout level when shift button is pressed
     * \param level int 1 for upper case, otherwise 0
-    * \param capslock Shift locked state
     */
-    void switchLevel(int level, bool capslock);
+    void switchLevel(int level);
+
+    void setShiftStatus(bool shiftOn, bool capslock);
 
     //! Returns current level.
     int currentLevel() const;
@@ -156,7 +157,7 @@ public slots:
 
 signals:
     //! Used to broadcast shift state to all pages/KeyButtonAreas.
-    void levelSwitched(int, bool);
+    void levelSwitched(int);
 
     /*!
      * Emitted on clicked on layout
@@ -202,6 +203,9 @@ private slots:
     void onHidden();
     void onSwitchStarting(QGraphicsWidget *current, QGraphicsWidget *next);
     void switchDone();
+
+    void handleKeyPress(const KeyEvent &);
+    void handleKeyRelease(const KeyEvent &);
 
 private:
     //! symbol view state wrt. \a showSymbolView / \a hideSymbolView calls.

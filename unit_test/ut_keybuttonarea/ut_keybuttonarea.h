@@ -66,7 +66,6 @@ private slots:
     void testInitialization();
     void testFunctionRowAlignmentBug_data();
     void testFunctionRowAlignmentBug();
-    void testShiftCapsLock_data();
     void testShiftCapsLock();
 
 private:
