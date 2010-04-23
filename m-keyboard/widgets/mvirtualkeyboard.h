@@ -44,7 +44,7 @@ class Notification;
 class VKBDataKey;
 class VkbToolbar;
 class MImToolbar;
-class DuiReactionMap;
+class MReactionMap;
 
 /*!
   \class MVirtualKeyboard
@@ -372,7 +372,7 @@ private:
      * in the bottom row of the keyboard as well as
      * the close/minimize/hide button.
      */
-    void drawButtonsReactionMaps(DuiReactionMap *reactionMap, QGraphicsView *view);
+    void drawButtonsReactionMaps(MReactionMap *reactionMap, QGraphicsView *view);
 
     /*! This can be set true if it is known that we're going
      * to have multiple region updates simultaneously.

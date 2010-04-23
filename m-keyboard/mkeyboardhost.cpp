@@ -43,7 +43,7 @@
 #include <MApplication>
 #include <MComponentData>
 #include <MFeedbackPlayer>
-#include <duireactionmap.h>
+#include <mreactionmap.h>
 #include <MScene>
 #include <MSceneManager>
 #include <MSceneWindow>
@@ -453,7 +453,7 @@ void MKeyboardHost::prepareOrientationChange()
     if (rotationInProgress) {
         return;
     }
-    clearReactionMaps(DuiReactionMap::Inactive);
+    clearReactionMaps(MReactionMap::Inactive);
     rotationInProgress = true;
 
     symbolView->prepareToOrientationChange();
@@ -710,7 +710,7 @@ void MKeyboardHost::updateReactionMaps()
         vkbWidget->redrawReactionMaps();
     } else {
         // Transparent reaction map when nothing is shown.
-        clearReactionMaps(DuiReactionMap::Transparent);
+        clearReactionMaps(MReactionMap::Transparent);
     }
 }
 
@@ -721,7 +721,7 @@ void MKeyboardHost::clearReactionMaps(const QString &clearValue)
     }
 
     foreach (QGraphicsView *view, MPlainWindow::instance()->scene()->views()) {
-        DuiReactionMap *reactionMap = DuiReactionMap::instance(view);
+        MReactionMap *reactionMap = MReactionMap::instance(view);
         if (reactionMap) {
             reactionMap->setDrawingValue(clearValue, clearValue);
             reactionMap->setTransform(QTransform()); // Identity

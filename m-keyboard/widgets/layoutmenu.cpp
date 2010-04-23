@@ -37,7 +37,7 @@
 #include <MTheme>
 #include <MNamespace>
 #include <MWidget>
-#include <duireactionmap.h>
+#include <mreactionmap.h>
 #include <mplainwindow.h>
 
 #include <QDebug>
@@ -319,7 +319,7 @@ void LayoutMenu::redrawReactionMaps()
         return;
 
     foreach (QGraphicsView *view, keyboardOptionDialog->scene()->views()) {
-        DuiReactionMap *reactionMap = DuiReactionMap::instance(view);
+        MReactionMap *reactionMap = MReactionMap::instance(view);
         if (!reactionMap)
             continue;
 

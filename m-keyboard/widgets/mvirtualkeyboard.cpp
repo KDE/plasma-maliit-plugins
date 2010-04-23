@@ -35,7 +35,7 @@
 #include <MButton>
 #include <MScalableImage>
 #include <MSceneManager>
-#include <duireactionmap.h>
+#include <mreactionmap.h>
 #include <mtimestamp.h>
 #include <mplainwindow.h>
 #include <MApplication>
@@ -366,7 +366,7 @@ void MVirtualKeyboard::showKeyboard(bool fadeOnly)
 void MVirtualKeyboard::hideKeyboard(bool fadeOnly, bool temporary)
 {
     if (scene() && scene()->views().count() > 0) {
-        DuiReactionMap *reactionMap = DuiReactionMap::instance(scene()->views()[0]);
+        MReactionMap *reactionMap = MReactionMap::instance(scene()->views()[0]);
         if (reactionMap) {
             reactionMap->clear();
         }
@@ -539,7 +539,7 @@ MIMHandlerState MVirtualKeyboard::keyboardState() const
     return activeState;
 }
 
-void MVirtualKeyboard::drawButtonsReactionMaps(DuiReactionMap *reactionMap, QGraphicsView *view)
+void MVirtualKeyboard::drawButtonsReactionMaps(MReactionMap *reactionMap, QGraphicsView *view)
 {
     // Depending on which keyboard type is currently shown
     // we must pick the correct KeyButtonArea(s).
@@ -583,7 +583,7 @@ void MVirtualKeyboard::redrawReactionMaps()
     }
 
     foreach (QGraphicsView *view, scene()->views()) {
-        DuiReactionMap *reactionMap = DuiReactionMap::instance(view);
+        MReactionMap *reactionMap = MReactionMap::instance(view);
         if (!reactionMap) {
             continue;
         }

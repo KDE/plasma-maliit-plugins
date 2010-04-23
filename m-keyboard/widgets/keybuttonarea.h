@@ -31,7 +31,7 @@
 #include <QStringList>
 
 class MFeedbackPlayer;
-class DuiReactionMap;
+class MReactionMap;
 class MScalableImage;
 class MVirtualKeyboardStyleContainer;
 class ISymIndicator;
@@ -125,7 +125,7 @@ public slots:
     */
     bool flickCheck();
 
-    virtual void drawReactiveAreas(DuiReactionMap *reactionMap, QGraphicsView *view);
+    virtual void drawReactiveAreas(MReactionMap *reactionMap, QGraphicsView *view);
 
     /*!
      * \brief unlock all locked deadkeys
@@ -323,7 +323,7 @@ private:
     const bool usePopup;
 
 #ifdef UNIT_TEST
-    friend class DuiReactionMapTester;
+    friend class MReactionMapTester;
     friend class Ut_KeyButtonArea;
     friend class Ut_SymbolView;
     friend class Bm_KeyButtonArea; //benchmarks

@@ -9,7 +9,7 @@ QMAKE_CXXFLAGS += -Werror
 # we have this line temporarily until new libmeegotouch without rpath is integrated
 QT += xml
 
-CONFIG += plugin meegotouch duiimengine duiimenginewords meegoimframework duireactionmap
+CONFIG += plugin meegotouch duiimengine duiimenginewords meegoimframework meegoreactionmap
 #CONFIG += mcontrolpanel
 DEFINES += NOCONTROLPANEL
 

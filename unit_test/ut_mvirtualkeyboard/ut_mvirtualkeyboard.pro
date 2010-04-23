@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = app
-CONFIG += QtTest meegotouch MImServer meegoimframework duireactionmap
+CONFIG += QtTest meegotouch MImServer meegoimframework meegoreactionmap
 DEPENDPATH += .
 INCLUDEPATH += . \
 		../stubs/
@@ -17,7 +17,7 @@ LIBS += -Wl,-rpath=/usr/lib/meego-im-plugins/ -lmeego-keyboard
 HEADERS += ut_mvirtualkeyboard.h \
            ../stubs/mgconfitem_stub.h \
            ../stubs/fakegconf.h \
-           ../stubs/duireactionmaptester.h
+           ../stubs/mreactionmaptester.h
 
 SOURCES += ut_mvirtualkeyboard.cpp \
            ../stubs/fakegconf.cpp

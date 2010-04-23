@@ -23,7 +23,7 @@
 
 #include <MSceneManager>
 #include <MScalableImage>
-#include <duireactionmap.h>
+#include <mreactionmap.h>
 #include <mtheme.h>
 #include <mplainwindow.h>
 
@@ -536,7 +536,7 @@ void SymbolView::redrawReactionMaps()
     }
 
     foreach(QGraphicsView * view, scene()->views()) {
-        DuiReactionMap *reactionMap = DuiReactionMap::instance(view);
+        MReactionMap *reactionMap = MReactionMap::instance(view);
         if (!reactionMap) {
             continue;
         }

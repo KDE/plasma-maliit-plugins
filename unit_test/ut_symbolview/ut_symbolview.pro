@@ -1,5 +1,5 @@
 TEMPLATE = app
-CONFIG += QtTest meegotouch MImServer meegoimframework duireactionmap
+CONFIG += QtTest meegotouch MImServer meegoimframework meegoreactionmap
 DEPENDPATH += .
 INCLUDEPATH += 	. \
 		../stubs/ \
@@ -10,7 +10,7 @@ LIBS += -L/usr/lib -Wl,-rpath=/usr/lib/meego-im-plugins/ -lmeego-keyboard
 HEADERS += ut_symbolview.h \
            ../stubs/mgconfitem_stub.h \
            ../stubs/fakegconf.h \
-           ../stubs/duireactionmaptester.h
+           ../stubs/mreactionmaptester.h
 
 SOURCES += ut_symbolview.cpp \
            ../stubs/fakegconf.cpp

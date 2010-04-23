@@ -505,7 +505,7 @@ KeyButtonArea::isPopupActive() const
     return popup->isPopupVisible();
 }
 
-void KeyButtonArea::drawReactiveAreas(DuiReactionMap */*reactionMap*/, QGraphicsView */*view*/)
+void KeyButtonArea::drawReactiveAreas(MReactionMap */*reactionMap*/, QGraphicsView */*view*/)
 {
     // Empty default implementation. Geometries of buttons are known by derived classes.
 }

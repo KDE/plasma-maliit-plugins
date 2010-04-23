@@ -18,7 +18,7 @@
 
 #include "mapplication.h"
 #include "mgconfitem_stub.h"
-#include "duireactionmaptester.h"
+#include "mreactionmaptester.h"
 #include "mvirtualkeyboard.h"
 #include "horizontalswitcher.h"
 #include "layoutsmanager.h"
@@ -141,7 +141,7 @@ void Ut_MVirtualKeyboard::init()
 void Ut_MVirtualKeyboard::cleanup()
 {
     // Stub might have been set to a local instance.
-    gDuiReactionMapStub = &gDefaultDuiReactionMapStub;
+    gMReactionMapStub = &gDefaultMReactionMapStub;
     delete m_vkb;
 }
 
@@ -810,8 +810,8 @@ void Ut_MVirtualKeyboard::testSetKeyboardState()
 
 void Ut_MVirtualKeyboard::testReactionMaps()
 {
-    DuiReactionMapTester tester;
-    gDuiReactionMapStub = &tester;
+    MReactionMapTester tester;
+    gMReactionMapStub = &tester;
 
     m_vkb->setLanguage(0);
 
@@ -821,9 +821,9 @@ void Ut_MVirtualKeyboard::testReactionMaps()
     QVERIFY(m_vkb->isFullyVisible());
 
     // Clear with transparent color
-    gDuiReactionMapStub->setTransparentDrawingValue();
-    gDuiReactionMapStub->setTransform(QTransform());
-    gDuiReactionMapStub->fillRectangle(0, 0, gDuiReactionMapStub->width(), gDuiReactionMapStub->height());
+    gMReactionMapStub->setTransparentDrawingValue();
+    gMReactionMapStub->setTransform(QTransform());
+    gMReactionMapStub->fillRectangle(0, 0, gMReactionMapStub->width(), gMReactionMapStub->height());
 
     m_vkb->redrawReactionMaps();
 

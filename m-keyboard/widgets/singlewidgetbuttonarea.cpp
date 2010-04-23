@@ -34,7 +34,7 @@
 #include <MComponentData>
 #include <MFeedbackPlayer>
 #include <mplainwindow.h>
-#include <duireactionmap.h>
+#include <mreactionmap.h>
 #include <MTheme>
 
 SingleWidgetButtonArea::SingleWidgetButtonArea(MVirtualKeyboardStyleContainer *style,
@@ -137,7 +137,7 @@ QSizeF SingleWidgetButtonArea::sizeHint(Qt::SizeHint which, const QSizeF &/*cons
     return QSizeF(width, widgetHeight);
 }
 
-void SingleWidgetButtonArea::drawReactiveAreas(DuiReactionMap *reactionMap, QGraphicsView *view)
+void SingleWidgetButtonArea::drawReactiveAreas(MReactionMap *reactionMap, QGraphicsView *view)
 {
     reactionMap->setTransform(this, view);
     reactionMap->setReactiveDrawingValue();

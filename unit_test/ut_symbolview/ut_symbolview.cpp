@@ -16,7 +16,7 @@
 
 
 
-#include "duireactionmaptester.h"
+#include "mreactionmaptester.h"
 
 #include "mgconfitem_stub.h"
 #include "mvirtualkeyboard.h"
@@ -104,7 +104,7 @@ void Ut_SymbolView::init()
 void Ut_SymbolView::cleanup()
 {
     // Make sure default stub is restored.
-    gDuiReactionMapStub = &gDefaultDuiReactionMapStub;
+    gMReactionMapStub = &gDefaultMReactionMapStub;
 
     MPlainWindow::instance()->sceneManager()->appearSceneWindowNow(parent);
     subject->setParentItem(0);
@@ -142,15 +142,15 @@ void Ut_SymbolView::testReactiveButtonAreas()
 
     rotateToAngle(static_cast<M::OrientationAngle>(orientationAngle));
 
-    DuiReactionMapTester tester;
-    gDuiReactionMapStub = &tester;
+    MReactionMapTester tester;
+    gMReactionMapStub = &tester;
 
     QGraphicsView *view = MPlainWindow::instance();
 
     // Clear with transparent color
-    gDuiReactionMapStub->setTransparentDrawingValue();
-    gDuiReactionMapStub->setTransform(QTransform());
-    gDuiReactionMapStub->fillRectangle(0, 0, gDuiReactionMapStub->width(), gDuiReactionMapStub->height());
+    gMReactionMapStub->setTransparentDrawingValue();
+    gMReactionMapStub->setTransform(QTransform());
+    gMReactionMapStub->fillRectangle(0, 0, gMReactionMapStub->width(), gMReactionMapStub->height());
 
     subject->showSymbolView();
     QTest::qWait(300);
@@ -171,10 +171,10 @@ void Ut_SymbolView::testReactiveButtonAreas()
     QVERIFY(tester.testChildButtonReactiveAreas(view, subject));
 
     // Following coordinates will be given in subject coordinates.
-    gDuiReactionMapStub->setTransform(subject, view);
+    gMReactionMapStub->setTransform(subject, view);
 
     foreach(const QPoint & pos, transparentLocations) {
-        QCOMPARE(tester.colorAt(pos), DuiReactionMapTester::Transparent);
+        QCOMPARE(tester.colorAt(pos), MReactionMapTester::Transparent);
     }
 
     // Check locations that should be inactive
@@ -185,7 +185,7 @@ void Ut_SymbolView::testReactiveButtonAreas()
         << QPoint(subject->size().width() / 2, subject->size().height() - 1); // bottom margin
 
     foreach(const QPointF & pos, inactiveLocations) {
-        QCOMPARE(tester.colorAt(pos), DuiReactionMapTester::Inactive);
+        QCOMPARE(tester.colorAt(pos), MReactionMapTester::Inactive);
     }
 }
 
@@ -205,12 +205,12 @@ void Ut_SymbolView::testReactiveWholeScreen()
 
     rotateToAngle(static_cast<M::OrientationAngle>(orientationAngle));
 
-    DuiReactionMapTester tester;
-    gDuiReactionMapStub = &tester;
+    MReactionMapTester tester;
+    gMReactionMapStub = &tester;
     // Clear with transparent
-    gDuiReactionMapStub->setTransparentDrawingValue();
-    gDuiReactionMapStub->setTransform(QTransform());
-    gDuiReactionMapStub->fillRectangle(0, 0, gDuiReactionMapStub->width(), gDuiReactionMapStub->height());
+    gMReactionMapStub->setTransparentDrawingValue();
+    gMReactionMapStub->setTransform(QTransform());
+    gMReactionMapStub->fillRectangle(0, 0, gMReactionMapStub->width(), gMReactionMapStub->height());
 
     subject->showSymbolView();
     QTest::qWait(300);
@@ -224,7 +224,7 @@ void Ut_SymbolView::testReactiveWholeScreen()
 
     QVERIFY(gridpass);
 
-    gDuiReactionMapStub = &gDefaultDuiReactionMapStub;
+    gMReactionMapStub = &gDefaultMReactionMapStub;
 }
 
 

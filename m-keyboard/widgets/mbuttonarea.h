@@ -40,7 +40,7 @@ public:
 protected:
     /*! \reimp */
     virtual bool sceneEventFilter(QGraphicsItem *watched, QEvent *event);
-    virtual void drawReactiveAreas(DuiReactionMap *reactionMap, QGraphicsView *view);
+    virtual void drawReactiveAreas(MReactionMap *reactionMap, QGraphicsView *view);
     virtual void updateButtonGeometries(int availableWidth, int equalButtonWidth);
     virtual IKeyButton *keyAt(const QPoint &pos) const;
     virtual void modifiersChanged(bool shift, QChar accent = QChar());

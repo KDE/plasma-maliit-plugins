@@ -31,7 +31,7 @@
 #include <MApplication>
 #include <MComponentData>
 #include <MFeedbackPlayer>
-#include <duireactionmap.h>
+#include <mreactionmap.h>
 #include <MScalableImage>
 #include <MTheme>
 
@@ -85,7 +85,7 @@ bool MButtonArea::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
     return stopPropagation;
 }
 
-void MButtonArea::drawReactiveAreas(DuiReactionMap *reactionMap, QGraphicsView *view)
+void MButtonArea::drawReactiveAreas(MReactionMap *reactionMap, QGraphicsView *view)
 {
     reactionMap->setTransform(this, view);
     reactionMap->setReactiveDrawingValue();

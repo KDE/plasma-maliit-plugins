@@ -23,7 +23,7 @@
 #include "widgetbar.h"
 #include "mkeyboardcommon.h"
 
-class DuiReactionMap;
+class MReactionMap;
 class ToolbarManager;
 class MInfoBanner;
 class MVirtualKeyboardStyleContainer;
@@ -98,7 +98,7 @@ public:
      */
     void showIndicatorButton();
 
-    void drawReactiveAreas(DuiReactionMap *reactionMap, QGraphicsView *view);
+    void drawReactiveAreas(MReactionMap *reactionMap, QGraphicsView *view);
 
     //! \reimp
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *);

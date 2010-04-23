@@ -197,8 +197,8 @@ private:
      */
     void handleTextInputKeyClick(const KeyEvent &event);
 
-    /*! \brief Clears reaction maps with given DuiReactionMap color value.
-     *  \param clearValue A DuiReactionMap color value such as DuiReactionMap::Inactive.
+    /*! \brief Clears reaction maps with given MReactionMap color value.
+     *  \param clearValue A MReactionMap color value such as MReactionMap::Inactive.
      */
     void clearReactionMaps(const QString &clearValue);
 

@@ -15,10 +15,10 @@
  */
 
 
-#ifndef DUIREACTIONMAPTESTER_H
-#define DUIREACTIONMAPTESTER_H
+#ifndef MREACTIONMAPTESTER_H
+#define MREACTIONMAPTESTER_H
 
-#include "duireactionmap_stub.h"
+#include "mreactionmap_stub.h"
 
 #include <QDebug>
 #include <QGraphicsItem>
@@ -37,7 +37,7 @@ namespace
     const int ReactionMapHeight = 120;
 }
 
-class DuiReactionMapTester : public DuiReactionMapStub
+class MReactionMapTester : public MReactionMapStub
 {
 public:
     enum ReactionColorValue {
@@ -48,14 +48,14 @@ public:
         InvalidReactiveColor
     };
 
-    DuiReactionMapTester();
-    virtual ~DuiReactionMapTester();
+    MReactionMapTester();
+    virtual ~MReactionMapTester();
 
     //! \reimp
-    virtual void duiReactionMapConstructor(QWidget *topLevelWidget, const QString &appIdentifier, QObject *parent);
-    virtual void duiReactionMapDestructor();
+    virtual void mReactionMapConstructor(QWidget *topLevelWidget, const QString &appIdentifier, QObject *parent);
+    virtual void mReactionMapDestructor();
 
-    virtual DuiReactionMap *instance(QWidget *anyWidget);
+    virtual MReactionMap *instance(QWidget *anyWidget);
     virtual void setInactiveDrawingValue();
     virtual void setReactiveDrawingValue();
     virtual void setTransparentDrawingValue();
@@ -111,67 +111,67 @@ protected:
         uchar currentColor;
     };
 
-    //! Only one DuiReactionMap instance for now.
+    //! Only one MReactionMap instance for now.
     static InstanceData data;
-    static DuiReactionMap *globalReactionMap;
+    static MReactionMap *globalReactionMap;
 };
 
-DuiReactionMapTester::InstanceData DuiReactionMapTester::data;
-DuiReactionMap *DuiReactionMapTester::globalReactionMap = 0;
+MReactionMapTester::InstanceData MReactionMapTester::data;
+MReactionMap *MReactionMapTester::globalReactionMap = 0;
 
-DuiReactionMapTester::DuiReactionMapTester()
+MReactionMapTester::MReactionMapTester()
 {
     data.currentColor = Inactive;
 }
 
-DuiReactionMapTester::~DuiReactionMapTester()
+MReactionMapTester::~MReactionMapTester()
 {
     delete globalReactionMap;
     globalReactionMap = 0;
 }
 
-void DuiReactionMapTester::duiReactionMapConstructor(QWidget */*topLevelWidget*/, const QString& /*appIdentifier*/, QObject */*parent*/)
+void MReactionMapTester::mReactionMapConstructor(QWidget */*topLevelWidget*/, const QString& /*appIdentifier*/, QObject */*parent*/)
 {
     // Multiple instances not supported by stub, at least yet.
     Q_ASSERT(!globalReactionMap);
 }
 
-void DuiReactionMapTester::duiReactionMapDestructor()
+void MReactionMapTester::mReactionMapDestructor()
 {
 }
 
-DuiReactionMap *DuiReactionMapTester::instance(QWidget */*anyWidget*/)
+MReactionMap *MReactionMapTester::instance(QWidget */*anyWidget*/)
 {
     if (!globalReactionMap) {
-        globalReactionMap = new DuiReactionMap(0);
+        globalReactionMap = new MReactionMap(0);
     }
 
     return globalReactionMap;
 }
 
-void DuiReactionMapTester::setInactiveDrawingValue()
+void MReactionMapTester::setInactiveDrawingValue()
 {
     data.currentColor = Inactive;
 }
 
-void DuiReactionMapTester::setReactiveDrawingValue()
+void MReactionMapTester::setReactiveDrawingValue()
 {
     data.currentColor = ReactivePressRelease;
 }
 
-void DuiReactionMapTester::setTransparentDrawingValue()
+void MReactionMapTester::setTransparentDrawingValue()
 {
     data.currentColor = Transparent;
 }
 
-void DuiReactionMapTester::setDrawingValue(const QString &pressFeedback, const QString &/*releaseFeedback*/)
+void MReactionMapTester::setDrawingValue(const QString &pressFeedback, const QString &/*releaseFeedback*/)
 {
     uchar color;
 
     // Support only Inactive/Inactive, Transparent/Transparent, or Press/Release
-    if (pressFeedback == DuiReactionMap::Inactive) {
+    if (pressFeedback == MReactionMap::Inactive) {
         color = Inactive;
-    } else if (pressFeedback == DuiReactionMap::Transparent) {
+    } else if (pressFeedback == MReactionMap::Transparent) {
         color = Transparent;
     } else {
         color = ReactivePressRelease;
@@ -180,37 +180,37 @@ void DuiReactionMapTester::setDrawingValue(const QString &pressFeedback, const Q
     data.currentColor = color;
 }
 
-QTransform DuiReactionMapTester::transform() const
+QTransform MReactionMapTester::transform() const
 {
     return data.transform;
 }
 
-void DuiReactionMapTester::setTransform(QTransform transform)
+void MReactionMapTester::setTransform(QTransform transform)
 {
     data.transform = transform;
 }
 
-void DuiReactionMapTester::setTransform(const QGraphicsItem *item, const QGraphicsView */*view*/)
+void MReactionMapTester::setTransform(const QGraphicsItem *item, const QGraphicsView */*view*/)
 {
     setTransform(itemToReactionMap(item));
 }
 
-void DuiReactionMapTester::fillRectangle(int x, int y, int width, int height)
+void MReactionMapTester::fillRectangle(int x, int y, int width, int height)
 {
     fillRectangle(QRect(x, y, width, height));
 }
 
-void DuiReactionMapTester::fillRectangle(const QRect &rectangle)
+void MReactionMapTester::fillRectangle(const QRect &rectangle)
 {
     drawRect(transform().mapRect(rectangle));
 }
 
-void DuiReactionMapTester::fillRectangle(const QRectF &rectangle)
+void MReactionMapTester::fillRectangle(const QRectF &rectangle)
 {
     drawRect(transform().mapRect(rectangle).toRect());
 }
 
-void DuiReactionMapTester::fillRectangle(const QRect &rectangle, const QString &pressFeedback, const QString &releaseFeedback)
+void MReactionMapTester::fillRectangle(const QRect &rectangle, const QString &pressFeedback, const QString &releaseFeedback)
 {
     uchar prevColor = data.currentColor;
     setDrawingValue(pressFeedback, releaseFeedback);
@@ -218,7 +218,7 @@ void DuiReactionMapTester::fillRectangle(const QRect &rectangle, const QString &
     data.currentColor = prevColor;
 }
 
-void DuiReactionMapTester::fillRectangle(const QRectF &rectangle, const QString &pressFeedback, const QString &releaseFeedback)
+void MReactionMapTester::fillRectangle(const QRectF &rectangle, const QString &pressFeedback, const QString &releaseFeedback)
 {
     uchar prevColor = data.currentColor;
     setDrawingValue(pressFeedback, releaseFeedback);
@@ -226,23 +226,23 @@ void DuiReactionMapTester::fillRectangle(const QRectF &rectangle, const QString 
     data.currentColor = prevColor;
 }
 
-int DuiReactionMapTester::width() const
+int MReactionMapTester::width() const
 {
     return ReactionMapWidth;
 }
 
-int DuiReactionMapTester::height() const
+int MReactionMapTester::height() const
 {
     return ReactionMapHeight;
 }
 
-void DuiReactionMapTester::clear()
+void MReactionMapTester::clear()
 {
     // Clear means inactive
     memset(&data.bitmap[0], Inactive, ReactionMapWidth * ReactionMapHeight);
 }
 
-bool DuiReactionMapTester::testChildButtonReactiveAreas(const QGraphicsView *view, const QGraphicsItem *item)
+bool MReactionMapTester::testChildButtonReactiveAreas(const QGraphicsView *view, const QGraphicsItem *item)
 {
     // This test does not walk through every button in vkb because most of them are not MButtons anymore.
     // However, it does check the few buttons that are so this is still useful. Also, we still have the
@@ -272,7 +272,7 @@ bool DuiReactionMapTester::testChildButtonReactiveAreas(const QGraphicsView *vie
     return success;
 }
 
-bool DuiReactionMapTester::testReactionMapGrid(const QGraphicsView *view,
+bool MReactionMapTester::testReactionMapGrid(const QGraphicsView *view,
                                                const int gridSize,
                                                const int minCoverage,
                                                const QRegion &region)
@@ -318,7 +318,7 @@ bool DuiReactionMapTester::testReactionMapGrid(const QGraphicsView *view,
                 Q_ASSERT(dynamic_cast<const MButton *>(item));
             }
 
-            DuiReactionMapTester::ReactionColorValue expectedColor;
+            MReactionMapTester::ReactionColorValue expectedColor;
 
             const KeyButtonArea *kba = dynamic_cast<const KeyButtonArea*>(item);
 
@@ -360,7 +360,7 @@ bool DuiReactionMapTester::testReactionMapGrid(const QGraphicsView *view,
 }
 
 
-bool DuiReactionMapTester::isReactiveArea(const QRectF &rectangle) const
+bool MReactionMapTester::isReactiveArea(const QRectF &rectangle) const
 {
     // Map rect center point to reaction map coordinates.
     QRect mapRect = clip(transform().mapRect(rectangle).toRect());
@@ -384,7 +384,7 @@ bool DuiReactionMapTester::isReactiveArea(const QRectF &rectangle) const
     return true;
 }
 
-DuiReactionMapTester::ReactionColorValue DuiReactionMapTester::colorAt(const QPointF &pos) const
+MReactionMapTester::ReactionColorValue MReactionMapTester::colorAt(const QPointF &pos) const
 {
     uchar color = InvalidReactiveColor;
     QPoint mapPos = transform().map(pos).toPoint();
@@ -396,7 +396,7 @@ DuiReactionMapTester::ReactionColorValue DuiReactionMapTester::colorAt(const QPo
     return (ReactionColorValue)color;
 }
 
-DuiReactionMapTester::ReactionColorValue DuiReactionMapTester::colorAt(const QPointF &pos, int margin, bool *ambiguous) const
+MReactionMapTester::ReactionColorValue MReactionMapTester::colorAt(const QPointF &pos, int margin, bool *ambiguous) const
 {
     Q_ASSERT(ambiguous);
     *ambiguous = false;
@@ -434,17 +434,17 @@ DuiReactionMapTester::ReactionColorValue DuiReactionMapTester::colorAt(const QPo
     return (ReactionColorValue)color;
 }
 
-int DuiReactionMapTester::screenWidth() const
+int MReactionMapTester::screenWidth() const
 {
     return MDeviceProfile::instance()->resolution().width();
 }
 
-int DuiReactionMapTester::screenHeight() const
+int MReactionMapTester::screenHeight() const
 {
     return MDeviceProfile::instance()->resolution().height();
 }
 
-void DuiReactionMapTester::tmpDump() const
+void MReactionMapTester::tmpDump() const
 {
     // :)
 
@@ -470,7 +470,7 @@ void DuiReactionMapTester::tmpDump() const
     }
 }
 
-void DuiReactionMapTester::drawRect(const QRect &rectangle)
+void MReactionMapTester::drawRect(const QRect &rectangle)
 {
     const QRect dstRect = clip(rectangle);
 
@@ -486,7 +486,7 @@ void DuiReactionMapTester::drawRect(const QRect &rectangle)
     }
 }
 
-QTransform DuiReactionMapTester::viewToReactionMap() const
+QTransform MReactionMapTester::viewToReactionMap() const
 {
     QTransform viewToBitmap;
     viewToBitmap.translate(0, 0); // Assume (0,0) offset for view
@@ -495,23 +495,23 @@ QTransform DuiReactionMapTester::viewToReactionMap() const
     return viewToBitmap;
 }
 
-QTransform DuiReactionMapTester::itemToReactionMap(const QGraphicsItem *item) const
+QTransform MReactionMapTester::itemToReactionMap(const QGraphicsItem *item) const
 {
     // Assuming identity view transform.
     return (item->sceneTransform() * viewToReactionMap());
 }
 
-QRect DuiReactionMapTester::clip(const QRect &rect) const
+QRect MReactionMapTester::clip(const QRect &rect) const
 {
     return (rect & QRect(0, 0, width(), height()));
 }
 
-bool DuiReactionMapTester::isInsideReactionMap(const QPoint &point) const
+bool MReactionMapTester::isInsideReactionMap(const QPoint &point) const
 {
     return QRect(0, 0, width(), height()).contains(point);
 }
 
-bool DuiReactionMapTester::isInsideReactionMap(const QRect &rect) const
+bool MReactionMapTester::isInsideReactionMap(const QRect &rect) const
 {
     return QRect(0, 0, width(), height()).contains(rect);
 }

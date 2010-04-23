@@ -24,7 +24,7 @@
 #include <QFontMetrics>
 
 #include <MSceneManager>
-#include <duireactionmap.h>
+#include <mreactionmap.h>
 #include <mplainwindow.h>
 #include <MContentItem>
 #include <MWidgetRecycler>
@@ -354,7 +354,7 @@ void MImCorrectionCandidateWidget::redrawReactionMaps()
     }
 
     foreach(QGraphicsView * view, scene()->views()) {
-        DuiReactionMap *reactionMap = DuiReactionMap::instance(view);
+        MReactionMap *reactionMap = MReactionMap::instance(view);
         if (!reactionMap) {
             continue;
         }

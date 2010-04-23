@@ -55,7 +55,7 @@ public:
 protected:
     /*! \reimp */
     virtual QSizeF sizeHint(Qt::SizeHint which, const QSizeF &constraint) const;
-    virtual void drawReactiveAreas(DuiReactionMap *reactionMap, QGraphicsView *view);
+    virtual void drawReactiveAreas(MReactionMap *reactionMap, QGraphicsView *view);
     virtual void updateButtonGeometries(int availableWidth, int equalButtonWidth);
     virtual IKeyButton *keyAt(const QPoint &pos) const;
     virtual void modifiersChanged(bool shift, QChar accent = QChar());

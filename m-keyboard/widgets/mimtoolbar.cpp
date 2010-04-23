@@ -33,7 +33,7 @@
 #include <MSceneManager>
 #include <mplainwindow.h>
 #include <MInfoBanner>
-#include <duireactionmap.h>
+#include <mreactionmap.h>
 #include <MScalableImage>
 
 namespace
@@ -484,7 +484,7 @@ void MImToolbar::removeItem(MWidget *widget)
     layout()->activate();
 }
 
-void MImToolbar::drawReactiveAreas(DuiReactionMap *reactionMap, QGraphicsView *view)
+void MImToolbar::drawReactiveAreas(MReactionMap *reactionMap, QGraphicsView *view)
 {
     // TODO: support for translucent keyboard
     reactionMap->setTransform(this, view);
@@ -524,7 +524,7 @@ void MImToolbar::clearReactiveAreas()
     Q_ASSERT(scene()->views().count() == 1);
 
     QGraphicsView *view = scene()->views()[0];
-    DuiReactionMap *reactionMap = DuiReactionMap::instance(view);
+    MReactionMap *reactionMap = MReactionMap::instance(view);
     if (!reactionMap)
         return;
 
