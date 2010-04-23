@@ -127,7 +127,6 @@ private:
                        const TBParseStructure *parserList, int parserCount = 1);
 protected:
     QList<ToolbarWidget *> widgets;
-    QString toolbarPixmapDirectory;
     QString toolbarFileName;
     friend class ToolbarManager;
     friend struct TBParseStructure;

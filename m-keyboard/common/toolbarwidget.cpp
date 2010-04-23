@@ -60,4 +60,3 @@ void ToolbarWidget::setVisible(bool v)
 {
     visible = v;
 }
-

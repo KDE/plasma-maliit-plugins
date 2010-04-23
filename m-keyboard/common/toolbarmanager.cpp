@@ -18,9 +18,9 @@
 
 #include "toolbarmanager.h"
 #include "toolbardata.h"
+#include "mtoolbarbutton.h"
 #include "mimtoolbar.h"
 #include <MGConfItem>
-#include <MTheme>
 #include <MButton>
 #include <MLabel>
 #include <MLocale>
@@ -235,9 +235,6 @@ void ToolbarManager::reset()
 void ToolbarManager::loadToolbarWidgets()
 {
     qDebug() << __PRETTY_FUNCTION__;
-    if (!current.value()->toolbarPixmapDirectory.isEmpty()) {
-        MTheme::instance()->addPixmapDirectory(current.value()->toolbarPixmapDirectory);
-    }
     resetWidgetPool();
     foreach(const ToolbarWidget *tw, widgetList()) {
         createWidget(tw);
@@ -263,7 +260,7 @@ void ToolbarManager::createWidget(const ToolbarWidget *tw)
         if (!w) {
             switch (tw->type()) {
             case ToolbarWidget::Button:
-                w = new MButton();
+                w = new MToolbarButton();
                 w->setObjectName(ObjectNameToolbarButton);
                 break;
             case ToolbarWidget::Label:
@@ -282,14 +279,15 @@ void ToolbarManager::createWidget(const ToolbarWidget *tw)
 
     switch (tw->type()) {
     case ToolbarWidget::Button: {
-        MButton *b = qobject_cast<MButton*>(w);
+        MToolbarButton *b = qobject_cast<MToolbarButton*>(w);
         if (b) {
             if (!tw->textId.isEmpty()) {
                 b->setText(qtTrId(tw->textId.toUtf8().data()));
             } else {
                 b->setText(tw->text);
             }
-            b->setIconID(tw->icon);
+            b->setIconFile(QString(tw->icon));
+            b->setIconPercent(tw->size);
             b->setCheckable(tw->toggle);
             if (tw->toggle) {
                 b->setChecked(tw->pressed);
@@ -389,11 +387,11 @@ void ToolbarManager::setToolbarItemAttribute(qlonglong id, const QString &item, 
     if (tw) {
         switch (tw->type()) {
         case ToolbarWidget::Button: {
-            MButton *button = qobject_cast<MButton *>(widget(item));
+            MToolbarButton *button = qobject_cast<MToolbarButton *>(widget(item));
             if (!button)
                 return;
             if (attribute == "icon") {
-                button->setIconID(value.toString());
+                button->setIconFile(value.toString());
             } else if (attribute == "text") {
                 button->setText(value.toString());
             } else if (attribute == "textid") {

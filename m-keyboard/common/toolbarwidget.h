@@ -115,6 +115,7 @@ protected:
     bool toggle;
     bool pressed;
     QString icon;
+    int size;
     //! actions when clicking the widget
     QList<Action *> actions;
 

@@ -27,7 +27,6 @@ namespace
 {
     const QString ToolbarConfigurationPath = "/usr/share/meegotouch/imtoolbars/";
     const QString ImTagToolbar               = QString("toolbar");
-    const QString ImTagPixmapDirectory       = QString("pixmapdirectory");
     const QString ImTagButton                = QString("button");
     const QString ImTagLabel                 = QString("label");
     const QString ImTagActions               = QString("actions");
@@ -39,6 +38,7 @@ namespace
     const QString ImTagHideOn                = QString("hideon");
     const QString ImTagAlignment             = QString("alignment");
     const QString ImTagIcon                  = QString("icon");
+    const QString ImTagSize                  = QString("size");
     const QString ImTagText                  = QString("text");
     const QString ImTagTextId                = QString("text_id");
     const QString ImTagToggle                = QString("toggle");
@@ -149,9 +149,6 @@ bool ToolbarData::loadNokiaToolbarXml(const QString &fileName)
                    << "wrong format xml" << absoluteFileName << "for virtual keyboard tool bar";
         valid = false;
     } else {
-        if (root.hasAttribute(ImTagPixmapDirectory)) {
-            toolbarPixmapDirectory = root.attribute(ImTagPixmapDirectory);
-        }
         const TBParseStructure parsers[2] = {TBParseStructure(ImTagButton, &ToolbarData::parseTagButton),
                                              TBParseStructure(ImTagLabel, &ToolbarData::parseTagLabel)
                                             };
@@ -241,6 +238,13 @@ void ToolbarData::parseTagButton(const QDomElement &element, TBParseParameters &
     b->text = element.attribute(ImTagText);
     b->textId = element.attribute(ImTagTextId);
     b->icon = element.attribute(ImTagIcon);
+    bool ok;
+    int size = element.attribute(ImTagSize).remove("%").toInt(&ok, 10);
+    if (ok) {
+        b->size = size;
+    } else {
+        b->size = 100;
+    }
     b->toggle = (element.attribute(ImTagToggle) == "true") ? true : false;
     b->pressed = (element.attribute(ImTagPressed) == "true") ? true : false;
     widgets.append(b);
