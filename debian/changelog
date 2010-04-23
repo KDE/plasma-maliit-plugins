@@ -1,3 +1,12 @@
+meego-keyboard (0.4.1~1) unstable; urgency=low
+
+  * Unreleased version
+  * Enhanced styling of secondary labels
+  * Implemented plugin switch request
+  * Arabic and russian number keyboard layouts
+
+ -- Pekka Vuorela <pekka.ta.vuorela@nokia.com>  Fri, 16 Apr 2010 10:33:48 +0300
+
 meego-keyboard (0.4.0-1) unstable; urgency=low
 
   * Adaptation to MeegoTouch
