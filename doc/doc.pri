@@ -10,7 +10,6 @@ isEmpty(DOXYGEN_BIN) {
       perl -pe \"s:\@M_SRC_DIR\@:$${IN_PWD}:\" > $${OUT_PWD}/doc/mdoxy.cfg );
 
   doc.commands+= ( cd doc ; $${DOXYGEN_BIN} mdoxy.cfg );
-  doc.commands+= cp $${IN_PWD}/src/images/* $${OUT_PWD}/doc/html ;
   doc.commands+= ( cd doc ; $${IN_PWD}/xmlize.pl );
 
   # Install rules

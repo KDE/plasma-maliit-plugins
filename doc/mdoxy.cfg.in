@@ -1,6 +1,6 @@
-PROJECT_NAME          = DirectUI Input Method Framework
+PROJECT_NAME          = MeeGo Touch Input Method Framework
 PROJECT_NUMBER        =
-OUTPUT_DIRECTORY      = @DUI_SRC_DIR@
+OUTPUT_DIRECTORY      = @M_SRC_DIR@
 OUTPUT_LANGUAGE       = English
 DISABLE_INDEX         = YES
 EXTRACT_ALL           = YES
@@ -43,17 +43,17 @@ WARN_LOGFILE          = "doxygen.log"
 # configuration options related to the input files
 #---------------------------------------------------------------------------
 
-FILE_VERSION_FILTER   = "cd @DUI_SRC_DIR@ ; git log --pretty=format:%H -n 1 "
+FILE_VERSION_FILTER   = "cd @M_SRC_DIR@ ; git log --pretty=format:%H -n 1 "
 
-INPUT                 = @DUI_SRC_DIR@ \
-                        @DUI_SRC_DIR@/../dui-keyboard/
+INPUT                 = @M_SRC_DIR@ \
+                        @M_SRC_DIR@/../m-keyboard/
 FILE_PATTERNS         = *.cpp *.h *.dox
 RECURSIVE             = YES
 EXCLUDE               =
 EXCLUDE_PATTERNS      = moc_*.cpp *_p.h *_p.cpp
-IMAGE_PATH            = @DUI_SRC_DIR@/images
+IMAGE_PATH            = @M_SRC_DIR@/images
 INPUT_FILTER          =
-EXAMPLE_PATH          = @DUI_SRC_DIR@/../dui-keyboard/layouts
+EXAMPLE_PATH          = @M_SRC_DIR@/../m-keyboard/layouts
 
 #---------------------------------------------------------------------------
 # configuration options related to the alphabetical class index
@@ -61,7 +61,7 @@ EXAMPLE_PATH          = @DUI_SRC_DIR@/../dui-keyboard/layouts
 
 ALPHABETICAL_INDEX    = YES
 COLS_IN_ALPHA_INDEX   = 4
-IGNORE_PREFIX         = Dui
+IGNORE_PREFIX         = 
 
 #---------------------------------------------------------------------------
 # configuration options related to the HTML output
@@ -70,9 +70,9 @@ IGNORE_PREFIX         = Dui
 GENERATE_TESTLIST     = YES
 GENERATE_HTML         = YES
 HTML_OUTPUT           = html
-HTML_HEADER           = @DUI_SRC_DIR@/header.html
-HTML_FOOTER           = @DUI_SRC_DIR@/footer.html
-HTML_STYLESHEET       = @DUI_SRC_DIR@/dui.css
+HTML_HEADER           = @M_SRC_DIR@/header.html
+HTML_FOOTER           = @M_SRC_DIR@/footer.html
+HTML_STYLESHEET       = @M_SRC_DIR@/m.css
 HTML_ALIGN_MEMBERS    = YES
 GENERATE_HTMLHELP     = NO
 
@@ -121,7 +121,7 @@ EXPAND_ONLY_PREDEF    = YES
 # Configuration::addtions related to external references
 #---------------------------------------------------------------------------
 
-TAGFILES              = @DUI_SRC_DIR@/qt.tag=http://doc.trolltech.com/4.6-snapshot
+TAGFILES              = @M_SRC_DIR@/qt.tag=http://doc.trolltech.com/4.6-snapshot
 # GENERATE_TAGFILE      = YES
 ALLEXTERNALS          = NO
 PERL_PATH             = /scratchbox/tools/bin
