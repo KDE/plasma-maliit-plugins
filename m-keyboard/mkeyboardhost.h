@@ -37,6 +37,7 @@ class LayoutMenu;
 class SymbolView;
 class DuiImEngineWords;
 class QWidget;
+class MInfoBanner;
 
 //! Logic class for virtual keyboard
 class MKeyboardHost: public MInputMethodBase
@@ -162,6 +163,15 @@ private slots:
     //! Shows symbol view
     void showSymbolView();
 
+    /*!
+     * Receives modifier state changed signal from hardware keyboard, sends input mode
+     * indicator state notification to Application Framework (Home screen status bar).
+     */
+    void handleModifierStateChanged(Qt::KeyboardModifier modifier, ModifierState state);
+
+    //! hide CapsLock infobanner
+    void hideLockOnInfoBanner();
+
 private:
     void createCorrectionCandidateWidget();
 
@@ -269,6 +279,9 @@ private:
 
     //! current active state
     MIMHandlerState activeState;
+
+    MInfoBanner *modifierLockOnInfoBanner; //! widget to show modifier is in locked state
+    QTimer modifierLockOnTimer;
 
 #ifdef UNIT_TEST
     friend class Ut_MKeyboardHost;

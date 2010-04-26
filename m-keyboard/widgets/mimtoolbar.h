@@ -25,10 +25,8 @@
 
 class MReactionMap;
 class ToolbarManager;
-class MInfoBanner;
 class MVirtualKeyboardStyleContainer;
 class MButton;
-class QTimer;
 class ToolbarWidget;
 
 /*!
@@ -139,9 +137,6 @@ private slots:
 
     void updateVisibility();
 
-    //! hide CapsLock infobanner
-    void hideLockOnInfoBanner();
-
 signals:
     //! Emitted when toolbar's region changed
     void regionUpdated();
@@ -212,9 +207,6 @@ private:
 
     WidgetBar leftBar;  //! Widget to hold left-aligned toolbar widgets
     WidgetBar rightBar; //! Widget to hold right-aligned toolbar widgets
-
-    MInfoBanner *modifierLockOnInfoBanner; //! widget to show modifier is in locked state
-    QTimer *modifierLockOnTimer;
 
     MVirtualKeyboardStyleContainer &style; //! Styling information
 

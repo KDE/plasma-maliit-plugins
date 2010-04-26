@@ -145,10 +145,8 @@ QString LayoutsManager::systemDisplayLanguage() const
     return MGConfItem(SystemDisplayLanguage).value().toString();
 }
 
-QString LayoutsManager::hardwareKeyboardLanguage() const
+QString LayoutsManager::hardwareKeyboardLayout() const
 {
-    //TODO: this is a temporary method, should get the hw layout, then return the
-    //language (symbol view variant) according Table 4 in HW Keyboard UI spec.
     return MGConfItem(HardwareKeyboardLayout).value(FallbackLanguage).toString();
 }
 

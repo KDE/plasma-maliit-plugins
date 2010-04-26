@@ -71,8 +71,8 @@ public:
     //! \brief Returns currently system display language
     QString systemDisplayLanguage() const;
 
-    //! \brief Returns the language for hardware keyboard layout
-    QString hardwareKeyboardLanguage() const;
+    //! \brief Returns the layout for hardware keyboard
+    QString hardwareKeyboardLayout() const;
 
 signals:
     //! Signals that languages have been reset and keyboard data can

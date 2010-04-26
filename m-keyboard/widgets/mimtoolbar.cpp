@@ -29,10 +29,8 @@
 #include <QKeySequence>
 #include <QGraphicsLinearLayout>
 #include <QDebug>
-#include <QTimer>
 #include <MSceneManager>
 #include <mplainwindow.h>
-#include <MInfoBanner>
 #include <mreactionmap.h>
 #include <MScalableImage>
 
@@ -74,7 +72,6 @@ namespace
     const QString FNOnIndicatorLabel("123");
     const QString FNLockedIndicatorLabel("<U>123</U>");
     const Qt::KeyboardModifier FnLevelModifier = Qt::GroupSwitchModifier;
-    const int ModifierLockOnInfoDuration = 1000;
 };
 
 MImToolbar::MImToolbar(MVirtualKeyboardStyleContainer &style, QGraphicsWidget *parent)
@@ -86,8 +83,6 @@ MImToolbar::MImToolbar(MVirtualKeyboardStyleContainer &style, QGraphicsWidget *p
       copyPasteStatus(InputMethodNoCopyPaste),
       leftBar(true, this),
       rightBar(true, this),
-      modifierLockOnInfoBanner(0),
-      modifierLockOnTimer(new QTimer(this)),
       style(style),
       shiftState(ModifierClearState),
       fnState(ModifierClearState)
@@ -106,8 +101,6 @@ MImToolbar::MImToolbar(MVirtualKeyboardStyleContainer &style, QGraphicsWidget *p
 
     connect(this, SIGNAL(visibleChanged()), this, SLOT(updateVisibility()));
 
-    modifierLockOnTimer->setInterval(ModifierLockOnInfoDuration);
-    connect(modifierLockOnTimer, SIGNAL(timeout()), this, SLOT(hideLockOnInfoBanner()));
     connect(&toolbarMgr, SIGNAL(buttonClicked(ToolbarWidget)), this, SLOT(handleButtonClick(ToolbarWidget)));
 }
 
@@ -117,7 +110,6 @@ MImToolbar::~MImToolbar()
     indicator = 0;
     delete copyPaste;
     copyPaste = 0;
-    hideLockOnInfoBanner();
 }
 
 void MImToolbar::setupLayout()
@@ -533,9 +525,8 @@ void MImToolbar::clearReactiveAreas()
 
 void MImToolbar::setIndicatorButtonState(Qt::KeyboardModifier modifier, ModifierState state)
 {
-    //TODO: consider the indicator label for Arabic and Cyrillic (maybe Chinese also)?
+    //TODO: this method could be removed when home screen really support showing input mode indicator.
     QString indicatorLabel;
-    QString lockOnNotificationLabel;
     const QString currentDisplayLanguage = LayoutsManager::instance().systemDisplayLanguage();
     switch (modifier) {
     case Qt::ShiftModifier:
@@ -570,8 +561,6 @@ void MImToolbar::setIndicatorButtonState(Qt::KeyboardModifier modifier, Modifier
             } else {
                 indicatorLabel = LatinShiftLockedIndicatorLabel;
             }
-            //% "Caps lock on"
-            lockOnNotificationLabel = qtTrId("qtn_hwkb_caps_lock");
             break;
         }
         break;
@@ -590,8 +579,6 @@ void MImToolbar::setIndicatorButtonState(Qt::KeyboardModifier modifier, Modifier
             break;
         case ModifierLockedState:
             indicatorLabel = FNLockedIndicatorLabel;
-            //% "Symbol lock on"
-            lockOnNotificationLabel = qtTrId("qtn_hwkb_fn_lock");
             break;
         }
         break;
@@ -600,26 +587,4 @@ void MImToolbar::setIndicatorButtonState(Qt::KeyboardModifier modifier, Modifier
         return;
     }
     indicator->setText(indicatorLabel);
-    if (state == ModifierLockedState) {
-        // notify the modifier is changed to locked state
-        if (modifierLockOnInfoBanner) {
-            modifierLockOnInfoBanner->setBodyText(lockOnNotificationLabel);
-            modifierLockOnTimer->start();
-        } else {
-            modifierLockOnInfoBanner = new MInfoBanner(MInfoBanner::Information);
-            modifierLockOnInfoBanner->setBodyText(lockOnNotificationLabel);
-            MPlainWindow::instance()->sceneManager()->appearSceneWindow(modifierLockOnInfoBanner,
-                    MSceneWindow::DestroyWhenDone);
-            modifierLockOnTimer->start();
-        }
-    } else if (modifierLockOnInfoBanner) {
-        hideLockOnInfoBanner();
-    }
-}
-
-void MImToolbar::hideLockOnInfoBanner()
-{
-    if (modifierLockOnInfoBanner)
-        MPlainWindow::instance()->sceneManager()->disappearSceneWindow(modifierLockOnInfoBanner);
-    modifierLockOnInfoBanner = 0;
 }

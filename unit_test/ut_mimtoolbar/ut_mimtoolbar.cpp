@@ -93,12 +93,6 @@ namespace
 
         return result;
     }
-    int hideLockOnInfoBannerCalls = 0;
-}
-void MImToolbar::hideLockOnInfoBanner()
-{
-    //reimplement hideLockOnInfoBanner to avoid to show/hide infobanner.
-    ++hideLockOnInfoBannerCalls;
 }
 
 void MToolbarButton::setIconFile(const QString &newIconFile)
@@ -473,9 +467,6 @@ void Ut_MImToolbar::testIndicatorButton()
 
 void Ut_MImToolbar::testSetIndicatorButtonState()
 {
-    //create modifierLockOnInfoBanner manualy before changing indicator state
-    //to avoid show/hide infobanner, which will cause crash
-    m_subject->modifierLockOnInfoBanner = new MInfoBanner(MInfoBanner::Information);
     m_subject->showIndicatorButton();
     MGConfItem systemDisplayLanguage(SystemDisplayLanguage);
 
@@ -490,10 +481,8 @@ void Ut_MImToolbar::testSetIndicatorButtonState()
     m_subject->setIndicatorButtonState(Qt::ShiftModifier, ModifierLockedState);
     QCOMPARE(m_subject->indicator->text(), LatinShiftLockedIndicatorLabel);
     // -> "123"
-    hideLockOnInfoBannerCalls = 0;
     m_subject->setIndicatorButtonState(FnLevelModifier, ModifierLatchedState);
     QCOMPARE(m_subject->indicator->text(), FNOnIndicatorLabel);
-    QCOMPARE(hideLockOnInfoBannerCalls, 1);
     // -> "123_"
     m_subject->setIndicatorButtonState(FnLevelModifier, ModifierLockedState);
     QCOMPARE(m_subject->indicator->text(), FNLockedIndicatorLabel);
@@ -525,8 +514,6 @@ void Ut_MImToolbar::testSetIndicatorButtonState()
     QCOMPARE(m_subject->indicator->text(), ArabicIndicatorLabel);
 
     systemDisplayLanguage.set(QVariant("en"));
-    delete m_subject->modifierLockOnInfoBanner;
-    m_subject->modifierLockOnInfoBanner = 0;
     m_subject->hideIndicatorButton();
 }
 
