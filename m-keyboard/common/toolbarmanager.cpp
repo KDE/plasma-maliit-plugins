@@ -334,9 +334,13 @@ void ToolbarManager::handleButtonClick()
     const MButton *button = qobject_cast<MButton *>(this->sender());
     Q_ASSERT(button);
 
-    const ToolbarWidget *tw = toolbarWidget(button);
+    ToolbarWidget *tw = toolbarWidget(button);
     if (!tw)
         return;
+    // records button's toggle state
+    if (tw->toggle) {
+        tw->pressed = button->isChecked();
+    }
 
     emit buttonClicked(*tw);
 }
@@ -354,6 +358,8 @@ void ToolbarManager::registerToolbar(qlonglong id, const QString &fileName)
         // if cached toolbars reach MaximumToolbarCount, then remove the most rarely used toolbar.
         if (cachedToolbarIds.count() >= MaximumToolbarCount) {
             // the last toolbar is the most rarely used one.
+            // FIXME: the removing of cached toolbar will lead to all the states changed by
+            // setToolbarItemAttribute be lost. Can we avoid it?
             delete cachedToolbars.take(cachedToolbarIds.takeLast());
         }
         cachedToolbars.insert(id, toolbarData);
@@ -392,12 +398,16 @@ void ToolbarManager::setToolbarItemAttribute(qlonglong id, const QString &item, 
                 return;
             if (attribute == "icon") {
                 button->setIconFile(value.toString());
+                tw->icon = value.toString();
             } else if (attribute == "text") {
                 button->setText(value.toString());
+                tw->text = value.toString();
             } else if (attribute == "textid") {
                 button->setText(qtTrId(value.toString().toUtf8().data()));
+                tw->textId = value.toString();
             } else if (attribute == "pressed" && tw->toggle) {
                 button->setChecked(value.toBool());
+                tw->pressed = value.toBool();
             }
             break;
         }
@@ -407,8 +417,10 @@ void ToolbarManager::setToolbarItemAttribute(qlonglong id, const QString &item, 
                 return;
             if (attribute == "text") {
                 label->setText(value.toString());
+                tw->text = value.toString();
             } else if (attribute == "textid") {
                 label->setText(qtTrId(value.toString().toUtf8().data()));
+                tw->textId = value.toString();
             }
             break;
         }
