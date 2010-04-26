@@ -1081,10 +1081,11 @@ void MKeyboardHost::unregisterToolbar(qlonglong id)
 void MKeyboardHost::setToolbar(qlonglong id)
 {
     qDebug() << __PRETTY_FUNCTION__ << id;
-    if (id)
+    if (id >= 0) {
         vkbWidget->showToolbarWidget(id);
-    else
+    } else {
         vkbWidget->hideToolbarWidget();
+    }
 }
 
 void MKeyboardHost::setToolbarItemAttribute(qlonglong id, const QString &item,
