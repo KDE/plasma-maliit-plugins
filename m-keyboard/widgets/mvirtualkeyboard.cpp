@@ -576,7 +576,7 @@ void MVirtualKeyboard::drawButtonsReactionMaps(MReactionMap *reactionMap, QGraph
     QGraphicsLayout *keyboardLayout = 0;
 
     QGraphicsLayoutItem *item = mainLayout->itemAt(1);
-    if (item == mainKeyboardSwitcher) {
+    if (item == mainKeyboardSwitcher && mainKeyboardSwitcher->currentWidget()) {
         keyboardLayout = mainKeyboardSwitcher->currentWidget()->layout();
     } else {
         keyboardLayout = static_cast<QGraphicsWidget *>(item)->layout();
@@ -800,6 +800,12 @@ void MVirtualKeyboard::languageReset()
                 languageIndex = 0;
             }
         }
+
+	// TODO: we should simplify the whole languageReset(). Now
+	// MVirtualKeyboard manages currentLanguage and HorizontalSwitcher also
+	// manages its current widget index.  We always have to synchronize
+	// both of them if one is changed (in the right order, too).
+        currentLanguage = "";
     }
 
     recreateKeyboards();

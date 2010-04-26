@@ -234,24 +234,10 @@ void HorizontalSwitcher::addWidget(QGraphicsWidget *widget)
 
         slides.append(widget);
         widget->hide();
-    }
-}
 
-void HorizontalSwitcher::removeWidget(QGraphicsWidget *widget)
-{
-    if (widget && slides.contains(widget)) {
-        if (widget->isVisible() && isRunning())
-            finishAnimation();
-
-        widget->setParentItem(0);
-        if (widget->scene())
-            widget->scene()->removeItem(widget);
-        slides.removeOne(widget);
-
-        if (!slides.isEmpty()) {
-            if (--currentIndex < 0)
-                currentIndex += slides.count();
-            setCurrent(currentIndex);
+        // HS was empty before, this was the first widget added:
+        if (slides.size() == 1) {
+            setCurrent(0);
         }
     }
 }
@@ -260,10 +246,14 @@ void HorizontalSwitcher::removeAll()
 {
     foreach(QGraphicsWidget * slide, slides) {
         slide->setParentItem(0);
-        if (slide->scene())
+
+        if (slide->scene()) {
             slide->scene()->removeItem(slide);
+        }
     }
+
     slides.clear();
+    currentIndex = -1;
     updateGeometry();
 }
 

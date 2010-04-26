@@ -92,15 +92,18 @@ public:
     //! \brief Add widget to switcher. Takes ownership.
     //!
     //! Indices for widgets are added in the order they were added.
+    //! If the container was empty (index at -1), then addWidget updates the
+    //! current index to point to widget and shows it.
     void addWidget(QGraphicsWidget *widget);
 
-    //! \brief Remove widget from switcher. Ownership changed to caller.
-    void removeWidget(QGraphicsWidget *widget);
-
     //! \brief Remove all widgets. Ownership changed to caller.
+    //!
+    //! Sets current index to -1.
     void removeAll();
 
-    /// \brief Deletes all widgets
+    //! \brief Deletes all widgets
+    //!
+    //! Sets current index to -1.
     void deleteAll();
 
 signals:

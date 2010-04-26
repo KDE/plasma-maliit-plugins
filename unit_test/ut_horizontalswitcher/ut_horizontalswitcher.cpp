@@ -52,35 +52,30 @@ void Ut_HorizontalSwitcher::cleanup()
     }
 }
 
-void Ut_HorizontalSwitcher::testAddRemoveWidgets()
+void Ut_HorizontalSwitcher::testAddWidgets()
 {
+    QVERIFY(subject->count() == 0);
+    QVERIFY(subject->current() == -1);
+    QVERIFY(subject->currentWidget() == 0);
+
     const int numberOfWidgets = 5;
 
-    QList<QGraphicsWidget *> widgets;
-    QGraphicsWidget *w;
-
-    QVERIFY(subject->count() == 0);
-
     for (int i = 0; i < numberOfWidgets; ++i) {
-        w = new QGraphicsWidget();
-        widgets.append(w);
-        subject->addWidget(w);
-        QCOMPARE(subject->count(), i + 1);
+        QGraphicsWidget *w = 0;
+        subject->addWidget(w = new QGraphicsWidget);
+        QVERIFY(!w->isVisible() || w == subject->currentWidget());
+        QVERIFY(w->parentItem() == subject);
+        QVERIFY(w->scene() == subject->scene());
     }
 
-    for (int i = numberOfWidgets - 1; i >= 0; --i) {
-        w = widgets.at(i);
-        subject->removeWidget(w);
-        QCOMPARE(subject->count(), i);
-    }
+    QVERIFY(subject->count() == numberOfWidgets);
+    QVERIFY((subject->current() >= 0) && (subject->current() < subject->count()));
+    QVERIFY(subject->currentWidget() != 0);
+    QVERIFY(subject->currentWidget()->isVisible());
 
-    // Add again and remove with removeAll()
-    for (int i = 0; i < numberOfWidgets; ++i)
-        subject->addWidget(widgets.at(i));
-    subject->removeAll();
-    QCOMPARE(subject->count(), 0);
-
-    qDeleteAll(widgets);
+    subject->deleteAll();
+    QVERIFY(subject->count() == 0);
+    QVERIFY(subject->current() == -1);
 }
 
 void Ut_HorizontalSwitcher::testShowWidgets()
@@ -112,30 +107,31 @@ void Ut_HorizontalSwitcher::testSetCurrent_data()
     QTest::addColumn<int>("current");
     QTest::addColumn<int>("expected");
 
-    QTest::newRow("Empty1")    << 0 <<  0 << -1;
-    QTest::newRow("Invalid0")  << 0 << -1 << -1;
-    QTest::newRow("Invalid1")  << 1 << -1 << -1;
-    QTest::newRow("Invalid2")  << 2 << -1 << -1;
+    QTest::newRow("Empty1")     << 0 <<  0 << -1;
+    QTest::newRow("Invalid0")   << 0 << -1 << -1;
+    QTest::newRow("AddOne")     << 1 << -1 <<  0;
+    QTest::newRow("AddTwo")     << 2 << -1 <<  0;
     QTest::newRow("3 widgets1") << 3 <<  0 <<  0;
     QTest::newRow("3 widgets2") << 3 <<  1 <<  1;
 }
 
+// FIXME: This test tests more about addWidget than it tests about setCurrent ...
 void Ut_HorizontalSwitcher::testSetCurrent()
 {
+    QVERIFY(subject->count() == 0);
+
     QFETCH(int, numWidgets);
     QFETCH(int, current);
     QFETCH(int, expected);
-    QGraphicsWidget *expectedWidget = NULL;
-    QList<QGraphicsWidget *> widgets;
+
+    QGraphicsWidget *expectedWidget = 0;
 
     for (int i = 0; i < numWidgets; ++i) {
-        QGraphicsWidget *widget = new QGraphicsWidget();
-        widgets.append(widget);
-        subject->addWidget(widget);
+        subject->addWidget(new QGraphicsWidget);
     }
 
     if (expected >= 0) {
-        expectedWidget = widgets.at(expected);
+        expectedWidget = subject->widget(expected);
     }
 
     subject->setCurrent(current);

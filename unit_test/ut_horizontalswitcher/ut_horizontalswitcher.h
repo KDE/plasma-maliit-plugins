@@ -36,7 +36,7 @@ private slots:
     void initTestCase();
     void cleanupTestCase();
 
-    void testAddRemoveWidgets();
+    void testAddWidgets();
     void testSetCurrent_data();
     void testSetCurrent();
     void testShowWidgets();
