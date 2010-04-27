@@ -341,10 +341,7 @@ void MImToolbar::showToolbarWidget(qlonglong id)
         unloadCustomWidgets(Qt::AlignLeft);
         unloadCustomWidgets(Qt::AlignRight);
     }
-    if (!ToolbarManager::instance().loadToolbar(id)) {
-        leftBar.clear();
-        rightBar.clear();
-    }
+    ToolbarManager::instance().loadToolbar(id);
     if (isVisible())
         updateVisibility();
 }
