@@ -54,6 +54,8 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
       styleContainer(0),
       sceneManager(MPlainWindow::instance()->sceneManager()),
       shiftLevel(ShiftOff),
+      shiftHeldDown(false),
+      ignoreShiftClick(false),
       currentLayoutType(LayoutData::General),
       currentOrientation(sceneManager->orientation()),
       hideShowByFadingOnly(false),
@@ -927,7 +929,7 @@ KeyButtonArea * MVirtualKeyboard::createSectionView(const QString &language,
             this, SLOT(handleKeyRelease(const KeyEvent &)));
 
     connect(view, SIGNAL(keyClicked(const KeyEvent &)),
-            this, SIGNAL(keyClicked(const KeyEvent &)));
+            this, SLOT(handleKeyClick(const KeyEvent &)));
 
     connect(view, SIGNAL(flickDown()), this, SLOT(hideKeyboard()));
     connect(view, SIGNAL(flickDown()), this, SIGNAL(userInitiatedHide()));
@@ -945,6 +947,9 @@ void MVirtualKeyboard::handleKeyPress(const KeyEvent &event)
         //TODO: time treshold to avoid flickering?
         static_cast<KeyButtonArea *>(mainKeyboardSwitcher->currentWidget()->layout()->itemAt(1))->
             switchLevel(1);
+        shiftHeldDown = true;
+    } else if (shiftHeldDown) {
+        ignoreShiftClick = true;
     }
 }
 
@@ -955,6 +960,16 @@ void MVirtualKeyboard::handleKeyRelease(const KeyEvent &event)
     if (event.qtKey() == Qt::Key_Shift) {
         static_cast<KeyButtonArea *>(mainKeyboardSwitcher->currentWidget()->layout()->itemAt(1))->
             switchLevel(0);
+        shiftHeldDown = false;
+    }
+}
+
+void MVirtualKeyboard::handleKeyClick(const KeyEvent &event)
+{
+    if (event.qtKey() == Qt::Key_Shift && ignoreShiftClick) {
+        ignoreShiftClick = false; // clear
+    } else {
+        emit keyClicked(event);
     }
 }
 

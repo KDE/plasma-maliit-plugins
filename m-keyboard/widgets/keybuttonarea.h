@@ -29,6 +29,7 @@
 #include <QHash>
 #include <QList>
 #include <QStringList>
+#include <QTouchEvent>
 
 class MFeedbackPlayer;
 class MReactionMap;
@@ -137,6 +138,8 @@ public slots:
      */
     void unlockDeadkeys();
 
+    void setMultiTouch(bool enable);
+
 signals:
 
     //! Emitted when accurate mode is started
@@ -184,6 +187,26 @@ signals:
     void flickUp(const KeyBinding *binding);
 
 protected:
+    //! Stores touch point specific information.
+    struct TouchPointInfo {
+        TouchPointInfo();
+
+        //! True if finger is held down and is inside the layout's area.
+        bool fingerInsideArea;
+
+        //! Currently held down key
+        IKeyButton *activeKey;
+
+        //! Key that this touch point was first pressed on, if any.
+        const IKeyButton *initialKey;
+
+        //! Initial position of the touch point when it was first pressed.
+        QPoint initialPos;
+
+        //! Last known position of the touch point
+        QPoint pos;
+    };
+
     //! \brief Returns data and size information of a button in given \a row and \a column.
     void buttonInformation(int row, int column,
                            const VKBDataKey *&dataKey,
@@ -198,6 +221,7 @@ protected:
     virtual QVariant itemChange(GraphicsItemChange, const QVariant &);
     virtual void grabMouseEvent(QEvent *e);
     virtual void ungrabMouseEvent(QEvent *e);
+    virtual bool sceneEvent(QEvent *event);
     /*! \reimp_end */
 
     //! Called when widget is about to lose visibility.
@@ -258,7 +282,9 @@ protected:
     const PopupBase &popupWidget() const;
 
     //! Sets button state and sends release & press events.
-    void setActiveKey(IKeyButton *key);
+    void setActiveKey(IKeyButton *key, TouchPointInfo &tpi);
+
+    void clearActiveKeys();
 
 private:
     //! Turn key button into a KeyEvent, considering current dead key and modifier state
@@ -266,6 +292,20 @@ private:
 
     //! Check whether given character will stop accurate mode.
     void accurateCheckContent(const QString &content);
+
+    //! \brief Touch point press handler.
+    //! \param id Touch point identifier defined by the system.
+    void touchPointPressed(const QPoint &pos, int id);
+
+    //! \brief Touch point move handler.
+    //! \param id Touch point identifier defined by the system.
+    void touchPointMoved(const QPoint &pos, int id);
+
+    //! \brief Touch point release handler.
+    //! \param id Touch point identifier defined by the system.
+    void touchPointReleased(const QPoint &pos, int id);
+
+    void click(const IKeyButton *key);
 
     //! Current level
     int currentLevel;
@@ -279,14 +319,8 @@ private:
     //! Flicktimer
     LimitedTimer *flickTimer;
 
-    //! Floating point flickStart position
-    QPointF flickStartPos;
-
-    //! Current pointer position
-    QPoint pointerPos;
-
-    //! True if finger is held down and is inside the layout's area.
-    bool fingerInsideArea;
+    //! Touch point id of the most recent press event.
+    int newestTouchPointId;
 
     //! Timer to detect long mouse press.
     LimitedTimer *longPressTimer;
@@ -303,14 +337,13 @@ private:
     //! Contains true if keyboard was flicked after last mouse press
     bool flicked;
 
+    //! Keys are QTouchEvent::TouchPoint id
+    QMap<int, TouchPointInfo> touchPoints;
+
+    bool enableMultiTouch;
+
     //! Activated dead key
     const IKeyButton *activeDeadkey;
-
-    //! Currently held down key
-    IKeyButton *activeKey;
-
-    //! Key that was pressed when flick gesture began.
-    const IKeyButton *flickedKey;
 
     /*!
      * Feedback player instance

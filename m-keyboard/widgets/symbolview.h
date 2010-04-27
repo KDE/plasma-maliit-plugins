@@ -186,6 +186,9 @@ signals:
     //! SymbolView will start to show up
     void showingUp();
 
+    //! Used to disable multitouch when we want explicit mouse grab support.
+    void allowMultiTouch(bool allow);
+
 protected:
     /*! \reimp */
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *);
@@ -204,6 +207,7 @@ private slots:
     void onSwitchStarting(QGraphicsWidget *current, QGraphicsWidget *next);
     void switchDone();
 
+    void handleKeyClick(const KeyEvent &);
     void handleKeyPress(const KeyEvent &);
     void handleKeyRelease(const KeyEvent &);
 
@@ -282,6 +286,12 @@ private:
 
     //! Case selector: 0 for lower case, 1 for upper case
     int shift;
+
+    //! Keeps track of shift up/down status.
+    bool shiftHeldDown;
+
+    //! When this is set true the next shift click is ignored.
+    bool ignoreShiftClick;
 
     const LayoutsManager &layoutsMgr;
 

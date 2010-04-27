@@ -231,6 +231,7 @@ public slots:
 private slots:
     void handleKeyPress(const KeyEvent &);
     void handleKeyRelease(const KeyEvent &);
+    void handleKeyClick(const KeyEvent &);
 
     /*!
      * Handler for Right flick operation
@@ -455,6 +456,12 @@ private:
 
     //! Shift key status
     int shiftLevel;
+
+    //! Keeps track of shift up/down status.
+    bool shiftHeldDown;
+
+    //! When this is set true the next shift click is ignored.
+    bool ignoreShiftClick;
 
     // Vkb show hide time line
     QTimeLine showHideTimeline;

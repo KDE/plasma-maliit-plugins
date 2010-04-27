@@ -62,6 +62,8 @@ SymbolView::SymbolView(const LayoutsManager &layoutsManager, MVirtualKeyboardSty
       activity(Inactive),
       activePage(0),
       shift(0),
+      shiftHeldDown(false),
+      ignoreShiftClick(false),
       layoutsMgr(layoutsManager),
       pageSwitcher(0),
       functionRow(0),
@@ -281,8 +283,11 @@ SymbolView::showSymbolView(SymbolView::ShowMode mode)
     showTimeLine->start();
 
     if (mode == FollowMouseShowMode) {
+        emit allowMultiTouch(false);
         pageSwitcher->currentWidget()->grabMouse();
         mouseDownKeyArea = true;
+    } else {
+        emit allowMultiTouch(true);
     }
 
     emit showingUp();
@@ -397,6 +402,7 @@ void SymbolView::addPage(QSharedPointer<const LayoutSection> symbolSection)
         page->setObjectName("SymbolMainRow");
 
         connect(this, SIGNAL(levelSwitched(int)), page, SLOT(switchLevel(int)));
+        connect(this, SIGNAL(allowMultiTouch(bool)), page, SLOT(setMultiTouch(bool)));
 
         connect(page, SIGNAL(flickLeft()), SLOT(switchToNextPage()));
         connect(page, SIGNAL(flickRight()), SLOT(switchToPrevPage()));
@@ -424,7 +430,7 @@ KeyButtonArea *SymbolView::createKeyButtonArea(QSharedPointer<const LayoutSectio
         keysWidget->setFont(style()->font());
 
         connect(keysWidget, SIGNAL(keyClicked(const KeyEvent &)),
-                SIGNAL(keyClicked(const KeyEvent &)));
+                SLOT(handleKeyClick(const KeyEvent &)));
         connect(keysWidget, SIGNAL(keyPressed(const KeyEvent &)),
                 SLOT(handleKeyPress(const KeyEvent &)));
         connect(keysWidget, SIGNAL(keyReleased(const KeyEvent &)),
@@ -439,14 +445,28 @@ void SymbolView::handleKeyPress(const KeyEvent &event)
 
     if ((event.qtKey() == Qt::Key_Shift) && functionRow) {
         functionRow->switchLevel(1);
+        shiftHeldDown = true;
+    } else if (shiftHeldDown) {
+        ignoreShiftClick = true;
     }
 }
+
 void SymbolView::handleKeyRelease(const KeyEvent &event)
 {
     emit keyReleased(event);
 
     if ((event.qtKey() == Qt::Key_Shift) && functionRow) {
         functionRow->switchLevel(0);
+        shiftHeldDown = false;
+    }
+}
+
+void SymbolView::handleKeyClick(const KeyEvent &event)
+{
+    if (event.qtKey() == Qt::Key_Shift && ignoreShiftClick) {
+        ignoreShiftClick = false; // clear
+    } else {
+        emit keyClicked(event);
     }
 }
 

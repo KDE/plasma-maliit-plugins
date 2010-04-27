@@ -112,7 +112,7 @@ void SingleWidgetButtonArea::fetchOptimumSizeButtonBackgrounds(QSize size)
 SingleWidgetButtonArea::~SingleWidgetButtonArea()
 {
     // Release any key that might be pressed before destroying them.
-    setActiveKey(0);
+    clearActiveKeys();
 
     for (RowIterator rowIter(rowList.begin()); rowIter != rowList.end(); ++rowIter) {
         qDeleteAll(rowIter->buttons);

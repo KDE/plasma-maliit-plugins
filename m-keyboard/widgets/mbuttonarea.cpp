@@ -56,7 +56,7 @@ MButtonArea::MButtonArea(MVirtualKeyboardStyleContainer *style,
 MButtonArea::~MButtonArea()
 {
     // Release any key that might be pressed before destroying them.
-    setActiveKey(0);
+    clearActiveKeys();
 
     setLayout(0);
     qDeleteAll(buttons);

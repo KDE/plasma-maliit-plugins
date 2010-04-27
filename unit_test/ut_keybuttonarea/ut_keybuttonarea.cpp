@@ -272,9 +272,10 @@ void Ut_KeyButtonArea::testFlickCheck()
     subject = createKba(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                         KeyButtonArea::ButtonSizeEqualExpanding,
                         false, 0);
+    MPlainWindow::instance()->scene()->addItem(subject);
     subject->resize(defaultLayoutSize());
 
-    QList<QPointF> positions;
+    QList<QPoint> positions;
     QList<int> left;
     QList<int> right;
     QList<int> down;
@@ -291,13 +292,13 @@ void Ut_KeyButtonArea::testFlickCheck()
     QVERIFY(spyDown.isValid());
     QVERIFY(spyUp.isValid());
 
-    positions << QPointF(0, 0)
-              << QPointF(25, 25)
-              << QPointF(75, 75)
-              << QPointF(25, -75)
-              << QPointF(-75, 5)
-              << QPointF(75, 5)
-              << QPointF(0, 75);
+    positions << QPoint(0, 0)
+              << QPoint(25, 25)
+              << QPoint(75, 75)
+              << QPoint(25, -75)
+              << QPoint(-75, 5)
+              << QPoint(75, 5)
+              << QPoint(0, 75);
     left  << 0 << 0 << 0 << 0 << 0 << 1 << 0;
     right << 0 << 0 << 0 << 0 << 1 << 0 << 0;
     down  << 0 << 0 << 0 << 1 << 0 << 0 << 0;
@@ -308,7 +309,7 @@ void Ut_KeyButtonArea::testFlickCheck()
 
     QVERIFY(positions.count() == outcome.count());
     QVERIFY(positions.count() == left.count());
-    subject->pointerPos = QPoint(0, 0);
+    const QPoint finalPosition = QPoint(0, 0);
 
     for (int n = 0; n < positions.count(); ++n) {
         spyLeft.clear();
@@ -316,14 +317,20 @@ void Ut_KeyButtonArea::testFlickCheck()
         spyDown.clear();
         spyUp.clear();
         qDebug() << "test position" << positions.at(n);
-        subject->flickStartPos = positions.at(n);
-        subject->flicked = false;
+        subject->touchPointPressed(positions.at(n), 0);
+        subject->touchPointMoved(finalPosition, 0);
+
         result = subject->flickCheck();
+
+        qDebug() << " - result: " << result;
+        qDebug() << " - down count: " << spyDown.count();
+        qDebug() << " -   up count: " << spyUp.count();
+
         QCOMPARE(result, outcome.at(n));
-        QCOMPARE(left.at(n), spyLeft.count());
-        QCOMPARE(right.at(n), spyRight.count());
-        QCOMPARE(down.at(n), spyDown.count());
-        QCOMPARE(up.at(n), spyUp.count());
+        QCOMPARE(spyLeft.count(), left.at(n));
+        QCOMPARE(spyRight.count(), right.at(n));
+        QCOMPARE(spyDown.count(), down.at(n));
+        QCOMPARE(spyUp.count(), up.at(n));
     }
 }
 
@@ -346,6 +353,7 @@ void Ut_KeyButtonArea::testSceneEvent()
                         false, 0);
     MPlainWindow::instance()->scene()->addItem(subject);
     subject->resize(defaultLayoutSize());
+    subject->setMultiTouch(false);
 
     QGraphicsSceneMouseEvent *press = new QGraphicsSceneMouseEvent(QEvent::GraphicsSceneMousePress);
     QGraphicsSceneMouseEvent *release = new QGraphicsSceneMouseEvent(QEvent::GraphicsSceneMouseRelease);
@@ -386,7 +394,7 @@ void Ut_KeyButtonArea::testPaint()
     //at least we should not chrash here
     QImage *image = new QImage(QSize(864, 480), QImage::Format_ARGB32_Premultiplied);
     QPainter painter;
-    QVERIFY(painter.begin(image) == true);
+    QVERIFY(painter.begin(image));
 
     //initialization
     keyboard = new KeyboardData;
@@ -395,9 +403,9 @@ void Ut_KeyButtonArea::testPaint()
                         KeyButtonArea::ButtonSizeEqualExpanding,
                         false, 0);
     subject->resize(defaultLayoutSize());
-    subject->pointerPos = QPoint(20, 20); // top left button
-    subject->fingerInsideArea = true;
-    subject->accurateStart();
+    MPlainWindow::instance()->scene()->addItem(subject);
+
+    subject->touchPointPressed(QPoint(20, 20), 0); // top left button
     //actual testing
     subject->paint(&painter, 0, 0);
 }
@@ -450,7 +458,7 @@ void Ut_KeyButtonArea::testDeadkeys()
     QVERIFY(key->isDeadKey());
     QString c = QChar(0x00B4);
     QCOMPARE(key->label(), c);
-    subject->clickAtDeadkey(key);
+    subject->click(key);
     //click at deadkey for the first time, just lock the deadkey, won't emit cliked() signal
     QCOMPARE(spy.count(), 0);
 
@@ -483,16 +491,13 @@ void Ut_KeyButtonArea::testDeadkeys()
         QCOMPARE(keyAt(0, positions[i])->label(), lowerDKUnicodes.at(i));
     }
 
-    QGraphicsSceneMouseEvent *release = new QGraphicsSceneMouseEvent(QEvent::GraphicsSceneMouseRelease);
-    release->setPos(QPointF(keyAt(0, 0)->buttonBoundingRect().x() + 1.0, 1.0)); // on some valid key
-    subject->mouseReleaseEvent(release);
+    subject->click(keyAt(0, 0));
     //key release on not deadkey, will emit clicked() signal
     QCOMPARE(spy.count(), 1);
     //any keypress, the deadkey should be unlocked
     for (i = 0; i < positions.count(); i++) {
         QCOMPARE(keyAt(0, positions[i])->label(), lowerUnicodes.at(i));
     }
-    delete release;
 }
 
 void Ut_KeyButtonArea::testImportedLayouts_data()
@@ -572,21 +577,22 @@ void Ut_KeyButtonArea::testAccurateMode()
     subject->accurateStop();
 
     // make long press
-    QGraphicsSceneMouseEvent mouseEvent;
-    mouseEvent.setPos(QPointF(20.0f, 20.0f)); // approximately the top left key on layout
 
-    subject->mousePressEvent(&mouseEvent);
+    const QPoint mousePos(20, 20); // approximately the top left key on layout
+    const int touchId = 0;
+
+    subject->touchPointPressed(mousePos, touchId);
     QTest::qWait(LongPressTime - 100); // not enough time
-    subject->mouseReleaseEvent(&mouseEvent);
+    subject->touchPointReleased(mousePos, touchId);
     QVERIFY(!subject->isAccurateMode());
 
-    subject->mousePressEvent(&mouseEvent);
+    subject->touchPointPressed(mousePos, touchId);
     QTest::qWait(LongPressTime + 100); // long enough
 
     // When accurate mode is on and mouse down we should have popup enabled
     QVERIFY(subject->isPopupActive());
 
-    subject->mouseReleaseEvent(&mouseEvent);
+    subject->touchPointReleased(mousePos, touchId);
     QVERIFY(subject->isAccurateMode());
 }
 
@@ -608,27 +614,32 @@ void Ut_KeyButtonArea::testPopup()
     MPlainWindow::instance()->scene()->addItem(subject);
     subject->resize(defaultLayoutSize());
 
+    const QPoint mousePos(20, 20); // approximately the top left key on layout
+    const int touchId = 0;
+
     // Test popup activation
 
     // direct call
+
+    // Popup won't show up unless it is given a position. We give it via a mouse press.
+    subject->touchPointPressed(mousePos, touchId);
     subject->popupStart();
     QVERIFY(subject->isPopupActive());
     subject->popup->hidePopup();
     QVERIFY(!subject->isPopupActive());
+    subject->touchPointReleased(mousePos, touchId);
 
     // make long press
-    QGraphicsSceneMouseEvent mouseEvent;
-    mouseEvent.setPos(QPointF(20.0f, 20.0f)); // approximately the top left key on layout
 
-    subject->mousePressEvent(&mouseEvent);
+    subject->touchPointPressed(mousePos, touchId);
     QTest::qWait(LongPressTime - 100); // not enough time
-    subject->mouseReleaseEvent(&mouseEvent);
     QVERIFY(!subject->isPopupActive());
+    subject->touchPointReleased(mousePos, touchId);
 
-    subject->mousePressEvent(&mouseEvent);
+    subject->touchPointPressed(mousePos, touchId);
     QTest::qWait(LongPressTime + 100); // long enough
     QVERIFY(subject->isPopupActive());
-    subject->mouseReleaseEvent(&mouseEvent);
+    subject->touchPointReleased(mousePos, touchId);
 }
 
 void Ut_KeyButtonArea::testInitialization_data()

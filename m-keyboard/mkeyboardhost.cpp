@@ -97,6 +97,8 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
     displayHeight = MPlainWindow::instance()->visibleSceneSize(M::Landscape).height();
     displayWidth  = MPlainWindow::instance()->visibleSceneSize(M::Landscape).width();
 
+    MPlainWindow::instance()->setAttribute(Qt::WA_AcceptTouchEvents);
+
     //TODO get this from settings
     MTheme *theme = MTheme::instance();
     theme->addPixmapDirectory(PixmapDirectory);

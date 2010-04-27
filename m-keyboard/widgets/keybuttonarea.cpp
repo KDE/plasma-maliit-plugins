@@ -59,17 +59,20 @@ KeyButtonArea::KeyButtonArea(MVirtualKeyboardStyleContainer *style,
       popup(PopupFactory::instance()->createPopup(*style, this)),
       styleContainer(style),
       flickTimer(new LimitedTimer(this)),
+      newestTouchPointId(-1),
       longPressTimer(new LimitedTimer(this)),
       accurateMode(false),
       flicked(false),
+      enableMultiTouch(false),
       activeDeadkey(0),
-      activeKey(0),
-      flickedKey(0),
       feedbackPlayer(0),
       section(sectionModel),
       buttonSizeScheme(buttonSizeScheme),
       usePopup(usePopup)
 {
+    // By default multi-touch is enabled.
+    setMultiTouch(true);
+
     flickTimer->setSingleShot(true);
     flickTimer->setInterval(FlickTime);
     connect(flickTimer, SIGNAL(timeout()), this, SLOT(flickCheck()));
@@ -166,6 +169,7 @@ int KeyButtonArea::rowCount() const
 void
 KeyButtonArea::onHide()
 {
+    clearActiveKeys();
     unlockDeadkeys();
 }
 
@@ -237,173 +241,76 @@ void KeyButtonArea::resizeEvent(QGraphicsSceneResizeEvent *event)
 void
 KeyButtonArea::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    pointerPos = event->pos().toPoint();
-
-    IKeyButton *key = keyAt(pointerPos);
-
-    if (!key) {
-        event->ignore();
-        return;
+    if (!enableMultiTouch) {
+        // Qt always assigns zero to the first touch point, so pass id = 0.
+        touchPointPressed(event->pos().toPoint(), 0);
     }
-
-    mTimestamp("KeyButtonArea", key->label());
-
-    fingerInsideArea = true;
-
-    longPressTimer->start();
-
-    // Stop accurate mode if pressed key makes accurate mode irrelevant
-    if (accurateMode)
-        accurateCheckContent(key->label());
-
-    // Check if accurate mode is still on.
-    if (accurateMode) {
-        // Show popup in accurate mode.
-        if (usePopup) {
-            updatePopup(pointerPos, key);
-        }
-    }
-
-    if (flickTimer->isActive()) {
-        flickTimer->stop();
-    }
-
-    flicked = false;
-    flickStartPos = pointerPos;
-    flickedKey = key;
-    flickTimer->start();
-
-    setActiveKey(key);
 }
 
 
 void
 KeyButtonArea::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-    bool flickTimerActive = flickTimer->isActive();
-    longPressTimer->stop();
-    flickTimer->stop();
-    fingerInsideArea = false;
-    popup->hidePopup();
-
-    pointerPos = event->pos().toPoint();
-
-    IKeyButton *key = keyAt(pointerPos);
-
-    if (key) {
-        mTimestamp("KeyButtonArea", key->label());
-    }
-
-    // It's presumably possible that we're getting this release event on top
-    // of another after press event (of another key) without first getting a
-    // move event (or at least such move event that we handle).  Which means
-    // that we must send release event for the previous key and press event
-    // for this key before sending release and clicked events for this key.
-    if (key && (key != activeKey)) {
-        setActiveKey(key);
-    }
-
     if (scene()->mouseGrabberItem() == this) {
         // Ungrab mouse explicitly since we probably used grabMouse() to get it.
-        // Ungrab event handler will clear active key.
         ungrabMouse();
-    } else {
-        setActiveKey(0);
     }
 
-    // Check if keyboard was flicked or
-    // release happens fast and far enough from the start
-    if (flicked || (flickTimerActive && flickCheck() == true)) {
-        return;
-    }
-
-    // Handle click
-    if (key) {
-        if (!key->isDeadKey()) {
-            KeyEvent clickEvent = keyToKeyEvent(*key, QEvent::KeyRelease);
-
-            unlockDeadkeys();
-
-            // Check if we need to disable accurate mode
-            accurateCheckContent(key->label());
-
-            emit keyClicked(clickEvent);
-        } else {
-            clickAtDeadkey(key);
-            update();
-        }
+    if (!enableMultiTouch) {
+        touchPointReleased(event->pos().toPoint(), 0);
     }
 }
 
 
 void KeyButtonArea::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (!isObservableMove(pointerPos, event->pos()))
-        return;
-
-    pointerPos = event->pos().toPoint();
-
-    // Check if finger is on a key.
-    IKeyButton *key = keyAt(pointerPos);
-    if (!key) {
-
-        // Finger has slid off the keys
-        if (fingerInsideArea) {
-            if (accurateMode && feedbackPlayer)
-                feedbackPlayer->play(MFeedbackPlayer::Cancel);
-
-            popup->hidePopup();
-
-            // Don't show button as pressed, and send release event.
-            setActiveKey(0);
-        }
-
-        fingerInsideArea = false;
-        longPressTimer->stop();
-    } else {
-        fingerInsideArea = true;
-
-        // If popup is visible, always update the position,
-        // even if accurate mode is not enabled. This is for
-        // Sym view, who doesn't care about accurate mode.
-        if (usePopup && (accurateMode || popup->isPopupVisible())) {
-            updatePopup(pointerPos, key);
-        }
-
-        if (activeKey != key) {
-            setActiveKey(key);
-
-            if (accurateMode && feedbackPlayer) {
-                // Finger has slid from a key to an adjacent one.
-                feedbackPlayer->play(MFeedbackPlayer::Press);
-            }
-
-            // Use has to keep finger still to generate long press.
-            // isObservableMove() makes this task easier for the user.
-            if (longPressTimer->isActive())
-                longPressTimer->start();
-        }
-    } // inside area
+    if (!enableMultiTouch) {
+        touchPointMoved(event->pos().toPoint(), 0);
+    }
 }
 
-void KeyButtonArea::setActiveKey(IKeyButton *key)
+void KeyButtonArea::setActiveKey(IKeyButton *key, TouchPointInfo &tpi)
 {
     // Selected buttons are currently skipped.
 
-    if (activeKey && (activeKey != key)) {
+    if (tpi.activeKey && (tpi.activeKey != key)) {
         // Release key
-        activeKey->setDownState(false);
-        KeyEvent releaseEvent = keyToKeyEvent(*activeKey, QEvent::KeyRelease);
+        tpi.activeKey->setDownState(false);
+        KeyEvent releaseEvent = keyToKeyEvent(*tpi.activeKey, QEvent::KeyRelease);
         emit keyReleased(releaseEvent);
-        activeKey = 0;
+        tpi.activeKey = 0;
     }
 
-    if (key && (activeKey != key)) {
+    if (key && (tpi.activeKey != key)) {
         // Press key
-        activeKey = key;
-        activeKey->setDownState(true);
-        KeyEvent pressEvent = keyToKeyEvent(*activeKey, QEvent::KeyPress);
+        tpi.activeKey = key;
+        tpi.activeKey->setDownState(true);
+        KeyEvent pressEvent = keyToKeyEvent(*tpi.activeKey, QEvent::KeyPress);
         emit keyPressed(pressEvent);
+    }
+}
+
+void KeyButtonArea::clearActiveKeys()
+{
+    for (int i = 0; i < touchPoints.count(); ++i) {
+        setActiveKey(0, touchPoints[i]);
+    }
+}
+
+void KeyButtonArea::click(const IKeyButton *key)
+{
+    if (!key->isDeadKey()) {
+        KeyEvent clickEvent = keyToKeyEvent(*key, QEvent::KeyRelease);
+
+        unlockDeadkeys();
+
+        // Check if we need to disable accurate mode
+        accurateCheckContent(key->label());
+
+        emit keyClicked(clickEvent);
+    } else {
+        clickAtDeadkey(key);
+        update();
     }
 }
 
@@ -433,9 +340,175 @@ void KeyButtonArea::ungrabMouseEvent(QEvent */*event*/)
     // Make sure popup is hidden even if mouse grab
     // is lost without mouse release event.
     popup->hidePopup();
+}
 
-    // Release any key we have currently active
-    setActiveKey(0);
+bool KeyButtonArea::sceneEvent(QEvent *event)
+{
+    if (event->type() == QEvent::TouchBegin
+        || event->type() == QEvent::TouchUpdate
+        || event->type() == QEvent::TouchEnd) {
+        QTouchEvent *touch = static_cast<QTouchEvent*>(event);
+
+        if (event->type() == QEvent::TouchBegin) {
+            touchPoints.clear();
+        }
+
+        foreach (const QTouchEvent::TouchPoint &tp, touch->touchPoints()) {
+
+            switch (tp.state()) {
+            case Qt::TouchPointPressed:
+                touchPointPressed(tp.pos().toPoint(), tp.id());
+                break;
+            case Qt::TouchPointMoved:
+                touchPointMoved(tp.pos().toPoint(), tp.id());
+                break;
+            case Qt::TouchPointReleased:
+                touchPointReleased(tp.pos().toPoint(), tp.id());
+                break;
+            default:
+                break;
+            }
+        }
+
+        return true;
+    }
+
+    return MWidget::sceneEvent(event);
+}
+
+void KeyButtonArea::touchPointPressed(const QPoint &pos, int id)
+{
+    newestTouchPointId = id;
+
+    // Create new TouchPointInfo structure and overwrite any previous one.
+    touchPoints[id] = TouchPointInfo();
+    TouchPointInfo &tpi = touchPoints[id];
+    tpi.pos = pos;
+    tpi.initialPos = pos;
+
+    // Reset flick check.
+    flicked = false;
+    flickTimer->start();
+
+    // Reset long-press check.
+    longPressTimer->start();
+
+    IKeyButton *key = keyAt(pos);
+    if (!key) {
+        return;
+    }
+
+    mTimestamp("KeyButtonArea", key->label());
+
+    tpi.initialKey = key;
+    tpi.fingerInsideArea = true;
+
+    if (accurateMode) {
+        // Stop accurate mode if pressed key makes accurate mode irrelevant
+        accurateCheckContent(key->label());
+
+        // Check if accurate mode is still on.
+        // Show popup in accurate mode.
+        if (accurateMode && usePopup) {
+            updatePopup(pos, key);
+        }
+    }
+
+    setActiveKey(key, tpi);
+}
+
+void KeyButtonArea::touchPointMoved(const QPoint &pos, int id)
+{
+    TouchPointInfo &tpi = touchPoints[id];
+
+    if (!isObservableMove(tpi.pos, pos))
+        return;
+
+    tpi.pos = pos;
+
+    // Check if finger is on a key.
+    IKeyButton *key = keyAt(pos);
+    if (key) {
+        tpi.fingerInsideArea = true;
+
+        if ((tpi.activeKey != key) && accurateMode && feedbackPlayer) {
+            // Finger has slid from a key to an adjacent one.
+            feedbackPlayer->play(MFeedbackPlayer::Press);
+        }
+
+        // If popup is visible, always update the position,
+        // even if accurate mode is not enabled. This is for
+        // Sym view, who doesn't care about accurate mode.
+        if (usePopup && (accurateMode || popup->isPopupVisible())) {
+            updatePopup(pos, key);
+        }
+
+        if (tpi.activeKey != key) {
+            // Use has to keep finger still to generate long press.
+            // isObservableMove() makes this task easier for the user.
+            if (longPressTimer->isActive())
+                longPressTimer->start();
+        }
+    } else {
+        if (tpi.fingerInsideArea && accurateMode && feedbackPlayer) {
+            feedbackPlayer->play(MFeedbackPlayer::Cancel);
+        }
+        // Finger has slid off the keys
+        if (tpi.fingerInsideArea) {
+            popup->hidePopup();
+        }
+
+        longPressTimer->stop();
+        tpi.fingerInsideArea = false;
+    }
+
+    setActiveKey(key, tpi);
+}
+
+void KeyButtonArea::touchPointReleased(const QPoint &pos, int id)
+{
+    TouchPointInfo &tpi = touchPoints[id];
+    tpi.pos = pos;
+    tpi.fingerInsideArea = false;
+
+    // No more long-press triggerings, although would still be possible to make
+    // with another touch point.
+    longPressTimer->stop();
+
+    // Same thing here, hide popup although otherwise could be shown on
+    // another touch point.
+    popup->hidePopup();
+
+    // Stop flick timer but save current state first.
+    const bool flickTimerWasActive = flickTimer->isActive();
+    flickTimer->stop();
+
+    IKeyButton *key = keyAt(pos);
+
+    if (key) {
+        mTimestamp("KeyButtonArea", key->label());
+
+        // It's presumably possible that we're getting this release event on top
+        // of another after press event (of another key) without first getting a
+        // move event (or at least such move event that we handle).  Which means
+        // that we must send release event for the previous key and press event
+        // for this key before sending release and clicked events for this key.
+        setActiveKey(key, tpi); // in most cases, does nothing
+        setActiveKey(0, tpi); // release key
+
+        // Check if keyboard was flicked or
+        // release happens fast and far enough from the start.
+        // If so, then skip click.
+        // Altough we associate flick gesture with the newest touch point
+        // it can still mistrigger because sometimes, when clicked nearly
+        // simultaneously, we receive a single move between two pressed points.
+        if ((id != newestTouchPointId)
+            || !(flicked || (flickTimerWasActive && flickCheck()))) {
+            click(key);
+        }
+    } else {
+        setActiveKey(0, tpi);
+    }
 }
 
 void
@@ -461,10 +534,16 @@ KeyButtonArea::unlockDeadkeys()
     }
 }
 
+void KeyButtonArea::setMultiTouch(bool enable)
+{
+    enableMultiTouch = enable;
+    setAcceptTouchEvents(enable);
+}
+
 void KeyButtonArea::popupStart()
 {
-    if (usePopup) {
-        updatePopup(pointerPos);
+    if (usePopup && touchPoints.contains(newestTouchPointId)) {
+        updatePopup(touchPoints[newestTouchPointId].pos);
     }
 }
 
@@ -520,14 +599,15 @@ void KeyButtonArea::drawReactiveAreas(MReactionMap */*reactionMap*/, QGraphicsVi
 bool
 KeyButtonArea::flickCheck()
 {
-    if (flicked)
+    if (flicked || !touchPoints.contains(newestTouchPointId))
         return false;
 
-    bool res = false;
-    QPointF diff = flickStartPos - pointerPos;
+    TouchPointInfo &flickedPoint = touchPoints[newestTouchPointId];
 
-    if (diff.y() > -FlickLeftRightVerticalThreshold &&
-            diff.y() < FlickLeftRightVerticalThreshold) {
+    bool res = false;
+    QPoint diff = flickedPoint.initialPos - flickedPoint.pos;
+
+    if (qAbs(diff.y()) < FlickLeftRightVerticalThreshold) {
         if (diff.x() > FlickLeftRightHorizontalThreshold) {
             res = true;
             emit flickLeft();
@@ -535,16 +615,15 @@ KeyButtonArea::flickCheck()
             res = true;
             emit flickRight();
         }
-    } else if (diff.x() > - FlickDownThreshold && diff.x() < FlickDownThreshold) {
+    } else if (qAbs(diff.x()) < FlickDownThreshold) {
         if (diff.y() < - FlickDownThreshold) {
             res = true;
             emit flickDown();
         } else if (diff.y() > FlickUpThreshold) {
             const KeyBinding *binding = 0;
             res = true;
-            if (flickedKey) {
-                binding = &flickedKey->binding();
-                flickedKey = 0;
+            if (flickedPoint.initialKey) {
+                binding = &flickedPoint.initialKey->binding();
             }
             emit flickUp(binding);
         }
@@ -613,4 +692,13 @@ void KeyButtonArea::updateButtonModifiers()
 void KeyButtonArea::modifiersChanged(bool /*shift*/, const QChar /*accent*/)
 {
     // Empty default implementation
+}
+
+KeyButtonArea::TouchPointInfo::TouchPointInfo()
+    : fingerInsideArea(false),
+      activeKey(0),
+      initialKey(0),
+      initialPos(),
+      pos()
+{
 }
