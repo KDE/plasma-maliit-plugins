@@ -205,7 +205,6 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
         shiftShiftCapsLock = true;
         latchModifiers(FnModifierMask | ShiftMask, 0);
         lockModifiers(FnModifierMask | LockMask, LockMask);
-        eaten = false;
     } else {
         eaten = !passKeyOnPress(keyCode, text, nativeScanCode);
 
