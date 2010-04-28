@@ -33,6 +33,7 @@
 #include <QDir>
 #include <QGraphicsLayout>
 #include <QGraphicsSceneMouseEvent>
+#include <QTouchEvent>
 
 namespace
 {
@@ -40,6 +41,8 @@ namespace
 }
 
 Q_DECLARE_METATYPE(KeyEvent);
+Q_DECLARE_METATYPE(IKeyButton*);
+Q_DECLARE_METATYPE(const IKeyButton*);
 
 typedef KeyButtonArea *(*KBACreator)(MVirtualKeyboardStyleContainer *styleContainer,
                                      QSharedPointer<const LayoutSection> section,
@@ -82,6 +85,8 @@ void Ut_KeyButtonArea::initTestCase()
     style->initialize("MVirtualKeyboard", "MVirtualKeyboardView", 0);
 
     qRegisterMetaType<KeyEvent>();
+    qRegisterMetaType<const IKeyButton*>();
+    qRegisterMetaType<IKeyButton*>();
 
     new MPlainWindow; // Create singleton
 }
@@ -727,6 +732,92 @@ void Ut_KeyButtonArea::testShiftCapsLock()
 
     subject->setShiftStatus(true, false);
     QVERIFY(shiftButton->state() == IKeyButton::Normal);
+}
+
+void Ut_KeyButtonArea::testMultiTouch()
+{
+    keyboard = new KeyboardData;
+    QVERIFY(keyboard->loadNokiaKeyboard("en.xml"));
+    const LayoutData *layout = keyboard->layout(LayoutData::General, M::Landscape);
+    QVERIFY(layout);
+    QSharedPointer<const LayoutSection> functionRowSection = layout->section(LayoutData::mainSection);
+
+    subject = createSingleWidgetKeyButtonArea(style, functionRowSection,
+                                              KeyButtonArea::ButtonSizeFunctionRow,
+                                              false, 0);
+    MPlainWindow::instance()->scene()->addItem(subject);
+    subject->resize(defaultLayoutSize());
+
+    const IKeyButton *key0 = keyAt(0, 0);
+    const IKeyButton *key1 = keyAt(1, 0);
+    const IKeyButton *key2 = keyAt(0, 1);
+
+    QVERIFY(key0);
+    QVERIFY(key1);
+    QVERIFY(key2);
+
+    QSignalSpy pressed(subject, SIGNAL(keyPressed(const KeyEvent&)));
+    QSignalSpy released(subject, SIGNAL(keyReleased(const KeyEvent&)));
+    QSignalSpy clicked(subject, SIGNAL(keyClicked(const KeyEvent&)));
+
+    const QPoint pos0 = key0->buttonRect().center();
+    const QPoint pos1 = key1->buttonRect().center();
+    const QPoint pos2 = key2->buttonRect().center();
+
+    /*
+     * Verify following conditions:
+     * 1) signals are emitted in correct order
+     * 2) every signal corresponds to correct key
+     */
+    subject->touchPointPressed(pos0, 0);
+    QCOMPARE(pressed.count(), 1);
+    QVERIFY(pressed.at(0).first().value<const IKeyButton*>() == key0);
+    QCOMPARE(released.count(), 0);
+    QCOMPARE(clicked.count(), 0);
+
+    subject->touchPointPressed(pos1, 1);
+    QCOMPARE(pressed.count(), 2);
+    QVERIFY(pressed.at(1).first().value<const IKeyButton*>() == key1);
+    QCOMPARE(released.count(), 0);
+    QCOMPARE(clicked.count(), 0);
+
+    subject->touchPointReleased(pos0, 0);
+    subject->touchPointReleased(pos1, 1);
+    QCOMPARE(pressed.count(), 2);
+    QCOMPARE(released.count(), 2);
+    QVERIFY(released.at(0).first().value<const IKeyButton*>() == key0);
+    QVERIFY(released.at(1).first().value<const IKeyButton*>() == key1);
+    QCOMPARE(clicked.count(), 2);
+    QVERIFY(clicked.at(0).first().value<const IKeyButton*>() == key0);
+    QVERIFY(clicked.at(1).first().value<const IKeyButton*>() == key1);
+
+    pressed.clear();
+    released.clear();
+    clicked.clear();
+
+    // Verify if could click on some keys while other key is pressed
+    subject->touchPointPressed(pos0, 0);
+    subject->touchPointPressed(pos1, 1);
+    subject->touchPointReleased(pos0, 0);
+    subject->touchPointPressed(pos2, 0);
+    subject->touchPointReleased(pos2, 0);
+    subject->touchPointReleased(pos1, 1);
+
+    QCOMPARE(pressed.count(), 3);
+    QCOMPARE(released.count(), 3);
+    QCOMPARE(clicked.count(), 3);
+
+    QVERIFY(pressed.at(0).first().value<const IKeyButton*>() == key0);
+    QVERIFY(pressed.at(1).first().value<const IKeyButton*>() == key1);
+    QVERIFY(pressed.at(2).first().value<const IKeyButton*>() == key2);
+
+    QVERIFY(released.at(0).first().value<const IKeyButton*>() == key0);
+    QVERIFY(released.at(1).first().value<const IKeyButton*>() == key2);
+    QVERIFY(released.at(2).first().value<const IKeyButton*>() == key1);
+
+    QVERIFY(clicked.at(0).first().value<const IKeyButton*>() == key0);
+    QVERIFY(clicked.at(1).first().value<const IKeyButton*>() == key2);
+    QVERIFY(clicked.at(2).first().value<const IKeyButton*>() == key1);
 }
 
 void Ut_KeyButtonArea::changeOrientation(M::OrientationAngle angle)

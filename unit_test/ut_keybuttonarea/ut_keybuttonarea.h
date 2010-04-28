@@ -67,6 +67,7 @@ private slots:
     void testFunctionRowAlignmentBug_data();
     void testFunctionRowAlignmentBug();
     void testShiftCapsLock();
+    void testMultiTouch();
 
 private:
     void changeOrientation(M::OrientationAngle angle);
