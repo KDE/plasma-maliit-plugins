@@ -1,11 +1,15 @@
-meego-keyboard (0.4.1~1) unstable; urgency=low
+meego-keyboard (0.4.1-1) unstable; urgency=low
 
-  * Unreleased version
+  * Fixed NB#164286, NB#162525,
+  * Implemented SWP#TINME-790, SWP#TINME-810, SWP#TINME-821, SWP#TINME-820, SWP#TINME-463
   * Enhanced styling of secondary labels
   * Implemented plugin switch request
   * Arabic and russian number keyboard layouts
+  * Adapted to meegoreactionmap renaming
+  * Implemented updating toolbar buttons
+  * Implemented hw long press
 
- -- Pekka Vuorela <pekka.ta.vuorela@nokia.com>  Fri, 16 Apr 2010 10:33:48 +0300
+ -- Pekka Vuorela <pekka.ta.vuorela@nokia.com>  Wed, 28 Apr 2010 13:25:44 +0300
 
 meego-keyboard (0.4.0-1) unstable; urgency=low
 
