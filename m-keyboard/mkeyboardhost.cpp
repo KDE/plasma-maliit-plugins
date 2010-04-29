@@ -790,7 +790,13 @@ void MKeyboardHost::handleGeneralKeyClick(const KeyEvent &event)
     if (event.qtKey() == Qt::Key_Shift) {
         switch (vkbWidget->shiftStatus()) {
         case MVirtualKeyboard::ShiftOn:
-            vkbWidget->setShiftState(MVirtualKeyboard::ShiftLock);
+            // If current ShiftOn state is due to autocaps, go back to ShiftOff.
+            // Otherwise, lock it.
+            if (upperCase) {
+                vkbWidget->setShiftState(MVirtualKeyboard::ShiftOff);
+            } else {
+                vkbWidget->setShiftState(MVirtualKeyboard::ShiftLock);
+            }
             break;
         case MVirtualKeyboard::ShiftOff:
             vkbWidget->setShiftState(MVirtualKeyboard::ShiftOn);
