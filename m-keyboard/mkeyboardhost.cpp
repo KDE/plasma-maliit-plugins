@@ -784,9 +784,12 @@ void MKeyboardHost::handleGeneralKeyClick(const KeyEvent &event)
             break;
         }
     } else if (vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn
-               && (event.qtKey() != Qt::Key_Backspace)) {
+               && (event.qtKey() != Qt::Key_Backspace)
+               && (event.specialKey() != KeyEvent::Sym)) {
         // Any key except shift toggles shift off if it's on (not locked).
-        // backspace toggles shift off is handled in doBackspace().
+        // Exceptions are:
+        // - backspace, toggles shift off is handled in doBackspace()
+        // - sym, pressing sym key keeps current shift state
         vkbWidget->setShiftState(MVirtualKeyboard::ShiftOff);
     }
 
