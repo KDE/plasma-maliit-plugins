@@ -190,7 +190,6 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
     bool eaten = false;
     pressedKeys.insert(nativeScanCode, true);
 
-    // TODO: arrow keys
     if (keyCode == SymKey) {
         characterLoopIndex = -1;
     } else if ((keyCode == Qt::Key_Delete) && (currentLatchedMods & ShiftMask)
@@ -199,6 +198,21 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
             QKeyEvent(QEvent::KeyPress, Qt::Key_Backspace,
                       modifiers & ~Qt::KeyboardModifiers(Qt::ShiftModifier),
                       "\b", autoRepeat, count));
+        eaten = true;
+    }
+    // MTextEdit implements shift+arrow-key selection by simply looking at the shift
+    // modifier in key events it gets.  However, shift+arrow-key is specified to work only
+    // when shift is held down and shift modifier can be on even when shift is not held
+    // down, namely when shift is latched.  It would be tricky for MTextEdit to track
+    // shift [not] pressed state across MTextEdit instances so we work around the
+    // situation by removing shift modifer when shift is latched but not pressed.
+    else if (((keyCode == Qt::Key_Left) || (keyCode == Qt::Key_Right) || (keyCode == Qt::Key_Up)
+              || (keyCode == Qt::Key_Down))
+             && (currentLatchedMods & ShiftMask) && !shiftsPressed) {
+        inputContextConnection.sendKeyEvent(
+            QKeyEvent(QEvent::KeyPress, keyCode,
+                      modifiers & ~Qt::KeyboardModifiers(Qt::ShiftModifier),
+                      text, autoRepeat, count));
         eaten = true;
     } else if ((keyCode == Qt::Key_Shift) && (++shiftsPressed == 2)
                && !stateTransitionsDisabled) {
