@@ -317,6 +317,9 @@ QString MHardwareKeyboard::keycodeToString(unsigned int keycode, unsigned int sh
     const unsigned int group(0);
     KeySym keySym(XkbKeycodeToKeysym(QX11Info::display(), static_cast<KeyCode>(keycode),
                                      group, shiftLevel));
+    if (keySym == NoSymbol) {
+        return QString();
+    }
     const int stringBufferSize(8);
     char stringBuffer[stringBufferSize];
     int stringBufferOverflow;
