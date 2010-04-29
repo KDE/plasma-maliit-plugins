@@ -85,10 +85,12 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
       correctionEnabled(false),
       feedbackPlayer(0),
       autoCapsEnabled(true),
+      upperCase(false),
       cursorPos(-1),
       inputMethodMode(M::InputMethodModeNormal),
       backSpaceTimer(this),
       multitapIndex(0),
+      shiftHeldDown(false),
       activeState(OnScreen),
       modifierLockOnInfoBanner(0),
       modifierLockOnTimer(this),
@@ -425,6 +427,8 @@ void MKeyboardHost::updateShiftState()
     if (!autoCapsEnabled)
         return;
 
+    upperCase = false;
+
     // TODO: consider RTL language case
     // Capitalization is determined by preedit and Auto Capitalization.
     // If there are some preedit, it should be lower case.
@@ -432,13 +436,15 @@ void MKeyboardHost::updateShiftState()
     //   1. at the beginning of one paragraph
     //   2. after a sentence delimiter and one or more spaces
     static const QRegExp autoCapsTrigger("[" + AutoCapsSentenceDelimiters + "] +$");
-    const bool upperCase = ((preedit.length() == 0)
-                            && ((cursorPos == 0)
-                                || ((cursorPos > 0)
-                                    && (cursorPos <= surroundingText.length())
-                                    && surroundingText.left(cursorPos).contains(autoCapsTrigger))));
+    upperCase = ((preedit.length() == 0)
+                 && ((cursorPos == 0)
+                     || ((cursorPos > 0)
+                         && (cursorPos <= surroundingText.length())
+                         && surroundingText.left(cursorPos).contains(autoCapsTrigger))));
 
-    if ((activeState == OnScreen) && (vkbWidget->shiftStatus() != MVirtualKeyboard::ShiftLock)) {
+    if ((activeState == OnScreen)
+        && (vkbWidget->shiftStatus() != MVirtualKeyboard::ShiftLock)
+        && !((shiftHeldDown && (vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn)))) {
         vkbWidget->setShiftState(upperCase ?
                                  MVirtualKeyboard::ShiftOn : MVirtualKeyboard::ShiftOff);
     } else if ((activeState == Hardware) &&
@@ -688,6 +694,10 @@ void MKeyboardHost::autoBackspace()
 
 void MKeyboardHost::handleKeyPress(const KeyEvent &event)
 {
+    if (event.qtKey() == Qt::Key_Shift) {
+        shiftHeldDown = true;
+    }
+
     if (((inputMethodMode == M::InputMethodModeDirect)
          && (event.specialKey() == KeyEvent::NotSpecial))
         || (event.qtKey() == Qt::Key_plusminus)) { // plusminus key makes an exception
@@ -701,6 +711,10 @@ void MKeyboardHost::handleKeyPress(const KeyEvent &event)
 
 void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
 {
+    if (event.qtKey() == Qt::Key_Shift) {
+        shiftHeldDown = false;
+    }
+
     if (((inputMethodMode == M::InputMethodModeDirect)
          && (event.specialKey() == KeyEvent::NotSpecial))
         || (event.qtKey() == Qt::Key_plusminus)) { // plusminus key makes an exception
@@ -787,11 +801,13 @@ void MKeyboardHost::handleGeneralKeyClick(const KeyEvent &event)
         }
     } else if (vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn
                && (event.qtKey() != Qt::Key_Backspace)
-               && (event.specialKey() != KeyEvent::Sym)) {
+               && (event.specialKey() != KeyEvent::Sym)
+               && (!shiftHeldDown || upperCase)) {
         // Any key except shift toggles shift off if it's on (not locked).
         // Exceptions are:
         // - backspace, toggles shift off is handled in doBackspace()
         // - sym, pressing sym key keeps current shift state
+        // - shift, when held down don't bring level down, except with autocaps!
         vkbWidget->setShiftState(MVirtualKeyboard::ShiftOff);
     }
 

@@ -255,6 +255,8 @@ private:
 
     //! FIXME: should we provide such a flag to on/off auto caps
     bool autoCapsEnabled;
+    //! Contains true if autocapitalization decides to switch keyboard to upper case
+    bool upperCase;
     QString surroundingText;
     int cursorPos;
 
@@ -265,6 +267,9 @@ private:
     KeyEvent lastClickEvent;
     QTime lastClickEventTime;
     unsigned int multitapIndex;
+
+    //! Keeps track of shift up/down status.
+    bool shiftHeldDown;
 
     MSceneWindow *sceneWindow;
 #ifdef M_IM_DISABLE_TRANSLUCENCY
