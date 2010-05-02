@@ -409,7 +409,7 @@ void KeyButtonArea::touchPointPressed(const QPoint &pos, int id)
 
         // Check if accurate mode is still on.
         // Show popup in accurate mode.
-        if (accurateMode && usePopup) {
+        if (accurateMode && usePopup && (id == newestTouchPointId)) {
             updatePopup(pos, key);
         }
     }
@@ -439,7 +439,9 @@ void KeyButtonArea::touchPointMoved(const QPoint &pos, int id)
         // If popup is visible, always update the position,
         // even if accurate mode is not enabled. This is for
         // Sym view, who doesn't care about accurate mode.
-        if (usePopup && (accurateMode || popup->isPopupVisible())) {
+        if (usePopup
+            && (id == newestTouchPointId)
+            && (accurateMode || popup->isPopupVisible())) {
             updatePopup(pos, key);
         }
 
@@ -454,7 +456,7 @@ void KeyButtonArea::touchPointMoved(const QPoint &pos, int id)
             feedbackPlayer->play(MFeedbackPlayer::Cancel);
         }
         // Finger has slid off the keys
-        if (tpi.fingerInsideArea) {
+        if (tpi.fingerInsideArea && (id == newestTouchPointId)) {
             popup->hidePopup();
         }
 
@@ -477,7 +479,9 @@ void KeyButtonArea::touchPointReleased(const QPoint &pos, int id)
 
     // Same thing here, hide popup although otherwise could be shown on
     // another touch point.
-    popup->hidePopup();
+    if (id == newestTouchPointId) {
+        popup->hidePopup();
+    }
 
     // Stop flick timer but save current state first.
     const bool flickTimerWasActive = flickTimer->isActive();
