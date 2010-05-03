@@ -35,6 +35,8 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QTouchEvent>
 
+#include <algorithm>
+
 namespace
 {
     const int LongPressTime = 1000; // same as in keybuttonarea.cpp
@@ -280,63 +282,34 @@ void Ut_KeyButtonArea::testFlickCheck()
     MPlainWindow::instance()->scene()->addItem(subject);
     subject->resize(defaultLayoutSize());
 
-    QList<QPoint> positions;
-    QList<int> left;
-    QList<int> right;
-    QList<int> down;
-    QList<int> up;
-    QList<bool> outcome;
-    QSignalSpy spyLeft(subject, SIGNAL(flickLeft()));
-    QSignalSpy spyRight(subject, SIGNAL(flickRight()));
-    QSignalSpy spyDown(subject, SIGNAL(flickDown()));
-    QSignalSpy spyUp(subject, SIGNAL(flickUp(const KeyBinding *)));
-    bool result;
+    PointList noSwipe;
+    noSwipe << QPoint(300, 0) << QPoint(0, 0);
+    recognizeGesture(noSwipe, NoGesture);
 
-    QVERIFY(spyLeft.isValid());
-    QVERIFY(spyRight.isValid());
-    QVERIFY(spyDown.isValid());
-    QVERIFY(spyUp.isValid());
+    PointList leftSwipe0;
+    leftSwipe0 << QPoint(300, 0) << QPoint(250, 0) << QPoint(200, 0)
+               << QPoint(150, 0) << QPoint(100, 0) << QPoint(50, 0)
+               << QPoint(0, 0);
+    recognizeGesture(leftSwipe0, SwipeLeftGesture);
+    recognizeGesture(reversed(leftSwipe0), SwipeRightGesture);
 
-    positions << QPoint(0, 0)
-              << QPoint(25, 25)
-              << QPoint(75, 75)
-              << QPoint(25, -75)
-              << QPoint(-75, 5)
-              << QPoint(75, 5)
-              << QPoint(0, 75);
-    left  << 0 << 0 << 0 << 0 << 0 << 1 << 0;
-    right << 0 << 0 << 0 << 0 << 1 << 0 << 0;
-    down  << 0 << 0 << 0 << 1 << 0 << 0 << 0;
-    up    << 0 << 0 << 0 << 0 << 0 << 0 << 1;
-    outcome << false << false << false
-            << true << true << true
-            << true;
+    PointList leftSwipe1;
+    leftSwipe1 << QPoint(400, 0) << QPoint(500, 0) << QPoint(500, 500)
+               << QPoint(0, 500) << QPoint(200, 0) << QPoint(0, 50)
+               << QPoint(0, 0);
+    recognizeGesture(leftSwipe1, SwipeLeftGesture);
+    recognizeGesture(reversed(leftSwipe1), SwipeRightGesture);
 
-    QVERIFY(positions.count() == outcome.count());
-    QVERIFY(positions.count() == left.count());
-    const QPoint finalPosition = QPoint(0, 0);
+    PointList downSwipe; // The logic probably looks a bit odd here ...
+    downSwipe << QPoint(0, 0) << QPoint(0, 200) << QPoint(0, 400) << QPoint(0, 600);
+    recognizeGesture(downSwipe, SwipeDownGesture);
+    recognizeGesture(reversed(downSwipe), NoGesture); // No key set - can't swipe up ...
 
-    for (int n = 0; n < positions.count(); ++n) {
-        spyLeft.clear();
-        spyRight.clear();
-        spyDown.clear();
-        spyUp.clear();
-        qDebug() << "test position" << positions.at(n);
-        subject->touchPointPressed(positions.at(n), 0);
-        subject->touchPointMoved(finalPosition, 0);
 
-        result = subject->flickCheck();
-
-        qDebug() << " - result: " << result;
-        qDebug() << " - down count: " << spyDown.count();
-        qDebug() << " -   up count: " << spyUp.count();
-
-        QCOMPARE(result, outcome.at(n));
-        QCOMPARE(spyLeft.count(), left.at(n));
-        QCOMPARE(spyRight.count(), right.at(n));
-        QCOMPARE(spyDown.count(), down.at(n));
-        QCOMPARE(spyUp.count(), up.at(n));
-    }
+    PointList conflictingSwipe;
+    conflictingSwipe << QPoint(0, 0) << QPoint(0, 100) << QPoint(0, 200) << QPoint(400, 400)
+                     << QPoint(400, 400);
+    recognizeGesture(conflictingSwipe, NoGesture);
 }
 
 void Ut_KeyButtonArea::testSceneEvent_data()
@@ -358,7 +331,6 @@ void Ut_KeyButtonArea::testSceneEvent()
                         false, 0);
     MPlainWindow::instance()->scene()->addItem(subject);
     subject->resize(defaultLayoutSize());
-    subject->setMultiTouch(false);
 
     QGraphicsSceneMouseEvent *press = new QGraphicsSceneMouseEvent(QEvent::GraphicsSceneMousePress);
     QGraphicsSceneMouseEvent *release = new QGraphicsSceneMouseEvent(QEvent::GraphicsSceneMouseRelease);
@@ -862,5 +834,36 @@ const IKeyButton *Ut_KeyButtonArea::keyAt(unsigned int row, unsigned int column)
     return key;
 }
 
+void Ut_KeyButtonArea::recognizeGesture(const PointList &pl, GestureType gt, int touchPointId)
+{
+    QSignalSpy leftSwipeSpy(subject, SIGNAL(flickLeft()));
+    QSignalSpy rightSwipeSpy(subject, SIGNAL(flickRight()));
+    QSignalSpy upSwipeSpy(subject, SIGNAL(flickUp(KeyBinding)));
+    QSignalSpy downSwipeSpy(subject, SIGNAL(flickDown()));
 
+    subject->touchPointPressed(pl[0], touchPointId);
+
+    for (int n = 1; n < pl.count() - 1; ++n) {
+        subject->touchPointMoved(pl[n], touchPointId);
+    }
+
+    subject->touchPointReleased(pl[pl.count() - 1], touchPointId);
+
+    qDebug() << "gesture type = " << gt;
+    QCOMPARE(leftSwipeSpy.count(),
+             gt == SwipeLeftGesture ? 1 : 0);
+    QCOMPARE(rightSwipeSpy.count(),
+             gt == SwipeRightGesture ? 1 : 0);
+    QCOMPARE(upSwipeSpy.count(),
+             gt == SwipeUpGesture ? 1 : 0);
+    QCOMPARE(downSwipeSpy.count(),
+             gt == SwipeDownGesture ? 1 : 0);
+}
+
+
+Ut_KeyButtonArea::PointList Ut_KeyButtonArea::reversed(const PointList &in) const {
+    PointList result;
+    std::reverse_copy(in.begin(), in.end(), std::back_inserter(result));
+    return result;
+}
 QTEST_APPLESS_MAIN(Ut_KeyButtonArea);

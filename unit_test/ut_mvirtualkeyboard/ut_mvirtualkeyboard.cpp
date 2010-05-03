@@ -871,10 +871,10 @@ void Ut_MVirtualKeyboard::flickUpHandlerTest()
     QSignalSpy spy(m_vkb, SIGNAL(showSymbolViewRequested()));
     QVERIFY(spy.isValid());
 
-    m_vkb->flickUpHandler(0);
+    m_vkb->flickUpHandler(KeyBinding());
     QCOMPARE(spy.count(), 0);
 
-    m_vkb->flickUpHandler(&binding);
+    m_vkb->flickUpHandler(binding);
     QCOMPARE(spy.count(), expected);
 }
 

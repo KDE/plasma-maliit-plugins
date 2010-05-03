@@ -70,8 +70,21 @@ private slots:
     void testMultiTouch();
 
 private:
+    enum GestureType {
+        NoGesture = 0,
+        SwipeLeftGesture = 1,
+        SwipeRightGesture = 2,
+        SwipeUpGesture = 3,
+        SwipeDownGesture = 4
+    };
+
+    typedef QList<QPoint> PointList;
+
     void changeOrientation(M::OrientationAngle angle);
     QSize defaultLayoutSize();
+    void recognizeGesture(const PointList &pl, GestureType gt, int touchPointId = 0);
+    PointList reversed(const PointList &in) const;
+
     const IKeyButton *keyAt(unsigned int row, unsigned int column) const;
 };
 
