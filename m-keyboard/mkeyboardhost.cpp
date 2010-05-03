@@ -402,28 +402,32 @@ void MKeyboardHost::updateShiftState()
     if (!autoCapsEnabled)
         return;
 
-    bool autoCaps = false;
+    bool upperCase = false;
     QString preText;
 
     // TODO: consider RTL language case
-    // Auto Capitalization will turn on shift when (text entry capitalization option is ON):
+    // Capitalization is determined by preedit and Auto Capitalization.
+    // If there are some preedit, it should be lower case.
+    // Otherwise Auto Capitalization will turn on shift when (text entry capitalization option is ON):
     //   1. at the beginning of one paragraph
     //   2. after one space adjoin delimiters
-    if (cursorPos == 0) {
-        autoCaps = true;
+    if (preedit.length() > 0) {
+        upperCase = false;
+    } else if (cursorPos == 0) {
+        upperCase = true;
     } else if ((cursorPos > 0) && (cursorPos <= surroundingText.length())) {
         preText = surroundingText.left(cursorPos);
-        autoCaps = ((preText.length() >= 2)
-                    && (preText.at(preText.length() - 1) == QChar(' '))
-                    && AutocapsTrigger.contains(preText.at(preText.length() - 2)));
+        upperCase = ((preText.length() >= 2)
+                     && (preText.at(preText.length() - 1) == QChar(' '))
+                     && AutocapsTrigger.contains(preText.at(preText.length() - 2)));
     }
 
     if ((activeState == OnScreen) && (vkbWidget->shiftStatus() != MVirtualKeyboard::ShiftLock)) {
-        vkbWidget->setShiftState(autoCaps ?
+        vkbWidget->setShiftState(upperCase ?
                                  MVirtualKeyboard::ShiftOn : MVirtualKeyboard::ShiftOff);
     } else if ((activeState == Hardware) &&
                (hardwareKeyboard->modifierState(Qt::ShiftModifier) != ModifierLockedState)) {
-        hardwareKeyboard->setAutoCapitalization(autoCaps);
+        hardwareKeyboard->setAutoCapitalization(upperCase);
     }
 }
 

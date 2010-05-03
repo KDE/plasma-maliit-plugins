@@ -428,6 +428,13 @@ void Ut_MKeyboardHost::testAutoCaps()
     subject->handleKeyClick(release);
     QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOff);
 
+    // If there are some preedit, capitalization should be off.
+    subject->preedit = "Test";
+    inputContext->cursorPos = 0;
+    subject->update();
+    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOff);
+
+    subject->preedit = "";
     inputContext->cursorPos = 0;
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn);
