@@ -64,6 +64,17 @@ public:
     //! Set auto capitalization state.
     void setAutoCapitalization(bool state);
 
+    /*! \brief Notify hardware keyboard about changed focus
+     *
+     *  From the point of view of MHardwareKeyboard focus leaves a widget also when host's
+     *  state is changed from Hardware to OnScreen.  If focus enters a widget while host's
+     *  state is OnScreen, MHardwareKeyboard won't be informed unless state changes from
+     *  OnScreen to Hardware.
+     *
+     *  \param focusIn true - focus has entered a widget, false - focus has left a widget
+     */
+    void focusChanged(bool focusIn);
+
     /*! \brief Reset internal state of the hardware keyboard code.
      * \post modifiers in clear state
      */

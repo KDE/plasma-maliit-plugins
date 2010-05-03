@@ -90,7 +90,8 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
       multitapIndex(0),
       activeState(OnScreen),
       modifierLockOnInfoBanner(0),
-      modifierLockOnTimer(this)
+      modifierLockOnTimer(this),
+      haveFocus(false)
 {
     displayHeight = MPlainWindow::instance()->visibleSceneSize(M::Landscape).height();
     displayWidth  = MPlainWindow::instance()->visibleSceneSize(M::Landscape).width();
@@ -323,6 +324,17 @@ void MKeyboardHost::createCorrectionCandidateWidget()
             this, SLOT(updatePreedit(const QString &)));
 }
 
+
+void MKeyboardHost::focusChanged(bool focusIn)
+{
+    haveFocus = focusIn;
+    if (activeState == Hardware) {
+        hardwareKeyboard->focusChanged(focusIn);
+        hideLockOnInfoBanner();
+    }
+}
+
+
 void MKeyboardHost::show()
 {
     QWidget *p = MPlainWindow::instance();
@@ -333,10 +345,7 @@ void MKeyboardHost::show()
 
     p->raise(); // make sure the window gets displayed
 
-    inputContextConnection()->setRedirectKeys(true);
-
     if (activeState == Hardware) {
-        hardwareKeyboard->reset();
         if (!hardwareKeyboard->symViewAvailable())
             symbolView->hideSymbolView();
     } else {
@@ -355,10 +364,6 @@ void MKeyboardHost::hide()
 {
     symbolView->hideSymbolView();
     vkbWidget->hideKeyboard();
-    if (activeState == Hardware) {
-        hardwareKeyboard->reset();
-        hideLockOnInfoBanner();
-    }
 }
 
 
@@ -1157,6 +1162,9 @@ void MKeyboardHost::setState(const QSet<MIMHandlerState> &state)
         hideLockOnInfoBanner();
         disconnect(hardwareKeyboard, SIGNAL(modifierStateChanged(Qt::KeyboardModifier, ModifierState)),
                    this, SLOT(handleModifierStateChanged(Qt::KeyboardModifier, ModifierState)));
+        if (haveFocus) {
+            hardwareKeyboard->focusChanged(false);
+        }
     } else {
         //TODO: this is a temporary method, should get the hw layout language, then find out the
         //language (symbol view variant) according Table 3 in HW Keyboard UI spec.
@@ -1165,6 +1173,9 @@ void MKeyboardHost::setState(const QSet<MIMHandlerState> &state)
         if (activeState == Hardware) {
             connect(hardwareKeyboard, SIGNAL(modifierStateChanged(Qt::KeyboardModifier, ModifierState)),
                     this, SLOT(handleModifierStateChanged(Qt::KeyboardModifier, ModifierState)));
+        }
+        if (haveFocus) {
+            hardwareKeyboard->focusChanged(true);
         }
     }
 

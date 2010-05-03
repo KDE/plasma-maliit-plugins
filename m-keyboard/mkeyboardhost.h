@@ -49,6 +49,7 @@ public:
     virtual ~MKeyboardHost();
 
     //! reimp
+    virtual void focusChanged(bool focusIn);
     virtual void show();
     virtual void hide();
     virtual void setPreedit(const QString &preeditString);
@@ -282,6 +283,10 @@ private:
 
     MInfoBanner *modifierLockOnInfoBanner; //! widget to show modifier is in locked state
     QTimer modifierLockOnTimer;
+
+    //! Indicates whether focus is in a widget according to focusChanged calls
+    //! \sa focusChanged
+    bool haveFocus;
 
 #ifdef UNIT_TEST
     friend class Ut_MKeyboardHost;

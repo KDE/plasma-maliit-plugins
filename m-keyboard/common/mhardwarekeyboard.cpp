@@ -85,22 +85,44 @@ void MHardwareKeyboard::setKeyboardType(M::TextContentType type)
 }
 
 
+void MHardwareKeyboard::focusChanged(bool focusIn)
+{
+    qDebug() << __PRETTY_FUNCTION__ << ":" << focusIn;
+    if (focusIn) {
+        // TODO: this is a temporary hack until we have proper autorepeat setup
+        XAutoRepeatOff(QX11Info::display());
+
+        shiftShiftCapsLock = false;
+        shiftsPressed = 0;
+        pressedKeys.clear();
+        stateTransitionsDisabled = false;
+
+        // We reset state without using latch/lockModifiers in order to force notification
+        // (to make sure whoever is listening is in sync with us).
+        autoCaps = false;
+        currentLatchedMods = 0;
+        currentLockedMods = 0;
+        mXkb.lockModifiers(LockMask | FnModifierMask, 0);
+        mXkb.latchModifiers(ShiftMask | FnModifierMask, 0);
+        emit modifierStateChanged(Qt::ShiftModifier, ModifierClearState);
+        emit modifierStateChanged(FnLevelModifier, ModifierClearState);
+
+        inputContextConnection.setRedirectKeys(true);
+    } else {
+        inputContextConnection.setRedirectKeys(false);
+        // Unlock and unlatch everything.  If for example non-Qt X application gets focus
+        // after this focus out, there is no way to unlock Lock modifier using the
+        // physical keyboard.  So better clear the state a well as we can.
+        lockModifiers(LockMask | FnModifierMask, 0);
+        latchModifiers(ShiftMask | FnModifierMask, 0);
+        XAutoRepeatOn(QX11Info::display());
+    }
+}
+
+
 void MHardwareKeyboard::reset()
 {
     qDebug() << __PRETTY_FUNCTION__;
-    // TODO: this is a temporary hack until we have proper autorepeat setup
-    XAutoRepeatOff(QX11Info::display());
-
-    shiftShiftCapsLock = false;
-    shiftsPressed = 0;
-    pressedKeys.clear();
-    currentLatchedMods = 0;
-    currentLockedMods = 0;
-    autoCaps = false;
-    mXkb.lockModifiers(LockMask | FnModifierMask, 0);
-    mXkb.latchModifiers(ShiftMask | FnModifierMask, 0);
-    emit modifierStateChanged(Qt::ShiftModifier, ModifierClearState);
-    emit modifierStateChanged(FnLevelModifier, ModifierClearState);
 }
 
 
