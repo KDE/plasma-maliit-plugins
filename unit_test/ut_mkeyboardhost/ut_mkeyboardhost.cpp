@@ -603,7 +603,7 @@ void Ut_MKeyboardHost::testRegionSignals()
     QCOMPARE(region(spy, c1 - 1), region(spy2, 0));
     QVERIFY(!region(spy, c1 - 1).isEmpty());
 
-    // We must get another, larger region when the vkb is fully visible
+    // We must get another region when the vkb is fully visible
     QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
     ++c1;
     ++c2;
@@ -612,7 +612,6 @@ void Ut_MKeyboardHost::testRegionSignals()
     qDebug() << "Passthrough region: " << region(spy, 1);
     qDebug() << "libmeegotouch region: " << region(spy2, 1);
     QCOMPARE(region(spy, c1 - 1), region(spy2, 1));
-    QVERIFY(!(region(spy, c1 - 1) - region(spy, 0)).isEmpty());
 
     // When layout menu is shown, input method area doesn't change...
     QTimer::singleShot(LayoutMenuShowTime, subject->layoutMenu->keyboardOptionDialog, SLOT(reject()));

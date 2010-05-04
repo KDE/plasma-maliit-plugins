@@ -340,9 +340,11 @@ void MVirtualKeyboard::showKeyboard(bool fadeOnly)
     if (showHideTimeline.state() != QTimeLine::Running) {
         hideShowByFadingOnly = fadeOnly;
 
+        int regionOffset(0);
         if (!fadeOnly) {
             // vkb is positioned right below the visible area
             setPos(0, sceneManager->visibleSceneSize().height());
+            regionOffset = -actualHeight();
         } else {
             setPos(0, sceneManager->visibleSceneSize().height() - actualHeight());
         }
@@ -350,11 +352,18 @@ void MVirtualKeyboard::showKeyboard(bool fadeOnly)
         suppressRegionUpdate(true); // Don't send separate region update for imtoolbar.
         showHideTimeline.start();
         show();
-        // We need to send one initial region update to have passthruwindow make
-        // the window visible.  The final region will be sent when the animation
-        // is finished.  We do this after show() so that we can use region().
-        // We cannot use sendVKBRegion() since region updates are suppressed.
-        emit regionUpdated(region());
+
+        // We need to send one initial region update to have passthruwindow make the
+        // window visible.  We also want the scene manager to move the underlying window
+        // so that the focused widget will be visible after the show animation and we want
+        // it to do that right away, so the region we send now is (usually) the final
+        // region (i.e. what it will be after animation is finished).  Region will be sent
+        // additionally after animation is finished just in case copy button appears or
+        // something else changes during the animation.  But normally the region should be
+        // the same as the one we send now.  We do this initial region sending after
+        // show() so that we can use region().  We cannot use sendVKBRegion() since region
+        // updates are suppressed.
+        emit regionUpdated(region().translated(0, regionOffset));
     } else if (hideShowByFadingOnly) {
         // fade() doesn't alter the position when we're just fading
         setPos(0, sceneManager->visibleSceneSize().height() - actualHeight());
