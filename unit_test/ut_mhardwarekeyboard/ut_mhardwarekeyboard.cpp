@@ -14,8 +14,6 @@
  * of this file.
  */
 
-
-
 #include "ut_mhardwarekeyboard.h"
 #include "hwkbcharloopsmanager_stub.h"
 #include "mhardwarekeyboard.h"
@@ -126,7 +124,54 @@ void Ut_MHardwareKeyboard::cleanup()
 }
 
 
-// Tests.....................................................................
+// Utilities.................................................................
+
+void Ut_MHardwareKeyboard::setState(const int state) const
+{
+    switch (state) {
+    case 0:
+        break;
+    case 1:
+        filterKeyPress(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, 0);
+        filterKeyRelease(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask);
+        break;
+    case 2:
+        filterKeyPress(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, 0);
+        filterKeyRelease(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask);
+        filterKeyPress(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask);
+        filterKeyRelease(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask);
+        break;
+    case 3:
+        m_hkb->setAutoCapitalization(true);
+        break;
+    case 4:
+        filterKeyPress(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, 0);
+        filterKeyRelease(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, FnModifierMask);
+        break;
+    case 5:
+        filterKeyPress(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, 0);
+        filterKeyRelease(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, FnModifierMask);
+        filterKeyPress(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, FnModifierMask);
+        filterKeyRelease(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, FnModifierMask);
+        break;
+    }
+}
+
+bool Ut_MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers modifiers,
+                                            const QString &text,
+                                            quint32 nativeScanCode, quint32 nativeModifiers) const
+{
+    return m_hkb->filterKeyEvent(QEvent::KeyRelease, keyCode, modifiers, text, false, 1, nativeScanCode,
+                                 nativeModifiers);
+}
+
+bool Ut_MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers modifiers,
+                                          const QString &text,
+                                          quint32 nativeScanCode, quint32 nativeModifiers) const
+{
+    return m_hkb->filterKeyEvent(QEvent::KeyPress, keyCode, modifiers, text, false, 1, nativeScanCode,
+                                 nativeModifiers);
+}
 
 bool Ut_MHardwareKeyboard::checkLatchedState(const unsigned int mask, const unsigned int value) const
 {
@@ -148,6 +193,8 @@ bool Ut_MHardwareKeyboard::checkLockedState(const unsigned int mask, const unsig
         && ((m_hkb->currentLockedMods & mask) == value);
 }
 
+
+// Tests.....................................................................
 
 void Ut_MHardwareKeyboard::testBasicModifierCycles_data()
 {
@@ -465,37 +512,6 @@ void Ut_MHardwareKeyboard::testShiftShiftCapsLock_data()
     QTest::newRow("Fn locked") << 5;
 }
 
-void Ut_MHardwareKeyboard::setState(const int state) const
-{
-    switch (state) {
-    case 0:
-        break;
-    case 1:
-        filterKeyPress(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, 0);
-        filterKeyRelease(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask);
-        break;
-    case 2:
-        filterKeyPress(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, 0);
-        filterKeyRelease(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask);
-        filterKeyPress(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask);
-        filterKeyRelease(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask);
-        break;
-    case 3:
-        m_hkb->setAutoCapitalization(true);
-        break;
-    case 4:
-        filterKeyPress(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, 0);
-        filterKeyRelease(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, FnModifierMask);
-        break;
-    case 5:
-        filterKeyPress(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, 0);
-        filterKeyRelease(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, FnModifierMask);
-        filterKeyPress(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, FnModifierMask);
-        filterKeyRelease(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, FnModifierMask);
-        break;
-    }
-}
-
 void Ut_MHardwareKeyboard::testShiftShiftCapsLock()
 {
     QFETCH(int, state);
@@ -648,22 +664,6 @@ void Ut_MHardwareKeyboard::testSymPlusCharSwitchs()
     QVERIFY(!filterKeyRelease(SymKey, Qt::NoModifier, "", KeycodeNonCharacter, SymModifierMask));
 
     QCOMPARE(symSpy.count(), 0);
-}
-
-bool Ut_MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers modifiers,
-                                            const QString &text,
-                                            quint32 nativeScanCode, quint32 nativeModifiers) const
-{
-    return m_hkb->filterKeyEvent(QEvent::KeyRelease, keyCode, modifiers, text, false, 1, nativeScanCode,
-                                 nativeModifiers);
-}
-
-bool Ut_MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers modifiers,
-                                          const QString &text,
-                                          quint32 nativeScanCode, quint32 nativeModifiers) const
-{
-    return m_hkb->filterKeyEvent(QEvent::KeyPress, keyCode, modifiers, text, false, 1, nativeScanCode,
-                                 nativeModifiers);
 }
 
 QTEST_APPLESS_MAIN(Ut_MHardwareKeyboard);
