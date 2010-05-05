@@ -1227,6 +1227,9 @@ void MKeyboardHost::showSymbolView()
 
 void MKeyboardHost::handleModifierStateChanged(Qt::KeyboardModifier modifier, ModifierState state)
 {
+    //TODO: below could be removed when home screen really support showing input mode indicator.
+    vkbWidget->setIndicatorButtonState(modifier, state);
+
     const QString currentHwKeyboardLayout = LayoutsManager::instance().hardwareKeyboardLayout();
     QString lockOnNotificationLabel;
     MInputMethodBase::InputModeIndicator indicatorState = MInputMethodBase::LatinLower;
@@ -1312,9 +1315,6 @@ void MKeyboardHost::handleModifierStateChanged(Qt::KeyboardModifier modifier, Mo
     } else if (modifierLockOnInfoBanner) {
         hideLockOnInfoBanner();
     }
-
-    //TODO: below could be removed when home screen really support showing input mode indicator.
-    vkbWidget->setIndicatorButtonState(modifier, state);
 }
 
 void MKeyboardHost::hideLockOnInfoBanner()
