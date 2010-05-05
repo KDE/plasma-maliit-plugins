@@ -382,19 +382,19 @@ void Ut_MKeyboardHost::testAutoCaps()
 
     inputContext->cursorPos = 0;
     subject->update();
-    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
 
     inputContext->cursorPos = 1;
     subject->update();
-    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOff);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
 
     inputContext->cursorPos = 12;
     subject->update();
-    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOff);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
 
     inputContext->cursorPos = 13;
     subject->update();
-    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
 
 
     subject->hide();
@@ -402,23 +402,23 @@ void Ut_MKeyboardHost::testAutoCaps()
 
     inputContext->cursorPos = 13;
     subject->update();
-    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
 
     inputContext->cursorPos = 16;
     subject->update();
-    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOff);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
 
     inputContext->cursorPos = 31;
     subject->update();
-    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
 
     inputContext->cursorPos = 33;
     subject->update();
-    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
 
     inputContext->cursorPos = 0;
     subject->update();
-    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
     // When autoCaps is on and shift is latched, any key input except shift and backspace (in an sepcial case)
     // will turn off shift.
     KeyEvent press("a", QEvent::KeyPress);
@@ -426,18 +426,18 @@ void Ut_MKeyboardHost::testAutoCaps()
     subject->handleKeyPress(press);
     subject->handleKeyRelease(release);
     subject->handleKeyClick(release);
-    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOff);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
 
     // If there are some preedit, capitalization should be off.
     subject->preedit = "Test";
     inputContext->cursorPos = 0;
     subject->update();
-    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOff);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
 
     subject->preedit = "";
     inputContext->cursorPos = 0;
     subject->update();
-    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
     // The special case for backspace when autoCaps is on, that is cursor is at 0 position,
     // should not change the shift state.
     press = KeyEvent("", QEvent::KeyPress, Qt::Key_Backspace);
@@ -445,17 +445,17 @@ void Ut_MKeyboardHost::testAutoCaps()
     subject->handleKeyPress(press);
     subject->handleKeyRelease(release);
     subject->handleKeyClick(release);
-    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
 
     // If cursor is not at 0 position, backspace should also change the shift state.
     inputContext->cursorPos = 2;
     subject->update();
-    subject->vkbWidget->setShiftState(MVirtualKeyboard::ShiftOn);
-    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn);
+    subject->vkbWidget->setShiftState(ModifierLatchedState);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
     subject->handleKeyPress(press);
     subject->handleKeyRelease(release);
     subject->handleKeyClick(release);
-    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOff);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
 
     // Test holding backspace with preedit.
     press = KeyEvent("", QEvent::KeyPress, Qt::Key_Backspace);
@@ -464,9 +464,9 @@ void Ut_MKeyboardHost::testAutoCaps()
     subject->preedit = "You can use";
     // initial state: preedit("You can use"), shift state:latched, start holding backspace
     subject->update();
-    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOff);
-    subject->vkbWidget->setShiftState(MVirtualKeyboard::ShiftOn);
-    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
+    subject->vkbWidget->setShiftState(ModifierLatchedState);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
 
     // press and release backspace before timeout will only delete one character,
     subject->handleKeyPress(press);
@@ -474,7 +474,7 @@ void Ut_MKeyboardHost::testAutoCaps()
     subject->handleKeyRelease(release);
     subject->handleKeyClick(release);
     subject->update();
-    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOff);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
     QCOMPARE(subject->preedit, QString("You can us"));
 
     // but hold backspace longer than timeout, will delete the whole preedit.
@@ -483,17 +483,17 @@ void Ut_MKeyboardHost::testAutoCaps()
     QTest::qWait(interval / 2);
     QVERIFY(subject->backSpaceTimer.isActive());
     subject->update();
-    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOff);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
     QTest::qWait((interval / 2) + 50);
     // final state: preedit(""), shift state:on, after holding backspace enough time.
     QVERIFY(subject->preedit.isEmpty());
     QVERIFY(!subject->backSpaceTimer.isActive());
     inputContext->cursorPos = 13;
     subject->update();
-    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
     subject->handleKeyRelease(release);
     subject->handleKeyClick(release);
-    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
 
     subject->hide();
     QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
@@ -504,28 +504,28 @@ void Ut_MKeyboardHost::testAutoCaps()
     subject->show();
     subject->update();
     QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
-    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOff);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
 
     // When shift is latched, any key input except shift will turn off shift.
-    subject->vkbWidget->setShiftState(MVirtualKeyboard::ShiftOn);
-    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn);
+    subject->vkbWidget->setShiftState(ModifierLatchedState);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
     press = KeyEvent("a", QEvent::KeyPress);
     release = KeyEvent(press, QEvent::KeyRelease);
     subject->handleKeyPress(press);
     subject->handleKeyRelease(release);
     subject->handleKeyClick(release);
-    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOff);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
 
     // Backspace will also change the shift state when cursor is at 0 position.
     inputContext->cursorPos = 0;
-    subject->vkbWidget->setShiftState(MVirtualKeyboard::ShiftOn);
-    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn);
+    subject->vkbWidget->setShiftState(ModifierLatchedState);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
     press = KeyEvent("", QEvent::KeyPress, Qt::Key_Backspace);
     release = KeyEvent(press, QEvent::KeyRelease);
     subject->handleKeyPress(press);
     subject->handleKeyRelease(release);
     subject->handleKeyClick(release);
-    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOff);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
 }
 
 void Ut_MKeyboardHost::testApplicationOrientationChanged()
@@ -864,7 +864,7 @@ void Ut_MKeyboardHost::testUpdateSymbolViewLevel()
     QSignalSpy spy1(subject->vkbWidget, SIGNAL(shiftLevelChanged()));
 
     subject->autoCapsEnabled = false; // disable auto caps
-    subject->vkbWidget->setShiftState(MVirtualKeyboard::ShiftOff);
+    subject->vkbWidget->setShiftState(ModifierClearState);
     state.clear();
     state << OnScreen;
     subject->setState(state);
@@ -872,21 +872,21 @@ void Ut_MKeyboardHost::testUpdateSymbolViewLevel()
     subject->symbolView->showSymbolView();
     QVERIFY(subject->symbolView->isActive());
     QCOMPARE(subject->symbolView->currentLevel(), 0);
-    QCOMPARE(subject->vkbWidget->shiftStatus(), MVirtualKeyboard::ShiftOff);
+    QCOMPARE(subject->vkbWidget->shiftStatus(), ModifierClearState);
 
-    subject->vkbWidget->setShiftState(MVirtualKeyboard::ShiftOn);
-    QCOMPARE(subject->vkbWidget->shiftStatus(), MVirtualKeyboard::ShiftOn);
+    subject->vkbWidget->setShiftState(ModifierLatchedState);
+    QCOMPARE(subject->vkbWidget->shiftStatus(), ModifierLatchedState);
     QCOMPARE(spy1.count(), 1);
     QCOMPARE(subject->symbolView->currentLevel(), 1);
 
-    subject->vkbWidget->setShiftState(MVirtualKeyboard::ShiftLock);
+    subject->vkbWidget->setShiftState(ModifierLockedState);
     QCOMPARE(spy1.count(), 2);
-    QCOMPARE(subject->vkbWidget->shiftStatus(), MVirtualKeyboard::ShiftLock);
+    QCOMPARE(subject->vkbWidget->shiftStatus(), ModifierLockedState);
     QCOMPARE(subject->symbolView->currentLevel(), 1);
 
-    subject->vkbWidget->setShiftState(MVirtualKeyboard::ShiftOff);
+    subject->vkbWidget->setShiftState(ModifierClearState);
     QCOMPARE(spy1.count(), 3);
-    QCOMPARE(subject->vkbWidget->shiftStatus(), MVirtualKeyboard::ShiftOff);
+    QCOMPARE(subject->vkbWidget->shiftStatus(), ModifierClearState);
     QCOMPARE(subject->symbolView->currentLevel(), 0);
 
     subject->hide();

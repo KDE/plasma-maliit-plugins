@@ -335,8 +335,11 @@ void Ut_KeyButtonArea::testSceneEvent()
     QGraphicsSceneMouseEvent *press = new QGraphicsSceneMouseEvent(QEvent::GraphicsSceneMousePress);
     QGraphicsSceneMouseEvent *release = new QGraphicsSceneMouseEvent(QEvent::GraphicsSceneMouseRelease);
     QGraphicsSceneMouseEvent *move = new QGraphicsSceneMouseEvent(QEvent::GraphicsSceneMouseMove);
-    QSignalSpy spy(subject, SIGNAL(keyClicked(const KeyEvent &)));
-    QSignalSpy spyPressed(subject, SIGNAL(keyPressed(const KeyEvent &)));
+    QSignalSpy spy(subject, SIGNAL(keyClicked(const IKeyButton*, const QString&, bool)));
+    QSignalSpy spyPressed(subject, SIGNAL(keyPressed(const IKeyButton*, const QString&, bool)));
+
+    QVERIFY(spy.isValid());
+    QVERIFY(spyPressed.isValid());
 
     press->setPos(QPoint(1, 1));
     release->setPos(QPoint(10, 10));
@@ -405,11 +408,13 @@ void Ut_KeyButtonArea::testDeadkeys()
                         false, 0);
     MPlainWindow::instance()->scene()->addItem(subject);
     subject->resize(defaultLayoutSize());
-    QSignalSpy spy(subject, SIGNAL(keyClicked(const KeyEvent &)));
+    QSignalSpy spy(subject, SIGNAL(keyClicked(const IKeyButton*, const QString&, bool)));
     const IKeyButton *key = 0;
     QList<int> positions;
     int i;
     positions << 0 << 1 << 2 << 5 << 6;
+
+    QVERIFY(spy.isValid());
 
     //!!! z is the character that won't be changed when deadkey is locked
     QStringList lowerUnicodes;
@@ -728,9 +733,13 @@ void Ut_KeyButtonArea::testMultiTouch()
     QVERIFY(key1);
     QVERIFY(key2);
 
-    QSignalSpy pressed(subject, SIGNAL(keyPressed(const KeyEvent&)));
-    QSignalSpy released(subject, SIGNAL(keyReleased(const KeyEvent&)));
-    QSignalSpy clicked(subject, SIGNAL(keyClicked(const KeyEvent&)));
+    QSignalSpy pressed(subject, SIGNAL(keyPressed(const IKeyButton*, const QString&, bool)));
+    QSignalSpy released(subject, SIGNAL(keyReleased(const IKeyButton*, const QString&, bool)));
+    QSignalSpy clicked(subject, SIGNAL(keyClicked(const IKeyButton*, const QString&, bool )));
+
+    QVERIFY(pressed.isValid());
+    QVERIFY(released.isValid());
+    QVERIFY(clicked.isValid());
 
     const QPoint pos0 = key0->buttonRect().center();
     const QPoint pos1 = key1->buttonRect().center();

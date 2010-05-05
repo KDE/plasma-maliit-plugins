@@ -211,10 +211,10 @@ void Ut_MVirtualKeyboard::clickSpaceTest()
 
 void Ut_MVirtualKeyboard::setShiftStateTest()
 {
-    QList<MVirtualKeyboard::ShiftLevel> levels;
-    levels << MVirtualKeyboard::ShiftOn << MVirtualKeyboard::ShiftOff
-           << MVirtualKeyboard::ShiftLock;
-    foreach(MVirtualKeyboard::ShiftLevel level, levels) {
+    QList<ModifierState> levels;
+    levels << ModifierLatchedState << ModifierClearState
+           << ModifierLockedState;
+    foreach(ModifierState level, levels) {
         m_vkb->setShiftState(level);
         QCOMPARE(m_vkb->shiftStatus(), level);
     }
@@ -366,7 +366,7 @@ void Ut_MVirtualKeyboard::testStateReset()
     QCOMPARE(m_vkb->activity, MVirtualKeyboard::Active);
 
     // Set states that should be changed next time opening vkb.
-    m_vkb->setShiftState(MVirtualKeyboard::ShiftOn); // Shift on
+    m_vkb->setShiftState(ModifierLatchedState); // Shift on
 
     // Test after reopening the keyboard, rather than after closing.
     m_vkb->hideKeyboard();
@@ -374,12 +374,12 @@ void Ut_MVirtualKeyboard::testStateReset()
     m_vkb->showKeyboard();
     QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
 
-    QCOMPARE(m_vkb->shiftStatus(), MVirtualKeyboard::ShiftOff); // Shift should be off
+    QCOMPARE(m_vkb->shiftStatus(), ModifierClearState); // Shift should be off
 }
 
 void Ut_MVirtualKeyboard::switchLevelTest()
 {
-    m_vkb->shiftLevel = MVirtualKeyboard::ShiftLock;
+    m_vkb->shiftLevel = ModifierLockedState;
     m_vkb->switchLevel();
     QCOMPARE(m_vkb->currentLevel, 1);
 }
