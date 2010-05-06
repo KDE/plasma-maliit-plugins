@@ -414,7 +414,7 @@ void Ut_MKeyboardHost::testAutoCaps()
 
     inputContext->cursorPos = 33;
     subject->update();
-    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOff);
+    QVERIFY(subject->vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn);
 
     inputContext->cursorPos = 0;
     subject->update();

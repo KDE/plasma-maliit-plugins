@@ -39,6 +39,7 @@
 #include <QCoreApplication>
 #include <QKeyEvent>
 #include <QFile>
+#include <QRegExp>
 
 #include <MApplication>
 #include <MComponentData>
@@ -59,7 +60,7 @@ namespace
     // TODO: check that these paths still hold
     const QString InputMethodCorrectionSetting("/meegotouch/inputmethods/correctionenabled");
     const QString InputMethodCorrectionEngine("/meegotouch/inputmethods/correctionengine");
-    const QString AutocapsTrigger(".?!¡¿");
+    const QString AutoCapsSentenceDelimiters(".?!¡¿"); // used as regexp character set content!
     const int RotationDuration = 750; //! After vkb hidden, how long to wait until shown again
     const int AutoBackspaceDelay = 500;      // in ms
     const int BackspaceRepeatInterval = 100; // in ms
@@ -418,25 +419,18 @@ void MKeyboardHost::updateShiftState()
     if (!autoCapsEnabled)
         return;
 
-    bool upperCase = false;
-    QString preText;
-
     // TODO: consider RTL language case
     // Capitalization is determined by preedit and Auto Capitalization.
     // If there are some preedit, it should be lower case.
     // Otherwise Auto Capitalization will turn on shift when (text entry capitalization option is ON):
     //   1. at the beginning of one paragraph
-    //   2. after one space adjoin delimiters
-    if (preedit.length() > 0) {
-        upperCase = false;
-    } else if (cursorPos == 0) {
-        upperCase = true;
-    } else if ((cursorPos > 0) && (cursorPos <= surroundingText.length())) {
-        preText = surroundingText.left(cursorPos);
-        upperCase = ((preText.length() >= 2)
-                     && (preText.at(preText.length() - 1) == QChar(' '))
-                     && AutocapsTrigger.contains(preText.at(preText.length() - 2)));
-    }
+    //   2. after a sentence delimiter and one or more spaces
+    static const QRegExp autoCapsTrigger("[" + AutoCapsSentenceDelimiters + "] +$");
+    const bool upperCase = ((preedit.length() == 0)
+                            && ((cursorPos == 0)
+                                || ((cursorPos > 0)
+                                    && (cursorPos <= surroundingText.length())
+                                    && surroundingText.left(cursorPos).contains(autoCapsTrigger))));
 
     if ((activeState == OnScreen) && (vkbWidget->shiftStatus() != MVirtualKeyboard::ShiftLock)) {
         vkbWidget->setShiftState(upperCase ?
