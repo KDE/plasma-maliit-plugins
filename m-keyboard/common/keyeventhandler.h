@@ -102,6 +102,10 @@ private:
 
     //! When this is set true the next shift click is ignored.
     bool ignoreShiftClick;
+
+#ifdef UNIT_TEST
+    friend class Ut_KeyEventHandler;
+#endif
 };
 
 #endif

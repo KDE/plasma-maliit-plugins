@@ -125,6 +125,7 @@ private:
 
 #ifdef UNIT_TEST
     friend class Ut_KeyButtonArea;
+    friend class Ut_KeyEventHandler;
     friend class Bm_KeyButtonArea; //benchmarks
 #endif
 
