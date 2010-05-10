@@ -5,7 +5,7 @@ UT_TESTCASES=""
 for TEST in `ls -d ut_*`; do
 	if [ -x $TEST/$TEST ]; then
 
-TESTCASE_TEMPLATE="<case name=\"$TEST\" description=\"$TEST\" requirement=\"\" timeout=\"60\">
+TESTCASE_TEMPLATE="<case name=\"$TEST\" description=\"$TEST\" requirement=\"\" timeout=\"120\">
         <step expected_result=\"0\">/usr/lib/meego-keyboard-tests/$TEST/$TEST</step>
       </case>
       "
