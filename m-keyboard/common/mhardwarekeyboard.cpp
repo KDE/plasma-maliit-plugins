@@ -210,32 +210,12 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
                                        quint32 nativeScanCode, quint32 nativeModifiers)
 {
     bool eaten = false;
+    const unsigned char savedLatchedMods(currentLatchedMods);
+
     pressedKeys.insert(nativeScanCode, true);
 
     if (keyCode == SymKey) {
         characterLoopIndex = -1;
-    } else if ((keyCode == Qt::Key_Delete) && (currentLatchedMods & ShiftMask)
-               && !shiftsPressed) {
-        inputContextConnection.sendKeyEvent(
-            QKeyEvent(QEvent::KeyPress, Qt::Key_Backspace,
-                      modifiers & ~Qt::KeyboardModifiers(Qt::ShiftModifier),
-                      "\b", autoRepeat, count));
-        eaten = true;
-    }
-    // MTextEdit implements shift+arrow-key selection by simply looking at the shift
-    // modifier in key events it gets.  However, shift+arrow-key is specified to work only
-    // when shift is held down and shift modifier can be on even when shift is not held
-    // down, namely when shift is latched.  It would be tricky for MTextEdit to track
-    // shift [not] pressed state across MTextEdit instances so we work around the
-    // situation by removing shift modifer when shift is latched but not pressed.
-    else if (((keyCode == Qt::Key_Left) || (keyCode == Qt::Key_Right) || (keyCode == Qt::Key_Up)
-              || (keyCode == Qt::Key_Down))
-             && (currentLatchedMods & ShiftMask) && !shiftsPressed) {
-        inputContextConnection.sendKeyEvent(
-            QKeyEvent(QEvent::KeyPress, keyCode,
-                      modifiers & ~Qt::KeyboardModifiers(Qt::ShiftModifier),
-                      text, autoRepeat, count));
-        eaten = true;
     } else if ((keyCode == Qt::Key_Shift) && (++shiftsPressed == 2)
                && !stateTransitionsDisabled) {
         shiftShiftCapsLock = true;
@@ -251,6 +231,20 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
             longPressModifiers = nativeModifiers;
             longPressTimer.start();
         }
+    }
+
+    // Shift modifier can be on even when shift is not held down, namely when shift is
+    // latched.  This breaks MTextEdit's shift+arrow-key selection, which is specified to
+    // work only when shift is held down, because it works by looking at the shift
+    // modifier.  This also breaks standard Qt copy/paste/selectall shortcuts.  So, we
+    // mask shift modifier away in the case of latched shift.  We also turn delete event
+    // generated with latched shift and backspace key into backspace event.
+    if (!eaten && (savedLatchedMods & ShiftMask) && !shiftsPressed) {
+        inputContextConnection.sendKeyEvent(
+            QKeyEvent(QEvent::KeyPress, keyCode == Qt::Key_Delete ? Qt::Key_Backspace : keyCode,
+                      modifiers & ~Qt::KeyboardModifiers(Qt::ShiftModifier),
+                      keyCode == Qt::Key_Delete ? "\b" : text, autoRepeat, count));
+        eaten = true;
     }
 
     // Relatch modifiers, X unlatches them on press but we want to unlatch on release
@@ -288,7 +282,11 @@ bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers 
         const bool keyWasPressed(pressedKeys.contains(nativeScanCode));
         if (keyWasPressed) {
             inputContextConnection.sendKeyEvent(
-                QKeyEvent(QEvent::KeyPress, keyCode, modifiers, text, false, 1));
+                QKeyEvent(QEvent::KeyPress, keyCode,
+                          ((currentLatchedMods & ShiftMask) && !shiftsPressed)
+                          ? (modifiers & ~Qt::KeyboardModifiers(Qt::ShiftModifier))
+                          : modifiers,
+                          text, false, 1));
             // TODO: should we send release too?  MTextEdit seems to be happy with
             // just press but what about others?
             eaten = true;

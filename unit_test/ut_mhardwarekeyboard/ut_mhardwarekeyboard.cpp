@@ -561,7 +561,7 @@ void Ut_MHardwareKeyboard::testOtherModifier()
 
     // ...we click other (that is, other that the one that got us into this state ;) modifier key...
     // (note: native modifier mask and modifiers are not correct but it doesn't matter)
-    QVERIFY(!filterKeyPress(otherKey, Qt::NoModifier, "", KeycodeNonCharacter, 0));
+    filterKeyPress(otherKey, Qt::NoModifier, "", KeycodeNonCharacter, 0);
     QVERIFY(!filterKeyRelease(otherKey, Qt::NoModifier, "", KeycodeNonCharacter, 0));
 
     // ...we should end up to a latched state for that modifier.
