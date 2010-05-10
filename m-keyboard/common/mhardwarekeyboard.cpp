@@ -238,7 +238,7 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
         }
         // Unlatch modifiers on keys for which there is a known action on press event.
         // Currently this means arrow keys and backspace/delete.
-        if (!eaten && currentLatchedMods && actionOnPress(keyCode)) {
+        if (!eaten && !autoCaps && currentLatchedMods && actionOnPress(keyCode)) {
             latchModifiers(FnModifierMask | ShiftMask, 0);
         }
     }
@@ -302,7 +302,9 @@ bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers 
             eaten = true;
         }
 
-        latchModifiers(FnModifierMask | ShiftMask, 0);
+        if (!autoCaps) {
+            latchModifiers(FnModifierMask | ShiftMask, 0);
+        }
     }
     // This case works around the problem of host calling setAutoCapitalization()
     // after backspace press event but before backspace release.  That turns the
