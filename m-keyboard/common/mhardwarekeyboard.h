@@ -124,6 +124,9 @@ private:
      */
     bool handleReleaseWithSymModifier(Qt::Key keyCode, const QString &text);
 
+    //! \return true if the key has known action on press event, false otherwise
+    bool actionOnPress(Qt::Key keyCode) const;
+
     //! \return true if the key press event is such that it should be passed to the application
     bool passKeyOnPress(Qt::Key keyCode, const QString &text, unsigned int nativeScanCode) const;
 

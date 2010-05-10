@@ -126,16 +126,21 @@ void MHardwareKeyboard::reset()
 }
 
 
+bool MHardwareKeyboard::actionOnPress(Qt::Key keyCode) const
+{
+    static const Qt::Key pressPassKeys[] = {
+        Qt::Key_Backspace, Qt::Key_Delete, Qt::Key_Left, Qt::Key_Right, Qt::Key_Up, Qt::Key_Down };
+    static const Qt::Key * const keysEnd = pressPassKeys + ELEMENTS(pressPassKeys);
+
+    return keysEnd != std::find(pressPassKeys, keysEnd, keyCode);
+}
+
 bool MHardwareKeyboard::passKeyOnPress(Qt::Key keyCode, const QString &text,
                                        unsigned int nativeScanCode) const
 {
-    static const Qt::Key pressPassKeys[] = {
-        Qt::Key_Backspace, Qt::Key_Delete };
-    static const Qt::Key * const keysEnd = pressPassKeys + ELEMENTS(pressPassKeys);
-
     const unsigned int shiftLevel(3); // Fn.
     return (text.isEmpty() && keycodeToString(nativeScanCode, shiftLevel).isEmpty())
-        || keysEnd != std::find(pressPassKeys, keysEnd, keyCode);
+        || actionOnPress(keyCode);
 }
 
 
@@ -230,6 +235,11 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
             longPressKey = nativeScanCode;
             longPressModifiers = nativeModifiers;
             longPressTimer.start();
+        }
+        // Unlatch modifiers on keys for which there is a known action on press event.
+        // Currently this means arrow keys and backspace/delete.
+        if (!eaten && currentLatchedMods && actionOnPress(keyCode)) {
+            latchModifiers(FnModifierMask | ShiftMask, 0);
         }
     }
 
