@@ -35,7 +35,9 @@ FixtureVirtualKeyboard::FixtureVirtualKeyboard(QObject *parent)
 FixtureVirtualKeyboard::~FixtureVirtualKeyboard()
 {
 }
-
+/*!
+ *  \brief execute is called when implementing a fixture from ruby matti
+ */
 bool FixtureVirtualKeyboard::execute(void *objectInstance, 
                                      const QString &actionName,
                                      const QHash<QString, QString> &parameters,
@@ -61,6 +63,13 @@ bool FixtureVirtualKeyboard::execute(void *objectInstance,
             stdOut = "action can be called only with valid argument: key ";
             return false;
         }
+    }
+
+    else if (actionName == "isAccurateMode") {
+
+        stdOut = widget->isAccurateMode() ? “true” : “false”;
+
+        return true;
     }
 
     const IKeyButton *button = 0;
