@@ -82,7 +82,7 @@ void Ut_LayoutsManager::initTestCase()
     MGConfItem languageListSetting(LanguageListSettingName);
 
     QStringList langlist;
-    langlist << "fi" << "ru" << "ar_SA";
+    langlist << "fi" << "ru" << "ar";
     languageListSetting.set(QVariant(langlist));
 }
 
@@ -155,7 +155,7 @@ void Ut_LayoutsManager::testNumberLayouts()
     // Asking with Arabic language shouldn't make a difference as this
     // stuff works solely based on the number format setting.
     layout = dynamic_cast<const TestLayoutModel *>(
-                 subject->layout("ar_SA", LayoutData::Number, M::Landscape));
+                 subject->layout("ar", LayoutData::Number, M::Landscape));
     QVERIFY(!layout);
 
     // If, however, number format is set to Arabic and we can load it,
@@ -167,7 +167,7 @@ void Ut_LayoutsManager::testNumberLayouts()
     QVERIFY(layout);
     QCOMPARE(layout->modelId, NumberKeyboardFileArabic);
     layout = dynamic_cast<const TestLayoutModel *>(
-                 subject->layout("ar_SA", LayoutData::Number, M::Landscape));
+                 subject->layout("ar", LayoutData::Number, M::Landscape));
     QVERIFY(layout);
     QCOMPARE(layout->modelId, NumberKeyboardFileArabic);
 
@@ -243,7 +243,7 @@ void Ut_LayoutsManager::testPhoneNumberLayouts()
     QCOMPARE(layout->modelId, PhoneNumberKeyboardFileLatin);
     displayLanguageSetting.set("ar");
     layout = dynamic_cast<const TestLayoutModel *>(
-                 subject->layout("ar_SA", LayoutData::PhoneNumber, M::Landscape));
+                 subject->layout("ar", LayoutData::PhoneNumber, M::Landscape));
     QVERIFY(layout);
     QCOMPARE(layout->modelId, PhoneNumberKeyboardFileLatin);
 
@@ -264,7 +264,7 @@ void Ut_LayoutsManager::testPhoneNumberLayouts()
     // ...and of course for Arabic.
     displayLanguageSetting.set("ar");
     layout = dynamic_cast<const TestLayoutModel *>(
-                 subject->layout("ar_SA", LayoutData::PhoneNumber, M::Landscape));
+                 subject->layout("ar", LayoutData::PhoneNumber, M::Landscape));
     QVERIFY(layout);
     QCOMPARE(layout->modelId, PhoneNumberKeyboardFileArabic);
 }

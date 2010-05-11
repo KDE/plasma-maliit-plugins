@@ -29,7 +29,7 @@ namespace
     const QString SystemDisplayLanguage("/meegotouch/i18n/language");
     const QString DefaultNumberFormat("latin");
     const QString LayoutFileExtension(".xml");
-    const QString FallbackLanguage("en");
+    const QString FallbackLanguage("en_gb");
     const QString NumberKeyboardFileArabic("number_ar.xml");
     const QString NumberKeyboardFileLatin("number.xml");
     const QString PhoneNumberKeyboardFileArabic("phonenumber_ar.xml");
@@ -163,11 +163,7 @@ bool LayoutsManager::loadLanguage(const QString &language)
     bool loaded = keyboard->loadNokiaKeyboard(language + LayoutFileExtension);
 
     if (!loaded) {
-        // In case of "en_GB" we'll try to load en.xml.
-        if (KeyboardData::isLanguageLongFormat(language)) {
-            loaded = keyboard->loadNokiaKeyboard(
-                         KeyboardData::convertLanguageToShortFormat(language) + LayoutFileExtension);
-        }
+        loaded = keyboard->loadNokiaKeyboard(QString(language.toLower() + LayoutFileExtension));
     }
 
     if (!loaded) {
@@ -243,7 +239,7 @@ void LayoutsManager::syncLanguages()
 
         foreach(QString language, newLanguages) {
             // Existing languages are not reloaded.
-            if (!keyboards.contains(language)) {
+            if (!keyboards.contains(language.toLower())) {
                 // Add new language
                 if (!loadLanguage(language)) {
                     qWarning() << __PRETTY_FUNCTION__
@@ -281,8 +277,6 @@ bool LayoutsManager::isCyrillicLanguage(const QString &language)
     bool val = false;
 
     QString shortFormatLanguage = language;
-    if (KeyboardData::isLanguageLongFormat(language))
-        shortFormatLanguage = KeyboardData::convertLanguageToShortFormat(language);
     if (shortFormatLanguage == "ru"    // Russian
             || shortFormatLanguage == "pl" // Polish
             || shortFormatLanguage == "bg" // Bulgaria

@@ -75,15 +75,6 @@ public:
     const LayoutData *layout(LayoutData::LayoutType type, M::Orientation orientation,
                              bool portraitFallback = true) const;
 
-    /*! \brief Determines whether given language is of "en_GB" style as opposed to "en".
-     */
-    static bool isLanguageLongFormat(const QString &language);
-
-    /*!
-     * \brief Converts "en_GB" style language string to shorter "en" style.
-     */
-    static QString convertLanguageToShortFormat(const QString &language);
-
 private:
     /*!
     * \brief Implements keyboard loading

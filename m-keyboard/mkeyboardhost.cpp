@@ -1022,17 +1022,11 @@ void MKeyboardHost::initializeInputEngine()
 
     qDebug() << __PRETTY_FUNCTION__ << "- used language:" << language;
 
-    // TODO: wouldn't it be better if correction engine did this?
-    QString shortLanguage(language);
-    if (KeyboardData::isLanguageLongFormat(language)) {
-        shortLanguage = KeyboardData::convertLanguageToShortFormat(language);
-    }
-
     if (engineReady) {
         // TODO: maybe we should check return values here and in case of failure
         // be always in accurate mode, for example
-        imCorrectionEngine->setKeyboardLayout(shortLanguage);
-        imCorrectionEngine->setLanguage(shortLanguage, M::LanguagePriorityPrimary);
+        imCorrectionEngine->setKeyboardLayout(language);
+        imCorrectionEngine->setLanguage(language, M::LanguagePriorityPrimary);
         synchronizeCorrectionSetting();
         imCorrectionEngine->disablePrediction();
         imCorrectionEngine->disableCompletion();

@@ -472,13 +472,3 @@ KeyBinding::KeyAction KeyboardData::keyActionFromString(const QString &typeStr)
         result = KeyBinding::ActionInsert;
     return result;
 }
-
-bool KeyboardData::isLanguageLongFormat(const QString &language)
-{
-    return (language.length() > 2 && language.at(2) == '_');
-}
-
-QString KeyboardData::convertLanguageToShortFormat(const QString &language)
-{
-    return language.left(2).toLower();
-}

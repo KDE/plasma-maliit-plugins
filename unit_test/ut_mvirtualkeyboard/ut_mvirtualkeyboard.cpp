@@ -83,7 +83,7 @@ void Ut_MVirtualKeyboard::initTestCase()
     MGConfItem item1(InputMethodSetting);
 
     QStringList langlist;
-    langlist << "en_GB" << "fi" << "ar_SA";
+    langlist << "en_GB" << "fi" << "ar";
     item1.set(QVariant(langlist));
 
     QString DefaultLanguageSetting("/meegotouch/inputmethods/languages/default");

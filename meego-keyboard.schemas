@@ -7,7 +7,7 @@
       <owner>meegotouch</owner>
       <type>list</type>
       <list_type>string</list_type>
-      <default>[en,ar,cs,da,de,en,es,fi,fr,it,nl,no,pl,pt,ru,sv]</default>
+      <default>[en_gb,ar,cs,da,de,es,fi,fr,it,nl,no,pl,pt,ru,sv]</default>
       <locale name="C">
         <short>Language list</short>
         <long>Language list</long>
@@ -19,7 +19,7 @@
       <applyto>/meegotouch/inputmethods/languages/default</applyto>
       <owner>meegotouch</owner>
       <type>string</type>
-      <default>en</default>
+      <default>en_gb</default>
       <locale name="C">
         <short>Default language</short>
         <long>Default language</long>
