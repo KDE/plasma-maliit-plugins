@@ -269,7 +269,7 @@ void KeyboardData::parseChildren(const QDomElement &element, ParseParameters &pa
             if (childElement.tagName() == *tag1) {
                 (this->*parser1)(childElement, params);
             } else if ((tag2 != NULL) && (childElement.tagName() == *tag2)) {
-                Q_ASSERT(parser2 != NULL);
+                Q_ASSERT(parser2 != 0);
                 (this->*parser2)(childElement, params);
             } else {
                 qWarning() << "Unexpected tag" << childElement.tagName() << "on line"
