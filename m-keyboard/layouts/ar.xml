@@ -167,6 +167,6 @@
           </row>
         </section>
     </layout>
-    <import file="symbols.xml"/>
+    <import file="symbols_ar.xml"/>
 </keyboard>
 

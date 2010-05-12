@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
-<keyboard title="English (UK)" version="1.0" catalog="en_GB" language="en_GB">
+<keyboard title="English (US)" version="1.0" catalog="en_US" language="en_US">
     <layout type="general" orientation="landscape">
         <section id="main" movable="false" vertical_alignment="center" horizontal_alignment="center">
           <row>
@@ -169,5 +169,5 @@
           </row>
         </section>
     </layout>
-    <import file="symbols.xml"/>
+    <import file="symbols_en_us.xml"/>
 </keyboard>
