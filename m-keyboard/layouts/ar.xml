@@ -159,7 +159,7 @@
             </key>
             <key>
               <binding label="."/>
-              <binding shift="true" label=","/>
+              <binding shift="true" label="&#x060C;"/>
             </key>
             <key>
               <binding action="backspace" label=""/>
