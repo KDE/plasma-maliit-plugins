@@ -44,6 +44,12 @@
 #include <MApplication>
 
 
+namespace
+{
+    // This GConf item defines whether multitouch is enabled or disabled
+    const char * const MultitouchSettings = "/meegotouch/inputmethods/multitouch/enabled";
+}
+
 const QString MVirtualKeyboard::WordSeparators("-.,!? \n");
 
 
@@ -89,6 +95,8 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
             this, SIGNAL(keyClicked(const KeyEvent &)));
     connect(eventHandler, SIGNAL(shiftPressed(bool)),
             this, SLOT(setFunctionRowState(bool)));
+
+    enableMultiTouch = MGConfItem(MultitouchSettings).value().toBool();
 
     createSwitcher();
 
@@ -267,7 +275,12 @@ MVirtualKeyboard::switchLevel()
 
         // Function row shift update, level does not change for the layout.
         static_cast<KeyButtonArea *>(mainKeyboardSwitcher->widget(i)->layout()->itemAt(1))->
-                setShiftStatus(currentLevel == 1, capsLock);
+            setShiftStatus(currentLevel == 1, capsLock);
+
+        if (!enableMultiTouch) {
+            static_cast<KeyButtonArea *>(mainKeyboardSwitcher->widget(i)->layout()->itemAt(1))->
+                switchLevel(currentLevel);
+        }
     }
 }
 
@@ -944,9 +957,11 @@ KeyButtonArea * MVirtualKeyboard::createSectionView(const QString &language,
 
 void MVirtualKeyboard::setFunctionRowState(bool shiftPressed)
 {
-    //TODO: time treshold to avoid flickering?
-    static_cast<KeyButtonArea *>(mainKeyboardSwitcher->currentWidget()->layout()->itemAt(1))->
-        switchLevel(shiftPressed ? 1 : 0);
+    if (enableMultiTouch) {
+        //TODO: time treshold to avoid flickering?
+        static_cast<KeyButtonArea *>(mainKeyboardSwitcher->currentWidget()->layout()->itemAt(1))->
+            switchLevel(shiftPressed ? 1 : 0);
+    }
 }
 
 void MVirtualKeyboard::setCopyPasteButton(bool copyAvailable, bool pasteAvailable)

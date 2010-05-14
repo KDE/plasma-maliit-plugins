@@ -50,6 +50,9 @@ namespace
     const QString ObjectNameCloseButton("VirtualKeyboardCloseButton");
 
     const QString SymCloseIcon("icon-m-input-methods-close");
+
+    // This GConf item defines whether multitouch is enabled or disabled
+    const char * const MultitouchSettings = "/meegotouch/inputmethods/multitouch/enabled";
 };
 
 
@@ -83,6 +86,8 @@ SymbolView::SymbolView(const LayoutsManager &layoutsManager, MVirtualKeyboardSty
             this, SIGNAL(keyClicked(const KeyEvent &)));
     connect(eventHandler, SIGNAL(shiftPressed(bool)),
             this, SLOT(setFunctionRowState(bool)));
+
+    enableMultiTouch = MGConfItem(MultitouchSettings).value().toBool();
 
     hide();
     setupShowAndHide();
@@ -293,14 +298,6 @@ SymbolView::showSymbolView(SymbolView::ShowMode mode)
 
     showTimeLine->start();
 
-    if (mode == FollowMouseShowMode) {
-        emit allowMultiTouch(false);
-        pageSwitcher->currentWidget()->grabMouse();
-        mouseDownKeyArea = true;
-    } else {
-        emit allowMultiTouch(true);
-    }
-
     emit showingUp();
 }
 
@@ -413,8 +410,6 @@ void SymbolView::addPage(QSharedPointer<const LayoutSection> symbolSection)
         page->setObjectName("SymbolMainRow");
 
         connect(this, SIGNAL(levelSwitched(int)), page, SLOT(switchLevel(int)));
-        connect(this, SIGNAL(allowMultiTouch(bool)), page, SLOT(setMultiTouch(bool)));
-
         connect(page, SIGNAL(flickLeft()), SLOT(switchToNextPage()));
         connect(page, SIGNAL(flickRight()), SLOT(switchToPrevPage()));
         connect(page, SIGNAL(flickDown()), SLOT(hideSymbolView()));
@@ -465,6 +460,9 @@ void SymbolView::organizeContent()
 void SymbolView::switchLevel(int level)
 {
     shift = level;
+    if (!enableMultiTouch && functionRow) {
+        functionRow->switchLevel(level);
+    }
     emit levelSwitched(shift);
     updateSymIndicator();
 }
@@ -550,7 +548,7 @@ void SymbolView::switchDone()
 
 void SymbolView::setFunctionRowState(bool shiftPressed)
 {
-    if (functionRow) {
+    if (enableMultiTouch && functionRow) {
         functionRow->switchLevel(shiftPressed ? 1 : 0);
     }
 }

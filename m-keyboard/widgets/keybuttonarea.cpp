@@ -26,6 +26,7 @@
 #include <MComponentData>
 #include <MFeedbackPlayer>
 #include <MSceneManager>
+#include <MGConfItem>
 #include <QDebug>
 #include <QEvent>
 #include <QGraphicsLinearLayout>
@@ -45,6 +46,9 @@ namespace
 
     // For gesture thresholds: How many pixels translate to one counted move event.
     const qreal PixelsToMoveEventsFactor = 0.02;
+
+    // This GConf item defines whether multitouch is enabled or disabled
+    const char * const MultitouchSettings = "/meegotouch/inputmethods/multitouch/enabled";
 }
 
 int KeyButtonArea::swipeGestureTouchPoints = 1;
@@ -62,7 +66,7 @@ KeyButtonArea::KeyButtonArea(MVirtualKeyboardStyleContainer *style,
       longPressTimer(new LimitedTimer(this)),
       accurateMode(false),
       wasGestureTriggered(false),
-      enableMultiTouch(false),
+      enableMultiTouch(MGConfItem(MultitouchSettings).value().toBool()),
       activeDeadkey(0),
       feedbackPlayer(0),
       section(sectionModel),
@@ -70,8 +74,10 @@ KeyButtonArea::KeyButtonArea(MVirtualKeyboardStyleContainer *style,
       usePopup(usePopup),
       swipeGestureCount(0)
 {
-    // By default multi-touch is enabled.
-    setMultiTouch(true);
+    // By default multi-touch is disabled
+    if (enableMultiTouch) {
+        setAcceptTouchEvents(true);
+    }
 
     longPressTimer->setSingleShot(true);
     longPressTimer->setInterval(LongPressTime);
@@ -527,12 +533,6 @@ KeyButtonArea::unlockDeadkeys()
         activeDeadkey = 0;
         updateButtonModifiers();
     }
-}
-
-void KeyButtonArea::setMultiTouch(bool enable)
-{
-    enableMultiTouch = enable;
-    setAcceptTouchEvents(enable);
 }
 
 void KeyButtonArea::popupStart()

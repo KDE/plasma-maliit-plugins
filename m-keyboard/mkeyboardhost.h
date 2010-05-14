@@ -299,6 +299,9 @@ private:
     //! Saved auto capitalization state before press on shift button
     bool savedUpperCase;
 
+    //! Contains true if multi-touch is enabled
+    bool enableMultiTouch;
+
 #ifdef UNIT_TEST
     friend class Ut_MKeyboardHost;
 #endif

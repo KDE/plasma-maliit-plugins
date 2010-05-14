@@ -488,6 +488,9 @@ private:
     MIMHandlerState activeState;
 
     KeyEventHandler *eventHandler;
+
+    //! Contains true if multi-touch is enabled
+    bool enableMultiTouch;
 };
 
 #endif

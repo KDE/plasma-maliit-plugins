@@ -70,6 +70,8 @@ namespace
     const QString DefaultCss = CssFile.arg(864).arg(480); // Default screen resolution is 864x480
     const Qt::KeyboardModifier FnLevelModifier = Qt::GroupSwitchModifier;
     const int ModifierLockOnInfoDuration = 1000;    // in ms
+    // This GConf item defines whether multitouch is enabled or disabled
+    const char * const MultitouchSettings = "/meegotouch/inputmethods/multitouch/enabled";
 }
 
 
@@ -96,12 +98,13 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
       modifierLockOnTimer(this),
       haveFocus(false),
       savedShiftState(ModifierClearState),
-      savedUpperCase(false)
+      savedUpperCase(false),
+      enableMultiTouch(false)
 {
     displayHeight = MPlainWindow::instance()->visibleSceneSize(M::Landscape).height();
     displayWidth  = MPlainWindow::instance()->visibleSceneSize(M::Landscape).width();
 
-    MPlainWindow::instance()->setAttribute(Qt::WA_AcceptTouchEvents);
+    enableMultiTouch = MGConfItem(MultitouchSettings).value().toBool();
 
     //TODO get this from settings
     MTheme *theme = MTheme::instance();
@@ -446,7 +449,8 @@ void MKeyboardHost::updateShiftState()
 
     if ((activeState == OnScreen)
         && (vkbWidget->shiftStatus() != ModifierLockedState)
-        && !(shiftHeldDown && (vkbWidget->shiftStatus() == ModifierLatchedState))) {
+        && (!enableMultiTouch || !shiftHeldDown
+            || (vkbWidget->shiftStatus() != ModifierLatchedState))) {
         vkbWidget->setShiftState(upperCase ?
                                  ModifierLatchedState : ModifierClearState);
     } else if ((activeState == Hardware) &&
@@ -701,7 +705,7 @@ void MKeyboardHost::handleKeyPress(const KeyEvent &event)
             return; //ignore duplicated event
         }
 
-        if (activeState == OnScreen) {
+        if (activeState == OnScreen && enableMultiTouch) {
             shiftHeldDown = true;
             savedShiftState = vkbWidget->shiftStatus();
             savedUpperCase = upperCase;
@@ -731,7 +735,7 @@ void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
             return; //ignore duplicated event
         }
 
-        if (activeState == OnScreen) {
+        if (activeState == OnScreen && enableMultiTouch) {
             ModifierState newState = ModifierClearState;
 
             shiftHeldDown = false;

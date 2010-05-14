@@ -134,8 +134,6 @@ public slots:
      */
     void unlockDeadkeys();
 
-    void setMultiTouch(bool enable);
-
 signals:
 
     //! Emitted when accurate mode is started

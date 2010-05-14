@@ -187,9 +187,6 @@ signals:
     //! SymbolView will start to show up
     void showingUp();
 
-    //! Used to disable multitouch when we want explicit mouse grab support.
-    void allowMultiTouch(bool allow);
-
 protected:
     /*! \reimp */
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *);
@@ -319,6 +316,9 @@ private:
 
     //! Pointer to handler for button events
     KeyEventHandler *eventHandler;
+
+    //! Contains true if multi-touch is enabled
+    bool enableMultiTouch;
 
 #ifdef UNIT_TEST
     friend class Ut_SymbolView;
