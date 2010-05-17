@@ -443,10 +443,10 @@ void MKeyboardHost::updateShiftState()
                          && surroundingText.left(cursorPos).contains(autoCapsTrigger))));
 
     if ((activeState == OnScreen)
-        && (vkbWidget->shiftStatus() != MVirtualKeyboard::ShiftLock)
-        && !((shiftHeldDown && (vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn)))) {
+        && (vkbWidget->shiftStatus() != ModifierLockedState)
+        && !(shiftHeldDown && (vkbWidget->shiftStatus() == ModifierLatchedState))) {
         vkbWidget->setShiftState(upperCase ?
-                                 MVirtualKeyboard::ShiftOn : MVirtualKeyboard::ShiftOff);
+                                 ModifierLatchedState : ModifierClearState);
     } else if ((activeState == Hardware) &&
                (hardwareKeyboard->modifierState(Qt::ShiftModifier) != ModifierLockedState)) {
         hardwareKeyboard->setAutoCapitalization(upperCase);
@@ -673,16 +673,16 @@ void MKeyboardHost::doBackspace()
     } else {
         static const KeyEvent event("\b", QEvent::KeyRelease, Qt::Key_Backspace,
                                     KeyEvent::NotSpecial,
-                                    vkbWidget->shiftStatus() != MVirtualKeyboard::ShiftOff
+                                    vkbWidget->shiftStatus() != ModifierClearState
                                     ? Qt::ShiftModifier : Qt::NoModifier);
         inputContextConnection()->sendKeyEvent(KeyEvent(event, QEvent::KeyPress).toQKeyEvent());
         inputContextConnection()->sendKeyEvent(event.toQKeyEvent());
     }
     // Backspace toggles shift off if it's on (not locked)
     // except if autoCaps is on and cursor is at 0 position.
-    if (vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn
+    if (vkbWidget->shiftStatus() == ModifierLatchedState
         && (!autoCapsEnabled || cursorPos != 0)) {
-        vkbWidget->setShiftState(MVirtualKeyboard::ShiftOff);
+        vkbWidget->setShiftState(ModifierClearState);
     }
 }
 
@@ -789,23 +789,23 @@ void MKeyboardHost::handleGeneralKeyClick(const KeyEvent &event)
 {
     if (event.qtKey() == Qt::Key_Shift) {
         switch (vkbWidget->shiftStatus()) {
-        case MVirtualKeyboard::ShiftOn:
+        case ModifierLatchedState:
             // If current ShiftOn state is due to autocaps, go back to ShiftOff.
             // Otherwise, lock it.
             if (upperCase) {
-                vkbWidget->setShiftState(MVirtualKeyboard::ShiftOff);
+                vkbWidget->setShiftState(ModifierClearState);
             } else {
-                vkbWidget->setShiftState(MVirtualKeyboard::ShiftLock);
+                vkbWidget->setShiftState(ModifierLockedState);
             }
             break;
-        case MVirtualKeyboard::ShiftOff:
-            vkbWidget->setShiftState(MVirtualKeyboard::ShiftOn);
+        case ModifierClearState:
+            vkbWidget->setShiftState(ModifierLatchedState);
             break;
-        case MVirtualKeyboard::ShiftLock:
-            vkbWidget->setShiftState(MVirtualKeyboard::ShiftOff);
+        case ModifierLockedState:
+            vkbWidget->setShiftState(ModifierClearState);
             break;
         }
-    } else if (vkbWidget->shiftStatus() == MVirtualKeyboard::ShiftOn
+    } else if (vkbWidget->shiftStatus() == ModifierLatchedState
                && (event.qtKey() != Qt::Key_Backspace)
                && (event.specialKey() != KeyEvent::Sym)
                && (!shiftHeldDown || upperCase)) {
@@ -814,7 +814,7 @@ void MKeyboardHost::handleGeneralKeyClick(const KeyEvent &event)
         // - backspace, toggles shift off is handled in doBackspace()
         // - sym, pressing sym key keeps current shift state
         // - shift, when held down don't bring level down, except with autocaps!
-        vkbWidget->setShiftState(MVirtualKeyboard::ShiftOff);
+        vkbWidget->setShiftState(ModifierClearState);
     }
 
     if (event.specialKey() == KeyEvent::LayoutMenu) {
@@ -1234,23 +1234,14 @@ void MKeyboardHost::updateSymbolViewLevel()
     if (!symbolView->isActive())
         return;
 
-    MVirtualKeyboard::ShiftLevel shiftLevel = MVirtualKeyboard::ShiftOff;
+    ModifierState shiftLevel = ModifierClearState;
     if (activeState == OnScreen) {
         shiftLevel = vkbWidget->shiftStatus();
     } else {
-        switch (hardwareKeyboard->modifierState(Qt::ShiftModifier)) {
-        case ModifierLatchedState:
-            shiftLevel = MVirtualKeyboard::ShiftOn;
-            break;
-        case ModifierLockedState:
-            shiftLevel = MVirtualKeyboard::ShiftLock;
-            break;
-        default:
-            break;
-        }
+        shiftLevel = hardwareKeyboard->modifierState(Qt::ShiftModifier);
     }
     symbolView->switchLevel(shiftLevel > 0 ? 1 : 0);
-    symbolView->setShiftStatus(shiftLevel > 0, shiftLevel == MVirtualKeyboard::ShiftLock);
+    symbolView->setShiftStatus(shiftLevel > 0, shiftLevel == ModifierLockedState);
 }
 
 void MKeyboardHost::showSymbolView()

@@ -62,14 +62,6 @@ class MVirtualKeyboard : public MWidget
     friend class Ut_MKeyboardHost;
 
 public:
-    //! Shift key states
-    typedef enum {
-        ShiftOff,
-        ShiftOn,
-        ShiftLock
-    } ShiftLevel;
-
-
     /*!
      * \brief Constructor for creating an virtual keyboard object.
      * \param parent Parent object.
@@ -111,7 +103,7 @@ public:
 
     // for unit tests
     //! Returns shift key status
-    ShiftLevel shiftStatus() const;
+    ModifierState shiftStatus() const;
 
     //! Characters defines word boundaries
     static const QString WordSeparators;
@@ -191,7 +183,7 @@ public slots:
     /*!
      * Method to set shift state
      */
-    void setShiftState(ShiftLevel level);
+    void setShiftState(ModifierState level);
 
     /*!
      * Method to Show the keyboard

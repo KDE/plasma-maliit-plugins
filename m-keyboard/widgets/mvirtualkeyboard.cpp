@@ -53,7 +53,7 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
       activity(Inactive),
       styleContainer(0),
       sceneManager(MPlainWindow::instance()->sceneManager()),
-      shiftLevel(ShiftOff),
+      shiftLevel(ModifierClearState),
       shiftHeldDown(false),
       ignoreShiftClick(false),
       currentLayoutType(LayoutData::General),
@@ -235,18 +235,18 @@ void
 MVirtualKeyboard::switchLevel()
 {
     switch (shiftLevel) {
-    case ShiftOff:
+    case ModifierClearState:
         currentLevel = 0;
         break;
-    case ShiftOn:
+    case ModifierLatchedState:
         currentLevel = 1;
         break;
-    case ShiftLock:
+    case ModifierLockedState:
         currentLevel = 1;
         break;
     }
 
-    const bool capsLock = (shiftLevel == ShiftLock);
+    const bool capsLock = (shiftLevel == ModifierLockedState);
 
     for (int i = 0; i < mainKeyboardSwitcher->count(); ++i) {
         // the subwidgets have main section as first item in their layout, function row as second.
@@ -262,7 +262,7 @@ MVirtualKeyboard::switchLevel()
 
 
 void
-MVirtualKeyboard::setShiftState(ShiftLevel level)
+MVirtualKeyboard::setShiftState(ModifierState level)
 {
     if (shiftLevel != level) {
         shiftLevel = level;
@@ -398,7 +398,7 @@ void MVirtualKeyboard::hideKeyboard(bool fadeOnly, bool temporary)
 void MVirtualKeyboard::resetState()
 {
     // Default state for shift is ShiftOff.
-    setShiftState(ShiftOff);
+    setShiftState(ModifierClearState);
 
     // Dead keys are unlocked in KeyButtonArea::onHide().
     // As long as this method is private, and only called from
@@ -702,9 +702,9 @@ void MVirtualKeyboard::stopAccurateMode()
 }
 
 
-MVirtualKeyboard::ShiftLevel MVirtualKeyboard::shiftStatus() const
+ModifierState MVirtualKeyboard::shiftStatus() const
 {
-    return ShiftLevel(shiftLevel);
+    return ModifierState(shiftLevel);
 }
 
 
