@@ -153,7 +153,7 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
 
     connect(vkbWidget, SIGNAL(regionUpdated(const QRegion &)),
             this, SLOT(handleRegionUpdate(const QRegion &)));
-    connect(vkbWidget, SIGNAL(regionUpdated(const QRegion &)),
+    connect(vkbWidget, SIGNAL(inputMethodAreaUpdated(const QRegion &)),
             this, SLOT(handleInputMethodAreaUpdate(const QRegion &)));
 
     connect(vkbWidget, SIGNAL(userInitiatedHide()),

@@ -388,8 +388,9 @@ void MVirtualKeyboard::showKeyboard(bool fadeOnly)
         // something else changes during the animation.  But normally the region should be
         // the same as the one we send now.  We do this initial region sending after
         // show() so that we can use region().  We cannot use sendVKBRegion() since region
-        // updates are suppressed.
-        emit regionUpdated(region().translated(0, regionOffset));
+        // updates are suppressed and because we want to apply the offset.
+        emit regionUpdated(region(true, true).translated(0, regionOffset));
+        emit inputMethodAreaUpdated(region().translated(0, regionOffset));
     } else if (hideShowByFadingOnly) {
         // fade() doesn't alter the position when we're just fading
         setPos(0, sceneManager->visibleSceneSize().height() - actualHeight());
@@ -534,10 +535,12 @@ void MVirtualKeyboard::sendVKBRegion()
     if (!sendRegionUpdates)
         return;
 
-    emit regionUpdated(region());
+    emit regionUpdated(region(true, true));
+    emit inputMethodAreaUpdated(region());
 }
 
-QRegion MVirtualKeyboard::region(const bool includeToolbar) const
+QRegion MVirtualKeyboard::region(const bool includeToolbar,
+                                 const bool /* includeExtraInteractiveAreas */) const
 {
     QRegion region;
 

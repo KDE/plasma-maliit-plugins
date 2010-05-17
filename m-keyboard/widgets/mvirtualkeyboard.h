@@ -147,7 +147,7 @@ public:
      */
     void hideToolbarWidget();
 
-    QRegion region(bool includeToolbar = true) const;
+    QRegion region(bool includeToolbar = true, bool includeExtraInteractiveAreas = false) const;
 
     /*!
      * \brief Shows or hides some keyboard's widgets depending on keyboard state.
@@ -263,9 +263,9 @@ private slots:
     void onSectionSwitched(QGraphicsWidget *previous, QGraphicsWidget *current);
 
     /*!
-     * Send \a regionUpdated signal with the current region of this widget and
-     * its children combined, unless \a suppressRegionUpdate has been used to
-     * suppress updates.
+     * Send \a regionUpdated and \a inputMethodAreaUpdated signals with the
+     * current region of this widget and its children combined, unless \a
+     * suppressRegionUpdate has been used to suppress updates.
      */
     void sendVKBRegion();
 
@@ -298,6 +298,9 @@ signals:
 
     //! \see MInputMethodBase::regionUpdated()
     void regionUpdated(const QRegion &);
+
+    //! \see MInputMethodBase::inputMethodAreaUpdated()
+    void inputMethodAreaUpdated(const QRegion &);
 
     //! This signal is emitted when input language is changed
     //! \param language this is always the language from XML file in unmodified form
