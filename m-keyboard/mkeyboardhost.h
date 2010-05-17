@@ -293,6 +293,12 @@ private:
     //! \sa focusChanged
     bool haveFocus;
 
+    //! Saved shift key state before moment when it was pressed
+    ModifierState savedShiftState;
+
+    //! Saved auto capitalization state before press on shift button
+    bool savedUpperCase;
+
 #ifdef UNIT_TEST
     friend class Ut_MKeyboardHost;
 #endif

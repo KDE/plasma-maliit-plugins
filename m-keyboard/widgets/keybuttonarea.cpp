@@ -199,20 +199,6 @@ KeyButtonArea::isObservableMove(const QPointF &prevPos, const QPointF &pos)
     return movement >= MovementThreshold;
 }
 
-KeyEvent KeyButtonArea::keyToKeyEvent(const IKeyButton &key, QKeyEvent::Type eventType) const
-{
-    const bool shift = (currentLevel == 1);
-    KeyEvent event;
-
-    if (activeDeadkey != NULL) {
-        event = key.key().toKeyEvent(eventType, activeDeadkey->label().at(0), shift);
-    } else {
-        event = key.key().toKeyEvent(eventType, shift);
-    }
-
-    return event;
-}
-
 void KeyButtonArea::resizeEvent(QGraphicsSceneResizeEvent *event)
 {
     const int newWidth = static_cast<int>(event->newSize().width());
@@ -267,12 +253,18 @@ void KeyButtonArea::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 void KeyButtonArea::setActiveKey(IKeyButton *key, TouchPointInfo &tpi)
 {
     // Selected buttons are currently skipped.
+    QString accent;
+
+    if (activeDeadkey) {
+        accent = activeDeadkey->label();
+    }
 
     if (tpi.activeKey && (tpi.activeKey != key)) {
         // Release key
         tpi.activeKey->setDownState(false);
-        KeyEvent releaseEvent = keyToKeyEvent(*tpi.activeKey, QEvent::KeyRelease);
-        emit keyReleased(releaseEvent);
+        // odd level numbers are upper case,
+        // even level numbers are lower case
+        emit keyReleased(tpi.activeKey, accent, level() % 2);
         tpi.activeKey = 0;
     }
 
@@ -280,8 +272,7 @@ void KeyButtonArea::setActiveKey(IKeyButton *key, TouchPointInfo &tpi)
         // Press key
         tpi.activeKey = key;
         tpi.activeKey->setDownState(true);
-        KeyEvent pressEvent = keyToKeyEvent(*tpi.activeKey, QEvent::KeyPress);
-        emit keyPressed(pressEvent);
+        emit keyPressed(tpi.activeKey, accent, level() % 2);
     }
 }
 
@@ -295,14 +286,18 @@ void KeyButtonArea::clearActiveKeys()
 void KeyButtonArea::click(const IKeyButton *key)
 {
     if (!key->isDeadKey()) {
-        KeyEvent clickEvent = keyToKeyEvent(*key, QEvent::KeyRelease);
+        QString accent;
+
+        if (activeDeadkey) {
+            accent = activeDeadkey->label();
+        }
 
         unlockDeadkeys();
 
         // Check if we need to disable accurate mode
         accurateCheckContent(key->label());
 
-        emit keyClicked(clickEvent);
+        emit keyClicked(key, accent, level() % 2);
     } else {
         clickAtDeadkey(key);
         update();

@@ -25,6 +25,9 @@
 #include "notification.h"
 #include "vkbdatakey.h"
 #include "mimtoolbar.h"
+#include "ikeybutton.h"
+#include "keyevent.h"
+#include "keyeventhandler.h"
 
 #include <QDebug>
 #include <QPainter>
@@ -54,8 +57,6 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
       styleContainer(0),
       sceneManager(MPlainWindow::instance()->sceneManager()),
       shiftLevel(ModifierClearState),
-      shiftHeldDown(false),
-      ignoreShiftClick(false),
       currentLayoutType(LayoutData::General),
       currentOrientation(sceneManager->orientation()),
       hideShowByFadingOnly(false),
@@ -78,6 +79,16 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
     styleContainer->initialize(objectName(), "MVirtualKeyboardView", 0);
 
     notification = new Notification(styleContainer, this);
+
+    eventHandler = new KeyEventHandler(this);
+    connect(eventHandler, SIGNAL(keyPressed(const KeyEvent &)),
+            this, SIGNAL(keyPressed(const KeyEvent &)));
+    connect(eventHandler, SIGNAL(keyReleased(const KeyEvent &)),
+            this, SIGNAL(keyReleased(const KeyEvent &)));
+    connect(eventHandler, SIGNAL(keyClicked(const KeyEvent &)),
+            this, SIGNAL(keyClicked(const KeyEvent &)));
+    connect(eventHandler, SIGNAL(shiftPressed(bool)),
+            this, SLOT(setFunctionRowState(bool)));
 
     createSwitcher();
 
@@ -920,16 +931,8 @@ KeyButtonArea * MVirtualKeyboard::createSectionView(const QString &language,
 
     KeyButtonArea *view = new SingleWidgetButtonArea(styleContainer, layoutSection,
                                                      sizeScheme, usePopup, parent);
-    Q_ASSERT(view);
 
-    connect(view, SIGNAL(keyPressed(const KeyEvent &)),
-            this, SLOT(handleKeyPress(const KeyEvent &)));
-
-    connect(view, SIGNAL(keyReleased(const KeyEvent &)),
-            this, SLOT(handleKeyRelease(const KeyEvent &)));
-
-    connect(view, SIGNAL(keyClicked(const KeyEvent &)),
-            this, SLOT(handleKeyClick(const KeyEvent &)));
+    eventHandler->addEventSource(view);
 
     connect(view, SIGNAL(flickDown()), this, SLOT(hideKeyboard()));
     connect(view, SIGNAL(flickDown()), this, SIGNAL(userInitiatedHide()));
@@ -939,40 +942,12 @@ KeyButtonArea * MVirtualKeyboard::createSectionView(const QString &language,
     return view;
 }
 
-void MVirtualKeyboard::handleKeyPress(const KeyEvent &event)
+void MVirtualKeyboard::setFunctionRowState(bool shiftPressed)
 {
-    emit keyPressed(event);
-
-    if (event.qtKey() == Qt::Key_Shift) {
-        //TODO: time treshold to avoid flickering?
-        static_cast<KeyButtonArea *>(mainKeyboardSwitcher->currentWidget()->layout()->itemAt(1))->
-            switchLevel(1);
-        shiftHeldDown = true;
-    } else if (shiftHeldDown) {
-        ignoreShiftClick = true;
-    }
+    //TODO: time treshold to avoid flickering?
+    static_cast<KeyButtonArea *>(mainKeyboardSwitcher->currentWidget()->layout()->itemAt(1))->
+        switchLevel(shiftPressed ? 1 : 0);
 }
-
-void MVirtualKeyboard::handleKeyRelease(const KeyEvent &event)
-{
-    emit keyReleased(event);
-
-    if (event.qtKey() == Qt::Key_Shift) {
-        static_cast<KeyButtonArea *>(mainKeyboardSwitcher->currentWidget()->layout()->itemAt(1))->
-            switchLevel(0);
-        shiftHeldDown = false;
-    }
-}
-
-void MVirtualKeyboard::handleKeyClick(const KeyEvent &event)
-{
-    if (event.qtKey() == Qt::Key_Shift && ignoreShiftClick) {
-        ignoreShiftClick = false; // clear
-    } else {
-        emit keyClicked(event);
-    }
-}
-
 
 void MVirtualKeyboard::setCopyPasteButton(bool copyAvailable, bool pasteAvailable)
 {

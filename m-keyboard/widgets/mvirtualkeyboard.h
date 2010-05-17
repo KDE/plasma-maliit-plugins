@@ -45,6 +45,7 @@ class VKBDataKey;
 class VkbToolbar;
 class MImToolbar;
 class MReactionMap;
+class KeyEventHandler;
 
 /*!
   \class MVirtualKeyboard
@@ -221,9 +222,11 @@ public slots:
     void showMainArea();
 
 private slots:
-    void handleKeyPress(const KeyEvent &);
-    void handleKeyRelease(const KeyEvent &);
-    void handleKeyClick(const KeyEvent &);
+    /*!
+     * \brief Switch function row to upper/lower case
+     * according to given parameter
+     */
+    void setFunctionRowState(bool shiftPressed);
 
     /*!
      * Handler for Right flick operation
@@ -449,12 +452,6 @@ private:
     //! Shift key status
     int shiftLevel;
 
-    //! Keeps track of shift up/down status.
-    bool shiftHeldDown;
-
-    //! When this is set true the next shift click is ignored.
-    bool ignoreShiftClick;
-
     // Vkb show hide time line
     QTimeLine showHideTimeline;
 
@@ -489,6 +486,8 @@ private:
     QSharedPointer<QPixmap> backgroundPixmap;
 
     MIMHandlerState activeState;
+
+    KeyEventHandler *eventHandler;
 };
 
 #endif

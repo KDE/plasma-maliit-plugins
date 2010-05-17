@@ -94,7 +94,9 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
       activeState(OnScreen),
       modifierLockOnInfoBanner(0),
       modifierLockOnTimer(this),
-      haveFocus(false)
+      haveFocus(false),
+      savedShiftState(ModifierClearState),
+      savedUpperCase(false)
 {
     displayHeight = MPlainWindow::instance()->visibleSceneSize(M::Landscape).height();
     displayWidth  = MPlainWindow::instance()->visibleSceneSize(M::Landscape).width();
@@ -695,7 +697,20 @@ void MKeyboardHost::autoBackspace()
 void MKeyboardHost::handleKeyPress(const KeyEvent &event)
 {
     if (event.qtKey() == Qt::Key_Shift) {
-        shiftHeldDown = true;
+        if (shiftHeldDown) {
+            return; //ignore duplicated event
+        }
+
+        if (activeState == OnScreen) {
+            shiftHeldDown = true;
+            savedShiftState = vkbWidget->shiftStatus();
+            savedUpperCase = upperCase;
+            // we need to invert shift state:
+            // * clear shift state if it is latched or locked, or
+            // * latch it, if it is cleared
+            const ModifierState newState = (savedShiftState == ModifierClearState) ? ModifierLatchedState : ModifierClearState;
+            vkbWidget->setShiftState(newState);
+        }
     }
 
     if (((inputMethodMode == M::InputMethodModeDirect)
@@ -712,7 +727,28 @@ void MKeyboardHost::handleKeyPress(const KeyEvent &event)
 void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
 {
     if (event.qtKey() == Qt::Key_Shift) {
-        shiftHeldDown = false;
+        if (!shiftHeldDown) {
+            return; //ignore duplicated event
+        }
+
+        if (activeState == OnScreen) {
+            ModifierState newState = ModifierClearState;
+
+            shiftHeldDown = false;
+            // we need to update shift status:
+            // * restore old value if character case was not toggled by auto caps
+            // * latch shift key if upper case was enabled by auto caps
+            // * otherwise clear shift key
+            if (savedUpperCase == upperCase) {
+                newState = savedShiftState;
+            } else if (upperCase) {
+                newState = ModifierLatchedState;
+            } else {
+                newState = ModifierClearState;
+            }
+
+            vkbWidget->setShiftState(newState);
+        }
     }
 
     if (((inputMethodMode == M::InputMethodModeDirect)

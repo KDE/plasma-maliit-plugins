@@ -20,6 +20,7 @@
 #include "horizontalswitcher.h"
 #include "layoutsmanager.h"
 #include "symbolview.h"
+#include "keyeventhandler.h"
 
 #include <MSceneManager>
 #include <MScalableImage>
@@ -73,6 +74,16 @@ SymbolView::SymbolView(const LayoutsManager &layoutsManager, MVirtualKeyboardSty
       verticalLayout(*new QGraphicsLinearLayout(Qt::Vertical, this)),
       keyAreaLayout(*new QGraphicsLinearLayout(Qt::Vertical))
 {
+    eventHandler = new KeyEventHandler(this);
+    connect(eventHandler, SIGNAL(keyPressed(const KeyEvent &)),
+            this, SIGNAL(keyPressed(const KeyEvent &)));
+    connect(eventHandler, SIGNAL(keyReleased(const KeyEvent &)),
+            this, SIGNAL(keyReleased(const KeyEvent &)));
+    connect(eventHandler, SIGNAL(keyClicked(const KeyEvent &)),
+            this, SIGNAL(keyClicked(const KeyEvent &)));
+    connect(eventHandler, SIGNAL(shiftPressed(bool)),
+            this, SLOT(setFunctionRowState(bool)));
+
     hide();
     setupShowAndHide();
     setupLayout();
@@ -429,45 +440,9 @@ KeyButtonArea *SymbolView::createKeyButtonArea(QSharedPointer<const LayoutSectio
         keysWidget = new SingleWidgetButtonArea(styleContainer, section, sizeScheme, enablePopup);
         keysWidget->setFont(style()->font());
 
-        connect(keysWidget, SIGNAL(keyClicked(const KeyEvent &)),
-                SLOT(handleKeyClick(const KeyEvent &)));
-        connect(keysWidget, SIGNAL(keyPressed(const KeyEvent &)),
-                SLOT(handleKeyPress(const KeyEvent &)));
-        connect(keysWidget, SIGNAL(keyReleased(const KeyEvent &)),
-                SLOT(handleKeyRelease(const KeyEvent &)));
+        eventHandler->addEventSource(keysWidget);
     }
     return keysWidget;
-}
-
-void SymbolView::handleKeyPress(const KeyEvent &event)
-{
-    emit keyPressed(event);
-
-    if ((event.qtKey() == Qt::Key_Shift) && functionRow) {
-        functionRow->switchLevel(1);
-        shiftHeldDown = true;
-    } else if (shiftHeldDown) {
-        ignoreShiftClick = true;
-    }
-}
-
-void SymbolView::handleKeyRelease(const KeyEvent &event)
-{
-    emit keyReleased(event);
-
-    if ((event.qtKey() == Qt::Key_Shift) && functionRow) {
-        functionRow->switchLevel(0);
-        shiftHeldDown = false;
-    }
-}
-
-void SymbolView::handleKeyClick(const KeyEvent &event)
-{
-    if (event.qtKey() == Qt::Key_Shift && ignoreShiftClick) {
-        ignoreShiftClick = false; // clear
-    } else {
-        emit keyClicked(event);
-    }
 }
 
 void SymbolView::organizeContent()
@@ -486,7 +461,6 @@ void SymbolView::organizeContent()
 
     reposition(size().toSize().height());
 }
-
 
 void SymbolView::switchLevel(int level)
 {
@@ -571,6 +545,13 @@ void SymbolView::switchDone()
     if (isVisible()) {
         layout()->activate();
         redrawReactionMaps();
+    }
+}
+
+void SymbolView::setFunctionRowState(bool shiftPressed)
+{
+    if (functionRow) {
+        functionRow->switchLevel(shiftPressed ? 1 : 0);
     }
 }
 

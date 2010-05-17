@@ -39,6 +39,7 @@ class QTimeLine;
 class KeyEvent;
 class LayoutSection;
 class SymIndicatorButton;
+class KeyEventHandler;
 
 
 /*!
@@ -207,9 +208,11 @@ private slots:
     void onSwitchStarting(QGraphicsWidget *current, QGraphicsWidget *next);
     void switchDone();
 
-    void handleKeyClick(const KeyEvent &);
-    void handleKeyPress(const KeyEvent &);
-    void handleKeyRelease(const KeyEvent &);
+    /*!
+     * \brief Switch function row to upper/lower case
+     * according to given parameter
+     */
+    void setFunctionRowState(bool shiftPressed);
 
 private:
     //! symbol view state wrt. \a showSymbolView / \a hideSymbolView calls.
@@ -313,6 +316,9 @@ private:
 
     //! This layout holds symbol characters and function row.
     QGraphicsLinearLayout &keyAreaLayout;
+
+    //! Pointer to handler for button events
+    KeyEventHandler *eventHandler;
 
 #ifdef UNIT_TEST
     friend class Ut_SymbolView;

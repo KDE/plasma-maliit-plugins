@@ -148,24 +148,30 @@ signals:
      * \brief Emitted when key is pressed
      * Note that this happens also when user keeps finger down/mouse
      * button pressed and moves over another key (event is about the new key)
-     * \param event key event
+     * \param key describes pressed button
+     * \param accent label of pressed dead key if any
+     * \param upperCase contains true if key is in uppercase state
      */
-    void keyPressed(const KeyEvent &event);
+    void keyPressed(const IKeyButton *key, const QString &accent, bool upperCase);
 
     /*!
      * \brief Emitted when key is released
      * Note that this happens also when user keeps finger down/mouse
      * button pressed and moves over another key (event is about the old key)
-     * \param event key event
+     * \param key describes released button
+     * \param accent label of pressed dead key if any
+     * \param upperCase contains true if key is in uppercase state
      */
-    void keyReleased(const KeyEvent &event);
+    void keyReleased(const IKeyButton *key, const QString &accent, bool upperCase);
 
     /*!
      * \brief Emitted when user releases mouse button/lifts finger
      * Except when done on a dead key
-     * \param event key event
+     * \param key describes clicked button
+     * \param accent label of pressed dead key if any
+     * \param upperCase contains true if key is in uppercase state
      */
-    void keyClicked(const KeyEvent &event);
+    void keyClicked(const IKeyButton *key, const QString &accent, bool upperCase);
 
     //! Emitted when flicked right
     void flickRight();
@@ -298,9 +304,6 @@ protected:
     void clearActiveKeys();
 
 private:
-    //! Turn key button into a KeyEvent, considering current dead key and modifier state
-    KeyEvent keyToKeyEvent(const IKeyButton &key, QKeyEvent::Type eventType) const;
-
     //! Check whether given character will stop accurate mode.
     void accurateCheckContent(const QString &content);
 

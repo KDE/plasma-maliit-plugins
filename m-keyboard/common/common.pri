@@ -19,6 +19,7 @@ HEADERS += \
     $$COMMON_DIR/mhardwarekeyboard.h \
     $$COMMON_DIR/hwkbcharloops.h \
     $$COMMON_DIR/hwkbcharloopsmanager.h \
+    $$COMMON_DIR/keyeventhandler.h \
 
 SOURCES += \
     $$COMMON_DIR/keyboarddata.cpp\
@@ -34,6 +35,7 @@ SOURCES += \
     $$COMMON_DIR/mhardwarekeyboard.cpp \
     $$COMMON_DIR/hwkbcharloops.cpp \
     $$COMMON_DIR/hwkbcharloopsmanager.cpp \
+    $$COMMON_DIR/keyeventhandler.cpp \
 
 INCLUDEPATH += $$COMMON_DIR
 DEPENDPATH += $$COMMON_DIR

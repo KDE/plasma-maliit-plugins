@@ -433,7 +433,6 @@ IKeyButton *SingleWidgetButtonArea::keyAt(const QPoint &pos) const
 
 void SingleWidgetButtonArea::setShiftStatus(bool shiftOn, bool capslock)
 {
-    // Empty default implementation
     if (shiftButton) {
         shiftButton->setModifiers(shiftOn);
         shiftButton->setSelected(capslock);
