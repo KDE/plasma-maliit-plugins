@@ -175,11 +175,12 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
     // 1) Navigation bar hiding (altough it's probably already hidden) -> vkb hiding
     // 2) Rotation in progress -> vkb not visible
     // 3) Navigation bar showing -> vkb showing
-    // There is currently, however, no signals at that level we could follow.
     connect(MPlainWindow::instance()->sceneManager(),
-            SIGNAL(orientationAboutToChange(M::Orientation)),
+            SIGNAL(orientationAngleChanged(M::OrientationAngle)),
             SLOT(prepareOrientationChange()));
 
+    // orientationChangeFinished is emitted on every angle change,
+    // not only orientation change.
     connect(MPlainWindow::instance()->sceneManager(),
             SIGNAL(orientationChangeFinished(M::Orientation)),
             SLOT(finalizeOrientationChange()));
