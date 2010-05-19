@@ -13,9 +13,10 @@ PKGCONFIG += gconf-2.0
 HEADERS += ut_mkeyboardhost.h \
            minputcontextstubconnection.h \
            ../stubs/mgconfitem_stub.h \
-           ../stubs/fakegconf.h
+           ../stubs/fakegconf.h \
+
 SOURCES += ut_mkeyboardhost.cpp \
            minputcontextstubconnection.cpp \
-           ../stubs/fakegconf.cpp
+           ../stubs/fakegconf.cpp \
 
 include(../common_check.pri)

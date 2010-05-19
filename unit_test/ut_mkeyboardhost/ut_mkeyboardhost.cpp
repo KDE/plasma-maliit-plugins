@@ -53,6 +53,9 @@ namespace
     MIMHandlerState gSetKeyboardStateParam = OnScreen;
     const int LayoutMenuShowTime = 300; // in ms
     const int SceneRotationTime = 1400; // in ms
+
+    // This GConf item defines whether multitouch is enabled or disabled
+    const char * const MultitouchSettings = "/meegotouch/inputmethods/multitouch/enabled";
 }
 
 namespace QTest
@@ -71,7 +74,7 @@ namespace QTest
 
 Q_DECLARE_METATYPE(QSet<MIMHandlerState>)
 Q_DECLARE_METATYPE(MIMHandlerState)
-
+Q_DECLARE_METATYPE(ModifierState)
 
 static void waitForSignal(const QObject* object, const char* signal, int timeout = 500)
 {
@@ -114,6 +117,8 @@ void Ut_MKeyboardHost::initTestCase()
     MTheme::instance()->loadCSS("/usr/share/meegotouch/virtual-keyboard/css/864x480.css");
     inputContext = new MInputContextStubConnection;
     window = new MPlainWindow;
+
+    MGConfItem(MultitouchSettings).set(true);
 }
 
 void Ut_MKeyboardHost::cleanupTestCase()
@@ -951,4 +956,96 @@ void Ut_MKeyboardHost::testKeyCycle()
     QCOMPARE(inputContext->commit, QString(event2.text()[0]) + " ");
 }
 
+void Ut_MKeyboardHost::testPressShift_data()
+{
+    QTest::addColumn<MIMHandlerState>("state");
+    QTest::addColumn<ModifierState>("initialShiftState");
+    QTest::addColumn<ModifierState>("expectedShiftState");
+    QTest::addColumn<bool>("enableMultiTouch");
+
+    QTest::newRow("screen lowercase") << OnScreen << ModifierClearState   << ModifierLatchedState << true;
+    QTest::newRow("screen latched")   << OnScreen << ModifierLatchedState << ModifierClearState << true;
+    QTest::newRow("screen locked")    << OnScreen << ModifierLockedState  << ModifierClearState << true;
+
+    QTest::newRow("hw lowercase") << Hardware << ModifierClearState   << ModifierClearState << true;
+    QTest::newRow("hw latched")   << Hardware << ModifierLatchedState << ModifierLatchedState << true;
+    QTest::newRow("hw locked")    << Hardware << ModifierLockedState  << ModifierLockedState << true;
+
+    QTest::newRow("single-touch lowercase") << OnScreen << ModifierClearState   << ModifierClearState << false;
+    QTest::newRow("single-touch latched")   << OnScreen << ModifierLatchedState << ModifierLatchedState << false;
+    QTest::newRow("single-touch locked")    << OnScreen << ModifierLockedState  << ModifierLockedState << false;
+}
+
+void Ut_MKeyboardHost::testPressShift()
+{
+    QFETCH(MIMHandlerState, state);
+    QFETCH(ModifierState, initialShiftState);
+    QFETCH(ModifierState, expectedShiftState);
+    QFETCH(bool, enableMultiTouch);
+
+    QSet<MIMHandlerState> set;
+    set << state;
+
+    KeyEvent pressShift(QString(), QEvent::KeyPress, Qt::Key_Shift, KeyEvent::NotSpecial, Qt::ShiftModifier);
+
+    subject->setState(set);
+    subject->vkbWidget->setShiftState(initialShiftState);
+    subject->enableMultiTouch = enableMultiTouch;
+
+    subject->handleKeyPress(pressShift);
+    QVERIFY(subject->vkbWidget->shiftStatus() == expectedShiftState);
+
+    subject->handleKeyPress(pressShift);
+    QVERIFY(subject->vkbWidget->shiftStatus() == expectedShiftState);
+}
+
+void Ut_MKeyboardHost::testReleaseShift_data()
+{
+    QTest::addColumn<MIMHandlerState>("state");
+    QTest::addColumn<ModifierState>("initialShiftState");
+    QTest::addColumn<ModifierState>("expectedShiftState");
+    QTest::addColumn<bool>("upperCase");
+    QTest::addColumn<bool>("upperCase2");
+
+    QTest::newRow("screen lowercase") << OnScreen << ModifierClearState   << ModifierClearState   << false << false;
+    QTest::newRow("screen latched")   << OnScreen << ModifierLatchedState << ModifierLatchedState << false << false;
+    QTest::newRow("screen locked")    << OnScreen << ModifierLockedState  << ModifierLockedState  << false << false;
+
+    QTest::newRow("screen lowercase 2") << OnScreen << ModifierClearState   << ModifierLatchedState << false << true;
+    QTest::newRow("screen latched   2") << OnScreen << ModifierLatchedState << ModifierClearState   << true  << false;
+    QTest::newRow("screen locked    2") << OnScreen << ModifierLockedState  << ModifierLatchedState << false << true;
+
+    QTest::newRow("hw lowercase") << Hardware << ModifierClearState   << ModifierClearState   << false << false;
+    QTest::newRow("hw latched")   << Hardware << ModifierLatchedState << ModifierLatchedState << false << false;
+    QTest::newRow("hw locked")    << Hardware << ModifierLockedState  << ModifierLockedState  << false << false;
+}
+
+void Ut_MKeyboardHost::testReleaseShift()
+{
+    QFETCH(MIMHandlerState, state);
+    QFETCH(ModifierState, initialShiftState);
+    QFETCH(ModifierState, expectedShiftState);
+    QFETCH(bool, upperCase);
+    QFETCH(bool, upperCase2);
+
+    QSet<MIMHandlerState> set;
+    set << state;
+
+    KeyEvent pressShift  (QString(), QEvent::KeyPress,   Qt::Key_Shift, KeyEvent::NotSpecial, Qt::ShiftModifier);
+    KeyEvent releaseShift(QString(), QEvent::KeyRelease, Qt::Key_Shift, KeyEvent::NotSpecial, Qt::ShiftModifier);
+
+    subject->setState(set);
+    subject->vkbWidget->setShiftState(initialShiftState);
+    subject->upperCase = upperCase;
+
+    subject->handleKeyPress(pressShift);
+    subject->upperCase = upperCase2;
+    subject->handleKeyRelease(releaseShift);
+    QVERIFY(subject->vkbWidget->shiftStatus() == expectedShiftState);
+
+    subject->handleKeyRelease(releaseShift);
+    QVERIFY(subject->vkbWidget->shiftStatus() == expectedShiftState);
+}
+
 QTEST_APPLESS_MAIN(Ut_MKeyboardHost);
+

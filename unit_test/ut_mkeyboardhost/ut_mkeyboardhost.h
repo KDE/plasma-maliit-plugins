@@ -70,6 +70,12 @@ private slots:
     void testKeyCycle_data();
     void testKeyCycle();
 
+    void testPressShift_data();
+    void testPressShift();
+
+    void testReleaseShift_data();
+    void testReleaseShift();
+
 private:
     void rotateToAngle(M::OrientationAngle);
 };
