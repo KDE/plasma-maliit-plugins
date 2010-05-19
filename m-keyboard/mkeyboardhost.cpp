@@ -845,6 +845,7 @@ void MKeyboardHost::handleGeneralKeyClick(const KeyEvent &event)
             vkbWidget->setShiftState(ModifierClearState);
             break;
         }
+        upperCase = false;
     } else if (vkbWidget->shiftStatus() == ModifierLatchedState
                && (event.qtKey() != Qt::Key_Backspace)
                && (event.specialKey() != KeyEvent::Sym)
