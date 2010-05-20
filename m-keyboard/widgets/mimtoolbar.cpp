@@ -39,46 +39,16 @@ namespace
     //!object name for toolbar buttons
     const QString ObjectNameToolbarButtons("VirtualKeyboardToolbarButton");
     const QString ObjectNameCloseButton("VirtualKeyboardCloseButton");
-    const QString ObjectNameIndicatorButton("VirtualKeyboardIndicatorButton");
     const QString ObjectNameToolbar("MImToolbar");
     const QString ObjectNameToolbarLeft("VirtualKeyboardToolbarLeft");
     const QString ObjectNameToolbarRight("VirtualKeyboardToolbarRight");
     const QString IconNameCloseButton("icon-m-input-methods-close");
-    //! indicator label for latin
-    const QString LatinShiftOffIndicatorLabel("abc");
-    const QString LatinShiftOnIndicatorLabel("Abc");
-    const QString LatinShiftLockedIndicatorLabel("ABC");
-    //! indicator label for cyrillic
-    const QString CyrillicShiftOffIndicatorLabel = QString("%1%2%3")
-            .arg(QChar(0x0430))
-            .arg(QChar(0x0431))
-            .arg(QChar(0x0432));
-    const QString CyrillicShiftOnIndicatorLabel = QString("%1%2%3")
-            .arg(QChar(0x0410))
-            .arg(QChar(0x0431))
-            .arg(QChar(0x0432));
-    const QString CyrillicShiftLockedIndicatorLabel = QString("%1%2%3")
-            .arg(QChar(0x0410))
-            .arg(QChar(0x0411))
-            .arg(QChar(0x0412));
-    //! indicator label for arabic
-    const QString ArabicIndicatorLabel = QString("%1%2%3%4%5")
-                                         .arg(QChar(0x0627))
-                                         .arg(QChar(0x200C))
-                                         .arg(QChar(0x0628))
-                                         .arg(QChar(0x200C))
-                                         .arg(QChar(0x062A));
-    //! indicator label for FN
-    const QString FNOnIndicatorLabel("123");
-    const QString FNLockedIndicatorLabel("<U>123</U>");
-    const Qt::KeyboardModifier FnLevelModifier = Qt::GroupSwitchModifier;
 };
 
 MImToolbar::MImToolbar(MVirtualKeyboardStyleContainer &style, QGraphicsWidget *parent)
     : MWidget(parent),
       toolbarMgr(ToolbarManager::instance()),
       textSelected(false),
-      indicator(new MButton),
       copyPaste(new MButton),
       copyPasteStatus(InputMethodNoCopyPaste),
       leftBar(true, this),
@@ -106,8 +76,6 @@ MImToolbar::MImToolbar(MVirtualKeyboardStyleContainer &style, QGraphicsWidget *p
 
 MImToolbar::~MImToolbar()
 {
-    delete indicator;
-    indicator = 0;
     delete copyPaste;
     copyPaste = 0;
 }
@@ -130,11 +98,6 @@ void MImToolbar::setupLayout()
 
 void MImToolbar::loadDefaultButtons()
 {
-    // Setup indicator button.
-    indicator->setObjectName(ObjectNameToolbarButtons);
-    connect(indicator, SIGNAL(clicked()), this, SIGNAL(indicatorClicked()));
-    indicator->setVisible(false);
-
     // Setup copy/paste button.
     copyPaste->setObjectName(ObjectNameToolbarButtons);
     copyPaste->setVisible(false);
@@ -348,33 +311,6 @@ void MImToolbar::hideToolbarWidget()
         updateVisibility();
 }
 
-void MImToolbar::hideIndicatorButton()
-{
-    indicator->setVisible(false);
-    removeItem(indicator);
-}
-
-void MImToolbar::showIndicatorButton()
-{
-    if (indicator->isVisible())
-        return;
-
-    // Sets default label.
-    QString indicatorLabel;
-    const QString currentDisplayLanguage = LayoutsManager::instance().systemDisplayLanguage();
-    if (currentDisplayLanguage == "ar") {
-        indicatorLabel = ArabicIndicatorLabel;
-    } else if (LayoutsManager::isCyrillicLanguage(currentDisplayLanguage)) {
-        indicatorLabel = CyrillicShiftOffIndicatorLabel;
-    } else {
-        indicatorLabel = LatinShiftOffIndicatorLabel;
-    }
-    indicator->setText(indicatorLabel);
-    indicator->setVisible(true);
-    // indicator is the right most button
-    insertItem(rightBar.count(), indicator, Qt::AlignRight);
-}
-
 void MImToolbar::copyPasteButtonHandler()
 {
     if (copyPasteStatus == InputMethodNoCopyPaste)
@@ -397,10 +333,8 @@ void MImToolbar::setCopyPasteButton(bool copyAvailable, bool pasteAvailable)
         return;
 
     // Show/hide CopyPaste button.
-    //copy button is in the front of the indicator if it is shown,
-    //otherwise copy button becomes most right button in toolbar
-    const int offset = (rightBar.contains(indicator)) ? 1 : 0;
-    const int buttonIndex = qMax(0, (rightBar.count() - offset));
+    // copy button is the most right button in toolbar
+    const int buttonIndex = rightBar.count();
     const bool hasCopyPasteButton = rightBar.contains(copyPaste);
     bool changed = false;
     copyPasteStatus = newStatus;
@@ -521,70 +455,4 @@ void MImToolbar::clearReactiveAreas()
     reactionMap->setInactiveDrawingValue();
     reactionMap->fillRectangle(leftBar.geometry());
     reactionMap->fillRectangle(rightBar.geometry());
-}
-
-void MImToolbar::setIndicatorButtonState(Qt::KeyboardModifier modifier, ModifierState state)
-{
-    //TODO: this method could be removed when home screen really support showing input mode indicator.
-    QString indicatorLabel;
-    const QString currentDisplayLanguage = LayoutsManager::instance().systemDisplayLanguage();
-    switch (modifier) {
-    case Qt::ShiftModifier:
-        shiftState = state;
-        switch (state) {
-        case ModifierClearState:
-            if (fnState != ModifierClearState) {
-                return;
-            }
-            if (currentDisplayLanguage == "ar") {
-                indicatorLabel = ArabicIndicatorLabel;
-            } else if (LayoutsManager::isCyrillicLanguage(currentDisplayLanguage)) {
-                indicatorLabel = CyrillicShiftOffIndicatorLabel;
-            } else {
-                indicatorLabel = LatinShiftOffIndicatorLabel;
-            }
-            break;
-        case ModifierLatchedState:
-            if (currentDisplayLanguage == "ar") {
-                indicatorLabel = ArabicIndicatorLabel;
-            } else if (LayoutsManager::isCyrillicLanguage(currentDisplayLanguage)) {
-                indicatorLabel = CyrillicShiftOnIndicatorLabel;
-            } else {
-                indicatorLabel = LatinShiftOnIndicatorLabel;
-            }
-            break;
-        case ModifierLockedState:
-            if (currentDisplayLanguage == "ar") {
-                indicatorLabel = ArabicIndicatorLabel;
-            } else if (LayoutsManager::isCyrillicLanguage(currentDisplayLanguage)) {
-                indicatorLabel = CyrillicShiftLockedIndicatorLabel;
-            } else {
-                indicatorLabel = LatinShiftLockedIndicatorLabel;
-            }
-            break;
-        }
-        break;
-    case FnLevelModifier:
-        fnState = state;
-        switch (state) {
-        case ModifierClearState:
-            if (shiftState != ModifierClearState) {
-                return;
-            }
-            // when fn key change back to clear, shows default label "abc"
-            indicatorLabel = LatinShiftOffIndicatorLabel;
-            break;
-        case ModifierLatchedState:
-            indicatorLabel = FNOnIndicatorLabel;
-            break;
-        case ModifierLockedState:
-            indicatorLabel = FNLockedIndicatorLabel;
-            break;
-        }
-        break;
-    default:
-        //do not deal with the other modifiers
-        return;
-    }
-    indicator->setText(indicatorLabel);
 }

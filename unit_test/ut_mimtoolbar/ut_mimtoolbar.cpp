@@ -50,35 +50,6 @@ namespace
     // is constructed in init().
     QString ToolbarFileName("/usr/share/meegotouch/imtoolbars/testtoolbar.xml");
     qlonglong ToolbarId(qrand());
-    //! indicator label for latin
-    const QString LatinShiftOffIndicatorLabel("abc");
-    const QString LatinShiftOnIndicatorLabel("Abc");
-    const QString LatinShiftLockedIndicatorLabel("ABC");
-    //! indicator label for cyrillic
-    const QString CyrillicShiftOffIndicatorLabel = QString("%1%2%3")
-            .arg(QChar(0x0430))
-            .arg(QChar(0x0431))
-            .arg(QChar(0x0432));
-    const QString CyrillicShiftOnIndicatorLabel = QString("%1%2%3")
-            .arg(QChar(0x0410))
-            .arg(QChar(0x0431))
-            .arg(QChar(0x0432));
-    const QString CyrillicShiftLockedIndicatorLabel = QString("%1%2%3")
-            .arg(QChar(0x0410))
-            .arg(QChar(0x0411))
-            .arg(QChar(0x0412));
-    //! indicator label for arabic
-    const QString ArabicIndicatorLabel = QString("%1%2%3%4%5")
-                                         .arg(QChar(0x0627))
-                                         .arg(QChar(0x200C))
-                                         .arg(QChar(0x0628))
-                                         .arg(QChar(0x200C))
-                                         .arg(QChar(0x062A));
-    //! indicator label for FN
-    const QString FNOnIndicatorLabel("123");
-    const QString FNLockedIndicatorLabel("<U>123</U>");
-    const Qt::KeyboardModifier FnLevelModifier = Qt::GroupSwitchModifier;
-    const QString SystemDisplayLanguage("/meegotouch/i18n/language");
 
     int indexOf(const QGraphicsLayout *layout, const QGraphicsLayoutItem *item)
     {
@@ -426,95 +397,6 @@ void Ut_MImToolbar::testRegion()
 
     QCOMPARE(regionSignals.count(), 4);
     QVERIFY(m_subject->region().isEmpty());
-}
-
-void Ut_MImToolbar::testShowHideIndicatorButton()
-{
-    int count = 0;
-    QGraphicsLayoutItem *item = m_subject->indicator;
-
-    QVERIFY(indexOf(m_subject->rightBar.layout(), item) == -1);
-    count = m_subject->rightBar.layout()->count();
-
-    qDebug() << m_subject->rightBar.layout()->count();
-    m_subject->showIndicatorButton();
-    qDebug() << m_subject->rightBar.layout()->count();
-    QCOMPARE((count + 1),  m_subject->rightBar.layout()->count());
-    QVERIFY(indexOf(m_subject->rightBar.layout(), item) >= 0);
-
-    m_subject->hideIndicatorButton();
-    QCOMPARE(count,  m_subject->rightBar.layout()->count());
-    QVERIFY(indexOf(m_subject->rightBar.layout(), item) == -1);
-}
-
-void Ut_MImToolbar::testIndicatorButton()
-{
-    MButton *button = m_subject->indicator;
-    QSignalSpy spy(m_subject, SIGNAL(indicatorClicked()));
-    QVERIFY(button != 0);
-    QVERIFY(!button->isVisible());
-    QVERIFY(spy.isValid());
-    m_subject->setVisible(true);
-    QVERIFY(m_subject->isVisible() == true);
-    m_subject->showIndicatorButton();
-    QVERIFY(button->isVisible());
-    m_subject->indicator->click();
-    QVERIFY(spy.count() == 1);
-    spy.clear();
-    m_subject->hideIndicatorButton();
-}
-
-
-void Ut_MImToolbar::testSetIndicatorButtonState()
-{
-    m_subject->showIndicatorButton();
-    MGConfItem systemDisplayLanguage(SystemDisplayLanguage);
-
-    //latin
-    systemDisplayLanguage.set(QVariant("en_gb"));
-    // "abc"
-    QCOMPARE(m_subject->indicator->text(), LatinShiftOffIndicatorLabel);
-    // -> "Abc"
-    m_subject->setIndicatorButtonState(Qt::ShiftModifier, ModifierLatchedState);
-    QCOMPARE(m_subject->indicator->text(), LatinShiftOnIndicatorLabel);
-    // -> "ABC"
-    m_subject->setIndicatorButtonState(Qt::ShiftModifier, ModifierLockedState);
-    QCOMPARE(m_subject->indicator->text(), LatinShiftLockedIndicatorLabel);
-    // -> "123"
-    m_subject->setIndicatorButtonState(FnLevelModifier, ModifierLatchedState);
-    QCOMPARE(m_subject->indicator->text(), FNOnIndicatorLabel);
-    // -> "123_"
-    m_subject->setIndicatorButtonState(FnLevelModifier, ModifierLockedState);
-    QCOMPARE(m_subject->indicator->text(), FNLockedIndicatorLabel);
-
-    //cyrillic
-    systemDisplayLanguage.set(QVariant("ru"));
-    m_subject->hideIndicatorButton();
-    m_subject->showIndicatorButton();
-    // cyrillic shiftoff
-    QCOMPARE(m_subject->indicator->text(), CyrillicShiftOffIndicatorLabel);
-    // cyrillic shifton
-    m_subject->setIndicatorButtonState(Qt::ShiftModifier, ModifierLatchedState);
-    QCOMPARE(m_subject->indicator->text(), CyrillicShiftOnIndicatorLabel);
-    // cyrillic shiftlock
-    m_subject->setIndicatorButtonState(Qt::ShiftModifier, ModifierLockedState);
-    QCOMPARE(m_subject->indicator->text(), CyrillicShiftLockedIndicatorLabel);
-
-    //arabic
-    systemDisplayLanguage.set(QVariant("ar"));
-    m_subject->hideIndicatorButton();
-    m_subject->showIndicatorButton();
-    // arabic shiftoff
-    QCOMPARE(m_subject->indicator->text(), ArabicIndicatorLabel);
-    // arabic shifton
-    m_subject->setIndicatorButtonState(Qt::ShiftModifier, ModifierLatchedState);
-    QCOMPARE(m_subject->indicator->text(), ArabicIndicatorLabel);
-    // arabic shiftlock
-    m_subject->setIndicatorButtonState(Qt::ShiftModifier, ModifierLockedState);
-    QCOMPARE(m_subject->indicator->text(), ArabicIndicatorLabel);
-
-    systemDisplayLanguage.set(QVariant("en"));
-    m_subject->hideIndicatorButton();
 }
 
 void Ut_MImToolbar::testSetToolbarItemAttribute()

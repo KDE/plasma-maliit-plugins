@@ -79,23 +79,6 @@ public:
      */
     void hideToolbarWidget();
 
-    /*!
-     * \brief Hide indicator button.
-     * \sa showIndicatorButton().
-     */
-    void hideIndicatorButton();
-
-    /*!
-     * \brief Show indicator button.
-     * The input mode indicator button shows the modifier state (off, on, locked) and deadkey state base on
-     * current system display language. It default shows "abc" label when no modifier/deadkey is actived
-     * for latin display language. And when one mode is changed (to latched or locked), or deadkey is on,
-     * or display language is changed, the indicator button will changed its label to show the corresponding
-     * state.
-     * \sa setIndicatorButtonState().
-     */
-    void showIndicatorButton();
-
     void drawReactiveAreas(MReactionMap *reactionMap, QGraphicsView *view);
 
     //! \reimp
@@ -115,13 +98,6 @@ public slots:
      */
     void setCopyPasteButton(bool copyAvailable, bool pasteAvailable);
 
-    /*!
-     * \brief Sets indicator button state according \a modifier and its \a state.
-     * This method will update the indicator button's label to show the \a state for \a modifier.
-     *  \param modifier \sa Qt::KeyboardModifier
-     *  \param state \sa ModifierState
-     */
-    void setIndicatorButtonState(Qt::KeyboardModifier modifier, ModifierState state);
 
 private slots:
     void handleButtonClick(const ToolbarWidget &);
@@ -155,11 +131,6 @@ signals:
      * \param state CopyPasteState button action (copy or paste)
      */
     void copyPasteClicked(CopyPasteState action);
-
-    /*!
-     * \brief This signal is emitted when indicator button is clicked
-     */
-    void indicatorClicked();
 
 private:
     void setupLayout();
@@ -198,8 +169,6 @@ private:
 
     const ToolbarManager &toolbarMgr;
     bool textSelected;
-    //! Input Mode indicator button
-    MButton *indicator;
     //! Copy/Paste button
     MButton *copyPaste;
     //! Copy/paste button status

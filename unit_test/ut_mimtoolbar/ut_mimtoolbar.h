@@ -53,9 +53,6 @@ private slots:
     void testCopy();
     void testPaste();
     void testRegion();
-    void testShowHideIndicatorButton();
-    void testIndicatorButton();
-    void testSetIndicatorButtonState();
     void testSetToolbarItemAttribute();
 
     void receiveKeyEvent(const QKeyEvent &);

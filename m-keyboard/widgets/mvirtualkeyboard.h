@@ -222,11 +222,6 @@ public slots:
     //! hide virtual keyboard toolbar.
     void hideToolbar();
 
-    /*!
-     * \brief Sets indicator button state according \a modifier and its \a state.
-     */
-    void setIndicatorButtonState(Qt::KeyboardModifier modifier, ModifierState state);
-
     //! Hide main keyboard layout
     void hideMainArea();
 
@@ -332,9 +327,6 @@ signals:
 
     //! Emitted when fully visible.
     void opened();
-
-    //! Emitted when indicator button is clicked
-    void indicatorClicked();
 
     //! Emitted when symbol view should be shown
     void showSymbolViewRequested();

@@ -174,8 +174,6 @@ void MVirtualKeyboard::createToolbar()
             this, SIGNAL(sendStringRequest(const QString &)));
     connect(imToolbar, SIGNAL(copyPasteClicked(CopyPasteState)),
             this, SIGNAL(copyPasteClicked(CopyPasteState)));
-    connect(imToolbar, SIGNAL(indicatorClicked()),
-            this, SIGNAL(indicatorClicked()));
 }
 
 void MVirtualKeyboard::showToolbarWidget(qlonglong id)
@@ -529,11 +527,6 @@ void MVirtualKeyboard::setKeyboardState(MIMHandlerState newState)
     activeState = newState;
     qDebug() << __PRETTY_FUNCTION__ << newState << imToolbar->geometry() << imToolbar->region();
     resetState();
-    if (newState == OnScreen) {
-        imToolbar->hideIndicatorButton();
-    } else {
-        imToolbar->showIndicatorButton();
-    }
     qDebug() << __PRETTY_FUNCTION__ << imToolbar->geometry() << imToolbar->region();
 
     static_cast<QGraphicsWidget *>(mainLayout->itemAt(1))->setVisible(newState == OnScreen);
@@ -1069,11 +1062,6 @@ void MVirtualKeyboard::switchLanguage(M::InputMethodSwitchDirection direction, b
         mainKeyboardSwitcher->setCurrent(current);
     }
     setLanguage(mainKeyboardSwitcher->current());
-}
-
-void MVirtualKeyboard::setIndicatorButtonState(Qt::KeyboardModifier modifier, ModifierState state)
-{
-    imToolbar->setIndicatorButtonState(modifier, state);
 }
 
 
