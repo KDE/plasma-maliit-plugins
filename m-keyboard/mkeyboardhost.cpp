@@ -364,6 +364,9 @@ void MKeyboardHost::show()
 
 void MKeyboardHost::hide()
 {
+    if (activeState == Hardware) {
+        sendInputModeIndicator(MInputMethodBase::NoIndicator);
+    }
     symbolView->hideSymbolView();
     vkbWidget->hideKeyboard();
 }
@@ -1155,6 +1158,7 @@ void MKeyboardHost::setState(const QSet<MIMHandlerState> &state)
         symbolView->setLanguage(vkbWidget->selectedLanguage());
         symbolView->showFunctionRow();
         hideLockOnInfoBanner();
+        sendInputModeIndicator(MInputMethodBase::NoIndicator);
         disconnect(hardwareKeyboard, SIGNAL(modifierStateChanged(Qt::KeyboardModifier, ModifierState)),
                    this, SLOT(handleModifierStateChanged(Qt::KeyboardModifier, ModifierState)));
         if (haveFocus) {
