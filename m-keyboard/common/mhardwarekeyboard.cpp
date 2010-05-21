@@ -43,7 +43,7 @@ namespace
 
 MHardwareKeyboard::MHardwareKeyboard(MInputContextConnection& icConnection, QObject *parent)
     : QObject(parent),
-      keyboardType(M::FreeTextContentType),
+      currentKeyboardType(M::FreeTextContentType),
       autoCaps(false),
       inputContextConnection(icConnection),
       lastEventType(QEvent::KeyRelease),
@@ -69,9 +69,14 @@ MHardwareKeyboard::~MHardwareKeyboard()
 void MHardwareKeyboard::setKeyboardType(M::TextContentType type)
 {
     qDebug() << __PRETTY_FUNCTION__ << ":" << type;
-    keyboardType = type;
+    if (currentKeyboardType == type)
+        return;
+    currentKeyboardType = type;
 
-    switch (keyboardType) {
+    // To support dynamic keyboard type changes we need to set correct state
+    // for modifiers according current keyboard type.
+    latchModifiers(ShiftMask | FnModifierMask, 0);
+    switch (currentKeyboardType) {
     case M::NumberContentType:
     case M::PhoneNumberContentType:
         // With number and phone number content type Fn must be permanently locked
@@ -80,10 +85,16 @@ void MHardwareKeyboard::setKeyboardType(M::TextContentType type)
         break;
     default:
         stateTransitionsDisabled = false;
+        // clear locked modifiers for other keyboard types.
+        lockModifiers(LockMask | FnModifierMask, 0);
         break;
     }
 }
 
+M::TextContentType MHardwareKeyboard::keyboardType() const
+{
+    return currentKeyboardType;
+}
 
 void MHardwareKeyboard::focusChanged(bool focusIn)
 {
@@ -95,17 +106,30 @@ void MHardwareKeyboard::focusChanged(bool focusIn)
         shiftShiftCapsLock = false;
         shiftsPressed = 0;
         pressedKeys.clear();
-        stateTransitionsDisabled = false;
+        autoCaps = false;
 
         // We reset state without using latch/lockModifiers in order to force notification
         // (to make sure whoever is listening is in sync with us).
-        autoCaps = false;
         currentLatchedMods = 0;
-        currentLockedMods = 0;
-        mXkb.lockModifiers(LockMask | FnModifierMask, 0);
         mXkb.latchModifiers(ShiftMask | FnModifierMask, 0);
         emit modifierStateChanged(Qt::ShiftModifier, ModifierClearState);
-        emit modifierStateChanged(FnLevelModifier, ModifierClearState);
+        switch (currentKeyboardType) {
+        case M::NumberContentType:
+        case M::PhoneNumberContentType:
+            // With number and phone number content type Fn must be permanently locked
+            currentLockedMods = FnModifierMask;
+            mXkb.lockModifiers(FnModifierMask, FnModifierMask);
+            emit modifierStateChanged(FnLevelModifier, ModifierLockedState);
+            stateTransitionsDisabled = true;
+            break;
+        default:
+            stateTransitionsDisabled = false;
+            // clear locked modifiers for other keyboard types.
+            currentLockedMods = 0;
+            mXkb.lockModifiers(LockMask | FnModifierMask, 0);
+            emit modifierStateChanged(FnLevelModifier, ModifierClearState);
+            break;
+        }
 
         inputContextConnection.setRedirectKeys(true);
     } else {
@@ -463,6 +487,6 @@ ModifierState MHardwareKeyboard::modifierState(Qt::KeyboardModifier modifier) co
 
 bool MHardwareKeyboard::symViewAvailable() const
 {
-    return (keyboardType != M::NumberContentType)
-        && (keyboardType != M::PhoneNumberContentType);
+    return (currentKeyboardType != M::NumberContentType)
+        && (currentKeyboardType != M::PhoneNumberContentType);
 }

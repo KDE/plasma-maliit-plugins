@@ -332,6 +332,9 @@ void MKeyboardHost::focusChanged(bool focusIn)
     haveFocus = focusIn;
     if (activeState == Hardware) {
         hardwareKeyboard->focusChanged(focusIn);
+        if (!focusIn) {
+            sendInputModeIndicator(MInputMethodBase::NoIndicator);
+        }
         hideLockOnInfoBanner();
     }
 }
@@ -364,9 +367,6 @@ void MKeyboardHost::show()
 
 void MKeyboardHost::hide()
 {
-    if (activeState == Hardware) {
-        sendInputModeIndicator(MInputMethodBase::NoIndicator);
-    }
     symbolView->hideSymbolView();
     vkbWidget->hideKeyboard();
 }
@@ -1169,10 +1169,8 @@ void MKeyboardHost::setState(const QSet<MIMHandlerState> &state)
         //language (symbol view variant) according Table 3 in HW Keyboard UI spec.
         symbolView->setLanguage(LayoutsManager::instance().hardwareKeyboardLayout());
         symbolView->hideFunctionRow();
-        if (activeState == Hardware) {
-            connect(hardwareKeyboard, SIGNAL(modifierStateChanged(Qt::KeyboardModifier, ModifierState)),
-                    this, SLOT(handleModifierStateChanged(Qt::KeyboardModifier, ModifierState)));
-        }
+        connect(hardwareKeyboard, SIGNAL(modifierStateChanged(Qt::KeyboardModifier, ModifierState)),
+                this, SLOT(handleModifierStateChanged(Qt::KeyboardModifier, ModifierState)));
         if (haveFocus) {
             hardwareKeyboard->focusChanged(true);
         }
@@ -1237,6 +1235,9 @@ void MKeyboardHost::showSymbolView()
 
 void MKeyboardHost::handleModifierStateChanged(Qt::KeyboardModifier modifier, ModifierState state)
 {
+    // only change indicator state when there is focus is in a widget and state is Hardware.
+    if (!haveFocus || activeState != Hardware)
+        return;
     const QString currentHwKeyboardLayout = LayoutsManager::instance().hardwareKeyboardLayout();
     QString lockOnNotificationLabel;
     MInputMethodBase::InputModeIndicator indicatorState = MInputMethodBase::LatinLower;
@@ -1307,8 +1308,12 @@ void MKeyboardHost::handleModifierStateChanged(Qt::KeyboardModifier modifier, Mo
         return;
     }
     sendInputModeIndicator(indicatorState);
-    if (state == ModifierLockedState) {
+    if (state == ModifierLockedState
+        && hardwareKeyboard->keyboardType() != M::NumberContentType
+        && hardwareKeyboard->keyboardType() != M::PhoneNumberContentType) {
         // notify the modifier is changed to locked state
+        // number and phone number content type always force FN key to be locked,
+        // don't need indicator lock notification.
         if (modifierLockOnInfoBanner) {
             modifierLockOnInfoBanner->setBodyText(lockOnNotificationLabel);
             modifierLockOnTimer.start();

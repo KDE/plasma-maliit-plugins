@@ -58,6 +58,9 @@ public:
     //! \brief Set keyboard type according text entry type.
     void setKeyboardType(M::TextContentType type);
 
+    //! \brief Return current keyboard type.
+    M::TextContentType keyboardType() const;
+
     //! \return current state for \a modifier key in hardware keyboard.
     ModifierState modifierState(Qt::KeyboardModifier modifier) const;
 
@@ -204,7 +207,7 @@ private:
                           const QString &text,
                           quint32 nativeScanCode, quint32 nativeModifiers);
 
-    M::TextContentType keyboardType;
+    M::TextContentType currentKeyboardType;
     MXkb mXkb;
     bool autoCaps;
     HwKbCharLoopsManager hwkbCharLoopsManager;
