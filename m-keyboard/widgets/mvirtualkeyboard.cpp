@@ -300,9 +300,9 @@ MVirtualKeyboard::flickLeftHandler()
 
 
 void
-MVirtualKeyboard::flickUpHandler(const KeyBinding *binding)
+MVirtualKeyboard::flickUpHandler(const KeyBinding &binding)
 {
-    if (binding && binding->action() == KeyBinding::ActionSym) {
+    if (binding.action() == KeyBinding::ActionSym) {
         emit showSymbolViewRequested();
     }
 }
@@ -933,8 +933,8 @@ KeyButtonArea * MVirtualKeyboard::createSectionView(const QString &language,
 
     connect(view, SIGNAL(flickDown()), this, SLOT(hideKeyboard()));
     connect(view, SIGNAL(flickDown()), this, SIGNAL(userInitiatedHide()));
-    connect(view, SIGNAL(flickUp(const KeyBinding *)),
-            this, SLOT(flickUpHandler(const KeyBinding *)));
+    connect(view, SIGNAL(flickUp(KeyBinding)),
+            this, SLOT(flickUpHandler(KeyBinding)));
 
     return view;
 }

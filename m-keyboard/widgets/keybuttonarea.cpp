@@ -25,6 +25,7 @@
 #include <MApplication>
 #include <MComponentData>
 #include <MFeedbackPlayer>
+#include <MSceneManager>
 #include <QDebug>
 #include <QEvent>
 #include <QGraphicsLinearLayout>
@@ -35,19 +36,18 @@
 
 namespace
 {
-    const int FlickTime     = 150;
-    const int LongPressTime = 1000;
-
-    const int FlickDownThreshold = 50;
-    const int FlickUpThreshold = 50;
-    const int FlickLeftRightVerticalThreshold = 50;
-    const int FlickLeftRightHorizontalThreshold = 50;
+    const int GestureTimeOut = 1000;
+    const int LongPressTime  = 1000;
+    const qreal ZValueButtons = 0.0;
 
     // Minimal distinguishable cursor/finger movement
     const qreal MovementThreshold = 5.0;
 
-    const qreal ZValueButtons = 0.0;
-};
+    // For gesture thresholds: How many pixels translate to one counted move event.
+    const qreal PixelsToMoveEventsFactor = 0.02;
+}
+
+int KeyButtonArea::swipeGestureTouchPoints = 1;
 
 KeyButtonArea::KeyButtonArea(MVirtualKeyboardStyleContainer *style,
                              QSharedPointer<const LayoutSection> sectionModel,
@@ -58,24 +58,20 @@ KeyButtonArea::KeyButtonArea(MVirtualKeyboardStyleContainer *style,
       currentLevel(0),
       popup(PopupFactory::instance()->createPopup(*style, this)),
       styleContainer(style),
-      flickTimer(new LimitedTimer(this)),
       newestTouchPointId(-1),
       longPressTimer(new LimitedTimer(this)),
       accurateMode(false),
-      flicked(false),
+      wasGestureTriggered(false),
       enableMultiTouch(false),
       activeDeadkey(0),
       feedbackPlayer(0),
       section(sectionModel),
       buttonSizeScheme(buttonSizeScheme),
-      usePopup(usePopup)
+      usePopup(usePopup),
+      swipeGestureCount(0)
 {
     // By default multi-touch is enabled.
     setMultiTouch(true);
-
-    flickTimer->setSingleShot(true);
-    flickTimer->setInterval(FlickTime);
-    connect(flickTimer, SIGNAL(timeout()), this, SLOT(flickCheck()));
 
     longPressTimer->setSingleShot(true);
     longPressTimer->setInterval(LongPressTime);
@@ -89,7 +85,6 @@ KeyButtonArea::KeyButtonArea(MVirtualKeyboardStyleContainer *style,
 
 KeyButtonArea::~KeyButtonArea()
 {
-    delete flickTimer;
     delete longPressTimer;
     delete popup;
 }
@@ -125,7 +120,7 @@ QSharedPointer<const LayoutSection> KeyButtonArea::sectionModel() const
 
 ISymIndicator *KeyButtonArea::symIndicator()
 {
-	return 0;
+    return 0;
 }
 
 void KeyButtonArea::updatePopup(const QPoint &pointerPosition, const IKeyButton *key)
@@ -328,7 +323,7 @@ void KeyButtonArea::grabMouseEvent(QEvent */*event*/)
     // the enabled <flicked> would stay true if mouse
     // grab is obtained again without mousePressEvent.
     // This would ignore mouseReleaseEvent and would not cause keyClicked.
-    flicked = false;
+    wasGestureTriggered = false;
 }
 
 void KeyButtonArea::ungrabMouseEvent(QEvent */*event*/)
@@ -386,9 +381,8 @@ void KeyButtonArea::touchPointPressed(const QPoint &pos, int id)
     tpi.pos = pos;
     tpi.initialPos = pos;
 
-    // Reset flick check.
-    flicked = false;
-    flickTimer->start();
+    // Reset gesture checks.
+    wasGestureTriggered = false;
 
     // Reset long-press check.
     longPressTimer->start();
@@ -402,6 +396,8 @@ void KeyButtonArea::touchPointPressed(const QPoint &pos, int id)
 
     tpi.initialKey = key;
     tpi.fingerInsideArea = true;
+
+    swipeGestureCount = 0;
 
     if (accurateMode) {
         // Stop accurate mode if pressed key makes accurate mode irrelevant
@@ -425,6 +421,11 @@ void KeyButtonArea::touchPointMoved(const QPoint &pos, int id)
         return;
 
     tpi.pos = pos;
+    ++tpi.moveEventCount;
+
+    if (isSwipeGesture(tpi)) {
+        return;
+    }
 
     // Check if finger is on a key.
     IKeyButton *key = keyAt(pos);
@@ -470,7 +471,7 @@ void KeyButtonArea::touchPointMoved(const QPoint &pos, int id)
 void KeyButtonArea::touchPointReleased(const QPoint &pos, int id)
 {
     TouchPointInfo &tpi = touchPoints[id];
-    tpi.pos = pos;
+
     tpi.fingerInsideArea = false;
 
     // No more long-press triggerings, although would still be possible to make
@@ -482,10 +483,6 @@ void KeyButtonArea::touchPointReleased(const QPoint &pos, int id)
     if (id == newestTouchPointId) {
         popup->hidePopup();
     }
-
-    // Stop flick timer but save current state first.
-    const bool flickTimerWasActive = flickTimer->isActive();
-    flickTimer->stop();
 
     IKeyButton *key = keyAt(pos);
 
@@ -500,14 +497,13 @@ void KeyButtonArea::touchPointReleased(const QPoint &pos, int id)
         setActiveKey(key, tpi); // in most cases, does nothing
         setActiveKey(0, tpi); // release key
 
-        // Check if keyboard was flicked or
+        // Check if keyboard was swiped or
         // release happens fast and far enough from the start.
         // If so, then skip click.
         // Altough we associate flick gesture with the newest touch point
         // it can still mistrigger because sometimes, when clicked nearly
         // simultaneously, we receive a single move between two pressed points.
-        if ((id != newestTouchPointId)
-            || !(flicked || (flickTimerWasActive && flickCheck()))) {
+        if (id != newestTouchPointId || !wasGestureTriggered) {
             click(key);
         }
     } else {
@@ -601,44 +597,87 @@ void KeyButtonArea::drawReactiveAreas(MReactionMap */*reactionMap*/, QGraphicsVi
 }
 
 bool
-KeyButtonArea::flickCheck()
+KeyButtonArea::isSwipeGesture(const TouchPointInfo &tpi)
 {
-    if (flicked || !touchPoints.contains(newestTouchPointId))
+    if (wasGestureTriggered || tpi.gestureTimer.elapsed() > GestureTimeOut) {
         return false;
-
-    TouchPointInfo &flickedPoint = touchPoints[newestTouchPointId];
-
-    bool res = false;
-    QPoint diff = flickedPoint.initialPos - flickedPoint.pos;
-
-    if (qAbs(diff.y()) < FlickLeftRightVerticalThreshold) {
-        if (diff.x() > FlickLeftRightHorizontalThreshold) {
-            res = true;
-            emit flickLeft();
-        } else if (diff.x() < -FlickLeftRightHorizontalThreshold) {
-            res = true;
-            emit flickRight();
-        }
-    } else if (qAbs(diff.x()) < FlickDownThreshold) {
-        if (diff.y() < - FlickDownThreshold) {
-            res = true;
-            emit flickDown();
-        } else if (diff.y() > FlickUpThreshold) {
-            const KeyBinding *binding = 0;
-            res = true;
-            if (flickedPoint.initialKey) {
-                binding = &flickedPoint.initialKey->binding();
-            }
-            emit flickUp(binding);
-        }
     }
 
-    if (res) {
+    const QPointF deltaPos = tpi.initialPos - tpi.pos;
+    const qreal ScalingFactor = .5;
+    int HorizontalThreshold = static_cast<int>(boundingRect().width() * ScalingFactor);
+    int VerticalThreshold = static_cast<int>(boundingRect().height() * ScalingFactor);
+
+    bool result = isHorizontalSwipeGesture(deltaPos, HorizontalThreshold, VerticalThreshold,
+                                           tpi.moveEventCount);
+    if (!result) {
+        result = isVerticalSwipeGesture(deltaPos, HorizontalThreshold, VerticalThreshold,
+                                        tpi.moveEventCount, tpi.initialKey);
+    }
+
+    if (result) {
         popup->hidePopup();
-        flicked = true;
+        wasGestureTriggered = true;
+        swipeGestureCount = 0;
     }
-    return res;
+
+    return result;
 }
+
+bool KeyButtonArea::isHorizontalSwipeGesture(const QPointF &delta, int absHorizontalThreshold,
+                                             int absVerticalThreshold, int moveEventCount)
+{
+    const int requiredEventCount = qMax(2, static_cast<int>(absHorizontalThreshold *
+                                                            PixelsToMoveEventsFactor));
+    bool result = false;
+
+    if ((qAbs(delta.y()) < absVerticalThreshold) &&
+        (moveEventCount >= requiredEventCount)) {
+        if (delta.x() > absHorizontalThreshold) {
+            if (++swipeGestureCount >= swipeGestureTouchPoints) {
+                result = true;
+                emit flickLeft();
+            }
+        } else if (delta.x() < -absHorizontalThreshold) {
+            if (++swipeGestureCount >= swipeGestureTouchPoints) {
+                result = true;
+                emit flickRight();
+            }
+        }
+    }
+
+    return result;
+}
+
+bool KeyButtonArea::isVerticalSwipeGesture(const QPointF &delta, int absHorizontalThreshold,
+                                           int absVerticalThreshold, int moveEventCount,
+                                           const IKeyButton* button)
+{
+    const int requiredEventCount = qMax(2, static_cast<int>(absVerticalThreshold *
+                                                            PixelsToMoveEventsFactor));
+    bool result = false;
+
+    if ((qAbs(delta.x()) < absHorizontalThreshold) &&
+        (moveEventCount >= requiredEventCount)) {
+        if (delta.y() < -absVerticalThreshold) {
+            if (++swipeGestureCount >= swipeGestureTouchPoints) {
+                result = true;
+                emit flickDown();
+            }
+        } else if (delta.y() > absVerticalThreshold) {
+            if (++swipeGestureCount >= swipeGestureTouchPoints) {
+                // TODO: Replace flickUp gesture will be replaced by longpress anyway.
+                if (button) {
+                    result = true;
+                    emit flickUp(button->binding());
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
 
 const MVirtualKeyboardStyleContainer &KeyButtonArea::style() const
 {
@@ -703,6 +742,9 @@ KeyButtonArea::TouchPointInfo::TouchPointInfo()
       activeKey(0),
       initialKey(0),
       initialPos(),
-      pos()
+      pos(),
+      gestureTimer(),
+      moveEventCount(0)
 {
+    gestureTimer.start();
 }

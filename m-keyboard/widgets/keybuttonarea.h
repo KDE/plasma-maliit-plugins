@@ -30,6 +30,7 @@
 #include <QList>
 #include <QStringList>
 #include <QTouchEvent>
+#include <QTime>
 
 class MFeedbackPlayer;
 class MReactionMap;
@@ -126,11 +127,6 @@ public slots:
     */
     void accurateStart();
 
-    /*!
-    * \brief Return true if the keyboard is flicked to left/right/down
-    */
-    bool flickCheck();
-
     virtual void drawReactiveAreas(MReactionMap *reactionMap, QGraphicsView *view);
 
     /*!
@@ -184,7 +180,7 @@ signals:
      * \brief Emitted when flicked up
      * \param binding Information about the key where mouse button was pressed
      */
-    void flickUp(const KeyBinding *binding);
+    void flickUp(const KeyBinding &binding);
 
 protected:
     //! Stores touch point specific information.
@@ -205,6 +201,13 @@ protected:
 
         //! Last known position of the touch point
         QPoint pos;
+
+        //! Used to check whether gesture recognition happens within the
+        //! specified time frame.
+        QTime gestureTimer;
+
+        //! Counts move events between press & release
+        int moveEventCount;
     };
 
     //! \brief Returns data and size information of a button in given \a row and \a column.
@@ -243,6 +246,14 @@ protected:
     * \return bool
     */
     bool isObservableMove(const QPointF &prevPos, const QPointF &pos);
+
+    /*!
+    * \brief Return true if the keyboard is swiped to the left/right/down/up
+    *
+    * Once a gesture is recognized it will return false unless the next
+    * touchpoint is pressed. This is supposed to prevent conflicting gestures.
+    */
+    bool isSwipeGesture(const TouchPointInfo &tpi);
 
     /*!
     * \brief Get level count of the virtual keyboard.
@@ -307,6 +318,16 @@ private:
 
     void click(const IKeyButton *key);
 
+    //! \brief Horizontal swipe gesture recognizer
+    //! \return Whether a horizontal swipe gesture was recognized
+    bool isHorizontalSwipeGesture(const QPointF &delta, int absHorizontalThreshold, int absVerticalThreshold,
+                                  int moveEventCount);
+
+    //! \brief Vertical swipe gesture recognizer
+    //! \return Whether a vertical swipe gesture was recognized
+    bool isVerticalSwipeGesture(const QPointF &delta, int absHorizontalThreshold, int absVerticalThreshold,
+                                int moveEventCount, const IKeyButton* button);
+
     //! Current level
     int currentLevel;
 
@@ -315,9 +336,6 @@ private:
 
     //! style
     MVirtualKeyboardStyleContainer *styleContainer;
-
-    //! Flicktimer
-    LimitedTimer *flickTimer;
 
     //! Touch point id of the most recent press event.
     int newestTouchPointId;
@@ -334,8 +352,8 @@ private:
     //! List of accent labels
     QList<QStringList> accentLabels;
 
-    //! Contains true if keyboard was flicked after last mouse press
-    bool flicked;
+    //! Whether a gesture was already triggered for any active touch point.
+    bool wasGestureTriggered;
 
     //! Keys are QTouchEvent::TouchPoint id
     QMap<int, TouchPointInfo> touchPoints;
@@ -357,6 +375,12 @@ private:
 
     const bool usePopup;
 
+    //! How many separate swipe gestures (one for each touchpoint) have been recognized.
+    int swipeGestureCount;
+
+    //! Controls the amount of touchpoints required by a gesture.
+    static int swipeGestureTouchPoints;
+
 #ifdef UNIT_TEST
     friend class MReactionMapTester;
     friend class Ut_KeyButtonArea;
@@ -371,9 +395,9 @@ private:
 class ISymIndicator
 {
 public:
-	virtual void activateSymIndicator() = 0;
-	virtual void activateAceIndicator() = 0;
-	virtual void deactivateIndicator() = 0;
+    virtual void activateSymIndicator() = 0;
+    virtual void activateAceIndicator() = 0;
+    virtual void deactivateIndicator()  = 0;
 };
 
 #endif

@@ -247,7 +247,7 @@ private slots:
      * \brief Handler for upward flick operation
      * \param binding Key binding
      */
-    void flickUpHandler(const KeyBinding *binding);
+    void flickUpHandler(const KeyBinding &binding);
 
     /*!
      * Method to fade the vkb during transition
