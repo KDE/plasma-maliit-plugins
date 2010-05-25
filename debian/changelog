@@ -1,10 +1,12 @@
-meego-keyboard (0.4.2~1) unstable; urgency=low
+meego-keyboard (0.4.2-1) unstable; urgency=low
 
   * Fixed autocapitalization for plain qt apps
   * Sends input mode indicator status forward
   * Fixed NB#168220, NB#166341, NB#169605
+  * Fixed hw keyboard issues
+  * Removed indicator button from toolbar
 
- -- Pekka Vuorela <pekka.ta.vuorela@nokia.com>  Tue, 04 May 2010 10:51:06 +0300
+ -- Pekka Vuorela <pekka.ta.vuorela@nokia.com>  Tue, 25 May 2010 11:12:34 +0300
 
 meego-keyboard (0.4.1-1) unstable; urgency=low
 
