@@ -297,6 +297,12 @@ bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers 
 {
     bool eaten = false;
 
+    // Relock modifiers; X seems to unlock Fn automatically on Fn release, which is not
+    // desired at least with [phone] number content type.
+    if (currentLockedMods) {
+        mXkb.lockModifiers(currentLockedMods, currentLockedMods);
+    }
+
     if (nativeModifiers & SymModifierMask) {
         eaten = handleReleaseWithSymModifier(keyCode, text);
     }
