@@ -96,13 +96,16 @@ void Ut_MImCorrectionCandidateWidget::checkPositionByPoint_data()
 
     // Goes over sceneHeight limit
     QTest::newRow("positive3") <<QPoint(700, sceneHeight - 50) << -1
-        << QPoint(700, (sceneHeight - testCandidateWidgetSize.height()));
+                               << QPoint(700, ((sceneHeight - testCandidateWidgetSize.height()) > 0)?
+                                               (sceneHeight - testCandidateWidgetSize.height()):0);
 
     // No room above so aligns to y=0.
     QTest::newRow("bottom limit 1") << QPoint(10, 10) << 4 << QPoint(10, 0);
 
     // There is room above so bottom limit holds (y+height=bottomlimit).
-    QTest::newRow("bottom limit 2") << QPoint(10, 250) << 220 << QPoint(10, 220 - testCandidateWidgetSize.height());
+    QTest::newRow("bottom limit 2") << QPoint(10, 250) << 220
+                                    << QPoint(10, ((220 - testCandidateWidgetSize.height()) > 0)?
+                                              (220 - testCandidateWidgetSize.height()):0);
 }
 
 void Ut_MImCorrectionCandidateWidget::checkPositionByPoint()

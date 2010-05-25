@@ -21,7 +21,6 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QDebug>
 #include <QString>
-#include <QFontMetrics>
 
 #include <MSceneManager>
 #include <mreactionmap.h>
@@ -50,20 +49,13 @@ public:
     /*! \reimp */
     virtual MWidget *createCell(const QModelIndex &index, MWidgetRecycler &recycler) const;
     virtual void updateCell(const QModelIndex &index, MWidget *cell) const;
-    virtual QSizeF cellSize() const;
     /*! \reimp_end */
 private:
     void updateContentItemMode(const QModelIndex &index, MContentItem *contentItem) const;
-
-    QSizeF size;
 };
 
 MImCorrectionContentItemCreator::MImCorrectionContentItemCreator()
 {
-    // Initializes size
-    MContentItem cell(MContentItem::SingleTextLabel);
-    cell.setObjectName(CandidatesItemObjectName);
-    size = cell.effectiveSizeHint(Qt::PreferredSize);
 }
 
 MWidget *MImCorrectionContentItemCreator::createCell(const QModelIndex &index, MWidgetRecycler &recycler) const
@@ -91,11 +83,6 @@ void MImCorrectionContentItemCreator::updateCell(const QModelIndex &index, MWidg
     updateContentItemMode(index, contentItem);
 }
 
-QSizeF MImCorrectionContentItemCreator::cellSize() const
-{
-    return size;
-}
-
 void MImCorrectionContentItemCreator::updateContentItemMode(const QModelIndex &index,
         MContentItem *contentItem) const
 {
@@ -114,7 +101,6 @@ MImCorrectionCandidateWidget::MImCorrectionCandidateWidget(QGraphicsWidget *pare
     : MWidget(parent),
       rotationInProgress(false),
       candidatePosition(0, 0),
-      fontMetrics(0),
       sceneManager(MPlainWindow::instance()->sceneManager()),
       containerWidget(new MWidget(this)),
       candidatesWidget(new MList(containerWidget)),
@@ -137,19 +123,11 @@ MImCorrectionCandidateWidget::MImCorrectionCandidateWidget(QGraphicsWidget *pare
     candidatesWidget->setCellCreator(cellCreator);
     candidatesWidget->setItemModel(candidatesModel);
     connect(candidatesWidget, SIGNAL(itemClicked(const QModelIndex &)), this, SLOT(select(const QModelIndex &)));
-
-    //TODO: This is a hack way to get font information from MList.
-    //Could be refined later if MList provides other better way.
-    MLabel label;
-    label.setObjectName(CandidatesItemLabelObjectName);
-    fontMetrics  = new QFontMetrics(label.font());
 }
 
 
 MImCorrectionCandidateWidget::~MImCorrectionCandidateWidget()
 {
-    delete fontMetrics;
-    fontMetrics = 0;
     delete candidatesModel;
 }
 
@@ -173,10 +151,16 @@ void MImCorrectionCandidateWidget::setCandidates(const QStringList candidateList
     // Calculate the width for MContentItem dynamically.
     // To ensure the whole words in candidate list could be shown.
     candidateWidth = 0;
+    MLabel label;
+    label.setObjectName(CandidatesItemLabelObjectName);
     foreach (const QString &candidate, filteredCandidateList) {
-        candidateWidth = qMax(candidateWidth, fontMetrics->width(candidate));
+        label.setText(candidate);
+        candidateWidth = qMax(candidateWidth, label.preferredSize().width());
     }
-    candidateWidth += candidatesWidget->preferredWidth();
+
+    qreal left, top, right, bottom;
+    label.getContentsMargins(&left, &top, &right, &bottom);
+    candidateWidth += left + right;
 }
 
 void MImCorrectionCandidateWidget::setPreeditString(const QString &string)

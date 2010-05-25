@@ -26,7 +26,6 @@ class MSceneManager;
 class MList;
 class MImCorrectionContentItemCreator;
 class QStringListModel;
-class QFontMetrics;
 
 /*!
   \class MImCorrectionCandidateWidget
@@ -135,13 +134,12 @@ private:
     bool rotationInProgress;
     QString m_preeditString;
     QPoint candidatePosition;
-    QFontMetrics *fontMetrics;
     MSceneManager *sceneManager;
     MWidget *containerWidget;
     MList *candidatesWidget;
     MImCorrectionContentItemCreator *cellCreator;
     QStringListModel *candidatesModel;
-    int candidateWidth;
+    qreal candidateWidth;
 
     Q_DISABLE_COPY(MImCorrectionCandidateWidget)
 };
