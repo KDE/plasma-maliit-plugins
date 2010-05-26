@@ -27,7 +27,8 @@
 SingleWidgetButton::SingleWidgetButton(const VKBDataKey &key,
                                        const MVirtualKeyboardStyleContainer &style,
                                        QGraphicsItem &parent)
-    : dataKey(key),
+    : width(0),
+      dataKey(key),
       shift(false),
       currentLabel(dataKey.binding(false)->label()),
       currentState(Normal),

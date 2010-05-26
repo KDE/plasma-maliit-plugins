@@ -154,6 +154,7 @@ MReactionMapStub *gMReactionMapStub = &gDefaultMReactionMapStub;
  */
 
 MReactionMap::MReactionMap(QWidget *topLevelWidget, const QString &appIdentifier, QObject *parent)
+    : d(0)
 {
     gMReactionMapStub->mreactionMapConstructor(topLevelWidget, appIdentifier, parent);
 }

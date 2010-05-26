@@ -280,7 +280,7 @@ void ToolbarData::parseTagLabel(const QDomElement &element, TBParseParameters &p
 
 void ToolbarData::parseTagActions(const QDomElement &element, TBParseParameters &params)
 {
-    if (!params.currentWidget && (params.currentWidget->type() != ToolbarWidget::Button))
+    if (!params.currentWidget || (params.currentWidget->type() != ToolbarWidget::Button))
         return;
     const TBParseStructure parsers[7] = {TBParseStructure(ImTagSendKeySequence, &ToolbarData::parseTagSendKeySequence),
                                          TBParseStructure(ImTagSendString, &ToolbarData::parseTagSendString),

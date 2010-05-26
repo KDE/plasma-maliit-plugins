@@ -203,8 +203,8 @@ void HwKbCharLoopsManager::parseTagLanguage(const QDomElement &element, HwKbChar
     const QString name = element.attribute(HWKBTagName);
     if (charLoops.contains(language)) {
         //if already contains, overwrite.
-        params.currentCharLoop->loops.clear();
         params.currentCharLoop = charLoops[language];
+        params.currentCharLoop->loops.clear();
     } else {
         params.currentCharLoop = new HwKbCharacterLoops(language, name);
         charLoops.insert(language, params.currentCharLoop);

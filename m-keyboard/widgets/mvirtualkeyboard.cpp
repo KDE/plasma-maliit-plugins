@@ -888,14 +888,12 @@ void MVirtualKeyboard::reloadSwitcherContent()
 
         KeyButtonArea *mainSection = createMainSectionView(language, LayoutData::General,
                                                            currentOrientation);
-        mainSection->setObjectName("VirtualKeyboardMainRow");
 
         KeyButtonArea *functionRow = createSectionView(language, LayoutData::General,
                                                        currentOrientation,
                                                        LayoutData::functionkeySection,
                                                        KeyButtonArea::ButtonSizeFunctionRow,
                                                        false, languagePage);
-        functionRow->setObjectName("VirtualKeyboardFunctionRow");
 
         if (mainSection == 0 || functionRow == 0) {
             qCritical("Problem loading language to switcher");
@@ -904,6 +902,9 @@ void MVirtualKeyboard::reloadSwitcherContent()
             delete languagePage;
             continue;
         }
+
+        mainSection->setObjectName("VirtualKeyboardMainRow");
+        functionRow->setObjectName("VirtualKeyboardFunctionRow");
 
         languageLayout->addItem(mainSection);
         languageLayout->addItem(functionRow);
@@ -1009,13 +1010,11 @@ void MVirtualKeyboard::recreateSpecialKeyboards()
                                                   currentOrientation, LayoutData::mainSection,
                                                   KeyButtonArea::ButtonSizeEqualExpanding,
                                                   false, numberKeyboard);
-    numberArea->setObjectName("VirtualKeyboardNumberMainRow");
 
     KeyButtonArea *numberFunctionRow
         = createSectionView(defaultLanguage, LayoutData::Number, currentOrientation,
                             LayoutData::functionkeySection, KeyButtonArea::ButtonSizeFunctionRowNumber,
                             false, numberKeyboard);
-    numberFunctionRow->setObjectName("VirtualKeyboardNumberFunctionRow");
 
     numberLayout->addItem(numberArea);
     numberLayout->addItem(numberFunctionRow);
@@ -1025,13 +1024,11 @@ void MVirtualKeyboard::recreateSpecialKeyboards()
                                                  currentOrientation, LayoutData::mainSection,
                                                  KeyButtonArea::ButtonSizeEqualExpandingPhoneNumber,
                                                  false, phoneNumberKeyboard);
-    phoneArea->setObjectName("VirtualKeyboardPhoneMainRow");
 
     KeyButtonArea *phoneFunctionArea
         = createSectionView(defaultLanguage, LayoutData::PhoneNumber, currentOrientation,
                             LayoutData::functionkeySection, KeyButtonArea::ButtonSizeFunctionRowNumber,
                             false, phoneNumberKeyboard);
-    phoneFunctionArea->setObjectName("VirtualKeyboardPhoneFunctionRow");
 
     phoneNumberLayout->addItem(phoneArea);
     phoneNumberLayout->addItem(phoneFunctionArea);
@@ -1040,6 +1037,11 @@ void MVirtualKeyboard::recreateSpecialKeyboards()
     if (numberArea == 0 || numberFunctionRow == 0 || phoneArea == 0 || phoneFunctionArea == 0) {
         qFatal("Error loading number keyboard");
     }
+
+    numberArea->setObjectName("VirtualKeyboardNumberMainRow");
+    numberFunctionRow->setObjectName("VirtualKeyboardNumberFunctionRow");
+    phoneArea->setObjectName("VirtualKeyboardPhoneMainRow");
+    phoneFunctionArea->setObjectName("VirtualKeyboardPhoneFunctionRow");
 }
 
 void MVirtualKeyboard::showToolbar()

@@ -410,6 +410,7 @@ void SymbolView::addPage(QSharedPointer<const LayoutSection> symbolSection)
         page->setObjectName("SymbolMainRow");
 
         connect(this, SIGNAL(levelSwitched(int)), page, SLOT(switchLevel(int)));
+
         connect(page, SIGNAL(flickLeft()), SLOT(switchToNextPage()));
         connect(page, SIGNAL(flickRight()), SLOT(switchToPrevPage()));
         connect(page, SIGNAL(flickDown()), SLOT(hideSymbolView()));

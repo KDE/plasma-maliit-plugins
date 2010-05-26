@@ -30,6 +30,8 @@ LayoutSection::Row::~Row()
 }
 
 LayoutData::LayoutData()
+    : layoutOrientation(M::Landscape),
+      layoutType(General)
 {
 }
 
@@ -66,7 +68,10 @@ QSharedPointer<const LayoutSection> LayoutData::section(const QString &name) con
 LayoutSection::LayoutSection()
     : m_maxColumns(0),
       maxRows(0),
-      sectionName("")
+      movable(false),
+      m_verticalAlignment(Qt::AlignVCenter),
+      m_horizontalAlignment(Qt::AlignHCenter),
+      sectionType(Sloppy)
 {
 }
 

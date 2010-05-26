@@ -21,13 +21,15 @@
 
 ToolbarWidget::ToolbarWidget(WidgetType t)
     : widgetType(t),
+      priority(0),
       orientation(M::Portrait),
       showOn(Always),
       hideOn(Undefined),
       alignment(Qt::AlignRight),
       visible(false),
       toggle(false),
-      pressed(false)
+      pressed(false),
+      size(0)
 {
 }
 

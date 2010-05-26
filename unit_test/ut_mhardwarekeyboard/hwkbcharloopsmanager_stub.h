@@ -41,7 +41,8 @@ namespace
 };
 
 HwKbCharLoopsManager::HwKbCharLoopsManager()
-    : configLanguage(SystemDisplayLanguage)
+    : current(0),
+      configLanguage(SystemDisplayLanguage)
 {
 }
 
