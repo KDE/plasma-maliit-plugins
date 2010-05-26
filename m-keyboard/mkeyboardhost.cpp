@@ -512,14 +512,14 @@ void MKeyboardHost::finalizeOrientationChange()
     // If correction candidate widget was open we need to reposition it.
     if (correctionCandidateWidget->isVisible()) {
         bool success = false;
-        QRect rect = inputContextConnection()->preeditRectangle(success);
+        const QRect rect = inputContextConnection()->preeditRectangle(success);
         QRect localRect;
         // Note: For Qt applications we don't have means to retrieve
         // the correct coordinates for pre-edit rectangle, so rect here
         // is null.
         if (success && !rect.isNull() && rotateRect(rect, localRect)) {
-            int bottomLimit = static_cast<int>(sceneWindow->mapRectFromScene(
-                                                   vkbWidget->region(false).boundingRect()).top());
+            const int bottomLimit = static_cast<int>(sceneWindow->mapRectFromScene(
+                                                         vkbWidget->region(false).boundingRect()).top());
 
             correctionCandidateWidget->setPosition(localRect, bottomLimit);
         } else {
@@ -607,7 +607,7 @@ void MKeyboardHost::mouseClickedOnPreedit(const QPoint &mousePos, const QRect &p
     QRect localRect;
 
     // Bottom limit for positioning candidate list widget. Keep above keyboard.
-    int bottomLimit = static_cast<int>(vkbWidget->region(false).boundingRect().top());
+    const int bottomLimit = static_cast<int>(vkbWidget->region(false).boundingRect().top());
 
     // Use preeditRect if one was passed (not null).
     if (!preeditRect.isNull() && rotateRect(preeditRect, localRect)) {
