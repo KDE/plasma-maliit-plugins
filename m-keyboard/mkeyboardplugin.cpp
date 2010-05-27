@@ -18,11 +18,11 @@
 
 #include "mkeyboardplugin.h"
 #include "mkeyboardhost.h"
+#include "mkeyboardsettings.h"
 
 #include <QtPlugin>
 
 #include <mtimestamp.h>
-
 
 QString MKeyboardPlugin::name() const
 {
@@ -43,6 +43,12 @@ MKeyboardPlugin::createInputMethod(MInputContextConnection *icConnection)
     MInputMethodBase *inputMethod = new MKeyboardHost(icConnection);
     mTimestamp("MKeyboardPlugin", "end");
     return inputMethod;
+}
+
+MInputMethodSettingsBase *MKeyboardPlugin::createInputMethodSettings()
+{
+    MInputMethodSettingsBase *inputMethodSettings = new MKeyboardSettings();
+    return inputMethodSettings;
 }
 
 QSet<MIMHandlerState> MKeyboardPlugin::supportedStates() const

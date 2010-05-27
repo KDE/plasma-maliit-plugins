@@ -51,12 +51,6 @@ void Ut_MKeyboardPlugin::testMethods()
     // some simple checks that the functions seems to work
     // check name of plugin
     QVERIFY(m_subject->name() == "MeegoKeyboard");
-
-    // check possible languages
-    QVERIFY(m_subject->languages().count() == 1);
-
-    // only language at the moment is 'en' for this plugin
-    QVERIFY(m_subject->languages().indexOf("en") != -1);
 }
 
 

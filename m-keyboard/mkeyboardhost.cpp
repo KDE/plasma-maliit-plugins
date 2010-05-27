@@ -24,7 +24,6 @@
 #endif
 #include "mimcorrectioncandidatewidget.h"
 #include "keyboarddata.h"
-#include "layoutmenu.h"
 #include "layoutsmanager.h"
 #include "symbolview.h"
 
@@ -203,19 +202,6 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
     connect(hardwareKeyboard, SIGNAL(shiftStateChanged()),
             this, SLOT(updateSymbolViewLevel()));
 
-    // Construct layout menu dialog
-    layoutMenu = new LayoutMenu(&vkbWidget->style(), 0);
-
-    connect(layoutMenu, SIGNAL(errorCorrectionToggled(bool)),
-            this, SLOT(errorCorrectionToggled(bool)));
-
-    connect(layoutMenu, SIGNAL(regionUpdated(const QRegion &)),
-            this, SLOT(handleRegionUpdate(const QRegion &)));
-
-    connect(layoutMenu, SIGNAL(languageSelected(int)), vkbWidget, SLOT(setLanguage(int)));
-    // FIXME: connect something to layoutMenu::organizeContent()?
-    // layout menu done
-
     connect(vkbWidget, SIGNAL(copyPasteRequest(CopyPasteState)),
             this, SLOT(sendCopyPaste(CopyPasteState)));
     connect(vkbWidget, SIGNAL(sendKeyEventRequest(const QKeyEvent &)),
@@ -277,7 +263,6 @@ MKeyboardHost::~MKeyboardHost()
     inputMethodCorrectionSettings = 0;
     //TODO imCorrectionEngine is not deleted. memory loss
     backSpaceTimer.stop();
-    delete layoutMenu;
     LayoutsManager::destroyInstance();
 }
 
@@ -775,9 +760,7 @@ void MKeyboardHost::updateReactionMaps()
     }
 
     // Draw the reactive areas of first one of these who is visible.
-    if (layoutMenu->isActive()) {
-        layoutMenu->redrawReactionMaps();
-    } else if (correctionCandidateWidget->isVisible()) {
+    if (correctionCandidateWidget->isVisible()) {
         correctionCandidateWidget->redrawReactionMaps();
     } else if (symbolView->isFullyVisible()) {
         symbolView->redrawReactionMaps();
@@ -1022,20 +1005,6 @@ void MKeyboardHost::initializeInputEngine()
     }
 }
 
-
-void MKeyboardHost::errorCorrectionToggled(bool on)
-{
-    if (engineReady && (on != imCorrectionEngine->correctionEnabled())) {
-        bool correction = true;
-        if (!inputMethodCorrectionSettings->value().isNull())
-            correction = inputMethodCorrectionSettings->value().toBool();
-        if (on != correction) {
-            inputMethodCorrectionSettings->set(QVariant(on));
-        }
-    }
-}
-
-
 void MKeyboardHost::synchronizeCorrectionSetting()
 {
     bool correction = true;
@@ -1044,10 +1013,8 @@ void MKeyboardHost::synchronizeCorrectionSetting()
 
     if (!correction) {
         imCorrectionEngine->disableCorrection();
-        layoutMenu->disableErrorCorrection();
     } else {
         imCorrectionEngine->enableCorrection();
-        layoutMenu->enableErrorCorrection();
     }
 
     updateCorrectionState();
@@ -1101,17 +1068,7 @@ void MKeyboardHost::sendCopyPaste(CopyPasteState action)
 
 void MKeyboardHost::showLayoutMenu()
 {
-    const QStringList languageList = LayoutsManager::instance().languageList();
-    const int currentIndex = languageList.indexOf(vkbWidget->selectedLanguage());
-
-    // Update layout menu's list of language titles and current language.
-    QStringList titles;
-    foreach (const QString &language, languageList) {
-        titles << LayoutsManager::instance().keyboardTitle(language);
-    }
-
-    layoutMenu->setLanguageList(titles, currentIndex);
-    layoutMenu->show();
+    emit settingsRequested();
 }
 
 QRegion MKeyboardHost::combineRegionTo(RegionMap &regionStore,

@@ -33,7 +33,6 @@ class MImCorrectionCandidateWidget;
 class MSceneWindow;
 class MVirtualKeyboard;
 class MHardwareKeyboard;
-class LayoutMenu;
 class SymbolView;
 class MImEngineWords;
 class QWidget;
@@ -95,11 +94,6 @@ private slots:
      * Update the pre-edit word
      */
     void updatePreedit(const QString &string);
-
-    /*!
-     * Turn error correction on/off
-     */
-    void errorCorrectionToggled(bool on);
 
     /*! \brief Prepares vkb for orientation change when application is about to rotate.
      *
@@ -229,7 +223,6 @@ private:
     MImCorrectionCandidateWidget *correctionCandidateWidget;
     MVirtualKeyboard *vkbWidget;
     MHardwareKeyboard *hardwareKeyboard;
-    LayoutMenu *layoutMenu;
     SymbolView *symbolView;
 
     MImEngineWords *imCorrectionEngine;

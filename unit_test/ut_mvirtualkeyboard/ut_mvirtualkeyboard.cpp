@@ -40,7 +40,6 @@
 #include <QGraphicsLayout>
 #include <mtexteditmodel.h>
 #include <mtheme.h>
-#include <layoutmenu.h>
 
 namespace
 {
@@ -54,11 +53,6 @@ Q_DECLARE_METATYPE(M::InputMethodSwitchDirection);
 
 MApplication::~MApplication()
 {
-}
-
-LayoutMenu::~LayoutMenu()
-{
-//this stub allows to avoid crash in libmeegotouch
 }
 
 void Notification::displayText(const QString &message)

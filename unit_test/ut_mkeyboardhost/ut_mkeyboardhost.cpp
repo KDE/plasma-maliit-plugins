@@ -21,7 +21,6 @@
 #include <mhardwarekeyboard.h>
 #include <mkeyboardhost.h>
 #include <mvirtualkeyboardstyle.h>
-#include <layoutmenu.h>
 #include <symbolview.h>
 
 #include <mimenginewords.h>
@@ -52,7 +51,6 @@ namespace
     bool gAccurateMode = false;
     int gSetKeyboardStateCallCount = 0;
     MIMHandlerState gSetKeyboardStateParam = OnScreen;
-    const int LayoutMenuShowTime = 300; // in ms
     const int SceneRotationTime = 1400; // in ms
 
     // This GConf item defines whether multitouch is enabled or disabled
@@ -653,18 +651,6 @@ void Ut_MKeyboardHost::testRegionSignals()
 
     QCOMPARE(region(spy, c1 - 1), region(spy2, c2 - 1));
     QCOMPARE(region(spy, c1 - 1), region(spy2, c1 - 3));
-
-    // When layout menu is shown, input method area doesn't change...
-    QTimer::singleShot(LayoutMenuShowTime, subject->layoutMenu->keyboardOptionDialog, SLOT(reject()));
-    qDebug() << "Opening and closing layout menu...";
-    subject->showLayoutMenu();
-    waitForSignal(subject->layoutMenu, SIGNAL(regionUpdated(const QRegion&)));
-    qDebug() << "...layout menu closed.";
-    c1 += 2;
-    QCOMPARE(spy.count(), c1);
-    QCOMPARE(spy2.count(), c2);
-    // ...and after closing the region is again the same as the input method area
-    QCOMPARE(region(spy, c1 - 1), region(spy2, c2 - 1));
 
     // In opaque mode, candidate widget has its own window, so no regions are sent to kbhost.
 #ifndef DUI_IM_DISABLE_TRANSLUCENCY

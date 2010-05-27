@@ -35,10 +35,12 @@ include(layouts/layouts.pri)
 
 HEADERS += \
     mkeyboardhost.h \
+    mkeyboardsettings.h \
     mkeyboardplugin.h \
 
 SOURCES += \
     mkeyboardhost.cpp \
+    mkeyboardsettings.cpp \
     mkeyboardplugin.cpp \
 
 target.path += /usr/lib/meego-im-plugins

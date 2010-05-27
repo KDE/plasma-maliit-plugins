@@ -23,7 +23,6 @@ HEADERS += \
     $$WIDGETS_DIR/flickupbutton.h \
     $$WIDGETS_DIR/flickupbuttonview.h \
     $$WIDGETS_DIR/horizontalswitcher.h \
-    $$WIDGETS_DIR/layoutmenu.h \
     $$WIDGETS_DIR/notification.h \
     $$WIDGETS_DIR/symbolview.h \
     $$WIDGETS_DIR/keybuttonarea.h \
@@ -41,6 +40,7 @@ HEADERS += \
     $$WIDGETS_DIR/grip.h \
     $$WIDGETS_DIR/flickgesture.h \
     $$WIDGETS_DIR/sharedhandlearea.h \
+    $$WIDGETS_DIR/mkeyboardsettingswidget.h \
 
 
 SOURCES += \
@@ -52,7 +52,6 @@ SOURCES += \
     $$WIDGETS_DIR/flickupbutton.cpp \
     $$WIDGETS_DIR/flickupbuttonview.cpp \
     $$WIDGETS_DIR/horizontalswitcher.cpp \
-    $$WIDGETS_DIR/layoutmenu.cpp \
     $$WIDGETS_DIR/notification.cpp \
     $$WIDGETS_DIR/symbolview.cpp \
     $$WIDGETS_DIR/keybuttonarea.cpp \
@@ -68,6 +67,7 @@ SOURCES += \
     $$WIDGETS_DIR/grip.cpp \
     $$WIDGETS_DIR/flickgesture.cpp \
     $$WIDGETS_DIR/sharedhandlearea.cpp \
+    $$WIDGETS_DIR/mkeyboardsettingswidget.cpp \
 
 INCLUDEPATH += $$WIDGETS_DIR
 DEPENDPATH += $$WIDGETS_DIR
