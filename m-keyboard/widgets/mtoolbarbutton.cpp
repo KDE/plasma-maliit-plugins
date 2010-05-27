@@ -15,16 +15,39 @@
  */
 
 #include "mtoolbarbutton.h"
+#include <mtoolbaritem.h>
 #include <MButton>
 #include <QFileInfo>
 #include <QPixmap>
 #include <QDebug>
 
-MToolbarButton::MToolbarButton(QGraphicsItem *parent)
+MToolbarButton::MToolbarButton(QSharedPointer<MToolbarItem> item,
+                               QGraphicsItem *parent)
     : MButton(parent),
       icon(0),
-      sizePercent(100)
+      sizePercent(100),
+      itemPtr(item)
 {
+    sizePercent = itemPtr->size();
+    setIconFile(itemPtr->icon());
+    if (!item->textId().isEmpty()) {
+        setText(qtTrId(itemPtr->textId().toUtf8().data()));
+    } else {
+        setText(itemPtr->text());
+    }
+    setCheckable(item->toggle());
+    if (itemPtr->toggle()) {
+        setChecked(itemPtr->pressed());
+
+        connect(this, SIGNAL(clicked(bool)),
+                itemPtr.data(), SLOT(setPressed(bool)));
+    }
+    setVisible(item->isVisible());
+
+    connect(this, SIGNAL(clicked(bool)),
+            this, SLOT(onClick()));
+    connect(itemPtr.data(), SIGNAL(propertyChanged(const QString&)),
+            this, SLOT(updateData(const QString&)));
 }
 
 MToolbarButton::~MToolbarButton()
@@ -78,3 +101,32 @@ void MToolbarButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
         painter->drawPixmap(iconRect, *icon, QRectF(icon->rect()));
     }
 }
+
+QSharedPointer<MToolbarItem> MToolbarButton::item()
+{
+    return itemPtr;
+}
+
+void MToolbarButton::updateData(const QString &attribute)
+{
+    if (attribute == "icon") {
+        setIconFile(itemPtr->icon());
+    } else if (attribute == "text") {
+        setText(itemPtr->text());
+    } else if (attribute == "textId") {
+        setText(qtTrId(itemPtr->textId().toUtf8().data()));
+    } else if (attribute == "pressed" && itemPtr->toggle()) {
+        setChecked(itemPtr->pressed());
+    } else if (attribute == "visible") {
+        setVisible(itemPtr->isVisible());
+    } else if (attribute == "size") {
+        sizePercent = itemPtr->size();
+        update();
+    }
+}
+
+void MToolbarButton::onClick()
+{
+    emit clicked(itemPtr.data());
+}
+

@@ -18,6 +18,8 @@
 #define MTOOLBARBUTTON_H
 
 #include <MButton>
+#include <QSharedPointer>
+
 /*!
  * \class MToolbarWidget
  * \brief MToolbarWidget is provide for the buttons in the input method toolbar.
@@ -27,15 +29,18 @@
  * setIconPercent() and button size.
  */
 class QPixmap;
+class MToolbarItem;
 
 class MToolbarButton : public MButton
 {
     Q_OBJECT
+    Q_DISABLE_COPY(MToolbarButton)
+
 public:
     /*!
      * \Brief Constructor
      */
-    explicit MToolbarButton(QGraphicsItem *parent = 0);
+    explicit MToolbarButton(QSharedPointer<MToolbarItem> item, QGraphicsItem *parent = 0);
 
     //! Destructor
     virtual ~MToolbarButton();
@@ -61,10 +66,32 @@ public:
                        QWidget *widget = 0);
     //! \reimp_end
 
+    //! Return pointer to corresponding toolbar item.
+    QSharedPointer<MToolbarItem> item();
+
+signals:
+    /*!
+     * \brief Emitted when button is clicked.
+     * \param item Pointer to corresponding toolbar item.
+     *
+     * Warning: do not store pointer which is used as parameter for this signal,
+     * call MToolbarItem::item() if you need to get pointer to toolbar item.
+     */
+    void clicked(MToolbarItem *item);
+
+private slots:
+    //! Update button's properties when properties of toolbar item are updated.
+    void updateData(const QString &attribute);
+
+    //! Emits clicked(MToolbarItem *) when base class emits clicked(bool)
+    void onClick();
+
 private:
     QPixmap *icon;
     QString iconFile;
     int sizePercent;
+    QSharedPointer<MToolbarItem> itemPtr;
+
     friend class Ut_MImToolbar;
 };
 
