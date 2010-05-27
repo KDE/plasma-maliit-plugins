@@ -74,6 +74,11 @@ public:
     //! \brief Returns the layout for hardware keyboard
     QString hardwareKeyboardLayout() const;
 
+    /*!
+     *\brief Returns the language codes and its titles for selected keyboards.
+     */
+    QMap<QString, QString> selectedLayouts() const;
+
 signals:
     //! Signals that languages have been reset and keyboard data can
     //! be reloaded using new languages returned by languageList().
@@ -82,6 +87,10 @@ signals:
     //! Signals that number format have been reset and number/phonenumber
     //! keyboard data can be reloaded.
     void numberFormatChanged();
+
+    //! Signals that selected layouts have been changed.
+    void selectedLayoutsChanged();
+
 private:
     //! Default constructor
     LayoutsManager();

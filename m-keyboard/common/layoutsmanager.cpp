@@ -51,6 +51,8 @@ LayoutsManager::LayoutsManager()
 
     // Synchronize with settings when someone changes them (e.g. via control panel).
     connect(&configLanguages, SIGNAL(valueChanged()), this, SLOT(syncLanguages()));
+    connect(&configLanguages, SIGNAL(valueChanged()), this, SIGNAL(selectedLayoutsChanged()));
+
     connect(&numberFormatSetting, SIGNAL(valueChanged()), this, SLOT(reloadNumberKeyboards()));
     connect(&locale, SIGNAL(settingsChanged()), SLOT(reloadNumberKeyboards()));
     locale.connectSettings();
@@ -286,4 +288,13 @@ bool LayoutsManager::isCyrillicLanguage(const QString &language)
        )
         val = true;
     return val;
+}
+
+QMap<QString, QString> LayoutsManager::selectedLayouts() const
+{
+    QMap<QString, QString> layouts;
+    foreach (const QString language, languageList()) {
+        layouts.insert(language, keyboardTitle(language));
+    }
+    return layouts;
 }
