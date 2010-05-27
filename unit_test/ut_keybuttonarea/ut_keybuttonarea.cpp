@@ -39,7 +39,7 @@
 
 namespace
 {
-    const int LongPressTime = 1000; // same as in keybuttonarea.cpp
+    const int LongPressTime = 600; // same as in keybuttonarea.cpp
 }
 
 Q_DECLARE_METATYPE(KeyEvent);
