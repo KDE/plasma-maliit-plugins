@@ -282,33 +282,32 @@ void Ut_KeyButtonArea::testFlickCheck()
     MPlainWindow::instance()->scene()->addItem(subject);
     subject->resize(defaultLayoutSize());
 
-    PointList noSwipe;
-    noSwipe << QPoint(300, 0) << QPoint(0, 0);
-    recognizeGesture(noSwipe, NoGesture);
+    // A series of touch points that will not create a gesture yet:
+    PointList base;
+    for (int idx = 0; idx < 8; ++idx) {
+        // But each new point has to overcome the movement threshold:
+        base << QPoint(idx * 6, idx * 6); 
+    }
+    recognizeGesture(base, NoGesture);
 
-    PointList leftSwipe0;
-    leftSwipe0 << QPoint(300, 0) << QPoint(250, 0) << QPoint(200, 0)
-               << QPoint(150, 0) << QPoint(100, 0) << QPoint(50, 0)
-               << QPoint(0, 0);
-    recognizeGesture(leftSwipe0, SwipeLeftGesture);
-    recognizeGesture(reversed(leftSwipe0), SwipeRightGesture);
+    PointList rightSwipe0 = PointList(base);
+    rightSwipe0 << QPoint(600, 0);
+    recognizeGesture(rightSwipe0, SwipeRightGesture);
+    recognizeGesture(reversed(rightSwipe0), SwipeLeftGesture);
 
-    PointList leftSwipe1;
-    leftSwipe1 << QPoint(400, 0) << QPoint(500, 0) << QPoint(500, 500)
-               << QPoint(0, 500) << QPoint(200, 0) << QPoint(0, 50)
-               << QPoint(0, 0);
-    recognizeGesture(leftSwipe1, SwipeLeftGesture);
-    recognizeGesture(reversed(leftSwipe1), SwipeRightGesture);
+    // A swipe does not have to be a strictly increasing sequence:
+    PointList rightSwipe1 = PointList(base);
+    rightSwipe1 << QPoint(0, 0) << QPoint(600, 0);
+    recognizeGesture(rightSwipe1, SwipeRightGesture);
+    recognizeGesture(reversed(rightSwipe1), SwipeLeftGesture);
 
-    PointList downSwipe; // The logic probably looks a bit odd here ...
-    downSwipe << QPoint(0, 0) << QPoint(0, 200) << QPoint(0, 400) << QPoint(0, 600);
+    PointList downSwipe = PointList(base);
+    downSwipe << QPoint(0, 800);
     recognizeGesture(downSwipe, SwipeDownGesture);
     recognizeGesture(reversed(downSwipe), NoGesture); // No key set - can't swipe up ...
 
-
-    PointList conflictingSwipe;
-    conflictingSwipe << QPoint(0, 0) << QPoint(0, 100) << QPoint(0, 200) << QPoint(400, 400)
-                     << QPoint(400, 400);
+    PointList conflictingSwipe = PointList(base);
+    conflictingSwipe << QPoint(800, 800);
     recognizeGesture(conflictingSwipe, NoGesture);
 }
 
@@ -331,6 +330,11 @@ void Ut_KeyButtonArea::testSceneEvent()
                         false, 0);
     MPlainWindow::instance()->scene()->addItem(subject);
     subject->resize(defaultLayoutSize());
+
+    // Skip test for multitouch, since there are no mouse events:
+    if (subject->acceptTouchEvents()) {
+        return;
+    }
 
     QGraphicsSceneMouseEvent *press = new QGraphicsSceneMouseEvent(QEvent::GraphicsSceneMousePress);
     QGraphicsSceneMouseEvent *release = new QGraphicsSceneMouseEvent(QEvent::GraphicsSceneMouseRelease);
@@ -852,10 +856,12 @@ void Ut_KeyButtonArea::recognizeGesture(const PointList &pl, GestureType gt, int
 
     subject->touchPointPressed(pl[0], touchPointId);
 
-    for (int n = 1; n < pl.count() - 1; ++n) {
+    for (int n = 1; n < pl.count(); ++n) {
         subject->touchPointMoved(pl[n], touchPointId);
     }
 
+    // Not needed for the gesture, but we don't want to leave a pressed touch
+    // point without a release:
     subject->touchPointReleased(pl[pl.count() - 1], touchPointId);
 
     qDebug() << "gesture type = " << gt;
