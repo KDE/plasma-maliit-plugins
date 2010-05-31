@@ -340,7 +340,7 @@ MVirtualKeyboard::setupTimeLine()
 void
 MVirtualKeyboard::flickLeftHandler()
 {
-    if (!mainKeyboardSwitcher->isRunning()) {
+    if ((activeState == OnScreen) && !mainKeyboardSwitcher->isRunning()) {
         if (mainKeyboardSwitcher->isAtBoundary(HorizontalSwitcher::Right)) {
             emit pluginSwitchRequired(M::SwitchForward);
             return;
@@ -364,7 +364,7 @@ MVirtualKeyboard::flickUpHandler(const KeyBinding &binding)
 void
 MVirtualKeyboard::flickRightHandler()
 {
-    if (!mainKeyboardSwitcher->isRunning()) {
+    if ((activeState == OnScreen) && !mainKeyboardSwitcher->isRunning()) {
         if (mainKeyboardSwitcher->isAtBoundary(HorizontalSwitcher::Left)) {
             emit pluginSwitchRequired(M::SwitchBackward);
             return;
