@@ -68,6 +68,11 @@ public:
     // if widget was not found
     int indexOf(const MWidget *widget) const;
 
+public:
+    //! \reimp
+    virtual QSizeF sizeHint(Qt::SizeHint which, const QSizeF &constraint = QSizeF()) const;
+    //! \reimp_end
+
 protected:
     //! \reimp
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
