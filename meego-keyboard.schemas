@@ -31,7 +31,7 @@
       <applyto>/meegotouch/inputmethods/correctionenabled</applyto>
       <owner>meegotouch</owner>
       <type>bool</type>
-      <default>true</default>
+      <default>false</default>
       <locale name="C">
         <short>Whether error correction is enabled</short>
         <long>Whether error correction is enabled</long>
