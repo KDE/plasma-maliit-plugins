@@ -796,12 +796,12 @@ void Ut_MVirtualKeyboard::testSetKeyboardState()
 
     //show whole keyboard
     m_vkb->setKeyboardState(OnScreen);
-    top -= m_vkb->layout()->itemAt(1)->geometry().height();
+    top -= m_vkb->layout()->itemAt(MVirtualKeyboard::KeyboardIndex)->geometry().height();
     QCOMPARE(top, int(m_vkb->geometry().top()));
 
     //show toolbar only
     m_vkb->setKeyboardState(Hardware);
-    top += m_vkb->layout()->itemAt(1)->geometry().height();
+    top += m_vkb->layout()->itemAt(MVirtualKeyboard::KeyboardIndex)->geometry().height();
     QCOMPARE(top, int(m_vkb->geometry().top()));
 }
 

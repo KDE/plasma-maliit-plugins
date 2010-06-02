@@ -421,6 +421,12 @@ private:
     int actualHeight() const;
 
 private:
+    //! Main layout indices
+    enum LayoutIndex {
+        ToolbarIndex,
+        KeyboardIndex
+    };
+
     //! Keyboard state wrt. \a showKeyboard / \a hideKeyboard calls.
     enum Activity {
         Active,                 // After showKeyboard call

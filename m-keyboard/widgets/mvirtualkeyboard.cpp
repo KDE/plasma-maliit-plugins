@@ -215,7 +215,7 @@ MVirtualKeyboard::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
     mTimestamp("MVirtualKeyboard", "start");
 
     // The second item in layout holds the currently used keyboard. Draw under it.
-    const QRectF backgroundGeometry = layout()->itemAt(1)->geometry();
+    const QRectF backgroundGeometry = layout()->itemAt(KeyboardIndex)->geometry();
 
     if (MApplication::softwareRendering()) {
         if (backgroundPixmap.isNull()
@@ -554,8 +554,8 @@ QRegion MVirtualKeyboard::region(const bool includeToolbar,
         // Main keyboard area (qwerty/number/etc.)
         if (activeState == OnScreen) {
             mainLayout->activate();
-            qDebug() << __PRETTY_FUNCTION__ << mainLayout->itemAt(1)->geometry();
-            region |= mapRectToScene(mainLayout->itemAt(1)->geometry()).toRect();
+            qDebug() << __PRETTY_FUNCTION__ << mainLayout->itemAt(KeyboardIndex)->geometry();
+            region |= mapRectToScene(mainLayout->itemAt(KeyboardIndex)->geometry()).toRect();
         }
     }
 
@@ -573,7 +573,7 @@ void MVirtualKeyboard::setKeyboardState(MIMHandlerState newState)
     resetState();
     qDebug() << __PRETTY_FUNCTION__ << imToolbar->geometry() << imToolbar->region();
 
-    static_cast<QGraphicsWidget *>(mainLayout->itemAt(1))->setVisible(newState == OnScreen);
+    static_cast<QGraphicsWidget *>(mainLayout->itemAt(KeyboardIndex))->setVisible(newState == OnScreen);
     organizeContentAndSendRegion();
 }
 
@@ -591,7 +591,7 @@ void MVirtualKeyboard::drawButtonsReactionMaps(MReactionMap *reactionMap, QGraph
     // such as qwerty + function row.
     QGraphicsLayout *keyboardLayout = 0;
 
-    QGraphicsLayoutItem *item = mainLayout->itemAt(1);
+    QGraphicsLayoutItem *item = mainLayout->itemAt(KeyboardIndex);
     if (item == mainKeyboardSwitcher && mainKeyboardSwitcher->currentWidget()) {
         keyboardLayout = mainKeyboardSwitcher->currentWidget()->layout();
     } else {
@@ -639,7 +639,7 @@ void MVirtualKeyboard::redrawReactionMaps()
         // Draw keyboard area with inactive color to prevent transparent holes.
         reactionMap->setInactiveDrawingValue();
         reactionMap->setTransform(this, view);
-        reactionMap->fillRectangle(layout()->itemAt(1)->geometry());
+        reactionMap->fillRectangle(layout()->itemAt(KeyboardIndex)->geometry());
 
         if (activeState == OnScreen) {
             drawButtonsReactionMaps(reactionMap, view);
@@ -681,7 +681,7 @@ void MVirtualKeyboard::setKeyboardType(const int type)
     currentLayoutType = newLayoutType;
 
     // remove what currently is in the keyboard position in the main layout
-    QGraphicsLayoutItem *previousItem = mainLayout->itemAt(1);
+    QGraphicsLayoutItem *previousItem = mainLayout->itemAt(KeyboardIndex);
     mainLayout->removeItem(previousItem);
     static_cast<QGraphicsWidget *>(previousItem)->hide();
 
@@ -699,7 +699,7 @@ void MVirtualKeyboard::setKeyboardType(const int type)
         break;
     }
 
-    mainLayout->insertItem(1, newWidget);
+    mainLayout->insertItem(KeyboardIndex, newWidget);
     if (activeState == OnScreen) {
         newWidget->show();
     } else {
@@ -1108,7 +1108,7 @@ void MVirtualKeyboard::switchLanguage(M::InputMethodSwitchDirection direction, b
 
 void MVirtualKeyboard::hideMainArea()
 {
-    QGraphicsItem *item = dynamic_cast<QGraphicsItem*>(mainLayout->itemAt(1));
+    QGraphicsItem *item = dynamic_cast<QGraphicsItem*>(mainLayout->itemAt(KeyboardIndex));
     if (item) {
         item->hide();
     }
@@ -1117,7 +1117,7 @@ void MVirtualKeyboard::hideMainArea()
 
 void MVirtualKeyboard::showMainArea()
 {
-    QGraphicsItem *item = dynamic_cast<QGraphicsItem*>(mainLayout->itemAt(1));
+    QGraphicsItem *item = dynamic_cast<QGraphicsItem*>(mainLayout->itemAt(KeyboardIndex));
     if (item) {
         item->show();
     }
