@@ -35,6 +35,8 @@ class MKeyboardPlugin: public QObject, public MInputMethodPlugin
     Q_INTERFACES(MInputMethodPlugin)
 
 public:
+    MKeyboardPlugin();
+
     //! \reimp
     virtual QString name() const;
     virtual QStringList languages() const;
@@ -42,6 +44,11 @@ public:
     virtual MInputMethodSettingsBase *createInputMethodSettings();
     virtual QSet<MIMHandlerState> supportedStates() const;
     //! \reimp_end
+
+private:
+    void loadTranslation();
+
+    bool translationIsLoaded;
 };
 
 #endif

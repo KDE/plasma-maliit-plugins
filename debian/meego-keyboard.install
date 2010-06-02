@@ -2,3 +2,4 @@ usr/lib/meego-im-plugins/
 usr/share/meegotouch/virtual-keyboard
 usr/share/themes/base
 usr/share/gconf
+usr/share/l10n/meegotouch/virtual-keyboard.qm

@@ -16,6 +16,7 @@
 
 
 
+#include <MLocale>
 #include "mkeyboardplugin.h"
 #include "mkeyboardhost.h"
 #include "mkeyboardsettings.h"
@@ -23,6 +24,11 @@
 #include <QtPlugin>
 
 #include <mtimestamp.h>
+
+MKeyboardPlugin::MKeyboardPlugin()
+    : translationIsLoaded(false)
+{
+}
 
 QString MKeyboardPlugin::name() const
 {
@@ -39,6 +45,7 @@ QStringList MKeyboardPlugin::languages() const
 MInputMethodBase *
 MKeyboardPlugin::createInputMethod(MInputContextConnection *icConnection)
 {
+    loadTranslation();
     mTimestamp("MKeyboardPlugin", "start");
     MInputMethodBase *inputMethod = new MKeyboardHost(icConnection);
     mTimestamp("MKeyboardPlugin", "end");
@@ -47,6 +54,7 @@ MKeyboardPlugin::createInputMethod(MInputContextConnection *icConnection)
 
 MInputMethodSettingsBase *MKeyboardPlugin::createInputMethodSettings()
 {
+    loadTranslation();
     MInputMethodSettingsBase *inputMethodSettings = new MKeyboardSettings();
     return inputMethodSettings;
 }
@@ -59,5 +67,15 @@ QSet<MIMHandlerState> MKeyboardPlugin::supportedStates() const
     return result;
 }
 
-Q_EXPORT_PLUGIN2(mvirtualkeyboard, MKeyboardPlugin)
+void MKeyboardPlugin::loadTranslation()
+{
+    if (!translationIsLoaded) {
+        MLocale locale;
+        // add virtual-keyboard catalog for the settings translation.
+        locale.installTrCatalog("virtual-keyboard");
+        MLocale::setDefault(locale);
+        translationIsLoaded = true;
+    }
+}
 
+Q_EXPORT_PLUGIN2(meego-keyboard, MKeyboardPlugin)

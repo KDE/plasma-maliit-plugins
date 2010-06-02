@@ -4,6 +4,7 @@ TEMPLATE = subdirs
 SUBDIRS = m-keyboard \
       unit_test \
       fixture_virtualkeyboard \
+      translations \
 
 include (doc/doc.pri)
 
