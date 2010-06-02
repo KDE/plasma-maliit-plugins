@@ -22,7 +22,6 @@
 #include "mvirtualkeyboard.h"
 #include "horizontalswitcher.h"
 #include "layoutsmanager.h"
-#include "toolbarmanager.h"
 #include "notification.h"
 #include "ut_mvirtualkeyboard.h"
 #include "vkbdatakey.h"
@@ -115,12 +114,10 @@ void Ut_MVirtualKeyboard::initTestCase()
     MPlainWindow::instance()->sceneManager()->appearSceneWindowNow(vkbParent);
 
     LayoutsManager::createInstance();
-    ToolbarManager::createInstance();
 }
 
 void Ut_MVirtualKeyboard::cleanupTestCase()
 {
-    ToolbarManager::destroyInstance();
     LayoutsManager::destroyInstance();
     delete vkbParent;
     delete MPlainWindow::instance();
