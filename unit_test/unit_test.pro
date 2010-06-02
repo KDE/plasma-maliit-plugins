@@ -15,7 +15,6 @@ SUBDIRS = \
           ut_horizontalswitcher \
           ut_layoutsmanager \
           ut_mimtoolbar \
-          ut_toolbarmanager \
           ut_mhardwarekeyboard \
           ut_hwkbcharloopsmanager \
           bm_keybuttonarea \
