@@ -53,6 +53,8 @@ namespace
 
 int KeyButtonArea::swipeGestureTouchPoints = 1;
 
+M::InputMethodMode KeyButtonArea::InputMethodMode;
+
 KeyButtonArea::KeyButtonArea(MVirtualKeyboardStyleContainer *style,
                              QSharedPointer<const LayoutSection> sectionModel,
                              ButtonSizeScheme buttonSizeScheme,
@@ -93,6 +95,11 @@ KeyButtonArea::~KeyButtonArea()
 {
     delete longPressTimer;
     delete popup;
+}
+
+void KeyButtonArea::setInputMethodMode(M::InputMethodMode inputMethodMode)
+{
+    InputMethodMode = inputMethodMode;
 }
 
 void KeyButtonArea::buttonInformation(int row, int column, const VKBDataKey *&dataKey, QSize &size, bool &stretchesHorizontally)
@@ -594,7 +601,8 @@ void KeyButtonArea::drawReactiveAreas(MReactionMap */*reactionMap*/, QGraphicsVi
 bool
 KeyButtonArea::isSwipeGesture(const TouchPointInfo &tpi)
 {
-    if (wasGestureTriggered || tpi.gestureTimer.elapsed() > GestureTimeOut) {
+    if ((InputMethodMode == M::InputMethodModeDirect) || wasGestureTriggered
+        || tpi.gestureTimer.elapsed() > GestureTimeOut) {
         return false;
     }
 

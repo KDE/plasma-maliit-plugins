@@ -141,6 +141,7 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
     //    update their transformations by hand.
 
     vkbWidget = new MVirtualKeyboard(LayoutsManager::instance(), sceneWindow);
+    vkbWidget->setInputMethodMode(static_cast<M::InputMethodMode>(inputMethodMode));
 
     connect(vkbWidget, SIGNAL(keyClicked(const KeyEvent &)),
             this, SLOT(handleKeyClick(const KeyEvent &)));
@@ -422,6 +423,7 @@ void MKeyboardHost::update()
     const int inputMethodModeValue = inputContextConnection()->inputMethodMode(valid);
     if (valid) {
         inputMethodMode = inputMethodModeValue;
+        vkbWidget->setInputMethodMode(static_cast<M::InputMethodMode>(inputMethodMode));
     }
 }
 

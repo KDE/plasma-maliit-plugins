@@ -109,6 +109,9 @@ public:
     //! Returns current level of this layout.
     int level() const;
 
+    //! Set input method mode for all KeyButtonArea instances
+    static void setInputMethodMode(M::InputMethodMode inputMethodMode);
+
 public slots:
     /*!
      * This slot is used to switch levels
@@ -381,6 +384,8 @@ private:
 
     //! Controls the amount of touchpoints required by a gesture.
     static int swipeGestureTouchPoints;
+
+    static M::InputMethodMode InputMethodMode;
 
 #ifdef UNIT_TEST
     friend class MReactionMapTester;

@@ -27,6 +27,7 @@
 #include <mimdirection.h>
 #include <minputmethodnamespace.h>
 #include <MWidget>
+#include <MNamespace>
 #include <QPixmap>
 #include <QSharedPointer>
 #include <QTimeLine>
@@ -173,6 +174,9 @@ public:
      * Switch language to given direction, \sa MInputMethodBase::swipe
      */
     void switchLanguage(M::InputMethodSwitchDirection direction, bool enableAnimation);
+
+    //! Set input method mode
+    void setInputMethodMode(M::InputMethodMode mode);
 
 public slots:
     /*!

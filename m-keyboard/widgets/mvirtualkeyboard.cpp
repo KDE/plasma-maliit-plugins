@@ -1123,3 +1123,7 @@ void MVirtualKeyboard::showMainArea()
     }
 }
 
+void MVirtualKeyboard::setInputMethodMode(M::InputMethodMode mode)
+{
+    KeyButtonArea::setInputMethodMode(mode);
+}

@@ -266,19 +266,24 @@ void Ut_KeyButtonArea::testLabelPosition()
 void Ut_KeyButtonArea::testFlickCheck_data()
 {
     QTest::addColumn<KBACreator>("createKba");
-    QTest::newRow("SingleWidgetArea") << &createSingleWidgetKeyButtonArea;
-    QTest::newRow("MButtonArea") << &createMButtonArea;
+    QTest::addColumn<bool>("directMode");
+    QTest::newRow("SingleWidgetArea") << &createSingleWidgetKeyButtonArea << false;
+    QTest::newRow("SingleWidgetArea") << &createSingleWidgetKeyButtonArea << true;
+    QTest::newRow("MButtonArea") << &createMButtonArea << false;
+    QTest::newRow("MButtonArea") << &createMButtonArea << true;
 }
 
 void Ut_KeyButtonArea::testFlickCheck()
 {
     QFETCH(KBACreator, createKba);
+    QFETCH(bool, directMode);
 
     keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("en.xml"));
     subject = createKba(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                         KeyButtonArea::ButtonSizeEqualExpanding,
                         false, 0);
+    KeyButtonArea::setInputMethodMode(directMode ? M::InputMethodModeDirect : M::InputMethodModeNormal);
     MPlainWindow::instance()->scene()->addItem(subject);
     subject->resize(defaultLayoutSize());
 
@@ -292,18 +297,18 @@ void Ut_KeyButtonArea::testFlickCheck()
 
     PointList rightSwipe0 = PointList(base);
     rightSwipe0 << QPoint(600, 0);
-    recognizeGesture(rightSwipe0, SwipeRightGesture);
-    recognizeGesture(reversed(rightSwipe0), SwipeLeftGesture);
+    recognizeGesture(rightSwipe0, directMode ? NoGesture : SwipeRightGesture);
+    recognizeGesture(reversed(rightSwipe0), directMode ? NoGesture : SwipeLeftGesture);
 
     // A swipe does not have to be a strictly increasing sequence:
     PointList rightSwipe1 = PointList(base);
     rightSwipe1 << QPoint(0, 0) << QPoint(600, 0);
-    recognizeGesture(rightSwipe1, SwipeRightGesture);
-    recognizeGesture(reversed(rightSwipe1), SwipeLeftGesture);
+    recognizeGesture(rightSwipe1, directMode ? NoGesture : SwipeRightGesture);
+    recognizeGesture(reversed(rightSwipe1), directMode ? NoGesture : SwipeLeftGesture);
 
     PointList downSwipe = PointList(base);
     downSwipe << QPoint(0, 800);
-    recognizeGesture(downSwipe, SwipeDownGesture);
+    recognizeGesture(downSwipe, directMode ? NoGesture : SwipeDownGesture);
     recognizeGesture(reversed(downSwipe), NoGesture); // No key set - can't swipe up ...
 
     PointList conflictingSwipe = PointList(base);
