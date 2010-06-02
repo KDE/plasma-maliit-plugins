@@ -21,10 +21,14 @@
 
 #include <QtTest/QTest>
 #include <QObject>
+#include <QSharedPointer>
+#include <mtoolbardata.h>
+
 class MApplication;
 class MImToolbar;
 class QKeyEvent;
 class MVirtualKeyboardStyleContainer;
+class MWidget;
 
 class Ut_MImToolbar : public QObject
 {
@@ -35,6 +39,7 @@ private:
     MImToolbar *m_subject;
     int keyEvents;
     MVirtualKeyboardStyleContainer *style;
+    QSharedPointer<MToolbarData> toolbarData;
 
 private slots:
     //! initialize application and class
@@ -53,9 +58,13 @@ private slots:
     void testCopy();
     void testPaste();
     void testRegion();
-    void testSetToolbarItemAttribute();
 
     void receiveKeyEvent(const QKeyEvent &);
+
+private:
+    // Find custom widget by given \a name
+    MWidget *find(const QString &name);
+
 };
 
 #endif
