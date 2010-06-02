@@ -49,6 +49,7 @@ namespace
 Q_DECLARE_METATYPE(Qt::Key)
 Q_DECLARE_METATYPE(Qt::KeyboardModifier)
 Q_DECLARE_METATYPE(ModifierState)
+Q_DECLARE_METATYPE(M::TextContentType)
 
 namespace QTest
 {
