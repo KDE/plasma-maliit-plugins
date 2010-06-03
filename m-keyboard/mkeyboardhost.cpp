@@ -1014,7 +1014,7 @@ void MKeyboardHost::initializeInputEngine()
         shortLanguage = KeyboardData::convertLanguageToShortFormat(language);
     }
 
-    if (engineReady && (shortLanguage != imCorrectionEngine->language())) {
+    if (engineReady) {
         // TODO: maybe we should check return values here and in case of failure
         // be always in accurate mode, for example
         imCorrectionEngine->setKeyboardLayout(shortLanguage);
