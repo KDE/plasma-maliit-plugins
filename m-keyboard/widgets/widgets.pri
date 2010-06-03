@@ -33,6 +33,7 @@ HEADERS += \
     $$WIDGETS_DIR/popupfactory.h \
     $$WIDGETS_DIR/popupplugin.h \
     $$WIDGETS_DIR/mtoolbarbutton.h \
+    $$WIDGETS_DIR/mtoolbarlabel.h \
 
 
 SOURCES += \
@@ -54,6 +55,7 @@ SOURCES += \
     $$WIDGETS_DIR/popupbase.cpp \
     $$WIDGETS_DIR/popupfactory.cpp \
     $$WIDGETS_DIR/mtoolbarbutton.cpp \
+    $$WIDGETS_DIR/mtoolbarlabel.cpp \
 
 INCLUDEPATH += $$WIDGETS_DIR
 DEPENDPATH += $$WIDGETS_DIR
