@@ -302,6 +302,7 @@ bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers 
                                          quint32 nativeScanCode, quint32 nativeModifiers)
 {
     bool eaten = false;
+    const bool keyWasPressed(pressedKeys.contains(nativeScanCode));
 
     // Relock modifiers; X seems to unlock Fn automatically on Fn release, which is not
     // desired at least with [phone] number content type.
@@ -309,9 +310,14 @@ bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers 
         mXkb.lockModifiers(currentLockedMods, currentLockedMods);
     }
 
-    if (nativeModifiers & SymModifierMask) {
+    if (keyWasPressed && (nativeModifiers & SymModifierMask)) {
         eaten = handleReleaseWithSymModifier(keyCode, text);
     }
+
+    const Qt::KeyboardModifiers filteredModifiers(
+        ((currentLatchedMods & ShiftMask) && !shiftsPressed)
+        ? (modifiers & ~Qt::KeyboardModifiers(Qt::ShiftModifier))
+        : modifiers);
 
     if (keyCode == Qt::Key_Shift) {
         if (!shiftShiftCapsLock) {
@@ -325,18 +331,13 @@ bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers 
         handleCyclableModifierRelease(FnLevelKey, FnModifierMask, FnModifierMask, LockMask,
                                       ShiftMask);
     } else if (!eaten && !passKeyOnPress(keyCode, text, nativeScanCode)) {
-        const bool keyWasPressed(pressedKeys.contains(nativeScanCode));
         if (keyWasPressed) {
             inputContextConnection.sendKeyEvent(
-                QKeyEvent(QEvent::KeyPress, keyCode,
-                          ((currentLatchedMods & ShiftMask) && !shiftsPressed)
-                          ? (modifiers & ~Qt::KeyboardModifiers(Qt::ShiftModifier))
-                          : modifiers,
-                          text, false, 1));
-            // TODO: should we send release too?  MTextEdit seems to be happy with
-            // just press but what about others?
-            eaten = true;
+                QKeyEvent(QEvent::KeyPress, keyCode, filteredModifiers, text, false, 1));
+            inputContextConnection.sendKeyEvent(
+                QKeyEvent(QEvent::KeyRelease, keyCode, filteredModifiers, text, false, 1));
         }
+        eaten = true;
 
         if (!autoCaps) {
             latchModifiers(FnModifierMask | ShiftMask, 0);
@@ -344,10 +345,10 @@ bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers 
     }
     // This case works around the problem of host calling setAutoCapitalization()
     // after backspace press event but before backspace release.  That turns the
-    // release event into a Delete release!  We eat backspace releases for consistency
-    // as well.  If the answer the the above "should we send release too?" question is
-    // "yes", presumably we need other kind of trickery here.
-    else if ((keyCode == Qt::Key_Backspace) || (keyCode == Qt::Key_Delete)) {
+    // release event into a Delete release!
+    else if (!shiftsPressed && (keyCode == Qt::Key_Delete)) {
+        inputContextConnection.sendKeyEvent(
+            QKeyEvent(QEvent::KeyRelease, Qt::Key_Backspace, filteredModifiers, "\b", false, 1));
         eaten = true;
     }
 
@@ -420,6 +421,9 @@ void MHardwareKeyboard::handleLongPressTimeout()
         inputContextConnection.sendKeyEvent(
             QKeyEvent(QEvent::KeyPress, static_cast<Qt::Key>(QKeySequence(text)[0]), Qt::NoModifier,
                       text, false, 1));
+        inputContextConnection.sendKeyEvent(
+            QKeyEvent(QEvent::KeyRelease, static_cast<Qt::Key>(QKeySequence(text)[0]), Qt::NoModifier,
+                      text, false, 1));
         latchModifiers(FnModifierMask | ShiftMask, 0);
         pressedKeys.remove(longPressKey);
     }
@@ -430,7 +434,7 @@ bool MHardwareKeyboard::handleReleaseWithSymModifier(Qt::Key keyCode, const QStr
 {
     if ((lastKeyCode == SymKey) && (keyCode == SymKey)) {
         emit symbolKeyClicked();
-        return true;            // TODO: or false?
+        return false;
     }
 
     if ((characterLoopIndex != -1) && ((lastSymText != text) || (keyCode == SymKey))) {

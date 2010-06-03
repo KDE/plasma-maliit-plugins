@@ -500,6 +500,7 @@ void Ut_MHardwareKeyboard::testModifierInNonTextContentType()
     QVERIFY(checkLockedState(ShiftMask | LockMask | FnModifierMask, FnModifierMask));
 }
 
+
 void Ut_MHardwareKeyboard::testShiftShiftCapsLock_data()
 {
     QTest::addColumn<int>("state");
@@ -577,7 +578,7 @@ void Ut_MHardwareKeyboard::testSymClick()
 
     // Press+release gives us signal
     QVERIFY(!filterKeyPress(SymKey, Qt::NoModifier, "", KeycodeNonCharacter, 0));
-    QVERIFY(filterKeyRelease(SymKey, Qt::NoModifier, "", KeycodeNonCharacter, SymModifierMask));
+    QVERIFY(!filterKeyRelease(SymKey, Qt::NoModifier, "", KeycodeNonCharacter, SymModifierMask));
     QCOMPARE(symSpy.count(), 1);
     symSpy.clear();
 
@@ -632,6 +633,7 @@ void Ut_MHardwareKeyboard::testSymPlusCharacterBasic()
     QCOMPARE(symSpy.count(), 0);
 }
 
+
 void Ut_MHardwareKeyboard::testSymPlusCharSwitchs()
 {
     QSignalSpy symSpy(m_hkb, SIGNAL(symbolKeyClicked()));
@@ -658,11 +660,33 @@ void Ut_MHardwareKeyboard::testSymPlusCharSwitchs()
     QCOMPARE(inputContextConnection->keyEventsSent(), static_cast<unsigned int >(0));
     QVERIFY(filterKeyRelease(Qt::Key_O, Qt::NoModifier, "b", KeycodeCharacter, SymModifierMask));
     QCOMPARE(inputContextConnection->lastCommitString(), QString(QChar(0x00F6)));
-    QCOMPARE(inputContextConnection->keyEventsSent(), static_cast<unsigned int >(1));
+    QCOMPARE(inputContextConnection->keyEventsSent(), static_cast<unsigned int >(2));
 
     QVERIFY(!filterKeyRelease(SymKey, Qt::NoModifier, "", KeycodeNonCharacter, SymModifierMask));
 
     QCOMPARE(symSpy.count(), 0);
+}
+
+
+void Ut_MHardwareKeyboard::testReleaseEvents()
+{
+    // Ordinary character
+    QVERIFY(filterKeyPress(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, 0));
+    QCOMPARE(inputContextConnection->keyEventsSent(), static_cast<unsigned int>(0));
+    QVERIFY(filterKeyRelease(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, 0));
+    QCOMPARE(inputContextConnection->keyEventsSent(), static_cast<unsigned int>(2));
+    QCOMPARE(inputContextConnection->lastKeyEvent().type(), QEvent::KeyRelease);
+
+    // Backspace with autocapitalization change (which we don't do, we just simulate the
+    // event that would be generated because of that) between press and release events
+    QVERIFY(!filterKeyPress(Qt::Key_Backspace, Qt::NoModifier, "\b", KeycodeCharacter, 0));
+    QCOMPARE(inputContextConnection->keyEventsSent(), static_cast<unsigned int>(2));
+    QVERIFY(filterKeyRelease(Qt::Key_Delete, Qt::ShiftModifier, "\177", KeycodeCharacter, 0));
+    QCOMPARE(inputContextConnection->keyEventsSent(), static_cast<unsigned int>(3));
+    QCOMPARE(inputContextConnection->lastKeyEvent().type(), QEvent::KeyRelease);
+    QCOMPARE(inputContextConnection->lastKeyEvent().key(), static_cast<int>(Qt::Key_Backspace));
+    QCOMPARE(inputContextConnection->lastKeyEvent().modifiers(), Qt::ShiftModifier);
+    QCOMPARE(inputContextConnection->lastKeyEvent().text(), QString("\b"));
 }
 
 QTEST_APPLESS_MAIN(Ut_MHardwareKeyboard);
