@@ -22,12 +22,18 @@
 #include <MWidget>
 #include "widgetbar.h"
 #include "mkeyboardcommon.h"
+#include <minputmethodnamespace.h>
+
+#include <QPointer>
+#include <QSharedPointer>
 
 class MReactionMap;
 class ToolbarManager;
 class MVirtualKeyboardStyleContainer;
 class MButton;
 class ToolbarWidget;
+class MToolbarData;
+class MToolbarItem;
 
 /*!
   \brief MImToolbar implement the toolbar for virtualkeyboard.
@@ -72,7 +78,7 @@ public:
      * the toolbar will be visible when show().
      * \param id      Unique identifier of the custom toolbar.
      */
-    void showToolbarWidget(qlonglong id);
+    void showToolbarWidget(QSharedPointer<const MToolbarData> toolbar);
 
     /*!
      * \brief Hides all custom toolbars, this also means they are removed from visible virtual keyboard.
@@ -84,6 +90,9 @@ public:
     //! \reimp
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *);
     //! \reimp_end
+
+    //! Reload toolbar if it should be updated
+    void reload();
 
 public slots:
     /*!
@@ -100,17 +109,22 @@ public slots:
 
 
 private slots:
-    void handleButtonClick(const ToolbarWidget &);
+    //! Invoked when custom button on toolbar is clicked
+    void handleButtonClick(MToolbarItem *item);
 
-    void showGroup(const QString &);
+    //! Show all widgets belong to given \a group
+    void showGroup(const QString &group);
 
-    void hideGroup(const QString &);
+    //! Hide all widgets belong to given \a group
+    void hideGroup(const QString &group);
 
-    void sendKeySequence(const QString &);
+    //! Send key events corresponding to given \a keys.
+    void sendKeySequence(const QString &keys);
 
     //! Invoked when copy/paste button is clicked
     void copyPasteButtonHandler();
 
+    //! Show or hide buttons according to toolbar definition and text tselection status
     void updateVisibility();
 
 signals:
@@ -139,13 +153,19 @@ private:
 
     void updateRegion();
 
-    void loadCustomWidgets(Qt::Alignment align);
+    void loadCustomWidgets();
 
-    void unloadCustomWidgets(Qt::Alignment align);
+    void unloadCustomWidgets();
 
-    void updateWidgets(bool customWidgetsChanged = true);
+    void arrangeWidgets();
 
     Qt::KeyboardModifiers keyModifiers(int key) const;
+
+    void setupRowLayout(QGraphicsLinearLayout *rowLayout, WidgetBar *leftBar,
+                        WidgetBar *rightBar);
+
+    void createAndAppendWidget(QSharedPointer<MToolbarItem> item, WidgetBar *leftWidget,
+                               WidgetBar *rightWidget);
 
     /*!
      * \brief Inserts item to \a align part of the toolbar at index,
@@ -167,7 +187,6 @@ private:
 
     void clearReactiveAreas();
 
-    const ToolbarManager &toolbarMgr;
     bool textSelected;
     //! Copy/Paste button
     MButton *copyPaste;
@@ -176,6 +195,10 @@ private:
 
     WidgetBar leftBar;  //! Widget to hold left-aligned toolbar widgets
     WidgetBar rightBar; //! Widget to hold right-aligned toolbar widgets
+
+    QSharedPointer<const MToolbarData> currentToolbar; //! Pointer to definition of current toolbar
+
+    QList<QPointer<MWidget> > customWidgets; //! All custom widgets in this toolbar
 
     MVirtualKeyboardStyleContainer &style; //! Styling information
 

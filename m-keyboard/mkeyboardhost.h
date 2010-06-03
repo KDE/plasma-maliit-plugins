@@ -59,11 +59,7 @@ public:
     virtual void visualizationPriorityChanged(bool priority);
     virtual void appOrientationChanged(int angle);
     virtual void setCopyPasteState(bool copyAvailable, bool pasteAvailable);
-    virtual void registerToolbar(qlonglong id, const QString &fileName);
-    virtual void unregisterToolbar(qlonglong id);
-    virtual void setToolbar(qlonglong id);
-    virtual void setToolbarItemAttribute(qlonglong id, const QString &item,
-                                         const QString &attribute, const QVariant &value);
+    virtual void setToolbar(QSharedPointer<const MToolbarData> toolbar);
     virtual void setState(const QSet<MIMHandlerState> &state);
     virtual void processKeyEvent(QEvent::Type keyType, Qt::Key keyCode,
                                  Qt::KeyboardModifiers modifiers,

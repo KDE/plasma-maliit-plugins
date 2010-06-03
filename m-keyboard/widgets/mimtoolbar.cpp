@@ -17,12 +17,14 @@
 
 
 #include "mimtoolbar.h"
-#include "toolbardata.h"
-#include "toolbarmanager.h"
-#include "toolbarwidget.h"
 #include "layoutsmanager.h"
 #include "mhardwarekeyboard.h"
 #include "mvirtualkeyboardstyle.h"
+#include "mtoolbarbutton.h"
+#include "mtoolbarlabel.h"
+
+#include <mtoolbardata.h>
+#include <mtoolbaritem.h>
 
 #include <MNamespace>
 #include <MButton>
@@ -37,7 +39,8 @@
 namespace
 {
     //!object name for toolbar buttons
-    const QString ObjectNameToolbarButtons("VirtualKeyboardToolbarButton");
+    const QString ObjectNameToolbarLabel("VirtualKeyboardToolbarLabel");
+    const QString ObjectNameToolbarButton("VirtualKeyboardToolbarButton");
     const QString ObjectNameCloseButton("VirtualKeyboardCloseButton");
     const QString ObjectNameToolbar("MImToolbar");
     const QString ObjectNameToolbarLeft("VirtualKeyboardToolbarLeft");
@@ -47,7 +50,6 @@ namespace
 
 MImToolbar::MImToolbar(MVirtualKeyboardStyleContainer &style, QGraphicsWidget *parent)
     : MWidget(parent),
-      toolbarMgr(ToolbarManager::instance()),
       textSelected(false),
       copyPaste(new MButton),
       copyPasteStatus(InputMethodNoCopyPaste),
@@ -57,21 +59,15 @@ MImToolbar::MImToolbar(MVirtualKeyboardStyleContainer &style, QGraphicsWidget *p
       shiftState(ModifierClearState),
       fnState(ModifierClearState)
 {
-    // Empty button bars are hidden.
-    leftBar.hide();
-    rightBar.hide();
-
-    setObjectName(ObjectNameToolbar);
     leftBar.setObjectName(ObjectNameToolbarLeft);
     rightBar.setObjectName(ObjectNameToolbarRight);
+    setObjectName(ObjectNameToolbar);
 
     setupLayout();
 
     loadDefaultButtons();
 
     connect(this, SIGNAL(visibleChanged()), this, SLOT(updateVisibility()));
-
-    connect(&toolbarMgr, SIGNAL(buttonClicked(ToolbarWidget)), this, SLOT(handleButtonClick(ToolbarWidget)));
 }
 
 MImToolbar::~MImToolbar()
@@ -82,16 +78,13 @@ MImToolbar::~MImToolbar()
 
 void MImToolbar::setupLayout()
 {
-    QGraphicsLinearLayout *mainLayout = new QGraphicsLinearLayout(Qt::Horizontal, this);
+    QGraphicsLinearLayout *mainLayout = new QGraphicsLinearLayout(Qt::Vertical, this);
     mainLayout->setContentsMargins(0, 0, 0, 0);
 
-    // Add the left and right side WidgetBar widgets with a stretch item in between.
-    mainLayout->addItem(&leftBar);
-    mainLayout->addStretch();
-    mainLayout->addItem(&rightBar);
+    QGraphicsLinearLayout *rowLayout = new QGraphicsLinearLayout(Qt::Horizontal, mainLayout);
 
-    mainLayout->setAlignment(&leftBar, Qt::AlignBottom);
-    mainLayout->setAlignment(&rightBar, Qt::AlignBottom);
+    setupRowLayout(rowLayout, &leftBar, &rightBar);
+    mainLayout->insertItem(0, rowLayout);
 
     resize(geometry().width(), layout()->preferredHeight());
 }
@@ -99,7 +92,7 @@ void MImToolbar::setupLayout()
 void MImToolbar::loadDefaultButtons()
 {
     // Setup copy/paste button.
-    copyPaste->setObjectName(ObjectNameToolbarButtons);
+    copyPaste->setObjectName(ObjectNameToolbarButton);
     copyPaste->setVisible(false);
     //% "Copy"
     copyPaste->setText(qtTrId("qtn_comm_copy"));
@@ -116,35 +109,35 @@ QRegion MImToolbar::region() const
     return region;
 }
 
-void MImToolbar::handleButtonClick(const ToolbarWidget &button)
+void MImToolbar::handleButtonClick(MToolbarItem *item)
 {
-    if (button.type() != ToolbarWidget::Button)
+    if (!item || item->type() != MInputMethod::ItemButton)
         return;
 
-    foreach(const ToolbarWidget::Action *action, button.actions) {
-        switch (action->type) {
-        case ToolbarWidget::SendKeySequence:
-            sendKeySequence(action->keys);
+    foreach(QSharedPointer<const MToolbarItemAction> action, item->actions()) {
+        switch (action->type()) {
+        case MInputMethod::ActionSendKeySequence:
+            sendKeySequence(action->keys());
             break;
-        case ToolbarWidget::SendString:
-            sendStringRequest(action->text);
+        case MInputMethod::ActionSendString:
+            sendStringRequest(action->text());
             break;
-        case ToolbarWidget::SendCommand:
+        case MInputMethod::ActionSendCommand:
             //TODO:not support yet
             break;
-        case ToolbarWidget::Copy:
+        case MInputMethod::ActionCopy:
             emit copyPasteRequest(InputMethodCopy);
             break;
-        case ToolbarWidget::Paste:
+        case MInputMethod::ActionPaste:
             emit copyPasteRequest(InputMethodPaste);
             break;
-        case ToolbarWidget::ShowGroup:
-            showGroup(action->group);
+        case MInputMethod::ActionShowGroup:
+            showGroup(action->group());
             break;
-        case ToolbarWidget::HideGroup:
-            hideGroup(action->group);
+        case MInputMethod::ActionHideGroup:
+            hideGroup(action->group());
             break;
-        case ToolbarWidget::Unknown:
+        case MInputMethod::ActionUndefined:
             break;
         }
     }
@@ -161,65 +154,150 @@ void MImToolbar::setSelectionStatus(bool selection)
 
 void MImToolbar::updateVisibility()
 {
-    qDebug() << __PRETTY_FUNCTION__;
-    //set widget's visibility according showOn and hideOn premiss and current selection status
-    foreach(ToolbarWidget *w, toolbarMgr.widgetList()) {
-        if ((textSelected && w->hideOn != ToolbarWidget::WhenSelectingText)
-                || (w->showOn == ToolbarWidget::Always)) {
-            w->setVisible(true);
-        } else {
-            w->setVisible(false);
+    if (currentToolbar) {
+        foreach (const QSharedPointer<MToolbarItem> item, currentToolbar->allItems())
+        {
+            if ((item->showOn() == MInputMethod::VisibleAlways)
+                    || (textSelected && item->showOn() == MInputMethod::VisibleWhenSelectingText)
+                    || (!textSelected && item->hideOn() == MInputMethod::VisibleWhenSelectingText)) {
+                item->setVisible(true);
+            }
+
+            if ((!textSelected && item->showOn() == MInputMethod::VisibleWhenSelectingText)
+                    || (textSelected && item->hideOn() == MInputMethod::VisibleWhenSelectingText)) {
+                item->setVisible(false);
+            }
+        }
+    }
+    arrangeWidgets();
+}
+
+void MImToolbar::loadCustomWidgets()
+{
+    if (!currentToolbar) {
+        return;
+    }
+
+    const M::Orientation orientation = MPlainWindow::instance()->sceneManager()->orientation();
+    QSharedPointer<const MToolbarLayout> layout = currentToolbar->layout(orientation);
+    QGraphicsLinearLayout *mainLayout = static_cast<QGraphicsLinearLayout*>(this->layout());
+
+    QList<QSharedPointer<const MToolbarRow> > rows = layout->rows();
+
+    //create additional rows if necessary
+    for (int n = 0; n < rows.count() - 1; ++n) {
+        QSharedPointer<const MToolbarRow> row = rows[n];
+        QGraphicsLinearLayout *rowLayout = new QGraphicsLinearLayout(Qt::Horizontal, mainLayout);
+        WidgetBar *leftWidget  = new WidgetBar(true, this);
+        WidgetBar *rightWidget = new WidgetBar(true, this);
+
+        leftWidget->setObjectName(ObjectNameToolbarLeft);
+        rightWidget->setObjectName(ObjectNameToolbarRight);
+        setupRowLayout(rowLayout, leftWidget, rightWidget);
+        mainLayout->insertItem(n, rowLayout);
+
+        foreach (QSharedPointer<MToolbarItem> item , row->items()) {
+            createAndAppendWidget(item, leftWidget, rightWidget);
         }
     }
 
-    // Update widgets according to toolbar models.
-    updateWidgets();
+    //add custom items to bottom row
+    QSharedPointer<const MToolbarRow> row = rows.last();
+    foreach (QSharedPointer<MToolbarItem> item, row->items()) {
+        createAndAppendWidget(item, &leftBar, &rightBar);
+    }
+
+    int buttonIndex = rightBar.indexOf(copyPaste);
+    if (buttonIndex >= 0 && buttonIndex != rightBar.count() - 1) {
+        // copy button position is inccorect now,
+        // so we move it to correcrt place
+        removeItem(copyPaste);
+        insertItem(rightBar.count(), copyPaste, Qt::AlignRight);
+    }
+    mainLayout->invalidate();
 }
 
-void MImToolbar::loadCustomWidgets(Qt::Alignment align)
+void MImToolbar::createAndAppendWidget(QSharedPointer<MToolbarItem> item,
+                                       WidgetBar *leftWidget,
+                                       WidgetBar *rightWidget)
 {
-    qDebug() << __PRETTY_FUNCTION__ << align;
-    //the widgets gotten from toolbarMgr are already ordered acording their priority with alignment.
-    QList<ToolbarWidget *> widgets = toolbarMgr.widgetList(align);
-    //show widgets according their status and priority
-    int widgetCount = 0;
-    foreach(ToolbarWidget *toolbarWidget, widgets) {
-        MWidget *widget = toolbarMgr.widget(toolbarWidget->name());
-        if (!widget)
-            continue;
-        if (toolbarWidget->isVisible()) {
-            widget->setVisible(true);
-            //if widget is Visible, then insert it to the right position
-            insertItem(widgetCount, widget, align);
-            ++widgetCount;
-        } else {
-            widget->setVisible(false);
-            removeItem(widget);
+    MWidget *widget = 0;
+    WidgetBar *sidebar = 0;
+
+    if (item->alignment() == Qt::AlignLeft) {
+        sidebar = leftWidget;
+    } else {
+        sidebar = rightWidget;
+    }
+    if (item->type() == MInputMethod::ItemButton) {
+        widget = new MToolbarButton(item, sidebar);
+        widget->setObjectName(ObjectNameToolbarButton);
+
+        connect(widget, SIGNAL(clicked(MToolbarItem*)),
+                this, SLOT(handleButtonClick(MToolbarItem*)));
+    } else {
+        widget = new MToolbarLabel(item, sidebar);
+        widget->setObjectName(ObjectNameToolbarLabel);
+    }
+    customWidgets.append(widget);
+    sidebar->append(widget);
+    if (sidebar->count() == 1) {
+        sidebar->show();
+    }
+}
+
+void MImToolbar::setupRowLayout(QGraphicsLinearLayout *rowLayout,
+                                WidgetBar *leftWidget,
+                                WidgetBar *rightWidget)
+{
+    rowLayout->setContentsMargins(0, 0, 0, 0);
+    rowLayout->setMaximumWidth(MPlainWindow::instance()->visibleSceneSize().width());
+    rowLayout->setPreferredWidth(MPlainWindow::instance()->visibleSceneSize().width());
+
+    // Empty button bars are hidden.
+    leftWidget->hide();
+    rightWidget->hide();
+    // Add the left and right side WidgetBar widgets with a stretch item in between.
+    rowLayout->addItem(leftWidget);
+    rowLayout->addStretch();
+    rowLayout->addItem(rightWidget);
+
+    rowLayout->setAlignment(leftWidget, Qt::AlignBottom);
+    rowLayout->setAlignment(rightWidget, Qt::AlignBottom);
+}
+
+void MImToolbar::unloadCustomWidgets()
+{
+    QGraphicsLinearLayout *mainLayout = static_cast<QGraphicsLinearLayout*>(layout());
+    QList<QGraphicsLinearLayout*> rows;
+
+    //delete all dynamically created rows
+    for (int n = 0; n < mainLayout->count() - 1; ++n) {
+        QGraphicsLinearLayout *rowLayout = dynamic_cast<QGraphicsLinearLayout*>(mainLayout->itemAt(n));
+
+        if (rowLayout) {
+            WidgetBar *leftBar  = dynamic_cast<WidgetBar*>(rowLayout->itemAt(0));
+            WidgetBar *rightBar = dynamic_cast<WidgetBar*>(rowLayout->itemAt(1));
+
+            delete leftBar;
+            delete rightBar;
+            rows << rowLayout;
         }
     }
+
+    qDeleteAll(rows);
+    qDeleteAll(customWidgets);
+    customWidgets.clear();
+    leftBar.cleanup();
+    rightBar.cleanup();
 }
 
-void MImToolbar::unloadCustomWidgets(Qt::Alignment align)
+void MImToolbar::arrangeWidgets()
 {
-    QList<ToolbarWidget *> widgets = toolbarMgr.widgetList(align);
-    foreach(ToolbarWidget *toolbarWidget, widgets) {
-        MWidget *widget = toolbarMgr.widget(toolbarWidget->name());
-        if (!widget)
-            continue;
-        widget->setVisible(false);
-        removeItem(widget);
-    }
-}
-
-void MImToolbar::updateWidgets(bool customWidgetsChanged)
-{
-    if (customWidgetsChanged) {
-        loadCustomWidgets(Qt::AlignLeft);
-        loadCustomWidgets(Qt::AlignRight);
-    }
-
     if (isVisible()) {
         layout()->invalidate();
+        layout()->activate();
+        resize(geometry().width(), layout()->preferredHeight());
     }
 
     emit regionUpdated();
@@ -228,29 +306,42 @@ void MImToolbar::updateWidgets(bool customWidgetsChanged)
 void MImToolbar::showGroup(const QString &group)
 {
     bool changed = false;
-    foreach(ToolbarWidget *w, toolbarMgr.widgetList()) {
-        if (w->group == group && !(w->isVisible())) {
-            w->setVisible(true);
+
+    if (!currentToolbar) {
+        return;
+    }
+
+    foreach (const QSharedPointer<MToolbarItem> item, currentToolbar->allItems())
+    {
+        if (item->group() == group && !(item->isVisible())) {
+            item->setVisible(true);
             changed = true;
         }
     }
 
     if (changed) {
-        updateWidgets();
+        arrangeWidgets();
     }
 }
 
 void MImToolbar::hideGroup(const QString &group)
 {
     bool changed = false;
-    foreach(ToolbarWidget *w, toolbarMgr.widgetList()) {
-        if (w->group == group && w->isVisible()) {
-            w->setVisible(false);
+
+    if (!currentToolbar) {
+        return;
+    }
+
+    foreach (const QSharedPointer<MToolbarItem> item, currentToolbar->allItems())
+    {
+        if (item->group() == group && item->isVisible()) {
+            item->setVisible(false);
             changed = true;
         }
     }
+
     if (changed) {
-        updateWidgets(true);
+        arrangeWidgets();
     }
 }
 
@@ -289,26 +380,26 @@ Qt::KeyboardModifiers MImToolbar::keyModifiers(int key) const
     return modify;
 }
 
-void MImToolbar::showToolbarWidget(qlonglong id)
+void MImToolbar::showToolbarWidget(QSharedPointer<const MToolbarData> toolbar)
 {
-    qDebug() << __PRETTY_FUNCTION__ << id;
-    if (id != toolbarMgr.currentToolbar()) {
-        unloadCustomWidgets(Qt::AlignLeft);
-        unloadCustomWidgets(Qt::AlignRight);
+    if (toolbar == currentToolbar) {
+        return;
     }
-    ToolbarManager::instance().loadToolbar(id);
+
+    unloadCustomWidgets();
+
+    currentToolbar = toolbar;
+    loadCustomWidgets();
+
     if (isVisible())
         updateVisibility();
 }
 
 void MImToolbar::hideToolbarWidget()
 {
-    qDebug() << __PRETTY_FUNCTION__;
-    unloadCustomWidgets(Qt::AlignLeft);
-    unloadCustomWidgets(Qt::AlignRight);
-    ToolbarManager::instance().reset();
-    if (isVisible())
-        updateVisibility();
+    currentToolbar.clear();
+    unloadCustomWidgets();
+    arrangeWidgets();
 }
 
 void MImToolbar::copyPasteButtonHandler()
@@ -366,8 +457,7 @@ void MImToolbar::setCopyPasteButton(bool copyAvailable, bool pasteAvailable)
         break;
     }
     if (changed) {
-        // Update only positions.
-        updateWidgets(false);
+        arrangeWidgets();
     }
     qDebug() << __PRETTY_FUNCTION__ << copyPaste->isVisible();
 }
@@ -417,15 +507,23 @@ void MImToolbar::drawReactiveAreas(MReactionMap *reactionMap, QGraphicsView *vie
     // Draw all widgets geometries.
     reactionMap->setReactiveDrawingValue();
 
-    for (int j = 0; j < 2; ++j) {
-        WidgetBar *sidebar = ((j == 0) ? &leftBar : &rightBar);
-        if (!sidebar->isVisible()) {
-            continue;
-        }
-        reactionMap->setTransform(sidebar, view);
+    for (int n = 0; n < layout()->count(); ++n) {
+        QGraphicsLinearLayout *row = dynamic_cast<QGraphicsLinearLayout*>(layout()->itemAt(n));
 
-        for (int i = 0; i < sidebar->count(); ++i) {
-            reactionMap->fillRectangle(sidebar->widgetAt(i)->geometry());
+        if (row) {
+            for (int j = 0; j < row->count(); ++j) {
+                WidgetBar *sidebar = dynamic_cast<WidgetBar*>(row->itemAt(j));
+                if (!sidebar || !sidebar->isVisible()) {
+                    continue;
+                }
+                reactionMap->setTransform(sidebar, view);
+
+                for (int i = 0; i < sidebar->count(); ++i) {
+                    if (sidebar->widgetAt(i) && sidebar->widgetAt(i)->isVisible()) {
+                        reactionMap->fillRectangle(sidebar->widgetAt(i)->geometry());
+                    }
+                }
+            }
         }
     }
 }
@@ -437,6 +535,13 @@ void MImToolbar::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWid
     if (background) {
         background->draw(rect().toRect(), painter);
     }
+}
+
+void MImToolbar::reload()
+{
+    //use brute force: destroy everything and construct it again
+    unloadCustomWidgets();
+    loadCustomWidgets();
 }
 
 void MImToolbar::clearReactiveAreas()
@@ -453,6 +558,18 @@ void MImToolbar::clearReactiveAreas()
 
     reactionMap->setTransform(this, view);
     reactionMap->setInactiveDrawingValue();
-    reactionMap->fillRectangle(leftBar.geometry());
-    reactionMap->fillRectangle(rightBar.geometry());
+
+    for (int n = 0; n < layout()->count(); ++n) {
+        QGraphicsLinearLayout *row = dynamic_cast<QGraphicsLinearLayout*>(layout()->itemAt(n));
+
+        if (row) {
+            for (int j = 0; j < row->count(); ++j) {
+                WidgetBar *sidebar = dynamic_cast<WidgetBar*>(row->itemAt(j));
+                if (sidebar) {
+                    reactionMap->fillRectangle(sidebar->geometry());
+                }
+            }
+        }
+    }
 }
+

@@ -11,9 +11,6 @@ HEADERS += \
     $$COMMON_DIR/layoutdata.h \
     $$COMMON_DIR/layoutsmanager.h \
     $$COMMON_DIR/limitedtimer.h \
-    $$COMMON_DIR/toolbardata.h \
-    $$COMMON_DIR/toolbarwidget.h \
-    $$COMMON_DIR/toolbarmanager.h \
     $$COMMON_DIR/vkbdatakey.h \
     $$COMMON_DIR/mxkb.h \
     $$COMMON_DIR/mhardwarekeyboard.h \
@@ -27,9 +24,6 @@ SOURCES += \
     $$COMMON_DIR/layoutdata.cpp\
     $$COMMON_DIR/layoutsmanager.cpp\
     $$COMMON_DIR/limitedtimer.cpp\
-    $$COMMON_DIR/toolbardata.cpp\
-    $$COMMON_DIR/toolbarwidget.cpp \
-    $$COMMON_DIR/toolbarmanager.cpp\
     $$COMMON_DIR/vkbdatakey.cpp\
     $$COMMON_DIR/mxkb.cpp \
     $$COMMON_DIR/mhardwarekeyboard.cpp \

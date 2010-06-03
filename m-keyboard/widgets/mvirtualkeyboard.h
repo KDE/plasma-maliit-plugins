@@ -25,6 +25,7 @@
 #include "layoutdata.h"
 #include <mimhandlerstate.h>
 #include <mimdirection.h>
+#include <minputmethodnamespace.h>
 #include <MWidget>
 #include <QPixmap>
 #include <QSharedPointer>
@@ -46,6 +47,7 @@ class VkbToolbar;
 class MImToolbar;
 class MReactionMap;
 class KeyEventHandler;
+class MToolbarData;
 
 /*!
   \class MVirtualKeyboard
@@ -135,12 +137,10 @@ public:
     void finalizeOrientationChange();
 
     /*!
-     * \brief Shows a custom toolbar with unique \a id.
-     * Loads a custom toolbar according \a id, if successfuly loads,
-     * the toolbar will be visible when virtual keyboard is shown.
-     * \param id      Unique identifier of the custom toolbar.
+     * \brief Creates widgets to visualize given \a toolbar.
+     * \param toolbar      Pointer to toolbar definition.
      */
-    void showToolbarWidget(qlonglong id);
+    void showToolbarWidget(QSharedPointer<const MToolbarData> toolbar);
 
     /*!
      * \brief Hides all custom toolbars, this means they are removed from visible virtual keyboard.

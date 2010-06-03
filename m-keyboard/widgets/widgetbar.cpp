@@ -63,6 +63,9 @@ void WidgetBar::insert(int index, MWidget *widget)
 
     mainLayout.insertItem(index, widget);
     mainLayout.setAlignment(widget, Qt::AlignVCenter); // In case we have widgets that differs in height.
+
+    connect(widget, SIGNAL(visibleChanged()),
+            this, SLOT(updateLayout()));
 }
 
 void WidgetBar::append(MWidget *widget)
@@ -74,10 +77,17 @@ void WidgetBar::remove(MWidget *widget)
 {
     mainLayout.removeItem(widget);
     widgets.removeOne(widget);
+    disconnect(widget, 0, this, 0);
 }
 
 void WidgetBar::clear()
 {
+    foreach (QPointer<MWidget> widget, widgets) {
+        if (widget) {
+            disconnect(widget, 0, this, 0);
+        }
+    }
+
     widgets.clear();
     while (mainLayout.count() > 0) {
         mainLayout.removeAt(0);
@@ -103,6 +113,11 @@ int WidgetBar::indexOf(const MWidget *widget) const
     return widgets.indexOf(const_cast<MWidget *>(widget));
 }
 
+void WidgetBar::cleanup()
+{
+    widgets.removeAll(QPointer<MWidget>());
+}
+
 void WidgetBar::mousePressEvent(QGraphicsSceneMouseEvent *)
 {
     // Stop propagating
@@ -122,3 +137,53 @@ QSizeF WidgetBar::sizeHint(Qt::SizeHint which, const QSizeF &constraint) const
     else
         return MStylableWidget::sizeHint(which, constraint);
 }
+
+void WidgetBar::updateLayout()
+{
+    MWidget *widget = qobject_cast<MWidget *>(sender());
+
+    if (!widget) {
+        return;
+    }
+
+    int index = widgets.indexOf(widget);
+
+    if (index < 0) {
+        return;
+    }
+
+    if (!widget->isVisible()) {
+        //widget is hidden, so just remove it from layout
+        mainLayout.removeItem(widget);
+    } else {
+        //widget is shown, so put it into layout before closest
+        //visible neighbor on right side
+
+        //find next visible widget
+        ++index;
+        while (index < widgets.count() && !widgets.at(index)->isVisible()) {
+            ++index;
+        }
+        int layoutIndex = 0;
+        if (index < widgets.count()) {
+            //get index of found widget from the layout
+            layoutIndex = layoutIndexOf(widgets.at(index));
+        } else {
+            layoutIndex = mainLayout.count();
+        }
+        mainLayout.insertItem(layoutIndex, widget);
+    }
+}
+
+int WidgetBar::layoutIndexOf(const MWidget *widget) const
+{
+    int layoutIndex = 0;
+
+    while (layoutIndex < mainLayout.count()
+            && mainLayout.itemAt(layoutIndex) != widget) {
+        ++layoutIndex;
+    }
+
+    return layoutIndex;
+}
+

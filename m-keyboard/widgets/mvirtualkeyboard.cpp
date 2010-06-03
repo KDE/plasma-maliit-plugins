@@ -29,6 +29,8 @@
 #include "keyevent.h"
 #include "keyeventhandler.h"
 
+#include <mtoolbardata.h>
+
 #include <QDebug>
 #include <QPainter>
 #include <QGraphicsLinearLayout>
@@ -197,9 +199,9 @@ void MVirtualKeyboard::createToolbar()
             this, SIGNAL(copyPasteClicked(CopyPasteState)));
 }
 
-void MVirtualKeyboard::showToolbarWidget(qlonglong id)
+void MVirtualKeyboard::showToolbarWidget(QSharedPointer<const MToolbarData> toolbar)
 {
-    imToolbar->showToolbarWidget(id);
+    imToolbar->showToolbarWidget(toolbar);
 }
 
 void MVirtualKeyboard::hideToolbarWidget()
@@ -349,6 +351,7 @@ MVirtualKeyboard::flickRightHandler()
 
 void MVirtualKeyboard::showKeyboard(bool fadeOnly)
 {
+    qDebug() << __PRETTY_FUNCTION__ << fadeOnly;
     organizeContent(sceneManager->orientation());
 
     if (activity == Active) {
@@ -461,6 +464,9 @@ void MVirtualKeyboard::organizeContent(M::Orientation orientation)
         recreateKeyboards();
         mainKeyboardSwitcher->setCurrent(index);
 
+        // load proper layout
+        imToolbar->reload();
+
         // invalidate layouts so we get updated size infos
         mainLayout->invalidate();
         numberKeyboard->layout()->invalidate();
@@ -536,6 +542,7 @@ QRegion MVirtualKeyboard::region(const bool includeToolbar) const
         // Main keyboard area (qwerty/number/etc.)
         if (activeState == OnScreen) {
             mainLayout->activate();
+            qDebug() << __PRETTY_FUNCTION__ << mainLayout->itemAt(1)->geometry();
             region |= mapRectToScene(mainLayout->itemAt(1)->geometry()).toRect();
         }
     }

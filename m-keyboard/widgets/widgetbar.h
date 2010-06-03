@@ -24,6 +24,7 @@
 #include <MStylableWidget>
 
 #include <QList>
+#include <QPointer>
 
 class MWidget;
 class QGraphicsLinearLayout;
@@ -68,10 +69,18 @@ public:
     // if widget was not found
     int indexOf(const MWidget *widget) const;
 
+    //! Remove all pointers to destroyed widgets from
+    // internal lists
+    void cleanup();
+
 public:
     //! \reimp
     virtual QSizeF sizeHint(Qt::SizeHint which, const QSizeF &constraint = QSizeF()) const;
     //! \reimp_end
+
+private slots:
+    //! Update layout when some child widget is shown or hidden.
+    void updateLayout();
 
 protected:
     //! \reimp
@@ -80,7 +89,11 @@ protected:
     //! \reimp_end
 
 private:
-    typedef QList<MWidget *> WidgetList;
+    //! Return index of given \a widget inside layout
+    int layoutIndexOf(const MWidget *widget) const;
+
+private:
+    typedef QList<QPointer<MWidget> > WidgetList;
 
     QGraphicsLinearLayout &mainLayout;
 
