@@ -208,5 +208,39 @@ void Ut_WidgetBar::testIndexOf()
     QCOMPARE(index, -1);
 }
 
+void Ut_WidgetBar::testLayoutUpdates()
+{
+    MButton *button1 = new MButton;
+    MButton *button2 = new MButton;
+    MButton *button3 = new MButton;
+    MLabel *label1 = new MLabel;
+
+    subject->insert(0, button1);
+    subject->insert(1, button2);
+    subject->insert(2, label1);
+    subject->insert(3, button3);
+
+    QCOMPARE(subject->layout()->count(), 4);
+
+    label1->hide();
+    button2->hide();
+    button1->hide();
+
+    QCOMPARE(subject->layout()->count(), 1);
+    QCOMPARE(subject->layoutIndexOf(button3), 0);
+
+    button2->show();
+    QCOMPARE(subject->layoutIndexOf(button2), 0);
+
+    label1->show();
+    QCOMPARE(subject->layoutIndexOf(button2), 0);
+    QCOMPARE(subject->layoutIndexOf(label1), 1);
+
+    button1->show();
+    QCOMPARE(subject->layoutIndexOf(button1), 0);
+    QCOMPARE(subject->layoutIndexOf(button2), 1);
+    QCOMPARE(subject->layoutIndexOf(label1), 2);
+    QCOMPARE(subject->layoutIndexOf(button3), 3);
+}
 
 QTEST_APPLESS_MAIN(Ut_WidgetBar);

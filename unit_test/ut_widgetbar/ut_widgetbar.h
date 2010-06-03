@@ -47,6 +47,8 @@ private slots:
     void testLayoutContent();
 
     void testIndexOf();
+
+    void testLayoutUpdates();
 };
 
 #endif // UT_WIDGETBAR_H

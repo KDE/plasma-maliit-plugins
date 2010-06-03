@@ -102,6 +102,8 @@ private:
     WidgetList widgets;
 
     M_STYLABLE_WIDGET(WidgetBarStyle)
+
+    friend class Ut_WidgetBar;
 };
 
 #endif
