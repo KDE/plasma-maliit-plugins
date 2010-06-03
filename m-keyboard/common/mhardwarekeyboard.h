@@ -224,8 +224,6 @@ private:
     //! An attribute of the last key event passed to filterKeyEvent.
     Qt::Key lastKeyCode;
 
-    // TODO: this isn't used at the moment but might serve as a starting point
-    // for the key filtering feature later
     typedef QHash<quint32, bool> PressedKeyMap; // key is native scan code / X keycode
     PressedKeyMap pressedKeys;
 
