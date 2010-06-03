@@ -112,7 +112,7 @@ void Ut_MHardwareKeyboard::init()
     inputContextConnection = new TestInputContextConnection;
     m_hkb = new MHardwareKeyboard(*inputContextConnection, 0);
     m_hkb->reset();
-    m_hkb->focusChanged(true);
+    m_hkb->enable();
     m_hkb->setKeyboardType(M::FreeTextContentType);
 }
 
@@ -380,7 +380,7 @@ void Ut_MHardwareKeyboard::testAutoCaps()
     QCOMPARE(shiftSpy.count(), 0);
     modifierSpy.clear();
 
-    m_hkb->focusChanged(true);
+    m_hkb->enable();
     m_hkb->setKeyboardType(M::NumberContentType);
     countBeforeAutoCaps = modifierSpy.count();
     m_hkb->setAutoCapitalization(true);
@@ -389,7 +389,7 @@ void Ut_MHardwareKeyboard::testAutoCaps()
     QVERIFY(checkLockedState(ShiftMask | LockMask | FnModifierMask, FnModifierMask));
     QCOMPARE(modifierSpy.count(), countBeforeAutoCaps);
     QCOMPARE(shiftSpy.count(), 0);
-    m_hkb->focusChanged(true);
+    m_hkb->enable();
     m_hkb->setKeyboardType(M::FreeTextContentType);
     modifierSpy.clear();
 
@@ -443,7 +443,7 @@ void Ut_MHardwareKeyboard::testStateReset()
     QVERIFY(modifierSpy.isValid());
 
     // State is cleared on focus in...
-    m_hkb->focusChanged(true);
+    m_hkb->enable();
     QVERIFY(checkLatchedState(ShiftMask | FnModifierMask, 0));
     QVERIFY(checkLockedState(ShiftMask | LockMask | FnModifierMask, 0));
     QVERIFY(!m_hkb->autoCaps);
@@ -457,7 +457,7 @@ void Ut_MHardwareKeyboard::testStateReset()
     // Modifiers are also unlatched/unlocked on focus out.  We don't care about
     // notifications.
     setState(state);
-    m_hkb->focusChanged(false);
+    m_hkb->disable();
     QVERIFY(checkLatchedState(ShiftMask | FnModifierMask, 0));
     QVERIFY(checkLockedState(ShiftMask | LockMask | FnModifierMask, 0));
     QVERIFY(!m_hkb->autoCaps);

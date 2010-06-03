@@ -340,7 +340,13 @@ void MKeyboardHost::focusChanged(bool focusIn)
 {
     haveFocus = focusIn;
     if (activeState == Hardware) {
-        hardwareKeyboard->focusChanged(focusIn);
+        if (inputMethodMode != M::InputMethodModeDirect) {
+            if (focusIn) {
+                hardwareKeyboard->enable();
+            } else {
+                hardwareKeyboard->disable();
+            }
+        }
         if (!focusIn) {
             sendInputModeIndicator(MInputMethodBase::NoIndicator);
         }
@@ -422,6 +428,13 @@ void MKeyboardHost::update()
 
     const int inputMethodModeValue = inputContextConnection()->inputMethodMode(valid);
     if (valid) {
+        if (haveFocus && (activeState == Hardware) && (inputMethodMode != inputMethodModeValue)) {
+            if (inputMethodModeValue != M::InputMethodModeDirect) {
+                hardwareKeyboard->enable();
+            } else {
+                hardwareKeyboard->disable();
+            }
+        }
         inputMethodMode = inputMethodModeValue;
         vkbWidget->setInputMethodMode(static_cast<M::InputMethodMode>(inputMethodMode));
     }
@@ -1213,8 +1226,8 @@ void MKeyboardHost::setState(const QSet<MIMHandlerState> &state)
         sendInputModeIndicator(MInputMethodBase::NoIndicator);
         disconnect(hardwareKeyboard, SIGNAL(modifierStateChanged(Qt::KeyboardModifier, ModifierState)),
                    this, SLOT(handleModifierStateChanged(Qt::KeyboardModifier, ModifierState)));
-        if (haveFocus) {
-            hardwareKeyboard->focusChanged(false);
+        if (haveFocus && (inputMethodMode != M::InputMethodModeDirect)) {
+            hardwareKeyboard->disable();
         }
     } else {
         //TODO: this is a temporary method, should get the hw layout language, then find out the
@@ -1223,8 +1236,8 @@ void MKeyboardHost::setState(const QSet<MIMHandlerState> &state)
         symbolView->hideFunctionRow();
         connect(hardwareKeyboard, SIGNAL(modifierStateChanged(Qt::KeyboardModifier, ModifierState)),
                 this, SLOT(handleModifierStateChanged(Qt::KeyboardModifier, ModifierState)));
-        if (haveFocus) {
-            hardwareKeyboard->focusChanged(true);
+        if (haveFocus && (inputMethodMode != M::InputMethodModeDirect)) {
+            hardwareKeyboard->enable();
         }
     }
 

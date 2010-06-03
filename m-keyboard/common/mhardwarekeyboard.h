@@ -67,16 +67,22 @@ public:
     //! Set auto capitalization state.
     void setAutoCapitalization(bool state);
 
-    /*! \brief Notify hardware keyboard about changed focus
+    /*! \brief Enable MHardwareKeyboard functionality
      *
-     *  From the point of view of MHardwareKeyboard focus leaves a widget also when host's
-     *  state is changed from Hardware to OnScreen.  If focus enters a widget while host's
-     *  state is OnScreen, MHardwareKeyboard won't be informed unless state changes from
-     *  OnScreen to Hardware.
+     * This implies that autorepeat is configured, modifier and other state is reset and
+     * key event redirection from input context is enabled.
      *
-     *  \param focusIn true - focus has entered a widget, false - focus has left a widget
+     * You can call enable() again after enable() without calling disable() in between.
+     * This could be done e.g. when focus is changed from one widget to another.
      */
-    void focusChanged(bool focusIn);
+    void enable();
+
+    /*! \brief Disable MHardwareKeyboard functionality
+     *
+     * This implies that autorepeat is enabled, modifier state is reset and key event
+     * redirection from input context is disabled.
+     */
+    void disable();
 
     /*! \brief Reset internal state of the hardware keyboard code.
      * \post modifiers in clear state

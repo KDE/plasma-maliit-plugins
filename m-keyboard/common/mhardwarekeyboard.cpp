@@ -96,51 +96,57 @@ M::TextContentType MHardwareKeyboard::keyboardType() const
     return currentKeyboardType;
 }
 
-void MHardwareKeyboard::focusChanged(bool focusIn)
+
+void MHardwareKeyboard::enable()
 {
-    qDebug() << __PRETTY_FUNCTION__ << ":" << focusIn;
-    if (focusIn) {
-        // TODO: this is a temporary hack until we have proper autorepeat setup
-        XAutoRepeatOff(QX11Info::display());
+    qDebug() << __PRETTY_FUNCTION__;
 
-        shiftShiftCapsLock = false;
-        shiftsPressed = 0;
-        pressedKeys.clear();
-        autoCaps = false;
+    // TODO: this is a temporary hack until we have proper autorepeat setup
+    XAutoRepeatOff(QX11Info::display());
 
-        // We reset state without using latch/lockModifiers in order to force notification
-        // (to make sure whoever is listening is in sync with us).
-        currentLatchedMods = 0;
-        mXkb.latchModifiers(ShiftMask | FnModifierMask, 0);
-        emit modifierStateChanged(Qt::ShiftModifier, ModifierClearState);
-        switch (currentKeyboardType) {
-        case M::NumberContentType:
-        case M::PhoneNumberContentType:
-            // With number and phone number content type Fn must be permanently locked
-            currentLockedMods = FnModifierMask;
-            mXkb.lockModifiers(FnModifierMask, FnModifierMask);
-            emit modifierStateChanged(FnLevelModifier, ModifierLockedState);
-            stateTransitionsDisabled = true;
-            break;
-        default:
-            stateTransitionsDisabled = false;
-            // clear locked modifiers for other keyboard types.
-            currentLockedMods = 0;
-            mXkb.lockModifiers(LockMask | FnModifierMask, 0);
-            emit modifierStateChanged(FnLevelModifier, ModifierClearState);
-            break;
-        }
+    shiftShiftCapsLock = false;
+    shiftsPressed = 0;
+    pressedKeys.clear();
+    autoCaps = false;
 
-        inputContextConnection.setRedirectKeys(true);
-    } else {
-        inputContextConnection.setRedirectKeys(false);
-        // Unlock and unlatch everything.  If for example non-Qt X application gets focus
-        // after this focus out, there is no way to unlock Lock modifier using the
-        // physical keyboard.  So better clear the state a well as we can.
-        lockModifiers(LockMask | FnModifierMask, 0);
-        latchModifiers(ShiftMask | FnModifierMask, 0);
-        XAutoRepeatOn(QX11Info::display());
+    // We reset state without using latch/lockModifiers in order to force notification
+    // (to make sure whoever is listening is in sync with us).
+    currentLatchedMods = 0;
+    mXkb.latchModifiers(ShiftMask | FnModifierMask, 0);
+    emit modifierStateChanged(Qt::ShiftModifier, ModifierClearState);
+    switch (currentKeyboardType) {
+    case M::NumberContentType:
+    case M::PhoneNumberContentType:
+        // With number and phone number content type Fn must be permanently locked
+        currentLockedMods = FnModifierMask;
+        mXkb.lockModifiers(FnModifierMask, FnModifierMask);
+        emit modifierStateChanged(FnLevelModifier, ModifierLockedState);
+        stateTransitionsDisabled = true;
+        break;
+    default:
+        stateTransitionsDisabled = false;
+        // clear locked modifiers for other keyboard types.
+        currentLockedMods = 0;
+        mXkb.lockModifiers(LockMask | FnModifierMask, 0);
+        emit modifierStateChanged(FnLevelModifier, ModifierClearState);
+        break;
     }
+
+    inputContextConnection.setRedirectKeys(true);
+}
+
+
+void MHardwareKeyboard::disable()
+{
+    qDebug() << __PRETTY_FUNCTION__;
+
+    inputContextConnection.setRedirectKeys(false);
+    // Unlock and unlatch everything.  If for example non-Qt X application gets focus
+    // after this focus out, there is no way to unlock Lock modifier using the
+    // physical keyboard.  So better clear the state a well as we can.
+    lockModifiers(LockMask | FnModifierMask, 0);
+    latchModifiers(ShiftMask | FnModifierMask, 0);
+    XAutoRepeatOn(QX11Info::display());
 }
 
 
