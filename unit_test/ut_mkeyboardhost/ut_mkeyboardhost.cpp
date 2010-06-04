@@ -136,6 +136,8 @@ void Ut_MKeyboardHost::init()
     // Uses dummy driver
     MGConfItem engineConfig(InputMethodCorrectionEngine);
     engineConfig.set(QVariant(QString("dummyimdriver")));
+    MGConfItem config(InputMethodCorrectionSetting);
+    config.set(QVariant(false));
 
     subject = new MKeyboardHost(inputContext, 0);
     inputContext->clear();
@@ -358,6 +360,7 @@ void Ut_MKeyboardHost::testErrorCorrectionOption()
 {
     subject->show();
     MGConfItem config(InputMethodCorrectionSetting);
+    config.set(QVariant(true));
 
     QVERIFY(subject->imCorrectionEngine != 0);
     //default error correction option is true;
@@ -866,13 +869,14 @@ void Ut_MKeyboardHost::testUpdateSymbolViewLevel()
 
     //onscreen state
     QVERIFY(subject->vkbWidget);
-    QSignalSpy spy1(subject->vkbWidget, SIGNAL(shiftLevelChanged()));
-
     subject->autoCapsEnabled = false; // disable auto caps
     subject->vkbWidget->setShiftState(ModifierClearState);
     state.clear();
     state << OnScreen;
     subject->setState(state);
+    QSignalSpy spy1(subject->vkbWidget, SIGNAL(shiftLevelChanged()));
+    spy1.clear();
+
     QVERIFY(!subject->symbolView->isActive());
     subject->symbolView->showSymbolView();
     QVERIFY(subject->symbolView->isActive());
