@@ -163,6 +163,7 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
     connect(vkbWidget, SIGNAL(pluginSwitchRequired(M::InputMethodSwitchDirection)),
             this, SIGNAL(pluginSwitchRequired(M::InputMethodSwitchDirection)));
 
+    modifierLockOnTimer.setSingleShot(true);
     modifierLockOnTimer.setInterval(ModifierLockOnInfoDuration);
     connect(&modifierLockOnTimer, SIGNAL(timeout()), this, SLOT(hideLockOnInfoBanner()));
 
