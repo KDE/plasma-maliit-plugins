@@ -169,10 +169,6 @@ void HorizontalSwitcher::setCurrent(int index)
         widget->setPos(0, 0);
         widget->resize(size());
         widget->show();
-        emit switchStarting(oldIndex, currentIndex);
-        emit switchStarting(old, widget);
-        emit switchDone(oldIndex, currentIndex);
-        emit switchDone(old, widget);
 
         updateGeometry();
 
