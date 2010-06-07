@@ -28,11 +28,9 @@ class HorizontalSwitcher : public QGraphicsWidget
     Q_OBJECT
 
 public:
-    /*! SwitchDirection tells which direction we want to
-     *  move the "camera", that is, the contents will
-     *  slide in opposite direction.
-     */
-    enum Direction {
+    //! SwitchDirection tells which neighbour should be shown next.
+    //! \sa switchTo()
+    enum SwitchDirection {
         Left, Right
     };
 
@@ -44,7 +42,7 @@ public:
     //! Does nothing if less than two widgets added.
     //! Does not loop by default if end reached. You can use setLooping()
     //! method to change this behaviour.
-    void switchTo(Direction direction);
+    void switchTo(SwitchDirection direction);
 
     //! \brief Slide from current widget to one with given index.
     void switchTo(int index);
@@ -58,7 +56,7 @@ public:
      * widget of current with given direction without looping.
      * \param direction Direction of switching
      */
-    bool isAtBoundary(Direction direction) const;
+    bool isAtBoundary(SwitchDirection direction) const;
 
     //! \brief Show given widget without animation.
     //!        The widget must be already added.
@@ -136,6 +134,8 @@ private slots:
     void finishAnimation();
 
 private:
+    bool isValidIndex(int index) const;
+
     int currentIndex;
     QList<QGraphicsWidget *> slides;
     QGraphicsItemAnimation enterAnim;

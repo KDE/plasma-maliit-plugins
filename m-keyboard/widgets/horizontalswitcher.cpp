@@ -52,7 +52,7 @@ HorizontalSwitcher::~HorizontalSwitcher()
     slides.clear();
 }
 
-void HorizontalSwitcher::switchTo(Direction direction)
+void HorizontalSwitcher::switchTo(SwitchDirection direction)
 {
     if (isRunning())
         finishAnimation();
@@ -134,7 +134,7 @@ void HorizontalSwitcher::switchTo(QGraphicsWidget *widget)
     switchTo(slides.indexOf(widget));
 }
 
-bool HorizontalSwitcher::isAtBoundary(Direction direction) const
+bool HorizontalSwitcher::isAtBoundary(SwitchDirection direction) const
 {
     if (direction == Right) {
         if (currentIndex == slides.count() - 1) {
@@ -157,14 +157,17 @@ void HorizontalSwitcher::setCurrent(QGraphicsWidget *widget)
 
 void HorizontalSwitcher::setCurrent(int index)
 {
-    if (index >= 0 && index < slides.count() && index != currentIndex) {
+    if (isValidIndex(index) && index != currentIndex) {
         int oldIndex = -1;
-        QGraphicsWidget *old = NULL;
-        if (currentIndex >= 0 && currentIndex < slides.count()) {
+        QGraphicsWidget *old = 0;
+
+        if (isValidIndex(currentIndex)) {
             oldIndex = currentIndex;
             old = slides.at(currentIndex);
         }
+
         currentIndex = index;
+
         QGraphicsWidget *widget = slides.at(index);
         widget->setPos(0, 0);
         widget->resize(size());
@@ -310,4 +313,9 @@ void HorizontalSwitcher::finishAnimation()
 
     emit switchDone(oldIndex, currentIndex);
     emit switchDone(old, slides.at(currentIndex));
+}
+
+bool HorizontalSwitcher::isValidIndex(int index) const
+{
+    return (index >= 0 && index < slides.size());
 }

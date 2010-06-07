@@ -20,7 +20,7 @@
 #include <QApplication>
 #include <QPointer>
 
-Q_DECLARE_METATYPE(HorizontalSwitcher::Direction);
+Q_DECLARE_METATYPE(HorizontalSwitcher::SwitchDirection);
 Q_DECLARE_METATYPE(QGraphicsWidget *);
 
 void Ut_HorizontalSwitcher::initTestCase()
@@ -142,7 +142,7 @@ void Ut_HorizontalSwitcher::testSetCurrent()
 void Ut_HorizontalSwitcher::testSwitchLeftRight_data()
 {
     QTest::addColumn<int>("widgetCount");
-    QTest::addColumn<HorizontalSwitcher::Direction>("direction");
+    QTest::addColumn<HorizontalSwitcher::SwitchDirection>("direction");
     QTest::addColumn<bool>("loop");
     QTest::addColumn<int>("currentIndex");
     QTest::addColumn<int>("expectedIndex");
@@ -159,7 +159,7 @@ void Ut_HorizontalSwitcher::testSwitchLeftRight_data()
 void Ut_HorizontalSwitcher::testSwitchLeftRight()
 {
     QFETCH(int, widgetCount);
-    QFETCH(HorizontalSwitcher::Direction, direction);
+    QFETCH(HorizontalSwitcher::SwitchDirection, direction);
     QFETCH(bool, loop);
     QFETCH(int, currentIndex);
     QFETCH(int, expectedIndex);
