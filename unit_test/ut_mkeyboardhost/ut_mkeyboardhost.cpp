@@ -875,7 +875,6 @@ void Ut_MKeyboardHost::testUpdateSymbolViewLevel()
     state << OnScreen;
     subject->setState(state);
     QSignalSpy spy1(subject->vkbWidget, SIGNAL(shiftLevelChanged()));
-    spy1.clear();
 
     QVERIFY(!subject->symbolView->isActive());
     subject->symbolView->showSymbolView();
@@ -883,6 +882,7 @@ void Ut_MKeyboardHost::testUpdateSymbolViewLevel()
     QCOMPARE(subject->symbolView->currentLevel(), 0);
     QCOMPARE(subject->vkbWidget->shiftStatus(), ModifierClearState);
 
+    spy1.clear();
     subject->vkbWidget->setShiftState(ModifierLatchedState);
     QCOMPARE(subject->vkbWidget->shiftStatus(), ModifierLatchedState);
     QCOMPARE(spy1.count(), 1);
