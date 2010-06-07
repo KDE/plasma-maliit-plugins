@@ -236,7 +236,7 @@ void Ut_HorizontalSwitcher::testInitialSwitchTo()
 {
     QCOMPARE(subject->current(), -1);
     subject->addWidget(new QGraphicsWidget());
-    subject->switchTo(0);
+    subject->setCurrent(0);
     QCOMPARE(subject->current(), 0);
     QVERIFY(subject->currentWidget()->isVisible());
 }
@@ -246,7 +246,7 @@ void Ut_HorizontalSwitcher::testIsAtBoundary()
     QCOMPARE(subject->current(), -1);
     subject->addWidget(new QGraphicsWidget());
 
-    subject->switchTo(0);
+    subject->setCurrent(0);
     QVERIFY(subject->isAtBoundary(HorizontalSwitcher::Left) == true);
     QVERIFY(subject->isAtBoundary(HorizontalSwitcher::Right) == true);
 
@@ -255,11 +255,11 @@ void Ut_HorizontalSwitcher::testIsAtBoundary()
     QVERIFY(subject->isAtBoundary(HorizontalSwitcher::Left) == true);
     QVERIFY(subject->isAtBoundary(HorizontalSwitcher::Right) == false);
 
-    subject->switchTo(1);
+    subject->setCurrent(1);
     QVERIFY(subject->isAtBoundary(HorizontalSwitcher::Left) == false);
     QVERIFY(subject->isAtBoundary(HorizontalSwitcher::Right) == false);
 
-    subject->switchTo(2);
+    subject->setCurrent(2);
     QVERIFY(subject->isAtBoundary(HorizontalSwitcher::Left) == false);
     QVERIFY(subject->isAtBoundary(HorizontalSwitcher::Right) == true);
 }

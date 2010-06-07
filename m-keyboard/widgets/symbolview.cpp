@@ -330,8 +330,9 @@ SymbolView::changePage(int id)
         pageSwitcher->setCurrent(0);
         showSymbolView();
     } else {
+        pageSwitcher->switchTo(id < activePage ? HorizontalSwitcher::Left
+                                               : HorizontalSwitcher::Right);
         activePage = id;
-        pageSwitcher->switchTo(activePage);
     }
 
     selectedLayout = qobject_cast<KeyButtonArea *>(pageSwitcher->currentWidget());

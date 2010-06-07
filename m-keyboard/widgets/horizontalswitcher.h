@@ -44,13 +44,6 @@ public:
     //! method to change this behaviour.
     void switchTo(SwitchDirection direction);
 
-    //! \brief Slide from current widget to one with given index.
-    void switchTo(int index);
-
-    //! \brief Slide from current widget to the given widget.
-    //!        Widget must exist in the switcher.
-    void switchTo(QGraphicsWidget *widget);
-
     /*!
      * \brief Returns true if it is not possible to switch to the next
      * widget of current with given direction without looping.

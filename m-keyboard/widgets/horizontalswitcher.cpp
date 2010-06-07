@@ -110,30 +110,6 @@ void HorizontalSwitcher::switchTo(SwitchDirection direction)
     animTimeLine.start();
 }
 
-void HorizontalSwitcher::switchTo(int index)
-{
-    if (slides.count() > 1) {
-        if (!isVisible()) {
-            setCurrent(index);
-        } else if (index == currentIndex - 1)
-            switchTo(Left);
-        else if (index == currentIndex + 1)
-            switchTo(Right);
-        else if (index != currentIndex) {
-            // TODO: support animated switching over multiple slides?
-            setCurrent(index);
-        }
-    } else {
-        setCurrent(index);
-    }
-}
-
-void HorizontalSwitcher::switchTo(QGraphicsWidget *widget)
-{
-    Q_ASSERT(widget && slides.contains(widget));
-    switchTo(slides.indexOf(widget));
-}
-
 bool HorizontalSwitcher::isAtBoundary(SwitchDirection direction) const
 {
     if (direction == Right) {

@@ -772,7 +772,7 @@ void MVirtualKeyboard::setLanguage(int languageIndex)
         // NOTE: Switcher already has correct index if language change was
         // initiated by a flick gesture.
         if (mainKeyboardSwitcher->count() >= languageIndex) {
-            mainKeyboardSwitcher->switchTo(languageIndex);
+            mainKeyboardSwitcher->setCurrent(languageIndex);
         }
     }
 }
@@ -801,10 +801,10 @@ void MVirtualKeyboard::languageReset()
             }
         }
 
-	// TODO: we should simplify the whole languageReset(). Now
-	// MVirtualKeyboard manages currentLanguage and HorizontalSwitcher also
-	// manages its current widget index.  We always have to synchronize
-	// both of them if one is changed (in the right order, too).
+        // TODO: we should simplify the whole languageReset(). Now
+        // MVirtualKeyboard manages currentLanguage and HorizontalSwitcher also
+        // manages its current widget index.  We always have to synchronize
+        // both of them if one is changed (in the right order, too).
         currentLanguage = "";
     }
 
