@@ -24,7 +24,7 @@
 #include <layoutmenu.h>
 #include <symbolview.h>
 
-#include "duiimenginewords.h"
+#include <mimenginewords.h>
 
 #include "mgconfitem_stub.h"
 #include "minputcontextstubconnection.h"

@@ -6,7 +6,7 @@ INCLUDEPATH += . \
 
 LIBS += -L/usr/lib -Wl,-rpath=/usr/lib/meego-im-plugins/ -lmeego-keyboard
 
-CONFIG += duiimengine duiimenginewords link_pkgconfig
+CONFIG += meegoimengine meegoimenginewords link_pkgconfig
 PKGCONFIG += gconf-2.0
 
 # Input

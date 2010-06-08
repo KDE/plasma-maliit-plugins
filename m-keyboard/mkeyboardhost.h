@@ -35,7 +35,7 @@ class MVirtualKeyboard;
 class MHardwareKeyboard;
 class LayoutMenu;
 class SymbolView;
-class DuiImEngineWords;
+class MImEngineWords;
 class QWidget;
 class MInfoBanner;
 
@@ -232,7 +232,7 @@ private:
     LayoutMenu *layoutMenu;
     SymbolView *symbolView;
 
-    DuiImEngineWords *imCorrectionEngine;
+    MImEngineWords *imCorrectionEngine;
     //! default input method error correction setting
     MGConfItem *inputMethodCorrectionSettings;
     MGConfItem *inputMethodCorrectionEngine;

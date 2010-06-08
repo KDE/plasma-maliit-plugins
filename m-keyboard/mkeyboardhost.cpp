@@ -28,7 +28,7 @@
 #include "layoutsmanager.h"
 #include "symbolview.h"
 
-#include <duiimenginewords.h>
+#include <mimenginewords.h>
 #include <minputcontextconnection.h>
 #include <mplainwindow.h>
 #include <mtoolbardata.h>
@@ -237,7 +237,7 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
     connect(vkbWidget, SIGNAL(sendStringRequest(const QString &)),
             this, SLOT(sendString(const QString &)));
 
-    imCorrectionEngine = DuiImEngineWords::instance();
+    imCorrectionEngine = MImEngineWords::instance();
 
 
     if (!inputMethodCorrectionEngine->value().isNull()) {
@@ -1017,7 +1017,7 @@ void MKeyboardHost::initializeInputEngine()
         // TODO: maybe we should check return values here and in case of failure
         // be always in accurate mode, for example
         imCorrectionEngine->setKeyboardLayout(shortLanguage);
-        imCorrectionEngine->setLanguage(shortLanguage, Dui::LanguagePriorityPrimary);
+        imCorrectionEngine->setLanguage(shortLanguage, M::LanguagePriorityPrimary);
         synchronizeCorrectionSetting();
         imCorrectionEngine->disablePrediction();
         imCorrectionEngine->disableCompletion();
