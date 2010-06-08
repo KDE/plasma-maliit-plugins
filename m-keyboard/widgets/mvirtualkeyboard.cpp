@@ -188,7 +188,7 @@ void MVirtualKeyboard::createToolbar()
     imToolbar->setZValue(-1.0);
 
     connect(imToolbar, SIGNAL(regionUpdated()),
-            this, SLOT(sendVKBRegion()));
+            this, SLOT(organizeContentAndSendRegion()));
     connect(imToolbar, SIGNAL(copyPasteRequest(CopyPasteState)),
             this, SIGNAL(copyPasteRequest(CopyPasteState)));
     connect(imToolbar, SIGNAL(sendKeyEventRequest(const QKeyEvent &)),
@@ -518,6 +518,15 @@ MVirtualKeyboard::showHideFinished()
 }
 
 
+void MVirtualKeyboard::organizeContentAndSendRegion()
+{
+    if (isVisible()) {
+        organizeContent(currentOrientation);
+        sendVKBRegion();
+    }
+}
+
+
 void MVirtualKeyboard::sendVKBRegion()
 {
     regionUpdateRequested = true;
@@ -562,10 +571,7 @@ void MVirtualKeyboard::setKeyboardState(MIMHandlerState newState)
     qDebug() << __PRETTY_FUNCTION__ << imToolbar->geometry() << imToolbar->region();
 
     static_cast<QGraphicsWidget *>(mainLayout->itemAt(1))->setVisible(newState == OnScreen);
-    organizeContent(currentOrientation);
-    if (isVisible()) {
-        sendVKBRegion();
-    }
+    organizeContentAndSendRegion();
 }
 
 MIMHandlerState MVirtualKeyboard::keyboardState() const
@@ -698,11 +704,7 @@ void MVirtualKeyboard::setKeyboardType(const int type)
     }
 
     // resize and update keyboards if needed
-    organizeContent(currentOrientation);
-
-    if (isVisible()) {
-        sendVKBRegion();
-    }
+    organizeContentAndSendRegion();
 }
 
 void MVirtualKeyboard::suppressRegionUpdate(bool suppress)
@@ -862,7 +864,7 @@ void MVirtualKeyboard::onSectionSwitched(QGraphicsWidget *previous, QGraphicsWid
 
     // All sections may not be of the same height so we send a region just in
     // case.  That also causes reaction maps to be redrawn.
-    sendVKBRegion();
+    organizeContentAndSendRegion();
 }
 
 
@@ -981,10 +983,6 @@ void MVirtualKeyboard::setFunctionRowState(bool shiftPressed)
 void MVirtualKeyboard::setCopyPasteButton(bool copyAvailable, bool pasteAvailable)
 {
     imToolbar->setCopyPasteButton(copyAvailable, pasteAvailable);
-    organizeContent(currentOrientation);
-    if (isVisible()) {
-        sendVKBRegion();
-    }
 }
 
 void MVirtualKeyboard::setSelectionStatus(bool hasSelection)

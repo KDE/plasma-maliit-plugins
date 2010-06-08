@@ -269,6 +269,9 @@ private slots:
      */
     void sendVKBRegion();
 
+    //! \brief Call organizeContent() and sendVKBRegion() if the vkb is visible
+    void organizeContentAndSendRegion();
+
 signals:
     /*!
      * \brief Emitted when key is pressed
