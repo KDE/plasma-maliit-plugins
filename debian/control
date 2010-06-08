@@ -33,3 +33,9 @@ XB-Maemo-CI-Stage: fast, staging
 Description: MeegoTouch Input Method Keyboard unit test suite 
  MeegoTouch Keyboard unit test suite.
 
+Package: meego-keyboard-fixtures
+Architecture: any
+Depends:  meego-keyboard (= ${binary:Version}), ${misc:Depends}, ${shlibs:Depends}
+XB-Maemo-CI-Packages: meego-keyboard
+XB-Maemo-CI-Stage: fast, staging
+Description: MeegoTouch Input Method Keyboard Fixtures used by matti
