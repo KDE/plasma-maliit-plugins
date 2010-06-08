@@ -38,6 +38,7 @@
 #include <MWidgetController>
 #include <MDialog>
 
+#include <QGraphicsLayout>
 #include <QDir>
 
 #include <X11/X.h>
@@ -608,6 +609,7 @@ void Ut_MKeyboardHost::testRegionSignals()
     // is made visible right before the animation starts.
     QCOMPARE(spy.count(), c1);
     QCOMPARE(spy2.count(), c2);
+
     QCOMPARE(region(spy, c1 - 1), region(spy2, 0));
     QVERIFY(!region(spy, c1 - 1).isEmpty());
 
@@ -619,7 +621,39 @@ void Ut_MKeyboardHost::testRegionSignals()
     QCOMPARE(spy2.count(), c2);
     qDebug() << "Passthrough region: " << region(spy, 1);
     qDebug() << "libmeegotouch region: " << region(spy2, 1);
-    QCOMPARE(region(spy, c1 - 1), region(spy2, 1));
+    QVERIFY((region(spy, c1 - 1) - region(spy2, 1)).isEmpty());
+
+    // In normal input method mode there is no invisible handle with non-zero area
+    const QRect zeroSizeInvisibleHandleRect(
+        dynamic_cast<QGraphicsWidget*>(subject->vkbWidget->layout()->itemAt(MVirtualKeyboard::SharedHandleAreaIndex))->layout()->itemAt(0)
+        ->geometry().toRect());
+    QVERIFY(zeroSizeInvisibleHandleRect.isEmpty());
+
+    // In direct mode an invisible handle is added on top of the keyboard
+    subject->vkbWidget->setInputMethodMode(M::InputMethodModeDirect);
+    ++c1;
+    ++c2;
+    QCOMPARE(spy.count(), c1);
+    QCOMPARE(spy2.count(), c2);
+
+    const QRect invisibleHandleRect(
+        dynamic_cast<QGraphicsWidget*>(subject->vkbWidget->layout()->itemAt(MVirtualKeyboard::SharedHandleAreaIndex))->layout()->itemAt(0)
+        ->geometry().toRect());
+    QVERIFY(!invisibleHandleRect.isEmpty());
+    const QRegion invisibleHandleRegion(
+        invisibleHandleRect.translated(0, (region(spy2, 0).boundingRect().top()
+                                           - invisibleHandleRect.height())));
+
+    QCOMPARE(region(spy, c1 - 1), region(spy2, c2 - 1) + invisibleHandleRegion);
+
+    subject->vkbWidget->setInputMethodMode(M::InputMethodModeNormal);
+    ++c1;
+    ++c2;
+    QCOMPARE(spy.count(), c1);
+    QCOMPARE(spy2.count(), c2);
+
+    QCOMPARE(region(spy, c1 - 1), region(spy2, c2 - 1));
+    QCOMPARE(region(spy, c1 - 1), region(spy2, c1 - 3));
 
     // When layout menu is shown, input method area doesn't change...
     QTimer::singleShot(LayoutMenuShowTime, subject->layoutMenu->keyboardOptionDialog, SLOT(reject()));
@@ -644,7 +678,7 @@ void Ut_MKeyboardHost::testRegionSignals()
     subject->correctionCandidateWidget->hide();
     ++c1;
     QCOMPARE(spy.count(), c1);
-    QCOMPARE(spy2.count(), 2);
+    QCOMPARE(spy2.count(), c2);
     QCOMPARE(region(spy, c1 - 1), region(spy2, c2 - 1));
 #endif
 
@@ -662,7 +696,8 @@ void Ut_MKeyboardHost::testRegionSignals()
     ++c2;
     QCOMPARE(spy.count(), c1);
     QCOMPARE(spy2.count(), c2);
-    QCOMPARE(region(spy, c1BeforeSymOpen - 1), region(spy, c1 - 1)); // the same as before opening it
+    // the same as before opening it
+    QCOMPARE(region(spy, c1BeforeSymOpen - 1), region(spy, c1 - 1));
 
     // Hide the keyboard -> empty region and input method area
     subject->hide();
@@ -682,7 +717,11 @@ void Ut_MKeyboardHost::testRegionSignals()
     rotateToAngle(M::Angle270);
     subject->show();
     QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
+
+    QCOMPARE(spy.count(), 2);
+    QCOMPARE(spy2.count(), 2);
     QCOMPARE(region(spy, 1), region(spy2, 1));
+
     QRegion region270(region(spy, 1));
     subject->hide();
     QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);

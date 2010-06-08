@@ -793,16 +793,17 @@ void Ut_MVirtualKeyboard::testSetKeyboardState()
     m_vkb->setCopyPasteButton(true, false);
     QVERIFY(top >= m_vkb->geometry().top());
     top = m_vkb->geometry().top();
+    const int topInHardwareState(top);
 
     //show whole keyboard
     m_vkb->setKeyboardState(OnScreen);
-    top -= m_vkb->layout()->itemAt(MVirtualKeyboard::KeyboardIndex)->geometry().height();
+    top -= m_vkb->layout()->itemAt(MVirtualKeyboard::KeyboardIndex)->geometry().height()
+        + m_vkb->layout()->itemAt(MVirtualKeyboard::KeyboardHandleIndex)->geometry().height();
     QCOMPARE(top, int(m_vkb->geometry().top()));
 
     //show toolbar only
     m_vkb->setKeyboardState(Hardware);
-    top += m_vkb->layout()->itemAt(MVirtualKeyboard::KeyboardIndex)->geometry().height();
-    QCOMPARE(top, int(m_vkb->geometry().top()));
+    QCOMPARE(topInHardwareState, int(m_vkb->geometry().top()));
 }
 
 void Ut_MVirtualKeyboard::testReactionMaps()

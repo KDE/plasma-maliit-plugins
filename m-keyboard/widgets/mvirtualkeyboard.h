@@ -49,6 +49,10 @@ class MImToolbar;
 class MReactionMap;
 class KeyEventHandler;
 class MToolbarData;
+class Handle;
+class Grip;
+class FlickGesture;
+class SharedHandleArea;
 
 /*!
   \class MVirtualKeyboard
@@ -148,7 +152,7 @@ public:
      */
     void hideToolbarWidget();
 
-    QRegion region(bool includeToolbar = true, bool includeExtraInteractiveAreas = false) const;
+    QRegion region(bool notJustMainKeyboardArea = true, bool includeExtraInteractiveAreas = false) const;
 
     /*!
      * \brief Shows or hides some keyboard's widgets depending on keyboard state.
@@ -275,6 +279,9 @@ private slots:
 
     //! \brief Call organizeContent() and sendVKBRegion() if the vkb is visible
     void organizeContentAndSendRegion();
+
+    //! Handle flick down gesture signals from handle areas
+    void handleHandleFlickDown(const FlickGesture &gesture);
 
 signals:
     /*!
@@ -420,10 +427,15 @@ private:
     // keyboard
     int actualHeight() const;
 
+    //! Connect signals from a \a handle widget or whatever provides identical flick signals
+    template <class T>
+    void connectHandle(const T &handleLike);
+
 private:
     //! Main layout indices
     enum LayoutIndex {
-        ToolbarIndex,
+        SharedHandleAreaIndex,
+        KeyboardHandleIndex,
         KeyboardIndex
     };
 
@@ -507,7 +519,10 @@ private:
 
     //! Contains true if multi-touch is enabled
     bool enableMultiTouch;
+
+    //! Handle area (to be) shared between symbol view and virtual keyboard
+    //! TODO: move this to host
+    SharedHandleArea *sharedHandleArea;
 };
 
 #endif
-

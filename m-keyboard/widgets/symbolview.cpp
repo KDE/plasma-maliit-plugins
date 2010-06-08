@@ -21,6 +21,7 @@
 #include "layoutsmanager.h"
 #include "symbolview.h"
 #include "keyeventhandler.h"
+#include "grip.h"
 
 #include <MSceneManager>
 #include <MScalableImage>
@@ -117,11 +118,24 @@ void SymbolView::setupLayout()
     verticalLayout.setSpacing(0);
     verticalLayout.setContentsMargins(0, 0, 0, 0);
 
+    Grip &symbolViewGrip = *new Grip(this);
+    symbolViewGrip.setObjectName("KeyboardHandle");
+    verticalLayout.addItem(&symbolViewGrip);
+    connectHandle(symbolViewGrip);
+
     keyAreaLayout.setSpacing(style()->spacingVertical());
     keyAreaLayout.setContentsMargins(style()->paddingLeft(), style()->paddingTop(),
                                      style()->paddingRight(), style()->paddingBottom());
 
     verticalLayout.addItem(&keyAreaLayout);
+}
+
+
+void SymbolView::connectHandle(const Handle &handle)
+{
+    connect(&handle, SIGNAL(flickLeft(const FlickGesture &)), this, SLOT(switchToNextPage()));
+    connect(&handle, SIGNAL(flickRight(const FlickGesture &)), this, SLOT(switchToPrevPage()));
+    connect(&handle, SIGNAL(flickDown(const FlickGesture &)), this, SLOT(hideSymbolView()));
 }
 
 void SymbolView::reloadContent()
@@ -653,8 +667,7 @@ QRegion SymbolView::interactiveRegion() const
 
     // SymbolView always occupies the same area if opened.
     if (isActive()) {
-        // add sym characters and function row
-        region |= mapRectToScene(keyAreaLayout.geometry()).toRect();
+        region |= mapRectToScene(verticalLayout.geometry()).toRect();
     }
 
     return region;

@@ -197,6 +197,45 @@ MVirtualKeyboardStyle.Landscape {
     key-background-sym-indicator-ace: "keyboard-key-ace-selected-landscape";
 }
 
+#InvisibleHandle.Portrait {
+    preferred-size: 480 2.5mm;
+    minimum-size:   480 2.5mm;
+    maximum-size:   480 2.5mm;
+}
+
+#InvisibleHandle.Landscape {
+    preferred-size: 864 2.5mm;
+    minimum-size:   480 2.5mm;
+    maximum-size:   864 2.5mm;
+}
+
+#KeyboardToolbarHandle.Portrait {
+    background-image: "keyboard-handle-portrait";
+    preferred-size: 480 0.6mm;
+    minimum-size: 480 0.6mm;
+    maximum-size: 480 0.6mm;
+}
+
+#KeyboardToolbarHandle.Landscape {
+    background-image: "keyboard-handle-landscape";
+    preferred-size: 864 0.6mm;
+    minimum-size: 480 0.6mm;
+    maximum-size: 864 0.6mm;
+}
+
+#KeyboardHandle.Landscape {
+    background-image: "keyboard-handle-landscape";
+    preferred-size: 864 0.6mm;
+    minimum-size: 480 0.6mm;
+    maximum-size: 864 0.6mm;
+}
+
+#KeyboardHandle.Portrait {
+    background-image: "keyboard-handle-portrait";
+    preferred-size: 480 0.6mm;
+    minimum-size: 480 0.6mm;
+    maximum-size: 480 0.6mm;
+}
 
 #MenuToggleButton {
     background-image: "Toggle-btn-normal" 0 0 0 0;

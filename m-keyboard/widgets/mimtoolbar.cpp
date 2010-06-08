@@ -301,6 +301,7 @@ void MImToolbar::arrangeWidgets()
     }
 
     emit regionUpdated();
+    emit availabilityChanged((rightBar.count() != 0) || (leftBar.count() != 0));
 }
 
 void MImToolbar::showGroup(const QString &group)

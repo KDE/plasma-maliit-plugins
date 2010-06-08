@@ -146,6 +146,10 @@ signals:
      */
     void copyPasteClicked(CopyPasteState action);
 
+    //! \brief Emitted when toolbar availability changes
+    //! \param available true when there are widgets in the toolbar; false otherwise
+    void availabilityChanged(bool available);
+
 private:
     void setupLayout();
 

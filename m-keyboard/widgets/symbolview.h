@@ -40,7 +40,7 @@ class KeyEvent;
 class LayoutSection;
 class SymIndicatorButton;
 class KeyEventHandler;
-
+class Handle;
 
 /*!
  * \brief SymbolView is used to show different layouts symbols/upper case/lower case
@@ -260,6 +260,9 @@ private:
 
     //! \brief Updates the Sym button to visually indicate the current active page.
     void updateSymIndicator();
+
+    //! Connect signals from a \a handle widget
+    void connectHandle(const Handle &handle);
 
 private:
     //! Current style being used.

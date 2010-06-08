@@ -28,6 +28,8 @@
 #include "ikeybutton.h"
 #include "keyevent.h"
 #include "keyeventhandler.h"
+#include "grip.h"
+#include "sharedhandlearea.h"
 
 #include <mtoolbardata.h>
 
@@ -102,8 +104,6 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
 
     createSwitcher();
 
-    createToolbar();
-
     setupTimeLine();
 
     // setting maximum width explicitly. otherwise max width of children will override. (bug?)
@@ -111,10 +111,21 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
     setMinimumWidth(0);
 
     // add stuff to the layout
+
     mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setSpacing(0);
-    mainLayout->addItem(imToolbar);
-    mainLayout->setAlignment(imToolbar, Qt::AlignCenter);
+
+    createToolbar();
+
+    sharedHandleArea = new SharedHandleArea(*imToolbar);
+    connect(sharedHandleArea, SIGNAL(regionUpdated()), this, SLOT(organizeContentAndSendRegion()));
+    mainLayout->addItem(sharedHandleArea);
+    connectHandle(*sharedHandleArea);
+
+    Grip &keyboardGrip = *new Grip(this);
+    keyboardGrip.setObjectName("KeyboardHandle");
+    mainLayout->addItem(&keyboardGrip);
+    connectHandle(keyboardGrip);
 
     mainLayout->addItem(mainKeyboardSwitcher); // start in qwerty
 
@@ -151,6 +162,24 @@ MVirtualKeyboard::~MVirtualKeyboard()
 }
 
 
+template <class T>
+void MVirtualKeyboard::connectHandle(const T &handle)
+{
+    connect(&handle, SIGNAL(flickLeft(const FlickGesture &)), this, SLOT(flickLeftHandler()));
+    connect(&handle, SIGNAL(flickRight(const FlickGesture &)), this, SLOT(flickRightHandler()));
+    connect(&handle, SIGNAL(flickDown(const FlickGesture &)), this, SLOT(handleHandleFlickDown(const FlickGesture &)));
+}
+
+
+void MVirtualKeyboard::handleHandleFlickDown(const FlickGesture &/* gesture */)
+{
+    if (activeState == OnScreen) {
+        hideKeyboard();
+        emit userInitiatedHide();
+    }
+}
+
+
 void
 MVirtualKeyboard::prepareToOrientationChange()
 {
@@ -180,15 +209,13 @@ MVirtualKeyboard::finalizeOrientationChange()
 
 void MVirtualKeyboard::createToolbar()
 {
-    imToolbar = new MImToolbar(style(), this);
+    imToolbar = new MImToolbar(style());
 
     // Set z value below default level (0.0) so popup will be on top of toolbar.
     // More correct way to fix this, though more difficult, would be to have only one
     // popup instance in dvkb and set its z value higher.
     imToolbar->setZValue(-1.0);
 
-    connect(imToolbar, SIGNAL(regionUpdated()),
-            this, SLOT(organizeContentAndSendRegion()));
     connect(imToolbar, SIGNAL(copyPasteRequest(CopyPasteState)),
             this, SIGNAL(copyPasteRequest(CopyPasteState)));
     connect(imToolbar, SIGNAL(sendKeyEventRequest(const QKeyEvent &)),
@@ -449,7 +476,7 @@ int MVirtualKeyboard::actualHeight() const
     int result = size().height();
 
     if ((activeState != OnScreen)) {
-        result = imToolbar->size().height();
+        result = dynamic_cast<QGraphicsWidget *>(mainLayout->itemAt(SharedHandleAreaIndex))->size().height();
     }
 
     return result;
@@ -469,11 +496,11 @@ void MVirtualKeyboard::organizeContent(M::Orientation orientation)
         imToolbar->reload();
 
         // invalidate layouts so we get updated size infos
-        mainLayout->invalidate();
         numberKeyboard->layout()->invalidate();
         phoneNumberKeyboard->layout()->invalidate();
     }
 
+    mainLayout->invalidate();
     resize(MPlainWindow::instance()->visibleSceneSize().width(), mainLayout->preferredHeight());
     if ((activity == Active) && (showHideTimeline.state() != QTimeLine::Running)) {
         setPos(0, sceneManager->visibleSceneSize().height() - actualHeight());
@@ -539,16 +566,16 @@ void MVirtualKeyboard::sendVKBRegion()
     emit inputMethodAreaUpdated(region());
 }
 
-QRegion MVirtualKeyboard::region(const bool includeToolbar,
-                                 const bool /* includeExtraInteractiveAreas */) const
+QRegion MVirtualKeyboard::region(const bool notJustMainKeyboardArea,
+                                 const bool includeExtraInteractiveAreas) const
 {
     QRegion region;
 
     if (isVisible()) {
         imToolbar->layout()->activate();
         mainLayout->activate();
-        if (includeToolbar) {
-            region |= imToolbar->region();
+        if (notJustMainKeyboardArea) {
+            region |= sharedHandleArea->region(includeExtraInteractiveAreas);
         }
 
         // Main keyboard area (qwerty/number/etc.)
@@ -556,6 +583,9 @@ QRegion MVirtualKeyboard::region(const bool includeToolbar,
             mainLayout->activate();
             qDebug() << __PRETTY_FUNCTION__ << mainLayout->itemAt(KeyboardIndex)->geometry();
             region |= mapRectToScene(mainLayout->itemAt(KeyboardIndex)->geometry()).toRect();
+            if (notJustMainKeyboardArea) {
+                region |= mapRectToScene(mainLayout->itemAt(KeyboardHandleIndex)->geometry()).toRect();
+            }
         }
     }
 
@@ -569,9 +599,7 @@ void MVirtualKeyboard::setKeyboardState(MIMHandlerState newState)
     }
 
     activeState = newState;
-    qDebug() << __PRETTY_FUNCTION__ << newState << imToolbar->geometry() << imToolbar->region();
     resetState();
-    qDebug() << __PRETTY_FUNCTION__ << imToolbar->geometry() << imToolbar->region();
 
     static_cast<QGraphicsWidget *>(mainLayout->itemAt(KeyboardIndex))->setVisible(newState == OnScreen);
     organizeContentAndSendRegion();
@@ -1126,4 +1154,5 @@ void MVirtualKeyboard::showMainArea()
 void MVirtualKeyboard::setInputMethodMode(M::InputMethodMode mode)
 {
     KeyButtonArea::setInputMethodMode(mode);
+    sharedHandleArea->setInputMethodMode(mode);
 }
