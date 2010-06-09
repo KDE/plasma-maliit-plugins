@@ -149,6 +149,10 @@ void HorizontalSwitcher::setCurrent(int index)
         widget->resize(size());
         widget->show();
 
+        // Ultimately might lead to a reaction map update in MKeyboardHost,
+        // has no other purpose:
+        emit switchDone(old, widget);
+
         updateGeometry();
 
         if (old) {
