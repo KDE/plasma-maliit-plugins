@@ -242,12 +242,6 @@ protected:
     void updatePopup(const QPoint &pos, const IKeyButton *key = 0);
 
     /*!
-     * \brief click at deadKey
-     * \param key pointer to deadkey
-     */
-    void clickAtDeadkey(const IKeyButton *key);
-
-    /*!
     * \brief Verifies should we process cursor movement or not
     * \param pos QPointF new cursor position
     * \return bool
@@ -320,7 +314,7 @@ private:
     //! \param id Touch point identifier defined by the system.
     void touchPointReleased(const QPoint &pos, int id);
 
-    void click(const IKeyButton *key);
+    void click(IKeyButton *key);
 
     //! \brief Horizontal swipe gesture recognizer
     //! \return Whether a horizontal swipe gesture was recognized
@@ -365,7 +359,7 @@ private:
     bool enableMultiTouch;
 
     //! Activated dead key
-    const IKeyButton *activeDeadkey;
+    IKeyButton *activeDeadkey;
 
     /*!
      * Feedback player instance

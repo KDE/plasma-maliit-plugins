@@ -53,6 +53,7 @@ typedef KeyButtonArea *(*KBACreator)(MVirtualKeyboardStyleContainer *styleContai
                                      QGraphicsWidget *parent);
 
 Q_DECLARE_METATYPE(KBACreator);
+Q_DECLARE_METATYPE(IKeyButton::ButtonState);
 
 KeyButtonArea *createSingleWidgetKeyButtonArea(MVirtualKeyboardStyleContainer *styleContainer,
                                                QSharedPointer<const LayoutSection> section,
@@ -89,6 +90,7 @@ void Ut_KeyButtonArea::initTestCase()
     qRegisterMetaType<KeyEvent>();
     qRegisterMetaType<const IKeyButton*>();
     qRegisterMetaType<IKeyButton*>();
+    qRegisterMetaType<IKeyButton::ButtonState>();
 
     new MPlainWindow; // Create singleton
 }
@@ -418,7 +420,7 @@ void Ut_KeyButtonArea::testDeadkeys()
     MPlainWindow::instance()->scene()->addItem(subject);
     subject->resize(defaultLayoutSize());
     QSignalSpy spy(subject, SIGNAL(keyClicked(const IKeyButton*, const QString&, bool)));
-    const IKeyButton *key = 0;
+    IKeyButton *key = 0;
     QList<int> positions;
     int i;
     positions << 0 << 1 << 2 << 5 << 6;
@@ -477,7 +479,7 @@ void Ut_KeyButtonArea::testDeadkeys()
     }
 
     // Lock deadkey again.
-    subject->clickAtDeadkey(key);
+    subject->click(key);
     for (i = 0; i < positions.count(); i++) {
         QCOMPARE(keyAt(0, positions[i])->label(), lowerDKUnicodes.at(i));
     }
@@ -489,6 +491,54 @@ void Ut_KeyButtonArea::testDeadkeys()
     for (i = 0; i < positions.count(); i++) {
         QCOMPARE(keyAt(0, positions[i])->label(), lowerUnicodes.at(i));
     }
+}
+
+void Ut_KeyButtonArea::testSelectedDeadkeys()
+{
+    keyboard = new KeyboardData;
+    QVERIFY(keyboard->loadNokiaKeyboard("fr.xml"));
+    subject = createSingleWidgetKeyButtonArea(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
+                                              KeyButtonArea::ButtonSizeEqualExpanding,
+                                              false, 0);
+    MPlainWindow::instance()->scene()->addItem(subject);
+
+    // Pick two deadkeys to play around with.
+    IKeyButton *deadkey1 = keyAt(2, 7); // row 3, column 7
+    IKeyButton *deadkey2 = keyAt(2, 8); // row 3, column 8
+    IKeyButton *regularKey = keyAt(0, 0); // first key, top left
+
+    QVERIFY(deadkey1 && deadkey1->isDeadKey());
+    QVERIFY(deadkey2 && deadkey2->isDeadKey());
+    QVERIFY(regularKey && !regularKey->isDeadKey());
+
+    QCOMPARE(deadkey1->state(), IKeyButton::Normal);
+    QCOMPARE(deadkey2->state(), IKeyButton::Normal);
+    QCOMPARE(regularKey->state(), IKeyButton::Normal);
+
+    // Press dead key down
+    subject->click(deadkey1);
+    QCOMPARE(deadkey1->state(), IKeyButton::Selected);
+
+    // Release it by clicking regular key
+    subject->click(regularKey);
+    QCOMPARE(deadkey1->state(), IKeyButton::Normal);
+
+    // Down again
+    subject->click(deadkey1);
+    QCOMPARE(deadkey1->state(), IKeyButton::Selected);
+
+    // Release it by clicking itself again.
+    subject->click(deadkey1);
+    QCOMPARE(deadkey1->state(), IKeyButton::Normal);
+
+    // Down again
+    subject->click(deadkey1);
+    QCOMPARE(deadkey1->state(), IKeyButton::Selected);
+
+    // Release it by clicking the other dead key.
+    subject->click(deadkey2);
+    QCOMPARE(deadkey1->state(), IKeyButton::Normal);
+    QCOMPARE(deadkey2->state(), IKeyButton::Selected);
 }
 
 void Ut_KeyButtonArea::testImportedLayouts_data()
@@ -828,14 +878,14 @@ QSize Ut_KeyButtonArea::defaultLayoutSize()
 }
 
 // Helper method to get key in certain row and column from current subject.
-const IKeyButton *Ut_KeyButtonArea::keyAt(unsigned int row, unsigned int column) const
+IKeyButton *Ut_KeyButtonArea::keyAt(unsigned int row, unsigned int column) const
 {
     // If this fails there is something wrong with the test.
     Q_ASSERT(subject
              && (row < static_cast<unsigned int>(subject->rowCount()))
              && (column < static_cast<unsigned int>(subject->sectionModel()->columnsAt(row))));
 
-    const IKeyButton *key = 0;
+    IKeyButton *key = 0;
 
     if (dynamic_cast<MButtonArea *>(subject)) {
         MButtonArea *buttonArea = static_cast<MButtonArea *>(subject);

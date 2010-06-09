@@ -296,7 +296,7 @@ void KeyButtonArea::clearActiveKeys()
     }
 }
 
-void KeyButtonArea::click(const IKeyButton *key)
+void KeyButtonArea::click(IKeyButton *key)
 {
     if (!key->isDeadKey()) {
         QString accent;
@@ -305,15 +305,24 @@ void KeyButtonArea::click(const IKeyButton *key)
             accent = activeDeadkey->label();
         }
 
-        unlockDeadkeys();
-
         // Check if we need to disable accurate mode
         accurateCheckContent(key->label());
 
+        unlockDeadkeys();
+
         emit keyClicked(key, accent, level() % 2);
+    } else if (key == activeDeadkey) {
+        unlockDeadkeys();
     } else {
-        clickAtDeadkey(key);
-        update();
+        // Deselect previous dead key, if any
+        if (activeDeadkey) {
+            activeDeadkey->setSelected(false);
+        }
+
+        activeDeadkey = key;
+        activeDeadkey->setSelected(true);
+
+        updateButtonModifiers();
     }
 }
 
@@ -520,23 +529,10 @@ void KeyButtonArea::touchPointReleased(const QPoint &pos, int id)
 }
 
 void
-KeyButtonArea::clickAtDeadkey(const IKeyButton *deadKey)
-{
-    Q_ASSERT(deadKey);
-
-    if (deadKey == activeDeadkey) {
-        unlockDeadkeys();
-    } else {
-        activeDeadkey = deadKey;
-
-        updateButtonModifiers();
-    }
-}
-
-void
 KeyButtonArea::unlockDeadkeys()
 {
     if (activeDeadkey) {
+        activeDeadkey->setSelected(false);
         activeDeadkey = 0;
         updateButtonModifiers();
     }

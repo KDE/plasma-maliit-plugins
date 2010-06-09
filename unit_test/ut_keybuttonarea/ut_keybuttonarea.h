@@ -56,6 +56,7 @@ private slots:
     void testPaint();
     void testDeadkeys_data();
     void testDeadkeys();
+    void testSelectedDeadkeys();
     void testImportedLayouts_data();
     void testImportedLayouts();
     void testAccurateMode_data();
@@ -85,7 +86,7 @@ private:
     void recognizeGesture(const PointList &pl, GestureType gt, int touchPointId = 0);
     PointList reversed(const PointList &in) const;
 
-    const IKeyButton *keyAt(unsigned int row, unsigned int column) const;
+    IKeyButton *keyAt(unsigned int row, unsigned int column) const;
 };
 
 #endif // UT_KEYBUTTONAREA_H
