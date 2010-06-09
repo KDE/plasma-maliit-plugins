@@ -49,7 +49,7 @@ bool FixtureVirtualKeyboard::execute(void *objectInstance,
     }
 
     QGraphicsItem *gItem = (QGraphicsItem*)objectInstance;
-    const SingleWidgetButtonArea* const widget =  dynamic_cast<SingleWidgetButtonArea*>((QGraphicsWidget*)gItem);
+    const SingleWidgetButtonArea *const widget =  qgraphicsitem_cast<SingleWidgetButtonArea *>(gItem);
 
     if (!widget) {
         stdOut = "This fixture can be called for Keybuttonarea only!";
