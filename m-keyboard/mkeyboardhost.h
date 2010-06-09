@@ -170,8 +170,11 @@ private slots:
      */
     void handleModifierStateChanged(Qt::KeyboardModifier modifier, ModifierState state);
 
-    //! hide CapsLock infobanner
-    void hideLockOnInfoBanner();
+    //! show FN/Caps Lock infobanner
+    void showLockOnInfoBanner(const QString &notification);
+
+    //! hide FN/Caps Lock infobanner
+    void hideLockOnInfoBanner(bool updateRegion = true);
 
 private:
     void createCorrectionCandidateWidget();

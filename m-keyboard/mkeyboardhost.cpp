@@ -1374,24 +1374,40 @@ void MKeyboardHost::handleModifierStateChanged(Qt::KeyboardModifier modifier, Mo
         // notify the modifier is changed to locked state
         // number and phone number content type always force FN key to be locked,
         // don't need indicator lock notification.
-        if (modifierLockOnInfoBanner) {
-            modifierLockOnInfoBanner->setBodyText(lockOnNotificationLabel);
-            modifierLockOnTimer.start();
-        } else {
-            modifierLockOnInfoBanner = new MInfoBanner(MInfoBanner::Information);
-            modifierLockOnInfoBanner->setBodyText(lockOnNotificationLabel);
-            MPlainWindow::instance()->sceneManager()->appearSceneWindow(modifierLockOnInfoBanner,
-                    MSceneWindow::DestroyWhenDone);
-            modifierLockOnTimer.start();
-        }
+        showLockOnInfoBanner(lockOnNotificationLabel);
     } else if (modifierLockOnInfoBanner) {
-        hideLockOnInfoBanner();
+        hideLockOnInfoBanner(false);
     }
 }
 
-void MKeyboardHost::hideLockOnInfoBanner()
+void MKeyboardHost::showLockOnInfoBanner(const QString &notification)
 {
-    if (modifierLockOnInfoBanner)
+    // current region maybe empty, we should request 1 pixel to make infobanner visible.
+    // FIXME: this request 1 pixel looks like hack way.
+    // maybe we should request system notification instead of showing our own infobanner.
+    emit regionUpdated(combineRegionTo(widgetRegions, QRegion(0, 0, 1, 1), *this));
+
+    if (modifierLockOnInfoBanner) {
+        modifierLockOnInfoBanner->setBodyText(notification);
+        modifierLockOnTimer.start();
+    } else {
+        modifierLockOnInfoBanner = new MInfoBanner(MInfoBanner::Information);
+        modifierLockOnInfoBanner->setBodyText(notification);
+        MPlainWindow::instance()->sceneManager()->appearSceneWindow(modifierLockOnInfoBanner,
+                                                                    MSceneWindow::DestroyWhenDone);
+        modifierLockOnTimer.start();
+    }
+}
+
+void MKeyboardHost::hideLockOnInfoBanner(bool updateRegion)
+{
+    if (modifierLockOnInfoBanner) {
         MPlainWindow::instance()->sceneManager()->disappearSceneWindow(modifierLockOnInfoBanner);
+    }
     modifierLockOnInfoBanner = 0;
+    // some time we don't need to update region at once (e.g. during changing modifier state frequently)
+    // when modifierLockOnTimer is timeout, this method will be called to update region
+    if (updateRegion) {
+        emit regionUpdated(combineRegionTo(widgetRegions, QRegion(), *this));
+    }
 }
