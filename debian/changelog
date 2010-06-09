@@ -1,3 +1,14 @@
+meego-keyboard (0.4.3~1) unstable; urgency=low
+
+  * Implemented multitouch support (not yet enabled as default)
+  * Better swipe gesture recognition
+  * Error correction disabled as default
+  * Fixed error correction candidate width
+  * Separate package for fixtures required by Matti
+  * Misc fixes
+
+ -- Pekka Vuorela <pekka.ta.vuorela@nokia.com>  Wed, 09 Jun 2010 11:09:57 +0300
+
 meego-keyboard (0.4.2-1) unstable; urgency=low
 
   * Fixed autocapitalization for plain qt apps
