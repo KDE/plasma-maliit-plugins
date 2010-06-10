@@ -38,7 +38,6 @@ MXkb::MXkb()
         return;
     }
 
-    XSynchronize(display, 1);
     // TODO: XkbUseCoreKbd may change in the device and it should be queried from xkb.
     deviceSpec = XkbUseCoreKbd;
 }
