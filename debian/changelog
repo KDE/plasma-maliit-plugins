@@ -1,4 +1,4 @@
-meego-keyboard (0.4.3~1) unstable; urgency=low
+meego-keyboard (0.4.3-1) unstable; urgency=low
 
   * Implemented multitouch support (not yet enabled as default)
   * Better swipe gesture recognition
@@ -7,7 +7,7 @@ meego-keyboard (0.4.3~1) unstable; urgency=low
   * Separate package for fixtures required by Matti
   * Misc fixes
 
- -- Pekka Vuorela <pekka.ta.vuorela@nokia.com>  Wed, 09 Jun 2010 11:09:57 +0300
+ -- Pekka Vuorela <pekka.ta.vuorela@nokia.com>  Thu, 10 Jun 2010 13:54:59 +0300
 
 meego-keyboard (0.4.2-1) unstable; urgency=low
 
