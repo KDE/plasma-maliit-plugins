@@ -1,11 +1,9 @@
-meego-keyboard-dbg.substvars
+*.substvars
 meego-keyboard-dbg
-meego-keyboard-tests.substvars
 meego-keyboard-tests
-meego-keyboard.substvars
 meego-keyboard
 meego-keyboard-dev
-meego-keyboard-dev.substvars
+meego-keyboard-fixtures
 files
 tmp
 *.debhelper*
