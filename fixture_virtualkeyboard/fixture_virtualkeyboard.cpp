@@ -67,7 +67,7 @@ bool FixtureVirtualKeyboard::execute(void *objectInstance,
 
     else if (actionName == "isAccurateMode") {
 
-        stdOut = widget->isAccurateMode() ? “true” : “false”;
+        stdOut = widget->isAccurateMode() ? "true": "false";
 
         return true;
     }
