@@ -14,7 +14,7 @@
 /*  FlickUpButton related styling */
 
 FlickUpButtonStyle {
-    background-image: "keyboard-key-background" 10px 10px 10px 10px;
+    background-image: "keyboard-key" 10px 10px 10px 10px;
     font: "Nokia Sans Light" 24;
     minimum-size: 30 56;
     preferred-size: 8.2mm 5.6mm;
@@ -37,11 +37,11 @@ FlickUpButtonStyle {
 }
 
 FlickUpButtonStyle:pressed {
-    background-image: "keyboard-key-background-pressed" 10px 10px 10px 10px;
+    background-image: "keyboard-key-pressed" 10px 10px 10px 10px;
 }
 
 FlickUpButtonStyle:selected {
-    background-image: "keyboard-key-background-selected" 10px 10px 10px 10px;
+    background-image: "keyboard-key-selected" 10px 10px 10px 10px;
 }
 
 #Backspace {
@@ -125,10 +125,16 @@ MVirtualKeyboardStyle {
     pressFeedback: ;
 
     /* Single widget keyboard button styling */
-    key-background-id: "keyboard-key-background";
-    key-background-pressed-id: "keyboard-key-background-pressed";
-    key-background-selected-id: "keyboard-key-background-selected";
 
+    key-background-id: "keyboard-key";
+    key-background-pressed-id: "keyboard-key-pressed";
+    key-background-selected-id: "keyboard-key-selected";
+    key-background-border: 20; 
+/*
+    key-background-id: "keyboard-key-background" 10px 10px 10px 10px;
+    key-background-pressed-id: "keyboard-key-background-pressed" 10px 10px 10px 10px;
+    key-background-selected-id: "keyboard-key-background-selected" 10px 10px 10px 10px;
+*/
     key-backspace-icon-size: 48 48;
     key-backspace-icon-id: "icon-m-common-backspace";
 
@@ -187,7 +193,8 @@ MVirtualKeyboardStyle.Landscape {
     menu-size: 790 342;
 
     /* Single widget keyboard button styling */
-    key-normal-size: 8.2mm 5.6mm;
+    key-normal-size: 8.2mm 6.2mm;
+/* 8.2mm 5.6mm; */
     key-phone-number-normal-size: 8.2mm 8.4mm;
     key-function-normal-size: 8.2mm 5.6mm;
     key-function-large-size: 12.4mm 5.6mm;

@@ -65,9 +65,6 @@ namespace
     const int AutoBackspaceDelay = 500;      // in ms
     const int BackspaceRepeatInterval = 100; // in ms
     const int MultitapTime = 1500;           // in ms
-    const char * const PixmapDirectory = "/usr/share/meegotouch/virtual-keyboard/images";
-    const QString CssFile("/usr/share/meegotouch/virtual-keyboard/css/%1x%2.css");
-    const QString DefaultCss = CssFile.arg(864).arg(480); // Default screen resolution is 864x480
     const Qt::KeyboardModifier FnLevelModifier = Qt::GroupSwitchModifier;
     const int ModifierLockOnInfoDuration = 1000;    // in ms
     // This GConf item defines whether multitouch is enabled or disabled
@@ -105,18 +102,6 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
     displayWidth  = MPlainWindow::instance()->visibleSceneSize(M::Landscape).width();
 
     enableMultiTouch = MGConfItem(MultitouchSettings).value().toBool();
-
-    //TODO get this from settings
-    MTheme *theme = MTheme::instance();
-    theme->addPixmapDirectory(PixmapDirectory);
-
-    QString css = CssFile.arg(displayWidth, displayHeight);
-
-    if (!QFile::exists(css)) {
-        css = DefaultCss;
-    }
-
-    theme->loadCSS(css);
 
     LayoutsManager::createInstance();
 
