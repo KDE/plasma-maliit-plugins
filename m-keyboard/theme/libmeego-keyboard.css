@@ -105,7 +105,8 @@ MVirtualKeyboardStyle {
     background-image: "meegotouch-keyboard-background" 10px 10px 10px 10px;
     font: "Nokia Sans Light" 24;
     font-opacity: 0.9;
-    font-color: #FFFFFF;
+    font-color: #000000;
+
     secondary-font: $FONT_SMALL;
 
     padding-top: $PADDING_LARGE;

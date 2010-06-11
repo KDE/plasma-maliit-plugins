@@ -387,6 +387,7 @@ void SingleWidgetButtonArea::paint(QPainter *painter, const QStyleOptionGraphics
         buildTextLayout();
     }
     // Draw text next.
+    painter->setPen(style()->fontColor());
     textLayout.draw(painter, QPoint());
 }
 

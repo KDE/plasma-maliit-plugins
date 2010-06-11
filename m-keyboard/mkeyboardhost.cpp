@@ -50,8 +50,8 @@
 #include <MSceneWindow>
 #include <MInfoBanner>
 #include <MLibrary>
-M_LIBRARY // to avoid a crash from mtheme. FIXME - is this the proper way for us?
 
+M_LIBRARY
 
 namespace
 {
