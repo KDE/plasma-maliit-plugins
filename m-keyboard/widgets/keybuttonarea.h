@@ -298,6 +298,10 @@ protected:
 
     void clearActiveKeys();
 
+protected slots:
+    //! Update background images, text layouts, etc. when the theme changed.
+    virtual void onThemeChangeCompleted();
+
 private:
     //! Check whether given character will stop accurate mode.
     void accurateCheckContent(const QString &content);
@@ -325,6 +329,9 @@ private:
     //! \return Whether a vertical swipe gesture was recognized
     bool isVerticalSwipeGesture(const QPointF &delta, int absHorizontalThreshold, int absVerticalThreshold,
                                 int moveEventCount, const IKeyButton* button);
+
+    //! \brief Computes the new button width and updates their geometries
+    void updateButtonGeometriesForWidth(int widthOfArea);
 
     //! Current level
     int currentLevel;

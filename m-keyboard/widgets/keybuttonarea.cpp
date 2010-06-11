@@ -89,6 +89,10 @@ KeyButtonArea::KeyButtonArea(MVirtualKeyboardStyleContainer *style,
     popup->hidePopup();
 
     feedbackPlayer = MComponentData::feedbackPlayer();
+
+    connect(MTheme::instance(), SIGNAL(themeChangeCompleted()),
+            this, SLOT(onThemeChangeCompleted()),
+            Qt::UniqueConnection);
 }
 
 KeyButtonArea::~KeyButtonArea()
@@ -215,20 +219,9 @@ KeyButtonArea::isObservableMove(const QPointF &prevPos, const QPointF &pos)
 void KeyButtonArea::resizeEvent(QGraphicsSceneResizeEvent *event)
 {
     const int newWidth = static_cast<int>(event->newSize().width());
-    if (newWidth != static_cast<int>(event->oldSize().width())) {
-        // All main keyboards should take the whole available width so we restrict
-        // the button width here. This is applied only if we have equal button width.
-        int equalButtonWidth = -1; // the new width if it's same for all
-        if ((buttonSizeScheme == ButtonSizeEqualExpanding)
-             || (buttonSizeScheme == ButtonSizeEqualExpandingPhoneNumber)) {
-            const int HorizontalSpacing = style()->spacingHorizontal();
-            const int MaxButtonWidth = qRound(static_cast<qreal>(newWidth + HorizontalSpacing)
-                                              / static_cast<qreal>(section->maxColumns())
-                                              - HorizontalSpacing);
 
-            equalButtonWidth = MaxButtonWidth;
-        }
-        updateButtonGeometries(newWidth, equalButtonWidth);
+    if (newWidth != static_cast<int>(event->oldSize().width())) {
+        updateButtonGeometriesForWidth(newWidth);
     }
 }
 
@@ -734,6 +727,28 @@ void KeyButtonArea::updateButtonModifiers()
 void KeyButtonArea::modifiersChanged(bool /*shift*/, const QChar /*accent*/)
 {
     // Empty default implementation
+}
+
+void KeyButtonArea::onThemeChangeCompleted()
+{
+    updateButtonGeometriesForWidth(size().width());
+}
+
+void KeyButtonArea::updateButtonGeometriesForWidth(int widthOfArea)
+{
+    // All main keyboards should take the whole available width so we restrict
+    // the button width here. This is applied only if we have equal button width.
+    int equalButtonWidth = -1; // the new width if it's same for all
+    if ((buttonSizeScheme == ButtonSizeEqualExpanding)
+         || (buttonSizeScheme == ButtonSizeEqualExpandingPhoneNumber)) {
+        const int HorizontalSpacing = style()->spacingHorizontal();
+        const int MaxButtonWidth = qRound(static_cast<qreal>(widthOfArea + HorizontalSpacing)
+                                          / static_cast<qreal>(section->maxColumns())
+                                          - HorizontalSpacing);
+
+        equalButtonWidth = MaxButtonWidth;
+    }
+    updateButtonGeometries(widthOfArea, equalButtonWidth);
 }
 
 KeyButtonArea::TouchPointInfo::TouchPointInfo()

@@ -33,6 +33,15 @@ class SingleWidgetButton;
 class SingleWidgetButtonArea : public KeyButtonArea, public ISymIndicator
 {
 public:
+    //! Used to differentiate background images of a button.
+    enum KeyBackgroundType {
+        NormalBackground = 0,
+        KeyPressedBackground = 1,
+        KeySelectedBackground = 2,
+
+        KeyBackgroundTypeCount
+    };
+
     SingleWidgetButtonArea(MVirtualKeyboardStyleContainer *,
                            QSharedPointer<const LayoutSection>,
                            ButtonSizeScheme buttonSizeScheme = ButtonSizeEqualExpanding,
@@ -60,6 +69,7 @@ protected:
     virtual void updateButtonGeometries(int availableWidth, int equalButtonWidth);
     virtual IKeyButton *keyAt(const QPoint &pos) const;
     virtual void modifiersChanged(bool shift, QChar accent = QChar());
+    virtual void onThemeChangeCompleted();
     /*! \reimp_end */
 
 private:
@@ -79,6 +89,9 @@ private:
     //! \brief Fetches optimum size image from MTheme to be used in MScalableImage.
     void fetchOptimumSizeButtonBackgrounds(QSize size);
 
+    //! \brief Update indicator backgrounds from current theme.
+    void updateIndicatorBackgrounds(const MScalableImage *normal, const MScalableImage *pressed);
+
     struct ButtonRow {
         QList<SingleWidgetButton*> buttons;
 
@@ -90,7 +103,7 @@ private:
         int offset;
         int cachedWidth; // includes left & right margin
     };
-    
+
     typedef QVector<ButtonRow> ButtonRowList;
     typedef ButtonRowList::iterator RowIterator;
     typedef ButtonRowList::const_iterator ConstRowIterator;
@@ -99,10 +112,10 @@ private:
     ButtonRowList rowList;
 
     //! Normal button backgrounds
-    MScalableImage keyBackgrounds[3];
+    MScalableImage keyBackgrounds[KeyBackgroundTypeCount];
 
     //! Special set of button backgrounds for sym state indicator.
-    const MScalableImage *symIndicatorBackgrounds[3];
+    const MScalableImage *symIndicatorBackgrounds[KeyBackgroundTypeCount];
 
     //! Current state of the sym indicator
     SymIndicatorState symState;

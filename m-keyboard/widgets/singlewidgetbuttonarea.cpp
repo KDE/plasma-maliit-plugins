@@ -98,12 +98,11 @@ void SingleWidgetButtonArea::fetchOptimumSizeButtonBackgrounds(QSize size)
     pixmap2 = MTheme::pixmap(style()->keyBackgroundPressedId(), defaultSize);
     pixmap3 = MTheme::pixmap(style()->keyBackgroundSelectedId(), defaultSize);
 
-    keyBackgrounds[0].setPixmap(pixmap1); // normal
-    keyBackgrounds[1].setPixmap(pixmap2); // pressed
-    keyBackgrounds[2].setPixmap(pixmap3); // selected
+    keyBackgrounds[NormalBackground].setPixmap(pixmap1);
+    keyBackgrounds[KeyPressedBackground].setPixmap(pixmap2);
+    keyBackgrounds[KeySelectedBackground].setPixmap(pixmap3);
 
-    // Border size 10 is suitable for all sane size buttons we're using.
-    for (int idx = 0; idx < 3; ++idx) {
+    for (int idx = 0; idx < KeyBackgroundTypeCount; ++idx) {
         keyBackgrounds[idx].setBorders(style()->keyBackgroundBorderLeft(),
                                        style()->keyBackgroundBorderRight(),
                                        style()->keyBackgroundBorderTop(),
@@ -554,37 +553,27 @@ ISymIndicator *SingleWidgetButtonArea::symIndicator()
 // ISymIndicator implementation
 void SingleWidgetButtonArea::activateSymIndicator()
 {
-    // Background for selected state is currently unused but is assigned the same
-    // background as the normal state.
-    const MScalableImage *bgImageNormal = style()->keyBackgroundSymIndicatorSym();
-    const MScalableImage *bgImagePressed = style()->keyBackgroundSymIndicatorSymPressed();
-    symIndicatorBackgrounds[0] = bgImageNormal;
-    symIndicatorBackgrounds[1] = bgImagePressed;
-    symIndicatorBackgrounds[2] = bgImageNormal;
-    update();
-
-    if (symState == SymIndicatorInactive) {
-        // We have changed the text. Sym has two-line text in active mode.
-        textDirty = true;
-    }
-    symState = AceActive;
-}
-
-// ISymIndicator implementation
-void SingleWidgetButtonArea::activateAceIndicator()
-{
-    const MScalableImage *bgImageNormal = style()->keyBackgroundSymIndicatorAce();
-    const MScalableImage *bgImagePressed = style()->keyBackgroundSymIndicatorAcePressed();
-    symIndicatorBackgrounds[0] = bgImageNormal;
-    symIndicatorBackgrounds[1] = bgImagePressed;
-    symIndicatorBackgrounds[2] = bgImageNormal;
-    update();
+    updateIndicatorBackgrounds(style()->keyBackgroundSymIndicatorSym(),
+                               style()->keyBackgroundSymIndicatorSymPressed());
 
     if (symState == SymIndicatorInactive) {
         // We have changed the text. Sym has two-line text in active mode.
         textDirty = true;
     }
     symState = SymActive;
+}
+
+// ISymIndicator implementation
+void SingleWidgetButtonArea::activateAceIndicator()
+{
+    updateIndicatorBackgrounds(style()->keyBackgroundSymIndicatorAce(),
+                               style()->keyBackgroundSymIndicatorAcePressed());
+
+    if (symState == SymIndicatorInactive) {
+        // We have changed the text. Sym has two-line text in active mode.
+        textDirty = true;
+    }
+    symState = AceActive;
 }
 
 // ISymIndicator implementation
@@ -598,3 +587,28 @@ void SingleWidgetButtonArea::deactivateIndicator()
     }
 }
 
+void SingleWidgetButtonArea::updateIndicatorBackgrounds(const MScalableImage *normal, const MScalableImage *pressed)
+{
+    // Use same image for all button states for now. Some different graphics may
+    // be introduced later for the intermediate step between sym and ace modes.
+    // while holding button down.
+    symIndicatorBackgrounds[NormalBackground] = normal;
+    symIndicatorBackgrounds[KeyPressedBackground] = pressed;
+    symIndicatorBackgrounds[KeySelectedBackground] = normal;
+    update();
+}
+
+void SingleWidgetButtonArea::onThemeChangeCompleted()
+{
+    KeyButtonArea::onThemeChangeCompleted();
+
+    if (symState == SymActive) {
+        updateIndicatorBackgrounds(style()->keyBackgroundSymIndicatorSym(),
+                                   style()->keyBackgroundSymIndicatorSymPressed());
+    } else if (symState == AceActive) {
+        updateIndicatorBackgrounds(style()->keyBackgroundSymIndicatorAce(),
+                                   style()->keyBackgroundSymIndicatorAcePressed());
+    }
+
+    buildTextLayout();
+}
