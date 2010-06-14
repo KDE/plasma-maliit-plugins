@@ -15,6 +15,7 @@
  */
 
 #include "mtoolbarbutton.h"
+#include "mtoolbarbuttonview.h"
 #include <mtoolbaritem.h>
 #include <MButton>
 #include <QFileInfo>
@@ -28,6 +29,8 @@ MToolbarButton::MToolbarButton(QSharedPointer<MToolbarItem> item,
       sizePercent(100),
       itemPtr(item)
 {
+    setView(new MToolbarButtonView(this));
+
     if (!item->iconId().isEmpty()){
         setIconID(item->iconId());
     } else {

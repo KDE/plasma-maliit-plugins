@@ -289,8 +289,8 @@ MVirtualKeyboardStyle.Landscape {
     maximum-size: 414 56;
 }
 
-#VirtualKeyboardToolbarButton {
-    background-image: "keyboard-toolbar-button-background" 10px 10px 10px 10px;
+MToolbarButtonStyle {
+    background-image: "meegotouch-keyboard-toolbar-button" 10px 10px 10px 10px;
     margin-left: 0;
     margin-right: 0;
     margin-top: 0;
@@ -303,12 +303,12 @@ MVirtualKeyboardStyle.Landscape {
     reactive-margin-bottom: 5;
 }
 
-#VirtualKeyboardToolbarButton:pressed {
-    background-image: "keyboard-toolbar-button-background-pressed" 10px 10px 10px 10px;
+MToolbarButtonStyle:pressed {
+    background-image: "meegotouch-keyboard-toolbar-button-pressed" 10px 10px 10px 10px;
 }
 
-#VirtualKeyboardToolbarButton:selected {
-    background-image: "keyboard-toolbar-button-background-pressed" 10px 10px 10px 10px;
+MToolbarButtonStyle:selected {
+    background-image: "meegotouch-keyboard-toolbar-button-selected" 10px 10px 10px 10px;
 }
 
 WidgetBarStyle {

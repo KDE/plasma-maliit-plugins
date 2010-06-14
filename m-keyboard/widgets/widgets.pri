@@ -11,6 +11,7 @@ STYLE_HEADERS += \
     $$WIDGETS_DIR/flickupbuttonstyle.h \
     $$WIDGETS_DIR/mvirtualkeyboardstyle.h \
     $$WIDGETS_DIR/handlestyle.h \
+    $$WIDGETS_DIR/mtoolbarbuttonstyle.h \
 
 HEADERS += \
     $$STYLE_HEADERS \
@@ -34,6 +35,7 @@ HEADERS += \
     $$WIDGETS_DIR/popupfactory.h \
     $$WIDGETS_DIR/popupplugin.h \
     $$WIDGETS_DIR/mtoolbarbutton.h \
+    $$WIDGETS_DIR/mtoolbarbuttonview.h \
     $$WIDGETS_DIR/mtoolbarlabel.h \
     $$WIDGETS_DIR/handle.h \
     $$WIDGETS_DIR/grip.h \
@@ -60,6 +62,7 @@ SOURCES += \
     $$WIDGETS_DIR/popupbase.cpp \
     $$WIDGETS_DIR/popupfactory.cpp \
     $$WIDGETS_DIR/mtoolbarbutton.cpp \
+    $$WIDGETS_DIR/mtoolbarbuttonview.cpp \
     $$WIDGETS_DIR/mtoolbarlabel.cpp \
     $$WIDGETS_DIR/handle.cpp \
     $$WIDGETS_DIR/grip.cpp \
