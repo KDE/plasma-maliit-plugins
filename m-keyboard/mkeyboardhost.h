@@ -67,6 +67,9 @@ public:
                                  quint32 nativeScanCode, quint32 nativeModifiers);
     virtual void clientChanged();
     virtual void switchContext(M::InputMethodSwitchDirection direction, bool enableAnimation);
+    virtual QList<MInputMethodBase::MInputMethodSubView> subViews(MIMHandlerState state = OnScreen) const;
+    virtual void setActiveSubView(const QString &, MIMHandlerState state = OnScreen);
+    virtual QString activeSubView(MIMHandlerState state = OnScreen) const;
     //! reimp_end
 
 private slots:
@@ -122,9 +125,6 @@ private slots:
      */
     virtual void sendCopyPaste(CopyPasteState action);
 
-    //! initialize input engine
-    void initializeInputEngine();
-
     /*! Receive region updates from widgets, combine them and signal as input method's region
      * using \a MInputMethodBase::regionUpdated.
      *
@@ -166,6 +166,9 @@ private slots:
 
     //! hide FN/Caps Lock infobanner
     void hideLockOnInfoBanner(bool updateRegion = true);
+
+    //! Handle active layout is changed to \a layout
+    void handleLayoutChanged(const QString &layout);
 
 private:
     void createCorrectionCandidateWidget();
@@ -216,6 +219,9 @@ private:
      */
     static QRegion combineRegionTo(RegionMap &regionStore,
                                    const QRegion &region, const QObject &widget);
+
+    //! initialize input engine
+    void initializeInputEngine();
 
 private:
     QString preedit;

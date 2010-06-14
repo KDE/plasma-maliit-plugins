@@ -199,7 +199,7 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
             this, SLOT(handleKeyRelease(const KeyEvent &)));
 
     connect(vkbWidget, SIGNAL(languageChanged(const QString &)),
-            symbolView, SLOT(setLanguage(const QString &)));
+            this, SLOT(handleLayoutChanged(const QString &)));
 
     connect(vkbWidget, SIGNAL(shiftLevelChanged()),
             this, SLOT(updateSymbolViewLevel()));
@@ -225,9 +225,6 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
             initializeInputEngine();
             connect(inputMethodCorrectionSettings, SIGNAL(valueChanged()),
                     this, SLOT(synchronizeCorrectionSetting()));
-
-            connect(vkbWidget, SIGNAL(languageChanged(const QString &)),
-                    this, SLOT(initializeInputEngine()));
         } else {
             qDebug() << __PRETTY_FUNCTION__ << "Failed to load correction engine"
                      << inputMethodCorrectionEngine->value().toString();
@@ -1350,4 +1347,48 @@ void MKeyboardHost::hideLockOnInfoBanner(bool updateRegion)
     if (updateRegion) {
         emit regionUpdated(combineRegionTo(widgetRegions, QRegion(), *this));
     }
+}
+
+QList<MInputMethodBase::MInputMethodSubView> MKeyboardHost::subViews(MIMHandlerState state) const
+{
+    QList<MInputMethodBase::MInputMethodSubView> sViews;
+    if (state == OnScreen) {
+        QMap<QString, QString> selectedLayouts = LayoutsManager::instance().selectedLayouts();
+        QMap<QString, QString>::const_iterator i = selectedLayouts.constBegin();
+        while (i != selectedLayouts.constEnd()) {
+            MInputMethodBase::MInputMethodSubView subView;
+            subView.subViewId = i.key();
+            subView.subViewTitle = i.value();
+            sViews.append(subView);
+            ++i;
+        }
+    }
+    return sViews;
+}
+
+void MKeyboardHost::setActiveSubView(const QString &subViewId, MIMHandlerState state)
+{
+    if (state == OnScreen) {
+        const QStringList languageList = LayoutsManager::instance().languageList();
+        int index = languageList.indexOf(subViewId);
+        vkbWidget->setLanguage(index);
+    }
+}
+
+QString MKeyboardHost::activeSubView(MIMHandlerState state) const
+{
+    if (state == OnScreen) {
+        // return the title of the active layout
+        return vkbWidget->layoutLanguage();
+    } else {
+        return QString();
+    }
+}
+
+void MKeyboardHost::handleLayoutChanged(const QString &layout)
+{
+    if (symbolView)
+        symbolView ->setLanguage(layout);
+    initializeInputEngine();
+    emit activeSubViewChanged(layout);
 }
