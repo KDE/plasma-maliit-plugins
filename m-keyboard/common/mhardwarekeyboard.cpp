@@ -28,6 +28,8 @@
 #undef KeyPress
 #undef KeyRelease
 #include <X11/XKBlib.h>
+#define XK_MISCELLANY
+#include <X11/keysymdef.h>
 
 #define ELEMENTS(array) (sizeof(array)/sizeof((array)[0]))
 
@@ -39,6 +41,9 @@ namespace
     const unsigned int SymModifierMask = Mod4Mask;
     const unsigned int FnModifierMask = Mod5Mask;
     const unsigned int longPressTime = 600; // in milliseconds
+
+    const unsigned short RepeatDelay(660);   // in milliseconds
+    const unsigned short RepeatInterval(25); // in milliseconds
 };
 
 MHardwareKeyboard::MHardwareKeyboard(MInputContextConnection& icConnection, QObject *parent)
@@ -97,12 +102,67 @@ M::TextContentType MHardwareKeyboard::keyboardType() const
 }
 
 
+void MHardwareKeyboard::toggleCustomAutoRepeat(const bool enable)
+{
+    XkbDescPtr description(XkbAllocKeyboard());
+    if (!description) {
+        qWarning() << "Unable to allocate Xkb keyboard description for autorepeat setup.";
+        return;
+    }
+
+    const unsigned int neededControls(XkbRepeatKeysMask | XkbPerKeyRepeatMask);
+    if (Success != XkbGetControls(QX11Info::display(), neededControls, description)) {
+        qWarning() << "Failure to query Xkb server controls for autorepeat setup.";
+        XkbFreeKeyboard(description, 0, True);
+        return;
+    }
+
+    if (!description->ctrls) {
+        qWarning() << "Unable to query Xkb server controls for autorepeat setup.";
+        XkbFreeKeyboard(description, 0, True);
+        return;
+    }
+
+    if (False == XkbChangeEnabledControls(QX11Info::display(), XkbUseCoreKbd,
+                                          XkbRepeatKeysMask, XkbRepeatKeysMask)) {
+        qWarning() << "Unable to enable controls for autorepeat.";
+        XkbFreeKeyboard(description, 0, True);
+        return;
+    }
+
+    description->ctrls->repeat_delay = RepeatDelay;
+    description->ctrls->repeat_interval = RepeatInterval;
+
+    std::fill(description->ctrls->per_key_repeat,
+              description->ctrls->per_key_repeat + XkbPerKeyBitArraySize, enable ? 0 : 0xff);
+
+    if (enable) {
+        static const KeySym repeatableKeys[] = { XK_BackSpace, XK_Left, XK_Up, XK_Right, XK_Down };
+
+        for (unsigned int i = 0; i < ELEMENTS(repeatableKeys); ++i) {
+            const KeyCode repeatableKeyCode(XKeysymToKeycode(QX11Info::display(), repeatableKeys[i]));
+            if (repeatableKeyCode) {
+                description->ctrls->per_key_repeat[repeatableKeyCode >> 3] |= 1 << (repeatableKeyCode & 7);
+            } else {
+                qWarning() << "Unable to make keysym" << repeatableKeys[i] << "repeatable: no keycode found.";
+            }
+        }
+    }
+
+    if (False == XkbSetControls(QX11Info::display(), neededControls, description)) {
+        qWarning() << "Unable to set Xkb server controls for autorepeat setup.";
+    }
+
+    XkbFreeKeyboard(description, 0, True);
+
+    inputContextConnection.setDetectableAutoRepeat(enable);
+}
+
 void MHardwareKeyboard::enable()
 {
     qDebug() << __PRETTY_FUNCTION__;
 
-    // TODO: this is a temporary hack until we have proper autorepeat setup
-    XAutoRepeatOff(QX11Info::display());
+    toggleCustomAutoRepeat(true);
 
     shiftShiftCapsLock = false;
     shiftsPressed = 0;
@@ -146,7 +206,8 @@ void MHardwareKeyboard::disable()
     // physical keyboard.  So better clear the state a well as we can.
     lockModifiers(LockMask | FnModifierMask, 0);
     latchModifiers(ShiftMask | FnModifierMask, 0);
-    XAutoRepeatOn(QX11Info::display());
+
+    toggleCustomAutoRepeat(false);
 }
 
 

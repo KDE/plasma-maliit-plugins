@@ -154,3 +154,7 @@ void MInputContextStubConnection::setRedirectKeys(bool enabled)
 {
     keyRedirectionEnabled = enabled;
 }
+
+void MInputContextStubConnection::setDetectableAutoRepeat(bool /*enabled*/)
+{
+}

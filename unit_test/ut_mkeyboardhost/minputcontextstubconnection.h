@@ -50,6 +50,7 @@ public:
 
     virtual bool surroundingText(QString &text, int &cursorPosition);
     virtual void setRedirectKeys(bool enabled);
+    virtual void setDetectableAutoRepeat(bool enabled);
 
     QString preedit;
     QString commit;

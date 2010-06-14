@@ -74,6 +74,10 @@ public:
     {
     }
 
+    virtual void setDetectableAutoRepeat(bool /* enabled */)
+    {
+    }
+
     virtual void setGlobalCorrectionEnabled(bool)
     {
     }

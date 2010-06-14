@@ -213,6 +213,18 @@ private:
                           const QString &text,
                           quint32 nativeScanCode, quint32 nativeModifiers);
 
+
+    //! \brief Toggle custom autorepeat if \a enable is true, disable it otherwise
+    //!
+    //! Custom autorepeat means that only backspace and arrow keys have autorepeat
+    //! functionality.  This also sets hardwired key repeat rate and delay and enables
+    //! detectable autorepeat (see \a MInputContextConnection::setDetectableAutoRepeat).
+    //!
+    //! Note: this doesn't aim to save and restore autorepeat configuration.  With false
+    //! parameter autorepeat is simply enabled for all keys and detectable autorepeat is
+    //! disabled.
+    void toggleCustomAutoRepeat(bool enable);
+
     M::TextContentType currentKeyboardType;
     MXkb mXkb;
     bool autoCaps;
