@@ -764,11 +764,11 @@ void MKeyboardHost::updateReactionMaps()
     }
 
     // Draw the reactive areas of first one of these who is visible.
-    if (correctionCandidateWidget->isVisible()) {
+    if (correctionCandidateWidget && correctionCandidateWidget->isVisible()) {
         correctionCandidateWidget->redrawReactionMaps();
-    } else if (symbolView->isFullyVisible()) {
+    } else if (symbolView && symbolView->isFullyVisible()) {
         symbolView->redrawReactionMaps();
-    } else if (vkbWidget->isFullyVisible()) {
+    } else if (vkbWidget && vkbWidget->isFullyVisible()) {
         vkbWidget->redrawReactionMaps();
     } else {
         // Transparent reaction map when nothing is shown.
