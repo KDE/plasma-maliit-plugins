@@ -77,6 +77,7 @@ FlickUpButtonStyle:selected {
 /* End of FlickUpButton related styling */
 
 #VirtualKeyboardSymTabs {
+    /* id missing or needs renaming? */
     background-image: "keyboard-tabs-background" 10px 10px 10px 10px;
 }
 
@@ -91,15 +92,17 @@ FlickUpButtonStyle:selected {
     margin-right: 0;
     margin-top: 0;
     margin-bottom: 0;
+    /* id missing or needs renaming? */
     background-image: "keyboard-tab-optional" 10px 10px 10px 10px;
 }
 
 #VirtualKeyboardSymTabsButton:selected {
+    /* id missing or needs renaming? */
     background-image: "keyboard-tab-active" 10px 10px 10px 10px;
 }
 
 MVirtualKeyboardStyle {
-    background-image: "keyboard-background" 10px 10px 10px 10px;
+    background-image: "meegotouch-keyboard-background" 10px 10px 10px 10px;
     font: "Nokia Sans Light" 24;
     font-opacity: 0.9;
     font-color: #FFFFFF;
@@ -119,7 +122,7 @@ MVirtualKeyboardStyle {
     notification-text-color: #FFFFFF;
     notification-opacity: 0.9;
 
-    toolbar-background-image: "keyboard-toolbar-background" 10px 10px 10px 10px;
+    toolbar-background-image: "meegotouch-keyboard-toolbar-background" 10px 10px 10px 10px;
 
     releaseFeedback: ;
     pressFeedback: ;
@@ -130,12 +133,8 @@ MVirtualKeyboardStyle {
     key-background-border-top: 10;
     key-background-border-bottom: 10;
 
-    key-background-id: "keyboard-key";
-    key-background-pressed-id: "keyboard-key-pressed";
-    key-background-selected-id: "keyboard-key-selected";
-
+    key-backspace-icon-id: "icon-m-input-methods-backspace";
     key-backspace-icon-size: 48 48;
-    key-backspace-icon-id: "icon-m-common-backspace";
 
     key-menu-icon-size: 48 48;
     key-menu-icon-id: "icon-m-input-methods-menu";
@@ -163,7 +162,12 @@ MVirtualKeyboardStyle.Portrait {
     menu-size: 470 342;
 
     /* Single widget keyboard button styling */
+    key-background-id: "meegotouch-keyboard-key-portrait";
+    key-background-pressed-id: "meegotouch-keyboard-key-pressed-portrait";
+    key-background-selected-id: "meegotouch-keyboard-key-selected-portrait";
+
     key-normal-size: 4.4mm 8mm;
+
     key-phone-number-normal-size: 15.3mm 8mm;
     key-function-normal-size: 8mm 8mm;
     key-function-large-size: 8mm 8mm;
@@ -171,10 +175,10 @@ MVirtualKeyboardStyle.Portrait {
     key-sym-normal-size: 7.5mm 8mm;
     /* End of single widget keyboard button styling */
 
-    key-background-sym-indicator-sym: "keyboard-key-sym-selected-portrait";
-    key-background-sym-indicator-ace: "keyboard-key-ace-selected-portrait";
-    key-background-sym-indicator-sym-pressed: "keyboard-key-sym-pressed-portrait";
-    key-background-sym-indicator-ace-pressed: "keyboard-key-ace-pressed-portrait";
+    key-background-sym-indicator-sym: "meegotouch-keyboard-key-sym-selected-portrait";
+    key-background-sym-indicator-ace: "meegotouch-keyboard-key-ace-selected-portrait";
+    key-background-sym-indicator-sym-pressed: "meegotouch-keyboard-key-sym-pressed-portrait";
+    key-background-sym-indicator-ace-pressed: "meegotouch-keyboard-key-ace-pressed-portrait";
 }
 
 MVirtualKeyboardStyle.Landscape {
@@ -192,8 +196,12 @@ MVirtualKeyboardStyle.Landscape {
     menu-size: 790 342;
 
     /* Single widget keyboard button styling */
-    key-normal-size: 8.2mm 6.2mm;
-/* 8.2mm 5.6mm; */
+    key-background-id: "meegotouch-keyboard-key-landscape";
+    key-background-pressed-id: "meegotouch-keyboard-key-pressed-landscape";
+    key-background-selected-id: "meegotouch-keyboard-key-selected-landscape";
+
+    key-normal-size: 8.2mm 5.6mm;
+
     key-phone-number-normal-size: 8.2mm 8.4mm;
     key-function-normal-size: 8.2mm 5.6mm;
     key-function-large-size: 12.4mm 5.6mm;
@@ -201,10 +209,10 @@ MVirtualKeyboardStyle.Landscape {
     key-sym-normal-size: 8.2mm 5.6mm;
     /* End of single widget keyboard button styling */
 
-    key-background-sym-indicator-sym: "keyboard-key-sym-selected-landscape";
-    key-background-sym-indicator-ace: "keyboard-key-ace-selected-landscape";
-    key-background-sym-indicator-sym-pressed: "keyboard-key-sym-pressed-landscape";
-    key-background-sym-indicator-ace-pressed: "keyboard-key-ace-pressed-landscape";
+    key-background-sym-indicator-sym: "meegotouch-keyboard-key-sym-selected-landscape";
+    key-background-sym-indicator-ace: "meegotouch-keyboard-key-ace-selected-landscape";
+    key-background-sym-indicator-sym-pressed: "meegotouch-keyboard-key-sym-pressed-landscape";
+    key-background-sym-indicator-ace-pressed: "meegotouch-keyboard-key-ace-pressed-landscape";
 }
 
 #InvisibleHandle.Portrait {
@@ -219,29 +227,33 @@ MVirtualKeyboardStyle.Landscape {
     maximum-size:   864 2.5mm;
 }
 
+#KeyboardToolbarHandle {
+    background-image: "meegotouch-keyboard-handle-background";
+}
+
 #KeyboardToolbarHandle.Portrait {
-    background-image: "keyboard-handle-portrait";
     preferred-size: 480 0.6mm;
     minimum-size: 480 0.6mm;
     maximum-size: 480 0.6mm;
 }
 
 #KeyboardToolbarHandle.Landscape {
-    background-image: "keyboard-handle-landscape";
     preferred-size: 864 0.6mm;
     minimum-size: 480 0.6mm;
     maximum-size: 864 0.6mm;
 }
 
+#KeyboardHandle {
+    background-image: "meegotouch-keyboard-handle-background";
+}
+
 #KeyboardHandle.Landscape {
-    background-image: "keyboard-handle-landscape";
     preferred-size: 864 0.6mm;
     minimum-size: 480 0.6mm;
     maximum-size: 864 0.6mm;
 }
 
 #KeyboardHandle.Portrait {
-    background-image: "keyboard-handle-portrait";
     preferred-size: 480 0.6mm;
     minimum-size: 480 0.6mm;
     maximum-size: 480 0.6mm;
