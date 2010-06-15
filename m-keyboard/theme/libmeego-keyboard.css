@@ -125,16 +125,15 @@ MVirtualKeyboardStyle {
     pressFeedback: ;
 
     /* Single widget keyboard button styling */
+    key-background-border-left: 10;
+    key-background-border-right: 10;
+    key-background-border-top: 10;
+    key-background-border-bottom: 10;
 
     key-background-id: "keyboard-key";
     key-background-pressed-id: "keyboard-key-pressed";
     key-background-selected-id: "keyboard-key-selected";
-    key-background-border: 20; 
-/*
-    key-background-id: "keyboard-key-background" 10px 10px 10px 10px;
-    key-background-pressed-id: "keyboard-key-background-pressed" 10px 10px 10px 10px;
-    key-background-selected-id: "keyboard-key-background-selected" 10px 10px 10px 10px;
-*/
+
     key-backspace-icon-size: 48 48;
     key-backspace-icon-id: "icon-m-common-backspace";
 

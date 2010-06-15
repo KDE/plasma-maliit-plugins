@@ -103,10 +103,12 @@ void SingleWidgetButtonArea::fetchOptimumSizeButtonBackgrounds(QSize size)
     keyBackgrounds[2].setPixmap(pixmap3); // selected
 
     // Border size 10 is suitable for all sane size buttons we're using.
-    const int border = 10;
-    keyBackgrounds[0].setBorders(border, border, border, border);
-    keyBackgrounds[1].setBorders(border, border, border, border);
-    keyBackgrounds[2].setBorders(border, border, border, border);
+    for (int idx = 0; idx < 3; ++idx) {
+        keyBackgrounds[idx].setBorders(style()->keyBackgroundBorderLeft(),
+                                       style()->keyBackgroundBorderRight(),
+                                       style()->keyBackgroundBorderTop(),
+                                       style()->keyBackgroundBorderBottom());
+    }
 }
 
 SingleWidgetButtonArea::~SingleWidgetButtonArea()
@@ -545,7 +547,7 @@ QRectF SingleWidgetButtonArea::boundingRect() const
 
 ISymIndicator *SingleWidgetButtonArea::symIndicator()
 {
-	return this;
+    return this;
 }
 
 // ISymIndicator implementation
