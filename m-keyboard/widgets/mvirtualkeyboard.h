@@ -161,8 +161,6 @@ public:
      */
     void hideToolbarWidget();
 
-    QRegion region(bool notJustMainKeyboardArea = true, bool includeExtraInteractiveAreas = false) const;
-
     /*!
      * \brief Shows or hides some keyboard's widgets depending on keyboard state.
      * OnScreen requires to show all keyboard components.
@@ -190,6 +188,9 @@ public:
 
     //! Set input method mode
     void setInputMethodMode(M::InputMethodMode mode);
+
+    //! Return bounding rectangle of main keyboard area in scene coordinates
+    QRect mainAreaSceneRect() const;
 
 public slots:
     /*!
@@ -371,6 +372,20 @@ signals:
 private:
     //! Getter for style container
     const MVirtualKeyboardStyleContainer &style() const;
+
+    /*!
+     * \brief Calculate region occupied by keyboard.
+     * \param notJustMainKeyboardArea Set this param to true if you want to include toolbar into region.
+     * \param includeExtraInteractiveAreas Set this param to true if you want to include transparent
+     * interactive area into region
+     */
+    QRegion region(bool notJustMainKeyboardArea = true,
+                   bool includeExtraInteractiveAreas = false) const;
+
+    /*!
+     * \brief Maps \a offset to scene coordinate.
+     */
+    QPoint mapOffsetToScene(QPointF offset);
 
     const LayoutData *currentLayoutModel() const;
 

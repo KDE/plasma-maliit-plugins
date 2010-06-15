@@ -383,11 +383,11 @@ void MVirtualKeyboard::showKeyboard(bool fadeOnly)
     if (showHideTimeline.state() != QTimeLine::Running) {
         hideShowByFadingOnly = fadeOnly;
 
-        int regionOffset(0);
+        QPoint regionOffset(0, 0);
         if (!fadeOnly) {
             // vkb is positioned right below the visible area
             setPos(0, sceneManager->visibleSceneSize().height());
-            regionOffset = -actualHeight();
+            regionOffset.setY(-actualHeight());
         } else {
             setPos(0, sceneManager->visibleSceneSize().height() - actualHeight());
         }
@@ -406,8 +406,9 @@ void MVirtualKeyboard::showKeyboard(bool fadeOnly)
         // the same as the one we send now.  We do this initial region sending after
         // show() so that we can use region().  We cannot use sendVKBRegion() since region
         // updates are suppressed and because we want to apply the offset.
-        emit regionUpdated(region(true, true).translated(0, regionOffset));
-        emit inputMethodAreaUpdated(region().translated(0, regionOffset));
+        regionOffset = mapOffsetToScene(regionOffset);
+        emit regionUpdated(region(true, true).translated(regionOffset));
+        emit inputMethodAreaUpdated(region(true, false).translated(regionOffset));
     } else if (hideShowByFadingOnly) {
         // fade() doesn't alter the position when we're just fading
         setPos(0, sceneManager->visibleSceneSize().height() - actualHeight());
@@ -553,13 +554,14 @@ void MVirtualKeyboard::sendVKBRegion()
         return;
 
     emit regionUpdated(region(true, true));
-    emit inputMethodAreaUpdated(region());
+    emit inputMethodAreaUpdated(region(true, false));
 }
 
 QRegion MVirtualKeyboard::region(const bool notJustMainKeyboardArea,
                                  const bool includeExtraInteractiveAreas) const
 {
     QRegion region;
+    QRectF rect;
 
     if (isVisible()) {
         imToolbar->layout()->activate();
@@ -571,15 +573,38 @@ QRegion MVirtualKeyboard::region(const bool notJustMainKeyboardArea,
         // Main keyboard area (qwerty/number/etc.)
         if (activeState == OnScreen) {
             mainLayout->activate();
-            qDebug() << __PRETTY_FUNCTION__ << mainLayout->itemAt(KeyboardIndex)->geometry();
-            region |= mapRectToScene(mainLayout->itemAt(KeyboardIndex)->geometry()).toRect();
+            rect = mainLayout->itemAt(KeyboardIndex)->geometry();
+            region |= mapRectToScene(rect).toRect();
             if (notJustMainKeyboardArea) {
-                region |= mapRectToScene(mainLayout->itemAt(KeyboardHandleIndex)->geometry()).toRect();
+                rect = mainLayout->itemAt(KeyboardHandleIndex)->geometry();
+                region |= mapRectToScene(rect).toRect();
             }
         }
     }
 
     return region;
+}
+
+QPoint MVirtualKeyboard::mapOffsetToScene(QPointF offset)
+{
+    QPointF startingPoint(mapToScene(QPointF(0, 0)));
+
+    offset = mapToScene(offset);
+
+    return QPoint(offset.x() - startingPoint.x(),
+                  offset.y() - startingPoint.y());
+}
+
+
+QRect MVirtualKeyboard::mainAreaSceneRect() const
+{
+    QRect result;
+
+    if (activeState == OnScreen) {
+        result = region(false, false).boundingRect();
+    }
+
+    return result;
 }
 
 void MVirtualKeyboard::setKeyboardState(MIMHandlerState newState)
