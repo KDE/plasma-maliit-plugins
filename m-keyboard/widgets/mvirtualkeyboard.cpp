@@ -118,11 +118,13 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
     createToolbar();
 
     sharedHandleArea = new SharedHandleArea(*imToolbar);
+    sharedHandleArea->setZValue(-1); // popup should be on top of sharedHandleArea
     connect(sharedHandleArea, SIGNAL(regionUpdated()), this, SLOT(organizeContentAndSendRegion()));
     mainLayout->addItem(sharedHandleArea);
     connectHandle(*sharedHandleArea);
 
     Grip &keyboardGrip = *new Grip(this);
+    keyboardGrip.setZValue(-1); // popup should be on top of keyboardGrip
     keyboardGrip.setObjectName("KeyboardHandle");
     mainLayout->addItem(&keyboardGrip);
     connectHandle(keyboardGrip);
