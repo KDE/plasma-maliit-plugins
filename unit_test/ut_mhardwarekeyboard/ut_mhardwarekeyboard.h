@@ -57,6 +57,8 @@ private slots:
     void testSymPlusCharSwitchs();
 
     void testReleaseEvents();
+    void testDelete_data();
+    void testDelete();
 
 private:
     bool checkLatchedState(unsigned int mask, unsigned int value) const;

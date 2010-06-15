@@ -689,4 +689,43 @@ void Ut_MHardwareKeyboard::testReleaseEvents()
     QCOMPARE(inputContextConnection->lastKeyEvent().text(), QString("\b"));
 }
 
+
+void Ut_MHardwareKeyboard::testDelete_data()
+{
+    QTest::addColumn<int>("state");
+    QTest::newRow("Clear") << 0;
+    QTest::newRow("Shift latched") << 1;
+    QTest::newRow("Shift locked") << 2;
+    QTest::newRow("Fn latched") << 4;
+    QTest::newRow("Fn locked") << 5;
+}
+
+void Ut_MHardwareKeyboard::testDelete()
+{
+    QFETCH(int, state);
+
+    setState(state);
+
+    // Native and Qt modifiers (except for Qt::ShiftModifier) in all of the
+    // following filterKey* calls don't match the reality.
+
+    filterKeyPress(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, 0);
+
+    QVERIFY(filterKeyPress(Qt::Key_Delete, Qt::ShiftModifier, "\177", KeycodeCharacter, 0));
+    QCOMPARE(inputContextConnection->keyEventsSent(), static_cast<unsigned int>(1));
+    QCOMPARE(inputContextConnection->lastKeyEvent().type(), QEvent::KeyPress);
+    QCOMPARE(inputContextConnection->lastKeyEvent().key(), static_cast<int>(Qt::Key_Delete));
+    QCOMPARE(inputContextConnection->lastKeyEvent().modifiers(), Qt::NoModifier);
+    QCOMPARE(inputContextConnection->lastKeyEvent().text(), QString("\177"));
+
+    QVERIFY(filterKeyRelease(Qt::Key_Delete, Qt::ShiftModifier, "\177", KeycodeCharacter, 0));
+    QCOMPARE(inputContextConnection->keyEventsSent(), static_cast<unsigned int>(2));
+    QCOMPARE(inputContextConnection->lastKeyEvent().type(), QEvent::KeyRelease);
+    QCOMPARE(inputContextConnection->lastKeyEvent().key(), static_cast<int>(Qt::Key_Delete));
+    QCOMPARE(inputContextConnection->lastKeyEvent().modifiers(), Qt::NoModifier);
+    QCOMPARE(inputContextConnection->lastKeyEvent().text(), QString("\177"));
+
+    filterKeyRelease(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, 0);
+}
+
 QTEST_APPLESS_MAIN(Ut_MHardwareKeyboard);
