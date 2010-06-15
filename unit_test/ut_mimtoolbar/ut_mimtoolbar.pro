@@ -20,4 +20,8 @@ HEADERS += ut_mimtoolbar.h \
 SOURCES += ut_mimtoolbar.cpp \
            ../stubs/fakegconf.cpp
 
+target.files += \
+           $$TARGET \
+           testtoolbar.xml \
+
 include(../common_check.pri)

@@ -48,7 +48,7 @@
 Q_DECLARE_METATYPE(CopyPasteState);
 namespace
 {
-    QString ToolbarFileName = QDir::currentPath() + "/testtoolbar.xml";
+    QString ToolbarFileName = "/testtoolbar.xml";
 
     int indexOf(const QGraphicsLayout *layout, const QGraphicsLayoutItem *item)
     {
@@ -93,6 +93,9 @@ void Ut_MImToolbar::initTestCase()
     style->initialize("MVirtualKeyboard", "MVirtualKeyboardView", 0);
 
     new MPlainWindow; // Create singleton
+
+    ToolbarFileName = QCoreApplication::applicationDirPath() + ToolbarFileName;
+    QVERIFY(QFile::exists(ToolbarFileName));
 }
 
 void Ut_MImToolbar::init()
