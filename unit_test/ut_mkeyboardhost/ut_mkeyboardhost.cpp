@@ -847,18 +847,21 @@ void Ut_MKeyboardHost::testSetStateCombination()
 void Ut_MKeyboardHost::testSymbolKeyClick()
 {
     QVERIFY(subject->symbolView);
+
+    // Symbol view is toggled by clicking the Sym button.
+
+    // Initially symbol view is closed.
     QVERIFY(!subject->symbolView->isActive());
-    //symbol key click will active symbol view and switch the pages
-    int currentPageIndex;
-    for (int i = 0; i < subject->symbolView->pageCount(); i++) {
+    bool symOpenExpected = false;
+
+    for (int clicks = 1; clicks <= 3; ++clicks) {
         subject->handleSymbolKeyClick();
-        QVERIFY(subject->symbolView->isActive());
-        currentPageIndex = subject->symbolView->currentPage();
-        QCOMPARE(currentPageIndex, i);
+
+        const bool symOpen = subject->symbolView->isActive();
+        symOpenExpected = !symOpenExpected;
+
+        QCOMPARE(symOpen, symOpenExpected);
     }
-    //if reach the last page, then symbol view will be closed
-    subject->handleSymbolKeyClick();
-    QVERIFY(!subject->symbolView->isActive());
 }
 
 void Ut_MKeyboardHost::testUpdateSymbolViewLevel()

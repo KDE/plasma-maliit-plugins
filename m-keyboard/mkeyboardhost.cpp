@@ -1248,22 +1248,18 @@ void MKeyboardHost::setState(const QSet<MIMHandlerState> &state)
 
 void MKeyboardHost::handleSymbolKeyClick()
 {
-    if (!symbolView->isActive()) {
+    if (((activeState == Hardware) && !hardwareKeyboard->symViewAvailable())
+        || !vkbWidget->symViewAvailable()) {
+        return;
+    }
 
-        if ((activeState == Hardware) && !hardwareKeyboard->symViewAvailable()) {
-            return;
-        } else if (!vkbWidget->symViewAvailable()) {
-            return;
-        }
+    // Toggle SymbolView.
+    if (!symbolView->isActive()) {
         symbolView->showSymbolView();
         //give the symbolview right shift level(for hardware state)
         updateSymbolViewLevel();
     } else {
-        if (symbolView->currentPage() < (symbolView->pageCount() - 1)) {
-            symbolView->switchToNextPage();
-        } else {
-            symbolView->hideSymbolView();
-        }
+        symbolView->hideSymbolView();
     }
 }
 
