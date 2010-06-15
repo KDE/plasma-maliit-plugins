@@ -76,6 +76,8 @@ private slots:
     void testReleaseShift_data();
     void testReleaseShift();
 
+    void testCommitPreeditOnStateChange();
+
 private:
     void rotateToAngle(M::OrientationAngle);
 };

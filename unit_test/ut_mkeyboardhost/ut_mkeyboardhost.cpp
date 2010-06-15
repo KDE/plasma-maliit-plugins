@@ -1093,5 +1093,15 @@ void Ut_MKeyboardHost::testReleaseShift()
     QVERIFY(subject->vkbWidget->shiftStatus() == expectedShiftState);
 }
 
+void Ut_MKeyboardHost::testCommitPreeditOnStateChange()
+{
+    const QString text("fish");
+    subject->setPreedit(text);
+    QSet<MIMHandlerState> state;
+    state << Hardware;
+    subject->setState(state);
+    QCOMPARE(inputContext->commit, text);
+}
+
 QTEST_APPLESS_MAIN(Ut_MKeyboardHost);
 

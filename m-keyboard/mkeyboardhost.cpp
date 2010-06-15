@@ -1214,6 +1214,10 @@ void MKeyboardHost::setState(const QSet<MIMHandlerState> &state)
     if (activeState == actualState)
         return;
 
+    if ((activeState == OnScreen) && (correctedPreedit.length() > 0)) {
+        inputContextConnection()->sendCommitString(correctedPreedit);
+    }
+
     // Resets before changing the activeState to make sure clear.
     reset();
     activeState = actualState;
