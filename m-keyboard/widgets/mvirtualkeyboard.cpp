@@ -668,6 +668,7 @@ void MVirtualKeyboard::redrawReactionMaps()
         reactionMap->setInactiveDrawingValue();
         reactionMap->setTransform(this, view);
         reactionMap->fillRectangle(layout()->itemAt(KeyboardIndex)->geometry());
+        reactionMap->fillRectangle(layout()->itemAt(KeyboardHandleIndex)->geometry());
 
         if (activeState == OnScreen) {
             drawButtonsReactionMaps(reactionMap, view);
