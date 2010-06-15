@@ -168,6 +168,8 @@ MVirtualKeyboardStyle.Portrait {
 
     key-background-sym-indicator-sym: "keyboard-key-sym-selected-portrait";
     key-background-sym-indicator-ace: "keyboard-key-ace-selected-portrait";
+    key-background-sym-indicator-sym-pressed: "keyboard-key-sym-pressed-portrait";
+    key-background-sym-indicator-ace-pressed: "keyboard-key-ace-pressed-portrait";
 }
 
 MVirtualKeyboardStyle.Landscape {
@@ -195,6 +197,8 @@ MVirtualKeyboardStyle.Landscape {
 
     key-background-sym-indicator-sym: "keyboard-key-sym-selected-landscape";
     key-background-sym-indicator-ace: "keyboard-key-ace-selected-landscape";
+    key-background-sym-indicator-sym-pressed: "keyboard-key-sym-pressed-landscape";
+    key-background-sym-indicator-ace-pressed: "keyboard-key-ace-pressed-landscape";
 }
 
 #InvisibleHandle.Portrait {

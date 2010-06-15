@@ -554,10 +554,11 @@ void SingleWidgetButtonArea::activateSymIndicator()
     // Use same image for all button states for now. Some different graphics may
     // be introduced later for the intermediate step between sym and ace modes.
     // while holding button down.
-	const MScalableImage *image = style()->keyBackgroundSymIndicatorSym();
-    symIndicatorBackgrounds[0] = image;
-    symIndicatorBackgrounds[1] = image;
-    symIndicatorBackgrounds[2] = image;
+    const MScalableImage *bgImageNormal = style()->keyBackgroundSymIndicatorSym();
+    const MScalableImage *bgImagePressed = style()->keyBackgroundSymIndicatorSymPressed();
+    symIndicatorBackgrounds[0] = bgImageNormal;
+    symIndicatorBackgrounds[1] = bgImagePressed;
+    symIndicatorBackgrounds[2] = bgImageNormal;
     update();
 
     if (symState == SymIndicatorInactive) {
@@ -570,10 +571,11 @@ void SingleWidgetButtonArea::activateSymIndicator()
 // ISymIndicator implementation
 void SingleWidgetButtonArea::activateAceIndicator()
 {
-    const MScalableImage *image = style()->keyBackgroundSymIndicatorAce();
-    symIndicatorBackgrounds[0] = image;
-    symIndicatorBackgrounds[1] = image;
-    symIndicatorBackgrounds[2] = image;
+    const MScalableImage *bgImageNormal = style()->keyBackgroundSymIndicatorAce();
+    const MScalableImage *bgImagePressed = style()->keyBackgroundSymIndicatorAcePressed();
+    symIndicatorBackgrounds[0] = bgImageNormal;
+    symIndicatorBackgrounds[1] = bgImagePressed;
+    symIndicatorBackgrounds[2] = bgImageNormal;
     update();
 
     if (symState == SymIndicatorInactive) {
