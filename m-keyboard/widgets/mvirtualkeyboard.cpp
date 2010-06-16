@@ -390,13 +390,6 @@ void MVirtualKeyboard::showKeyboard(bool fadeOnly)
     if (showHideTimeline.state() != QTimeLine::Running) {
         hideShowByFadingOnly = fadeOnly;
 
-        suppressRegionUpdate(true); // Don't send separate region update for imtoolbar.
-        //TODO: show() SHOULD BE CALLED AFTER setPos().
-        //PUT IT HERE IS JUST A TEMPORARY WORKAROUND TO MAKE actualHeight() RETURN THE
-        //CORRECT HEIGHT WHICH INCLUDES TOOLBAR. SHOULD BE MOVED BACK AFTER setPos() ASSP
-        //WHEN WE PROVIDE THE CORRECT FIX.
-        show();
-
         int regionOffset(0);
         if (!fadeOnly) {
             // vkb is positioned right below the visible area
@@ -406,7 +399,9 @@ void MVirtualKeyboard::showKeyboard(bool fadeOnly)
             setPos(0, sceneManager->visibleSceneSize().height() - actualHeight());
         }
 
+        suppressRegionUpdate(true); // Don't send separate region update for imtoolbar.
         showHideTimeline.start();
+        show();
 
         // We need to send one initial region update to have passthruwindow make the
         // window visible.  We also want the scene manager to move the underlying window
