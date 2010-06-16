@@ -1,3 +1,15 @@
+meego-keyboard (0.4.4-1) unstable; urgency=low
+
+  * Uses toolbar API from im framework
+  * Uses MeegoImEngine instead of Dui prefixed
+  * Implemented direct mode gesture
+  * Implemented direct mode for hardware keyboard
+  * Fixes: NB#170644, hwkbd: send release events for all press events
+  * Fixes: NB#161309, Keyboard sends Key-Events during "swipe-gesture"
+  * Dead keys to stay pressed when selected
+
+ -- Pekka Vuorela <pekka.ta.vuorela@nokia.com>  Wed, 16 Jun 2010 17:37:39 +0300
+
 meego-keyboard (0.4.3-1) unstable; urgency=low
 
   * Implemented multitouch support (not yet enabled as default)
