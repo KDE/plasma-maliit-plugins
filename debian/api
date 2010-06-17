@@ -1,0 +1,6 @@
+interface: libmeego-keyboard
+type: library
+scope: Platform
+state: unstable
+libs-pkg: meego-keyboard
+dev-pkg: meego-keyboard-dev
