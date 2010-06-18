@@ -24,9 +24,9 @@
  * \class MToolbarWidget
  * \brief MToolbarWidget is provide for the buttons in the input method toolbar.
  *
- * MToolbarWidget is inherit from MButton. It can use the icon which is not in current theme,
- * by setIcon() with the absolute file name of the icon. And the icon will be scaled according
- * setIconPercent() and button size.
+ * MToolbarWidget inherits from MButton. It can not only use the iconID, but also use the icon
+ * which is not in current theme, by setIcon() with the absolute file name of the icon, and the
+ * icon will be scaled according setIconPercent() and button size.
  */
 class QPixmap;
 class MToolbarItem;

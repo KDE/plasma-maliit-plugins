@@ -28,8 +28,13 @@ MToolbarButton::MToolbarButton(QSharedPointer<MToolbarItem> item,
       sizePercent(100),
       itemPtr(item)
 {
-    sizePercent = itemPtr->size();
-    setIconFile(itemPtr->icon());
+    if (!item->iconId().isEmpty()){
+        setIconID(item->iconId());
+    } else {
+        sizePercent = itemPtr->size();
+        setIconFile(itemPtr->icon());
+    }
+
     if (!item->textId().isEmpty()) {
         setText(qtTrId(itemPtr->textId().toUtf8().data()));
     } else {
@@ -88,7 +93,8 @@ void MToolbarButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     // kludge controller shouldn't really do painting.
     // but this is neccesary now to support drawing the custom icon on the button.
     MButton::paint(painter, option, widget);
-    if (icon) {
+    if (iconID().isEmpty() && icon) {
+        // TODO: to use style specified in css.
         // scale the icon to limit it insize button according sizePercent and button boundingRect
         // but keep the icon's origin ratio.
         QSizeF size = boundingRect().size();
@@ -111,6 +117,8 @@ void MToolbarButton::updateData(const QString &attribute)
 {
     if (attribute == "icon") {
         setIconFile(itemPtr->icon());
+    } else if (attribute == "iconId") {
+        setIconID(itemPtr->iconId());
     } else if (attribute == "text") {
         setText(itemPtr->text());
     } else if (attribute == "textId") {
