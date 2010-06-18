@@ -50,6 +50,7 @@ void MToolbarLabel::updateData(const QString &attribute)
         setText(qtTrId(itemPtr->textId().toUtf8().data()));
     } else if (attribute == "visible") {
         setVisible(itemPtr->isVisible());
+        emit availabilityChanged();
     }
 }
 

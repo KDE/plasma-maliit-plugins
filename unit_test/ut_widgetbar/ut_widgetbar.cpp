@@ -16,12 +16,15 @@
 
 #include "ut_widgetbar.h"
 #include "widgetbar.h"
+#include "mtoolbarbutton.h"
+#include "mtoolbarlabel.h"
 
 #include <MApplication>
 #include <MButton>
 #include <MLabel>
 
 #include <QGraphicsLayout>
+#include <mtoolbaritem.h>
 
 void Ut_WidgetBar::initTestCase()
 {
@@ -210,10 +213,15 @@ void Ut_WidgetBar::testIndexOf()
 
 void Ut_WidgetBar::testLayoutUpdates()
 {
-    MButton *button1 = new MButton;
-    MButton *button2 = new MButton;
-    MButton *button3 = new MButton;
-    MLabel *label1 = new MLabel;
+    QSharedPointer<MToolbarItem> buttonItem1(new MToolbarItem("buttonItem1", MInputMethod::ItemButton));
+    QSharedPointer<MToolbarItem> buttonItem2(new MToolbarItem("buttonItem2", MInputMethod::ItemButton));
+    QSharedPointer<MToolbarItem> buttonItem3(new MToolbarItem("buttonItem3", MInputMethod::ItemButton));
+    QSharedPointer<MToolbarItem> labelItem(new MToolbarItem("labelItem", MInputMethod::ItemLabel));
+
+    MToolbarButton *button1 = new MToolbarButton(buttonItem1);
+    MToolbarButton *button2 = new MToolbarButton(buttonItem2);
+    MToolbarButton *button3 = new MToolbarButton(buttonItem3);
+    MToolbarLabel *label1 = new MToolbarLabel(labelItem);
 
     subject->insert(0, button1);
     subject->insert(1, button2);
@@ -222,21 +230,21 @@ void Ut_WidgetBar::testLayoutUpdates()
 
     QCOMPARE(subject->layout()->count(), 4);
 
-    label1->hide();
-    button2->hide();
-    button1->hide();
+    labelItem->setVisible(false);
+    buttonItem2->setVisible(false);
+    buttonItem1->setVisible(false);
 
     QCOMPARE(subject->layout()->count(), 1);
     QCOMPARE(subject->layoutIndexOf(button3), 0);
 
-    button2->show();
+    buttonItem2->setVisible(true);
     QCOMPARE(subject->layoutIndexOf(button2), 0);
 
-    label1->show();
+    labelItem->setVisible(true);
     QCOMPARE(subject->layoutIndexOf(button2), 0);
     QCOMPARE(subject->layoutIndexOf(label1), 1);
 
-    button1->show();
+    buttonItem1->setVisible(true);
     QCOMPARE(subject->layoutIndexOf(button1), 0);
     QCOMPARE(subject->layoutIndexOf(button2), 1);
     QCOMPARE(subject->layoutIndexOf(label1), 2);

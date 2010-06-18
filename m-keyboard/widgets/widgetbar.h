@@ -48,6 +48,8 @@ public:
     int count() const;
 
     //! \brief Inserts a \a widget to specified \a index.
+    //!
+    //! \a widget must provide availabilityChanged() signal.
     void insert(int index, MWidget *widget);
 
     //! \brief Appends \a widget to the right end of the row.

@@ -130,6 +130,7 @@ void MToolbarButton::updateData(const QString &attribute)
         setChecked(itemPtr->pressed());
     } else if (attribute == "visible") {
         setVisible(itemPtr->isVisible());
+        emit availabilityChanged();
     } else if (attribute == "size") {
         sizePercent = itemPtr->size();
         update();

@@ -45,6 +45,11 @@ public:
     //! Return pointer to corresponding toolbar item.
     QSharedPointer<MToolbarItem> item();
 
+signals:
+    //! \brief Emitted when visibility (in a sense of the label being available
+    //! or not) changes.
+    void availabilityChanged();
+
 private slots:
     //! Update label's properties when properties of toolbar item are updated.
     void updateData(const QString &attribute);

@@ -79,6 +79,10 @@ signals:
      */
     void clicked(MToolbarItem *item);
 
+    //! \brief Emitted when visibility (in a sense of the button being available
+    //! or not) changes.
+    void availabilityChanged();
+
 private slots:
     //! Update button's properties when properties of toolbar item are updated.
     void updateData(const QString &attribute);

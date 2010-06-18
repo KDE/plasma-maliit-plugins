@@ -64,8 +64,10 @@ void WidgetBar::insert(int index, MWidget *widget)
     mainLayout.insertItem(index, widget);
     mainLayout.setAlignment(widget, Qt::AlignVCenter); // In case we have widgets that differs in height.
 
-    connect(widget, SIGNAL(visibleChanged()),
-            this, SLOT(updateLayout()));
+    if (-1 != widget->metaObject()->indexOfSignal("availabilityChanged()")) {
+        connect(widget, SIGNAL(availabilityChanged()),
+                this, SLOT(updateLayout()));
+    }
 }
 
 void WidgetBar::append(MWidget *widget)
