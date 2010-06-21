@@ -228,7 +228,7 @@ void Ut_KeyButtonArea::testLabelPosition()
     const IKeyButton *button = 0;
 
     keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard("en.xml"));
+    QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
     subject = createKba(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                         KeyButtonArea::ButtonSizeEqualExpanding,
                         false, 0);
@@ -281,7 +281,7 @@ void Ut_KeyButtonArea::testFlickCheck()
     QFETCH(bool, directMode);
 
     keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard("en.xml"));
+    QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
     subject = createKba(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                         KeyButtonArea::ButtonSizeEqualExpanding,
                         false, 0);
@@ -331,7 +331,7 @@ void Ut_KeyButtonArea::testSceneEvent()
 
     //initialization
     keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard("en.xml"));
+    QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
     subject = createKba(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                         KeyButtonArea::ButtonSizeEqualExpanding,
                         false, 0);
@@ -389,7 +389,7 @@ void Ut_KeyButtonArea::testPaint()
 
     //initialization
     keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard("en.xml"));
+    QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
     subject = createKba(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                         KeyButtonArea::ButtonSizeEqualExpanding,
                         false, 0);
@@ -601,7 +601,7 @@ void Ut_KeyButtonArea::testAccurateMode()
     QFETCH(KBACreator, createKba);
 
     keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard("en.xml"));
+    QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
     subject = createKba(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                         KeyButtonArea::ButtonSizeEqualExpanding, true, 0);
     MPlainWindow::instance()->scene()->addItem(subject);
@@ -649,7 +649,7 @@ void Ut_KeyButtonArea::testPopup()
     QFETCH(KBACreator, createKba);
 
     keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard("en.xml"));
+    QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
     subject = createKba(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                         KeyButtonArea::ButtonSizeEqualExpanding, true, 0);
     MPlainWindow::instance()->scene()->addItem(subject);
@@ -694,7 +694,7 @@ void Ut_KeyButtonArea::testInitialization()
 {
     QFETCH(KBACreator, createKba);
     keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard("en.xml"));
+    QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
     subject = createKba(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                         KeyButtonArea::ButtonSizeEqualExpanding,
                         false, 0);
@@ -750,7 +750,7 @@ void Ut_KeyButtonArea::testShiftCapsLock()
 {
     // Load any layout that has function row with shift
     keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard("en.xml"));
+    QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
     const LayoutData *layout = keyboard->layout(LayoutData::General, M::Landscape);
     QVERIFY(layout);
     QSharedPointer<const LayoutSection> functionRowSection = layout->section(LayoutData::functionkeySection);
@@ -773,7 +773,7 @@ void Ut_KeyButtonArea::testShiftCapsLock()
 void Ut_KeyButtonArea::testMultiTouch()
 {
     keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard("en.xml"));
+    QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
     const LayoutData *layout = keyboard->layout(LayoutData::General, M::Landscape);
     QVERIFY(layout);
     QSharedPointer<const LayoutSection> functionRowSection = layout->section(LayoutData::mainSection);

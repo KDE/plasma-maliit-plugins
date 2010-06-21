@@ -44,7 +44,7 @@ namespace
 {
     const QString InputMethodSettingName("/meegotouch/inputmethods/languages");
     const QString DefaultLanguageSettingName("/meegotouch/inputmethods/languages/default");
-    const QString DefaultLanguage("en");
+    const QString DefaultLanguage("en_us");
 
     const int SceneRotationTime = 1400;
 } // namespace
@@ -66,7 +66,7 @@ void Ut_SymbolView::initTestCase()
     MGConfItem inputMethodSetting(InputMethodSettingName);
 
     QStringList langlist;
-    langlist << "en";
+    langlist << "en_us";
     inputMethodSetting.set(QVariant(langlist));
 
     MGConfItem defaultLanguageSetting(DefaultLanguageSettingName);
