@@ -15,11 +15,12 @@
  */
 
 #include "handle.h"
-#include <QGraphicsSceneMouseEvent>
 #include "flickgesture.h"
+#include "flickgesturerecognizer.h"
 
 #include <QDebug>
 #include <QGraphicsLinearLayout>
+#include <QGraphicsSceneMouseEvent>
 
 Handle::Handle(QGraphicsWidget *parent)
     : MStylableWidget(parent),
@@ -27,6 +28,8 @@ Handle::Handle(QGraphicsWidget *parent)
 {
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
     mainLayout.setContentsMargins(0, 0, 0, 0);
+
+    grabGesture(FlickGestureRecognizer::sharedGestureType());
 }
 
 Handle::~Handle()
@@ -35,34 +38,24 @@ Handle::~Handle()
 
 bool Handle::event(QEvent *e)
 {
-    const QGraphicsSceneMouseEvent *ev(dynamic_cast<const QGraphicsSceneMouseEvent *>(e));
+    bool eaten = false;
 
-    if (e->type() == QEvent::GraphicsSceneMousePress) {
-        e->setAccepted(true);
-        startPosition = ev->pos();
-        return true;
-    } else if (e->type() == QEvent::GraphicsSceneMouseRelease) {
-        e->setAccepted(true);
+    if (e->type() == QEvent::Gesture) {
+        QGestureEvent *gestureEvent = static_cast<QGestureEvent *>(e);
+        const Qt::GestureType flickGestureType = FlickGestureRecognizer::sharedGestureType();
+        FlickGesture *flick = static_cast<FlickGesture *>(gestureEvent->gesture(flickGestureType));
 
-        const qreal MovementTresholdX(20);
-        const qreal MovementTresholdY(20);
-        const QPointF diff(ev->pos() - startPosition);
-
-        FlickGesture gesture;
-        gesture.setPositionDifference(diff);
-
-        if ((abs(diff.x()) > MovementTresholdX)
-            && (abs(diff.x()) > abs(diff.y()))) {
-            gesture.setDirection(diff.x() > 0 ? FlickGesture::Right : FlickGesture::Left);
-            flickGestureEvent(gesture);
-        } else if ((abs(diff.y()) > MovementTresholdY)) {
-            gesture.setDirection(diff.y() > 0 ? FlickGesture::Down : FlickGesture::Up);
-            flickGestureEvent(gesture);
+        if (flick) {
+            eaten = true;
+            if (flick->state() == Qt::GestureStarted) {
+                e->accept();
+            } else if (flick->state() == Qt::GestureFinished) {
+                flickGestureEvent(*flick);
+            }
         }
-
-        return true;
     }
-    return MStylableWidget::event(e);
+
+    return eaten || MStylableWidget::event(e);
 }
 
 void Handle::setChild(QGraphicsLayoutItem *widget)
@@ -73,10 +66,19 @@ void Handle::setChild(QGraphicsLayoutItem *widget)
     mainLayout.insertItem(0, widget);
 }
 
+void Handle::mousePressEvent(QGraphicsSceneMouseEvent *)
+{
+    // Do nothing except implicit mouse grab for flick gesture to work.
+}
+
 typedef void (Handle::*FlickEmitter)(const FlickGesture &gesture);
 
 void Handle::flickGestureEvent(FlickGesture &gesture)
 {
+    if (gesture.direction() == FlickGesture::NoDirection) {
+        return;
+    }
+
     static const FlickEmitter emitters[4] = { &Handle::flickLeft, &Handle::flickRight,
                                               &Handle::flickUp, &Handle::flickDown };
     (this->*emitters[static_cast<int>(gesture.direction())])(gesture);

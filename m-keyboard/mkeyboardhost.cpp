@@ -14,8 +14,7 @@
  * of this file.
  */
 
-
-
+#include "flickgesturerecognizer.h"
 #include "mkeyboardhost.h"
 #include "mvirtualkeyboardstyle.h"
 #include "mvirtualkeyboard.h"
@@ -128,6 +127,8 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
 
     vkbStyleContainer = new MVirtualKeyboardStyleContainer;
     vkbStyleContainer->initialize("MVirtualKeyboard", "MVirtualKeyboardView", 0);
+
+    FlickGestureRecognizer::registerSharedRecognizer();
 
     vkbWidget = new MVirtualKeyboard(LayoutsManager::instance(), vkbStyleContainer, sceneWindow);
     vkbWidget->setInputMethodMode(static_cast<M::InputMethodMode>(inputMethodMode));

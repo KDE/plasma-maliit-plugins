@@ -37,11 +37,9 @@ HEADERS += \
     $$WIDGETS_DIR/mtoolbarlabel.h \
     $$WIDGETS_DIR/handle.h \
     $$WIDGETS_DIR/grip.h \
-    $$WIDGETS_DIR/flickgesture.h \
     $$WIDGETS_DIR/sharedhandlearea.h \
     $$WIDGETS_DIR/mkeyboardsettingswidget.h \
     $$WIDGETS_DIR/getcssproperty.h \
-
 
 SOURCES += \
     $$WIDGETS_DIR/widgetbar.cpp \
@@ -64,9 +62,8 @@ SOURCES += \
     $$WIDGETS_DIR/mtoolbarlabel.cpp \
     $$WIDGETS_DIR/handle.cpp \
     $$WIDGETS_DIR/grip.cpp \
-    $$WIDGETS_DIR/flickgesture.cpp \
     $$WIDGETS_DIR/sharedhandlearea.cpp \
-    $$WIDGETS_DIR/mkeyboardsettingswidget.cpp \
+    $$WIDGETS_DIR/mkeyboardsettingswidget.cpp
 
 INCLUDEPATH += $$WIDGETS_DIR
 DEPENDPATH += $$WIDGETS_DIR

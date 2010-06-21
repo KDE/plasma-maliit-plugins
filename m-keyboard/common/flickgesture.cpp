@@ -17,7 +17,16 @@
 #include "flickgesture.h"
 
 FlickGesture::FlickGesture(QObject *parent)
-    : QGesture(parent)
+    : QGesture(parent),
+      startTime(0),
+      currentTime(0),
+      dir(NoDirection),
+      prevDir(NoDirection),
+      dist(0),
+      prevDist(0),
+      hasZigZagged(false),
+      isAccidentallyFlicked(false),
+      pressReceived(false)
 {
 }
 
@@ -25,23 +34,28 @@ FlickGesture::~FlickGesture()
 {
 }
 
-QPointF FlickGesture::positionDifference() const
-{
-    return endStartDifference;
-}
-
-void FlickGesture::setPositionDifference(const QPointF &positionDifference)
-{
-    endStartDifference = positionDifference;
-}
-
 FlickGesture::Direction FlickGesture::direction() const
 {
-    return gestureDirection;
+    return dir;
 }
 
-void FlickGesture::setDirection(const Direction newDirection)
+int FlickGesture::distance() const
 {
-    gestureDirection = newDirection;
+    return dist;
+}
+
+QPoint FlickGesture::startPosition() const
+{
+    return startPos;
+}
+
+QPoint FlickGesture::currentPosition() const
+{
+    return currentPos;
+}
+
+int FlickGesture::elapsedTime() const
+{
+    return (currentTime - startTime);
 }
 

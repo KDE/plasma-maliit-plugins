@@ -8,6 +8,7 @@ SUBDIRS = \
           ut_mimcorrectioncandidatewidget \
           ut_keybutton \
           ut_keybuttonarea \
+          ut_flickrecognizer \
           ut_symbolview \
           ut_notification \
           ut_limitedtimer \

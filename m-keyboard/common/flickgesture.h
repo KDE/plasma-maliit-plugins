@@ -18,7 +18,7 @@
 #define FLICKGESTURE_H
 
 #include <QGesture>
-#include <QPointF>
+#include <QPoint>
 
 /*!
   \brief Meego keyboard flick gesture.
@@ -27,41 +27,53 @@
 */
 class FlickGesture : public QGesture
 {
-    Q_OBJECT
-
 public:
     //! Possible gesture directions
     enum Direction {
         Left,
         Right,
         Up,
-        Down
+        Down,
+        NoDirection,
     };
 
+    Q_OBJECT
+    Q_DISABLE_COPY(FlickGesture)
+
+public:
     //! Constructor
     FlickGesture(QObject *parent = 0);
 
     //! Destructor
     virtual ~FlickGesture();
 
-    //! \return difference between end and start points
-    QPointF positionDifference() const;
-
-    //! Set difference between end and start points
-    void setPositionDifference(const QPointF &positionDifference);
-
-    //! \return gesture direction as determined from the position difference by the
-    //! recognizer.  Detailed x & y movement can be inspected via positionDifference().
     Direction direction() const;
 
-    //! Set gesture direction
-    void setDirection(Direction newDirection);
+    //! Distance traveled in pixels to major direction
+    int distance() const;
+
+    QPoint startPosition() const;
+
+    QPoint currentPosition() const;
+
+    int elapsedTime() const;
 
 private:
-    //! Difference between end and start points
-    QPointF endStartDifference;
+    // These members are set directly by the recognizer
+    int startTime; //! Start time in milliseconds
+    int currentTime; //! End/current time in milliseconds
+    QPoint startPos;
+    QPoint currentPos;
+    Direction dir;
+    Direction prevDir;
+    int dist;
+    int prevDist;
+    bool hasZigZagged;
+    bool isAccidentallyFlicked;
+    bool pressReceived;
 
-    Direction gestureDirection;
+    friend class FlickGestureRecognizer;
+    friend class Ut_KeyButtonArea;
 };
 
 #endif

@@ -56,6 +56,9 @@ signals:
     void flickRight(const FlickGesture &gesture);
 
 protected:
+    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+
+protected:
     M_STYLABLE_WIDGET(HandleStyle)
 
 private:
@@ -63,8 +66,6 @@ private:
 
 private:
     QGraphicsLinearLayout &mainLayout;
-
-    QPointF startPosition;         // TODO: temporary
 };
 
 #endif
