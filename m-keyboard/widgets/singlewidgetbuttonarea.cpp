@@ -551,9 +551,8 @@ ISymIndicator *SingleWidgetButtonArea::symIndicator()
 // ISymIndicator implementation
 void SingleWidgetButtonArea::activateSymIndicator()
 {
-    // Use same image for all button states for now. Some different graphics may
-    // be introduced later for the intermediate step between sym and ace modes.
-    // while holding button down.
+    // Background for selected state is currently unused but is assigned the same
+    // background as the normal state.
     const MScalableImage *bgImageNormal = style()->keyBackgroundSymIndicatorSym();
     const MScalableImage *bgImagePressed = style()->keyBackgroundSymIndicatorSymPressed();
     symIndicatorBackgrounds[0] = bgImageNormal;
