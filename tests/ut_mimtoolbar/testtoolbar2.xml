@@ -5,22 +5,17 @@
     <layout>
         <row>
             <button name="testbutton1" group="group1" priority="0" showon="always" alignment="left" text="testbutton1" toggle="true">
-                <actions>
-                    <sendkeysequence keysequence="Ctrl+I"/>
-                    <copy/>
-                    <showgroup group="group3"/>
-                </actions>
             </button>
-            <label name="testlabel1" group="group4" priority="1" showon="always" hideon="selectedtext" alignment="left" text="testlabel1"/>
             <button name="testbutton2" group="group2" priority="0" showon="always" alignment="right" text="testbutton2">
-                <actions>
-                    <sendstring string="test string"/>
-                    <paste/>
-                    <hidegroup group="group1"/>
-                </actions>
             </button>
             <button name="testbutton3" group="group3" priority="1" showon="selectedtext" alignment="right" text="testbutton3">
             </button>
         </row>
+        <row>
+            <button name="testbutton4" group="group4" alignment="left" text="textbutton4">
+            </button>
+            <label name="testlabel1" group="group4" priority="1" showon="always" alignment="right" text="textlabel1" />
+        </row>
     </layout>
 </toolbar>
+

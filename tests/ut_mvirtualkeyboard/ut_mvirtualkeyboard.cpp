@@ -776,10 +776,6 @@ void Ut_MVirtualKeyboard::testSetKeyboardState()
     QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
     top = m_vkb->geometry().top();
 
-    //show Copy button, toolbar becomes visible
-    m_vkb->setCopyPasteButton(true, false);
-    QVERIFY(top >= m_vkb->geometry().top());
-    top = m_vkb->geometry().top();
     const int topInHardwareState(top);
 
     //show whole keyboard
@@ -816,16 +812,6 @@ void Ut_MVirtualKeyboard::testReactionMaps()
     QVERIFY(tester.testReactionMapGrid(MPlainWindow::instance(), 40, 50, m_vkb->region(true)));
 
     // Check that all buttons are drawn with reactive color.
-    QVERIFY(tester.testChildButtonReactiveAreas(MPlainWindow::instance(), m_vkb));
-
-    // Check again with copy
-    m_vkb->setCopyPasteButton(true, false);
-    QVERIFY(tester.testReactionMapGrid(MPlainWindow::instance(), 40, 50, m_vkb->region(true)));
-    QVERIFY(tester.testChildButtonReactiveAreas(MPlainWindow::instance(), m_vkb));
-
-    // And without again
-    m_vkb->setCopyPasteButton(false, false);
-    QVERIFY(tester.testReactionMapGrid(MPlainWindow::instance(), 40, 50, m_vkb->region(true)));
     QVERIFY(tester.testChildButtonReactiveAreas(MPlainWindow::instance(), m_vkb));
 
     // Switch language, the chosen kb layouts are all different in terms of reaction maps they generate.

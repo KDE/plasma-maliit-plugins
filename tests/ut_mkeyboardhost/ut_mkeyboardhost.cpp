@@ -22,6 +22,7 @@
 #include <mkeyboardhost.h>
 #include <mvirtualkeyboardstyle.h>
 #include <symbolview.h>
+#include <sharedhandlearea.h>
 
 #include <mimenginewords.h>
 
@@ -117,6 +118,8 @@ void Ut_MKeyboardHost::initTestCase()
     window = new MPlainWindow;
 
     MGConfItem(MultitouchSettings).set(true);
+
+    qRegisterMetaType<M::Orientation>("M::Orientation");
 }
 
 void Ut_MKeyboardHost::cleanupTestCase()
@@ -622,19 +625,20 @@ void Ut_MKeyboardHost::testRegionSignals()
 
     // In normal input method mode there is no invisible handle with non-zero area
     const QRect zeroSizeInvisibleHandleRect(
-        dynamic_cast<QGraphicsWidget*>(subject->vkbWidget->layout()->itemAt(MVirtualKeyboard::SharedHandleAreaIndex))->layout()->itemAt(0)
+        dynamic_cast<QGraphicsWidget*>(subject->sharedHandleArea->layout()->itemAt(0))
         ->geometry().toRect());
     QVERIFY(zeroSizeInvisibleHandleRect.isEmpty());
 
     // In direct mode an invisible handle is added on top of the keyboard
     subject->vkbWidget->setInputMethodMode(M::InputMethodModeDirect);
+    subject->sharedHandleArea->setInputMethodMode(M::InputMethodModeDirect);
     ++c1;
     ++c2;
     QCOMPARE(spy.count(), c1);
     QCOMPARE(spy2.count(), c2);
 
     const QRect invisibleHandleRect(
-        dynamic_cast<QGraphicsWidget*>(subject->vkbWidget->layout()->itemAt(MVirtualKeyboard::SharedHandleAreaIndex))->layout()->itemAt(0)
+        dynamic_cast<QGraphicsWidget*>(subject->sharedHandleArea->layout()->itemAt(0))
         ->geometry().toRect());
     QVERIFY(!invisibleHandleRect.isEmpty());
     const QRegion invisibleHandleRegion(
@@ -644,6 +648,7 @@ void Ut_MKeyboardHost::testRegionSignals()
     QCOMPARE(region(spy, c1 - 1), region(spy2, c2 - 1) + invisibleHandleRegion);
 
     subject->vkbWidget->setInputMethodMode(M::InputMethodModeNormal);
+    subject->sharedHandleArea->setInputMethodMode(M::InputMethodModeNormal);
     ++c1;
     ++c2;
     QCOMPARE(spy.count(), c1);

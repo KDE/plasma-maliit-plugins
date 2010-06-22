@@ -1,5 +1,5 @@
 TEMPLATE = app
-CONFIG += QtTest meegotouch meegoimframework
+CONFIG += QtTest meegotouch meegoimframework meegoreactionmap
 QT += testlib
 
 DEPENDPATH += .
@@ -14,14 +14,16 @@ LIBS += -Wl,-rpath=/usr/lib/meego-im-plugins/ -lmeego-keyboard
 
 HEADERS += ut_mimtoolbar.h \
            ../stubs/mgconfitem_stub.h \
-           ../stubs/fakegconf.h
+           ../stubs/fakegconf.h \
+           ../stubs/mreactionmaptester.h \
 
 
 SOURCES += ut_mimtoolbar.cpp \
-           ../stubs/fakegconf.cpp
+           ../stubs/fakegconf.cpp \
 
 target.files += \
            $$TARGET \
            testtoolbar.xml \
+           testtoolbar2.xml \
 
 include(../common_check.pri)

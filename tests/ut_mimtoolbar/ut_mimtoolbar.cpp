@@ -24,6 +24,7 @@
 #include "mvirtualkeyboard.h"
 #include "layoutsmanager.h"
 #include "mvirtualkeyboardstyle.h"
+#include "mreactionmaptester.h"
 #include <mplainwindow.h>
 #include <mtoolbardata.h>
 #include <MTheme>
@@ -48,7 +49,8 @@
 Q_DECLARE_METATYPE(CopyPasteState);
 namespace
 {
-    QString ToolbarFileName = "/testtoolbar.xml";
+    QString ToolbarFileName  = "/testtoolbar.xml";
+    QString ToolbarFileName2 = "/testtoolbar2.xml";
 
     int indexOf(const QGraphicsLayout *layout, const QGraphicsLayoutItem *item)
     {
@@ -89,6 +91,8 @@ void Ut_MImToolbar::initTestCase()
 
     ToolbarFileName = QCoreApplication::applicationDirPath() + ToolbarFileName;
     QVERIFY(QFile::exists(ToolbarFileName));
+    ToolbarFileName2 = QCoreApplication::applicationDirPath() + ToolbarFileName2;
+    QVERIFY(QFile::exists(ToolbarFileName2));
 }
 
 void Ut_MImToolbar::init()
@@ -330,6 +334,73 @@ void Ut_MImToolbar::testRegion()
 
     QCOMPARE(regionSignals.count(), 5);
     QVERIFY(m_subject->region().isEmpty());
+}
+
+void Ut_MImToolbar::testReactionMaps_data()
+{
+    QTest::addColumn<QString>("filename");
+
+    QTest::newRow("no custom toolbar") << QString();
+    QTest::newRow("one row toolbar")  << ToolbarFileName;
+    QTest::newRow("two rows toolbar") << ToolbarFileName2;
+}
+
+void Ut_MImToolbar::testReactionMaps()
+{
+    QFETCH(QString, filename);
+
+    if (!filename.isEmpty()) {
+        toolbarData = QSharedPointer<MToolbarData>(new MToolbarData);
+        bool ok = toolbarData->loadNokiaToolbarXml(filename);
+        QVERIFY(ok);
+
+        m_subject->showToolbarWidget(toolbarData);
+    } else {
+        m_subject->hideToolbarWidget();
+    }
+
+    MReactionMapTester tester;
+    gMReactionMapStub = &tester;
+
+    // Show keyboard
+    m_subject->show();
+
+    // Clear with transparent color
+    // Reaction map should be cleaned by other widget.
+    gMReactionMapStub->setTransparentDrawingValue();
+    gMReactionMapStub->setTransform(QTransform());
+    gMReactionMapStub->fillRectangle(0, 0, gMReactionMapStub->width(), gMReactionMapStub->height());
+
+    m_subject->redrawReactionMaps();
+
+    // Overall sanity test with grid points throughout the view.
+    if (!m_subject->region().isEmpty()) {
+        QVERIFY(tester.testReactionMapGrid(MPlainWindow::instance(), 40, 50, m_subject->region()));
+    }
+
+    // Check that all buttons are drawn with reactive color.
+    QVERIFY(tester.testChildButtonReactiveAreas(MPlainWindow::instance(), m_subject));
+
+    // Check again with copy
+    m_subject->setCopyPasteButton(true, false);
+    m_subject->redrawReactionMaps();
+    QVERIFY(!m_subject->region().isEmpty());
+    QRegion boundingRegion(m_subject->mapToScene(m_subject->boundingRect()).boundingRect().toRect());
+    QVERIFY(tester.testReactionMapGrid(MPlainWindow::instance(), 40, 50, boundingRegion));
+    QVERIFY(tester.testChildButtonReactiveAreas(MPlainWindow::instance(), m_subject));
+
+    // Simulate cleaning from other widget.
+    gMReactionMapStub->setTransparentDrawingValue();
+    gMReactionMapStub->setTransform(QTransform());
+    gMReactionMapStub->fillRectangle(0, 0, gMReactionMapStub->width(), gMReactionMapStub->height());
+
+    // And without again
+    m_subject->setCopyPasteButton(false, false);
+    m_subject->redrawReactionMaps();
+    if (!m_subject->region().isEmpty()) {
+        QVERIFY(tester.testReactionMapGrid(MPlainWindow::instance(), 40, 50, m_subject->region()));
+        QVERIFY(tester.testChildButtonReactiveAreas(MPlainWindow::instance(), m_subject));
+    }
 }
 
 MWidget* Ut_MImToolbar::find(const QString &name)

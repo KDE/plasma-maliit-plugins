@@ -59,6 +59,9 @@ private slots:
     void testPaste();
     void testRegion();
 
+    void testReactionMaps_data();
+    void testReactionMaps();
+
     void receiveKeyEvent(const QKeyEvent &);
 
 private:

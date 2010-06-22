@@ -24,6 +24,7 @@
 #include <QGraphicsItem>
 
 #include "keybuttonarea.h"
+#include "widgetbar.h"
 
 #include <MButton>
 #include <MDeviceProfile>
@@ -312,10 +313,12 @@ bool MReactionMapTester::testReactionMapGrid(const QGraphicsView *view,
                 item = 0;
             }
 
-            // If we hit MLabel take the parent item which is MButton
+            // If we hit MLabel take the parent item which may be MButton or WidgetBar
             if (dynamic_cast<const MLabel *>(item)) {
-                item = item->parentItem();
-                Q_ASSERT(dynamic_cast<const MButton *>(item));
+                if (!dynamic_cast<WidgetBar*>(item->parentItem())) {
+                    item = item->parentItem();
+                    Q_ASSERT(dynamic_cast<const MButton *>(item));
+                }
             }
 
             MReactionMapTester::ReactionColorValue expectedColor;
