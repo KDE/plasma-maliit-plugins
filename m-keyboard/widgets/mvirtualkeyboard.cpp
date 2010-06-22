@@ -543,6 +543,10 @@ QRegion MVirtualKeyboard::region(const bool notJustMainKeyboardArea) const
                 rect = mainLayout->itemAt(KeyboardHandleIndex)->geometry();
                 region |= mapRectToScene(rect).toRect();
             }
+        } else {
+            // set offscreen rectangle to provide proper positioning for toolbar
+            rect = QRectF(0, 0, size().width(), 1);
+            region |= mapRectToScene(rect).toRect();
         }
     }
 
