@@ -58,13 +58,14 @@ const QString MVirtualKeyboard::WordSeparators("-.,!? \n");
 
 
 MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
-                                       QGraphicsWidget *parent)
+                                   const MVirtualKeyboardStyleContainer *styleContainer,
+                                   QGraphicsWidget *parent)
     : MWidget(parent),
       mainLayout(new QGraphicsLinearLayout(Qt::Vertical, this)),
       currentLevel(0),
       numLevels(2),
       activity(Inactive),
-      styleContainer(0),
+      styleContainer(styleContainer),
       sceneManager(MPlainWindow::instance()->sceneManager()),
       shiftLevel(ModifierClearState),
       currentLayoutType(LayoutData::General),
@@ -84,9 +85,6 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
 {
     setObjectName("MVirtualKeyboard");
     hide();
-
-    styleContainer = new MVirtualKeyboardStyleContainer;
-    styleContainer->initialize(objectName(), "MVirtualKeyboardView", 0);
 
     notification = new Notification(styleContainer, this);
 
@@ -158,9 +156,6 @@ MVirtualKeyboard::~MVirtualKeyboard()
 
     delete notification;
     notification = 0;
-
-    delete styleContainer;
-    styleContainer = 0;
 }
 
 

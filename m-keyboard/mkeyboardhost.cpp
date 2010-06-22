@@ -17,6 +17,7 @@
 
 
 #include "mkeyboardhost.h"
+#include "mvirtualkeyboardstyle.h"
 #include "mvirtualkeyboard.h"
 #include "mhardwarekeyboard.h"
 #ifdef M_IM_DISABLE_TRANSLUCENCY
@@ -73,6 +74,7 @@ namespace
 
 MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *parent)
     : MInputMethodBase(icConnection, parent),
+      vkbStyleContainer(0),
       vkbWidget(0),
       symbolView(0),
       inputMethodCorrectionSettings(new MGConfItem(InputMethodCorrectionSetting)),
@@ -124,7 +126,10 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
     // 2) Add widgets directly to scene (detached from MSceneManager) and
     //    update their transformations by hand.
 
-    vkbWidget = new MVirtualKeyboard(LayoutsManager::instance(), sceneWindow);
+    vkbStyleContainer = new MVirtualKeyboardStyleContainer;
+    vkbStyleContainer->initialize("MVirtualKeyboard", "MVirtualKeyboardView", 0);
+
+    vkbWidget = new MVirtualKeyboard(LayoutsManager::instance(), vkbStyleContainer, sceneWindow);
     vkbWidget->setInputMethodMode(static_cast<M::InputMethodMode>(inputMethodMode));
 
     connect(vkbWidget, SIGNAL(keyClicked(const KeyEvent &)),
@@ -179,7 +184,7 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
             SIGNAL(orientationChangeFinished(M::Orientation)),
             SLOT(finalizeOrientationChange()));
 
-    symbolView = new SymbolView(LayoutsManager::instance(), &vkbWidget->style(),
+    symbolView = new SymbolView(LayoutsManager::instance(), vkbStyleContainer,
                                 vkbWidget->selectedLanguage(), sceneWindow);
     connect(symbolView, SIGNAL(regionUpdated(const QRegion &)),
             this, SLOT(handleRegionUpdate(const QRegion &)));
@@ -239,7 +244,6 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
     connect(symbolView, SIGNAL(hidden()), vkbWidget, SLOT(showMainArea()));
 }
 
-
 MKeyboardHost::~MKeyboardHost()
 {
     hideLockOnInfoBanner();
@@ -253,6 +257,8 @@ MKeyboardHost::~MKeyboardHost()
     correctionCandidateWidget = 0;
     delete sceneWindow;
     sceneWindow = 0;
+    delete vkbStyleContainer;
+    vkbStyleContainer = 0;
 #ifdef M_IM_DISABLE_TRANSLUCENCY
     delete correctionSceneWindow;
     correctionSceneWindow = 0;

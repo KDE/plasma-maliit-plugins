@@ -32,6 +32,7 @@ class MGConfItem;
 class MImCorrectionCandidateWidget;
 class MSceneWindow;
 class MVirtualKeyboard;
+class MVirtualKeyboardStyleContainer;
 class MHardwareKeyboard;
 class SymbolView;
 class MImEngineWords;
@@ -219,6 +220,8 @@ private:
 private:
     QString preedit;
     QString correctedPreedit;
+
+    MVirtualKeyboardStyleContainer *vkbStyleContainer;
 
     MImCorrectionCandidateWidget *correctionCandidateWidget;
     MVirtualKeyboard *vkbWidget;

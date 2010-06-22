@@ -26,6 +26,7 @@
 
 class MApplication;
 class MVirtualKeyboard;
+class MVirtualKeyboardStyleContainer;
 class QGraphicsScene;
 class LayoutSection;
 class MSceneWindow;
@@ -37,6 +38,7 @@ private:
     MApplication *app;
     MVirtualKeyboard *m_vkb;
     MSceneWindow *vkbParent;
+    MVirtualKeyboardStyleContainer *vkbStyleContainer;
     QSharedPointer<const LayoutSection> functionkeySection;
     int numFunctionKeys;
 

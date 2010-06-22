@@ -74,7 +74,9 @@ public:
      * \brief Constructor for creating an virtual keyboard object.
      * \param parent Parent object.
      */
-    MVirtualKeyboard(const LayoutsManager &layoutsManager, QGraphicsWidget *parent = 0);
+    MVirtualKeyboard(const LayoutsManager &layoutsManager,
+                     const MVirtualKeyboardStyleContainer *styleContainer,
+                     QGraphicsWidget *parent = 0);
 
     //! Destructor
     ~MVirtualKeyboard();
@@ -102,9 +104,6 @@ public:
      * \return the language currently selected (from language list)
      */
     QString selectedLanguage() const;
-
-    //! Getter for style container
-    const MVirtualKeyboardStyleContainer &style() const;
 
     //! Sets keyboard type according text entry type, type matches M::TextContentType
     void setKeyboardType(const int type);
@@ -360,6 +359,9 @@ signals:
 
 
 private:
+    //! Getter for style container
+    const MVirtualKeyboardStyleContainer &style() const;
+
     const LayoutData *currentLayoutModel() const;
 
     /*!
@@ -472,7 +474,7 @@ private:
     Activity activity;
 
     //! Current Style being used
-    MVirtualKeyboardStyleContainer *styleContainer;
+    const MVirtualKeyboardStyleContainer *styleContainer;
 
     //! Scene manager to get the device width and height
     MSceneManager *sceneManager;

@@ -19,6 +19,7 @@
 #include "mapplication.h"
 #include "mgconfitem_stub.h"
 #include "mreactionmaptester.h"
+#include "mvirtualkeyboardstyle.h"
 #include "mvirtualkeyboard.h"
 #include "horizontalswitcher.h"
 #include "layoutsmanager.h"
@@ -94,12 +95,17 @@ void Ut_MVirtualKeyboard::initTestCase()
     MPlainWindow::instance()->sceneManager()->appearSceneWindowNow(vkbParent);
 
     LayoutsManager::createInstance();
+
+    vkbStyleContainer = new MVirtualKeyboardStyleContainer;
+    vkbStyleContainer->initialize("MVirtualKeyboard", "MVirtualKeyboardView", 0);
 }
 
 void Ut_MVirtualKeyboard::cleanupTestCase()
 {
     LayoutsManager::destroyInstance();
     delete vkbParent;
+    delete vkbStyleContainer;
+    vkbStyleContainer = 0;
     delete MPlainWindow::instance();
     delete app;
     app = 0;
@@ -107,7 +113,7 @@ void Ut_MVirtualKeyboard::cleanupTestCase()
 
 void Ut_MVirtualKeyboard::init()
 {
-    m_vkb = new MVirtualKeyboard(LayoutsManager::instance(), vkbParent);
+    m_vkb = new MVirtualKeyboard(LayoutsManager::instance(), vkbStyleContainer, vkbParent);
 
     connect(m_vkb, SIGNAL(regionUpdated(const QRegion &)), m_vkb, SLOT(redrawReactionMaps()));
 
@@ -120,6 +126,7 @@ void Ut_MVirtualKeyboard::cleanup()
     // Stub might have been set to a local instance.
     gMReactionMapStub = &gDefaultMReactionMapStub;
     delete m_vkb;
+    m_vkb = 0;
 }
 
 void Ut_MVirtualKeyboard::clickBackspaceTest()
