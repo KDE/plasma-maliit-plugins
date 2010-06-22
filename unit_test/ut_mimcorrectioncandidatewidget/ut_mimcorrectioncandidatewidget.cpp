@@ -37,8 +37,6 @@ void Ut_MImCorrectionCandidateWidget::initTestCase()
     MApplication::setLoadMInputContext(false);
     app = new MApplication(dummyArgc, dummyArgv);
 
-    MTheme::instance()->loadCSS("/usr/share/meegotouch/virtual-keyboard/css/864x480.css");
-
     // MImCorrectionCandidateWidget uses this internally
     new MPlainWindow;
     if (MPlainWindow::instance()->orientationAngle() != M::Angle0) {

@@ -82,13 +82,6 @@ void Ut_MImToolbar::initTestCase()
     qRegisterMetaType<CopyPasteState>("CopyPasteState");
     LayoutsManager::createInstance();
 
-    QString cssFile("../../m-keyboard/theme/864x480.css");
-    if (!QFile::exists(cssFile)) {
-        cssFile = "/usr/share/meegotouch/virtual-keyboard/css/864x480.css";
-        QVERIFY(QFile::exists(cssFile));
-    }
-    MTheme::instance()->loadCSS(cssFile);
-
     style = new MVirtualKeyboardStyleContainer;
     style->initialize("MVirtualKeyboard", "MVirtualKeyboardView", 0);
 

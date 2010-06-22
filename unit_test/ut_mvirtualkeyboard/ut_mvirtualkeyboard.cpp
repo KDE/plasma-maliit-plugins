@@ -91,20 +91,6 @@ void Ut_MVirtualKeyboard::initTestCase()
     QString defaultlanguage = "en_GB";
     item2.set(QVariant(defaultlanguage));
 
-    QString pixmapDirectory("../../m-keyboard/theme");
-    if (!QFile::exists(pixmapDirectory)) {
-        pixmapDirectory = "/usr/share/meegotouch/virtual-keyboard/images";
-        QVERIFY(QFile::exists(pixmapDirectory));
-    }
-    MTheme::instance()->addPixmapDirectory(pixmapDirectory);
-
-    QString cssFile("../../m-keyboard/theme/864x480.css");
-    if (!QFile::exists(cssFile)) {
-        cssFile = "/usr/share/meegotouch/virtual-keyboard/css/864x480.css";
-        QVERIFY(QFile::exists(cssFile));
-    }
-    MTheme::instance()->loadCSS(cssFile);
-
     // MVirtualkeyboard uses MPlainWindow internally so we need to instantiate it.
     new MPlainWindow; // creates a static instance
 

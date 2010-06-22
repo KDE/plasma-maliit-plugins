@@ -115,7 +115,6 @@ void Ut_MKeyboardHost::initTestCase()
     // Avoid waiting if im server is not responding
     MApplication::setLoadMInputContext(false);
     app = new MApplication(argc, app_name);
-    MTheme::instance()->loadCSS("/usr/share/meegotouch/virtual-keyboard/css/864x480.css");
     inputContext = new MInputContextStubConnection;
     window = new MPlainWindow;
 
