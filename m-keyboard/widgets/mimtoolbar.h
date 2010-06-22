@@ -96,6 +96,10 @@ public:
     //! Reload toolbar if it should be updated
     void reload();
 
+    //! \reimp
+    virtual QRectF boundingRect() const;
+    //! \reimp_end
+
 public slots:
     /*!
      * \brief Sets the status if there are some selection text.
@@ -128,6 +132,9 @@ private slots:
 
     //! Show or hide buttons according to toolbar definition and text tselection status
     void updateVisibility();
+
+    //! Update widget parameters when theme has been changed
+    void updateFromStyle();
 
 signals:
     //! Emitted when toolbar's region changed
@@ -188,10 +195,6 @@ private:
      * \param button Button to remove from either side.
      */
     void removeItem(MWidget *widget);
-
-    void updateReactiveAreas();
-
-    void clearReactiveAreas();
 
     bool textSelected;
 

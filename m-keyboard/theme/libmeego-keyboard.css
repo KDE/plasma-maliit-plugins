@@ -21,6 +21,10 @@ MVirtualKeyboardStyle {
     notification-opacity: 0.9;
 
     toolbar-background-image: "meegotouch-keyboard-toolbar-background" 10px 10px 10px 10px;
+    toolbar-margin-top: $MARGIN_LARGE;
+    toolbar-margin-bottom: $MARGIN_LARGE;
+    toolbar-margin-left: $MARGIN_LARGE;
+    toolbar-margin-right: $MARGIN_LARGE;
 
     releaseFeedback: ;
     pressFeedback: ;

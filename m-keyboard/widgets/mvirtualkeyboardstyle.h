@@ -56,6 +56,10 @@ public:
     M_STYLE_ATTRIBUTE(qreal, notificationOpacity, NotificationOpacity)
 
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, toolbarBackgroundImage, ToolbarBackgroundImage);
+    M_STYLE_ATTRIBUTE(int, toolbarMarginTop, ToolbarMarginTop);
+    M_STYLE_ATTRIBUTE(int, toolbarMarginBottom, ToolbarMarginBottom);
+    M_STYLE_ATTRIBUTE(int, toolbarMarginLeft, ToolbarMarginLeft);
+    M_STYLE_ATTRIBUTE(int, toolbarMarginRight, ToolbarMarginRight);
 
     M_STYLE_ATTRIBUTE(QColor, deadkeyLockedColor, DeadkeyLockedColor)
 

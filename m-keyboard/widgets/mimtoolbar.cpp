@@ -66,6 +66,8 @@ MImToolbar::MImToolbar(const MVirtualKeyboardStyleContainer &style, QGraphicsWid
     loadDefaultButtons();
 
     connect(this, SIGNAL(visibleChanged()), this, SLOT(updateVisibility()));
+    connect(MTheme::instance(), SIGNAL(themeChangeCompleted()),
+            this, SLOT(updateFromStyle()));
 }
 
 MImToolbar::~MImToolbar()
@@ -165,6 +167,11 @@ void MImToolbar::updateVisibility()
         }
     }
     arrangeWidgets();
+}
+
+void MImToolbar::updateFromStyle()
+{
+    prepareGeometryChange(); // notify scene about changes in bounding rect
 }
 
 void MImToolbar::loadCustomWidgets()
@@ -509,7 +516,7 @@ void MImToolbar::redrawReactionMaps()
         // TODO: support for translucent keyboard
         reactionMap->setTransform(this, view);
         reactionMap->setInactiveDrawingValue();
-        reactionMap->fillRectangle(rect());
+        reactionMap->fillRectangle(boundingRect());
 
         // Draw all widgets geometries.
         reactionMap->setReactiveDrawingValue();
@@ -523,12 +530,17 @@ void MImToolbar::redrawReactionMaps()
                     if (!sidebar || !sidebar->isVisible()) {
                         continue;
                     }
-                    reactionMap->setTransform(sidebar, view);
 
                     for (int i = 0; i < sidebar->count(); ++i) {
-                        if (sidebar->widgetAt(i) && sidebar->widgetAt(i)->isVisible()) {
-                            reactionMap->fillRectangle(sidebar->widgetAt(i)->geometry());
+                        if (dynamic_cast<MToolbarLabel*>(sidebar->widgetAt(i))) {
+                            reactionMap->setInactiveDrawingValue();
+                        } else if (sidebar->widgetAt(i) && sidebar->widgetAt(i)->isVisible()) {
+                            reactionMap->setReactiveDrawingValue();
                         }
+
+                        MWidget *widget = sidebar->widgetAt(i);
+                        reactionMap->setTransform(widget, view);
+                        reactionMap->fillRectangle(widget->boundingRect());
                     }
                 }
             }
@@ -552,32 +564,10 @@ void MImToolbar::reload()
     loadCustomWidgets();
 }
 
-void MImToolbar::clearReactiveAreas()
+QRectF MImToolbar::boundingRect() const
 {
-    if (!scene())
-        return;
-
-    Q_ASSERT(scene()->views().count() == 1);
-
-    QGraphicsView *view = scene()->views()[0];
-    MReactionMap *reactionMap = MReactionMap::instance(view);
-    if (!reactionMap)
-        return;
-
-    reactionMap->setTransform(this, view);
-    reactionMap->setInactiveDrawingValue();
-
-    for (int n = 0; n < layout()->count(); ++n) {
-        QGraphicsLinearLayout *row = dynamic_cast<QGraphicsLinearLayout*>(layout()->itemAt(n));
-
-        if (row) {
-            for (int j = 0; j < row->count(); ++j) {
-                WidgetBar *sidebar = dynamic_cast<WidgetBar*>(row->itemAt(j));
-                if (sidebar) {
-                    reactionMap->fillRectangle(sidebar->geometry());
-                }
-            }
-        }
-    }
+    return QRectF(-style->toolbarMarginLeft(), -style->toolbarMarginTop(),
+                  size().width() + style->toolbarMarginLeft() + style->toolbarMarginRight(),
+                  size().height() + style->toolbarMarginTop() + style->toolbarMarginBottom());
 }
 
