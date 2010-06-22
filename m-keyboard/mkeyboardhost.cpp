@@ -261,6 +261,8 @@ MKeyboardHost::~MKeyboardHost()
     hardwareKeyboard = 0;
     delete vkbWidget;
     vkbWidget = 0;
+    delete symbolView;
+    symbolView = 0;
     delete correctionCandidateWidget;
     correctionCandidateWidget = 0;
     delete sceneWindow;
