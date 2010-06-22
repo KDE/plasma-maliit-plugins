@@ -35,7 +35,7 @@ namespace
 };
 
 
-Notification::Notification(MVirtualKeyboardStyleContainer *style, QGraphicsWidget *parent)
+Notification::Notification(const MVirtualKeyboardStyleContainer *style, QGraphicsWidget *parent)
     : MWidget(parent),
       styleContainer(style)
 {

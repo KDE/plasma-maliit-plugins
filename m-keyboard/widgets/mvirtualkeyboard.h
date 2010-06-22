@@ -104,7 +104,7 @@ public:
     QString selectedLanguage() const;
 
     //! Getter for style container
-    MVirtualKeyboardStyleContainer &style();
+    const MVirtualKeyboardStyleContainer &style() const;
 
     //! Sets keyboard type according text entry type, type matches M::TextContentType
     void setKeyboardType(const int type);

@@ -42,7 +42,7 @@ public:
      * \brief Constructor for creating notification object.
      * \param parent QGraphicsWidget.
      */
-    Notification(MVirtualKeyboardStyleContainer *style, QGraphicsWidget *parent);
+    Notification(const MVirtualKeyboardStyleContainer *style, QGraphicsWidget *parent);
 
     //! Destructor
     ~Notification();
@@ -91,7 +91,7 @@ private:
     QFont font;
 
     //! CSS style container
-    MVirtualKeyboardStyleContainer *styleContainer;
+    const MVirtualKeyboardStyleContainer *styleContainer;
 
     //! CSS attributes
     QColor border;

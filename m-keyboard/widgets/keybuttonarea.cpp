@@ -55,7 +55,7 @@ int KeyButtonArea::swipeGestureTouchPoints = 1;
 
 M::InputMethodMode KeyButtonArea::InputMethodMode;
 
-KeyButtonArea::KeyButtonArea(MVirtualKeyboardStyleContainer *style,
+KeyButtonArea::KeyButtonArea(const MVirtualKeyboardStyleContainer *style,
                              QSharedPointer<const LayoutSection> sectionModel,
                              ButtonSizeScheme buttonSizeScheme,
                              bool usePopup,

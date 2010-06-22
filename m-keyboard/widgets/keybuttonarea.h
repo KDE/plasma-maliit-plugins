@@ -75,7 +75,7 @@ public:
     * \param usePopup Sets whether popup should be used when long press occurs.
     * \param parent The widget's parent.
     */
-    KeyButtonArea(MVirtualKeyboardStyleContainer *,
+    KeyButtonArea(const MVirtualKeyboardStyleContainer *,
                   QSharedPointer<const LayoutSection> section,
                   ButtonSizeScheme buttonSizeScheme = ButtonSizeEqualExpanding,
                   bool usePopup = false,
@@ -340,7 +340,7 @@ private:
     PopupBase *popup;
 
     //! style
-    MVirtualKeyboardStyleContainer *styleContainer;
+    const MVirtualKeyboardStyleContainer *styleContainer;
 
     //! Touch point id of the most recent press event.
     int newestTouchPointId;

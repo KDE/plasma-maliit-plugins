@@ -48,7 +48,7 @@ namespace
     const QString IconNameCloseButton("icon-m-input-methods-close");
 };
 
-MImToolbar::MImToolbar(MVirtualKeyboardStyleContainer &style, QGraphicsWidget *parent)
+MImToolbar::MImToolbar(const MVirtualKeyboardStyleContainer &style, QGraphicsWidget *parent)
     : MWidget(parent),
       textSelected(false),
       copyPaste(new MButton),

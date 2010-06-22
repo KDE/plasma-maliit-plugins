@@ -65,7 +65,7 @@ public:
      * \param baseSize QSize
      * \param parent Parent object.
      */
-    SymbolView(const LayoutsManager &layoutsManager, MVirtualKeyboardStyleContainer *,
+    SymbolView(const LayoutsManager &layoutsManager, const MVirtualKeyboardStyleContainer *,
                const QString &language, QGraphicsWidget *parent = 0);
 
     /*!
@@ -253,7 +253,7 @@ private:
                                        bool enablePopup = true);
 
     //! Getter for style container
-    MVirtualKeyboardStyleContainer &style();
+    const MVirtualKeyboardStyleContainer &style() const;
 
     //! Retrieves title of a symbol section from given page.
     QString pageTitle(int pageIndex) const;
@@ -266,7 +266,7 @@ private:
 
 private:
     //! Current style being used.
-    MVirtualKeyboardStyleContainer *styleContainer;
+    const MVirtualKeyboardStyleContainer *styleContainer;
 
     //! Manage animation
     QGraphicsItemAnimation *showAnimation;

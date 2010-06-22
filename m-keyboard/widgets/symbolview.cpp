@@ -58,7 +58,7 @@ namespace
 
 
 
-SymbolView::SymbolView(const LayoutsManager &layoutsManager, MVirtualKeyboardStyleContainer *style,
+SymbolView::SymbolView(const LayoutsManager &layoutsManager, const MVirtualKeyboardStyleContainer *style,
                        const QString &language, QGraphicsWidget *parent)
     : MWidget(parent),
       styleContainer(style),
@@ -607,7 +607,7 @@ void SymbolView::redrawReactionMaps()
 }
 
 
-MVirtualKeyboardStyleContainer &SymbolView::style()
+const MVirtualKeyboardStyleContainer &SymbolView::style() const
 {
     return *styleContainer;
 }

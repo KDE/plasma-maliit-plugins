@@ -61,7 +61,7 @@ public:
      * \param style Styling information.
      * \param parent Parent object.
      */
-    explicit MImToolbar(MVirtualKeyboardStyleContainer &style,
+    explicit MImToolbar(const MVirtualKeyboardStyleContainer &style,
                         QGraphicsWidget *parent = 0);
 
     //! Destructor
@@ -204,7 +204,7 @@ private:
 
     QList<QPointer<MWidget> > customWidgets; //! All custom widgets in this toolbar
 
-    MVirtualKeyboardStyleContainer &style; //! Styling information
+    const MVirtualKeyboardStyleContainer &style; //! Styling information
 
     friend class Ut_MImToolbar;
 

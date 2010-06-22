@@ -37,7 +37,7 @@
 #include <mreactionmap.h>
 #include <MTheme>
 
-SingleWidgetButtonArea::SingleWidgetButtonArea(MVirtualKeyboardStyleContainer *style,
+SingleWidgetButtonArea::SingleWidgetButtonArea(const MVirtualKeyboardStyleContainer *style,
                                                QSharedPointer<const LayoutSection> sectionModel,
                                                ButtonSizeScheme buttonSizeScheme,
                                                bool usePopup,

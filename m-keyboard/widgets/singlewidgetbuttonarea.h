@@ -42,7 +42,7 @@ public:
         KeyBackgroundTypeCount
     };
 
-    SingleWidgetButtonArea(MVirtualKeyboardStyleContainer *,
+    SingleWidgetButtonArea(const MVirtualKeyboardStyleContainer *,
                            QSharedPointer<const LayoutSection>,
                            ButtonSizeScheme buttonSizeScheme = ButtonSizeEqualExpanding,
                            bool usePopup = false,

@@ -688,7 +688,7 @@ void MVirtualKeyboard::redrawReactionMaps()
 }
 
 
-MVirtualKeyboardStyleContainer &MVirtualKeyboard::style()
+const MVirtualKeyboardStyleContainer &MVirtualKeyboard::style() const
 {
     return *styleContainer;
 }
