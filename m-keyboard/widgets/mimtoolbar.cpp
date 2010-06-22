@@ -288,6 +288,14 @@ void MImToolbar::unloadCustomWidgets()
 void MImToolbar::arrangeWidgets()
 {
     if (isVisible()) {
+        for (int n = 0; n < layout()->count(); ++n) {
+            QGraphicsLayout *rowLayout = dynamic_cast<QGraphicsLayout*>(layout()->itemAt(n));
+            if (rowLayout) {
+                rowLayout->invalidate();
+                rowLayout->activate();
+            }
+        }
+
         layout()->invalidate();
         layout()->activate();
         resize(geometry().width(), layout()->preferredHeight());
