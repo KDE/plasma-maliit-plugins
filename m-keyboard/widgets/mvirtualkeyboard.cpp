@@ -76,7 +76,6 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
       layoutsMgr(layoutsManager),
       mainKeyboardSwitcher(0),
       notification(0),
-      imToolbar(0),
       numberKeyboard(0),
       numberLayout(0),
       phoneNumberKeyboard(0),
@@ -113,14 +112,6 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
     mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setSpacing(0);
 
-    createToolbar();
-
-    sharedHandleArea = new SharedHandleArea(*imToolbar);
-    sharedHandleArea->setZValue(-1); // popup should be on top of sharedHandleArea
-    connect(sharedHandleArea, SIGNAL(regionUpdated()), this, SLOT(organizeContentAndSendRegion()));
-    mainLayout->addItem(sharedHandleArea);
-    connectHandle(*sharedHandleArea);
-
     Grip &keyboardGrip = *new Grip(this);
     keyboardGrip.setZValue(-1); // popup should be on top of keyboardGrip
     keyboardGrip.setObjectName("KeyboardHandle");
@@ -150,9 +141,6 @@ MVirtualKeyboard::~MVirtualKeyboard()
 {
     delete mainKeyboardSwitcher;
     mainKeyboardSwitcher = 0;
-
-    delete imToolbar;
-    imToolbar = 0;
 
     delete notification;
     notification = 0;
@@ -197,35 +185,6 @@ MVirtualKeyboard::finalizeOrientationChange()
     }
 
     showKeyboard(true);
-}
-
-void MVirtualKeyboard::createToolbar()
-{
-    imToolbar = new MImToolbar(style());
-
-    // Set z value below default level (0.0) so popup will be on top of toolbar.
-    // More correct way to fix this, though more difficult, would be to have only one
-    // popup instance in dvkb and set its z value higher.
-    imToolbar->setZValue(-1.0);
-
-    connect(imToolbar, SIGNAL(copyPasteRequest(CopyPasteState)),
-            this, SIGNAL(copyPasteRequest(CopyPasteState)));
-    connect(imToolbar, SIGNAL(sendKeyEventRequest(const QKeyEvent &)),
-            this, SIGNAL(sendKeyEventRequest(const QKeyEvent &)));
-    connect(imToolbar, SIGNAL(sendStringRequest(const QString &)),
-            this, SIGNAL(sendStringRequest(const QString &)));
-    connect(imToolbar, SIGNAL(copyPasteClicked(CopyPasteState)),
-            this, SIGNAL(copyPasteClicked(CopyPasteState)));
-}
-
-void MVirtualKeyboard::showToolbarWidget(QSharedPointer<const MToolbarData> toolbar)
-{
-    imToolbar->showToolbarWidget(toolbar);
-}
-
-void MVirtualKeyboard::hideToolbarWidget()
-{
-    imToolbar->hideToolbarWidget();
 }
 
 void
@@ -385,9 +344,15 @@ void MVirtualKeyboard::showKeyboard(bool fadeOnly)
 
         QPoint regionOffset(0, 0);
         if (!fadeOnly) {
-            // vkb is positioned right below the visible area
-            setPos(0, sceneManager->visibleSceneSize().height());
-            regionOffset.setY(-actualHeight());
+            // sharedHandleArea is positioned right below the visible area
+            // vkb is positioned below sharedHandleArea
+            int shift = 0;
+
+            if (sharedHandleArea) {
+                shift = sharedHandleArea->size().height();
+            }
+            setPos(0, sceneManager->visibleSceneSize().height() + shift);
+            regionOffset.setY(-actualHeight() - shift);
         } else {
             setPos(0, sceneManager->visibleSceneSize().height() - actualHeight());
         }
@@ -407,8 +372,8 @@ void MVirtualKeyboard::showKeyboard(bool fadeOnly)
         // show() so that we can use region().  We cannot use sendVKBRegion() since region
         // updates are suppressed and because we want to apply the offset.
         regionOffset = mapOffsetToScene(regionOffset);
-        emit regionUpdated(region(true, true).translated(regionOffset));
-        emit inputMethodAreaUpdated(region(true, false).translated(regionOffset));
+        emit regionUpdated(region(true).translated(regionOffset));
+        emit inputMethodAreaUpdated(region(true).translated(regionOffset));
     } else if (hideShowByFadingOnly) {
         // fade() doesn't alter the position when we're just fading
         setPos(0, sceneManager->visibleSceneSize().height() - actualHeight());
@@ -467,7 +432,7 @@ int MVirtualKeyboard::actualHeight() const
     int result = size().height();
 
     if ((activeState != OnScreen)) {
-        result = dynamic_cast<QGraphicsWidget *>(mainLayout->itemAt(SharedHandleAreaIndex))->size().height();
+        result = 0;
     }
 
     return result;
@@ -482,9 +447,7 @@ void MVirtualKeyboard::organizeContent(M::Orientation orientation)
         int index = mainKeyboardSwitcher->current();
         recreateKeyboards();
         mainKeyboardSwitcher->setCurrent(index);
-
-        // load proper layout
-        imToolbar->reload();
+        mainKeyboardSwitcher->setPreferredWidth(MPlainWindow::instance()->visibleSceneSize().width());
 
         // invalidate layouts so we get updated size infos
         numberKeyboard->layout()->invalidate();
@@ -506,7 +469,13 @@ MVirtualKeyboard::fade(int frame)
     const QSize sceneSize = sceneManager->visibleSceneSize();
 
     if (!hideShowByFadingOnly) {
-        setPos(0, sceneSize.height() - (opacity * actualHeight()));
+        int shift = 0;
+
+        if (sharedHandleArea) {
+            shift = sharedHandleArea->size().height();
+        }
+        //vkb should be under sharedHandleArea
+        setPos(0, sceneSize.height() + shift - (opacity * (actualHeight() + shift)));
     }
 
     this->setOpacity(opacity);
@@ -553,22 +522,17 @@ void MVirtualKeyboard::sendVKBRegion()
     if (!sendRegionUpdates)
         return;
 
-    emit regionUpdated(region(true, true));
-    emit inputMethodAreaUpdated(region(true, false));
+    emit regionUpdated(region(true));
+    emit inputMethodAreaUpdated(region(true));
 }
 
-QRegion MVirtualKeyboard::region(const bool notJustMainKeyboardArea,
-                                 const bool includeExtraInteractiveAreas) const
+QRegion MVirtualKeyboard::region(const bool notJustMainKeyboardArea) const
 {
     QRegion region;
     QRectF rect;
 
     if (isVisible()) {
-        imToolbar->layout()->activate();
         mainLayout->activate();
-        if (notJustMainKeyboardArea) {
-            region |= sharedHandleArea->region(includeExtraInteractiveAreas);
-        }
 
         // Main keyboard area (qwerty/number/etc.)
         if (activeState == OnScreen) {
@@ -601,7 +565,7 @@ QRect MVirtualKeyboard::mainAreaSceneRect() const
     QRect result;
 
     if (activeState == OnScreen) {
-        result = region(false, false).boundingRect();
+        result = region(false).boundingRect();
     }
 
     return result;
@@ -692,10 +656,6 @@ void MVirtualKeyboard::redrawReactionMaps()
 
         if (activeState == OnScreen) {
             drawButtonsReactionMaps(reactionMap, view);
-        }
-
-        if (imToolbar->isVisible()) {
-            imToolbar->drawReactiveAreas(reactionMap, view);
         }
     }
 }
@@ -925,6 +885,7 @@ void MVirtualKeyboard::createSwitcher()
     delete mainKeyboardSwitcher; // Delete previous views
     mainKeyboardSwitcher = new HorizontalSwitcher(this);
     mainKeyboardSwitcher->setLooping(true);
+    mainKeyboardSwitcher->setPreferredWidth(MPlainWindow::instance()->visibleSceneSize().width());
 
     // In addition to animating sections (KeyButtonAreas), we also
     // use switcher to provide us the moving direction logic.
@@ -949,6 +910,7 @@ void MVirtualKeyboard::reloadSwitcherContent()
 
         KeyButtonArea *mainSection = createMainSectionView(language, LayoutData::General,
                                                            currentOrientation);
+        mainSection->setPreferredWidth(MPlainWindow::instance()->visibleSceneSize().width());
 
         KeyButtonArea *functionRow = createSectionView(language, LayoutData::General,
                                                        currentOrientation,
@@ -1032,16 +994,6 @@ void MVirtualKeyboard::setFunctionRowState(bool shiftPressed)
     }
 }
 
-void MVirtualKeyboard::setCopyPasteButton(bool copyAvailable, bool pasteAvailable)
-{
-    imToolbar->setCopyPasteButton(copyAvailable, pasteAvailable);
-}
-
-void MVirtualKeyboard::setSelectionStatus(bool hasSelection)
-{
-    imToolbar->setSelectionStatus(hasSelection);
-}
-
 void MVirtualKeyboard::recreateKeyboards()
 {
     reloadSwitcherContent(); // main keyboards
@@ -1102,16 +1054,6 @@ void MVirtualKeyboard::recreateSpecialKeyboards()
     phoneFunctionArea->setObjectName("VirtualKeyboardPhoneFunctionRow");
 }
 
-void MVirtualKeyboard::showToolbar()
-{
-    imToolbar->show();
-}
-
-void MVirtualKeyboard::hideToolbar()
-{
-    imToolbar->hide();
-}
-
 bool MVirtualKeyboard::symViewAvailable() const
 {
     bool available = true;
@@ -1125,6 +1067,12 @@ bool MVirtualKeyboard::symViewAvailable() const
     }
     return available;
 }
+
+void MVirtualKeyboard::setSharedHandleArea(const QPointer<SharedHandleArea> &newSharedHandleArea)
+{
+    sharedHandleArea = newSharedHandleArea;
+}
+
 
 void MVirtualKeyboard::switchLanguage(M::InputMethodSwitchDirection direction, bool enableAnimation)
 {
@@ -1176,5 +1124,4 @@ void MVirtualKeyboard::showMainArea()
 void MVirtualKeyboard::setInputMethodMode(M::InputMethodMode mode)
 {
     KeyButtonArea::setInputMethodMode(mode);
-    sharedHandleArea->setInputMethodMode(mode);
 }

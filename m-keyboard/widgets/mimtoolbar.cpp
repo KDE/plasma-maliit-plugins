@@ -293,8 +293,8 @@ void MImToolbar::arrangeWidgets()
         resize(geometry().width(), layout()->preferredHeight());
     }
 
-    emit regionUpdated();
     emit availabilityChanged((rightBar.count() != 0) || (leftBar.count() != 0));
+    emit regionUpdated();
 }
 
 void MImToolbar::showGroup(const QString &group)
@@ -379,7 +379,6 @@ void MImToolbar::showToolbarWidget(QSharedPointer<const MToolbarData> toolbar)
     if (toolbar == currentToolbar) {
         return;
     }
-
     unloadCustomWidgets();
 
     currentToolbar = toolbar;
@@ -491,30 +490,37 @@ void MImToolbar::removeItem(MWidget *widget)
     layout()->activate();
 }
 
-void MImToolbar::drawReactiveAreas(MReactionMap *reactionMap, QGraphicsView *view)
+void MImToolbar::redrawReactionMaps()
 {
-    // TODO: support for translucent keyboard
-    reactionMap->setTransform(this, view);
-    reactionMap->setInactiveDrawingValue();
-    reactionMap->fillRectangle(rect());
+    foreach(QGraphicsView * view, scene()->views()) {
+        MReactionMap *reactionMap = MReactionMap::instance(view);
+        if (!reactionMap) {
+            continue;
+        }
 
-    // Draw all widgets geometries.
-    reactionMap->setReactiveDrawingValue();
+        // TODO: support for translucent keyboard
+        reactionMap->setTransform(this, view);
+        reactionMap->setInactiveDrawingValue();
+        reactionMap->fillRectangle(rect());
 
-    for (int n = 0; n < layout()->count(); ++n) {
-        QGraphicsLinearLayout *row = dynamic_cast<QGraphicsLinearLayout*>(layout()->itemAt(n));
+        // Draw all widgets geometries.
+        reactionMap->setReactiveDrawingValue();
 
-        if (row) {
-            for (int j = 0; j < row->count(); ++j) {
-                WidgetBar *sidebar = dynamic_cast<WidgetBar*>(row->itemAt(j));
-                if (!sidebar || !sidebar->isVisible()) {
-                    continue;
-                }
-                reactionMap->setTransform(sidebar, view);
+        for (int n = 0; n < layout()->count(); ++n) {
+            QGraphicsLinearLayout *row = dynamic_cast<QGraphicsLinearLayout*>(layout()->itemAt(n));
 
-                for (int i = 0; i < sidebar->count(); ++i) {
-                    if (sidebar->widgetAt(i) && sidebar->widgetAt(i)->isVisible()) {
-                        reactionMap->fillRectangle(sidebar->widgetAt(i)->geometry());
+            if (row) {
+                for (int j = 0; j < row->count(); ++j) {
+                    WidgetBar *sidebar = dynamic_cast<WidgetBar*>(row->itemAt(j));
+                    if (!sidebar || !sidebar->isVisible()) {
+                        continue;
+                    }
+                    reactionMap->setTransform(sidebar, view);
+
+                    for (int i = 0; i < sidebar->count(); ++i) {
+                        if (sidebar->widgetAt(i) && sidebar->widgetAt(i)->isVisible()) {
+                            reactionMap->fillRectangle(sidebar->widgetAt(i)->geometry());
+                        }
                     }
                 }
             }

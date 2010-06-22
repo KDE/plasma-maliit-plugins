@@ -20,6 +20,9 @@
 #include <MWidget>
 #include <MNamespace>
 
+#include <QList>
+#include <QPointer>
+
 class QGraphicsLinearLayout;
 class FlickGesture;
 class MImToolbar;
@@ -51,9 +54,25 @@ public:
     //! Set input method mode
     void setInputMethodMode(M::InputMethodMode mode);
 
-    //! \return region of the widget, including the invisible handle if
-    //! \a includeExtraInteractiveAreas is true
-    QRegion region(bool includeExtraInteractiveAreas = false) const;
+    /*!
+     * \brief Returns region including this object.
+     * \param region Region occupied by other widgets.
+     * \param includeExtraInteractiveAreas Result includes transparent interactive area
+     * if this param is true.
+     *
+     * This method will return unchanged \a region is all watched widgets
+     * are invisible. See also watchOnMovement.
+     */
+    QRegion addRegion(const QRegion &region,
+                      bool includeExtraInteractiveAreas) const;
+
+    /*!
+     * \brief Ask toolbar to watch on position of given \a widget.
+     */
+    void watchOnMovement(QGraphicsWidget *widget);
+
+    //! Update position and geometry when orientation is changed
+    void finalizeOrientationChange();
 
 signals:
     void flickUp(const FlickGesture &gesture);
@@ -62,14 +81,37 @@ signals:
     void flickRight(const FlickGesture &gesture);
 
     void regionUpdated();
+    void inputMethodAreaUpdated();
+
+private:
+    /*!
+     * This enumeration defines whether regionUpdated and inputMethodAreaUpdated
+     * should be emitted
+     */
+    enum SignalsMode {
+        SignalsAuto, //!< Signals are emitted when position is changed
+        SignalsEnforce, //!< Signals will be emitted.
+        SignalsBlock, //!< Signals are blocked.
+    };
+
+    //! Connect signals from a \a handle widget
+    void connectHandle(const Handle &handle);
 
 private slots:
+    //! Update widget position and notify about region update.
+    //! \param sendSignals If this parameter contains true then signals regionUpdated and
+    //! inputMethodAreaUpdated will be emitted even if position was not changed
+    void updatePositionAndRegion(SignalsMode sendSignals = SignalsAuto);
+
     //! Handle changes in toolbar availability
     void handleToolbarAvailability(bool available);
 
-private:
-    //! Connect signals from a \a handle widget
-    void connectHandle(const Handle &handle);
+    /*!
+     * \brief Move toolbar when other widgets are moved.
+     *
+     * This slot DOES NOT emit regionUpdated and inputMethodAreaUpdated.
+     */
+    void updatePosition();
 
 private:
     enum LayoutIndex {
@@ -92,6 +134,10 @@ private:
     //! Dummy widget we use in place of the invisible gesture handle when it's
     //! not ... err, visible (in its usual invisible way)
     QGraphicsWidget &zeroSizeInvisibleHandle;
+
+    //! Widgets define position of SharedHandleArea: this object
+    //! should be placed above other widgets.
+    QList<QPointer<QGraphicsWidget> > watchedWidgets;
 };
 
 #endif

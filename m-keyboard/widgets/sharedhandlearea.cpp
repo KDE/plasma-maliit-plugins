@@ -19,6 +19,8 @@
 #include "mimtoolbar.h"
 #include "sharedhandlearea.h"
 
+#include <mplainwindow.h>
+
 #include <QDebug>
 #include <QGraphicsLinearLayout>
 
@@ -31,6 +33,9 @@ SharedHandleArea::SharedHandleArea(MImToolbar &toolbar, QGraphicsWidget *parent)
       zeroSizeToolbarGrip(*new QGraphicsWidget(this)),
       zeroSizeInvisibleHandle(*new QGraphicsWidget(this))
 {
+    zeroSizeToolbarGrip.setObjectName("zeroSizeToolbarGrip");
+    zeroSizeInvisibleHandle.setObjectName("zeroSizeInvisibleHandle");
+
     mainLayout.setContentsMargins(0, 0, 0, 0);
     mainLayout.setSpacing(0);
 
@@ -76,7 +81,6 @@ void SharedHandleArea::handleToolbarAvailability(const bool available)
     QGraphicsWidget &newItem(available ? toolbarGrip : zeroSizeToolbarGrip);
     mainLayout.insertItem(ToolbarHandleIndex, &newItem);
     newItem.setVisible(available);
-    emit regionUpdated();
 }
 
 
@@ -99,19 +103,104 @@ void SharedHandleArea::setInputMethodMode(const M::InputMethodMode mode)
     QGraphicsWidget &newItem(mode == M::InputMethodModeDirect ? invisibleHandle : zeroSizeInvisibleHandle);
     mainLayout.insertItem(InvisibleHandleIndex, &newItem);
     newItem.setVisible(mode == M::InputMethodModeDirect);
-    emit regionUpdated();
+    updatePositionAndRegion(SignalsEnforce);
 }
 
 
-QRegion SharedHandleArea::region(const bool includeExtraInteractiveAreas) const
+QRegion SharedHandleArea::addRegion(const QRegion &region,
+                                    bool includeExtraInteractiveAreas) const
 {
-    QRegion region(mapRectToScene(mainLayout.itemAt(ToolbarHandleIndex)->geometry()).toRect());
+    QRegion result = region;
+    bool visible = false;
 
-    region |= mapRectToScene(mainLayout.itemAt(ToolbarIndex)->geometry()).toRect();
-
-    if (includeExtraInteractiveAreas) {
-        region |= mapRectToScene(mainLayout.itemAt(InvisibleHandleIndex)->geometry()).toRect();
+    foreach (QGraphicsWidget *widget, watchedWidgets) {
+        if (widget && widget->isVisible()) {
+            visible = true;
+            break;
+        }
     }
 
-    return region;
+    if (visible) {
+        const int bottom = pos().y() + size().height();
+        const int top = parentItem()->mapFromScene(region.boundingRect()).boundingRect().topLeft().y();
+        const int shift = top - bottom;
+        QRect myRect(geometry().toRect().translated(0, shift)); //our region is on top of received region
+
+        if (!includeExtraInteractiveAreas) {
+            int correction = mainLayout.itemAt(InvisibleHandleIndex)->geometry().height();
+            //exclude transparent interactive area on top of our rectangle
+            myRect.adjust(0, correction, 0, -correction);
+        }
+
+        const QRegion myRegion(parentItem()->mapRectToScene(myRect).toRect());
+
+        result |= myRegion;
+    }
+
+    return result;
 }
+
+void SharedHandleArea::updatePositionAndRegion(SignalsMode signalsMode)
+{
+    QPointF position = pos();
+
+    layout()->invalidate();
+    layout()->activate();
+    resize(geometry().width(), layout()->preferredHeight());
+
+    updatePosition();
+
+    bool emitSignals = false;
+
+    switch (signalsMode) {
+    case SignalsBlock:
+        emitSignals = false;
+        break;
+    case SignalsEnforce:
+        emitSignals = true;
+        break;
+    case SignalsAuto:
+        emitSignals = (position != pos());
+        break;
+    }
+
+    if (emitSignals) {
+        emit regionUpdated();
+        emit inputMethodAreaUpdated();
+    }
+}
+
+void SharedHandleArea::updatePosition()
+{
+    qreal bottom = MPlainWindow::instance()->visibleSceneSize().height() + size().height();
+
+    foreach (const QGraphicsWidget *widget, watchedWidgets) {
+        if (widget && widget->isVisible()) {
+            bottom = qMin(widget->pos().y(), bottom);
+        }
+    }
+
+    setPos(0, bottom - size().height());
+}
+
+void SharedHandleArea::watchOnMovement(QGraphicsWidget *widget)
+{
+    if (!widget) {
+        return;
+    }
+
+    connect(widget, SIGNAL(yChanged()), this, SLOT(updatePosition()));
+    watchedWidgets.append(widget);
+    updatePositionAndRegion();
+
+    watchedWidgets.removeAll(QPointer<QGraphicsWidget>()); //remove all invalid pointers
+}
+
+void SharedHandleArea::finalizeOrientationChange()
+{
+    //set proper width
+    resize(MPlainWindow::instance()->visibleSceneSize().width(),
+           size().height());
+    updatePositionAndRegion(SharedHandleArea::SignalsBlock);
+}
+

@@ -30,6 +30,7 @@
 #include <QPixmap>
 #include <QSharedPointer>
 #include <QTimeLine>
+#include <QPointer>
 
 class QGraphicsGridLayout;
 class QGraphicsLinearLayout;
@@ -133,33 +134,11 @@ public:
 
     void stopAccurateMode();
 
-    /*! \brief Set copy/paste button state: hide it, show copy or show paste
-     *  \param copyAvailable bool TRUE if text is selected
-     *  \param pasteAvailable bool TRUE if clipboard content is not empty
-     */
-    virtual void setCopyPasteButton(bool copyAvailable, bool pasteAvailable);
-
-    /*!
-     * \brief Sets the status if there are some selection text.
-     */
-    void setSelectionStatus(bool);
-
     //! Prepare virtual keyboard for orientation change
     void prepareToOrientationChange();
 
     //! Finalize orientation change
     void finalizeOrientationChange();
-
-    /*!
-     * \brief Creates widgets to visualize given \a toolbar.
-     * \param toolbar      Pointer to toolbar definition.
-     */
-    void showToolbarWidget(QSharedPointer<const MToolbarData> toolbar);
-
-    /*!
-     * \brief Hides all custom toolbars, this means they are removed from visible virtual keyboard.
-     */
-    void hideToolbarWidget();
 
     /*!
      * \brief Shows or hides some keyboard's widgets depending on keyboard state.
@@ -191,6 +170,10 @@ public:
 
     //! Return bounding rectangle of main keyboard area in scene coordinates
     QRect mainAreaSceneRect() const;
+
+    //! Set pointer to shared handle area
+    void setSharedHandleArea(const QPointer<SharedHandleArea> &newSharedHandleArea);
+
 
 public slots:
     /*!
@@ -226,12 +209,6 @@ public slots:
     void organizeContent(M::Orientation orientation);
 
     void setLanguage(int languageIndex);
-
-    //! show virtual keyboard toolbar.
-    void showToolbar();
-
-    //! hide virtual keyboard toolbar.
-    void hideToolbar();
 
     //! Hide main keyboard layout
     void hideMainArea();
@@ -379,8 +356,7 @@ private:
      * \param includeExtraInteractiveAreas Set this param to true if you want to include transparent
      * interactive area into region
      */
-    QRegion region(bool notJustMainKeyboardArea = true,
-                   bool includeExtraInteractiveAreas = false) const;
+    QRegion region(bool notJustMainKeyboardArea = true) const;
 
     /*!
      * \brief Maps \a offset to scene coordinate.
@@ -393,11 +369,6 @@ private:
      * Method to setup timeline
      */
     void setupTimeLine();
-
-    /*!
-     * \brief Create toolbar for virtual keyboard.
-     */
-    void createToolbar();
 
     /*!
      * Paint the reactive areas of the buttons
@@ -461,7 +432,6 @@ private:
 private:
     //! Main layout indices
     enum LayoutIndex {
-        SharedHandleAreaIndex,
         KeyboardHandleIndex,
         KeyboardIndex
     };
@@ -529,9 +499,6 @@ private:
 
     Notification *notification;
 
-    //! Toolbar for virtual keyboard
-    MImToolbar *imToolbar;
-
     QGraphicsWidget *numberKeyboard;
     QGraphicsLinearLayout *numberLayout;
 
@@ -547,9 +514,9 @@ private:
     //! Contains true if multi-touch is enabled
     bool enableMultiTouch;
 
-    //! Handle area (to be) shared between symbol view and virtual keyboard
-    //! TODO: move this to host
-    SharedHandleArea *sharedHandleArea;
+    //! Handle area containing toolbar widget.
+    // MVirtualKeyboard is not owner of this object.
+    QPointer<SharedHandleArea> sharedHandleArea;
 };
 
 #endif

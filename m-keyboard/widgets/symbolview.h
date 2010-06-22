@@ -25,6 +25,8 @@
 
 #include "singlewidgetbuttonarea.h"
 
+#include <QPointer>
+
 class QGraphicsLinearLayout;
 class MSceneManager;
 class MVirtualKeyboardStyleContainer;
@@ -40,6 +42,7 @@ class LayoutSection;
 class SymIndicatorButton;
 class KeyEventHandler;
 class Handle;
+class SharedHandleArea;
 
 /*!
  * \brief SymbolView is used to show different layouts symbols/upper case/lower case
@@ -99,6 +102,9 @@ public:
 
     //! Returns the index of current page.
     int currentPage() const;
+
+    //! Set pointer to handle area
+    void setSharedHandleArea(const QPointer<SharedHandleArea> &newSharedHandleArea);
 
 public slots:
     /*!
@@ -304,9 +310,14 @@ private:
     //! Contains true if multi-touch is enabled
     bool enableMultiTouch;
 
+    //! Shared handle area 
+    //Symbol view is not owner of this object.
+    QPointer<SharedHandleArea> sharedHandleArea;
+
 #ifdef UNIT_TEST
     friend class Ut_SymbolView;
 #endif
 };
 
 #endif
+

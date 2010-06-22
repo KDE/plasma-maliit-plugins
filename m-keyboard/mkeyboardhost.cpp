@@ -26,6 +26,8 @@
 #include "keyboarddata.h"
 #include "layoutsmanager.h"
 #include "symbolview.h"
+#include "mimtoolbar.h"
+#include "sharedhandlearea.h"
 
 #include <mimenginewords.h>
 #include <minputcontextconnection.h>
@@ -167,6 +169,44 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
     Q_UNUSED(ok); // if Q_NO_DEBUG is defined then the assert won't be used
     Q_ASSERT(ok);
 
+    imToolbar = new MImToolbar(*vkbStyleContainer);
+
+    ok = connect(imToolbar, SIGNAL(copyPasteRequest(CopyPasteState)),
+                 this, SLOT(sendCopyPaste(CopyPasteState)));
+    Q_ASSERT(ok);
+    ok = connect(imToolbar, SIGNAL(sendKeyEventRequest(const QKeyEvent &)),
+                 this, SLOT(sendKeyEvent(const QKeyEvent &)));
+    Q_ASSERT(ok);
+    ok = connect(imToolbar, SIGNAL(sendStringRequest(const QString &)),
+                 this, SLOT(sendString(const QString &)));
+    Q_ASSERT(ok);
+    ok = connect(imToolbar, SIGNAL(copyPasteClicked(CopyPasteState)),
+                 this, SLOT(sendCopyPaste(CopyPasteState)));
+    Q_ASSERT(ok);
+
+    sharedHandleArea = new SharedHandleArea(*imToolbar, sceneWindow);
+    sharedHandleArea->resize(MPlainWindow::instance()->visibleSceneSize().width(),
+                             sharedHandleArea->size().height());
+    ok = connect(imToolbar, SIGNAL(regionUpdated()),
+                 sharedHandleArea, SLOT(updatePositionAndRegion()));
+    Q_ASSERT(ok);
+    sharedHandleArea->setInputMethodMode(static_cast<M::InputMethodMode>(inputMethodMode));
+
+    ok = connect(sharedHandleArea, SIGNAL(regionUpdated()),
+                 this, SLOT(handleRegionUpdate()));
+    Q_ASSERT(ok);
+
+    ok = connect(sharedHandleArea, SIGNAL(inputMethodAreaUpdated()),
+                 this, SLOT(handleInputMethodAreaUpdate()));
+    Q_ASSERT(ok);
+
+    // Set z value below default level (0.0) so popup will be on top of shared handle area.
+    sharedHandleArea->setZValue(-1.0);
+
+    vkbWidget->setSharedHandleArea(sharedHandleArea);
+    sharedHandleArea->watchOnMovement(vkbWidget);
+
+
     createCorrectionCandidateWidget();
 
     // Ideally we would adjust the hiding/showing animation of vkb according to
@@ -198,6 +238,9 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
             this, SLOT(handleKeyPress(const KeyEvent &)));
     connect(symbolView, SIGNAL(keyReleased(const KeyEvent &)),
             this, SLOT(handleKeyRelease(const KeyEvent &)));
+
+    symbolView->setSharedHandleArea(sharedHandleArea);
+    sharedHandleArea->watchOnMovement(symbolView);
 
     connect(vkbWidget, SIGNAL(languageChanged(const QString &)),
             this, SLOT(handleLayoutChanged(const QString &)));
@@ -381,7 +424,7 @@ void MKeyboardHost::update()
 
     const bool hasSelection = inputContextConnection()->hasSelection(valid);
     if (valid) {
-        vkbWidget->setSelectionStatus(hasSelection);
+        imToolbar->setSelectionStatus(hasSelection);
     }
 
     const int type = inputContextConnection()->contentType(valid);
@@ -413,6 +456,7 @@ void MKeyboardHost::update()
         }
         inputMethodMode = inputMethodModeValue;
         vkbWidget->setInputMethodMode(static_cast<M::InputMethodMode>(inputMethodMode));
+        sharedHandleArea->setInputMethodMode(static_cast<M::InputMethodMode>(inputMethodMode));
     }
 }
 
@@ -486,6 +530,14 @@ void MKeyboardHost::prepareOrientationChange()
 void MKeyboardHost::finalizeOrientationChange()
 {
     angle = MPlainWindow::instance()->orientationAngle();
+
+    if (imToolbar) {
+        // load proper layout
+        imToolbar->reload();
+    }
+    if (sharedHandleArea) {
+        sharedHandleArea->finalizeOrientationChange();
+    }
 
     vkbWidget->finalizeOrientationChange();
 
@@ -635,7 +687,7 @@ void MKeyboardHost::appOrientationChanged(int angle)
 
 void MKeyboardHost::setCopyPasteState(bool copyAvailable, bool pasteAvailable)
 {
-    vkbWidget->setCopyPasteButton(copyAvailable, pasteAvailable);
+    imToolbar->setCopyPasteButton(copyAvailable, pasteAvailable);
 }
 
 
@@ -767,8 +819,16 @@ void MKeyboardHost::updateReactionMaps()
         correctionCandidateWidget->redrawReactionMaps();
     } else if (symbolView && symbolView->isFullyVisible()) {
         symbolView->redrawReactionMaps();
+
+        if (imToolbar && imToolbar->isVisible()) {
+            imToolbar->redrawReactionMaps();
+        }
     } else if (vkbWidget && vkbWidget->isFullyVisible()) {
         vkbWidget->redrawReactionMaps();
+
+        if (imToolbar && imToolbar->isVisible()) {
+            imToolbar->redrawReactionMaps();
+        }
     } else {
         // Transparent reaction map when nothing is shown.
         clearReactionMaps(MReactionMap::Transparent);
@@ -1076,14 +1136,50 @@ void MKeyboardHost::showLayoutMenu()
     emit settingsRequested();
 }
 
-QRegion MKeyboardHost::combineRegionTo(RegionMap &regionStore,
-                                         const QRegion &region, const QObject &widget)
+QRegion MKeyboardHost::combineRegionTo(const QRegion &region,
+                                       const QObject &widget)
+{
+    return combineRegionToImpl(widgetRegions, region, widget, true);
+}
+
+QRegion MKeyboardHost::combineInputMethodAreaTo(const QRegion &region,
+                                 const QObject &widget)
+{
+    return combineRegionToImpl(inputMethodAreaWidgetRegions, region,
+                               widget, false);
+}
+
+QRegion MKeyboardHost::combineRegionToImpl(RegionMap &regionStore,
+                                           const QRegion &region,
+                                           const QObject &widget,
+                                           bool includeExtraInteractiveAreas)
 {
     regionStore[&widget] = region;
 
+    return combineRegionImpl(regionStore, includeExtraInteractiveAreas);
+}
+
+QRegion MKeyboardHost::combineRegion()
+{
+    return combineRegionImpl(widgetRegions, true);
+}
+
+QRegion MKeyboardHost::combineInputMethodArea()
+{
+    return combineRegionImpl(inputMethodAreaWidgetRegions, false);
+}
+
+QRegion MKeyboardHost::combineRegionImpl(const RegionMap &regionStore,
+                                         bool includeExtraInteractiveAreas)
+{
     QRegion combinedRegion;
     foreach (const QRegion &partialRegion, regionStore) {
         combinedRegion |= partialRegion;
+    }
+
+    if (sharedHandleArea) {
+        //add region occupied by sharedHandleArea
+        combinedRegion = sharedHandleArea->addRegion(combinedRegion, includeExtraInteractiveAreas);
     }
 
     return combinedRegion;
@@ -1091,14 +1187,25 @@ QRegion MKeyboardHost::combineRegionTo(RegionMap &regionStore,
 
 void MKeyboardHost::handleRegionUpdate(const QRegion &region)
 {
-    emit regionUpdated(combineRegionTo(widgetRegions, region, *QObject::sender()));
+    widgetRegions[QObject::sender()] = region;
+    handleRegionUpdate();
+}
+
+void MKeyboardHost::handleRegionUpdate()
+{
+    emit regionUpdated(combineRegion());
     updateReactionMaps();
 }
 
 void MKeyboardHost::handleInputMethodAreaUpdate(const QRegion &region)
 {
-    emit inputMethodAreaUpdated(combineRegionTo(inputMethodAreaWidgetRegions,
-                                                region, *QObject::sender()));
+    inputMethodAreaWidgetRegions[QObject::sender()] = region;
+    handleInputMethodAreaUpdate();
+}
+
+void MKeyboardHost::handleInputMethodAreaUpdate()
+{
+    emit inputMethodAreaUpdated(combineInputMethodArea());
 }
 
 void MKeyboardHost::sendKeyEvent(const QKeyEvent &key)
@@ -1114,9 +1221,9 @@ void MKeyboardHost::sendString(const QString &text)
 void MKeyboardHost::setToolbar(QSharedPointer<const MToolbarData> toolbar)
 {
     if (toolbar) {
-        vkbWidget->showToolbarWidget(toolbar);
+        imToolbar->showToolbarWidget(toolbar);
     } else {
-        vkbWidget->hideToolbarWidget();
+        imToolbar->hideToolbarWidget();
     }
 }
 
@@ -1323,7 +1430,7 @@ void MKeyboardHost::showLockOnInfoBanner(const QString &notification)
     // current region maybe empty, we should request 1 pixel to make infobanner visible.
     // FIXME: this request 1 pixel looks like hack way.
     // maybe we should request system notification instead of showing our own infobanner.
-    emit regionUpdated(combineRegionTo(widgetRegions, QRegion(0, 0, 1, 1), *this));
+    emit regionUpdated(combineRegionTo(QRegion(0, 0, 1, 1), *this));
 
     if (modifierLockOnInfoBanner) {
         modifierLockOnInfoBanner->setBodyText(notification);
@@ -1346,7 +1453,7 @@ void MKeyboardHost::hideLockOnInfoBanner(bool updateRegion)
     // some time we don't need to update region at once (e.g. during changing modifier state frequently)
     // when modifierLockOnTimer is timeout, this method will be called to update region
     if (updateRegion) {
-        emit regionUpdated(combineRegionTo(widgetRegions, QRegion(), *this));
+        emit regionUpdated(combineRegionTo(QRegion(), *this));
     }
 }
 

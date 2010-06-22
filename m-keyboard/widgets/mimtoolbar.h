@@ -86,7 +86,8 @@ public:
      */
     void hideToolbarWidget();
 
-    void drawReactiveAreas(MReactionMap *reactionMap, QGraphicsView *view);
+    //! \brief Clears and redraws the toolbar reaction maps.
+    void redrawReactionMaps();
 
     //! \reimp
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *);

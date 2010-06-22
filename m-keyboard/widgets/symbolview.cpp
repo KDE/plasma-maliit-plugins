@@ -22,6 +22,7 @@
 #include "symbolview.h"
 #include "keyeventhandler.h"
 #include "grip.h"
+#include "sharedhandlearea.h"
 
 #include <MSceneManager>
 #include <MScalableImage>
@@ -249,8 +250,12 @@ bool SymbolView::sceneEventFilter(QGraphicsItem */*watched*/, QEvent *event)
 
 void SymbolView::reposition(const int height)
 {
-    const int bottom = sceneManager.visibleSceneSize().height();
-    const int top = bottom - height;
+    int bottom = sceneManager.visibleSceneSize().height();
+    const int top = sceneManager.visibleSceneSize().height() - height;
+
+    if (sharedHandleArea) {
+        bottom += sharedHandleArea->size().height();
+    }
 
     setPos(0, isVisible() ? top : bottom);
 
@@ -675,6 +680,12 @@ int SymbolView::pageCount() const
 int SymbolView::currentPage() const
 {
     return activePage;
+}
+
+void SymbolView::setSharedHandleArea(const QPointer<SharedHandleArea> &handleArea)
+{
+    sharedHandleArea = handleArea;
+    reposition(size().toSize().height());
 }
 
 void SymbolView::showFunctionRow()

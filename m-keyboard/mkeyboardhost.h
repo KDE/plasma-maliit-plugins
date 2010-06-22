@@ -26,6 +26,7 @@
 #include <QStringList>
 #include <QTime>
 #include <QTimer>
+#include <QPointer>
 
 class MFeedbackPlayer;
 class MGConfItem;
@@ -38,6 +39,9 @@ class SymbolView;
 class MImEngineWords;
 class QWidget;
 class MInfoBanner;
+class SharedHandleArea;
+class MImToolbar;
+
 
 //! Logic class for virtual keyboard
 class MKeyboardHost: public MInputMethodBase
@@ -132,6 +136,9 @@ private slots:
      */
     void handleRegionUpdate(const QRegion &region);
 
+    //! This overloaded function handles region updates from sharedHandleArea.
+    void handleRegionUpdate();
+
     /*!
      * Receive region updates from widgets, combine them and signal as input
      * method area using \a MInputMethodBase::inputMethodAreaUpdated.
@@ -139,6 +146,9 @@ private slots:
      * \param region updated region
      */
     void handleInputMethodAreaUpdate(const QRegion &region);
+
+    //! This overloaded function handles region updates from sharedHandleArea.
+    void handleInputMethodAreaUpdate();
 
     //! Sends key event
     void sendKeyEvent(const QKeyEvent &);
@@ -214,11 +224,52 @@ private:
     typedef QMap<const QObject *, QRegion> RegionMap;
 
     /*!
-     * \brief Add \a region to \a regionStore with key \a widget.
+     * \brief Add \a region to widgetRegions with key \a widget.
+     * \param includeExtraInteractiveAreas Result includes extra interactive area
+     * \return Union of all regions in widgetRegions after adding \a region
+     * and sharedHandleArea region to it.
+     */
+    QRegion combineRegionTo(const QRegion &region,
+                            const QObject &widget);
+
+    /*!
+     * \brief Add \a region to inputMethodAreaWidgetRegions with key \a widget.
+     * \param includeExtraInteractiveAreas Result includes extra interactive area
+     * \return Union of all regions in inputMethodAreaWidgetRegions after adding \a region
+     * and sharedHandleArea region to it.
+     */
+    QRegion combineInputMethodAreaTo(const QRegion &region,
+                                     const QObject &widget);
+
+    /*!
+     * \brief Common implementation for combineRegionTo() and combineInputMethodAreaTo()
+     * \param includeExtraInteractiveAreas Result includes extra interactive area if
+     * this parameter is true.
      * \return Union of all regions in \a regionStore after adding \a region to it.
      */
-    static QRegion combineRegionTo(RegionMap &regionStore,
-                                   const QRegion &region, const QObject &widget);
+    QRegion combineRegionToImpl(RegionMap &regionStore,
+                                const QRegion &region,
+                                const QObject &widget,
+                                bool includeExtraInteractiveAreas);
+
+    /*!
+     * \brief Return union of all regions in \a regionStore after adding sharedHandleArea region.
+     */
+    QRegion combineRegion();
+
+    /*!
+     * \brief Return union of all regions in \a regionStore after adding sharedHandleArea region.
+     */
+    QRegion combineInputMethodArea();
+
+    /*!
+     * \brief Common implementation for combineRegion() and combineInputMethodArea().
+     * \param includeExtraInteractiveAreas Result includes extra interactive area
+     * if this parameter is true.
+     */
+    QRegion combineRegionImpl(const RegionMap &regionStore,
+                              bool includeExtraInteractiveAreas);
+
 
     //! initialize input engine
     void initializeInputEngine();
@@ -302,6 +353,12 @@ private:
 
     //! Contains true if multi-touch is enabled
     bool enableMultiTouch;
+
+    //! Handle area containing toolbar widget.
+    QPointer<SharedHandleArea> sharedHandleArea;
+
+    //! Toolbar widget containing copy/paste and custom buttons.
+    QPointer<MImToolbar> imToolbar;
 
 #ifdef UNIT_TEST
     friend class Ut_MKeyboardHost;
