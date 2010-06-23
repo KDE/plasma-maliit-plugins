@@ -581,11 +581,16 @@ void MVirtualKeyboard::setKeyboardState(MIMHandlerState newState)
         return;
     }
 
+    bool savedSendRegionUpdates = sendRegionUpdates;
+    sendRegionUpdates = true; // our region is changed, so we must sent it now
+
     activeState = newState;
     resetState();
 
     static_cast<QGraphicsWidget *>(mainLayout->itemAt(KeyboardIndex))->setVisible(newState == OnScreen);
+    showHideTimeline.stop(); // position must be updated by organizeContentAndSendRegion() 
     organizeContentAndSendRegion();
+    sendRegionUpdates = savedSendRegionUpdates;
 }
 
 MIMHandlerState MVirtualKeyboard::keyboardState() const
