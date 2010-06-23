@@ -184,6 +184,10 @@ void MImToolbar::loadCustomWidgets()
     QSharedPointer<const MToolbarLayout> layout = currentToolbar->layout(orientation);
     QGraphicsLinearLayout *mainLayout = static_cast<QGraphicsLinearLayout*>(this->layout());
 
+    if (!mainLayout) {
+        qCritical() << __PRETTY_FUNCTION__ << "Layout does not exist";
+    }
+
     QList<QSharedPointer<const MToolbarRow> > rows = layout->rows();
 
     //create additional rows if necessary
@@ -271,6 +275,10 @@ void MImToolbar::unloadCustomWidgets()
     QGraphicsLinearLayout *mainLayout = static_cast<QGraphicsLinearLayout*>(layout());
     QList<QGraphicsLinearLayout*> rows;
 
+    if (!mainLayout) {
+        qCritical() << __PRETTY_FUNCTION__ << "Layout does not exist";
+    }
+
     //delete all dynamically created rows
     for (int n = 0; n < mainLayout->count() - 1; ++n) {
         QGraphicsLinearLayout *rowLayout = dynamic_cast<QGraphicsLinearLayout*>(mainLayout->itemAt(n));
@@ -294,6 +302,10 @@ void MImToolbar::unloadCustomWidgets()
 
 void MImToolbar::arrangeWidgets()
 {
+    if (!layout()) {
+        qCritical() << __PRETTY_FUNCTION__ << "Layout does not exist";
+    }
+
     if (isVisible()) {
         for (int n = 0; n < layout()->count(); ++n) {
             QGraphicsLayout *rowLayout = dynamic_cast<QGraphicsLayout*>(layout()->itemAt(n));
@@ -485,6 +497,10 @@ void MImToolbar::insertItem(const int index, MWidget *widget, Qt::Alignment alig
         rightBar.show();
     }
 
+    if (!layout()) {
+        qCritical() << __PRETTY_FUNCTION__ << "Layout does not exist";
+    }
+
     layout()->invalidate();
     layout()->activate();
 }
@@ -501,12 +517,20 @@ void MImToolbar::removeItem(MWidget *widget)
         rightBar.hide();
     }
 
+    if (!layout()) {
+        qCritical() << __PRETTY_FUNCTION__ << "Layout does not exist";
+    }
+
     layout()->invalidate();
     layout()->activate();
 }
 
 void MImToolbar::redrawReactionMaps()
 {
+    if (!layout()) {
+        qCritical() << __PRETTY_FUNCTION__ << "Layout does not exist";
+    }
+
     foreach(QGraphicsView * view, scene()->views()) {
         MReactionMap *reactionMap = MReactionMap::instance(view);
         if (!reactionMap) {
