@@ -310,6 +310,10 @@ bool MReactionMapTester::testReactionMapGrid(const QGraphicsView *view,
             if (item && !region.isEmpty() && !region.contains(scenePoint)) {
                 // We are not interested in this scene item.
                 // It's probably the parent scene window.
+                const MButton *m = dynamic_cast<const MButton*>(item);
+                if (m) {
+                    qDebug() << "skip" << m << m->text() << scenePoint << region;
+                }
                 item = 0;
             }
 
@@ -348,6 +352,9 @@ bool MReactionMapTester::testReactionMapGrid(const QGraphicsView *view,
                     const QObject *qobj = dynamic_cast<const QObject*>(item);
                     if (qobj) {
                         qDebug() << " Item class name: " << qobj->metaObject()->className();
+                        if (dynamic_cast<const MButton*>(qobj)) {
+                            qDebug() << " text: " << dynamic_cast<const MButton*>(qobj)->text();
+                        }
                     }
                 }
 

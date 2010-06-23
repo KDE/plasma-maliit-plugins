@@ -375,13 +375,15 @@ void Ut_MImToolbar::testReactionMaps()
 
     // Overall sanity test with grid points throughout the view.
     if (!m_subject->region().isEmpty()) {
-        QVERIFY(tester.testReactionMapGrid(MPlainWindow::instance(), 40, 50, m_subject->region()));
+        QRegion region(m_subject->mapToScene(m_subject->boundingRect()).boundingRect().toRect());
+        QVERIFY(tester.testReactionMapGrid(MPlainWindow::instance(), 40, 50, region));
     }
 
     // Check that all buttons are drawn with reactive color.
     QVERIFY(tester.testChildButtonReactiveAreas(MPlainWindow::instance(), m_subject));
 
     // Check again with copy
+    qDebug() << "isVisible" << m_subject->isVisible();
     m_subject->setCopyPasteButton(true, false);
     m_subject->redrawReactionMaps();
     QVERIFY(!m_subject->region().isEmpty());
@@ -398,7 +400,8 @@ void Ut_MImToolbar::testReactionMaps()
     m_subject->setCopyPasteButton(false, false);
     m_subject->redrawReactionMaps();
     if (!m_subject->region().isEmpty()) {
-        QVERIFY(tester.testReactionMapGrid(MPlainWindow::instance(), 40, 50, m_subject->region()));
+        QRegion region(m_subject->mapToScene(m_subject->boundingRect()).boundingRect().toRect());
+        QVERIFY(tester.testReactionMapGrid(MPlainWindow::instance(), 40, 50, region));
         QVERIFY(tester.testChildButtonReactiveAreas(MPlainWindow::instance(), m_subject));
     }
 }
