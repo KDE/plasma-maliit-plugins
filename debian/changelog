@@ -1,3 +1,15 @@
+meego-keyboard (0.4.5-1) unstable; urgency=low
+
+  * Symbol view is toggled by clicking sym button
+  * Fixes: NB#173809, New: custom autorepeat setup
+  * Fixes: NB#168702, commit preedit in vkb->hwkbd transition
+  * Fixes delete on hardware keyboard
+  * Changes: correct language code in xml file and layoutmanager
+  * Changes: support icon_id for custom toolbar
+  * Implemented SWP#TINME-790, SWP#TINME-941, SWP#TINME-835, SWP#TINME-967, SWP#TINME-908 
+
+ -- Pekka Vuorela <pekka.ta.vuorela@nokia.com>  Wed, 23 Jun 2010 11:13:18 +0300
+
 meego-keyboard (0.4.4-1) unstable; urgency=low
 
   * Uses toolbar API from im framework
