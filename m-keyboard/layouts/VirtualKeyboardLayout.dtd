@@ -10,7 +10,8 @@
   version CDATA "1.0"
   title CDATA #IMPLIED
   language CDATA #IMPLIED
-  catalog CDATA #IMPLIED>
+  catalog CDATA #IMPLIED
+  autocapitalization (true | false) "true">
 
 <!ATTLIST import
   file CDATA #REQUIRED>
@@ -25,6 +26,9 @@
   type (sloppy | non-sloppy) "sloppy"
   vertical_alignment (center | full | top | bottom) #REQUIRED
   horizontal_alignment (center | full | left | right) #REQUIRED>
+
+<!ATTLIST key
+  rtl (true | false) "false">
 
 <!ATTLIST binding
   action (insert | shift | backspace | space | cycle | layout_menu | sym

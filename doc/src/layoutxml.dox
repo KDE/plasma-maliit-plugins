@@ -53,6 +53,8 @@ a ISO 3166-1 code.  This must always be specified unless the file
 is intended to be imported only.
 \li \c catalog The translation catalog used to localize the labels.  Unused
 as of this writing.
+\li \c autocapitalization This attribute defines whether autocapitalization
+could be used or not.
 
 
 \subsection Import
@@ -126,8 +128,11 @@ just keys.  A row may be empty.
 
 \subsection Key
 
-Key element describes a visible key on the keyboard.  It has no attributes,
-just one, two or three bindings.
+Key element describes a visible key on the keyboard.
+
+Attributes:
+
+\li \c rtl If true, this button uses RTL version of icon.
 
 
 \subsection Binding
