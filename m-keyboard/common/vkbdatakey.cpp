@@ -103,7 +103,8 @@ KeyEvent KeyBinding::toKeyEvent(QKeyEvent::Type eventType, QChar accent, Qt::Key
 }
 
 
-VKBDataKey::VKBDataKey()
+VKBDataKey::VKBDataKey(bool isRtl)
+    : isRtl(isRtl)
 {
     bindings[NoShift] = 0;
     bindings[Shift] = 0;
@@ -127,3 +128,10 @@ KeyEvent VKBDataKey::toKeyEvent(QKeyEvent::Type eventType, QChar accent, bool sh
 {
     return binding(shift)->toKeyEvent(eventType, accent, shift ? Qt::ShiftModifier : Qt::NoModifier);
 }
+
+bool VKBDataKey::rtl() const
+{
+    return isRtl;
+}
+
+

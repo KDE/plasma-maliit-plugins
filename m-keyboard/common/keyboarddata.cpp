@@ -91,6 +91,9 @@ namespace
 
     const QString VKBTagImport               = QString("import");
     const QString VKBTagFile                 = QString("file");
+
+    const QString RtlString                  = QString("rtl");
+    const QString RtlStringDefValue          = QString("false");
 }
 
 struct ParseParameters {
@@ -431,9 +434,12 @@ void KeyboardData::parseTagBinding(const QDomElement &element, ParseParameters &
 
 void KeyboardData::parseTagKey(const QDomElement &element, ParseParameters &params)
 {
-    VKBDataKey *key = new VKBDataKey();
+    const bool isRtl = toBoolean(element.attribute(RtlString, RtlStringDefValue));
+
+    VKBDataKey *key = new VKBDataKey(isRtl);
     params.currentRow->keys.append(key);
     params.currentKey = key;
+
 
     parseChildren(element, params, &VKBTagBinding, &KeyboardData::parseTagBinding);
     if (key->bindings[1] == NULL) {

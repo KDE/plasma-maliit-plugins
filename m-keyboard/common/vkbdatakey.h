@@ -137,7 +137,12 @@ inline KeyBinding::KeyAction KeyBinding::action() const
 class VKBDataKey
 {
 public:
-    VKBDataKey();
+    /*
+     * \brief Constructs new object
+     * \param isRtl Contains true if button should use RTL icon.
+     */
+    explicit VKBDataKey(bool isRtl = false);
+
     ~VKBDataKey();
 
     //! \return binding based on given attributes
@@ -158,6 +163,9 @@ public:
      */
     KeyEvent toKeyEvent(QKeyEvent::Type eventType, QChar accent, bool shift = false) const;
 
+    //! Returns true if button uses RTL icon.
+    bool rtl() const;
+
 private:
     enum  {
         NoShift = 0,
@@ -168,6 +176,10 @@ private:
     // All indices always contain a binding object, though more than one index may contain
     // the same binding
     const KeyBinding *bindings[NumBindings];
+
+    //! Contains true if button uses RTL icon.
+    bool isRtl;
+
     friend class KeyboardData;
     friend class Ut_VKBDataKey;
     friend class Ut_KeyButton;
