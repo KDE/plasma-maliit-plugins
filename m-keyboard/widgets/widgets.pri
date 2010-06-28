@@ -40,6 +40,7 @@ HEADERS += \
     $$WIDGETS_DIR/flickgesture.h \
     $$WIDGETS_DIR/sharedhandlearea.h \
     $$WIDGETS_DIR/mkeyboardsettingswidget.h \
+    $$WIDGETS_DIR/getcssproperty.h \
 
 
 SOURCES += \

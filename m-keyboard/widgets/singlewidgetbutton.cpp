@@ -19,6 +19,7 @@
 #include "singlewidgetbutton.h"
 #include "singlewidgetbuttonarea.h"
 #include "mvirtualkeyboardstyle.h"
+#include "getcssproperty.h"
 
 #include <MTheme>
 #include <QGraphicsItem>
@@ -152,37 +153,41 @@ void SingleWidgetButton::update()
 const QPixmap *SingleWidgetButton::loadIcon(KeyBinding::KeyAction action, const bool shift) const
 {
     const QPixmap *pixmap = 0;
-    const QString *id = 0;
+    QString id;
     QSize size;
+    QString iconProperty;
 
     switch(action) {
         case KeyBinding::ActionBackspace:
-            id = &styleContainer->keyBackspaceIconId();
+            iconProperty = "keyBackspaceIconId";
             size = styleContainer->keyBackspaceIconSize();
             break;
         case KeyBinding::ActionShift:
             if (shift) {
-                id = &styleContainer->keyShiftUppercaseIconId();
+                iconProperty = "keyShiftUppercaseIconId";
             } else {
-                id = &styleContainer->keyShiftIconId();
+                iconProperty = "keyShiftIconId";
             }
             size = styleContainer->keyShiftIconSize();
             break;
         case KeyBinding::ActionReturn:
-            id = &styleContainer->keyEnterIconId();
+            iconProperty = "keyEnterIconId";
             size = styleContainer->keyEnterIconSize();
             break;
         case KeyBinding::ActionLayoutMenu:
-            id = &styleContainer->keyMenuIconId();
+            iconProperty = "keyMenuIconId";
             size = styleContainer->keyMenuIconSize();
             break;
         default:
             break;
     }
 
-    if (id) {
-        pixmap = MTheme::pixmap(*id, size);
+    id = getCSSProperty<QString>(styleContainer, iconProperty, dataKey.rtl());
+
+    if (!id.isEmpty()) {
+        pixmap = MTheme::pixmap(id, size);
     }
 
     return pixmap;
 }
+
