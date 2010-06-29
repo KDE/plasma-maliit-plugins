@@ -137,7 +137,7 @@
               <binding label="."/>
               <binding shift="true" label=","/>
             </key>
-            <key>
+            <key rtl="true">
               <binding action="backspace" label=""/>
             </key>
           </row>
@@ -161,7 +161,7 @@
               <binding label="."/>
               <binding shift="true" label="&#x060C;"/>
             </key>
-            <key>
+            <key rtl="true">
               <binding action="backspace" label=""/>
             </key>
           </row>

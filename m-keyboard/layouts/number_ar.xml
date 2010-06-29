@@ -44,7 +44,7 @@
             <key>
               <binding action="decimal_separator"/>
             </key>
-            <key>
+            <key rtl="true">
               <binding label="" action="backspace"/>
             </key>
           </row>
@@ -99,7 +99,7 @@
         </section>
         <section id="functionkey" movable="false" horizontal_alignment="right" vertical_alignment="center">
           <row>
-            <key>
+            <key rtl="true">
               <binding label="" action="backspace"/>
             </key>
           </row>

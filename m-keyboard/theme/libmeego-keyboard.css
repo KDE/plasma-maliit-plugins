@@ -28,6 +28,7 @@ MVirtualKeyboardStyle {
     /* Single widget keyboard button styling */
     key-backspace-icon-id: "icon-m-input-methods-backspace";
     key-backspace-icon-size: 48 48;
+    key-backspace-icon-id-rtl: "icon-m-rtl-input-methods-backspace";
 
     key-menu-icon-size: 48 48;
     key-menu-icon-id: "icon-m-input-methods-menu";
@@ -43,7 +44,7 @@ MVirtualKeyboardStyle {
 
 MVirtualKeyboardStyle.Portrait {
     keyboard-area-size: 480 280;
-    
+
     label-margin-top: 2.4mm;
     label-margin-left-with-secondary: 4.6mm;
     secondary-label-separation: 0.9mm;
@@ -76,7 +77,7 @@ MVirtualKeyboardStyle.Portrait {
 
 MVirtualKeyboardStyle.Landscape {
     keyboard-area-size: 864 280;
-    
+
     label-margin-top: 1.2mm;
     label-margin-left-with-secondary: -1; /* not used, labels are centered horizontally */
     secondary-label-separation: 0;

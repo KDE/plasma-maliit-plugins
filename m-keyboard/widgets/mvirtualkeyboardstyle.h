@@ -75,8 +75,9 @@ public:
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSymIndicatorSymPressed, KeyBackgroundSymIndicatorSymPressed)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSymIndicatorAcePressed, KeyBackgroundSymIndicatorAcePressed)
 
-    M_STYLE_ATTRIBUTE(QSize, keyBackspaceIconSize, KeyBackspaceIconSize)
-    M_STYLE_ATTRIBUTE(QString, keyBackspaceIconId, KeyBackspaceIconId)
+    M_STYLE_ATTRIBUTE(QSize,   keyBackspaceIconSize,    KeyBackspaceIconSize)
+    M_STYLE_ATTRIBUTE(QString, keyBackspaceIconId,      KeyBackspaceIconId)
+    M_STYLE_ATTRIBUTE(QString, keyBackspaceIconIdRtl,   KeyBackspaceIconIdRtl)
 
     M_STYLE_ATTRIBUTE(QSize, keyMenuIconSize, KeyMenuIconSize)
     M_STYLE_ATTRIBUTE(QString, keyMenuIconId, KeyMenuIconId)
