@@ -32,6 +32,7 @@ private slots:
     void init();
     void cleanup();
 
+    void testLayouts();
     void testNumberLayouts();
     void testPhoneNumberLayouts();
 };

@@ -79,11 +79,6 @@ const LayoutData *KeyboardData::layout(LayoutData::LayoutType /* type */,
 
 void Ut_LayoutsManager::initTestCase()
 {
-    MGConfItem languageListSetting(LanguageListSettingName);
-
-    QStringList langlist;
-    langlist << "fi" << "ru" << "ar";
-    languageListSetting.set(QVariant(langlist));
 }
 
 void Ut_LayoutsManager::cleanupTestCase()
@@ -93,6 +88,11 @@ void Ut_LayoutsManager::cleanupTestCase()
 void Ut_LayoutsManager::init()
 {
     LoadableKeyboards.clear();
+    LoadableKeyboards << "fi.xml" << "ru.xml" << "ar.xml";
+    MGConfItem languageListSetting(LanguageListSettingName);
+    QStringList langlist;
+    langlist << "fi" << "ru" << "ar";
+    languageListSetting.set(QVariant(langlist));
 }
 
 void Ut_LayoutsManager::cleanup()
@@ -101,6 +101,21 @@ void Ut_LayoutsManager::cleanup()
 
 
 // Tests.....................................................................
+
+void Ut_LayoutsManager::testLayouts()
+{
+    LoadableKeyboards.clear();
+    LoadableKeyboards << "fi.xml" << "ru.xml" << "ar.xml" << "en_GB.xml";
+    MGConfItem languageListSetting(LanguageListSettingName);
+    QStringList langlist;
+    langlist << "Fi" << "rU" << "AR" << "en_GB";
+    languageListSetting.set(QVariant(langlist));
+    std::auto_ptr<LayoutsManager> subject(new LayoutsManager);
+    foreach (const QString &lang, langlist) {
+        // stored language code should be lowercase
+        QVERIFY(subject->languageList().contains(lang.toLower()));
+    }
+}
 
 void Ut_LayoutsManager::testNumberLayouts()
 {

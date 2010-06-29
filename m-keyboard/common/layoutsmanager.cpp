@@ -173,9 +173,9 @@ bool LayoutsManager::loadLanguage(const QString &language)
     }
 
     // Make sure entry for language exists. Create if it doesn't.
-    kbIterator = keyboards.find(language);
+    kbIterator = keyboards.find(language.toLower());
     if (kbIterator == keyboards.end()) {
-        kbIterator = keyboards.insert(language, 0);
+        kbIterator = keyboards.insert(language.toLower(), 0);
     }
 
     if (*kbIterator) {
