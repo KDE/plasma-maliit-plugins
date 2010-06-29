@@ -24,7 +24,6 @@
 #include <MWidget>
 
 #include "singlewidgetbuttonarea.h"
-#include "mbuttonarea.h"
 
 class QGraphicsLinearLayout;
 class MSceneManager;

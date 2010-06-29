@@ -21,7 +21,6 @@
 
 #include "mkeyboardcommon.h"
 #include "singlewidgetbuttonarea.h"
-#include "mbuttonarea.h"
 #include "layoutdata.h"
 #include <mimhandlerstate.h>
 #include <mimdirection.h>

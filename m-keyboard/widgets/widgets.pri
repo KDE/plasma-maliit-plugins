@@ -29,7 +29,6 @@ HEADERS += \
     $$WIDGETS_DIR/ikeybutton.h \
     $$WIDGETS_DIR/singlewidgetbutton.h \
     $$WIDGETS_DIR/singlewidgetbuttonarea.h \
-    $$WIDGETS_DIR/mbuttonarea.h \
     $$WIDGETS_DIR/popupbase.h \
     $$WIDGETS_DIR/popupfactory.h \
     $$WIDGETS_DIR/popupplugin.h \
@@ -57,7 +56,6 @@ SOURCES += \
     $$WIDGETS_DIR/keybuttonarea.cpp \
     $$WIDGETS_DIR/singlewidgetbutton.cpp \
     $$WIDGETS_DIR/singlewidgetbuttonarea.cpp \
-    $$WIDGETS_DIR/mbuttonarea.cpp \
     $$WIDGETS_DIR/popupbase.cpp \
     $$WIDGETS_DIR/popupfactory.cpp \
     $$WIDGETS_DIR/mtoolbarbutton.cpp \

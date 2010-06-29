@@ -19,7 +19,6 @@
 #include "singlewidgetbuttonarea.h"
 #include "singlewidgetbutton.h"
 #include "flickupbutton.h"
-#include "mbuttonarea.h"
 #include "keyboarddata.h"
 #include "vkbdatakey.h"
 #include "mplainwindow.h"
@@ -62,15 +61,6 @@ KeyButtonArea *createSingleWidgetKeyButtonArea(MVirtualKeyboardStyleContainer *s
                                                QGraphicsWidget *parent = 0)
 {
     return new SingleWidgetButtonArea(styleContainer, section, buttonSizeScheme, usePopup, parent);
-}
-
-KeyButtonArea *createMButtonArea(MVirtualKeyboardStyleContainer *styleContainer,
-                                   QSharedPointer<const LayoutSection> section,
-                                   KeyButtonArea::ButtonSizeScheme buttonSizeScheme = KeyButtonArea::ButtonSizeEqualExpanding,
-                                   bool usePopup = false,
-                                   QGraphicsWidget *parent = 0)
-{
-    return new MButtonArea(styleContainer, section, buttonSizeScheme, usePopup, parent);
 }
 
 
@@ -120,7 +110,6 @@ void Ut_KeyButtonArea::testLandscapeBoxSize_data()
 {
     QTest::addColumn<KBACreator>("createKba");
     QTest::newRow("SingleWidgetArea") << &createSingleWidgetKeyButtonArea;
-    QTest::newRow("MButtonArea") << &createMButtonArea;
 }
 
 void Ut_KeyButtonArea::testLandscapeBoxSize()
@@ -167,7 +156,6 @@ void Ut_KeyButtonArea::testPortraitBoxSize_data()
 {
     QTest::addColumn<KBACreator>("createKba");
     QTest::newRow("SingleWidgetArea") << &createSingleWidgetKeyButtonArea;
-    QTest::newRow("MButtonArea") << &createMButtonArea;
 }
 
 void Ut_KeyButtonArea::testPortraitBoxSize()
@@ -212,7 +200,6 @@ void Ut_KeyButtonArea::testLabelPosition_data()
 {
     QTest::addColumn<KBACreator>("createKba");
     QTest::newRow("SingleWidgetArea") << &createSingleWidgetKeyButtonArea;
-    QTest::newRow("MButtonArea") << &createMButtonArea;
 }
 
 void Ut_KeyButtonArea::testLabelPosition()
@@ -270,8 +257,6 @@ void Ut_KeyButtonArea::testFlickCheck_data()
     QTest::addColumn<bool>("directMode");
     QTest::newRow("SingleWidgetArea") << &createSingleWidgetKeyButtonArea << false;
     QTest::newRow("SingleWidgetArea") << &createSingleWidgetKeyButtonArea << true;
-    QTest::newRow("MButtonArea") << &createMButtonArea << false;
-    QTest::newRow("MButtonArea") << &createMButtonArea << true;
 }
 
 void Ut_KeyButtonArea::testFlickCheck()
@@ -321,7 +306,6 @@ void Ut_KeyButtonArea::testSceneEvent_data()
 {
     QTest::addColumn<KBACreator>("createKba");
     QTest::newRow("SingleWidgetArea") << &createSingleWidgetKeyButtonArea;
-    QTest::newRow("MButtonArea") << &createMButtonArea;
 }
 
 void Ut_KeyButtonArea::testSceneEvent()
@@ -374,7 +358,6 @@ void Ut_KeyButtonArea::testPaint_data()
 {
     QTest::addColumn<KBACreator>("createKba");
     QTest::newRow("SingleWidgetArea") << &createSingleWidgetKeyButtonArea;
-    QTest::newRow("MButtonArea") << &createMButtonArea;
 }
 
 void Ut_KeyButtonArea::testPaint()
@@ -404,7 +387,6 @@ void Ut_KeyButtonArea::testDeadkeys_data()
 {
     QTest::addColumn<KBACreator>("createKba");
     QTest::newRow("SingleWidgetArea") << &createSingleWidgetKeyButtonArea;
-    QTest::newRow("MButtonArea") << &createMButtonArea;
 }
 
 void Ut_KeyButtonArea::testDeadkeys()
@@ -544,7 +526,6 @@ void Ut_KeyButtonArea::testImportedLayouts_data()
 {
     QTest::addColumn<KBACreator>("createKba");
     QTest::newRow("SingleWidgetArea") << &createSingleWidgetKeyButtonArea;
-    QTest::newRow("MButtonArea") << &createMButtonArea;
 }
 
 void Ut_KeyButtonArea::testImportedLayouts()
@@ -592,7 +573,6 @@ void Ut_KeyButtonArea::testAccurateMode_data()
 {
     QTest::addColumn<KBACreator>("createKba");
     QTest::newRow("SingleWidgetArea") << &createSingleWidgetKeyButtonArea;
-    QTest::newRow("MButtonArea") << &createMButtonArea;
 }
 
 void Ut_KeyButtonArea::testAccurateMode()
@@ -643,7 +623,6 @@ void Ut_KeyButtonArea::testPopup_data()
 {
     QTest::addColumn<KBACreator>("createKba");
     QTest::newRow("SingleWidgetArea") << &createSingleWidgetKeyButtonArea;
-    QTest::newRow("MButtonArea") << &createMButtonArea;
 }
 
 void Ut_KeyButtonArea::testPopup()
@@ -693,7 +672,6 @@ void Ut_KeyButtonArea::testInitialization_data()
 {
     QTest::addColumn<KBACreator>("createKba");
     QTest::newRow("SingleWidgetArea") << &createSingleWidgetKeyButtonArea;
-    QTest::newRow("MButtonArea") << &createMButtonArea;
 }
 
 void Ut_KeyButtonArea::testInitialization()
@@ -712,7 +690,6 @@ void Ut_KeyButtonArea::testFunctionRowAlignmentBug_data()
 {
     QTest::addColumn<KBACreator>("createKba");
     QTest::newRow("SingleWidgetArea") << &createSingleWidgetKeyButtonArea;
-    QTest::newRow("MButtonArea") << &createMButtonArea;
 }
 
 // This tests the bug where function row alignment in number portrait keyboard
@@ -893,15 +870,8 @@ IKeyButton *Ut_KeyButtonArea::keyAt(unsigned int row, unsigned int column) const
 
     IKeyButton *key = 0;
 
-    if (dynamic_cast<MButtonArea *>(subject)) {
-        MButtonArea *buttonArea = static_cast<MButtonArea *>(subject);
-        int keyIndex = column;
-        for (unsigned int i = 0; i < row; ++i) {
-            keyIndex += buttonArea->sectionModel()->columnsAt(i);
-        }
-        key = buttonArea->buttons[keyIndex];
-    } else { // assume SingleWidgetButtonArea
-        SingleWidgetButtonArea *buttonArea = static_cast<SingleWidgetButtonArea *>(subject);
+    SingleWidgetButtonArea *buttonArea = dynamic_cast<SingleWidgetButtonArea *>(subject);
+    if (buttonArea) {
         key = buttonArea->rowList[row].buttons[column];
     }
 
