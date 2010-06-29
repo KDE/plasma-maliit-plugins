@@ -303,4 +303,14 @@ void Ut_SymbolView::rotateToAngle(M::OrientationAngle angle)
     subject->finalizeOrientationChange();
 }
 
+void Ut_SymbolView::testSetLanguage()
+{
+    // set an invalid language, at least it won't crash
+    // and still has the laste valid language.
+    QString oldLanguage = subject->currentLanguage;
+    subject->setLanguage("ThisLanguageLayoutShouldNotExist");
+    QVERIFY(subject->currentLanguage != "ThisLanguageLayoutShouldNotExist");
+    QCOMPARE(subject->currentLanguage, oldLanguage);
+}
+
 QTEST_APPLESS_MAIN(Ut_SymbolView);

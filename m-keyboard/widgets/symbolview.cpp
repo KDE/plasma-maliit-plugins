@@ -497,7 +497,7 @@ int SymbolView::currentLevel() const
 
 void SymbolView::setLanguage(const QString &lang)
 {
-    if (lang != currentLanguage) {
+    if (lang != currentLanguage && layoutsMgr.languageList().contains(lang)) {
         currentLanguage = lang;
         reloadContent();
     }

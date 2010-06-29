@@ -56,6 +56,7 @@ private slots:
     void testChangeTab();
     void testHideWithFlick_data();
     void testHideWithFlick();
+    void testSetLanguage();
 
 private:
     void rotateToAngle(M::OrientationAngle angle);
