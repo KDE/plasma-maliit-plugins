@@ -1,3 +1,9 @@
+meego-keyboard (0.4.6-1) unstable; urgency=low
+
+  * Replaced layoutmenu with framework settings
+
+ -- Pekka Vuorela <pekka.ta.vuorela@nokia.com>  Tue, 29 Jun 2010 11:47:12 +0300
+
 meego-keyboard (0.4.5-1) unstable; urgency=low
 
   * Symbol view is toggled by clicking sym button
