@@ -19,6 +19,8 @@
 #include "singlewidgetbuttonarea.h"
 #include "singlewidgetbutton.h"
 #include "flickupbutton.h"
+#include "flickgesturerecognizer.h"
+#include "../ut_flickrecognizer/flickutil.h"
 #include "keyboarddata.h"
 #include "vkbdatakey.h"
 #include "mplainwindow.h"
@@ -83,10 +85,17 @@ void Ut_KeyButtonArea::initTestCase()
     qRegisterMetaType<IKeyButton::ButtonState>();
 
     new MPlainWindow; // Create singleton
+
+    FlickGestureRecognizer::registerSharedRecognizer();
+
+    MPlainWindow::instance()->grabGesture(FlickGestureRecognizer::sharedGestureType());
+    MPlainWindow::instance()->show();
+    QTest::qWaitForWindowShown(MPlainWindow::instance());
 }
 
 void Ut_KeyButtonArea::cleanupTestCase()
 {
+    FlickGestureRecognizer::unregisterSharedRecognizer();
     delete MPlainWindow::instance();
     delete style;
     style = 0;
@@ -254,53 +263,76 @@ void Ut_KeyButtonArea::testLabelPosition()
 
 void Ut_KeyButtonArea::testFlickCheck_data()
 {
-    QTest::addColumn<KBACreator>("createKba");
     QTest::addColumn<bool>("directMode");
-    QTest::newRow("SingleWidgetArea") << &createSingleWidgetKeyButtonArea << false;
-    QTest::newRow("SingleWidgetArea") << &createSingleWidgetKeyButtonArea << true;
+    QTest::newRow("direct mode off") << false;
+    QTest::newRow("direct mode on") << true;
 }
 
 void Ut_KeyButtonArea::testFlickCheck()
 {
-    QFETCH(KBACreator, createKba);
     QFETCH(bool, directMode);
 
     keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
-    subject = createKba(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
-                        KeyButtonArea::ButtonSizeEqualExpanding,
-                        false, 0);
+    subject = createSingleWidgetKeyButtonArea(style,
+                                              keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
+                                              KeyButtonArea::ButtonSizeEqualExpanding,
+                                              false, 0);
     KeyButtonArea::setInputMethodMode(directMode ? M::InputMethodModeDirect : M::InputMethodModeNormal);
     MPlainWindow::instance()->scene()->addItem(subject);
     subject->resize(defaultLayoutSize());
 
-    // A series of touch points that will not create a gesture yet:
-    PointList base;
-    for (int idx = 0; idx < 8; ++idx) {
-        // But each new point has to overcome the movement threshold:
-        base << QPoint(idx * 6, idx * 6); 
+    subject->setPos(0, 0);
+
+    subject->grabGesture(FlickGestureRecognizer::sharedGestureType());
+
+    QSignalSpy leftSwipeSpy(subject, SIGNAL(flickLeft()));
+    QSignalSpy rightSwipeSpy(subject, SIGNAL(flickRight()));
+    QSignalSpy upSwipeSpy(subject, SIGNAL(flickUp(const KeyBinding &)));
+    QSignalSpy downSwipeSpy(subject, SIGNAL(flickDown()));
+
+    const int numDirs = 5;
+    FlickGesture::Direction directions[numDirs] = {
+        FlickGesture::Left,
+        FlickGesture::Right,
+        FlickGesture::Up,
+        FlickGesture::Down,
+        FlickGesture::NoDirection
+    };
+
+    QPoint flickPoints[numDirs][2] = {
+        { keyAt(0, 9)->buttonBoundingRect().center(),
+          keyAt(0, 0)->buttonBoundingRect().center() },
+        { keyAt(0, 0)->buttonBoundingRect().center(),
+          keyAt(0, 9)->buttonBoundingRect().center() },
+        { keyAt(2, 4)->buttonBoundingRect().center(),
+          keyAt(0, 4)->buttonBoundingRect().center() },
+        { keyAt(0, 4)->buttonBoundingRect().center(),
+          keyAt(2, 4)->buttonBoundingRect().center() },
+        { QPoint(), QPoint() }
+    };
+
+    for (int i = 0; i < numDirs; ++i) {
+        FlickGesture::Direction dir = directions[i];
+
+        subject->grabMouse();
+        doMouseSwipe(subject, flickPoints[i][0], flickPoints[i][1], 0, 5);
+        subject->ungrabMouse();
+
+        QCOMPARE(leftSwipeSpy.count(),
+                 (!directMode && dir == FlickGesture::Left) ? 1 : 0);
+        QCOMPARE(rightSwipeSpy.count(),
+                 (!directMode && dir == FlickGesture::Right) ? 1 : 0);
+        QCOMPARE(upSwipeSpy.count(),
+                 (!directMode && dir == FlickGesture::Up) ? 1 : 0);
+        QCOMPARE(downSwipeSpy.count(),
+                 (!directMode && dir == FlickGesture::Down) ? 1 : 0);
+
+        leftSwipeSpy.clear();
+        rightSwipeSpy.clear();
+        upSwipeSpy.clear();
+        downSwipeSpy.clear();
     }
-    recognizeGesture(base, NoGesture);
-
-    PointList rightSwipe0 = PointList(base);
-    rightSwipe0 << QPoint(600, 0);
-    recognizeGesture(rightSwipe0, directMode ? NoGesture : SwipeRightGesture);
-    recognizeGesture(reversed(rightSwipe0), directMode ? NoGesture : SwipeLeftGesture);
-
-    // A swipe does not have to be a strictly increasing sequence:
-    PointList rightSwipe1 = PointList(base);
-    rightSwipe1 << QPoint(0, 0) << QPoint(600, 0);
-    recognizeGesture(rightSwipe1, directMode ? NoGesture : SwipeRightGesture);
-    recognizeGesture(reversed(rightSwipe1), directMode ? NoGesture : SwipeLeftGesture);
-
-    PointList downSwipe = PointList(base);
-    downSwipe << QPoint(0, 800);
-    recognizeGesture(downSwipe, directMode ? NoGesture : SwipeDownGesture);
-    recognizeGesture(reversed(downSwipe), NoGesture); // No key set - can't swipe up ...
-
-    PointList conflictingSwipe = PointList(base);
-    conflictingSwipe << QPoint(800, 800);
-    recognizeGesture(conflictingSwipe, NoGesture);
 }
 
 void Ut_KeyButtonArea::testSceneEvent_data()
@@ -947,41 +979,6 @@ IKeyButton *Ut_KeyButtonArea::keyAt(unsigned int row, unsigned int column) const
     }
 
     return key;
-}
-
-void Ut_KeyButtonArea::recognizeGesture(const PointList &pl, GestureType gt, int touchPointId)
-{
-    QSignalSpy leftSwipeSpy(subject, SIGNAL(flickLeft()));
-    QSignalSpy rightSwipeSpy(subject, SIGNAL(flickRight()));
-    QSignalSpy upSwipeSpy(subject, SIGNAL(flickUp(KeyBinding)));
-    QSignalSpy downSwipeSpy(subject, SIGNAL(flickDown()));
-
-    subject->touchPointPressed(pl[0], touchPointId);
-
-    for (int n = 1; n < pl.count(); ++n) {
-        subject->touchPointMoved(pl[n], touchPointId);
-    }
-
-    // Not needed for the gesture, but we don't want to leave a pressed touch
-    // point without a release:
-    subject->touchPointReleased(pl[pl.count() - 1], touchPointId);
-
-    qDebug() << "gesture type = " << gt;
-    QCOMPARE(leftSwipeSpy.count(),
-             gt == SwipeLeftGesture ? 1 : 0);
-    QCOMPARE(rightSwipeSpy.count(),
-             gt == SwipeRightGesture ? 1 : 0);
-    QCOMPARE(upSwipeSpy.count(),
-             gt == SwipeUpGesture ? 1 : 0);
-    QCOMPARE(downSwipeSpy.count(),
-             gt == SwipeDownGesture ? 1 : 0);
-}
-
-
-Ut_KeyButtonArea::PointList Ut_KeyButtonArea::reversed(const PointList &in) const {
-    PointList result;
-    std::reverse_copy(in.begin(), in.end(), std::back_inserter(result));
-    return result;
 }
 
 QTEST_APPLESS_MAIN(Ut_KeyButtonArea);

@@ -33,6 +33,7 @@
 #include <QTouchEvent>
 #include <QTime>
 
+class FlickGesture;
 class MFeedbackPlayer;
 class MReactionMap;
 class MScalableImage;
@@ -209,13 +210,6 @@ protected:
 
         //! Last known position of the touch point
         QPoint pos;
-
-        //! Used to check whether gesture recognition happens within the
-        //! specified time frame.
-        QTime gestureTimer;
-
-        //! Counts move events between press & release
-        int moveEventCount;
     };
 
     //! \brief Returns data and size information of a button in given \a row and \a column.
@@ -233,6 +227,7 @@ protected:
     virtual void grabMouseEvent(QEvent *e);
     virtual void ungrabMouseEvent(QEvent *e);
     virtual bool sceneEvent(QEvent *event);
+    virtual bool event(QEvent *event);
     /*! \reimp_end */
 
     //! Called when widget is about to lose visibility.
@@ -248,14 +243,6 @@ protected:
     * \return bool
     */
     bool isObservableMove(const QPointF &prevPos, const QPointF &pos);
-
-    /*!
-    * \brief Return true if the keyboard is swiped to the left/right/down/up
-    *
-    * Once a gesture is recognized it will return false unless the next
-    * touchpoint is pressed. This is supposed to prevent conflicting gestures.
-    */
-    bool isSwipeGesture(const TouchPointInfo &tpi);
 
     /*!
     * \brief Get level count of the virtual keyboard.
@@ -307,6 +294,9 @@ private:
     //! Check whether given character will stop accurate mode.
     void accurateCheckContent(const QString &content);
 
+    //! \brief Handler for flick gestures from Qt gesture framework.
+    void handleFlickGesture(FlickGesture *gesture);
+
     //! \brief Touch point press handler.
     //! \param id Touch point identifier defined by the system.
     void touchPointPressed(const QPoint &pos, int id);
@@ -320,16 +310,6 @@ private:
     void touchPointReleased(const QPoint &pos, int id);
 
     void click(IKeyButton *key);
-
-    //! \brief Horizontal swipe gesture recognizer
-    //! \return Whether a horizontal swipe gesture was recognized
-    bool isHorizontalSwipeGesture(const QPointF &delta, int absHorizontalThreshold, int absVerticalThreshold,
-                                  int moveEventCount);
-
-    //! \brief Vertical swipe gesture recognizer
-    //! \return Whether a vertical swipe gesture was recognized
-    bool isVerticalSwipeGesture(const QPointF &delta, int absHorizontalThreshold, int absVerticalThreshold,
-                                int moveEventCount, const IKeyButton* button);
 
     //! \brief Computes the new button width and updates their geometries
     void updateButtonGeometriesForWidth(int widthOfArea);
@@ -380,12 +360,6 @@ private:
     const ButtonSizeScheme buttonSizeScheme;
 
     const bool usePopup;
-
-    //! How many separate swipe gestures (one for each touchpoint) have been recognized.
-    int swipeGestureCount;
-
-    //! Controls the amount of touchpoints required by a gesture.
-    static int swipeGestureTouchPoints;
 
     static M::InputMethodMode InputMethodMode;
 
