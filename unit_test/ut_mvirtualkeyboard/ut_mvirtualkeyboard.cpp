@@ -83,7 +83,7 @@ void Ut_MVirtualKeyboard::initTestCase()
 
     QString DefaultLanguageSetting("/meegotouch/inputmethods/languages/default");
     MGConfItem item2(DefaultLanguageSetting);
-    QString defaultlanguage = "en_GB";
+    QString defaultlanguage = "en_gb";
     item2.set(QVariant(defaultlanguage));
 
     // MVirtualkeyboard uses MPlainWindow internally so we need to instantiate it.
