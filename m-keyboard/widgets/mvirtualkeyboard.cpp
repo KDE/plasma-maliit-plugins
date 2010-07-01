@@ -180,13 +180,10 @@ void MVirtualKeyboard::handleHandleFlickDown(const FlickGesture &/* gesture */)
 void
 MVirtualKeyboard::prepareToOrientationChange()
 {
-    qDebug() << __PRETTY_FUNCTION__ << geometry();
-
     // if inactive, just ignore
     if (activity != Active) {
         return;
     }
-
     hideKeyboard(true, true);
 }
 
@@ -194,8 +191,6 @@ MVirtualKeyboard::prepareToOrientationChange()
 void
 MVirtualKeyboard::finalizeOrientationChange()
 {
-    qDebug() << __PRETTY_FUNCTION__ << geometry();
-
     // if inactive, just ignore
     if (activity != TemporarilyInactive) {
         return;
@@ -1028,6 +1023,7 @@ void MVirtualKeyboard::recreateKeyboards()
 {
     reloadSwitcherContent(); // main keyboards
     recreateSpecialKeyboards(); // number and phone number keyboard
+    switchLevel(); // update shift level in recreated keyboards
 }
 
 
