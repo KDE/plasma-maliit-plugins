@@ -77,6 +77,8 @@ void MKeyboardSettings::readAvailableKeyboards()
             continue;
         KeyboardData keyboard;
         if (keyboard.loadNokiaKeyboard(keyboardFileInfo.fileName())) {
+            if (keyboard.language().isEmpty() || keyboard.title().isEmpty())
+                continue;
             bool duplicated = false;
             foreach (const KeyboardInfo &info, availableKeyboardInfos) {
                 if (info.language == keyboard.language()) {
