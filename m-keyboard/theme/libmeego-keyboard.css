@@ -103,7 +103,7 @@ FlickUpButtonStyle:selected {
 
 MVirtualKeyboardStyle {
     background-image: "meegotouch-keyboard-background" 10px 10px 10px 10px;
-    font: "Nokia Sans Light" 24;
+    font: "Nokia Sans Light" 28;
     font-opacity: 0.9;
     font-color: #000000;
 
@@ -152,7 +152,7 @@ MVirtualKeyboardStyle {
 MVirtualKeyboardStyle.Portrait {
     keyboard-area-size: 480 280;
     
-    label-margin-top: 2mm;
+    label-margin-top: 2.4mm;
     label-margin-left-with-secondary: 4.6mm;
     secondary-label-separation: 0.9mm;
 
@@ -185,7 +185,7 @@ MVirtualKeyboardStyle.Portrait {
 MVirtualKeyboardStyle.Landscape {
     keyboard-area-size: 864 280;
     
-    label-margin-top: $MARGIN_LARGE;
+    label-margin-top: 1.2mm;
     label-margin-left-with-secondary: -1; /* not used, labels are centered horizontally */
     secondary-label-separation: 0;
 
