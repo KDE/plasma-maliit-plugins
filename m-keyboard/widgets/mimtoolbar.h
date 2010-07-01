@@ -30,7 +30,8 @@
 class MReactionMap;
 class ToolbarManager;
 class MVirtualKeyboardStyleContainer;
-class MButton;
+class MToolbarButton;
+class MToolbarItem;
 class ToolbarWidget;
 class MToolbarData;
 class MToolbarItem;
@@ -192,8 +193,13 @@ private:
     void clearReactiveAreas();
 
     bool textSelected;
+
+    //! ToolbarItem for Copy/Paste button.
+    // Don't call any method belongs to MToolbarItem which attributes are managed internally.
+    QSharedPointer<MToolbarItem> copyPasteItem;
+
     //! Copy/Paste button
-    MButton *copyPaste;
+    MToolbarButton *copyPaste;
     //! Copy/paste button status
     CopyPasteState copyPasteStatus;
 

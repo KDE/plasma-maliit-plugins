@@ -39,19 +39,17 @@
 namespace
 {
     //!object name for toolbar buttons
-    const QString ObjectNameToolbarLabel("VirtualKeyboardToolbarLabel");
-    const QString ObjectNameToolbarButton("VirtualKeyboardToolbarButton");
-    const QString ObjectNameCloseButton("VirtualKeyboardCloseButton");
     const QString ObjectNameToolbar("MImToolbar");
     const QString ObjectNameToolbarLeft("VirtualKeyboardToolbarLeft");
     const QString ObjectNameToolbarRight("VirtualKeyboardToolbarRight");
-    const QString IconNameCloseButton("icon-m-input-methods-close");
+    const QString NameToolbarCopyPasteButton("VirtualKeyboardCopyPasteButton");
 };
 
 MImToolbar::MImToolbar(const MVirtualKeyboardStyleContainer &style, QGraphicsWidget *parent)
     : MWidget(parent),
       textSelected(false),
-      copyPaste(new MButton),
+      copyPasteItem(new MToolbarItem(NameToolbarCopyPasteButton, MInputMethod::ItemButton)),
+      copyPaste(new MToolbarButton(copyPasteItem, this)),
       copyPasteStatus(InputMethodNoCopyPaste),
       leftBar(true, this),
       rightBar(true, this),
@@ -72,8 +70,6 @@ MImToolbar::MImToolbar(const MVirtualKeyboardStyleContainer &style, QGraphicsWid
 
 MImToolbar::~MImToolbar()
 {
-    delete copyPaste;
-    copyPaste = 0;
 }
 
 void MImToolbar::setupLayout()
@@ -92,7 +88,6 @@ void MImToolbar::setupLayout()
 void MImToolbar::loadDefaultButtons()
 {
     // Setup copy/paste button.
-    copyPaste->setObjectName(ObjectNameToolbarButton);
     copyPaste->setVisible(false);
     //% "Copy"
     copyPaste->setText(qtTrId("qtn_comm_copy"));
@@ -231,13 +226,11 @@ void MImToolbar::createAndAppendWidget(QSharedPointer<MToolbarItem> item,
     }
     if (item->type() == MInputMethod::ItemButton) {
         widget = new MToolbarButton(item, sidebar);
-        widget->setObjectName(ObjectNameToolbarButton);
 
         connect(widget, SIGNAL(clicked(MToolbarItem*)),
                 this, SLOT(handleButtonClick(MToolbarItem*)));
     } else {
         widget = new MToolbarLabel(item, sidebar);
-        widget->setObjectName(ObjectNameToolbarLabel);
     }
     customWidgets.append(widget);
     sidebar->append(widget);
