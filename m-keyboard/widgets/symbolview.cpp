@@ -145,7 +145,7 @@ void SymbolView::reloadContent()
     loadSwitcherPages(*layoutData, activePage);
     loadFunctionRow(*layoutData);
 
-    updateSymIndicator();
+    setShiftState(shift);
 }
 
 void SymbolView::setupShowAndHide()
