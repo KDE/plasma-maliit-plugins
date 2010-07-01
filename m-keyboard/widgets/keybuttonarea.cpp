@@ -203,7 +203,7 @@ int KeyButtonArea::level() const
     return currentLevel;
 }
 
-void KeyButtonArea::setShiftStatus(bool /*shiftOn*/, bool /*capslock*/)
+void KeyButtonArea::setShiftState(ModifierState /*newShiftState*/)
 {
     // Empty default implementation
 }

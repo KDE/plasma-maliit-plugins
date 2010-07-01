@@ -76,22 +76,10 @@ public:
 
     void finalizeOrientationChange();
 
-    /*!
-    * Method to switch layout level when shift button is pressed
-    * \param level int 1 for upper case, otherwise 0
-    */
-    void switchLevel(int level);
-
-    void setShiftStatus(bool shiftOn, bool capslock);
+    void setShiftState(ModifierState newShiftState);
 
     //! Returns current level.
     int currentLevel() const;
-
-    //! Save state before rotation
-    void save();
-
-    //! Restore state after rotation
-    void restore();
 
     //! \brief Tells whether sym view is fully opened.
     bool isFullyVisible() const;
@@ -287,13 +275,7 @@ private:
     int activePage;
 
     //! Case selector: 0 for lower case, 1 for upper case
-    int shift;
-
-    //! Keeps track of shift up/down status.
-    bool shiftHeldDown;
-
-    //! When this is set true the next shift click is ignored.
-    bool ignoreShiftClick;
+    ModifierState shift;
 
     const LayoutsManager &layoutsMgr;
 

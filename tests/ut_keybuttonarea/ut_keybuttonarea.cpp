@@ -656,7 +656,6 @@ void Ut_KeyButtonArea::testPopup()
     subject->touchPointReleased(mousePos, touchId);
 
     // make long press
-
     subject->touchPointPressed(mousePos, touchId);
     QTest::qWait(LongPressTime - 100); // not enough time
     QVERIFY(!subject->isPopupActive());
@@ -747,10 +746,10 @@ void Ut_KeyButtonArea::testShiftCapsLock()
     QVERIFY(shiftButton);
     QVERIFY(shiftButton->state() == IKeyButton::Normal);
 
-    subject->setShiftStatus(true, true);
+    subject->setShiftState(ModifierLockedState);
     QVERIFY(shiftButton->state() == IKeyButton::Selected);
 
-    subject->setShiftStatus(true, false);
+    subject->setShiftState(ModifierClearState);
     QVERIFY(shiftButton->state() == IKeyButton::Normal);
 }
 

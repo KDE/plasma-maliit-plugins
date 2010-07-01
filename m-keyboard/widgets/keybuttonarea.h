@@ -23,6 +23,7 @@
 #include "keyevent.h"
 #include "layoutdata.h"
 #include "vkbdatakey.h"
+#include "mkeyboardcommon.h"
 
 #include <MWidget>
 #include <QColor>
@@ -118,7 +119,7 @@ public slots:
      */
     void switchLevel(int level);
 
-    virtual void setShiftStatus(bool shiftOn, bool capslock);
+    virtual void setShiftState(ModifierState newShiftState);
 
     /*!
      * \brief Shows popup

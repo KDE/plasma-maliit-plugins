@@ -490,7 +490,7 @@ private:
     MSceneManager *sceneManager;
 
     //! Shift key status
-    int shiftLevel;
+    ModifierState shiftLevel;
 
     // Vkb show hide time line
     QTimeLine showHideTimeline;

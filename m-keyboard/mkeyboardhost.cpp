@@ -1221,8 +1221,7 @@ void MKeyboardHost::updateSymbolViewLevel()
     } else {
         shiftLevel = hardwareKeyboard->modifierState(Qt::ShiftModifier);
     }
-    symbolView->switchLevel(shiftLevel > 0 ? 1 : 0);
-    symbolView->setShiftStatus(shiftLevel > 0, shiftLevel == ModifierLockedState);
+    symbolView->setShiftState(shiftLevel);
 }
 
 void MKeyboardHost::showSymbolView()

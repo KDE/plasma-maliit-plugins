@@ -54,7 +54,7 @@ public:
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *view);
     virtual QRectF boundingRect() const;
     virtual ISymIndicator *symIndicator();
-    virtual void setShiftStatus(bool shiftOn, bool capslock);
+    virtual void setShiftState(ModifierState newShiftState);
 
     // From ISymIndicator
     virtual void activateSymIndicator();

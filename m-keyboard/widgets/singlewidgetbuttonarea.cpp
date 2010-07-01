@@ -389,11 +389,11 @@ IKeyButton *SingleWidgetButtonArea::keyAt(const QPoint &pos) const
     return 0;
 }
 
-void SingleWidgetButtonArea::setShiftStatus(bool shiftOn, bool capslock)
+void SingleWidgetButtonArea::setShiftState(ModifierState newShiftState)
 {
     if (shiftButton) {
-        shiftButton->setModifiers(shiftOn);
-        shiftButton->setSelected(capslock);
+        shiftButton->setModifiers(newShiftState != ModifierClearState);
+        shiftButton->setSelected(newShiftState == ModifierLockedState);
     }
 }
 

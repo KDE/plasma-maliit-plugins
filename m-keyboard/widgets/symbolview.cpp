@@ -66,9 +66,7 @@ SymbolView::SymbolView(const LayoutsManager &layoutsManager, const MVirtualKeybo
       selectedLayout(0),
       activity(Inactive),
       activePage(0),
-      shift(0),
-      shiftHeldDown(false),
-      ignoreShiftClick(false),
+      shift(ModifierClearState),
       layoutsMgr(layoutsManager),
       pageSwitcher(0),
       functionRow(0),
@@ -473,26 +471,22 @@ void SymbolView::organizeContent()
     reposition(size().toSize().height());
 }
 
-void SymbolView::switchLevel(int level)
+void SymbolView::setShiftState(ModifierState newShiftState)
 {
-    shift = level;
+    int level = newShiftState != ModifierClearState ? 1 : 0;
+
+    shift = newShiftState;
     if (!enableMultiTouch && functionRow) {
         functionRow->switchLevel(level);
+        functionRow->setShiftState(newShiftState);
     }
-    emit levelSwitched(shift);
+    emit levelSwitched(level);
     updateSymIndicator();
-}
-
-void SymbolView::setShiftStatus(bool shiftOn, bool capslock)
-{
-    if (functionRow) {
-        functionRow->setShiftStatus(shiftOn, capslock);
-    }
 }
 
 int SymbolView::currentLevel() const
 {
-    return shift;
+    return (shift != ModifierClearState);
 }
 
 void SymbolView::setLanguage(const QString &lang)

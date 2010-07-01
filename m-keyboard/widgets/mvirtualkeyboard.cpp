@@ -286,8 +286,6 @@ MVirtualKeyboard::switchLevel()
         break;
     }
 
-    const bool capsLock = (shiftLevel == ModifierLockedState);
-
     for (int i = 0; i < mainKeyboardSwitcher->count(); ++i) {
         // the subwidgets have main section as first item in their layout, function row as second.
         // handling main section:
@@ -296,7 +294,7 @@ MVirtualKeyboard::switchLevel()
 
         // Function row shift update, level does not change for the layout.
         static_cast<KeyButtonArea *>(mainKeyboardSwitcher->widget(i)->layout()->itemAt(1))->
-            setShiftStatus(currentLevel == 1, capsLock);
+            setShiftState(shiftLevel);
 
         if (!enableMultiTouch) {
             static_cast<KeyButtonArea *>(mainKeyboardSwitcher->widget(i)->layout()->itemAt(1))->
@@ -766,7 +764,7 @@ void MVirtualKeyboard::stopAccurateMode()
 
 ModifierState MVirtualKeyboard::shiftStatus() const
 {
-    return ModifierState(shiftLevel);
+    return shiftLevel;
 }
 
 
