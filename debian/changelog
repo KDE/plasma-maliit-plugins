@@ -1,3 +1,10 @@
+meego-keyboard (0.4.7-1) unstable; urgency=low
+
+  * Fixed vkb crashing when en_gb is not selected to be used
+  * Better implementation for relocation workaround
+
+ -- Pekka Vuorela <pekka.ta.vuorela@nokia.com>  Thu, 01 Jul 2010 10:15:00 +0300
+
 meego-keyboard (0.4.6-1) unstable; urgency=low
 
   * Replaced layoutmenu with framework settings
