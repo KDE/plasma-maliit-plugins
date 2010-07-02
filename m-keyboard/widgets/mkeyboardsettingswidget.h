@@ -51,6 +51,7 @@ private slots:
     void updateSelectedKeyboards(const QModelIndex &);
     void setErrorCorrectionState(bool toggled);
     void syncErrorCorrectionState();
+    void handleVisibilityChanged();
 
 private:
     void buildUi();

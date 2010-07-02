@@ -178,6 +178,9 @@ void MKeyboardSettingsWidget::updateTitle()
 
 void MKeyboardSettingsWidget::connectSlots()
 {
+    connect(this, SIGNAL(visibleChanged()),
+            this, SLOT(handleVisibilityChanged()));
+
     if (!settingsObject || !errorCorrectionSwitch)
         return;
 
@@ -290,4 +293,15 @@ void MKeyboardSettingsWidget::notifyNoKeyboards()
     noKeyboardsNotification->setBodyText(qtTrId("qtn_txts_no_keyboards"));
     noKeyboardsNotification->appear(MSceneWindow::DestroyWhenDone);
     QTimer::singleShot(1000, noKeyboardsNotification, SLOT(disappear()));
+}
+
+void MKeyboardSettingsWidget::handleVisibilityChanged()
+{
+    // This is a workaround to hide settings dialog when keyboard is hidden.
+    // And it could be removed when NB#177922 is fixed.
+    if (!isVisible() && keyboardDialog && keyboardDialog->isVisible()) {
+        // reject settings dialog if the visibility of settings widget
+        // is changed from shown to hidden.
+        keyboardDialog->reject();
+    }
 }
