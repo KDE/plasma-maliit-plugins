@@ -65,6 +65,8 @@ class SharedHandleArea;
 class MVirtualKeyboard : public MWidget
 {
     Q_OBJECT
+    Q_PROPERTY(QString layoutLanguage READ layoutLanguage)
+    Q_PROPERTY(QString layoutTitle READ layoutTitle)
 
     friend class Ut_MVirtualKeyboard;
     friend class Ut_MKeyboardHost;
@@ -96,6 +98,15 @@ public:
      * \return the language
      */
     QString layoutLanguage() const;
+
+    /*!
+     * \brief Method to get the title for the currently displayed layout
+     *
+     * Note that this is the real title found in the XML loaded.
+     * \return the title
+     */
+    QString layoutTitle() const;
+
 
     /*!
      * \brief Get the language currently selected (from language list)

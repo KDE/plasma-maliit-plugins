@@ -639,6 +639,11 @@ QString MVirtualKeyboard::layoutLanguage() const
     return layoutsMgr.keyboardLanguage(currentLanguage);
 }
 
+QString MVirtualKeyboard::layoutTitle() const
+{
+    return layoutsMgr.keyboardTitle(currentLanguage);
+}
+
 QString MVirtualKeyboard::selectedLanguage() const
 {
     return currentLanguage;
