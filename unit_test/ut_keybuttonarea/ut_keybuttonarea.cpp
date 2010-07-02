@@ -39,7 +39,7 @@
 
 namespace
 {
-    const int LongPressTime = 600; // same as in keybuttonarea.cpp
+    const int LongPressTime = 0; // same as in keybuttonarea.cpp
 }
 
 Q_DECLARE_METATYPE(KeyEvent);
@@ -621,10 +621,13 @@ void Ut_KeyButtonArea::testAccurateMode()
     const QPoint mousePos(20, 20); // approximately the top left key on layout
     const int touchId = 0;
 
+    //popup should be shown immediately, so we comment out this part of test
+#if 0
     subject->touchPointPressed(mousePos, touchId);
     QTest::qWait(LongPressTime - 100); // not enough time
     subject->touchPointReleased(mousePos, touchId);
     QVERIFY(!subject->isAccurateMode());
+#endif
 
     subject->touchPointPressed(mousePos, touchId);
     QTest::qWait(LongPressTime + 100); // long enough
@@ -662,6 +665,9 @@ void Ut_KeyButtonArea::testPopup()
     // direct call
 
     // Popup won't show up unless it is given a position. We give it via a mouse press.
+
+    //popup should be shown immediately, so we comment out this part of test
+#if 0
     subject->touchPointPressed(mousePos, touchId);
     subject->popupStart();
     QVERIFY(subject->isPopupActive());
@@ -675,6 +681,7 @@ void Ut_KeyButtonArea::testPopup()
     QTest::qWait(LongPressTime - 100); // not enough time
     QVERIFY(!subject->isPopupActive());
     subject->touchPointReleased(mousePos, touchId);
+#endif
 
     subject->touchPointPressed(mousePos, touchId);
     QTest::qWait(LongPressTime + 100); // long enough
