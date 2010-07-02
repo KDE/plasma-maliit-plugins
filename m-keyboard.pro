@@ -2,7 +2,7 @@ CONFIG += ordered
 TARGET = meego-im-plugins
 TEMPLATE = subdirs
 SUBDIRS = m-keyboard \
-      unit_test \
+      tests \
       fixture_virtualkeyboard \
       translations \
 

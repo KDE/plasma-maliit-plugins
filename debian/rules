@@ -78,7 +78,7 @@ install: build
 	# Add here commands to install the package into debian/tmp
 
 	# generate tests.xml
-	cd unit_test && ./gen-tests-xml.sh > tests.xml
+	cd tests && ./gen-tests-xml.sh > tests.xml
 
 	#libmeegotouch0 package 
 	INSTALL_ROOT=$(CURDIR)/debian/tmp make  $(PARALLEL_MAKEFLAGS) install
