@@ -38,7 +38,7 @@
 namespace
 {
     const int GestureTimeOut = 1000;
-    const int LongPressTime  = 600;
+    const int LongPressTime  = 0;
     const qreal ZValueButtons = 0.0;
 
     // Minimal distinguishable cursor/finger movement

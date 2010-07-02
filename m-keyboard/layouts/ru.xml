@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
-<keyboard title="Russian" version="1.0" catalog="ru" language="ru">
+<keyboard title="Русский" version="1.0" catalog="ru" language="ru">
     <layout type="general" orientation="landscape">
         <section id="main" movable="false" vertical_alignment="center" horizontal_alignment="center">
           <row>

@@ -7,7 +7,7 @@
       <owner>meegotouch</owner>
       <type>list</type>
       <list_type>string</list_type>
-      <default>[en_gb,ar,cs,da,de,es,fi,fr,it,nl,no,pl,pt,ru,sv]</default>
+      <default>[en_gb,da,de,es,fi,fr,it,ru,sv]</default>
       <locale name="C">
         <short>Language list</short>
         <long>Language list</long>

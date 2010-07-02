@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
-<keyboard title="Polish" version="1.0" catalog="pl" language="pl">
+<keyboard title="Polski" version="1.0" catalog="pl" language="pl">
     <layout type="general" orientation="landscape">
         <section id="main" movable="false" vertical_alignment="center" horizontal_alignment="center">
           <row>
