@@ -1088,5 +1088,25 @@ void Ut_MKeyboardHost::testCommitPreeditOnStateChange()
     QCOMPARE(inputContext->commit, text);
 }
 
+void Ut_MKeyboardHost::testLayoutMenuKeyClick_data()
+{
+    QTest::addColumn<ModifierState>("shiftState");
+
+    QTest::newRow("Clear")   << ModifierClearState;
+    QTest::newRow("Latched") << ModifierLatchedState;
+    QTest::newRow("Locked")  << ModifierLockedState;
+}
+
+void Ut_MKeyboardHost::testLayoutMenuKeyClick()
+{
+    //menu key should not toggle shift key
+    QFETCH(ModifierState, shiftState);
+    KeyEvent menuClickEvent(QString(), QEvent::KeyRelease, Qt::Key_unknown, KeyEvent::LayoutMenu);
+
+    subject->vkbWidget->setShiftState(shiftState);
+    subject->handleGeneralKeyClick(menuClickEvent);
+    QCOMPARE(subject->vkbWidget->shiftStatus(), shiftState);
+}
+
 QTEST_APPLESS_MAIN(Ut_MKeyboardHost);
 

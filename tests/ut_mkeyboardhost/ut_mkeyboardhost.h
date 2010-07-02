@@ -78,6 +78,9 @@ private slots:
 
     void testCommitPreeditOnStateChange();
 
+    void testLayoutMenuKeyClick_data();
+    void testLayoutMenuKeyClick();
+
 private:
     void rotateToAngle(M::OrientationAngle);
 };

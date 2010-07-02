@@ -836,11 +836,13 @@ void MKeyboardHost::handleGeneralKeyClick(const KeyEvent &event)
     } else if (vkbWidget->shiftStatus() == ModifierLatchedState
                && (event.qtKey() != Qt::Key_Backspace)
                && (event.specialKey() != KeyEvent::Sym)
+               && (event.specialKey() != KeyEvent::LayoutMenu)
                && (!shiftHeldDown || upperCase)) {
         // Any key except shift toggles shift off if it's on (not locked).
         // Exceptions are:
         // - backspace, toggles shift off is handled in doBackspace()
         // - sym, pressing sym key keeps current shift state
+        // - menu, pressing menu key keeps current shift state
         // - shift, when held down don't bring level down, except with autocaps!
         vkbWidget->setShiftState(ModifierClearState);
     }
