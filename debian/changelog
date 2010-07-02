@@ -1,3 +1,12 @@
+meego-keyboard (0.4.8-1) unstable; urgency=low
+
+  * Reduced the number of selected default languages
+  * Popup to appear immediately when button is pressed
+  * Fixed copy/paste button styling
+  * Layouts to use endonyms for language names
+
+ -- Pekka Vuorela <pekka.ta.vuorela@nokia.com>  Fri, 02 Jul 2010 12:34:40 +0300
+
 meego-keyboard (0.4.7-1) unstable; urgency=low
 
   * Fixed vkb crashing when en_gb is not selected to be used
