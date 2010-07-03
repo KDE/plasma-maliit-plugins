@@ -1,3 +1,9 @@
+meego-keyboard (0.4.8-2) unstable; urgency=low
+
+  * Hide the opened settings dialog when its parent item is hidden
+
+ -- Ning Chi <ext-chi.ning@nokia.com>  Sat, 03 Jul 2010 15:39:20 +0300
+
 meego-keyboard (0.4.8-1) unstable; urgency=low
 
   * Reduced the number of selected default languages
