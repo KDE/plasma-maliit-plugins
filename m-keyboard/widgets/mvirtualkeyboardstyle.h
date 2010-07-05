@@ -66,13 +66,9 @@ public:
     M_STYLE_ATTRIBUTE(QSize, keyNumberBackspaceSize, KeyNumberBackspaceSize)
     M_STYLE_ATTRIBUTE(QSize, keySymNormalSize, KeySymNormalSize)
 
-    M_STYLE_ATTRIBUTE(QString, keyBackgroundId, KeyBackgroundId)
-    M_STYLE_ATTRIBUTE(QString, keyBackgroundPressedId, KeyBackgroundPressedId)
-    M_STYLE_ATTRIBUTE(QString, keyBackgroundSelectedId, KeyBackgroundSelectedId)
-    M_STYLE_ATTRIBUTE(int, keyBackgroundBorderLeft, KeyBackgroundBorderLeft)
-    M_STYLE_ATTRIBUTE(int, keyBackgroundBorderRight, KeyBackgroundBorderRight)
-    M_STYLE_ATTRIBUTE(int, keyBackgroundBorderTop, KeyBackgroundBorderTop)
-    M_STYLE_ATTRIBUTE(int, keyBackgroundBorderBottom, KeyBackgroundBorderBottom)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackground, KeyBackground)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundPressed, KeyBackgroundPressed)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSelected, KeyBackgroundSelected)
 
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSymIndicatorSym, KeyBackgroundSymIndicatorSym)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSymIndicatorAce, KeyBackgroundSymIndicatorAce)

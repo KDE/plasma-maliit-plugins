@@ -86,8 +86,8 @@ private:
     //! \brief Builds QTextLayout representation of current button labels for faster drawing.
     void buildTextLayout();
 
-    //! \brief Fetches optimum size image from MTheme to be used in MScalableImage.
-    void fetchOptimumSizeButtonBackgrounds(QSize size);
+    //! \brief Fetches updated background images from MTheme.
+    void updateButtonBackgrounds();
 
     //! \brief Update indicator backgrounds from current theme.
     void updateIndicatorBackgrounds(const MScalableImage *normal, const MScalableImage *pressed);
@@ -112,7 +112,7 @@ private:
     ButtonRowList rowList;
 
     //! Normal button backgrounds
-    MScalableImage keyBackgrounds[KeyBackgroundTypeCount];
+    const MScalableImage *keyBackgrounds[KeyBackgroundTypeCount];
 
     //! Special set of button backgrounds for sym state indicator.
     const MScalableImage *symIndicatorBackgrounds[KeyBackgroundTypeCount];
@@ -126,10 +126,6 @@ private:
 
     //! Shift button is stored here if current layout has a shift button.
     SingleWidgetButton *shiftButton;
-
-    const QPixmap *pixmap1;
-    const QPixmap *pixmap2;
-    const QPixmap *pixmap3;
 
     QTextLayout textLayout;
     bool textDirty;

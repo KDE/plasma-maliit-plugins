@@ -26,11 +26,6 @@ MVirtualKeyboardStyle {
     pressFeedback: ;
 
     /* Single widget keyboard button styling */
-    key-background-border-left: 10;
-    key-background-border-right: 10;
-    key-background-border-top: 10;
-    key-background-border-bottom: 10;
-
     key-backspace-icon-id: "icon-m-input-methods-backspace";
     key-backspace-icon-size: 48 48;
 
@@ -60,9 +55,9 @@ MVirtualKeyboardStyle.Portrait {
     menu-size: 470 342;
 
     /* Single widget keyboard button styling */
-    key-background-id: "meegotouch-keyboard-key-portrait";
-    key-background-pressed-id: "meegotouch-keyboard-key-pressed-portrait";
-    key-background-selected-id: "meegotouch-keyboard-key-selected-portrait";
+    key-background: "meegotouch-keyboard-key-portrait" 10 10 10 10;
+    key-background-pressed: "meegotouch-keyboard-key-pressed-portrait" 10 10 10 10;
+    key-background-selected: "meegotouch-keyboard-key-selected-portrait" 10 10 10 10;
 
     key-normal-size: 4.4mm 8mm;
 
@@ -94,9 +89,9 @@ MVirtualKeyboardStyle.Landscape {
     menu-size: 790 342;
 
     /* Single widget keyboard button styling */
-    key-background-id: "meegotouch-keyboard-key-landscape";
-    key-background-pressed-id: "meegotouch-keyboard-key-pressed-landscape";
-    key-background-selected-id: "meegotouch-keyboard-key-selected-landscape";
+    key-background: "meegotouch-keyboard-key-landscape" 10 10 10 10;
+    key-background-pressed: "meegotouch-keyboard-key-pressed-landscape" 10 10 10 10;
+    key-background-selected: "meegotouch-keyboard-key-selected-landscape" 10 10 10 10;
 
     key-normal-size: 8.2mm 5.6mm;
 

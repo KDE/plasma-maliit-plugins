@@ -48,9 +48,6 @@ SingleWidgetButtonArea::SingleWidgetButtonArea(const MVirtualKeyboardStyleContai
       symState(SymIndicatorInactive),
       symIndicatorButton(0),
       shiftButton(0),
-      pixmap1(0),
-      pixmap2(0),
-      pixmap3(0),
       textDirty(false),
       equalWidthButtons(false)
 {
@@ -61,53 +58,9 @@ SingleWidgetButtonArea::SingleWidgetButtonArea(const MVirtualKeyboardStyleContai
     // Initially deactivate sym page indicator.
     deactivateIndicator();
 
+    updateButtonBackgrounds();
+
     loadKeys();
-}
-
-void SingleWidgetButtonArea::fetchOptimumSizeButtonBackgrounds(QSize size)
-{
-    // if one is valid, they all are
-    if (pixmap1) {
-        // First check if we already have correct size
-        // or bail out also if we use different size buttons
-        // (no need to remake them).
-        if ((size.width() < 0) || (pixmap1->size() == size)) {
-            return;
-        }
-
-        MTheme::releasePixmap(pixmap3);
-        MTheme::releasePixmap(pixmap2);
-        MTheme::releasePixmap(pixmap1);
-    }
-
-    const QSize defaultSize = style()->keyNormalSize();
-
-    if (size.width() < 0) {
-        // No specific size set for all buttons. Use default and we then scale it.
-        size = defaultSize;
-    }
-
-    // Resize the background images for MScalableImage so that we use the size of the most
-    // used button. This way MScalableImage will use painter->drawPixmap() directly. There
-    // is some overhead when drawing the image in 9 rectangles.
-    pixmap1 = MTheme::pixmap(style()->keyBackgroundId(), size);
-
-    // Let's use one default size for all pressed & selected backgrounds accross
-    // SingleWidgetButtonAreas since there is never many of these backgrounds
-    // drawn at the same time.
-    pixmap2 = MTheme::pixmap(style()->keyBackgroundPressedId(), defaultSize);
-    pixmap3 = MTheme::pixmap(style()->keyBackgroundSelectedId(), defaultSize);
-
-    keyBackgrounds[NormalBackground].setPixmap(pixmap1);
-    keyBackgrounds[KeyPressedBackground].setPixmap(pixmap2);
-    keyBackgrounds[KeySelectedBackground].setPixmap(pixmap3);
-
-    for (int idx = 0; idx < KeyBackgroundTypeCount; ++idx) {
-        keyBackgrounds[idx].setBorders(style()->keyBackgroundBorderLeft(),
-                                       style()->keyBackgroundBorderRight(),
-                                       style()->keyBackgroundBorderTop(),
-                                       style()->keyBackgroundBorderBottom());
-    }
 }
 
 SingleWidgetButtonArea::~SingleWidgetButtonArea()
@@ -119,10 +72,13 @@ SingleWidgetButtonArea::~SingleWidgetButtonArea()
         qDeleteAll(rowIter->buttons);
         rowIter->buttons.clear();
     }
+}
 
-    MTheme::releasePixmap(pixmap3);
-    MTheme::releasePixmap(pixmap2);
-    MTheme::releasePixmap(pixmap1);
+void SingleWidgetButtonArea::updateButtonBackgrounds()
+{
+    keyBackgrounds[NormalBackground] = style()->keyBackground();
+    keyBackgrounds[KeyPressedBackground] = style()->keyBackgroundPressed();
+    keyBackgrounds[KeySelectedBackground] = style()->keyBackgroundSelected();
 }
 
 QSizeF SingleWidgetButtonArea::sizeHint(Qt::SizeHint which, const QSizeF &/*constraint*/) const
@@ -370,7 +326,7 @@ void SingleWidgetButtonArea::paint(QPainter *painter, const QStyleOptionGraphics
                 && button->binding().action() == KeyBinding::ActionSym) {
                 background = symIndicatorBackgrounds[backgroundIndex];
             } else {
-                background = &keyBackgrounds[backgroundIndex];
+                background = keyBackgrounds[backgroundIndex];
             }
 
             if (background) {
@@ -462,8 +418,6 @@ void SingleWidgetButtonArea::updateButtonGeometries(const int availableWidth, co
     }
 
     this->equalWidthButtons = (equalButtonWidth >= 0);
-
-    fetchOptimumSizeButtonBackgrounds(QSize(equalButtonWidth, rowHeight - style()->spacingVertical()));
 
     const int HorizontalSpacing = style()->spacingHorizontal();
     const int VerticalSpacing = style()->spacingVertical();
@@ -609,6 +563,8 @@ void SingleWidgetButtonArea::onThemeChangeCompleted()
         updateIndicatorBackgrounds(style()->keyBackgroundSymIndicatorAce(),
                                    style()->keyBackgroundSymIndicatorAcePressed());
     }
+
+    updateButtonBackgrounds();
 
     buildTextLayout();
 }
