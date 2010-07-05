@@ -299,7 +299,7 @@ void MKeyboardSettingsWidget::handleVisibilityChanged()
 {
     // This is a workaround to hide settings dialog when keyboard is hidden.
     // And it could be removed when NB#177922 is fixed.
-    if (!isVisible() && keyboardDialog && keyboardDialog->isVisible()) {
+    if (!isVisible() && keyboardDialog) {
         // reject settings dialog if the visibility of settings widget
         // is changed from shown to hidden.
         keyboardDialog->reject();
