@@ -35,6 +35,13 @@
 #include <QTimer>
 #include <QDebug>
 
+namespace
+{
+    //!object name for settings' widgets
+    const QString ObjectNameSelectedKeyboardsItem("SelectedKeyboardsItem");
+    const QString ObjectNameErrorCorrectionButton("KeyboardErrorCorrectionButton");
+};
+
 class MKeyboardCellCreator: public MAbstractCellCreator<MContentItem>
 {
 public:
@@ -116,10 +123,12 @@ MKeyboardSettingsWidget::~MKeyboardSettingsWidget()
 void MKeyboardSettingsWidget::buildUi()
 {
     selectedKeyboardsItem = new MContentItem(MContentItem::TwoTextLabels, this);
+    selectedKeyboardsItem->setObjectName(ObjectNameErrorCorrectionButton);
     connect(selectedKeyboardsItem, SIGNAL(clicked()), this, SLOT(showKeyboardList()));
     addItem(selectedKeyboardsItem);
 
     errorCorrectionSwitch = new MButton(this);
+    errorCorrectionSwitch->setObjectName(ObjectNameSelectedKeyboardsItem);
     errorCorrectionSwitch->setViewType(MButton::switchType);
     errorCorrectionSwitch->setCheckable(true);
     errorCorrectionLabel = new MLabel(this);
