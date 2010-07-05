@@ -19,6 +19,7 @@ SUBDIRS = \
           ut_hwkbcharloopsmanager \
           bm_keybuttonarea \
           bm_symbols \
+          ft_mxkb \
 
 target.commands += $$system(touch tests.xml)
 target.path = /usr/share/meego-keyboard-tests

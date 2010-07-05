@@ -24,7 +24,13 @@
 #include <QSignalSpy>
 #include <QKeyEvent>
 #include "mxkb.h"
-//#include "mxkb_p.h"
+
+#include <X11/X.h>
+#include <X11/XKBlib.h>
+
+namespace {
+    const unsigned int FnModifierMask = Mod5Mask;
+};
 
 void Ft_MXkb::initTestCase()
 {
@@ -45,41 +51,101 @@ void Ft_MXkb::cleanupTestCase()
 void Ft_MXkb::init()
 {
     m_subject = new MXkb();
+    m_subject->latchModifiers(ShiftMask | FnModifierMask, 0);
+    m_subject->lockModifiers(ShiftMask | FnModifierMask, 0);
+    QVERIFY(!testModifierLatchedState(ShiftMask));
+    QVERIFY(!testModifierLatchedState(FnModifierMask));
 }
 
 void Ft_MXkb::cleanup()
 {
+    m_subject->latchModifiers(ShiftMask | FnModifierMask, 0);
+    m_subject->lockModifiers(ShiftMask | FnModifierMask, 0);
+    QVERIFY(!testModifierLatchedState(ShiftMask));
+    QVERIFY(!testModifierLatchedState(FnModifierMask));
     delete m_subject;
+}
+
+void Ft_MXkb::testLatchModifiers()
+{
+    // latch shift
+    m_subject->latchModifiers(ShiftMask, ShiftMask);
+    QVERIFY(testModifierLatchedState(ShiftMask));
+
+    // unlatch shift
+    m_subject->latchModifiers(ShiftMask, 0);
+    QVERIFY(!testModifierLatchedState(ShiftMask));
+
+    // latch fn
+    m_subject->latchModifiers(FnModifierMask, FnModifierMask);
+    QVERIFY(testModifierLatchedState(FnModifierMask));
+
+    // unlatch fn
+    m_subject->latchModifiers(FnModifierMask, 0);
+    QVERIFY(!testModifierLatchedState(FnModifierMask));
+
+    // latch both
+    m_subject->latchModifiers(ShiftMask | FnModifierMask, ShiftMask | FnModifierMask);
+    QVERIFY(testModifierLatchedState(ShiftMask));
+    QVERIFY(testModifierLatchedState(FnModifierMask));
+
+    // unlatch both
+    m_subject->latchModifiers(ShiftMask | FnModifierMask, 0);
+    QVERIFY(!testModifierLatchedState(ShiftMask));
+    QVERIFY(!testModifierLatchedState(FnModifierMask));
 }
 
 void Ft_MXkb::testLockModifiers()
 {
-    m_subject->lockModifiers(Qt::ShiftModifier);
-    QCOMPARE(m_subject->isLatched(Qt::ShiftModifier), true);
-    m_subject->lockModifiers(Qt::GroupSwitchModifier);
-    QCOMPARE(m_subject->isLatched(Qt::GroupSwitchModifier), true);
-    //lock both
-    m_subject->unlockModifiers(Qt::ShiftModifier);
-    m_subject->unlockModifiers(Qt::GroupSwitchModifier);
-    QCOMPARE(m_subject->isLatched(Qt::ShiftModifier), false);
-    QCOMPARE(m_subject->isLatched(Qt::GroupSwitchModifier), false);
-    Qt::KeyboardModifiers modifiers = Qt::ShiftModifier | Qt::GroupSwitchModifier;
-    m_subject->lockModifiers(modifiers);
-    QCOMPARE(m_subject->isLatched(Qt::ShiftModifier), true);
-    QCOMPARE(m_subject->isLatched(Qt::GroupSwitchModifier), true);
-    m_subject->unlockModifiers(modifiers);
+    // lock shift
+    m_subject->lockModifiers(ShiftMask, ShiftMask);
+    QVERIFY(testModifierLatchedState(ShiftMask));
+
+    // unlatch shift should not work
+    m_subject->latchModifiers(ShiftMask, 0);
+    QVERIFY(testModifierLatchedState(ShiftMask));
+
+    // unlock shift
+    m_subject->lockModifiers(ShiftMask, 0);
+    QVERIFY(!testModifierLatchedState(ShiftMask));
+
+    // lock fn
+    m_subject->lockModifiers(FnModifierMask, FnModifierMask);
+    QVERIFY(testModifierLatchedState(FnModifierMask));
+
+    // unlatch fn should not work
+    m_subject->latchModifiers(FnModifierMask, 0);
+    QVERIFY(testModifierLatchedState(FnModifierMask));
+
+    // unlock fn
+    m_subject->lockModifiers(FnModifierMask, 0);
+    QVERIFY(!testModifierLatchedState(FnModifierMask));
+
+    // lock both
+    m_subject->lockModifiers(ShiftMask | FnModifierMask, ShiftMask | FnModifierMask);
+    QVERIFY(testModifierLatchedState(ShiftMask));
+    QVERIFY(testModifierLatchedState(FnModifierMask));
+
+    // unlatch shift/fn should not work
+    m_subject->latchModifiers(ShiftMask, 0);
+    QVERIFY(testModifierLatchedState(ShiftMask));
+    m_subject->latchModifiers(FnModifierMask, 0);
+    QVERIFY(testModifierLatchedState(FnModifierMask));
+
+    // unlock both
+    m_subject->lockModifiers(ShiftMask | FnModifierMask, 0);
+    QVERIFY(!testModifierLatchedState(ShiftMask));
+    QVERIFY(!testModifierLatchedState(FnModifierMask));
 }
 
-void Ft_MXkb::testUnlockModifiers()
+bool Ft_MXkb::testModifierLatchedState(int xModifier) const
 {
-    m_subject->lockModifiers(Qt::ShiftModifier);
-    QCOMPARE(m_subject->isLatched(Qt::ShiftModifier), true);
-    m_subject->unlockModifiers(Qt::ShiftModifier);
-    QCOMPARE(m_subject->isLatched(Qt::ShiftModifier), false);
-    m_subject->lockModifiers(Qt::GroupSwitchModifier);
-    QCOMPARE(m_subject->isLatched(Qt::GroupSwitchModifier), true);
-    m_subject->unlockModifiers(Qt::GroupSwitchModifier);
-    QCOMPARE(m_subject->isLatched(Qt::GroupSwitchModifier), false);
+    Window dummy1, dummy2;
+    int dummy3, dummy4, dummy5, dummy6;
+    unsigned int mask;
+    XQueryPointer(QX11Info::display(), DefaultRootWindow(QX11Info::display()), &dummy1, &dummy2,
+                  &dummy3, &dummy4, &dummy5, &dummy6, &mask);
+    return (mask & xModifier);
 }
 
 QTEST_APPLESS_MAIN(Ft_MXkb);

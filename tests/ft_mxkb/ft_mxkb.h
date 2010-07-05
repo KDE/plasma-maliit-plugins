@@ -39,8 +39,11 @@ private slots:
     void init();
     void cleanup();
 
+    void testLatchModifiers();
     void testLockModifiers();
-    void testUnlockModifiers();
+
+private:
+    bool testModifierLatchedState(int xModifier) const;
 };
 
 #endif
