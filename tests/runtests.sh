@@ -34,7 +34,7 @@ EOF
 # are still in the sources tree.
 #
 TESTCONTEXT="system"
-if [ -d `dirname $0`/unit_test -o -d `dirname $0`/../unit_test ]; then
+if [ -d `dirname $0`/tests -o -d `dirname $0`/../tests ]; then
 	TESTCONTEXT="local"
 fi
 
@@ -46,8 +46,8 @@ case "$TESTCONTEXT" in
 	local)
 		# user executes runtests.sh from source tree
 		TMPDIR=.
-		if [ -d unit_test ]; then
-			TESTBASE=unit_test
+		if [ -d tests ]; then
+			TESTBASE=tests
 		else
 			TESTBASE=.
 		fi
