@@ -69,6 +69,8 @@ private slots:
     void testFunctionRowAlignmentBug();
     void testShiftCapsLock();
     void testMultiTouch();
+    void testRtlKeys_data();
+    void testRtlKeys();
 
 private:
     enum GestureType {

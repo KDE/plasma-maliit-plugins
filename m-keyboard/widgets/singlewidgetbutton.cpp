@@ -25,6 +25,18 @@
 #include <QGraphicsItem>
 #include <QPainter>
 
+SingleWidgetButton::IconInfo::IconInfo()
+    : pixmap(0)
+{
+}
+
+SingleWidgetButton::IconInfo::~IconInfo()
+{
+    if (pixmap) {
+        MTheme::releasePixmap(pixmap);
+    }
+}
+
 SingleWidgetButton::SingleWidgetButton(const VKBDataKey &key,
                                        const MVirtualKeyboardStyleContainer &style,
                                        QGraphicsItem &parent)
@@ -37,18 +49,16 @@ SingleWidgetButton::SingleWidgetButton(const VKBDataKey &key,
       styleContainer(style),
       parentItem(parent)
 {
-    icons[0] = (dataKey.binding(false) ? loadIcon(dataKey.binding(false)->action(), false) : 0);
-    icons[1] = (dataKey.binding(true) ? loadIcon(dataKey.binding(true)->action(), true) : 0);
+    if (dataKey.binding(false)) {
+        loadIcon(false);
+    }
+    if (dataKey.binding(true)) {
+        loadIcon(true);
+    }
 }
 
 SingleWidgetButton::~SingleWidgetButton()
 {
-    if (icons[0]) {
-        MTheme::releasePixmap(icons[0]);
-    }
-    if (icons[1]) {
-        MTheme::releasePixmap(icons[1]);
-    }
 }
 
 const QString SingleWidgetButton::label() const
@@ -131,7 +141,12 @@ bool SingleWidgetButton::isDeadKey() const
 
 const QPixmap *SingleWidgetButton::icon() const
 {
-    return (shift ? icons[1] : icons[0]);
+    return getIconInfo().pixmap;
+}
+
+QString SingleWidgetButton::iconId() const
+{
+    return getIconInfo().id;
 }
 
 void SingleWidgetButton::drawIcon(const QRect &rectangle, QPainter *painter) const
@@ -150,10 +165,10 @@ void SingleWidgetButton::update()
     parentItem.update(buttonRect());
 }
 
-const QPixmap *SingleWidgetButton::loadIcon(KeyBinding::KeyAction action, const bool shift) const
+void SingleWidgetButton::loadIcon(bool shift)
 {
-    const QPixmap *pixmap = 0;
-    QString id;
+    IconInfo &iconInfo(shift ? upperCaseIcon : lowerCaseIcon);
+    const KeyBinding::KeyAction action(dataKey.binding(shift)->action());
     QSize size;
     QString iconProperty;
 
@@ -182,12 +197,15 @@ const QPixmap *SingleWidgetButton::loadIcon(KeyBinding::KeyAction action, const 
             break;
     }
 
-    id = getCSSProperty<QString>(styleContainer, iconProperty, dataKey.rtl());
+    iconInfo.id = getCSSProperty<QString>(styleContainer, iconProperty, dataKey.rtl());
 
-    if (!id.isEmpty()) {
-        pixmap = MTheme::pixmap(id, size);
+    if (!iconInfo.id.isEmpty()) {
+        iconInfo.pixmap = MTheme::pixmap(iconInfo.id, size);
     }
+}
 
-    return pixmap;
+const SingleWidgetButton::IconInfo &SingleWidgetButton::getIconInfo() const
+{
+    return (shift ? upperCaseIcon : lowerCaseIcon);
 }
 

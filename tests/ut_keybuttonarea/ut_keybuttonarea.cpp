@@ -53,6 +53,7 @@ typedef KeyButtonArea *(*KBACreator)(MVirtualKeyboardStyleContainer *styleContai
 
 Q_DECLARE_METATYPE(KBACreator);
 Q_DECLARE_METATYPE(IKeyButton::ButtonState);
+Q_DECLARE_METATYPE(QList<KeyBinding::KeyAction>);
 
 KeyButtonArea *createSingleWidgetKeyButtonArea(MVirtualKeyboardStyleContainer *styleContainer,
                                                QSharedPointer<const LayoutSection> section,
@@ -843,6 +844,77 @@ void Ut_KeyButtonArea::testMultiTouch()
     QVERIFY(clicked.at(2).first().value<const IKeyButton*>() == key1);
 }
 
+void Ut_KeyButtonArea::testRtlKeys_data()
+{
+    QTest::addColumn<KBACreator>("createKba");
+    QTest::addColumn<M::Orientation>("orientation");
+    QTest::addColumn<QString>("fileName");
+    QTest::addColumn<QList<KeyBinding::KeyAction> >("expectedRtlKeys");
+
+    const QString ar("ar.xml");
+    const QString en_gb("en_gb.xml");
+    QList<KeyBinding::KeyAction> rtlKeys;
+    const QList<KeyBinding::KeyAction> nothing;
+
+    rtlKeys << KeyBinding::ActionBackspace;
+
+    QTest::newRow("SingleWidgetArea Landscape Arabic")
+        << &createSingleWidgetKeyButtonArea
+        << M::Landscape
+        << ar
+        << rtlKeys;
+
+    QTest::newRow("SingleWidgetArea Portrait Arabic" )
+        << &createSingleWidgetKeyButtonArea
+        << M::Portrait
+        << ar
+        << rtlKeys;
+
+    QTest::newRow("SingleWidgetArea Landscape English")
+        << &createSingleWidgetKeyButtonArea
+        << M::Landscape
+        << en_gb
+        << nothing;
+
+    QTest::newRow("SingleWidgetArea Portrait English" )
+        << &createSingleWidgetKeyButtonArea
+        << M::Portrait
+        << en_gb
+        << nothing;
+}
+
+void Ut_KeyButtonArea::testRtlKeys()
+{
+    QFETCH(KBACreator, createKba);
+    QFETCH(M::Orientation, orientation);
+    QFETCH(QString, fileName);
+    QFETCH(QList<KeyBinding::KeyAction>, expectedRtlKeys);
+
+    keyboard = new KeyboardData;
+    QVERIFY(keyboard->loadNokiaKeyboard(fileName));
+    subject = createKba(style,
+                        keyboard->layout(LayoutData::General, orientation)->section(LayoutData::functionkeySection),
+                        KeyButtonArea::ButtonSizeEqualExpanding,
+                        false, 0);
+
+    SingleWidgetButtonArea *buttonArea = dynamic_cast<SingleWidgetButtonArea *>(subject);
+
+    QVERIFY2(buttonArea != 0, "Unknown type of button area");
+    for (int row = 0; row < buttonArea->rowCount(); ++row) {
+        for (int column = 0; column < buttonArea->sectionModel()->columnsAt(row); ++column) {
+            SingleWidgetButton *button = buttonArea->rowList[row].buttons[column];
+            QVERIFY(button != 0);
+            if (expectedRtlKeys.contains(button->key().binding()->action())) {
+                QVERIFY(button->key().rtl());
+                QVERIFY2(button->iconId().contains("-rtl-"), "This is not RTL icon");
+            } else {
+                QVERIFY(!button->key().rtl());
+                QVERIFY2(!button->iconId().contains("-rtl-"), "This is not LTR icon");
+            }
+        }
+    }
+}
+
 void Ut_KeyButtonArea::changeOrientation(M::OrientationAngle angle)
 {
     if (MPlainWindow::instance()->orientationAngle() != angle) {
@@ -912,4 +984,5 @@ Ut_KeyButtonArea::PointList Ut_KeyButtonArea::reversed(const PointList &in) cons
     std::reverse_copy(in.begin(), in.end(), std::back_inserter(result));
     return result;
 }
+
 QTEST_APPLESS_MAIN(Ut_KeyButtonArea);

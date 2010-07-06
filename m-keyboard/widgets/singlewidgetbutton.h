@@ -50,6 +50,9 @@ public:
     //! \brief Returns the icon of this button, if it has one.
     const QPixmap *icon() const;
 
+    //! \brief Returns icon identifier, if it was loaded.
+    QString iconId() const;
+
     //! \brief Draws the icon of this button, if it has one, to the given rectangle.
     void drawIcon(const QRect &rectangle, QPainter *painter) const;
 
@@ -66,7 +69,21 @@ public:
     int width;
 
 private:
-    const QPixmap *loadIcon(KeyBinding::KeyAction action, bool shift) const;
+    //! Contains information about icon
+    struct IconInfo
+    {
+        //! Actual image
+        const QPixmap *pixmap;
+        //! Icon identified
+        QString id;
+
+        IconInfo();
+        ~IconInfo();
+    };
+
+    void loadIcon(bool shift);
+
+    const IconInfo &getIconInfo() const;
 
     //! The key this button represents
     const VKBDataKey &dataKey;
@@ -78,8 +95,8 @@ private:
     ButtonState currentState;
     bool selected;
 
-    //! One icon for both shift states.
-    const QPixmap *icons[2];
+    IconInfo lowerCaseIcon;
+    IconInfo upperCaseIcon;
 
     const MVirtualKeyboardStyleContainer &styleContainer;
 
