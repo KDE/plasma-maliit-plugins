@@ -176,6 +176,8 @@ void Ut_FlickRecognizer::initTestCase()
 
     window->show();
     QTest::qWaitForWindowShown(window);
+    // qWaitForWindowShown should suffice but for some reason we still need this.
+    QTest::qWait(0);
 }
 
 void Ut_FlickRecognizer::cleanupTestCase()

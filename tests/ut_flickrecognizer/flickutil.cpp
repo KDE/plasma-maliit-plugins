@@ -21,29 +21,53 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsWidget>
 #include <QTest>
+#include <QTime>
+#include <QCoreApplication>
 
-
-void wait(int msecs)
+// QTest::qWait() is too unreliable, especially with mouse swipes
+// with multiple waits. Let's just have a busy-loop.
+void wait(int msecs, bool processEvents = false)
 {
-    if (msecs > 10) {
-        QTest::qWait(msecs);
+    static QTime time;
+    time.start();
+    int timeLeft = msecs;
+
+    while (time.elapsed() <= msecs) {
+        if (processEvents) {
+            QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents
+                                            | QEventLoop::ExcludeSocketNotifiers,
+                                            timeLeft);
+        }
+        timeLeft -= time.elapsed();
     }
 }
 
 void doMouseSwipe(QGraphicsObject *target, const QList<QPoint> &path, unsigned int duration)
 {
-    const unsigned int moveDelay = duration / (path.count() - 1);
+    int numberOfWaitsLeft = path.count() - 1;
+    int moveDelay = duration / numberOfWaitsLeft;
+    int timeLeft = (duration);
+    QTime time;
+    time.start();
 
-    // Simulate press
-    mousePress(target, path.front(), moveDelay);
+    for (int i = 0; i < path.count(); ++i) {
+        if (i == 0) {
+            // Simulate press
+            mousePress(target, path.front(), moveDelay);
+        } else if (i == (path.count() - 1)) {
+            // Simulate release
+            mouseRelease(target, path.back());
+        } else {
+            // Simulate move
+            mouseMove(target, path.at(i), moveDelay);
+        }
 
-    // Simulate move
-    for (int i = 1; i < path.count() - 1; ++i) {
-        mouseMove(target, path.at(i), moveDelay);
+        // Adjust moveDelay if we are behind target duration.
+        if (--numberOfWaitsLeft) {
+            timeLeft = qMax(0, static_cast<int>(duration) - time.elapsed());
+            moveDelay = timeLeft / numberOfWaitsLeft;
+        }
     }
-
-    // Simulate release
-    mouseRelease(target, path.back());
 }
 
 void doMouseSwipe(QGraphicsObject *target, const QPoint &start, const QPoint &end,
