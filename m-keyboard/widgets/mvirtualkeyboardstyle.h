@@ -59,6 +59,9 @@ public:
 
     M_STYLE_ATTRIBUTE(QColor, deadkeyLockedColor, DeadkeyLockedColor)
 
+    M_STYLE_ATTRIBUTE(int, flickGestureTimeout, FlickGestureTimeout)
+    M_STYLE_ATTRIBUTE(qreal, flickGestureThresholdRatio, FlickGestureThresholdRatio)
+
     M_STYLE_ATTRIBUTE(QSize, keyNormalSize, KeyNormalSize)
     M_STYLE_ATTRIBUTE(QSize, keyFunctionNormalSize, KeyFunctionNormalSize)
     M_STYLE_ATTRIBUTE(QSize, keyFunctionLargeSize, KeyFunctionLargeSize)

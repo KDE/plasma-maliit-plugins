@@ -336,11 +336,14 @@ void KeyButtonArea::grabMouseEvent(QEvent */*event*/)
     // This would ignore mouseReleaseEvent and would not cause keyClicked.
     wasGestureTriggered = false;
 
-    const qreal ScalingFactor = 0.5;
+    const qreal ScalingFactor = style()->flickGestureThresholdRatio();
     const int HorizontalThreshold = static_cast<int>(boundingRect().width() * ScalingFactor);
     const int VerticalThreshold = static_cast<int>(boundingRect().height() * ScalingFactor);
+    const int Timeout = style()->flickGestureTimeout();
+
     FlickGestureRecognizer::instance()->setFinishThreshold(HorizontalThreshold, VerticalThreshold);
     FlickGestureRecognizer::instance()->setStartThreshold(HorizontalThreshold / 2, VerticalThreshold / 2);
+    FlickGestureRecognizer::instance()->setTimeout(Timeout);
 }
 
 void KeyButtonArea::ungrabMouseEvent(QEvent */*event*/)

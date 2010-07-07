@@ -25,6 +25,9 @@ MVirtualKeyboardStyle {
     releaseFeedback: ;
     pressFeedback: ;
 
+    flick-gesture-timeout: 400;
+    flick-gesture-threshold-ratio: 0.5;
+
     /* Single widget keyboard button styling */
     key-backspace-icon-id: "icon-m-input-methods-backspace";
     key-backspace-icon-size: 48 48;
