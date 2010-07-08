@@ -20,11 +20,10 @@
 #define SINGLEWIDGETBUTTONAREA_H
 
 #include "keybuttonarea.h"
+#include "singlewidgetbutton.h"
 
 #include <MScalableImage>
 #include <QTextLayout>
-
-class SingleWidgetButton;
 
 /*!
  * \brief SingleWidgetButtonArea is an implementation of KeyButtonArea which
@@ -33,15 +32,6 @@ class SingleWidgetButton;
 class SingleWidgetButtonArea : public KeyButtonArea, public ISymIndicator
 {
 public:
-    //! Used to differentiate background images of a button.
-    enum KeyBackgroundType {
-        NormalBackground = 0,
-        KeyPressedBackground = 1,
-        KeySelectedBackground = 2,
-
-        KeyBackgroundTypeCount
-    };
-
     SingleWidgetButtonArea(const MVirtualKeyboardStyleContainer *,
                            QSharedPointer<const LayoutSection>,
                            ButtonSizeScheme buttonSizeScheme = ButtonSizeEqualExpanding,
@@ -86,8 +76,12 @@ private:
     //! \brief Builds QTextLayout representation of current button labels for faster drawing.
     void buildTextLayout();
 
-    //! \brief Update indicator backgrounds from current theme.
-    void updateIndicatorBackgrounds(const MScalableImage *normal, const MScalableImage *pressed);
+
+    //! \brief Draws background for a symbol key.
+    void drawSymKeyBackground(QPainter *painter, SingleWidgetButton::ButtonState state, const QRect &rect);
+
+    //! \brief Draws background for a normal key.
+    void drawNormalKeyBackground(QPainter *painter, SingleWidgetButton::ButtonState state, const QRect &rect);
 
     struct ButtonRow {
         QList<SingleWidgetButton*> buttons;
@@ -107,9 +101,6 @@ private:
 
     int rowHeight; //! constant row height, includes margins
     ButtonRowList rowList;
-
-    //! Special set of button backgrounds for sym state indicator.
-    const MScalableImage *symIndicatorBackgrounds[KeyBackgroundTypeCount];
 
     //! Current state of the sym indicator
     SymIndicatorState symState;

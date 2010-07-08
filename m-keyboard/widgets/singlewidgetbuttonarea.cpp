@@ -19,7 +19,6 @@
 #include "mvirtualkeyboardstyle.h"
 #include "singlewidgetbuttonarea.h"
 
-#include "singlewidgetbutton.h"
 #include "limitedtimer.h"
 
 #include <QDebug>
@@ -309,9 +308,6 @@ void SingleWidgetButtonArea::paint(QPainter *painter, const QStyleOptionGraphics
     foreach (const ButtonRow &row, rowList) {
         foreach (const SingleWidgetButton *button, row.buttons) {
 
-            const MScalableImage *background = 0;
-            const int backgroundIndex = qBound(0, static_cast<int>(button->state()), 3);
-
             // Note: we should always get scalable images directly from style container.
             // Caching pointers of the images is very danger, because images could be
             // deleted by mtheme daemon in some cases (e.g. display language is changed).
@@ -319,25 +315,9 @@ void SingleWidgetButtonArea::paint(QPainter *painter, const QStyleOptionGraphics
             // Draw button background.
             if (symState != SymIndicatorInactive
                 && button->binding().action() == KeyBinding::ActionSym) {
-                background = symIndicatorBackgrounds[backgroundIndex];
+                drawSymKeyBackground(painter, button->state(), button->cachedButtonRect);
             } else {
-                switch (backgroundIndex) {
-                case NormalBackground:
-                    background = style()->keyBackground();
-                    break;
-                case KeyPressedBackground:
-                    background = style()->keyBackgroundPressed();
-                    break;
-                case KeySelectedBackground:
-                    background = style()->keyBackgroundSelected();
-                    break;
-                default:
-                    break;
-                }
-            }
-
-            if (background) {
-                background->draw(button->cachedButtonRect, painter);
+                drawNormalKeyBackground(painter, button->state(), button->cachedButtonRect);
             }
 
             // Draw icon.
@@ -351,6 +331,60 @@ void SingleWidgetButtonArea::paint(QPainter *painter, const QStyleOptionGraphics
     // Draw text next.
     painter->setPen(style()->fontColor());
     textLayout.draw(painter, QPoint());
+}
+
+void SingleWidgetButtonArea::drawSymKeyBackground(QPainter *painter,
+                                                  SingleWidgetButton::ButtonState state,
+                                                  const QRect &rect)
+{
+    const MScalableImage *background = 0;
+    switch (state) {
+    case IKeyButton::Normal:
+    case IKeyButton::Selected:
+        if (symState == SymActive) {
+            background = style()->keyBackgroundSymIndicatorSym();
+        } else if (symState == AceActive) {
+            background = style()->keyBackgroundSymIndicatorAce();
+        }
+        break;
+    case IKeyButton::Pressed:
+        if (symState == SymActive) {
+            background = style()->keyBackgroundSymIndicatorSymPressed();
+        } else if (symState == AceActive) {
+            background = style()->keyBackgroundSymIndicatorAcePressed();
+        }
+        break;
+    default:
+        break;
+    }
+
+    if (background) {
+        background->draw(rect, painter);
+    }
+}
+
+void SingleWidgetButtonArea::drawNormalKeyBackground(QPainter *painter,
+                                                     SingleWidgetButton::ButtonState state,
+                                                     const QRect &rect)
+{
+    const MScalableImage *background = 0;
+    switch (state) {
+    case IKeyButton::Normal:
+        background = style()->keyBackground();
+        break;
+    case IKeyButton::Pressed:
+        background = style()->keyBackgroundPressed();
+        break;
+    case IKeyButton::Selected:
+        background = style()->keyBackgroundSelected();
+        break;
+    default:
+        break;
+    }
+
+    if (background) {
+        background->draw(rect, painter);
+    }
 }
 
 IKeyButton *SingleWidgetButtonArea::keyAt(const QPoint &pos) const
@@ -514,27 +548,23 @@ ISymIndicator *SingleWidgetButtonArea::symIndicator()
 // ISymIndicator implementation
 void SingleWidgetButtonArea::activateSymIndicator()
 {
-    updateIndicatorBackgrounds(style()->keyBackgroundSymIndicatorSym(),
-                               style()->keyBackgroundSymIndicatorSymPressed());
-
     if (symState == SymIndicatorInactive) {
         // We have changed the text. Sym has two-line text in active mode.
         textDirty = true;
     }
     symState = SymActive;
+    update();
 }
 
 // ISymIndicator implementation
 void SingleWidgetButtonArea::activateAceIndicator()
 {
-    updateIndicatorBackgrounds(style()->keyBackgroundSymIndicatorAce(),
-                               style()->keyBackgroundSymIndicatorAcePressed());
-
     if (symState == SymIndicatorInactive) {
         // We have changed the text. Sym has two-line text in active mode.
         textDirty = true;
     }
     symState = AceActive;
+    update();
 }
 
 // ISymIndicator implementation
@@ -548,28 +578,8 @@ void SingleWidgetButtonArea::deactivateIndicator()
     }
 }
 
-void SingleWidgetButtonArea::updateIndicatorBackgrounds(const MScalableImage *normal, const MScalableImage *pressed)
-{
-    // Use same image for all button states for now. Some different graphics may
-    // be introduced later for the intermediate step between sym and ace modes.
-    // while holding button down.
-    symIndicatorBackgrounds[NormalBackground] = normal;
-    symIndicatorBackgrounds[KeyPressedBackground] = pressed;
-    symIndicatorBackgrounds[KeySelectedBackground] = normal;
-    update();
-}
-
 void SingleWidgetButtonArea::onThemeChangeCompleted()
 {
     KeyButtonArea::onThemeChangeCompleted();
-
-    if (symState == SymActive) {
-        updateIndicatorBackgrounds(style()->keyBackgroundSymIndicatorSym(),
-                                   style()->keyBackgroundSymIndicatorSymPressed());
-    } else if (symState == AceActive) {
-        updateIndicatorBackgrounds(style()->keyBackgroundSymIndicatorAce(),
-                                   style()->keyBackgroundSymIndicatorAcePressed());
-    }
-
     buildTextLayout();
 }
