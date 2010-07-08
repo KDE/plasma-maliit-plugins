@@ -226,7 +226,6 @@ protected:
     virtual QVariant itemChange(GraphicsItemChange, const QVariant &);
     virtual void grabMouseEvent(QEvent *e);
     virtual void ungrabMouseEvent(QEvent *e);
-    virtual bool sceneEvent(QEvent *event);
     virtual bool event(QEvent *event);
     /*! \reimp_end */
 

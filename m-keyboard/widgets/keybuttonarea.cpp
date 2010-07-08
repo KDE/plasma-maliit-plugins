@@ -358,14 +358,24 @@ void KeyButtonArea::ungrabMouseEvent(QEvent */*event*/)
     popup->hidePopup();
 }
 
-bool KeyButtonArea::sceneEvent(QEvent *event)
+bool KeyButtonArea::event(QEvent *e)
 {
-    if (event->type() == QEvent::TouchBegin
-        || event->type() == QEvent::TouchUpdate
-        || event->type() == QEvent::TouchEnd) {
-        QTouchEvent *touch = static_cast<QTouchEvent*>(event);
+    bool eaten = false;
 
-        if (event->type() == QEvent::TouchBegin) {
+    if (e->type() == QEvent::Gesture) {
+        const Qt::GestureType flickGestureType = FlickGestureRecognizer::sharedGestureType();
+        FlickGesture *flickGesture = static_cast<FlickGesture *>(static_cast<QGestureEvent *>(e)->gesture(flickGestureType));
+
+        if (flickGesture) {
+            handleFlickGesture(flickGesture);
+            eaten = true;
+        }
+    } else if (e->type() == QEvent::TouchBegin
+               || e->type() == QEvent::TouchUpdate
+               || e->type() == QEvent::TouchEnd) {
+        QTouchEvent *touch = static_cast<QTouchEvent*>(e);
+
+        if (e->type() == QEvent::TouchBegin) {
             touchPoints.clear();
         }
 
@@ -386,24 +396,7 @@ bool KeyButtonArea::sceneEvent(QEvent *event)
             }
         }
 
-        return true;
-    }
-
-    return MWidget::sceneEvent(event);
-}
-
-bool KeyButtonArea::event(QEvent *e)
-{
-    bool eaten = false;
-
-    if (e->type() == QEvent::Gesture) {
-        const Qt::GestureType flickGestureType = FlickGestureRecognizer::sharedGestureType();
-        FlickGesture *flickGesture = static_cast<FlickGesture *>(static_cast<QGestureEvent *>(e)->gesture(flickGestureType));
-
-        if (flickGesture) {
-            handleFlickGesture(flickGesture);
-            eaten = true;
-        }
+        eaten = true;
     }
 
     return eaten || MWidget::event(e);
