@@ -86,9 +86,6 @@ private:
     //! \brief Builds QTextLayout representation of current button labels for faster drawing.
     void buildTextLayout();
 
-    //! \brief Fetches updated background images from MTheme.
-    void updateButtonBackgrounds();
-
     //! \brief Update indicator backgrounds from current theme.
     void updateIndicatorBackgrounds(const MScalableImage *normal, const MScalableImage *pressed);
 
@@ -110,9 +107,6 @@ private:
 
     int rowHeight; //! constant row height, includes margins
     ButtonRowList rowList;
-
-    //! Normal button backgrounds
-    const MScalableImage *keyBackgrounds[KeyBackgroundTypeCount];
 
     //! Special set of button backgrounds for sym state indicator.
     const MScalableImage *symIndicatorBackgrounds[KeyBackgroundTypeCount];

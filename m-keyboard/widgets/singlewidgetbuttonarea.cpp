@@ -58,8 +58,6 @@ SingleWidgetButtonArea::SingleWidgetButtonArea(const MVirtualKeyboardStyleContai
     // Initially deactivate sym page indicator.
     deactivateIndicator();
 
-    updateButtonBackgrounds();
-
     loadKeys();
 }
 
@@ -72,13 +70,6 @@ SingleWidgetButtonArea::~SingleWidgetButtonArea()
         qDeleteAll(rowIter->buttons);
         rowIter->buttons.clear();
     }
-}
-
-void SingleWidgetButtonArea::updateButtonBackgrounds()
-{
-    keyBackgrounds[NormalBackground] = style()->keyBackground();
-    keyBackgrounds[KeyPressedBackground] = style()->keyBackgroundPressed();
-    keyBackgrounds[KeySelectedBackground] = style()->keyBackgroundSelected();
 }
 
 QSizeF SingleWidgetButtonArea::sizeHint(Qt::SizeHint which, const QSizeF &/*constraint*/) const
@@ -321,12 +312,28 @@ void SingleWidgetButtonArea::paint(QPainter *painter, const QStyleOptionGraphics
             const MScalableImage *background = 0;
             const int backgroundIndex = qBound(0, static_cast<int>(button->state()), 3);
 
+            // Note: we should always get scalable images directly from style container.
+            // Caching pointers of the images is very danger, because images could be
+            // deleted by mtheme daemon in some cases (e.g. display language is changed).
+
             // Draw button background.
             if (symState != SymIndicatorInactive
                 && button->binding().action() == KeyBinding::ActionSym) {
                 background = symIndicatorBackgrounds[backgroundIndex];
             } else {
-                background = keyBackgrounds[backgroundIndex];
+                switch (backgroundIndex) {
+                case NormalBackground:
+                    background = style()->keyBackground();
+                    break;
+                case KeyPressedBackground:
+                    background = style()->keyBackgroundPressed();
+                    break;
+                case KeySelectedBackground:
+                    background = style()->keyBackgroundSelected();
+                    break;
+                default:
+                    break;
+                }
             }
 
             if (background) {
@@ -563,8 +570,6 @@ void SingleWidgetButtonArea::onThemeChangeCompleted()
         updateIndicatorBackgrounds(style()->keyBackgroundSymIndicatorAce(),
                                    style()->keyBackgroundSymIndicatorAcePressed());
     }
-
-    updateButtonBackgrounds();
 
     buildTextLayout();
 }
