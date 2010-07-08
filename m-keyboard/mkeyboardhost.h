@@ -177,8 +177,8 @@ private slots:
     //! hide FN/Caps Lock infobanner
     void hideLockOnInfoBanner(bool updateRegion = true);
 
-    //! Handle active layout is changed to \a layout
-    void handleLayoutChanged(const QString &layout);
+    //! Handle active layout is changed to \a layout for virtual keyboard.
+    void handleVirtualKeyboardLayoutChanged(const QString &layout);
 
 private:
     void createCorrectionCandidateWidget();
@@ -190,8 +190,14 @@ private:
     //! Update error correction flag
     void updateCorrectionState();
 
-    //! Update shift state
-    void updateShiftState();
+    //! update autocapitalization state
+    void updateAutoCapitalization();
+
+    /*!
+     * Reset temporary shift state (shift on state set by user or auto capitalization,
+     * besides capslocked) for virtual keyboard.
+     */
+    void resetVirtualKeyboardShiftState();
 
     //! Actual backspace operation
     void doBackspace();
