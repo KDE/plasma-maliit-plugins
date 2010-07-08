@@ -81,6 +81,12 @@ private slots:
     void testLayoutMenuKeyClick_data();
     void testLayoutMenuKeyClick();
 
+    void testShiftStateOnFocusChanged_data();
+    void testShiftStateOnFocusChanged();
+
+    void testShiftStateOnLayoutChanged_data();
+    void testShiftStateOnLayoutChanged();
+
 private:
     void rotateToAngle(M::OrientationAngle);
 };

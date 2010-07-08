@@ -42,7 +42,7 @@ void MInputContextStubConnection::clear()
     qDeleteAll(keyEvents);
     keyEvents.clear();
 
-    surrodingString.clear();
+    surroundingString.clear();
     cursorPos = 0;
 
     sendPreeditCalls = 0;
@@ -105,7 +105,7 @@ bool MInputContextStubConnection::predictionEnabled(bool &val)
 
 bool MInputContextStubConnection::surroundingText(QString &text, int &cursorPosition)
 {
-    text = surrodingString;
+    text = surroundingString;
     cursorPosition = cursorPos;
     return true;
 }
