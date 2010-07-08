@@ -57,6 +57,9 @@ public:
     //! Returns title of a given language as stated in xml.
     QString keyboardTitle(const QString &language) const;
 
+    //! Returns whether autocaps is enabled for given language.
+    bool autoCapsEnabled(const QString &language) const;
+
     //! \return real language (as specified in XML) of the keyboard
     //! loaded based on language list entry 'language'.
     QString keyboardLanguage(const QString &language) const;
@@ -73,6 +76,9 @@ public:
 
     //! \brief Returns the layout for hardware keyboard
     QString hardwareKeyboardLayout() const;
+
+    //! \brief Returns whether autocaps is enabled for hardware keyboard.
+    bool hardwareKeyboardAutoCapsEnabled() const;
 
     /*!
      *\brief Returns the language codes and its titles for selected keyboards.

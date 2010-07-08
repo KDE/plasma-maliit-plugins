@@ -53,6 +53,7 @@ namespace
     int gSetKeyboardStateCallCount = 0;
     MIMHandlerState gSetKeyboardStateParam = OnScreen;
     const int SceneRotationTime = 1400; // in ms
+    bool gAutoCapsEnabled = true;
 
     // This GConf item defines whether multitouch is enabled or disabled
     const char * const MultitouchSettings = "/meegotouch/inputmethods/multitouch/enabled";
@@ -103,6 +104,11 @@ QString MVirtualKeyboard::layoutLanguage() const
     return QString("fi");
 }
 
+bool MVirtualKeyboard::autoCapsEnabled() const
+{
+    return gAutoCapsEnabled;
+}
+
 
 // Actual test...............................................................
 
@@ -142,6 +148,7 @@ void Ut_MKeyboardHost::init()
 
     subject = new MKeyboardHost(inputContext, 0);
     inputContext->clear();
+    gAutoCapsEnabled = true;
 
     window->hide();
     if (window->orientationAngle() != M::Angle0) {
@@ -535,6 +542,13 @@ void Ut_MKeyboardHost::testAutoCaps()
     subject->handleKeyRelease(release);
     subject->handleKeyClick(release);
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
+
+    // Test autocaps if autCaps flag is off from layout
+    gAutoCapsEnabled = false;
+    inputContext->cursorPos = 0;
+    subject->update();
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
+    gAutoCapsEnabled = true;
 }
 
 void Ut_MKeyboardHost::testApplicationOrientationChanged()
@@ -1174,24 +1188,35 @@ void Ut_MKeyboardHost::testShiftStateOnLayoutChanged_data()
     QTest::addColumn<bool>("autoCapitalizationEnabled");
     QTest::addColumn<int>("cursorPosition");
     QTest::addColumn<QString>("layout");
+    QTest::addColumn<bool>("layoutAutoCapitalization");
     QTest::addColumn<ModifierState>("initialShiftState");
     QTest::addColumn<ModifierState>("expectedShiftState");
 
-    // autocaps makes shift lowercase, manually set to shift on, layout change will turn back to lowercase
+    // manually set shift state to shift on, changing layout will turn it back to lowercase according autocaps
     QTest::newRow("screen lowercase") << QString("Test. ") << true << 2 << QString("en_gb")
-                                      << ModifierLatchedState << ModifierClearState;
+                                      << true << ModifierLatchedState << ModifierClearState;
 
-    // autocaps makes shift on, layout change will turn back to shift on
+    // manually set shift state to shift on, changing layout will keep it according autocaps
     QTest::newRow("screen latched") << QString("Test. ") << true << 0 << QString("fi")
-                                    << ModifierLatchedState << ModifierLatchedState;
+                                    << true << ModifierLatchedState << ModifierLatchedState;
 
-    // autocaps makes shift on, manually set to lowercase, layout change will turn back to shift on
+    // manually set shift state to lowercase, changing layout will turn it back to shift on according autocaps
     QTest::newRow("screen latched") << QString("Test. ") << true << 0 << QString("fr")
-                                    << ModifierClearState << ModifierLatchedState;
+                                    << true << ModifierClearState << ModifierLatchedState;
 
-    // autocaps makes shift on, manually set to shift locked, layout change won't change shift locked
+    // manually set shift state to shift locked, changing layout won't change shift state
     QTest::newRow("screen locked") << QString("Test. ") << true << 0 << QString("en_us")
-                                   << ModifierLockedState << ModifierLockedState;
+                                   << true << ModifierLockedState << ModifierLockedState;
+
+    // manually set shift state to shift on, changing layout will change shift to lowercase because
+    // layout disable autocaps.
+    QTest::newRow("screen latched") << QString("Test. ") << true << 0 << QString("ar")
+                                   << false << ModifierLatchedState << ModifierClearState;
+
+    // manually set shift state to shift locked, changing layout won't change shift state even if
+    // layout disable autocaps.
+    QTest::newRow("screen latched") << QString("Test. ") << true << 0 << QString("ar")
+                                   << false << ModifierLockedState << ModifierLockedState;
 }
 
 void Ut_MKeyboardHost::testShiftStateOnLayoutChanged()
@@ -1202,6 +1227,7 @@ void Ut_MKeyboardHost::testShiftStateOnLayoutChanged()
     QFETCH(bool, autoCapitalizationEnabled);
     QFETCH(int, cursorPosition);
     QFETCH(QString, layout);
+    QFETCH(bool, layoutAutoCapitalization);
     QFETCH(ModifierState, initialShiftState);
     QFETCH(ModifierState, expectedShiftState);
 
@@ -1214,6 +1240,7 @@ void Ut_MKeyboardHost::testShiftStateOnLayoutChanged()
     inputContext->cursorPos = cursorPosition;
     subject->vkbWidget->setShiftState(initialShiftState);
 
+    gAutoCapsEnabled = layoutAutoCapitalization;
     subject->handleVirtualKeyboardLayoutChanged(layout);
 
     QCOMPARE(subject->vkbWidget->shiftStatus(), expectedShiftState);

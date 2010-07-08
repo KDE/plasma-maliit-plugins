@@ -468,9 +468,18 @@ void MKeyboardHost::resetVirtualKeyboardShiftState()
 
 void MKeyboardHost::updateAutoCapitalization()
 {
+    switch (activeState) {
+    case OnScreen:
+        autoCapsEnabled = vkbWidget->autoCapsEnabled();
+        break;
+    default:
+        autoCapsEnabled = hardwareKeyboard->autoCapsEnabled();
+        break;
+    }
     bool valid = false;
     const int type = inputContextConnection()->contentType(valid);
-    autoCapsEnabled = (valid
+    autoCapsEnabled = (autoCapsEnabled
+                       && valid
                        && (type != M::NumberContentType)
                        && (type != M::PhoneNumberContentType));
     autoCapsEnabled = (autoCapsEnabled
