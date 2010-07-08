@@ -220,8 +220,13 @@ private:
      */
     void clearReactionMaps(const QString &clearValue);
 
-    //! QObject -> Region mapping for widget regions
-    typedef QMap<const QObject *, QRegion> RegionMap;
+    /*! Mapping from QObject to region.
+     */
+    typedef QPair<QPointer<QObject>, QRegion> ObjectRegionPair;
+
+    /*! Container of region mapping information.
+     */
+    typedef QList<ObjectRegionPair> RegionList;
 
     /*!
      * \brief Add \a region to widgetRegions with key \a widget.
@@ -230,7 +235,7 @@ private:
      * and sharedHandleArea region to it.
      */
     QRegion combineRegionTo(const QRegion &region,
-                            const QObject &widget);
+                            QObject &widget);
 
     /*!
      * \brief Add \a region to inputMethodAreaWidgetRegions with key \a widget.
@@ -239,7 +244,7 @@ private:
      * and sharedHandleArea region to it.
      */
     QRegion combineInputMethodAreaTo(const QRegion &region,
-                                     const QObject &widget);
+                                     QObject &widget);
 
     /*!
      * \brief Common implementation for combineRegionTo() and combineInputMethodAreaTo()
@@ -247,11 +252,17 @@ private:
      * this parameter is true.
      * \return Union of all regions in \a regionStore after adding \a region to it.
      */
-    QRegion combineRegionToImpl(RegionMap &regionStore,
+    QRegion combineRegionToImpl(RegionList &regionStore,
                                 const QRegion &region,
-                                const QObject &widget,
+                                QObject &widget,
                                 bool includeExtraInteractiveAreas);
 
+    /*!
+     * \brief Save \a region occupied by \a widget into \a regionStore.
+     */
+    void setRegionInfo(RegionList &regionStore,
+                       const QRegion &region,
+                       const QPointer<QObject> &widget);
     /*!
      * \brief Return union of all regions in \a regionStore after adding sharedHandleArea region.
      */
@@ -267,7 +278,7 @@ private:
      * \param includeExtraInteractiveAreas Result includes extra interactive area
      * if this parameter is true.
      */
-    QRegion combineRegionImpl(const RegionMap &regionStore,
+    QRegion combineRegionImpl(const RegionList &regionStore,
                               bool includeExtraInteractiveAreas);
 
 
@@ -330,10 +341,10 @@ private:
 #endif
 
     //! Regions of widgets created by MKeyboardHost
-    RegionMap widgetRegions;
+    RegionList widgetRegions;
 
     //! Regions of widgets that affect the input method area
-    RegionMap inputMethodAreaWidgetRegions;
+    RegionList inputMethodAreaWidgetRegions;
 
     //! current active state
     MIMHandlerState activeState;

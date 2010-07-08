@@ -1137,26 +1137,49 @@ void MKeyboardHost::showLayoutMenu()
 }
 
 QRegion MKeyboardHost::combineRegionTo(const QRegion &region,
-                                       const QObject &widget)
+                                       QObject &widget)
 {
     return combineRegionToImpl(widgetRegions, region, widget, true);
 }
 
 QRegion MKeyboardHost::combineInputMethodAreaTo(const QRegion &region,
-                                 const QObject &widget)
+                                                QObject &widget)
 {
     return combineRegionToImpl(inputMethodAreaWidgetRegions, region,
                                widget, false);
 }
 
-QRegion MKeyboardHost::combineRegionToImpl(RegionMap &regionStore,
+QRegion MKeyboardHost::combineRegionToImpl(RegionList &regionStore,
                                            const QRegion &region,
-                                           const QObject &widget,
+                                           QObject &widget,
                                            bool includeExtraInteractiveAreas)
 {
-    regionStore[&widget] = region;
+    QPointer<QObject> pointer(&widget);
+
+    setRegionInfo(regionStore, region, pointer);
 
     return combineRegionImpl(regionStore, includeExtraInteractiveAreas);
+}
+
+void MKeyboardHost::setRegionInfo(RegionList &regionStore,
+                                  const QRegion &region,
+                                  const QPointer<QObject> &widget)
+{
+    bool found = false;
+
+    for (RegionList::iterator iterator = regionStore.begin();
+         iterator != regionStore.end();
+         ++iterator) {
+        if (iterator->first == widget) {
+            iterator->second = region;
+            found = true;
+            break;
+        }
+    }
+
+    if (!found) {
+        regionStore.append(ObjectRegionPair(widget, region));
+    }
 }
 
 QRegion MKeyboardHost::combineRegion()
@@ -1169,12 +1192,15 @@ QRegion MKeyboardHost::combineInputMethodArea()
     return combineRegionImpl(inputMethodAreaWidgetRegions, false);
 }
 
-QRegion MKeyboardHost::combineRegionImpl(const RegionMap &regionStore,
+QRegion MKeyboardHost::combineRegionImpl(const RegionList &regionStore,
                                          bool includeExtraInteractiveAreas)
 {
     QRegion combinedRegion;
-    foreach (const QRegion &partialRegion, regionStore) {
-        combinedRegion |= partialRegion;
+
+    foreach (const ObjectRegionPair &pair, regionStore) {
+        if (pair.first) {
+            combinedRegion |= pair.second;
+        }
     }
 
     if (sharedHandleArea) {
@@ -1187,7 +1213,9 @@ QRegion MKeyboardHost::combineRegionImpl(const RegionMap &regionStore,
 
 void MKeyboardHost::handleRegionUpdate(const QRegion &region)
 {
-    widgetRegions[QObject::sender()] = region;
+    QPointer<QObject> pointer(QObject::sender());
+
+    setRegionInfo(widgetRegions, region, pointer);
     handleRegionUpdate();
 }
 
@@ -1199,7 +1227,9 @@ void MKeyboardHost::handleRegionUpdate()
 
 void MKeyboardHost::handleInputMethodAreaUpdate(const QRegion &region)
 {
-    inputMethodAreaWidgetRegions[QObject::sender()] = region;
+    QPointer<QObject> pointer(QObject::sender());
+
+    setRegionInfo(inputMethodAreaWidgetRegions, region, pointer);
     handleInputMethodAreaUpdate();
 }
 
