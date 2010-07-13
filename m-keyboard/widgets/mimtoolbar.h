@@ -19,9 +19,10 @@
 #ifndef MIMTOOLBAR_H
 #define MIMTOOLBAR_H
 
-#include <MWidget>
+#include <MStylableWidget>
 #include "widgetbar.h"
 #include "mkeyboardcommon.h"
+#include "mimtoolbarstyle.h"
 #include <minputmethodnamespace.h>
 
 #include <QPointer>
@@ -52,7 +53,7 @@ class MToolbarItem;
   will be placed into left or right side WidgetBar widget. Toolbar
   takes all available space horizontally.
 */
-class MImToolbar : public MWidget
+class MImToolbar : public MStylableWidget
 {
     Q_OBJECT
 
@@ -62,8 +63,7 @@ public:
      * \param style Styling information.
      * \param parent Parent object.
      */
-    explicit MImToolbar(const MVirtualKeyboardStyleContainer &style,
-                        QGraphicsWidget *parent = 0);
+    explicit MImToolbar(QGraphicsWidget *parent = 0);
 
     //! Destructor
     ~MImToolbar();
@@ -89,12 +89,13 @@ public:
     //! \brief Clears and redraws the toolbar reaction maps.
     void redrawReactionMaps();
 
-    //! \reimp
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *);
-    //! \reimp_end
-
-    //! Reload toolbar if it should be updated
-    void reload();
+    /*!
+     * \brief Update toolbar after orientation change.
+     * This method does not emit following signals:
+     * 1)regionUpdated, because it should be emitted by other classes;
+     * 2)availabilityChanged, because toolbar status is not changed by rotation.
+     */
+    void finalizeOrientationChange();
 
     //! \reimp
     virtual QRectF boundingRect() const;
@@ -214,12 +215,13 @@ private:
 
     QList<QPointer<MWidget> > customWidgets; //! All custom widgets in this toolbar
 
-    const MVirtualKeyboardStyleContainer &style; //! Styling information
-
     friend class Ut_MImToolbar;
 
     ModifierState shiftState;
     ModifierState fnState;
+
+private:
+    M_STYLABLE_WIDGET(MImToolbarStyle)
 };
 
 #endif

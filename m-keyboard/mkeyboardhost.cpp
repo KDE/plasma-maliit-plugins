@@ -169,7 +169,7 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
     Q_UNUSED(ok); // if Q_NO_DEBUG is defined then the assert won't be used
     Q_ASSERT(ok);
 
-    imToolbar = new MImToolbar(*vkbStyleContainer);
+    imToolbar = new MImToolbar();
 
     ok = connect(imToolbar, SIGNAL(copyPasteRequest(CopyPasteState)),
                  this, SLOT(sendCopyPaste(CopyPasteState)));
@@ -557,7 +557,7 @@ void MKeyboardHost::finalizeOrientationChange()
 
     if (imToolbar) {
         // load proper layout
-        imToolbar->reload();
+        imToolbar->finalizeOrientationChange();
     }
     if (sharedHandleArea) {
         sharedHandleArea->finalizeOrientationChange();
