@@ -220,7 +220,8 @@ void Ut_SymbolView::testReactiveWholeScreen()
 
     const bool gridpass = tester.testReactionMapGrid(
                               MPlainWindow::instance(),
-                              20, 50, subject->interactiveRegion());
+                              20, 50, subject->interactiveRegion(),
+                              subject);
 
     QVERIFY(gridpass);
 

@@ -85,9 +85,11 @@ public:
      *  \param view The QGraphicsView on which the grid is applied.
      *  \param gridSize Number of grid points horizontally and vertically
      *  \param minCoverage Minnimum percentage of unambiguous grid points to check. Otherwise fail.
-     *  \param region Optional region which tells whether or not a grid point belongs to visible widget.
+     *  \param region Region which tells whether or not a grid point belongs to visible widget.
+     *  \param subject Widget which painted reaction map.
      */
-    bool testReactionMapGrid(const QGraphicsView *view, const int gridSize, const int minCoverage, const QRegion &region);
+    bool testReactionMapGrid(const QGraphicsView *view, const int gridSize, const int minCoverage,
+                             const QRegion &region, MWidget *subject);
     bool isReactiveArea(const QRectF &rectangle) const;
     ReactionColorValue colorAt(const QPointF &pos) const;
     ReactionColorValue colorAt(const QPointF &pos, int margin, bool *ambiguous) const;
@@ -274,9 +276,10 @@ bool MReactionMapTester::testChildButtonReactiveAreas(const QGraphicsView *view,
 }
 
 bool MReactionMapTester::testReactionMapGrid(const QGraphicsView *view,
-                                               const int gridSize,
-                                               const int minCoverage,
-                                               const QRegion &region)
+                                             const int gridSize,
+                                             const int minCoverage,
+                                             const QRegion &region,
+                                             MWidget *subject)
 {
     const int verticalIncrement = screenHeight() / gridSize;
     const int horizontalIncrement = screenWidth() / gridSize;
@@ -307,7 +310,8 @@ bool MReactionMapTester::testReactionMapGrid(const QGraphicsView *view,
                 continue;
             }
 
-            if (item && !region.isEmpty() && !region.contains(scenePoint)) {
+            if (item && !region.isEmpty() && !region.contains(scenePoint)
+                && !subject->isAncestorOf(item)) {
                 // We are not interested in this scene item.
                 // It's probably the parent scene window.
                 const MButton *m = dynamic_cast<const MButton*>(item);
