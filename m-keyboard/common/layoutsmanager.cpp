@@ -163,10 +163,10 @@ QString LayoutsManager::hardwareKeyboardLayout() const
 bool LayoutsManager::hardwareKeyboardAutoCapsEnabled() const
 {
     // Arabic hwkb layout default disable autocaps.
-    return MGConfItem(HardwareKeyboardAutoCapsDisabledLayouts)
-                .value(QStringList(DefaultHardwareKeyboardAutoCapsDisabledLayout))
-                .toStringList()
-                .contains(hardwareKeyboardLayout());
+    QStringList autoCapsDisabledLayouts = MGConfItem(HardwareKeyboardAutoCapsDisabledLayouts)
+                                            .value(QStringList(DefaultHardwareKeyboardAutoCapsDisabledLayout))
+                                            .toStringList();
+    return !(autoCapsDisabledLayouts.contains(hardwareKeyboardLayout()));
 }
 
 bool LayoutsManager::loadLanguage(const QString &language)
