@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
+<keyboard version="1.0" catalog="symbols">
+    <layout type="general" orientation="landscape">
+        <section id="symbols Sym" type="non-sloppy" movable="false" horizontal_alignment="left" vertical_alignment="center">
+          <row>
+            <key>
+              <binding label="1"/>
+            </key>
+            <key>
+              <binding label="2"/>
+            </key>
+            <key>
+              <binding label="3"/>
+            </key>
+            <key>
+              <binding label="4"/>
+            </key>
+            <key>
+              <binding label="5"/>
+            </key>
+            <key>
+              <binding label="6"/>
+            </key>
+            <key>
+              <binding label="7"/>
+            </key>
+            <key>
+              <binding label="8"/>
+            </key>
+            <key>
+              <binding label="9"/>
+            </key>
+            <key>
+              <binding label="0"/>
+            </key>
+          </row>
+          <row>
+            <key>
+              <binding label="⇥"/>
+            </key>
+            <key>
+              <binding label="*"/>
+              <binding shift="true" label="“"/>
+            </key>
+            <key>
+              <binding label="#"/>
+              <binding shift="true" label="”"/>
+            </key>
+            <key>
+              <binding label="+"/>
+              <binding shift="true" label="„"/>
+            </key>
+            <key>
+              <binding label="="/>
+              <binding shift="true" label="‟"/>
+            </key>
+            <key>
+              <binding label="€"/>
+              <binding shift="true" label="$"/>
+            </key>
+            <key>
+              <binding label="£"/>
+              <binding shift="true" label="¥"/>
+            </key>
+            <key>
+              <binding label="("/>
+              <binding shift="true" label="["/>
+            </key>
+            <key>
+              <binding label=")"/>
+              <binding shift="true" label="]"/>
+            </key>
+            <key>
+              <binding label="↵"/>
+            </key>
+          </row>
+          <row>
+            <key>
+              <binding label="/"/>
+              <binding shift="true" label="\"/>
+            </key>
+            <key>
+              <binding label="@"/>
+              <binding shift="true" label="~"/>
+            </key>
+            <key>
+              <binding label="%"/>
+              <binding shift="true" label="‰"/>
+            </key>
+            <key>
+              <binding label="‘"/>
+              <binding shift="true" label="&#x0022;"/>
+            </key>
+            <key>
+              <binding label="-"/>
+              <binding shift="true" label="_"/>
+            </key>
+            <key>
+              <binding label=","/>
+              <binding shift="true" label="&#x0026;"/>
+            </key>
+            <key>
+              <binding label=";"/>
+              <binding shift="true" label="«"/>
+            </key>
+            <key>
+              <binding label=":"/>
+              <binding shift="true" label="»"/>
+            </key>
+            <key>
+              <binding label="?"/>
+              <binding shift="true" label="¿"/>
+            </key>
+            <key>
+              <binding label="!"/>
+              <binding shift="true" label="¡"/>
+            </key>
+          </row>
+        </section>
+    </layout>
+</keyboard>

@@ -35,6 +35,8 @@ private slots:
     void testLayouts();
     void testNumberLayouts();
     void testPhoneNumberLayouts();
+    void testHardwareSymLayout_data();
+    void testHardwareSymLayout();
 };
 
 #endif

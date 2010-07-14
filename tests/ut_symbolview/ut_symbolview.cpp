@@ -297,13 +297,6 @@ void Ut_SymbolView::testHideWithFlick()
     QCOMPARE(subject->isActive(), false);
 }
 
-void Ut_SymbolView::rotateToAngle(M::OrientationAngle angle)
-{
-    subject->prepareToOrientationChange();
-    MPlainWindow::instance()->setOrientationAngle(angle);
-    QTest::qWait(SceneRotationTime);// wait until MSceneManager::orientationAngle() is updated.
-    subject->finalizeOrientationChange();
-}
 
 void Ut_SymbolView::testSetLanguage()
 {
@@ -313,6 +306,28 @@ void Ut_SymbolView::testSetLanguage()
     subject->setLanguage("ThisLanguageLayoutShouldNotExist");
     QVERIFY(subject->currentLanguage != "ThisLanguageLayoutShouldNotExist");
     QCOMPARE(subject->currentLanguage, oldLanguage);
+}
+
+void Ut_SymbolView::testHardwareState()
+{
+    subject->setKeyboardState(OnScreen);
+    QCOMPARE(subject->activeState, OnScreen);
+    QVERIFY(subject->functionRow != NULL);
+
+    // Make sure were in landscape mode when in hardware state
+    rotateToAngle(M::Angle0);
+
+    subject->setKeyboardState(Hardware);
+    QCOMPARE(subject->activeState, Hardware);
+    QVERIFY(subject->functionRow == NULL);
+}
+
+void Ut_SymbolView::rotateToAngle(M::OrientationAngle angle)
+{
+    subject->prepareToOrientationChange();
+    MPlainWindow::instance()->setOrientationAngle(angle);
+    QTest::qWait(SceneRotationTime);// wait until MSceneManager::orientationAngle() is updated.
+    subject->finalizeOrientationChange();
 }
 
 QTEST_APPLESS_MAIN(Ut_SymbolView);

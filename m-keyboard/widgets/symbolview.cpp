@@ -75,7 +75,8 @@ SymbolView::SymbolView(const LayoutsManager &layoutsManager, const MVirtualKeybo
       currentLanguage(language),
       mouseDownKeyArea(false),
       verticalLayout(*new QGraphicsLinearLayout(Qt::Vertical, this)),
-      keyAreaLayout(*new QGraphicsLinearLayout(Qt::Vertical))
+      keyAreaLayout(*new QGraphicsLinearLayout(Qt::Vertical)),
+      activeState(OnScreen)
 {
     eventHandler = new KeyEventHandler(this);
     connect(eventHandler, SIGNAL(keyPressed(const KeyEvent &)),
@@ -86,6 +87,9 @@ SymbolView::SymbolView(const LayoutsManager &layoutsManager, const MVirtualKeybo
             this, SIGNAL(keyClicked(const KeyEvent &)));
     connect(eventHandler, SIGNAL(shiftPressed(bool)),
             this, SLOT(setFunctionRowState(bool)));
+
+    connect(&layoutsManager, SIGNAL(hardwareLayoutChanged()),
+            this, SLOT(handleHwLayoutChange()));
 
     enableMultiTouch = MGConfItem(MultitouchSettings).value().toBool();
 
@@ -139,14 +143,26 @@ void SymbolView::connectHandle(const Handle &handle)
 
 void SymbolView::reloadContent()
 {
-    // Get layout model which for current language and orientation.
-    const LayoutData *layoutData = layoutsMgr.layout(currentLanguage, LayoutData::General, currentOrientation);
-    Q_ASSERT(layoutData);
+    if (activeState == OnScreen) {
+        // Get layout model which for current language and orientation.
+        const LayoutData *layoutData = layoutsMgr.layout(currentLanguage, LayoutData::General, currentOrientation);
+        Q_ASSERT(layoutData);
 
-    loadSwitcherPages(*layoutData, activePage);
-    loadFunctionRow(*layoutData);
+        loadSwitcherPages(layoutData, activePage);
+        loadFunctionRow(layoutData);
+        setShiftState(shift);
+    } else if (activeState == Hardware && currentOrientation == M::Landscape) {
+        const LayoutData *layoutData = layoutsMgr.hardwareLayout(LayoutData::General, M::Landscape);
+        if (!layoutData) {
+            // Get it by language then.
+            layoutData = layoutsMgr.layout(currentLanguage, LayoutData::General, M::Landscape);
+        }
+        Q_ASSERT(layoutData);
 
-    setShiftState(shift);
+        loadSwitcherPages(layoutData, activePage);
+        loadFunctionRow(0);
+        setShiftState(shift); // Sets level for sym pages.
+    }
 }
 
 void SymbolView::setupShowAndHide()
@@ -358,13 +374,20 @@ SymbolView::changePage(int id)
     updateSymIndicator();
 }
 
-void SymbolView::loadSwitcherPages(const LayoutData &kbLayout, const unsigned int selectPage)
+void SymbolView::loadSwitcherPages(const LayoutData *kbLayout, const unsigned int selectPage)
 {
+    layout()->invalidate();
+
     if (pageSwitcher) {
         keyAreaLayout.removeItem(pageSwitcher);
         delete pageSwitcher;
+        pageSwitcher = 0;
     }
     selectedLayout = 0; // invalid now so clear
+
+    if (!kbLayout) {
+        return;
+    }
 
     pageSwitcher = new HorizontalSwitcher(this);
 
@@ -375,14 +398,14 @@ void SymbolView::loadSwitcherPages(const LayoutData &kbLayout, const unsigned in
     QSharedPointer<const LayoutSection> symbolSection;
 
     // Add special Sym section always as the first, if present.
-    symbolSection = kbLayout.section(SymbolSectionSym);
+    symbolSection = kbLayout->section(SymbolSectionSym);
     if (!symbolSection.isNull()) {
         addPage(symbolSection);
     }
 
     // Add all others.
-    for (int i = 0; i < kbLayout.numSections(); ++i) {
-        symbolSection = kbLayout.section(i);
+    for (int i = 0; i < kbLayout->numSections(); ++i) {
+        symbolSection = kbLayout->section(i);
 
         // Skip those that are not symbol sections.
         if (symbolSection->name().startsWith(SymbolSectionPrefix) &&
@@ -403,14 +426,21 @@ void SymbolView::loadSwitcherPages(const LayoutData &kbLayout, const unsigned in
     keyAreaLayout.addItem(pageSwitcher);
 }
 
-void SymbolView::loadFunctionRow(const LayoutData &layout)
+void SymbolView::loadFunctionRow(const LayoutData *layout)
 {
+    this->layout()->invalidate();
+
     if (functionRow) {
         keyAreaLayout.removeItem(functionRow);
         delete functionRow;
+        functionRow = 0;
     }
 
-    functionRow = createKeyButtonArea(layout.section(LayoutData::functionkeySection),
+    if (!layout) {
+        return;
+    }
+
+    functionRow = createKeyButtonArea(layout->section(LayoutData::functionkeySection),
                                       KeyButtonArea::ButtonSizeFunctionRow, false);
 
     if (functionRow) {
@@ -494,11 +524,30 @@ int SymbolView::currentLevel() const
     return (shift != ModifierClearState);
 }
 
+void SymbolView::handleHwLayoutChange()
+{
+    if (activeState == Hardware) {
+        reloadContent();
+    }
+}
+
+void SymbolView::setKeyboardState(MIMHandlerState newState)
+{
+    if (activeState != newState) {
+        activeState = newState;
+        reloadContent();
+    }
+}
+
 void SymbolView::setLanguage(const QString &lang)
 {
     if (lang != currentLanguage && layoutsMgr.languageList().contains(lang)) {
         currentLanguage = lang;
-        reloadContent();
+
+        // Only on-screen sym follows language.
+        if (activeState == OnScreen) {
+            reloadContent();
+        }
     }
 }
 
@@ -641,6 +690,10 @@ QString SymbolView::pageTitle(const int pageIndex) const
 
 void SymbolView::updateSymIndicator()
 {
+    if (!functionRow) {
+        return;
+    }
+
     ISymIndicator *symIndicator = functionRow->symIndicator();
 
      if (symIndicator) {
@@ -686,30 +739,4 @@ void SymbolView::setSharedHandleArea(const QPointer<SharedHandleArea> &handleAre
 {
     sharedHandleArea = handleArea;
     reposition(size().toSize().height());
-}
-
-void SymbolView::showFunctionRow()
-{
-    if (functionRow) {
-        for (int i = 0; i < keyAreaLayout.count(); i++) {
-            if (keyAreaLayout.itemAt(i) == functionRow) {
-                return;
-            }
-        }
-        functionRow->setVisible(true);
-        keyAreaLayout.addItem(functionRow);
-        layout()->invalidate();
-    }
-}
-
-void SymbolView::hideFunctionRow()
-{
-    if (functionRow) {
-        functionRow->setVisible(false);
-        keyAreaLayout.removeItem(functionRow);
-        //FIXME: a tricky solution, to avoid to use a wrong width for keyboard
-        const int sceneWidth = sceneManager.visibleSceneSize().width();
-        pageSwitcher->setPreferredWidth(sceneWidth);
-        layout()->invalidate();
-    }
 }

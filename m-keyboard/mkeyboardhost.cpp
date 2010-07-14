@@ -564,14 +564,7 @@ void MKeyboardHost::finalizeOrientationChange()
     }
 
     vkbWidget->finalizeOrientationChange();
-
     symbolView->finalizeOrientationChange();
-    //correct the visibility for the function row
-    if (activeState == OnScreen) {
-        symbolView->showFunctionRow();
-    } else {
-        symbolView->hideFunctionRow();
-    }
 
     // Finalize candidate list after so its region will apply.
     correctionCandidateWidget->finalizeOrientationChange();
@@ -1328,8 +1321,6 @@ void MKeyboardHost::setState(const QSet<MIMHandlerState> &state)
 
     // Keeps separate states for symbol view in OnScreen state and Hardware state
     if (activeState == OnScreen) {
-        symbolView->setLanguage(vkbWidget->selectedLanguage());
-        symbolView->showFunctionRow();
         hideLockOnInfoBanner();
         sendInputModeIndicator(MInputMethodBase::NoIndicator);
         disconnect(hardwareKeyboard, SIGNAL(modifierStateChanged(Qt::KeyboardModifier, ModifierState)),
@@ -1338,10 +1329,6 @@ void MKeyboardHost::setState(const QSet<MIMHandlerState> &state)
             hardwareKeyboard->disable();
         }
     } else {
-        //TODO: this is a temporary method, should get the hw layout language, then find out the
-        //language (symbol view variant) according Table 3 in HW Keyboard UI spec.
-        symbolView->setLanguage(LayoutsManager::instance().hardwareKeyboardLayout());
-        symbolView->hideFunctionRow();
         connect(hardwareKeyboard, SIGNAL(modifierStateChanged(Qt::KeyboardModifier, ModifierState)),
                 this, SLOT(handleModifierStateChanged(Qt::KeyboardModifier, ModifierState)));
         if (haveFocus && (inputMethodMode != M::InputMethodModeDirect)) {
@@ -1349,6 +1336,7 @@ void MKeyboardHost::setState(const QSet<MIMHandlerState> &state)
         }
     }
 
+    symbolView->setKeyboardState(actualState);
     vkbWidget->setKeyboardState(actualState);
     updateCorrectionState();
     updateAutoCapitalization();
@@ -1397,7 +1385,7 @@ void MKeyboardHost::handleModifierStateChanged(Qt::KeyboardModifier modifier, Mo
     // only change indicator state when there is focus is in a widget and state is Hardware.
     if (!haveFocus || activeState != Hardware)
         return;
-    const QString currentHwKeyboardLayout = LayoutsManager::instance().hardwareKeyboardLayout();
+    const QString currentXkbLayout = LayoutsManager::instance().xkbLayout();
     QString lockOnNotificationLabel;
     MInputMethodBase::InputModeIndicator indicatorState = MInputMethodBase::LatinLower;
     switch (modifier) {
@@ -1407,27 +1395,27 @@ void MKeyboardHost::handleModifierStateChanged(Qt::KeyboardModifier modifier, Mo
             if (hardwareKeyboard->modifierState(FnLevelModifier) != ModifierClearState) {
                 return;
             }
-            if (currentHwKeyboardLayout == "ar") {
+            if (currentXkbLayout == "ar") {
                 indicatorState = MInputMethodBase::Arabic;
-            } else if (LayoutsManager::isCyrillicLanguage(currentHwKeyboardLayout)) {
+            } else if (LayoutsManager::isCyrillicLanguage(currentXkbLayout)) {
                 indicatorState = MInputMethodBase::CyrillicLower;
             } else {
                 indicatorState = MInputMethodBase::LatinLower;
             }
             break;
         case ModifierLatchedState:
-            if (currentHwKeyboardLayout == "ar") {
+            if (currentXkbLayout == "ar") {
                 indicatorState = MInputMethodBase::Arabic;
-            } else if (LayoutsManager::isCyrillicLanguage(currentHwKeyboardLayout)) {
+            } else if (LayoutsManager::isCyrillicLanguage(currentXkbLayout)) {
                 indicatorState = MInputMethodBase::CyrillicUpper;
             } else {
                 indicatorState = MInputMethodBase::LatinUpper;
             }
             break;
         case ModifierLockedState:
-            if (currentHwKeyboardLayout == "ar") {
+            if (currentXkbLayout == "ar") {
                 indicatorState = MInputMethodBase::Arabic;
-            } else if (LayoutsManager::isCyrillicLanguage(currentHwKeyboardLayout)) {
+            } else if (LayoutsManager::isCyrillicLanguage(currentXkbLayout)) {
                 indicatorState = MInputMethodBase::CyrillicLocked;
             } else {
                 indicatorState = MInputMethodBase::LatinLocked;
@@ -1444,9 +1432,9 @@ void MKeyboardHost::handleModifierStateChanged(Qt::KeyboardModifier modifier, Mo
                 return;
             }
             // when fn key change back to clear, shows same label as shift is clear
-            if (currentHwKeyboardLayout == "ar") {
+            if (currentXkbLayout == "ar") {
                 indicatorState = MInputMethodBase::Arabic;
-            } else if (LayoutsManager::isCyrillicLanguage(currentHwKeyboardLayout)) {
+            } else if (LayoutsManager::isCyrillicLanguage(currentXkbLayout)) {
                 indicatorState = MInputMethodBase::CyrillicLower;
             } else {
                 indicatorState = MInputMethodBase::LatinLower;
@@ -1551,8 +1539,10 @@ void MKeyboardHost::handleVirtualKeyboardLayoutChanged(const QString &layout)
 {
     // reset the temporary shift state when layout is changed
     resetVirtualKeyboardShiftState();
-    if (symbolView)
-        symbolView ->setLanguage(layout);
+    if (symbolView) {
+        symbolView->setLanguage(layout);
+    }
+
     initializeInputEngine();
     updateAutoCapitalization();
     emit activeSubViewChanged(layout);

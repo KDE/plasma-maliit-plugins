@@ -21,6 +21,7 @@
 
 #include <MButton>
 #include <MButtonGroup>
+#include <mimhandlerstate.h>
 #include <MWidget>
 
 #include "singlewidgetbuttonarea.h"
@@ -121,6 +122,13 @@ public slots:
     void hideSymbolView(HideMode mode = NormalHideMode);
 
     /*!
+     * Changes between onscreen and hardware keyboard modes. Symbol view's contents depend on which one is used.
+     * When hardware keyboard is used, symbol view has hw layout specific layout variant, and function row is hidden.
+     * \param state New state to be applied.
+     */
+    void setKeyboardState(MIMHandlerState state);
+
+    /*!
      * Method to load svc corresponding to given language
      * \param lang const QString&, new language
      */
@@ -135,16 +143,6 @@ public slots:
      * \brief Selects the previous page if current is not the leftmost.
      */
     void switchToPrevPage();
-
-    /*!
-     * \brief Shows the function row.
-     */
-    void showFunctionRow();
-
-    /*!
-     * \brief Hides the function row.
-     */
-    void hideFunctionRow();
 
     //! \brief Clears and redraws the global reaction maps.
     void redrawReactionMaps();
@@ -204,6 +202,9 @@ private slots:
      */
     void setFunctionRowState(bool shiftPressed);
 
+    //! When hardware keyboard layout has changed, reload contents if currently in Hardware state.
+    void handleHwLayoutChange();
+
 private:
     //! symbol view state wrt. \a showSymbolView / \a hideSymbolView calls.
     enum Activity {
@@ -232,10 +233,10 @@ private:
     void updateAnimPos(int top, int bottom);
 
     //! \brief Reloads switcher with pages from given \a layout, selecting the page \a selectPage.
-    void loadSwitcherPages(const LayoutData &layout, unsigned int selectPage = 0);
+    void loadSwitcherPages(const LayoutData *layout, unsigned int selectPage = 0);
 
     //! \brief Reloads function row from \a layout and adds the widget to vertical layout.
-    void loadFunctionRow(const LayoutData &layout);
+    void loadFunctionRow(const LayoutData *layout);
 
     //! \brief Helper method to create and add a new page.
     void addPage(QSharedPointer<const LayoutSection> symbolSection);
@@ -313,6 +314,8 @@ private:
     //! Shared handle area 
     //Symbol view is not owner of this object.
     QPointer<SharedHandleArea> sharedHandleArea;
+
+    MIMHandlerState activeState;
 
 #ifdef UNIT_TEST
     friend class Ut_SymbolView;

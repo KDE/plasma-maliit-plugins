@@ -18,7 +18,8 @@ HEADERS += \
     $$COMMON_DIR/hwkbcharloopsmanager.h \
     $$COMMON_DIR/keyeventhandler.h \
     $$COMMON_DIR/flickgesture.h \
-    $$COMMON_DIR/flickgesturerecognizer.h
+    $$COMMON_DIR/flickgesturerecognizer.h \
+    $$COMMON_DIR/keyboardmapping.h
 
 SOURCES += \
     $$COMMON_DIR/keyboarddata.cpp\
@@ -33,7 +34,8 @@ SOURCES += \
     $$COMMON_DIR/hwkbcharloopsmanager.cpp \
     $$COMMON_DIR/keyeventhandler.cpp \
     $$COMMON_DIR/flickgesture.cpp \
-    $$COMMON_DIR/flickgesturerecognizer.cpp
+    $$COMMON_DIR/flickgesturerecognizer.cpp \
+    $$COMMON_DIR/keyboardmapping.cpp
 
 INCLUDEPATH += $$COMMON_DIR
 DEPENDPATH += $$COMMON_DIR

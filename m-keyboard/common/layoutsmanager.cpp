@@ -25,18 +25,23 @@ namespace
     const QString InputMethodLanguages("/meegotouch/inputmethods/languages");
     const QString NumberFormatSettingName("/meegotouch/inputmethods/numberformat");
     const QString InputMethodDefaultLanguage("/meegotouch/inputmethods/languages/default");
-    const QString HardwareKeyboardLayout("/meegotouch/inputmethods/hwkeyboard/layout");
+    const QString XkbLayoutSettingName("/meegotouch/inputmethods/hwkeyboard/layout");
     const QString HardwareKeyboardAutoCapsDisabledLayouts("/meegotouch/inputmethods/hwkeyboard/autocapsdisabledlayouts");
     const QString DefaultHardwareKeyboardAutoCapsDisabledLayout("ar");
     const QString SystemDisplayLanguage("/meegotouch/i18n/language");
     const QString DefaultNumberFormat("latin");
     const QString LayoutFileExtension(".xml");
     const QString FallbackLanguage("en_gb");
+    const QString FallbackXkbLayout("us");
     const QString NumberKeyboardFileArabic("number_ar.xml");
     const QString NumberKeyboardFileLatin("number.xml");
     const QString PhoneNumberKeyboardFileArabic("phonenumber_ar.xml");
     const QString PhoneNumberKeyboardFileLatin("phonenumber.xml");
     const QString PhoneNumberKeyboardFileRussian("phonenumber_ru.xml");
+    const QString SymbolKeyboardFileUs("hwsymbols_us.xml");
+    const QString SymbolKeyboardFileEuro("hwsymbols_euro.xml");
+    const QString SymbolKeyboardFileArabic("hwsymbols_arabic.xml");
+    const QString SymbolKeyboardFileChinese("hwsymbols_chinese.xml");
 }
 
 LayoutsManager *LayoutsManager::Instance = 0;
@@ -44,19 +49,24 @@ LayoutsManager *LayoutsManager::Instance = 0;
 
 LayoutsManager::LayoutsManager()
     : configLanguages(InputMethodLanguages),
+      xkbLayoutSetting(XkbLayoutSettingName),
       numberFormatSetting(NumberFormatSettingName),
-      numberFormat(NumLatin)
+      numberFormat(NumLatin),
+      currentHwkbLayoutType(InvalidHardwareKeyboard)
 {
     // Read settings for the first time and load keyboard layouts.
     syncLanguages();
-    reloadNumberKeyboards();
+    syncHardwareKeyboard();
+    syncNumberKeyboards();
 
     // Synchronize with settings when someone changes them (e.g. via control panel).
     connect(&configLanguages, SIGNAL(valueChanged()), this, SLOT(syncLanguages()));
     connect(&configLanguages, SIGNAL(valueChanged()), this, SIGNAL(selectedLayoutsChanged()));
 
-    connect(&numberFormatSetting, SIGNAL(valueChanged()), this, SLOT(reloadNumberKeyboards()));
-    connect(&locale, SIGNAL(settingsChanged()), SLOT(reloadNumberKeyboards()));
+    connect(&xkbLayoutSetting, SIGNAL(valueChanged()), this, SLOT(syncHardwareKeyboard()));
+
+    connect(&numberFormatSetting, SIGNAL(valueChanged()), this, SLOT(syncNumberKeyboards()));
+    connect(&locale, SIGNAL(settingsChanged()), SLOT(syncNumberKeyboards()));
     locale.connectSettings();
 }
 
@@ -145,6 +155,12 @@ const LayoutData *LayoutsManager::layout(const QString &language,
     return lm;
 }
 
+const LayoutData *LayoutsManager::hardwareLayout(LayoutData::LayoutType type,
+                                                 M::Orientation orientation) const
+{
+    return hwKeyboard.layout(type, orientation);
+}
+
 QString LayoutsManager::defaultLanguage() const
 {
     return MGConfItem(InputMethodDefaultLanguage).value(FallbackLanguage).toString();
@@ -155,9 +171,9 @@ QString LayoutsManager::systemDisplayLanguage() const
     return MGConfItem(SystemDisplayLanguage).value().toString();
 }
 
-QString LayoutsManager::hardwareKeyboardLayout() const
+QString LayoutsManager::xkbLayout() const
 {
-    return MGConfItem(HardwareKeyboardLayout).value(FallbackLanguage).toString();
+    return xkbLayoutSetting.value(FallbackXkbLayout).toString();
 }
 
 bool LayoutsManager::hardwareKeyboardAutoCapsEnabled() const
@@ -166,7 +182,7 @@ bool LayoutsManager::hardwareKeyboardAutoCapsEnabled() const
     QStringList autoCapsDisabledLayouts = MGConfItem(HardwareKeyboardAutoCapsDisabledLayouts)
                                             .value(QStringList(DefaultHardwareKeyboardAutoCapsDisabledLayout))
                                             .toStringList();
-    return !(autoCapsDisabledLayouts.contains(hardwareKeyboardLayout()));
+    return !(autoCapsDisabledLayouts.contains(xkbLayout()));
 }
 
 bool LayoutsManager::loadLanguage(const QString &language)
@@ -211,7 +227,7 @@ bool LayoutsManager::loadLanguage(const QString &language)
     return true;
 }
 
-void LayoutsManager::reloadNumberKeyboards()
+void LayoutsManager::syncNumberKeyboards()
 {
     const QString formatString(numberFormatSetting.value(DefaultNumberFormat).toString().toLower());
     numberFormat = NumLatin;
@@ -289,6 +305,55 @@ void LayoutsManager::syncLanguages()
     if (changed) {
         emit languagesChanged();
     }
+}
+
+void LayoutsManager::syncHardwareKeyboard()
+{
+    const QString xkbName = xkbLayout();
+    const HardwareKeyboardLayout hwkbLayoutType = xkbLayoutType(xkbName);
+
+    if (hwkbLayoutType == currentHwkbLayoutType) {
+        return;
+    }
+
+    currentHwkbLayoutType = hwkbLayoutType;
+
+    // What we could do here is to load a generic hw language xml file
+    // that would import the correct symbol layout variant but since
+    // symbol sections are the only things we currently use, let's just
+    // load the hw symbols xml directly.
+    const HardwareSymbolVariant symVariant = HwkbLayoutToSymVariant[hwkbLayoutType];
+    const QString filename = symbolVariantFileName(symVariant);
+
+    if (hwKeyboard.loadNokiaKeyboard(filename)) {
+        emit hardwareLayoutChanged();
+    } else {
+        qWarning() << "LayoutsManager: loading of hardware layout specific keyboard "
+                   << filename << " failed";
+    }
+}
+
+QString LayoutsManager::symbolVariantFileName(HardwareSymbolVariant symVariant)
+{
+    QString symFileName;
+
+    switch (symVariant) {
+    case HwSymbolVariantUs:
+        symFileName = SymbolKeyboardFileUs;
+        break;
+    case HwSymbolVariantArabic:
+        symFileName = SymbolKeyboardFileArabic;
+        break;
+    case HwSymbolVariantChinese:
+        symFileName = SymbolKeyboardFileChinese;
+        break;
+    case HwSymbolVariantEuro:
+    default:
+        symFileName = SymbolKeyboardFileEuro;
+        break;
+    }
+
+    return symFileName;
 }
 
 bool LayoutsManager::isCyrillicLanguage(const QString &language)

@@ -29,6 +29,7 @@ namespace
 {
     const QString LanguageListSettingName("/meegotouch/inputmethods/languages");
     const QString NumberFormatSettingName("/meegotouch/inputmethods/numberformat");
+    const QString XkbLayoutSettingName("/meegotouch/inputmethods/hwkeyboard/layout");
     const QString DisplayLanguageSettingName("/meegotouch/i18n/language");
     const QString LatinNumberFormat("latin");
     const QString ArabicNumberFormat("arabic");
@@ -37,6 +38,10 @@ namespace
     const QString PhoneNumberKeyboardFileArabic("phonenumber_ar.xml");
     const QString PhoneNumberKeyboardFileLatin("phonenumber.xml");
     const QString PhoneNumberKeyboardFileRussian("phonenumber_ru.xml");
+    const QString SymbolKeyboardFileUs("hwsymbols_us.xml");
+    const QString SymbolKeyboardFileEuro("hwsymbols_euro.xml");
+    const QString SymbolKeyboardFileArabic("hwsymbols_arabic.xml");
+    const QString SymbolKeyboardFileChinese("hwsymbols_chinese.xml");
     // Our keyboard loader stub fails for filenames not in this list
     QStringList LoadableKeyboards;
 }
@@ -284,6 +289,44 @@ void Ut_LayoutsManager::testPhoneNumberLayouts()
     QCOMPARE(layout->modelId, PhoneNumberKeyboardFileArabic);
 }
 
+void Ut_LayoutsManager::testHardwareSymLayout_data()
+{
+    const QString &SymbolKeyboardFileDefault(SymbolKeyboardFileUs);
+
+    QTest::addColumn<QString>("xkbLayout");
+    QTest::addColumn<QString>("expectedHwSymFile");
+
+    QTest::newRow("non-existing hw layout") << "non-existing" << SymbolKeyboardFileDefault;
+    QTest::newRow("finnish hw layout") << "fi" << SymbolKeyboardFileEuro;
+    QTest::newRow("german hw layout") << "de" << SymbolKeyboardFileEuro;
+    QTest::newRow("polish hw layout") << "po" << SymbolKeyboardFileDefault;
+    QTest::newRow("chinese hw layout") << "cn" << SymbolKeyboardFileChinese;
+    QTest::newRow("arabic hw layout") << "ara" << SymbolKeyboardFileArabic;
+}
+
+void Ut_LayoutsManager::testHardwareSymLayout()
+{
+    QFETCH(QString, xkbLayout);
+    QFETCH(QString, expectedHwSymFile);
+
+    LoadableKeyboards.clear();
+    LoadableKeyboards
+            << SymbolKeyboardFileUs
+            << SymbolKeyboardFileEuro
+            << SymbolKeyboardFileChinese
+            << SymbolKeyboardFileArabic;
+
+    std::auto_ptr<LayoutsManager> subject(new LayoutsManager);
+
+    MGConfItem xkbLayoutSetting(XkbLayoutSettingName);
+    xkbLayoutSetting.set(xkbLayout);
+
+    const TestLayoutModel *testLayout = dynamic_cast<const TestLayoutModel *>(
+        subject->hardwareLayout(LayoutData::General, M::Landscape));
+
+    QVERIFY(testLayout);
+    QCOMPARE(testLayout->modelId, expectedHwSymFile);
+}
 
 QTEST_APPLESS_MAIN(Ut_LayoutsManager);
 
