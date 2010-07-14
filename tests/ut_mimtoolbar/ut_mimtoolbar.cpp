@@ -75,8 +75,9 @@ void MToolbarButton::setIconFile(const QString &newIconFile)
 
 void Ut_MImToolbar::initTestCase()
 {
-    static int dummyArgc = 1;
-    static char *dummyArgv[1] = { (char *) "./ut_mimtoolbar" };
+    static int dummyArgc = 2;
+    static char *dummyArgv[2] = { (char *) "./ut_mimtoolbar",
+                                  (char *) "-local-theme" };
     // Avoid waiting if im server is not responding
     MApplication::setLoadMInputContext(false);
     app = new MApplication(dummyArgc, dummyArgv);

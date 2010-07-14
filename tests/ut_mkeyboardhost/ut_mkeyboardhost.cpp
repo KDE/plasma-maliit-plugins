@@ -114,8 +114,9 @@ bool MVirtualKeyboard::autoCapsEnabled() const
 
 void Ut_MKeyboardHost::initTestCase()
 {
-    static int argc = 1;
-    static char *app_name[1] = { (char *)"ut_mvirtualkeyboardhost" };
+    static int argc = 2;
+    static char *app_name[2] = { (char *)"ut_mvirtualkeyboardhost",
+                                 (char *) "-local-theme" };
 
     // Avoid waiting if im server is not responding
     MApplication::setLoadMInputContext(false);

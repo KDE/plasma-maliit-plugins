@@ -25,8 +25,9 @@
 
 void Ut_LimitedTimer::initTestCase()
 {
-    static int argc = 1;
-    static char *app_name[] = { (char *)"ut_limitedtimer" };
+    static int argc = 2;
+    static char *app_name[] = { (char *)"ut_limitedtimer",
+                                (char *) "-local-theme" };
 
     // Avoid waiting if im server is not responding
     MApplication::setLoadMInputContext(false);

@@ -70,8 +70,10 @@ void Ut_MVirtualKeyboard::initTestCase()
     // Avoid waiting if im server is not responding
     MApplication::setLoadMInputContext(false);
 
-    static char *argv[2] = {(char *) "ut_mvirtualkeyboard", (char *) "-software"};
-    static int argc = 2;
+    static char *argv[3] = {(char *) "ut_mvirtualkeyboard",
+                            (char *) "-software",
+                            (char *) "-local-theme"};
+    static int argc = 3;
     app = new MApplication(argc, argv);
 
     QString InputMethodSetting("/meegotouch/inputmethods/languages");

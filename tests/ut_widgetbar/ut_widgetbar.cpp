@@ -29,8 +29,9 @@
 void Ut_WidgetBar::initTestCase()
 {
     MApplication::setLoadMInputContext(false);
-    static char *argv[1] = { (char *) "ut_buttonbar" };
-    static int argc = 1;
+    static char *argv[2] = { (char *) "ut_buttonbar",
+                             (char *) "-local-theme" };
+    static int argc = 2;
     app = new MApplication(argc, argv);
 }
 

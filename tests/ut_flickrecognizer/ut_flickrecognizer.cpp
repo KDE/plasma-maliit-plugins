@@ -135,12 +135,13 @@ void Ut_FlickRecognizer::initTestCase()
     qRegisterMetaType<FlickGesture::Direction>("FlickGesture::Direction");
     qRegisterMetaType< QList<QPoint> >("QList<QPoint>");
 
-    static int argc = 1;
-    static char *app_name[1] = { (char *) "ut_flickrecognizer" };
+    static int argc = 2;
+    static char *app_args[2] = { (char *) "ut_flickrecognizer",
+                                 (char *) "-local-theme" };
 
     // Avoid waiting if im server is not responding
     MApplication::setLoadMInputContext(false);
-    app = new MApplication(argc, app_name);
+    app = new MApplication(argc, app_args);
 
     MSceneManager *sceneMgr = new MSceneManager;
     window = new MWindow(sceneMgr, 0);
@@ -176,8 +177,9 @@ void Ut_FlickRecognizer::initTestCase()
 
     window->show();
     QTest::qWaitForWindowShown(window);
-    // qWaitForWindowShown should suffice but for some reason we still need this.
-    QTest::qWait(0);
+
+    // Used to have trouble with delayed show caused by remote theme. Let's still have the check.
+    QVERIFY(window->isVisible());
 }
 
 void Ut_FlickRecognizer::cleanupTestCase()

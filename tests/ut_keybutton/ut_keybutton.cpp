@@ -31,8 +31,9 @@
 
 void Ut_KeyButton::initTestCase()
 {
-    static int argc = 1;
-    static char *app_name[] = { (char*) "ut_keybutton" };
+    static int argc = 2;
+    static char *app_name[] = { (char*) "ut_keybutton",
+                                (char *) "-local-theme" };
 
     // Avoid waiting if im server is not responding
     MApplication::setLoadMInputContext(false);
