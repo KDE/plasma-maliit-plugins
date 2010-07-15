@@ -1,3 +1,20 @@
+meego-keyboard (0.4.9-1) unstable; urgency=low
+
+  * Fixes: NB#175233, VKB popup makes application minimized and acts unexpected.
+  * Fixes: NB#161203, Copy option is not present in VKB when symbols are
+    shown in VKB in portrait mode
+  * Implemented SWP#TINME-466, SWP#TINME-932, SWP#TINME-940, SWP#TINME-928,
+    SWP#TINME-985, SWP#TINME-959
+  * Fixes: NB#178033, Bottom toolbar is displayed as in portrait mode even if
+    DUT is in horizontal mode
+  * Fixes: NB#171793, Autocaps gets removed when Keyboard settings screen
+    comes up
+  * Fixes: NB#168023, VKB doesn't keep Auto-Capitalization mode after
+    rotating to portrait mode
+  * Fixes: NB#178707, VKB crashes on changing display language
+
+ -- Viacheslav Sobolev <ext-viacheslav.sobolev@nokia.com>  Thu, 15 Jul 2010 15:55:38 +0300
+
 meego-keyboard (0.4.8-2) unstable; urgency=low
 
   * Hide the opened settings dialog when its parent item is hidden
