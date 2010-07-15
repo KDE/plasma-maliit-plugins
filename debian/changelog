@@ -1,3 +1,9 @@
+meego-keyboard (0.4.10~1) unstable; urgency=low
+
+  * [Unreleased]
+
+ -- Viacheslav Sobolev <ext-viacheslav.sobolev@nokia.com>  Thu, 15 Jul 2010 16:25:33 +0300
+
 meego-keyboard (0.4.9-1) unstable; urgency=low
 
   * Fixes: NB#175233, VKB popup makes application minimized and acts unexpected.
