@@ -14,34 +14,33 @@
  * of this file.
  */
 
-
-
 #ifndef SYMBOLVIEW_H
 #define SYMBOLVIEW_H
+
+#include "singlewidgetbuttonarea.h"
+#include "keyeventhandler.h"
 
 #include <MButton>
 #include <MButtonGroup>
 #include <mimhandlerstate.h>
 #include <MWidget>
 
-#include "singlewidgetbuttonarea.h"
-
 #include <QPointer>
+#include <QSharedPointer>
+#include <QTimeLine>
+#include <QGraphicsItemAnimation>
+#include <QGraphicsLinearLayout>
 
-class QGraphicsLinearLayout;
 class MSceneManager;
 class MVirtualKeyboardStyleContainer;
 class HorizontalSwitcher;
 class LayoutData;
 class LayoutsManager;
-class QGraphicsItemAnimation;
 class QGraphicsLinearLayout;
 class QGraphicsSceneMouseEvent;
-class QTimeLine;
 class KeyEvent;
 class LayoutSection;
 class SymIndicatorButton;
-class KeyEventHandler;
 class Handle;
 class SharedHandleArea;
 
@@ -226,12 +225,6 @@ private:
     //! \brief Reloads keys/buttons based on current language and orientation.
     void reloadContent();
 
-    //! \brief Method to set up the animation
-    void setupShowAndHide();
-
-    //! \brief Updates positions for up/down animation.
-    void updateAnimPos(int top, int bottom);
-
     //! \brief Reloads switcher with pages from given \a layout, selecting the page \a selectPage.
     void loadSwitcherPages(const LayoutData *layout, unsigned int selectPage = 0);
 
@@ -256,15 +249,40 @@ private:
     void updateSymIndicator();
 
     //! Connect signals from a \a handle widget
-    void connectHandle(const Handle &handle);
+    void connectHandle(Handle *handle);
 
-private:
     //! Current style being used.
     const MVirtualKeyboardStyleContainer *styleContainer;
 
-    //! Manage animation
-    QGraphicsItemAnimation *showAnimation;
-    QGraphicsItemAnimation *hideAnimation;
+    //! Helper class for animations.
+    class AnimationGroup
+    {
+    public:
+        explicit AnimationGroup(SymbolView *view);
+        virtual ~AnimationGroup();
+
+        //! \brief Updates positions for up/down animation.
+        void updatePos(int top, int bottom);
+
+        void playShowAnimation();
+        void playHideAnimation();
+
+        bool hasOngoingAnimations() const;
+
+    private:
+        void takeOverFromTimeLine(QTimeLine *target,
+                                  QTimeLine *origin);
+
+        //! Animation related time lines.
+        QTimeLine showTimeLine;
+        QTimeLine hideTimeLine;
+
+        //! Manage animation
+        QGraphicsItemAnimation showAnimation;
+        QGraphicsItemAnimation hideAnimation;
+    };
+
+    AnimationGroup anim;
 
     //! scene manager
     const MSceneManager &sceneManager;
@@ -275,8 +293,6 @@ private:
     //! To check if symbol view is opened
     Activity activity;
 
-    //! Animation related time lines.
-    QTimeLine *showTimeLine, *hideTimeLine;
 
     //! Zero-based index to currently active page
     int activePage;
@@ -286,8 +302,8 @@ private:
 
     const LayoutsManager &layoutsMgr;
 
-    HorizontalSwitcher *pageSwitcher;
-    KeyButtonArea *functionRow;
+    QPointer<HorizontalSwitcher> pageSwitcher;
+    QPointer<KeyButtonArea> functionRow;
 
     M::Orientation currentOrientation;
 
@@ -299,19 +315,26 @@ private:
      */
     bool mouseDownKeyArea;
 
-    //! Vertical layout is the main layout which holds toolbar (not implemented yet) and function row.
-    QGraphicsLinearLayout &verticalLayout;
+    //! Helper class for linear layouts that allows to wrap them in QPointers.
+    class LinearLayoutObject: public QObject, public QGraphicsLinearLayout
+    {
+    public:
+        LinearLayoutObject(Qt::Orientation orientation, QGraphicsLayoutItem *parent = 0);
+    };
+
+    //! Vertical layout is the main layout which holds toolbar and function row.
+    QPointer<LinearLayoutObject> verticalLayout;
 
     //! This layout holds symbol characters and function row.
-    QGraphicsLinearLayout &keyAreaLayout;
+    QPointer<LinearLayoutObject> keyAreaLayout;
 
-    //! Pointer to handler for button events
-    KeyEventHandler *eventHandler;
+    //! Handler for button events
+    KeyEventHandler eventHandler;
 
     //! Contains true if multi-touch is enabled
     bool enableMultiTouch;
 
-    //! Shared handle area 
+    //! Shared handle area
     //Symbol view is not owner of this object.
     QPointer<SharedHandleArea> sharedHandleArea;
 
