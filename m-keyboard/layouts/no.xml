@@ -124,6 +124,9 @@
               <binding label="æ"/>
               <binding shift="true" label="Æ"/>
             </key>
+            <key>
+              <binding action="backspace" label=""/>
+            </key>
           </row>
         </section>
         <section id="functionkey" movable="false" horizontal_alignment="left" vertical_alignment="center">
@@ -136,23 +139,22 @@
               <binding shift="true" action="layout_menu" label=""/>
             </key>
             <key>
-              <binding label="-"/>
-              <binding shift="true" label="'"/>
-            </key>
-            <key>
-              <binding action="space" label=""/>
-              <binding shift="true" action="return" label=""/>
-            </key>
-            <key>
               <binding label="?"/>
               <binding shift="true" label="!"/>
             </key>
             <key>
-              <binding label="."/>
-              <binding shift="true" label=","/>
+              <binding action="space" label=""/>
             </key>
             <key>
-              <binding action="backspace" label=""/>
+              <binding label=","/>
+              <binding shift="true" label="-"/>
+            </key>
+            <key>
+              <binding label="."/>
+              <binding shift="true" label=":"/>
+            </key>
+            <key>
+              <binding action="return" label=""/>
             </key>
           </row>
         </section>
@@ -169,14 +171,13 @@
             </key>
             <key>
               <binding action="space" label=""/>
-              <binding shift="true" action="return" label=""/>
             </key>
             <key>
               <binding label="."/>
               <binding shift="true" label=","/>
             </key>
             <key>
-              <binding action="backspace" label=""/>
+              <binding action="return" label=""/>
             </key>
           </row>
         </section>

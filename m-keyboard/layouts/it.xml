@@ -82,6 +82,9 @@
               <binding label="l"/>
               <binding shift="true" label="L"/>
             </key>
+            <key>
+              <binding dead="true" label="`"/>
+            </key>
           </row>
           <row>
             <key>
@@ -117,7 +120,7 @@
               <binding shift="true" label="É"/>
             </key>
             <key>
-              <binding dead="true" label="`"/>
+              <binding action="backspace" label=""/>
             </key>
           </row>
         </section>
@@ -131,12 +134,11 @@
               <binding shift="true" action="layout_menu" label=""/>
             </key>
             <key>
-              <binding label="-"/>
-              <binding shift="true" label="'"/>
+              <binding label="‘"/>
+              <binding shift="true" label="-"/>
             </key>
             <key>
               <binding action="space" label=""/>
-              <binding shift="true" action="return" label=""/>
             </key>
             <key>
               <binding label="?"/>
@@ -147,7 +149,7 @@
               <binding shift="true" label=","/>
             </key>
             <key>
-              <binding action="backspace" label=""/>
+              <binding action="return" label=""/>
             </key>
           </row>
         </section>
@@ -164,14 +166,13 @@
             </key>
             <key>
               <binding action="space" label=""/>
-              <binding shift="true" action="return" label=""/>
             </key>
             <key>
               <binding label="."/>
               <binding shift="true" label=","/>
             </key>
             <key>
-              <binding action="backspace" label=""/>
+              <binding action="return" label=""/>
             </key>
           </row>
         </section>

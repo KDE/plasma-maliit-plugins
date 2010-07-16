@@ -122,20 +122,18 @@
               <binding shift="true" action="layout_menu" label=""/>
             </key>
             <key>
-              <binding label="-"/>
-              <binding shift="true" label="&apos;"/>
-            </key>
-            <key>
-              <binding action="space" label=""/>
-              <binding shift="true" action="return" label=""/>
-            </key>
-            <key>
               <binding label="؟"/>
               <binding shift="true" label="!"/>
             </key>
             <key>
+              <binding action="space" label=""/>
+            </key>
+            <key>
               <binding label="."/>
-              <binding shift="true" label=","/>
+              <binding shift="true" label="،"/>
+            </key>
+            <key>
+              <binding action="return" label=""/>
             </key>
             <key rtl="true">
               <binding action="backspace" label=""/>
@@ -159,7 +157,7 @@
             </key>
             <key>
               <binding label="."/>
-              <binding shift="true" label="&#x060C;"/>
+              <binding shift="true" label="،"/>
             </key>
             <key rtl="true">
               <binding action="backspace" label=""/>
