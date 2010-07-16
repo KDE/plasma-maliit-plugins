@@ -1,12 +1,11 @@
-meego-keyboard (0.4.10~1) unstable; urgency=low
+meego-keyboard (0.4.9-2) unstable; urgency=low
 
-  * [Unreleased]
+  * Fixed mistake in changelog
 
- -- Viacheslav Sobolev <ext-viacheslav.sobolev@nokia.com>  Thu, 15 Jul 2010 16:25:33 +0300
+ -- Viacheslav Sobolev <ext-viacheslav.sobolev@nokia.com>  Fri, 16 Jul 2010 09:42:44 +0300
 
 meego-keyboard (0.4.9-1) unstable; urgency=low
 
-  * Fixes: NB#175233, VKB popup makes application minimized and acts unexpected.
   * Fixes: NB#161203, Copy option is not present in VKB when symbols are
     shown in VKB in portrait mode
   * Implemented SWP#TINME-466, SWP#TINME-932, SWP#TINME-940, SWP#TINME-928,
