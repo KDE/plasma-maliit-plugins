@@ -148,7 +148,8 @@ void KeyButtonArea::updatePopup(const QPoint &pointerPosition, const IKeyButton 
         key = keyAt(pointerPosition);
     }
 
-    if (!key) {
+    if (!key || key->label().isEmpty()) {
+        popup->hidePopup();
         return;
     }
 
