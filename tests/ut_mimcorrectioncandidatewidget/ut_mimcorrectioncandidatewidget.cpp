@@ -31,8 +31,9 @@
 
 void Ut_MImCorrectionCandidateWidget::initTestCase()
 {
-    static int dummyArgc = 1;
-    static char *dummyArgv[1] = { (char *) "./ut_mimcorrectioncandidatewidget" };
+    static int dummyArgc = 2;
+    static char *dummyArgv[2] = { (char *) "./ut_mimcorrectioncandidatewidget",
+                                  (char *) "-local-theme" };
     // Avoid waiting if im server is not responding
     MApplication::setLoadMInputContext(false);
     app = new MApplication(dummyArgc, dummyArgv);

@@ -70,8 +70,10 @@ void Ut_MVirtualKeyboard::initTestCase()
     // Avoid waiting if im server is not responding
     MApplication::setLoadMInputContext(false);
 
-    static char *argv[2] = {(char *) "ut_mvirtualkeyboard", (char *) "-software"};
-    static int argc = 2;
+    static char *argv[3] = {(char *) "ut_mvirtualkeyboard",
+                            (char *) "-software",
+                            (char *) "-local-theme"};
+    static int argc = 3;
     app = new MApplication(argc, argv);
 
     QString InputMethodSetting("/meegotouch/inputmethods/languages");
@@ -809,7 +811,7 @@ void Ut_MVirtualKeyboard::testReactionMaps()
     m_vkb->redrawReactionMaps();
 
     // Overall sanity test with grid points throughout the view.
-    QVERIFY(tester.testReactionMapGrid(MPlainWindow::instance(), 40, 50, m_vkb->region(true)));
+    QVERIFY(tester.testReactionMapGrid(MPlainWindow::instance(), 40, 50, m_vkb->region(true), m_vkb));
 
     // Check that all buttons are drawn with reactive color.
     QVERIFY(tester.testChildButtonReactiveAreas(MPlainWindow::instance(), m_vkb));
@@ -817,7 +819,7 @@ void Ut_MVirtualKeyboard::testReactionMaps()
     // Switch language, the chosen kb layouts are all different in terms of reaction maps they generate.
     m_vkb->setLanguage(1);
     QTest::qWait(600);
-    QVERIFY(tester.testReactionMapGrid(MPlainWindow::instance(), 40, 50, m_vkb->region(true)));
+    QVERIFY(tester.testReactionMapGrid(MPlainWindow::instance(), 40, 50, m_vkb->region(true), m_vkb));
     QVERIFY(tester.testChildButtonReactiveAreas(MPlainWindow::instance(), m_vkb));
 }
 

@@ -89,6 +89,9 @@
               <binding label="ç"/>
               <binding shift="true" label="Ç"/>
             </key>
+            <key>
+              <binding dead="true" label="~"/>
+            </key>
           </row>
           <row>
             <key>
@@ -123,10 +126,10 @@
               <binding dead="true" label="´"/>
             </key>
             <key>
-              <binding dead="true" label="~"/>
+              <binding dead="true" label="`"/>
             </key>
             <key>
-              <binding dead="true" label="`"/>
+              <binding action="backspace" label=""/>
             </key>
           </row>
         </section>
@@ -141,11 +144,10 @@
             </key>
             <key>
               <binding label="-"/>
-              <binding shift="true" label="'"/>
+              <binding shift="true" label="‘"/>
             </key>
             <key>
               <binding action="space" label=""/>
-              <binding shift="true" action="return" label=""/>
             </key>
             <key>
               <binding label="?"/>
@@ -156,7 +158,7 @@
               <binding shift="true" label=","/>
             </key>
             <key>
-              <binding action="backspace" label=""/>
+              <binding action="return" label=""/>
             </key>
           </row>
         </section>
@@ -173,14 +175,13 @@
             </key>
             <key>
               <binding action="space" label=""/>
-              <binding shift="true" action="return" label=""/>
             </key>
             <key>
               <binding label="."/>
               <binding shift="true" label=","/>
             </key>
             <key>
-              <binding action="backspace" label=""/>
+              <binding action="return" label=""/>
             </key>
           </row>
         </section>

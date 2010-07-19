@@ -77,7 +77,7 @@ public:
     int contentType_;
     int inputMethodMode_;
 
-    QString surrodingString;
+    QString surroundingString;
     int cursorPos;
     int inputmethodMode_;
     bool textSelected;

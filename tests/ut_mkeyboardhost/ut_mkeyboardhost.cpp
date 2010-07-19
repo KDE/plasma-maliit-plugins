@@ -53,6 +53,7 @@ namespace
     int gSetKeyboardStateCallCount = 0;
     MIMHandlerState gSetKeyboardStateParam = OnScreen;
     const int SceneRotationTime = 1400; // in ms
+    bool gAutoCapsEnabled = true;
 
     // This GConf item defines whether multitouch is enabled or disabled
     const char * const MultitouchSettings = "/meegotouch/inputmethods/multitouch/enabled";
@@ -103,13 +104,19 @@ QString MVirtualKeyboard::layoutLanguage() const
     return QString("fi");
 }
 
+bool MVirtualKeyboard::autoCapsEnabled() const
+{
+    return gAutoCapsEnabled;
+}
+
 
 // Actual test...............................................................
 
 void Ut_MKeyboardHost::initTestCase()
 {
-    static int argc = 1;
-    static char *app_name[1] = { (char *)"ut_mvirtualkeyboardhost" };
+    static int argc = 2;
+    static char *app_name[2] = { (char *)"ut_mvirtualkeyboardhost",
+                                 (char *) "-local-theme" };
 
     // Avoid waiting if im server is not responding
     MApplication::setLoadMInputContext(false);
@@ -142,6 +149,7 @@ void Ut_MKeyboardHost::init()
 
     subject = new MKeyboardHost(inputContext, 0);
     inputContext->clear();
+    gAutoCapsEnabled = true;
 
     window->hide();
     if (window->orientationAngle() != M::Angle0) {
@@ -383,7 +391,7 @@ void Ut_MKeyboardHost::testErrorCorrectionOption()
 
 void Ut_MKeyboardHost::testAutoCaps()
 {
-    inputContext->surrodingString = "Test string. You can using it!    ";
+    inputContext->surroundingString = "Test string. You can using it!    ";
     inputContext->autoCapitalizationEnabled_ = true;
     subject->correctionEnabled = true;
     inputContext->contentType_ = M::FreeTextContentType;
@@ -535,6 +543,13 @@ void Ut_MKeyboardHost::testAutoCaps()
     subject->handleKeyRelease(release);
     subject->handleKeyClick(release);
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
+
+    // Test autocaps if autCaps flag is off from layout
+    gAutoCapsEnabled = false;
+    inputContext->cursorPos = 0;
+    subject->update();
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
+    gAutoCapsEnabled = true;
 }
 
 void Ut_MKeyboardHost::testApplicationOrientationChanged()
@@ -1111,6 +1126,125 @@ void Ut_MKeyboardHost::testLayoutMenuKeyClick()
     subject->vkbWidget->setShiftState(shiftState);
     subject->handleGeneralKeyClick(menuClickEvent);
     QCOMPARE(subject->vkbWidget->shiftStatus(), shiftState);
+}
+
+void Ut_MKeyboardHost::testShiftStateOnFocusChanged_data()
+{
+    QTest::addColumn<MIMHandlerState>("state");
+    QTest::addColumn<ModifierState>("initialShiftState");
+    QTest::addColumn<QString>("surroundingString");
+    QTest::addColumn<bool>("autoCapitalizationEnabled");
+    QTest::addColumn<int>("cursorPosition");
+    QTest::addColumn<ModifierState>("expectedShiftState");
+
+    // corsor is at the begining.
+    QTest::newRow("screen lowercase") << OnScreen << ModifierClearState << QString("Test. ")
+                                      << true << 0 << ModifierLatchedState;
+    QTest::newRow("screen latched") << OnScreen << ModifierLatchedState << QString("Test. ")
+                                    << true << 2 << ModifierClearState;
+    // cursor is right after a dot.
+    QTest::newRow("screen latched") << OnScreen << ModifierLatchedState << QString("Test. ")
+                                    << true << 6 << ModifierLatchedState;
+    QTest::newRow("screen latched") << OnScreen << ModifierLatchedState << QString("Test. ")
+                                    << true << 2  << ModifierClearState;
+    QTest::newRow("screen locked") << OnScreen << ModifierLockedState << QString("Test. ")
+                                   << true << 0 << ModifierLockedState;
+    QTest::newRow("screen locked") << OnScreen << ModifierLockedState << QString("Test. ")
+                                   << true << 2 << ModifierLockedState;
+    // text entry disable autocaps.
+    QTest::newRow("screen locked") << OnScreen << ModifierLatchedState << QString("Test. ")
+                                   << false << 0 << ModifierClearState;
+}
+
+void Ut_MKeyboardHost::testShiftStateOnFocusChanged()
+{
+    // all temporary shift state (not capslock) should be reset when
+    // focus is changed, and new shift state depends on autocaps
+    QFETCH(MIMHandlerState, state);
+    QFETCH(ModifierState, initialShiftState);
+    QFETCH(QString, surroundingString);
+    QFETCH(bool, autoCapitalizationEnabled);
+    QFETCH(int, cursorPosition);
+    QFETCH(ModifierState, expectedShiftState);
+
+    QSet<MIMHandlerState> set;
+    set << state;
+    subject->setState(set);
+
+    subject->vkbWidget->setShiftState(initialShiftState);
+
+    subject->focusChanged(true);
+    inputContext->surroundingString = surroundingString;
+    inputContext->autoCapitalizationEnabled_ = autoCapitalizationEnabled;
+    inputContext->cursorPos = cursorPosition;
+    subject->update();
+
+    QCOMPARE(subject->vkbWidget->shiftStatus(), expectedShiftState);
+
+}
+
+void Ut_MKeyboardHost::testShiftStateOnLayoutChanged_data()
+{
+    QTest::addColumn<QString>("surroundingString");
+    QTest::addColumn<bool>("autoCapitalizationEnabled");
+    QTest::addColumn<int>("cursorPosition");
+    QTest::addColumn<QString>("layout");
+    QTest::addColumn<bool>("layoutAutoCapitalization");
+    QTest::addColumn<ModifierState>("initialShiftState");
+    QTest::addColumn<ModifierState>("expectedShiftState");
+
+    // manually set shift state to shift on, changing layout will turn it back to lowercase according autocaps
+    QTest::newRow("screen lowercase") << QString("Test. ") << true << 2 << QString("en_gb")
+                                      << true << ModifierLatchedState << ModifierClearState;
+
+    // manually set shift state to shift on, changing layout will keep it according autocaps
+    QTest::newRow("screen latched") << QString("Test. ") << true << 0 << QString("fi")
+                                    << true << ModifierLatchedState << ModifierLatchedState;
+
+    // manually set shift state to lowercase, changing layout will turn it back to shift on according autocaps
+    QTest::newRow("screen latched") << QString("Test. ") << true << 0 << QString("fr")
+                                    << true << ModifierClearState << ModifierLatchedState;
+
+    // manually set shift state to shift locked, changing layout won't change shift state
+    QTest::newRow("screen locked") << QString("Test. ") << true << 0 << QString("en_us")
+                                   << true << ModifierLockedState << ModifierLockedState;
+
+    // manually set shift state to shift on, changing layout will change shift to lowercase because
+    // layout disable autocaps.
+    QTest::newRow("screen latched") << QString("Test. ") << true << 0 << QString("ar")
+                                   << false << ModifierLatchedState << ModifierClearState;
+
+    // manually set shift state to shift locked, changing layout won't change shift state even if
+    // layout disable autocaps.
+    QTest::newRow("screen latched") << QString("Test. ") << true << 0 << QString("ar")
+                                   << false << ModifierLockedState << ModifierLockedState;
+}
+
+void Ut_MKeyboardHost::testShiftStateOnLayoutChanged()
+{
+    // all temporary shift state (not capslock) should be reset when
+    // focus is changed, and new shift state depends on autocaps
+    QFETCH(QString, surroundingString);
+    QFETCH(bool, autoCapitalizationEnabled);
+    QFETCH(int, cursorPosition);
+    QFETCH(QString, layout);
+    QFETCH(bool, layoutAutoCapitalization);
+    QFETCH(ModifierState, initialShiftState);
+    QFETCH(ModifierState, expectedShiftState);
+
+    QSet<MIMHandlerState> set;
+    set << OnScreen;
+    subject->setState(set);
+
+    inputContext->surroundingString = surroundingString;
+    inputContext->autoCapitalizationEnabled_ = autoCapitalizationEnabled;
+    inputContext->cursorPos = cursorPosition;
+    subject->vkbWidget->setShiftState(initialShiftState);
+
+    gAutoCapsEnabled = layoutAutoCapitalization;
+    subject->handleVirtualKeyboardLayoutChanged(layout);
+
+    QCOMPARE(subject->vkbWidget->shiftStatus(), expectedShiftState);
 }
 
 QTEST_APPLESS_MAIN(Ut_MKeyboardHost);

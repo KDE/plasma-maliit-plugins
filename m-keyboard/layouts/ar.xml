@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
-<keyboard version="1.0" title="العربية" language="ar" catalog="ar">
+<keyboard version="1.0" title="العربية" language="ar" catalog="ar" autocapitalization="false">
     <layout type="general" orientation="landscape">
         <section id="main" movable="false" vertical_alignment="center" horizontal_alignment="center">
           <row>
@@ -122,20 +122,18 @@
               <binding shift="true" action="layout_menu" label=""/>
             </key>
             <key>
-              <binding label="-"/>
-              <binding shift="true" label="&apos;"/>
-            </key>
-            <key>
-              <binding action="space" label=""/>
-              <binding shift="true" action="return" label=""/>
-            </key>
-            <key>
               <binding label="؟"/>
               <binding shift="true" label="!"/>
             </key>
             <key>
+              <binding action="space" label=""/>
+            </key>
+            <key>
               <binding label="."/>
-              <binding shift="true" label=","/>
+              <binding shift="true" label="،"/>
+            </key>
+            <key>
+              <binding action="return" label=""/>
             </key>
             <key rtl="true">
               <binding action="backspace" label=""/>
@@ -159,7 +157,7 @@
             </key>
             <key>
               <binding label="."/>
-              <binding shift="true" label="&#x060C;"/>
+              <binding shift="true" label="،"/>
             </key>
             <key rtl="true">
               <binding action="backspace" label=""/>

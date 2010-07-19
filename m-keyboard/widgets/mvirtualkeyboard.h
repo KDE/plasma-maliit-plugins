@@ -174,6 +174,8 @@ public:
     //! Set pointer to shared handle area
     void setSharedHandleArea(const QPointer<SharedHandleArea> &newSharedHandleArea);
 
+    //! Returns whether autocaps is enabled.
+    bool autoCapsEnabled() const;
 
 public slots:
     /*!

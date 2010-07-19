@@ -56,7 +56,7 @@ QGraphicsWidget *MKeyboardSettings::createContentWidget(QGraphicsWidget *parent)
 
 QString MKeyboardSettings::title()
 {
-    //% "Virtual keyboards";
+    //% "Virtual keyboards"
     return qtTrId("qtn_txts_virtual_keyboards");;
 }
 

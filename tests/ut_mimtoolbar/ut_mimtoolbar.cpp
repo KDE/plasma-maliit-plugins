@@ -23,7 +23,6 @@
 #include "mapplication.h"
 #include "mvirtualkeyboard.h"
 #include "layoutsmanager.h"
-#include "mvirtualkeyboardstyle.h"
 #include "mreactionmaptester.h"
 #include <mplainwindow.h>
 #include <mtoolbardata.h>
@@ -75,17 +74,15 @@ void MToolbarButton::setIconFile(const QString &newIconFile)
 
 void Ut_MImToolbar::initTestCase()
 {
-    static int dummyArgc = 1;
-    static char *dummyArgv[1] = { (char *) "./ut_mimtoolbar" };
+    static int dummyArgc = 2;
+    static char *dummyArgv[2] = { (char *) "./ut_mimtoolbar",
+                                  (char *) "-local-theme" };
     // Avoid waiting if im server is not responding
     MApplication::setLoadMInputContext(false);
     app = new MApplication(dummyArgc, dummyArgv);
 
     qRegisterMetaType<CopyPasteState>("CopyPasteState");
     LayoutsManager::createInstance();
-
-    style = new MVirtualKeyboardStyleContainer;
-    style->initialize("MVirtualKeyboard", "MVirtualKeyboardView", 0);
 
     new MPlainWindow; // Create singleton
 
@@ -97,7 +94,7 @@ void Ut_MImToolbar::initTestCase()
 
 void Ut_MImToolbar::init()
 {
-    m_subject = new MImToolbar(*style);
+    m_subject = new MImToolbar();
     MPlainWindow::instance()->scene()->addItem(m_subject);
 
     //fill up toolbar with some data
@@ -117,8 +114,6 @@ void Ut_MImToolbar::cleanupTestCase()
     toolbarData.clear();
     LayoutsManager::destroyInstance();
     delete MPlainWindow::instance();
-    delete style;
-    style = 0;
     delete app;
     app = 0;
 }
@@ -320,11 +315,12 @@ void Ut_MImToolbar::testRegion()
     // Get region when there are three buttons on the right.
     QRegion regionThreeButtons = m_subject->region();
 
-    // Old region (two buttons) is not enough to cover rightRect
-    // but the new region is.
-    rightRect = m_subject->rightBar.geometry().toRect();
-    QVERIFY(!(QRegion(rightRect) - regionTwoButtons).isEmpty());
-    QVERIFY((QRegion(rightRect) - regionThreeButtons).isEmpty());
+    // Toolbar always occupy the same region,
+    // because our toolbar contains one line only.
+    QCOMPARE(regionThreeButtons, regionTwoButtons);
+
+    m_subject->finalizeOrientationChange();
+    QCOMPARE(regionSignals.count(), 3);
 
     m_subject->hideToolbarWidget();
 
@@ -376,7 +372,7 @@ void Ut_MImToolbar::testReactionMaps()
     // Overall sanity test with grid points throughout the view.
     if (!m_subject->region().isEmpty()) {
         QRegion region(m_subject->mapToScene(m_subject->boundingRect()).boundingRect().toRect());
-        QVERIFY(tester.testReactionMapGrid(MPlainWindow::instance(), 40, 50, region));
+        QVERIFY(tester.testReactionMapGrid(MPlainWindow::instance(), 40, 50, region, m_subject));
     }
 
     // Check that all buttons are drawn with reactive color.
@@ -388,7 +384,7 @@ void Ut_MImToolbar::testReactionMaps()
     m_subject->redrawReactionMaps();
     QVERIFY(!m_subject->region().isEmpty());
     QRegion boundingRegion(m_subject->mapToScene(m_subject->boundingRect()).boundingRect().toRect());
-    QVERIFY(tester.testReactionMapGrid(MPlainWindow::instance(), 40, 50, boundingRegion));
+    QVERIFY(tester.testReactionMapGrid(MPlainWindow::instance(), 40, 50, boundingRegion, m_subject));
     QVERIFY(tester.testChildButtonReactiveAreas(MPlainWindow::instance(), m_subject));
 
     // Simulate cleaning from other widget.
@@ -401,7 +397,7 @@ void Ut_MImToolbar::testReactionMaps()
     m_subject->redrawReactionMaps();
     if (!m_subject->region().isEmpty()) {
         QRegion region(m_subject->mapToScene(m_subject->boundingRect()).boundingRect().toRect());
-        QVERIFY(tester.testReactionMapGrid(MPlainWindow::instance(), 40, 50, region));
+        QVERIFY(tester.testReactionMapGrid(MPlainWindow::instance(), 40, 50, region, m_subject));
         QVERIFY(tester.testChildButtonReactiveAreas(MPlainWindow::instance(), m_subject));
     }
 }

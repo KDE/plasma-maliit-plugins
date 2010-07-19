@@ -12,6 +12,7 @@ STYLE_HEADERS += \
     $$WIDGETS_DIR/mvirtualkeyboardstyle.h \
     $$WIDGETS_DIR/handlestyle.h \
     $$WIDGETS_DIR/mtoolbarbuttonstyle.h \
+    $$WIDGETS_DIR/mimtoolbarstyle.h \
 
 HEADERS += \
     $$STYLE_HEADERS \

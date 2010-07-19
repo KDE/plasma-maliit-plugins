@@ -22,7 +22,7 @@
 #include <minputcontextconnection.h>
 
 #include "mhardwarekeyboard.h"
-#include "mvirtualkeyboard.h"
+#include "layoutsmanager.h"
 
 #include <X11/X.h>
 #undef KeyPress
@@ -585,4 +585,9 @@ bool MHardwareKeyboard::symViewAvailable() const
 {
     return (currentKeyboardType != M::NumberContentType)
         && (currentKeyboardType != M::PhoneNumberContentType);
+}
+
+bool MHardwareKeyboard::autoCapsEnabled() const
+{
+    return LayoutsManager::instance().hardwareKeyboardAutoCapsEnabled();
 }

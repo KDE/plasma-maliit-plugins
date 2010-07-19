@@ -65,6 +65,9 @@ public:
     //! \return keyoard title
     QString title() const;
 
+    //! \return whether autocaps is enabled.
+    bool autoCapsEnabled() const;
+
     /*!
      * \brief Get layout model by type and orientation
      * \param type type
@@ -146,6 +149,7 @@ protected:
     QString keyboardTitle;
     QString keyboardLanguage;
     QString keyboardCatalog;
+    bool keyboardAutoCapsEnabled;
 
     QList<LayoutData *> layouts;
     QHash<QString, LayoutData::LayoutType> layoutTypeMap;

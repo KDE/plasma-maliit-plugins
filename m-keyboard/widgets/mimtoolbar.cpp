@@ -38,22 +38,20 @@
 
 namespace
 {
-    //!object name for toolbar buttons
     const QString ObjectNameToolbar("MImToolbar");
     const QString ObjectNameToolbarLeft("VirtualKeyboardToolbarLeft");
     const QString ObjectNameToolbarRight("VirtualKeyboardToolbarRight");
     const QString NameToolbarCopyPasteButton("VirtualKeyboardCopyPasteButton");
 };
 
-MImToolbar::MImToolbar(const MVirtualKeyboardStyleContainer &style, QGraphicsWidget *parent)
-    : MWidget(parent),
+MImToolbar::MImToolbar(QGraphicsWidget *parent)
+    : MStylableWidget(parent),
       textSelected(false),
       copyPasteItem(new MToolbarItem(NameToolbarCopyPasteButton, MInputMethod::ItemButton)),
       copyPaste(new MToolbarButton(copyPasteItem, this)),
       copyPasteStatus(InputMethodNoCopyPaste),
       leftBar(true, this),
       rightBar(true, this),
-      style(style),
       shiftState(ModifierClearState),
       fnState(ModifierClearState)
 {
@@ -255,8 +253,6 @@ void MImToolbar::setupRowLayout(QGraphicsLinearLayout *rowLayout,
                                 WidgetBar *rightWidget)
 {
     rowLayout->setContentsMargins(0, 0, 0, 0);
-    rowLayout->setMaximumWidth(MPlainWindow::instance()->visibleSceneSize().width());
-    rowLayout->setPreferredWidth(MPlainWindow::instance()->visibleSceneSize().width());
 
     // Empty button bars are hidden.
     leftWidget->hide();
@@ -572,26 +568,23 @@ void MImToolbar::redrawReactionMaps()
     }
 }
 
-void MImToolbar::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
-{
-    const MScalableImage *background = style->toolbarBackgroundImage();
-
-    if (background) {
-        background->draw(rect().toRect(), painter);
-    }
-}
-
-void MImToolbar::reload()
+void MImToolbar::finalizeOrientationChange()
 {
     //use brute force: destroy everything and construct it again
     unloadCustomWidgets();
     loadCustomWidgets();
+
+    if (isVisible()) {
+        blockSignals(true);
+        arrangeWidgets();
+        blockSignals(false);
+    }
 }
 
 QRectF MImToolbar::boundingRect() const
 {
-    return QRectF(-style->toolbarMarginLeft(), -style->toolbarMarginTop(),
-                  size().width() + style->toolbarMarginLeft() + style->toolbarMarginRight(),
-                  size().height() + style->toolbarMarginTop() + style->toolbarMarginBottom());
+    return QRectF(-style()->marginLeft(), -style()->marginTop(),
+                  size().width() + style()->marginLeft() + style()->marginRight(),
+                  size().height() + style()->marginTop() + style()->marginBottom());
 }
 

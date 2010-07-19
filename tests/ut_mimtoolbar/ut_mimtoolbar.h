@@ -27,7 +27,6 @@
 class MApplication;
 class MImToolbar;
 class QKeyEvent;
-class MVirtualKeyboardStyleContainer;
 class MWidget;
 
 class Ut_MImToolbar : public QObject
@@ -38,7 +37,6 @@ private:
     MApplication *app;
     MImToolbar *m_subject;
     int keyEvents;
-    MVirtualKeyboardStyleContainer *style;
     QSharedPointer<MToolbarData> toolbarData;
 
 private slots:

@@ -169,7 +169,7 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
     Q_UNUSED(ok); // if Q_NO_DEBUG is defined then the assert won't be used
     Q_ASSERT(ok);
 
-    imToolbar = new MImToolbar(*vkbStyleContainer);
+    imToolbar = new MImToolbar();
 
     ok = connect(imToolbar, SIGNAL(copyPasteRequest(CopyPasteState)),
                  this, SLOT(sendCopyPaste(CopyPasteState)));
@@ -243,7 +243,7 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
     sharedHandleArea->watchOnMovement(symbolView);
 
     connect(vkbWidget, SIGNAL(languageChanged(const QString &)),
-            this, SLOT(handleLayoutChanged(const QString &)));
+            this, SLOT(handleVirtualKeyboardLayoutChanged(const QString &)));
 
     connect(vkbWidget, SIGNAL(shiftLevelChanged()),
             this, SLOT(updateSymbolViewLevel()));
@@ -358,7 +358,12 @@ void MKeyboardHost::createCorrectionCandidateWidget()
 void MKeyboardHost::focusChanged(bool focusIn)
 {
     haveFocus = focusIn;
-    if (activeState == Hardware) {
+    if (activeState == OnScreen) {
+        if (focusIn) {
+            // reset the temporary shift state when focus is changed
+            resetVirtualKeyboardShiftState();
+        }
+    } else {
         if (inputMethodMode != M::InputMethodModeDirect) {
             if (focusIn) {
                 hardwareKeyboard->enable();
@@ -433,17 +438,7 @@ void MKeyboardHost::update()
         vkbWidget->setKeyboardType(type);
     }
 
-    autoCapsEnabled = (inputContextConnection()->autoCapitalizationEnabled(valid)
-                       && valid
-                       && (type != M::NumberContentType)
-                       && (type != M::PhoneNumberContentType));
-
-    if (autoCapsEnabled) {
-        valid = inputContextConnection()->surroundingText(surroundingText, cursorPos);
-        if (valid) {
-            updateShiftState();
-        }
-    }
+    updateAutoCapitalization();
 
     const int inputMethodModeValue = inputContextConnection()->inputMethodMode(valid);
     if (valid) {
@@ -461,14 +456,43 @@ void MKeyboardHost::update()
 }
 
 
-void MKeyboardHost::updateShiftState()
+void MKeyboardHost::resetVirtualKeyboardShiftState()
 {
+    // reset the temporary shift state (shift on state set by user or auto capitalization,
+    // besides capslocked)
+    if (activeState == OnScreen && vkbWidget->shiftStatus() != ModifierLockedState) {
+        upperCase = false;
+        vkbWidget->setShiftState(ModifierClearState);
+    }
+}
+
+void MKeyboardHost::updateAutoCapitalization()
+{
+    switch (activeState) {
+    case OnScreen:
+        autoCapsEnabled = vkbWidget->autoCapsEnabled();
+        break;
+    default:
+        autoCapsEnabled = hardwareKeyboard->autoCapsEnabled();
+        break;
+    }
+    bool valid = false;
+    const int type = inputContextConnection()->contentType(valid);
+    autoCapsEnabled = (autoCapsEnabled
+                       && valid
+                       && (type != M::NumberContentType)
+                       && (type != M::PhoneNumberContentType));
+    autoCapsEnabled = (autoCapsEnabled
+                       && inputContextConnection()->autoCapitalizationEnabled(valid)
+                       && valid);
+    autoCapsEnabled = (autoCapsEnabled
+                       && inputContextConnection()->surroundingText(surroundingText, cursorPos));
+
     if (!autoCapsEnabled)
         return;
 
     upperCase = false;
 
-    // TODO: consider RTL language case
     // Capitalization is determined by preedit and Auto Capitalization.
     // If there are some preedit, it should be lower case.
     // Otherwise Auto Capitalization will turn on shift when (text entry capitalization option is ON):
@@ -533,7 +557,7 @@ void MKeyboardHost::finalizeOrientationChange()
 
     if (imToolbar) {
         // load proper layout
-        imToolbar->reload();
+        imToolbar->finalizeOrientationChange();
     }
     if (sharedHandleArea) {
         sharedHandleArea->finalizeOrientationChange();
@@ -1327,7 +1351,7 @@ void MKeyboardHost::setState(const QSet<MIMHandlerState> &state)
 
     vkbWidget->setKeyboardState(actualState);
     updateCorrectionState();
-    updateShiftState();
+    updateAutoCapitalization();
 }
 
 void MKeyboardHost::handleSymbolKeyClick()
@@ -1523,10 +1547,13 @@ QString MKeyboardHost::activeSubView(MIMHandlerState state) const
     }
 }
 
-void MKeyboardHost::handleLayoutChanged(const QString &layout)
+void MKeyboardHost::handleVirtualKeyboardLayoutChanged(const QString &layout)
 {
+    // reset the temporary shift state when layout is changed
+    resetVirtualKeyboardShiftState();
     if (symbolView)
         symbolView ->setLanguage(layout);
     initializeInputEngine();
+    updateAutoCapitalization();
     emit activeSubViewChanged(layout);
 }

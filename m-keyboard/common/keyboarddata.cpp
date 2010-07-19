@@ -31,6 +31,7 @@ namespace
     const QString VKBTagKeyboard             = QString("keyboard");
     const QString VKBTagVersion              = QString("version");
     const QString VKBTagCatalog              = QString("catalog");
+    const QString VKBTagAutoCapitalization   = QString("autocapitalization");
     const QString VKBTagLayout               = QString("layout");
     const QString VKBTagTitle                = QString("title");
     const QString VKBTagLanguage             = QString("language");
@@ -127,7 +128,8 @@ KeyboardData::KeyboardData()
       keyboardVersion(""),
       keyboardTitle(""),
       keyboardLanguage(""),
-      keyboardCatalog("")
+      keyboardCatalog(""),
+      keyboardAutoCapsEnabled(true)
 {
     layoutTypeMap[VKBTagTypeGeneral] = LayoutData::General;
     layoutTypeMap[VKBTagTypeUrl] = LayoutData::Url;
@@ -182,6 +184,11 @@ QString KeyboardData::language() const
 QString KeyboardData::title() const
 {
     return keyboardTitle;
+}
+
+bool KeyboardData::autoCapsEnabled() const
+{
+    return keyboardAutoCapsEnabled;
 }
 
 bool KeyboardData::loadNokiaKeyboard(const QString &fileName)
@@ -243,6 +250,7 @@ bool KeyboardData::loadNokiaKeyboardImpl(const QString &fileName, ParseParameter
             keyboardTitle = root.attribute(VKBTagTitle);
             keyboardLanguage = root.attribute(VKBTagLanguage);
             keyboardCatalog = root.attribute(VKBTagCatalog);
+            keyboardAutoCapsEnabled = toBoolean(root.attribute(VKBTagAutoCapitalization, "true"));
         }
 
         parseChildren(root, params, &VKBTagImport, &KeyboardData::parseTagImport,

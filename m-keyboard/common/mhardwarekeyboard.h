@@ -108,6 +108,9 @@ public:
     //! \return whether the symbol view is available for the current layout.
     bool symViewAvailable() const;
 
+    //! \return whether the autocaps is enabled for the current layout.
+    bool autoCapsEnabled() const;
+
 signals:
 
     //! \bried Emitted when symbol key is clicked (pressed and released consecutively).

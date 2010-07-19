@@ -1134,3 +1134,8 @@ void MVirtualKeyboard::setInputMethodMode(M::InputMethodMode mode)
 {
     KeyButtonArea::setInputMethodMode(mode);
 }
+
+bool MVirtualKeyboard::autoCapsEnabled() const
+{
+    return layoutsMgr.autoCapsEnabled(currentLanguage);
+}

@@ -20,12 +20,6 @@ MVirtualKeyboardStyle {
     notification-text-color: #FFFFFF;
     notification-opacity: 0.9;
 
-    toolbar-background-image: "meegotouch-keyboard-toolbar-background" 10px 10px 10px 10px;
-    toolbar-margin-top: $MARGIN_LARGE;
-    toolbar-margin-bottom: $MARGIN_LARGE;
-    toolbar-margin-left: $MARGIN_LARGE;
-    toolbar-margin-right: $MARGIN_LARGE;
-
     releaseFeedback: ;
     pressFeedback: ;
 
@@ -240,3 +234,27 @@ WidgetBarStyle {
     margin-left:   2.4mm;
     margin-right:  2.4mm;
 }
+
+MImToolbarStyle {
+    background-image: "meegotouch-keyboard-toolbar-background" 10px 10px 10px 10px;
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    margin-right: 0;
+
+    releaseFeedback: ;
+    pressFeedback: ;
+}
+
+MImToolbarStyle.Landscape {
+    preferred-size: 864 -1;
+    minimum-size: 864 -1;
+    maximum-size: 864 -1;
+}
+
+MImToolbarStyle.Portrait {
+    preferred-size: 480 -1;
+    minimum-size: 480 -1;
+    maximum-size: 480 -1;
+}
+

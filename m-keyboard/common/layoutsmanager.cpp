@@ -26,6 +26,8 @@ namespace
     const QString NumberFormatSettingName("/meegotouch/inputmethods/numberformat");
     const QString InputMethodDefaultLanguage("/meegotouch/inputmethods/languages/default");
     const QString HardwareKeyboardLayout("/meegotouch/inputmethods/hwkeyboard/layout");
+    const QString HardwareKeyboardAutoCapsDisabledLayouts("/meegotouch/inputmethods/hwkeyboard/autocapsdisabledlayouts");
+    const QString DefaultHardwareKeyboardAutoCapsDisabledLayout("ar");
     const QString SystemDisplayLanguage("/meegotouch/i18n/language");
     const QString DefaultNumberFormat("latin");
     const QString LayoutFileExtension(".xml");
@@ -104,14 +106,20 @@ const KeyboardData *LayoutsManager::keyboardByName(const QString &language) cons
 
 QString LayoutsManager::keyboardTitle(const QString &language) const
 {
-    const KeyboardData *keyboard = keyboardByName(language);
-    return keyboard == NULL ? "" : keyboard->title();
+    const KeyboardData *const keyboard = keyboardByName(language);
+    return (keyboard ? keyboard->title() : "");
+}
+
+bool LayoutsManager::autoCapsEnabled(const QString &language) const
+{
+    const KeyboardData *const keyboard = keyboardByName(language);
+    return (keyboard ? keyboard->autoCapsEnabled() : false);
 }
 
 QString LayoutsManager::keyboardLanguage(const QString &language) const
 {
-    const KeyboardData *keyboard = keyboardByName(language);
-    return keyboard == NULL ? "" : keyboard->language();
+    const KeyboardData *const keyboard = keyboardByName(language);
+    return (keyboard ? keyboard->language() : "");
 }
 
 const LayoutData *LayoutsManager::layout(const QString &language,
@@ -150,6 +158,15 @@ QString LayoutsManager::systemDisplayLanguage() const
 QString LayoutsManager::hardwareKeyboardLayout() const
 {
     return MGConfItem(HardwareKeyboardLayout).value(FallbackLanguage).toString();
+}
+
+bool LayoutsManager::hardwareKeyboardAutoCapsEnabled() const
+{
+    // Arabic hwkb layout default disable autocaps.
+    QStringList autoCapsDisabledLayouts = MGConfItem(HardwareKeyboardAutoCapsDisabledLayouts)
+                                            .value(QStringList(DefaultHardwareKeyboardAutoCapsDisabledLayout))
+                                            .toStringList();
+    return !(autoCapsDisabledLayouts.contains(hardwareKeyboardLayout()));
 }
 
 bool LayoutsManager::loadLanguage(const QString &language)

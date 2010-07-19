@@ -94,8 +94,8 @@ void Ut_MHardwareKeyboard::initTestCase()
     // Avoid waiting if im server is not responding
     MApplication::setLoadMInputContext(false);
 
-    static char *argv[2] = {(char *)"ut_mhardwarekeyboard", (char *)"-software"};
-    static int argc = 2;
+    static char *argv[3] = {(char *)"ut_mhardwarekeyboard", (char *)"-software", (char *) "-local-theme"};
+    static int argc = 3;
     app = new MApplication(argc, argv);
 
     qRegisterMetaType<ModifierState>("ModifierState");

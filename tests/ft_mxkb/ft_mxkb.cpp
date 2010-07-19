@@ -37,8 +37,8 @@ void Ft_MXkb::initTestCase()
     // Avoid waiting if im server is not responding
     MApplication::setLoadMInputContext(false);
 
-    static char *argv[2] = {(char *) "ft_mxkb", (char *) "-software"};
-    static int argc = 2;
+    static char *argv[3] = {(char *) "ft_mxkb", (char *) "-software", (char *) "-local-theme"};
+    static int argc = 3;
     app = new MApplication(argc, argv);
 }
 
