@@ -1395,7 +1395,8 @@ void MKeyboardHost::handleModifierStateChanged(Qt::KeyboardModifier modifier, Mo
             if (hardwareKeyboard->modifierState(FnLevelModifier) != ModifierClearState) {
                 return;
             }
-            if (currentXkbLayout == "ar") {
+            // Arabic xkb layout name is "ara".
+            if (currentXkbLayout == "ara") {
                 indicatorState = MInputMethodBase::Arabic;
             } else if (LayoutsManager::isCyrillicLanguage(currentXkbLayout)) {
                 indicatorState = MInputMethodBase::CyrillicLower;
@@ -1404,7 +1405,7 @@ void MKeyboardHost::handleModifierStateChanged(Qt::KeyboardModifier modifier, Mo
             }
             break;
         case ModifierLatchedState:
-            if (currentXkbLayout == "ar") {
+            if (currentXkbLayout == "ara") {
                 indicatorState = MInputMethodBase::Arabic;
             } else if (LayoutsManager::isCyrillicLanguage(currentXkbLayout)) {
                 indicatorState = MInputMethodBase::CyrillicUpper;
@@ -1413,7 +1414,7 @@ void MKeyboardHost::handleModifierStateChanged(Qt::KeyboardModifier modifier, Mo
             }
             break;
         case ModifierLockedState:
-            if (currentXkbLayout == "ar") {
+            if (currentXkbLayout == "ara") {
                 indicatorState = MInputMethodBase::Arabic;
             } else if (LayoutsManager::isCyrillicLanguage(currentXkbLayout)) {
                 indicatorState = MInputMethodBase::CyrillicLocked;
@@ -1432,7 +1433,7 @@ void MKeyboardHost::handleModifierStateChanged(Qt::KeyboardModifier modifier, Mo
                 return;
             }
             // when fn key change back to clear, shows same label as shift is clear
-            if (currentXkbLayout == "ar") {
+            if (currentXkbLayout == "ara") {
                 indicatorState = MInputMethodBase::Arabic;
             } else if (LayoutsManager::isCyrillicLanguage(currentXkbLayout)) {
                 indicatorState = MInputMethodBase::CyrillicLower;

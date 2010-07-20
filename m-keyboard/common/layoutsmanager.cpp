@@ -27,7 +27,7 @@ namespace
     const QString InputMethodDefaultLanguage("/meegotouch/inputmethods/languages/default");
     const QString XkbLayoutSettingName("/meegotouch/inputmethods/hwkeyboard/layout");
     const QString HardwareKeyboardAutoCapsDisabledLayouts("/meegotouch/inputmethods/hwkeyboard/autocapsdisabledlayouts");
-    const QString DefaultHardwareKeyboardAutoCapsDisabledLayout("ar");
+    const QString DefaultHardwareKeyboardAutoCapsDisabledLayout("ara"); // Uses xkb layout name. Arabic is "ara".
     const QString SystemDisplayLanguage("/meegotouch/i18n/language");
     const QString DefaultNumberFormat("latin");
     const QString LayoutFileExtension(".xml");
