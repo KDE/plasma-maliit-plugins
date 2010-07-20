@@ -256,8 +256,8 @@ protected:
     */
     int rowCount() const;
 
-    //! \brief Returns the correct size for button with given \a action.
-    QSize buttonSizeByAction(KeyBinding::KeyAction action) const;
+    //! \brief Returns the correct size for button based on its horizontal placement.
+    QSize buttonSizeByColumn(int column, int numColumns) const;
 
     //! \brief Updates button labels and/or icons according to current level and deadkey.
     void updateButtonModifiers();
