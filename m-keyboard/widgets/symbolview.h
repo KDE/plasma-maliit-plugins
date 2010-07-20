@@ -171,11 +171,14 @@ signals:
     //! Emitted when hiding finished.
     void hidden();
 
+    //! Emitted just before entering the hiding transition.
+    void aboutToHide();
+
     //! Emitted when fully visible.
     void opened();
 
     //! SymbolView will start to show up
-    void showingUp();
+    void aboutToOpen();
 
 protected:
     /*! \reimp */

@@ -276,7 +276,7 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
 
     // hide main layout when symbol view is shown to improve performance
     connect(symbolView, SIGNAL(opened()), vkbWidget, SLOT(hideMainArea()));
-    connect(symbolView, SIGNAL(hidden()), vkbWidget, SLOT(showMainArea()));
+    connect(symbolView, SIGNAL(aboutToHide()), vkbWidget, SLOT(showMainArea()));
 }
 
 MKeyboardHost::~MKeyboardHost()

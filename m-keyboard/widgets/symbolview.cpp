@@ -36,7 +36,7 @@
 
 namespace
 {
-    const int DefaultAnimationDuration = 100;
+    const int DefaultAnimationDuration = 200;
     const int DefaultAnimationFrameCount = 20;
 
     const QString SymLabel("Sym");
@@ -350,8 +350,10 @@ SymbolView::showSymbolView(SymbolView::ShowMode mode)
 {
     organizeContent();
 
-    if (isActive())
+    if (isActive()) {
         return;
+    }
+
     if (mode == FollowMouseShowMode) {
         activity = TemporarilyActive;
     } else {
@@ -359,21 +361,21 @@ SymbolView::showSymbolView(SymbolView::ShowMode mode)
     }
 
     show();
+    emit aboutToOpen();
     anim.playShowAnimation();
 
-    emit showingUp();
 }
 
 
 void
 SymbolView::hideSymbolView(SymbolView::HideMode mode)
 {
-    if (isActive()) {
-        if (mode == NormalHideMode) {
-            changePage(0);
-        }
+    if (!isActive()) {
+        return;
+    }
 
-        anim.playHideAnimation();
+    if (mode == NormalHideMode) {
+        changePage(0);
     }
 
     if (mode == TemporaryHideMode) {
@@ -381,6 +383,10 @@ SymbolView::hideSymbolView(SymbolView::HideMode mode)
     } else {
         activity = Inactive;
     }
+
+    emit aboutToHide();
+    anim.playHideAnimation();
+
 }
 
 void
