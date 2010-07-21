@@ -261,7 +261,11 @@ protected:
     //! \brief Updates button labels and/or icons according to current level and deadkey.
     void updateButtonModifiers();
 
-    //! \brief Notification for derived classes about button modifier change.
+    /*! \brief Notification for derived classes about button modifier change.
+     *
+     *  Derived classes should not change the level of selected dead keys. This is to
+     *  ensure all dead keys can be used with all characters in every level.
+     */
     virtual void modifiersChanged(bool shift, QChar accent = QChar());
 
     //! \brief Returns key at given \a pos.

@@ -693,6 +693,10 @@ QSize KeyButtonArea::buttonSizeByColumn(int column, int numColumns) const
 void KeyButtonArea::updateButtonModifiers()
 {
     bool shift = (currentLevel == 1);
+
+    // We currently don't allow active dead key level changing. If we did,
+    // we should update activeDeadkey level before delivering its accent to
+    // other keys.
     const QChar accent(activeDeadkey ? activeDeadkey->label().at(0) : '\0');
 
     modifiersChanged(shift, accent);

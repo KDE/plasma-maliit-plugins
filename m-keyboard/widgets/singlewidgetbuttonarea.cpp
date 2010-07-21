@@ -442,8 +442,9 @@ void SingleWidgetButtonArea::modifiersChanged(const bool shift, const QChar acce
 {
     for (RowIterator row(rowList.begin()); row != rowList.end(); ++row) {
         foreach (SingleWidgetButton *button, row->buttons) {
-            // Shift button is separated from the normal level changing.
-            if (button != this->shiftButton) {
+            // Shift button and selected keys are detached from the normal level changing.
+            if (button != this->shiftButton
+                && button->state() != IKeyButton::Selected) {
                 button->setModifiers(shift, accent);
             }
         }
