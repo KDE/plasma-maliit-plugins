@@ -325,7 +325,7 @@ private:
     //! FIXME: should we provide such a flag to on/off auto caps
     bool autoCapsEnabled;
     //! Contains true if autocapitalization decides to switch keyboard to upper case
-    bool upperCase;
+    bool autoCapsTriggered;
     QString surroundingText;
     int cursorPos;
 
@@ -360,12 +360,6 @@ private:
     //! Indicates whether focus is in a widget according to focusChanged calls
     //! \sa focusChanged
     bool haveFocus;
-
-    //! Saved shift key state before moment when it was pressed
-    ModifierState savedShiftState;
-
-    //! Saved auto capitalization state before press on shift button
-    bool savedUpperCase;
 
     //! Contains true if multi-touch is enabled
     bool enableMultiTouch;

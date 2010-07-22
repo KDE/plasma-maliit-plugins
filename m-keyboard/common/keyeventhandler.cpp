@@ -87,6 +87,9 @@ KeyEvent KeyEventHandler::keyToKeyEvent(const IKeyButton &key, QKeyEvent::Type e
 {
     KeyEvent event;
 
+    // Send always upper case letter if shift held down.
+    upperCase |= shiftHeldDown;
+
     if (accent.isEmpty()) {
         event = key.key().toKeyEvent(eventType, upperCase);
     } else {

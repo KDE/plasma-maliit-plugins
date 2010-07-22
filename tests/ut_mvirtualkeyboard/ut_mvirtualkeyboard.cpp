@@ -49,6 +49,7 @@ namespace
 
 Q_DECLARE_METATYPE(KeyBinding::KeyAction);
 Q_DECLARE_METATYPE(M::InputMethodSwitchDirection);
+Q_DECLARE_METATYPE(ModifierState);
 
 // STUBS
 
@@ -66,6 +67,7 @@ void Notification::displayText(const QString &message)
 void Ut_MVirtualKeyboard::initTestCase()
 {
     qRegisterMetaType<M::InputMethodSwitchDirection>("M::InputMethodSwitchDirection");
+    qRegisterMetaType<ModifierState>("ModifierState");
 
     // Avoid waiting if im server is not responding
     MApplication::setLoadMInputContext(false);
@@ -363,11 +365,51 @@ void Ut_MVirtualKeyboard::testStateReset()
     QCOMPARE(m_vkb->shiftStatus(), ModifierClearState); // Shift should be off
 }
 
-void Ut_MVirtualKeyboard::switchLevelTest()
+void Ut_MVirtualKeyboard::testShiftLevelChange_data()
 {
-    m_vkb->shiftLevel = ModifierLockedState;
-    m_vkb->switchLevel();
-    QCOMPARE(m_vkb->currentLevel, 1);
+    QTest::addColumn<bool>("enableMultiTouch");
+    QTest::addColumn<ModifierState>("initialShiftState");
+    QTest::addColumn<bool>("shiftPressed");
+    QTest::addColumn<int>("expectedMainLayoutLevel");
+    QTest::addColumn<int>("expectedFunctionRowLevel");
+
+    // No multi-touch.
+    QTest::newRow("shift cleared, not pressed") << false << ModifierClearState   << false << 0 << 0;
+    QTest::newRow("shift cleared, pressed")     << false << ModifierClearState   << true  << 0 << 0;
+    QTest::newRow("shift latched, not pressed") << false << ModifierLatchedState << false << 1 << 1;
+    QTest::newRow("shift latched, pressed")     << false << ModifierLatchedState << true  << 1 << 1;
+    QTest::newRow("shift locked, not pressed")  << false << ModifierLockedState  << false << 1 << 1;
+    QTest::newRow("shift locked, pressed")      << false << ModifierLockedState  << true  << 1 << 1;
+
+    // Multi-touch enabled. Main layout same as above, function row follows shift pressed state.
+    QTest::newRow("mt, shift cleared, not pressed") << true << ModifierClearState   << false << 0 << 0;
+    QTest::newRow("mt, shift cleared, pressed")     << true << ModifierClearState   << true  << 0 << 1;
+    QTest::newRow("mt, shift latched, not pressed") << true << ModifierLatchedState << false << 1 << 0;
+    QTest::newRow("mt, shift latched, pressed")     << true << ModifierLatchedState << true  << 1 << 1;
+    QTest::newRow("mt, shift locked, not pressed")  << true << ModifierLockedState  << false << 1 << 0;
+    QTest::newRow("mt, shift locked, pressed")      << true << ModifierLockedState  << true  << 1 << 1;
+}
+
+void Ut_MVirtualKeyboard::testShiftLevelChange()
+{
+    QFETCH(bool, enableMultiTouch);
+    QFETCH(ModifierState, initialShiftState);
+    QFETCH(bool, shiftPressed);
+    QFETCH(int, expectedMainLayoutLevel);
+    QFETCH(int, expectedFunctionRowLevel);
+
+    KeyButtonArea *mainKbLayout = static_cast<KeyButtonArea *>(m_vkb->mainKeyboardSwitcher->currentWidget()->layout()->itemAt(0));
+    KeyButtonArea *functionRow = static_cast<KeyButtonArea *>(m_vkb->mainKeyboardSwitcher->currentWidget()->layout()->itemAt(1));
+
+    // Enable or disable multi-touch.
+    m_vkb->enableMultiTouch = enableMultiTouch;
+
+    m_vkb->setShiftState(initialShiftState);
+
+    QMetaObject::invokeMethod(&m_vkb->eventHandler, "shiftPressed", Q_ARG(bool, shiftPressed));
+
+    QCOMPARE(mainKbLayout->level(), expectedMainLayoutLevel);
+    QCOMPARE(functionRow->level(), expectedFunctionRowLevel);
 }
 
 void Ut_MVirtualKeyboard::flickRightHandlerTest()

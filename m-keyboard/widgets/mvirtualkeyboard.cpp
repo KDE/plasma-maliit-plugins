@@ -66,7 +66,7 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
       activity(Inactive),
       styleContainer(styleContainer),
       sceneManager(MPlainWindow::instance()->sceneManager()),
-      shiftLevel(ModifierClearState),
+      shiftState(ModifierClearState),
       currentLayoutType(LayoutData::General),
       currentOrientation(sceneManager->orientation()),
       hideShowByFadingOnly(false),
@@ -94,7 +94,7 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
     connect(&eventHandler, SIGNAL(keyClicked(const KeyEvent &)),
             this, SIGNAL(keyClicked(const KeyEvent &)));
     connect(&eventHandler, SIGNAL(shiftPressed(bool)),
-            this, SLOT(setFunctionRowState(bool)));
+            this, SLOT(setFunctionRowLevel(bool)));
 
     enableMultiTouch = MGConfItem(MultitouchSettings).value().toBool();
 
@@ -232,7 +232,7 @@ bool MVirtualKeyboard::isFullyVisible() const
 void
 MVirtualKeyboard::switchLevel()
 {
-    switch (shiftLevel) {
+    switch (shiftState) {
     case ModifierClearState:
         currentLevel = 0;
         break;
@@ -250,23 +250,25 @@ MVirtualKeyboard::switchLevel()
         static_cast<KeyButtonArea *>(mainKeyboardSwitcher->widget(i)->layout()->itemAt(0))->
                 switchLevel(currentLevel);
 
-        // Function row shift update, level does not change for the layout.
-        static_cast<KeyButtonArea *>(mainKeyboardSwitcher->widget(i)->layout()->itemAt(1))->
-            setShiftState(shiftLevel);
+        KeyButtonArea *functionRow = functionRowWidget(i);
+        if (functionRow) {
+            functionRow->setShiftState(shiftState);
 
-        if (!enableMultiTouch) {
-            static_cast<KeyButtonArea *>(mainKeyboardSwitcher->widget(i)->layout()->itemAt(1))->
-                switchLevel(currentLevel);
+            // Function row changes level if multi-touch disabled.
+            if (!enableMultiTouch) {
+                functionRow->switchLevel(currentLevel);
+            }
         }
     }
 }
 
 
 void
-MVirtualKeyboard::setShiftState(ModifierState level)
+MVirtualKeyboard::setShiftState(ModifierState state)
 {
-    if (shiftLevel != level) {
-        shiftLevel = level;
+    if (shiftState != state) {
+        shiftState = state;
+
         switchLevel();
         emit shiftLevelChanged();
     }
@@ -748,7 +750,7 @@ void MVirtualKeyboard::suppressRegionUpdate(bool suppress)
 
 ModifierState MVirtualKeyboard::shiftStatus() const
 {
-    return shiftLevel;
+    return shiftState;
 }
 
 
@@ -949,7 +951,7 @@ KeyButtonArea * MVirtualKeyboard::createSectionView(const QString &language,
     KeyButtonArea *view = new SingleWidgetButtonArea(styleContainer, layoutSection,
                                                      sizeScheme, usePopup, parent);
 
-    eventHandler->addEventSource(view);
+    eventHandler.addEventSource(view);
 
     connect(view, SIGNAL(flickDown()), this, SLOT(hideKeyboard()));
     connect(view, SIGNAL(flickDown()), this, SIGNAL(userInitiatedHide()));
@@ -959,13 +961,37 @@ KeyButtonArea * MVirtualKeyboard::createSectionView(const QString &language,
     return view;
 }
 
-void MVirtualKeyboard::setFunctionRowState(bool shiftPressed)
+void MVirtualKeyboard::setFunctionRowLevel(bool shiftPressed)
 {
     if (enableMultiTouch) {
         //TODO: time treshold to avoid flickering?
-        static_cast<KeyButtonArea *>(mainKeyboardSwitcher->currentWidget()->layout()->itemAt(1))->
-            switchLevel(shiftPressed ? 1 : 0);
+        KeyButtonArea *functionRow = functionRowWidget();
+        if (functionRow) {
+            functionRow->switchLevel(shiftPressed ? 1 : 0);
+        }
     }
+}
+
+KeyButtonArea *MVirtualKeyboard::functionRowWidget(int languageIndex) const
+{
+    if (!mainKeyboardSwitcher) {
+        return 0;
+    }
+
+    KeyButtonArea *kba = 0;
+    const QGraphicsWidget *activeKb = (languageIndex == -1) ?
+                                       mainKeyboardSwitcher->currentWidget() :
+                                       mainKeyboardSwitcher->widget(languageIndex);
+
+    // Function row sits at index 1, right below the "qwerty" area.
+    const int layoutIndex = 1;
+
+    if (activeKb
+        && activeKb->layout()
+        && activeKb->layout()->count() > layoutIndex) {
+        kba = dynamic_cast<KeyButtonArea *>(activeKb->layout()->itemAt(layoutIndex));
+    }
+    return kba;
 }
 
 void MVirtualKeyboard::recreateKeyboards()

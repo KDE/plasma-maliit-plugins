@@ -215,7 +215,7 @@ private slots:
      * \brief Switch function row to upper/lower case
      * according to given parameter
      */
-    void setFunctionRowState(bool shiftPressed);
+    void setFunctionRowLevel(bool shiftPressed);
 
     /*!
      * Handler for Right flick operation
@@ -359,6 +359,8 @@ private:
 
     const LayoutData *currentLayoutModel() const;
 
+    KeyButtonArea *functionRowWidget(int languageIndex = -1) const;
+
     /*!
      * Method to setup timeline
      */
@@ -469,7 +471,7 @@ private:
     MSceneManager *sceneManager;
 
     //! Shift key status
-    ModifierState shiftLevel;
+    ModifierState shiftState;
 
     // Vkb show hide time line
     QTimeLine showHideTimeline;

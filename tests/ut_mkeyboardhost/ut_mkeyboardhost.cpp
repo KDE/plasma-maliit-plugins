@@ -75,6 +75,7 @@ namespace QTest
 Q_DECLARE_METATYPE(QSet<MIMHandlerState>)
 Q_DECLARE_METATYPE(MIMHandlerState)
 Q_DECLARE_METATYPE(ModifierState)
+Q_DECLARE_METATYPE(Ut_MKeyboardHost::TestOpList)
 
 static void waitForSignal(const QObject* object, const char* signal, int timeout = 500)
 {
@@ -103,6 +104,11 @@ bool MVirtualKeyboard::autoCapsEnabled() const
     return gAutoCapsEnabled;
 }
 
+bool MHardwareKeyboard::autoCapsEnabled() const
+{
+    return gAutoCapsEnabled;
+}
+
 
 // Actual test...............................................................
 
@@ -121,6 +127,7 @@ void Ut_MKeyboardHost::initTestCase()
     MGConfItem(MultitouchSettings).set(true);
 
     qRegisterMetaType<M::Orientation>("M::Orientation");
+    qRegisterMetaType<TestOpList>("TestOpList");
 }
 
 void Ut_MKeyboardHost::cleanupTestCase()
@@ -769,12 +776,6 @@ void Ut_MKeyboardHost::testRegionSignals()
     //QCOMPARE(region(spy, spy.count() - 1), region270);
 }
 
-void Ut_MKeyboardHost::rotateToAngle(M::OrientationAngle angle)
-{
-    subject->appOrientationChanged(angle);
-    QTest::qWait(SceneRotationTime); // wait until rotation animation is finished
-}
-
 void Ut_MKeyboardHost::testSetState_data()
 {
     QSet<MIMHandlerState> state;
@@ -1005,95 +1006,81 @@ void Ut_MKeyboardHost::testKeyCycle()
     QCOMPARE(inputContext->commit, QString(event2.text()[0]) + " ");
 }
 
-void Ut_MKeyboardHost::testPressShift_data()
+void Ut_MKeyboardHost::testShiftState_data()
 {
-    QTest::addColumn<MIMHandlerState>("state");
-    QTest::addColumn<ModifierState>("initialShiftState");
+    QTest::addColumn<TestOpList>("operations");
     QTest::addColumn<ModifierState>("expectedShiftState");
-    QTest::addColumn<bool>("enableMultiTouch");
 
-    QTest::newRow("screen lowercase") << OnScreen << ModifierClearState   << ModifierLatchedState << true;
-    QTest::newRow("screen latched")   << OnScreen << ModifierLatchedState << ModifierClearState << true;
-    QTest::newRow("screen locked")    << OnScreen << ModifierLockedState  << ModifierClearState << true;
+    // Shift clicks without autocapitalization
+    QTest::newRow("no click, no autocaps") << TestOpList() << ModifierClearState;
+    QTest::newRow("click shift once") << (TestOpList() << ClickShift) << ModifierLatchedState;
+    QTest::newRow("click shift twice") << (TestOpList() << ClickShift << ClickShift) << ModifierLockedState;
+    QTest::newRow("click shift three times")
+        << (TestOpList() << ClickShift << ClickShift << ClickShift) << ModifierClearState;
 
-    QTest::newRow("hw lowercase") << Hardware << ModifierClearState   << ModifierClearState << true;
-    QTest::newRow("hw latched")   << Hardware << ModifierLatchedState << ModifierLatchedState << true;
-    QTest::newRow("hw locked")    << Hardware << ModifierLockedState  << ModifierLockedState << true;
+    // Shift clicks with autocapitalization
+    QTest::newRow("autocaps on, no click")
+        << (TestOpList() << TriggerAutoCaps) << ModifierLatchedState;
+    QTest::newRow("autocaps on, click shift once")
+        << (TestOpList() << TriggerAutoCaps << ClickShift) << ModifierClearState;
+    QTest::newRow("autocaps on, click shift twice")
+        << (TestOpList() << TriggerAutoCaps << ClickShift << ClickShift) << ModifierLatchedState;
+    QTest::newRow("autocaps on, click shift three times")
+        << (TestOpList() << TriggerAutoCaps << ClickShift << ClickShift << ClickShift) << ModifierLockedState;
 
-    QTest::newRow("single-touch lowercase") << OnScreen << ModifierClearState   << ModifierClearState << false;
-    QTest::newRow("single-touch latched")   << OnScreen << ModifierLatchedState << ModifierLatchedState << false;
-    QTest::newRow("single-touch locked")    << OnScreen << ModifierLockedState  << ModifierLockedState << false;
+    // Character clicks, how they clear shift
+
+    QTest::newRow("manually latched shift, character click")
+        << (TestOpList() << ClickShift << ClickCharacter) << ModifierClearState;
+    QTest::newRow("automatically latched shift, character click")
+        << (TestOpList() << TriggerAutoCaps << ClickCharacter) << ModifierClearState;
+    QTest::newRow("locked shift, character click")
+        << (TestOpList() << ClickShift << ClickShift << ClickCharacter) << ModifierLockedState;
+
+    // Tricky cases
+
+    // The shift+character here does not clear shift because shift was latched by the user and he/she had a reason for it.
+    QTest::newRow("manually latched shift, shift+character click")
+        << (TestOpList() << ClickShift << ClickCharacterWithShiftDown) << ModifierLatchedState;
+    // Here user did not by him/herself latch shift. Any click should clear it.
+    QTest::newRow("automatically latched shift, shift+character click")
+        << (TestOpList() << TriggerAutoCaps << ClickCharacterWithShiftDown) << ModifierClearState;
 }
 
-void Ut_MKeyboardHost::testPressShift()
+void Ut_MKeyboardHost::testShiftState()
 {
-    QFETCH(MIMHandlerState, state);
-    QFETCH(ModifierState, initialShiftState);
+    QFETCH(TestOpList, operations);
     QFETCH(ModifierState, expectedShiftState);
-    QFETCH(bool, enableMultiTouch);
 
-    QSet<MIMHandlerState> set;
-    set << state;
+    const KeyEvent shiftClickEvent(QString(), QEvent::KeyRelease, Qt::Key_Shift);
 
-    KeyEvent pressShift(QString(), QEvent::KeyPress, Qt::Key_Shift, KeyEvent::NotSpecial, Qt::ShiftModifier);
+    // We don't use Qt::ShiftModifier for shift state since it does not differentiate between
+    // latched+char and held+char. Vkb sets it in both situations.
+    const KeyEvent characterClickEvent("a", QEvent::KeyRelease);
 
-    subject->setState(set);
-    subject->vkbWidget->setShiftState(initialShiftState);
-    subject->enableMultiTouch = enableMultiTouch;
+    foreach (TestOperation op, operations) {
+        switch (op) {
+        case ClickShift:
+            subject->handleKeyClick(shiftClickEvent);
+            break;
+        case ClickCharacter:
+            subject->handleKeyClick(characterClickEvent);
+            break;
+        case ClickCharacterWithShiftDown:
+            subject->handleKeyPress(shiftClickEvent);
+            subject->handleKeyClick(characterClickEvent);
+            subject->handleKeyRelease(shiftClickEvent);
+            break;
+        case TriggerAutoCaps:
+            triggerAutoCaps();
+            break;
+        default:
+            QFAIL("invalid test operation");
+            return;
+        }
+    }
 
-    subject->handleKeyPress(pressShift);
-    QVERIFY(subject->vkbWidget->shiftStatus() == expectedShiftState);
-
-    subject->handleKeyPress(pressShift);
-    QVERIFY(subject->vkbWidget->shiftStatus() == expectedShiftState);
-}
-
-void Ut_MKeyboardHost::testReleaseShift_data()
-{
-    QTest::addColumn<MIMHandlerState>("state");
-    QTest::addColumn<ModifierState>("initialShiftState");
-    QTest::addColumn<ModifierState>("expectedShiftState");
-    QTest::addColumn<bool>("upperCase");
-    QTest::addColumn<bool>("upperCase2");
-
-    QTest::newRow("screen lowercase") << OnScreen << ModifierClearState   << ModifierClearState   << false << false;
-    QTest::newRow("screen latched")   << OnScreen << ModifierLatchedState << ModifierLatchedState << false << false;
-    QTest::newRow("screen locked")    << OnScreen << ModifierLockedState  << ModifierLockedState  << false << false;
-
-    QTest::newRow("screen lowercase 2") << OnScreen << ModifierClearState   << ModifierLatchedState << false << true;
-    QTest::newRow("screen latched   2") << OnScreen << ModifierLatchedState << ModifierClearState   << true  << false;
-    QTest::newRow("screen locked    2") << OnScreen << ModifierLockedState  << ModifierLatchedState << false << true;
-
-    QTest::newRow("hw lowercase") << Hardware << ModifierClearState   << ModifierClearState   << false << false;
-    QTest::newRow("hw latched")   << Hardware << ModifierLatchedState << ModifierLatchedState << false << false;
-    QTest::newRow("hw locked")    << Hardware << ModifierLockedState  << ModifierLockedState  << false << false;
-}
-
-void Ut_MKeyboardHost::testReleaseShift()
-{
-    QFETCH(MIMHandlerState, state);
-    QFETCH(ModifierState, initialShiftState);
-    QFETCH(ModifierState, expectedShiftState);
-    QFETCH(bool, upperCase);
-    QFETCH(bool, upperCase2);
-
-    QSet<MIMHandlerState> set;
-    set << state;
-
-    KeyEvent pressShift  (QString(), QEvent::KeyPress,   Qt::Key_Shift, KeyEvent::NotSpecial, Qt::ShiftModifier);
-    KeyEvent releaseShift(QString(), QEvent::KeyRelease, Qt::Key_Shift, KeyEvent::NotSpecial, Qt::ShiftModifier);
-
-    subject->setState(set);
-    subject->vkbWidget->setShiftState(initialShiftState);
-    subject->upperCase = upperCase;
-
-    subject->handleKeyPress(pressShift);
-    subject->upperCase = upperCase2;
-    subject->handleKeyRelease(releaseShift);
-    QVERIFY(subject->vkbWidget->shiftStatus() == expectedShiftState);
-
-    subject->handleKeyRelease(releaseShift);
-    QVERIFY(subject->vkbWidget->shiftStatus() == expectedShiftState);
+    QCOMPARE(subject->vkbWidget->shiftStatus(), expectedShiftState);
 }
 
 void Ut_MKeyboardHost::testCommitPreeditOnStateChange()
@@ -1243,6 +1230,26 @@ void Ut_MKeyboardHost::testShiftStateOnLayoutChanged()
     subject->handleVirtualKeyboardLayoutChanged(layout);
 
     QCOMPARE(subject->vkbWidget->shiftStatus(), expectedShiftState);
+}
+
+void Ut_MKeyboardHost::rotateToAngle(M::OrientationAngle angle)
+{
+    subject->appOrientationChanged(angle);
+    QTest::qWait(SceneRotationTime); // wait until rotation animation is finished
+}
+
+void Ut_MKeyboardHost::triggerAutoCaps()
+{
+    // Set necessary conditions for triggering auto capitalization
+    gAutoCapsEnabled = true;
+    subject->preedit.clear();
+    subject->cursorPos = 0;
+    inputContext->contentType_ = M::FreeTextContentType;
+    inputContext->autoCapitalizationEnabled_ = true;
+
+    // Update
+    subject->updateAutoCapitalization();
+    QVERIFY(subject->autoCapsTriggered);
 }
 
 QTEST_APPLESS_MAIN(Ut_MKeyboardHost);

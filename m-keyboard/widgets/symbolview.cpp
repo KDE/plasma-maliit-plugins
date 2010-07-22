@@ -137,7 +137,7 @@ SymbolView::SymbolView(const LayoutsManager &layoutsManager, const MVirtualKeybo
       sceneManager(*MPlainWindow::instance()->sceneManager()),
       activity(Inactive),
       activePage(0),
-      shift(ModifierClearState),
+      shiftState(ModifierClearState),
       layoutsMgr(layoutsManager),
       pageSwitcher(0),
       functionRow(0),
@@ -222,7 +222,7 @@ void SymbolView::reloadContent()
 
         loadSwitcherPages(layoutData, activePage);
         loadFunctionRow(layoutData);
-        setShiftState(shift);
+        setShiftState(shiftState);
     } else if (activeState == Hardware && currentOrientation == M::Landscape) {
         const LayoutData *layoutData = layoutsMgr.hardwareLayout(LayoutData::General, M::Landscape);
         if (!layoutData) {
@@ -233,7 +233,7 @@ void SymbolView::reloadContent()
 
         loadSwitcherPages(layoutData, activePage);
         loadFunctionRow(0);
-        setShiftState(shift); // Sets level for sym pages.
+        setShiftState(shiftState); // Sets level for sym pages.
     }
 }
 
@@ -541,20 +541,23 @@ void SymbolView::organizeContent()
 
 void SymbolView::setShiftState(ModifierState newShiftState)
 {
-    int level = newShiftState != ModifierClearState ? 1 : 0;
+    const int level = newShiftState != ModifierClearState ? 1 : 0;
+    shiftState = newShiftState;
 
-    shift = newShiftState;
-    if (!enableMultiTouch && functionRow) {
-        functionRow->switchLevel(level);
+    if (functionRow) {
+        if (!enableMultiTouch) {
+            functionRow->switchLevel(level);
+        }
         functionRow->setShiftState(newShiftState);
     }
+
     emit levelSwitched(level);
     updateSymIndicator();
 }
 
 int SymbolView::currentLevel() const
 {
-    return (shift != ModifierClearState);
+    return (shiftState != ModifierClearState);
 }
 
 void SymbolView::handleHwLayoutChange()

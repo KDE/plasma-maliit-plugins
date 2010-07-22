@@ -19,6 +19,7 @@
 #ifndef UT_MVIRTUALKEYBOARDHOST_H
 #define UT_MVIRTUALKEYBOARDHOST_H
 
+#include <QList>
 #include <QtTest/QtTest>
 #include <QObject>
 
@@ -70,11 +71,8 @@ private slots:
     void testKeyCycle_data();
     void testKeyCycle();
 
-    void testPressShift_data();
-    void testPressShift();
-
-    void testReleaseShift_data();
-    void testReleaseShift();
+    void testShiftState_data();
+    void testShiftState();
 
     void testCommitPreeditOnStateChange();
 
@@ -89,6 +87,17 @@ private slots:
 
 private:
     void rotateToAngle(M::OrientationAngle);
+    void triggerAutoCaps();
+
+public:
+    enum TestOperation {
+        ClickShift,
+        ClickCharacter,
+        ClickCharacterWithShiftDown,
+        TriggerAutoCaps
+    };
+
+    typedef QList<TestOperation> TestOpList;
 };
 
 #endif

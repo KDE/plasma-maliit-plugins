@@ -295,7 +295,7 @@ private:
     int activePage;
 
     //! Case selector: 0 for lower case, 1 for upper case
-    ModifierState shift;
+    ModifierState shiftState;
 
     const LayoutsManager &layoutsMgr;
 

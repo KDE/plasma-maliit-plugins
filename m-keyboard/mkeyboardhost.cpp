@@ -85,7 +85,7 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
       correctionEnabled(false),
       feedbackPlayer(0),
       autoCapsEnabled(true),
-      upperCase(false),
+      autoCapsTriggered(false),
       cursorPos(-1),
       inputMethodMode(M::InputMethodModeNormal),
       backSpaceTimer(this),
@@ -94,8 +94,6 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
       activeState(OnScreen),
       modifierLockOnBanner(0),
       haveFocus(false),
-      savedShiftState(ModifierClearState),
-      savedUpperCase(false),
       enableMultiTouch(false)
 {
     displayHeight = MPlainWindow::instance()->visibleSceneSize(M::Landscape).height();
@@ -447,7 +445,7 @@ void MKeyboardHost::resetVirtualKeyboardShiftState()
     // reset the temporary shift state (shift on state set by user or auto capitalization,
     // besides capslocked)
     if (activeState == OnScreen && vkbWidget->shiftStatus() != ModifierLockedState) {
-        upperCase = false;
+        autoCapsTriggered = false;
         vkbWidget->setShiftState(ModifierClearState);
     }
 }
@@ -477,29 +475,25 @@ void MKeyboardHost::updateAutoCapitalization()
     if (!autoCapsEnabled)
         return;
 
-    upperCase = false;
-
     // Capitalization is determined by preedit and Auto Capitalization.
     // If there are some preedit, it should be lower case.
     // Otherwise Auto Capitalization will turn on shift when (text entry capitalization option is ON):
     //   1. at the beginning of one paragraph
     //   2. after a sentence delimiter and one or more spaces
     static const QRegExp autoCapsTrigger("[" + AutoCapsSentenceDelimiters + "] +$");
-    upperCase = ((preedit.length() == 0)
-                 && ((cursorPos == 0)
-                     || ((cursorPos > 0)
-                         && (cursorPos <= surroundingText.length())
-                         && surroundingText.left(cursorPos).contains(autoCapsTrigger))));
+    autoCapsTriggered = ((preedit.length() == 0)
+                         && ((cursorPos == 0)
+                             || ((cursorPos > 0)
+                                 && (cursorPos <= surroundingText.length())
+                                 && surroundingText.left(cursorPos).contains(autoCapsTrigger))));
 
     if ((activeState == OnScreen)
-        && (vkbWidget->shiftStatus() != ModifierLockedState)
-        && (!enableMultiTouch || !shiftHeldDown
-            || (vkbWidget->shiftStatus() != ModifierLatchedState))) {
-        vkbWidget->setShiftState(upperCase ?
+        && (vkbWidget->shiftStatus() != ModifierLockedState)) {
+        vkbWidget->setShiftState(autoCapsTriggered ?
                                  ModifierLatchedState : ModifierClearState);
     } else if ((activeState == Hardware) &&
                (hardwareKeyboard->modifierState(Qt::ShiftModifier) != ModifierLockedState)) {
-        hardwareKeyboard->setAutoCapitalization(upperCase);
+        hardwareKeyboard->setAutoCapitalization(autoCapsTriggered);
     }
 }
 
@@ -750,13 +744,6 @@ void MKeyboardHost::handleKeyPress(const KeyEvent &event)
 
         if (activeState == OnScreen && enableMultiTouch) {
             shiftHeldDown = true;
-            savedShiftState = vkbWidget->shiftStatus();
-            savedUpperCase = upperCase;
-            // we need to invert shift state:
-            // * clear shift state if it is latched or locked, or
-            // * latch it, if it is cleared
-            const ModifierState newState = (savedShiftState == ModifierClearState) ? ModifierLatchedState : ModifierClearState;
-            vkbWidget->setShiftState(newState);
         }
     }
 
@@ -779,22 +766,7 @@ void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
         }
 
         if (activeState == OnScreen && enableMultiTouch) {
-            ModifierState newState = ModifierClearState;
-
             shiftHeldDown = false;
-            // we need to update shift status:
-            // * restore old value if character case was not toggled by auto caps
-            // * latch shift key if upper case was enabled by auto caps
-            // * otherwise clear shift key
-            if (savedUpperCase == upperCase) {
-                newState = savedShiftState;
-            } else if (upperCase) {
-                newState = ModifierLatchedState;
-            } else {
-                newState = ModifierClearState;
-            }
-
-            vkbWidget->setShiftState(newState);
         }
     }
 
@@ -881,7 +853,7 @@ void MKeyboardHost::handleGeneralKeyClick(const KeyEvent &event)
         case ModifierLatchedState:
             // If current ShiftOn state is due to autocaps, go back to ShiftOff.
             // Otherwise, lock it.
-            if (upperCase) {
+            if (autoCapsTriggered) {
                 vkbWidget->setShiftState(ModifierClearState);
             } else {
                 vkbWidget->setShiftState(ModifierLockedState);
@@ -894,18 +866,20 @@ void MKeyboardHost::handleGeneralKeyClick(const KeyEvent &event)
             vkbWidget->setShiftState(ModifierClearState);
             break;
         }
-        upperCase = false;
+        autoCapsTriggered = false;
     } else if (vkbWidget->shiftStatus() == ModifierLatchedState
                && (event.qtKey() != Qt::Key_Backspace)
                && (event.specialKey() != KeyEvent::Sym)
                && (event.specialKey() != KeyEvent::LayoutMenu)
-               && (!shiftHeldDown || upperCase)) {
+               && (!shiftHeldDown || autoCapsTriggered)) {
         // Any key except shift toggles shift off if it's on (not locked).
         // Exceptions are:
         // - backspace, toggles shift off is handled in doBackspace()
         // - sym, pressing sym key keeps current shift state
         // - menu, pressing menu key keeps current shift state
         // - shift, when held down don't bring level down, except with autocaps!
+        //   note: For this we cannot use event.modifiers().testFlag(Qt::ShiftModifier)
+        //         because it does not differentiate between latched+char and held down + char.
         vkbWidget->setShiftState(ModifierClearState);
     }
 
@@ -1337,13 +1311,13 @@ void MKeyboardHost::updateSymbolViewLevel()
     if (!symbolView->isActive())
         return;
 
-    ModifierState shiftLevel = ModifierClearState;
+    ModifierState shiftState = ModifierClearState;
     if (activeState == OnScreen) {
-        shiftLevel = vkbWidget->shiftStatus();
+        shiftState = vkbWidget->shiftStatus();
     } else {
-        shiftLevel = hardwareKeyboard->modifierState(Qt::ShiftModifier);
+        shiftState = hardwareKeyboard->modifierState(Qt::ShiftModifier);
     }
-    symbolView->setShiftState(shiftLevel);
+    symbolView->setShiftState(shiftState);
 }
 
 void MKeyboardHost::showSymbolView()
