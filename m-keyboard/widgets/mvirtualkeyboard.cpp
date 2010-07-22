@@ -27,7 +27,6 @@
 #include "mimtoolbar.h"
 #include "ikeybutton.h"
 #include "keyevent.h"
-#include "keyeventhandler.h"
 #include "grip.h"
 #include "sharedhandlearea.h"
 
@@ -80,21 +79,21 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
       numberLayout(0),
       phoneNumberKeyboard(0),
       phoneNumberLayout(0),
-      activeState(OnScreen)
+      activeState(OnScreen),
+      eventHandler(this)
 {
     setObjectName("MVirtualKeyboard");
     hide();
 
     notification = new Notification(styleContainer, this);
 
-    eventHandler = new KeyEventHandler(this);
-    connect(eventHandler, SIGNAL(keyPressed(const KeyEvent &)),
+    connect(&eventHandler, SIGNAL(keyPressed(const KeyEvent &)),
             this, SIGNAL(keyPressed(const KeyEvent &)));
-    connect(eventHandler, SIGNAL(keyReleased(const KeyEvent &)),
+    connect(&eventHandler, SIGNAL(keyReleased(const KeyEvent &)),
             this, SIGNAL(keyReleased(const KeyEvent &)));
-    connect(eventHandler, SIGNAL(keyClicked(const KeyEvent &)),
+    connect(&eventHandler, SIGNAL(keyClicked(const KeyEvent &)),
             this, SIGNAL(keyClicked(const KeyEvent &)));
-    connect(eventHandler, SIGNAL(shiftPressed(bool)),
+    connect(&eventHandler, SIGNAL(shiftPressed(bool)),
             this, SLOT(setFunctionRowState(bool)));
 
     enableMultiTouch = MGConfItem(MultitouchSettings).value().toBool();

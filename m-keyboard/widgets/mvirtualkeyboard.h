@@ -19,6 +19,7 @@
 #ifndef MVIRTUALKEYBOARD_H
 #define MVIRTUALKEYBOARD_H
 
+#include "keyeventhandler.h"
 #include "mkeyboardcommon.h"
 #include "singlewidgetbuttonarea.h"
 #include "layoutdata.h"
@@ -47,7 +48,6 @@ class VKBDataKey;
 class VkbToolbar;
 class MImToolbar;
 class MReactionMap;
-class KeyEventHandler;
 class MToolbarData;
 class Handle;
 class Grip;
@@ -503,7 +503,7 @@ private:
 
     MIMHandlerState activeState;
 
-    KeyEventHandler *eventHandler;
+    KeyEventHandler eventHandler;
 
     //! Contains true if multi-touch is enabled
     bool enableMultiTouch;
