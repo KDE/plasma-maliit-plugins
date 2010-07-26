@@ -358,12 +358,10 @@ void MKeyboardHost::focusChanged(bool focusIn)
             resetVirtualKeyboardShiftState();
         }
     } else {
-        if (inputMethodMode != M::InputMethodModeDirect) {
-            if (focusIn) {
-                hardwareKeyboard->enable();
-            } else {
-                hardwareKeyboard->disable();
-            }
+        if (focusIn) {
+            hardwareKeyboard->enable();
+        } else {
+            hardwareKeyboard->disable();
         }
         if (!focusIn) {
             sendInputModeIndicator(MInputMethodBase::NoIndicator);
@@ -436,14 +434,8 @@ void MKeyboardHost::update()
 
     const int inputMethodModeValue = inputContextConnection()->inputMethodMode(valid);
     if (valid) {
-        if (haveFocus && (activeState == Hardware) && (inputMethodMode != inputMethodModeValue)) {
-            if (inputMethodModeValue != M::InputMethodModeDirect) {
-                hardwareKeyboard->enable();
-            } else {
-                hardwareKeyboard->disable();
-            }
-        }
         inputMethodMode = inputMethodModeValue;
+        hardwareKeyboard->setInputMethodMode(static_cast<M::InputMethodMode>(inputMethodMode));
         vkbWidget->setInputMethodMode(static_cast<M::InputMethodMode>(inputMethodMode));
         sharedHandleArea->setInputMethodMode(static_cast<M::InputMethodMode>(inputMethodMode));
     }
@@ -1277,8 +1269,12 @@ void MKeyboardHost::processKeyEvent(QEvent::Type keyType, Qt::Key keyCode,
         !hardwareKeyboard->filterKeyEvent(keyType, keyCode, modifiers, text,
                                           autoRepeat, count, nativeScanCode,
                                           nativeModifiers)) {
-        inputContextConnection()->sendKeyEvent(QKeyEvent(keyType, keyCode, modifiers, text,
-                                                         autoRepeat, count));
+        //TODO: improve MInputMethodBase::processKeyEvent to get native virtual key code.
+        QKeyEvent *key = QKeyEvent::createExtendedKeyEvent(keyType, keyCode, modifiers,
+                                                           nativeScanCode, 0, nativeModifiers,
+                                                           text, autoRepeat, count);
+        inputContextConnection()->sendKeyEvent(*key);
+        delete key;
     }
 }
 
@@ -1319,13 +1315,13 @@ void MKeyboardHost::setState(const QSet<MIMHandlerState> &state)
         sendInputModeIndicator(MInputMethodBase::NoIndicator);
         disconnect(hardwareKeyboard, SIGNAL(modifierStateChanged(Qt::KeyboardModifier, ModifierState)),
                    this, SLOT(handleModifierStateChanged(Qt::KeyboardModifier, ModifierState)));
-        if (haveFocus && (inputMethodMode != M::InputMethodModeDirect)) {
+        if (haveFocus) {
             hardwareKeyboard->disable();
         }
     } else {
         connect(hardwareKeyboard, SIGNAL(modifierStateChanged(Qt::KeyboardModifier, ModifierState)),
                 this, SLOT(handleModifierStateChanged(Qt::KeyboardModifier, ModifierState)));
-        if (haveFocus && (inputMethodMode != M::InputMethodModeDirect)) {
+        if (haveFocus) {
             hardwareKeyboard->enable();
         }
     }
