@@ -65,6 +65,10 @@ KeyEvent KeyBinding::toKeyEventImpl(QKeyEvent::Type eventType,
         key = Qt::Key_Return;
         text = "\n";
         break;
+    case ActionTab:
+        key = Qt::Key_Tab;
+        text = "\t";
+        break;
     case ActionCycle:
         specialKey = KeyEvent::CycleSet;
         text = cycleSet;

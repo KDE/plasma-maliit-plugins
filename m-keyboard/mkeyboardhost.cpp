@@ -1008,7 +1008,7 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
 
         inputContextConnection()->sendCommitString(text);
 
-    } else if ((event.qtKey() == Qt::Key_Space) || (event.qtKey() == Qt::Key_Return)) {
+    } else if ((event.qtKey() == Qt::Key_Space) || (event.qtKey() == Qt::Key_Return) || (event.qtKey() == Qt::Key_Tab)) {
         // commit string
         inputContextConnection()->sendCommitString(correctedPreedit);
         if (lastClickEvent.specialKey() != KeyEvent::CycleSet) {

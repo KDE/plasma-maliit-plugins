@@ -40,6 +40,7 @@ public:
         ActionReturn,
         ActionDecimalSeparator,
         ActionPlusMinusToggle,
+        ActionTab,
         NumActions
     };
 

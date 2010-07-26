@@ -86,6 +86,9 @@ public:
     M_STYLE_ATTRIBUTE(QSize, keyEnterIconSize, KeyEnterIconSize)
     M_STYLE_ATTRIBUTE(QString, keyEnterIconId, KeyEnterIconId)
 
+    M_STYLE_ATTRIBUTE(QSize, keyTabIconSize, KeyTabIconSize)
+    M_STYLE_ATTRIBUTE(QString, keyTabIconId, KeyTabIconId)
+
     M_STYLE_ATTRIBUTE(QSize, keyShiftIconSize, KeyShiftIconSize)
     M_STYLE_ATTRIBUTE(QString, keyShiftIconId, KeyShiftIconId)
     M_STYLE_ATTRIBUTE(QString, keyShiftUppercaseIconId, KeyShiftUppercaseIconId)

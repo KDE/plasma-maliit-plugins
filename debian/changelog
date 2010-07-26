@@ -3,6 +3,7 @@ meego-keyboard (0.4.10~1) unstable; urgency=low
   * Implemented: SWP#TINME-803 - Symbol view uses different layout for
     hardware keyboard
   * Fixes: NB#167172 - Enter key is missing from virtual keypad
+  * Fixes: NB#170652 - Enter character from VKB's symbols is not entering to new line
 
  -- Ning Chi <ext-chi.ning@nokia.com>  Tue, 20 Jul 2010 16:55:34 +0300
 

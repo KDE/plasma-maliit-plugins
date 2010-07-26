@@ -47,7 +47,7 @@
           </row>
           <row>
             <key>
-              <binding label="&#x21E5;"/>
+              <binding label="&#x21E5;" action="tab"/>
             </key>
             <key>
               <binding label="*"/>
@@ -82,7 +82,7 @@
               <binding shift="true" label="]"/>
             </key>
             <key>
-              <binding label="&#x21B5;"/>
+              <binding label="&#x21B5;" action="return"/>
             </key>
           </row>
           <row>

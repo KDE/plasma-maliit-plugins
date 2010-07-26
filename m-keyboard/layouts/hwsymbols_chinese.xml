@@ -37,7 +37,7 @@
           </row>
           <row>
             <key>
-              <binding label="⇥"/>
+              <binding label="⇥" action="tab"/>
             </key>
             <key>
               <binding label="*"/>
@@ -70,7 +70,7 @@
               <binding label=")"/>
             </key>
             <key>
-              <binding label="↵"/>
+              <binding label="↵" action="return"/>
             </key>
           </row>
           <row>
