@@ -186,7 +186,7 @@ void SingleWidgetButton::loadIcon(bool shift)
             size = styleContainer->keyShiftIconSize();
             break;
         case KeyBinding::ActionReturn:
-            if (currentLabel.isEmpty()) {
+            if (dataKey.binding(shift)->label().isEmpty()) {
                 iconProperty = "keyEnterIconId";
                 size = styleContainer->keyEnterIconSize();
             }
@@ -196,7 +196,7 @@ void SingleWidgetButton::loadIcon(bool shift)
             size = styleContainer->keyMenuIconSize();
             break;
         case KeyBinding::ActionTab:
-            if (currentLabel.isEmpty()) {
+            if (dataKey.binding(shift)->label().isEmpty()) {
                 iconProperty = "keyTabIconId";
                 size = styleContainer->keyTabIconSize();
             }
