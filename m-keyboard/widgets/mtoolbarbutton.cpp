@@ -31,6 +31,10 @@ MToolbarButton::MToolbarButton(QSharedPointer<MToolbarItem> item,
 {
     setView(new MToolbarButtonView(this));
 
+    if (item->name().isEmpty()) {
+        setObjectName(item->name());
+    }
+
     if (!item->iconId().isEmpty()){
         setIconID(item->iconId());
     } else {
