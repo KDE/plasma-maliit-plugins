@@ -49,7 +49,7 @@
 #include <MScene>
 #include <MSceneManager>
 #include <MSceneWindow>
-#include <MInfoBanner>
+#include <MBanner>
 #include <MLibrary>
 
 M_LIBRARY
@@ -67,7 +67,6 @@ namespace
     const int BackspaceRepeatInterval = 100; // in ms
     const int MultitapTime = 1500;           // in ms
     const Qt::KeyboardModifier FnLevelModifier = Qt::GroupSwitchModifier;
-    const int ModifierLockOnInfoDuration = 1000;    // in ms
     // This GConf item defines whether multitouch is enabled or disabled
     const char * const MultitouchSettings = "/meegotouch/inputmethods/multitouch/enabled";
 }
@@ -93,8 +92,7 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
       multitapIndex(0),
       shiftHeldDown(false),
       activeState(OnScreen),
-      modifierLockOnInfoBanner(0),
-      modifierLockOnTimer(this),
+      modifierLockOnBanner(0),
       haveFocus(false),
       savedShiftState(ModifierClearState),
       savedUpperCase(false),
@@ -154,10 +152,6 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
 
     connect(vkbWidget, SIGNAL(pluginSwitchRequired(M::InputMethodSwitchDirection)),
             this, SIGNAL(pluginSwitchRequired(M::InputMethodSwitchDirection)));
-
-    modifierLockOnTimer.setSingleShot(true);
-    modifierLockOnTimer.setInterval(ModifierLockOnInfoDuration);
-    connect(&modifierLockOnTimer, SIGNAL(timeout()), this, SLOT(hideLockOnInfoBanner()));
 
     // construct hardware keyboard object
     hardwareKeyboard = new MHardwareKeyboard(*icConnection, this);
@@ -1463,41 +1457,30 @@ void MKeyboardHost::handleModifierStateChanged(Qt::KeyboardModifier modifier, Mo
         // number and phone number content type always force FN key to be locked,
         // don't need indicator lock notification.
         showLockOnInfoBanner(lockOnNotificationLabel);
-    } else if (modifierLockOnInfoBanner) {
-        hideLockOnInfoBanner(false);
+    } else if (modifierLockOnBanner) {
+        hideLockOnInfoBanner();
     }
 }
 
 void MKeyboardHost::showLockOnInfoBanner(const QString &notification)
 {
-    // current region maybe empty, we should request 1 pixel to make infobanner visible.
-    // FIXME: this request 1 pixel looks like hack way.
-    // maybe we should request system notification instead of showing our own infobanner.
-    emit regionUpdated(combineRegionTo(QRegion(0, 0, 1, 1), *this));
-
-    if (modifierLockOnInfoBanner) {
-        modifierLockOnInfoBanner->setBodyText(notification);
-        modifierLockOnTimer.start();
+    if (modifierLockOnBanner) {
+        modifierLockOnBanner->setTitle(notification);
     } else {
-        modifierLockOnInfoBanner = new MInfoBanner(MInfoBanner::Information);
-        modifierLockOnInfoBanner->setBodyText(notification);
-        MPlainWindow::instance()->sceneManager()->appearSceneWindow(modifierLockOnInfoBanner,
-                                                                    MSceneWindow::DestroyWhenDone);
-        modifierLockOnTimer.start();
+        //TODO: discuss with UI designer whether we need to specify
+        // the disappear time out.
+        modifierLockOnBanner = new MBanner();
+        modifierLockOnBanner->setTitle(notification);
+        modifierLockOnBanner->appear(MSceneWindow::DestroyWhenDone);
     }
 }
 
-void MKeyboardHost::hideLockOnInfoBanner(bool updateRegion)
+void MKeyboardHost::hideLockOnInfoBanner()
 {
-    if (modifierLockOnInfoBanner) {
-        MPlainWindow::instance()->sceneManager()->disappearSceneWindow(modifierLockOnInfoBanner);
+    if (modifierLockOnBanner) {
+        modifierLockOnBanner->disappear();
     }
-    modifierLockOnInfoBanner = 0;
-    // some time we don't need to update region at once (e.g. during changing modifier state frequently)
-    // when modifierLockOnTimer is timeout, this method will be called to update region
-    if (updateRegion) {
-        emit regionUpdated(combineRegionTo(QRegion(), *this));
-    }
+    modifierLockOnBanner = 0;
 }
 
 QList<MInputMethodBase::MInputMethodSubView> MKeyboardHost::subViews(MIMHandlerState state) const

@@ -26,7 +26,7 @@
 #include <MAbstractCellCreator>
 #include <MList>
 #include <MDialog>
-#include <MInfoBanner>
+#include <MBanner>
 
 #include <QObject>
 #include <QGraphicsLinearLayout>
@@ -299,11 +299,10 @@ void MKeyboardSettingsWidget::syncErrorCorrectionState()
 
 void MKeyboardSettingsWidget::notifyNoKeyboards()
 {
-    MInfoBanner *noKeyboardsNotification = new MInfoBanner(MInfoBanner::Information);
+    MBanner *noKeyboardsNotification = new MBanner();
     //% "No keyboards installed"
-    noKeyboardsNotification->setBodyText(qtTrId("qtn_txts_no_keyboards"));
+    noKeyboardsNotification->setTitle(qtTrId("qtn_txts_no_keyboards"));
     noKeyboardsNotification->appear(MSceneWindow::DestroyWhenDone);
-    QTimer::singleShot(1000, noKeyboardsNotification, SLOT(disappear()));
 }
 
 void MKeyboardSettingsWidget::handleVisibilityChanged()
