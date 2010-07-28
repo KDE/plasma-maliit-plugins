@@ -973,8 +973,6 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
             if (feedbackPlayer) {
                 feedbackPlayer->play(MFeedbackPlayer::Cancel);
             }
-        } else if (feedbackPlayer) {
-            feedbackPlayer->play(MFeedbackPlayer::Release);
         }
     }
 
