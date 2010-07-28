@@ -513,7 +513,6 @@ void MKeyboardHost::reset()
         candidates.clear();
         correctionCandidateWidget->setPreeditString("");
         imCorrectionEngine->clearEngineBuffer();
-        vkbWidget->stopAccurateMode();
         break;
     case Hardware:
         hardwareKeyboard->reset();
@@ -962,27 +961,13 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
         return;
     }
 
-    // Word separator stops accurate mode
-    if (MVirtualKeyboard::WordSeparators.indexOf(text) >= 0) {
-        vkbWidget->stopAccurateMode();
-
-        if (engineReady
-            && imCorrectionEngine->correctionEnabled()
-            && (candidates.count() < 2)
-            && !preedit.isEmpty()) {
-            if (feedbackPlayer) {
-                feedbackPlayer->play(MFeedbackPlayer::Cancel);
-            }
-        }
-    }
-
     if (event.specialKey() == KeyEvent::CycleSet) {
         preedit += text;
         correctedPreedit = preedit;
 
         inputContextConnection()->sendPreeditString(correctedPreedit, PreeditNoCandidates);
 
-    } else if (vkbWidget->isAccurateMode() || !correctionEnabled) {
+    } else if (!correctionEnabled) {
         if (correctedPreedit.length() > 0) {
             // we just entered accurate mode. send the previous preedit stuff.
             inputContextConnection()->sendCommitString(correctedPreedit);

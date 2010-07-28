@@ -20,7 +20,6 @@
 #include "flickgesturerecognizer.h"
 #include "mvirtualkeyboardstyle.h"
 #include "keybuttonarea.h"
-#include "limitedtimer.h"
 #include "popupbase.h"
 #include "popupfactory.h"
 
@@ -40,7 +39,6 @@
 namespace
 {
     const int GestureTimeOut = 1000;
-    const int LongPressTime  = 0;
     const qreal ZValueButtons = 0.0;
 
     // Minimal distinguishable cursor/finger movement
@@ -65,8 +63,6 @@ KeyButtonArea::KeyButtonArea(const MVirtualKeyboardStyleContainer *style,
       popup(PopupFactory::instance()->createPopup(*style, this)),
       styleContainer(style),
       newestTouchPointId(-1),
-      longPressTimer(new LimitedTimer(this)),
-      accurateMode(false),
       wasGestureTriggered(false),
       enableMultiTouch(MGConfItem(MultitouchSettings).value().toBool()),
       activeDeadkey(0),
@@ -82,11 +78,6 @@ KeyButtonArea::KeyButtonArea(const MVirtualKeyboardStyleContainer *style,
 
     grabGesture(FlickGestureRecognizer::sharedGestureType());
 
-    longPressTimer->setSingleShot(true);
-    longPressTimer->setInterval(LongPressTime);
-    connect(longPressTimer, SIGNAL(timeout()), this, SLOT(accurateStart()));
-    connect(longPressTimer, SIGNAL(timeout()), this, SLOT(popupStart()));
-
     popup->hidePopup();
 
     feedbackPlayer = MComponentData::feedbackPlayer();
@@ -98,7 +89,6 @@ KeyButtonArea::KeyButtonArea(const MVirtualKeyboardStyleContainer *style,
 
 KeyButtonArea::~KeyButtonArea()
 {
-    delete longPressTimer;
     delete popup;
 }
 
@@ -300,9 +290,6 @@ void KeyButtonArea::click(IKeyButton *key)
             accent = activeDeadkey->label();
         }
 
-        // Check if we need to disable accurate mode
-        accurateCheckContent(key->label());
-
         unlockDeadkeys();
 
         emit keyClicked(key, accent, level() % 2);
@@ -349,10 +336,6 @@ void KeyButtonArea::grabMouseEvent(QEvent */*event*/)
 
 void KeyButtonArea::ungrabMouseEvent(QEvent */*event*/)
 {
-    // longPressTimer is running if flicked without releasing
-    // (or releasing after this keybuttonarea is hidden)
-    longPressTimer->stop();
-
     // Make sure popup is hidden even if mouse grab
     // is lost without mouse release event.
     popup->hidePopup();
@@ -411,7 +394,6 @@ void KeyButtonArea::handleFlickGesture(FlickGesture *gesture)
     // Any flick gesture, complete or not, resets active keys etc.
     if (!wasGestureTriggered && (gesture->state() != Qt::NoGesture)) {
         popup->hidePopup();
-        longPressTimer->stop();
         clearActiveKeys();
 
         wasGestureTriggered = true;
@@ -458,9 +440,6 @@ void KeyButtonArea::touchPointPressed(const QPoint &pos, int id)
     // Reset gesture checks.
     wasGestureTriggered = false;
 
-    // Reset long-press check.
-    longPressTimer->start();
-
     IKeyButton *key = keyAt(pos);
     if (!key) {
         return;
@@ -471,15 +450,8 @@ void KeyButtonArea::touchPointPressed(const QPoint &pos, int id)
     tpi.initialKey = key;
     tpi.fingerInsideArea = true;
 
-    if (accurateMode) {
-        // Stop accurate mode if pressed key makes accurate mode irrelevant
-        accurateCheckContent(key->label());
-
-        // Check if accurate mode is still on.
-        // Show popup in accurate mode.
-        if (accurateMode && usePopup && (id == newestTouchPointId)) {
-            updatePopup(pos, key);
-        }
+    if (usePopup && (id == newestTouchPointId)) {
+        updatePopup(pos, key);
     }
 
     setActiveKey(key, tpi);
@@ -503,28 +475,19 @@ void KeyButtonArea::touchPointMoved(const QPoint &pos, int id)
     if (key) {
         tpi.fingerInsideArea = true;
 
-        if ((tpi.activeKey != key) && accurateMode && feedbackPlayer) {
+        if ((tpi.activeKey != key) && feedbackPlayer) {
             // Finger has slid from a key to an adjacent one.
             feedbackPlayer->play(MFeedbackPlayer::Press);
         }
 
-        // If popup is visible, always update the position,
-        // even if accurate mode is not enabled. This is for
-        // Sym view, who doesn't care about accurate mode.
+        // If popup is visible, always update the position.
         if (usePopup
             && (id == newestTouchPointId)
-            && (accurateMode || popup->isPopupVisible())) {
+            && popup->isPopupVisible()) {
             updatePopup(pos, key);
         }
-
-        if (tpi.activeKey != key) {
-            // Use has to keep finger still to generate long press.
-            // isObservableMove() makes this task easier for the user.
-            if (longPressTimer->isActive())
-                longPressTimer->start();
-        }
     } else {
-        if (tpi.fingerInsideArea && accurateMode && feedbackPlayer) {
+        if (tpi.fingerInsideArea && feedbackPlayer) {
             feedbackPlayer->play(MFeedbackPlayer::Cancel);
         }
         // Finger has slid off the keys
@@ -532,7 +495,6 @@ void KeyButtonArea::touchPointMoved(const QPoint &pos, int id)
             popup->hidePopup();
         }
 
-        longPressTimer->stop();
         tpi.fingerInsideArea = false;
     }
 
@@ -549,12 +511,7 @@ void KeyButtonArea::touchPointReleased(const QPoint &pos, int id)
         return;
     }
 
-    // No more long-press triggerings, although would still be possible to make
-    // with another touch point.
-    longPressTimer->stop();
-
-    // Same thing here, hide popup although otherwise could be shown on
-    // another touch point.
+    // Hide popup otherwise it could be shown on another touch point.
     if (id == newestTouchPointId) {
         popup->hidePopup();
     }
@@ -586,51 +543,6 @@ KeyButtonArea::unlockDeadkeys()
         activeDeadkey = 0;
         updateButtonModifiers();
     }
-}
-
-void KeyButtonArea::popupStart()
-{
-    if (usePopup && touchPoints.contains(newestTouchPointId)) {
-        updatePopup(touchPoints[newestTouchPointId].pos);
-    }
-}
-
-void
-KeyButtonArea::accurateStart()
-{
-    if (!accurateMode) {
-        accurateMode = true;
-        emit accurateModeStarted();
-    }
-}
-
-void
-KeyButtonArea::accurateStop()
-{
-    if (accurateMode) {
-        accurateMode = false;
-        emit accurateModeStopped();
-    }
-}
-
-void
-KeyButtonArea::accurateCheckContent(const QString &content)
-{
-    if (!content.isEmpty()) {
-        QChar c = content.at(0);
-        bool unicodeLetter =
-            c.category() >= QChar::Letter_Uppercase &&
-            c.category() <= QChar::Letter_Other;
-        if (!unicodeLetter) {
-            accurateStop();
-        }
-    }
-}
-
-bool
-KeyButtonArea::isAccurateMode() const
-{
-    return accurateMode;
 }
 
 bool

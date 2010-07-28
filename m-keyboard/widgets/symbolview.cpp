@@ -135,7 +135,6 @@ SymbolView::SymbolView(const LayoutsManager &layoutsManager, const MVirtualKeybo
       styleContainer(style),
       anim(this),
       sceneManager(*MPlainWindow::instance()->sceneManager()),
-      selectedLayout(0),
       activity(Inactive),
       activePage(0),
       shift(ModifierClearState),
@@ -406,9 +405,6 @@ SymbolView::changePage(int id)
         activePage = id;
     }
 
-    selectedLayout = qobject_cast<KeyButtonArea *>(pageSwitcher->currentWidget());
-    Q_ASSERT(selectedLayout);
-
     updateSymIndicator();
 }
 
@@ -421,7 +417,6 @@ void SymbolView::loadSwitcherPages(const LayoutData *kbLayout, const unsigned in
         delete pageSwitcher;
         pageSwitcher = 0;
     }
-    selectedLayout = 0; // invalid now so clear
 
     if (!kbLayout) {
         return;
@@ -457,8 +452,6 @@ void SymbolView::loadSwitcherPages(const LayoutData *kbLayout, const unsigned in
     if (pageSwitcher->count() >= 0) {
         activePage = (selectPage >= static_cast<unsigned int>(pageSwitcher->count()) ? 0 : selectPage);
         pageSwitcher->setCurrent(activePage);
-        selectedLayout = qobject_cast<KeyButtonArea *>(pageSwitcher->currentWidget());
-        Q_ASSERT(selectedLayout);
     }
 
     pageSwitcher->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
@@ -636,8 +629,6 @@ void SymbolView::onSwitchStarting(QGraphicsWidget *current, QGraphicsWidget *nex
         }
         next->grabMouse();
     }
-    selectedLayout = qobject_cast<KeyButtonArea *>(next);
-    Q_ASSERT(selectedLayout);
 }
 
 void SymbolView::switchDone()
@@ -712,12 +703,6 @@ bool SymbolView::isActive() const
     return ((activity == Active) || (activity == TemporarilyActive));
 }
 
-
-void SymbolView::stopAccurateMode()
-{
-    if (selectedLayout)
-        selectedLayout->accurateStop();
-}
 
 
 QString SymbolView::pageTitle(const int pageIndex) const

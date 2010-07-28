@@ -31,7 +31,6 @@
 #include <QList>
 #include <QStringList>
 #include <QTouchEvent>
-#include <QTime>
 
 class FlickGesture;
 class MFeedbackPlayer;
@@ -40,7 +39,6 @@ class MScalableImage;
 class MVirtualKeyboardStyleContainer;
 class ISymIndicator;
 class LayoutData;
-class LimitedTimer;
 class QGraphicsLinearLayout;
 class QTextLayout;
 class PopupBase;
@@ -87,17 +85,6 @@ public:
     virtual ~KeyButtonArea();
 
     /*!
-     * \brief Stop the accurate mode.
-    */
-    void accurateStop();
-
-    /*!
-    * \brief Return true if accurate mode is set, vice versa.
-    * \return bool
-    */
-    bool isAccurateMode() const;
-
-    /*!
      * \brief Checks whether popup is currently turned on.
      */
     bool isPopupActive() const;
@@ -122,16 +109,6 @@ public slots:
 
     virtual void setShiftState(ModifierState newShiftState);
 
-    /*!
-     * \brief Shows popup
-     */
-    void popupStart();
-
-    /*!
-    * \brief This slot starts the accurate mode
-    */
-    void accurateStart();
-
     virtual void drawReactiveAreas(MReactionMap *reactionMap, QGraphicsView *view);
 
     /*!
@@ -140,12 +117,6 @@ public slots:
     void unlockDeadkeys();
 
 signals:
-
-    //! Emitted when accurate mode is started
-    void accurateModeStarted();
-
-    //! Emitted when accurate mode is stopped
-    void accurateModeStopped();
 
     /*!
      * \brief Emitted when key is pressed
@@ -233,7 +204,7 @@ protected:
     virtual void onHide();
 
 
-    //! Updates popup's content and position.
+    //! Shows popup and updates its content and position.
     void updatePopup(const QPoint &pos, const IKeyButton *key = 0);
 
     /*!
@@ -294,9 +265,6 @@ protected slots:
     virtual void onThemeChangeCompleted();
 
 private:
-    //! Check whether given character will stop accurate mode.
-    void accurateCheckContent(const QString &content);
-
     //! \brief Handler for flick gestures from Qt gesture framework.
     void handleFlickGesture(FlickGesture *gesture);
 
@@ -328,12 +296,6 @@ private:
 
     //! Touch point id of the most recent press event.
     int newestTouchPointId;
-
-    //! Timer to detect long mouse press.
-    LimitedTimer *longPressTimer;
-
-    //! Accurate mode enabled/disabled
-    bool accurateMode;
 
     //! List of punctuation labels
     QList<QStringList> punctuationsLabels;

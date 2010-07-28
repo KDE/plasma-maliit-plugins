@@ -746,32 +746,10 @@ void MVirtualKeyboard::suppressRegionUpdate(bool suppress)
 }
 
 
-void MVirtualKeyboard::stopAccurateMode()
-{
-    for (int i = 0; i < mainKeyboardSwitcher->count(); ++i) {
-        // accurate only used for qwerty part of main keyboards
-        static_cast<KeyButtonArea *>(mainKeyboardSwitcher->widget(i)->layout()->itemAt(0))->
-            accurateStop();
-    }
-}
-
 
 ModifierState MVirtualKeyboard::shiftStatus() const
 {
     return shiftLevel;
-}
-
-
-bool MVirtualKeyboard::isAccurateMode() const
-{
-    KeyButtonArea *activeSection = 0;
-    QGraphicsWidget *current = mainKeyboardSwitcher->currentWidget();
-
-    if (current) {
-        activeSection = static_cast<KeyButtonArea *>(current->layout()->itemAt(0));
-    }
-
-    return activeSection && activeSection->isAccurateMode();
 }
 
 
@@ -869,20 +847,8 @@ void MVirtualKeyboard::onSectionSwitchStarting(int current, int next)
 
 void MVirtualKeyboard::onSectionSwitched(QGraphicsWidget *previous, QGraphicsWidget *current)
 {
-    // Note: only does changes on the main sections.
-    KeyButtonArea *currentView = static_cast<KeyButtonArea *>(current->layout()->itemAt(0));
-
-    if (previous) {
-        const KeyButtonArea *previousView
-            = static_cast<const KeyButtonArea *>(previous->layout()->itemAt(0));
-
-        if (previousView->isAccurateMode()) {
-            currentView->accurateStart();
-        } else {
-            currentView->accurateStop();
-        }
-    }
-
+    Q_UNUSED(previous);
+    Q_UNUSED(current);
     // All sections may not be of the same height so we send a region just in
     // case.  That also causes reaction maps to be redrawn.
     organizeContentAndSendRegion();

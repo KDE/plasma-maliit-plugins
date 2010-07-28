@@ -126,14 +126,6 @@ public:
     //! Characters defines word boundaries
     static const QString WordSeparators;
 
-    /*!
-     * \brief Return true if accurate mode is set for current layout, vice versa.
-     * \return bool
-     */
-    bool isAccurateMode() const;
-
-    void stopAccurateMode();
-
     //! Prepare virtual keyboard for orientation change
     void prepareToOrientationChange();
 

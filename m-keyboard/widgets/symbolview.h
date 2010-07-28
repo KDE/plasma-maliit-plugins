@@ -90,8 +90,6 @@ public:
     //! Return TRUE if widget is activated
     bool isActive() const;
 
-    void stopAccurateMode();
-
     /*! Returns interactive region currently occupied by SymbolView,
      *  in scene coordinates.
      */
@@ -290,12 +288,8 @@ private:
     //! scene manager
     const MSceneManager &sceneManager;
 
-    //! Current visible KeyButtonArea widget
-    KeyButtonArea *selectedLayout;
-
     //! To check if symbol view is opened
     Activity activity;
-
 
     //! Zero-based index to currently active page
     int activePage;
