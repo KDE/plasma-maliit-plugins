@@ -10,7 +10,6 @@ HEADERS += \
     $$COMMON_DIR/keyevent.h \
     $$COMMON_DIR/layoutdata.h \
     $$COMMON_DIR/layoutsmanager.h \
-    $$COMMON_DIR/limitedtimer.h \
     $$COMMON_DIR/vkbdatakey.h \
     $$COMMON_DIR/mxkb.h \
     $$COMMON_DIR/mhardwarekeyboard.h \
@@ -26,7 +25,6 @@ SOURCES += \
     $$COMMON_DIR/keyevent.cpp\
     $$COMMON_DIR/layoutdata.cpp\
     $$COMMON_DIR/layoutsmanager.cpp\
-    $$COMMON_DIR/limitedtimer.cpp\
     $$COMMON_DIR/vkbdatakey.cpp\
     $$COMMON_DIR/mxkb.cpp \
     $$COMMON_DIR/mhardwarekeyboard.cpp \

@@ -11,7 +11,6 @@ SUBDIRS = \
           ut_flickrecognizer \
           ut_symbolview \
           ut_notification \
-          ut_limitedtimer \
           ut_vkbdatakey \
           ut_horizontalswitcher \
           ut_layoutsmanager \

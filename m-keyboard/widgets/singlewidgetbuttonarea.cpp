@@ -19,8 +19,6 @@
 #include "mvirtualkeyboardstyle.h"
 #include "singlewidgetbuttonarea.h"
 
-#include "limitedtimer.h"
-
 #include <QDebug>
 #include <QEvent>
 #include <QGraphicsLinearLayout>
