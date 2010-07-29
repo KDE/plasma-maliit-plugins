@@ -20,7 +20,6 @@
 #include "horizontalswitcher.h"
 #include "layoutsmanager.h"
 #include "symbolview.h"
-#include "keyeventhandler.h"
 #include "grip.h"
 #include "sharedhandlearea.h"
 
@@ -32,20 +31,18 @@
 
 #include <QCoreApplication>
 #include <QDebug>
-#include <QGraphicsItemAnimation>
-#include <QGraphicsLinearLayout>
 #include <QGraphicsSceneResizeEvent>
 #include <QPainter>
-#include <QTimeLine>
 
 namespace
 {
-    const int DefaultAnimationDuration = 100;
+    const int DefaultAnimationDuration = 200;
+    const int DefaultAnimationFrameCount = 20;
+
     const QString SymLabel("Sym");
     const QString AceLabel(QString(0xE1) + QChar(0xE7) + QChar(0xE8)); // "áçè"
     const QString SymbolSectionPrefix = "symbols ";
     const QString SymbolSectionSym = SymbolSectionPrefix + "Sym";
-    const int AnimationFrameCount = 20;
 
     const QString ObjectNameTabs("VirtualKeyboardSymTabs");
     const QString ObjectNameTabButton("VirtualKeyboardSymTabsButton");
@@ -57,12 +54,86 @@ namespace
     const char * const MultitouchSettings = "/meegotouch/inputmethods/multitouch/enabled";
 };
 
+SymbolView::AnimationGroup::AnimationGroup(SymbolView *view)
+    : showTimeLine(DefaultAnimationDuration)
+    , hideTimeLine(DefaultAnimationDuration)
+{
+    showTimeLine.setFrameRange(0, DefaultAnimationFrameCount);
+    hideTimeLine.setFrameRange(0, DefaultAnimationFrameCount);
 
+    showTimeLine.setCurveShape(QTimeLine::LinearCurve);
+    hideTimeLine.setCurveShape(QTimeLine::LinearCurve);
+
+    connect(&hideTimeLine, SIGNAL(finished()),
+            view,          SLOT(onHidden()));
+
+    connect(&showTimeLine, SIGNAL(finished()),
+            view,          SLOT(onReady()));
+
+    showAnimation.setItem(view);
+    showAnimation.setTimeLine(&showTimeLine);
+
+    hideAnimation.setItem(view);
+    hideAnimation.setTimeLine(&hideTimeLine);
+}
+
+SymbolView::AnimationGroup::~AnimationGroup()
+{}
+
+void SymbolView::AnimationGroup::updatePos(int top, int bottom)
+{
+    showAnimation.clear();
+    showAnimation.setPosAt(0.0, QPoint(0, bottom));
+    showAnimation.setPosAt(1.0, QPoint(0, top));
+
+    hideAnimation.clear();
+    hideAnimation.setPosAt(0.0, QPoint(0, top));
+    hideAnimation.setPosAt(1.0, QPoint(0, bottom));
+}
+
+void SymbolView::AnimationGroup::playShowAnimation()
+{
+    takeOverFromTimeLine(&showTimeLine, &hideTimeLine);
+}
+
+void SymbolView::AnimationGroup::playHideAnimation()
+{
+    takeOverFromTimeLine(&hideTimeLine, &showTimeLine);
+}
+
+bool SymbolView::AnimationGroup::hasOngoingAnimations() const
+{
+    return ((showTimeLine.state() == QTimeLine::Running) ||
+            (hideTimeLine.state() == QTimeLine::Running));
+}
+
+void SymbolView::AnimationGroup::takeOverFromTimeLine(QTimeLine *target,
+                                                      QTimeLine *origin)
+{
+    if (target->state() == QTimeLine::Running) {
+        return;
+    }
+
+    if (origin->state() == QTimeLine::Running) {
+        origin->stop();
+        target->setCurrentTime(DefaultAnimationDuration - origin->currentTime());
+        target->resume();
+    } else {
+        target->start();
+    }
+
+}
+
+SymbolView::LinearLayoutObject::LinearLayoutObject(Qt::Orientation orientation, QGraphicsLayoutItem *parent)
+    : QObject(0)
+    , QGraphicsLinearLayout(orientation, parent)
+{}
 
 SymbolView::SymbolView(const LayoutsManager &layoutsManager, const MVirtualKeyboardStyleContainer *style,
                        const QString &language, QGraphicsWidget *parent)
     : MWidget(parent),
       styleContainer(style),
+      anim(this),
       sceneManager(*MPlainWindow::instance()->sceneManager()),
       selectedLayout(0),
       activity(Inactive),
@@ -74,39 +145,30 @@ SymbolView::SymbolView(const LayoutsManager &layoutsManager, const MVirtualKeybo
       currentOrientation(sceneManager.orientation()),
       currentLanguage(language),
       mouseDownKeyArea(false),
-      verticalLayout(*new QGraphicsLinearLayout(Qt::Vertical, this)),
-      keyAreaLayout(*new QGraphicsLinearLayout(Qt::Vertical))
+      activeState(OnScreen)
 {
-    eventHandler = new KeyEventHandler(this);
-    connect(eventHandler, SIGNAL(keyPressed(const KeyEvent &)),
-            this, SIGNAL(keyPressed(const KeyEvent &)));
-    connect(eventHandler, SIGNAL(keyReleased(const KeyEvent &)),
-            this, SIGNAL(keyReleased(const KeyEvent &)));
-    connect(eventHandler, SIGNAL(keyClicked(const KeyEvent &)),
-            this, SIGNAL(keyClicked(const KeyEvent &)));
-    connect(eventHandler, SIGNAL(shiftPressed(bool)),
-            this, SLOT(setFunctionRowState(bool)));
+    connect(&eventHandler, SIGNAL(keyPressed(KeyEvent)),
+            this,          SIGNAL(keyPressed(KeyEvent)));
+    connect(&eventHandler, SIGNAL(keyReleased(KeyEvent)),
+            this,          SIGNAL(keyReleased(KeyEvent)));
+    connect(&eventHandler, SIGNAL(keyClicked(KeyEvent)),
+            this,          SIGNAL(keyClicked(KeyEvent)));
+    connect(&eventHandler, SIGNAL(shiftPressed(bool)),
+            this,          SLOT(setFunctionRowState(bool)));
+
+    connect(&layoutsManager, SIGNAL(hardwareLayoutChanged()),
+            this, SLOT(handleHwLayoutChange()));
 
     enableMultiTouch = MGConfItem(MultitouchSettings).value().toBool();
 
     hide();
-    setupShowAndHide();
     setupLayout();
     reloadContent();
 }
 
 
 SymbolView::~SymbolView()
-{
-    delete showTimeLine;
-    showTimeLine = 0;
-    delete hideTimeLine;
-    hideTimeLine = 0;
-    delete showAnimation;
-    showAnimation = 0;
-    delete hideAnimation;
-    hideAnimation = 0;
-}
+{}
 
 void SymbolView::setupLayout()
 {
@@ -114,87 +176,75 @@ void SymbolView::setupLayout()
 
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Maximum);
 
-    verticalLayout.setSpacing(0);
-    verticalLayout.setContentsMargins(0, 0, 0, 0);
+    if (!keyAreaLayout) {
+        verticalLayout =  new LinearLayoutObject(Qt::Vertical, this);
+    }
 
-    Grip &symbolViewGrip = *new Grip(this);
-    symbolViewGrip.setObjectName("KeyboardHandle");
-    verticalLayout.addItem(&symbolViewGrip);
+    verticalLayout->setSpacing(0);
+    verticalLayout->setContentsMargins(0, 0, 0, 0);
+
+    Grip *symbolViewGrip = new Grip(this);
+    symbolViewGrip->setObjectName("KeyboardHandle");
+    verticalLayout->addItem(symbolViewGrip);
     connectHandle(symbolViewGrip);
 
-    keyAreaLayout.setSpacing(style()->spacingVertical());
-    keyAreaLayout.setContentsMargins(style()->paddingLeft(), style()->paddingTop(),
-                                     style()->paddingRight(), style()->paddingBottom());
+    if (!keyAreaLayout) {
+        keyAreaLayout = new LinearLayoutObject(Qt::Vertical);
+    }
 
-    verticalLayout.addItem(&keyAreaLayout);
+    keyAreaLayout->setSpacing(style()->spacingVertical());
+    keyAreaLayout->setContentsMargins(style()->paddingLeft(), style()->paddingTop(),
+                                      style()->paddingRight(), style()->paddingBottom());
+
+    verticalLayout->addItem(keyAreaLayout);
 }
 
-
-void SymbolView::connectHandle(const Handle &handle)
+void SymbolView::connectHandle(Handle *handle)
 {
-    connect(&handle, SIGNAL(flickLeft(const FlickGesture &)), this, SLOT(switchToNextPage()));
-    connect(&handle, SIGNAL(flickRight(const FlickGesture &)), this, SLOT(switchToPrevPage()));
-    connect(&handle, SIGNAL(flickDown(const FlickGesture &)), this, SLOT(hideSymbolView()));
+    connect(handle, SIGNAL(flickLeft(FlickGesture)),
+            this,   SLOT(switchToNextPage()),
+            Qt::UniqueConnection);
+
+    connect(handle, SIGNAL(flickRight(lickGesture)),
+            this,   SLOT(switchToPrevPage()),
+            Qt::UniqueConnection);
+
+    connect(handle, SIGNAL(flickDown(FlickGesture)),
+            this,   SLOT(hideSymbolView()),
+            Qt::UniqueConnection);
 }
 
 void SymbolView::reloadContent()
 {
-    // Get layout model which for current language and orientation.
-    const LayoutData *layoutData = layoutsMgr.layout(currentLanguage, LayoutData::General, currentOrientation);
-    Q_ASSERT(layoutData);
+    if (activeState == OnScreen) {
+        // Get layout model which for current language and orientation.
+        const LayoutData *layoutData = layoutsMgr.layout(currentLanguage, LayoutData::General, currentOrientation);
+        Q_ASSERT(layoutData);
 
-    loadSwitcherPages(*layoutData, activePage);
-    loadFunctionRow(*layoutData);
+        loadSwitcherPages(layoutData, activePage);
+        loadFunctionRow(layoutData);
+        setShiftState(shift);
+    } else if (activeState == Hardware && currentOrientation == M::Landscape) {
+        const LayoutData *layoutData = layoutsMgr.hardwareLayout(LayoutData::General, M::Landscape);
+        if (!layoutData) {
+            // Get it by language then.
+            layoutData = layoutsMgr.layout(currentLanguage, LayoutData::General, M::Landscape);
+        }
+        Q_ASSERT(layoutData);
 
-    setShiftState(shift);
+        loadSwitcherPages(layoutData, activePage);
+        loadFunctionRow(0);
+        setShiftState(shift); // Sets level for sym pages.
+    }
 }
 
-void SymbolView::setupShowAndHide()
-{
-    showTimeLine = new QTimeLine(DefaultAnimationDuration);
-    hideTimeLine = new QTimeLine(DefaultAnimationDuration);
-
-    showTimeLine->setFrameRange(0, AnimationFrameCount);
-    hideTimeLine->setFrameRange(0, AnimationFrameCount);
-
-    connect(hideTimeLine, SIGNAL(finished()),
-            this, SLOT(onHidden()));
-
-    connect(showTimeLine, SIGNAL(finished()),
-            this, SLOT(onReady()));
-
-    showTimeLine->setCurveShape(QTimeLine::EaseOutCurve);
-    hideTimeLine->setCurveShape(QTimeLine::EaseOutCurve);
-    showAnimation = new QGraphicsItemAnimation();
-    hideAnimation = new QGraphicsItemAnimation();
-
-    showAnimation->setItem(this);
-    showAnimation->setTimeLine(showTimeLine);
-
-    hideAnimation->setItem(this);
-    hideAnimation->setTimeLine(hideTimeLine);
-}
-
-void SymbolView::updateAnimPos(int top, int bottom)
-{
-    showAnimation->clear();
-    showAnimation->setPosAt(0.0, QPoint(0, bottom));
-    showAnimation->setPosAt(1.0, QPoint(0, top));
-
-    hideAnimation->clear();
-    hideAnimation->setPosAt(0.0, QPoint(0, top));
-    hideAnimation->setPosAt(1.0, QPoint(0, bottom));
-}
-
-
-void
-SymbolView::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
+void SymbolView::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
     const MScalableImage *background = style()->backgroundImage();
 
     if (background) {
         // Background covers everything except top layout.
-        background->draw(keyAreaLayout.geometry().toRect(), painter);
+        background->draw(keyAreaLayout->geometry().toRect(), painter);
     }
 }
 
@@ -259,7 +309,7 @@ void SymbolView::reposition(const int height)
 
     setPos(0, isVisible() ? top : bottom);
 
-    updateAnimPos(top, bottom);
+    anim.updatePos(top, bottom);
 }
 
 void SymbolView::resizeEvent(QGraphicsSceneResizeEvent *event)
@@ -300,8 +350,10 @@ SymbolView::showSymbolView(SymbolView::ShowMode mode)
 {
     organizeContent();
 
-    if (isActive())
+    if (isActive()) {
         return;
+    }
+
     if (mode == FollowMouseShowMode) {
         activity = TemporarilyActive;
     } else {
@@ -309,30 +361,32 @@ SymbolView::showSymbolView(SymbolView::ShowMode mode)
     }
 
     show();
+    emit aboutToOpen();
+    anim.playShowAnimation();
 
-    if (showTimeLine->state() == QTimeLine::Running)
-        return;
-
-    showTimeLine->start();
-
-    emit showingUp();
 }
 
 
 void
 SymbolView::hideSymbolView(SymbolView::HideMode mode)
 {
-    if (isActive()) {
-        if (mode == NormalHideMode) {
-            changePage(0);
-        }
-        hideTimeLine->start();
+    if (!isActive()) {
+        return;
     }
+
+    if (mode == NormalHideMode) {
+        changePage(0);
+    }
+
     if (mode == TemporaryHideMode) {
         activity = TemporarilyInactive;
     } else {
         activity = Inactive;
     }
+
+    emit aboutToHide();
+    anim.playHideAnimation();
+
 }
 
 void
@@ -358,31 +412,39 @@ SymbolView::changePage(int id)
     updateSymIndicator();
 }
 
-void SymbolView::loadSwitcherPages(const LayoutData &kbLayout, const unsigned int selectPage)
+void SymbolView::loadSwitcherPages(const LayoutData *kbLayout, const unsigned int selectPage)
 {
+    layout()->invalidate();
+
     if (pageSwitcher) {
-        keyAreaLayout.removeItem(pageSwitcher);
+        keyAreaLayout->removeItem(pageSwitcher);
         delete pageSwitcher;
+        pageSwitcher = 0;
     }
     selectedLayout = 0; // invalid now so clear
+
+    if (!kbLayout) {
+        return;
+    }
 
     pageSwitcher = new HorizontalSwitcher(this);
 
     connect(pageSwitcher, SIGNAL(switchStarting(QGraphicsWidget *, QGraphicsWidget *)),
-            SLOT(onSwitchStarting(QGraphicsWidget *, QGraphicsWidget *)));
-    connect(pageSwitcher, SIGNAL(switchDone(QGraphicsWidget *, QGraphicsWidget *)), SLOT(switchDone()));
+            this,         SLOT(onSwitchStarting(QGraphicsWidget *, QGraphicsWidget *)));
+    connect(pageSwitcher, SIGNAL(switchDone(QGraphicsWidget *, QGraphicsWidget *)),
+            this,         SLOT(switchDone()));
 
     QSharedPointer<const LayoutSection> symbolSection;
 
     // Add special Sym section always as the first, if present.
-    symbolSection = kbLayout.section(SymbolSectionSym);
+    symbolSection = kbLayout->section(SymbolSectionSym);
     if (!symbolSection.isNull()) {
         addPage(symbolSection);
     }
 
     // Add all others.
-    for (int i = 0; i < kbLayout.numSections(); ++i) {
-        symbolSection = kbLayout.section(i);
+    for (int i = 0; i < kbLayout->numSections(); ++i) {
+        symbolSection = kbLayout->section(i);
 
         // Skip those that are not symbol sections.
         if (symbolSection->name().startsWith(SymbolSectionPrefix) &&
@@ -400,23 +462,30 @@ void SymbolView::loadSwitcherPages(const LayoutData &kbLayout, const unsigned in
     }
 
     pageSwitcher->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
-    keyAreaLayout.addItem(pageSwitcher);
+    keyAreaLayout->addItem(pageSwitcher);
 }
 
-void SymbolView::loadFunctionRow(const LayoutData &layout)
+void SymbolView::loadFunctionRow(const LayoutData *layout)
 {
+    this->layout()->invalidate();
+
     if (functionRow) {
-        keyAreaLayout.removeItem(functionRow);
+        keyAreaLayout->removeItem(functionRow);
         delete functionRow;
+        functionRow = 0;
     }
 
-    functionRow = createKeyButtonArea(layout.section(LayoutData::functionkeySection),
+    if (!layout) {
+        return;
+    }
+
+    functionRow = createKeyButtonArea(layout->section(LayoutData::functionkeySection),
                                       KeyButtonArea::ButtonSizeFunctionRow, false);
 
     if (functionRow) {
         functionRow->setObjectName("SymbolFunctionRow");
         functionRow->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
-        keyAreaLayout.addItem(functionRow);
+        keyAreaLayout->addItem(functionRow);
     }
 }
 
@@ -454,8 +523,9 @@ KeyButtonArea *SymbolView::createKeyButtonArea(QSharedPointer<const LayoutSectio
         keysWidget = new SingleWidgetButtonArea(styleContainer, section, sizeScheme, enablePopup);
         keysWidget->setFont(style()->font());
 
-        eventHandler->addEventSource(keysWidget);
+        eventHandler.addEventSource(keysWidget);
     }
+
     return keysWidget;
 }
 
@@ -494,11 +564,30 @@ int SymbolView::currentLevel() const
     return (shift != ModifierClearState);
 }
 
+void SymbolView::handleHwLayoutChange()
+{
+    if (activeState == Hardware) {
+        reloadContent();
+    }
+}
+
+void SymbolView::setKeyboardState(MIMHandlerState newState)
+{
+    if (activeState != newState) {
+        activeState = newState;
+        reloadContent();
+    }
+}
+
 void SymbolView::setLanguage(const QString &lang)
 {
     if (lang != currentLanguage && layoutsMgr.languageList().contains(lang)) {
         currentLanguage = lang;
-        reloadContent();
+
+        // Only on-screen sym follows language.
+        if (activeState == OnScreen) {
+            reloadContent();
+        }
     }
 }
 
@@ -615,8 +704,7 @@ bool SymbolView::isFullyVisible() const
 {
     return (isActive()
             && isVisible()
-            && (showTimeLine->state() != QTimeLine::Running)
-            && (hideTimeLine->state() != QTimeLine::Running));
+            && !anim.hasOngoingAnimations());
 }
 
 bool SymbolView::isActive() const
@@ -641,6 +729,10 @@ QString SymbolView::pageTitle(const int pageIndex) const
 
 void SymbolView::updateSymIndicator()
 {
+    if (!functionRow) {
+        return;
+    }
+
     ISymIndicator *symIndicator = functionRow->symIndicator();
 
      if (symIndicator) {
@@ -666,7 +758,7 @@ QRegion SymbolView::interactiveRegion() const
 
     // SymbolView always occupies the same area if opened.
     if (isActive()) {
-        region |= mapRectToScene(verticalLayout.geometry()).toRect();
+        region |= mapRectToScene(verticalLayout->geometry()).toRect();
     }
 
     return region;
@@ -686,30 +778,4 @@ void SymbolView::setSharedHandleArea(const QPointer<SharedHandleArea> &handleAre
 {
     sharedHandleArea = handleArea;
     reposition(size().toSize().height());
-}
-
-void SymbolView::showFunctionRow()
-{
-    if (functionRow) {
-        for (int i = 0; i < keyAreaLayout.count(); i++) {
-            if (keyAreaLayout.itemAt(i) == functionRow) {
-                return;
-            }
-        }
-        functionRow->setVisible(true);
-        keyAreaLayout.addItem(functionRow);
-        layout()->invalidate();
-    }
-}
-
-void SymbolView::hideFunctionRow()
-{
-    if (functionRow) {
-        functionRow->setVisible(false);
-        keyAreaLayout.removeItem(functionRow);
-        //FIXME: a tricky solution, to avoid to use a wrong width for keyboard
-        const int sceneWidth = sceneManager.visibleSceneSize().width();
-        pageSwitcher->setPreferredWidth(sceneWidth);
-        layout()->invalidate();
-    }
 }

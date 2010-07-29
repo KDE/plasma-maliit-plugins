@@ -71,6 +71,8 @@ public:
      *
      * This implies that autorepeat is configured, modifier and other state is reset and
      * key event redirection from input context is enabled.
+     * Note: direct input mode won't support autorepeat and modifier state, only handle
+     * symbol key.
      *
      * You can call enable() again after enable() without calling disable() in between.
      * This could be done e.g. when focus is changed from one widget to another.
@@ -110,6 +112,12 @@ public:
 
     //! \return whether the autocaps is enabled for the current layout.
     bool autoCapsEnabled() const;
+
+    //! Set input method mode
+    void setInputMethodMode(M::InputMethodMode mode);
+
+    //! \return current input method mode
+    M::InputMethodMode inputMethodMode() const;
 
 signals:
 
@@ -269,6 +277,8 @@ private:
     QTimer longPressTimer;
     quint32 longPressKey;       // native scan code / X keycode
     quint32 longPressModifiers; // X modifier mask
+
+    M::InputMethodMode imMode;
 
     friend class Ut_MHardwareKeyboard;
     friend class Ft_MHardwareKeyboard;

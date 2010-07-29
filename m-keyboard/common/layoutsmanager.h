@@ -19,6 +19,7 @@
 #define LAYOUTSMANAGER_H
 
 #include "keyboarddata.h"
+#include "keyboardmapping.h"
 #include "layoutdata.h"
 #include <MGConfItem>
 #include <MLocale>
@@ -68,6 +69,10 @@ public:
     const LayoutData *layout(const QString &language, LayoutData::LayoutType type,
                              M::Orientation orientation) const;
 
+    //! \brief Get layout model specific to current hardware keyboard layout.
+    const LayoutData *hardwareLayout(LayoutData::LayoutType type,
+                                     M::Orientation orientation) const;
+
     //! \brief Returns currently set default language
     QString defaultLanguage() const;
 
@@ -75,7 +80,7 @@ public:
     QString systemDisplayLanguage() const;
 
     //! \brief Returns the layout for hardware keyboard
-    QString hardwareKeyboardLayout() const;
+    QString xkbLayout() const;
 
     //! \brief Returns whether autocaps is enabled for hardware keyboard.
     bool hardwareKeyboardAutoCapsEnabled() const;
@@ -97,6 +102,9 @@ signals:
     //! Signals that selected layouts have been changed.
     void selectedLayoutsChanged();
 
+    //! The xkb layout of hardware keyboard has been changed.
+    void hardwareLayoutChanged();
+
 private:
     //! Default constructor
     LayoutsManager();
@@ -111,9 +119,13 @@ private:
     //! \return keyboard that matches language list entry 'language'
     const KeyboardData *keyboardByName(const QString &language) const;
 
+    //! Maps HW Sym variant type to xml file which contains the symbols.
+    QString symbolVariantFileName(HardwareSymbolVariant symVariant);
+
 private slots:
     void syncLanguages();
-    void reloadNumberKeyboards();
+    void syncHardwareKeyboard();
+    void syncNumberKeyboards();
 
 private:
     //! Valid states of number format setting
@@ -121,21 +133,28 @@ private:
         NumArabic,
         NumLatin
     };
-    //! All keyboards arranged by language.
-    //! The map key is language name as read from settings.
-    QMap<QString, KeyboardData *> keyboards;
 
     //! MGConfItem for selected languages available for
     //! vkb's use. The settings are set by control panel applet.
     MGConfItem configLanguages;
 
+    //! Setting that tells the current xkb layout.
+    MGConfItem xkbLayoutSetting;
+
     //! Setting that determines whether number format is Arabic or Latin
     MGConfItem numberFormatSetting;
+
+    //! All keyboards arranged by language.
+    //! The map key is language name as read from settings.
+    QMap<QString, KeyboardData *> keyboards;
 
     //! Iterator that points to current language and keyboard.
     //! Current keyboard is used when no language name is specified
     //! in calls to public methods of this class.
     QMap<QString, KeyboardData *>::const_iterator current;
+
+    //! Current hardware layout (xkb) specific keyboard.
+    KeyboardData hwKeyboard;
 
     //! Current number keyboard
     KeyboardData numberKeyboard;
@@ -148,6 +167,8 @@ private:
 
     //! System locale
     MLocale locale;
+
+    HardwareKeyboardLayout currentHwkbLayoutType;
 
     //! Singleton instance
     static LayoutsManager *Instance;

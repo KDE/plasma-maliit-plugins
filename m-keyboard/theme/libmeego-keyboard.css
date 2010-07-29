@@ -66,7 +66,7 @@ MVirtualKeyboardStyle.Portrait {
     key-phone-number-normal-size: 15.3mm 8mm;
     key-function-normal-size: 8mm 8mm;
     key-function-large-size: 8mm 8mm;
-    key-number-backspace-size: 15.3mm 8mm;
+    key-number-function-large-size: 15.3mm 8mm;
     key-sym-normal-size: 7.5mm 8mm;
     /* End of single widget keyboard button styling */
 
@@ -100,7 +100,7 @@ MVirtualKeyboardStyle.Landscape {
     key-phone-number-normal-size: 8.2mm 8.4mm;
     key-function-normal-size: 8.2mm 5.6mm;
     key-function-large-size: 12.4mm 5.6mm;
-    key-number-backspace-size: 12.4mm 5.6mm;
+    key-number-function-large-size: 12.4mm 5.6mm;
     key-sym-normal-size: 8.2mm 5.6mm;
     /* End of single widget keyboard button styling */
 

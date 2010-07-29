@@ -64,7 +64,7 @@ public:
     M_STYLE_ATTRIBUTE(QSize, keyFunctionNormalSize, KeyFunctionNormalSize)
     M_STYLE_ATTRIBUTE(QSize, keyFunctionLargeSize, KeyFunctionLargeSize)
     M_STYLE_ATTRIBUTE(QSize, keyPhoneNumberNormalSize, KeyPhoneNumberNormalSize)
-    M_STYLE_ATTRIBUTE(QSize, keyNumberBackspaceSize, KeyNumberBackspaceSize)
+    M_STYLE_ATTRIBUTE(QSize, keyNumberFunctionLargeSize, KeyNumberFunctionLargeSize)
     M_STYLE_ATTRIBUTE(QSize, keySymNormalSize, KeySymNormalSize)
 
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackground, KeyBackground)
@@ -85,6 +85,9 @@ public:
 
     M_STYLE_ATTRIBUTE(QSize, keyEnterIconSize, KeyEnterIconSize)
     M_STYLE_ATTRIBUTE(QString, keyEnterIconId, KeyEnterIconId)
+
+    M_STYLE_ATTRIBUTE(QSize, keyTabIconSize, KeyTabIconSize)
+    M_STYLE_ATTRIBUTE(QString, keyTabIconId, KeyTabIconId)
 
     M_STYLE_ATTRIBUTE(QSize, keyShiftIconSize, KeyShiftIconSize)
     M_STYLE_ATTRIBUTE(QString, keyShiftIconId, KeyShiftIconId)

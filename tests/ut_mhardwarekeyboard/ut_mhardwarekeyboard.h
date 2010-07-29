@@ -60,6 +60,8 @@ private slots:
     void testDelete_data();
     void testDelete();
 
+    void testDirectInputMode();
+
 private:
     bool checkLatchedState(unsigned int mask, unsigned int value) const;
     bool checkLockedState(unsigned int mask, unsigned int value) const;

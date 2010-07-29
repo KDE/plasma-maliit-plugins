@@ -226,7 +226,6 @@ protected:
     virtual QVariant itemChange(GraphicsItemChange, const QVariant &);
     virtual void grabMouseEvent(QEvent *e);
     virtual void ungrabMouseEvent(QEvent *e);
-    virtual bool sceneEvent(QEvent *event);
     virtual bool event(QEvent *event);
     /*! \reimp_end */
 
@@ -256,13 +255,17 @@ protected:
     */
     int rowCount() const;
 
-    //! \brief Returns the correct size for button with given \a action.
-    QSize buttonSizeByAction(KeyBinding::KeyAction action) const;
+    //! \brief Returns the correct size for button based on its horizontal placement.
+    QSize buttonSizeByColumn(int column, int numColumns) const;
 
     //! \brief Updates button labels and/or icons according to current level and deadkey.
     void updateButtonModifiers();
 
-    //! \brief Notification for derived classes about button modifier change.
+    /*! \brief Notification for derived classes about button modifier change.
+     *
+     *  Derived classes should not change the level of selected dead keys. This is to
+     *  ensure all dead keys can be used with all characters in every level.
+     */
     virtual void modifiersChanged(bool shift, QChar accent = QChar());
 
     //! \brief Returns key at given \a pos.

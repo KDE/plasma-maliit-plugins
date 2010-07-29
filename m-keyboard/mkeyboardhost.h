@@ -38,7 +38,7 @@ class MHardwareKeyboard;
 class SymbolView;
 class MImEngineWords;
 class QWidget;
-class MInfoBanner;
+class MBanner;
 class SharedHandleArea;
 class MImToolbar;
 
@@ -175,7 +175,7 @@ private slots:
     void showLockOnInfoBanner(const QString &notification);
 
     //! hide FN/Caps Lock infobanner
-    void hideLockOnInfoBanner(bool updateRegion = true);
+    void hideLockOnInfoBanner();
 
     //! Handle active layout is changed to \a layout for virtual keyboard.
     void handleVirtualKeyboardLayoutChanged(const QString &layout);
@@ -355,8 +355,7 @@ private:
     //! current active state
     MIMHandlerState activeState;
 
-    MInfoBanner *modifierLockOnInfoBanner; //! widget to show modifier is in locked state
-    QTimer modifierLockOnTimer;
+    QPointer<MBanner> modifierLockOnBanner; //! widget to notify modifier is in locked state
 
     //! Indicates whether focus is in a widget according to focusChanged calls
     //! \sa focusChanged

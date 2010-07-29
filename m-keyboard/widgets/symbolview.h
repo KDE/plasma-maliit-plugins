@@ -14,33 +14,33 @@
  * of this file.
  */
 
-
-
 #ifndef SYMBOLVIEW_H
 #define SYMBOLVIEW_H
 
+#include "singlewidgetbuttonarea.h"
+#include "keyeventhandler.h"
+
 #include <MButton>
 #include <MButtonGroup>
+#include <mimhandlerstate.h>
 #include <MWidget>
 
-#include "singlewidgetbuttonarea.h"
-
 #include <QPointer>
+#include <QSharedPointer>
+#include <QTimeLine>
+#include <QGraphicsItemAnimation>
+#include <QGraphicsLinearLayout>
 
-class QGraphicsLinearLayout;
 class MSceneManager;
 class MVirtualKeyboardStyleContainer;
 class HorizontalSwitcher;
 class LayoutData;
 class LayoutsManager;
-class QGraphicsItemAnimation;
 class QGraphicsLinearLayout;
 class QGraphicsSceneMouseEvent;
-class QTimeLine;
 class KeyEvent;
 class LayoutSection;
 class SymIndicatorButton;
-class KeyEventHandler;
 class Handle;
 class SharedHandleArea;
 
@@ -121,6 +121,13 @@ public slots:
     void hideSymbolView(HideMode mode = NormalHideMode);
 
     /*!
+     * Changes between onscreen and hardware keyboard modes. Symbol view's contents depend on which one is used.
+     * When hardware keyboard is used, symbol view has hw layout specific layout variant, and function row is hidden.
+     * \param state New state to be applied.
+     */
+    void setKeyboardState(MIMHandlerState state);
+
+    /*!
      * Method to load svc corresponding to given language
      * \param lang const QString&, new language
      */
@@ -135,16 +142,6 @@ public slots:
      * \brief Selects the previous page if current is not the leftmost.
      */
     void switchToPrevPage();
-
-    /*!
-     * \brief Shows the function row.
-     */
-    void showFunctionRow();
-
-    /*!
-     * \brief Hides the function row.
-     */
-    void hideFunctionRow();
 
     //! \brief Clears and redraws the global reaction maps.
     void redrawReactionMaps();
@@ -174,11 +171,14 @@ signals:
     //! Emitted when hiding finished.
     void hidden();
 
+    //! Emitted just before entering the hiding transition.
+    void aboutToHide();
+
     //! Emitted when fully visible.
     void opened();
 
     //! SymbolView will start to show up
-    void showingUp();
+    void aboutToOpen();
 
 protected:
     /*! \reimp */
@@ -204,6 +204,9 @@ private slots:
      */
     void setFunctionRowState(bool shiftPressed);
 
+    //! When hardware keyboard layout has changed, reload contents if currently in Hardware state.
+    void handleHwLayoutChange();
+
 private:
     //! symbol view state wrt. \a showSymbolView / \a hideSymbolView calls.
     enum Activity {
@@ -225,17 +228,11 @@ private:
     //! \brief Reloads keys/buttons based on current language and orientation.
     void reloadContent();
 
-    //! \brief Method to set up the animation
-    void setupShowAndHide();
-
-    //! \brief Updates positions for up/down animation.
-    void updateAnimPos(int top, int bottom);
-
     //! \brief Reloads switcher with pages from given \a layout, selecting the page \a selectPage.
-    void loadSwitcherPages(const LayoutData &layout, unsigned int selectPage = 0);
+    void loadSwitcherPages(const LayoutData *layout, unsigned int selectPage = 0);
 
     //! \brief Reloads function row from \a layout and adds the widget to vertical layout.
-    void loadFunctionRow(const LayoutData &layout);
+    void loadFunctionRow(const LayoutData *layout);
 
     //! \brief Helper method to create and add a new page.
     void addPage(QSharedPointer<const LayoutSection> symbolSection);
@@ -255,15 +252,40 @@ private:
     void updateSymIndicator();
 
     //! Connect signals from a \a handle widget
-    void connectHandle(const Handle &handle);
+    void connectHandle(Handle *handle);
 
-private:
     //! Current style being used.
     const MVirtualKeyboardStyleContainer *styleContainer;
 
-    //! Manage animation
-    QGraphicsItemAnimation *showAnimation;
-    QGraphicsItemAnimation *hideAnimation;
+    //! Helper class for animations.
+    class AnimationGroup
+    {
+    public:
+        explicit AnimationGroup(SymbolView *view);
+        virtual ~AnimationGroup();
+
+        //! \brief Updates positions for up/down animation.
+        void updatePos(int top, int bottom);
+
+        void playShowAnimation();
+        void playHideAnimation();
+
+        bool hasOngoingAnimations() const;
+
+    private:
+        void takeOverFromTimeLine(QTimeLine *target,
+                                  QTimeLine *origin);
+
+        //! Animation related time lines.
+        QTimeLine showTimeLine;
+        QTimeLine hideTimeLine;
+
+        //! Manage animation
+        QGraphicsItemAnimation showAnimation;
+        QGraphicsItemAnimation hideAnimation;
+    };
+
+    AnimationGroup anim;
 
     //! scene manager
     const MSceneManager &sceneManager;
@@ -274,8 +296,6 @@ private:
     //! To check if symbol view is opened
     Activity activity;
 
-    //! Animation related time lines.
-    QTimeLine *showTimeLine, *hideTimeLine;
 
     //! Zero-based index to currently active page
     int activePage;
@@ -285,8 +305,8 @@ private:
 
     const LayoutsManager &layoutsMgr;
 
-    HorizontalSwitcher *pageSwitcher;
-    KeyButtonArea *functionRow;
+    QPointer<HorizontalSwitcher> pageSwitcher;
+    QPointer<KeyButtonArea> functionRow;
 
     M::Orientation currentOrientation;
 
@@ -298,21 +318,30 @@ private:
      */
     bool mouseDownKeyArea;
 
-    //! Vertical layout is the main layout which holds toolbar (not implemented yet) and function row.
-    QGraphicsLinearLayout &verticalLayout;
+    //! Helper class for linear layouts that allows to wrap them in QPointers.
+    class LinearLayoutObject: public QObject, public QGraphicsLinearLayout
+    {
+    public:
+        LinearLayoutObject(Qt::Orientation orientation, QGraphicsLayoutItem *parent = 0);
+    };
+
+    //! Vertical layout is the main layout which holds toolbar and function row.
+    QPointer<LinearLayoutObject> verticalLayout;
 
     //! This layout holds symbol characters and function row.
-    QGraphicsLinearLayout &keyAreaLayout;
+    QPointer<LinearLayoutObject> keyAreaLayout;
 
-    //! Pointer to handler for button events
-    KeyEventHandler *eventHandler;
+    //! Handler for button events
+    KeyEventHandler eventHandler;
 
     //! Contains true if multi-touch is enabled
     bool enableMultiTouch;
 
-    //! Shared handle area 
+    //! Shared handle area
     //Symbol view is not owner of this object.
     QPointer<SharedHandleArea> sharedHandleArea;
+
+    MIMHandlerState activeState;
 
 #ifdef UNIT_TEST
     friend class Ut_SymbolView;

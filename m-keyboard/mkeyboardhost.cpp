@@ -49,7 +49,7 @@
 #include <MScene>
 #include <MSceneManager>
 #include <MSceneWindow>
-#include <MInfoBanner>
+#include <MBanner>
 #include <MLibrary>
 
 M_LIBRARY
@@ -67,7 +67,6 @@ namespace
     const int BackspaceRepeatInterval = 100; // in ms
     const int MultitapTime = 1500;           // in ms
     const Qt::KeyboardModifier FnLevelModifier = Qt::GroupSwitchModifier;
-    const int ModifierLockOnInfoDuration = 1000;    // in ms
     // This GConf item defines whether multitouch is enabled or disabled
     const char * const MultitouchSettings = "/meegotouch/inputmethods/multitouch/enabled";
 }
@@ -93,8 +92,7 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
       multitapIndex(0),
       shiftHeldDown(false),
       activeState(OnScreen),
-      modifierLockOnInfoBanner(0),
-      modifierLockOnTimer(this),
+      modifierLockOnBanner(0),
       haveFocus(false),
       savedShiftState(ModifierClearState),
       savedUpperCase(false),
@@ -154,10 +152,6 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
 
     connect(vkbWidget, SIGNAL(pluginSwitchRequired(M::InputMethodSwitchDirection)),
             this, SIGNAL(pluginSwitchRequired(M::InputMethodSwitchDirection)));
-
-    modifierLockOnTimer.setSingleShot(true);
-    modifierLockOnTimer.setInterval(ModifierLockOnInfoDuration);
-    connect(&modifierLockOnTimer, SIGNAL(timeout()), this, SLOT(hideLockOnInfoBanner()));
 
     // construct hardware keyboard object
     hardwareKeyboard = new MHardwareKeyboard(*icConnection, this);
@@ -282,7 +276,7 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
 
     // hide main layout when symbol view is shown to improve performance
     connect(symbolView, SIGNAL(opened()), vkbWidget, SLOT(hideMainArea()));
-    connect(symbolView, SIGNAL(hidden()), vkbWidget, SLOT(showMainArea()));
+    connect(symbolView, SIGNAL(aboutToHide()), vkbWidget, SLOT(showMainArea()));
 }
 
 MKeyboardHost::~MKeyboardHost()
@@ -364,12 +358,10 @@ void MKeyboardHost::focusChanged(bool focusIn)
             resetVirtualKeyboardShiftState();
         }
     } else {
-        if (inputMethodMode != M::InputMethodModeDirect) {
-            if (focusIn) {
-                hardwareKeyboard->enable();
-            } else {
-                hardwareKeyboard->disable();
-            }
+        if (focusIn) {
+            hardwareKeyboard->enable();
+        } else {
+            hardwareKeyboard->disable();
         }
         if (!focusIn) {
             sendInputModeIndicator(MInputMethodBase::NoIndicator);
@@ -442,14 +434,8 @@ void MKeyboardHost::update()
 
     const int inputMethodModeValue = inputContextConnection()->inputMethodMode(valid);
     if (valid) {
-        if (haveFocus && (activeState == Hardware) && (inputMethodMode != inputMethodModeValue)) {
-            if (inputMethodModeValue != M::InputMethodModeDirect) {
-                hardwareKeyboard->enable();
-            } else {
-                hardwareKeyboard->disable();
-            }
-        }
         inputMethodMode = inputMethodModeValue;
+        hardwareKeyboard->setInputMethodMode(static_cast<M::InputMethodMode>(inputMethodMode));
         vkbWidget->setInputMethodMode(static_cast<M::InputMethodMode>(inputMethodMode));
         sharedHandleArea->setInputMethodMode(static_cast<M::InputMethodMode>(inputMethodMode));
     }
@@ -564,14 +550,7 @@ void MKeyboardHost::finalizeOrientationChange()
     }
 
     vkbWidget->finalizeOrientationChange();
-
     symbolView->finalizeOrientationChange();
-    //correct the visibility for the function row
-    if (activeState == OnScreen) {
-        symbolView->showFunctionRow();
-    } else {
-        symbolView->hideFunctionRow();
-    }
 
     // Finalize candidate list after so its region will apply.
     correctionCandidateWidget->finalizeOrientationChange();
@@ -994,8 +973,6 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
             if (feedbackPlayer) {
                 feedbackPlayer->play(MFeedbackPlayer::Cancel);
             }
-        } else if (feedbackPlayer) {
-            feedbackPlayer->play(MFeedbackPlayer::Release);
         }
     }
 
@@ -1015,7 +992,7 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
 
         inputContextConnection()->sendCommitString(text);
 
-    } else if ((event.qtKey() == Qt::Key_Space) || (event.qtKey() == Qt::Key_Return)) {
+    } else if ((event.qtKey() == Qt::Key_Space) || (event.qtKey() == Qt::Key_Return) || (event.qtKey() == Qt::Key_Tab)) {
         // commit string
         inputContextConnection()->sendCommitString(correctedPreedit);
         if (lastClickEvent.specialKey() != KeyEvent::CycleSet) {
@@ -1290,8 +1267,12 @@ void MKeyboardHost::processKeyEvent(QEvent::Type keyType, Qt::Key keyCode,
         !hardwareKeyboard->filterKeyEvent(keyType, keyCode, modifiers, text,
                                           autoRepeat, count, nativeScanCode,
                                           nativeModifiers)) {
-        inputContextConnection()->sendKeyEvent(QKeyEvent(keyType, keyCode, modifiers, text,
-                                                         autoRepeat, count));
+        //TODO: improve MInputMethodBase::processKeyEvent to get native virtual key code.
+        QKeyEvent *key = QKeyEvent::createExtendedKeyEvent(keyType, keyCode, modifiers,
+                                                           nativeScanCode, 0, nativeModifiers,
+                                                           text, autoRepeat, count);
+        inputContextConnection()->sendKeyEvent(*key);
+        delete key;
     }
 }
 
@@ -1328,27 +1309,22 @@ void MKeyboardHost::setState(const QSet<MIMHandlerState> &state)
 
     // Keeps separate states for symbol view in OnScreen state and Hardware state
     if (activeState == OnScreen) {
-        symbolView->setLanguage(vkbWidget->selectedLanguage());
-        symbolView->showFunctionRow();
         hideLockOnInfoBanner();
         sendInputModeIndicator(MInputMethodBase::NoIndicator);
         disconnect(hardwareKeyboard, SIGNAL(modifierStateChanged(Qt::KeyboardModifier, ModifierState)),
                    this, SLOT(handleModifierStateChanged(Qt::KeyboardModifier, ModifierState)));
-        if (haveFocus && (inputMethodMode != M::InputMethodModeDirect)) {
+        if (haveFocus) {
             hardwareKeyboard->disable();
         }
     } else {
-        //TODO: this is a temporary method, should get the hw layout language, then find out the
-        //language (symbol view variant) according Table 3 in HW Keyboard UI spec.
-        symbolView->setLanguage(LayoutsManager::instance().hardwareKeyboardLayout());
-        symbolView->hideFunctionRow();
         connect(hardwareKeyboard, SIGNAL(modifierStateChanged(Qt::KeyboardModifier, ModifierState)),
                 this, SLOT(handleModifierStateChanged(Qt::KeyboardModifier, ModifierState)));
-        if (haveFocus && (inputMethodMode != M::InputMethodModeDirect)) {
+        if (haveFocus) {
             hardwareKeyboard->enable();
         }
     }
 
+    symbolView->setKeyboardState(actualState);
     vkbWidget->setKeyboardState(actualState);
     updateCorrectionState();
     updateAutoCapitalization();
@@ -1397,7 +1373,7 @@ void MKeyboardHost::handleModifierStateChanged(Qt::KeyboardModifier modifier, Mo
     // only change indicator state when there is focus is in a widget and state is Hardware.
     if (!haveFocus || activeState != Hardware)
         return;
-    const QString currentHwKeyboardLayout = LayoutsManager::instance().hardwareKeyboardLayout();
+    const QString currentXkbLayout = LayoutsManager::instance().xkbLayout();
     QString lockOnNotificationLabel;
     MInputMethodBase::InputModeIndicator indicatorState = MInputMethodBase::LatinLower;
     switch (modifier) {
@@ -1407,27 +1383,28 @@ void MKeyboardHost::handleModifierStateChanged(Qt::KeyboardModifier modifier, Mo
             if (hardwareKeyboard->modifierState(FnLevelModifier) != ModifierClearState) {
                 return;
             }
-            if (currentHwKeyboardLayout == "ar") {
+            // Arabic xkb layout name is "ara".
+            if (currentXkbLayout == "ara") {
                 indicatorState = MInputMethodBase::Arabic;
-            } else if (LayoutsManager::isCyrillicLanguage(currentHwKeyboardLayout)) {
+            } else if (LayoutsManager::isCyrillicLanguage(currentXkbLayout)) {
                 indicatorState = MInputMethodBase::CyrillicLower;
             } else {
                 indicatorState = MInputMethodBase::LatinLower;
             }
             break;
         case ModifierLatchedState:
-            if (currentHwKeyboardLayout == "ar") {
+            if (currentXkbLayout == "ara") {
                 indicatorState = MInputMethodBase::Arabic;
-            } else if (LayoutsManager::isCyrillicLanguage(currentHwKeyboardLayout)) {
+            } else if (LayoutsManager::isCyrillicLanguage(currentXkbLayout)) {
                 indicatorState = MInputMethodBase::CyrillicUpper;
             } else {
                 indicatorState = MInputMethodBase::LatinUpper;
             }
             break;
         case ModifierLockedState:
-            if (currentHwKeyboardLayout == "ar") {
+            if (currentXkbLayout == "ara") {
                 indicatorState = MInputMethodBase::Arabic;
-            } else if (LayoutsManager::isCyrillicLanguage(currentHwKeyboardLayout)) {
+            } else if (LayoutsManager::isCyrillicLanguage(currentXkbLayout)) {
                 indicatorState = MInputMethodBase::CyrillicLocked;
             } else {
                 indicatorState = MInputMethodBase::LatinLocked;
@@ -1444,9 +1421,9 @@ void MKeyboardHost::handleModifierStateChanged(Qt::KeyboardModifier modifier, Mo
                 return;
             }
             // when fn key change back to clear, shows same label as shift is clear
-            if (currentHwKeyboardLayout == "ar") {
+            if (currentXkbLayout == "ara") {
                 indicatorState = MInputMethodBase::Arabic;
-            } else if (LayoutsManager::isCyrillicLanguage(currentHwKeyboardLayout)) {
+            } else if (LayoutsManager::isCyrillicLanguage(currentXkbLayout)) {
                 indicatorState = MInputMethodBase::CyrillicLower;
             } else {
                 indicatorState = MInputMethodBase::LatinLower;
@@ -1474,41 +1451,30 @@ void MKeyboardHost::handleModifierStateChanged(Qt::KeyboardModifier modifier, Mo
         // number and phone number content type always force FN key to be locked,
         // don't need indicator lock notification.
         showLockOnInfoBanner(lockOnNotificationLabel);
-    } else if (modifierLockOnInfoBanner) {
-        hideLockOnInfoBanner(false);
+    } else if (modifierLockOnBanner) {
+        hideLockOnInfoBanner();
     }
 }
 
 void MKeyboardHost::showLockOnInfoBanner(const QString &notification)
 {
-    // current region maybe empty, we should request 1 pixel to make infobanner visible.
-    // FIXME: this request 1 pixel looks like hack way.
-    // maybe we should request system notification instead of showing our own infobanner.
-    emit regionUpdated(combineRegionTo(QRegion(0, 0, 1, 1), *this));
-
-    if (modifierLockOnInfoBanner) {
-        modifierLockOnInfoBanner->setBodyText(notification);
-        modifierLockOnTimer.start();
+    if (modifierLockOnBanner) {
+        modifierLockOnBanner->setTitle(notification);
     } else {
-        modifierLockOnInfoBanner = new MInfoBanner(MInfoBanner::Information);
-        modifierLockOnInfoBanner->setBodyText(notification);
-        MPlainWindow::instance()->sceneManager()->appearSceneWindow(modifierLockOnInfoBanner,
-                                                                    MSceneWindow::DestroyWhenDone);
-        modifierLockOnTimer.start();
+        //TODO: discuss with UI designer whether we need to specify
+        // the disappear time out.
+        modifierLockOnBanner = new MBanner();
+        modifierLockOnBanner->setTitle(notification);
+        modifierLockOnBanner->appear(MSceneWindow::DestroyWhenDone);
     }
 }
 
-void MKeyboardHost::hideLockOnInfoBanner(bool updateRegion)
+void MKeyboardHost::hideLockOnInfoBanner()
 {
-    if (modifierLockOnInfoBanner) {
-        MPlainWindow::instance()->sceneManager()->disappearSceneWindow(modifierLockOnInfoBanner);
+    if (modifierLockOnBanner) {
+        modifierLockOnBanner->disappear();
     }
-    modifierLockOnInfoBanner = 0;
-    // some time we don't need to update region at once (e.g. during changing modifier state frequently)
-    // when modifierLockOnTimer is timeout, this method will be called to update region
-    if (updateRegion) {
-        emit regionUpdated(combineRegionTo(QRegion(), *this));
-    }
+    modifierLockOnBanner = 0;
 }
 
 QList<MInputMethodBase::MInputMethodSubView> MKeyboardHost::subViews(MIMHandlerState state) const
@@ -1551,8 +1517,10 @@ void MKeyboardHost::handleVirtualKeyboardLayoutChanged(const QString &layout)
 {
     // reset the temporary shift state when layout is changed
     resetVirtualKeyboardShiftState();
-    if (symbolView)
-        symbolView ->setLanguage(layout);
+    if (symbolView) {
+        symbolView->setLanguage(layout);
+    }
+
     initializeInputEngine();
     updateAutoCapitalization();
     emit activeSubViewChanged(layout);

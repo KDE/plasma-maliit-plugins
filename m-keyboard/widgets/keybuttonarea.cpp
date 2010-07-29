@@ -117,7 +117,7 @@ void KeyButtonArea::buttonInformation(int row, int column, const VKBDataKey *&da
         // buttons are the same size in same locations.
         const KeyBinding::KeyAction action = dataKey->binding(false)->action();
 
-        size = buttonSizeByAction(action);
+        size = buttonSizeByColumn(column, section->columnsAt(row));
 
         // Make space button stretch.
         if (action == KeyBinding::ActionSpace) {
@@ -148,7 +148,8 @@ void KeyButtonArea::updatePopup(const QPoint &pointerPosition, const IKeyButton 
         key = keyAt(pointerPosition);
     }
 
-    if (!key) {
+    if (!key || key->label().isEmpty()) {
+        popup->hidePopup();
         return;
     }
 
@@ -357,14 +358,24 @@ void KeyButtonArea::ungrabMouseEvent(QEvent */*event*/)
     popup->hidePopup();
 }
 
-bool KeyButtonArea::sceneEvent(QEvent *event)
+bool KeyButtonArea::event(QEvent *e)
 {
-    if (event->type() == QEvent::TouchBegin
-        || event->type() == QEvent::TouchUpdate
-        || event->type() == QEvent::TouchEnd) {
-        QTouchEvent *touch = static_cast<QTouchEvent*>(event);
+    bool eaten = false;
 
-        if (event->type() == QEvent::TouchBegin) {
+    if (e->type() == QEvent::Gesture) {
+        const Qt::GestureType flickGestureType = FlickGestureRecognizer::sharedGestureType();
+        FlickGesture *flickGesture = static_cast<FlickGesture *>(static_cast<QGestureEvent *>(e)->gesture(flickGestureType));
+
+        if (flickGesture) {
+            handleFlickGesture(flickGesture);
+            eaten = true;
+        }
+    } else if (e->type() == QEvent::TouchBegin
+               || e->type() == QEvent::TouchUpdate
+               || e->type() == QEvent::TouchEnd) {
+        QTouchEvent *touch = static_cast<QTouchEvent*>(e);
+
+        if (e->type() == QEvent::TouchBegin) {
             touchPoints.clear();
         }
 
@@ -385,24 +396,7 @@ bool KeyButtonArea::sceneEvent(QEvent *event)
             }
         }
 
-        return true;
-    }
-
-    return MWidget::sceneEvent(event);
-}
-
-bool KeyButtonArea::event(QEvent *e)
-{
-    bool eaten = false;
-
-    if (e->type() == QEvent::Gesture) {
-        const Qt::GestureType flickGestureType = FlickGestureRecognizer::sharedGestureType();
-        FlickGesture *flickGesture = static_cast<FlickGesture *>(static_cast<QGestureEvent *>(e)->gesture(flickGestureType));
-
-        if (flickGesture) {
-            handleFlickGesture(flickGesture);
-            eaten = true;
-        }
+        eaten = true;
     }
 
     return eaten || MWidget::event(e);
@@ -660,36 +654,37 @@ const PopupBase &KeyButtonArea::popupWidget() const
     return *popup;
 }
 
-QSize KeyButtonArea::buttonSizeByAction(KeyBinding::KeyAction action) const
+QSize KeyButtonArea::buttonSizeByColumn(int column, int numColumns) const
 {
     QSize buttonSize;
 
-    if (buttonSizeScheme == ButtonSizeEqualExpanding) {
+    switch (buttonSizeScheme) {
+    case ButtonSizeEqualExpanding:
         buttonSize = style()->keyNormalSize();
-    } else if (buttonSizeScheme == ButtonSizeEqualExpandingPhoneNumber) {
+        break;
+    case ButtonSizeEqualExpandingPhoneNumber:
         buttonSize = style()->keyPhoneNumberNormalSize();
-    } else if (buttonSizeScheme == ButtonSizeFunctionRow) {
-        switch (action) {
-        case KeyBinding::ActionSpace:
-        case KeyBinding::ActionReturn:
-            // Will be stretched horizontally
-            buttonSize = style()->keyFunctionNormalSize();
-            break;
-        case KeyBinding::ActionBackspace:
-        case KeyBinding::ActionShift:
+        break;
+    case ButtonSizeFunctionRow:
+        if (column == 0 || column == numColumns - 1) {
             buttonSize = style()->keyFunctionLargeSize();
-            break;
-        default:
+        } else {
             buttonSize = style()->keyFunctionNormalSize();
         }
-    } else if (buttonSizeScheme == ButtonSizeFunctionRowNumber) {
-        if (action == KeyBinding::ActionBackspace) {
-            buttonSize = style()->keyNumberBackspaceSize();
+        break;
+    case ButtonSizeFunctionRowNumber:
+        if (column == numColumns - 1) {
+            buttonSize = style()->keyNumberFunctionLargeSize();
         } else {
             buttonSize = style()->keyNormalSize();
         }
-    } else if (buttonSizeScheme == ButtonSizeSymbolView) {
+        break;
+    case ButtonSizeSymbolView:
         buttonSize = style()->keySymNormalSize();
+        break;
+    default:
+        buttonSize = style()->keyNormalSize();
+        break;
     }
 
     return buttonSize;
@@ -698,6 +693,10 @@ QSize KeyButtonArea::buttonSizeByAction(KeyBinding::KeyAction action) const
 void KeyButtonArea::updateButtonModifiers()
 {
     bool shift = (currentLevel == 1);
+
+    // We currently don't allow active dead key level changing. If we did,
+    // we should update activeDeadkey level before delivering its accent to
+    // other keys.
     const QChar accent(activeDeadkey ? activeDeadkey->label().at(0) : '\0');
 
     modifiersChanged(shift, accent);

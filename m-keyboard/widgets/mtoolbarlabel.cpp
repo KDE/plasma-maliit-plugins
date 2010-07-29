@@ -22,6 +22,10 @@ MToolbarLabel::MToolbarLabel(QSharedPointer<MToolbarItem> item,
     : MLabel(parent),
       itemPtr(item)
 {
+    if (item->name().isEmpty()) {
+        setObjectName(item->name());
+    }
+
     if (!item->textId().isEmpty()) {
         setText(qtTrId(item->textId().toUtf8().data()));
     } else {

@@ -56,6 +56,7 @@ typedef KeyButtonArea *(*KBACreator)(MVirtualKeyboardStyleContainer *styleContai
 Q_DECLARE_METATYPE(KBACreator);
 Q_DECLARE_METATYPE(IKeyButton::ButtonState);
 Q_DECLARE_METATYPE(QList<KeyBinding::KeyAction>);
+Q_DECLARE_METATYPE(Ut_KeyButtonArea::TestOpList);
 
 KeyButtonArea *createSingleWidgetKeyButtonArea(MVirtualKeyboardStyleContainer *styleContainer,
                                                QSharedPointer<const LayoutSection> section,
@@ -84,6 +85,7 @@ void Ut_KeyButtonArea::initTestCase()
     qRegisterMetaType<const IKeyButton*>();
     qRegisterMetaType<IKeyButton*>();
     qRegisterMetaType<IKeyButton::ButtonState>();
+    qRegisterMetaType<TestOpList>("TestOpList");
 
     new MPlainWindow; // Create singleton
 
@@ -554,6 +556,61 @@ void Ut_KeyButtonArea::testSelectedDeadkeys()
     subject->click(deadkey2);
     QCOMPARE(deadkey1->state(), IKeyButton::Normal);
     QCOMPARE(deadkey2->state(), IKeyButton::Selected);
+}
+
+void Ut_KeyButtonArea::testTwoDeadInOne_data()
+{
+    QTest::addColumn<TestOpList>("operations");
+    QTest::addColumn<QString>("expectedCharacterLabel");
+
+    QTest::newRow("no dead key")
+        << TestOpList() << "e";
+    QTest::newRow("dead key clicked")
+        << (TestOpList() << TestOpClickDeadKey) << QString(L'é');
+    QTest::newRow("click dead key, shift on")
+        << (TestOpList() << TestOpClickDeadKey << TestOpSetShiftOn) << QString(L'É');
+    QTest::newRow("shift on, click dead key")
+        << (TestOpList() << TestOpSetShiftOn << TestOpClickDeadKey) << QString(L'Ë');
+    QTest::newRow("shift on, click dead key, shift off")
+        << (TestOpList() << TestOpSetShiftOn << TestOpClickDeadKey << TestOpSetShiftOff) << QString(L'ë');
+}
+
+void Ut_KeyButtonArea::testTwoDeadInOne()
+{
+    QFETCH(TestOpList, operations);
+    QFETCH(QString, expectedCharacterLabel);
+
+    keyboard = new KeyboardData;
+    QVERIFY(keyboard->loadNokiaKeyboard("test-layout.xml"));
+    subject = createSingleWidgetKeyButtonArea(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
+                                              KeyButtonArea::ButtonSizeEqualExpanding,
+                                              false, 0);
+
+    IKeyButton *deadkey = keyAt(2, 8); // accents ´ and ¨
+    IKeyButton *characterKey = keyAt(0, 2); // e, éë, ÉË
+
+    QVERIFY(deadkey);
+    QVERIFY(deadkey->key().binding(false)->isDead());
+    QVERIFY(deadkey->key().binding(true)->isDead());
+
+    foreach (TestOperation op, operations) {
+        switch (op) {
+        case TestOpClickDeadKey:
+            subject->click(deadkey);
+            break;
+        case TestOpSetShiftOn:
+            subject->switchLevel(1);
+            break;
+        case TestOpSetShiftOff:
+            subject->switchLevel(0);
+            break;
+        default:
+            QFAIL("Unsupported operation");
+            break;
+        }
+    }
+
+    QCOMPARE(characterKey->label(), expectedCharacterLabel);
 }
 
 void Ut_KeyButtonArea::testImportedLayouts_data()

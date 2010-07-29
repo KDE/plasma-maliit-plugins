@@ -114,6 +114,7 @@ void Ut_MHardwareKeyboard::init()
     m_hkb->reset();
     m_hkb->enable();
     m_hkb->setKeyboardType(M::FreeTextContentType);
+    m_hkb->setInputMethodMode(M::InputMethodModeNormal);
 }
 
 void Ut_MHardwareKeyboard::cleanup()
@@ -726,6 +727,38 @@ void Ut_MHardwareKeyboard::testDelete()
     QCOMPARE(inputContextConnection->lastKeyEvent().text(), QString("\177"));
 
     filterKeyRelease(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, 0);
+}
+
+void Ut_MHardwareKeyboard::testDirectInputMode()
+{
+    m_hkb->setInputMethodMode(M::InputMethodModeDirect);
+    QCOMPARE(m_hkb->inputMethodMode(), M::InputMethodModeDirect);
+
+    QSignalSpy symSpy(m_hkb, SIGNAL(symbolKeyClicked()));
+    QVERIFY(symSpy.isValid());
+
+    // Press+release gives us signal
+    QVERIFY(filterKeyPress(SymKey, Qt::NoModifier, "", KeycodeNonCharacter, 0));
+    QVERIFY(filterKeyRelease(SymKey, Qt::NoModifier, "", KeycodeNonCharacter, SymModifierMask));
+    QCOMPARE(symSpy.count(), 1);
+    symSpy.clear();
+
+    // Anyother key will be ignored
+    QVERIFY(!filterKeyPress(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, 0));
+    QVERIFY(!filterKeyRelease(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, 0));
+    QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
+    QCOMPARE(inputContextConnection->lastPreeditString().length(), 0);
+
+    // shift and fn will be ignored
+    QVERIFY(!filterKeyPress(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, 0));
+    QVERIFY(!filterKeyRelease(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask));
+    QVERIFY(checkLatchedState(ShiftMask | FnModifierMask, 0));
+
+    QVERIFY(!filterKeyPress(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, FnModifierMask));
+    QVERIFY(!filterKeyRelease(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, FnModifierMask));
+    QVERIFY(checkLatchedState(ShiftMask | FnModifierMask, 0));
+
+    QCOMPARE(symSpy.count(), 0);
 }
 
 QTEST_APPLESS_MAIN(Ut_MHardwareKeyboard);

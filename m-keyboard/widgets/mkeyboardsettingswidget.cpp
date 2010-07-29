@@ -26,7 +26,7 @@
 #include <MAbstractCellCreator>
 #include <MList>
 #include <MDialog>
-#include <MInfoBanner>
+#include <MBanner>
 
 #include <QObject>
 #include <QGraphicsLinearLayout>
@@ -123,12 +123,12 @@ MKeyboardSettingsWidget::~MKeyboardSettingsWidget()
 void MKeyboardSettingsWidget::buildUi()
 {
     selectedKeyboardsItem = new MContentItem(MContentItem::TwoTextLabels, this);
-    selectedKeyboardsItem->setObjectName(ObjectNameErrorCorrectionButton);
+    selectedKeyboardsItem->setObjectName(ObjectNameSelectedKeyboardsItem);
     connect(selectedKeyboardsItem, SIGNAL(clicked()), this, SLOT(showKeyboardList()));
     addItem(selectedKeyboardsItem);
 
     errorCorrectionSwitch = new MButton(this);
-    errorCorrectionSwitch->setObjectName(ObjectNameSelectedKeyboardsItem);
+    errorCorrectionSwitch->setObjectName(ObjectNameErrorCorrectionButton);
     errorCorrectionSwitch->setViewType(MButton::switchType);
     errorCorrectionSwitch->setCheckable(true);
     errorCorrectionLabel = new MLabel(this);
@@ -160,8 +160,10 @@ void MKeyboardSettingsWidget::retranslateUi()
 
 void MKeyboardSettingsWidget::updateTitle()
 {
-    if (!settingsObject || !selectedKeyboardsItem)
+    if (!errorCorrectionLabel || !settingsObject || !selectedKeyboardsItem)
         return;
+    //% "Error correction"
+    errorCorrectionLabel->setText(qtTrId("qtn_txts_error_correction"));
     QStringList keyboards = settingsObject->selectedKeyboards().values();
     //% "Installed keyboards (%1)"
     QString title = qtTrId("qtn_txts_installed_keyboards")
@@ -297,11 +299,10 @@ void MKeyboardSettingsWidget::syncErrorCorrectionState()
 
 void MKeyboardSettingsWidget::notifyNoKeyboards()
 {
-    MInfoBanner *noKeyboardsNotification = new MInfoBanner(MInfoBanner::Information);
+    MBanner *noKeyboardsNotification = new MBanner();
     //% "No keyboards installed"
-    noKeyboardsNotification->setBodyText(qtTrId("qtn_txts_no_keyboards"));
+    noKeyboardsNotification->setTitle(qtTrId("qtn_txts_no_keyboards"));
     noKeyboardsNotification->appear(MSceneWindow::DestroyWhenDone);
-    QTimer::singleShot(1000, noKeyboardsNotification, SLOT(disappear()));
 }
 
 void MKeyboardSettingsWidget::handleVisibilityChanged()

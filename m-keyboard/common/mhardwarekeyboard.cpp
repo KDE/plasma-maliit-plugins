@@ -58,7 +58,8 @@ MHardwareKeyboard::MHardwareKeyboard(MInputContextConnection& icConnection, QObj
       stateTransitionsDisabled(false),
       shiftsPressed(0),
       shiftShiftCapsLock(false),
-      longPressTimer(this)
+      longPressTimer(this),
+      imMode(M::InputMethodModeNormal)
 {
     longPressTimer.setSingleShot(true);
     longPressTimer.setInterval(longPressTime);
@@ -162,34 +163,39 @@ void MHardwareKeyboard::enable()
 {
     qDebug() << __PRETTY_FUNCTION__;
 
-    toggleCustomAutoRepeat(true);
+    // We don't know how many requirements for direct mode will be yet besides
+    // symbol view is required for symbol key. So redirect all the keys to plugin,
+    // but now only handle symbol key.
+    if (imMode != M::InputMethodModeDirect) {
+        toggleCustomAutoRepeat(true);
 
-    shiftShiftCapsLock = false;
-    shiftsPressed = 0;
-    pressedKeys.clear();
-    autoCaps = false;
+        shiftShiftCapsLock = false;
+        shiftsPressed = 0;
+        pressedKeys.clear();
+        autoCaps = false;
 
-    // We reset state without using latch/lockModifiers in order to force notification
-    // (to make sure whoever is listening is in sync with us).
-    currentLatchedMods = 0;
-    mXkb.latchModifiers(ShiftMask | FnModifierMask, 0);
-    emit modifierStateChanged(Qt::ShiftModifier, ModifierClearState);
-    switch (currentKeyboardType) {
-    case M::NumberContentType:
-    case M::PhoneNumberContentType:
-        // With number and phone number content type Fn must be permanently locked
-        currentLockedMods = FnModifierMask;
-        mXkb.lockModifiers(FnModifierMask, FnModifierMask);
-        emit modifierStateChanged(FnLevelModifier, ModifierLockedState);
-        stateTransitionsDisabled = true;
-        break;
-    default:
-        stateTransitionsDisabled = false;
-        // clear locked modifiers for other keyboard types.
-        currentLockedMods = 0;
-        mXkb.lockModifiers(LockMask | FnModifierMask, 0);
-        emit modifierStateChanged(FnLevelModifier, ModifierClearState);
-        break;
+        // We reset state without using latch/lockModifiers in order to force notification
+        // (to make sure whoever is listening is in sync with us).
+        currentLatchedMods = 0;
+        mXkb.latchModifiers(ShiftMask | FnModifierMask, 0);
+        emit modifierStateChanged(Qt::ShiftModifier, ModifierClearState);
+        switch (currentKeyboardType) {
+        case M::NumberContentType:
+        case M::PhoneNumberContentType:
+            // With number and phone number content type Fn must be permanently locked
+            currentLockedMods = FnModifierMask;
+            mXkb.lockModifiers(FnModifierMask, FnModifierMask);
+            emit modifierStateChanged(FnLevelModifier, ModifierLockedState);
+            stateTransitionsDisabled = true;
+            break;
+        default:
+            stateTransitionsDisabled = false;
+            // clear locked modifiers for other keyboard types.
+            currentLockedMods = 0;
+            mXkb.lockModifiers(LockMask | FnModifierMask, 0);
+            emit modifierStateChanged(FnLevelModifier, ModifierClearState);
+            break;
+        }
     }
 
     inputContextConnection.setRedirectKeys(true);
@@ -306,6 +312,15 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
                                        quint32 nativeScanCode, quint32 nativeModifiers)
 {
     bool eaten = false;
+
+    if (imMode == M::InputMethodModeDirect) {
+        // eat the sym key.
+        if (keyCode == SymKey) {
+            eaten = true;
+        }
+        return eaten;
+    }
+
     const unsigned char savedLatchedMods(currentLatchedMods);
 
     pressedKeys.insert(nativeScanCode, true);
@@ -375,6 +390,14 @@ bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers 
                                          quint32 nativeScanCode, quint32 nativeModifiers)
 {
     bool eaten = false;
+
+    if (imMode == M::InputMethodModeDirect) {
+        if (keyCode == SymKey) {
+            eaten = handleReleaseWithSymModifier(keyCode, text);
+        }
+        return eaten;
+    }
+
     const bool keyWasPressed(pressedKeys.contains(nativeScanCode));
 
     // Relock modifiers; X seems to unlock Fn automatically on Fn release, which is not
@@ -512,6 +535,12 @@ void MHardwareKeyboard::handleLongPressTimeout()
 
 bool MHardwareKeyboard::handleReleaseWithSymModifier(Qt::Key keyCode, const QString &text)
 {
+    if ((imMode == M::InputMethodModeDirect) && (keyCode == SymKey)) {
+        emit symbolKeyClicked();
+        return true;
+    }
+
+    //FIXME: eat the sym key?
     if ((lastKeyCode == SymKey) && (keyCode == SymKey)) {
         emit symbolKeyClicked();
         return false;
@@ -590,4 +619,14 @@ bool MHardwareKeyboard::symViewAvailable() const
 bool MHardwareKeyboard::autoCapsEnabled() const
 {
     return LayoutsManager::instance().hardwareKeyboardAutoCapsEnabled();
+}
+
+void MHardwareKeyboard::setInputMethodMode(M::InputMethodMode mode)
+{
+    imMode = mode;
+}
+
+M::InputMethodMode MHardwareKeyboard::inputMethodMode() const
+{
+    return imMode;
 }

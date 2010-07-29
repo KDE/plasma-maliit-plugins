@@ -17,8 +17,10 @@
 #ifndef UT_KEYBUTTONAREA_H
 #define UT_KEYBUTTONAREA_H
 
-#include <QtTest/QtTest>
+#include <QList>
 #include <QObject>
+#include <QtTest/QtTest>
+
 #include "mnamespace.h"
 #include "flickgesture.h"
 
@@ -58,6 +60,8 @@ private slots:
     void testDeadkeys_data();
     void testDeadkeys();
     void testSelectedDeadkeys();
+    void testTwoDeadInOne_data();
+    void testTwoDeadInOne();
     void testImportedLayouts_data();
     void testImportedLayouts();
     void testAccurateMode_data();
@@ -78,6 +82,15 @@ private:
     QSize defaultLayoutSize();
 
     IKeyButton *keyAt(unsigned int row, unsigned int column) const;
+
+public:
+    enum TestOperation {
+        TestOpClickDeadKey,
+        TestOpSetShiftOn,
+        TestOpSetShiftOff
+    };
+
+    typedef QList<TestOperation> TestOpList;
 };
 
 #endif // UT_KEYBUTTONAREA_H
