@@ -64,8 +64,6 @@ private slots:
     void testTwoDeadInOne();
     void testImportedLayouts_data();
     void testImportedLayouts();
-    void testAccurateMode_data();
-    void testAccurateMode();
     void testPopup_data();
     void testPopup();
     void testInitialization_data();

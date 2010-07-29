@@ -49,7 +49,6 @@ namespace
 {
     const QString InputMethodCorrectionSetting("/meegotouch/inputmethods/correctionenabled");
     const QString InputMethodCorrectionEngine("/meegotouch/inputmethods/correctionengine");
-    bool gAccurateMode = false;
     int gSetKeyboardStateCallCount = 0;
     MIMHandlerState gSetKeyboardStateParam = OnScreen;
     const int SceneRotationTime = 1400; // in ms
@@ -92,11 +91,6 @@ void MVirtualKeyboard::setKeyboardState(MIMHandlerState state)
 {
     ++gSetKeyboardStateCallCount;
     gSetKeyboardStateParam = state;
-}
-
-bool MVirtualKeyboard::isAccurateMode() const
-{
-    return gAccurateMode;
 }
 
 QString MVirtualKeyboard::layoutLanguage() const
@@ -281,7 +275,6 @@ void Ut_MKeyboardHost::testHandleClick()
     MGConfItem config(InputMethodCorrectionSetting);
     config.set(QVariant(true));
 
-    gAccurateMode = false;
     subject->update();
     subject->handleKeyClick(KeyEvent("a"));
     qDebug() << "correctionEnabled:" << subject->correctionEnabled;
@@ -294,7 +287,6 @@ void Ut_MKeyboardHost::testHandleClick()
     QCOMPARE(inputContext->commit, QString("a "));
     inputContext->clear();
 
-    gAccurateMode = false;
     subject->handleKeyClick(KeyEvent("a"));
     subject->handleKeyClick(KeyEvent("\n", QEvent::KeyRelease, Qt::Key_Return));
     QVERIFY(subject->preedit.isEmpty());
@@ -307,13 +299,23 @@ void Ut_MKeyboardHost::testHandleClick()
     QVERIFY(subject->preedit.isEmpty());
     inputContext->clear();
 
+    // turn off error correction
+    config.set(QVariant(false));
+    QTest::qWait(100);
+    QCOMPARE(subject->imCorrectionEngine->correctionEnabled(), false);
+    QCOMPARE(subject->correctionEnabled, false);
+
     subject->handleKeyClick(KeyEvent("m"));
-    gAccurateMode = true;
     subject->handleKeyClick(KeyEvent("a"));
     QCOMPARE(inputContext->commit, QString("ma"));
     QVERIFY(subject->preedit.isEmpty());
 
-    gAccurateMode = false;
+    // turn on error correction
+    config.set(QVariant(true));
+    QTest::qWait(100);
+    QCOMPARE(subject->imCorrectionEngine->correctionEnabled(), true);
+    QCOMPARE(subject->correctionEnabled, true);
+
     subject->handleKeyPress(KeyEvent("\b", QEvent::KeyPress, Qt::Key_Backspace));
     subject->handleKeyRelease(KeyEvent("\b", QEvent::KeyRelease, Qt::Key_Backspace));
     QVERIFY(subject->preedit.isEmpty());
@@ -950,17 +952,14 @@ void Ut_MKeyboardHost::testUpdateSymbolViewLevel()
 
 void Ut_MKeyboardHost::testKeyCycle_data()
 {
-    QTest::addColumn<bool>("accurateMode");
     QTest::addColumn<QString>("preedit");
 
-    QTest::newRow("fast mode") << false << "";
-    QTest::newRow("fast mode, preedit") << false << "preedit";
-    QTest::newRow("accurate mode") << true << "";
+    QTest::newRow("no preedit") << "";
+    QTest::newRow("with preedit") << "preedit";
 }
 
 void Ut_MKeyboardHost::testKeyCycle()
 {
-    QFETCH(bool, accurateMode);
     QFETCH(QString, preedit);
     QString text = "123";
     KeyEvent event1(text,  QEvent::KeyRelease, Qt::Key_unknown, KeyEvent::CycleSet);
@@ -974,7 +973,6 @@ void Ut_MKeyboardHost::testKeyCycle()
     inputContext->preedit = "";
     inputContext->commit = "";
 
-    gAccurateMode = accurateMode;
     if (!preedit.isEmpty()) {
         subject->preedit = preedit;
         subject->correctedPreedit = preedit;

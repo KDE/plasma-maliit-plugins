@@ -38,11 +38,6 @@
 
 #include <algorithm>
 
-namespace
-{
-    const int LongPressTime = 0; // same as in keybuttonarea.cpp
-}
-
 Q_DECLARE_METATYPE(KeyEvent);
 Q_DECLARE_METATYPE(IKeyButton*);
 Q_DECLARE_METATYPE(const IKeyButton*);
@@ -660,56 +655,6 @@ void Ut_KeyButtonArea::testImportedLayouts()
              QString("func2"));
 }
 
-void Ut_KeyButtonArea::testAccurateMode_data()
-{
-    QTest::addColumn<KBACreator>("createKba");
-    QTest::newRow("SingleWidgetArea") << &createSingleWidgetKeyButtonArea;
-}
-
-void Ut_KeyButtonArea::testAccurateMode()
-{
-    QFETCH(KBACreator, createKba);
-
-    keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
-    subject = createKba(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
-                        KeyButtonArea::ButtonSizeEqualExpanding, true, 0);
-    MPlainWindow::instance()->scene()->addItem(subject);
-    subject->resize(defaultLayoutSize());
-
-    subject->accurateStop();
-    QVERIFY(!subject->isAccurateMode());
-
-    // Test starting accurate mode
-
-    // direct call
-    subject->accurateStart();
-    QVERIFY(subject->isAccurateMode());
-    subject->accurateStop();
-
-    // make long press
-
-    const QPoint mousePos(20, 20); // approximately the top left key on layout
-    const int touchId = 0;
-
-    //popup should be shown immediately, so we comment out this part of test
-#if 0
-    subject->touchPointPressed(mousePos, touchId);
-    QTest::qWait(LongPressTime - 100); // not enough time
-    subject->touchPointReleased(mousePos, touchId);
-    QVERIFY(!subject->isAccurateMode());
-#endif
-
-    subject->touchPointPressed(mousePos, touchId);
-    QTest::qWait(LongPressTime + 100); // long enough
-
-    // When accurate mode is on and mouse down we should have popup enabled
-    QVERIFY(subject->isPopupActive());
-
-    subject->touchPointReleased(mousePos, touchId);
-    QVERIFY(subject->isAccurateMode());
-}
-
 void Ut_KeyButtonArea::testPopup_data()
 {
     QTest::addColumn<KBACreator>("createKba");
@@ -745,15 +690,12 @@ void Ut_KeyButtonArea::testPopup()
     QVERIFY(!subject->isPopupActive());
     subject->touchPointReleased(mousePos, touchId);
 
-    // make long press
     subject->touchPointPressed(mousePos, touchId);
-    QTest::qWait(LongPressTime - 100); // not enough time
     QVERIFY(!subject->isPopupActive());
     subject->touchPointReleased(mousePos, touchId);
 #endif
 
     subject->touchPointPressed(mousePos, touchId);
-    QTest::qWait(LongPressTime + 100); // long enough
     QVERIFY(subject->isPopupActive());
     subject->touchPointReleased(mousePos, touchId);
 }
