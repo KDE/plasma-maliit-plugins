@@ -1,12 +1,15 @@
-meego-keyboard (0.4.10~1) unstable; urgency=low
+meego-keyboard (0.4.10-1) unstable; urgency=low
 
   * Implemented: SWP#TINME-803 - Symbol view uses different layout for
     hardware keyboard
   * Fixes: NB#167172 - Enter key is missing from virtual keypad
   * Fixes: NB#170652 - Enter character from VKB's symbols is not entering to new line
   * Fixes: NB#173184 - Some buttons of vkb initiate release feedback twice
+  * Fixes: NB#161203 - Copy option is not present in VKB when symbols are shown in VKB in portrait mode
+  * Fixes: NB#171793 - Autocaps gets removed when Keyboard settings screen comes up
+  * Fixes: NB#178033 - Bottom toolbar is displayed as in portrait mode even if DUT is in horizontal mode
 
- -- Ning Chi <ext-chi.ning@nokia.com>  Tue, 20 Jul 2010 16:55:34 +0300
+ -- huaming wang <huaming.wang@nokia.com>  Thu, 29 Jul 2010 13:03:34 +0300
 
 meego-keyboard (0.4.9-2) unstable; urgency=low
 
