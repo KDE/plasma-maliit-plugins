@@ -65,13 +65,6 @@ bool FixtureVirtualKeyboard::execute(void *objectInstance,
         }
     }
 
-    else if (actionName == "isAccurateMode") {
-
-        stdOut = widget->isAccurateMode() ? "true": "false";
-
-        return true;
-    }
-
     const IKeyButton *button = 0;
     const QString key = QString(parameters.value("key"));
 
