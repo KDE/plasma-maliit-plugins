@@ -42,7 +42,10 @@ private slots:
     void testShowWidgets();
     void testSwitchLeftRight_data();
     void testSwitchLeftRight();
+// comment below test cases due to MCompositor bug: NB#182701 breaks us
+#if 0
     void testSwitchSignals();
+#endif
     void testInitialSwitchTo();
     void testIsAtBoundary();
 };
