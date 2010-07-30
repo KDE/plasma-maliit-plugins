@@ -1,3 +1,9 @@
+meego-keyboard (0.4.11~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- huaming wang <huaming.wang@nokia.com>  Fri, 30 Jul 2010 14:23:54 +0300
+
 meego-keyboard (0.4.10-1) unstable; urgency=low
 
   * Implemented: SWP#TINME-803 - Symbol view uses different layout for
