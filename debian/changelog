@@ -1,10 +1,9 @@
-meego-keyboard (0.4.11~1) unstable; urgency=low
+meego-keyboard (0.4.11-1) unstable; urgency=low
 
-  * [UNRELEASED]
   * Fixes: NB#174661 - Error correction is not taking place
   * Fixes: NB#181311 - Letters are typed in accurate mode after error correction is enabled
 
- -- huaming wang <huaming.wang@nokia.com>  Fri, 30 Jul 2010 14:23:54 +0300
+ -- huaming wang <huaming.wang@nokia.com>  Mon, 02 Aug 2010 14:40:18 +0300
 
 meego-keyboard (0.4.10-1) unstable; urgency=low
 
