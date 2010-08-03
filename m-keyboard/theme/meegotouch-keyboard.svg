@@ -94,7 +94,13 @@
 		<rect x="94" y="389.999" style="fill:#F2F2F2;" width="64" height="6"/>
 	</g>
 	<g id="meegotouch-keyboard-background">
-		<rect x="20" y="80" style="fill:#F2F2F2;" width="64" height="64"/>
+		<rect x="20" y="77" style="fill:#F2F2F2;" width="64" height="64"/>
+	</g>
+	<g id="meegotouch-candidatelist-background">
+		<path style="fill:#D1D2D3;" d="M82,283c0,5.5-4.5,10-10,10H28c-5.5,0-10-4.5-10-10v-44c0-5.5,4.5-10,10-10h44c5.5,0,10,4.5,10,10
+			V283z"/>
+		<path style="fill:#F2F2F2;" d="M28,291c-4.411,0-8-3.589-8-8v-44c0-4.411,3.589-8,8-8h44c4.411,0,8,3.589,8,8v44
+			c0,4.411-3.589,8-8,8H28z"/>
 	</g>
 	<g id="meegotouch-keyboard-toolbar-background">
 		<rect x="20" y="154" style="fill:#F2F2F2;" width="64" height="64"/>

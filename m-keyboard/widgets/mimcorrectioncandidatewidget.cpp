@@ -17,6 +17,7 @@
 
 
 #include "mimcorrectioncandidatewidget.h"
+#include "mimcorrectioncandidateitem.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QDebug>
@@ -25,7 +26,6 @@
 #include <MSceneManager>
 #include <mreactionmap.h>
 #include <mplainwindow.h>
-#include <MContentItem>
 #include <MWidgetRecycler>
 #include <MList>
 #include <MLabel>
@@ -42,7 +42,7 @@ namespace
     const QString CandidatesItemLabelObjectName("CorrectionCandidateItemTitle");
 };
 
-class MImCorrectionContentItemCreator : public MAbstractCellCreator<MContentItem>
+class MImCorrectionContentItemCreator : public MAbstractCellCreator<MImCorrectionCandidateItem>
 {
 public:
     MImCorrectionContentItemCreator();
@@ -51,7 +51,7 @@ public:
     virtual void updateCell(const QModelIndex &index, MWidget *cell) const;
     /*! \reimp_end */
 private:
-    void updateContentItemMode(const QModelIndex &index, MContentItem *contentItem) const;
+    void updateContentItemMode(const QModelIndex &index, MImCorrectionCandidateItem *contentItem) const;
 };
 
 MImCorrectionContentItemCreator::MImCorrectionContentItemCreator()
@@ -62,7 +62,7 @@ MWidget *MImCorrectionContentItemCreator::createCell(const QModelIndex &index, M
 {
     MWidget *cell = recycler.take(MContentItem::staticMetaObject.className());
     if (cell == NULL) {
-        cell = new MContentItem(MContentItem::SingleTextLabel);
+        cell = new MImCorrectionCandidateItem(MContentItem::SingleTextLabel);
         cell->setObjectName(CandidatesItemObjectName);
     }
     updateCell(index, cell);
@@ -73,7 +73,7 @@ void MImCorrectionContentItemCreator::updateCell(const QModelIndex &index, MWidg
 {
     if (cell == NULL)
         return;
-    MContentItem *contentItem = qobject_cast<MContentItem *>(cell);
+    MImCorrectionCandidateItem *contentItem = qobject_cast<MImCorrectionCandidateItem *>(cell);
     const QVariant data = index.data(Qt::DisplayRole);
     const QStringList rowData = data.value<QStringList>();
     if (rowData.size() > 0) {
@@ -84,7 +84,7 @@ void MImCorrectionContentItemCreator::updateCell(const QModelIndex &index, MWidg
 }
 
 void MImCorrectionContentItemCreator::updateContentItemMode(const QModelIndex &index,
-        MContentItem *contentItem) const
+        MImCorrectionCandidateItem *contentItem) const
 {
     const int row = index.row();
     bool thereIsNextRow = index.sibling(row + 1, 0).isValid();
@@ -97,12 +97,17 @@ void MImCorrectionContentItemCreator::updateContentItemMode(const QModelIndex &i
     }
 }
 
+MImCorrectionCandidateContainer::MImCorrectionCandidateContainer(QGraphicsItem *parent)
+    : MStylableWidget(parent)
+{
+}
+
 MImCorrectionCandidateWidget::MImCorrectionCandidateWidget(QGraphicsWidget *parent)
     : MWidget(parent),
       rotationInProgress(false),
       candidatePosition(0, 0),
       sceneManager(MPlainWindow::instance()->sceneManager()),
-      containerWidget(new MWidget(this)),
+      containerWidget(new MImCorrectionCandidateContainer(this)),
       candidatesWidget(new MList(containerWidget)),
       cellCreator(new MImCorrectionContentItemCreator),
       candidatesModel(new QStringListModel()),
@@ -116,7 +121,6 @@ MImCorrectionCandidateWidget::MImCorrectionCandidateWidget(QGraphicsWidget *pare
 
     QGraphicsLinearLayout *layout = new QGraphicsLinearLayout;
     containerWidget->setLayout(layout);
-    candidatesWidget = new MList(containerWidget);
 
     layout->addItem(candidatesWidget);
     candidatesWidget->setObjectName(CandidatesListObjectName);
@@ -153,14 +157,21 @@ void MImCorrectionCandidateWidget::setCandidates(const QStringList candidateList
     candidateWidth = 0;
     MLabel label;
     label.setObjectName(CandidatesItemLabelObjectName);
+    label.setWordWrap(false);
+    // Below "label.preferredSize().width()" could be bigger than actual left + right
+    // margin of the label. But unfortunately there is no way to get styling parameters
+    // outside of styled object. So we assume the preferredSize of an empty label is
+    // just its left + right margin.
+    const int leftRightMargins = label.preferredSize().width();
     foreach (const QString &candidate, filteredCandidateList) {
         label.setText(candidate);
         candidateWidth = qMax(candidateWidth, label.preferredSize().width());
     }
 
-    qreal left, top, right, bottom;
-    label.getContentsMargins(&left, &top, &right, &bottom);
-    candidateWidth += left + right;
+    candidateWidth += leftRightMargins;
+    // not less than minimum width
+    if (candidateWidth < containerWidget->minimumSize().width())
+        candidateWidth = containerWidget->minimumSize().width();
 }
 
 void MImCorrectionCandidateWidget::setPreeditString(const QString &string)

@@ -21,11 +21,23 @@
 
 #include <QModelIndex>
 #include <MWidget>
+#include <MStylableWidget>
+#include "mimcorrectioncandidatecontainerstyle.h"
 
 class MSceneManager;
 class MList;
 class MImCorrectionContentItemCreator;
 class QStringListModel;
+
+class MImCorrectionCandidateContainer: public MStylableWidget
+{
+    Q_OBJECT
+public:
+    explicit MImCorrectionCandidateContainer(QGraphicsItem *parent = 0);
+
+private:
+    M_STYLABLE_WIDGET(MImCorrectionCandidateContainerStyle)
+};
 
 /*!
   \class MImCorrectionCandidateWidget
@@ -135,7 +147,7 @@ private:
     QString m_preeditString;
     QPoint candidatePosition;
     MSceneManager *sceneManager;
-    MWidget *containerWidget;
+    MImCorrectionCandidateContainer *containerWidget;
     MList *candidatesWidget;
     MImCorrectionContentItemCreator *cellCreator;
     QStringListModel *candidatesModel;

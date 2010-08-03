@@ -1,3 +1,5 @@
+@const HEIGHT_CANDIDATEITEM:  6.4mm;
+
 MVirtualKeyboardStyle {
     background-image: "meegotouch-keyboard-background" 10px 10px 10px 10px;
     font: "Nokia Sans Light" 28;
@@ -216,23 +218,31 @@ WidgetBarStyle {
     padding-right: 3;
 }
 
-#CorrectionCandidateList {
-    margin-left: 0;
+MImCorrectionCandidateContainerStyle {
+    background-image: "meegotouch-candidatelist-background" 10 10 10 10;
     margin-top: 0;
-    margin-right: 0;
     margin-bottom: 0;
+    margin-left: 0;
+    margin-right: 0;
+
+    minimum-size: 15mm $HEIGHT_CANDIDATEITEM;
+    maximum-size: 100% 100%;
+
+    releaseFeedback: ;
+    pressFeedback: ;
 }
 
-#CorrectionCandidateItem {
-    preferred-size: -1 6.4mm;
-    minimum-size: 10mm 6.4mm;
-    maximum-size: 100% 6.4mm;
+MImCorrectionCandidateItemStyle {
+    preferred-size: -1 $HEIGHT_CANDIDATEITEM;
+    minimum-size: 10mm $HEIGHT_CANDIDATEITEM;
+    maximum-size: 100% $HEIGHT_CANDIDATEITEM;
 
     title-object-name: "CorrectionCandidateItemTitle";
 }
+
 #CorrectionCandidateItemTitle {
-    margin-left:   2.4mm;
-    margin-right:  2.4mm;
+    margin-left: $MARGIN_XLARGE;
+    margin-right: $MARGIN_XLARGE;
 }
 
 MImToolbarStyle {

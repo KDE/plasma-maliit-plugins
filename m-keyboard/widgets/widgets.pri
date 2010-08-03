@@ -13,12 +13,16 @@ STYLE_HEADERS += \
     $$WIDGETS_DIR/handlestyle.h \
     $$WIDGETS_DIR/mtoolbarbuttonstyle.h \
     $$WIDGETS_DIR/mimtoolbarstyle.h \
+    $$WIDGETS_DIR/mimcorrectioncandidatecontainerstyle.h \
+    $$WIDGETS_DIR/mimcorrectioncandidateitemstyle.h \
 
 HEADERS += \
     $$STYLE_HEADERS \
     $$WIDGETS_DIR/widgetbar.h \
     $$WIDGETS_DIR/mimcorrectioncandidatewindow.h \
     $$WIDGETS_DIR/mimcorrectioncandidatewidget.h \
+    $$WIDGETS_DIR/mimcorrectioncandidateitem.h \
+    $$WIDGETS_DIR/mimcorrectioncandidateitemview.h \
     $$WIDGETS_DIR/mimtoolbar.h \
     $$WIDGETS_DIR/mvirtualkeyboard.h \
     $$WIDGETS_DIR/flickupbutton.h \
@@ -46,6 +50,8 @@ SOURCES += \
     $$WIDGETS_DIR/widgetbar.cpp \
     $$WIDGETS_DIR/mimcorrectioncandidatewindow.cpp \
     $$WIDGETS_DIR/mimcorrectioncandidatewidget.cpp \
+    $$WIDGETS_DIR/mimcorrectioncandidateitem.cpp \
+    $$WIDGETS_DIR/mimcorrectioncandidateitemview.cpp \
     $$WIDGETS_DIR/mimtoolbar.cpp \
     $$WIDGETS_DIR/mvirtualkeyboard.cpp \
     $$WIDGETS_DIR/flickupbutton.cpp \
