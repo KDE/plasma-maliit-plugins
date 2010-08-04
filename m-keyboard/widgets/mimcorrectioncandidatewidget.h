@@ -20,7 +20,7 @@
 #define MIMCORRECTIONCANDIDATEWIDGET_H
 
 #include <QModelIndex>
-#include <MWidget>
+#include <MSceneWindow>
 #include <MStylableWidget>
 #include "mimcorrectioncandidatecontainerstyle.h"
 
@@ -43,7 +43,7 @@ private:
   \class MImCorrectionCandidateWidget
   \brief The MImCorrectionCandidateWidget class is used to show error correction candidate list
 */
-class MImCorrectionCandidateWidget: public MWidget
+class MImCorrectionCandidateWidget: public MSceneWindow
 {
     Q_OBJECT
 
@@ -124,13 +124,6 @@ signals:
     /*! Updates the screen region used by the widget
      */
     void regionUpdated(const QRegion &);
-
-    /*! Emitted when it hides itself.
-     */
-    void hidden();
-
-    //! Emitted when visible and showing the list.
-    void opened();
 
 protected:
     /*! \reimp */

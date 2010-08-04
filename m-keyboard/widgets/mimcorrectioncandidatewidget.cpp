@@ -103,7 +103,7 @@ MImCorrectionCandidateContainer::MImCorrectionCandidateContainer(QGraphicsItem *
 }
 
 MImCorrectionCandidateWidget::MImCorrectionCandidateWidget(QGraphicsWidget *parent)
-    : MWidget(parent),
+    : MSceneWindow(parent),
       rotationInProgress(false),
       candidatePosition(0, 0),
       sceneManager(MPlainWindow::instance()->sceneManager()),
@@ -113,8 +113,8 @@ MImCorrectionCandidateWidget::MImCorrectionCandidateWidget(QGraphicsWidget *pare
       candidatesModel(new QStringListModel()),
       candidateWidth(0)
 {
-    setGeometry(0, 0, sceneManager->visibleSceneSize().width(),
-                sceneManager->visibleSceneSize().height());
+    setGeometry(QRectF(0, 0, sceneManager->visibleSceneSize().width(),
+                sceneManager->visibleSceneSize().height()));
 
     // The z-value should always be more than vkb and text widget's z-value
     setZValue(ZValue);
@@ -274,11 +274,10 @@ void MImCorrectionCandidateWidget::showWidget()
     // So set the container widget's width to candidateWidth,
     // to make MList have the enough width to show whole words.
     containerWidget->setPreferredWidth(candidateWidth);
-    show();
+    appear();
 
     // Extend overlay window to whole screen area.
     emit regionUpdated(mapRectToScene(QRect(QPoint(0, 0), sceneManager->visibleSceneSize())).toRect());
-    emit opened();
 }
 
 void MImCorrectionCandidateWidget::mousePressEvent(QGraphicsSceneMouseEvent *e)
@@ -289,7 +288,7 @@ void MImCorrectionCandidateWidget::mousePressEvent(QGraphicsSceneMouseEvent *e)
 void MImCorrectionCandidateWidget::mouseReleaseEvent(QGraphicsSceneMouseEvent *e)
 {
     Q_UNUSED(e);
-    hide();
+    disappear();
 }
 
 void MImCorrectionCandidateWidget::select(const QModelIndex &index)
@@ -302,13 +301,12 @@ void MImCorrectionCandidateWidget::select(const QModelIndex &index)
     if (candidate != m_preeditString) {
         emit candidateClicked(candidate);
     }
-    hide();
+    disappear();
 }
 
 void MImCorrectionCandidateWidget::hideEvent(QHideEvent *event)
 {
     MWidget::hideEvent(event);
-    emit hidden();
     emit regionUpdated(QRegion());
 }
 
@@ -327,9 +325,9 @@ int MImCorrectionCandidateWidget::activeIndex() const
 
 void MImCorrectionCandidateWidget::prepareToOrientationChange()
 {
-    if (isVisible()) {
+    if (sceneWindowState() != MSceneWindow::Disappeared) {
         rotationInProgress = true;
-        this->hide();
+        disappear();
     }
 }
 
