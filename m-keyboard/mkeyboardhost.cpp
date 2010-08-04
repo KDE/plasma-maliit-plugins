@@ -396,6 +396,7 @@ void MKeyboardHost::show()
 
 void MKeyboardHost::hide()
 {
+    correctionCandidateWidget->disappear();
     symbolView->hideSymbolView();
     vkbWidget->hideKeyboard();
 }
@@ -561,7 +562,7 @@ void MKeyboardHost::finalizeOrientationChange()
 
             correctionCandidateWidget->setPosition(localRect, bottomLimit);
         } else {
-            correctionCandidateWidget->hide();
+            correctionCandidateWidget->disappear();
         }
     }
 
