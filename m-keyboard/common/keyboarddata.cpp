@@ -90,6 +90,7 @@ namespace
     const QString ActionStrDecimalSeparator  = QString("decimal_separator");
     const QString ActionStrPlusMinusToggle   = QString("plus_minus_toggle");
     const QString ActionStrTab               = QString("tab");
+    const QString ActionStrCommit            = QString("commit");
 
     const QString VKBTagImport               = QString("import");
     const QString VKBTagFile                 = QString("file");
@@ -485,6 +486,8 @@ KeyBinding::KeyAction KeyboardData::keyActionFromString(const QString &typeStr)
         result = KeyBinding::ActionPlusMinusToggle;
     else if (typeStr == ActionStrTab)
         result = KeyBinding::ActionTab;
+    else if (typeStr == ActionStrCommit)
+        result = KeyBinding::ActionCommit;
     else
         result = KeyBinding::ActionInsert;
     return result;

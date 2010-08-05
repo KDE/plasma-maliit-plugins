@@ -34,6 +34,7 @@ public:
         LayoutMenu,
         CycleSet,
         Sym,
+        Commit,
         NumSpecialKeys
     };
 

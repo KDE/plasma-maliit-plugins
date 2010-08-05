@@ -32,7 +32,7 @@
 
 <!ATTLIST binding
   action (insert | shift | backspace | space | cycle | layout_menu | sym
-          | return | decimal_separator | plus_minus_toggle) "insert"
+          | return | commit | decimal_separator | plus_minus_toggle) "insert"
   shift (true|false) "false"
   alt (true|false) "false"
   label CDATA #IMPLIED

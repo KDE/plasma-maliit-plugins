@@ -41,6 +41,7 @@ public:
         ActionDecimalSeparator,
         ActionPlusMinusToggle,
         ActionTab,
+        ActionCommit,
         NumActions
     };
 

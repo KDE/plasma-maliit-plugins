@@ -129,6 +129,7 @@ void FlickUpButton::updateButtonObjectName()
         break;
 
     case KeyBinding::ActionTab:
+    case KeyBinding::ActionCommit:
     case KeyBinding::ActionCycle:
     case KeyBinding::ActionInsert:
     case KeyBinding::ActionDecimalSeparator:

@@ -192,6 +192,7 @@ attribute.
 the context.
 \li \c decimal_separator Insert , or . depending on the locale settings.
 \li \c plus_minus_toggle Toggle the sign of the number being typed.
+\li \c commit Commit original user input string.
 
 \section DTD
 
