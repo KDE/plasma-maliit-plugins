@@ -281,7 +281,7 @@ void SingleWidgetButtonArea::buildTextLayout()
                 // We are getting out of sync anyway so no point in continuing.
                 goto endLayout;
             }
-            line.setNumColumns(1); // at least one character, will be seeked forward until next whitespace
+            line.setNumColumns(label.length()); // will be seeked forward until next whitespace
             line.setPosition(labelPos);
 
             // Same for secondary label
@@ -290,7 +290,7 @@ void SingleWidgetButtonArea::buildTextLayout()
                 if (!line.isValid()) {
                     goto endLayout;
                 }
-                line.setNumColumns(1);
+                line.setNumColumns(secondary.length());
                 line.setPosition(secondaryLabelPos);
             }
         }
