@@ -251,15 +251,19 @@ void Ut_MImCorrectionCandidateWidget::setCandidatesAndSelect()
 
         delete m_subject;
         m_subject = new MImCorrectionCandidateWidget();
+        // set initial state to hidden
+        m_subject->hide();
         QSignalSpy spyRegion(m_subject, SIGNAL(regionUpdated(const QRegion &)));
         QSignalSpy spyCandidate(m_subject, SIGNAL(candidateClicked(const QString &)));
-        QSignalSpy spyHidden(m_subject, SIGNAL(hidden()));
+        QSignalSpy spyDisappeared(m_subject, SIGNAL(disappeared()));
 
         //initialization
         m_subject->setPreeditString(candidates.last());
         m_subject->setCandidates(candidates);
         m_subject->setPosition(QPoint(0, 0));
         m_subject->showWidget();
+        // wait until animation is finished
+        QTest::qWait(500);
         QStringList filteredCandidates = candidates;
         filteredCandidates.removeOne(candidates.last());
         QVERIFY(m_subject->candidates() == filteredCandidates);
@@ -284,7 +288,9 @@ void Ut_MImCorrectionCandidateWidget::setCandidatesAndSelect()
             QCOMPARE(spyCandidate.first().count(), 1);
             QCOMPARE(spyCandidate.first().first().toString(), expectedWord.at(n));
         }
-        QCOMPARE(spyHidden.count(), 1);
+        // wait until animation is finished
+        QTest::qWait(500);
+        QCOMPARE(spyDisappeared.count(), 1);
 
         delete press;
         delete release;
