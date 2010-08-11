@@ -61,6 +61,7 @@ MToolbarButton::MToolbarButton(QSharedPointer<MToolbarItem> item,
         connect(this, SIGNAL(clicked(bool)),
                 itemPtr.data(), SLOT(setPressed(bool)));
     }
+    setEnabled(itemPtr->enabled());
     setVisible(item->isVisible());
 
     connect(this, SIGNAL(clicked(bool)),
@@ -154,6 +155,8 @@ void MToolbarButton::updateData(const QString &attribute)
         setText(qtTrId(itemPtr->textId().toUtf8().data()));
     } else if (attribute == "pressed" && itemPtr->toggle()) {
         setChecked(itemPtr->pressed());
+    } else if (attribute == "enabled") {
+        setEnabled(itemPtr->enabled());
     } else if (attribute == "visible") {
         setVisible(itemPtr->isVisible());
         emit availabilityChanged();
