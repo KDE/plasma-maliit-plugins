@@ -828,7 +828,9 @@ void MKeyboardHost::clearReactionMaps(const QString &clearValue)
 
 void MKeyboardHost::handleKeyClick(const KeyEvent &event)
 {
-    if (activeState == Hardware) {
+    // Don't need send key events for Direct input mode here.
+    // already send in handleKeyPress and handleKeyRelease.
+    if (activeState == Hardware && inputMethodMode != M::InputMethodModeDirect) {
         // In hardware keyboard mode symbol view is just another source for
         // events that will be handled by duihardwarekeyboard.  The native
         // modifiers may not be correct (depending on the current hwkbd modifier
