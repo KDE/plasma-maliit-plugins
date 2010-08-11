@@ -82,9 +82,11 @@ public:
 
     M_STYLE_ATTRIBUTE(QSize, keyMenuIconSize, KeyMenuIconSize)
     M_STYLE_ATTRIBUTE(QString, keyMenuIconId, KeyMenuIconId)
+    M_STYLE_ATTRIBUTE(QString, keyMenuIconIdRtl, KeyMenuIconIdRtl)
 
     M_STYLE_ATTRIBUTE(QSize, keyEnterIconSize, KeyEnterIconSize)
     M_STYLE_ATTRIBUTE(QString, keyEnterIconId, KeyEnterIconId)
+    M_STYLE_ATTRIBUTE(QString, keyEnterIconIdRtl, KeyEnterIconIdRtl)
 
     M_STYLE_ATTRIBUTE(QSize, keyTabIconSize, KeyTabIconSize)
     M_STYLE_ATTRIBUTE(QString, keyTabIconId, KeyTabIconId)

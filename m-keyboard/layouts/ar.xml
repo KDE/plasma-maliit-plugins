@@ -117,7 +117,7 @@
             <key>
               <binding action="shift" label=""/>
             </key>
-            <key>
+            <key rtl="true">
               <binding action="sym" label="Sym" secondary_label="áçè"/>
               <binding shift="true" action="layout_menu" label=""/>
             </key>
@@ -132,7 +132,7 @@
               <binding label="."/>
               <binding shift="true" label="،"/>
             </key>
-            <key>
+            <key rtl="true">
               <binding action="return" label=""/>
             </key>
             <key rtl="true">
@@ -147,11 +147,11 @@
             <key>
               <binding action="shift" label=""/>
             </key>
-            <key>
+            <key rtl="true">
               <binding action="sym" label="Sym" secondary_label="áçè"/>
               <binding shift="true" action="layout_menu" label=""/>
             </key>
-            <key>
+            <key rtl="true">
               <binding action="space" label=""/>
               <binding shift="true" action="return" label=""/>
             </key>

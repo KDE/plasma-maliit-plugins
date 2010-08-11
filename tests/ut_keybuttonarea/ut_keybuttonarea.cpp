@@ -890,7 +890,9 @@ void Ut_KeyButtonArea::testRtlKeys_data()
     QList<KeyBinding::KeyAction> rtlKeys;
     const QList<KeyBinding::KeyAction> nothing;
 
-    rtlKeys << KeyBinding::ActionBackspace;
+    rtlKeys << KeyBinding::ActionBackspace
+            << KeyBinding::ActionLayoutMenu
+            << KeyBinding::ActionReturn;
 
     QTest::newRow("SingleWidgetArea Landscape Arabic")
         << &createSingleWidgetKeyButtonArea
@@ -941,7 +943,7 @@ void Ut_KeyButtonArea::testRtlKeys()
             if (expectedRtlKeys.contains(button->key().binding()->action())) {
                 QVERIFY(button->key().rtl());
                 QVERIFY2(button->iconId().contains("-rtl-"), "This is not RTL icon");
-            } else {
+            } else if (!button->iconId().isEmpty()) {
                 QVERIFY(!button->key().rtl());
                 QVERIFY2(!button->iconId().contains("-rtl-"), "This is not LTR icon");
             }

@@ -35,9 +35,11 @@ MVirtualKeyboardStyle {
 
     key-menu-icon-size: 48 48;
     key-menu-icon-id: "icon-m-input-methods-menu";
+    key-menu-icon-id-rtl: "icon-m-rtl-input-methods-menu";
 
     key-enter-icon-size: 48 48;
     key-enter-icon-id: "icon-m-input-methods-enter";
+    key-enter-icon-id-rtl: "icon-m-rtl-input-methods-enter";
 
     key-shift-icon-size: 48 48;
     key-shift-icon-id: "icon-m-input-methods-shift";
