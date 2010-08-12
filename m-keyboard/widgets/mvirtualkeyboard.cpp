@@ -480,6 +480,10 @@ MVirtualKeyboard::fade(int frame)
     }
 
     this->setOpacity(opacity);
+    if (sharedHandleArea) {
+        // fade sharedHandleArea together
+        sharedHandleArea->setOpacity(opacity);
+    }
     update();
 }
 
