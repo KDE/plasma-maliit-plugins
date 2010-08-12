@@ -29,6 +29,7 @@
 #undef KeyRelease
 #include <X11/XKBlib.h>
 #define XK_MISCELLANY
+#define XK_XKB_KEYS
 #include <X11/keysymdef.h>
 
 #define ELEMENTS(array) (sizeof(array)/sizeof((array)[0]))
@@ -44,6 +45,21 @@ namespace
 
     const unsigned short RepeatDelay(660);   // in milliseconds
     const unsigned short RepeatInterval(25); // in milliseconds
+
+    const int KeyCodeShift = 3;
+    const int KeyCodeMask = 7;
+
+    inline void setKeyBit(XkbDescPtr description, KeyCode keyCode)
+    {
+        description->ctrls->per_key_repeat[keyCode >> KeyCodeShift] |=
+            1 << (keyCode & KeyCodeMask);
+    }
+
+    inline void clearKeyBit(XkbDescPtr description, KeyCode keyCode)
+    {
+        description->ctrls->per_key_repeat[keyCode >> KeyCodeShift] &=
+            ~(1 << (keyCode & KeyCodeMask));
+    }
 };
 
 MHardwareKeyboard::MHardwareKeyboard(MInputContextConnection& icConnection, QObject *parent)
@@ -144,9 +160,26 @@ void MHardwareKeyboard::toggleCustomAutoRepeat(const bool enable)
         for (unsigned int i = 0; i < ELEMENTS(repeatableKeys); ++i) {
             const KeyCode repeatableKeyCode(XKeysymToKeycode(QX11Info::display(), repeatableKeys[i]));
             if (repeatableKeyCode) {
-                description->ctrls->per_key_repeat[repeatableKeyCode >> 3] |= 1 << (repeatableKeyCode & 7);
+                setKeyBit(description, repeatableKeyCode);
             } else {
                 qWarning() << "Unable to make keysym" << repeatableKeys[i] << "repeatable: no keycode found.";
+            }
+        }
+    } else {
+        static const KeySym nonRepeatableKeys[] = {
+            XK_ISO_Level3_Shift, // Fn
+            XK_Multi_key, // Sym
+            XK_Shift_L,
+            XK_Shift_R,
+            XK_Control_R
+        };
+
+        for (unsigned int i = 0; i < ELEMENTS(nonRepeatableKeys); ++i) {
+            const KeyCode nonRepeatableKeyCode(XKeysymToKeycode(QX11Info::display(), nonRepeatableKeys[i]));
+            if (nonRepeatableKeyCode) {
+                clearKeyBit(description, nonRepeatableKeyCode);
+            } else {
+                qWarning() << "Unable to make keysym" << nonRepeatableKeys[i] << "non-repeatable: no keycode found.";
             }
         }
     }
