@@ -71,8 +71,9 @@ void MKeyboardPlugin::loadTranslation()
 {
     if (!translationIsLoaded) {
         MLocale locale;
-        // add virtual-keyboard catalog for the settings translation.
+        // add virtual-keyboard and hardware-keyboard catalog
         locale.installTrCatalog("virtual-keyboard");
+        locale.installTrCatalog("hardware-keyboard");
         MLocale::setDefault(locale);
         translationIsLoaded = true;
     }
