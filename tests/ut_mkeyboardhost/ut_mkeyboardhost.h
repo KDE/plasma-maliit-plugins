@@ -46,6 +46,7 @@ private slots:
     void cleanupTestCase();
 
     void testCreate();
+    void testOrientationAngleLocked();
     void testRotatePoint();
     void testRotateRect();
     void testHandleClick();

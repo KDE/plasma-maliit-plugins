@@ -171,6 +171,12 @@ void Ut_MKeyboardHost::testCreate()
     QVERIFY(subject != 0);
 }
 
+void Ut_MKeyboardHost::testOrientationAngleLocked()
+{
+    // Our window must not listen to device orientation changes.
+    QVERIFY(MPlainWindow::instance()->isOrientationAngleLocked());
+}
+
 void Ut_MKeyboardHost::testRotatePoint()
 {
     const QPoint screenPos(100, 200);

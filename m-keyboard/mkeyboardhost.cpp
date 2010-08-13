@@ -201,6 +201,10 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
 
     createCorrectionCandidateWidget();
 
+    // Don't listen to device orientation.  Applications can be in different orientation
+    // than the device (especially plain qt apps). See NB#185013 - Locking VKB orientation.
+    MPlainWindow::instance()->lockOrientationAngle();
+
     // Ideally we would adjust the hiding/showing animation of vkb according to
     // animation of the application receiving input. For example, with 3-phase
     // MBasicOrientationAnimation we would probably want to sync like this:
