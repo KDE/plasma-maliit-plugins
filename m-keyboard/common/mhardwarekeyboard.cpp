@@ -533,8 +533,10 @@ void MHardwareKeyboard::handleLongPressTimeout()
     }
 
     const unsigned int shiftAndLock(longPressModifiers & (ShiftMask | LockMask));
-    const unsigned int shiftLevel((shiftAndLock == ShiftMask) || (shiftAndLock == LockMask)
-                                  ? 3 : 2);
+    // With Fn locked, long press overrides Fn modifier and you'll get level 0 or 1 key
+    const unsigned int shiftLevelBase(currentLockedMods & FnModifierMask ? 0 : 2);
+    const unsigned int shiftLevel(((shiftAndLock == ShiftMask) || (shiftAndLock == LockMask)
+                                   ? 1 : 0) + shiftLevelBase);
     const QString text(keycodeToString(longPressKey, shiftLevel));
     if (!text.isEmpty()) {
         inputContextConnection.sendKeyEvent(
