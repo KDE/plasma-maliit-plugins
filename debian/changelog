@@ -5,6 +5,7 @@ meego-keyboard (0.4.12~1) unstable; urgency=low
   * Fixes: NB#183854 - Sym view for hardware keyboard sends multiple characters when tapped
   * Fixes: NB#184694 - Toolbar gets invisible only after VKB gets invisible while zooming
   * Fixes: NB#179902 -"!!Caps lock on" is shown by twice pressing Shiftkey from the HKB
+  * Fixes: NB#179905 - Reverse Fn handling broken in telephony input mode
 
  -- huaming wang <huaming.wang@nokia.com>  Mon, 02 Aug 2010 14:53:16 +0300
 
