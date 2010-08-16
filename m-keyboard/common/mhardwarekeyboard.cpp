@@ -59,7 +59,8 @@ MHardwareKeyboard::MHardwareKeyboard(MInputContextConnection& icConnection, QObj
       shiftsPressed(0),
       shiftShiftCapsLock(false),
       longPressTimer(this),
-      imMode(M::InputMethodModeNormal)
+      imMode(M::InputMethodModeNormal),
+      fnPressed(false)
 {
     longPressTimer.setSingleShot(true);
     longPressTimer.setInterval(longPressTime);
@@ -172,6 +173,7 @@ void MHardwareKeyboard::enable()
         shiftShiftCapsLock = false;
         shiftsPressed = 0;
         pressedKeys.clear();
+        fnPressed = false;
         autoCaps = false;
 
         // We reset state without using latch/lockModifiers in order to force notification
@@ -209,7 +211,7 @@ void MHardwareKeyboard::disable()
     inputContextConnection.setRedirectKeys(false);
     // Unlock and unlatch everything.  If for example non-Qt X application gets focus
     // after this focus out, there is no way to unlock Lock modifier using the
-    // physical keyboard.  So better clear the state a well as we can.
+    // physical keyboard.  So better clear the state as well as we can.
     lockModifiers(LockMask | FnModifierMask, 0);
     latchModifiers(ShiftMask | FnModifierMask, 0);
 
@@ -280,8 +282,8 @@ void MHardwareKeyboard::lockModifiers(unsigned int affect, unsigned int value)
 
 
 void MHardwareKeyboard::cycleModifierState(Qt::Key keyCode, unsigned int lockMask,
-                                             unsigned int latchMask, unsigned int unlockMask,
-                                             unsigned int unlatchMask)
+                                           unsigned int latchMask, unsigned int unlockMask,
+                                           unsigned int unlatchMask)
 {
     if (currentLockedMods & lockMask) {
         lockModifiers(lockMask, 0);
@@ -308,7 +310,7 @@ void MHardwareKeyboard::handleCyclableModifierRelease(
 }
 
 bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers modifiers,
-                                       const QString &text, bool autoRepeat, int count,
+                                       QString text, bool autoRepeat, int count,
                                        quint32 nativeScanCode, quint32 nativeModifiers)
 {
     bool eaten = false;
@@ -321,8 +323,13 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
         return eaten;
     }
 
-    const unsigned char savedLatchedMods(currentLatchedMods);
+    // When Fn is pressed while also being locked, fn modifier is ignored for obtaining the text
+    if ((keyCode != FnLevelKey) && fnPressed && (currentLockedMods & FnModifierMask)) {
+        text = keycodeToString(nativeScanCode, (nativeModifiers & ShiftMask) ? 1 : 0);
+        keyCode = text.isEmpty() ? Qt::Key_unknown : static_cast<Qt::Key>(QKeySequence(text)[0]);
+    }
 
+    const unsigned char savedLatchedMods(currentLatchedMods);
     pressedKeys.insert(nativeScanCode, true);
 
     if (keyCode == SymKey) {
@@ -332,6 +339,9 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
         shiftShiftCapsLock = true;
         latchModifiers(FnModifierMask | ShiftMask, 0);
         lockModifiers(FnModifierMask | LockMask, LockMask);
+    } else if (keyCode == FnLevelKey) {
+        fnPressed = true;
+        eaten = false;
     } else {
         eaten = !passKeyOnPress(keyCode, text, nativeScanCode);
 
@@ -386,7 +396,7 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
 }
 
 bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers modifiers,
-                                         const QString &text,
+                                         QString text,
                                          quint32 nativeScanCode, quint32 nativeModifiers)
 {
     bool eaten = false;
@@ -398,6 +408,11 @@ bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers 
         return eaten;
     }
 
+    // When Fn is pressed while also being locked, fn modifier is ignored for obtaining the text
+    if ((keyCode != FnLevelKey) && fnPressed && (currentLockedMods & FnModifierMask)) {
+        text = keycodeToString(nativeScanCode, (nativeModifiers & ShiftMask) ? 1 : 0);
+        keyCode = text.isEmpty() ? Qt::Key_unknown : static_cast<Qt::Key>(QKeySequence(text)[0]);
+    }
     const bool keyWasPressed(pressedKeys.contains(nativeScanCode));
 
     // Relock modifiers; X seems to unlock Fn automatically on Fn release, which is not
@@ -424,6 +439,7 @@ bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers 
             shiftShiftCapsLock = false;
         }
     } else if (keyCode == FnLevelKey) {
+        fnPressed = false;
         handleCyclableModifierRelease(FnLevelKey, FnModifierMask, FnModifierMask, LockMask,
                                       ShiftMask);
     } else if (!eaten && !passKeyOnPress(keyCode, text, nativeScanCode)) {

@@ -216,12 +216,12 @@ private:
 
     //! Helper for filterKeyEvent, handles press events
     bool filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers modifiers,
-                        const QString &text, bool autoRepeat, int count,
+                        QString text, bool autoRepeat, int count,
                         quint32 nativeScanCode, quint32 nativeModifiers);
 
     //! Helper for filterKeyEvent, handles release events
     bool filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers modifiers,
-                          const QString &text,
+                          QString text,
                           quint32 nativeScanCode, quint32 nativeModifiers);
 
 
@@ -279,6 +279,9 @@ private:
     quint32 longPressModifiers; // X modifier mask
 
     M::InputMethodMode imMode;
+
+    //! \brief Is Fn key pressed at the moment?
+    bool fnPressed;
 
     friend class Ut_MHardwareKeyboard;
     friend class Ft_MHardwareKeyboard;
