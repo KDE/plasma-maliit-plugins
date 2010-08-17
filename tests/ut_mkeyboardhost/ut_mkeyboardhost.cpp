@@ -333,6 +333,8 @@ void Ut_MKeyboardHost::testHandleClick()
 
 void Ut_MKeyboardHost::testDirectMode()
 {
+    QSKIP("Disabled due to temporary direct mode change from NB#176441.", SkipAll);
+
     QList<KeyEvent> testData;
     QList<Qt::Key> expectedKeys;
 
@@ -594,6 +596,8 @@ void Ut_MKeyboardHost::testCopyPaste()
 
 void Ut_MKeyboardHost::testPlusMinus()
 {
+    QSKIP("Disabled due to temporary direct mode change from NB#176441.", SkipAll);
+
     QString text = QChar(0xb1);
     inputContext->sendKeyEventCalls = 0;
     KeyEvent press(text, QEvent::KeyPress, Qt::Key_plusminus, KeyEvent::NotSpecial);
@@ -618,6 +622,8 @@ static QRegion region(const QSignalSpy &spy, int index)
 
 void Ut_MKeyboardHost::testRegionSignals()
 {
+    QSKIP("Disabled due to temporary direct mode change from NB#176441.", SkipAll);
+
     qRegisterMetaType<QRegion>("QRegion");
     QSignalSpy spy(subject, SIGNAL(regionUpdated(QRegion)));
     QSignalSpy spy2(subject, SIGNAL(inputMethodAreaUpdated(QRegion)));

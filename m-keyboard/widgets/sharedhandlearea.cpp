@@ -93,16 +93,16 @@ void SharedHandleArea::connectHandle(const Handle &handle)
 }
 
 
-void SharedHandleArea::setInputMethodMode(const M::InputMethodMode mode)
+void SharedHandleArea::setInputMethodMode(const M::InputMethodMode)
 {
     // Toggle invisible gesture handle area on/off
     QGraphicsWidget &previousItem(*dynamic_cast<QGraphicsWidget *>(
                                       mainLayout.itemAt(InvisibleHandleIndex)));
     mainLayout.removeItem(&previousItem);
     previousItem.hide();
-    QGraphicsWidget &newItem(mode == M::InputMethodModeDirect ? invisibleHandle : zeroSizeInvisibleHandle);
+    QGraphicsWidget &newItem(zeroSizeInvisibleHandle);
     mainLayout.insertItem(InvisibleHandleIndex, &newItem);
-    newItem.setVisible(mode == M::InputMethodModeDirect);
+    newItem.setVisible(false);
     updatePositionAndRegion(SignalsEnforce);
 }
 

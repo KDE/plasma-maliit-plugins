@@ -370,6 +370,10 @@ private:
     //! Toolbar widget containing copy/paste and custom buttons.
     QPointer<MImToolbar> imToolbar;
 
+    //! Contains last Events for DirectMode
+    KeyEvent lastReleaseEvent;
+    KeyEvent lastPressEvent;
+
 #ifdef UNIT_TEST
     friend class Ut_MKeyboardHost;
 #endif
