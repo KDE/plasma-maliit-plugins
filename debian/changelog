@@ -2,6 +2,7 @@ meego-keyboard (0.4.13~1) unstable; urgency=low
 
   * [UNRELEASED]
   * Fixes: NB#176441 - VKB is hard to close in direct mode
+  * Fixes: NB#184042 - Key Events are repeated for Modifier Keys
 
  -- huaming wang <huaming.wang@nokia.com>  Mon, 02 Aug 2010 14:53:16 +0300
 
