@@ -27,7 +27,7 @@ class QGraphicsSceneMouseEvent;
   \brief FlickGestureRecognizer recognizes currently flick/swipe gestures made by one finger.
   It is build on Qt gesture framework.
 
-  Clients wanting to receive flick gestures must grab the gesture. Befor that the recognizer
+  Clients wanting to receive flick gestures must grab the gesture. Before that the recognizer
   must be registered. Currently the recognizer is a singleton and is registered via
   \a registerSharedRecognizer() and unregistered via \a unregisterSharedRecognizer().
   QGraphicsObject can be set to receive flick gestures by calling
