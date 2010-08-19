@@ -26,6 +26,10 @@ namespace
     const QString NumberFormatSettingName("/meegotouch/inputmethods/numberformat");
     const QString InputMethodDefaultLanguage("/meegotouch/inputmethods/languages/default");
     const QString XkbLayoutSettingName("/meegotouch/inputmethods/hwkeyboard/layout");
+    const QString XkbVariantSettingName("/meegotouch/inputmethods/hwkeyboard/variant");
+    const QString XkbSecondaryLayoutSettingName("/meegotouch/inputmethods/hwkeyboard/secondarylayout");
+    const QString XkbModelSettingName("/meegotouch/inputmethods/hwkeyboard/model");
+    const QString XkbSecondaryVariantSettingName("/meegotouch/inputmethods/hwkeyboard/secondaryvariant");
     const QString HardwareKeyboardAutoCapsDisabledLayouts("/meegotouch/inputmethods/hwkeyboard/autocapsdisabledlayouts");
     const QString DefaultHardwareKeyboardAutoCapsDisabledLayout("ara"); // Uses xkb layout name. Arabic is "ara".
     const QString SystemDisplayLanguage("/meegotouch/i18n/language");
@@ -42,6 +46,7 @@ namespace
     const QString SymbolKeyboardFileEuro("hwsymbols_euro.xml");
     const QString SymbolKeyboardFileArabic("hwsymbols_arabic.xml");
     const QString SymbolKeyboardFileChinese("hwsymbols_chinese.xml");
+    const QString FallbackXkbModel("evdev");
 }
 
 LayoutsManager *LayoutsManager::Instance = 0;
@@ -49,21 +54,20 @@ LayoutsManager *LayoutsManager::Instance = 0;
 
 LayoutsManager::LayoutsManager()
     : configLanguages(InputMethodLanguages),
-      xkbLayoutSetting(XkbLayoutSettingName),
+      xkbModelSetting(XkbModelSettingName),
       numberFormatSetting(NumberFormatSettingName),
       numberFormat(NumLatin),
       currentHwkbLayoutType(InvalidHardwareKeyboard)
 {
     // Read settings for the first time and load keyboard layouts.
     syncLanguages();
+    initXkbMap();
     syncHardwareKeyboard();
     syncNumberKeyboards();
 
     // Synchronize with settings when someone changes them (e.g. via control panel).
     connect(&configLanguages, SIGNAL(valueChanged()), this, SLOT(syncLanguages()));
     connect(&configLanguages, SIGNAL(valueChanged()), this, SIGNAL(selectedLayoutsChanged()));
-
-    connect(&xkbLayoutSetting, SIGNAL(valueChanged()), this, SLOT(syncHardwareKeyboard()));
 
     connect(&numberFormatSetting, SIGNAL(valueChanged()), this, SLOT(syncNumberKeyboards()));
     connect(&locale, SIGNAL(settingsChanged()), SLOT(syncNumberKeyboards()));
@@ -171,9 +175,63 @@ QString LayoutsManager::systemDisplayLanguage() const
     return MGConfItem(SystemDisplayLanguage).value().toString();
 }
 
+void LayoutsManager::initXkbMap()
+{
+    //init current xkb layout and variant.
+    setXkbMap(xkbPrimaryLayout(), xkbPrimaryVariant());
+}
+
+QString LayoutsManager::xkbModel() const
+{
+    return xkbModelSetting.value(FallbackXkbModel).toString();
+}
+
 QString LayoutsManager::xkbLayout() const
 {
-    return xkbLayoutSetting.value(FallbackXkbLayout).toString();
+    return xkbCurrentLayout;
+}
+
+QString LayoutsManager::xkbVariant() const
+{
+    return xkbCurrentVariant;
+}
+
+QString LayoutsManager::xkbPrimaryLayout() const
+{
+    return MGConfItem(XkbLayoutSettingName).value(FallbackXkbLayout).toString();
+}
+
+QString LayoutsManager::xkbPrimaryVariant() const
+{
+    return MGConfItem(XkbVariantSettingName).value().toString();
+}
+
+QString LayoutsManager::xkbSecondaryLayout() const
+{
+    return MGConfItem(XkbSecondaryLayoutSettingName).value().toString();
+}
+
+QString LayoutsManager::xkbSecondaryVariant() const
+{
+    return MGConfItem(XkbSecondaryVariantSettingName).value().toString();
+}
+
+void LayoutsManager::setXkbMap(const QString &layout, const QString &variant)
+{
+    bool changed = false;
+    if (layout != xkbCurrentLayout) {
+        changed = true;
+        xkbCurrentLayout = layout;
+    }
+
+    if (variant != xkbCurrentVariant) {
+        changed = true;
+        xkbCurrentVariant = variant;
+    }
+
+    if (changed) {
+        syncHardwareKeyboard();
+    }
 }
 
 bool LayoutsManager::hardwareKeyboardAutoCapsEnabled() const

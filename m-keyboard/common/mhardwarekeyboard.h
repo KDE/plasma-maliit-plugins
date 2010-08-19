@@ -236,6 +236,13 @@ private:
     //! disabled.
     void toggleCustomAutoRepeat(bool enable);
 
+    //! \brief Switch hardware keyboard layout.
+    //!
+    //! Some hardware keyboard cover maximum 2 scripts. For example, Chinese Zhuyin
+    //! keyboard has Zhuyin and Latin printings. If current keyboard supports 2 scripts,
+    //! calling this method can switch the script.
+    void switchKeyMap();
+
     M::TextContentType currentKeyboardType;
     MXkb mXkb;
     bool autoCaps;

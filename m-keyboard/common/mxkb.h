@@ -17,6 +17,7 @@
 #ifndef MXKB_H
 #define MXKB_H
 
+class QString;
 /*!
   \brief MXkb provides some functionalities to manipulate the Xkb keyboard.
 
@@ -40,6 +41,19 @@ public:
     void latchModifiers(unsigned int affect, unsigned int values);
     //! \brief Just like \a latchModifiers but change the lock state.
     void lockModifiers(unsigned int affect, unsigned int values);
+
+    /*!
+     * \brief set the keyboard using the X Keyboard Extension.
+     *
+     * \param model the name of the keyboard model used to determine the components.
+     * \param layout the name of the layout used todetermine the components
+     *  which make up the keyboard description.
+     * \param variant  Specifies which variant of the keyboard layout should
+     *  be used to determine the components which make up the keyboard description.
+     *
+     * \return true if success.
+     */
+    bool setXkbMap(const QString &model, const QString &layout, const QString &variant);
 
 private:
     unsigned int deviceSpec;

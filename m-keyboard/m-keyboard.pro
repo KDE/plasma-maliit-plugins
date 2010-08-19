@@ -14,7 +14,7 @@ CONFIG += plugin meegotouch meegoimengine meegoimenginewords meegoimframework me
 DEFINES += NOCONTROLPANEL
 
 CONFIG += link_pkgconfig
-PKGCONFIG += gconf-2.0
+PKGCONFIG += gconf-2.0 xkbfile
 
 # coverage flags are off per default, but can be turned on via qmake COV_OPTION=on
 for(OPTION,$$list($$lower($$COV_OPTION))){

@@ -79,8 +79,29 @@ public:
     //! \brief Returns currently system display language
     QString systemDisplayLanguage() const;
 
-    //! \brief Returns the layout for hardware keyboard
+    //! \brief Returns the model for hardware keyboard
+    QString xkbModel() const;
+
+    //! \brief Returns current layout for hardware keyboard
     QString xkbLayout() const;
+
+    //! \brief Returns current variant for hardware keyboard
+    QString xkbVariant() const;
+
+    //! \brief Returns the primary layout for hardware keyboard
+    QString xkbPrimaryLayout() const;
+
+    //! \brief Returns the primary variant for hardware keyboard
+    QString xkbPrimaryVariant() const;
+
+    //! \brief Returns the secondary layout for hardware keyboard
+    QString xkbSecondaryLayout() const;
+
+    //! \brief Returns the secondary variant for hardware keyboard
+    QString xkbSecondaryVariant() const;
+
+    //! \brief Sets \a layout and \a variant as the xkb map for hardware keyboard.
+    void setXkbMap(const QString &layout, const QString &variant);
 
     //! \brief Returns whether autocaps is enabled for hardware keyboard.
     bool hardwareKeyboardAutoCapsEnabled() const;
@@ -122,6 +143,9 @@ private:
     //! Maps HW Sym variant type to xml file which contains the symbols.
     QString symbolVariantFileName(HardwareSymbolVariant symVariant);
 
+    //! Initialize the xkb keyboard map.
+    void initXkbMap();
+
 private slots:
     void syncLanguages();
     void syncHardwareKeyboard();
@@ -138,8 +162,14 @@ private:
     //! vkb's use. The settings are set by control panel applet.
     MGConfItem configLanguages;
 
-    //! Setting that tells the current xkb layout.
-    MGConfItem xkbLayoutSetting;
+    //! Setting that tells the xkb model.
+    MGConfItem xkbModelSetting;
+
+    //! Current xkb layout.
+    QString xkbCurrentLayout;
+
+    //! Current xkb variant.
+    QString xkbCurrentVariant;
 
     //! Setting that determines whether number format is Arabic or Latin
     MGConfItem numberFormatSetting;

@@ -348,6 +348,24 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
 {
     bool eaten = false;
 
+    // eat Fn/Shift press when Shift/Fn is held
+    if (keyCode == Qt::Key_Shift && fnPressed) {
+        ++shiftsPressed;
+        return true;
+    }
+    if (keyCode == FnLevelKey && shiftsPressed) {
+        fnPressed = true;
+        return true;
+    }
+
+    // switch keyboard map for Space press when (only) Control is held
+    if (keyCode == Qt::Key_Space
+        && (modifiers & Qt::ControlModifier)
+        && (!fnPressed && !shiftsPressed)) {
+        switchKeyMap();
+        return true;
+    }
+
     if (imMode == M::InputMethodModeDirect) {
         // eat the sym key.
         if (keyCode == SymKey) {
@@ -433,6 +451,29 @@ bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers 
                                          quint32 nativeScanCode, quint32 nativeModifiers)
 {
     bool eaten = false;
+
+    // switch keyboard map if Fn and Shift are held down and one of them
+    // released (without pressing any character key)
+    if(keyCode == Qt::Key_Shift
+        && fnPressed
+        && (lastKeyCode == FnLevelKey || lastKeyCode == Qt::Key_Shift)) {
+        --shiftsPressed;
+        switchKeyMap();
+        return true;
+    }
+    if (keyCode == FnLevelKey
+        && shiftsPressed
+        && (lastKeyCode == FnLevelKey || lastKeyCode == Qt::Key_Shift)) {
+        fnPressed = false;
+        switchKeyMap();
+        return true;
+    }
+    // eat Space release when Control is held.
+    if (keyCode == Qt::Key_Space
+        && (modifiers & Qt::ControlModifier)
+        && (!fnPressed && !shiftsPressed)) {
+        return true;
+    }
 
     if (imMode == M::InputMethodModeDirect) {
         if (keyCode == SymKey) {
@@ -680,4 +721,29 @@ void MHardwareKeyboard::setInputMethodMode(M::InputMethodMode mode)
 M::InputMethodMode MHardwareKeyboard::inputMethodMode() const
 {
     return imMode;
+}
+
+void MHardwareKeyboard::switchKeyMap()
+{
+    qDebug() << __PRETTY_FUNCTION__;
+    const QString secondaryLayout = LayoutsManager::instance().xkbSecondaryLayout();
+    const QString secondaryVariant = LayoutsManager::instance().xkbSecondaryVariant();
+    // only switches layout when current xkb map supports secondary layout.
+    if (!secondaryLayout.isEmpty()) {
+        const QString currentLayout = LayoutsManager::instance().xkbLayout();
+        const QString currentVariant = LayoutsManager::instance().xkbVariant();
+
+        QString nextLayout, nextVariant;
+        if (currentLayout == secondaryLayout
+            && currentVariant == secondaryVariant) {
+            nextLayout = LayoutsManager::instance().xkbPrimaryLayout();
+            nextVariant = LayoutsManager::instance().xkbPrimaryVariant();
+        } else {
+            nextLayout = secondaryLayout;
+            nextVariant = secondaryVariant;
+        }
+        if (mXkb.setXkbMap(LayoutsManager::instance().xkbModel(), nextLayout, nextVariant)) {
+            LayoutsManager::instance().setXkbMap(nextLayout, nextVariant);
+        }
+    }
 }
