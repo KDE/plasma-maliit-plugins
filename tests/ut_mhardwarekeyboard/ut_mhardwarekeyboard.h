@@ -62,6 +62,8 @@ private slots:
 
     void testDirectInputMode();
 
+    void testSwitchLayout();
+
 private:
     bool checkLatchedState(unsigned int mask, unsigned int value) const;
     bool checkLockedState(unsigned int mask, unsigned int value) const;

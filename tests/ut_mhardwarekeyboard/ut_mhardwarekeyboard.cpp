@@ -14,10 +14,12 @@
  * of this file.
  */
 
+#include "mxkb_stub.h"
 #include "ut_mhardwarekeyboard.h"
 #include "hwkbcharloopsmanager_stub.h"
 #include "mhardwarekeyboard.h"
 #include "testinputcontextconnection.h"
+#include "layoutsmanager.h"
 #include <MApplication>
 #include <QDebug>
 #include <QSignalSpy>
@@ -44,6 +46,12 @@ namespace
     // MHardwareKeyboard::keycodeToString() stub will co-operate with those.
     const unsigned int KeycodeCharacter(38); // keycode of "a" under xorg / Xephyr combination
     const unsigned int KeycodeNonCharacter(50);  // keycode of left shift under xorg / Xephyr combination
+
+    const QString XkbLayoutSettingName("/meegotouch/inputmethods/hwkeyboard/layout");
+    const QString XkbVariantSettingName("/meegotouch/inputmethods/hwkeyboard/variant");
+    const QString XkbSecondaryLayoutSettingName("/meegotouch/inputmethods/hwkeyboard/secondarylayout");
+    const QString XkbSecondaryVariantSettingName("/meegotouch/inputmethods/hwkeyboard/secondaryvariant");
+    const QString XkbModelSettingName("/meegotouch/inputmethods/hwkeyboard/model");
 };
 
 Q_DECLARE_METATYPE(Qt::Key)
@@ -759,6 +767,148 @@ void Ut_MHardwareKeyboard::testDirectInputMode()
     QVERIFY(checkLatchedState(ShiftMask | FnModifierMask, 0));
 
     QCOMPARE(symSpy.count(), 0);
+}
+
+void Ut_MHardwareKeyboard::testSwitchLayout()
+{
+    const QString primaryLayout("ru");
+    const QString primaryVariant("cyrillic");
+    const QString secondaryLayout("ru");
+    const QString secondaryVariant("latin");
+
+    MGConfItem layoutConfig(XkbLayoutSettingName);
+    layoutConfig.set(QVariant(primaryLayout));
+    MGConfItem variantConfig(XkbVariantSettingName);
+    variantConfig.set(QVariant(primaryVariant));
+
+    MGConfItem secondaryLayoutConfig(XkbSecondaryLayoutSettingName);
+    secondaryLayoutConfig.set(QVariant(secondaryLayout));
+    MGConfItem secondaryVariantConfig(XkbSecondaryVariantSettingName);
+    secondaryVariantConfig.set(QVariant(secondaryVariant));
+
+    LayoutsManager::createInstance();
+    gSetXkbMapCallCount = 0;
+    int switchCount = 0;
+
+    // shift + fn press together switch layout
+    filterKeyPress(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, 0);
+    filterKeyPress(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask);
+    // won't switch for press
+    QCOMPARE(gSetXkbMapCallCount, switchCount);
+    // won't change shift fn level
+    QVERIFY(checkLatchedState(ShiftMask | FnModifierMask, 0));
+
+    filterKeyRelease(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask|FnModifierMask);
+    // only switch when one of fn/shift release
+    QCOMPARE(gSetXkbMapCallCount, ++switchCount);
+    QCOMPARE(gLayout, secondaryLayout);
+    QCOMPARE(gVariant, secondaryVariant);
+    filterKeyRelease(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, FnModifierMask);
+    // won't change shift fn level
+    QVERIFY(checkLatchedState(ShiftMask | FnModifierMask, 0));
+
+    // no dependency on shift/fn press/release order
+    filterKeyPress(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, 0);
+    filterKeyPress(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, FnModifierMask);
+    filterKeyRelease(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask|FnModifierMask);
+    filterKeyRelease(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, FnModifierMask);
+    QCOMPARE(gSetXkbMapCallCount, ++switchCount);
+    QVERIFY(checkLatchedState(ShiftMask | FnModifierMask, 0));
+    QCOMPARE(gLayout, primaryLayout);
+    QCOMPARE(gVariant, primaryVariant);
+
+    filterKeyPress(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, 0);
+    filterKeyPress(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, FnModifierMask);
+    filterKeyRelease(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask|FnModifierMask);
+    filterKeyRelease(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask);
+    QCOMPARE(gSetXkbMapCallCount, ++switchCount);
+    QVERIFY(checkLatchedState(ShiftMask | FnModifierMask, 0));
+    QCOMPARE(gLayout, secondaryLayout);
+    QCOMPARE(gVariant, secondaryVariant);
+
+    filterKeyPress(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, 0);
+    filterKeyPress(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask);
+    filterKeyRelease(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask|FnModifierMask);
+    filterKeyRelease(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask);
+    QCOMPARE(gSetXkbMapCallCount, ++switchCount);
+    QVERIFY(checkLatchedState(ShiftMask | FnModifierMask, 0));
+    QCOMPARE(gLayout, primaryLayout);
+    QCOMPARE(gVariant, primaryVariant);
+
+    filterKeyPress(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, 0);
+    filterKeyPress(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask);
+    QVERIFY(filterKeyPress(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, FnModifierMask|ShiftMask));
+    QVERIFY(filterKeyRelease(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, FnModifierMask|ShiftMask));
+    filterKeyRelease(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask|FnModifierMask);
+    filterKeyRelease(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask);
+    // if some character key is pressed when shift+fn is held,
+    // won't change layout
+    QCOMPARE(gSetXkbMapCallCount, switchCount);
+    QCOMPARE(gLayout, primaryLayout);
+    QCOMPARE(gVariant, primaryVariant);
+
+    inputContextConnection->sendPreeditString("", PreeditNoCandidates);
+    // ctrl + space press together also switch layout
+    filterKeyPress(Qt::Key_Control, Qt::NoModifier, "", KeycodeNonCharacter, 0);
+    filterKeyPress(Qt::Key_Space, Qt::ControlModifier, " ", KeycodeNonCharacter, ControlMask);
+    // switching happens when receive space press
+    QCOMPARE(gSetXkbMapCallCount, ++switchCount);
+    QCOMPARE(gLayout, secondaryLayout);
+    QCOMPARE(gVariant, secondaryVariant);
+    filterKeyRelease(Qt::Key_Space, Qt::ControlModifier, "", KeycodeNonCharacter, ControlMask);
+    filterKeyRelease(Qt::Key_Control, Qt::NoModifier, "", KeycodeNonCharacter, ControlMask);
+    QVERIFY(checkLatchedState(ShiftMask | FnModifierMask, 0));
+    // won't switch again for key release
+    QCOMPARE(gSetXkbMapCallCount, switchCount);
+
+    //space key press and release when control is holding won't insert space
+    QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
+
+    filterKeyPress(Qt::Key_Control, Qt::NoModifier, "", KeycodeNonCharacter, 0);
+    filterKeyPress(Qt::Key_Space, Qt::ControlModifier, " ", KeycodeNonCharacter, ControlMask);
+    QCOMPARE(gSetXkbMapCallCount, ++switchCount);
+    QCOMPARE(gLayout, primaryLayout);
+    QCOMPARE(gVariant, primaryVariant);
+    filterKeyRelease(Qt::Key_Control, Qt::NoModifier, "", KeycodeNonCharacter, ControlMask);
+    filterKeyRelease(Qt::Key_Space, Qt::NoModifier, "", KeycodeNonCharacter, 0);
+    QVERIFY(checkLatchedState(ShiftMask | FnModifierMask, 0));
+    // won't switch again for key release
+    QCOMPARE(gSetXkbMapCallCount, switchCount);
+
+    //space key press and release when control is holding won't insert space
+    QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
+
+    // shift + ctrl + space won't switch script
+    filterKeyPress(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, 0);
+    filterKeyPress(Qt::Key_Control, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask);
+    filterKeyPress(Qt::Key_Space, Qt::ControlModifier, " ", KeycodeNonCharacter, ShiftMask|ControlMask);
+    // won't switch
+    QCOMPARE(gSetXkbMapCallCount, switchCount);
+    QCOMPARE(gLayout, primaryLayout);
+    QCOMPARE(gVariant, primaryVariant);
+    filterKeyRelease(Qt::Key_Control, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask|ControlMask);
+    filterKeyRelease(Qt::Key_Space, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask);
+    filterKeyRelease(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask);
+    QVERIFY(checkLatchedState(ShiftMask | FnModifierMask, 0));
+    // won't switch
+    QCOMPARE(gSetXkbMapCallCount, switchCount);
+
+    // fn + ctrl + space won't switch script
+    filterKeyPress(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, 0);
+    filterKeyPress(Qt::Key_Control, Qt::NoModifier, "", KeycodeNonCharacter, FnModifierMask);
+    filterKeyPress(Qt::Key_Space, Qt::ControlModifier, " ", KeycodeNonCharacter, FnModifierMask|ControlMask);
+    // won't switch
+    QCOMPARE(gSetXkbMapCallCount, switchCount);
+    QCOMPARE(gLayout, primaryLayout);
+    QCOMPARE(gVariant, primaryVariant);
+    filterKeyRelease(Qt::Key_Control, Qt::NoModifier, "", KeycodeNonCharacter, FnModifierMask|ControlMask);
+    filterKeyRelease(Qt::Key_Space, Qt::NoModifier, "", KeycodeNonCharacter, FnModifierMask);
+    filterKeyRelease(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, FnModifierMask);
+    QVERIFY(checkLatchedState(ShiftMask | FnModifierMask, 0));
+    // won't switch
+    QCOMPARE(gSetXkbMapCallCount, switchCount);
+
+    LayoutsManager::destroyInstance();
 }
 
 QTEST_APPLESS_MAIN(Ut_MHardwareKeyboard);
