@@ -1,3 +1,9 @@
+meego-keyboard (0.4.14~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Viacheslav Sobolev <ext-viacheslav.sobolev@nokia.com>  Mon, 23 Aug 2010 10:53:26 +0300
+
 meego-keyboard (0.4.13-1) unstable; urgency=low
 
   * Fixes: NB#176441 - VKB is hard to close in direct mode
