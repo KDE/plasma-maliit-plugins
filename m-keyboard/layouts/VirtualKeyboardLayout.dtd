@@ -2,8 +2,9 @@
 <!ELEMENT import EMPTY>
 <!ELEMENT layout (section+)>
 <!ELEMENT section (row+)>
-<!ELEMENT row (key*)>
+<!ELEMENT row (key | spacer)*>
 <!ELEMENT key (binding+)>
+<!ELEMENT spacer EMPTY>
 <!ELEMENT binding EMPTY>
 
 <!ATTLIST keyboard

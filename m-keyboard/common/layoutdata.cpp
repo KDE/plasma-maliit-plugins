@@ -102,7 +102,7 @@ int LayoutSection::rowCount() const
 
 int LayoutSection::columnsAt(int row) const
 {
-    if ((row < 0) || (row >= rows.count())) {
+    if (isInvalidRow(row)) {
         return 0;
     }
 
@@ -119,10 +119,18 @@ int LayoutSection::keyCount() const
     return numKeys;
 }
 
+QList<int> LayoutSection::spacerIndices(int row) const
+{
+    if (isInvalidRow(row)) {
+        return QList<int>();
+    }
+
+    return rows[row]->spacerIndices;
+}
+
 VKBDataKey *LayoutSection::getVKBKey(int row, int column) const
 {
-    if ((row < 0) || (column < 0) || (row >= rows.count())
-            || (column >= rows[row]->keys.count())) {
+    if (isInvalidCell(row, column)) {
         return 0;
     }
 
@@ -137,4 +145,14 @@ Qt::Alignment LayoutSection::horizontalAlignment() const
 Qt::Alignment LayoutSection::verticalAlignment() const
 {
     return m_verticalAlignment;
+}
+
+bool LayoutSection::isInvalidRow(int row) const
+{
+    return ((row < 0) || (row >= rows.count()));
+}
+
+bool LayoutSection::isInvalidCell(int row, int column) const
+{
+    return ((column < 0) || isInvalidRow(row) || (column >= rows[row]->keys.count()));
 }

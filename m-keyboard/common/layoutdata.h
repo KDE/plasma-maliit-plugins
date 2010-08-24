@@ -74,6 +74,11 @@ public:
     //! \brief Number of keys in the section
     int keyCount() const;
 
+    //! \brief Get indices with layout spacers for given row
+    //! \param row number
+    QList<int> spacerIndices(int row) const;
+
+
     /*!
      * \brief Get key at specified row, column and section
      * \param row
@@ -93,10 +98,17 @@ public:
     Qt::Alignment verticalAlignment() const;
 
 private:
+    bool isInvalidRow(int row) const;
+    bool isInvalidCell(int row, int column) const;
+
     struct Row {
         ~Row();
 
         QList<VKBDataKey *> keys;
+
+        // Index of a spacer refers to right side of a key;
+        // -1 means spacer before first key.
+        QList<int> spacerIndices;
     };
 
     int m_maxColumns; // avoid name collision

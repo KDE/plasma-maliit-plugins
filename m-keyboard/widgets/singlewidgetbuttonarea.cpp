@@ -34,6 +34,33 @@
 #include <mreactionmap.h>
 #include <MTheme>
 
+namespace {
+    // E.g., spacebar should usually get 3x the space of a normal button:
+    int DefaultButtonStretchFactor = 3;
+
+    SingleWidgetButton * binaryButtonFind(int x,
+                                          const QList<SingleWidgetButton *> &buttons)
+    {
+        int lowerBound = 0;
+        int upperBound = buttons.size() - 1;
+
+        while (lowerBound <= upperBound) {
+            const int pivot = (lowerBound + upperBound) / 2;
+            SingleWidgetButton *current = buttons.at(pivot);
+
+            if (x < current->buttonBoundingRect().topLeft().x()) {
+                upperBound = pivot - 1;
+            } else if (x > current->buttonBoundingRect().topRight().x()) {
+                lowerBound = pivot + 1;
+            } else {
+                return current;
+            }
+        }
+
+        return 0;
+    }
+}
+
 SingleWidgetButtonArea::SingleWidgetButtonArea(const MVirtualKeyboardStyleContainer *style,
                                                QSharedPointer<const LayoutSection> sectionModel,
                                                ButtonSizeScheme buttonSizeScheme,
@@ -54,7 +81,6 @@ SingleWidgetButtonArea::SingleWidgetButtonArea(const MVirtualKeyboardStyleContai
 
     // Initially deactivate sym page indicator.
     deactivateIndicator();
-
     loadKeys();
 }
 
@@ -400,31 +426,7 @@ IKeyButton *SingleWidgetButtonArea::keyAt(const QPoint &pos) const
         return 0;
     }
 
-    const ButtonRow &row(rowList[rowIndex]);
-
-    if (pos.x() < row.offset || row.buttons.isEmpty()) {
-        return 0;
-    }
-
-    if (equalWidthButtons) {
-        const int column = (pos.x() - row.offset) / (row.buttons.first()->width + style()->spacingHorizontal());
-        if (column < row.buttons.count()) {
-            return row.buttons.at(column);
-        }
-    } else {
-        // Buttons not equally spaced, we have to walk through them.
-        int x = row.offset;
-        QList<SingleWidgetButton*>::const_iterator buttonIter(row.buttons.begin());
-        for (; buttonIter != row.buttons.end(); ++buttonIter) {
-
-            x += (*buttonIter)->width + style()->spacingHorizontal();
-            if (pos.x() < x) {
-                return (*buttonIter);
-            }
-        }
-    }
-
-    return 0;
+    return binaryButtonFind(pos.x(), rowList[rowIndex].buttons);
 }
 
 void SingleWidgetButtonArea::setShiftState(ModifierState newShiftState)
@@ -450,7 +452,7 @@ void SingleWidgetButtonArea::modifiersChanged(const bool shift, const QChar acce
     textDirty = true;
 }
 
-void SingleWidgetButtonArea::updateButtonGeometries(const int availableWidth, const int equalButtonWidth)
+void SingleWidgetButtonArea::updateButtonGeometries(const int newAvailableWidth, const int equalButtonWidth)
 {
     if (sectionModel()->maxColumns() == 0) {
         return;
@@ -474,6 +476,9 @@ void SingleWidgetButtonArea::updateButtonGeometries(const int availableWidth, co
     QRect br; // button bounding rectangle
     br.setHeight(rowHeight); // Constant height
 
+    // The following code cannot handle negative width:
+    int availableWidth = qMax(0, newAvailableWidth);
+
     for (RowIterator row(rowList.begin()); row != rowList.end(); ++row) {
 
         // Update row width
@@ -489,14 +494,45 @@ void SingleWidgetButtonArea::updateButtonGeometries(const int availableWidth, co
         }
         rowWidth -= HorizontalSpacing;
 
-        // If row has a stretching button all width is used.
+        if (availableWidth < rowWidth) {
+            // TODO: Find out the root cause, and fix it!
+            qWarning() << __PRETTY_FUNCTION__
+                       << "Using more width (" << rowWidth
+                       << ") than available (" << availableWidth
+                       << ")!";
+        }
+
+        int availableWidthForSpacers = 0;
+        const QList<int> spacerIndices = sectionModel()->spacerIndices(row - rowList.begin());
+        int spacerCount = row->stretchButton ? spacerIndices.count() + 1
+                                             : spacerIndices.count();
+
         if (row->stretchButton) {
-            rowWidth -= row->stretchButton->width; // this was already added, we recalculate it. leave spacings though
-            row->stretchButton->width = qMax(0, availableWidth - rowWidth);
-            rowWidth = availableWidth;
+            rowWidth -=  row->stretchButton->width;
+
+            // Handle the case of one stretch button/no other spacer elments directly:
+            if (spacerCount == 1) {
+                row->stretchButton->width = availableWidth - rowWidth;
+                rowWidth = availableWidth;
+            }
+        }
+
+        if ((spacerCount > 0) && (availableWidth > rowWidth)) {
+
+            if (row->stretchButton) {
+                // TODO: fetch DefaultButtonStretchFactor from style or layout
+                const int spaceForStretchButton = qMin(availableWidth - rowWidth,
+                                                       DefaultButtonStretchFactor * equalButtonWidth);
+                row->stretchButton->width = spaceForStretchButton;
+                rowWidth += spaceForStretchButton;
+                --spacerCount; // We handled the stretch button
+            }
+
+            availableWidthForSpacers = (availableWidth - rowWidth) / spacerCount;
         }
 
         // Save row width for easier use.
+        // TODO: Now that we have spacer elements: Get rid of HorizontalSpacing, too?
         row->cachedWidth = rowWidth + HorizontalSpacing;
 
         // Width is calculated, we can now set row offset according to alignment.
@@ -511,8 +547,11 @@ void SingleWidgetButtonArea::updateButtonGeometries(const int availableWidth, co
 
         // Row offset is ready. We can precalculate button rectangles.
         br.moveTop(y - topMargin);
-        int x = row->offset;
-        foreach (SingleWidgetButton *button, row->buttons) {
+        int x = spacerIndices.count(-1) * availableWidthForSpacers;
+
+        for (int buttonIndex = 0; buttonIndex < row->buttons.count(); ++buttonIndex) {
+            SingleWidgetButton *button = row->buttons.at(buttonIndex);
+
             br.moveLeft(x);
             br.setWidth(button->width + HorizontalSpacing);
 
@@ -522,7 +561,12 @@ void SingleWidgetButtonArea::updateButtonGeometries(const int availableWidth, co
 
             // Increase x to the next button bounding rect border.
             x += button->width + HorizontalSpacing;
+
+            // Our spacerIndex is a multi-set, hence we need to add
+            // availableWidthForSpacers for every ocurrence of spacerIndex:
+            x += spacerIndices.count(buttonIndex) * availableWidthForSpacers;
         }
+
         y += rowHeight;
     }
 

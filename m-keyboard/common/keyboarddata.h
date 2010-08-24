@@ -120,6 +120,9 @@ private:
     //! Parse XML tag for key
     void parseTagKey(const QDomElement &element, ParseParameters &params);
 
+    //! Parse XML tag for layout spacers
+    void parseTagSpacer(const QDomElement &element, ParseParameters &params);
+
     //! Type of tag parser methods
     typedef void (KeyboardData::*TagParser)(const QDomElement &, ParseParameters &);
 

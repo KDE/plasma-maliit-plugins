@@ -71,6 +71,7 @@ namespace
     const QString VKBTagBinding              = QString("binding");
     const QString VKBTagKey                  = QString("key");
     const QString VKBTagDead                 = QString("dead");
+    const QString VKBTagSpacer               = QString("spacer");
 
     const QString VKBTagAccents              = QString("accents");
     const QString VKBTagAccentedLabels       = QString("accented_labels");
@@ -449,7 +450,9 @@ void KeyboardData::parseTagRow(const QDomElement &element, ParseParameters &para
     params.currentSection->rows.append(row);
     params.currentRow = row;
 
-    parseChildren(element, params, &VKBTagKey, &KeyboardData::parseTagKey);
+    parseChildren(element, params,
+                  &VKBTagKey, &KeyboardData::parseTagKey,
+                  &VKBTagSpacer, &KeyboardData::parseTagSpacer);
 
     params.currentSection->m_maxColumns = qMax(params.currentSection->maxColumns(),
                                           row->keys.size());
@@ -501,6 +504,11 @@ void KeyboardData::parseTagKey(const QDomElement &element, ParseParameters &para
     if (key->bindings[0] == NULL) {
         key->bindings[0] = key->bindings[1];
     }
+}
+
+void KeyboardData::parseTagSpacer(const QDomElement &, ParseParameters &params)
+{
+    params.currentRow->spacerIndices.append(params.currentRow->keys.count() - 1);
 }
 
 KeyBinding::KeyAction KeyboardData::keyActionFromString(const QString &typeStr)
