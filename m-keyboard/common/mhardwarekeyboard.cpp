@@ -665,7 +665,7 @@ bool MHardwareKeyboard::handlePressWithSymModifier(const QString &text)
     lastSymText = text;
     characterLoopIndex = (characterLoopIndex + 1) % accentedCharacters.length();
     inputContextConnection.sendPreeditString(accentedCharacters[characterLoopIndex],
-                                             PreeditNoCandidates);
+                                             PreeditDefault);
     return true;
 }
 
