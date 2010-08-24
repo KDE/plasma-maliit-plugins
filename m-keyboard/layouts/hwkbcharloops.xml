@@ -31,7 +31,7 @@
         <character label="y" accented_labels="&#x00FD;"/>
         <character label="z" accented_labels="&#x017E;&#x017A;&#x017C;"/>
     </language>
-    <language language_code="en_gb" name="English UK">
+    <language language_code="en_GB" name="English UK">
         <character label="A" accented_labels="&#x00C4;&#x00C0;&#x00C2;&#x00C1;&#x00C3;&#x00C5;"/>
         <character label="C" accented_labels="&#x00C7;"/>
         <character label="D" accented_labels="&#x00D0;"/>
@@ -54,7 +54,7 @@
         <character label="u" accented_labels="&#x00FB;&#x00F9;&#x00FA;&#x00FC;"/>
         <character label="y" accented_labels="&#x00FD;"/>
     </language>
-    <language language_code="en_us" name="English US">
+    <language language_code="en_US" name="English US">
         <character label="A" accented_labels="&#x00C0;&#x00C2;&#x00C6;&#x00C1;&#x00C3;&#x00C4;"/>
         <character label="C" accented_labels="&#x00C7;"/>
         <character label="E" accented_labels="&#x00C8;&#x00C9;&#x00CA;&#x00CB;"/>
