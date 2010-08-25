@@ -482,8 +482,7 @@ void KeyButtonArea::touchPointMoved(const QPoint &pos, int id)
 
         // If popup is visible, always update the position.
         if (usePopup
-            && (id == newestTouchPointId)
-            && popup->isPopupVisible()) {
+            && (id == newestTouchPointId)) {
             updatePopup(pos, key);
         }
     } else {
