@@ -46,6 +46,9 @@ namespace
     const QString DefaultLanguageSettingName("/meegotouch/inputmethods/languages/default");
     const QString DefaultLanguage("en_us");
 
+    const QString TargetSettingsName("/meegotouch/target/name");
+    const QString DefaultTargetName("Default");
+
     const int SceneRotationTime = 1400;
 } // namespace
 
@@ -59,6 +62,10 @@ void Ut_SymbolView::initTestCase()
 
     // Avoid waiting if im server is not responding
     MApplication::setLoadMInputContext(false);
+
+    MGConfItem target(TargetSettingsName);
+    target.set(DefaultTargetName); // this value is required by the theme daemon
+
     app = new MApplication(argc, app_name);
     style = new MVirtualKeyboardStyleContainer;
     style->initialize("MVirtualKeyboard", "MVirtualKeyboardView", 0);
@@ -77,6 +84,10 @@ void Ut_SymbolView::initTestCase()
     qRegisterMetaType<KeyEvent>("KeyEvent");
 
     new MPlainWindow;
+
+    if ((*style)->keySymNormalSize().width() < 70) {
+        QSKIP("This test is sipped due to incorrect value received from CSS", SkipAll);
+    }
 }
 
 void Ut_SymbolView::cleanupTestCase()
