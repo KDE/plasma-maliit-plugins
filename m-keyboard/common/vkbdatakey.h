@@ -139,11 +139,32 @@ inline KeyBinding::KeyAction KeyBinding::action() const
 class VKBDataKey
 {
 public:
+    //! Style Type
+    enum Style {
+        NormalStyle,             // Style for normal keys(character key)
+        SpecialStyle,            // Style for special keys(like return, shift, etc.)
+        DeadkeyStyle             // Style for deadkeys
+    };
+
+    //! Size group type
+    enum SizeGroup {
+        Small,
+        Medium,
+        Large,
+        XLarge,
+        XXLarge,
+        Stretched
+    };
+
     /*
      * \brief Constructs new object
+     * \param tyle The style type for button.
+     * \param sizeGroup The size group for the button.
+     * \param isFixed Contains true if button should use fixed size group.
      * \param isRtl Contains true if button should use RTL icon.
      */
-    explicit VKBDataKey(bool isRtl = false);
+    explicit VKBDataKey(Style type = NormalStyle, SizeGroup sizeGroup = Medium,
+                        bool isFixed = false, bool isRtl = false);
 
     ~VKBDataKey();
 
@@ -165,6 +186,15 @@ public:
      */
     KeyEvent toKeyEvent(QKeyEvent::Type eventType, QChar accent, bool shift = false) const;
 
+    //! Returns the style type.
+    Style style() const;
+
+    //! Returns the size group.
+    SizeGroup sizeGroup() const;
+
+    //! Returns true if button uses fixed size group.
+    bool fixed() const;
+
     //! Returns true if button uses RTL icon.
     bool rtl() const;
 
@@ -178,6 +208,13 @@ private:
     // All indices always contain a binding object, though more than one index may contain
     // the same binding
     const KeyBinding *bindings[NumBindings];
+
+    Style styleType;
+
+    SizeGroup sizeGroupType;
+
+    //! Contains true if button uses fixed size group.
+    bool isFixed;
 
     //! Contains true if button uses RTL icon.
     bool isRtl;

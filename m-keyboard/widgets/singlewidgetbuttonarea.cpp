@@ -311,12 +311,7 @@ void SingleWidgetButtonArea::paint(QPainter *painter, const QStyleOptionGraphics
             // deleted by mtheme daemon in some cases (e.g. display language is changed).
 
             // Draw button background.
-            if (symState != SymIndicatorInactive
-                && button->binding().action() == KeyBinding::ActionSym) {
-                drawSymKeyBackground(painter, button->state(), button->cachedButtonRect);
-            } else {
-                drawNormalKeyBackground(painter, button->state(), button->cachedButtonRect);
-            }
+            drawKeyBackground(painter, button);
 
             // Draw icon.
             button->drawIcon(button->cachedButtonRect, painter);
@@ -331,25 +326,53 @@ void SingleWidgetButtonArea::paint(QPainter *painter, const QStyleOptionGraphics
     textLayout.draw(painter, QPoint());
 }
 
-void SingleWidgetButtonArea::drawSymKeyBackground(QPainter *painter,
-                                                  SingleWidgetButton::ButtonState state,
-                                                  const QRect &rect)
+void SingleWidgetButtonArea::drawKeyBackground(QPainter *painter,
+                                               const SingleWidgetButton* button)
 {
+    if (!button)
+        return;
     const MScalableImage *background = 0;
-    switch (state) {
+    switch (button->state()) {
     case IKeyButton::Normal:
-    case IKeyButton::Selected:
-        if (symState == SymActive) {
-            background = style()->keyBackgroundSymIndicatorSym();
-        } else if (symState == AceActive) {
-            background = style()->keyBackgroundSymIndicatorAce();
+        switch (button->key().style()) {
+        case VKBDataKey::SpecialStyle:
+            background = style()->keyBackgroundSpecial();
+            break;
+        case VKBDataKey::DeadkeyStyle:
+            background = style()->keyBackgroundDeadkey();
+            break;
+        case VKBDataKey::NormalStyle:
+        default:
+            background = style()->keyBackground();
+            break;
         }
         break;
     case IKeyButton::Pressed:
-        if (symState == SymActive) {
-            background = style()->keyBackgroundSymIndicatorSymPressed();
-        } else if (symState == AceActive) {
-            background = style()->keyBackgroundSymIndicatorAcePressed();
+        switch (button->key().style()) {
+        case VKBDataKey::SpecialStyle:
+            background = style()->keyBackgroundSpecialPressed();
+            break;
+        case VKBDataKey::DeadkeyStyle:
+            background = style()->keyBackgroundDeadkeyPressed();
+            break;
+        case VKBDataKey::NormalStyle:
+        default:
+            background = style()->keyBackgroundPressed();
+            break;
+        }
+        break;
+    case IKeyButton::Selected:
+        switch (button->key().style()) {
+        case VKBDataKey::SpecialStyle:
+            background = style()->keyBackgroundSpecialSelected();
+            break;
+        case VKBDataKey::DeadkeyStyle:
+            background = style()->keyBackgroundDeadkeySelected();
+            break;
+        case VKBDataKey::NormalStyle:
+        default:
+            background = style()->keyBackgroundSelected();
+            break;
         }
         break;
     default:
@@ -357,31 +380,7 @@ void SingleWidgetButtonArea::drawSymKeyBackground(QPainter *painter,
     }
 
     if (background) {
-        background->draw(rect, painter);
-    }
-}
-
-void SingleWidgetButtonArea::drawNormalKeyBackground(QPainter *painter,
-                                                     SingleWidgetButton::ButtonState state,
-                                                     const QRect &rect)
-{
-    const MScalableImage *background = 0;
-    switch (state) {
-    case IKeyButton::Normal:
-        background = style()->keyBackground();
-        break;
-    case IKeyButton::Pressed:
-        background = style()->keyBackgroundPressed();
-        break;
-    case IKeyButton::Selected:
-        background = style()->keyBackgroundSelected();
-        break;
-    default:
-        break;
-    }
-
-    if (background) {
-        background->draw(rect, painter);
+        background->draw(button->buttonRect(), painter);
     }
 }
 

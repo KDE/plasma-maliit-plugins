@@ -77,11 +77,8 @@ private:
     void buildTextLayout();
 
 
-    //! \brief Draws background for a symbol key.
-    void drawSymKeyBackground(QPainter *painter, SingleWidgetButton::ButtonState state, const QRect &rect);
-
-    //! \brief Draws background for a normal key.
-    void drawNormalKeyBackground(QPainter *painter, SingleWidgetButton::ButtonState state, const QRect &rect);
+    //! \brief Draws background.
+    void drawKeyBackground(QPainter *painter, const SingleWidgetButton* button );
 
     struct ButtonRow {
         QList<SingleWidgetButton*> buttons;

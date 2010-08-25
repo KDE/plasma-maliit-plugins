@@ -139,6 +139,10 @@ private:
     //! Parse XML tag for import
     void parseTagImport(const QDomElement &element, ParseParameters &params);
 
+    static VKBDataKey::Style toStyleType(const QString &attributeValue);
+
+    static VKBDataKey::SizeGroup toSizeGroup(const QString &attributeValue);
+
     static bool toBoolean(const QString &attributeValue);
 
 protected:

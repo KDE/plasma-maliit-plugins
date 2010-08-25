@@ -67,9 +67,38 @@ public:
     M_STYLE_ATTRIBUTE(QSize, keyNumberFunctionLargeSize, KeyNumberFunctionLargeSize)
     M_STYLE_ATTRIBUTE(QSize, keySymNormalSize, KeySymNormalSize)
 
+    M_STYLE_ATTRIBUTE(QSize, keySizeSmall, KeySizeSmall)
+    M_STYLE_ATTRIBUTE(QSize, keySizeSmallFixed, KeySizeSmallFixed)
+
+    M_STYLE_ATTRIBUTE(QSize, keySizeMedium, KeySizeMedium)
+    M_STYLE_ATTRIBUTE(QSize, keySizeMediumFixed, KeySizeMediumFixed)
+
+    M_STYLE_ATTRIBUTE(QSize, keySizeLarge,  KeySizeLarge)
+    M_STYLE_ATTRIBUTE(QSize, keySizeLargeFixed,  KeySizeLargeFixed)
+
+    M_STYLE_ATTRIBUTE(QSize, keySizeXLarge, KeySizeXLarge)
+    M_STYLE_ATTRIBUTE(QSize, keySizeXLargeFixed, KeySizeXLargeFixed)
+
+    M_STYLE_ATTRIBUTE(QSize, keySizeXxLarge, KeySizeXxLarge)
+    M_STYLE_ATTRIBUTE(QSize, keySizeXxLargeFixed, KeySizeXxLargeFixed)
+
+    M_STYLE_ATTRIBUTE(QSize, keySizeStretched, KeySizeStretched)
+    M_STYLE_ATTRIBUTE(QSize, keySizeStretchedFixed, KeySizeStretchedFixed)
+
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackground, KeyBackground)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundPressed, KeyBackgroundPressed)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSelected, KeyBackgroundSelected)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundPressedSelected, KeyBackgroundPressedSelected)
+
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSpecial, KeyBackgroundSpecial)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSpecialPressed, KeyBackgroundSpecialPressed)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSpecialSelected, KeyBackgroundSpecialSelected)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSpecialPressedSelected, KeyBackgroundSpecialPressedSelected)
+
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDeadkey, KeyBackgroundDeadkey)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDeadkeyPressed, KeyBackgroundDeadkeyPressed)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDeadkeySelected, KeyBackgroundDeadkeySelected)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDeadkeyPressedSelected, KeyBackgroundDeadkeyPressedSelected)
 
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSymIndicatorSym, KeyBackgroundSymIndicatorSym)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSymIndicatorAce, KeyBackgroundSymIndicatorAce)

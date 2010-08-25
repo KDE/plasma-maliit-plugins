@@ -97,6 +97,14 @@ namespace
 
     const QString RtlString                  = QString("rtl");
     const QString RtlStringDefValue          = QString("false");
+
+    const QString StyleString                = QString("style");
+    const QString StyleStringDefValue        = QString("normal");
+    const QString SizeGroupString            = QString("size-group");
+    const QString SizeGroupStringDefValue    = QString("medium");
+    const QString FixedString                = QString("fixed");
+    const QString FixedStringDefValue        = QString("false");
+
 }
 
 struct ParseParameters {
@@ -145,6 +153,38 @@ KeyboardData::~KeyboardData()
 {
     qDeleteAll(layouts);
     layouts.clear();
+}
+
+inline VKBDataKey::Style KeyboardData::toStyleType(const QString &attributeValue)
+{
+    VKBDataKey::Style type = VKBDataKey::NormalStyle;
+    if (attributeValue == "normal") {
+        type = VKBDataKey::NormalStyle;
+    } else  if (attributeValue == "special") {
+        type = VKBDataKey::SpecialStyle;
+    } else  if (attributeValue == "deadkey") {
+        type = VKBDataKey::DeadkeyStyle;
+    }
+    return type;
+}
+
+inline VKBDataKey::SizeGroup KeyboardData::toSizeGroup(const QString &attributeValue)
+{
+    VKBDataKey::SizeGroup size = VKBDataKey::Medium;
+    if (attributeValue == "small") {
+        size = VKBDataKey::Small;
+    } else  if (attributeValue == "medium") {
+        size = VKBDataKey::Medium;
+    } else  if (attributeValue == "large") {
+        size = VKBDataKey::Large;
+    } else  if (attributeValue == "x-large") {
+        size = VKBDataKey::XLarge;
+    } else  if (attributeValue == "xx-large") {
+        size = VKBDataKey::XXLarge;
+    } else  if (attributeValue == "stretched") {
+        size = VKBDataKey::Stretched;
+    }
+    return size;
 }
 
 inline bool KeyboardData::toBoolean(const QString &attributeValue)
@@ -444,9 +484,12 @@ void KeyboardData::parseTagBinding(const QDomElement &element, ParseParameters &
 
 void KeyboardData::parseTagKey(const QDomElement &element, ParseParameters &params)
 {
+    VKBDataKey::Style type = toStyleType(element.attribute(StyleString, StyleStringDefValue));
+    VKBDataKey::SizeGroup size = toSizeGroup(element.attribute(SizeGroupString, SizeGroupStringDefValue));
     const bool isRtl = toBoolean(element.attribute(RtlString, RtlStringDefValue));
+    const bool isFixed = toBoolean(element.attribute(FixedString, FixedStringDefValue));
 
-    VKBDataKey *key = new VKBDataKey(isRtl);
+    VKBDataKey *key = new VKBDataKey(type, size, isFixed, isRtl);
     params.currentRow->keys.append(key);
     params.currentKey = key;
 
