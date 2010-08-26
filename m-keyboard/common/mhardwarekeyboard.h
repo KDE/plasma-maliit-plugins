@@ -148,7 +148,8 @@ private:
     bool actionOnPress(Qt::Key keyCode) const;
 
     //! \return true if the key press event is such that it should be passed to the application
-    bool passKeyOnPress(Qt::Key keyCode, const QString &text, unsigned int nativeScanCode) const;
+    bool passKeyOnPress(Qt::Key keyCode, const QString &text, quint32 nativeScanCode,
+                        quint32 nativeModifiers) const;
 
     /*! When X11 modifier bits indicated by \a affect mask in \a value are changed
      * compared to their state in \a previousModifiers, emit modifierStateChanged signal

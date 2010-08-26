@@ -911,4 +911,13 @@ void Ut_MHardwareKeyboard::testSwitchLayout()
     LayoutsManager::destroyInstance();
 }
 
+void Ut_MHardwareKeyboard::testControlModifier()
+{
+    // We must not eat events with control modifier
+    filterKeyPress(Qt::Key_Control, Qt::NoModifier, "", KeycodeNonCharacter, 0);
+    QVERIFY(!filterKeyPress(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, ControlMask));
+    QVERIFY(!filterKeyRelease(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, ControlMask));
+    filterKeyRelease(Qt::Key_Control, Qt::NoModifier, "", KeycodeNonCharacter, ControlMask);
+}
+
 QTEST_APPLESS_MAIN(Ut_MHardwareKeyboard);

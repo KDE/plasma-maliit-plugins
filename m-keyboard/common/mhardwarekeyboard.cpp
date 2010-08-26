@@ -268,11 +268,11 @@ bool MHardwareKeyboard::actionOnPress(Qt::Key keyCode) const
 }
 
 bool MHardwareKeyboard::passKeyOnPress(Qt::Key keyCode, const QString &text,
-                                       unsigned int nativeScanCode) const
+                                       quint32 nativeScanCode, quint32 nativeModifiers) const
 {
     const unsigned int shiftLevel(3); // Fn.
     return (text.isEmpty() && keycodeToString(nativeScanCode, shiftLevel).isEmpty())
-        || actionOnPress(keyCode);
+        || actionOnPress(keyCode) || (nativeModifiers & ControlMask);
 }
 
 
@@ -394,7 +394,7 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
         fnPressed = true;
         eaten = false;
     } else {
-        eaten = !passKeyOnPress(keyCode, text, nativeScanCode);
+        eaten = !passKeyOnPress(keyCode, text, nativeScanCode, nativeModifiers);
 
         // Long press feature, only applies for the latest keypress (i.e. the latest
         // keypress event cancels the long press logic for the previous keypress)
@@ -516,7 +516,7 @@ bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers 
         fnPressed = false;
         handleCyclableModifierRelease(FnLevelKey, FnModifierMask, FnModifierMask, LockMask,
                                       ShiftMask);
-    } else if (!eaten && !passKeyOnPress(keyCode, text, nativeScanCode)) {
+    } else if (!eaten && !passKeyOnPress(keyCode, text, nativeScanCode, nativeModifiers)) {
         if (keyWasPressed) {
             inputContextConnection.sendKeyEvent(
                 QKeyEvent(QEvent::KeyPress, keyCode, filteredModifiers, text, false, 1));

@@ -64,6 +64,8 @@ private slots:
 
     void testSwitchLayout();
 
+    void testControlModifier();
+
 private:
     bool checkLatchedState(unsigned int mask, unsigned int value) const;
     bool checkLockedState(unsigned int mask, unsigned int value) const;
