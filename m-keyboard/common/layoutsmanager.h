@@ -21,6 +21,8 @@
 #include "keyboarddata.h"
 #include "keyboardmapping.h"
 #include "layoutdata.h"
+#include "mvirtualkeyboardstyle.h"
+
 #include <MGConfItem>
 #include <MLocale>
 #include <QMap>
@@ -39,7 +41,7 @@ public:
     static LayoutsManager &instance();
 
     //! \brief Create singleton
-    static void createInstance();
+    static void createInstance(const MVirtualKeyboardStyleContainer *styleContainer);
 
     //! \brief Destroy singleton
     static void destroyInstance();
@@ -128,7 +130,7 @@ signals:
 
 private:
     //! Default constructor
-    LayoutsManager();
+    explicit LayoutsManager(const MVirtualKeyboardStyleContainer *styleContainer = 0);
 
     /*!
      * Returns the layout of the given language
@@ -171,9 +173,6 @@ private:
     //! Current xkb variant.
     QString xkbCurrentVariant;
 
-    //! Setting that determines whether number format is Arabic or Latin
-    MGConfItem numberFormatSetting;
-
     //! All keyboards arranged by language.
     //! The map key is language name as read from settings.
     QMap<QString, KeyboardData *> keyboards;
@@ -182,6 +181,9 @@ private:
     //! Current keyboard is used when no language name is specified
     //! in calls to public methods of this class.
     QMap<QString, KeyboardData *>::const_iterator current;
+
+    //! The shared style container.
+    const MVirtualKeyboardStyleContainer *const styleContainer;
 
     //! Current hardware layout (xkb) specific keyboard.
     KeyboardData hwKeyboard;
@@ -192,6 +194,9 @@ private:
     //! Current phone number keyboard
     KeyboardData phoneNumberKeyboard;
 
+    //! Setting that determines whether number format is Arabic or Latin
+    MGConfItem numberFormatSetting;
+
     //! Current state of number format setting (represented by \a numberFormatSetting)
     NumberFormat numberFormat;
 
@@ -199,6 +204,7 @@ private:
     MLocale locale;
 
     HardwareKeyboardLayout currentHwkbLayoutType;
+
 
     //! Singleton instance
     static LayoutsManager *Instance;

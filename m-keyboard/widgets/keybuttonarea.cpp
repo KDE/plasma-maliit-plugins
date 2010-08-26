@@ -54,7 +54,7 @@ namespace
 M::InputMethodMode KeyButtonArea::InputMethodMode;
 
 KeyButtonArea::KeyButtonArea(const MVirtualKeyboardStyleContainer *style,
-                             QSharedPointer<const LayoutSection> sectionModel,
+                             const QSharedPointer<const LayoutSection> &sectionModel,
                              ButtonSizeScheme buttonSizeScheme,
                              bool usePopup,
                              QGraphicsWidget *parent)
@@ -100,7 +100,7 @@ void KeyButtonArea::setInputMethodMode(M::InputMethodMode inputMethodMode)
 void KeyButtonArea::buttonInformation(int row, int column, const VKBDataKey *&dataKey, QSize &size, bool &stretchesHorizontally)
 {
     // We share the same button instance with different key bindings.
-    dataKey = section->getVKBKey(row, column);
+    dataKey = section->vkbKey(row, column);
 
     if (dataKey) {
         // Preferred button size and stretch is based on level=0 binding. It's safe because
@@ -143,12 +143,12 @@ void KeyButtonArea::updatePopup(const QPoint &pointerPosition, const IKeyButton 
         return;
     }
 
-    const QRect &buttonRect = key->buttonRect();
+    const QRectF &buttonRect = key->buttonRect();
     // mimframework guarantees that scene positions matches with
     // screen position, so we can use mapToScene to calculate screen position
     const QPoint pos = mapToScene(buttonRect.topLeft()).toPoint();
 
-    popup->updatePos(buttonRect.topLeft(), pos, buttonRect.size());
+    popup->updatePos(buttonRect.topLeft(), pos, buttonRect.toRect().size());
 
     // Get direction for finger position from key center and normalize components.
     QPointF direction(pointerPosition - buttonRect.center());
@@ -637,6 +637,7 @@ void KeyButtonArea::updateButtonGeometriesForWidth(int widthOfArea)
 
         equalButtonWidth = MaxButtonWidth;
     }
+
     updateButtonGeometries(widthOfArea, equalButtonWidth);
 }
 

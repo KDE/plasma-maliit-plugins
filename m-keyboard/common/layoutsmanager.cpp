@@ -52,9 +52,13 @@ namespace
 LayoutsManager *LayoutsManager::Instance = 0;
 
 
-LayoutsManager::LayoutsManager()
+LayoutsManager::LayoutsManager(const MVirtualKeyboardStyleContainer *newStyleContainer)
     : configLanguages(InputMethodLanguages),
       xkbModelSetting(XkbModelSettingName),
+      styleContainer(newStyleContainer),
+      hwKeyboard(newStyleContainer),
+      numberKeyboard(newStyleContainer),
+      phoneNumberKeyboard(newStyleContainer),
       numberFormatSetting(NumberFormatSettingName),
       numberFormat(NumLatin),
       currentHwkbLayoutType(InvalidHardwareKeyboard)
@@ -80,11 +84,11 @@ LayoutsManager::~LayoutsManager()
     keyboards.clear();
 }
 
-void LayoutsManager::createInstance()
+void LayoutsManager::createInstance(const MVirtualKeyboardStyleContainer *styleContainer)
 {
     Q_ASSERT(!Instance);
     if (!Instance) {
-        Instance = new LayoutsManager;
+        Instance = new LayoutsManager(styleContainer);
     }
 }
 
@@ -251,7 +255,7 @@ bool LayoutsManager::loadLanguage(const QString &language)
     if (language.isEmpty())
         return false;
 
-    KeyboardData *keyboard = new KeyboardData;
+    KeyboardData *keyboard = new KeyboardData(styleContainer);
 
     bool loaded = keyboard->loadNokiaKeyboard(language + LayoutFileExtension);
 

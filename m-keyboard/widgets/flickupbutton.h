@@ -67,8 +67,8 @@ public:
     //! \reimp
     virtual const QString label() const;
     virtual const QString secondaryLabel() const;
-    virtual QRect buttonRect() const;
-    virtual QRect buttonBoundingRect() const;
+    virtual QRectF buttonRect() const;
+    virtual QRectF buttonBoundingRect() const;
     virtual void setModifiers(bool shift, QChar accent = QChar());
     virtual void setSelected(bool select);
     virtual void setDownState(bool down);

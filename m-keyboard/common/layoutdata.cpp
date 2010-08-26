@@ -66,7 +66,8 @@ QSharedPointer<const LayoutSection> LayoutData::section(const QString &name) con
 }
 
 LayoutSection::LayoutSection()
-    : m_maxColumns(0),
+    : mMaxColumns(0),
+      mMaxNormalizedWidth(0),
       maxRows(0),
       movable(false),
       m_verticalAlignment(Qt::AlignVCenter),
@@ -92,7 +93,12 @@ LayoutSection::Type LayoutSection::type() const
 
 int LayoutSection::maxColumns() const
 {
-    return m_maxColumns;
+    return mMaxColumns;
+}
+
+qreal LayoutSection::maxNormalizedWidth() const
+{
+    return mMaxNormalizedWidth;
 }
 
 int LayoutSection::rowCount() const
@@ -128,7 +134,7 @@ QList<int> LayoutSection::spacerIndices(int row) const
     return rows[row]->spacerIndices;
 }
 
-VKBDataKey *LayoutSection::getVKBKey(int row, int column) const
+VKBDataKey *LayoutSection::vkbKey(int row, int column) const
 {
     if (isInvalidCell(row, column)) {
         return 0;

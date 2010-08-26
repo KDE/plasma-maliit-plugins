@@ -87,7 +87,7 @@ bool FixtureVirtualKeyboard::execute(void *objectInstance,
     }
 
     if (button) {
-        const QRect rect = button->buttonRect();
+        const QRect rect = button->buttonRect().toRect();
         stdOut = QString("x=%1,y=%2,width=%3,height=%4")
             .arg(rect.center().x())
             .arg(rect.center().y())

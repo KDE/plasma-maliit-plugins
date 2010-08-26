@@ -59,6 +59,12 @@ public:
     int maxColumns() const;
 
     /*!
+     * \brief Get the maximum width in this section, but in normalized units
+     * \return the maxium normalized width in this section
+     */
+    qreal maxNormalizedWidth() const;
+
+    /*!
      * \brief Get the maximum number of rows in this section
      * \return the maximum number of rows in this section
      */
@@ -85,7 +91,7 @@ public:
      * \param column
      * \return key
      */
-    VKBDataKey *getVKBKey(int row, int column) const;
+    VKBDataKey *vkbKey(int row, int column) const;
 
     /*!
      * \brief Get horizontal alignment of this section.
@@ -102,16 +108,22 @@ private:
     bool isInvalidCell(int row, int column) const;
 
     struct Row {
+        Row()
+            : normalizedWidth(0.0)
+        {}
+
         ~Row();
 
         QList<VKBDataKey *> keys;
+        qreal normalizedWidth;
 
         // Index of a spacer refers to right side of a key;
         // -1 means spacer before first key.
         QList<int> spacerIndices;
     };
 
-    int m_maxColumns; // avoid name collision
+    int mMaxColumns;
+    qreal mMaxNormalizedWidth;
     int maxRows;
     bool movable;
     Qt::Alignment m_verticalAlignment;

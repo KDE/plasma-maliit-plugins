@@ -38,10 +38,10 @@ public:
     virtual const QString secondaryLabel() const = 0;
 
     //! \brief Returns the smallest rectangle that contains the button.
-    virtual QRect buttonRect() const = 0;
+    virtual QRectF buttonRect() const = 0;
 
     //! \brief Returns the bounding rectangle for the button.
-    virtual QRect buttonBoundingRect() const = 0;
+    virtual QRectF buttonBoundingRect() const = 0;
 
     //! \brief Sets shift and accent. Affects label and/or icon.
     virtual void setModifiers(bool shift, QChar accent = QChar()) = 0;

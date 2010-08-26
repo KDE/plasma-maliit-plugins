@@ -14,8 +14,10 @@
  * of this file.
  */
 
-#include "vkbdatakey.h"
 #include <QKeySequence>
+#include <QDebug>
+
+#include "vkbdatakey.h"
 
 KeyBinding::KeyBinding()
     : keyAction(ActionInsert),
@@ -110,9 +112,9 @@ KeyEvent KeyBinding::toKeyEvent(QKeyEvent::Type eventType, QChar accent, Qt::Key
 }
 
 
-VKBDataKey::VKBDataKey(VKBDataKey::Style style, VKBDataKey::SizeGroup size, bool isFixed, bool isRtl)
-    : styleType(style),
-      sizeGroupType(size),
+VKBDataKey::VKBDataKey(VKBDataKey::StyleType style, VKBDataKey::SizeGroupType size, bool isFixed, bool isRtl)
+    : mStyle(style),
+      mSizeGroup(size),
       isFixed(isFixed),
       isRtl(isRtl)
 {
@@ -139,14 +141,39 @@ KeyEvent VKBDataKey::toKeyEvent(QKeyEvent::Type eventType, QChar accent, bool sh
     return binding(shift)->toKeyEvent(eventType, accent, shift ? Qt::ShiftModifier : Qt::NoModifier);
 }
 
-VKBDataKey::Style VKBDataKey::style() const
+VKBDataKey::StyleType VKBDataKey::style() const
 {
-    return styleType;
+    return mStyle;
 }
 
-VKBDataKey::SizeGroup VKBDataKey::sizeGroup() const
+VKBDataKey::SizeGroupType VKBDataKey::sizeGroup() const
 {
-    return sizeGroupType;
+    return mSizeGroup;
+}
+
+QSizeF VKBDataKey::normalizedSize(const MVirtualKeyboardStyleContainer &styleContainer)
+{
+    switch(mSizeGroup) {
+    case Small:
+        return styleContainer->keySizeSmall();
+
+    case Medium:
+    case Stretched:
+        return styleContainer->keySizeMedium();
+
+    case Large:
+        return styleContainer->keySizeLarge();
+
+    case XLarge:
+        return styleContainer->keySizeXLarge();
+
+    case XxLarge:
+        return styleContainer->keySizeXxLarge();
+    }
+
+    qWarning() << __PRETTY_FUNCTION__
+               << "Could not compute normalized size from style";
+    return QSizeF();
 }
 
 bool VKBDataKey::fixed() const

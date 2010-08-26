@@ -25,6 +25,14 @@
 #include <QGraphicsItem>
 #include <QPainter>
 
+namespace {
+    qreal computeWidth(qreal unit, qreal spacing, const QSizeF &scalingSize)
+    {
+        const qreal scaling = qMax<qreal>(0.0, scalingSize.width());
+        return ((scaling * unit) + (qMax<qreal>(0.0, scaling - 1) * spacing));
+    }
+}
+
 SingleWidgetButton::IconInfo::IconInfo()
     : pixmap(0)
 {
@@ -71,12 +79,12 @@ const QString SingleWidgetButton::secondaryLabel() const
     return binding().secondaryLabel();
 }
 
-QRect SingleWidgetButton::buttonRect() const
+QRectF SingleWidgetButton::buttonRect() const
 {
     return cachedButtonRect;
 }
 
-QRect SingleWidgetButton::buttonBoundingRect() const
+QRectF SingleWidgetButton::buttonBoundingRect() const
 {
     return cachedBoundingRect;
 }
@@ -141,12 +149,12 @@ bool SingleWidgetButton::isDeadKey() const
 
 const QPixmap *SingleWidgetButton::icon() const
 {
-    return getIconInfo().pixmap;
+    return iconInfo().pixmap;
 }
 
 QString SingleWidgetButton::iconId() const
 {
-    return getIconInfo().id;
+    return iconInfo().id;
 }
 
 void SingleWidgetButton::drawIcon(const QRect &rectangle, QPainter *painter) const
@@ -163,6 +171,73 @@ void SingleWidgetButton::update()
 {
     // Invalidate this button's area.
     parentItem.update(buttonRect());
+}
+
+int SingleWidgetButton::preferredFixedWidth() const
+{
+    switch(dataKey.sizeGroup()) {
+    case VKBDataKey::Small:
+        return styleContainer->keySizeSmallFixed().width();
+
+    case VKBDataKey::Medium:
+        return styleContainer->keySizeMediumFixed().width();
+
+    case VKBDataKey::Large:
+        return styleContainer->keySizeLargeFixed().width();
+
+    case VKBDataKey::XLarge:
+        return styleContainer->keySizeXLargeFixed().width();
+
+    case VKBDataKey::XxLarge:
+        return styleContainer->keySizeXxLargeFixed().width();
+
+    // This one of course makes no real sense:
+    case VKBDataKey::Stretched:
+        return styleContainer->keySizeStretchedFixed().width();
+    }
+
+    qWarning() << __PRETTY_FUNCTION__
+               << "Could not find preferred fixed width in style";
+    return -1;
+}
+
+qreal SingleWidgetButton::preferredWidth(qreal pixelPerSizeUnit, qreal spacing) const
+{
+    switch(dataKey.sizeGroup()) {
+    case VKBDataKey::Small:
+        return computeWidth(pixelPerSizeUnit,
+                            spacing,
+                            styleContainer->keySizeSmall());
+
+    case VKBDataKey::Medium:
+        return computeWidth(pixelPerSizeUnit,
+                            spacing,
+                            styleContainer->keySizeMedium());
+
+    case VKBDataKey::Large:
+        return computeWidth(pixelPerSizeUnit,
+                            spacing,
+                            styleContainer->keySizeLarge());
+
+    case VKBDataKey::XLarge:
+        return computeWidth(pixelPerSizeUnit,
+                            spacing,
+                            styleContainer->keySizeXLarge());
+
+    case VKBDataKey::XxLarge:
+        return computeWidth(pixelPerSizeUnit,
+                            spacing,
+                            styleContainer->keySizeXxLarge());
+
+    case VKBDataKey::Stretched:
+        return computeWidth(pixelPerSizeUnit,
+                            spacing,
+                            styleContainer->keySizeStretched());
+    }
+
+    qWarning() << __PRETTY_FUNCTION__
+               << "Could not find preferred width in style";
+    return -1;
 }
 
 void SingleWidgetButton::loadIcon(bool shift)
@@ -212,7 +287,7 @@ void SingleWidgetButton::loadIcon(bool shift)
     }
 }
 
-const SingleWidgetButton::IconInfo &SingleWidgetButton::getIconInfo() const
+const SingleWidgetButton::IconInfo &SingleWidgetButton::iconInfo() const
 {
     return (shift ? upperCaseIcon : lowerCaseIcon);
 }

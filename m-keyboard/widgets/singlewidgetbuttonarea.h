@@ -32,8 +32,8 @@
 class SingleWidgetButtonArea : public KeyButtonArea, public ISymIndicator
 {
 public:
-    SingleWidgetButtonArea(const MVirtualKeyboardStyleContainer *,
-                           QSharedPointer<const LayoutSection>,
+    SingleWidgetButtonArea(const MVirtualKeyboardStyleContainer *style,
+                           const QSharedPointer<const LayoutSection> &sectionModel,
                            ButtonSizeScheme buttonSizeScheme = ButtonSizeEqualExpanding,
                            bool usePopup = false,
                            QGraphicsWidget *parent = 0);
@@ -81,13 +81,17 @@ private:
     void drawKeyBackground(QPainter *painter, const SingleWidgetButton* button );
 
     struct ButtonRow {
+        ButtonRow()
+            : offset(0)
+            , cachedWidth(0)
+        {}
+
         QList<SingleWidgetButton*> buttons;
 
         //! each row can have one stretch button
         SingleWidgetButton *stretchButton;
 
-        // offset is from x=0 to row start
-        // first button is at offset + horizontal spacing / 2
+        // offset + cachedWidth are stored for reaction map:
         int offset;
         int cachedWidth; // includes left & right margin
     };

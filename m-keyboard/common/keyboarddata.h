@@ -21,6 +21,8 @@
 
 #include "layoutdata.h"
 #include "vkbdatakey.h"
+#include "mvirtualkeyboardstyle.h"
+
 #include <QHash>
 #include <QList>
 #include <QString>
@@ -42,7 +44,7 @@ public:
     * \brief Constructor
     * private class
     */
-    KeyboardData();
+    explicit KeyboardData(const MVirtualKeyboardStyleContainer *styleContainer = 0);
 
     /*!
     * \brief Destructor
@@ -142,9 +144,9 @@ private:
     //! Parse XML tag for import
     void parseTagImport(const QDomElement &element, ParseParameters &params);
 
-    static VKBDataKey::Style toStyleType(const QString &attributeValue);
+    static VKBDataKey::StyleType toStyleType(const QString &attributeValue);
 
-    static VKBDataKey::SizeGroup toSizeGroup(const QString &attributeValue);
+    static VKBDataKey::SizeGroupType toSizeGroup(const QString &attributeValue);
 
     static bool toBoolean(const QString &attributeValue);
 
@@ -160,6 +162,8 @@ protected:
 
     QList<LayoutData *> layouts;
     QHash<QString, LayoutData::LayoutType> layoutTypeMap;
+
+    const MVirtualKeyboardStyleContainer *const styleContainer;
 };
 
 #endif

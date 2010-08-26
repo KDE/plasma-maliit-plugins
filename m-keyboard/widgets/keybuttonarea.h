@@ -70,13 +70,14 @@ public:
 
     /*!
     * \brief Constructor
-    * \param section A section model that this KeyButtonArea visualizes.
+    * \param style The shared VKB style container.
+    * \param sectionModel A section model that this KeyButtonArea visualizes.
     * \param buttonSizeScheme Defines which size attributes to use for buttons.
     * \param usePopup Sets whether popup should be used when long press occurs.
     * \param parent The widget's parent.
     */
-    KeyButtonArea(const MVirtualKeyboardStyleContainer *,
-                  QSharedPointer<const LayoutSection> section,
+    KeyButtonArea(const MVirtualKeyboardStyleContainer *style,
+                  const QSharedPointer<const LayoutSection> &sectionModel,
                   ButtonSizeScheme buttonSizeScheme = ButtonSizeEqualExpanding,
                   bool usePopup = false,
                   QGraphicsWidget *parent = 0);

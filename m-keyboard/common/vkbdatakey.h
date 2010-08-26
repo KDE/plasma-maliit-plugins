@@ -19,8 +19,11 @@
 #ifndef VKBDATAKEY_H
 #define VKBDATAKEY_H
 
-#include <QString>
 #include "keyevent.h"
+#include "mvirtualkeyboardstyle.h"
+
+#include <QSize>
+#include <QString>
 
 /*!
  * \brief KeyBinding is a primitive action and label bound to a key
@@ -140,19 +143,19 @@ class VKBDataKey
 {
 public:
     //! Style Type
-    enum Style {
+    enum StyleType {
         NormalStyle,             // Style for normal keys(character key)
         SpecialStyle,            // Style for special keys(like return, shift, etc.)
         DeadkeyStyle             // Style for deadkeys
     };
 
     //! Size group type
-    enum SizeGroup {
+    enum SizeGroupType {
         Small,
         Medium,
         Large,
         XLarge,
-        XXLarge,
+        XxLarge,
         Stretched
     };
 
@@ -163,7 +166,7 @@ public:
      * \param isFixed Contains true if button should use fixed size group.
      * \param isRtl Contains true if button should use RTL icon.
      */
-    explicit VKBDataKey(Style type = NormalStyle, SizeGroup sizeGroup = Medium,
+    explicit VKBDataKey(StyleType type = NormalStyle, SizeGroupType sizeGroup = Medium,
                         bool isFixed = false, bool isRtl = false);
 
     ~VKBDataKey();
@@ -187,10 +190,14 @@ public:
     KeyEvent toKeyEvent(QKeyEvent::Type eventType, QChar accent, bool shift = false) const;
 
     //! Returns the style type.
-    Style style() const;
+    StyleType style() const;
 
     //! Returns the size group.
-    SizeGroup sizeGroup() const;
+    SizeGroupType sizeGroup() const;
+
+    //! Returns normalized size
+    // Not const, because M_STYLE_ATTRIBUTE-generated getters are not const, for whatever reason ...
+    QSizeF normalizedSize(const MVirtualKeyboardStyleContainer &styleContainer);
 
     //! Returns true if button uses fixed size group.
     bool fixed() const;
@@ -209,9 +216,9 @@ private:
     // the same binding
     const KeyBinding *bindings[NumBindings];
 
-    Style styleType;
+    StyleType mStyle;
 
-    SizeGroup sizeGroupType;
+    SizeGroupType mSizeGroup;
 
     //! Contains true if button uses fixed size group.
     bool isFixed;

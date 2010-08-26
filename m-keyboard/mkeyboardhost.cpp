@@ -103,8 +103,6 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
 
     enableMultiTouch = MGConfItem(MultitouchSettings).value().toBool();
 
-    LayoutsManager::createInstance();
-
     sceneWindow = new MSceneWindow;
     sceneWindow->setManagedManually(true); // we want the scene window to remain in origin
 
@@ -127,6 +125,9 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
 
     vkbStyleContainer = new MVirtualKeyboardStyleContainer;
     vkbStyleContainer->initialize("MVirtualKeyboard", "MVirtualKeyboardView", 0);
+
+    LayoutsManager::createInstance(vkbStyleContainer);
+
 
     FlickGestureRecognizer::registerSharedRecognizer();
 

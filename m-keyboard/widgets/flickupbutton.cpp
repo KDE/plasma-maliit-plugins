@@ -157,16 +157,16 @@ const QString FlickUpButton::secondaryLabel() const
     return binding().secondaryLabel();
 }
 
-QRect FlickUpButton::buttonRect() const
+QRectF FlickUpButton::buttonRect() const
 {
-    return geometry().toRect();
+    return geometry();
 }
 
-QRect FlickUpButton::buttonBoundingRect() const
+QRectF FlickUpButton::buttonBoundingRect() const
 {
     // Translate bounding rect to parent coordinates
     return QRectF(pos() + boundingRect().topLeft(),
-                  boundingRect().size()).toRect();
+                  boundingRect().size());
 }
 
 void FlickUpButton::setModifiers(bool shift, QChar accent)

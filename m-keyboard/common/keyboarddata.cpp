@@ -134,13 +134,14 @@ ParseParameters::ParseParameters():
 {
 }
 
-KeyboardData::KeyboardData()
+KeyboardData::KeyboardData(const MVirtualKeyboardStyleContainer *newStyleContainer)
     : currentLayout(0),
       keyboardVersion(""),
       keyboardTitle(""),
       keyboardLanguage(""),
       keyboardCatalog(""),
-      keyboardAutoCapsEnabled(true)
+      keyboardAutoCapsEnabled(true),
+      styleContainer(newStyleContainer)
 {
     layoutTypeMap[VKBTagTypeGeneral] = LayoutData::General;
     layoutTypeMap[VKBTagTypeUrl] = LayoutData::Url;
@@ -156,35 +157,35 @@ KeyboardData::~KeyboardData()
     layouts.clear();
 }
 
-inline VKBDataKey::Style KeyboardData::toStyleType(const QString &attributeValue)
+inline VKBDataKey::StyleType KeyboardData::toStyleType(const QString &attributeValue)
 {
-    VKBDataKey::Style type = VKBDataKey::NormalStyle;
-    if (attributeValue == "normal") {
-        type = VKBDataKey::NormalStyle;
-    } else  if (attributeValue == "special") {
+    VKBDataKey::StyleType type = VKBDataKey::NormalStyle;
+
+    if (attributeValue == "special") {
         type = VKBDataKey::SpecialStyle;
-    } else  if (attributeValue == "deadkey") {
+    } else if (attributeValue == "deadkey") {
         type = VKBDataKey::DeadkeyStyle;
     }
+
     return type;
 }
 
-inline VKBDataKey::SizeGroup KeyboardData::toSizeGroup(const QString &attributeValue)
+inline VKBDataKey::SizeGroupType KeyboardData::toSizeGroup(const QString &attributeValue)
 {
-    VKBDataKey::SizeGroup size = VKBDataKey::Medium;
+    VKBDataKey::SizeGroupType size = VKBDataKey::Medium;
+
     if (attributeValue == "small") {
         size = VKBDataKey::Small;
-    } else  if (attributeValue == "medium") {
-        size = VKBDataKey::Medium;
     } else  if (attributeValue == "large") {
         size = VKBDataKey::Large;
     } else  if (attributeValue == "x-large") {
         size = VKBDataKey::XLarge;
     } else  if (attributeValue == "xx-large") {
-        size = VKBDataKey::XXLarge;
+        size = VKBDataKey::XxLarge;
     } else  if (attributeValue == "stretched") {
         size = VKBDataKey::Stretched;
     }
+
     return size;
 }
 
@@ -454,8 +455,11 @@ void KeyboardData::parseTagRow(const QDomElement &element, ParseParameters &para
                   &VKBTagKey, &KeyboardData::parseTagKey,
                   &VKBTagSpacer, &KeyboardData::parseTagSpacer);
 
-    params.currentSection->m_maxColumns = qMax(params.currentSection->maxColumns(),
-                                          row->keys.size());
+    params.currentSection->mMaxColumns = qMax(params.currentSection->maxColumns(),
+                                              row->keys.size());
+
+    params.currentSection->mMaxNormalizedWidth = qMax(params.currentSection->maxNormalizedWidth(),
+                                                      row->normalizedWidth);
 }
 
 void KeyboardData::parseTagBinding(const QDomElement &element, ParseParameters &params)
@@ -487,20 +491,26 @@ void KeyboardData::parseTagBinding(const QDomElement &element, ParseParameters &
 
 void KeyboardData::parseTagKey(const QDomElement &element, ParseParameters &params)
 {
-    VKBDataKey::Style type = toStyleType(element.attribute(StyleString, StyleStringDefValue));
-    VKBDataKey::SizeGroup size = toSizeGroup(element.attribute(SizeGroupString, SizeGroupStringDefValue));
+    VKBDataKey::StyleType type = toStyleType(element.attribute(StyleString, StyleStringDefValue));
+    VKBDataKey::SizeGroupType size = toSizeGroup(element.attribute(SizeGroupString, SizeGroupStringDefValue));
     const bool isRtl = toBoolean(element.attribute(RtlString, RtlStringDefValue));
     const bool isFixed = toBoolean(element.attribute(FixedString, FixedStringDefValue));
 
     VKBDataKey *key = new VKBDataKey(type, size, isFixed, isRtl);
-    params.currentRow->keys.append(key);
     params.currentKey = key;
+    params.currentRow->keys.append(key);
 
+    if (styleContainer) {
+        params.currentRow->normalizedWidth += key->normalizedSize(*styleContainer).width();
+    }
 
     parseChildren(element, params, &VKBTagBinding, &KeyboardData::parseTagBinding);
+
+
     if (key->bindings[1] == NULL) {
         key->bindings[1] = key->bindings[0];
     }
+
     if (key->bindings[0] == NULL) {
         key->bindings[0] = key->bindings[1];
     }

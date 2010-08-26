@@ -35,9 +35,6 @@
 #include <MTheme>
 
 namespace {
-    // E.g., spacebar should usually get 3x the space of a normal button:
-    int DefaultButtonStretchFactor = 3;
-
     SingleWidgetButton * binaryButtonFind(int x,
                                           const QList<SingleWidgetButton *> &buttons)
     {
@@ -62,7 +59,7 @@ namespace {
 }
 
 SingleWidgetButtonArea::SingleWidgetButtonArea(const MVirtualKeyboardStyleContainer *style,
-                                               QSharedPointer<const LayoutSection> sectionModel,
+                                               const QSharedPointer<const LayoutSection> &sectionModel,
                                                ButtonSizeScheme buttonSizeScheme,
                                                bool usePopup,
                                                QGraphicsWidget *parent)
@@ -73,7 +70,7 @@ SingleWidgetButtonArea::SingleWidgetButtonArea(const MVirtualKeyboardStyleContai
       symIndicatorButton(0),
       shiftButton(0),
       textDirty(false),
-      equalWidthButtons(false)
+      equalWidthButtons(true)
 {
     textLayout.setCacheEnabled(true);
 
@@ -134,13 +131,8 @@ void SingleWidgetButtonArea::loadKeys()
 
         // Add buttons
         for (int col = 0; col < numColumns; ++col) {
-
             // Parameters to fetch from base class.
-            const VKBDataKey *dataKey;
-            QSize buttonSize;
-            bool stretchesHorizontally;
-            buttonInformation(row, col, dataKey, buttonSize, stretchesHorizontally);
-
+            VKBDataKey *dataKey = sectionModel()->vkbKey(row, col);
             SingleWidgetButton *button = new SingleWidgetButton(*dataKey, style(), *this);
 
             if (dataKey->binding()->action() == KeyBinding::ActionSym) {
@@ -150,13 +142,11 @@ void SingleWidgetButtonArea::loadKeys()
                 this->shiftButton = button;
             }
 
-            button->width = buttonSize.width();
-
             const int vSpacing = style()->spacingVertical();
-            rowHeight = qMax(rowHeight - vSpacing, buttonSize.height()) + vSpacing;
+            rowHeight = qMax<qreal>(rowHeight - vSpacing, style()->keyNormalSize().height()) + vSpacing;
 
             // Only one stretching item per row.
-            if (stretchesHorizontally && !rowIter->stretchButton) {
+            if (!rowIter->stretchButton) {
                 rowIter->stretchButton = button;
             }
 
@@ -164,7 +154,6 @@ void SingleWidgetButtonArea::loadKeys()
         }
     } // end foreach row
 
-    // Update height
     updateGeometry();
 }
 
@@ -251,7 +240,7 @@ void SingleWidgetButtonArea::buildTextLayout()
             // even if we have it.
             bool skipSecondary = false;
 
-            const QRect &buttonRect = button->cachedButtonRect;
+            const QRectF &buttonRect = button->cachedButtonRect;
 
             if (secondary.isEmpty()) {
                 // All horizontally centered, portrait vs. landscape only differs in top & bottom margins.
@@ -340,7 +329,7 @@ void SingleWidgetButtonArea::paint(QPainter *painter, const QStyleOptionGraphics
             drawKeyBackground(painter, button);
 
             // Draw icon.
-            button->drawIcon(button->cachedButtonRect, painter);
+            button->drawIcon(button->cachedButtonRect.toRect(), painter);
         }
     }
 
@@ -355,10 +344,14 @@ void SingleWidgetButtonArea::paint(QPainter *painter, const QStyleOptionGraphics
 void SingleWidgetButtonArea::drawKeyBackground(QPainter *painter,
                                                const SingleWidgetButton* button)
 {
-    if (!button)
+    if (!button) {
         return;
+    }
+
     const MScalableImage *background = 0;
+
     switch (button->state()) {
+
     case IKeyButton::Normal:
         switch (button->key().style()) {
         case VKBDataKey::SpecialStyle:
@@ -373,6 +366,7 @@ void SingleWidgetButtonArea::drawKeyBackground(QPainter *painter,
             break;
         }
         break;
+
     case IKeyButton::Pressed:
         switch (button->key().style()) {
         case VKBDataKey::SpecialStyle:
@@ -387,6 +381,7 @@ void SingleWidgetButtonArea::drawKeyBackground(QPainter *painter,
             break;
         }
         break;
+
     case IKeyButton::Selected:
         switch (button->key().style()) {
         case VKBDataKey::SpecialStyle:
@@ -401,12 +396,13 @@ void SingleWidgetButtonArea::drawKeyBackground(QPainter *painter,
             break;
         }
         break;
+
     default:
         break;
     }
 
     if (background) {
-        background->draw(button->buttonRect(), painter);
+        background->draw(button->cachedButtonRect.toRect(), painter);
     }
 }
 
@@ -452,44 +448,41 @@ void SingleWidgetButtonArea::modifiersChanged(const bool shift, const QChar acce
     textDirty = true;
 }
 
-void SingleWidgetButtonArea::updateButtonGeometries(const int newAvailableWidth, const int equalButtonWidth)
+void SingleWidgetButtonArea::updateButtonGeometries(const int newAvailableWidth, const int)
 {
     if (sectionModel()->maxColumns() == 0) {
         return;
     }
 
-    this->equalWidthButtons = (equalButtonWidth >= 0);
+    const qreal HorizontalSpacing = style()->spacingHorizontal();
+    const qreal VerticalSpacing = style()->spacingVertical();
 
-    const int HorizontalSpacing = style()->spacingHorizontal();
-    const int VerticalSpacing = style()->spacingVertical();
+    // TODO: kill alignment:
     const Qt::Alignment alignment = sectionModel()->horizontalAlignment();
-
-    // This is used to update the button rectangles
-    int y = 0;
-
-    // Button margins
-    const int leftMargin = HorizontalSpacing / 2;
-    const int rightMargin = HorizontalSpacing - leftMargin;
-    const int topMargin = VerticalSpacing / 2;
-    const int bottomMargin = VerticalSpacing - topMargin;
-
-    QRect br; // button bounding rectangle
-    br.setHeight(rowHeight); // Constant height
 
     // The following code cannot handle negative width:
     int availableWidth = qMax(0, newAvailableWidth);
+    const qreal normalizedWidth = qMax<qreal>(1.0, sectionModel()->maxNormalizedWidth());
+    const qreal availableWidthForButtons = availableWidth - ((normalizedWidth - 1) * HorizontalSpacing);
+    const qreal equalButtonWidth = availableWidthForButtons / normalizedWidth;
+
+    // This is used to update the button rectangles
+    qreal y = 0;
+
+    // Button margins
+    const qreal leftMargin = HorizontalSpacing / 2;
+    const qreal rightMargin = HorizontalSpacing - leftMargin;
+    const qreal topMargin = VerticalSpacing / 2;
+    const qreal bottomMargin = VerticalSpacing - topMargin;
+
+    QRectF br; // button bounding rectangle
+    br.setHeight(rowHeight); // Constant height
 
     for (RowIterator row(rowList.begin()); row != rowList.end(); ++row) {
-
         // Update row width
-        int rowWidth = 0;
+        qreal rowWidth = 0;
         foreach (SingleWidgetButton *button, row->buttons) {
-
-            // Restrict button width.
-            if (equalWidthButtons) {
-                button->width = equalButtonWidth;
-            }
-
+            button->width = button->preferredWidth(equalButtonWidth, HorizontalSpacing);
             rowWidth += button->width + HorizontalSpacing;
         }
         rowWidth -= HorizontalSpacing;
@@ -502,7 +495,7 @@ void SingleWidgetButtonArea::updateButtonGeometries(const int newAvailableWidth,
                        << ")!";
         }
 
-        int availableWidthForSpacers = 0;
+        qreal availableWidthForSpacers = 0;
         const QList<int> spacerIndices = sectionModel()->spacerIndices(row - rowList.begin());
         int spacerCount = row->stretchButton ? spacerIndices.count() + 1
                                              : spacerIndices.count();
@@ -514,46 +507,31 @@ void SingleWidgetButtonArea::updateButtonGeometries(const int newAvailableWidth,
             if (spacerCount == 1) {
                 row->stretchButton->width = availableWidth - rowWidth;
                 rowWidth = availableWidth;
+                spacerCount = 0;
             }
         }
 
         if ((spacerCount > 0) && (availableWidth > rowWidth)) {
+            availableWidthForSpacers = (availableWidth - rowWidth) / spacerCount;
 
             if (row->stretchButton) {
-                // TODO: fetch DefaultButtonStretchFactor from style or layout
-                const int spaceForStretchButton = qMin(availableWidth - rowWidth,
-                                                       DefaultButtonStretchFactor * equalButtonWidth);
-                row->stretchButton->width = spaceForStretchButton;
-                rowWidth += spaceForStretchButton;
-                --spacerCount; // We handled the stretch button
+                row->stretchButton->width = availableWidthForSpacers;
             }
-
-            availableWidthForSpacers = (availableWidth - rowWidth) / spacerCount;
         }
 
         // Save row width for easier use.
-        // TODO: Now that we have spacer elements: Get rid of HorizontalSpacing, too?
         row->cachedWidth = rowWidth + HorizontalSpacing;
+        qreal x = spacerIndices.count(-1) * availableWidthForSpacers;
+        row->offset = static_cast<int>(x);
 
-        // Width is calculated, we can now set row offset according to alignment.
-        if (alignment & Qt::AlignRight) {
-            row->offset = (availableWidth - rowWidth);
-        } else if (alignment & Qt::AlignCenter) {
-            row->offset = (availableWidth - rowWidth) / 2;
-        } else {
-            row->offset = 0;
-        }
-        row->offset -= HorizontalSpacing / 2;
-
-        // Row offset is ready. We can precalculate button rectangles.
+        // We can precalculate button rectangles.
         br.moveTop(y - topMargin);
-        int x = spacerIndices.count(-1) * availableWidthForSpacers;
 
         for (int buttonIndex = 0; buttonIndex < row->buttons.count(); ++buttonIndex) {
             SingleWidgetButton *button = row->buttons.at(buttonIndex);
 
             br.moveLeft(x);
-            br.setWidth(button->width + HorizontalSpacing);
+            br.setWidth(button->width);
 
             // save it
             button->cachedBoundingRect = br;

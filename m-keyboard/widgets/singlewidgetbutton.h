@@ -36,8 +36,8 @@ public:
     //! \reimp
     virtual const QString label() const;
     virtual const QString secondaryLabel() const;
-    virtual QRect buttonRect() const;
-    virtual QRect buttonBoundingRect() const;
+    virtual QRectF buttonRect() const;
+    virtual QRectF buttonBoundingRect() const;
     virtual void setModifiers(bool shift, QChar accent = QChar());
     virtual void setDownState(bool down);
     virtual void setSelected(bool select);
@@ -59,14 +59,20 @@ public:
     //! \brief Calls parent item's QGraphicsItem::update() who actually draws the button.
     void update();
 
+    //! Returns preferred fixed witdth
+    int preferredFixedWidth() const;
+
+    //! Returns preferred dynamic width
+    qreal preferredWidth(qreal pixelPerSizeUnit, qreal spacing) const;
+
     //! Cache for the buttons position and size. They can always
     //! be calculated but are faster to access this way.
-    QRect cachedBoundingRect;
-    QRect cachedButtonRect;
+    QRectF cachedBoundingRect;
+    QRectF cachedButtonRect;
 
     //! The width for this button. Not managed by this class.
     //! It is used by SingleWidgetButtonArea to store the correct button size.
-    int width;
+    qreal width;
 
 private:
     //! Contains information about icon
@@ -83,7 +89,7 @@ private:
 
     void loadIcon(bool shift);
 
-    const IconInfo &getIconInfo() const;
+    const IconInfo &iconInfo() const;
 
     //! The key this button represents
     const VKBDataKey &dataKey;

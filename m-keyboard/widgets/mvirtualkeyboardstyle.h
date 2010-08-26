@@ -36,8 +36,8 @@ class MVirtualKeyboardStyle : public MWidgetStyle
 
 public:
     M_STYLE_ATTRIBUTE(QSize, keyboardAreaSize, KeyboardAreaSize)
-    M_STYLE_ATTRIBUTE(int, spacingVertical, SpacingVertical)
-    M_STYLE_ATTRIBUTE(int, spacingHorizontal, SpacingHorizontal)
+    M_STYLE_ATTRIBUTE(qreal, spacingVertical, SpacingVertical)
+    M_STYLE_ATTRIBUTE(qreal, spacingHorizontal, SpacingHorizontal)
     M_STYLE_ATTRIBUTE(QColor, fontColor, FontColor)
     M_STYLE_ATTRIBUTE(qreal, fontOpacity, FontOpacity)
     M_STYLE_ATTRIBUTE(QFont, font, Font)
@@ -67,23 +67,23 @@ public:
     M_STYLE_ATTRIBUTE(QSize, keyNumberFunctionLargeSize, KeyNumberFunctionLargeSize)
     M_STYLE_ATTRIBUTE(QSize, keySymNormalSize, KeySymNormalSize)
 
-    M_STYLE_ATTRIBUTE(QSize, keySizeSmall, KeySizeSmall)
-    M_STYLE_ATTRIBUTE(QSize, keySizeSmallFixed, KeySizeSmallFixed)
+    M_STYLE_ATTRIBUTE(QSizeF, keySizeSmall, KeySizeSmall)
+    M_STYLE_ATTRIBUTE(QSize,  keySizeSmallFixed, KeySizeSmallFixed)
 
-    M_STYLE_ATTRIBUTE(QSize, keySizeMedium, KeySizeMedium)
-    M_STYLE_ATTRIBUTE(QSize, keySizeMediumFixed, KeySizeMediumFixed)
+    M_STYLE_ATTRIBUTE(QSizeF, keySizeMedium, KeySizeMedium)
+    M_STYLE_ATTRIBUTE(QSize,  keySizeMediumFixed, KeySizeMediumFixed)
 
-    M_STYLE_ATTRIBUTE(QSize, keySizeLarge,  KeySizeLarge)
-    M_STYLE_ATTRIBUTE(QSize, keySizeLargeFixed,  KeySizeLargeFixed)
+    M_STYLE_ATTRIBUTE(QSizeF, keySizeLarge,  KeySizeLarge)
+    M_STYLE_ATTRIBUTE(QSize,  keySizeLargeFixed,  KeySizeLargeFixed)
 
-    M_STYLE_ATTRIBUTE(QSize, keySizeXLarge, KeySizeXLarge)
-    M_STYLE_ATTRIBUTE(QSize, keySizeXLargeFixed, KeySizeXLargeFixed)
+    M_STYLE_ATTRIBUTE(QSizeF, keySizeXLarge, KeySizeXLarge)
+    M_STYLE_ATTRIBUTE(QSize,  keySizeXLargeFixed, KeySizeXLargeFixed)
 
-    M_STYLE_ATTRIBUTE(QSize, keySizeXxLarge, KeySizeXxLarge)
-    M_STYLE_ATTRIBUTE(QSize, keySizeXxLargeFixed, KeySizeXxLargeFixed)
+    M_STYLE_ATTRIBUTE(QSizeF, keySizeXxLarge, KeySizeXxLarge)
+    M_STYLE_ATTRIBUTE(QSize,  keySizeXxLargeFixed, KeySizeXxLargeFixed)
 
-    M_STYLE_ATTRIBUTE(QSize, keySizeStretched, KeySizeStretched)
-    M_STYLE_ATTRIBUTE(QSize, keySizeStretchedFixed, KeySizeStretchedFixed)
+    M_STYLE_ATTRIBUTE(QSizeF, keySizeStretched, KeySizeStretched)
+    M_STYLE_ATTRIBUTE(QSize,  keySizeStretchedFixed, KeySizeStretchedFixed)
 
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackground, KeyBackground)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundPressed, KeyBackgroundPressed)
