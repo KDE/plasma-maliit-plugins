@@ -29,7 +29,6 @@ namespace
 {
     const QString LanguageListSettingName("/meegotouch/inputmethods/languages");
     const QString NumberFormatSettingName("/meegotouch/inputmethods/numberformat");
-    const QString XkbLayoutSettingName("/meegotouch/inputmethods/hwkeyboard/layout");
     const QString DisplayLanguageSettingName("/meegotouch/i18n/language");
     const QString LatinNumberFormat("latin");
     const QString ArabicNumberFormat("arabic");
@@ -318,8 +317,7 @@ void Ut_LayoutsManager::testHardwareSymLayout()
 
     std::auto_ptr<LayoutsManager> subject(new LayoutsManager);
 
-    MGConfItem xkbLayoutSetting(XkbLayoutSettingName);
-    xkbLayoutSetting.set(xkbLayout);
+    subject->setXkbMap(xkbLayout, "");
 
     const TestLayoutModel *testLayout = dynamic_cast<const TestLayoutModel *>(
         subject->hardwareLayout(LayoutData::General, M::Landscape));
