@@ -385,23 +385,41 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
 
     if (keyCode == SymKey) {
         characterLoopIndex = -1;
+        eaten = true;
     } else if ((keyCode == Qt::Key_Shift) && (++shiftsPressed == 2)
                && !stateTransitionsDisabled) {
         shiftShiftCapsLock = true;
         latchModifiers(FnModifierMask | ShiftMask, 0);
         lockModifiers(FnModifierMask | LockMask, LockMask);
+        eaten = true;
+    } else if (keyCode == Qt::Key_Shift) {
+        eaten = true;
     } else if (keyCode == FnLevelKey) {
         fnPressed = true;
-        eaten = false;
+        eaten = true;
     } else {
         eaten = !passKeyOnPress(keyCode, text, nativeScanCode, nativeModifiers);
+        bool eatenBySymHandler(false);
 
-        // Long press feature, only applies for the latest keypress (i.e. the latest
-        // keypress event cancels the long press logic for the previous keypress)
-        if (eaten) {
+        if (nativeModifiers & SymModifierMask) {
+            eatenBySymHandler = handlePressWithSymModifier(text);
+            eaten = eaten || eatenBySymHandler;
+        }
+
+        if (eaten && !eatenBySymHandler) {
+            // Long press feature, only applies for the latest keypress (i.e. the latest
+            // keypress event cancels the long press logic for the previous keypress)
             longPressKey = nativeScanCode;
             longPressModifiers = nativeModifiers;
             longPressTimer.start();
+
+            if (!preedit.isEmpty()) {
+                inputContextConnection.sendCommitString(preedit);
+                pressedKeys.remove(preeditScanCode);
+            }
+            inputContextConnection.sendPreeditString(text, PreeditKeyPress);
+            preedit = text;
+            preeditScanCode = nativeScanCode;
         }
         // Unlatch modifiers on keys for which there is a known action on press event.
         // Currently this means arrow keys and backspace/delete.
@@ -477,7 +495,7 @@ bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers 
 
     if (imMode == M::InputMethodModeDirect) {
         if (keyCode == SymKey) {
-            eaten = handleReleaseWithSymModifier(keyCode, text);
+            eaten = handleReleaseWithSymModifier(keyCode);
         }
         return eaten;
     }
@@ -496,7 +514,7 @@ bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers 
     }
 
     if (keyWasPressed && (nativeModifiers & SymModifierMask)) {
-        eaten = handleReleaseWithSymModifier(keyCode, text);
+        eaten = handleReleaseWithSymModifier(keyCode);
     }
 
     const Qt::KeyboardModifiers filteredModifiers(
@@ -512,16 +530,16 @@ bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers 
         if (--shiftsPressed == 0) {
             shiftShiftCapsLock = false;
         }
+        eaten = true;
     } else if (keyCode == FnLevelKey) {
         fnPressed = false;
         handleCyclableModifierRelease(FnLevelKey, FnModifierMask, FnModifierMask, LockMask,
                                       ShiftMask);
+        eaten = true;
     } else if (!eaten && !passKeyOnPress(keyCode, text, nativeScanCode, nativeModifiers)) {
         if (keyWasPressed) {
-            inputContextConnection.sendKeyEvent(
-                QKeyEvent(QEvent::KeyPress, keyCode, filteredModifiers, text, false, 1));
-            inputContextConnection.sendKeyEvent(
-                QKeyEvent(QEvent::KeyRelease, keyCode, filteredModifiers, text, false, 1));
+            inputContextConnection.sendCommitString(preedit);
+            preedit.clear();
         }
         eaten = true;
 
@@ -613,37 +631,26 @@ void MHardwareKeyboard::handleLongPressTimeout()
                                    ? 1 : 0) + shiftLevelBase);
     const QString text(keycodeToString(longPressKey, shiftLevel));
     if (!text.isEmpty()) {
-        inputContextConnection.sendKeyEvent(
-            QKeyEvent(QEvent::KeyPress, static_cast<Qt::Key>(QKeySequence(text)[0]), Qt::NoModifier,
-                      text, false, 1));
-        inputContextConnection.sendKeyEvent(
-            QKeyEvent(QEvent::KeyRelease, static_cast<Qt::Key>(QKeySequence(text)[0]), Qt::NoModifier,
-                      text, false, 1));
+        preedit.clear();
+        inputContextConnection.sendCommitString(text);
         latchModifiers(FnModifierMask | ShiftMask, 0);
         pressedKeys.remove(longPressKey);
     }
 }
 
 
-bool MHardwareKeyboard::handleReleaseWithSymModifier(Qt::Key keyCode, const QString &text)
+void MHardwareKeyboard::commitSymPlusCharacterCycle()
 {
-    if ((imMode == M::InputMethodModeDirect) && (keyCode == SymKey)) {
-        emit symbolKeyClicked();
-        return true;
-    }
+    const QString accentedCharacters = hwkbCharLoopsManager.characterLoop(lastSymText[0]);
+    inputContextConnection.sendCommitString(QString(accentedCharacters[characterLoopIndex]));
+    characterLoopIndex = -1;
+    latchModifiers(FnModifierMask | ShiftMask, 0);
+}
 
-    //FIXME: eat the sym key?
-    if ((lastKeyCode == SymKey) && (keyCode == SymKey)) {
-        emit symbolKeyClicked();
-        return false;
-    }
-
-    if ((characterLoopIndex != -1) && ((lastSymText != text) || (keyCode == SymKey))) {
-        const QString accentedCharacters = hwkbCharLoopsManager.characterLoop(lastSymText[0]);
-        inputContextConnection.sendCommitString(QString(accentedCharacters[characterLoopIndex]));
-        characterLoopIndex = -1;
-        latchModifiers(FnModifierMask | ShiftMask, 0);
-        // TODO: sym+character with latched shift.  Also note the return false cases.
+bool MHardwareKeyboard::handlePressWithSymModifier(const QString &text)
+{
+    if ((characterLoopIndex != -1) && (lastSymText != text)) {
+        commitSymPlusCharacterCycle();
     }
 
     if (text.length() != 1) {
@@ -660,6 +667,29 @@ bool MHardwareKeyboard::handleReleaseWithSymModifier(Qt::Key keyCode, const QStr
     inputContextConnection.sendPreeditString(accentedCharacters[characterLoopIndex],
                                              PreeditNoCandidates);
     return true;
+}
+
+bool MHardwareKeyboard::handleReleaseWithSymModifier(Qt::Key keyCode)
+{
+    // Handle possible Sym click...
+    if ((lastKeyCode == SymKey) && (keyCode == SymKey)) {
+        emit symbolKeyClicked();
+        return true;
+    } else if (imMode == M::InputMethodModeDirect) { // ...which is all we do for direct mode.
+        return false;
+    }
+
+    // Maybe stop the ongoing looping.
+    if (characterLoopIndex != -1) {
+        if (keyCode == SymKey) {
+            commitSymPlusCharacterCycle();
+        }
+
+        return true;
+    }
+
+    // no looping going on, eat sym key release but otherwise let caller handle the event
+    return keyCode == SymKey;
 }
 
 

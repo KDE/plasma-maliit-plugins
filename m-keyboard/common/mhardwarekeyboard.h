@@ -142,7 +142,14 @@ private:
      *
      * \return true if the event was processed/consumed, false otherwise
      */
-    bool handleReleaseWithSymModifier(Qt::Key keyCode, const QString &text);
+    bool handleReleaseWithSymModifier(Qt::Key keyCode);
+
+    //! \brief Just like \a handleReleaseWithSymModifier but for key press events.
+    bool handlePressWithSymModifier(const QString &text);
+
+    //! \brief Helper for \a handlePressWithSymModifier and \a handleReleaseWithSymModifier
+    //! to stop the ongoing looping.
+    void commitSymPlusCharacterCycle();
 
     //! \return true if the key has known action on press event, false otherwise
     bool actionOnPress(Qt::Key keyCode) const;
@@ -290,6 +297,11 @@ private:
 
     //! \brief Is Fn key pressed at the moment?
     bool fnPressed;
+
+    //! What we've last sent as the preedit string
+    QString preedit;
+    //! Native X keycode of the event that caused \a preedit to be set
+    quint32 preeditScanCode;
 
     friend class Ut_MHardwareKeyboard;
     friend class Ft_MHardwareKeyboard;
