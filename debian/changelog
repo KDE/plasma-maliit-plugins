@@ -1,8 +1,10 @@
-meego-keyboard (0.4.14~1) unstable; urgency=low
+meego-keyboard (0.4.14-1) unstable; urgency=low
 
-  * [UNRELEASED]
+  * Fixes: NB#185013
+  * Fixed unit test crashes
+  * Implemented support for multi-script hardware keyboard
 
- -- Viacheslav Sobolev <ext-viacheslav.sobolev@nokia.com>  Mon, 23 Aug 2010 10:53:26 +0300
+ -- Pekka Vuorela <pekka.ta.vuorela@nokia.com>  Fri, 27 Aug 2010 13:58:02 +0300
 
 meego-keyboard (0.4.13-1) unstable; urgency=low
 
