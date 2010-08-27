@@ -1234,12 +1234,8 @@ void MKeyboardHost::processKeyEvent(QEvent::Type keyType, Qt::Key keyCode,
         !hardwareKeyboard->filterKeyEvent(keyType, keyCode, modifiers, text,
                                           autoRepeat, count, nativeScanCode,
                                           nativeModifiers)) {
-        //TODO: improve MInputMethodBase::processKeyEvent to get native virtual key code.
-        QKeyEvent *key = QKeyEvent::createExtendedKeyEvent(keyType, keyCode, modifiers,
-                                                           nativeScanCode, 0, nativeModifiers,
-                                                           text, autoRepeat, count);
-        inputContextConnection()->sendKeyEvent(*key);
-        delete key;
+        inputContextConnection()->sendKeyEvent(QKeyEvent(keyType, keyCode, modifiers, text,
+                                                         autoRepeat, count));
     }
 }
 
