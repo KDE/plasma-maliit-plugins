@@ -342,12 +342,8 @@ void MHardwareKeyboard::handleCyclableModifierRelease(
     }
 }
 
-bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers modifiers,
-                                       QString text, bool autoRepeat, int count,
-                                       quint32 nativeScanCode, quint32 nativeModifiers)
+bool MHardwareKeyboard::handleScriptSwitchOnPress(Qt::Key keyCode, Qt::KeyboardModifiers modifiers)
 {
-    bool eaten = false;
-
     // eat Fn/Shift press when Shift/Fn is held
     if (keyCode == Qt::Key_Shift && fnPressed) {
         ++shiftsPressed;
@@ -363,6 +359,47 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
         && (modifiers & Qt::ControlModifier)
         && (!fnPressed && !shiftsPressed)) {
         switchKeyMap();
+        return true;
+    }
+
+    return false;
+}
+
+bool MHardwareKeyboard::handleScriptSwitchOnRelease(Qt::Key keyCode, Qt::KeyboardModifiers modifiers)
+{
+    // switch keyboard map if Fn and Shift are held down and one of them
+    // released (without pressing any character key)
+    if(keyCode == Qt::Key_Shift
+        && fnPressed
+        && (lastKeyCode == FnLevelKey || lastKeyCode == Qt::Key_Shift)) {
+        --shiftsPressed;
+        switchKeyMap();
+        return true;
+    }
+    if (keyCode == FnLevelKey
+        && shiftsPressed
+        && (lastKeyCode == FnLevelKey || lastKeyCode == Qt::Key_Shift)) {
+        fnPressed = false;
+        switchKeyMap();
+        return true;
+    }
+    // eat Space release when Control is held.
+    if (keyCode == Qt::Key_Space
+        && (modifiers & Qt::ControlModifier)
+        && (!fnPressed && !shiftsPressed)) {
+        return true;
+    }
+
+    return false;
+}
+
+bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers modifiers,
+                                       QString text, bool autoRepeat, int count,
+                                       quint32 nativeScanCode, quint32 nativeModifiers)
+{
+    bool eaten = false;
+
+    if (handleScriptSwitchOnPress(keyCode, modifiers)) {
         return true;
     }
 
@@ -470,26 +507,7 @@ bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers 
 {
     bool eaten = false;
 
-    // switch keyboard map if Fn and Shift are held down and one of them
-    // released (without pressing any character key)
-    if(keyCode == Qt::Key_Shift
-        && fnPressed
-        && (lastKeyCode == FnLevelKey || lastKeyCode == Qt::Key_Shift)) {
-        --shiftsPressed;
-        switchKeyMap();
-        return true;
-    }
-    if (keyCode == FnLevelKey
-        && shiftsPressed
-        && (lastKeyCode == FnLevelKey || lastKeyCode == Qt::Key_Shift)) {
-        fnPressed = false;
-        switchKeyMap();
-        return true;
-    }
-    // eat Space release when Control is held.
-    if (keyCode == Qt::Key_Space
-        && (modifiers & Qt::ControlModifier)
-        && (!fnPressed && !shiftsPressed)) {
+    if (handleScriptSwitchOnRelease(keyCode, modifiers)) {
         return true;
     }
 

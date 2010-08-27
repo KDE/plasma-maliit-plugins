@@ -138,6 +138,12 @@ private slots:
     void handleLongPressTimeout();
 
 private:
+    //! \brief Helper for \a filterKeyPress that handles script switching shortcuts
+    bool handleScriptSwitchOnPress(Qt::Key keyCode, Qt::KeyboardModifiers modifiers);
+
+    //! \brief Helper for \a filterKeyRelease that handles script switching shortcuts
+    bool handleScriptSwitchOnRelease(Qt::Key keyCode, Qt::KeyboardModifiers modifiers);
+
     /*! \brief Process key release event when symbol modifier is pressed.
      *
      * \return true if the event was processed/consumed, false otherwise
