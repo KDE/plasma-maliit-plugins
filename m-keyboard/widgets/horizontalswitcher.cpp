@@ -32,6 +32,7 @@ HorizontalSwitcher::HorizontalSwitcher(QGraphicsItem *parent) :
     animTimeLine(SwitchDuration),
     loopingEnabled(false)
 {
+    setFlag(QGraphicsItem::ItemHasNoContents); // doesn't paint itself anything
     setObjectName("HorizontalSwitcher");
 
     animTimeLine.setFrameRange(0, SwitchFrames);
