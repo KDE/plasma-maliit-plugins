@@ -62,7 +62,6 @@ public:
     virtual void mouseClickedOnPreedit(const QPoint &mousePos, const QRect &preeditRect);
     virtual void visualizationPriorityChanged(bool priority);
     virtual void appOrientationChanged(int angle);
-    virtual void setCopyPasteState(bool copyAvailable, bool pasteAvailable);
     virtual void setToolbar(QSharedPointer<const MToolbarData> toolbar);
     virtual void setState(const QSet<MIMHandlerState> &state);
     virtual void processKeyEvent(QEvent::Type keyType, Qt::Key keyCode,

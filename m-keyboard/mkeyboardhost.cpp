@@ -687,12 +687,6 @@ void MKeyboardHost::appOrientationChanged(int angle)
 }
 
 
-void MKeyboardHost::setCopyPasteState(bool copyAvailable, bool pasteAvailable)
-{
-    imToolbar->setCopyPasteButton(copyAvailable, pasteAvailable);
-}
-
-
 void MKeyboardHost::updatePreedit(const QString &updatedString)
 {
     PreeditFace face = PreeditDefault;

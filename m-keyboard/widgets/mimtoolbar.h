@@ -107,13 +107,6 @@ public slots:
      */
     void setSelectionStatus(bool);
 
-    /*!
-     * \brief Set copy/paste button state: hide it, show copy or show paste
-     *  \param copyAvailable TRUE if text is selected
-     *  \param pasteAvailable TRUE if clipboard content is not empty
-     */
-    void setCopyPasteButton(bool copyAvailable, bool pasteAvailable);
-
 
 private slots:
     //! Invoked when custom button on toolbar is clicked
@@ -127,9 +120,6 @@ private slots:
 
     //! Send key events corresponding to given \a keys.
     void sendKeySequence(const QString &keys);
-
-    //! Invoked when copy/paste button is clicked
-    void copyPasteButtonHandler();
 
     //! Show or hide buttons according to toolbar definition and text tselection status
     void updateVisibility();
@@ -162,8 +152,6 @@ signals:
 
 private:
     void setupLayout();
-
-    void loadDefaultButtons();
 
     void updateRegion();
 
@@ -202,11 +190,6 @@ private:
     //! ToolbarItem for Copy/Paste button.
     // Don't call any method belongs to MToolbarItem which attributes are managed internally.
     QSharedPointer<MToolbarItem> copyPasteItem;
-
-    //! Copy/Paste button
-    MToolbarButton *copyPaste;
-    //! Copy/paste button status
-    CopyPasteState copyPasteStatus;
 
     WidgetBar leftBar;  //! Widget to hold left-aligned toolbar widgets
     WidgetBar rightBar; //! Widget to hold right-aligned toolbar widgets

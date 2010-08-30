@@ -48,8 +48,6 @@ MImToolbar::MImToolbar(QGraphicsWidget *parent)
     : MStylableWidget(parent),
       textSelected(false),
       copyPasteItem(new MToolbarItem(NameToolbarCopyPasteButton, MInputMethod::ItemButton)),
-      copyPaste(new MToolbarButton(copyPasteItem, this)),
-      copyPasteStatus(InputMethodNoCopyPaste),
       leftBar(true, this),
       rightBar(true, this),
       shiftState(ModifierClearState),
@@ -60,8 +58,6 @@ MImToolbar::MImToolbar(QGraphicsWidget *parent)
     setObjectName(ObjectNameToolbar);
 
     setupLayout();
-
-    loadDefaultButtons();
 
     connect(this, SIGNAL(visibleChanged()), this, SLOT(updateVisibility()));
     connect(MTheme::instance(), SIGNAL(themeChangeCompleted()),
@@ -83,15 +79,6 @@ void MImToolbar::setupLayout()
     mainLayout->insertItem(0, rowLayout);
 
     resize(geometry().width(), layout()->preferredHeight());
-}
-
-void MImToolbar::loadDefaultButtons()
-{
-    // Setup copy/paste button.
-    copyPaste->setVisible(false);
-    //% "Copy"
-    copyPaste->setText(qtTrId("qtn_comm_copy"));
-    connect(copyPaste, SIGNAL(clicked()), this, SLOT(copyPasteButtonHandler()));
 }
 
 QRegion MImToolbar::region() const
@@ -132,7 +119,9 @@ void MImToolbar::handleButtonClick(MToolbarItem *item)
         case MInputMethod::ActionHideGroup:
             hideGroup(action->group());
             break;
+        case MInputMethod::ActionClose:
         case MInputMethod::ActionUndefined:
+        case MInputMethod::ActionCopyPaste:
             break;
         }
     }
@@ -211,13 +200,6 @@ void MImToolbar::loadCustomWidgets()
         createAndAppendWidget(item, &leftBar, &rightBar);
     }
 
-    int buttonIndex = rightBar.indexOf(copyPaste);
-    if (buttonIndex >= 0 && buttonIndex != rightBar.count() - 1) {
-        // copy button position is inccorect now,
-        // so we move it to correcrt place
-        removeItem(copyPaste);
-        insertItem(rightBar.count(), copyPaste, Qt::AlignRight);
-    }
     mainLayout->invalidate();
 }
 
@@ -416,66 +398,6 @@ void MImToolbar::hideToolbarWidget()
     currentToolbar.clear();
     unloadCustomWidgets();
     arrangeWidgets();
-}
-
-void MImToolbar::copyPasteButtonHandler()
-{
-    if (copyPasteStatus == InputMethodNoCopyPaste)
-        return;
-
-    emit copyPasteClicked(copyPasteStatus);
-}
-
-void MImToolbar::setCopyPasteButton(bool copyAvailable, bool pasteAvailable)
-{
-    CopyPasteState newStatus = InputMethodNoCopyPaste;
-
-    if (copyAvailable) {
-        newStatus = InputMethodCopy;
-    } else if (pasteAvailable) {
-        newStatus = InputMethodPaste;
-    }
-
-    if (copyPasteStatus == newStatus)
-        return;
-
-    // Show/hide CopyPaste button.
-    // copy button is the most right button in toolbar
-    const int buttonIndex = rightBar.count();
-    const bool hasCopyPasteButton = rightBar.contains(copyPaste);
-    bool changed = false;
-    copyPasteStatus = newStatus;
-    switch (newStatus) {
-    case InputMethodNoCopyPaste:
-        if (hasCopyPasteButton) {
-            changed = true;
-            removeItem(copyPaste);
-            copyPaste->setVisible(false);
-        }
-        break;
-    case InputMethodCopy:
-        if (!hasCopyPasteButton) {
-            changed = true;
-            insertItem(buttonIndex, copyPaste, Qt::AlignRight);
-        }
-        copyPaste->setVisible(true);
-        //% "Copy"
-        copyPaste->setText(qtTrId("qtn_comm_copy"));
-        break;
-    case InputMethodPaste:
-        if (!hasCopyPasteButton) {
-            changed = true;
-            insertItem(buttonIndex, copyPaste, Qt::AlignRight);
-        }
-        copyPaste->setVisible(true);
-        //% "Paste"
-        copyPaste->setText(qtTrId("qtn_comm_paste"));
-        break;
-    }
-    if (changed) {
-        arrangeWidgets();
-    }
-    qDebug() << __PRETTY_FUNCTION__ << copyPaste->isVisible();
 }
 
 void MImToolbar::insertItem(const int index, MWidget *widget, Qt::Alignment align)
