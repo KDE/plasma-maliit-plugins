@@ -59,7 +59,7 @@ namespace {
 }
 
 SingleWidgetButtonArea::SingleWidgetButtonArea(const MVirtualKeyboardStyleContainer *style,
-                                               const QSharedPointer<const LayoutSection> &sectionModel,
+                                               const LayoutData::SharedLayoutSection &sectionModel,
                                                bool usePopup,
                                                QGraphicsWidget *parent)
     : KeyButtonArea(style, sectionModel, usePopup, parent),

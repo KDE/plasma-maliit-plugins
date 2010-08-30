@@ -44,7 +44,7 @@ Q_DECLARE_METATYPE(IKeyButton*);
 Q_DECLARE_METATYPE(const IKeyButton*);
 
 typedef KeyButtonArea *(*KBACreator)(MVirtualKeyboardStyleContainer *styleContainer,
-                                     QSharedPointer<const LayoutSection> section,
+                                     const LayoutData::SharedLayoutSection &section,
                                      KeyButtonArea::ButtonSizeScheme buttonSizeScheme,
                                      bool usePopup,
                                      QGraphicsWidget *parent);
@@ -55,7 +55,7 @@ Q_DECLARE_METATYPE(QList<KeyBinding::KeyAction>);
 Q_DECLARE_METATYPE(Ut_KeyButtonArea::TestOpList);
 
 KeyButtonArea *createSingleWidgetKeyButtonArea(MVirtualKeyboardStyleContainer *styleContainer,
-                                               QSharedPointer<const LayoutSection> section,
+                                               const LayoutData::SharedLayoutSection &section,
                                                KeyButtonArea::ButtonSizeScheme buttonSizeScheme = KeyButtonArea::ButtonSizeEqualExpanding,
                                                bool usePopup = false,
                                                QGraphicsWidget *parent = 0)
@@ -771,7 +771,7 @@ void Ut_KeyButtonArea::testShiftCapsLock()
     QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
     const LayoutData *layout = keyboard->layout(LayoutData::General, M::Landscape);
     QVERIFY(layout);
-    QSharedPointer<const LayoutSection> functionRowSection = layout->section(LayoutData::functionkeySection);
+    const LayoutData::SharedLayoutSection functionRowSection = layout->section(LayoutData::functionkeySection);
 
     subject = createSingleWidgetKeyButtonArea(style, functionRowSection,
                                               KeyButtonArea::ButtonSizeFunctionRow,
@@ -794,7 +794,7 @@ void Ut_KeyButtonArea::testMultiTouch()
     QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
     const LayoutData *layout = keyboard->layout(LayoutData::General, M::Landscape);
     QVERIFY(layout);
-    QSharedPointer<const LayoutSection> functionRowSection = layout->section(LayoutData::mainSection);
+    const LayoutData::SharedLayoutSection functionRowSection = layout->section(LayoutData::mainSection);
 
     subject = createSingleWidgetKeyButtonArea(style, functionRowSection,
                                               KeyButtonArea::ButtonSizeFunctionRow,

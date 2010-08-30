@@ -173,13 +173,13 @@ public:
     int numSections() const;
 
     //! \return a section by section index
-    QSharedPointer<const LayoutSection> section(int index) const;
+    SharedLayoutSection section(int index) const;
 
     /*! \return a section by section name.  if there are several
      * identically named sections, it is unspecified which one is
      * returned
      */
-    QSharedPointer<const LayoutSection> section(const QString &name) const;
+    SharedLayoutSection section(const QString &name) const;
 
     //! \return layout type
     LayoutType type() const;

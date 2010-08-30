@@ -113,7 +113,7 @@ struct ParseParameters {
     VKBDataKey *currentKey;
 
     //! New rows will be added to currentSection
-    QSharedPointer<LayoutSection> currentSection;
+    LayoutData::SharedLayoutSection currentSection;
 
     //! New keys will be added to currentRow
     LayoutSection::Row *currentRow;

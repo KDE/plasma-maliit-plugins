@@ -54,7 +54,7 @@ namespace
 M::InputMethodMode KeyButtonArea::InputMethodMode;
 
 KeyButtonArea::KeyButtonArea(const MVirtualKeyboardStyleContainer *style,
-                             const QSharedPointer<const LayoutSection> &sectionModel,
+                             const LayoutData::SharedLayoutSection &sectionModel,
                              bool usePopup,
                              QGraphicsWidget *parent)
     : MWidget(parent),
@@ -95,7 +95,7 @@ void KeyButtonArea::setInputMethodMode(M::InputMethodMode inputMethodMode)
     InputMethodMode = inputMethodMode;
 }
 
-QSharedPointer<const LayoutSection> KeyButtonArea::sectionModel() const
+const LayoutData::SharedLayoutSection &KeyButtonArea::sectionModel() const
 {
     return section;
 }

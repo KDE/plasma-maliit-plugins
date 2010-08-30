@@ -56,12 +56,12 @@ int LayoutData::numSections() const
     return sections.size();
 }
 
-QSharedPointer<const LayoutSection> LayoutData::section(int index) const
+LayoutData::SharedLayoutSection LayoutData::section(int index) const
 {
     return sections[index];
 }
 
-QSharedPointer<const LayoutSection> LayoutData::section(const QString &name) const
+LayoutData::SharedLayoutSection LayoutData::section(const QString &name) const
 {
     SharedLayoutSection layoutSection = sectionMap.value(name);
 

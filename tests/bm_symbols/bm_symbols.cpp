@@ -89,7 +89,7 @@ void Bm_Symbols::benchmarkDraw()
     keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard(filename));
 
-    QSharedPointer<const LayoutSection> section = keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::symbolsSymSection);
+    const LayoutData::SharedLayoutSection section = keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::symbolsSymSection);
     QVERIFY(!section.isNull());
 
     subject = new SingleWidgetButtonArea(style, section);

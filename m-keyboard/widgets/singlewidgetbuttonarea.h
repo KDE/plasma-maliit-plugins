@@ -33,7 +33,7 @@ class SingleWidgetButtonArea : public KeyButtonArea, public ISymIndicator
 {
 public:
     SingleWidgetButtonArea(const MVirtualKeyboardStyleContainer *style,
-                           const QSharedPointer<const LayoutSection> &sectionModel,
+                           const LayoutData::SharedLayoutSection &sectionModel,
                            bool usePopup = false,
                            QGraphicsWidget *parent = 0);
 

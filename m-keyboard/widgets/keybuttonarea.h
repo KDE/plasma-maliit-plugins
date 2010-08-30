@@ -61,7 +61,7 @@ public:
     * \param parent The widget's parent.
     */
     KeyButtonArea(const MVirtualKeyboardStyleContainer *style,
-                  const QSharedPointer<const LayoutSection> &sectionModel,
+                  const LayoutData::SharedLayoutSection &sectionModel,
                   bool usePopup = false,
                   QGraphicsWidget *parent = 0);
 
@@ -74,7 +74,7 @@ public:
     bool isPopupActive() const;
 
     //! \return layout model
-    QSharedPointer<const LayoutSection> sectionModel() const;
+    const LayoutData::SharedLayoutSection &sectionModel() const;
 
     //! Allows sym indicator to be controlled from outside.
     virtual ISymIndicator *symIndicator();
@@ -292,7 +292,7 @@ private:
     MFeedbackPlayer *feedbackPlayer;
 
     //! layout section viewed by this class
-    QSharedPointer<const LayoutSection> section;
+    const LayoutData::SharedLayoutSection section;
 
     const bool usePopup;
 

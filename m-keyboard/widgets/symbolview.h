@@ -232,10 +232,10 @@ private:
     void loadSwitcherPages(const LayoutData *layout, unsigned int selectPage = 0);
 
     //! \brief Helper method to create and add a new page.
-    void addPage(QSharedPointer<const LayoutSection> symbolSection);
+    void addPage(const LayoutData::SharedLayoutSection &symbolSection);
 
     //! \brief Creates KeyButtonArea from given section model and connects appropriate signals.
-    KeyButtonArea *createKeyButtonArea(QSharedPointer<const LayoutSection> section,
+    KeyButtonArea *createKeyButtonArea(const LayoutData::SharedLayoutSection &section,
                                        bool enablePopup = true);
 
     //! Getter for style container

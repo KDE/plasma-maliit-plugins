@@ -425,7 +425,7 @@ void SymbolView::loadSwitcherPages(const LayoutData *kbLayout, const unsigned in
     connect(pageSwitcher, SIGNAL(switchDone(QGraphicsWidget *, QGraphicsWidget *)),
             this,         SLOT(switchDone()));
 
-    QSharedPointer<const LayoutSection> symbolSection;
+    LayoutData::SharedLayoutSection symbolSection;
 
     // Add special Sym section always as the first, if present.
     symbolSection = kbLayout->section(SymbolSectionSym);
@@ -454,7 +454,7 @@ void SymbolView::loadSwitcherPages(const LayoutData *kbLayout, const unsigned in
     keyAreaLayout->addItem(pageSwitcher);
 }
 
-void SymbolView::addPage(QSharedPointer<const LayoutSection> symbolSection)
+void SymbolView::addPage(const LayoutData::SharedLayoutSection &symbolSection)
 {
     KeyButtonArea *page = createKeyButtonArea(symbolSection);
 
@@ -478,7 +478,7 @@ void SymbolView::addPage(QSharedPointer<const LayoutSection> symbolSection)
     }
 }
 
-KeyButtonArea *SymbolView::createKeyButtonArea(QSharedPointer<const LayoutSection> section,
+KeyButtonArea *SymbolView::createKeyButtonArea(const LayoutData::SharedLayoutSection &section,
                                                bool enablePopup)
 {
     KeyButtonArea *keysWidget = 0;

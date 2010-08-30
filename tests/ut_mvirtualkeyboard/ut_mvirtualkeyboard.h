@@ -39,7 +39,7 @@ private:
     MVirtualKeyboard *m_vkb;
     MSceneWindow *vkbParent;
     MVirtualKeyboardStyleContainer *vkbStyleContainer;
-    QSharedPointer<const LayoutSection> functionkeySection;
+    const LayoutData::SharedLayoutSection functionkeySection;
     int numFunctionKeys;
 
 private slots:
