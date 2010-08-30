@@ -46,7 +46,7 @@ void Ut_MImCorrectionCandidateWidget::initTestCase()
     }
 
     // initialize testCandidateWidgetSize
-    m_subject = new MImCorrectionCandidateWidget();
+    m_subject = new MImCorrectionCandidateWidget;
     QStringList candidates;
     candidates << "1" << "2" << "3";
     m_subject->setCandidates(candidates);
@@ -58,7 +58,7 @@ void Ut_MImCorrectionCandidateWidget::initTestCase()
 
 void Ut_MImCorrectionCandidateWidget::init()
 {
-    m_subject = new MImCorrectionCandidateWidget();
+    m_subject = new MImCorrectionCandidateWidget;
 
     if (MPlainWindow::instance()->orientationAngle() != M::Angle0) {
         MPlainWindow::instance()->setOrientationAngle(M::Angle0);
@@ -250,7 +250,7 @@ void Ut_MImCorrectionCandidateWidget::setCandidatesAndSelect()
         release->setPos(positions.at(n));
 
         delete m_subject;
-        m_subject = new MImCorrectionCandidateWidget();
+        m_subject = new MImCorrectionCandidateWidget;
         // set initial state to hidden
         m_subject->hide();
         QSignalSpy spyRegion(m_subject, SIGNAL(regionUpdated(const QRegion &)));

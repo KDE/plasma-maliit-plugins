@@ -50,7 +50,7 @@ void Ft_MXkb::cleanupTestCase()
 
 void Ft_MXkb::init()
 {
-    m_subject = new MXkb();
+    m_subject = new MXkb;
     m_subject->latchModifiers(ShiftMask | FnModifierMask, 0);
     m_subject->lockModifiers(ShiftMask | FnModifierMask, 0);
     QVERIFY(!testModifierLatchedState(ShiftMask));

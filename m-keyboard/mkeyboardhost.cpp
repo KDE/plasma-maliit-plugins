@@ -161,7 +161,7 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
     Q_UNUSED(ok); // if Q_NO_DEBUG is defined then the assert won't be used
     Q_ASSERT(ok);
 
-    imToolbar = new MImToolbar();
+    imToolbar = new MImToolbar;
 
     ok = connect(imToolbar, SIGNAL(copyPasteRequest(CopyPasteState)),
                  this, SLOT(sendCopyPaste(CopyPasteState)));
@@ -843,7 +843,7 @@ void MKeyboardHost::handleKeyClick(const KeyEvent &event)
         handleTextInputKeyClick(event);
     } else if ((inputMethodMode == M::InputMethodModeDirect)) {
         // TODO: Remove direct-mode-for-gestures workaround once close button
-        // is back, and revert whole commit. 
+        // is back, and revert whole commit.
         // See NB#176441
         inputContextConnection()->sendKeyEvent(lastPressEvent.toQKeyEvent());
         inputContextConnection()->sendKeyEvent(lastReleaseEvent.toQKeyEvent());
@@ -1426,7 +1426,7 @@ void MKeyboardHost::showLockOnInfoBanner(const QString &notification)
     } else {
         //TODO: discuss with UI designer whether we need to specify
         // the disappear time out.
-        modifierLockOnBanner = new MBanner();
+        modifierLockOnBanner = new MBanner;
         modifierLockOnBanner->setTitle(notification);
         modifierLockOnBanner->appear(MSceneWindow::DestroyWhenDone);
     }

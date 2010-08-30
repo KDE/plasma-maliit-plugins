@@ -55,7 +55,7 @@ MKeyboardPlugin::createInputMethod(MInputContextConnection *icConnection)
 MInputMethodSettingsBase *MKeyboardPlugin::createInputMethodSettings()
 {
     loadTranslation();
-    MInputMethodSettingsBase *inputMethodSettings = new MKeyboardSettings();
+    MInputMethodSettingsBase *inputMethodSettings = new MKeyboardSettings;
     return inputMethodSettings;
 }
 

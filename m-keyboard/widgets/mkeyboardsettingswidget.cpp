@@ -215,9 +215,9 @@ void MKeyboardSettingsWidget::showKeyboardList()
         keyboardDialog = new MDialog(keyboardTitle, M::NoStandardButton);
 
         keyboardList = new MList(keyboardDialog);
-        MKeyboardCellCreator *cellCreator = new MKeyboardCellCreator();
+        MKeyboardCellCreator *cellCreator = new MKeyboardCellCreator;
         keyboardList->setCellCreator(cellCreator);
-        QStandardItemModel *model = new QStandardItemModel();
+        QStandardItemModel *model = new QStandardItemModel;
         model->sort(0);
         keyboardList->setItemModel(model);
         keyboardList->setSelectionMode(MList::MultiSelection);
@@ -299,7 +299,7 @@ void MKeyboardSettingsWidget::syncErrorCorrectionState()
 
 void MKeyboardSettingsWidget::notifyNoKeyboards()
 {
-    MBanner *noKeyboardsNotification = new MBanner();
+    MBanner *noKeyboardsNotification = new MBanner;
     //% "No keyboards installed"
     noKeyboardsNotification->setTitle(qtTrId("qtn_txts_no_keyboards"));
     noKeyboardsNotification->appear(MSceneWindow::DestroyWhenDone);

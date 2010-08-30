@@ -110,7 +110,7 @@ MImCorrectionCandidateWidget::MImCorrectionCandidateWidget(QGraphicsWidget *pare
       containerWidget(new MImCorrectionCandidateContainer(this)),
       candidatesWidget(new MList(containerWidget)),
       cellCreator(new MImCorrectionContentItemCreator),
-      candidatesModel(new QStringListModel()),
+      candidatesModel(new QStringListModel),
       candidateWidth(0)
 {
     setGeometry(QRectF(0, 0, sceneManager->visibleSceneSize().width(),

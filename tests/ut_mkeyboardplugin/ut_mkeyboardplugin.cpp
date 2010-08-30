@@ -25,7 +25,7 @@
 void Ut_MKeyboardPlugin::initTestCase()
 {
     // check that Plugin can be accessed
-    m_subject = new MKeyboardPlugin();
+    m_subject = new MKeyboardPlugin;
 }
 
 

@@ -94,7 +94,7 @@ void Ut_MImToolbar::initTestCase()
 
 void Ut_MImToolbar::init()
 {
-    m_subject = new MImToolbar();
+    m_subject = new MImToolbar;
     MPlainWindow::instance()->scene()->addItem(m_subject);
 
     //fill up toolbar with some data

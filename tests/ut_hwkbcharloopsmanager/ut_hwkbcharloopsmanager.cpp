@@ -43,7 +43,7 @@ bool HwKbCharLoopsManager::loadCharLoops(const QString &fileName)
 
 void Ut_HwKbCharLoopsManager::initTestCase()
 {
-    m_subject = new HwKbCharLoopsManager();
+    m_subject = new HwKbCharLoopsManager;
 }
 
 void Ut_HwKbCharLoopsManager::cleanupTestCase()

@@ -85,7 +85,7 @@ void Ut_HorizontalSwitcher::testShowWidgets()
     QGraphicsWidget *w;
 
     for (int i = 0; i < numberOfWidgets; ++i) {
-        w = new QGraphicsWidget();
+        w = new QGraphicsWidget;
         widgets.append(w);
         subject->addWidget(w);
     }
@@ -169,7 +169,7 @@ void Ut_HorizontalSwitcher::testSwitchLeftRight()
 
     for (int i = 0; i < widgetCount; ++i) {
         // widgets freed in clean()
-        QGraphicsWidget *widget = new QGraphicsWidget();
+        QGraphicsWidget *widget = new QGraphicsWidget;
         widgets.append(widget);
         subject->addWidget(widget);
     }
@@ -192,8 +192,8 @@ void Ut_HorizontalSwitcher::testSwitchSignals()
 {
     const int animationDuration = 10;
 
-    QGraphicsWidget *leftWidget = new QGraphicsWidget();
-    QGraphicsWidget *rightWidget = new QGraphicsWidget();
+    QGraphicsWidget *leftWidget = new QGraphicsWidget;
+    QGraphicsWidget *rightWidget = new QGraphicsWidget;
 
     subject->addWidget(leftWidget);
     subject->addWidget(rightWidget);
@@ -238,7 +238,7 @@ void Ut_HorizontalSwitcher::testSwitchSignals()
 void Ut_HorizontalSwitcher::testInitialSwitchTo()
 {
     QCOMPARE(subject->current(), -1);
-    subject->addWidget(new QGraphicsWidget());
+    subject->addWidget(new QGraphicsWidget);
     subject->setCurrent(0);
     QCOMPARE(subject->current(), 0);
     QVERIFY(subject->currentWidget()->isVisible());
@@ -247,14 +247,14 @@ void Ut_HorizontalSwitcher::testInitialSwitchTo()
 void Ut_HorizontalSwitcher::testIsAtBoundary()
 {
     QCOMPARE(subject->current(), -1);
-    subject->addWidget(new QGraphicsWidget());
+    subject->addWidget(new QGraphicsWidget);
 
     subject->setCurrent(0);
     QVERIFY(subject->isAtBoundary(HorizontalSwitcher::Left) == true);
     QVERIFY(subject->isAtBoundary(HorizontalSwitcher::Right) == true);
 
-    subject->addWidget(new QGraphicsWidget());
-    subject->addWidget(new QGraphicsWidget());
+    subject->addWidget(new QGraphicsWidget);
+    subject->addWidget(new QGraphicsWidget);
     QVERIFY(subject->isAtBoundary(HorizontalSwitcher::Left) == true);
     QVERIFY(subject->isAtBoundary(HorizontalSwitcher::Right) == false);
 
