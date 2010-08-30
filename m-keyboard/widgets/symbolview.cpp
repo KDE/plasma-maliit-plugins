@@ -218,10 +218,8 @@ void SymbolView::reloadContent()
     if (activeState == OnScreen) {
         // Get layout model which for current language and orientation.
         const LayoutData *layoutData = layoutsMgr.layout(currentLanguage, LayoutData::General, currentOrientation);
-        Q_ASSERT(layoutData);
 
         loadSwitcherPages(layoutData, activePage);
-        loadFunctionRow(layoutData);
         setShiftState(shiftState);
     } else if (activeState == Hardware && currentOrientation == M::Landscape) {
         const LayoutData *layoutData = layoutsMgr.hardwareLayout(LayoutData::General, M::Landscape);
@@ -229,10 +227,8 @@ void SymbolView::reloadContent()
             // Get it by language then.
             layoutData = layoutsMgr.layout(currentLanguage, LayoutData::General, M::Landscape);
         }
-        Q_ASSERT(layoutData);
 
         loadSwitcherPages(layoutData, activePage);
-        loadFunctionRow(0);
         setShiftState(shiftState); // Sets level for sym pages.
     }
 }
@@ -458,30 +454,6 @@ void SymbolView::loadSwitcherPages(const LayoutData *kbLayout, const unsigned in
     keyAreaLayout->addItem(pageSwitcher);
 }
 
-void SymbolView::loadFunctionRow(const LayoutData *layout)
-{
-    this->layout()->invalidate();
-
-    if (functionRow) {
-        keyAreaLayout->removeItem(functionRow);
-        delete functionRow;
-        functionRow = 0;
-    }
-
-    if (!layout) {
-        return;
-    }
-
-    functionRow = createKeyButtonArea(layout->section(LayoutData::functionkeySection),
-                                      KeyButtonArea::ButtonSizeFunctionRow, false);
-
-    if (functionRow) {
-        functionRow->setObjectName("SymbolFunctionRow");
-        functionRow->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
-        keyAreaLayout->addItem(functionRow);
-    }
-}
-
 void SymbolView::addPage(QSharedPointer<const LayoutSection> symbolSection)
 {
     KeyButtonArea *page = createKeyButtonArea(symbolSection);
@@ -507,13 +479,12 @@ void SymbolView::addPage(QSharedPointer<const LayoutSection> symbolSection)
 }
 
 KeyButtonArea *SymbolView::createKeyButtonArea(QSharedPointer<const LayoutSection> section,
-                                               KeyButtonArea::ButtonSizeScheme sizeScheme,
                                                bool enablePopup)
 {
-    KeyButtonArea *keysWidget = NULL;
+    KeyButtonArea *keysWidget = 0;
 
     if (!section.isNull()) {
-        keysWidget = new SingleWidgetButtonArea(styleContainer, section, sizeScheme, enablePopup);
+        keysWidget = new SingleWidgetButtonArea(styleContainer, section, enablePopup);
         keysWidget->setFont(style()->font());
 
         eventHandler.addEventSource(keysWidget);
@@ -641,13 +612,6 @@ void SymbolView::switchDone()
     if (isVisible()) {
         layout()->activate();
         redrawReactionMaps();
-    }
-}
-
-void SymbolView::setFunctionRowState(bool shiftPressed)
-{
-    if (enableMultiTouch && functionRow) {
-        functionRow->switchLevel(shiftPressed ? 1 : 0);
     }
 }
 

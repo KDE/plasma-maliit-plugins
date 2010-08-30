@@ -55,7 +55,6 @@ M::InputMethodMode KeyButtonArea::InputMethodMode;
 
 KeyButtonArea::KeyButtonArea(const MVirtualKeyboardStyleContainer *style,
                              const QSharedPointer<const LayoutSection> &sectionModel,
-                             ButtonSizeScheme buttonSizeScheme,
                              bool usePopup,
                              QGraphicsWidget *parent)
     : MWidget(parent),
@@ -68,7 +67,6 @@ KeyButtonArea::KeyButtonArea(const MVirtualKeyboardStyleContainer *style,
       activeDeadkey(0),
       feedbackPlayer(0),
       section(sectionModel),
-      buttonSizeScheme(buttonSizeScheme),
       usePopup(usePopup)
 {
     // By default multi-touch is disabled
@@ -95,30 +93,6 @@ KeyButtonArea::~KeyButtonArea()
 void KeyButtonArea::setInputMethodMode(M::InputMethodMode inputMethodMode)
 {
     InputMethodMode = inputMethodMode;
-}
-
-void KeyButtonArea::buttonInformation(int row, int column, const VKBDataKey *&dataKey, QSize &size, bool &stretchesHorizontally)
-{
-    // We share the same button instance with different key bindings.
-    dataKey = section->vkbKey(row, column);
-
-    if (dataKey) {
-        // Preferred button size and stretch is based on level=0 binding. It's safe because
-        // buttons are the same size in same locations.
-        const KeyBinding::KeyAction action = dataKey->binding(false)->action();
-
-        size = buttonSizeByColumn(column, section->columnsAt(row));
-
-        // Make space button stretch.
-        if (action == KeyBinding::ActionSpace) {
-            stretchesHorizontally = true;
-        } else {
-            stretchesHorizontally = false;
-        }
-    } else {
-        size = QSize();
-        stretchesHorizontally = false;
-    }
 }
 
 QSharedPointer<const LayoutSection> KeyButtonArea::sectionModel() const
@@ -565,42 +539,6 @@ const PopupBase &KeyButtonArea::popupWidget() const
     return *popup;
 }
 
-QSize KeyButtonArea::buttonSizeByColumn(int column, int numColumns) const
-{
-    QSize buttonSize;
-
-    switch (buttonSizeScheme) {
-    case ButtonSizeEqualExpanding:
-        buttonSize = style()->keyNormalSize();
-        break;
-    case ButtonSizeEqualExpandingPhoneNumber:
-        buttonSize = style()->keyPhoneNumberNormalSize();
-        break;
-    case ButtonSizeFunctionRow:
-        if (column == 0 || column == numColumns - 1) {
-            buttonSize = style()->keyFunctionLargeSize();
-        } else {
-            buttonSize = style()->keyFunctionNormalSize();
-        }
-        break;
-    case ButtonSizeFunctionRowNumber:
-        if (column == numColumns - 1) {
-            buttonSize = style()->keyNumberFunctionLargeSize();
-        } else {
-            buttonSize = style()->keyNormalSize();
-        }
-        break;
-    case ButtonSizeSymbolView:
-        buttonSize = style()->keySymNormalSize();
-        break;
-    default:
-        buttonSize = style()->keyNormalSize();
-        break;
-    }
-
-    return buttonSize;
-}
-
 void KeyButtonArea::updateButtonModifiers()
 {
     bool shift = (currentLevel == 1);
@@ -621,24 +559,6 @@ void KeyButtonArea::modifiersChanged(bool /*shift*/, const QChar /*accent*/)
 void KeyButtonArea::onThemeChangeCompleted()
 {
     updateButtonGeometriesForWidth(size().width());
-}
-
-void KeyButtonArea::updateButtonGeometriesForWidth(int widthOfArea)
-{
-    // All main keyboards should take the whole available width so we restrict
-    // the button width here. This is applied only if we have equal button width.
-    int equalButtonWidth = -1; // the new width if it's same for all
-    if ((buttonSizeScheme == ButtonSizeEqualExpanding)
-         || (buttonSizeScheme == ButtonSizeEqualExpandingPhoneNumber)) {
-        const int HorizontalSpacing = style()->spacingHorizontal();
-        const int MaxButtonWidth = qRound(static_cast<qreal>(widthOfArea + HorizontalSpacing)
-                                          / static_cast<qreal>(section->maxColumns())
-                                          - HorizontalSpacing);
-
-        equalButtonWidth = MaxButtonWidth;
-    }
-
-    updateButtonGeometries(widthOfArea, equalButtonWidth);
 }
 
 KeyButtonArea::TouchPointInfo::TouchPointInfo()

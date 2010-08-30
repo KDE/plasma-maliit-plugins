@@ -212,12 +212,6 @@ public slots:
 
 private slots:
     /*!
-     * \brief Switch function row to upper/lower case
-     * according to given parameter
-     */
-    void setFunctionRowLevel(bool shiftPressed);
-
-    /*!
      * Handler for Right flick operation
      */
     void flickRightHandler();
@@ -359,8 +353,6 @@ private:
 
     const LayoutData *currentLayoutModel() const;
 
-    KeyButtonArea *functionRowWidget(int languageIndex = -1) const;
-
     /*!
      * Method to setup timeline
      */
@@ -400,7 +392,6 @@ private:
                                      LayoutData::LayoutType layoutType,
                                      M::Orientation orientation,
                                      const QString &section,
-                                     KeyButtonArea::ButtonSizeScheme sizeScheme,
                                      bool usePopup,
                                      QGraphicsWidget *parent = 0);
 
@@ -451,6 +442,9 @@ private:
 #endif
     };
 
+    //! Current Style being used
+    const MVirtualKeyboardStyleContainer *styleContainer;
+
     QGraphicsLinearLayout *mainLayout;
 
     //! Current layout level
@@ -463,9 +457,6 @@ private:
     //! immediately Inactive but that doesn't mean the keyboard is immediately
     //! hidden, so activity does not strictly match visibility.
     Activity activity;
-
-    //! Current Style being used
-    const MVirtualKeyboardStyleContainer *styleContainer;
 
     //! Scene manager to get the device width and height
     MSceneManager *sceneManager;

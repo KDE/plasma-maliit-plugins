@@ -196,12 +196,6 @@ private slots:
     void onSwitchStarting(QGraphicsWidget *current, QGraphicsWidget *next);
     void switchDone();
 
-    /*!
-     * \brief Switch function row to upper/lower case
-     * according to given parameter
-     */
-    void setFunctionRowState(bool shiftPressed);
-
     //! When hardware keyboard layout has changed, reload contents if currently in Hardware state.
     void handleHwLayoutChange();
 
@@ -229,15 +223,11 @@ private:
     //! \brief Reloads switcher with pages from given \a layout, selecting the page \a selectPage.
     void loadSwitcherPages(const LayoutData *layout, unsigned int selectPage = 0);
 
-    //! \brief Reloads function row from \a layout and adds the widget to vertical layout.
-    void loadFunctionRow(const LayoutData *layout);
-
     //! \brief Helper method to create and add a new page.
     void addPage(QSharedPointer<const LayoutSection> symbolSection);
 
     //! \brief Creates KeyButtonArea from given section model and connects appropriate signals.
     KeyButtonArea *createKeyButtonArea(QSharedPointer<const LayoutSection> section,
-                                       KeyButtonArea::ButtonSizeScheme sizeScheme = KeyButtonArea::ButtonSizeSymbolView,
                                        bool enablePopup = true);
 
     //! Getter for style container

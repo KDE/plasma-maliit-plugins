@@ -53,32 +53,15 @@ class KeyButtonArea : public MWidget
     Q_DISABLE_COPY(KeyButtonArea)
 
 public:
-    //! Button size scheme tells which button sizes to use
-    //! and how to calculate them.
-    enum ButtonSizeScheme {
-        //! Equal button width, expanding to available width. This is the default.
-        ButtonSizeEqualExpanding,
-        //! Same as above, but uses sizes intended for phone number.
-        ButtonSizeEqualExpandingPhoneNumber,
-        //! Common size scheme for function rows.
-        ButtonSizeFunctionRow,
-        //! Number function rows have their own button sizes.
-        ButtonSizeFunctionRowNumber,
-        //! Symbol view has its own button sizes for portrait mode.
-        ButtonSizeSymbolView
-    };
-
     /*!
     * \brief Constructor
     * \param style The shared VKB style container.
     * \param sectionModel A section model that this KeyButtonArea visualizes.
-    * \param buttonSizeScheme Defines which size attributes to use for buttons.
     * \param usePopup Sets whether popup should be used when long press occurs.
     * \param parent The widget's parent.
     */
     KeyButtonArea(const MVirtualKeyboardStyleContainer *style,
                   const QSharedPointer<const LayoutSection> &sectionModel,
-                  ButtonSizeScheme buttonSizeScheme = ButtonSizeEqualExpanding,
                   bool usePopup = false,
                   QGraphicsWidget *parent = 0);
 
@@ -184,12 +167,6 @@ protected:
         QPoint pos;
     };
 
-    //! \brief Returns data and size information of a button in given \a row and \a column.
-    void buttonInformation(int row, int column,
-                           const VKBDataKey *&dataKey,
-                           QSize &size,
-                           bool &stretchesHorizontally);
-
     /*! \reimp */
     virtual void resizeEvent(QGraphicsSceneResizeEvent *event);
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
@@ -227,9 +204,6 @@ protected:
     */
     int rowCount() const;
 
-    //! \brief Returns the correct size for button based on its horizontal placement.
-    QSize buttonSizeByColumn(int column, int numColumns) const;
-
     //! \brief Updates button labels and/or icons according to current level and deadkey.
     void updateButtonModifiers();
 
@@ -249,7 +223,7 @@ protected:
     /*! \brief Calculates button and row geometry based on given \a availableWidth.
      *  \post Button rectangle cache and row width cache are up to date.
      */
-    virtual void updateButtonGeometries(int availableWidth, int equalButtonWidth) = 0;
+    virtual void updateButtonGeometriesForWidth(int availableWidth) = 0;
 
     //! \brief Getter for style container
     const MVirtualKeyboardStyleContainer &style() const;
@@ -282,9 +256,6 @@ private:
     void touchPointReleased(const QPoint &pos, int id);
 
     void click(IKeyButton *key);
-
-    //! \brief Computes the new button width and updates their geometries
-    void updateButtonGeometriesForWidth(int widthOfArea);
 
     //! Current level
     int currentLevel;
@@ -322,8 +293,6 @@ private:
 
     //! layout section viewed by this class
     QSharedPointer<const LayoutSection> section;
-
-    const ButtonSizeScheme buttonSizeScheme;
 
     const bool usePopup;
 

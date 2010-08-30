@@ -144,7 +144,7 @@ const LayoutData *LayoutsManager::layout(const QString &language,
         LayoutData::LayoutType type,
         M::Orientation orientation) const
 {
-    const LayoutData *lm = NULL;
+    const LayoutData *lm = 0;
 
     if (type == LayoutData::Number) {
         lm = numberKeyboard.layout(type, orientation);
@@ -154,10 +154,13 @@ const LayoutData *LayoutsManager::layout(const QString &language,
         QMap<QString, KeyboardData *>::const_iterator kbIter = keyboards.find(language);
 
         if (kbIter != keyboards.end() && *kbIter) {
-            // Look for correct layout
             lm = (*kbIter)->layout(type, orientation);
         }
-        // TODO: if (lm == NULL) search other languages as a last resort?
+    }
+
+    if (!lm) {
+        static const LayoutData empty;
+        lm = &empty;
     }
 
     return lm;

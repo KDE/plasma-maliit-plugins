@@ -16,9 +16,11 @@
 
 
 
-#include <QtAlgorithms>
 #include "layoutdata.h"
 #include "vkbdatakey.h"
+
+#include <QtAlgorithms>
+#include <QDebug>
 
 const QString LayoutData::mainSection("main");
 const QString LayoutData::functionkeySection("functionkey");
@@ -61,8 +63,19 @@ QSharedPointer<const LayoutSection> LayoutData::section(int index) const
 
 QSharedPointer<const LayoutSection> LayoutData::section(const QString &name) const
 {
-    QSharedPointer<LayoutSection> section = sectionMap.value(name);
-    return section;
+    SharedLayoutSection layoutSection = sectionMap.value(name);
+
+    if (layoutSection.isNull()) {
+        qWarning() << __PRETTY_FUNCTION__
+                   << "Could not find requested section in current layout:"
+                   << "'" << name << "'\n"
+                   << " * Available sections:"
+                   << sectionMap;
+
+        layoutSection = SharedLayoutSection(new LayoutSection);
+    }
+
+    return layoutSection;
 }
 
 LayoutSection::LayoutSection()

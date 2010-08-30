@@ -60,11 +60,11 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
                                    const MVirtualKeyboardStyleContainer *styleContainer,
                                    QGraphicsWidget *parent)
     : MWidget(parent),
+      styleContainer(styleContainer),
       mainLayout(new QGraphicsLinearLayout(Qt::Vertical, this)),
       currentLevel(0),
       numLevels(2),
       activity(Inactive),
-      styleContainer(styleContainer),
       sceneManager(MPlainWindow::instance()->sceneManager()),
       shiftState(ModifierClearState),
       currentLayoutType(LayoutData::General),
@@ -249,16 +249,6 @@ MVirtualKeyboard::switchLevel()
         // handling main section:
         static_cast<KeyButtonArea *>(mainKeyboardSwitcher->widget(i)->layout()->itemAt(0))->
                 switchLevel(currentLevel);
-
-        KeyButtonArea *functionRow = functionRowWidget(i);
-        if (functionRow) {
-            functionRow->setShiftState(shiftState);
-
-            // Function row changes level if multi-touch disabled.
-            if (!enableMultiTouch) {
-                functionRow->switchLevel(currentLevel);
-            }
-        }
     }
 }
 
@@ -593,7 +583,7 @@ void MVirtualKeyboard::setKeyboardState(MIMHandlerState newState)
     resetState();
 
     static_cast<QGraphicsWidget *>(mainLayout->itemAt(KeyboardIndex))->setVisible(newState == OnScreen);
-    showHideTimeline.stop(); // position must be updated by organizeContentAndSendRegion() 
+    showHideTimeline.stop(); // position must be updated by organizeContentAndSendRegion()
     organizeContentAndSendRegion();
     sendRegionUpdates = savedSendRegionUpdates;
 }
@@ -884,35 +874,16 @@ void MVirtualKeyboard::reloadSwitcherContent()
 
     // Load certain type and orientation from all languages.
     foreach (const QString &language, layoutsMgr.languageList()) {
+        KeyButtonArea *mainSection = createMainSectionView(language, LayoutData::General,
+                                                           currentOrientation);
+        mainSection->setObjectName("VirtualKeyboardMainRow");
+        mainSection->setPreferredWidth(MPlainWindow::instance()->visibleSceneSize().width());
+
         // create a new page for language and append main and function sections
         QGraphicsWidget *languagePage = new QGraphicsWidget;
         QGraphicsLinearLayout *languageLayout = createKeyAreaLayout(languagePage);
-
-        KeyButtonArea *mainSection = createMainSectionView(language, LayoutData::General,
-                                                           currentOrientation);
-        mainSection->setPreferredWidth(MPlainWindow::instance()->visibleSceneSize().width());
-
-        KeyButtonArea *functionRow = createSectionView(language, LayoutData::General,
-                                                       currentOrientation,
-                                                       LayoutData::functionkeySection,
-                                                       KeyButtonArea::ButtonSizeFunctionRow,
-                                                       false, languagePage);
-
-        if (mainSection == 0 || functionRow == 0) {
-            qCritical("Problem loading language to switcher");
-            delete mainSection;
-            delete functionRow;
-            delete languagePage;
-            continue;
-        }
-
-        mainSection->setObjectName("VirtualKeyboardMainRow");
-        functionRow->setObjectName("VirtualKeyboardFunctionRow");
-
         languageLayout->addItem(mainSection);
-        languageLayout->addItem(functionRow);
 
-        // add page to main switcher
         mainKeyboardSwitcher->addWidget(languagePage);
     }
 }
@@ -925,7 +896,6 @@ KeyButtonArea *MVirtualKeyboard::createMainSectionView(const QString &language,
 {
     KeyButtonArea *buttonArea = createSectionView(language, layoutType, orientation,
                                                   LayoutData::mainSection,
-                                                  KeyButtonArea::ButtonSizeEqualExpanding,
                                                   true, parent);
 
     // horizontal flick handling only on main section of qwerty
@@ -939,21 +909,12 @@ KeyButtonArea * MVirtualKeyboard::createSectionView(const QString &language,
                                                     LayoutData::LayoutType layoutType,
                                                     M::Orientation orientation,
                                                     const QString &section,
-                                                    KeyButtonArea::ButtonSizeScheme sizeScheme,
                                                     bool usePopup,
                                                     QGraphicsWidget *parent)
 {
     const LayoutData *model = layoutsMgr.layout(language, layoutType, orientation);
-
-    if (model == NULL) {
-        return NULL;
-    }
-
-    QSharedPointer<const LayoutSection> layoutSection = model->section(section);
-    Q_ASSERT(!layoutSection.isNull());
-
-    KeyButtonArea *view = new SingleWidgetButtonArea(styleContainer, layoutSection,
-                                                     sizeScheme, usePopup, parent);
+    KeyButtonArea *view = new SingleWidgetButtonArea(styleContainer, model->section(section),
+                                                     usePopup, parent);
 
     eventHandler.addEventSource(view);
 
@@ -963,39 +924,6 @@ KeyButtonArea * MVirtualKeyboard::createSectionView(const QString &language,
             this, SLOT(flickUpHandler(KeyBinding)));
 
     return view;
-}
-
-void MVirtualKeyboard::setFunctionRowLevel(bool shiftPressed)
-{
-    if (enableMultiTouch) {
-        //TODO: time treshold to avoid flickering?
-        KeyButtonArea *functionRow = functionRowWidget();
-        if (functionRow) {
-            functionRow->switchLevel(shiftPressed ? 1 : 0);
-        }
-    }
-}
-
-KeyButtonArea *MVirtualKeyboard::functionRowWidget(int languageIndex) const
-{
-    if (!mainKeyboardSwitcher) {
-        return 0;
-    }
-
-    KeyButtonArea *kba = 0;
-    const QGraphicsWidget *activeKb = (languageIndex == -1) ?
-                                       mainKeyboardSwitcher->currentWidget() :
-                                       mainKeyboardSwitcher->widget(languageIndex);
-
-    // Function row sits at index 1, right below the "qwerty" area.
-    const int layoutIndex = 1;
-
-    if (activeKb
-        && activeKb->layout()
-        && activeKb->layout()->count() > layoutIndex) {
-        kba = dynamic_cast<KeyButtonArea *>(activeKb->layout()->itemAt(layoutIndex));
-    }
-    return kba;
 }
 
 void MVirtualKeyboard::recreateKeyboards()
@@ -1022,13 +950,12 @@ void MVirtualKeyboard::recreateSpecialKeyboards()
 
     KeyButtonArea *numberArea = createSectionView(defaultLanguage, LayoutData::Number,
                                                   currentOrientation, LayoutData::mainSection,
-                                                  KeyButtonArea::ButtonSizeEqualExpanding,
                                                   false, numberKeyboard);
 
-    KeyButtonArea *numberFunctionRow
-        = createSectionView(defaultLanguage, LayoutData::Number, currentOrientation,
-                            LayoutData::functionkeySection, KeyButtonArea::ButtonSizeFunctionRowNumber,
-                            false, numberKeyboard);
+    // TODO: remove me
+    KeyButtonArea *numberFunctionRow = createSectionView(defaultLanguage, LayoutData::Number,
+                                                         currentOrientation, LayoutData::functionkeySection,
+                                                         false, numberKeyboard);
 
     numberLayout->addItem(numberArea);
     numberLayout->addItem(numberFunctionRow);
@@ -1036,13 +963,12 @@ void MVirtualKeyboard::recreateSpecialKeyboards()
     // phone:
     KeyButtonArea *phoneArea = createSectionView(defaultLanguage, LayoutData::PhoneNumber,
                                                  currentOrientation, LayoutData::mainSection,
-                                                 KeyButtonArea::ButtonSizeEqualExpandingPhoneNumber,
                                                  false, phoneNumberKeyboard);
 
-    KeyButtonArea *phoneFunctionArea
-        = createSectionView(defaultLanguage, LayoutData::PhoneNumber, currentOrientation,
-                            LayoutData::functionkeySection, KeyButtonArea::ButtonSizeFunctionRowNumber,
-                            false, phoneNumberKeyboard);
+    // TODO: remove me
+    KeyButtonArea *phoneFunctionArea = createSectionView(defaultLanguage, LayoutData::PhoneNumber,
+                                                         currentOrientation, LayoutData::functionkeySection,
+                                                         false, phoneNumberKeyboard);
 
     phoneNumberLayout->addItem(phoneArea);
     phoneNumberLayout->addItem(phoneFunctionArea);

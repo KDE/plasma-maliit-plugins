@@ -60,10 +60,9 @@ namespace {
 
 SingleWidgetButtonArea::SingleWidgetButtonArea(const MVirtualKeyboardStyleContainer *style,
                                                const QSharedPointer<const LayoutSection> &sectionModel,
-                                               ButtonSizeScheme buttonSizeScheme,
                                                bool usePopup,
                                                QGraphicsWidget *parent)
-    : KeyButtonArea(style, sectionModel, buttonSizeScheme, usePopup, parent),
+    : KeyButtonArea(style, sectionModel, usePopup, parent),
       rowHeight(0),
       rowList(sectionModel->rowCount()),
       symState(SymIndicatorInactive),
@@ -135,24 +134,25 @@ void SingleWidgetButtonArea::loadKeys()
             VKBDataKey *dataKey = sectionModel()->vkbKey(row, col);
             SingleWidgetButton *button = new SingleWidgetButton(*dataKey, style(), *this);
 
+            // TODO: Remove restriction to have only one symbol view/shift button per layout?
             if (dataKey->binding()->action() == KeyBinding::ActionSym) {
                 // Save pointer for easier use.
-                this->symIndicatorButton = button;
+                symIndicatorButton = button;
             } else if (dataKey->binding()->action() == KeyBinding::ActionShift) {
-                this->shiftButton = button;
+                shiftButton = button;
             }
 
             const int vSpacing = style()->spacingVertical();
-            rowHeight = qMax<qreal>(rowHeight - vSpacing, style()->keyNormalSize().height()) + vSpacing;
+            rowHeight = qMax(rowHeight - vSpacing, style()->keyNormalSize().height() + vSpacing);
 
             // Only one stretching item per row.
             if (!rowIter->stretchButton) {
-                rowIter->stretchButton = button;
+                rowIter->stretchButton = (dataKey->sizeGroup() == VKBDataKey::Stretched ? button : 0);
             }
 
             rowIter->buttons.append(button);
         }
-    } // end foreach row
+    }
 
     updateGeometry();
 }
@@ -448,7 +448,7 @@ void SingleWidgetButtonArea::modifiersChanged(const bool shift, const QChar acce
     textDirty = true;
 }
 
-void SingleWidgetButtonArea::updateButtonGeometries(const int newAvailableWidth, const int)
+void SingleWidgetButtonArea::updateButtonGeometriesForWidth(const int newAvailableWidth)
 {
     if (sectionModel()->maxColumns() == 0) {
         return;

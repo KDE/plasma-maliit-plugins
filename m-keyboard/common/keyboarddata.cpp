@@ -434,7 +434,7 @@ Qt::Alignment KeyboardData::alignment(const QString &alignmentString, bool verti
 
 void KeyboardData::parseTagSection(const QDomElement &element, ParseParameters &params)
 {
-    QSharedPointer<LayoutSection> section(new LayoutSection);
+    LayoutData::SharedLayoutSection section(new LayoutSection);
     section->movable = toBoolean(element.attribute(VKBTagMovable));
     section->m_horizontalAlignment = alignment(element.attribute(VKBTagHorizontalAlignment), false);
     section->m_verticalAlignment = alignment(element.attribute(VKBTagVerticalAlignment), true);

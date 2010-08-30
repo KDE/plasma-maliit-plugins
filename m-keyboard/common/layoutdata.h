@@ -137,7 +137,6 @@ private:
     friend class ParseParameters;
 };
 
-
 /*!
  * \class LayoutData
  * \brief LayoutData represents a keyboard layout of certain type and orientation
@@ -147,6 +146,8 @@ class LayoutData
     Q_DISABLE_COPY(LayoutData)
 
 public:
+    typedef QSharedPointer<LayoutSection> SharedLayoutSection;
+
     //! Type of layout
     enum LayoutType {
         General = 0,
@@ -190,9 +191,9 @@ protected:
     M::Orientation layoutOrientation;
     LayoutType layoutType;
     //! this is the top level data structure of a layout
-    QList<QSharedPointer<LayoutSection> > sections;
+    QList<SharedLayoutSection> sections;
     //! we keep sections also in a hash table for fast name based lookup
-    QHash<QString, QSharedPointer<LayoutSection> > sectionMap;
+    QHash<QString, SharedLayoutSection> sectionMap;
 
     friend class KeyboardData;
 };
