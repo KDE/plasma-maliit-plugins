@@ -36,6 +36,8 @@ ifneq (,$(filter n900,$(TMP_BUILD_OPTS)))
     QMAKE_OPTIONS += DEFINES+=NOCONTROLPANEL
 endif
 
+QMAKE_OPTIONS += DEFINES+=RELEASE_BUILD
+
 # shared library versions, option 1
 version=0.1.0
 major=0

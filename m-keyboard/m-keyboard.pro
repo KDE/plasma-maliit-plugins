@@ -4,10 +4,16 @@ TARGET = $$qtLibraryTarget(meego-keyboard)
 OBJECTS_DIR = .obj
 MOC_DIR = .moc
 
-QMAKE_CXXFLAGS += -Werror
-
 # we have this line temporarily until new libmeegotouch without rpath is integrated
 QT += xml
+
+contains( DEFINES, RELEASE_BUILD ) {
+    QMAKE_CFLAGS -= -Werror
+    QMAKE_CXXFLAGS -= -Werror
+} else {
+    QMAKE_CFLAGS += -Werror
+    QMAKE_CXXFLAGS += -Werror
+} 
 
 CONFIG += plugin meegotouch meegoimengine meegoimenginewords meegoimframework meegoreactionmap
 #CONFIG += mcontrolpanel
