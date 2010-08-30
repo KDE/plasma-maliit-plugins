@@ -1,6 +1,7 @@
 meego-keyboard (0.4.15~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#188457 - meego-keyboard does not compile with cs2009q3 (hardfp) toolchain
   * Fixes: NB#179381 - Hardware keyboard reacts on key release - feels unresponsive
   * Fixes: NB#168885 - Ctrl+other button long press result in secondary character with hw keyboard
 
