@@ -36,7 +36,7 @@ class MVirtualKeyboard;
 class MVirtualKeyboardStyleContainer;
 class MHardwareKeyboard;
 class SymbolView;
-class MImEngineWords;
+class MImEngineWordsInterface;
 class QWidget;
 class MBanner;
 class SharedHandleArea;
@@ -301,7 +301,7 @@ private:
     MHardwareKeyboard *hardwareKeyboard;
     SymbolView *symbolView;
 
-    MImEngineWords *imCorrectionEngine;
+    MImEngineWordsInterface *imCorrectionEngine;
     //! default input method error correction setting
     MGConfItem *inputMethodCorrectionSettings;
     MGConfItem *inputMethodCorrectionEngine;

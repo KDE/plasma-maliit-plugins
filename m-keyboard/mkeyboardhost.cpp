@@ -29,7 +29,7 @@
 #include "mimtoolbar.h"
 #include "sharedhandlearea.h"
 
-#include <mimenginewords.h>
+#include <mimenginewordsinterfacefactory.h>
 #include <minputcontextconnection.h>
 #include <mplainwindow.h>
 #include <mtoolbardata.h>
@@ -78,6 +78,7 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
       correctionCandidateWidget(0),
       vkbWidget(0),
       symbolView(0),
+      imCorrectionEngine(0),
       inputMethodCorrectionSettings(new MGConfItem(InputMethodCorrectionSetting)),
       inputMethodCorrectionEngine(new MGConfItem(InputMethodCorrectionEngine)),
       engineReady(false),
@@ -258,13 +259,11 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
     connect(vkbWidget, SIGNAL(sendStringRequest(const QString &)),
             this, SLOT(sendString(const QString &)));
 
-    imCorrectionEngine = MImEngineWords::instance();
-
-
     if (!inputMethodCorrectionEngine->value().isNull()) {
-        bool success = imCorrectionEngine->setDriver(inputMethodCorrectionEngine->value().toString());
+        imCorrectionEngine = MImEngineWordsInterfaceFactory::instance()->createEngine(
+                                inputMethodCorrectionEngine->value().toString());
 
-        if (success == true) {
+        if (imCorrectionEngine) {
             engineReady = true;
             initializeInputEngine();
             connect(inputMethodCorrectionSettings, SIGNAL(valueChanged()),
@@ -308,7 +307,10 @@ MKeyboardHost::~MKeyboardHost()
 #endif
     delete inputMethodCorrectionSettings;
     inputMethodCorrectionSettings = 0;
-    //TODO imCorrectionEngine is not deleted. memory loss
+    if (imCorrectionEngine) {
+        MImEngineWordsInterfaceFactory::instance()->deleteEngine(imCorrectionEngine);
+        imCorrectionEngine = 0;
+    }
     backSpaceTimer.stop();
     LayoutsManager::destroyInstance();
 }
@@ -515,7 +517,8 @@ void MKeyboardHost::reset()
         correctedPreedit.clear();
         candidates.clear();
         correctionCandidateWidget->setPreeditString("");
-        imCorrectionEngine->clearEngineBuffer();
+        if (engineReady)
+            imCorrectionEngine->clearEngineBuffer();
         break;
     case Hardware:
         hardwareKeyboard->reset();
@@ -1058,6 +1061,11 @@ void MKeyboardHost::updateCorrectionState()
         inputContextConnection()->setGlobalCorrectionEnabled(false);
         correctionEnabled = false;
     } else {
+        if (!engineReady) {
+            inputContextConnection()->setGlobalCorrectionEnabled(false);
+            correctionEnabled = false;
+            return;
+        }
         bool val = false;
         bool enabled = inputContextConnection()->correctionEnabled(val);
         if (val)

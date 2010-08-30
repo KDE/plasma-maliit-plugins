@@ -24,7 +24,7 @@
 #include <symbolview.h>
 #include <sharedhandlearea.h>
 
-#include <mimenginewords.h>
+#include <mimenginewordsinterfacefactory.h>
 
 #include "mgconfitem_stub.h"
 #include "minputcontextstubconnection.h"
