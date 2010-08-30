@@ -204,7 +204,7 @@ void SymbolView::connectHandle(Handle *handle)
             this,   SLOT(switchToNextPage()),
             Qt::UniqueConnection);
 
-    connect(handle, SIGNAL(flickRight(lickGesture)),
+    connect(handle, SIGNAL(flickRight(FlickGesture)),
             this,   SLOT(switchToPrevPage()),
             Qt::UniqueConnection);
 
