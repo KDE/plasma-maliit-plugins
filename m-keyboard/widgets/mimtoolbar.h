@@ -140,6 +140,9 @@ signals:
     //! Emitted when require sending a string
     void sendStringRequest(const QString &);
 
+    //! Emitted when require closing a keyboard
+    void closeKeyboardRequest();
+
     /*!
      * \brief This signal is emitted when copy/paste button is clicked
      * \param state CopyPasteState button action (copy or paste)

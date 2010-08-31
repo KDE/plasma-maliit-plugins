@@ -176,6 +176,9 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
     ok = connect(imToolbar, SIGNAL(copyPasteClicked(CopyPasteState)),
                  this, SLOT(sendCopyPaste(CopyPasteState)));
     Q_ASSERT(ok);
+    ok = connect(imToolbar, SIGNAL(closeKeyboardRequest()),
+                 this, SLOT(userHide()));
+    Q_ASSERT(ok);
 
     sharedHandleArea = new SharedHandleArea(*imToolbar, sceneWindow);
     sharedHandleArea->resize(MPlainWindow::instance()->visibleSceneSize().width(),

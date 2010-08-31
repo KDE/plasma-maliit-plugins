@@ -120,6 +120,8 @@ void MImToolbar::handleButtonClick(MToolbarItem *item)
             hideGroup(action->group());
             break;
         case MInputMethod::ActionClose:
+            emit closeKeyboardRequest();
+            break;
         case MInputMethod::ActionUndefined:
         case MInputMethod::ActionCopyPaste:
             break;
