@@ -18,7 +18,6 @@
 #include "mvirtualkeyboardstyle.h"
 #include "singlewidgetbuttonarea.h"
 #include "singlewidgetbutton.h"
-#include "flickupbutton.h"
 #include "flickgesturerecognizer.h"
 #include "../ut_flickrecognizer/flickutil.h"
 #include "keyboarddata.h"

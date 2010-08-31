@@ -37,7 +37,6 @@ class MFeedbackPlayer;
 class MReactionMap;
 class MScalableImage;
 class MVirtualKeyboardStyleContainer;
-class ISymIndicator;
 class LayoutData;
 class QGraphicsLinearLayout;
 class QTextLayout;
@@ -75,9 +74,6 @@ public:
 
     //! \return layout model
     const LayoutData::SharedLayoutSection &sectionModel() const;
-
-    //! Allows sym indicator to be controlled from outside.
-    virtual ISymIndicator *symIndicator();
 
     //! Returns current level of this layout.
     int level() const;
@@ -304,17 +300,6 @@ private:
     friend class Ut_SymbolView;
     friend class Bm_KeyButtonArea; //benchmarks
 #endif
-};
-
-/*!
- * This provides interface to change sym indicator status.
- */
-class ISymIndicator
-{
-public:
-    virtual void activateSymIndicator() = 0;
-    virtual void activateAceIndicator() = 0;
-    virtual void deactivateIndicator()  = 0;
 };
 
 #endif

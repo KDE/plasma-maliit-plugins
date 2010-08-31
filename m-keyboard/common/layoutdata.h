@@ -84,7 +84,6 @@ public:
     //! \param row number
     QList<int> spacerIndices(int row) const;
 
-
     /*!
      * \brief Get key at specified row, column and section
      * \param row
@@ -92,16 +91,6 @@ public:
      * \return key
      */
     VKBDataKey *vkbKey(int row, int column) const;
-
-    /*!
-     * \brief Get horizontal alignment of this section.
-     */
-    Qt::Alignment horizontalAlignment() const;
-
-    /*!
-     * \brief Get vertical alignment of this section.
-     */
-    Qt::Alignment verticalAlignment() const;
 
 private:
     bool isInvalidRow(int row) const;
@@ -126,9 +115,8 @@ private:
     qreal mMaxNormalizedWidth;
     int maxRows;
     bool movable;
-    Qt::Alignment m_verticalAlignment;
-    Qt::Alignment m_horizontalAlignment;
     QString sectionName;
+    // TODO: remove? we only have one section type now
     Type sectionType;
     QList<Row *> rows;
 

@@ -40,7 +40,6 @@ class QGraphicsLinearLayout;
 class QGraphicsSceneMouseEvent;
 class KeyEvent;
 class LayoutSection;
-class SymIndicatorButton;
 class Handle;
 class SharedHandleArea;
 
@@ -243,9 +242,6 @@ private:
 
     //! Retrieves title of a symbol section from given page.
     QString pageTitle(int pageIndex) const;
-
-    //! \brief Updates the Sym button to visually indicate the current active page.
-    void updateSymIndicator();
 
     //! Connect signals from a \a handle widget
     void connectHandle(Handle *handle);

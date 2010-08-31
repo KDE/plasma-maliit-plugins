@@ -29,7 +29,7 @@
  * \brief SingleWidgetButtonArea is an implementation of KeyButtonArea which
  * does not use separate widgets for buttons, but instead draws them explicitly.
  */
-class SingleWidgetButtonArea : public KeyButtonArea, public ISymIndicator
+class SingleWidgetButtonArea : public KeyButtonArea
 {
 public:
     SingleWidgetButtonArea(const MVirtualKeyboardStyleContainer *style,
@@ -42,13 +42,7 @@ public:
     //! \reimp
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *view);
     virtual QRectF boundingRect() const;
-    virtual ISymIndicator *symIndicator();
     virtual void setShiftState(ModifierState newShiftState);
-
-    // From ISymIndicator
-    virtual void activateSymIndicator();
-    virtual void activateAceIndicator();
-    virtual void deactivateIndicator();
     //! \reimp_end
 
 protected:
@@ -62,13 +56,6 @@ protected:
     /*! \reimp_end */
 
 private:
-    //! Enumeration to keep track of the sym indicator state.
-    enum SymIndicatorState {
-        SymActive,
-        AceActive,
-        SymIndicatorInactive
-    };
-
     //! \brief Creates buttons for key data models
     void loadKeys();
 
@@ -101,13 +88,6 @@ private:
 
     int rowHeight; //! constant row height, includes margins
     ButtonRowList rowList;
-
-    //! Current state of the sym indicator
-    SymIndicatorState symState;
-
-    //! This is provided for easier access to sym indicator button
-    //! if such exists in the current layout.
-    const SingleWidgetButton *symIndicatorButton;
 
     //! Shift button is stored here if current layout has a shift button.
     SingleWidgetButton *shiftButton;

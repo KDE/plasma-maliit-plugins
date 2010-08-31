@@ -8,7 +8,6 @@ INSTALL_HEADERS += \
 
 STYLE_HEADERS += \
     $$WIDGETS_DIR/widgetbarstyle.h \
-    $$WIDGETS_DIR/flickupbuttonstyle.h \
     $$WIDGETS_DIR/mvirtualkeyboardstyle.h \
     $$WIDGETS_DIR/handlestyle.h \
     $$WIDGETS_DIR/mtoolbarbuttonstyle.h \
@@ -25,8 +24,6 @@ HEADERS += \
     $$WIDGETS_DIR/mimcorrectioncandidateitemview.h \
     $$WIDGETS_DIR/mimtoolbar.h \
     $$WIDGETS_DIR/mvirtualkeyboard.h \
-    $$WIDGETS_DIR/flickupbutton.h \
-    $$WIDGETS_DIR/flickupbuttonview.h \
     $$WIDGETS_DIR/horizontalswitcher.h \
     $$WIDGETS_DIR/notification.h \
     $$WIDGETS_DIR/symbolview.h \
@@ -54,8 +51,6 @@ SOURCES += \
     $$WIDGETS_DIR/mimcorrectioncandidateitemview.cpp \
     $$WIDGETS_DIR/mimtoolbar.cpp \
     $$WIDGETS_DIR/mvirtualkeyboard.cpp \
-    $$WIDGETS_DIR/flickupbutton.cpp \
-    $$WIDGETS_DIR/flickupbuttonview.cpp \
     $$WIDGETS_DIR/horizontalswitcher.cpp \
     $$WIDGETS_DIR/notification.cpp \
     $$WIDGETS_DIR/symbolview.cpp \

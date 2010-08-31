@@ -65,18 +65,12 @@ SingleWidgetButtonArea::SingleWidgetButtonArea(const MVirtualKeyboardStyleContai
     : KeyButtonArea(style, sectionModel, usePopup, parent),
       rowHeight(0),
       rowList(sectionModel->rowCount()),
-      symState(SymIndicatorInactive),
-      symIndicatorButton(0),
       shiftButton(0),
       textDirty(false),
       equalWidthButtons(true)
 {
     textLayout.setCacheEnabled(true);
-
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-
-    // Initially deactivate sym page indicator.
-    deactivateIndicator();
     loadKeys();
 }
 
@@ -134,11 +128,8 @@ void SingleWidgetButtonArea::loadKeys()
             VKBDataKey *dataKey = sectionModel()->vkbKey(row, col);
             SingleWidgetButton *button = new SingleWidgetButton(*dataKey, style(), *this);
 
-            // TODO: Remove restriction to have only one symbol view/shift button per layout?
-            if (dataKey->binding()->action() == KeyBinding::ActionSym) {
-                // Save pointer for easier use.
-                symIndicatorButton = button;
-            } else if (dataKey->binding()->action() == KeyBinding::ActionShift) {
+            // TODO: Remove restriction to have only one shift button per layout?
+            if (dataKey->binding()->action() == KeyBinding::ActionShift) {
                 shiftButton = button;
             }
 
@@ -171,33 +162,24 @@ void SingleWidgetButtonArea::buildTextLayout()
     // While concatenating the text, also build 'additional formats' used for secondary
     // labels. This must be done before QTextLayout::beginLayout().
     QString labelContent;
-    foreach (const ButtonRow &row, rowList) {
-        foreach (const SingleWidgetButton *button, row.buttons) {
 
+    foreach (const ButtonRow &row, rowList) {
+
+        foreach (const SingleWidgetButton *button, row.buttons) {
             // primary label
             QString label = button->label();
+
             if (!label.isEmpty()) {
                 // Add whitespace for QTextLine to be able to cut.
                 labelContent += label + " ";
 
-                // We don't support styling of text for invidual buttons. Therefore,
-                // we handle sym button as an exception here. Its style differs from
-                // that of its neighbours.
-                if (button == symIndicatorButton && symState == SymIndicatorInactive) {
-                    // Only show "Sym" as the button text.
-                    continue;
-                }
-
                 // try secondary label
                 label = button->secondaryLabel();
+
                 if (!label.isEmpty()) {
-
-                    if (button != symIndicatorButton) {
-                        // Add formatting for this secondary label.
-                        QTextLayout::FormatRange formatRange = {labelContent.length(), label.length(), secondaryFormat};
-                        formatList.append(formatRange);
-                    }
-
+                    // Add formatting for this secondary label.
+                    QTextLayout::FormatRange formatRange = {labelContent.length(), label.length(), secondaryFormat};
+                    formatList.append(formatRange);
                     labelContent += label + " ";
                 }
             }
@@ -236,31 +218,12 @@ void SingleWidgetButtonArea::buildTextLayout()
                 continue;
             }
 
-            // This is for sym, where we might skip creation of secondary label
-            // even if we have it.
-            bool skipSecondary = false;
-
             const QRectF &buttonRect = button->cachedButtonRect;
 
             if (secondary.isEmpty()) {
                 // All horizontally centered, portrait vs. landscape only differs in top & bottom margins.
                 labelPos = QPoint(buttonRect.center().x() - fm.width(label) / 2,
                                   buttonRect.top() + topMargin);
-            } else if (button == symIndicatorButton) {
-
-                // Handle sym
-                if (symState == SymIndicatorInactive) {
-                    skipSecondary = true;
-                    labelPos.setY(buttonRect.top() + topMargin);
-                } else {
-                    // No top and bottom margins.
-                    labelPos.setY(buttonRect.top());
-                    secondaryLabelPos = QPoint(buttonRect.center().x() - fm.width(secondary) / 2,
-                                               buttonRect.bottom() - labelHeight);
-                }
-
-                labelPos.setX(buttonRect.center().x() - fm.width(label) / 2);
-
             } else {
                 // Calculate position for both primary and secondary label.
                 // We only have secondary labels in phone number layouts (with sym being exception)
@@ -300,7 +263,7 @@ void SingleWidgetButtonArea::buildTextLayout()
             line.setPosition(labelPos);
 
             // Same for secondary label
-            if (!secondary.isEmpty() && !skipSecondary) {
+            if (!secondary.isEmpty()) {
                 line = textLayout.createLine();
                 if (!line.isValid()) {
                     goto endLayout;
@@ -457,9 +420,6 @@ void SingleWidgetButtonArea::updateButtonGeometriesForWidth(const int newAvailab
     const qreal HorizontalSpacing = style()->spacingHorizontal();
     const qreal VerticalSpacing = style()->spacingVertical();
 
-    // TODO: kill alignment:
-    const Qt::Alignment alignment = sectionModel()->horizontalAlignment();
-
     // The following code cannot handle negative width:
     int availableWidth = qMax(0, newAvailableWidth);
     const qreal normalizedWidth = qMax<qreal>(1.0, sectionModel()->maxNormalizedWidth());
@@ -557,45 +517,6 @@ QRectF SingleWidgetButtonArea::boundingRect() const
     // Extend the bounding rectangle to all directions by the amount of spacing.
     return QRectF(-QPoint(style()->spacingHorizontal() / 2, style()->spacingVertical() / 2),
                   size() + QSizeF(style()->spacingHorizontal(), style()->spacingVertical()));
-}
-
-
-ISymIndicator *SingleWidgetButtonArea::symIndicator()
-{
-    return this;
-}
-
-// ISymIndicator implementation
-void SingleWidgetButtonArea::activateSymIndicator()
-{
-    if (symState == SymIndicatorInactive) {
-        // We have changed the text. Sym has two-line text in active mode.
-        textDirty = true;
-    }
-    symState = SymActive;
-    update();
-}
-
-// ISymIndicator implementation
-void SingleWidgetButtonArea::activateAceIndicator()
-{
-    if (symState == SymIndicatorInactive) {
-        // We have changed the text. Sym has two-line text in active mode.
-        textDirty = true;
-    }
-    symState = AceActive;
-    update();
-}
-
-// ISymIndicator implementation
-void SingleWidgetButtonArea::deactivateIndicator()
-{
-    if (symState != SymIndicatorInactive) {
-        update();
-        // We have changed the text. Sym has one-line text in inactive mode.
-        textDirty = true;
-        symState = SymIndicatorInactive;
-    }
 }
 
 void SingleWidgetButtonArea::onThemeChangeCompleted()

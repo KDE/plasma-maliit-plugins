@@ -61,11 +61,6 @@ public:
     M_STYLE_ATTRIBUTE(qreal, flickGestureThresholdRatio, FlickGestureThresholdRatio)
 
     M_STYLE_ATTRIBUTE(QSize, keyNormalSize, KeyNormalSize)
-    M_STYLE_ATTRIBUTE(QSize, keyFunctionNormalSize, KeyFunctionNormalSize)
-    M_STYLE_ATTRIBUTE(QSize, keyFunctionLargeSize, KeyFunctionLargeSize)
-    M_STYLE_ATTRIBUTE(QSize, keyPhoneNumberNormalSize, KeyPhoneNumberNormalSize)
-    M_STYLE_ATTRIBUTE(QSize, keyNumberFunctionLargeSize, KeyNumberFunctionLargeSize)
-    M_STYLE_ATTRIBUTE(QSize, keySymNormalSize, KeySymNormalSize)
 
     M_STYLE_ATTRIBUTE(QSizeF, keySizeSmall, KeySizeSmall)
     M_STYLE_ATTRIBUTE(QSize,  keySizeSmallFixed, KeySizeSmallFixed)
@@ -99,11 +94,6 @@ public:
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDeadkeyPressed, KeyBackgroundDeadkeyPressed)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDeadkeySelected, KeyBackgroundDeadkeySelected)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDeadkeyPressedSelected, KeyBackgroundDeadkeyPressedSelected)
-
-    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSymIndicatorSym, KeyBackgroundSymIndicatorSym)
-    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSymIndicatorAce, KeyBackgroundSymIndicatorAce)
-    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSymIndicatorSymPressed, KeyBackgroundSymIndicatorSymPressed)
-    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSymIndicatorAcePressed, KeyBackgroundSymIndicatorAcePressed)
 
     M_STYLE_ATTRIBUTE(QSize,   keyBackspaceIconSize,    KeyBackspaceIconSize)
     M_STYLE_ATTRIBUTE(QString, keyBackspaceIconId,      KeyBackspaceIconId)

@@ -87,8 +87,6 @@ LayoutSection::LayoutSection()
       mMaxNormalizedWidth(0),
       maxRows(0),
       movable(false),
-      m_verticalAlignment(Qt::AlignVCenter),
-      m_horizontalAlignment(Qt::AlignHCenter),
       sectionType(Sloppy)
 {
 }
@@ -158,16 +156,6 @@ VKBDataKey *LayoutSection::vkbKey(int row, int column) const
     }
 
     return rows[row]->keys[column];
-}
-
-Qt::Alignment LayoutSection::horizontalAlignment() const
-{
-    return m_horizontalAlignment;
-}
-
-Qt::Alignment LayoutSection::verticalAlignment() const
-{
-    return m_verticalAlignment;
 }
 
 bool LayoutSection::isInvalidRow(int row) const

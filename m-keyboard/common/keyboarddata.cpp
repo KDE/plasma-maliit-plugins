@@ -437,8 +437,6 @@ void KeyboardData::parseTagSection(const QDomElement &element, ParseParameters &
 {
     LayoutData::SharedLayoutSection section(new LayoutSection);
     section->movable = toBoolean(element.attribute(VKBTagMovable));
-    section->m_horizontalAlignment = alignment(element.attribute(VKBTagHorizontalAlignment), false);
-    section->m_verticalAlignment = alignment(element.attribute(VKBTagVerticalAlignment), true);
     section->sectionName = element.attribute(VKBTagID);
     section->sectionType = (element.attribute(VKBTagType) == VKBTagTypeNonsloppy) ? LayoutSection::NonSloppy : LayoutSection::Sloppy;
     params.currentSection = section;

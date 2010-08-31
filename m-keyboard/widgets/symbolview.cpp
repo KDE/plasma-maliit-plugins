@@ -371,7 +371,7 @@ SymbolView::hideSymbolView(SymbolView::HideMode mode)
     }
 
     if (mode == NormalHideMode) {
-        changePage(0);
+        pageSwitcher->setCurrent(0);
     }
 
     if (mode == TemporaryHideMode) {
@@ -524,7 +524,6 @@ void SymbolView::setShiftState(ModifierState newShiftState)
     }
 
     emit levelSwitched(level);
-    updateSymIndicator();
 }
 
 int SymbolView::currentLevel() const
@@ -559,28 +558,14 @@ void SymbolView::setLanguage(const QString &lang)
     }
 }
 
-
 void SymbolView::switchToNextPage()
 {
-    if ((activePage + 1) < pageSwitcher->count())
-        changePage(activePage + 1);
+    pageSwitcher->switchTo(HorizontalSwitcher::Right);
 }
-
-
 
 void SymbolView::switchToPrevPage()
 {
-    if (activePage > 0)
-        changePage(activePage - 1);
-}
-
-
-void SymbolView::switchPage()
-{
-    if (pageSwitcher->count() <= 1)
-        return;
-    int nextPageIndex = (activePage + 1)% pageSwitcher->count();
-    changePage(nextPageIndex);
+    pageSwitcher->switchTo(HorizontalSwitcher::Left);
 }
 
 
@@ -590,14 +575,12 @@ void SymbolView::onReady()
     emit opened();
 }
 
-
 void SymbolView::onHidden()
 {
     hide();
     emit regionUpdated(QRegion());
     emit hidden();
 }
-
 
 void SymbolView::onSwitchStarting(QGraphicsWidget *current, QGraphicsWidget *next)
 {
@@ -662,7 +645,6 @@ void SymbolView::redrawReactionMaps()
     }
 }
 
-
 const MVirtualKeyboardStyleContainer &SymbolView::style() const
 {
     return *styleContainer;
@@ -680,38 +662,11 @@ bool SymbolView::isActive() const
     return ((activity == Active) || (activity == TemporarilyActive));
 }
 
-
-
 QString SymbolView::pageTitle(const int pageIndex) const
 {
     Q_ASSERT(pageSwitcher && (pageSwitcher->count() > pageIndex));
     const QString sectionName = qobject_cast<const KeyButtonArea *>(pageSwitcher->widget(pageIndex))->sectionModel()->name();
     return sectionName.mid(SymbolSectionPrefix.length());
-}
-
-void SymbolView::updateSymIndicator()
-{
-    if (!functionRow) {
-        return;
-    }
-
-    ISymIndicator *symIndicator = functionRow->symIndicator();
-
-     if (symIndicator) {
-         if (functionRow->level() == 0) {
-             QString title = pageTitle(activePage);
-
-             if (title == SymLabel) {
-                 symIndicator->activateSymIndicator();
-             } else if (title == AceLabel) {
-                 symIndicator->activateAceIndicator();
-             } else {
-                 symIndicator->deactivateIndicator();
-             }
-         } else {
-             symIndicator->deactivateIndicator();
-         }
-    }
 }
 
 QRegion SymbolView::interactiveRegion() const
