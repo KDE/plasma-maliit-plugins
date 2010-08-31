@@ -1,1 +1,121 @@
+?.?.??-?
+========
+
+* New keyboard layouts:
+  - Hungarian, Romanian, Slovak, Ukrainian, Turkish, Indonesian, Malay,
+    Brazilan, Mexican
+
+* API changes in meego-keyboard:
+  - New typedef for QSharedPointer<LayoutSection> -
+    LayoutData::SharedLayoutSection.
+  - Switch to floating points for SWBA geometry computation.
+
+  - KeyButtonArea:
+    - updateButtonGeometries was replaced by updateButtonGeometriesForWidth,
+    - buttonInformation, buttonSizeByColumn got removed.
+
+  - LayoutSection:
+    - maxNormalizedWidth returns the row width in logical units, using a key's
+      width attribute.
+    - rowHeight returns the row height, using a row's height attribute.
+    - spacerIndices returns a list with the position of space elements for a
+      given row.
+    - Renamed getVKBKey to vkbKey.
+
+  - LayoutData:
+    - Changed return type of section (and its overload) to SharedLayoutSection,
+      removing the constness from the contained LayoutSection.
+
+  - LayoutsManager:
+    - createInstance, ctor now take an (optional)
+      MVirtualKeyboardStyleContainer parameter.
+    - Layout returns an empty LayoutData instance in case the queried layout
+      could not be found.
+
+  - KeyboardData:
+    - Ctor now takes an (optional) MVirtualKeyboardStyleContainer parameter.
+
+  - VKBDataKey:
+    - Ctor now takes a StyleType and a SizeType parameter, too.
+    - New getters (style, size, isFixedSize) for current StyleType, SizeType
+      and whether to use fixed key width or (relative) scaling.
+    - normalizedSize returns the key's QSizeF (queried from style and dependend
+      on the SizeType).
+
+  - SingleWidgetButtonArea, KeyButtonArea:
+    - Removed updateButtonGeometries and made updateButtonGeometriesForWidth a
+      pure virtual instead.
+    - Removed ButtonSizeScheme, ButtonSize takes over (difference: scheme
+      was bound to a whole layout section, size type are flexible).
+    - drawSymKeyBackground removed, drawNormalKeyBackground renamed to
+      drawKeyBackground: styling (per button) can now be done via style.
+
+  - SymbolView:
+    - loadFunctionRow, setFunctionRowState, updateSymIndicator removed.
+
+  - FlickupButton:
+    - FlickupButton is removed.
+
+  - FlickupButtonView:
+    - FlickupButtonView is removed.
+
+  - FlickUpButtonStyle:
+    - FlickUpButtonStyle and FlickUpButtonStyleContainer are removed.
+
+* Keyboard layout files became more expressive:
+  - New style attribute for key elements: normal (default), deadkey, special.
+    The new style types can be referenced from CSS files, allowing for more
+    flexible button styling.
+  - New height attribute for row elements: small, medium (default), large,
+    x-large, xx-large. The height can be used to specify the relative row
+    height in CSS files (no support for fixed height yet).
+  - New fixed attribute for row elements: true, false (default). It defines
+    whether the row height specified in height attributes should be a relative
+    or fixed value.
+  - New width attribute for key elements: small, medium (default), large,
+    x-large, xx-large, stretched. The new width type can be used to specify
+    relative button width in CSS files (no support for fixed width yet).
+  - New fixed attribute for key elements: true, false (default). It defines
+    whether the button width specified in size attributes should be a relative
+    or fixed value.
+  - New spacer element for row elements: Spacers distribute all remaining space
+    of a row among them, after the possible stretcher button has been dealt
+    with.
+  - The section's alignment attributes have been superseded by spacer elements,
+    and therefore, been removed.
+  - New action switch for binding: switch action indicates to switch active symbol
+    page to the next avaliable page.
+
+* New CSS properties:
+  - MVirtualKeyboardStyle:
+    - key-width-small, key-width-small-fixed
+    - key-width-medium, key-width-medium-fixed
+    - key-width-large, key-width-large-fixed
+    - key-width-x-large, key-width-x-large-fixed
+    - key-width-xx-large, key-width-xx-large-fixed
+    - key-width-stretched, key-width-stretched-fixed
+    - row-height-small,
+    - row-height-medium,
+    - row-height-large,
+    - row-height-x-large,
+    - row-height-xx-large,
+    - key-background, key-background-pressed,
+      key-background-selected, key-background-pressed-selected
+    - key-background-special, key-background-special-pressed,
+      key-background-special-selected, key-background-special-pressed-selected
+    - key-background-deadkey, key-background-deadkey-pressed,
+      key-background-deadkey-selected, key-background-deadkey-pressed-selected
+    - key-height
+
+* Removed CSS properties:
+   - key-background-sym-indicator-sym, key-background-sym-indicator-sym-pressed
+   - key-background-sym-indicator-ace, key-background-sym-indicator-ace-pressed
+   - key-normal-size, key-phone-number-normal-size, key-function-normal-size,
+     key-function-large-size, key-number-function-large-size,
+     key-sym-normal-size:
+
+
+0.4.13-1
+=========
+
 * Direct mode for VKB was temporarily disabled due to NB#176441.
