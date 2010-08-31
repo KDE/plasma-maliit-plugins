@@ -50,7 +50,7 @@ int WidgetBar::count() const
     return widgets.count();
 }
 
-void WidgetBar::insert(int index, MWidget *widget)
+void WidgetBar::insert(int index, MWidget *widget, bool isAvailable)
 {
     Q_ASSERT(widget);
 
@@ -61,8 +61,10 @@ void WidgetBar::insert(int index, MWidget *widget)
 
     widgets.insert(index, widget);
 
-    mainLayout.insertItem(index, widget);
-    mainLayout.setAlignment(widget, Qt::AlignVCenter); // In case we have widgets that differs in height.
+    if (isAvailable) {
+        mainLayout.insertItem(index, widget);
+        mainLayout.setAlignment(widget, Qt::AlignVCenter); // In case we have widgets that differs in height.
+    }
 
     if (-1 != widget->metaObject()->indexOfSignal("availabilityChanged()")) {
         connect(widget, SIGNAL(availabilityChanged()),
@@ -70,9 +72,9 @@ void WidgetBar::insert(int index, MWidget *widget)
     }
 }
 
-void WidgetBar::append(MWidget *widget)
+void WidgetBar::append(MWidget *widget, bool isAvailable)
 {
-    insert(count(), widget);
+    insert(count(), widget, isAvailable);
 }
 
 void WidgetBar::remove(MWidget *widget)

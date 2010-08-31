@@ -170,16 +170,6 @@ private:
                                WidgetBar *rightWidget);
 
     /*!
-     * \brief Inserts item to \a align part of the toolbar at index,
-     * or before any item that is currently at index in \a align part of the toolbar.
-     *  This doesn't do anything if the item has already been added.
-     * \param index Index to be inserted.
-     * \param button The MWidget to be added.
-     * \param align Indicate which part of the toolbar, Qt::AlignLeft or Qt::AlignRight.
-     */
-    void insertItem(int index, MWidget *widget, Qt::Alignment align);
-
-    /*!
      * \brief Removes an item from its layout.
      * \param button Button to remove from either side.
      */

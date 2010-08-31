@@ -224,7 +224,7 @@ void MImToolbar::createAndAppendWidget(QSharedPointer<MToolbarItem> item,
         widget = new MToolbarLabel(item, sidebar);
     }
     customWidgets.append(widget);
-    sidebar->append(widget);
+    sidebar->append(widget, item->isVisible());
     if (sidebar->count() == 1) {
         sidebar->show();
     }
@@ -398,29 +398,6 @@ void MImToolbar::hideToolbarWidget()
     currentToolbar.clear();
     unloadCustomWidgets();
     arrangeWidgets();
-}
-
-void MImToolbar::insertItem(const int index, MWidget *widget, Qt::Alignment align)
-{
-    Q_ASSERT((align == Qt::AlignLeft) || (align == Qt::AlignRight));
-    WidgetBar *sidebar = (align == Qt::AlignLeft) ? &leftBar : &rightBar;
-    if (!sidebar->contains(widget)) {
-        sidebar->insert(index, widget);
-    }
-
-    if (leftBar.count() == 1) {
-        leftBar.show();
-    }
-    if (rightBar.count() == 1) {
-        rightBar.show();
-    }
-
-    if (!layout()) {
-        qCritical() << __PRETTY_FUNCTION__ << "Layout does not exist";
-    }
-
-    layout()->invalidate();
-    layout()->activate();
 }
 
 void MImToolbar::removeItem(MWidget *widget)

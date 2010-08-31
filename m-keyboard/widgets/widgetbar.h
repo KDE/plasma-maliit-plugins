@@ -48,12 +48,14 @@ public:
     int count() const;
 
     //! \brief Inserts a \a widget to specified \a index.
+    //! \param isAvailable Contains true if \a widget should appear on the screen
     //!
     //! \a widget must provide availabilityChanged() signal.
-    void insert(int index, MWidget *widget);
+    void insert(int index, MWidget *widget, bool isAvailable);
 
     //! \brief Appends \a widget to the right end of the row.
-    void append(MWidget *widget);
+    //! \param isAvailable Contains true if \a widget should appear on the screen
+    void append(MWidget *widget, bool isAvailable);
 
     //! \brief Removes the specified \a widget from the widget.
     void remove(MWidget *widget);
