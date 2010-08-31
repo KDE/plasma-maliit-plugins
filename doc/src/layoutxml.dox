@@ -112,26 +112,32 @@ Attributes:
 \li \c movable Unused as of this writing.
 \li \c type \c Non-sloppy type means that accurate input method (no error
 correction) is used with keys of this section by default.
-\li \c vertical_alignment Vertical alignment of rows in this section.  \c
-full is similar to a \c center but key sizes are expanded to fill the
-section.
-\li \c horizontal_alignment Horizontal alignment of keys in this section.  \c
-full is similar to a \c center but key sizes are expanded to fill the
-section.
-
 
 \subsection Row
 
 Row element describes a row of keys on the keyboard.  It has no attributes,
-just keys.  A row may be empty.
+just keys and spacers.  A row may be empty.
 
 
 \subsection Key
 
 Key element describes a visible key on the keyboard.
 
+\subsection Spacer
+
+Spacers can be used for alignment purposes. They distribute all remaining space
+of a row among them, after the possible stretcher button has been dealt with.
+
+For instance, to get a center-aligned row, put spacer elements in the beginning and end of a row. Spacer elements are cumulative, i.e., <spacer/><spacer/> will get twice the space of a single spacer.
+
 Attributes:
 
+\li \c style The style type this key should use. The style type is defined in
+the css file under theme/ directory.
+\li \c width The width of a key. The width itself can be defined in the
+keyboard's CSS file.
+\li \c fixed If false, this button uses a relative width. Otherwise uses fixed
+width.
 \li \c rtl If true, this button uses RTL version of icon.
 
 
