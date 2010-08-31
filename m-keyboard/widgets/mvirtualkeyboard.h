@@ -212,7 +212,12 @@ public slots:
 
 private slots:
     /*!
-     * Handler for Right flick operation
+     * \brief Handler for shift pressed state change (separate from shift state).
+     */
+    void handleShiftPressed(bool shiftPressed);
+
+    /*!
+     * Handler for right flick operation
      */
     void flickRightHandler();
 
@@ -335,6 +340,11 @@ signals:
 
 
 private:
+    enum KeyboardSectionIndex {
+        SectionMainIndex = 0,
+        SectionFunctionIndex = 1
+    };
+
     //! Getter for style container
     const MVirtualKeyboardStyleContainer &style() const;
 
@@ -352,6 +362,8 @@ private:
     QPoint mapOffsetToScene(QPointF offset);
 
     const LayoutData *currentLayoutModel() const;
+
+    KeyButtonArea *keyboardWidget(KeyboardSectionIndex sectionIndex, int languageIndex = -1) const;
 
     /*!
      * Method to setup timeline

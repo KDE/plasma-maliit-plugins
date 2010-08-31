@@ -193,6 +193,10 @@ private slots:
     void onSwitchStarting(QGraphicsWidget *current, QGraphicsWidget *next);
     void onSwitchDone();
 
+    //! Handler for shift pressed state change (separate from shift state).
+    void handleShiftPressed(bool shiftPressed);
+
+
     //! When hardware keyboard layout has changed, reload contents if currently in Hardware state.
     void handleHwLayoutChange();
 

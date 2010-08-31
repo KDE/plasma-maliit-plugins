@@ -154,7 +154,7 @@ SymbolView::SymbolView(const LayoutsManager &layoutsManager, const MVirtualKeybo
     connect(&eventHandler, SIGNAL(keyClicked(KeyEvent)),
             this,          SIGNAL(keyClicked(KeyEvent)));
     connect(&eventHandler, SIGNAL(shiftPressed(bool)),
-            this,          SLOT(setFunctionRowState(bool)));
+            this,          SLOT(handleShiftPressed(bool)));
 
     connect(&layoutsManager, SIGNAL(hardwareLayoutChanged()),
             this, SLOT(handleHwLayoutChange()));
@@ -438,6 +438,7 @@ void SymbolView::loadSwitcherPages(const LayoutData *kbLayout, const unsigned in
     keyAreaLayout->addItem(pageSwitcher);
 }
 
+
 void SymbolView::addPage(const LayoutData::SharedLayoutSection &symbolSection)
 {
     KeyButtonArea *page = createKeyButtonArea(symbolSection);
@@ -500,9 +501,6 @@ void SymbolView::setShiftState(ModifierState newShiftState)
     shiftState = newShiftState;
 
     if (functionRow) {
-        if (!enableMultiTouch) {
-            functionRow->switchLevel(level);
-        }
         functionRow->setShiftState(newShiftState);
     }
 
@@ -590,6 +588,18 @@ void SymbolView::onSwitchDone()
     if (isVisible()) {
         layout()->activate();
         redrawReactionMaps();
+    }
+}
+
+void SymbolView::handleShiftPressed(bool shiftPressed)
+{
+    if (enableMultiTouch) {
+        const int level = shiftPressed ? 1 : currentLevel();
+
+        KeyButtonArea *mainKba = static_cast<KeyButtonArea *>(pageSwitcher->currentWidget());
+        if (mainKba) {
+            mainKba->switchLevel(level);
+        }
     }
 }
 

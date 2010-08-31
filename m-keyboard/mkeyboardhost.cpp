@@ -501,6 +501,8 @@ void MKeyboardHost::updateAutoCapitalization()
 
     if ((activeState == OnScreen)
         && (vkbWidget->shiftStatus() != ModifierLockedState)) {
+        // FIXME: This will break the behaviour of keeping shift latched when shift+character occured.
+        // We would really need a state machine for the shift state handling.
         vkbWidget->setShiftState(autoCapsTriggered ?
                                  ModifierLatchedState : ModifierClearState);
     } else if ((activeState == Hardware) &&

@@ -93,6 +93,8 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
             this, SIGNAL(keyReleased(const KeyEvent &)));
     connect(&eventHandler, SIGNAL(keyClicked(const KeyEvent &)),
             this, SIGNAL(keyClicked(const KeyEvent &)));
+    connect(&eventHandler, SIGNAL(shiftPressed(bool)),
+            this, SLOT(handleShiftPressed(bool)));
 
     enableMultiTouch = MGConfItem(MultitouchSettings).value().toBool();
 
@@ -243,13 +245,13 @@ MVirtualKeyboard::switchLevel()
     }
 
     for (int i = 0; i < mainKeyboardSwitcher->count(); ++i) {
-        // the subwidgets have main section as first item in their layout, function row as second.
         // handling main section:
-        static_cast<KeyButtonArea *>(mainKeyboardSwitcher->widget(i)->layout()->itemAt(0))->
-                switchLevel(currentLevel);
+        KeyButtonArea *mainKba = keyboardWidget(SectionMainIndex, i);
+        if (mainKba) {
+            mainKba->switchLevel(currentLevel);
+        }
     }
 }
-
 
 void
 MVirtualKeyboard::setShiftState(ModifierState state)
@@ -922,6 +924,39 @@ KeyButtonArea * MVirtualKeyboard::createSectionView(const QString &language,
             this, SLOT(flickUpHandler(KeyBinding)));
 
     return view;
+}
+
+void MVirtualKeyboard::handleShiftPressed(bool shiftPressed)
+{
+    if (enableMultiTouch) {
+        // When shift pressed, always use the second level. If not pressed, use whatever the current level is.
+        const int level = shiftPressed ? 1 : currentLevel;
+
+        KeyButtonArea *mainKb = keyboardWidget(SectionMainIndex);
+        if (mainKb) {
+            mainKb->switchLevel(level);
+        }
+    }
+}
+
+KeyButtonArea *MVirtualKeyboard::keyboardWidget(KeyboardSectionIndex sectionIndex, int languageIndex) const
+{
+    if (!mainKeyboardSwitcher) {
+        return 0;
+    }
+
+    KeyButtonArea *kba = 0;
+    const QGraphicsWidget *activeKb = (languageIndex == -1) ?
+                                       mainKeyboardSwitcher->currentWidget() :
+                                       mainKeyboardSwitcher->widget(languageIndex);
+
+    if (activeKb
+        && activeKb->layout()
+        && activeKb->layout()->count() > sectionIndex) {
+        // The subwidgets have main section as first item in their layout.
+        kba = dynamic_cast<KeyButtonArea *>(activeKb->layout()->itemAt(sectionIndex));
+    }
+    return kba;
 }
 
 void MVirtualKeyboard::recreateKeyboards()

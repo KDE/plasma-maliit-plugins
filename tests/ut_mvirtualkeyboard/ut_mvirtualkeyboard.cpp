@@ -387,12 +387,12 @@ void Ut_MVirtualKeyboard::testShiftLevelChange_data()
     QTest::newRow("shift locked, not pressed")  << false << ModifierLockedState  << false << 1 << 1;
     QTest::newRow("shift locked, pressed")      << false << ModifierLockedState  << true  << 1 << 1;
 
-    // Multi-touch enabled. Main layout same as above, function row follows shift pressed state.
+    // Multi-touch enabled.
     QTest::newRow("mt, shift cleared, not pressed") << true << ModifierClearState   << false << 0 << 0;
-    QTest::newRow("mt, shift cleared, pressed")     << true << ModifierClearState   << true  << 0 << 1;
-    QTest::newRow("mt, shift latched, not pressed") << true << ModifierLatchedState << false << 1 << 0;
+    QTest::newRow("mt, shift cleared, pressed")     << true << ModifierClearState   << true  << 1 << 1;
+    QTest::newRow("mt, shift latched, not pressed") << true << ModifierLatchedState << false << 1 << 1;
     QTest::newRow("mt, shift latched, pressed")     << true << ModifierLatchedState << true  << 1 << 1;
-    QTest::newRow("mt, shift locked, not pressed")  << true << ModifierLockedState  << false << 1 << 0;
+    QTest::newRow("mt, shift locked, not pressed")  << true << ModifierLockedState  << false << 1 << 1;
     QTest::newRow("mt, shift locked, pressed")      << true << ModifierLockedState  << true  << 1 << 1;
 }
 
