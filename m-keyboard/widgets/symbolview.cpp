@@ -36,8 +36,8 @@
 
 namespace
 {
-    const int DefaultAnimationDuration = 200;
-    const int DefaultAnimationFrameCount = 20;
+    const int DefaultAnimationDuration = 1;
+    const int DefaultAnimationFrameCount = 1;
 
     const QString SymLabel("Sym");
     const QString AceLabel(QString(0xE1) + QChar(0xE7) + QChar(0xE8)); // "áçè"
@@ -69,6 +69,7 @@ SymbolView::AnimationGroup::AnimationGroup(SymbolView *view)
 
     connect(&showTimeLine, SIGNAL(finished()),
             view,          SLOT(onReady()));
+
 
     showAnimation.setItem(view);
     showAnimation.setTimeLine(&showTimeLine);
