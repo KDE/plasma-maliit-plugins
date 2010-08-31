@@ -79,11 +79,11 @@ void Ut_WidgetBar::testInsert()
     for (int i = 0; i < initialButtonCount; ++i) {
         MButton *button = new MButton;
         buttons.append(button);
-        subject->insert(subject->count(), button);
+        subject->insert(subject->count(), button, true);
     }
 
     MButton *button = new MButton;
-    subject->insert(insertionIndex, button);
+    subject->insert(insertionIndex, button, true);
 
     // Insertion happens only if we have valid index which is
     // 0 <= index <= buttonCount.
@@ -123,7 +123,7 @@ void Ut_WidgetBar::testRemove()
     for (int i = 0; i < initialButtonCount; ++i) {
         MButton *button = new MButton;
         buttons.append(button);
-        subject->append(button);
+        subject->append(button, true);
     }
     QCOMPARE(subject->count(), buttons.count());
 
@@ -169,7 +169,7 @@ void Ut_WidgetBar::testLayoutContent()
     for (int i = 0; i < buttonCount; ++i) {
         MButton *button = new MButton;
         buttons[i] = button;
-        subject->insert(subject->count(), button);
+        subject->insert(subject->count(), button, true);
     }
 
     QCOMPARE(subject->layout()->count(), buttonCount);
@@ -192,9 +192,9 @@ void Ut_WidgetBar::testIndexOf()
     MLabel *label1 = new MLabel;
     int index = -1;
 
-    subject->insert(0, button1);
-    subject->insert(1, button2);
-    subject->insert(2, label1);
+    subject->insert(0, button1, true);
+    subject->insert(1, button2, true);
+    subject->insert(2, label1, true);
 
     index = subject->indexOf(button1);
     QCOMPARE(index, 0);
@@ -224,10 +224,10 @@ void Ut_WidgetBar::testLayoutUpdates()
     MToolbarButton *button3 = new MToolbarButton(buttonItem3);
     MToolbarLabel *label1 = new MToolbarLabel(labelItem);
 
-    subject->insert(0, button1);
-    subject->insert(1, button2);
-    subject->insert(2, label1);
-    subject->insert(3, button3);
+    subject->insert(0, button1, true);
+    subject->insert(1, button2, true);
+    subject->insert(2, label1, true);
+    subject->insert(3, button3, true);
 
     QCOMPARE(subject->layout()->count(), 4);
 

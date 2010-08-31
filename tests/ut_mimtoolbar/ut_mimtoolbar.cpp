@@ -118,62 +118,6 @@ void Ut_MImToolbar::cleanupTestCase()
     app = 0;
 }
 
-void Ut_MImToolbar::testCopyPasteButton()
-{
-    QList<bool> copyAvailable;
-    QList<bool> pasteAvailable;
-    QList<bool> visible;
-    QList<QString> label;
-    QList<int> expectedSignal;
-    QList<CopyPasteState> signalParameter;
-
-    MButton *button = m_subject->copyPaste;
-    QSignalSpy spy(m_subject, SIGNAL(copyPasteClicked(CopyPasteState)));
-
-    QVERIFY(button != 0);
-    QVERIFY(spy.isValid());
-
-    copyAvailable << false << false << true << true;
-    pasteAvailable << false << true << false << true;
-    QVERIFY(copyAvailable.count() == pasteAvailable.count());
-
-    visible << false << true << true << true;
-    QVERIFY(copyAvailable.count() == visible.count());
-
-    label << "" << "Paste" << "Copy" << "Copy";
-    QVERIFY(copyAvailable.count() == label.count());
-
-    expectedSignal << 0 << 1 << 1 << 1;
-    QVERIFY(copyAvailable.count() == expectedSignal.count());
-
-    signalParameter << InputMethodNoCopyPaste << InputMethodPaste
-                    << InputMethodCopy << InputMethodCopy;
-
-
-    for (int n = 0; n < copyAvailable.count(); ++n) {
-        qDebug() << "test step" << n;
-
-        m_subject->setCopyPasteButton(copyAvailable.at(n), pasteAvailable.at(n));
-
-        QVERIFY(button->isVisible() == visible.at(n));
-        if (button->isVisible()) {
-            QVERIFY(indexOf(m_subject->rightBar.layout(), button) >= 0);
-        } else {
-            QVERIFY(indexOf(m_subject->rightBar.layout(), button) == -1);
-        }
-        QVERIFY(button->text().contains(label.at(n), Qt::CaseInsensitive));
-
-        m_subject->copyPasteButtonHandler();
-        QVERIFY(spy.count() == expectedSignal.at(n));
-        if (spy.count()) {
-            QVERIFY(spy.first().count() == 1);
-            CopyPasteState result = spy.first().first().value<CopyPasteState>();
-            QCOMPARE(result, signalParameter.at(n));
-        }
-        spy.clear();
-    }
-}
-
 void Ut_MImToolbar::testShowToolbarWidget()
 {
     QSignalSpy spy(m_subject, SIGNAL(regionUpdated()));
@@ -377,29 +321,6 @@ void Ut_MImToolbar::testReactionMaps()
 
     // Check that all buttons are drawn with reactive color.
     QVERIFY(tester.testChildButtonReactiveAreas(MPlainWindow::instance(), m_subject));
-
-    // Check again with copy
-    qDebug() << "isVisible" << m_subject->isVisible();
-    m_subject->setCopyPasteButton(true, false);
-    m_subject->redrawReactionMaps();
-    QVERIFY(!m_subject->region().isEmpty());
-    QRegion boundingRegion(m_subject->mapToScene(m_subject->boundingRect()).boundingRect().toRect());
-    QVERIFY(tester.testReactionMapGrid(MPlainWindow::instance(), 40, 50, boundingRegion, m_subject));
-    QVERIFY(tester.testChildButtonReactiveAreas(MPlainWindow::instance(), m_subject));
-
-    // Simulate cleaning from other widget.
-    gMReactionMapStub->setTransparentDrawingValue();
-    gMReactionMapStub->setTransform(QTransform());
-    gMReactionMapStub->fillRectangle(0, 0, gMReactionMapStub->width(), gMReactionMapStub->height());
-
-    // And without again
-    m_subject->setCopyPasteButton(false, false);
-    m_subject->redrawReactionMaps();
-    if (!m_subject->region().isEmpty()) {
-        QRegion region(m_subject->mapToScene(m_subject->boundingRect()).boundingRect().toRect());
-        QVERIFY(tester.testReactionMapGrid(MPlainWindow::instance(), 40, 50, region, m_subject));
-        QVERIFY(tester.testChildButtonReactiveAreas(MPlainWindow::instance(), m_subject));
-    }
 }
 
 MWidget* Ut_MImToolbar::find(const QString &name)

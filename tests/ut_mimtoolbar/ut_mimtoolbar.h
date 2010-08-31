@@ -45,7 +45,6 @@ private slots:
     void init();
     void cleanup();
     void cleanupTestCase();
-    void testCopyPasteButton();
 
     void testShowToolbarWidget();
     void testHideToolbarWidget();
