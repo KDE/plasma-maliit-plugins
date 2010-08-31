@@ -102,8 +102,8 @@ namespace
 
     const QString StyleString                = QString("style");
     const QString StyleStringDefValue        = QString("normal");
-    const QString SizeGroupString            = QString("size-group");
-    const QString SizeGroupStringDefValue    = QString("medium");
+    const QString SizeTypeString             = QString("size");
+    const QString SizeTypeStringDefValue     = QString("medium");
     const QString FixedString                = QString("fixed");
     const QString FixedStringDefValue        = QString("false");
 
@@ -171,23 +171,23 @@ inline VKBDataKey::StyleType KeyboardData::toStyleType(const QString &attributeV
     return type;
 }
 
-inline VKBDataKey::SizeGroupType KeyboardData::toSizeGroup(const QString &attributeValue)
+inline VKBDataKey::SizeType KeyboardData::toSizeType(const QString &attributeValue)
 {
-    VKBDataKey::SizeGroupType size = VKBDataKey::Medium;
+    VKBDataKey::SizeType sizeType = VKBDataKey::Medium;
 
     if (attributeValue == "small") {
-        size = VKBDataKey::Small;
+        sizeType = VKBDataKey::Small;
     } else  if (attributeValue == "large") {
-        size = VKBDataKey::Large;
+        sizeType = VKBDataKey::Large;
     } else  if (attributeValue == "x-large") {
-        size = VKBDataKey::XLarge;
+        sizeType = VKBDataKey::XLarge;
     } else  if (attributeValue == "xx-large") {
-        size = VKBDataKey::XxLarge;
+        sizeType = VKBDataKey::XxLarge;
     } else  if (attributeValue == "stretched") {
-        size = VKBDataKey::Stretched;
+        sizeType = VKBDataKey::Stretched;
     }
 
-    return size;
+    return sizeType;
 }
 
 inline bool KeyboardData::toBoolean(const QString &attributeValue)
@@ -493,11 +493,11 @@ void KeyboardData::parseTagBinding(const QDomElement &element, ParseParameters &
 void KeyboardData::parseTagKey(const QDomElement &element, ParseParameters &params)
 {
     VKBDataKey::StyleType type = toStyleType(element.attribute(StyleString, StyleStringDefValue));
-    VKBDataKey::SizeGroupType size = toSizeGroup(element.attribute(SizeGroupString, SizeGroupStringDefValue));
+    VKBDataKey::SizeType sizeType = toSizeType(element.attribute(SizeTypeString, SizeTypeStringDefValue));
     const bool isRtl = toBoolean(element.attribute(RtlString, RtlStringDefValue));
     const bool isFixed = toBoolean(element.attribute(FixedString, FixedStringDefValue));
 
-    VKBDataKey *key = new VKBDataKey(type, size, isFixed, isRtl);
+    VKBDataKey *key = new VKBDataKey(type, sizeType, isFixed, isRtl);
     params.currentKey = key;
     params.currentRow->keys.append(key);
 

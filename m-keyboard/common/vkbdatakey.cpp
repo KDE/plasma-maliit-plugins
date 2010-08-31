@@ -115,9 +115,9 @@ KeyEvent KeyBinding::toKeyEvent(QKeyEvent::Type eventType, QChar accent, Qt::Key
 }
 
 
-VKBDataKey::VKBDataKey(VKBDataKey::StyleType style, VKBDataKey::SizeGroupType size, bool isFixed, bool isRtl)
+VKBDataKey::VKBDataKey(VKBDataKey::StyleType style, VKBDataKey::SizeType sizeType, bool isFixed, bool isRtl)
     : mStyle(style),
-      mSizeGroup(size),
+      mSizeType(sizeType),
       isFixed(isFixed),
       isRtl(isRtl)
 {
@@ -149,14 +149,14 @@ VKBDataKey::StyleType VKBDataKey::style() const
     return mStyle;
 }
 
-VKBDataKey::SizeGroupType VKBDataKey::sizeGroup() const
+VKBDataKey::SizeType VKBDataKey::sizeType() const
 {
-    return mSizeGroup;
+    return mSizeType;
 }
 
 QSizeF VKBDataKey::normalizedSize(const MVirtualKeyboardStyleContainer &styleContainer)
 {
-    switch(mSizeGroup) {
+    switch(mSizeType) {
     case Small:
         return styleContainer->keySizeSmall();
 
@@ -179,7 +179,7 @@ QSizeF VKBDataKey::normalizedSize(const MVirtualKeyboardStyleContainer &styleCon
     return QSizeF();
 }
 
-bool VKBDataKey::fixed() const
+bool VKBDataKey::fixedSize() const
 {
     return isFixed;
 }

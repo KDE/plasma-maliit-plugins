@@ -150,8 +150,8 @@ public:
         DeadkeyStyle             // Style for deadkeys
     };
 
-    //! Size group type
-    enum SizeGroupType {
+    //! Size type
+    enum SizeType {
         Small,
         Medium,
         Large,
@@ -162,12 +162,12 @@ public:
 
     /*
      * \brief Constructs new object
-     * \param tyle The style type for button.
-     * \param sizeGroup The size group for the button.
-     * \param isFixed Contains true if button should use fixed size group.
+     * \param type The style type for button.
+     * \param sizeType The size type for the button.
+     * \param isFixed Contains true if button should use fixed size type.
      * \param isRtl Contains true if button should use RTL icon.
      */
-    explicit VKBDataKey(StyleType type = NormalStyle, SizeGroupType sizeGroup = Medium,
+    explicit VKBDataKey(StyleType type = NormalStyle, SizeType sizeType = Medium,
                         bool isFixed = false, bool isRtl = false);
 
     ~VKBDataKey();
@@ -193,15 +193,15 @@ public:
     //! Returns the style type.
     StyleType style() const;
 
-    //! Returns the size group.
-    SizeGroupType sizeGroup() const;
+    //! Returns the size type.
+    SizeType sizeType() const;
 
     //! Returns normalized size
     // Not const, because M_STYLE_ATTRIBUTE-generated getters are not const, for whatever reason ...
     QSizeF normalizedSize(const MVirtualKeyboardStyleContainer &styleContainer);
 
-    //! Returns true if button uses fixed size group.
-    bool fixed() const;
+    //! Returns true if button uses fixed size type.
+    bool fixedSize() const;
 
     //! Returns true if button uses RTL icon.
     bool rtl() const;
@@ -219,9 +219,9 @@ private:
 
     StyleType mStyle;
 
-    SizeGroupType mSizeGroup;
+    SizeType mSizeType;
 
-    //! Contains true if button uses fixed size group.
+    //! Contains true if button uses fixed size.
     bool isFixed;
 
     //! Contains true if button uses RTL icon.

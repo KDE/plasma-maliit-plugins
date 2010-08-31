@@ -147,7 +147,7 @@ void SingleWidgetButtonArea::loadKeys()
 
             // Only one stretching item per row.
             if (!rowIter->stretchButton) {
-                rowIter->stretchButton = (dataKey->sizeGroup() == VKBDataKey::Stretched ? button : 0);
+                rowIter->stretchButton = (dataKey->sizeType() == VKBDataKey::Stretched ? button : 0);
             }
 
             rowIter->buttons.append(button);
@@ -342,7 +342,7 @@ void SingleWidgetButtonArea::paint(QPainter *painter, const QStyleOptionGraphics
 }
 
 void SingleWidgetButtonArea::drawKeyBackground(QPainter *painter,
-                                               const SingleWidgetButton* button)
+                                               const SingleWidgetButton *button)
 {
     if (!button) {
         return;

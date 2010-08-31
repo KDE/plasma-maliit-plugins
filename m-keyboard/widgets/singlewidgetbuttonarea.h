@@ -77,7 +77,7 @@ private:
 
 
     //! \brief Draws background.
-    void drawKeyBackground(QPainter *painter, const SingleWidgetButton* button );
+    void drawKeyBackground(QPainter *painter, const SingleWidgetButton *button);
 
     struct ButtonRow {
         ButtonRow()

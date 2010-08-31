@@ -41,8 +41,8 @@ namespace
 
     const QString SymLabel("Sym");
     const QString AceLabel(QString(0xE1) + QChar(0xE7) + QChar(0xE8)); // "áçè"
-    const QString SymbolSectionPrefix = "symbols ";
-    const QString SymbolSectionSym = SymbolSectionPrefix + "Sym";
+    const QString SymbolSectionPrefix = "symbols";
+    const QString SymbolSectionSym = SymbolSectionPrefix + "0";
 
     const QString ObjectNameTabs("VirtualKeyboardSymTabs");
     const QString ObjectNameTabButton("VirtualKeyboardSymTabsButton");

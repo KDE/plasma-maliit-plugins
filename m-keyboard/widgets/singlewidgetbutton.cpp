@@ -175,7 +175,7 @@ void SingleWidgetButton::update()
 
 int SingleWidgetButton::preferredFixedWidth() const
 {
-    switch(dataKey.sizeGroup()) {
+    switch(dataKey.sizeType()) {
     case VKBDataKey::Small:
         return styleContainer->keySizeSmallFixed().width();
 
@@ -203,7 +203,7 @@ int SingleWidgetButton::preferredFixedWidth() const
 
 qreal SingleWidgetButton::preferredWidth(qreal pixelPerSizeUnit, qreal spacing) const
 {
-    switch(dataKey.sizeGroup()) {
+    switch(dataKey.sizeType()) {
     case VKBDataKey::Small:
         return computeWidth(pixelPerSizeUnit,
                             spacing,

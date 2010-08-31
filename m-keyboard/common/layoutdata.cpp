@@ -58,7 +58,11 @@ int LayoutData::numSections() const
 
 LayoutData::SharedLayoutSection LayoutData::section(int index) const
 {
-    return sections[index];
+    if (index < 0 || index >= sections.size()) {
+        return SharedLayoutSection(0);
+    } else {
+        return sections[index];
+    }
 }
 
 LayoutData::SharedLayoutSection LayoutData::section(const QString &name) const
