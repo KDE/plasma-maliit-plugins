@@ -45,6 +45,8 @@
 namespace
 {
     const int SceneRotationTime = 1400; // in ms
+    const QString TargetSettingsName("/meegotouch/target/name");
+    const QString DefaultTargetName("Default");
 }
 
 Q_DECLARE_METATYPE(KeyBinding::KeyAction);
@@ -76,6 +78,10 @@ void Ut_MVirtualKeyboard::initTestCase()
                             (char *) "-software",
                             (char *) "-local-theme"};
     static int argc = 3;
+
+    // This value is required by the theme daemon
+    MGConfItem(TargetSettingsName).set(DefaultTargetName);
+
     app = new MApplication(argc, argv);
 
     QString InputMethodSetting("/meegotouch/inputmethods/languages");
