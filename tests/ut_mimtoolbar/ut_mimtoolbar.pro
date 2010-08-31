@@ -25,5 +25,6 @@ target.files += \
            $$TARGET \
            testtoolbar.xml \
            testtoolbar2.xml \
+           testtoolbar4.xml \
 
 include(../common_check.pri)

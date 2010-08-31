@@ -58,6 +58,7 @@ private slots:
 
     void testReactionMaps_data();
     void testReactionMaps();
+    void testClose();
 
     void receiveKeyEvent(const QKeyEvent &);
 

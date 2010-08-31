@@ -46,10 +46,12 @@
 #include <QVariant>
 
 Q_DECLARE_METATYPE(CopyPasteState);
+
 namespace
 {
     QString ToolbarFileName  = "/testtoolbar.xml";
     QString ToolbarFileName2 = "/testtoolbar2.xml";
+    QString ToolbarFileName4 = "/testtoolbar4.xml";
 
     int indexOf(const QGraphicsLayout *layout, const QGraphicsLayoutItem *item)
     {
@@ -90,6 +92,8 @@ void Ut_MImToolbar::initTestCase()
     QVERIFY(QFile::exists(ToolbarFileName));
     ToolbarFileName2 = QCoreApplication::applicationDirPath() + ToolbarFileName2;
     QVERIFY(QFile::exists(ToolbarFileName2));
+    ToolbarFileName4 = QCoreApplication::applicationDirPath() + ToolbarFileName4;
+    QVERIFY(QFile::exists(ToolbarFileName4));
 }
 
 void Ut_MImToolbar::init()
@@ -198,7 +202,7 @@ void Ut_MImToolbar::testCopy()
     QVERIFY(spy.isValid());
 
     m_subject->showToolbarWidget(toolbarData);
-    //find button testbutton2, which click will copy
+    //find button testbutton1, which click will copy
     MButton *button = qobject_cast<MButton *>(find("testbutton1"));
     QVERIFY(button != 0);
     button->click();
@@ -321,6 +325,24 @@ void Ut_MImToolbar::testReactionMaps()
 
     // Check that all buttons are drawn with reactive color.
     QVERIFY(tester.testChildButtonReactiveAreas(MPlainWindow::instance(), m_subject));
+}
+
+void Ut_MImToolbar::testClose()
+{
+    QSignalSpy spy(m_subject, SIGNAL(closeKeyboardRequest()));
+    QVERIFY(spy.isValid());
+
+    toolbarData = QSharedPointer<MToolbarData>(new MToolbarData);
+    bool ok = toolbarData->loadNokiaToolbarXml(ToolbarFileName4);
+    QVERIFY(ok);
+
+    m_subject->showToolbarWidget(toolbarData);
+    MToolbarButton *button = qobject_cast<MToolbarButton *>(find("testbutton"));
+    QVERIFY(button != 0);
+
+    button->click();
+    QVERIFY(spy.count() == 1);
+    QVERIFY(spy.first().isEmpty());
 }
 
 MWidget* Ut_MImToolbar::find(const QString &name)
