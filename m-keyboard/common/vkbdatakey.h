@@ -45,6 +45,7 @@ public:
         ActionPlusMinusToggle,
         ActionTab,
         ActionCommit,
+        ActionSwitch,
         NumActions
     };
 

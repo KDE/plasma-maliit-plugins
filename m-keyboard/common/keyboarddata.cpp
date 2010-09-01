@@ -92,6 +92,7 @@ namespace
     const QString ActionStrPlusMinusToggle   = QString("plus_minus_toggle");
     const QString ActionStrTab               = QString("tab");
     const QString ActionStrCommit            = QString("commit");
+    const QString ActionStrSwitch            = QString("switch");
 
     const QString VKBTagImport               = QString("import");
     const QString VKBTagFile                 = QString("file");
@@ -549,6 +550,8 @@ KeyBinding::KeyAction KeyboardData::keyActionFromString(const QString &typeStr)
         result = KeyBinding::ActionTab;
     else if (typeStr == ActionStrCommit)
         result = KeyBinding::ActionCommit;
+    else if (typeStr == ActionStrSwitch)
+        result = KeyBinding::ActionSwitch;
     else
         result = KeyBinding::ActionInsert;
     return result;

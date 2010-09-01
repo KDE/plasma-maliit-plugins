@@ -128,6 +128,7 @@ void FlickUpButton::updateButtonObjectName()
         objectName = ObjectNameReturn;
         break;
 
+    case KeyBinding::ActionSwitch:
     case KeyBinding::ActionTab:
     case KeyBinding::ActionCommit:
     case KeyBinding::ActionCycle:

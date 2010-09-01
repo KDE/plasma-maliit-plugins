@@ -94,6 +94,9 @@ KeyEvent KeyBinding::toKeyEventImpl(QKeyEvent::Type eventType,
     case ActionCommit:
         specialKey = KeyEvent::Commit;
         break;
+    case ActionSwitch:
+        specialKey = KeyEvent::Switch;
+        break;
     case NumActions:
         Q_ASSERT(false);
     }

@@ -35,6 +35,7 @@ public:
         CycleSet,
         Sym,
         Commit,
+        Switch,
         NumSpecialKeys
     };
 

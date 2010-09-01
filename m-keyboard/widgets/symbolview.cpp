@@ -574,6 +574,15 @@ void SymbolView::switchToPrevPage()
 }
 
 
+void SymbolView::switchPage()
+{
+    if (pageSwitcher->count() <= 1)
+        return;
+    int nextPageIndex = (activePage + 1)% pageSwitcher->count();
+    changePage(nextPageIndex);
+}
+
+
 void SymbolView::onReady()
 {
     emit regionUpdated(interactiveRegion());
