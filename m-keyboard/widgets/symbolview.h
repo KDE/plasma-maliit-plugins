@@ -140,14 +140,6 @@ public slots:
      */
     void switchToPrevPage();
 
-    /*!
-     * \brief Selects the next page if current is not the only page.
-     *
-     * If current page is rightmost, then goes to the leftmost page.
-     * Same rule for the leftmost page.
-     */
-    void switchPage();
-
     //! \brief Clears and redraws the global reaction maps.
     void redrawReactionMaps();
 
@@ -195,13 +187,10 @@ protected:
     /*! \reimp_end */
 
 private slots:
-    //! changes to given page
-    void changePage(int);
-
     void onReady();
     void onHidden();
     void onSwitchStarting(QGraphicsWidget *current, QGraphicsWidget *next);
-    void switchDone();
+    void onSwitchDone();
 
     //! When hardware keyboard layout has changed, reload contents if currently in Hardware state.
     void handleHwLayoutChange();

@@ -385,25 +385,6 @@ SymbolView::hideSymbolView(SymbolView::HideMode mode)
 
 }
 
-void
-SymbolView::changePage(int id)
-{
-    if ((id == activePage) && isActive())
-        return;
-
-    // symbolView is down, show it
-    if (id == 0 && !isActive()) {
-        activePage = 0;
-        pageSwitcher->setCurrent(0);
-        showSymbolView();
-    } else {
-        pageSwitcher->switchTo(id < activePage ? HorizontalSwitcher::Left
-                                               : HorizontalSwitcher::Right);
-        activePage = id;
-    }
-
-    updateSymIndicator();
-}
 
 void SymbolView::loadSwitcherPages(const LayoutData *kbLayout, const unsigned int selectPage)
 {
@@ -420,11 +401,12 @@ void SymbolView::loadSwitcherPages(const LayoutData *kbLayout, const unsigned in
     }
 
     pageSwitcher = new HorizontalSwitcher(this);
+    pageSwitcher->setLooping(true);
 
     connect(pageSwitcher, SIGNAL(switchStarting(QGraphicsWidget *, QGraphicsWidget *)),
             this,         SLOT(onSwitchStarting(QGraphicsWidget *, QGraphicsWidget *)));
-    connect(pageSwitcher, SIGNAL(switchDone(QGraphicsWidget *, QGraphicsWidget *)),
-            this,         SLOT(switchDone()));
+    connect(pageSwitcher, SIGNAL(onSwitchDone(QGraphicsWidget *, QGraphicsWidget *)),
+            this,         SLOT(onSwitchDone()));
 
     LayoutData::SharedLayoutSection symbolSection;
 
@@ -598,7 +580,7 @@ void SymbolView::onSwitchStarting(QGraphicsWidget *current, QGraphicsWidget *nex
     }
 }
 
-void SymbolView::switchDone()
+void SymbolView::onSwitchDone()
 {
     // Don't reset reactive areas if, for some reason, switch is finished
     // after we've been hidden.

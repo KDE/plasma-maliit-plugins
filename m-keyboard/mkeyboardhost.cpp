@@ -900,7 +900,7 @@ void MKeyboardHost::handleGeneralKeyClick(const KeyEvent &event)
         handleSymbolKeyClick();
     } else if (event.specialKey() == KeyEvent::Switch) {
         if (symbolView->isActive()) {
-            symbolView->switchPage();
+            symbolView->switchToNextPage();
         }
     }
 }
