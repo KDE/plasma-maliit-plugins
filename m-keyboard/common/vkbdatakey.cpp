@@ -115,9 +115,9 @@ KeyEvent KeyBinding::toKeyEvent(QKeyEvent::Type eventType, QChar accent, Qt::Key
 }
 
 
-VKBDataKey::VKBDataKey(VKBDataKey::StyleType style, VKBDataKey::SizeType sizeType, bool isFixed, bool isRtl)
+VKBDataKey::VKBDataKey(VKBDataKey::StyleType style, VKBDataKey::WidthType widthType, bool isFixed, bool isRtl)
     : mStyle(style),
-      mSizeType(sizeType),
+      mWidthType(widthType),
       isFixed(isFixed),
       isRtl(isRtl)
 {
@@ -149,37 +149,37 @@ VKBDataKey::StyleType VKBDataKey::style() const
     return mStyle;
 }
 
-VKBDataKey::SizeType VKBDataKey::sizeType() const
+VKBDataKey::WidthType VKBDataKey::width() const
 {
-    return mSizeType;
+    return mWidthType;
 }
 
-QSizeF VKBDataKey::normalizedSize(const MVirtualKeyboardStyleContainer &styleContainer)
+qreal VKBDataKey::normalizedWidth(const MVirtualKeyboardStyleContainer &styleContainer)
 {
-    switch(mSizeType) {
+    switch(mWidthType) {
     case Small:
-        return styleContainer->keySizeSmall();
+        return styleContainer->keyWidthSmall();
 
     case Medium:
     case Stretched:
-        return styleContainer->keySizeMedium();
+        return styleContainer->keyWidthMedium();
 
     case Large:
-        return styleContainer->keySizeLarge();
+        return styleContainer->keyWidthLarge();
 
     case XLarge:
-        return styleContainer->keySizeXLarge();
+        return styleContainer->keyWidthXLarge();
 
     case XxLarge:
-        return styleContainer->keySizeXxLarge();
+        return styleContainer->keyWidthXxLarge();
     }
 
     qWarning() << __PRETTY_FUNCTION__
-               << "Could not compute normalized size from style";
-    return QSizeF();
+               << "Could not compute normalized width from style";
+    return 0;
 }
 
-bool VKBDataKey::fixedSize() const
+bool VKBDataKey::isFixedWidth() const
 {
     return isFixed;
 }

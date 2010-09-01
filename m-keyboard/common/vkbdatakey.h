@@ -145,29 +145,29 @@ class VKBDataKey
 public:
     //! Style Type
     enum StyleType {
-        NormalStyle,             // Style for normal keys(character key)
-        SpecialStyle,            // Style for special keys(like return, shift, etc.)
-        DeadkeyStyle             // Style for deadkeys
+        NormalStyle,   //!< Key uses normal style (character key)
+        SpecialStyle,  //!< Key uses special style (return, shift, etc.)
+        DeadkeyStyle   //!< Key uses deadkey style
     };
 
-    //! Size type
-    enum SizeType {
-        Small,
-        Medium,
-        Large,
-        XLarge,
-        XxLarge,
-        Stretched
+    //! Width type
+    enum WidthType {
+        Small,         //!< Key uses small width
+        Medium,        //!< Key uses medium width
+        Large,         //!< Key uses large width
+        XLarge,        //!< Key uses extra large width
+        XxLarge,       //!< Key uses extra-extra large keys
+        Stretched      //!< Key consumes remaining width
     };
 
     /*
      * \brief Constructs new object
      * \param type The style type for button.
-     * \param sizeType The size type for the button.
-     * \param isFixed Contains true if button should use fixed size type.
+     * \param widthType The width type for the button.
+     * \param isFixed Contains true if button should use fixed width type.
      * \param isRtl Contains true if button should use RTL icon.
      */
-    explicit VKBDataKey(StyleType type = NormalStyle, SizeType sizeType = Medium,
+    explicit VKBDataKey(StyleType type = NormalStyle, WidthType widthType = Medium,
                         bool isFixed = false, bool isRtl = false);
 
     ~VKBDataKey();
@@ -193,15 +193,15 @@ public:
     //! Returns the style type.
     StyleType style() const;
 
-    //! Returns the size type.
-    SizeType sizeType() const;
+    //! Returns the width type.
+    WidthType width() const;
 
-    //! Returns normalized size
+    //! Returns normalized width ratio
     // Not const, because M_STYLE_ATTRIBUTE-generated getters are not const, for whatever reason ...
-    QSizeF normalizedSize(const MVirtualKeyboardStyleContainer &styleContainer);
+    qreal normalizedWidth(const MVirtualKeyboardStyleContainer &styleContainer);
 
-    //! Returns true if button uses fixed size type.
-    bool fixedSize() const;
+    //! Returns true if button uses fixed width type.
+    bool isFixedWidth() const;
 
     //! Returns true if button uses RTL icon.
     bool rtl() const;
@@ -219,9 +219,9 @@ private:
 
     StyleType mStyle;
 
-    SizeType mSizeType;
+    WidthType mWidthType;
 
-    //! Contains true if button uses fixed size.
+    //! Contains true if button uses fixed width.
     bool isFixed;
 
     //! Contains true if button uses RTL icon.

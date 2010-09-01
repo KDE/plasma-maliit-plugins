@@ -60,25 +60,35 @@ public:
     M_STYLE_ATTRIBUTE(int, flickGestureTimeout, FlickGestureTimeout)
     M_STYLE_ATTRIBUTE(qreal, flickGestureThresholdRatio, FlickGestureThresholdRatio)
 
-    M_STYLE_ATTRIBUTE(QSize, keyNormalSize, KeyNormalSize)
+    M_STYLE_ATTRIBUTE(int, keyHeight, keyHeight)
 
-    M_STYLE_ATTRIBUTE(QSizeF, keySizeSmall, KeySizeSmall)
-    M_STYLE_ATTRIBUTE(QSize,  keySizeSmallFixed, KeySizeSmallFixed)
+    M_STYLE_ATTRIBUTE(qreal, keyWidthSmall, KeyWidthSmall)
+    M_STYLE_ATTRIBUTE(int,  keyWidthSmallFixed, KeyWidthSmallFixed)
 
-    M_STYLE_ATTRIBUTE(QSizeF, keySizeMedium, KeySizeMedium)
-    M_STYLE_ATTRIBUTE(QSize,  keySizeMediumFixed, KeySizeMediumFixed)
+    M_STYLE_ATTRIBUTE(qreal, keyWidthMedium, KeyWidthMedium)
+    M_STYLE_ATTRIBUTE(int,  keyWidthMediumFixed, KeyWidthMediumFixed)
 
-    M_STYLE_ATTRIBUTE(QSizeF, keySizeLarge,  KeySizeLarge)
-    M_STYLE_ATTRIBUTE(QSize,  keySizeLargeFixed,  KeySizeLargeFixed)
+    M_STYLE_ATTRIBUTE(qreal, keyWidthLarge,  KeyWidthLarge)
+    M_STYLE_ATTRIBUTE(int,  keyWidthLargeFixed,  KeyWidthLargeFixed)
 
-    M_STYLE_ATTRIBUTE(QSizeF, keySizeXLarge, KeySizeXLarge)
-    M_STYLE_ATTRIBUTE(QSize,  keySizeXLargeFixed, KeySizeXLargeFixed)
+    M_STYLE_ATTRIBUTE(qreal, keyWidthXLarge, KeyWidthXLarge)
+    M_STYLE_ATTRIBUTE(int,  keyWidthXLargeFixed, KeyWidthXLargeFixed)
 
-    M_STYLE_ATTRIBUTE(QSizeF, keySizeXxLarge, KeySizeXxLarge)
-    M_STYLE_ATTRIBUTE(QSize,  keySizeXxLargeFixed, KeySizeXxLargeFixed)
+    M_STYLE_ATTRIBUTE(qreal, keyWidthXxLarge, KeyWidthXxLarge)
+    M_STYLE_ATTRIBUTE(int,  keyWidthXxLargeFixed, KeyWidthXxLargeFixed)
 
-    M_STYLE_ATTRIBUTE(QSizeF, keySizeStretched, KeySizeStretched)
-    M_STYLE_ATTRIBUTE(QSize,  keySizeStretchedFixed, KeySizeStretchedFixed)
+    M_STYLE_ATTRIBUTE(qreal, keyWidthStretched, KeyWidthStretched)
+    M_STYLE_ATTRIBUTE(int,  keyWidthStretchedFixed, KeyWidthStretchedFixed)
+
+    M_STYLE_ATTRIBUTE(qreal, rowHeightSmall, RowHeightSmall)
+
+    M_STYLE_ATTRIBUTE(qreal, rowHeightMedium, RowHeightMedium)
+
+    M_STYLE_ATTRIBUTE(qreal, rowHeightLarge,  RowHeightLarge)
+
+    M_STYLE_ATTRIBUTE(qreal, rowHeightXLarge, RowHeightXLarge)
+
+    M_STYLE_ATTRIBUTE(qreal, rowHeightXxLarge, RowHeightXxLarge)
 
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackground, KeyBackground)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundPressed, KeyBackgroundPressed)

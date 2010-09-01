@@ -134,11 +134,11 @@ void SingleWidgetButtonArea::loadKeys()
             }
 
             const int vSpacing = style()->spacingVertical();
-            rowHeight = qMax(rowHeight - vSpacing, style()->keyNormalSize().height() + vSpacing);
+            rowHeight = qMax(rowHeight - vSpacing, style()->keyHeight() + vSpacing);
 
             // Only one stretching item per row.
             if (!rowIter->stretchButton) {
-                rowIter->stretchButton = (dataKey->sizeType() == VKBDataKey::Stretched ? button : 0);
+                rowIter->stretchButton = (dataKey->width() == VKBDataKey::Stretched ? button : 0);
             }
 
             rowIter->buttons.append(button);

@@ -146,7 +146,7 @@ private:
 
     static VKBDataKey::StyleType toStyleType(const QString &attributeValue);
 
-    static VKBDataKey::SizeType toSizeType(const QString &attributeValue);
+    static VKBDataKey::WidthType toWidthType(const QString &attributeValue);
 
     static bool toBoolean(const QString &attributeValue);
 

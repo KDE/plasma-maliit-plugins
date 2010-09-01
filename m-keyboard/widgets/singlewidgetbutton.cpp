@@ -26,9 +26,9 @@
 #include <QPainter>
 
 namespace {
-    qreal computeWidth(qreal unit, qreal spacing, const QSizeF &scalingSize)
+    qreal computeWidth(qreal unit, qreal spacing, const qreal newScaling)
     {
-        const qreal scaling = qMax<qreal>(0.0, scalingSize.width());
+        const qreal scaling = qMax<qreal>(0.0, newScaling);
         return ((scaling * unit) + (qMax<qreal>(0.0, scaling - 1) * spacing));
     }
 }
@@ -175,25 +175,25 @@ void SingleWidgetButton::update()
 
 int SingleWidgetButton::preferredFixedWidth() const
 {
-    switch(dataKey.sizeType()) {
+    switch(dataKey.width()) {
     case VKBDataKey::Small:
-        return styleContainer->keySizeSmallFixed().width();
+        return styleContainer->keyWidthSmallFixed();
 
     case VKBDataKey::Medium:
-        return styleContainer->keySizeMediumFixed().width();
+        return styleContainer->keyWidthMediumFixed();
 
     case VKBDataKey::Large:
-        return styleContainer->keySizeLargeFixed().width();
+        return styleContainer->keyWidthLargeFixed();
 
     case VKBDataKey::XLarge:
-        return styleContainer->keySizeXLargeFixed().width();
+        return styleContainer->keyWidthXLargeFixed();
 
     case VKBDataKey::XxLarge:
-        return styleContainer->keySizeXxLargeFixed().width();
+        return styleContainer->keyWidthXxLargeFixed();
 
     // This one of course makes no real sense:
     case VKBDataKey::Stretched:
-        return styleContainer->keySizeStretchedFixed().width();
+        return styleContainer->keyWidthStretchedFixed();
     }
 
     qWarning() << __PRETTY_FUNCTION__
@@ -203,36 +203,36 @@ int SingleWidgetButton::preferredFixedWidth() const
 
 qreal SingleWidgetButton::preferredWidth(qreal pixelPerSizeUnit, qreal spacing) const
 {
-    switch(dataKey.sizeType()) {
+    switch(dataKey.width()) {
     case VKBDataKey::Small:
         return computeWidth(pixelPerSizeUnit,
                             spacing,
-                            styleContainer->keySizeSmall());
+                            styleContainer->keyWidthSmall());
 
     case VKBDataKey::Medium:
         return computeWidth(pixelPerSizeUnit,
                             spacing,
-                            styleContainer->keySizeMedium());
+                            styleContainer->keyWidthMedium());
 
     case VKBDataKey::Large:
         return computeWidth(pixelPerSizeUnit,
                             spacing,
-                            styleContainer->keySizeLarge());
+                            styleContainer->keyWidthLarge());
 
     case VKBDataKey::XLarge:
         return computeWidth(pixelPerSizeUnit,
                             spacing,
-                            styleContainer->keySizeXLarge());
+                            styleContainer->keyWidthXLarge());
 
     case VKBDataKey::XxLarge:
         return computeWidth(pixelPerSizeUnit,
                             spacing,
-                            styleContainer->keySizeXxLarge());
+                            styleContainer->keyWidthXxLarge());
 
     case VKBDataKey::Stretched:
         return computeWidth(pixelPerSizeUnit,
                             spacing,
-                            styleContainer->keySizeStretched());
+                            styleContainer->keyWidthStretched());
     }
 
     qWarning() << __PRETTY_FUNCTION__

@@ -102,10 +102,12 @@ namespace
 
     const QString StyleString                = QString("style");
     const QString StyleStringDefValue        = QString("normal");
-    const QString SizeTypeString             = QString("size");
-    const QString SizeTypeStringDefValue     = QString("medium");
+    const QString WidthTypeString            = QString("width");
+    const QString WidthTypeStringDefValue    = QString("medium");
     const QString FixedString                = QString("fixed");
     const QString FixedStringDefValue        = QString("false");
+    const QString HeightTypeString           = QString("height");
+    const QString HeightTypeStringDefValue   = QString("medium");
 
 }
 
@@ -171,23 +173,23 @@ inline VKBDataKey::StyleType KeyboardData::toStyleType(const QString &attributeV
     return type;
 }
 
-inline VKBDataKey::SizeType KeyboardData::toSizeType(const QString &attributeValue)
+inline VKBDataKey::WidthType KeyboardData::toWidthType(const QString &attributeValue)
 {
-    VKBDataKey::SizeType sizeType = VKBDataKey::Medium;
+    VKBDataKey::WidthType widthType = VKBDataKey::Medium;
 
     if (attributeValue == "small") {
-        sizeType = VKBDataKey::Small;
+        widthType = VKBDataKey::Small;
     } else  if (attributeValue == "large") {
-        sizeType = VKBDataKey::Large;
+        widthType = VKBDataKey::Large;
     } else  if (attributeValue == "x-large") {
-        sizeType = VKBDataKey::XLarge;
+        widthType = VKBDataKey::XLarge;
     } else  if (attributeValue == "xx-large") {
-        sizeType = VKBDataKey::XxLarge;
+        widthType = VKBDataKey::XxLarge;
     } else  if (attributeValue == "stretched") {
-        sizeType = VKBDataKey::Stretched;
+        widthType = VKBDataKey::Stretched;
     }
 
-    return sizeType;
+    return widthType;
 }
 
 inline bool KeyboardData::toBoolean(const QString &attributeValue)
@@ -491,16 +493,16 @@ void KeyboardData::parseTagBinding(const QDomElement &element, ParseParameters &
 void KeyboardData::parseTagKey(const QDomElement &element, ParseParameters &params)
 {
     VKBDataKey::StyleType type = toStyleType(element.attribute(StyleString, StyleStringDefValue));
-    VKBDataKey::SizeType sizeType = toSizeType(element.attribute(SizeTypeString, SizeTypeStringDefValue));
+    VKBDataKey::WidthType widthType = toWidthType(element.attribute(WidthTypeString, WidthTypeStringDefValue));
     const bool isRtl = toBoolean(element.attribute(RtlString, RtlStringDefValue));
     const bool isFixed = toBoolean(element.attribute(FixedString, FixedStringDefValue));
 
-    VKBDataKey *key = new VKBDataKey(type, sizeType, isFixed, isRtl);
+    VKBDataKey *key = new VKBDataKey(type, widthType, isFixed, isRtl);
     params.currentKey = key;
     params.currentRow->keys.append(key);
 
     if (styleContainer) {
-        params.currentRow->normalizedWidth += key->normalizedSize(*styleContainer).width();
+        params.currentRow->normalizedWidth += key->normalizedWidth(*styleContainer);
     }
 
     parseChildren(element, params, &VKBTagBinding, &KeyboardData::parseTagBinding);
