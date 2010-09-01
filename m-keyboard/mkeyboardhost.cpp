@@ -75,6 +75,7 @@ namespace
 MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *parent)
     : MInputMethodBase(icConnection, parent),
       vkbStyleContainer(0),
+      correctionCandidateWidget(0),
       vkbWidget(0),
       symbolView(0),
       inputMethodCorrectionSettings(new MGConfItem(InputMethodCorrectionSetting)),
