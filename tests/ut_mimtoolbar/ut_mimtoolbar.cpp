@@ -90,7 +90,7 @@ void Ut_MImToolbar::initTestCase()
     app = new MApplication(dummyArgc, dummyArgv);
 
     qRegisterMetaType<CopyPasteState>("CopyPasteState");
-    LayoutsManager::createInstance();
+    LayoutsManager::createInstance(0);
 
     new MPlainWindow; // Create singleton
 

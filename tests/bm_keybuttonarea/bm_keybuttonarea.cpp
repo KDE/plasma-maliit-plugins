@@ -92,7 +92,7 @@ void Bm_KeyButtonArea::benchmarkPreDraw()
     subject = new SingleWidgetButtonArea(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection));
 
     QBENCHMARK {
-        subject->updateButtonGeometries(864, -1); // given width does not affect speed of calculation
+        subject->updateButtonGeometriesForWidth(864);
         subject->updateButtonModifiers();
     }
 }

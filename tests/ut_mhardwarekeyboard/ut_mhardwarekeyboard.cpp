@@ -831,7 +831,7 @@ void Ut_MHardwareKeyboard::testSwitchLayout()
     MGConfItem secondaryVariantConfig(XkbSecondaryVariantSettingName);
     secondaryVariantConfig.set(QVariant(secondaryVariant));
 
-    LayoutsManager::createInstance();
+    LayoutsManager::createInstance(0);
     gSetXkbMapCallCount = 0;
     int switchCount = 0;
 

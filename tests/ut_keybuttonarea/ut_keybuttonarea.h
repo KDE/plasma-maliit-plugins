@@ -52,10 +52,7 @@ private slots:
     void testLabelPosition_data();
     void testLabelPosition();
     void testFlickCheck_data();
-// comment below test cases due to MCompositor bug: NB#182701 breaks us
-#if 0
     void testFlickCheck();
-#endif
     void testSceneEvent_data();
     void testSceneEvent();
     void testPaint_data();
@@ -71,8 +68,6 @@ private slots:
     void testPopup();
     void testInitialization_data();
     void testInitialization();
-    void testFunctionRowAlignmentBug_data();
-    void testFunctionRowAlignmentBug();
     void testShiftCapsLock();
     void testMultiTouch();
     void testRtlKeys_data();

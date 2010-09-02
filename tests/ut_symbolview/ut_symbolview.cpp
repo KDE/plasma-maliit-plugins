@@ -54,6 +54,7 @@ namespace
 } // namespace
 
 Q_DECLARE_METATYPE(QList<QPoint>)
+Q_DECLARE_METATYPE(HorizontalSwitcher::SwitchDirection)
 
 void Ut_SymbolView::initTestCase()
 {
@@ -79,13 +80,13 @@ void Ut_SymbolView::initTestCase()
     MGConfItem defaultLanguageSetting(DefaultLanguageSettingName);
     defaultLanguageSetting.set(QVariant(DefaultLanguage));
 
-    LayoutsManager::createInstance();
+    LayoutsManager::createInstance(style);
 
     qRegisterMetaType<KeyEvent>("KeyEvent");
 
     new MPlainWindow;
 
-    if ((*style)->keySymNormalSize().width() < 70) {
+    if ((*style)->keyHeight() < 70) {
         QSKIP("This test is sipped due to incorrect value received from CSS", SkipAll);
     }
 }
@@ -260,31 +261,32 @@ void Ut_SymbolView::testChangeToOpenMode()
 void Ut_SymbolView::testChangeTab_data()
 {
     QTest::addColumn<int>("initialTabIndex");
-    QTest::addColumn<int>("selectedTab");
+    QTest::addColumn<HorizontalSwitcher::SwitchDirection>("direction");
     QTest::addColumn<int>("finalTabIndex"); // expected
 
-    QTest::newRow("Same tab 1") << 0 << 0 << 0;
-    QTest::newRow("Same tab 2") << 1 << 1 << 1;
-    QTest::newRow("Next tab")   << 0 << 1 << 1;
-    QTest::newRow("Prev tab")   << 1 << 0 << 0;
+    QTest::newRow("Next tab")   << 0 << HorizontalSwitcher::Right << 1;
+    QTest::newRow("Prev tab")   << 1 << HorizontalSwitcher::Left << 0;
 }
 
 void Ut_SymbolView::testChangeTab()
 {
     QFETCH(int, initialTabIndex);
-    QFETCH(int, selectedTab);
+    QFETCH(HorizontalSwitcher::SwitchDirection, direction);
     QFETCH(int, finalTabIndex);
 
     subject->pageSwitcher->setDuration(0);
+    subject->pageSwitcher->setCurrent(initialTabIndex);
 
     QCOMPARE(subject->activePage, 0);
 
-    subject->changePage(initialTabIndex);
+    if (direction == HorizontalSwitcher::Right) {
+        subject->switchToNextPage();
+    } else {
+        subject->switchToPrevPage();
+    }
 
-    subject->changePage(selectedTab);
     QCOMPARE(subject->activePage, finalTabIndex);
 }
-
 
 void Ut_SymbolView::testHideWithFlick_data()
 {
@@ -323,14 +325,12 @@ void Ut_SymbolView::testHardwareState()
 {
     subject->setKeyboardState(OnScreen);
     QCOMPARE(subject->activeState, OnScreen);
-    QVERIFY(subject->functionRow != NULL);
 
     // Make sure were in landscape mode when in hardware state
     rotateToAngle(M::Angle0);
 
     subject->setKeyboardState(Hardware);
     QCOMPARE(subject->activeState, Hardware);
-    QVERIFY(subject->functionRow == NULL);
 }
 
 void Ut_SymbolView::rotateToAngle(M::OrientationAngle angle)

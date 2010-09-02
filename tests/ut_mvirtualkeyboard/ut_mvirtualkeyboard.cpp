@@ -104,10 +104,10 @@ void Ut_MVirtualKeyboard::initTestCase()
     // Adds scene window to scene.
     MPlainWindow::instance()->sceneManager()->appearSceneWindowNow(vkbParent);
 
-    LayoutsManager::createInstance();
-
     vkbStyleContainer = new MVirtualKeyboardStyleContainer;
     vkbStyleContainer->initialize("MVirtualKeyboard", "MVirtualKeyboardView", 0);
+
+    LayoutsManager::createInstance(vkbStyleContainer);
 }
 
 void Ut_MVirtualKeyboard::cleanupTestCase()
@@ -377,23 +377,22 @@ void Ut_MVirtualKeyboard::testShiftLevelChange_data()
     QTest::addColumn<ModifierState>("initialShiftState");
     QTest::addColumn<bool>("shiftPressed");
     QTest::addColumn<int>("expectedMainLayoutLevel");
-    QTest::addColumn<int>("expectedFunctionRowLevel");
 
     // No multi-touch.
-    QTest::newRow("shift cleared, not pressed") << false << ModifierClearState   << false << 0 << 0;
-    QTest::newRow("shift cleared, pressed")     << false << ModifierClearState   << true  << 0 << 0;
-    QTest::newRow("shift latched, not pressed") << false << ModifierLatchedState << false << 1 << 1;
-    QTest::newRow("shift latched, pressed")     << false << ModifierLatchedState << true  << 1 << 1;
-    QTest::newRow("shift locked, not pressed")  << false << ModifierLockedState  << false << 1 << 1;
-    QTest::newRow("shift locked, pressed")      << false << ModifierLockedState  << true  << 1 << 1;
+    QTest::newRow("shift cleared, not pressed") << false << ModifierClearState   << false << 0;
+    QTest::newRow("shift cleared, pressed")     << false << ModifierClearState   << true  << 0;
+    QTest::newRow("shift latched, not pressed") << false << ModifierLatchedState << false << 1;
+    QTest::newRow("shift latched, pressed")     << false << ModifierLatchedState << true  << 1;
+    QTest::newRow("shift locked, not pressed")  << false << ModifierLockedState  << false << 1;
+    QTest::newRow("shift locked, pressed")      << false << ModifierLockedState  << true  << 1;
 
     // Multi-touch enabled.
-    QTest::newRow("mt, shift cleared, not pressed") << true << ModifierClearState   << false << 0 << 0;
-    QTest::newRow("mt, shift cleared, pressed")     << true << ModifierClearState   << true  << 1 << 1;
-    QTest::newRow("mt, shift latched, not pressed") << true << ModifierLatchedState << false << 1 << 1;
-    QTest::newRow("mt, shift latched, pressed")     << true << ModifierLatchedState << true  << 1 << 1;
-    QTest::newRow("mt, shift locked, not pressed")  << true << ModifierLockedState  << false << 1 << 1;
-    QTest::newRow("mt, shift locked, pressed")      << true << ModifierLockedState  << true  << 1 << 1;
+    QTest::newRow("mt, shift cleared, not pressed") << true << ModifierClearState   << false << 0;
+    QTest::newRow("mt, shift cleared, pressed")     << true << ModifierClearState   << true  << 1;
+    QTest::newRow("mt, shift latched, not pressed") << true << ModifierLatchedState << false << 1;
+    QTest::newRow("mt, shift latched, pressed")     << true << ModifierLatchedState << true  << 1;
+    QTest::newRow("mt, shift locked, not pressed")  << true << ModifierLockedState  << false << 1;
+    QTest::newRow("mt, shift locked, pressed")      << true << ModifierLockedState  << true  << 1;
 }
 
 void Ut_MVirtualKeyboard::testShiftLevelChange()
@@ -402,10 +401,8 @@ void Ut_MVirtualKeyboard::testShiftLevelChange()
     QFETCH(ModifierState, initialShiftState);
     QFETCH(bool, shiftPressed);
     QFETCH(int, expectedMainLayoutLevel);
-    QFETCH(int, expectedFunctionRowLevel);
 
     KeyButtonArea *mainKbLayout = static_cast<KeyButtonArea *>(m_vkb->mainKeyboardSwitcher->currentWidget()->layout()->itemAt(0));
-    KeyButtonArea *functionRow = static_cast<KeyButtonArea *>(m_vkb->mainKeyboardSwitcher->currentWidget()->layout()->itemAt(1));
 
     // Enable or disable multi-touch.
     m_vkb->enableMultiTouch = enableMultiTouch;
@@ -415,7 +412,6 @@ void Ut_MVirtualKeyboard::testShiftLevelChange()
     QMetaObject::invokeMethod(&m_vkb->eventHandler, "shiftPressed", Q_ARG(bool, shiftPressed));
 
     QCOMPARE(mainKbLayout->level(), expectedMainLayoutLevel);
-    QCOMPARE(functionRow->level(), expectedFunctionRowLevel);
 }
 
 void Ut_MVirtualKeyboard::flickRightHandlerTest()
@@ -819,24 +815,24 @@ void Ut_MVirtualKeyboard::bug_137295()
 
 void Ut_MVirtualKeyboard::testSetKeyboardState()
 {
-    int top = 0;
+    qreal top = 0;
 
     m_vkb->setKeyboardState(Hardware);
     m_vkb->showKeyboard();
     QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
     top = m_vkb->geometry().top();
 
-    const int topInHardwareState(top);
+    const qreal topInHardwareState(top);
 
     //show whole keyboard
     m_vkb->setKeyboardState(OnScreen);
     top -= m_vkb->layout()->itemAt(MVirtualKeyboard::KeyboardIndex)->geometry().height()
         + m_vkb->layout()->itemAt(MVirtualKeyboard::KeyboardHandleIndex)->geometry().height();
-    QCOMPARE(top, int(m_vkb->geometry().top()));
+    QCOMPARE(qRound(top), qRound(m_vkb->geometry().top()));
 
     //show toolbar only
     m_vkb->setKeyboardState(Hardware);
-    QCOMPARE(topInHardwareState, int(m_vkb->geometry().top()));
+    QCOMPARE(qRound(topInHardwareState), qRound(m_vkb->geometry().top()));
 }
 
 void Ut_MVirtualKeyboard::testReactionMaps()
