@@ -62,32 +62,28 @@ private:
     //! \brief Builds QTextLayout representation of current button labels for faster drawing.
     void buildTextLayout();
 
+    qreal computeWidgetHeight() const;
+
 
     //! \brief Draws background.
     void drawKeyBackground(QPainter *painter, const SingleWidgetButton *button);
 
     struct ButtonRow {
-        ButtonRow()
-            : offset(0)
-            , cachedWidth(0)
-        {}
-
         QList<SingleWidgetButton*> buttons;
+        QVector<QPair<qreal, qreal> > buttonOffsets;
 
         //! each row can have one stretch button
         SingleWidgetButton *stretchButton;
-
-        // offset + cachedWidth are stored for reaction map:
-        int offset;
-        int cachedWidth; // includes left & right margin
     };
 
     typedef QVector<ButtonRow> ButtonRowList;
     typedef ButtonRowList::iterator RowIterator;
     typedef ButtonRowList::const_iterator ConstRowIterator;
 
-    int rowHeight; //! constant row height, includes margins
     ButtonRowList rowList;
+    const qreal widgetHeight;
+
+    QVector<QPair<int, int> > rowOffsets;
 
     //! Shift button is stored here if current layout has a shift button.
     SingleWidgetButton *shiftButton;

@@ -35,26 +35,28 @@
 #include <MTheme>
 
 namespace {
-    SingleWidgetButton * binaryButtonFind(int x,
-                                          const QList<SingleWidgetButton *> &buttons)
+    template<class T>
+    int binaryRangeFind(T value,
+                        const QVector<QPair<T, T> > &offsets)
     {
         int lowerBound = 0;
-        int upperBound = buttons.size() - 1;
+        int upperBound = offsets.size() - 1;
 
         while (lowerBound <= upperBound) {
             const int pivot = (lowerBound + upperBound) / 2;
-            SingleWidgetButton *current = buttons.at(pivot);
+            const QPair<T, T> &current = offsets.at(pivot);
 
-            if (x < current->buttonBoundingRect().topLeft().x()) {
+            if (value < current.first) {
                 upperBound = pivot - 1;
-            } else if (x > current->buttonBoundingRect().topRight().x()) {
+            } else if (value > current.second) {
                 lowerBound = pivot + 1;
             } else {
-                return current;
+                return pivot;
             }
         }
 
-        return 0;
+        // not found:
+        return -1;
     }
 }
 
@@ -63,8 +65,8 @@ SingleWidgetButtonArea::SingleWidgetButtonArea(const MVirtualKeyboardStyleContai
                                                bool usePopup,
                                                QGraphicsWidget *parent)
     : KeyButtonArea(style, sectionModel, usePopup, parent),
-      rowHeight(0),
       rowList(sectionModel->rowCount()),
+      widgetHeight(computeWidgetHeight()),
       shiftButton(0),
       textDirty(false),
       equalWidthButtons(true)
@@ -87,8 +89,6 @@ SingleWidgetButtonArea::~SingleWidgetButtonArea()
 
 QSizeF SingleWidgetButtonArea::sizeHint(Qt::SizeHint which, const QSizeF &/*constraint*/) const
 {
-    const int widgetHeight = rowList.count() * rowHeight - style()->spacingVertical();
-
     int width = 0;
     if (which == Qt::MaximumSize) {
         // We're willing to grow as much as we can. Some parent widget
@@ -103,10 +103,10 @@ void SingleWidgetButtonArea::drawReactiveAreas(MReactionMap *reactionMap, QGraph
     reactionMap->setTransform(this, view);
     reactionMap->setReactiveDrawingValue();
 
-    int y = -style()->spacingVertical() / 2;
-    for (RowIterator row(rowList.begin()); row != rowList.end(); ++row) {
-        reactionMap->fillRectangle(row->offset, y, row->cachedWidth, rowHeight);
-        y += rowHeight;
+    foreach (const ButtonRow &row, rowList) {
+        foreach (const SingleWidgetButton *const button, row.buttons) {
+            reactionMap->fillRectangle(button->buttonBoundingRect());
+        }
     }
 }
 
@@ -119,7 +119,6 @@ void SingleWidgetButtonArea::loadKeys()
     for (int row = 0; row != numRows; ++row, ++rowIter) {
         const int numColumns = sectionModel()->columnsAt(row);
 
-        rowIter->offset = 0;
         rowIter->stretchButton = 0;
 
         // Add buttons
@@ -132,9 +131,6 @@ void SingleWidgetButtonArea::loadKeys()
             if (dataKey->binding()->action() == KeyBinding::ActionShift) {
                 shiftButton = button;
             }
-
-            const int vSpacing = style()->spacingVertical();
-            rowHeight = qMax(rowHeight - vSpacing, style()->keyHeight() + vSpacing);
 
             // Only one stretching item per row.
             if (!rowIter->stretchButton) {
@@ -278,6 +274,18 @@ endLayout:
     textLayout.endLayout();
 }
 
+qreal SingleWidgetButtonArea::computeWidgetHeight() const
+{
+    qreal height = -(style()->spacingVertical());
+
+    for (int index = 0; index < rowList.count(); ++index) {
+        height += sectionModel()->preferredRowHeight(index, style());
+        height += style()->spacingVertical();
+    }
+
+    return qMax<qreal>(0.0, height);
+}
+
 void SingleWidgetButtonArea::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
     // Draw images first.
@@ -372,20 +380,25 @@ void SingleWidgetButtonArea::drawKeyBackground(QPainter *painter,
 IKeyButton *SingleWidgetButtonArea::keyAt(const QPoint &pos) const
 {
     const int numRows = rowList.count();
-    const int halfVSpacing = style()->spacingVertical() / 2;
-    const int translatedY = pos.y() + halfVSpacing;
 
-    if (numRows == 0 || translatedY < 0) {
+    if (numRows == 0) {
         return 0;
     }
 
-    const int rowIndex = (numRows > 1) ? (translatedY / rowHeight) : 0;
+    const int rowIndex = binaryRangeFind<int>(pos.y(), rowOffsets);
 
-    if (rowIndex >= numRows) {
+    if (rowIndex == -1) {
         return 0;
     }
 
-    return binaryButtonFind(pos.x(), rowList[rowIndex].buttons);
+    const ButtonRow &currentRow = rowList.at(rowIndex);
+    const int buttonIndex = binaryRangeFind<qreal>(pos.x(), currentRow.buttonOffsets);
+
+    if (buttonIndex == -1) {
+        return 0;
+    }
+
+    return currentRow.buttons.at(buttonIndex);
 }
 
 void SingleWidgetButtonArea::setShiftState(ModifierState newShiftState)
@@ -409,6 +422,7 @@ void SingleWidgetButtonArea::modifiersChanged(const bool shift, const QChar acce
     }
 
     textDirty = true;
+
 }
 
 void SingleWidgetButtonArea::updateButtonGeometriesForWidth(const int newAvailableWidth)
@@ -416,6 +430,8 @@ void SingleWidgetButtonArea::updateButtonGeometriesForWidth(const int newAvailab
     if (sectionModel()->maxColumns() == 0) {
         return;
     }
+
+    rowOffsets.clear();
 
     const qreal HorizontalSpacing = style()->spacingHorizontal();
     const qreal VerticalSpacing = style()->spacingVertical();
@@ -436,9 +452,20 @@ void SingleWidgetButtonArea::updateButtonGeometriesForWidth(const int newAvailab
     const qreal bottomMargin = VerticalSpacing - topMargin;
 
     QRectF br; // button bounding rectangle
-    br.setHeight(rowHeight); // Constant height
 
     for (RowIterator row(rowList.begin()); row != rowList.end(); ++row) {
+        const qreal rowHeight = sectionModel()->preferredRowHeight(row - rowList.begin(), style());
+        br.setHeight(rowHeight + style()->spacingVertical());
+
+        row->buttonOffsets.clear();
+
+        // Store the row offsets for fast key lookup:
+        const int lastRowOffset = (rowOffsets.isEmpty()) ? -(style()->spacingVertical() / 2)
+                                                         : rowOffsets.at(rowOffsets.count() - 1).second;
+
+        rowOffsets.append(QPair<int, int>(lastRowOffset,
+                                          lastRowOffset + static_cast<int>(br.height() + 0.5)));
+
         // Update row width
         qreal rowWidth = 0;
         foreach (SingleWidgetButton *button, row->buttons) {
@@ -447,7 +474,7 @@ void SingleWidgetButtonArea::updateButtonGeometriesForWidth(const int newAvailab
         }
         rowWidth -= HorizontalSpacing;
 
-        if (availableWidth < rowWidth) {
+        if (availableWidth < rowWidth + 0.5) {
             // TODO: Find out the root cause, and fix it!
             qWarning() << __PRETTY_FUNCTION__
                        << "Using more width (" << rowWidth
@@ -479,23 +506,23 @@ void SingleWidgetButtonArea::updateButtonGeometriesForWidth(const int newAvailab
             }
         }
 
-        // Save row width for easier use.
-        row->cachedWidth = rowWidth + HorizontalSpacing;
-        qreal x = spacerIndices.count(-1) * availableWidthForSpacers;
-        row->offset = static_cast<int>(x);
-
         // We can precalculate button rectangles.
         br.moveTop(y - topMargin);
+        qreal x = spacerIndices.count(-1) * availableWidthForSpacers;
 
         for (int buttonIndex = 0; buttonIndex < row->buttons.count(); ++buttonIndex) {
             SingleWidgetButton *button = row->buttons.at(buttonIndex);
 
-            br.moveLeft(x);
-            br.setWidth(button->width);
+            br.moveLeft(x - leftMargin);
+            br.setWidth(button->width + leftMargin + rightMargin);
 
-            // save it
-            button->cachedBoundingRect = br;
+            // save it (but cover up for rounding errors, ie, extra spacing pixels):
+            button->cachedBoundingRect = br.adjusted(-1, 0, 1, 0);
             button->cachedButtonRect = br.adjusted(leftMargin, topMargin, -rightMargin, -bottomMargin);
+
+            // Store the button offsets for fast key lookup:
+            row->buttonOffsets.append(QPair<qreal, qreal>(button->cachedBoundingRect.left(),
+                                                          button->cachedBoundingRect.right()));
 
             // Increase x to the next button bounding rect border.
             x += button->width + HorizontalSpacing;
@@ -505,7 +532,7 @@ void SingleWidgetButtonArea::updateButtonGeometriesForWidth(const int newAvailab
             x += spacerIndices.count(buttonIndex) * availableWidthForSpacers;
         }
 
-        y += rowHeight;
+        y += br.height();
     }
 
     // Positions may have changed, rebuild text layout.
@@ -515,8 +542,10 @@ void SingleWidgetButtonArea::updateButtonGeometriesForWidth(const int newAvailab
 QRectF SingleWidgetButtonArea::boundingRect() const
 {
     // Extend the bounding rectangle to all directions by the amount of spacing.
-    return QRectF(-QPoint(style()->spacingHorizontal() / 2, style()->spacingVertical() / 2),
-                  size() + QSizeF(style()->spacingHorizontal(), style()->spacingVertical()));
+    // FIXME: Currently, spacingHorizontal works like a button *padding*, hence
+    // we need to 2x it to get the *intended* spacing:
+    return QRectF(-QPoint(style()->spacingHorizontal(), style()->spacingVertical() / 2),
+                  size() + QSizeF(style()->spacingHorizontal() * 2, style()->spacingVertical()));
 }
 
 void SingleWidgetButtonArea::onThemeChangeCompleted()

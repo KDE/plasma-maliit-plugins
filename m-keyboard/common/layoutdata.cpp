@@ -151,10 +151,40 @@ VKBDataKey *LayoutSection::vkbKey(int row, int column) const
                                        : rows[row]->keys[column]);
 }
 
-LayoutSection::RowHeightType LayoutSection::rowHeight(int row) const
+qreal LayoutSection::preferredRowHeight(int row, const MVirtualKeyboardStyleContainer &styleContainer) const
 {
-    return (isInvalidRow(row) ? rows[row]->heightType
-                              : LayoutSection::Medium);
+    const qreal normalHeight = styleContainer->keyHeight();
+
+    switch (rowHeightType(row)) {
+
+    case Small:
+        return normalHeight * styleContainer->rowHeightSmall();
+        break;
+
+    case Medium:
+        return normalHeight * styleContainer->rowHeightMedium();
+        break;
+
+    case Large:
+        return normalHeight * styleContainer->rowHeightLarge();
+        break;
+
+    case XLarge:
+        return normalHeight * styleContainer->rowHeightXLarge();
+        break;
+
+    case XxLarge:
+        return normalHeight * styleContainer->rowHeightXxLarge();
+        break;
+    }
+
+    return 0.0;
+}
+
+LayoutSection::RowHeightType LayoutSection::rowHeightType(int row) const
+{
+    return (isInvalidRow(row) ? LayoutSection::Medium
+                              : rows[row]->heightType);
 }
 
 bool LayoutSection::isInvalidRow(int row) const

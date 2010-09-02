@@ -79,12 +79,12 @@ const QString SingleWidgetButton::secondaryLabel() const
     return binding().secondaryLabel();
 }
 
-QRectF SingleWidgetButton::buttonRect() const
+const QRectF &SingleWidgetButton::buttonRect() const
 {
     return cachedButtonRect;
 }
 
-QRectF SingleWidgetButton::buttonBoundingRect() const
+const QRectF &SingleWidgetButton::buttonBoundingRect() const
 {
     return cachedBoundingRect;
 }

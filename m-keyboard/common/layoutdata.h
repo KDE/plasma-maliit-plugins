@@ -19,6 +19,8 @@
 #ifndef LAYOUTDATA_H
 #define LAYOUTDATA_H
 
+#include "mvirtualkeyboardstyle.h"
+
 #include <MNamespace>
 #include <QHash>
 #include <QList>
@@ -101,10 +103,13 @@ public:
      */
     VKBDataKey *vkbKey(int row, int column) const;
 
-    //! \brief Return the row height for given row.
-    LayoutSection::RowHeightType rowHeight(int row) const;
+    //! \brief Return preferred height for a row
+    qreal preferredRowHeight(int row, const MVirtualKeyboardStyleContainer &styleContainer) const;
 
 private:
+    //! \brief Return the row height for given row.
+    LayoutSection::RowHeightType rowHeightType(int row) const;
+
     bool isInvalidRow(int row) const;
     bool isInvalidCell(int row, int column) const;
 
