@@ -34,7 +34,7 @@ public:
         Left, Right
     };
 
-    HorizontalSwitcher(QGraphicsItem *parent = 0);
+    explicit HorizontalSwitcher(bool enableAnimation = true, QGraphicsItem *parent = 0);
     virtual ~HorizontalSwitcher();
 
     //! \brief Slide to the next widget of current with given direction.
@@ -97,6 +97,16 @@ public:
     //! Sets current index to -1.
     void deleteAll();
 
+    /*!
+     * \brief Returns whether animation is enabled.
+     */
+    bool isAnimationEnabled() const;
+
+    /*!
+     * \brief Enables or disables animation.
+     */
+    void setAnimationEnabled(bool enabled);
+
 signals:
     /*! \brief Signals the beginning of a switch.
      *         This is emitted even if there is no animation.
@@ -135,6 +145,7 @@ private:
     QGraphicsItemAnimation leaveAnim;
     QTimeLine animTimeLine;
     bool loopingEnabled;
+    bool playAnimations;
 };
 
 #endif

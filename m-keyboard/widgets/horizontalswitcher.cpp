@@ -26,11 +26,12 @@ namespace
     const int SwitchFrames = 300;
 }
 
-HorizontalSwitcher::HorizontalSwitcher(QGraphicsItem *parent) :
+HorizontalSwitcher::HorizontalSwitcher(bool enableAnimation, QGraphicsItem *parent) :
     QGraphicsWidget(parent),
     currentIndex(-1),
     animTimeLine(SwitchDuration),
-    loopingEnabled(false)
+    loopingEnabled(false),
+    playAnimations(enableAnimation)
 {
     setFlag(QGraphicsItem::ItemHasNoContents); // doesn't paint itself anything
     setObjectName("HorizontalSwitcher");
@@ -58,7 +59,7 @@ void HorizontalSwitcher::switchTo(SwitchDirection direction)
     if (isRunning())
         finishAnimation();
 
-    if (slides.count() <= 1)
+    if (slides.count() < 2)
         return;
 
     int newIndex;
@@ -66,7 +67,7 @@ void HorizontalSwitcher::switchTo(SwitchDirection direction)
         if (!loopingEnabled && currentIndex == slides.count() - 1)
             return;
         newIndex = (currentIndex + 1) % slides.count();
-    } else { // Left
+    } else { // direction == Left
         if (!loopingEnabled && currentIndex == 0)
             return;
         newIndex = currentIndex - 1;
@@ -86,29 +87,36 @@ void HorizontalSwitcher::switchTo(SwitchDirection direction)
     // Try to fit current size.
     nextWidget->resize(size());
 
-    if (direction == Right) {
-        // Set the new item to the right of this.
-        nextWidget->setPos(this->size().width(), 0.0);
-        enterAnim.setPosAt(0.0, nextWidget->pos());
-        enterAnim.setPosAt(1.0, QPointF(0.0, 0.0));
-        leaveAnim.setPosAt(0.0, currentWidget->pos());
-        leaveAnim.setPosAt(1.0, QPointF(-currentWidget->size().width(), 0.0));
-    } else {
-        // Set the new item to the left of this.
-        nextWidget->setPos(-nextWidget->size().width(), 0.0);
-        enterAnim.setPosAt(0.0, nextWidget->pos());
-        enterAnim.setPosAt(1.0, QPointF(0.0, 0.0));
-        leaveAnim.setPosAt(0.0, currentWidget->pos());
-        leaveAnim.setPosAt(1.0, QPointF(this->size().width(), 0.0));
-    }
-
-    nextWidget->show();
-
+    currentIndex = newIndex;
     emit switchStarting(currentIndex, newIndex);
     emit switchStarting(currentWidget, nextWidget);
 
-    currentIndex = newIndex;
-    animTimeLine.start();
+    if (!playAnimations) {
+        nextWidget->setPos(0.0, 0.0);
+        nextWidget->show();
+        finishAnimation();
+
+    } else {
+        if (direction == Right) {
+            // Set the new item to the right of this.
+            nextWidget->setPos(this->size().width(), 0.0);
+            enterAnim.setPosAt(0.0, nextWidget->pos());
+            enterAnim.setPosAt(1.0, QPointF(0.0, 0.0));
+            leaveAnim.setPosAt(0.0, currentWidget->pos());
+            leaveAnim.setPosAt(1.0, QPointF(-currentWidget->size().width(), 0.0));
+        } else if (direction == Left) {
+            // Set the new item to the left of this.
+            nextWidget->setPos(-nextWidget->size().width(), 0.0);
+            enterAnim.setPosAt(0.0, nextWidget->pos());
+            enterAnim.setPosAt(1.0, QPointF(0.0, 0.0));
+            leaveAnim.setPosAt(0.0, currentWidget->pos());
+            leaveAnim.setPosAt(1.0, QPointF(this->size().width(), 0.0));
+        }
+
+        nextWidget->show();
+
+        animTimeLine.start();
+    }
 }
 
 bool HorizontalSwitcher::isAtBoundary(SwitchDirection direction) const
@@ -299,4 +307,19 @@ void HorizontalSwitcher::finishAnimation()
 bool HorizontalSwitcher::isValidIndex(int index) const
 {
     return (index >= 0 && index < slides.size());
+}
+
+bool HorizontalSwitcher::isAnimationEnabled() const
+{
+    return playAnimations;
+}
+
+void HorizontalSwitcher::setAnimationEnabled(bool enabled)
+{
+    if (playAnimations != enabled) {
+        if (isRunning())
+            finishAnimation();
+
+        playAnimations = enabled;
+    }
 }

@@ -143,6 +143,7 @@ public slots:
     //! \brief Clears and redraws the global reaction maps.
     void redrawReactionMaps();
 
+
 signals:
     //! Used to broadcast shift state to all pages/KeyButtonAreas.
     void levelSwitched(int);

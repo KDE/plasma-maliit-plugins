@@ -402,6 +402,7 @@ void SymbolView::loadSwitcherPages(const LayoutData *kbLayout, const unsigned in
 
     pageSwitcher = new HorizontalSwitcher(this);
     pageSwitcher->setLooping(true);
+    pageSwitcher->setAnimationEnabled(false);
 
     connect(pageSwitcher, SIGNAL(switchStarting(QGraphicsWidget *, QGraphicsWidget *)),
             this,         SLOT(onSwitchStarting(QGraphicsWidget *, QGraphicsWidget *)));
@@ -542,12 +543,14 @@ void SymbolView::setLanguage(const QString &lang)
 
 void SymbolView::switchToNextPage()
 {
-    pageSwitcher->switchTo(HorizontalSwitcher::Right);
+    pageSwitcher->switchTo((pageCount() == 2 && pageSwitcher->current() == 1)
+                           ? HorizontalSwitcher::Left : HorizontalSwitcher::Right);
 }
 
 void SymbolView::switchToPrevPage()
 {
-    pageSwitcher->switchTo(HorizontalSwitcher::Left);
+    pageSwitcher->switchTo((pageCount() == 2 && pageSwitcher->current() == 0)
+                           ? HorizontalSwitcher::Right : HorizontalSwitcher::Left);
 }
 
 
