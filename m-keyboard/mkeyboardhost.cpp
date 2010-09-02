@@ -756,7 +756,9 @@ void MKeyboardHost::handleKeyPress(const KeyEvent &event)
     if (((inputMethodMode == M::InputMethodModeDirect)
          && (event.specialKey() == KeyEvent::NotSpecial))
         || (event.qtKey() == Qt::Key_plusminus)) { // plusminus key makes an exception
-        lastPressEvent = event;
+
+        inputContextConnection()->sendKeyEvent(event.toQKeyEvent());
+
     } else if (event.qtKey() == Qt::Key_Backspace) {
         backSpaceTimer.start(AutoBackspaceDelay);
     }
@@ -777,7 +779,9 @@ void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
     if (((inputMethodMode == M::InputMethodModeDirect)
          && (event.specialKey() == KeyEvent::NotSpecial))
         || (event.qtKey() == Qt::Key_plusminus)) { // plusminus key makes an exception
-        lastReleaseEvent = event;
+
+        inputContextConnection()->sendKeyEvent(event.toQKeyEvent());
+
     } else if ((event.qtKey() == Qt::Key_Backspace) && backSpaceTimer.isActive()) {
         backSpaceTimer.stop();
         doBackspace();
@@ -842,13 +846,8 @@ void MKeyboardHost::handleKeyClick(const KeyEvent &event)
                         event.text(), false, 1, 0, 0);
     } else if ((inputMethodMode != M::InputMethodModeDirect)) {
         handleTextInputKeyClick(event);
-    } else if ((inputMethodMode == M::InputMethodModeDirect)) {
-        // TODO: Remove direct-mode-for-gestures workaround once close button
-        // is back, and revert whole commit.
-        // See NB#176441
-        inputContextConnection()->sendKeyEvent(lastPressEvent.toQKeyEvent());
-        inputContextConnection()->sendKeyEvent(lastReleaseEvent.toQKeyEvent());
     }
+
     handleGeneralKeyClick(event);
 
     lastClickEvent = event;

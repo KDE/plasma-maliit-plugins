@@ -387,6 +387,10 @@ bool KeyButtonArea::event(QEvent *e)
 
 void KeyButtonArea::handleFlickGesture(FlickGesture *gesture)
 {
+    if (InputMethodMode == M::InputMethodModeDirect) {
+        return;
+    }
+
     // Any flick gesture, complete or not, resets active keys etc.
     if (!wasGestureTriggered && (gesture->state() != Qt::NoGesture)) {
         popup->hidePopup();
