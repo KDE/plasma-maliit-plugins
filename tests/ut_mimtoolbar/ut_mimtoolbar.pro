@@ -1,13 +1,9 @@
 TEMPLATE = app
-CONFIG += QtTest meegotouch meegoimframework meegoreactionmap
-QT += testlib
+CONFIG += meegotouch meegoreactionmap
 
 DEPENDPATH += .
 INCLUDEPATH +=  . \
 		../stubs/
-
-OBJECTS_DIR = .obj
-MOC_DIR = .moc
 
 LIBS += -Wl,-rpath=/usr/lib/meego-im-plugins/ -lmeego-keyboard
 

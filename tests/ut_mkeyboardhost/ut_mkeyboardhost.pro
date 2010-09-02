@@ -1,5 +1,5 @@
 TEMPLATE = app
-CONFIG += QtTest meegotouch MImServer meegoimframework
+CONFIG += meegotouch MImServer
 DEPENDPATH += .
 INCLUDEPATH += . \
         ../stubs/

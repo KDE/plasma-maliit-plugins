@@ -1,12 +1,8 @@
 TEMPLATE = app
-CONFIG += QtTest meegotouch meegoimframework
-QT += testlib
+CONFIG += meegotouch
 
 DEPENDPATH += .
 INCLUDEPATH += 	. \
-
-OBJECTS_DIR = .obj
-MOC_DIR = .moc
 
 include(../common_check.pri)
 

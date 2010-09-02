@@ -42,3 +42,6 @@ for(OPTION,$$list($$lower($$COV_OPTION))){
 QMAKE_CLEAN += *.gcno *.gcda
 
 CONFIG += meegoimframework
+
+OBJECTS_DIR = .obj
+MOC_DIR = .moc

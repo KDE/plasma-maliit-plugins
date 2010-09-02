@@ -1,5 +1,4 @@
 TEMPLATE = app
-CONFIG += QtTest
 
 include(../common_check.pri)
 
