@@ -406,7 +406,7 @@ void SymbolView::loadSwitcherPages(const LayoutData *kbLayout, const unsigned in
 
     connect(pageSwitcher, SIGNAL(switchStarting(QGraphicsWidget *, QGraphicsWidget *)),
             this,         SLOT(onSwitchStarting(QGraphicsWidget *, QGraphicsWidget *)));
-    connect(pageSwitcher, SIGNAL(onSwitchDone(QGraphicsWidget *, QGraphicsWidget *)),
+    connect(pageSwitcher, SIGNAL(switchDone(QGraphicsWidget *, QGraphicsWidget *)),
             this,         SLOT(onSwitchDone()));
 
     LayoutData::SharedLayoutSection symbolSection;
