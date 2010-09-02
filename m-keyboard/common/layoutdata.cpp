@@ -123,39 +123,38 @@ int LayoutSection::rowCount() const
 
 int LayoutSection::columnsAt(int row) const
 {
-    if (isInvalidRow(row)) {
-        return 0;
-    }
-
-    return rows[row]->keys.count();
+    return (isInvalidRow(row) ? 0
+                              : rows[row]->keys.count());
 }
 
 int LayoutSection::keyCount() const
 {
     int numKeys = 0;
+
     for (QList<Row *>::const_iterator rowIter(rows.begin());
          rowIter != rows.end(); ++rowIter) {
          numKeys += (*rowIter)->keys.count();
     }
+
     return numKeys;
 }
 
 QList<int> LayoutSection::spacerIndices(int row) const
 {
-    if (isInvalidRow(row)) {
-        return QList<int>();
-    }
-
-    return rows[row]->spacerIndices;
+    return (isInvalidRow(row) ? QList<int>()
+                              : rows[row]->spacerIndices);
 }
 
 VKBDataKey *LayoutSection::vkbKey(int row, int column) const
 {
-    if (isInvalidCell(row, column)) {
-        return 0;
-    }
+    return (isInvalidCell(row, column) ? 0
+                                       : rows[row]->keys[column]);
+}
 
-    return rows[row]->keys[column];
+LayoutSection::RowHeightType LayoutSection::rowHeight(int row) const
+{
+    return (isInvalidRow(row) ? rows[row]->heightType
+                              : LayoutSection::Medium);
 }
 
 bool LayoutSection::isInvalidRow(int row) const
@@ -166,13 +165,4 @@ bool LayoutSection::isInvalidRow(int row) const
 bool LayoutSection::isInvalidCell(int row, int column) const
 {
     return ((column < 0) || isInvalidRow(row) || (column >= rows[row]->keys.count()));
-}
-
-LayoutSection::RowHeightType LayoutSection::rowHeight(int row) const
-{
-    LayoutSection::RowHeightType height = LayoutSection::Medium;
-    if (!isInvalidRow(row)) {
-        height = rows[row]->heightType;
-    }
-    return height;
 }
