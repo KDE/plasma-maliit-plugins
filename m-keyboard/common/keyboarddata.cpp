@@ -192,6 +192,22 @@ inline VKBDataKey::WidthType KeyboardData::toWidthType(const QString &attributeV
     return widthType;
 }
 
+inline LayoutSection::RowHeightType KeyboardData::toHeightType(const QString &attributeValue)
+{
+    LayoutSection::RowHeightType heightType = LayoutSection::Medium;
+
+    if (attributeValue == "small") {
+        heightType = LayoutSection::Small;
+    } else  if (attributeValue == "large") {
+        heightType = LayoutSection::Large;
+    } else  if (attributeValue == "x-large") {
+        heightType = LayoutSection::XLarge;
+    } else  if (attributeValue == "xx-large") {
+        heightType = LayoutSection::XxLarge;
+    }
+    return heightType;
+}
+
 inline bool KeyboardData::toBoolean(const QString &attributeValue)
 {
     return attributeValue == "true" || attributeValue == "1";
@@ -449,6 +465,7 @@ void KeyboardData::parseTagSection(const QDomElement &element, ParseParameters &
 void KeyboardData::parseTagRow(const QDomElement &element, ParseParameters &params)
 {
     LayoutSection::Row *row = new LayoutSection::Row;
+    row->heightType = toHeightType(element.attribute(HeightTypeString, HeightTypeStringDefValue)); 
     params.currentSection->rows.append(row);
     params.currentRow = row;
 

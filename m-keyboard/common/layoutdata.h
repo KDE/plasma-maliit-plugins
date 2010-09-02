@@ -43,6 +43,15 @@ public:
         NonSloppy
     };
 
+    //! Row height type
+    enum RowHeightType {
+        Small,
+        Medium,
+        Large,
+        XLarge,
+        XxLarge,
+    };
+
     ~LayoutSection();
     LayoutSection();
 
@@ -92,18 +101,23 @@ public:
      */
     VKBDataKey *vkbKey(int row, int column) const;
 
+    //! \brief Return the row height for given row.
+    LayoutSection::RowHeightType rowHeight(int row) const;
+
 private:
     bool isInvalidRow(int row) const;
     bool isInvalidCell(int row, int column) const;
 
     struct Row {
         Row()
-            : normalizedWidth(0.0)
+            : heightType (LayoutSection::Medium),
+              normalizedWidth(0.0)
         {}
 
         ~Row();
 
         QList<VKBDataKey *> keys;
+        LayoutSection::RowHeightType heightType;
         qreal normalizedWidth;
 
         // Index of a spacer refers to right side of a key;

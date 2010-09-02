@@ -148,6 +148,8 @@ private:
 
     static VKBDataKey::WidthType toWidthType(const QString &attributeValue);
 
+    static LayoutSection::RowHeightType toHeightType(const QString &attributeValue);
+
     static bool toBoolean(const QString &attributeValue);
 
 protected:

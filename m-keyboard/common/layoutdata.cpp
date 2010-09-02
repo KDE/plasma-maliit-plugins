@@ -167,3 +167,12 @@ bool LayoutSection::isInvalidCell(int row, int column) const
 {
     return ((column < 0) || isInvalidRow(row) || (column >= rows[row]->keys.count()));
 }
+
+LayoutSection::RowHeightType LayoutSection::rowHeight(int row) const
+{
+    LayoutSection::RowHeightType height = LayoutSection::Medium;
+    if (!isInvalidRow(row)) {
+        height = rows[row]->heightType;
+    }
+    return height;
+}
