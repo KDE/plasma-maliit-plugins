@@ -20,6 +20,7 @@
 #include "mhardwarekeyboard.h"
 #include "testinputcontextconnection.h"
 #include "layoutsmanager.h"
+#include "utils.h"
 #include <MApplication>
 #include <QDebug>
 #include <QSignalSpy>
@@ -99,8 +100,7 @@ QString MHardwareKeyboard::keycodeToString(unsigned int keycode, unsigned int /*
 
 void Ut_MHardwareKeyboard::initTestCase()
 {
-    // Avoid waiting if im server is not responding
-    MApplication::setLoadMInputContext(false);
+    disableQtPlugins();
 
     static char *argv[3] = {(char *)"ut_mhardwarekeyboard", (char *)"-software", (char *) "-local-theme"};
     static int argc = 3;

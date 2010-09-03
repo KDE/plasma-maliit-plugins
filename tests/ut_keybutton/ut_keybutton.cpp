@@ -22,6 +22,7 @@
 #include "singlewidgetbutton.h"
 #include "singlewidgetbuttonarea.h"
 #include "vkbdatakey.h"
+#include "utils.h"
 
 #include <MApplication>
 #include <MTheme>
@@ -35,8 +36,7 @@ void Ut_KeyButton::initTestCase()
     static char *app_name[] = { (char*) "ut_keybutton",
                                 (char *) "-local-theme" };
 
-    // Avoid waiting if im server is not responding
-    MApplication::setLoadMInputContext(false);
+    disableQtPlugins();
     app = new MApplication(argc, app_name);
 
     style = new MVirtualKeyboardStyleContainer;

@@ -16,6 +16,7 @@
 
 #include "ut_horizontalswitcher.h"
 #include "horizontalswitcher.h"
+#include "utils.h"
 
 #include <QApplication>
 #include <QPointer>
@@ -28,6 +29,7 @@ void Ut_HorizontalSwitcher::initTestCase()
     static int argc = 1;
     static char *app_name[1] = { (char *) "ut_horizontalswitcher" };
 
+    disableQtPlugins();
     app = new QApplication(argc, app_name);
 
     qRegisterMetaType<QGraphicsWidget *>();

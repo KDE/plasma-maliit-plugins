@@ -22,11 +22,19 @@ QT += testlib
 MKEYBOARD_DIR = ../../m-keyboard
 WIDGETS_DIR = $$MKEYBOARD_DIR/widgets
 COMMON_DIR = $$MKEYBOARD_DIR/common
+UTILS_DIR = ../utils
 
 INCLUDEPATH += \
     $$WIDGETS_DIR \
     $$COMMON_DIR \
     $$MKEYBOARD_DIR \
+    $$UTILS_DIR \
+
+HEADERS += \
+    $$UTILS_DIR/utils.h \
+
+SOURCES += \
+    $$UTILS_DIR/utils.cpp \
 
 LIBS += \
     -L $$MKEYBOARD_DIR \
@@ -45,3 +53,8 @@ CONFIG += meegoimframework
 
 OBJECTS_DIR = .obj
 MOC_DIR = .moc
+
+meegotouch {
+    DEFINES += MEEGOTOUCH
+}
+

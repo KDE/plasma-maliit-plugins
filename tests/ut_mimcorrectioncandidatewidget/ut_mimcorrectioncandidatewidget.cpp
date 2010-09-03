@@ -18,6 +18,7 @@
 
 #include "ut_mimcorrectioncandidatewidget.h"
 #include "mplainwindow.h"
+#include "utils.h"
 #include <MTheme>
 #include <MList>
 #include <QtTest/QTest>
@@ -34,8 +35,7 @@ void Ut_MImCorrectionCandidateWidget::initTestCase()
     static int dummyArgc = 2;
     static char *dummyArgv[2] = { (char *) "./ut_mimcorrectioncandidatewidget",
                                   (char *) "-local-theme" };
-    // Avoid waiting if im server is not responding
-    MApplication::setLoadMInputContext(false);
+    disableQtPlugins();
     app = new MApplication(dummyArgc, dummyArgv);
 
     // MImCorrectionCandidateWidget uses this internally

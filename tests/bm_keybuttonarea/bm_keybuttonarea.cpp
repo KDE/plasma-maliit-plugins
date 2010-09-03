@@ -20,6 +20,7 @@
 #include "mvirtualkeyboardstyle.h"
 #include "singlewidgetbuttonarea.h"
 #include "keyboarddata.h"
+#include "utils.h"
 
 #include <MApplication>
 #include <MTheme>
@@ -33,8 +34,7 @@ void Bm_KeyButtonArea::initTestCase()
     static char *app_name[2] = { (char *) "bm_keybuttonarea",
                                  (char *) "-local-theme" };
 
-    // Avoid waiting if im server is not responding
-    MApplication::setLoadMInputContext(false);
+    disableQtPlugins();
     app = new MApplication(argc, app_name);
 
     style = new MVirtualKeyboardStyleContainer;

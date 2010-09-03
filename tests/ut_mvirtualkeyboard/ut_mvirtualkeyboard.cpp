@@ -28,6 +28,7 @@
 #include "vkbdatakey.h"
 #include "mimtoolbar.h"
 #include "mplainwindow.h"
+#include "utils.h"
 #include <mimdirection.h>
 #include <MScene>
 #include <MSceneManager>
@@ -71,8 +72,7 @@ void Ut_MVirtualKeyboard::initTestCase()
     qRegisterMetaType<M::InputMethodSwitchDirection>("M::InputMethodSwitchDirection");
     qRegisterMetaType<ModifierState>("ModifierState");
 
-    // Avoid waiting if im server is not responding
-    MApplication::setLoadMInputContext(false);
+    disableQtPlugins();
 
     static char *argv[3] = {(char *) "ut_mvirtualkeyboard",
                             (char *) "-software",

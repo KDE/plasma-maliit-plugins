@@ -17,6 +17,7 @@
 
 
 #include "ut_mkeyboardplugin.h"
+#include "utils.h"
 
 #include <QtTest/QTest>
 #include <QObject>
@@ -24,6 +25,7 @@
 
 void Ut_MKeyboardPlugin::initTestCase()
 {
+    disableQtPlugins();
     // check that Plugin can be accessed
     m_subject = new MKeyboardPlugin;
 }

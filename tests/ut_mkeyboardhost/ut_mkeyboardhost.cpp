@@ -29,6 +29,7 @@
 #include "mgconfitem_stub.h"
 #include "minputcontextstubconnection.h"
 #include "ut_mkeyboardhost.h"
+#include "utils.h"
 
 #include <MApplication>
 #include <MSceneManager>
@@ -118,8 +119,7 @@ void Ut_MKeyboardHost::initTestCase()
     static char *app_name[2] = { (char *)"ut_mvirtualkeyboardhost",
                                  (char *) "-local-theme" };
 
-    // Avoid waiting if im server is not responding
-    MApplication::setLoadMInputContext(false);
+    disableQtPlugins();
     app = new MApplication(argc, app_name);
     inputContext = new MInputContextStubConnection;
     window = new MPlainWindow;

@@ -17,6 +17,7 @@
 
 
 #include "ut_notification.h"
+#include "utils.h"
 #include <notification.h>
 #include "mplainwindow.h"
 #include <mvirtualkeyboardstyle.h>
@@ -60,8 +61,7 @@ void Ut_Notification::initTestCase()
     static char *app_name[2] = { (char *) "ut_notification",
                                  (char *) "-local-theme" };
 
-    // Avoid waiting if im server is not responding
-    MApplication::setLoadMInputContext(false);
+    disableQtPlugins();
     app = new MApplication(argc, app_name);
 
     QString cssFile("./test.css");

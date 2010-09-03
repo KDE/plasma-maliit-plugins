@@ -28,6 +28,7 @@
 #include "symbolview.h"
 #include "ut_symbolview.h"
 #include "mplainwindow.h"
+#include "utils.h"
 
 #include <MApplication>
 #include <MButton>
@@ -60,8 +61,7 @@ void Ut_SymbolView::initTestCase()
     static char *app_name[2] = { (char *) "ut_symbolview",
                                  (char *) "-local-theme" };
 
-    // Avoid waiting if im server is not responding
-    MApplication::setLoadMInputContext(false);
+    disableQtPlugins();
 
     MGConfItem target(TargetSettingsName);
     target.set(DefaultTargetName); // this value is required by the theme daemon

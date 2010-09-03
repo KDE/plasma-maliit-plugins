@@ -18,6 +18,7 @@
 #include "widgetbar.h"
 #include "mtoolbarbutton.h"
 #include "mtoolbarlabel.h"
+#include "utils.h"
 
 #include <MApplication>
 #include <MButton>
@@ -32,6 +33,7 @@ void Ut_WidgetBar::initTestCase()
     static char *argv[2] = { (char *) "ut_buttonbar",
                              (char *) "-local-theme" };
     static int argc = 2;
+    disableQtPlugins();
     app = new MApplication(argc, argv);
 }
 

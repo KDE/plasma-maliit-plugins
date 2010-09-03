@@ -17,6 +17,7 @@
 
 
 #include "ut_vkbdatakey.h"
+#include "utils.h"
 #include <vkbdatakey.h>
 
 #include <MApplication>
@@ -35,8 +36,7 @@ void Ut_VKBDataKey::initTestCase()
     static char *app_name[2] = { (char *) "ut_vkbdatakey",
                                  (char *) "-local-theme" };
 
-    // Avoid waiting if im server is not responding
-    MApplication::setLoadMInputContext(false);
+    disableQtPlugins();
     app = new MApplication(argc, app_name);
 }
 

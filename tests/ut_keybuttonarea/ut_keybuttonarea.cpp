@@ -25,6 +25,7 @@
 #include "vkbdatakey.h"
 #include "mplainwindow.h"
 #include "popupbase.h"
+#include "utils.h"
 
 #include <MApplication>
 #include <MScene>
@@ -69,8 +70,7 @@ void Ut_KeyButtonArea::initTestCase()
     static char *app_name[2] = { (char *) "ut_keybuttonarea",
                                  (char *) "-local-theme" };
 
-    // Avoid waiting if im server is not responding
-    MApplication::setLoadMInputContext(false);
+    disableQtPlugins();
     app = new MApplication(argc, app_name);
 
     style = new MVirtualKeyboardStyleContainer;

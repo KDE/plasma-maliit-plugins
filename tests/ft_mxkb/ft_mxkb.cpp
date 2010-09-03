@@ -24,6 +24,7 @@
 #include <QSignalSpy>
 #include <QKeyEvent>
 #include "mxkb.h"
+#include "utils.h"
 
 #include <X11/X.h>
 #include <X11/XKBlib.h>
@@ -34,8 +35,7 @@ namespace {
 
 void Ft_MXkb::initTestCase()
 {
-    // Avoid waiting if im server is not responding
-    MApplication::setLoadMInputContext(false);
+    disableQtPlugins();
 
     static char *argv[3] = {(char *) "ft_mxkb", (char *) "-software", (char *) "-local-theme"};
     static int argc = 3;

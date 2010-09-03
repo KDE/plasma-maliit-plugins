@@ -21,6 +21,7 @@
 #include "mvirtualkeyboardstyle.h"
 #include "keyboarddata.h"
 #include "keybuttonarea.h"
+#include "utils.h"
 
 #include <MApplication>
 #include <MTheme>
@@ -33,8 +34,7 @@ void Bm_Symbols::initTestCase()
     static char *app_name[2] = { (char *) "bm_symbols",
                                  (char *) "-local-theme" };
 
-    // Avoid waiting if im server is not responding
-    MApplication::setLoadMInputContext(false);
+    disableQtPlugins();
     app = new MApplication(argc, app_name);
 
     style = new MVirtualKeyboardStyleContainer;

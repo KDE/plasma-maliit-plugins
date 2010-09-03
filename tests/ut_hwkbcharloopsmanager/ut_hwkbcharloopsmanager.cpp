@@ -20,6 +20,7 @@
 #include "hwkbcharloopsmanager.h"
 #include "hwkbcharloops.h"
 #include "ut_hwkbcharloopsmanager.h"
+#include "utils.h"
 #include <QDebug>
 #include <memory>
 
@@ -43,6 +44,7 @@ bool HwKbCharLoopsManager::loadCharLoops(const QString &fileName)
 
 void Ut_HwKbCharLoopsManager::initTestCase()
 {
+    disableQtPlugins();
     m_subject = new HwKbCharLoopsManager;
 }
 

@@ -16,6 +16,7 @@
 
 #include "ut_flickrecognizer.h"
 #include "flickutil.h"
+#include "utils.h"
 
 #include "flickgesture.h"
 #include "flickgesturerecognizer.h"
@@ -140,8 +141,7 @@ void Ut_FlickRecognizer::initTestCase()
                                  (char *) "-local-theme",
                                  (char *) "-software" };
 
-    // Avoid waiting if im server is not responding
-    MApplication::setLoadMInputContext(false);
+    disableQtPlugins();
     app = new MApplication(argc, app_args);
 
     MSceneManager *sceneMgr = new MSceneManager;

@@ -24,6 +24,7 @@
 #include "mvirtualkeyboard.h"
 #include "layoutsmanager.h"
 #include "mreactionmaptester.h"
+#include "utils.h"
 #include <mplainwindow.h>
 #include <mtoolbardata.h>
 #include <MTheme>
@@ -79,8 +80,7 @@ void Ut_MImToolbar::initTestCase()
     static int dummyArgc = 2;
     static char *dummyArgv[2] = { (char *) "./ut_mimtoolbar",
                                   (char *) "-local-theme" };
-    // Avoid waiting if im server is not responding
-    MApplication::setLoadMInputContext(false);
+    disableQtPlugins();
     app = new MApplication(dummyArgc, dummyArgv);
 
     qRegisterMetaType<CopyPasteState>("CopyPasteState");
