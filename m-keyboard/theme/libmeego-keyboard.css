@@ -12,7 +12,7 @@ MVirtualKeyboardStyle {
     padding-bottom: $PADDING_LARGE;
 
     spacing-vertical: $MARGIN_DOUBLE;
-    spacing-horizontal: 0.3mm;
+    spacing-horizontal: 0.4mm;
 
     deadkey-locked-color: #FFA500;
 
@@ -29,6 +29,41 @@ MVirtualKeyboardStyle {
     flick-gesture-threshold-ratio: 0.5;
 
     /* Single widget keyboard button styling */
+    /* TODO: give correct size */
+    key-width-small: 0.5;
+    key-width-small-fixed: 48;
+    key-width-medium: 1.0;
+    key-width-medium-fixed: 48;
+    key-width-large: 1.3;
+    key-width-large-fixed: 48;
+    key-width-x-large: 1.5;
+    key-width-x-large-fixed: 48;
+    key-width-xx-large: 2.0;
+    key-width-xx-large-fixed: 48;
+    key-width-stretched: -1;
+    key-width-stretched-fixed: 48;
+
+    row-height-small: 0.5;
+    row-height-medium: 1.0;
+    row-height-large: 1.3;
+    row-height-x-large: 1.5;
+    row-height-xx-large: 2.0;
+
+    key-background: "meegotouch-keyboard-key" 15 15 15 15;
+    key-background-pressed: "meegotouch-keyboard-key-pressed" 15 15 15 15;
+    key-background-selected: "meegotouch-keyboard-key-selected" 15 15 15 15;
+    key-background-pressed-selected: "meegotouch-keyboard-key-pressed-selected" 15 15 15 15;
+
+    key-background-special: "meegotouch-keyboard-function-key" 15 15 15 15;
+    key-background-special-pressed: "meegotouch-keyboard-function-key-pressed" 15 15 15 15;
+    key-background-special-selected: "meegotouch-keyboard-function-key-selected" 15 15 15 15;
+    key-background-special-pressed-selected: "meegotouch-keyboard-function-key-pressed-selected" 15 15 15 15;
+
+    key-background-deadkey: "meegotouch-keyboard-key" 15 15 15 15;
+    key-background-deadkey-pressed: "meegotouch-keyboard-pressed" 15 15 15 15;
+    key-background-deadkey-selected: "meegotouch-keyboard-key-selected" 15 15 15 15;
+    key-background-deadkey-pressed-selected: "meegotouch-keyboard-key-pressed-selected" 15 15 15 15;
+
     key-backspace-icon-id: "icon-m-input-methods-backspace";
     key-backspace-icon-size: 48 48;
     key-backspace-icon-id-rtl: "icon-m-rtl-input-methods-backspace";
@@ -49,13 +84,14 @@ MVirtualKeyboardStyle {
 
 MVirtualKeyboardStyle.Portrait {
     keyboard-area-size: 480 280;
+    spacing-horizontal: 0.2mm;
 
     label-margin-top: 2.4mm;
     label-margin-left-with-secondary: 4.6mm;
     secondary-label-separation: 0.9mm;
 
     padding-left: $PADDING_MEDIUM;
-    padding-right: 0.7mm;
+    padding-right:$PADDING_MEDIUM;
 
     tab-button-size: 91 70;
     menu-size: 470 342;
@@ -78,6 +114,8 @@ MVirtualKeyboardStyle.Portrait {
     key-background-sym-indicator-ace: "meegotouch-keyboard-key-ace-selected-portrait";
     key-background-sym-indicator-sym-pressed: "meegotouch-keyboard-key-sym-pressed-portrait";
     key-background-sym-indicator-ace-pressed: "meegotouch-keyboard-key-ace-pressed-portrait";
+
+    key-height: 8mm;
 }
 
 MVirtualKeyboardStyle.Landscape {
@@ -88,10 +126,9 @@ MVirtualKeyboardStyle.Landscape {
     secondary-label-separation: 0;
 
     padding-left: $PADDING_LARGE;
-    padding-right: 0.9mm;
+    padding-right: $PADDING_LARGE;
 
     tab-button-size: 108 70;
-
     menu-size: 790 342;
 
     /* Single widget keyboard button styling */
@@ -108,10 +145,7 @@ MVirtualKeyboardStyle.Landscape {
     key-sym-normal-size: 8.2mm 5.6mm;
     /* End of single widget keyboard button styling */
 
-    key-background-sym-indicator-sym: "meegotouch-keyboard-key-sym-selected-landscape";
-    key-background-sym-indicator-ace: "meegotouch-keyboard-key-ace-selected-landscape";
-    key-background-sym-indicator-sym-pressed: "meegotouch-keyboard-key-sym-pressed-landscape";
-    key-background-sym-indicator-ace-pressed: "meegotouch-keyboard-key-ace-pressed-landscape";
+    key-height: 5.6mm;
 }
 
 #InvisibleHandle.Portrait {
