@@ -341,7 +341,7 @@ void LayoutsManager::syncLanguages()
             // Existing languages are not reloaded.
             if (!keyboards.contains(language.toLower())) {
                 // Add new language
-                if (!loadLanguage(language)) {
+                if (!loadLanguage(language.toLower())) {
                     qWarning() << __PRETTY_FUNCTION__
                                << "New language " << language << " could not be loaded.";
                 } else {
