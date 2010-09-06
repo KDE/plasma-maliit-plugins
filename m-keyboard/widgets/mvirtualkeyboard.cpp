@@ -249,6 +249,7 @@ MVirtualKeyboard::switchLevel()
         KeyButtonArea *mainKba = keyboardWidget(SectionMainIndex, i);
         if (mainKba) {
             mainKba->switchLevel(currentLevel);
+            mainKba->setShiftState(shiftState);
         }
     }
 }

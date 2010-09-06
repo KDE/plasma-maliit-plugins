@@ -500,8 +500,11 @@ void SymbolView::setShiftState(ModifierState newShiftState)
     const int level = newShiftState != ModifierClearState ? 1 : 0;
     shiftState = newShiftState;
 
-    if (functionRow) {
-        functionRow->setShiftState(newShiftState);
+    for (int i = 0; i < pageSwitcher->count(); ++i) {
+        KeyButtonArea *mainKba = static_cast<KeyButtonArea *>(pageSwitcher->widget(i));
+        if (mainKba) {
+            mainKba->setShiftState(shiftState);
+        }
     }
 
     emit levelSwitched(level);
