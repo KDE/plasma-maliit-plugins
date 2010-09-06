@@ -57,20 +57,6 @@ namespace
     QString ToolbarFileName2 = "/testtoolbar2.xml";
     QString ToolbarFileName4 = "/testtoolbar4.xml";
 
-    int indexOf(const QGraphicsLayout *layout, const QGraphicsLayoutItem *item)
-    {
-        int result = -1;
-
-        for (int n = 0; n < layout->count(); ++n) {
-            if (layout->itemAt(n) == item) {
-                result = n;
-                break;
-            }
-        }
-
-        return result;
-    }
-
     bool gCustomToolbar(true);
 }
 

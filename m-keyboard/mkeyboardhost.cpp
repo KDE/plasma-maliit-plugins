@@ -1109,31 +1109,6 @@ void MKeyboardHost::showLayoutMenu()
     emit settingsRequested();
 }
 
-QRegion MKeyboardHost::combineRegionTo(const QRegion &region,
-                                       QObject &widget)
-{
-    return combineRegionToImpl(widgetRegions, region, widget, true);
-}
-
-QRegion MKeyboardHost::combineInputMethodAreaTo(const QRegion &region,
-                                                QObject &widget)
-{
-    return combineRegionToImpl(inputMethodAreaWidgetRegions, region,
-                               widget, false);
-}
-
-QRegion MKeyboardHost::combineRegionToImpl(RegionList &regionStore,
-                                           const QRegion &region,
-                                           QObject &widget,
-                                           bool includeExtraInteractiveAreas)
-{
-    QPointer<QObject> pointer(&widget);
-
-    setRegionInfo(regionStore, region, pointer);
-
-    return combineRegionImpl(regionStore, includeExtraInteractiveAreas);
-}
-
 void MKeyboardHost::setRegionInfo(RegionList &regionStore,
                                   const QRegion &region,
                                   const QPointer<QObject> &widget)

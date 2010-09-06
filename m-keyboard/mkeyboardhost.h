@@ -234,35 +234,6 @@ private:
     typedef QList<ObjectRegionPair> RegionList;
 
     /*!
-     * \brief Add \a region to widgetRegions with key \a widget.
-     * \param includeExtraInteractiveAreas Result includes extra interactive area
-     * \return Union of all regions in widgetRegions after adding \a region
-     * and sharedHandleArea region to it.
-     */
-    QRegion combineRegionTo(const QRegion &region,
-                            QObject &widget);
-
-    /*!
-     * \brief Add \a region to inputMethodAreaWidgetRegions with key \a widget.
-     * \param includeExtraInteractiveAreas Result includes extra interactive area
-     * \return Union of all regions in inputMethodAreaWidgetRegions after adding \a region
-     * and sharedHandleArea region to it.
-     */
-    QRegion combineInputMethodAreaTo(const QRegion &region,
-                                     QObject &widget);
-
-    /*!
-     * \brief Common implementation for combineRegionTo() and combineInputMethodAreaTo()
-     * \param includeExtraInteractiveAreas Result includes extra interactive area if
-     * this parameter is true.
-     * \return Union of all regions in \a regionStore after adding \a region to it.
-     */
-    QRegion combineRegionToImpl(RegionList &regionStore,
-                                const QRegion &region,
-                                QObject &widget,
-                                bool includeExtraInteractiveAreas);
-
-    /*!
      * \brief Save \a region occupied by \a widget into \a regionStore.
      */
     void setRegionInfo(RegionList &regionStore,
