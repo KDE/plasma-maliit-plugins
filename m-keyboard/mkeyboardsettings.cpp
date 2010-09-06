@@ -25,16 +25,16 @@
 #include <QDebug>
 
 namespace {
-    const QString SettingsIMCorrectionSetting("/meegotouch/inputmethods/correctionenabled");
-    const QString InputMethodLanguages("/meegotouch/inputmethods/languages");
+    const QString SettingsIMCorrectionSetting("/meegotouch/inputmethods/virtualkeyboard/correctionenabled");
+    const QString InputMethodLayouts("/meegotouch/inputmethods/virtualkeyboard/layouts");
     const QString VKBConfigurationPath("/usr/share/meegotouch/virtual-keyboard/layouts/");
     const QString VKBLayoutsFilterRule("*.xml");
-    const QString VKBLayoutsIgnoreRules("number|test"); // use as regexp to ignore number and test layouts
+    const QString VKBLayoutsIgnoreRules("number|test|customer|default"); // use as regexp to ignore number, test, customer and default layouts
 };
 
 MKeyboardSettings::MKeyboardSettings()
-    : keyboardErrorCorrectionConf(SettingsIMCorrectionSetting, this),
-      selectedKeyboardsConf(InputMethodLanguages, this)
+    : keyboardErrorCorrectionConf(SettingsIMCorrectionSetting),
+      selectedKeyboardsConf(InputMethodLayouts)
 {
     readAvailableKeyboards();
     connect(&keyboardErrorCorrectionConf, SIGNAL(valueChanged()),
@@ -68,7 +68,7 @@ QString MKeyboardSettings::icon()
 void MKeyboardSettings::readAvailableKeyboards()
 {
     availableKeyboardInfos.clear();
-    // available keyboard languages are determined by xml layouts that can be found
+    // available keyboard layouts are determined by xml layouts that can be found
     const QDir layoutsDir(VKBConfigurationPath, VKBLayoutsFilterRule);
     QRegExp ignoreExp(VKBLayoutsIgnoreRules, Qt::CaseInsensitive);
 
@@ -77,19 +77,22 @@ void MKeyboardSettings::readAvailableKeyboards()
             continue;
         KeyboardData keyboard;
         if (keyboard.loadNokiaKeyboard(keyboardFileInfo.fileName())) {
-            if (keyboard.language().isEmpty() || keyboard.title().isEmpty())
+            if (keyboard.layoutFile().isEmpty()
+                || keyboard.language().isEmpty()
+                || keyboard.title().isEmpty())
                 continue;
             bool duplicated = false;
             foreach (const KeyboardInfo &info, availableKeyboardInfos) {
-                if (info.language == keyboard.language()) {
+                if (info.layoutFile == keyboard.layoutFile()
+                    || info.title == keyboard.title()) {
+                    // strip duplicated layout which has the same layout/title
                     duplicated = true;
                     break;
                 }
             }
             if (!duplicated) {
                 KeyboardInfo keyboardInfo;
-                keyboardInfo.fileName = keyboardFileInfo.fileName();
-                keyboardInfo.language = keyboard.language();
+                keyboardInfo.layoutFile = keyboard.layoutFile();
                 keyboardInfo.title = keyboard.title();
                 availableKeyboardInfos.append(keyboardInfo);
             }
@@ -101,7 +104,7 @@ QMap<QString, QString> MKeyboardSettings::availableKeyboards() const
 {
     QMap<QString, QString> keyboards;
     foreach (const KeyboardInfo &keyboardInfo, availableKeyboardInfos) {
-        keyboards.insert(keyboardInfo.language, keyboardInfo.title);
+        keyboards.insert(keyboardInfo.layoutFile, keyboardInfo.title);
     }
     return keyboards;
 }
@@ -109,29 +112,22 @@ QMap<QString, QString> MKeyboardSettings::availableKeyboards() const
 QMap<QString, QString> MKeyboardSettings::selectedKeyboards() const
 {
     QMap<QString, QString> keyboards;
-    foreach (const QString language, selectedKeyboardsConf.value().toStringList()) {
-        keyboards.insert(language, keyboardTitle(language));
+    foreach (const QString layoutFile, selectedKeyboardsConf.value().toStringList()) {
+        keyboards.insert(layoutFile, keyboardTitle(layoutFile));
     }
     return keyboards;
 }
 
-void MKeyboardSettings::setSelectedKeyboards(const QStringList &keyboardTitles)
+void MKeyboardSettings::setSelectedKeyboards(const QStringList &keyboardLayouts)
 {
-    QStringList languages;
-    foreach (const QString &title, keyboardTitles) {
-        QString language = keyboardLanguage(title);
-        if (!language.isEmpty() && !languages.contains(language)) {
-            languages.append(language);
-        }
-    }
-    selectedKeyboardsConf.set(languages);
+    selectedKeyboardsConf.set(keyboardLayouts);
 }
 
-QString MKeyboardSettings::keyboardTitle(const QString &language) const
+QString MKeyboardSettings::keyboardTitle(const QString &layoutFile) const
 {
     QString title;
     foreach (const KeyboardInfo &keyboardInfo, availableKeyboardInfos) {
-        if (keyboardInfo.language == language) {
+        if (keyboardInfo.layoutFile == layoutFile) {
             title = keyboardInfo.title;
             break;
         }
@@ -139,16 +135,16 @@ QString MKeyboardSettings::keyboardTitle(const QString &language) const
     return title;
 }
 
-QString MKeyboardSettings::keyboardLanguage(const QString &title) const
+QString MKeyboardSettings::keyboardLayoutFile(const QString &title) const
 {
-    QString language;
+    QString layoutFile;
     foreach (const KeyboardInfo &keyboardInfo, availableKeyboardInfos) {
         if (keyboardInfo.title == title) {
-            language = keyboardInfo.language;
+            layoutFile = keyboardInfo.layoutFile;
             break;
         }
     }
-    return language;
+    return layoutFile;
 }
 
 bool  MKeyboardSettings::errorCorrection() const

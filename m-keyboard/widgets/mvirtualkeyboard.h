@@ -107,14 +107,10 @@ public:
      */
     QString layoutTitle() const;
 
-
     /*!
-     * \brief Get the language currently selected (from language list)
-     *
-     * This is the current language entry from the language list
-     * \return the language currently selected (from language list)
+     * \brief Get the layout currently selected (from layout list)
      */
-    QString selectedLanguage() const;
+    QString selectedLayout() const;
 
     //! Sets keyboard type according text entry type, type matches M::TextContentType
     void setKeyboardType(const int type);
@@ -153,9 +149,9 @@ public:
     bool symViewAvailable() const;
 
     /*!
-     * Switch language to given direction, \sa MInputMethodBase::swipe
+     * Switch layout to given direction, \sa MInputMethodBase::swipe
      */
-    void switchLanguage(M::InputMethodSwitchDirection direction, bool enableAnimation);
+    void switchLayout(M::InputMethodSwitchDirection direction, bool enableAnimation);
 
     //! Set input method mode
     void setInputMethodMode(M::InputMethodMode mode);
@@ -203,7 +199,7 @@ public slots:
      */
     void organizeContent(M::Orientation orientation);
 
-    void setLanguage(int languageIndex);
+    void setLayout(int layoutIndex);
 
     //! Hide main keyboard layout
     void hideMainArea();
@@ -243,7 +239,7 @@ private slots:
      */
     void showHideFinished();
 
-    void languageReset();
+    void keyboardsReset();
 
     void numberKeyboardReset();
 
@@ -294,9 +290,9 @@ signals:
     //! \see MInputMethodBase::inputMethodAreaUpdated()
     void inputMethodAreaUpdated(const QRegion &);
 
-    //! This signal is emitted when input language is changed
-    //! \param language this is always the language from XML file in unmodified form
-    void languageChanged(const QString &language);
+    //! This signal is emitted when input layout is changed
+    //! \param layout this is always the layout from XML file in unmodified form
+    void layoutChanged(const QString &layout);
 
     //! Emitted when user hides the keyboard, e.g. by pressing the close button
     void userInitiatedHide();
@@ -364,7 +360,7 @@ private:
 
     const LayoutData *currentLayoutModel() const;
 
-    KeyButtonArea *keyboardWidget(KeyboardSectionIndex sectionIndex, int languageIndex = -1) const;
+    KeyButtonArea *keyboardWidget(KeyboardSectionIndex sectionIndex, int layoutIndex = -1) const;
 
     /*!
      * Method to setup timeline
@@ -394,14 +390,14 @@ private:
     //! Reloads sections to switcher with current layout type and orientation
     void reloadSwitcherContent();
 
-    //! Creates a new section widget of given keyboard/layout type and orientation.
-    KeyButtonArea *createMainSectionView(const QString &language,
+    //! Creates a new section widget of given layout/layout type and orientation.
+    KeyButtonArea *createMainSectionView(const QString &layout,
                                          LayoutData::LayoutType,
                                          M::Orientation orientation,
                                          QGraphicsWidget *parent = 0);
 
     // creates a new section widget
-    KeyButtonArea *createSectionView(const QString &language,
+    KeyButtonArea *createSectionView(const QString &layout,
                                      LayoutData::LayoutType layoutType,
                                      M::Orientation orientation,
                                      const QString &section,
@@ -484,7 +480,7 @@ private:
 
     M::Orientation currentOrientation;
 
-    QString currentLanguage;
+    QString currentLayout;
 
     bool hideShowByFadingOnly;
 

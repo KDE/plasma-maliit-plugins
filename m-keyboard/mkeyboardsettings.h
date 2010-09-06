@@ -50,14 +50,14 @@ public:
     //! Reads all available keyboards
     void readAvailableKeyboards();
 
-    //! Returns a map with languages and titles for all available keyboards.
+    //! Returns a map with layouts and titles for all available keyboards.
     QMap<QString, QString> availableKeyboards() const;
 
-    //! Returns a map with languages and titles for all selected keyboards.
+    //! Returns a map with layouts and titles for all selected keyboards.
     QMap<QString, QString> selectedKeyboards() const;
 
-    //! Sets selected keyboards with \a keyboardTitles.
-    void setSelectedKeyboards(const QStringList &keyboardTitles);
+    //! Sets selected keyboards with \a keyboardLayouts.
+    void setSelectedKeyboards(const QStringList &keyboardLayouts);
 
     //! Returns the boolean value of error correction option.
     bool errorCorrection() const;
@@ -73,12 +73,11 @@ Q_SIGNALS:
     void errorCorrectionChanged();
 
 private:
-    QString keyboardTitle(const QString &language) const;
-    QString keyboardLanguage(const QString &title) const;
+    QString keyboardTitle(const QString &layoutFile) const;
+    QString keyboardLayoutFile(const QString &title) const;
 
     struct KeyboardInfo {
-        QString fileName;
-        QString language;
+        QString layoutFile;
         QString title;
     };
 

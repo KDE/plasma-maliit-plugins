@@ -67,6 +67,9 @@ public:
     //! \return keyoard title
     QString title() const;
 
+    //! \return layout file name.
+    QString layoutFile() const;
+
     //! \return whether autocaps is enabled.
     bool autoCapsEnabled() const;
 
@@ -162,6 +165,7 @@ protected:
     QString keyboardCatalog;
     bool keyboardAutoCapsEnabled;
 
+    QString layoutFileName;
     QList<LayoutData *> layouts;
     QHash<QString, LayoutData::LayoutType> layoutTypeMap;
 

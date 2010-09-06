@@ -40,6 +40,8 @@ namespace
     //!object name for settings' widgets
     const QString ObjectNameSelectedKeyboardsItem("SelectedKeyboardsItem");
     const QString ObjectNameErrorCorrectionButton("KeyboardErrorCorrectionButton");
+
+    const int MKeyboardLayoutRole = Qt::UserRole + 1;
 };
 
 class MKeyboardCellCreator: public MAbstractCellCreator<MContentItem>
@@ -69,8 +71,8 @@ void MKeyboardCellCreator::updateCell(const QModelIndex &index, MWidget *cell) c
 {
     MContentItem *contentItem = qobject_cast<MContentItem *>(cell);
 
-    QString langId = index.data(Qt::UserRole + 1).toString();
-    contentItem->setTitle(langId);
+    QString layoutTile = index.data(Qt::DisplayRole).toString();
+    contentItem->setTitle(layoutTile);
 }
 
 void MKeyboardCellCreator::updateContentItemMode(const QModelIndex &index,
@@ -239,10 +241,15 @@ void MKeyboardSettingsWidget::updateKeyboardModel()
     settingsObject->readAvailableKeyboards();
     QStandardItemModel *model = static_cast<QStandardItemModel*> (keyboardList->itemModel());
     model->clear();
-    foreach (QString keyboard, settingsObject->availableKeyboards()) {
-        QStandardItem *item = new QStandardItem(keyboard);
-        item->setData(keyboard);
+
+    QMap<QString, QString> availableKeyboards = settingsObject->availableKeyboards();
+    QMap<QString, QString>::const_iterator i = availableKeyboards.constBegin();
+    while (i != availableKeyboards.constEnd()) {
+        QStandardItem *item = new QStandardItem(i.value());
+        item->setData(i.value(), Qt::DisplayRole);
+        item->setData(i.key(), MKeyboardLayoutRole);
         model->appendRow(item);
+        ++i;
     }
     updateKeyboardSelectionModel();
 }
@@ -266,14 +273,14 @@ void MKeyboardSettingsWidget::updateSelectedKeyboards(const QModelIndex &index)
         || !keyboardList->selectionModel())
         return;
 
-    QStringList updatedKeyboardTitles;
+    QStringList updatedKeyboardLayouts;
     foreach (const QModelIndex &i, keyboardList->selectionModel()->selectedIndexes()) {
-        updatedKeyboardTitles << i.data(Qt::DisplayRole).toString();
+        updatedKeyboardLayouts << i.data(MKeyboardLayoutRole).toString();
     }
-    if (updatedKeyboardTitles.isEmpty()) {
+    if (updatedKeyboardLayouts.isEmpty()) {
         notifyNoKeyboards();
     }
-    settingsObject->setSelectedKeyboards(updatedKeyboardTitles);
+    settingsObject->setSelectedKeyboards(updatedKeyboardLayouts);
     //update titles
     retranslateUi();
 }

@@ -67,7 +67,7 @@ public:
      * \param parent Parent object.
      */
     SymbolView(const LayoutsManager &layoutsManager, const MVirtualKeyboardStyleContainer *,
-               const QString &language, QGraphicsWidget *parent = 0);
+               const QString &layout, QGraphicsWidget *parent = 0);
 
     /*!
      * Destructor
@@ -125,10 +125,10 @@ public slots:
     void setKeyboardState(MIMHandlerState state);
 
     /*!
-     * Method to load svc corresponding to given language
-     * \param lang const QString&, new language
+     * Method to load svc corresponding to given layout file name
+     * \param layoutFile const QString&, new layout file name
      */
-    void setLanguage(const QString &lang);
+    void setLayout(const QString &layoutFile);
 
     /*!
      * \brief Selects the next page if current is not the rightmost.
@@ -295,7 +295,7 @@ private:
 
     M::Orientation currentOrientation;
 
-    QString currentLanguage;
+    QString currentLayout;
 
     /*! This is true when one of the pages has received mouse
      *  down event. It is used to check whether on page switch

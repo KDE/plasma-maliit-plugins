@@ -131,7 +131,7 @@ SymbolView::LinearLayoutObject::LinearLayoutObject(Qt::Orientation orientation, 
 {}
 
 SymbolView::SymbolView(const LayoutsManager &layoutsManager, const MVirtualKeyboardStyleContainer *style,
-                       const QString &language, QGraphicsWidget *parent)
+                       const QString &layout, QGraphicsWidget *parent)
     : MWidget(parent),
       styleContainer(style),
       anim(this),
@@ -143,7 +143,7 @@ SymbolView::SymbolView(const LayoutsManager &layoutsManager, const MVirtualKeybo
       pageSwitcher(0),
       functionRow(0),
       currentOrientation(sceneManager.orientation()),
-      currentLanguage(language),
+      currentLayout(layout),
       mouseDownKeyArea(false),
       activeState(OnScreen)
 {
@@ -217,16 +217,16 @@ void SymbolView::connectHandle(Handle *handle)
 void SymbolView::reloadContent()
 {
     if (activeState == OnScreen) {
-        // Get layout model which for current language and orientation.
-        const LayoutData *layoutData = layoutsMgr.layout(currentLanguage, LayoutData::General, currentOrientation);
+        // Get layout model which for current layout and orientation.
+        const LayoutData *layoutData = layoutsMgr.layout(currentLayout, LayoutData::General, currentOrientation);
 
         loadSwitcherPages(layoutData, activePage);
         setShiftState(shiftState);
     } else if (activeState == Hardware && currentOrientation == M::Landscape) {
         const LayoutData *layoutData = layoutsMgr.hardwareLayout(LayoutData::General, M::Landscape);
         if (!layoutData) {
-            // Get it by language then.
-            layoutData = layoutsMgr.layout(currentLanguage, LayoutData::General, M::Landscape);
+            // Get it by layout then.
+            layoutData = layoutsMgr.layout(currentLayout, LayoutData::General, M::Landscape);
         }
 
         loadSwitcherPages(layoutData, activePage);
@@ -531,12 +531,12 @@ void SymbolView::setKeyboardState(MIMHandlerState newState)
     }
 }
 
-void SymbolView::setLanguage(const QString &lang)
+void SymbolView::setLayout(const QString &layoutFile)
 {
-    if (lang != currentLanguage && layoutsMgr.languageList().contains(lang)) {
-        currentLanguage = lang;
+    if (layoutFile != currentLayout && layoutsMgr.layoutFileList().contains(layoutFile)) {
+        currentLayout = layoutFile;
 
-        // Only on-screen sym follows language.
+    // Only on-screen sym follows layout.
         if (activeState == OnScreen) {
             reloadContent();
         }

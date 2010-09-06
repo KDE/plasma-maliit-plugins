@@ -128,9 +128,9 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
     phoneNumberKeyboard->hide();
     phoneNumberLayout = createKeyAreaLayout(phoneNumberKeyboard);
 
-    connect(&layoutsMgr, SIGNAL(languagesChanged()), this, SLOT(languageReset()));
+    connect(&layoutsMgr, SIGNAL(layoutsChanged()), this, SLOT(keyboardsReset()));
     connect(&layoutsMgr, SIGNAL(numberFormatChanged()), this, SLOT(numberKeyboardReset()));
-    languageReset(); // creates keyboard widgets
+    keyboardsReset(); // creates keyboard widgets
 
     organizeContent(currentOrientation);
 }
@@ -288,7 +288,7 @@ MVirtualKeyboard::flickLeftHandler()
         }
 
         mainKeyboardSwitcher->switchTo(HorizontalSwitcher::Right);
-        setLanguage(mainKeyboardSwitcher->current());
+        setLayout(mainKeyboardSwitcher->current());
     }
 }
 
@@ -312,7 +312,7 @@ MVirtualKeyboard::flickRightHandler()
         }
 
         mainKeyboardSwitcher->switchTo(HorizontalSwitcher::Left);
-        setLanguage(mainKeyboardSwitcher->current());
+        setLayout(mainKeyboardSwitcher->current());
     }
 }
 
@@ -616,17 +616,17 @@ void MVirtualKeyboard::drawButtonsReactionMaps(MReactionMap *reactionMap, QGraph
 
 QString MVirtualKeyboard::layoutLanguage() const
 {
-    return layoutsMgr.keyboardLanguage(currentLanguage);
+    return layoutsMgr.keyboardLanguage(currentLayout);
 }
 
 QString MVirtualKeyboard::layoutTitle() const
 {
-    return layoutsMgr.keyboardTitle(currentLanguage);
+    return layoutsMgr.keyboardTitle(currentLayout);
 }
 
-QString MVirtualKeyboard::selectedLanguage() const
+QString MVirtualKeyboard::selectedLayout() const
 {
-    return currentLanguage;
+    return currentLayout;
 }
 
 void MVirtualKeyboard::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view)
@@ -732,71 +732,69 @@ ModifierState MVirtualKeyboard::shiftStatus() const
 
 const LayoutData *MVirtualKeyboard::currentLayoutModel() const
 {
-    return layoutsMgr.layout(currentLanguage, currentLayoutType, currentOrientation);
+    return layoutsMgr.layout(currentLayout, currentLayoutType, currentOrientation);
 }
 
 
-void MVirtualKeyboard::setLanguage(int languageIndex)
+void MVirtualKeyboard::setLayout(int layoutIndex)
 {
     qDebug() << __PRETTY_FUNCTION__;
-    if ((languageIndex < 0) || (languageIndex >= layoutsMgr.languageCount())) {
+    if ((layoutIndex < 0) || (layoutIndex >= layoutsMgr.layoutCount())) {
         return;
     }
 
-    const QStringList languageList = layoutsMgr.languageList();
-    const QString nextLanguage = languageList.at(languageIndex);
+    const QStringList layoutList = layoutsMgr.layoutFileList();
+    const QString nextLayout = layoutList.at(layoutIndex);
 
-    qDebug() << "\t" << currentLanguage << " -> " << nextLanguage << " index=" << languageIndex;
+    qDebug() << "\t" << currentLayout << " -> " << nextLayout << " index=" << layoutIndex;
 
-    if (nextLanguage != currentLanguage) {
-        currentLanguage = nextLanguage;
+    if (nextLayout != currentLayout) {
+        currentLayout = nextLayout;
 
-        emit languageChanged(currentLanguage);
+        emit layoutChanged(currentLayout);
 
-        // Switcher has the language loaded, just switchTo() it.
-        // NOTE: Switcher already has correct index if language change was
+        // Switcher has the layout loaded, just switchTo() it.
+        // NOTE: Switcher already has correct index if layout change was
         // initiated by a flick gesture.
-        if (mainKeyboardSwitcher->count() >= languageIndex) {
-            mainKeyboardSwitcher->setCurrent(languageIndex);
+        if (mainKeyboardSwitcher->count() >= layoutIndex) {
+            mainKeyboardSwitcher->setCurrent(layoutIndex);
         }
     }
 }
 
 
-void MVirtualKeyboard::languageReset()
+void MVirtualKeyboard::keyboardsReset()
 {
-    int languageIndex = -1; // Language to apply after reload.
+    int layoutIndex = -1; // Layout to apply after reload.
 
-    if (layoutsMgr.languageCount() > 0) {
-        const QStringList languageList = layoutsMgr.languageList();
+    if (layoutsMgr.layoutCount() > 0) {
+        const QStringList layoutList = layoutsMgr.layoutFileList();
 
-        // If new language set does not contain previous current language
+        // If new layout set does not contain previous current layout
         // we need to set it to something else.
-        languageIndex = languageList.indexOf(currentLanguage);
+        layoutIndex = layoutList.indexOf(currentLayout);
 
-        if (languageIndex == -1) {
-            // Current language not in new languagelist.
-            // Set current language to default language
-            const QString defaultLanguage = layoutsMgr.defaultLanguage();
-
-            languageIndex = languageList.indexOf(defaultLanguage);
-            if (languageIndex == -1) {
+        if (layoutIndex == -1) {
+            // Current layout not in new layoutlist.
+            // Set current layout to default layout
+            layoutIndex = layoutList.indexOf(layoutsMgr.defaultLayoutFile());
+            if (layoutIndex == -1) {
                 // Last resort, take first
-                languageIndex = 0;
+                layoutIndex = 0;
             }
         }
 
-        // TODO: we should simplify the whole languageReset(). Now
-        // MVirtualKeyboard manages currentLanguage and HorizontalSwitcher also
+        // TODO: we should simplify the whole keyboardsReset(). Now
+        // MVirtualKeyboard manages currentLayout and HorizontalSwitcher also
         // manages its current widget index.  We always have to synchronize
         // both of them if one is changed (in the right order, too).
-        currentLanguage = "";
+        currentLayout.clear();
     }
 
     recreateKeyboards();
 
-    if (languageIndex >= 0) {
-        setLanguage(languageIndex);
+    if (layoutIndex >= 0) {
+        setLayout(layoutIndex);
     }
 }
 
@@ -817,7 +815,7 @@ void MVirtualKeyboard::onSectionSwitchStarting(int current, int next)
     }
 
     if ((current != -1) && (currentLayoutType == LayoutData::General)) {
-        notification->displayText(layoutsMgr.keyboardTitle(layoutsMgr.languageList()[next]));
+        notification->displayText(layoutsMgr.keyboardTitle(layoutsMgr.layoutFileList()[next]));
     }
 }
 
@@ -854,29 +852,29 @@ void MVirtualKeyboard::reloadSwitcherContent()
     // delete previous pages
     mainKeyboardSwitcher->deleteAll();
 
-    // Load certain type and orientation from all languages.
-    foreach (const QString &language, layoutsMgr.languageList()) {
-        KeyButtonArea *mainSection = createMainSectionView(language, LayoutData::General,
+    // Load certain type and orientation from all layouts.
+    foreach (const QString &layoutFile, layoutsMgr.layoutFileList()) {
+        KeyButtonArea *mainSection = createMainSectionView(layoutFile, LayoutData::General,
                                                            currentOrientation);
         mainSection->setObjectName("VirtualKeyboardMainRow");
         mainSection->setPreferredWidth(MPlainWindow::instance()->visibleSceneSize().width());
 
-        // create a new page for language and append main and function sections
-        QGraphicsWidget *languagePage = new QGraphicsWidget;
-        QGraphicsLinearLayout *languageLayout = createKeyAreaLayout(languagePage);
-        languageLayout->addItem(mainSection);
+        // create a new page for layout and append main and function sections
+        QGraphicsWidget *layoutPage = new QGraphicsWidget;
+        QGraphicsLinearLayout *keyboardLayout = createKeyAreaLayout(layoutPage);
+        keyboardLayout->addItem(mainSection);
 
-        mainKeyboardSwitcher->addWidget(languagePage);
+        mainKeyboardSwitcher->addWidget(layoutPage);
     }
 }
 
 
-KeyButtonArea *MVirtualKeyboard::createMainSectionView(const QString &language,
+KeyButtonArea *MVirtualKeyboard::createMainSectionView(const QString &layout,
                                                        LayoutData::LayoutType layoutType,
                                                        M::Orientation orientation,
                                                        QGraphicsWidget *parent)
 {
-    KeyButtonArea *buttonArea = createSectionView(language, layoutType, orientation,
+    KeyButtonArea *buttonArea = createSectionView(layout, layoutType, orientation,
                                                   LayoutData::mainSection,
                                                   true, parent);
 
@@ -887,14 +885,14 @@ KeyButtonArea *MVirtualKeyboard::createMainSectionView(const QString &language,
     return buttonArea;
 }
 
-KeyButtonArea * MVirtualKeyboard::createSectionView(const QString &language,
+KeyButtonArea * MVirtualKeyboard::createSectionView(const QString &layout,
                                                     LayoutData::LayoutType layoutType,
                                                     M::Orientation orientation,
                                                     const QString &section,
                                                     bool usePopup,
                                                     QGraphicsWidget *parent)
 {
-    const LayoutData *model = layoutsMgr.layout(language, layoutType, orientation);
+    const LayoutData *model = layoutsMgr.layout(layout, layoutType, orientation);
     KeyButtonArea *view = new SingleWidgetButtonArea(styleContainer, model->section(section),
                                                      usePopup, parent);
 
@@ -920,16 +918,16 @@ void MVirtualKeyboard::handleShiftPressed(bool shiftPressed)
     }
 }
 
-KeyButtonArea *MVirtualKeyboard::keyboardWidget(KeyboardSectionIndex sectionIndex, int languageIndex) const
+KeyButtonArea *MVirtualKeyboard::keyboardWidget(KeyboardSectionIndex sectionIndex, int layoutIndex) const
 {
     if (!mainKeyboardSwitcher) {
         return 0;
     }
 
     KeyButtonArea *kba = 0;
-    const QGraphicsWidget *activeKb = (languageIndex == -1) ?
+    const QGraphicsWidget *activeKb = (layoutIndex == -1) ?
                                        mainKeyboardSwitcher->currentWidget() :
-                                       mainKeyboardSwitcher->widget(languageIndex);
+                                       mainKeyboardSwitcher->widget(layoutIndex);
 
     if (activeKb
         && activeKb->layout()
@@ -960,14 +958,14 @@ void MVirtualKeyboard::recreateSpecialKeyboards()
     }
 
     // number:
-    const QString defaultLanguage = layoutsMgr.defaultLanguage();
+    const QString defaultLayout = layoutsMgr.defaultLayoutFile();
 
-    KeyButtonArea *numberArea = createSectionView(defaultLanguage, LayoutData::Number,
+    KeyButtonArea *numberArea = createSectionView(defaultLayout, LayoutData::Number,
                                                   currentOrientation, LayoutData::mainSection,
                                                   false, numberKeyboard);
 
     // TODO: remove me
-    KeyButtonArea *numberFunctionRow = createSectionView(defaultLanguage, LayoutData::Number,
+    KeyButtonArea *numberFunctionRow = createSectionView(defaultLayout, LayoutData::Number,
                                                          currentOrientation, LayoutData::functionkeySection,
                                                          false, numberKeyboard);
 
@@ -975,12 +973,12 @@ void MVirtualKeyboard::recreateSpecialKeyboards()
     numberLayout->addItem(numberFunctionRow);
 
     // phone:
-    KeyButtonArea *phoneArea = createSectionView(defaultLanguage, LayoutData::PhoneNumber,
+    KeyButtonArea *phoneArea = createSectionView(defaultLayout, LayoutData::PhoneNumber,
                                                  currentOrientation, LayoutData::mainSection,
                                                  false, phoneNumberKeyboard);
 
     // TODO: remove me
-    KeyButtonArea *phoneFunctionArea = createSectionView(defaultLanguage, LayoutData::PhoneNumber,
+    KeyButtonArea *phoneFunctionArea = createSectionView(defaultLayout, LayoutData::PhoneNumber,
                                                          currentOrientation, LayoutData::functionkeySection,
                                                          false, phoneNumberKeyboard);
 
@@ -1018,7 +1016,7 @@ void MVirtualKeyboard::setSharedHandleArea(const QPointer<SharedHandleArea> &new
 }
 
 
-void MVirtualKeyboard::switchLanguage(M::InputMethodSwitchDirection direction, bool enableAnimation)
+void MVirtualKeyboard::switchLayout(M::InputMethodSwitchDirection direction, bool enableAnimation)
 {
     qDebug() << __PRETTY_FUNCTION__ << direction << enableAnimation;
     if (direction == M::SwitchUndefined) {
@@ -1044,7 +1042,7 @@ void MVirtualKeyboard::switchLanguage(M::InputMethodSwitchDirection direction, b
 
         mainKeyboardSwitcher->setCurrent(current);
     }
-    setLanguage(mainKeyboardSwitcher->current());
+    setLayout(mainKeyboardSwitcher->current());
 }
 
 
@@ -1072,5 +1070,5 @@ void MVirtualKeyboard::setInputMethodMode(M::InputMethodMode mode)
 
 bool MVirtualKeyboard::autoCapsEnabled() const
 {
-    return layoutsMgr.autoCapsEnabled(currentLanguage);
+    return layoutsMgr.autoCapsEnabled(currentLayout);
 }

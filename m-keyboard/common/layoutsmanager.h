@@ -46,30 +46,31 @@ public:
     //! \brief Destroy singleton
     static void destroyInstance();
 
-    int languageCount() const;
+    //! \brief Returns the count of keyboard layouts.
+    int layoutCount() const;
 
-    QStringList languageList() const;
+    //! \brief Returns the keyboard layout file name list.
+    QStringList layoutFileList() const;
 
-    //! Returns title of a given language as stated in xml.
-    QString keyboardTitle(const QString &language) const;
+    //! Returns title of a given \a layoutFile as stated in xml.
+    QString keyboardTitle(const QString &layoutFile) const;
 
-    //! Returns whether autocaps is enabled for given language.
-    bool autoCapsEnabled(const QString &language) const;
+    //! Returns whether autocaps is enabled for given \a layoutFile.
+    bool autoCapsEnabled(const QString &layoutFile) const;
 
-    //! \return real language (as specified in XML) of the keyboard
-    //! loaded based on language list entry 'language'.
-    QString keyboardLanguage(const QString &language) const;
+    //! \return keyboard language (as specified in XML) of a given \a layoutFile.
+    QString keyboardLanguage(const QString &layoutFile) const;
 
-    //! \brief Get layout model by language, type, and orientation
-    const LayoutData *layout(const QString &language, LayoutData::LayoutType type,
+    //! \brief Get layout model by layoutFile, type, and orientation
+    const LayoutData *layout(const QString &layoutFile, LayoutData::LayoutType type,
                              M::Orientation orientation) const;
 
     //! \brief Get layout model specific to current hardware keyboard layout.
     const LayoutData *hardwareLayout(LayoutData::LayoutType type,
                                      M::Orientation orientation) const;
 
-    //! \brief Returns currently set default language
-    QString defaultLanguage() const;
+    //! \brief Returns currently set default layout file name.
+    QString defaultLayoutFile() const;
 
     //! \brief Returns currently system display language
     QString systemDisplayLanguage() const;
@@ -102,14 +103,14 @@ public:
     bool hardwareKeyboardAutoCapsEnabled() const;
 
     /*!
-     *\brief Returns the language codes and its titles for selected keyboards.
+     *\brief Returns the layout file names and their titles for selected keyboards.
      */
     QMap<QString, QString> selectedLayouts() const;
 
 signals:
-    //! Signals that languages have been reset and keyboard data can
-    //! be reloaded using new languages returned by languageList().
-    void languagesChanged();
+    //! Signals that layouts have been reset and keyboard data can
+    //! be reloaded using new layouts returned by layoutList().
+    void layoutsChanged();
 
     //! Signals that number format have been reset and number/phonenumber
     //! keyboard data can be reloaded.
@@ -126,14 +127,14 @@ private:
     explicit LayoutsManager(const MVirtualKeyboardStyleContainer *styleContainer = 0);
 
     /*!
-     * Returns the layout of the given language
-     * \param language language name such as fi_FI or fi
-     * \return true if language was loaded, false if failure or language already existed
+     * Returns the layout of the given layout name
+     * \param layout layout name such as fi_FI.xml or fi.xml
+     * \return true if layout was loaded, false if failure or layout already existed
      */
-    bool loadLanguage(const QString &language);
+    bool loadLayout(const QString &layout);
 
-    //! \return keyboard that matches language list entry 'language'
-    const KeyboardData *keyboardByName(const QString &language) const;
+    //! \return keyboard that matches layout list entry /a layoutFile
+    const KeyboardData *keyboardByName(const QString &layoutFile) const;
 
     //! Maps HW Sym variant type to xml file which contains the symbols.
     QString symbolVariantFileName(HardwareSymbolVariant symVariant);
@@ -142,7 +143,7 @@ private:
     void initXkbMap();
 
 private slots:
-    void syncLanguages();
+    void syncLayouts();
     void syncHardwareKeyboard();
     void syncNumberKeyboards();
 
@@ -153,9 +154,9 @@ private:
         NumLatin
     };
 
-    //! MGConfItem for selected languages available for
-    //! vkb's use. The settings are set by control panel applet.
-    MGConfItem configLanguages;
+    //! MGConfItem for selected layouts available for vkb's use.
+    //! The settings are set by control panel applet.
+    MGConfItem configLayouts;
 
     //! Setting that tells the xkb model.
     MGConfItem xkbModelSetting;
@@ -166,12 +167,12 @@ private:
     //! Current xkb variant.
     QString xkbCurrentVariant;
 
-    //! All keyboards arranged by language.
-    //! The map key is language name as read from settings.
+    //! All keyboards arranged by layout name.
+    //! The map key is layout name as read from settings.
     QMap<QString, KeyboardData *> keyboards;
 
-    //! Iterator that points to current language and keyboard.
-    //! Current keyboard is used when no language name is specified
+    //! Iterator that points to current layout and keyboard.
+    //! Current keyboard is used when no layout name is specified
     //! in calls to public methods of this class.
     QMap<QString, KeyboardData *>::const_iterator current;
 

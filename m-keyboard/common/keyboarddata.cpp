@@ -249,6 +249,11 @@ QString KeyboardData::title() const
     return keyboardTitle;
 }
 
+QString KeyboardData::layoutFile() const
+{
+    return layoutFileName;
+}
+
 bool KeyboardData::autoCapsEnabled() const
 {
     return keyboardAutoCapsEnabled;
@@ -261,6 +266,8 @@ bool KeyboardData::loadNokiaKeyboard(const QString &fileName)
     // allow reloading
     qDeleteAll(layouts);
     layouts.clear();
+
+    layoutFileName = fileName;
 
     const bool success = loadNokiaKeyboardImpl(fileName, params);
     if (!success) {

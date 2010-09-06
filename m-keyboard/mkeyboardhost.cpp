@@ -60,7 +60,7 @@ namespace
     const QString InputMethodList("MInputMethodList");
     const QString DefaultInputLanguage("en_GB");
     // TODO: check that these paths still hold
-    const QString InputMethodCorrectionSetting("/meegotouch/inputmethods/correctionenabled");
+    const QString InputMethodCorrectionSetting("/meegotouch/inputmethods/virtualkeyboard/correctionenabled");
     bool DefaultInputMethodCorrectionSettingOption = false;
     const QString InputMethodCorrectionEngine("/meegotouch/inputmethods/correctionengine");
     const QString AutoCapsSentenceDelimiters(".?!¡¿"); // used as regexp character set content!
@@ -299,7 +299,7 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection *icConnection, QObject *par
             SLOT(finalizeOrientationChange()));
 
     symbolView = new SymbolView(LayoutsManager::instance(), vkbStyleContainer,
-                                vkbWidget->selectedLanguage(), sceneWindow);
+                                vkbWidget->selectedLayout(), sceneWindow);
     connect(symbolView, SIGNAL(regionUpdated(const QRegion &)),
             this, SLOT(handleRegionUpdate(const QRegion &)));
     connect(symbolView, SIGNAL(regionUpdated(const QRegion &)),
@@ -318,7 +318,7 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection *icConnection, QObject *par
     symbolView->setSharedHandleArea(sharedHandleArea);
     sharedHandleArea->watchOnMovement(symbolView);
 
-    connect(vkbWidget, SIGNAL(languageChanged(const QString &)),
+    connect(vkbWidget, SIGNAL(layoutChanged(const QString &)),
             this, SLOT(handleVirtualKeyboardLayoutChanged(const QString &)));
 
     connect(vkbWidget, SIGNAL(shiftLevelChanged()),
@@ -1309,7 +1309,7 @@ void MKeyboardHost::clientChanged()
 void MKeyboardHost::switchContext(M::InputMethodSwitchDirection direction, bool enableAnimation)
 {
     if (activeState == OnScreen) {
-        vkbWidget->switchLanguage(direction, enableAnimation);
+        vkbWidget->switchLayout(direction, enableAnimation);
     }
 }
 
@@ -1501,17 +1501,17 @@ QList<MInputMethodBase::MInputMethodSubView> MKeyboardHost::subViews(MIMHandlerS
 void MKeyboardHost::setActiveSubView(const QString &subViewId, MIMHandlerState state)
 {
     if (state == OnScreen) {
-        const QStringList languageList = LayoutsManager::instance().languageList();
-        int index = languageList.indexOf(subViewId);
-        vkbWidget->setLanguage(index);
+        const QStringList layoutFileList = LayoutsManager::instance().layoutFileList();
+        int index = layoutFileList.indexOf(subViewId);
+        vkbWidget->setLayout(index);
     }
 }
 
 QString MKeyboardHost::activeSubView(MIMHandlerState state) const
 {
     if (state == OnScreen) {
-        // return the title of the active layout
-        return vkbWidget->layoutLanguage();
+        // return the active vkb layout
+        return vkbWidget->selectedLayout();
     } else {
         return QString();
     }
@@ -1522,7 +1522,7 @@ void MKeyboardHost::handleVirtualKeyboardLayoutChanged(const QString &layout)
     // reset the temporary shift state when layout is changed
     resetVirtualKeyboardShiftState();
     if (symbolView) {
-        symbolView->setLanguage(layout);
+        symbolView->setLayout(layout);
     }
 
     initializeInputEngine();

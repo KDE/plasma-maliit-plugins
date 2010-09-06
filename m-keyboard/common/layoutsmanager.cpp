@@ -22,9 +22,9 @@
 
 namespace
 {
-    const QString InputMethodLanguages("/meegotouch/inputmethods/languages");
+    const QString InputMethodLayouts("/meegotouch/inputmethods/virtualkeyboard/layouts");
     const QString NumberFormatSettingName("/meegotouch/inputmethods/numberformat");
-    const QString InputMethodDefaultLanguage("/meegotouch/inputmethods/languages/default");
+    const QString InputMethodDefaultLayout("/meegotouch/inputmethods/virtualkeyboard/layouts/default");
     const QString XkbLayoutSettingName("/meegotouch/inputmethods/hwkeyboard/layout");
     const QString XkbVariantSettingName("/meegotouch/inputmethods/hwkeyboard/variant");
     const QString XkbSecondaryLayoutSettingName("/meegotouch/inputmethods/hwkeyboard/secondarylayout");
@@ -34,8 +34,7 @@ namespace
     const QString DefaultHardwareKeyboardAutoCapsDisabledLayout("ara"); // Uses xkb layout name. Arabic is "ara".
     const QString SystemDisplayLanguage("/meegotouch/i18n/language");
     const QString DefaultNumberFormat("latin");
-    const QString LayoutFileExtension(".xml");
-    const QString FallbackLanguage("en_gb");
+    const QString FallbackLayout("en_gb.xml");
     const QString FallbackXkbLayout("us");
     const QString NumberKeyboardFileArabic("number_ar.xml");
     const QString NumberKeyboardFileLatin("number.xml");
@@ -53,7 +52,7 @@ LayoutsManager *LayoutsManager::Instance = 0;
 
 
 LayoutsManager::LayoutsManager(const MVirtualKeyboardStyleContainer *newStyleContainer)
-    : configLanguages(InputMethodLanguages),
+    : configLayouts(InputMethodLayouts),
       xkbModelSetting(XkbModelSettingName),
       styleContainer(newStyleContainer),
       hwKeyboard(newStyleContainer),
@@ -64,14 +63,14 @@ LayoutsManager::LayoutsManager(const MVirtualKeyboardStyleContainer *newStyleCon
       currentHwkbLayoutType(InvalidHardwareKeyboard)
 {
     // Read settings for the first time and load keyboard layouts.
-    syncLanguages();
+    syncLayouts();
     initXkbMap();
     syncHardwareKeyboard();
     syncNumberKeyboards();
 
     // Synchronize with settings when someone changes them (e.g. via control panel).
-    connect(&configLanguages, SIGNAL(valueChanged()), this, SLOT(syncLanguages()));
-    connect(&configLanguages, SIGNAL(valueChanged()), this, SIGNAL(selectedLayoutsChanged()));
+    connect(&configLayouts, SIGNAL(valueChanged()), this, SLOT(syncLayouts()));
+    connect(&configLayouts, SIGNAL(valueChanged()), this, SIGNAL(selectedLayoutsChanged()));
 
     connect(&numberFormatSetting, SIGNAL(valueChanged()), this, SLOT(syncNumberKeyboards()));
     connect(&locale, SIGNAL(settingsChanged()), SLOT(syncNumberKeyboards()));
@@ -99,21 +98,23 @@ void LayoutsManager::destroyInstance()
     Instance = 0;
 }
 
-int LayoutsManager::languageCount() const
+int LayoutsManager::layoutCount() const
 {
     return keyboards.count();
 }
 
-QStringList LayoutsManager::languageList() const
+QStringList LayoutsManager::layoutFileList() const
 {
-    // This will return languages in alphabetical ascending order.
+    // This will return layout files in alphabetical ascending order.
     // This means that order in gconf is ignored.
-    return keyboards.keys();
+    QStringList layoutFiles = keyboards.keys();
+    layoutFiles.sort();
+    return layoutFiles;
 }
 
-const KeyboardData *LayoutsManager::keyboardByName(const QString &language) const
+const KeyboardData *LayoutsManager::keyboardByName(const QString &layoutFile) const
 {
-    QMap<QString, KeyboardData *>::const_iterator kbIter = keyboards.find(language);
+    QMap<QString, KeyboardData *>::const_iterator kbIter = keyboards.find(layoutFile);
 
     const KeyboardData *keyboard = NULL;
     if (kbIter != keyboards.end())
@@ -122,25 +123,25 @@ const KeyboardData *LayoutsManager::keyboardByName(const QString &language) cons
     return keyboard;
 }
 
-QString LayoutsManager::keyboardTitle(const QString &language) const
+QString LayoutsManager::keyboardTitle(const QString &layoutFile) const
 {
-    const KeyboardData *const keyboard = keyboardByName(language);
+    const KeyboardData *const keyboard = keyboardByName(layoutFile);
     return (keyboard ? keyboard->title() : "");
 }
 
-bool LayoutsManager::autoCapsEnabled(const QString &language) const
+bool LayoutsManager::autoCapsEnabled(const QString &layoutFile) const
 {
-    const KeyboardData *const keyboard = keyboardByName(language);
+    const KeyboardData *const keyboard = keyboardByName(layoutFile);
     return (keyboard ? keyboard->autoCapsEnabled() : false);
 }
 
-QString LayoutsManager::keyboardLanguage(const QString &language) const
+QString LayoutsManager::keyboardLanguage(const QString &layoutFile) const
 {
-    const KeyboardData *const keyboard = keyboardByName(language);
+    const KeyboardData *const keyboard = keyboardByName(layoutFile);
     return (keyboard ? keyboard->language() : "");
 }
 
-const LayoutData *LayoutsManager::layout(const QString &language,
+const LayoutData *LayoutsManager::layout(const QString &layoutFile,
         LayoutData::LayoutType type,
         M::Orientation orientation) const
 {
@@ -151,7 +152,7 @@ const LayoutData *LayoutsManager::layout(const QString &language,
     } else if (type == LayoutData::PhoneNumber) {
         lm = phoneNumberKeyboard.layout(type, orientation);
     } else {
-        QMap<QString, KeyboardData *>::const_iterator kbIter = keyboards.find(language);
+        QMap<QString, KeyboardData *>::const_iterator kbIter = keyboards.find(layoutFile);
 
         if (kbIter != keyboards.end() && *kbIter) {
             lm = (*kbIter)->layout(type, orientation);
@@ -172,9 +173,9 @@ const LayoutData *LayoutsManager::hardwareLayout(LayoutData::LayoutType type,
     return hwKeyboard.layout(type, orientation);
 }
 
-QString LayoutsManager::defaultLanguage() const
+QString LayoutsManager::defaultLayoutFile() const
 {
-    return MGConfItem(InputMethodDefaultLanguage).value(FallbackLanguage).toString();
+    return MGConfItem(InputMethodDefaultLayout).value(FallbackLayout).toString();
 }
 
 QString LayoutsManager::systemDisplayLanguage() const
@@ -250,20 +251,20 @@ bool LayoutsManager::hardwareKeyboardAutoCapsEnabled() const
     return !(autoCapsDisabledLayouts.contains(xkbLayout()));
 }
 
-bool LayoutsManager::loadLanguage(const QString &language)
+bool LayoutsManager::loadLayout(const QString &layout)
 {
     QMap<QString, KeyboardData *>::iterator kbIterator;
 
     // sanity tests
-    if (language.isEmpty())
+    if (layout.isEmpty())
         return false;
 
     KeyboardData *keyboard = new KeyboardData(styleContainer);
 
-    bool loaded = keyboard->loadNokiaKeyboard(language + LayoutFileExtension);
+    bool loaded = keyboard->loadNokiaKeyboard(layout);
 
     if (!loaded) {
-        loaded = keyboard->loadNokiaKeyboard(QString(language.toLower() + LayoutFileExtension));
+        loaded = keyboard->loadNokiaKeyboard(layout);
     }
 
     if (!loaded) {
@@ -272,16 +273,16 @@ bool LayoutsManager::loadLanguage(const QString &language)
         return false;
     }
 
-    // Make sure entry for language exists. Create if it doesn't.
-    kbIterator = keyboards.find(language.toLower());
+    // Make sure entry for layout exists. Create if it doesn't.
+    kbIterator = keyboards.find(layout);
     if (kbIterator == keyboards.end()) {
-        kbIterator = keyboards.insert(language.toLower(), 0);
+        kbIterator = keyboards.insert(layout, 0);
     }
 
     if (*kbIterator) {
         // What to do?
-        qWarning() << "LayoutsManager: Layouts have already been loaded for language "
-                   << keyboard->language();
+        qWarning() << "LayoutsManager: Layouts have already been loaded for layout "
+                   << keyboard->layoutFile();
         delete keyboard;
         keyboard = NULL;
         return false;
@@ -327,23 +328,23 @@ void LayoutsManager::syncNumberKeyboards()
     emit numberFormatChanged();
 }
 
-void LayoutsManager::syncLanguages()
+void LayoutsManager::syncLayouts()
 {
     bool changed = false;
-    QStringList newLanguages;
-    const QStringList oldLanguages = languageList();
+    QStringList newLayouts;
+    const QStringList oldLayouts = layoutFileList();
 
     // Add new ones
-    if (!configLanguages.value().isNull()) {
-        newLanguages = configLanguages.value().toStringList();
+    if (!configLayouts.value().isNull()) {
+        newLayouts = configLayouts.value().toStringList();
 
-        foreach(QString language, newLanguages) {
-            // Existing languages are not reloaded.
-            if (!keyboards.contains(language.toLower())) {
-                // Add new language
-                if (!loadLanguage(language.toLower())) {
+        foreach(QString layoutFile, newLayouts) {
+            // Existing layouts are not reloaded.
+            if (!oldLayouts.contains(layoutFile, Qt::CaseInsensitive)) {
+                // Add new layout
+                if (!loadLayout(layoutFile)) {
                     qWarning() << __PRETTY_FUNCTION__
-                               << "New language " << language << " could not be loaded.";
+                               << "New layout file " << layoutFile << " could not be loaded.";
                 } else {
                     changed = true;
                 }
@@ -352,23 +353,23 @@ void LayoutsManager::syncLanguages()
     }
 
     // Remove old ones
-    foreach(QString old, oldLanguages) {
-        if (!newLanguages.contains(old)) {
+    foreach(QString old, oldLayouts) {
+        if (!newLayouts.contains(old, Qt::CaseInsensitive)) {
             keyboards.remove(old);
             changed = true;
         }
     }
 
-    // Try FallbackLanguage if no languages loaded.
+    // Try FallbackLayout if no layouts loaded.
     // Don't try to load again if we already tried.
-    if (keyboards.isEmpty() && !newLanguages.contains(FallbackLanguage)) {
-        if (loadLanguage(FallbackLanguage)) {
+    if (keyboards.isEmpty() && !newLayouts.contains(FallbackLayout)) {
+        if (loadLayout(FallbackLayout)) {
             changed = true;
         }
     }
 
     if (changed) {
-        emit languagesChanged();
+        emit layoutsChanged();
     }
 }
 
@@ -383,7 +384,7 @@ void LayoutsManager::syncHardwareKeyboard()
 
     currentHwkbLayoutType = hwkbLayoutType;
 
-    // What we could do here is to load a generic hw language xml file
+    // What we could do here is to load a generic hw layout xml file
     // that would import the correct symbol layout variant but since
     // symbol sections are the only things we currently use, let's just
     // load the hw symbols xml directly.
@@ -424,8 +425,8 @@ QString LayoutsManager::symbolVariantFileName(HardwareSymbolVariant symVariant)
 QMap<QString, QString> LayoutsManager::selectedLayouts() const
 {
     QMap<QString, QString> layouts;
-    foreach (const QString language, languageList()) {
-        layouts.insert(language, keyboardTitle(language));
+    foreach (const QString layout, layoutFileList()) {
+        layouts.insert(layout, keyboardTitle(layout));
     }
     return layouts;
 }

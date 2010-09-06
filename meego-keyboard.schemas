@@ -2,39 +2,39 @@
 <gconfschemafile>
   <schemalist>
     <schema>
-      <key>/schemas/meegotouch/inputmethods/languages</key>
-      <applyto>/meegotouch/inputmethods/languages</applyto>
+      <key>/schemas/meegotouch/inputmethods/virtualkeyboard/layouts</key>
+      <applyto>/meegotouch/inputmethods/virtualkeyboard/layouts</applyto>
       <owner>meegotouch</owner>
       <type>list</type>
       <list_type>string</list_type>
-      <default>[en_gb,da,de,es,fi,fr,it,ru,sv]</default>
+      <default>[en_gb.xml,da.xml,de.xml,es.xml,fi.xml,fr.xml,it.xml,ru.xml,sv.xml]</default>
       <locale name="C">
-        <short>Language list</short>
-        <long>Language list</long>
+        <short>Virtual keyboard layout list</short>
+        <long>Meegotouch virtual keyboard layout list</long>
       </locale>
     </schema>
 
     <schema>
-      <key>/schemas/meegotouch/inputmethods/languages/default</key>
-      <applyto>/meegotouch/inputmethods/languages/default</applyto>
+      <key>/schemas/meegotouch/inputmethods/virtualkeyboard/layouts/default</key>
+      <applyto>/meegotouch/inputmethods/virtualkeyboard/layouts/default</applyto>
       <owner>meegotouch</owner>
       <type>string</type>
-      <default>en_gb</default>
+      <default>en_gb.xml</default>
       <locale name="C">
-        <short>Default language</short>
-        <long>Default language</long>
+        <short>Default virtual keyboard layout</short>
+        <long>Default meegotouch virtual keyboard layout</long>
       </locale>
     </schema>
 
     <schema>
-      <key>/schemas/meegotouch/inputmethods/correctionenabled</key>
-      <applyto>/meegotouch/inputmethods/correctionenabled</applyto>
+      <key>/schemas/meegotouch/inputmethods/virtualkeyboard/correctionenabled</key>
+      <applyto>/meegotouch/inputmethods/virtualkeyboard/correctionenabled</applyto>
       <owner>meegotouch</owner>
       <type>bool</type>
       <default>false</default>
       <locale name="C">
         <short>Whether error correction is enabled</short>
-        <long>Whether error correction is enabled</long>
+        <long>Whether error correction is enabled for meegotouch virtual keyboard</long>
       </locale>
     </schema>
 
