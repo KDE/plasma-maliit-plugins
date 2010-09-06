@@ -202,6 +202,15 @@ void SingleWidgetButtonArea::buildTextLayout()
     textLayout.beginLayout();
 
     for (RowIterator row(rowList.begin()); row != rowList.end(); ++row) {
+        // rowHasSecondaryLabel is needed for the vertical alignment of
+        // secondary label purposes.
+        bool rowHasSecondaryLabel = false;
+        foreach (SingleWidgetButton *button, row->buttons) {
+            if (!button->secondaryLabel().isEmpty()) {
+                rowHasSecondaryLabel = true;
+            }
+        }
+
         foreach (SingleWidgetButton *button, row->buttons) {
 
             const QString &label(button->label());
@@ -216,10 +225,14 @@ void SingleWidgetButtonArea::buildTextLayout()
 
             const QRectF &buttonRect = button->cachedButtonRect;
 
-            if (secondary.isEmpty()) {
-                // All horizontally centered, portrait vs. landscape only differs in top & bottom margins.
-                labelPos = QPoint(buttonRect.center().x() - fm.width(label) / 2,
-                                  buttonRect.top() + topMargin);
+            if (!rowHasSecondaryLabel) {
+                // All horizontally centered.
+                labelPos = fm.boundingRect(buttonRect.x(),
+                                           buttonRect.y(),
+                                           buttonRect.width(),
+                                           buttonRect.height(),
+                                           Qt::AlignCenter,
+                                           label).topLeft();
             } else {
                 // Calculate position for both primary and secondary label.
                 // We only have secondary labels in phone number layouts (with sym being exception)
@@ -227,23 +240,26 @@ void SingleWidgetButtonArea::buildTextLayout()
 
                 // In landscape the secondary labels are below the primary ones. In portrait,
                 // secondary labels are horizontally next to primary labels.
-
                 if (landscape) {
                     // primary label: horizontally centered, top margin defines y
                     // secondary: horizontally centered, primary bottom + separation margin defines y
                     const int primaryY = buttonRect.top() + topMargin;
                     labelPos.setX(buttonRect.center().x() - fm.width(label) / 2);
                     labelPos.setY(primaryY);
-                    secondaryLabelPos.setX(buttonRect.center().x() - secondaryFm.width(secondary) / 2);
-                    secondaryLabelPos.setY(primaryY + labelHeight + secondarySeparation);
+                    if (!secondary.isEmpty()) {
+                        secondaryLabelPos.setX(buttonRect.center().x() - secondaryFm.width(secondary) / 2);
+                        secondaryLabelPos.setY(primaryY + labelHeight + secondarySeparation);
+                    }
                 } else {
                     // primary label: horizontally according to left margin, vertically centered
                     // secondary: horizontally on right of primary + separation margin, vertically centered
                     const int primaryX = buttonRect.left() + labelLeftWithSecondary;
                     labelPos.setX(primaryX);
                     labelPos.setY(buttonRect.center().y() - labelHeight / 2);
-                    secondaryLabelPos.setX(primaryX + fm.width(label) + secondarySeparation);
-                    secondaryLabelPos.setY(buttonRect.center().y() - secondaryLabelHeight / 2);
+                    if (!secondary.isEmpty()) {
+                        secondaryLabelPos.setX(primaryX + fm.width(label) + secondarySeparation);
+                        secondaryLabelPos.setY(buttonRect.center().y() - secondaryLabelHeight / 2);
+                    }
                 }
             }
 
