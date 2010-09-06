@@ -25,8 +25,8 @@ Q_DECLARE_METATYPE(QGraphicsWidget *);
 
 void Ut_HorizontalSwitcher::initTestCase()
 {
-    int argc = 1;
-    char *app_name[1] = { (char *)"ut_horizontalswitcher" };
+    static int argc = 1;
+    static char *app_name[1] = { (char *) "ut_horizontalswitcher" };
 
     app = new QApplication(argc, app_name);
 
