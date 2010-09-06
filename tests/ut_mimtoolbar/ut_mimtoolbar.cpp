@@ -256,10 +256,10 @@ void Ut_MImToolbar::testRegion()
     QCOMPARE(regionSignals.count(), 2);
 
     // Get region when there are two buttons on the right.
-    QRegion regionTwoButtons = m_subject->region();
+    const QRegion regionTwoButtons = m_subject->region();
 
     // When the region is substracted from rightRect there should be nothing left.
-    QRect rightRect = m_subject->rightBar.geometry().toRect();
+    const QRect rightRect = m_subject->rightBar.geometry().toRect();
     QVERIFY((QRegion(rightRect) - regionTwoButtons).isEmpty());
 
     // We need to add a new button, let's use groups.
@@ -276,7 +276,7 @@ void Ut_MImToolbar::testRegion()
     QCOMPARE(regionSignals.count(), 3);
 
     // Get region when there are three buttons on the right.
-    QRegion regionThreeButtons = m_subject->region();
+    const QRegion regionThreeButtons = m_subject->region();
 
     if (customToolbar) {
         // Custom toolbar always occupies the same region, because our toolbar
