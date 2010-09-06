@@ -1,8 +1,8 @@
-meego-keyboard (0.4.16~1) unstable; urgency=low
+meego-keyboard (0.4.16-1) unstable; urgency=low
 
-  * [UNRELEASED]
+  * Use standard toolbar buttons provided by framework
 
- -- Ning Chi <ext-chi.ning@nokia.com>  Fri, 3 Sep 2010 16:49:20 +0300
+ -- huaming wang <huaming.wang@nokia.com>  Mon, 06 Sep 2010 10:19:13 +0300
 
 meego-keyboard (0.4.15-1) unstable; urgency=low
 
