@@ -50,6 +50,9 @@ Q_DECLARE_METATYPE(CopyPasteState);
 
 namespace
 {
+    const QString TargetSettingsName("/meegotouch/target/name");
+    const QString DefaultTargetName("Default");
+
     QString ToolbarFileName  = "/testtoolbar.xml";
     QString ToolbarFileName2 = "/testtoolbar2.xml";
     QString ToolbarFileName4 = "/testtoolbar4.xml";
@@ -80,6 +83,9 @@ void Ut_MImToolbar::initTestCase()
     static int dummyArgc = 2;
     static char *dummyArgv[2] = { (char *) "./ut_mimtoolbar",
                                   (char *) "-local-theme" };
+    // this value is required by the theme daemon
+    MGConfItem(TargetSettingsName).set(DefaultTargetName);
+
     disableQtPlugins();
     app = new MApplication(dummyArgc, dummyArgv);
 
