@@ -70,6 +70,17 @@ namespace
 
         return result;
     }
+
+    bool gCustomToolbar(true);
+}
+
+
+// Stubbing..................................................................
+
+// Warning: this may ruin toolbar type notification of MImToolbar
+bool MToolbarData::isCustom() const
+{
+    return gCustomToolbar;
 }
 
 void MToolbarButton::setIconFile(const QString &newIconFile)
@@ -77,6 +88,9 @@ void MToolbarButton::setIconFile(const QString &newIconFile)
     //reimplement to avoid checking the exist of icon file.
     iconFile = newIconFile;
 }
+
+
+// Actual test...............................................................
 
 void Ut_MImToolbar::initTestCase()
 {
@@ -236,11 +250,20 @@ void Ut_MImToolbar::testPaste()
     spy.clear();
 }
 
+void Ut_MImToolbar::testRegion_data()
+{
+    QTest::addColumn<bool>("customToolbar");
+
+    QTest::newRow("custom toolbar") << true;
+    QTest::newRow("standard toolbar") << false;
+}
 
 void Ut_MImToolbar::testRegion()
 {
+    QFETCH(bool, customToolbar);
     QSignalSpy regionSignals(m_subject, SIGNAL(regionUpdated()));
 
+    gCustomToolbar = customToolbar;
     m_subject->showToolbarWidget(toolbarData);
     QCOMPARE(regionSignals.count(), 1);
     m_subject->updateVisibility();
@@ -269,10 +292,14 @@ void Ut_MImToolbar::testRegion()
     // Get region when there are three buttons on the right.
     QRegion regionThreeButtons = m_subject->region();
 
-    // Toolbar always occupy the same region,
-    // because our toolbar contains one line only.
-    QCOMPARE(regionThreeButtons, regionTwoButtons);
-
+    if (customToolbar) {
+        // Custom toolbar always occupies the same region, because our toolbar
+        // contains one line only...
+        QCOMPARE(regionThreeButtons, regionTwoButtons);
+    } else {
+        // but standard toolbar grows when buttons are added.
+        QVERIFY(!(regionThreeButtons - regionTwoButtons).isEmpty());
+    }
     m_subject->finalizeOrientationChange();
     QCOMPARE(regionSignals.count(), 3);
 

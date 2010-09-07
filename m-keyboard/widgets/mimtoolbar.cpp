@@ -86,7 +86,11 @@ QRegion MImToolbar::region() const
     QRegion region;
 
     if (isVisible()) {
-        region = QRegion(mapRectToScene(rect()).toRect());
+        if (currentToolbar && currentToolbar->isCustom()) {
+            region = QRegion(mapRectToScene(rect()).toRect());
+        } else if (rightBar.isVisible()) {
+            region = QRegion(mapRectToScene(rightBar.geometry()).toRect());
+        }
     }
     return region;
 }
@@ -381,6 +385,16 @@ Qt::KeyboardModifiers MImToolbar::keyModifiers(int key) const
     return modify;
 }
 
+void MImToolbar::setShapedMode(bool shaped)
+{
+    if (shaped) {
+        style().setModeShapedToolbar();
+    } else {
+        style().setModeFullToolbar();
+    }
+    rightBar.setShapedMode(shaped);
+}
+
 void MImToolbar::showToolbarWidget(QSharedPointer<const MToolbarData> toolbar)
 {
     if (toolbar == currentToolbar) {
@@ -391,6 +405,8 @@ void MImToolbar::showToolbarWidget(QSharedPointer<const MToolbarData> toolbar)
     currentToolbar = toolbar;
     loadCustomWidgets();
 
+    setShapedMode(!toolbar->isCustom());
+
     if (isVisible())
         updateVisibility();
 }
@@ -400,6 +416,7 @@ void MImToolbar::hideToolbarWidget()
     currentToolbar.clear();
     unloadCustomWidgets();
     arrangeWidgets();
+    setShapedMode(true);
 }
 
 void MImToolbar::removeItem(MWidget *widget)

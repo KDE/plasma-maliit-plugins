@@ -50,6 +50,15 @@ int WidgetBar::count() const
     return widgets.count();
 }
 
+void WidgetBar::setShapedMode(bool shaped)
+{
+    if (shaped) {
+        style().setModeShapedToolbar();
+    } else {
+        style().setModeFullToolbar();
+    }
+}
+
 void WidgetBar::insert(int index, MWidget *widget, bool isAvailable)
 {
     Q_ASSERT(widget);

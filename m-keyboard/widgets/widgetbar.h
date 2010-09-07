@@ -77,6 +77,9 @@ public:
     // internal lists
     void cleanup();
 
+    //! \brief Set style mode to either shaped-toolbar (true) or full-toolbar (false)
+    void setShapedMode(bool shaped);
+
 public:
     //! \reimp
     virtual QSizeF sizeHint(Qt::SizeHint which, const QSizeF &constraint = QSizeF()) const;

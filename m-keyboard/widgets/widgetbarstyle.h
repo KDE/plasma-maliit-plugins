@@ -34,6 +34,8 @@ class M_EXPORT WidgetBarStyle : public MWidgetStyle
 class M_EXPORT WidgetBarStyleContainer : public MWidgetStyleContainer
 {
     M_STYLE_CONTAINER(WidgetBarStyle)
+    M_STYLE_MODE(FullToolbar)
+    M_STYLE_MODE(ShapedToolbar)
 };
 
 

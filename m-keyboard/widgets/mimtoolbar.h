@@ -154,6 +154,9 @@ signals:
     void availabilityChanged(bool available);
 
 private:
+    //! \brief Set style mode to either shaped-toolbar (true) or full-toolbar (false)
+    void setShapedMode(bool shaped);
+
     void setupLayout();
 
     void updateRegion();
