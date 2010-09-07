@@ -1,3 +1,9 @@
+meego-keyboard (0.4.17-2) unstable; urgency=low
+ 
+  * Fix package dependency
+
+ -- huaming wang <huaming.wang@nokia.com>  Tue, 07 Sep 2010 11:30:55 +0300
+
 meego-keyboard (0.4.17-1) unstable; urgency=low
 
   * Update package dependency with imengineword
