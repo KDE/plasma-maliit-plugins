@@ -2,7 +2,7 @@
 <!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
 <keyboard title="Français" version="1.0" catalog="fr" language="fr">
     <layout type="general" orientation="landscape">
-        <section id="main" movable="false" vertical_alignment="center" horizontal_alignment="center">
+        <section id="main">
           <row>
             <key>
               <binding accented_labels="àáâä" accents="`´^¨" label="a"/>
@@ -46,8 +46,10 @@
             </key>
             <key>
               <binding dead="true" label="¨"/>
+              <binding shift="true" dead="true" label="¨"/>
             </key>
           </row>
+
           <row>
             <key>
               <binding label="q"/>
@@ -91,9 +93,15 @@
             </key>
             <key>
               <binding dead="true" label="^"/>
+              <binding shift="true" dead="true" label="^"/>
             </key>
           </row>
+
           <row>
+            <key style="special">
+              <binding action="shift" label=""/>
+            </key>
+
             <key>
               <binding label="w"/>
               <binding shift="true" label="W"/>
@@ -124,64 +132,202 @@
             </key>
             <key>
               <binding dead="true" label="´"/>
+              <binding shift="true" dead="true" label="´"/>
             </key>
             <key>
               <binding dead="true" label="`"/>
+              <binding shift="true" dead="true" label="`"/>
             </key>
             <key>
               <binding action="backspace" label=""/>
             </key>
           </row>
-        </section>
-        <section id="functionkey" movable="false" horizontal_alignment="left" vertical_alignment="center">
+
           <row>
-            <key>
-              <binding action="shift" label=""/>
+            <key style="special" width="xx-large">
+              <binding action="sym" label="SYM"/>
             </key>
-            <key>
-              <binding action="sym" label="Sym" secondary_label="áçè"/>
-              <binding shift="true" action="layout_menu" label=""/>
-            </key>
-            <key>
-              <binding label="‘"/>
-              <binding shift="true" label="-"/>
-            </key>
-            <key>
+
+            <key><binding label="'"/></key>
+            <key><binding label=","/></key>
+
+            <key width="stretched">
               <binding action="space" label=""/>
             </key>
-            <key>
-              <binding label="?"/>
-              <binding shift="true" label="!"/>
-            </key>
-            <key>
-              <binding label="."/>
-              <binding shift="true" label=","/>
-            </key>
-            <key>
-              <binding action="return" label=""/>
+
+            <key><binding label="."/></key>
+            <key><binding label="?"/></key>
+
+            <key style="special" width="xx-large">
+              <binding action="backspace" label=""/>
             </key>
           </row>
         </section>
     </layout>
+
+
     <layout type="general" orientation="portrait">
-        <section id="functionkey" movable="false" horizontal_alignment="left" vertical_alignment="center">
+        <section id="main">
+
           <row>
             <key>
+              <binding accented_labels="àáâä" accents="`´^¨" label="a"/>
+              <binding shift="true" accented_labels="ÀÁÂÄ" accents="`´^¨" label="A"/>
+            </key>
+            <key>
+              <binding label="z"/>
+              <binding shift="true" label="Z"/>
+            </key>
+            <key>
+              <binding accented_labels="èéêë" accents="`´^¨" label="e"/>
+              <binding shift="true" accented_labels="ÈÉÊË" accents="`´^¨" label="E"/>
+            </key>
+            <key>
+              <binding label="r"/>
+              <binding shift="true" label="R"/>
+            </key>
+            <key>
+              <binding label="t"/>
+              <binding shift="true" label="T"/>
+            </key>
+            <key>
+              <binding accented_labels="ýÿ" accents="´¨" label="y"/>
+              <binding shift="true" accented_labels="ÝŸ" accents="´¨" label="Y"/>
+            </key>
+            <key>
+              <binding accented_labels="ùúûü" accents="`´^¨" label="u"/>
+              <binding shift="true" accented_labels="ÙÚÛÜ" accents="`´^¨" label="U"/>
+            </key>
+            <key>
+              <binding accented_labels="ìíîï" accents="`´^¨" label="i"/>
+              <binding shift="true" accented_labels="ÌÍÎÏ" accents="`´^¨" label="I"/>
+            </key>
+            <key>
+              <binding accented_labels="òóôö" accents="`´^¨" label="o"/>
+              <binding shift="true" accented_labels="ÒÓÔÖ" accents="`´^¨" label="O"/>
+            </key>
+            <key>
+              <binding label="p"/>
+              <binding shift="true" label="P"/>
+            </key>
+
+            <key>
+              <binding dead="true" label="¨"/>
+              <binding shift="true" dead="true" label="¨"/>
+            </key>
+          </row>
+
+          <row>
+            <key>
+              <binding label="q"/>
+              <binding shift="true" label="Q"/>
+            </key>
+            <key>
+              <binding label="s"/>
+              <binding shift="true" label="S"/>
+            </key>
+            <key>
+              <binding label="d"/>
+              <binding shift="true" label="D"/>
+            </key>
+            <key>
+              <binding label="f"/>
+              <binding shift="true" label="F"/>
+            </key>
+            <key>
+              <binding label="g"/>
+              <binding shift="true" label="G"/>
+            </key>
+            <key>
+              <binding label="h"/>
+              <binding shift="true" label="H"/>
+            </key>
+            <key>
+              <binding label="j"/>
+              <binding shift="true" label="J"/>
+            </key>
+            <key>
+              <binding label="k"/>
+              <binding shift="true" label="K"/>
+            </key>
+            <key>
+              <binding label="l"/>
+              <binding shift="true" label="L"/>
+            </key>
+            <key>
+              <binding label="m"/>
+              <binding shift="true" label="M"/>
+            </key>
+
+            <key>
+              <binding dead="true" label="^"/>
+              <binding shift="true" dead="true" label="^"/>
+            </key>
+          </row>
+
+          <row>
+            <key style="special">
               <binding action="shift" label=""/>
             </key>
+
             <key>
-              <binding action="sym" label="Sym" secondary_label="áçè"/>
-              <binding shift="true" action="layout_menu" label=""/>
+              <binding label="w"/>
+              <binding shift="true" label="W"/>
             </key>
             <key>
+              <binding label="x"/>
+              <binding shift="true" label="X"/>
+            </key>
+            <key>
+              <binding label="c"/>
+              <binding shift="true" label="C"/>
+            </key>
+            <key>
+              <binding label="v"/>
+              <binding shift="true" label="V"/>
+            </key>
+            <key>
+              <binding label="b"/>
+              <binding shift="true" label="B"/>
+            </key>
+            <key>
+              <binding label="n"/>
+              <binding shift="true" label="N"/>
+            </key>
+            <key>
+              <binding label="ç"/>
+              <binding shift="true" label="Ç"/>
+            </key>
+
+            <key>
+              <binding dead="true" label="´"/>
+              <binding shift="true" dead="true" label="´"/>
+            </key>
+            <key>
+              <binding dead="true" label="`"/>
+              <binding shift="true" dead="true" label="`"/>
+            </key>
+
+            <key style="special">
+              <binding action="return" label=""/>
+            </key>
+          </row>
+
+          <row>
+            <key style="special" width="xx-large">
+              <binding action="sym" label="SYM"/>
+            </key>
+
+            <key width="x-large"><binding label=","/></key>
+
+            <key width="stretched">
               <binding action="space" label=""/>
             </key>
-            <key>
-              <binding label="."/>
-              <binding shift="true" label=","/>
-            </key>
-            <key>
-              <binding action="return" label=""/>
+
+            <key width="x-large"><binding label="."/></key>
+
+            <key style="special" width="xx-large">
+              <binding action="backspace" label=""/>
             </key>
           </row>
         </section>

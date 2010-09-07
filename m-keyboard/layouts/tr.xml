@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
-<keyboard title="English (UK)" version="1.0" catalog="en_gb" language="en_gb">
+<keyboard title="Turkish" version="1.0" catalog="tk" language="tk">
    <layout type="general" orientation="landscape">
       <section id="main">
         <row>
@@ -44,11 +44,13 @@
             <binding label="p"/>
             <binding shift="true" label="P"/>
           </key>
+          <key>
+            <binding label="ü"/>
+            <binding shift="true" label="Ü"/>
+          </key>
         </row>
 
         <row>
-          <spacer/>
-
           <key>
             <binding label="a"/>
             <binding shift="true" label="A"/>
@@ -85,16 +87,20 @@
             <binding label="l"/>
             <binding shift="true" label="L"/>
           </key>
-
-          <spacer/>
+          <key>
+            <binding label="ş"/>
+            <binding shift="true" label="Ş"/>
+          </key>
+          <key>
+            <binding label="i"/>
+            <binding shift="true" label="İ"/>
+          </key>
         </row>
 
         <row>
           <key style="special" width="large">
             <binding action="shift" label=""/>
           </key>
-
-          <spacer/>
 
           <key>
             <binding label="z"/>
@@ -124,8 +130,14 @@
             <binding label="m"/>
             <binding shift="true" label="M"/>
           </key>
-
-          <spacer/>
+          <key>
+            <binding label="ö"/>
+            <binding shift="true" label="Ö"/>
+          </key>
+          <key>
+            <binding label="ç"/>
+            <binding shift="true" label="Ç"/>
+          </key>
 
           <key style="special" width="large">
             <binding action="return" label=""/>
@@ -137,7 +149,7 @@
             <binding action="sym" label="SYM"/>
           </key>
 
-          <key><binding label="'"/></key>
+          <key><binding label="?"/></key>
           <key><binding label=","/></key>
 
           <key width="stretched">
@@ -145,7 +157,10 @@
           </key>
 
           <key><binding label="."/></key>
-          <key><binding label="?"/></key>
+          <key>
+            <binding label="ğ"/>
+            <binding shift="true" label="Ğ"/>
+          </key>
 
           <key style="special" width="x-large">
             <binding action="backspace" label=""/>
@@ -197,11 +212,13 @@
             <binding label="p"/>
             <binding shift="true" label="P"/>
           </key>
+          <key>
+            <binding label="ü"/>
+            <binding shift="true" label="Ü"/>
+          </key>
         </row>
 
         <row>
-          <spacer/>
-
           <key>
             <binding label="a"/>
             <binding shift="true" label="A"/>
@@ -238,16 +255,20 @@
             <binding label="l"/>
             <binding shift="true" label="L"/>
           </key>
-
-          <spacer/>
+          <key>
+            <binding label="ş"/>
+            <binding shift="true" label="Ş"/>
+          </key>
+          <key>
+            <binding label="i"/>
+            <binding shift="true" label="İ"/>
+          </key>
         </row>
 
         <row>
           <key style="special" width="large">
             <binding action="shift" label=""/>
           </key>
-
-          <spacer/>
 
           <key>
             <binding label="z"/>
@@ -277,8 +298,14 @@
             <binding label="m"/>
             <binding shift="true" label="M"/>
           </key>
-
-          <spacer/>
+          <key>
+            <binding label="ö"/>
+            <binding shift="true" label="Ö"/>
+          </key>
+          <key>
+            <binding label="ç"/>
+            <binding shift="true" label="Ç"/>
+          </key>
 
           <key style="special" width="large">
             <binding action="return" label=""/>
@@ -286,24 +313,27 @@
         </row>
 
         <row>
-          <key style="special" width="xx-large">
+          <key style="special" width="x-large">
             <binding action="sym" label="SYM"/>
           </key>
 
-          <key width="x-large"><binding label=","/></key>
+          <key><binding label=","/></key>
 
           <key width="stretched">
             <binding action="space" label=""/>
           </key>
 
-          <key width="x-large"><binding label="."/></key>
+          <key><binding label="."/></key>
+          <key>
+            <binding label="ğ"/>
+            <binding shift="true" label="Ğ"/>
+          </key>
 
-          <key style="special" width="xx-large">
+          <key style="special" width="x-large">
             <binding action="backspace" label=""/>
           </key>
         </row>
       </section>
    </layout>
-
-    <import file="symbols_en.xml"/>
+    <import file="symbols_hu_ro_tr.xml"/>
 </keyboard>

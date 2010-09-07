@@ -2,8 +2,8 @@
 <!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
 <keyboard version="1.0" title="Phone Number" language="phonenumber" catalog="phonenumber">
     <layout type="phonenumber" orientation="landscape">
-        <section id="main" movable="false" horizontal_alignment="center" vertical_alignment="center">
-          <row>
+        <section id="main">
+          <row height="x-large">
             <key>
               <binding label="1"/>
             </key>
@@ -35,23 +35,25 @@
               <binding label="0"/>
             </key>
           </row>
-        </section>
-        <section id="functionkey" movable="false" horizontal_alignment="right" vertical_alignment="center">
+
           <row>
-            <key>
+            <spacer/>
+
+            <key width="xx-large">
               <binding label="&#x002A;&#x002B;" cycleset="&#x002A;&#x002B;pw" action="cycle"/>
             </key>
-            <key>
+            <key width="xx-large">
               <binding label="&#x0023;"/>
             </key>
-            <key>
+            <key width="xx-large">
               <binding label="" action="backspace"/>
             </key>
           </row>
         </section>
     </layout>
+
     <layout type="phonenumber" orientation="portrait">
-        <section id="main" movable="false" horizontal_alignment="center" vertical_alignment="center">
+        <section id="main" movable="false">
           <row>
             <key>
               <binding label="1"/>
@@ -63,6 +65,7 @@
               <binding label="3"/>
             </key>
           </row>
+
           <row>
             <key>
               <binding label="4"/>
@@ -74,6 +77,7 @@
               <binding label="6"/>
             </key>
           </row>
+
           <row>
             <key>
               <binding label="7"/>
@@ -85,6 +89,7 @@
               <binding label="9"/>
             </key>
           </row>
+
           <row>
             <key>
               <binding label="&#x002A;&#x002B;" cycleset="&#x002A;&#x002B;pw" action="cycle"/>
@@ -96,10 +101,11 @@
               <binding label="&#x0023;"/>
             </key>
           </row>
-        </section>
-        <section id="functionkey" movable="false" horizontal_alignment="right" vertical_alignment="center">
+
           <row>
-            <key>
+            <spacer/>
+
+            <key style="special" width="xx-large">
               <binding label="" action="backspace"/>
             </key>
           </row>

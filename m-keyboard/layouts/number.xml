@@ -2,7 +2,7 @@
 <!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
 <keyboard version="1.0" title="Number" language="number" catalog="number">
     <layout type="number" orientation="landscape">
-        <section id="main" movable="false" horizontal_alignment="center" vertical_alignment="center">
+        <section id="main" movable="false">
           <row>
             <key>
               <binding label="1"/>
@@ -35,23 +35,25 @@
               <binding label="0"/>
             </key>
           </row>
-        </section>
-        <section id="functionkey" movable="false" horizontal_alignment="right" vertical_alignment="center">
+
           <row>
-            <key>
+            <spacer/>
+
+            <key width="xx-large">
               <binding label="&#x002B;&#x002F;&#x002D;" action="plus_minus_toggle"/>
             </key>
-            <key>
+            <key width="xx-large">
               <binding action="decimal_separator"/>
             </key>
-            <key>
+            <key style="special" width="xx-large">
               <binding label="" action="backspace"/>
             </key>
           </row>
         </section>
     </layout>
+
     <layout type="number" orientation="portrait">
-        <section id="main" movable="false" horizontal_alignment="center" vertical_alignment="center">
+        <section id="main" movable="false">
           <row>
             <key>
               <binding label="1"/>
@@ -63,6 +65,7 @@
               <binding label="3"/>
             </key>
           </row>
+
           <row>
             <key>
               <binding label="4"/>
@@ -74,6 +77,7 @@
               <binding label="6"/>
             </key>
           </row>
+
           <row>
             <key>
               <binding label="7"/>
@@ -85,6 +89,7 @@
               <binding label="9"/>
             </key>
           </row>
+
           <row>
             <key>
               <binding label="&#x002B;&#x002F;&#x002D;" action="plus_minus_toggle"/>
@@ -96,11 +101,12 @@
               <binding action="decimal_separator"/>
             </key>
           </row>
-        </section>
-        <section id="functionkey" movable="false" horizontal_alignment="right" vertical_alignment="center">
+
           <row>
-            <key>
-              <binding label="" action="backspace"/>
+            <spacer/>
+
+            <key style="special" width="xx-large">
+              <binding action="backspace"/>
             </key>
           </row>
         </section>

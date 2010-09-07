@@ -2,7 +2,7 @@
 <!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
 <keyboard version="1.0" catalog="symbols">
     <layout type="general" orientation="landscape">
-        <section id="symbols Sym" type="non-sloppy" movable="false" horizontal_alignment="left" vertical_alignment="center">
+        <section id="symbols0" type="non-sloppy" movable="false">
           <row>
             <key>
               <binding label="1"/>
@@ -35,6 +35,7 @@
               <binding label="0"/>
             </key>
           </row>
+
           <row>
             <key>
               <binding label="⇥" action="tab"/>
@@ -75,6 +76,7 @@
               <binding label="↵" action="return"/>
             </key>
           </row>
+
           <row>
             <key>
               <binding label="/"/>

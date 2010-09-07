@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
-<keyboard title="English (UK)" version="1.0" catalog="en_gb" language="en_gb">
+<keyboard title="Hungarian" version="1.0" catalog="hu" language="hu">
    <layout type="general" orientation="landscape">
       <section id="main">
         <row>
@@ -13,8 +13,8 @@
             <binding shift="true" label="W"/>
           </key>
           <key>
-            <binding label="e"/>
-            <binding shift="true" label="E"/>
+            <binding accented_labels="é" accents="´" label="e"/>
+            <binding shift="true" accented_labels="É" accents="´" label="E"/>
           </key>
           <key>
             <binding label="r"/>
@@ -25,20 +25,20 @@
             <binding shift="true" label="T"/>
           </key>
           <key>
-            <binding label="y"/>
-            <binding shift="true" label="Y"/>
+            <binding label="z"/>
+            <binding shift="true" label="Z"/>
           </key>
           <key>
-            <binding label="u"/>
-            <binding shift="true" label="U"/>
+            <binding accented_labels="úüű" accents="´¨˝" label="u"/>
+            <binding shift="true" accented_labels="ÚÜŰ" accents="´¨˝" label="U"/>
           </key>
           <key>
-            <binding label="i"/>
-            <binding shift="true" label="I"/>
+            <binding accented_labels="í" accents="´" label="i"/>
+            <binding shift="true" accented_labels="Í" accents="´" label="I"/>
           </key>
           <key>
-            <binding label="o"/>
-            <binding shift="true" label="O"/>
+            <binding accented_labels="óöő" accents="´¨˝" label="o"/>
+            <binding shift="true" accented_labels="ÓÖŐ" accents="´¨˝" label="O"/>
           </key>
           <key>
             <binding label="p"/>
@@ -47,11 +47,9 @@
         </row>
 
         <row>
-          <spacer/>
-
           <key>
-            <binding label="a"/>
-            <binding shift="true" label="A"/>
+            <binding accented_labels="á" accents="´" label="a"/>
+            <binding shift="true" accented_labels="Á" accents="´" label="A"/>
           </key>
           <key>
             <binding label="s"/>
@@ -85,20 +83,19 @@
             <binding label="l"/>
             <binding shift="true" label="L"/>
           </key>
-
-          <spacer/>
+          <key>
+            <binding dead="true" label="&#x00B4;"/>
+          </key>
         </row>
 
         <row>
-          <key style="special" width="large">
+          <key style="special">
             <binding action="shift" label=""/>
           </key>
 
-          <spacer/>
-
           <key>
-            <binding label="z"/>
-            <binding shift="true" label="Z"/>
+            <binding label="y"/>
+            <binding shift="true" label="Y"/>
           </key>
           <key>
             <binding label="x"/>
@@ -125,9 +122,11 @@
             <binding shift="true" label="M"/>
           </key>
 
-          <spacer/>
+          <key>
+            <binding dead="true" label="&#x02DD;"/>
+          </key>
 
-          <key style="special" width="large">
+          <key style="special">
             <binding action="return" label=""/>
           </key>
         </row>
@@ -137,7 +136,7 @@
             <binding action="sym" label="SYM"/>
           </key>
 
-          <key><binding label="'"/></key>
+          <key><binding label="?"/></key>
           <key><binding label=","/></key>
 
           <key width="stretched">
@@ -145,7 +144,7 @@
           </key>
 
           <key><binding label="."/></key>
-          <key><binding label="?"/></key>
+          <key><binding label="¨"/></key>
 
           <key style="special" width="x-large">
             <binding action="backspace" label=""/>
@@ -166,8 +165,8 @@
             <binding shift="true" label="W"/>
           </key>
           <key>
-            <binding label="e"/>
-            <binding shift="true" label="E"/>
+            <binding accented_labels="é" accents="´" label="e"/>
+            <binding shift="true" accented_labels="É" accents="´" label="E"/>
           </key>
           <key>
             <binding label="r"/>
@@ -178,20 +177,20 @@
             <binding shift="true" label="T"/>
           </key>
           <key>
-            <binding label="y"/>
-            <binding shift="true" label="Y"/>
+            <binding label="z"/>
+            <binding shift="true" label="Z"/>
           </key>
           <key>
-            <binding label="u"/>
-            <binding shift="true" label="U"/>
+            <binding accented_labels="úüű" accents="´¨˝" label="u"/>
+            <binding shift="true" accented_labels="ÚÜŰ" accents="´¨˝" label="U"/>
           </key>
           <key>
-            <binding label="i"/>
-            <binding shift="true" label="I"/>
+            <binding accented_labels="í" accents="´" label="i"/>
+            <binding shift="true" accented_labels="Í" accents="´" label="I"/>
           </key>
           <key>
-            <binding label="o"/>
-            <binding shift="true" label="O"/>
+            <binding accented_labels="óöő" accents="´¨˝" label="o"/>
+            <binding shift="true" accented_labels="ÓÖŐ" accents="´¨˝" label="O"/>
           </key>
           <key>
             <binding label="p"/>
@@ -200,11 +199,9 @@
         </row>
 
         <row>
-          <spacer/>
-
           <key>
-            <binding label="a"/>
-            <binding shift="true" label="A"/>
+            <binding accented_labels="á" accents="´" label="a"/>
+            <binding shift="true" accented_labels="Á" accents="´" label="A"/>
           </key>
           <key>
             <binding label="s"/>
@@ -238,20 +235,19 @@
             <binding label="l"/>
             <binding shift="true" label="L"/>
           </key>
-
-          <spacer/>
+          <key>
+            <binding dead="true" label="&#x00B4;"/>
+          </key>
         </row>
 
         <row>
-          <key style="special" width="large">
+          <key style="special">
             <binding action="shift" label=""/>
           </key>
 
-          <spacer/>
-
           <key>
-            <binding label="z"/>
-            <binding shift="true" label="Z"/>
+            <binding label="y"/>
+            <binding shift="true" label="Y"/>
           </key>
           <key>
             <binding label="x"/>
@@ -278,32 +274,34 @@
             <binding shift="true" label="M"/>
           </key>
 
-          <spacer/>
+          <key>
+            <binding dead="true" label="&#x02DD;"/>
+          </key>
 
-          <key style="special" width="large">
+          <key style="special">
             <binding action="return" label=""/>
           </key>
         </row>
 
         <row>
-          <key style="special" width="xx-large">
+          <key style="special" width="x-large">
             <binding action="sym" label="SYM"/>
           </key>
 
-          <key width="x-large"><binding label=","/></key>
+          <key><binding label=","/></key>
 
           <key width="stretched">
             <binding action="space" label=""/>
           </key>
 
-          <key width="x-large"><binding label="."/></key>
+          <key><binding label="."/></key>
+          <key><binding label="¨"/></key>
 
-          <key style="special" width="xx-large">
+          <key style="special" width="x-large">
             <binding action="backspace" label=""/>
           </key>
         </row>
       </section>
    </layout>
-
-    <import file="symbols_en.xml"/>
+    <import file="symbols_hu_ro_tr.xml"/>
 </keyboard>

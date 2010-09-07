@@ -35,16 +35,9 @@
               <binding label="&#x0660;"/>
             </key>
           </row>
-        </section>
-        <section id="functionkey" movable="false" horizontal_alignment="right" vertical_alignment="center">
           <row>
-            <key>
-              <binding label="&#x002B;&#x002F;&#x002D;" action="plus_minus_toggle"/>
-            </key>
-            <key>
-              <binding action="decimal_separator"/>
-            </key>
-            <key rtl="true">
+            <spacer/>
+            <key style="special" width="xx-large" rtl="true">
               <binding label="" action="backspace"/>
             </key>
           </row>
@@ -96,10 +89,9 @@
               <binding action="decimal_separator"/>
             </key>
           </row>
-        </section>
-        <section id="functionkey" movable="false" horizontal_alignment="right" vertical_alignment="center">
           <row>
-            <key rtl="true">
+            <spacer/>
+            <key style="special" width="xx-large" rtl="true">
               <binding label="" action="backspace"/>
             </key>
           </row>
