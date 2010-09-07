@@ -151,7 +151,10 @@ private:
     bool handleReleaseWithSymModifier(Qt::Key keyCode);
 
     //! \brief Just like \a handleReleaseWithSymModifier but for key press events.
-    bool handlePressWithSymModifier(const QString &text);
+    //! \post text and nativeModifiers are changed in case ongoing loop is terminated when
+    //! shift or fn is latched and the latched modifier is not additionally pressed
+    bool handlePressWithSymModifier(QString &text, quint32 nativeScanCode,
+                                    quint32 &nativeModifiers);
 
     //! \brief Helper for \a handlePressWithSymModifier and \a handleReleaseWithSymModifier
     //! to stop the ongoing looping.

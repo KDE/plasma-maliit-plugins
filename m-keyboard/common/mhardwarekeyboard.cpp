@@ -439,7 +439,7 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
         bool eatenBySymHandler(false);
 
         if (nativeModifiers & SymModifierMask) {
-            eatenBySymHandler = handlePressWithSymModifier(text);
+            eatenBySymHandler = handlePressWithSymModifier(text, nativeScanCode, nativeModifiers);
             eaten = eaten || eatenBySymHandler;
         }
 
@@ -665,10 +665,20 @@ void MHardwareKeyboard::commitSymPlusCharacterCycle()
     latchModifiers(FnModifierMask | ShiftMask, 0);
 }
 
-bool MHardwareKeyboard::handlePressWithSymModifier(const QString &text)
+bool MHardwareKeyboard::handlePressWithSymModifier(QString &text, quint32 nativeScanCode,
+                                                   quint32 &nativeModifiers)
 {
+    const unsigned char savedLatchedMods(currentLatchedMods);
+
     if ((characterLoopIndex != -1) && (lastSymText != text)) {
         commitSymPlusCharacterCycle();
+    }
+
+    const unsigned char latchedModsDiff(savedLatchedMods ^ currentLatchedMods);
+    if (((latchedModsDiff & ShiftMask) && !shiftsPressed)
+        || ((latchedModsDiff & FnModifierMask) && !fnPressed)) {
+        text = keycodeToString(nativeScanCode, (fnPressed ? 2 : 0) + (shiftsPressed ? 1 : 0));
+        nativeModifiers &= ~((fnPressed ? 0 : FnModifierMask) | (shiftsPressed ? 0 : ShiftMask));
     }
 
     if (text.length() != 1) {

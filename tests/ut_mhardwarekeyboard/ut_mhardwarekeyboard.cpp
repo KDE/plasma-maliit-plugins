@@ -46,6 +46,8 @@ namespace
     // another that makes filterKeyEvent process the event as a character key.
     // MHardwareKeyboard::keycodeToString() stub will co-operate with those.
     const unsigned int KeycodeCharacter(38); // keycode of "a" under xorg / Xephyr combination
+    const unsigned int KeycodeCharacterO(32); // keycode of "o" under xorg / Xephyr combination
+    const unsigned int KeycodeCharacterB(56); // keycode of "b" under xorg / Xephyr combination
     const unsigned int KeycodeNonCharacter(50);  // keycode of left shift under xorg / Xephyr combination
 
     const QString XkbLayoutSettingName("/meegotouch/inputmethods/hwkeyboard/layout");
@@ -86,12 +88,16 @@ char *toString(const ModifierState &state)
 
 // Stubbing..................................................................
 
-QString MHardwareKeyboard::keycodeToString(unsigned int keycode, unsigned int /* shiftLevel */) const
+QString MHardwareKeyboard::keycodeToString(unsigned int keycode, unsigned int shiftLevel) const
 {
     if (keycode == KeycodeNonCharacter) {
         return QString();
+    } else if ((keycode == KeycodeCharacterO) && (shiftLevel == 0)) {
+        return QString("o");
+    } else if ((keycode == KeycodeCharacterB) && (shiftLevel == 0)) {
+        return QString("b");
     } else {
-        return QString("'");    // just an arbitrary character
+        return QString("a");    // just an arbitrary character
     }
 }
 
@@ -673,6 +679,51 @@ void Ut_MHardwareKeyboard::testSymPlusCharSwitchs()
     QCOMPARE(inputContextConnection->lastCommitString(), QString("b"));
 
     QVERIFY(filterKeyRelease(SymKey, Qt::NoModifier, "", KeycodeNonCharacter, SymModifierMask));
+
+    // Sym with latched shift, case 1: another loop after loop in latched state
+    filterKeyPress(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, 0);
+    filterKeyRelease(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask);
+    QVERIFY(checkLatchedState(ShiftMask | FnModifierMask, ShiftMask));
+    QVERIFY(filterKeyPress(SymKey, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask));
+
+    QVERIFY(filterKeyPress(Qt::Key_A, Qt::NoModifier, "A", KeycodeCharacter, SymModifierMask | ShiftMask));
+    QVERIFY(filterKeyRelease(Qt::Key_A, Qt::NoModifier, "A", KeycodeCharacter, SymModifierMask | ShiftMask));
+    QCOMPARE(inputContextConnection->lastPreeditString(), QString(QChar(0x00C4)));
+    QVERIFY(checkLatchedState(ShiftMask | FnModifierMask, ShiftMask));
+    // The following press must unlatch shift and be handled as if "o" event was received...
+    QVERIFY(filterKeyPress(Qt::Key_O, Qt::NoModifier, "O", KeycodeCharacterO, SymModifierMask | ShiftMask));
+    QVERIFY(checkLatchedState(ShiftMask | FnModifierMask, 0));
+    QCOMPARE(inputContextConnection->lastCommitString(), QString(QChar(0x00C4)));
+    QCOMPARE(inputContextConnection->lastPreeditString(), QString(QChar(0x00F6)));
+    QVERIFY(filterKeyRelease(Qt::Key_O, Qt::NoModifier, "o", KeycodeCharacterO, SymModifierMask));
+    // ...which means that this must continue started cycle, not start a new one
+    QVERIFY(filterKeyPress(Qt::Key_O, Qt::NoModifier, "o", KeycodeCharacterO, SymModifierMask));
+    QCOMPARE(inputContextConnection->lastPreeditString(), QString(QChar(0x00F2)));
+    QVERIFY(filterKeyRelease(Qt::Key_O, Qt::NoModifier, "o", KeycodeCharacterO, SymModifierMask));
+
+    QVERIFY(filterKeyRelease(SymKey, Qt::NoModifier, "", KeycodeNonCharacter, SymModifierMask));
+
+    // Sym with latched shift, case 2: "no loops" key after loop in latched state
+    filterKeyPress(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, 0);
+    filterKeyRelease(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask);
+    QVERIFY(checkLatchedState(ShiftMask | FnModifierMask, ShiftMask));
+    QVERIFY(filterKeyPress(SymKey, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask));
+
+    // Start looping, take two steps
+    QVERIFY(filterKeyPress(Qt::Key_A, Qt::NoModifier, "A", KeycodeCharacter, SymModifierMask | ShiftMask));
+    QVERIFY(filterKeyRelease(Qt::Key_A, Qt::NoModifier, "A", KeycodeCharacter, SymModifierMask | ShiftMask));
+    QVERIFY(filterKeyPress(Qt::Key_A, Qt::NoModifier, "A", KeycodeCharacter, SymModifierMask | ShiftMask));
+    QVERIFY(filterKeyRelease(Qt::Key_A, Qt::NoModifier, "A", KeycodeCharacter, SymModifierMask | ShiftMask));
+    QVERIFY(checkLatchedState(ShiftMask | FnModifierMask, ShiftMask));
+
+    // Key for which there is no loop defined
+    QVERIFY(filterKeyPress(Qt::Key_O, Qt::NoModifier, "B", KeycodeCharacterB, SymModifierMask | ShiftMask));
+    QCOMPARE(inputContextConnection->lastCommitString(), QString(QChar(0x00C0)));
+    QCOMPARE(inputContextConnection->lastPreeditString(), QString("b"));
+    QCOMPARE(m_hkb->longPressKey, KeycodeCharacterB);
+    QCOMPARE(m_hkb->longPressModifiers, SymModifierMask);
+    QVERIFY(checkLatchedState(ShiftMask | FnModifierMask, 0));
+    QVERIFY(filterKeyRelease(Qt::Key_O, Qt::NoModifier, "b", KeycodeCharacterO, SymModifierMask));
 
     QCOMPARE(symSpy.count(), 0);
 }

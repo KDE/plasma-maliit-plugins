@@ -24,6 +24,13 @@
 namespace
 {
     const QString SystemDisplayLanguage("/meegotouch/i18n/Language");
+    const QString StubAccentedCharactersCapitalA = QString("%1%2%3%4%5%6")
+        .arg(QChar(0x00C4))
+        .arg(QChar(0x00C0))
+        .arg(QChar(0x00C2))
+        .arg(QChar(0x00C1))
+        .arg(QChar(0x00C3))
+        .arg(QChar(0x00C5));
     const QString StubAccentedCharactersA = QString("%1%2%3%4%5%6")
         .arg(QChar(0x00E4))
         .arg(QChar(0x00E0))
@@ -54,6 +61,8 @@ QString HwKbCharLoopsManager::characterLoop(const QChar &c) const
 {
     if (c == QChar('a')) {
         return StubAccentedCharactersA;
+    } else if (c == QChar('A')) {
+        return StubAccentedCharactersCapitalA;
     } else if (c == QChar('o')) {
         return StubAccentedCharactersO;
     } else {
