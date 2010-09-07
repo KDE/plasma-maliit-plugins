@@ -550,12 +550,12 @@ void MKeyboardHost::finalizeOrientationChange()
         // load proper layout
         imToolbar->finalizeOrientationChange();
     }
-    if (sharedHandleArea) {
-        sharedHandleArea->finalizeOrientationChange();
-    }
 
     vkbWidget->finalizeOrientationChange();
     symbolView->finalizeOrientationChange();
+    if (sharedHandleArea) {
+        sharedHandleArea->finalizeOrientationChange();
+    }
 
     // Finalize candidate list after so its region will apply.
     correctionCandidateWidget->finalizeOrientationChange();
