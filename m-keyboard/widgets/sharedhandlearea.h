@@ -27,14 +27,15 @@ class QGraphicsLinearLayout;
 class FlickGesture;
 class MImToolbar;
 class Handle;
-class Grip;
 
 /*!
   \brief SharedHandleArea represents the handle area shared between the vkb and the symbol
   view
 
-  The shared handle area contains an invisible handle, toolbar grip and the toolbar (as a
-  child of a handle), in that order.
+  The purpose of shared handle area is to contain an invisible handle (non-zero size only
+  in direct mode without close button) and the toolbar, in that order, and to stay on top
+  of either vkb or the symbol view, whichever is in a higher position.  The invisible
+  handle is currently disabled, though.
 */
 class SharedHandleArea : public MWidget
 {
@@ -97,14 +98,17 @@ private:
     //! Connect signals from a \a handle widget
     void connectHandle(const Handle &handle);
 
+    //! Toggles visibility based on handleToolbarTypeChange and setInputMethodMode calls
+    void updateInvisibleHandleVisibility();
+
 private slots:
     //! Update widget position and notify about region update.
     //! \param sendSignals If this parameter contains true then signals regionUpdated and
     //! inputMethodAreaUpdated will be emitted even if position was not changed
     void updatePositionAndRegion(SignalsMode sendSignals = SignalsAuto);
 
-    //! Handle changes in toolbar availability
-    void handleToolbarAvailability(bool available);
+    //! Handle changes in toolbar type
+    void handleToolbarTypeChange(bool standard);
 
     /*!
      * \brief Move toolbar when other widgets are moved.
@@ -116,7 +120,6 @@ private slots:
 private:
     enum LayoutIndex {
         InvisibleHandleIndex,
-        ToolbarHandleIndex,
         ToolbarIndex,
     };
 
@@ -125,12 +128,6 @@ private:
     //! Invisible gesture handle used only in direct mode
     Handle &invisibleHandle;
 
-    //! Toolbar grip
-    Grip &toolbarGrip;
-
-    //! Dummy widget we use in place of toolbarGrip in the layout when it's not visible
-    QGraphicsWidget &zeroSizeToolbarGrip;
-
     //! Dummy widget we use in place of the invisible gesture handle when it's
     //! not ... err, visible (in its usual invisible way)
     QGraphicsWidget &zeroSizeInvisibleHandle;
@@ -138,6 +135,11 @@ private:
     //! Widgets define position of SharedHandleArea: this object
     //! should be placed above other widgets.
     QList<QPointer<QGraphicsWidget> > watchedWidgets;
+
+    MImToolbar &toolbar;
+
+    M::InputMethodMode inputMethodMode;
+    bool standardToolbar;
 };
 
 #endif

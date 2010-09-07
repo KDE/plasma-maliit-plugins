@@ -126,22 +126,6 @@ MVirtualKeyboardStyle.Landscape {
     maximum-size:   864 2.5mm;
 }
 
-#KeyboardToolbarHandle {
-    background-image: "meegotouch-keyboard-handle-background";
-}
-
-#KeyboardToolbarHandle.Portrait {
-    preferred-size: 480 0.6mm;
-    minimum-size: 480 0.6mm;
-    maximum-size: 480 0.6mm;
-}
-
-#KeyboardToolbarHandle.Landscape {
-    preferred-size: 864 0.6mm;
-    minimum-size: 480 0.6mm;
-    maximum-size: 864 0.6mm;
-}
-
 #KeyboardHandle {
     background-image: "meegotouch-keyboard-handle-background";
 }

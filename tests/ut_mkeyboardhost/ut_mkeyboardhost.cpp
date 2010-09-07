@@ -673,6 +673,9 @@ void Ut_MKeyboardHost::testRegionSignals()
     QVERIFY(zeroSizeInvisibleHandleRect.isEmpty());
 
     // In direct mode an invisible handle is added on top of the keyboard
+    // The test is disabed just like the invisible handle code itself (this
+    // needs to be updated if it is enabled)
+#if 0
     subject->vkbWidget->setInputMethodMode(M::InputMethodModeDirect);
     subject->sharedHandleArea->setInputMethodMode(M::InputMethodModeDirect);
     ++c1;
@@ -699,6 +702,7 @@ void Ut_MKeyboardHost::testRegionSignals()
 
     QCOMPARE(region(spy, c1 - 1), region(spy2, c2 - 1));
     QCOMPARE(region(spy, c1 - 1), region(spy2, c1 - 3));
+#endif
 
     // In opaque mode, candidate widget has its own window, so no regions are sent to kbhost.
 #ifndef DUI_IM_DISABLE_TRANSLUCENCY

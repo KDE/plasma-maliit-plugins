@@ -304,7 +304,6 @@ void MImToolbar::arrangeWidgets()
         resize(geometry().width(), layout()->preferredHeight());
     }
 
-    emit availabilityChanged((rightBar.count() != 0) || (leftBar.count() != 0));
     emit regionUpdated();
 }
 
@@ -402,6 +401,7 @@ void MImToolbar::showToolbarWidget(QSharedPointer<const MToolbarData> toolbar)
     }
     unloadCustomWidgets();
 
+    const bool oldToolbarCustom(currentToolbar ? currentToolbar->isCustom() : false);
     currentToolbar = toolbar;
     loadCustomWidgets();
 
@@ -409,6 +409,10 @@ void MImToolbar::showToolbarWidget(QSharedPointer<const MToolbarData> toolbar)
 
     if (isVisible())
         updateVisibility();
+
+    if (oldToolbarCustom != toolbar->isCustom()) {
+        emit typeChanged(!toolbar->isCustom());
+    }
 }
 
 void MImToolbar::hideToolbarWidget()

@@ -149,9 +149,10 @@ signals:
      */
     void copyPasteClicked(CopyPasteState action);
 
-    //! \brief Emitted when toolbar availability changes
-    //! \param available true when there are widgets in the toolbar; false otherwise
-    void availabilityChanged(bool available);
+    //! \brief Emitted when toolbar type changes
+    //! \param standard true when toolbar is standard, false when a custom
+    //! toolbar is set by the application
+    void typeChanged(bool standard);
 
 private:
     //! \brief Set style mode to either shaped-toolbar (true) or full-toolbar (false)

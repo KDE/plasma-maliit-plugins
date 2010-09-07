@@ -14,7 +14,6 @@
  * of this file.
  */
 
-#include "grip.h"
 #include "handle.h"
 #include "mimtoolbar.h"
 #include "sharedhandlearea.h"
@@ -29,11 +28,11 @@ SharedHandleArea::SharedHandleArea(MImToolbar &toolbar, QGraphicsWidget *parent)
     : MWidget(parent),
       mainLayout(*new QGraphicsLinearLayout(Qt::Vertical, this)),
       invisibleHandle(*new Handle(this)),
-      toolbarGrip(*new Grip(this)),
-      zeroSizeToolbarGrip(*new QGraphicsWidget(this)),
-      zeroSizeInvisibleHandle(*new QGraphicsWidget(this))
+      zeroSizeInvisibleHandle(*new QGraphicsWidget(this)),
+      toolbar(toolbar),
+      inputMethodMode(M::InputMethodModeNormal),
+      standardToolbar(true)
 {
-    zeroSizeToolbarGrip.setObjectName("zeroSizeToolbarGrip");
     zeroSizeInvisibleHandle.setObjectName("zeroSizeInvisibleHandle");
 
     mainLayout.setContentsMargins(0, 0, 0, 0);
@@ -46,24 +45,11 @@ SharedHandleArea::SharedHandleArea(MImToolbar &toolbar, QGraphicsWidget *parent)
     mainLayout.addItem(&zeroSizeInvisibleHandle);
     connectHandle(invisibleHandle);
 
-    toolbarGrip.setObjectName("KeyboardToolbarHandle");
-    toolbarGrip.hide();
-    zeroSizeToolbarGrip.setMaximumSize(0, 0);
-    zeroSizeToolbarGrip.show();
-    mainLayout.addItem(&zeroSizeToolbarGrip);
-    connectHandle(toolbarGrip);
-
-    connect(&toolbar, SIGNAL(availabilityChanged(bool)), this, SLOT(handleToolbarAvailability(bool)));
-
-    Handle &toolbarHandle = *new Handle(this);
-    toolbarHandle.setObjectName("KeyboardToolbarBackgroundHandle");
-    toolbarHandle.setChild(&toolbar);
-    connectHandle(toolbarHandle);
-
-    mainLayout.addItem(&toolbarHandle);
-    mainLayout.setAlignment(&toolbarHandle, Qt::AlignCenter);
+    mainLayout.addItem(&toolbar);
+    mainLayout.setAlignment(&toolbar, Qt::AlignCenter);
 
     connect(&toolbar, SIGNAL(regionUpdated()), this, SIGNAL(regionUpdated()));
+    connect(&toolbar, SIGNAL(typeChanged(bool)), this, SLOT(handleToolbarTypeChange(bool)));
 }
 
 
@@ -72,15 +58,10 @@ SharedHandleArea::~SharedHandleArea()
 }
 
 
-void SharedHandleArea::handleToolbarAvailability(const bool available)
+void SharedHandleArea::handleToolbarTypeChange(const bool standard)
 {
-    QGraphicsWidget &previousItem(*dynamic_cast<QGraphicsWidget *>(
-                                      mainLayout.itemAt(ToolbarHandleIndex)));
-    mainLayout.removeItem(&previousItem);
-    previousItem.hide();
-    QGraphicsWidget &newItem(available ? toolbarGrip : zeroSizeToolbarGrip);
-    mainLayout.insertItem(ToolbarHandleIndex, &newItem);
-    newItem.setVisible(available);
+    standardToolbar = standard;
+    updateInvisibleHandleVisibility();
 }
 
 
@@ -93,17 +74,35 @@ void SharedHandleArea::connectHandle(const Handle &handle)
 }
 
 
-void SharedHandleArea::setInputMethodMode(const M::InputMethodMode mode)
+void SharedHandleArea::updateInvisibleHandleVisibility()
 {
+    // For now we never enable the invisible handle.  The code is kept here until it's
+    // certain the invisible handle won't be needed anymore.  Note: if you enable this,
+    // you probably need to connect flick signals of this class and enable corresponding
+    // ut_mkeyboardhost region test code.  If/When you remove this, you can also remove
+    // setInputMethodMode, handleToolbarTypeChange and typeChanged signal from MImToolbar,
+    // connectHandle and in fact everything related to handles from this file and the
+    // header.  You also need to update addRegion and rename this class to something more
+    // meaningful.
+#if 0
     // Toggle invisible gesture handle area on/off
+    const bool showInvisibleHandle(inputMethodMode == M::InputMethodModeDirect
+                                   && !standardToolbar);
     QGraphicsWidget &previousItem(*dynamic_cast<QGraphicsWidget *>(
                                       mainLayout.itemAt(InvisibleHandleIndex)));
     mainLayout.removeItem(&previousItem);
     previousItem.hide();
-    QGraphicsWidget &newItem(mode == M::InputMethodModeDirect ? invisibleHandle : zeroSizeInvisibleHandle);
+    QGraphicsWidget &newItem(showInvisibleHandle ? invisibleHandle : zeroSizeInvisibleHandle);
     mainLayout.insertItem(InvisibleHandleIndex, &newItem);
-    newItem.setVisible(mode == M::InputMethodModeDirect);
+    newItem.setVisible(showInvisibleHandle);
     updatePositionAndRegion(SignalsEnforce);
+#endif
+}
+
+void SharedHandleArea::setInputMethodMode(const M::InputMethodMode mode)
+{
+    inputMethodMode = mode;
+    updateInvisibleHandleVisibility();
 }
 
 
@@ -111,30 +110,10 @@ QRegion SharedHandleArea::addRegion(const QRegion &region,
                                     bool includeExtraInteractiveAreas) const
 {
     QRegion result = region;
-    bool visible = false;
 
-    foreach (QGraphicsWidget *widget, watchedWidgets) {
-        if (widget && widget->isVisible()) {
-            visible = true;
-            break;
-        }
-    }
-
-    if (visible) {
-        const int bottom = pos().y() + size().height();
-        const int top = parentItem()->mapFromScene(region.boundingRect()).boundingRect().topLeft().y();
-        const int shift = top - bottom;
-        QRect myRect(geometry().toRect().translated(0, shift)); //our region is on top of received region
-
-        if (!includeExtraInteractiveAreas) {
-            int correction = mainLayout.itemAt(InvisibleHandleIndex)->geometry().height();
-            //exclude transparent interactive area on top of our rectangle
-            myRect.adjust(0, correction, 0, -correction);
-        }
-
-        const QRegion myRegion(parentItem()->mapRectToScene(myRect).toRect());
-
-        result |= myRegion;
+    result |= toolbar.region();
+    if (includeExtraInteractiveAreas) {
+        result |= QRegion(mapRectToScene(mainLayout.itemAt(InvisibleHandleIndex)->geometry()).toRect());
     }
 
     return result;
