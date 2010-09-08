@@ -19,4 +19,8 @@ SOURCES += ut_mkeyboardhost.cpp \
            minputcontextstubconnection.cpp \
            ../stubs/fakegconf.cpp \
 
+target.files += $$TARGET \
+                toolbar1.xml \
+                toolbar2.xml \
+
 include(../common_check.pri)

@@ -86,6 +86,8 @@ private slots:
     void testShiftStateOnLayoutChanged_data();
     void testShiftStateOnLayoutChanged();
 
+    void testToolbar();
+
 private:
     void rotateToAngle(M::OrientationAngle);
     void triggerAutoCaps();

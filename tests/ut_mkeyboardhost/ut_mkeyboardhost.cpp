@@ -23,8 +23,9 @@
 #include <mvirtualkeyboardstyle.h>
 #include <symbolview.h>
 #include <sharedhandlearea.h>
-
 #include <mimenginewordsinterfacefactory.h>
+#include <mtoolbardata.h>
+#include <mimtoolbar.h>
 
 #include "mgconfitem_stub.h"
 #include "minputcontextstubconnection.h"
@@ -57,6 +58,9 @@ namespace
 
     // This GConf item defines whether multitouch is enabled or disabled
     const char * const MultitouchSettings = "/meegotouch/inputmethods/multitouch/enabled";
+
+    int gShowToolbarWidgetCalls = 0;
+    int gHideToolbarWidgetCalls = 0;
 }
 
 namespace QTest
@@ -110,6 +114,15 @@ bool MHardwareKeyboard::autoCapsEnabled() const
     return gAutoCapsEnabled;
 }
 
+void MImToolbar::showToolbarWidget(QSharedPointer<const MToolbarData> )
+{
+    ++gShowToolbarWidgetCalls;
+}
+
+void MImToolbar::hideToolbarWidget()
+{
+    ++gHideToolbarWidgetCalls;
+}
 
 // Actual test...............................................................
 
@@ -1262,6 +1275,44 @@ void Ut_MKeyboardHost::triggerAutoCaps()
     // Update
     subject->updateAutoCapitalization();
     QVERIFY(subject->autoCapsTriggered);
+}
+
+void Ut_MKeyboardHost::testToolbar()
+{
+    const QString toolbarName1 = QCoreApplication::applicationDirPath() + "/toolbar1.xml";
+    const QString toolbarName2 = QCoreApplication::applicationDirPath() + "/toolbar2.xml";
+
+    QVERIFY2(QFile(toolbarName1).exists(), "toolbar1.xml does not exist");
+    QVERIFY2(QFile(toolbarName2).exists(), "toolbar2.xml does not exist");
+
+    QSharedPointer<MToolbarData> toolbar1(new MToolbarData);
+    QSharedPointer<MToolbarData> toolbar2(new MToolbarData);
+    QSharedPointer<MToolbarData> nothing;
+    bool ok;
+
+    ok = toolbar1->loadNokiaToolbarXml(toolbarName1);
+    QVERIFY2(ok, "toolbar1.xml was not loaded correctly");
+
+    ok = toolbar2->loadNokiaToolbarXml(toolbarName2);
+    QVERIFY2(ok, "toolbar2.xml was not loaded correctly");
+
+    // verify is showToolbarWidget was called
+    subject->setToolbar(toolbar2);
+    QCOMPARE(gShowToolbarWidgetCalls, 1);
+    QCOMPARE(gHideToolbarWidgetCalls, 0);
+
+    subject->setToolbar(toolbar1);
+    // verify if hideToolbarWidget was called
+    QCOMPARE(gShowToolbarWidgetCalls, 1);
+    QCOMPARE(gHideToolbarWidgetCalls, 1);
+
+    subject->setToolbar(toolbar2);
+    gShowToolbarWidgetCalls = 0;
+    gHideToolbarWidgetCalls = 0;
+
+    subject->setToolbar(nothing);
+    QCOMPARE(gShowToolbarWidgetCalls, 0);
+    QCOMPARE(gHideToolbarWidgetCalls, 1);
 }
 
 QTEST_APPLESS_MAIN(Ut_MKeyboardHost);

@@ -1224,7 +1224,7 @@ void MKeyboardHost::sendString(const QString &text)
 
 void MKeyboardHost::setToolbar(QSharedPointer<const MToolbarData> toolbar)
 {
-    if (toolbar) {
+    if (toolbar && toolbar->isVisible()) {
         imToolbar->showToolbarWidget(toolbar);
     } else {
         imToolbar->hideToolbarWidget();
