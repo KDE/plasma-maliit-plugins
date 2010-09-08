@@ -43,8 +43,12 @@ namespace
     const unsigned int FnModifierMask = Mod5Mask;
     const unsigned int longPressTime = 600; // in milliseconds
 
-    const unsigned short RepeatDelay(660);   // in milliseconds
-    const unsigned short RepeatInterval(25); // in milliseconds
+    const unsigned short RepeatDelay(600);   // in milliseconds
+    // Repeat rate is specified (at least as of this writing) to be slightly different for
+    // horizontal and vertical operations (lower) but we can't have key-specific repeat
+    // rates if we want to keep using X's autorepeat.  So we use the repeat rate of
+    // horizontal operation keys for all keys for now.
+    const unsigned short RepeatInterval(100); // in milliseconds
 
     const int KeyCodeShift = 3;
     const int KeyCodeMask = 7;
