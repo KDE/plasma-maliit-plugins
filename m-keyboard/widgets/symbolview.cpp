@@ -592,6 +592,9 @@ void SymbolView::onSwitchDone()
         layout()->activate();
         redrawReactionMaps();
     }
+    if (pageSwitcher) {
+        activePage = pageSwitcher->current();
+    }
 }
 
 void SymbolView::handleShiftPressed(bool shiftPressed)
