@@ -1,6 +1,7 @@
 meego-keyboard (0.4.18~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#190740 - Releasing long press of HWK backspace in text fields does not stop deletion immediately
   * Fixes: NB#187289 - [browser-blocker] Last character entered by vkb is doubled in awesomebar when "Sym" button is pressed
   * Fixes: NB#186306 - '+' or '-' symbols are not working in the number text field.
   * Fixes: Sym+character with latched modifiers
