@@ -82,6 +82,8 @@ bool FixtureVirtualKeyboard::execute(void *objectInstance,
         button = getKey(widget, KeyBinding::ActionSpace);
     } else if (key == "Enter") {
         button = getKey(widget, KeyBinding::ActionReturn);
+    } else if (key == "AccentKeys") {
+        button = getKey(widget, KeyBinding::ActionSwitch);
     } else {
         button = getKey(widget, key);
     }
