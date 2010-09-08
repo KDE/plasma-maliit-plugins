@@ -8,8 +8,6 @@
           <binding label="1" />
         </key>
       </row>
-    </section>
-    <section id="functionkey" type="non-sloppy" vertical_alignment="center" horizontal_alignment="center" movable="false">
       <row>
         <key>
           <binding label="func1" />
@@ -24,8 +22,6 @@
           <binding label="1" />
         </key>
       </row>
-    </section>
-    <section id="functionkey" type="non-sloppy" vertical_alignment="center" horizontal_alignment="center" movable="false">
       <row>
         <key>
           <binding label="func1" />

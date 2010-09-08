@@ -86,7 +86,7 @@ void Ut_SymbolView::initTestCase()
 
     new MPlainWindow;
 
-    if ((*style)->keyHeight() < 70) {
+    if ((*style)->keyHeight() <= 0) {
         QSKIP("This test is sipped due to incorrect value received from CSS", SkipAll);
     }
 }
@@ -277,11 +277,11 @@ void Ut_SymbolView::testChangeTab()
     subject->pageSwitcher->setDuration(0);
     subject->pageSwitcher->setCurrent(initialTabIndex);
 
-    QCOMPARE(subject->activePage, 0);
+    QCOMPARE(subject->activePage, subject->pageSwitcher->current());
 
     if (direction == HorizontalSwitcher::Right) {
         subject->switchToNextPage();
-    } else {
+    } else if (direction == HorizontalSwitcher::Left){
         subject->switchToPrevPage();
     }
 

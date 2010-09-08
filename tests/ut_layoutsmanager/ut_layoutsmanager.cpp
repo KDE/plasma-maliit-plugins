@@ -64,7 +64,8 @@ bool KeyboardData::loadNokiaKeyboard(const QString &fileName)
 {
     qDeleteAll(layouts);
     layouts.clear();
-    if (LoadableKeyboards.contains(fileName)) {
+    // ignore case sensitive in file name.
+    if (LoadableKeyboards.contains(fileName, Qt::CaseInsensitive)) {
         layouts.append(new TestLayoutModel(fileName));
         return true;
     }

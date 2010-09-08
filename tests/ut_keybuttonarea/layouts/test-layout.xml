@@ -128,8 +128,6 @@
               <binding action="backspace" label=""/>
             </key>
           </row>
-        </section>
-        <section id="functionkey" movable="false" horizontal_alignment="left" vertical_alignment="center">
           <row>
             <key>
               <binding action="shift" label=""/>
@@ -148,29 +146,6 @@
             <key>
               <binding label="?"/>
               <binding shift="true" label="¿"/>
-            </key>
-            <key>
-              <binding label="."/>
-              <binding shift="true" label=","/>
-            </key>
-            <key>
-              <binding action="return" label=""/>
-            </key>
-          </row>
-        </section>
-    </layout>
-    <layout type="general" orientation="portrait">
-        <section id="functionkey" movable="false" horizontal_alignment="left" vertical_alignment="center">
-          <row>
-            <key>
-              <binding action="shift" label=""/>
-            </key>
-            <key>
-              <binding action="sym" label="Sym" secondary_label="áçè"/>
-              <binding shift="true" action="layout_menu" label=""/>
-            </key>
-            <key>
-              <binding action="space" label=""/>
             </key>
             <key>
               <binding label="."/>

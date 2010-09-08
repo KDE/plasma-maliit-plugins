@@ -8,8 +8,6 @@
           <binding label="2" />
         </key>
       </row>
-    </section>
-    <section id="functionkey" type="sloppy" vertical_alignment="center" horizontal_alignment="center" movable="false">
       <row>
         <key>
           <binding label="func2" />
