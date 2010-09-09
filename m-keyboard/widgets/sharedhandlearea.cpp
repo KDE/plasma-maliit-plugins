@@ -111,9 +111,11 @@ QRegion SharedHandleArea::addRegion(const QRegion &region,
 {
     QRegion result = region;
 
-    result |= toolbar.region();
-    if (includeExtraInteractiveAreas) {
-        result |= QRegion(mapRectToScene(mainLayout.itemAt(InvisibleHandleIndex)->geometry()).toRect());
+    if (invisibleHandle.isVisible()) {
+        result |= toolbar.region();
+        if (includeExtraInteractiveAreas) {
+            result |= QRegion(mapRectToScene(mainLayout.itemAt(InvisibleHandleIndex)->geometry()).toRect());
+        }
     }
 
     return result;
