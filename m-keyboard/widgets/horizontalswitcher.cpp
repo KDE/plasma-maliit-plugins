@@ -56,23 +56,20 @@ HorizontalSwitcher::~HorizontalSwitcher()
 
 void HorizontalSwitcher::switchTo(SwitchDirection direction)
 {
-    if (isRunning())
+    if (isRunning()) {
         finishAnimation();
+    }
 
-    if (slides.count() < 2)
+    if (slides.count() < 2 ||
+        (!loopingEnabled && isAtBoundary(direction))) {
         return;
+    }
 
-    int newIndex;
-    if (direction == Right) {
-        if (!loopingEnabled && currentIndex == slides.count() - 1)
-            return;
-        newIndex = (currentIndex + 1) % slides.count();
-    } else { // direction == Left
-        if (!loopingEnabled && currentIndex == 0)
-            return;
-        newIndex = currentIndex - 1;
-        if (newIndex < 0)
-            newIndex += slides.count();
+    int newIndex = (direction == Left ? (currentIndex - 1)
+                                      : (currentIndex + 1) % slides.count());
+
+    if (newIndex < 0) {
+        newIndex += slides.count();
     }
 
     QGraphicsWidget *currentWidget = slides.at(currentIndex);
@@ -95,48 +92,34 @@ void HorizontalSwitcher::switchTo(SwitchDirection direction)
         nextWidget->setPos(0.0, 0.0);
         nextWidget->show();
         finishAnimation();
-
     } else {
-        if (direction == Right) {
-            // Set the new item to the right of this.
-            nextWidget->setPos(this->size().width(), 0.0);
-            enterAnim.setPosAt(0.0, nextWidget->pos());
-            enterAnim.setPosAt(1.0, QPointF(0.0, 0.0));
-            leaveAnim.setPosAt(0.0, currentWidget->pos());
-            leaveAnim.setPosAt(1.0, QPointF(-currentWidget->size().width(), 0.0));
-        } else if (direction == Left) {
-            // Set the new item to the left of this.
-            nextWidget->setPos(-nextWidget->size().width(), 0.0);
-            enterAnim.setPosAt(0.0, nextWidget->pos());
-            enterAnim.setPosAt(1.0, QPointF(0.0, 0.0));
-            leaveAnim.setPosAt(0.0, currentWidget->pos());
-            leaveAnim.setPosAt(1.0, QPointF(this->size().width(), 0.0));
-        }
+        nextWidget->setPos((direction == Right ? size().width()
+                                               : -(nextWidget->size().width())), 0.0);
+        enterAnim.setPosAt(0.0, nextWidget->pos());
+        enterAnim.setPosAt(1.0, QPointF(0.0, 0.0));
+        leaveAnim.setPosAt(0.0, currentWidget->pos());
+        leaveAnim.setPosAt(1.0, QPointF((direction == Right ? -(currentWidget->size().width())
+                                                            : size().width()), 0.0));
 
         nextWidget->show();
-
         animTimeLine.start();
     }
 }
 
 bool HorizontalSwitcher::isAtBoundary(SwitchDirection direction) const
 {
-    if (direction == Right) {
-        if (currentIndex == slides.count() - 1) {
-            return true;
-        }
-    } else { // Left
-        if (currentIndex == 0) {
-            return true;
-        }
-    }
-
-    return false;
+    return (currentIndex == (direction == Left ? 0
+                                               : slides.count() - 1));
 }
 
 void HorizontalSwitcher::setCurrent(QGraphicsWidget *widget)
 {
-    Q_ASSERT(widget && slides.contains(widget));
+    if (!widget || !slides.contains(widget)) {
+        qWarning() << "HorizontalSwitcher::setCurrent() - "
+                   << "Cannot set switcher to specified widget. Add widget to switcher first?";
+        return;
+    }
+
     setCurrent(slides.indexOf(widget));
 }
 
@@ -177,20 +160,14 @@ int HorizontalSwitcher::current() const
 
 QGraphicsWidget *HorizontalSwitcher::currentWidget() const
 {
-    QGraphicsWidget *widget = NULL;
-    if (current() >= 0) {
-        widget = slides.at(currentIndex);
-    }
-    return widget;
+    return (current() < 0 ? 0
+                          : slides.at(currentIndex));
 }
 
 QGraphicsWidget *HorizontalSwitcher::widget(int index)
 {
-    QGraphicsWidget *widget = NULL;
-    if (index >= 0 && index < slides.count()) {
-        widget = slides.at(index);
-    }
-    return widget;
+    return (isValidIndex(index) ? slides.at(index)
+                                : 0);
 }
 
 int HorizontalSwitcher::count() const
@@ -211,22 +188,24 @@ void HorizontalSwitcher::setLooping(bool enable)
 void HorizontalSwitcher::setDuration(int ms)
 {
     animTimeLine.setDuration(ms);
-    animTimeLine.setFrameRange(0, ms * SwitchFrames / SwitchDuration);
+    animTimeLine.setFrameRange(0, ms * SwitchFrames / qMax(1, SwitchDuration));
 }
 
 void HorizontalSwitcher::addWidget(QGraphicsWidget *widget)
 {
-    if (widget) {
-        widget->setParentItem(this);
-        widget->setPreferredWidth(size().width());
+    if (!widget) {
+        return;
+    }
 
-        slides.append(widget);
-        widget->hide();
+    widget->setParentItem(this);
+    widget->setPreferredWidth(size().width());
 
-        // HS was empty before, this was the first widget added:
-        if (slides.size() == 1) {
-            setCurrent(0);
-        }
+    slides.append(widget);
+    widget->hide();
+
+    // HS was empty before, this was the first widget added:
+    if (slides.size() == 1) {
+        setCurrent(0);
     }
 }
 
