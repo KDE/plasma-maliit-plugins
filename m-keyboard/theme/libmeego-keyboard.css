@@ -1,18 +1,19 @@
 @const HEIGHT_CANDIDATEITEM:  6.4mm;
 
 MVirtualKeyboardStyle {
-    background-image: "meegotouch-keyboard-background" 10px 10px 10px 10px;
+    background-image: "meegotouch-keyboard-background" 15px 15px 15px 15px;
     font: "Nokia Sans Light" 28;
     font-opacity: 0.9;
     font-color: #000000;
 
     secondary-font: $FONT_SMALL;
 
-    padding-top: $PADDING_LARGE;
-    padding-bottom: $PADDING_LARGE;
+    padding-top: 2.2mm;
+    padding-bottom: $MARGIN_DOUBLE;
 
-    spacing-vertical: $MARGIN_DOUBLE;
-    spacing-horizontal: 0.4mm;
+    spacing-vertical: 2mm;
+    /* should be 0.4mm or 4px, need to check*/
+    spacing-horizontal: 0.2mm;
 
     deadkey-locked-color: #FFA500;
 
@@ -65,18 +66,18 @@ MVirtualKeyboardStyle {
     key-background-deadkey-pressed-selected: "meegotouch-keyboard-key-pressed-selected" 15 15 15 15;
 
     key-backspace-icon-id: "icon-m-input-methods-backspace";
-    key-backspace-icon-size: 48 48;
+    key-backspace-icon-size: 32 32;
     key-backspace-icon-id-rtl: "icon-m-rtl-input-methods-backspace";
 
     key-menu-icon-size: 48 48;
     key-menu-icon-id: "icon-m-input-methods-menu";
     key-menu-icon-id-rtl: "icon-m-rtl-input-methods-menu";
 
-    key-enter-icon-size: 48 48;
+    key-enter-icon-size: 38 38;
     key-enter-icon-id: "icon-m-input-methods-enter";
     key-enter-icon-id-rtl: "icon-m-rtl-input-methods-enter";
 
-    key-shift-icon-size: 48 48;
+    key-shift-icon-size: 38 38;
     key-shift-icon-id: "icon-m-input-methods-shift";
     key-shift-uppercase-icon-id: "icon-m-input-methods-capslock";
     /* End of single widget keyboard button styling */
@@ -84,68 +85,39 @@ MVirtualKeyboardStyle {
 
 MVirtualKeyboardStyle.Portrait {
     keyboard-area-size: 480 280;
+    /* should be 0.4mm or 4px, need to check*/
     spacing-horizontal: 0.2mm;
 
-    label-margin-top: 2.4mm;
+    label-margin-top: 1.2mm;
     label-margin-left-with-secondary: 4.6mm;
     secondary-label-separation: 0.9mm;
 
-    padding-left: $PADDING_MEDIUM;
-    padding-right:$PADDING_MEDIUM;
+    padding-left: $MARGIN_DOUBLE;
+    padding-right:$MARGIN_DOUBLE;
 
     tab-button-size: 91 70;
     menu-size: 470 342;
 
-    /* Single widget keyboard button styling */
-    key-background: "meegotouch-keyboard-key-portrait" 10 10 10 10;
-    key-background-pressed: "meegotouch-keyboard-key-pressed-portrait" 10 10 10 10;
-    key-background-selected: "meegotouch-keyboard-key-selected-portrait" 10 10 10 10;
-
-    key-normal-size: 4.4mm 8mm;
-
-    key-phone-number-normal-size: 15.3mm 8mm;
-    key-function-normal-size: 8mm 8mm;
-    key-function-large-size: 8mm 8mm;
-    key-number-function-large-size: 15.3mm 8mm;
-    key-sym-normal-size: 7.5mm 8mm;
-    /* End of single widget keyboard button styling */
-
-    key-background-sym-indicator-sym: "meegotouch-keyboard-key-sym-selected-portrait";
-    key-background-sym-indicator-ace: "meegotouch-keyboard-key-ace-selected-portrait";
-    key-background-sym-indicator-sym-pressed: "meegotouch-keyboard-key-sym-pressed-portrait";
-    key-background-sym-indicator-ace-pressed: "meegotouch-keyboard-key-ace-pressed-portrait";
-
-    key-height: 8mm;
+    key-height: 6.4mm;
 }
 
 MVirtualKeyboardStyle.Landscape {
     keyboard-area-size: 864 280;
 
-    label-margin-top: 1.2mm;
+    padding-top: 1.3mm;
+    spacing-vertical: $MARGIN_DOUBLE;
+
+    label-margin-top: 0.6mm;
     label-margin-left-with-secondary: -1; /* not used, labels are centered horizontally */
     secondary-label-separation: 0;
 
-    padding-left: $PADDING_LARGE;
-    padding-right: $PADDING_LARGE;
+    padding-left: $MARGIN_DOUBLE;
+    padding-right: $MARGIN_DOUBLE;
 
     tab-button-size: 108 70;
     menu-size: 790 342;
 
-    /* Single widget keyboard button styling */
-    key-background: "meegotouch-keyboard-key-landscape" 10 10 10 10;
-    key-background-pressed: "meegotouch-keyboard-key-pressed-landscape" 10 10 10 10;
-    key-background-selected: "meegotouch-keyboard-key-selected-landscape" 10 10 10 10;
-
-    key-normal-size: 8.2mm 5.6mm;
-
-    key-phone-number-normal-size: 8.2mm 8.4mm;
-    key-function-normal-size: 8.2mm 5.6mm;
-    key-function-large-size: 12.4mm 5.6mm;
-    key-number-function-large-size: 12.4mm 5.6mm;
-    key-sym-normal-size: 8.2mm 5.6mm;
-    /* End of single widget keyboard button styling */
-
-    key-height: 5.6mm;
+    key-height: 4.8mm;
 }
 
 #InvisibleHandle.Portrait {
@@ -160,20 +132,37 @@ MVirtualKeyboardStyle.Landscape {
     maximum-size:   864 2.5mm;
 }
 
-#KeyboardHandle {
-    background-image: "meegotouch-keyboard-handle-background";
+#KeyboardToolbarHandle {
+    background-image: "meegotouch-keyboard-border-top";
 }
 
-#KeyboardHandle.Landscape {
+#KeyboardToolbarHandle.Portrait {
+    preferred-size: 480 0.6mm;
+    minimum-size: 480 0.6mm;
+    maximum-size: 480 0.6mm;
+}
+
+#KeyboardToolbarHandle.Landscape {
     preferred-size: 864 0.6mm;
     minimum-size: 480 0.6mm;
     maximum-size: 864 0.6mm;
 }
 
+>>>>>>> Changes: adjust values in libmeego-keyboard.css
+#KeyboardHandle {
+    background-image: "meegotouch-keyboard-handle-background";
+}
+
+#KeyboardHandle.Landscape {
+    preferred-size: 864 0;
+    minimum-size: 480 0;
+    maximum-size: 864 0;
+}
+
 #KeyboardHandle.Portrait {
-    preferred-size: 480 0.6mm;
-    minimum-size: 480 0.6mm;
-    maximum-size: 480 0.6mm;
+    preferred-size: 480 0;
+    minimum-size: 480 0;
+    maximum-size: 480 0;
 }
 
 #MenuToggleButton {
@@ -206,25 +195,26 @@ MVirtualKeyboardStyle.Landscape {
 }
 
 MToolbarButtonStyle {
-    background-image: "meegotouch-keyboard-toolbar-button" 10px 10px 10px 10px;
-    margin-left: 0;
-    margin-right: 0;
+    background-image: "meegotouch-keyboard-toolbar-button" 15px 15px 15px 15px;
+    margin-left: $MARGIN_SMALL;
+    margin-right: $MARGIN_SMALL;
     margin-top: 0;
     margin-bottom: 0;
-    preferred-size: 100 48;
-    maximum-size: 100 48;
-    reactive-margin-left: 2;
+    preferred-size: 100 40;
+    maximum-size: 100 40;
+    /*below reactive margins should be fixed*/
+/*  reactive-margin-left: 2;
     reactive-margin-right: 2;
     reactive-margin-top: 5;
-    reactive-margin-bottom: 5;
+    reactive-margin-bottom: 5;*/
 }
 
 MToolbarButtonStyle:pressed {
-    background-image: "meegotouch-keyboard-toolbar-button-pressed" 10px 10px 10px 10px;
+    background-image: "meegotouch-keyboard-toolbar-button-pressed" 15px 15px 15px 15px;
 }
 
 MToolbarButtonStyle:selected {
-    background-image: "meegotouch-keyboard-toolbar-button-selected" 10px 10px 10px 10px;
+    background-image: "meegotouch-keyboard-toolbar-button-selected" 15px 15px 15px 15px;
 }
 
 WidgetBarStyle {
@@ -233,9 +223,10 @@ WidgetBarStyle {
     margin-right: 0;
     margin-bottom: 0;
 
-    padding-top: 3;
-    padding-left: 3;
-    padding-right: 3;
+    padding-top: 9;
+    padding-bottom: 10;
+    padding-left: 11;
+    padding-right: 11;
 }
 
 WidgetBarStyle:shaped-toolbar {
@@ -247,7 +238,7 @@ WidgetBarStyle:full-toolbar {
 }
 
 MImCorrectionCandidateContainerStyle {
-    background-image: "meegotouch-candidatelist-background" 10 10 10 10;
+    background-image: "meegotouch-candidatelist-background" 15 15 15 15;
     margin-top: 0;
     margin-bottom: 0;
     margin-left: 0;
@@ -274,6 +265,7 @@ MImCorrectionCandidateItemStyle {
 }
 
 MImToolbarStyle {
+    background-image: "meegotouch-keyboard-toolbar-background" 15px 15px 15px 15px;
     margin-top: 0;
     margin-bottom: 0;
     margin-left: 0;
@@ -284,7 +276,7 @@ MImToolbarStyle {
 }
 
 MImToolbarStyle:full-toolbar {
-    background-image: "meegotouch-keyboard-toolbar-background" 10px 10px 10px 10px;
+    background-image: "meegotouch-keyboard-toolbar-background" 15px 15px 15px 15px;
 }
 
 MImToolbarStyle:shaped-toolbar {
@@ -292,14 +284,14 @@ MImToolbarStyle:shaped-toolbar {
 }
 
 MImToolbarStyle.Landscape {
-    preferred-size: 864 -1;
-    minimum-size: 864 -1;
-    maximum-size: 864 -1;
+    preferred-size: 100% -1;
+    minimum-size: 100% -1;
+    maximum-size: 100% -1;
 }
 
 MImToolbarStyle.Portrait {
-    preferred-size: 480 -1;
-    minimum-size: 480 -1;
-    maximum-size: 480 -1;
+    preferred-size: 100% -1;
+    minimum-size: 100% -1;
+    maximum-size: 100% -1;
 }
 
