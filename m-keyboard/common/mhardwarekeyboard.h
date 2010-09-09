@@ -24,6 +24,7 @@
 #include <QString>
 #include <QEvent>
 #include <QTimer>
+#include <QRegExp>
 #include "mxkb.h"
 #include "hwkbcharloopsmanager.h"
 #include "mkeyboardcommon.h"
@@ -141,6 +142,17 @@ private slots:
     void handleLongPressTimeout();
 
 private:
+    //! \brief If character is not accepted by the client, try to find an acceptable character
+    //! on another shift level
+    //!
+    //! Only supports MTextEdit's number content type at the moment and even for that we
+    //! simply have a hardwired set of accepted characters, instead of considering the
+    //! current decimal separator.
+    //!
+    //! \post text and nativeModifiers possibly modified for the found character
+    void correctToAcceptedCharacter(QString &text, quint32 nativeScanCode,
+                                    quint32 &nativeModifiers) const;
+
     //! \brief Helper for \a filterKeyPress that handles script switching shortcuts
     bool handleScriptSwitchOnPress(Qt::Key keyCode, Qt::KeyboardModifiers modifiers);
 
@@ -314,6 +326,8 @@ private:
     QString preedit;
     //! Native X keycode of the event that caused \a preedit to be set
     quint32 preeditScanCode;
+
+    const QRegExp numberContentCharacterMatcher;
 
     friend class Ut_MHardwareKeyboard;
     friend class Ft_MHardwareKeyboard;

@@ -50,6 +50,12 @@ namespace
     // horizontal operation keys for all keys for now.
     const unsigned short RepeatInterval(100); // in milliseconds
 
+    //! Character set for MTextEdit number content type
+    const QString NumberContentCharacterSetRegexp(QString("[-+0-9%1-%2,.%3]")
+                                                  .arg(QChar(0x0660)) // Arabic numbers begin
+                                                  .arg(QChar(0x0669)) // Arabic numbers end
+                                                  .arg(QChar(0x066b))); // Arabic decimal separator
+
     const int KeyCodeShift = 3;
     const int KeyCodeMask = 7;
 
@@ -80,7 +86,8 @@ MHardwareKeyboard::MHardwareKeyboard(MInputContextConnection& icConnection, QObj
       shiftShiftCapsLock(false),
       longPressTimer(this),
       imMode(M::InputMethodModeNormal),
-      fnPressed(false)
+      fnPressed(false),
+      numberContentCharacterMatcher(NumberContentCharacterSetRegexp)
 {
     longPressTimer.setSingleShot(true);
     longPressTimer.setInterval(longPressTime);
@@ -394,6 +401,24 @@ bool MHardwareKeyboard::handleScriptSwitchOnRelease(Qt::Key keyCode, Qt::Keyboar
     return false;
 }
 
+void MHardwareKeyboard::correctToAcceptedCharacter(QString &text, const quint32 nativeScanCode,
+                                                   quint32 &nativeModifiers) const
+{
+    if ((currentKeyboardType != M::NumberContentType)
+        || numberContentCharacterMatcher.exactMatch(text)) {
+        return;
+    }
+
+    // It's sufficient for us to consider only the first level since all we really want to
+    // do is make it possible to enter decimal separators without long press or pressing
+    // Fn.
+    const QString noFnCandidate(keycodeToString(nativeScanCode, 0));
+    if (numberContentCharacterMatcher.exactMatch(noFnCandidate)) {
+        text = noFnCandidate;
+        nativeModifiers &= ~FnModifierMask;
+    }
+}
+
 bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers modifiers,
                                        QString text, bool autoRepeat, int count,
                                        quint32 nativeScanCode, quint32 nativeModifiers)
@@ -445,6 +470,8 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
         }
 
         if (eaten && !eatenBySymHandler) {
+            correctToAcceptedCharacter(text, nativeScanCode, nativeModifiers);
+
             // Long press feature, only applies for the latest keypress (i.e. the latest
             // keypress event cancels the long press logic for the previous keypress)
             longPressKey = nativeScanCode;

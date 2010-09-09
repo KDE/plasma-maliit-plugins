@@ -48,6 +48,7 @@ namespace
     const unsigned int KeycodeCharacter(38); // keycode of "a" under xorg / Xephyr combination
     const unsigned int KeycodeCharacterO(32); // keycode of "o" under xorg / Xephyr combination
     const unsigned int KeycodeCharacterB(56); // keycode of "b" under xorg / Xephyr combination
+    const unsigned int KeycodeCharacterPeriod(60); // keycode of "." under xorg / Xephyr combination
     const unsigned int KeycodeNonCharacter(50);  // keycode of left shift under xorg / Xephyr combination
 
     const QString XkbLayoutSettingName("/meegotouch/inputmethods/hwkeyboard/layout");
@@ -96,6 +97,8 @@ QString MHardwareKeyboard::keycodeToString(unsigned int keycode, unsigned int sh
         return QString("o");
     } else if ((keycode == KeycodeCharacterB) && (shiftLevel == 0)) {
         return QString("b");
+    } else if (keycode == KeycodeCharacterPeriod) {
+        return QString(".");
     } else {
         return QString("a");    // just an arbitrary character
     }
@@ -966,6 +969,19 @@ void Ut_MHardwareKeyboard::testControlModifier()
     QVERIFY(!filterKeyPress(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, ControlMask));
     QVERIFY(!filterKeyRelease(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, ControlMask));
     filterKeyRelease(Qt::Key_Control, Qt::NoModifier, "", KeycodeNonCharacter, ControlMask);
+}
+
+
+void Ut_MHardwareKeyboard::testCorrectToAcceptedCharacter()
+{
+    m_hkb->setKeyboardType(M::NumberContentType);
+    QVERIFY(filterKeyPress(Qt::Key_Colon, Qt::GroupSwitchModifier, ":", KeycodeCharacterPeriod, FnModifierMask));
+    QCOMPARE(inputContextConnection->lastPreeditString().length(), 1);
+    QCOMPARE(inputContextConnection->lastPreeditString(), QString("."));
+    QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
+    QVERIFY(filterKeyRelease(Qt::Key_Colon, Qt::GroupSwitchModifier, ":", KeycodeCharacterPeriod, FnModifierMask));
+    QCOMPARE(inputContextConnection->lastCommitString(), QString("."));
+    QCOMPARE(inputContextConnection->lastCommitString().length(), 1);
 }
 
 QTEST_APPLESS_MAIN(Ut_MHardwareKeyboard);
