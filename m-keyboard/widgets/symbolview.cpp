@@ -232,6 +232,7 @@ void SymbolView::reloadContent()
         loadSwitcherPages(layoutData, activePage);
         setShiftState(shiftState); // Sets level for sym pages.
     }
+    this->layout()->invalidate();
 }
 
 void SymbolView::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
