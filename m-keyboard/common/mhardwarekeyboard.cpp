@@ -619,9 +619,6 @@ bool MHardwareKeyboard::filterKeyEvent(QEvent::Type eventType,
                                        const QString &text, bool autoRepeat, int count,
                                        quint32 nativeScanCode, quint32 nativeModifiers)
 {
-    XkbStateRec xkbState;
-    XkbGetState(QX11Info::display(), XkbUseCoreKbd, &xkbState); // TODO: XkbUseCoreKbd
-
     bool eaten = false;
 
     if (eventType == QEvent::KeyPress) {
