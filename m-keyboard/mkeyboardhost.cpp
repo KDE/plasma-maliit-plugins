@@ -60,6 +60,7 @@ namespace
     const QString DefaultInputLanguage("en_GB");
     // TODO: check that these paths still hold
     const QString InputMethodCorrectionSetting("/meegotouch/inputmethods/correctionenabled");
+    bool DefaultInputMethodCorrectionSettingOption = false;
     const QString InputMethodCorrectionEngine("/meegotouch/inputmethods/correctionengine");
     const QString AutoCapsSentenceDelimiters(".?!¡¿"); // used as regexp character set content!
     const int RotationDuration = 750; //! After vkb hidden, how long to wait until shown again
@@ -1049,9 +1050,7 @@ void MKeyboardHost::initializeInputEngine()
 
 void MKeyboardHost::synchronizeCorrectionSetting()
 {
-    bool correction = true;
-    if (!inputMethodCorrectionSettings->value().isNull())
-        correction = inputMethodCorrectionSettings->value().toBool();
+    bool correction = inputMethodCorrectionSettings->value(DefaultInputMethodCorrectionSettingOption).toBool();
 
     if (!correction) {
         imCorrectionEngine->disableCorrection();
