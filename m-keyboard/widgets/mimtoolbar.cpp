@@ -147,16 +147,15 @@ void MImToolbar::setSelectionStatus(bool selection)
 void MImToolbar::updateVisibility()
 {
     if (currentToolbar) {
-        foreach (const QSharedPointer<MToolbarItem> item, currentToolbar->items())
-        {
+        foreach (const QSharedPointer<MToolbarItem> item, currentToolbar->items()) {
             if ((item->showOn() == MInputMethod::VisibleAlways)
-                    || (textSelected && item->showOn() == MInputMethod::VisibleWhenSelectingText)
-                    || (!textSelected && item->hideOn() == MInputMethod::VisibleWhenSelectingText)) {
+                || (textSelected && item->showOn() == MInputMethod::VisibleWhenSelectingText)
+                || (!textSelected && item->hideOn() == MInputMethod::VisibleWhenSelectingText)) {
                 item->setVisible(true);
             }
 
             if ((!textSelected && item->showOn() == MInputMethod::VisibleWhenSelectingText)
-                    || (textSelected && item->hideOn() == MInputMethod::VisibleWhenSelectingText)) {
+                || (textSelected && item->hideOn() == MInputMethod::VisibleWhenSelectingText)) {
                 item->setVisible(false);
             }
         }
@@ -317,8 +316,7 @@ void MImToolbar::showGroup(const QString &group)
         return;
     }
 
-    foreach (const QSharedPointer<MToolbarItem> item, currentToolbar->items())
-    {
+    foreach (const QSharedPointer<MToolbarItem> item, currentToolbar->items()) {
         if (item->group() == group && !(item->isVisible())) {
             item->setVisible(true);
             changed = true;
@@ -338,8 +336,7 @@ void MImToolbar::hideGroup(const QString &group)
         return;
     }
 
-    foreach (const QSharedPointer<MToolbarItem> item, currentToolbar->items())
-    {
+    foreach (const QSharedPointer<MToolbarItem> item, currentToolbar->items()) {
         if (item->group() == group && item->isVisible()) {
             item->setVisible(false);
             changed = true;
