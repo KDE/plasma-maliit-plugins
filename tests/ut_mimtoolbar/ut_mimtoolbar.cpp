@@ -302,30 +302,29 @@ void Ut_MImToolbar::testRegion()
 void Ut_MImToolbar::testReactionMaps_data()
 {
     QTest::addColumn<QString>("filename");
+    QTest::addColumn<bool>("shaped");
 
-    QTest::newRow("no custom toolbar") << QString();
-    QTest::newRow("one row toolbar")  << ToolbarFileName;
-    QTest::newRow("two rows toolbar") << ToolbarFileName2;
+    QTest::newRow("one row toolbar shaped toolbar")  << ToolbarFileName << true;
+    QTest::newRow("one row toolbar")  << ToolbarFileName << false;
+    QTest::newRow("two rows toolbar") << ToolbarFileName2 << false;
 }
 
 void Ut_MImToolbar::testReactionMaps()
 {
     QFETCH(QString, filename);
+    QFETCH(bool, shaped);
 
-    if (!filename.isEmpty()) {
-        toolbarData = QSharedPointer<MToolbarData>(new MToolbarData);
-        bool ok = toolbarData->loadNokiaToolbarXml(filename);
-        QVERIFY(ok);
+    gCustomToolbar = !shaped;
 
-        m_subject->showToolbarWidget(toolbarData);
-    } else {
-        m_subject->hideToolbarWidget();
-    }
+    toolbarData = QSharedPointer<MToolbarData>(new MToolbarData);
+    QVERIFY(toolbarData->loadNokiaToolbarXml(filename));
+
+    m_subject->showToolbarWidget(toolbarData);
 
     MReactionMapTester tester;
     gMReactionMapStub = &tester;
 
-    // Show keyboard
+    // Show toolbar
     m_subject->show();
 
     // Clear with transparent color
@@ -334,16 +333,23 @@ void Ut_MImToolbar::testReactionMaps()
     gMReactionMapStub->setTransform(QTransform());
     gMReactionMapStub->fillRectangle(0, 0, gMReactionMapStub->width(), gMReactionMapStub->height());
 
-    m_subject->redrawReactionMaps();
+    QGraphicsView *view = MPlainWindow::instance();
+
+    m_subject->paintReactionMap(MReactionMap::instance(view), view);
 
     // Overall sanity test with grid points throughout the view.
-    if (!m_subject->region().isEmpty()) {
-        QRegion region(m_subject->mapToScene(m_subject->boundingRect()).boundingRect().toRect());
-        QVERIFY(tester.testReactionMapGrid(MPlainWindow::instance(), 40, 50, region, m_subject));
-    }
+    QVERIFY(tester.testReactionMapGrid(view, 40, 50, m_subject->region(), m_subject));
 
     // Check that all buttons are drawn with reactive color.
-    QVERIFY(tester.testChildButtonReactiveAreas(MPlainWindow::instance(), m_subject));
+    QVERIFY(tester.testChildButtonReactiveAreas(view, m_subject));
+
+    // Check that middle point is either transparent or inactive, depending on whether toolbar is shaped or not.
+    // Assuming also that no buttons extend to middle area.
+    gMReactionMapStub->setTransform(m_subject, view);
+    MReactionMapTester::ReactionColorValue middlePointReactionColor = shaped ?
+                                                                      MReactionMapTester::Transparent : MReactionMapTester::Inactive;
+    MReactionMapTester::ReactionColorValue actualMiddlePointColor = tester.colorAt(m_subject->boundingRect().center());
+    QCOMPARE(actualMiddlePointColor, middlePointReactionColor);
 }
 
 void Ut_MImToolbar::testClose()

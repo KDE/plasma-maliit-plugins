@@ -376,13 +376,6 @@ void MVirtualKeyboard::showKeyboard(bool fadeOnly)
 
 void MVirtualKeyboard::hideKeyboard(bool fadeOnly, bool temporary)
 {
-    if (scene() && scene()->views().count() > 0) {
-        MReactionMap *reactionMap = MReactionMap::instance(scene()->views()[0]);
-        if (reactionMap) {
-            reactionMap->clear();
-        }
-    }
-
     qDebug() << __PRETTY_FUNCTION__ << "HIDE";
 
     if (activity == Active) {
@@ -636,32 +629,20 @@ QString MVirtualKeyboard::selectedLanguage() const
     return currentLanguage;
 }
 
-void MVirtualKeyboard::redrawReactionMaps()
+void MVirtualKeyboard::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view)
 {
-    if ((activity != Active) || !scene()) {
+    if ((activity != Active)) {
         return;
     }
 
-    foreach (QGraphicsView *view, scene()->views()) {
-        MReactionMap *reactionMap = MReactionMap::instance(view);
-        if (!reactionMap) {
-            continue;
-        }
+    // Draw keyboard area with inactive color to prevent transparent holes.
+    reactionMap->setInactiveDrawingValue();
+    reactionMap->setTransform(this, view);
+    reactionMap->fillRectangle(layout()->itemAt(KeyboardIndex)->geometry());
+    reactionMap->fillRectangle(layout()->itemAt(KeyboardHandleIndex)->geometry());
 
-        // Clear all with transparent color.
-        reactionMap->setTransparentDrawingValue();
-        reactionMap->setTransform(QTransform()); // Identity
-        reactionMap->fillRectangle(0, 0, reactionMap->width(), reactionMap->height());
-
-        // Draw keyboard area with inactive color to prevent transparent holes.
-        reactionMap->setInactiveDrawingValue();
-        reactionMap->setTransform(this, view);
-        reactionMap->fillRectangle(layout()->itemAt(KeyboardIndex)->geometry());
-        reactionMap->fillRectangle(layout()->itemAt(KeyboardHandleIndex)->geometry());
-
-        if (activeState == OnScreen) {
-            drawButtonsReactionMaps(reactionMap, view);
-        }
+    if (activeState == OnScreen) {
+        drawButtonsReactionMaps(reactionMap, view);
     }
 }
 

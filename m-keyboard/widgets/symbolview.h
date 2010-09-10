@@ -140,8 +140,8 @@ public slots:
      */
     void switchToPrevPage();
 
-    //! \brief Clears and redraws the global reaction maps.
-    void redrawReactionMaps();
+    //! \brief Paint symview's area to global reaction map.
+    void paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view);
 
 
 signals:
@@ -177,6 +177,9 @@ signals:
 
     //! SymbolView will start to show up
     void aboutToOpen();
+
+    //! Requests to update the global reaction map.
+    void updateReactionMap();
 
 protected:
     /*! \reimp */

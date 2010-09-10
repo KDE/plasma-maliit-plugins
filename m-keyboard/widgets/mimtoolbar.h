@@ -86,8 +86,8 @@ public:
      */
     void hideToolbarWidget();
 
-    //! \brief Clears and redraws the toolbar reaction maps.
-    void redrawReactionMaps();
+    //! \brief Adds toolbar portions to the reaction maps.
+    void paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view);
 
     /*!
      * \brief Update toolbar after orientation change.

@@ -591,7 +591,7 @@ void SymbolView::onSwitchDone()
     // after we've been hidden.
     if (isVisible()) {
         layout()->activate();
-        redrawReactionMaps();
+        emit updateReactionMap();
     }
     if (pageSwitcher) {
         activePage = pageSwitcher->current();
@@ -610,40 +610,25 @@ void SymbolView::handleShiftPressed(bool shiftPressed)
     }
 }
 
-void SymbolView::redrawReactionMaps()
+void SymbolView::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view)
 {
-    if (!scene()) {
-        return;
+    // Draw region area with inactive color to prevent any holes in reaction map.
+    reactionMap->setInactiveDrawingValue();
+    reactionMap->setTransform(this, view);
+    foreach(const QRect & rect, interactiveRegion().rects()) {
+        reactionMap->fillRectangle(mapRectFromScene(rect));
     }
 
-    foreach(QGraphicsView * view, scene()->views()) {
-        MReactionMap *reactionMap = MReactionMap::instance(view);
-        if (!reactionMap) {
-            continue;
-        }
-        // Clear all with transparent color.
-        reactionMap->setTransparentDrawingValue();
-        reactionMap->setTransform(QTransform()); // Identity
-        reactionMap->fillRectangle(0, 0, reactionMap->width(), reactionMap->height());
+    reactionMap->setReactiveDrawingValue();
 
-        // Draw region area with inactive color to prevent any holes in reaction map.
-        reactionMap->setInactiveDrawingValue();
-        reactionMap->setTransform(this, view);
-        foreach(const QRect & rect, interactiveRegion().rects()) {
-            reactionMap->fillRectangle(mapRectFromScene(rect));
-        }
+    // Draw current character view.
+    if (pageSwitcher->currentWidget()) {
+        static_cast<KeyButtonArea *>(pageSwitcher->currentWidget())->drawReactiveAreas(reactionMap, view);
+    }
 
-        reactionMap->setReactiveDrawingValue();
-
-        // Draw current character view.
-        if (pageSwitcher->currentWidget()) {
-            static_cast<KeyButtonArea *>(pageSwitcher->currentWidget())->drawReactiveAreas(reactionMap, view);
-        }
-
-        // Draw function row.
-        if (functionRow) {
-            functionRow->drawReactiveAreas(reactionMap, view);
-        }
+    // Draw function row.
+    if (functionRow) {
+        functionRow->drawReactiveAreas(reactionMap, view);
     }
 }
 

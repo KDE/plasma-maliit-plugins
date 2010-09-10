@@ -852,19 +852,27 @@ void Ut_MVirtualKeyboard::testReactionMaps()
     gMReactionMapStub->setTransform(QTransform());
     gMReactionMapStub->fillRectangle(0, 0, gMReactionMapStub->width(), gMReactionMapStub->height());
 
-    m_vkb->redrawReactionMaps();
+    QGraphicsView *view(MPlainWindow::instance());
+    m_vkb->paintReactionMap(MReactionMap::instance(view), view);
 
     // Overall sanity test with grid points throughout the view.
-    QVERIFY(tester.testReactionMapGrid(MPlainWindow::instance(), 40, 50, m_vkb->region(true), m_vkb));
+    QVERIFY(tester.testReactionMapGrid(view, 40, 50, m_vkb->region(true), m_vkb));
 
     // Check that all buttons are drawn with reactive color.
-    QVERIFY(tester.testChildButtonReactiveAreas(MPlainWindow::instance(), m_vkb));
+    QVERIFY(tester.testChildButtonReactiveAreas(view, m_vkb));
 
     // Switch language, the chosen kb layouts are all different in terms of reaction maps they generate.
+    QSignalSpy updateSignal(m_vkb, SIGNAL(regionUpdated(QRegion)));
     m_vkb->setLanguage(1);
     QTest::qWait(600);
-    QVERIFY(tester.testReactionMapGrid(MPlainWindow::instance(), 40, 50, m_vkb->region(true), m_vkb));
-    QVERIFY(tester.testChildButtonReactiveAreas(MPlainWindow::instance(), m_vkb));
+
+    // Currently updating is done via kbhost when it receives region updates.
+    // Kbhost is not present so we paint reaction map explicitly.
+    QVERIFY(updateSignal.count() > 0);
+    m_vkb->paintReactionMap(MReactionMap::instance(view), view);
+
+    QVERIFY(tester.testReactionMapGrid(view, 40, 50, m_vkb->region(true), m_vkb));
+    QVERIFY(tester.testChildButtonReactiveAreas(view, m_vkb));
 }
 
 void Ut_MVirtualKeyboard::flickUpHandlerTest_data()

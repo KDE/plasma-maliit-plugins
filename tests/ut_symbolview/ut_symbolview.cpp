@@ -168,7 +168,7 @@ void Ut_SymbolView::testReactiveButtonAreas()
     QTest::qWait(300);
     QVERIFY(subject->isFullyVisible());
 
-    subject->redrawReactionMaps();
+    subject->paintReactionMap(MReactionMap::instance(view), view);
 
     // Check that all buttons are covered by reactive area
     QVERIFY(tester.testChildButtonReactiveAreas(view, subject));
@@ -189,12 +189,14 @@ void Ut_SymbolView::testReactiveButtonAreas()
         QCOMPARE(tester.colorAt(pos), MReactionMapTester::Transparent);
     }
 
-    // Check locations that should be inactive
+    // Check locations that should be inactive. This test is really only for
+    // testing that at least something is drawn inactive, and not only reactive
+    // areas are drawn.
+    const QRectF br(subject->boundingRect());
     QList<QPoint> inactiveLocations;
     inactiveLocations
-        << QPoint(0.1, subject->size().height() / 2) // left margin
-        << QPoint(subject->size().width() - 1, subject->size().height() / 2) // right margin
-        << QPoint(subject->size().width() / 2, subject->size().height() - 1); // bottom margin
+            << QPoint(br.left(), br.center().y()) // Left margin
+            << QPoint(br.right()-1, br.center().y()); // Right margin
 
     foreach(const QPointF & pos, inactiveLocations) {
         QCOMPARE(tester.colorAt(pos), MReactionMapTester::Inactive);
@@ -228,7 +230,7 @@ void Ut_SymbolView::testReactiveWholeScreen()
     QTest::qWait(300);
     QVERIFY(subject->isFullyVisible());
 
-    subject->redrawReactionMaps();
+    subject->paintReactionMap(MReactionMap::instance(MPlainWindow::instance()), MPlainWindow::instance());
 
     const bool gridpass = tester.testReactionMapGrid(
                               MPlainWindow::instance(),

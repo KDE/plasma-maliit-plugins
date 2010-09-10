@@ -194,7 +194,8 @@ public slots:
      */
     void hideKeyboard(bool fadeOnly = false, bool temporary = false);
 
-    void redrawReactionMaps();
+    //! Add vkb widget portions to the reaction map.
+    void paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view);
 
     /*!
      * Method to change the orientation

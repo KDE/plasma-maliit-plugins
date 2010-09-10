@@ -27,6 +27,7 @@
 class MSceneManager;
 class MList;
 class MImCorrectionContentItemCreator;
+class MReactionMap;
 class QStringListModel;
 
 class MImCorrectionCandidateContainer: public MStylableWidget
@@ -106,9 +107,9 @@ public:
     QString preeditString() const;
 
     /*!
-     * Draw its reactive areas onto the reaction maps
+     * Draw its reactive areas onto the reaction map
      */
-    void redrawReactionMaps();
+    void paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view);
 
     //! Prepare virtual keyboard for orientation change
     void prepareToOrientationChange();

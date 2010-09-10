@@ -235,6 +235,9 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
     connect(symbolView, SIGNAL(regionUpdated(const QRegion &)),
             this, SLOT(handleInputMethodAreaUpdate(const QRegion &)));
 
+    connect(symbolView, SIGNAL(updateReactionMap()),
+            this, SLOT(updateReactionMaps()));
+
     connect(symbolView, SIGNAL(keyClicked(const KeyEvent &)),
             this, SLOT(handleKeyClick(const KeyEvent &)));
     connect(symbolView, SIGNAL(keyPressed(const KeyEvent &)),
@@ -538,7 +541,6 @@ void MKeyboardHost::prepareOrientationChange()
     if (rotationInProgress) {
         return;
     }
-    clearReactionMaps(MReactionMap::Inactive);
     rotationInProgress = true;
 
     symbolView->prepareToOrientationChange();
@@ -798,24 +800,36 @@ void MKeyboardHost::updateReactionMaps()
         return;
     }
 
-    // Draw the reactive areas of first one of these who is visible.
-    if (correctionCandidateWidget && correctionCandidateWidget->isVisible()) {
-        correctionCandidateWidget->redrawReactionMaps();
-    } else if (symbolView && symbolView->isFullyVisible()) {
-        symbolView->redrawReactionMaps();
+    // Start by making everything transparent
+    clearReactionMaps(MReactionMap::Transparent);
 
-        if (imToolbar && imToolbar->isVisible()) {
-            imToolbar->redrawReactionMaps();
-        }
-    } else if (vkbWidget && vkbWidget->isFullyVisible()) {
-        vkbWidget->redrawReactionMaps();
+    QList<QGraphicsView *> views = MPlainWindow::instance()->scene()->views();
+    foreach(QGraphicsView * view, views) {
+        MReactionMap *reactionMap = MReactionMap::instance(view);
 
-        if (imToolbar && imToolbar->isVisible()) {
-            imToolbar->redrawReactionMaps();
+        if (!reactionMap) {
+            continue;
         }
-    } else {
-        // Transparent reaction map when nothing is shown.
-        clearReactionMaps(MReactionMap::Transparent);
+
+        // Candidates widget
+        if (correctionCandidateWidget && correctionCandidateWidget->isVisible()) {
+            correctionCandidateWidget->paintReactionMap(reactionMap, view);
+
+            // Correction candidate widget always occupies whole screen.
+            continue;
+        }
+
+        // Paint either symview or vkb widget reactive areas.
+        if (symbolView && symbolView->isFullyVisible()) {
+            symbolView->paintReactionMap(reactionMap, view);
+        } else if (vkbWidget && vkbWidget->isFullyVisible()) {
+            vkbWidget->paintReactionMap(reactionMap, view);
+        }
+
+        // Toolbar
+        if (imToolbar && imToolbar->isVisible()) {
+            imToolbar->paintReactionMap(reactionMap, view);
+        }
     }
 }
 

@@ -443,48 +443,62 @@ void MImToolbar::removeItem(MWidget *widget)
     layout()->activate();
 }
 
-void MImToolbar::redrawReactionMaps()
+void MImToolbar::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view)
 {
     if (!layout()) {
         qCritical() << __PRETTY_FUNCTION__ << "Layout does not exist";
     }
 
-    foreach(QGraphicsView * view, scene()->views()) {
-        MReactionMap *reactionMap = MReactionMap::instance(view);
-        if (!reactionMap) {
-            continue;
-        }
+    layout()->activate();
 
-        // TODO: support for translucent keyboard
+    // Draw the whole toolbar background as inactive when custom toolbar is used.
+    const bool paintWholeToolbar = currentToolbar && currentToolbar->isCustom();
+
+    if (paintWholeToolbar) {
         reactionMap->setTransform(this, view);
         reactionMap->setInactiveDrawingValue();
         reactionMap->fillRectangle(boundingRect());
+    }
 
-        // Draw all widgets geometries.
-        reactionMap->setReactiveDrawingValue();
+    // Draw all widgets geometries.
+    reactionMap->setReactiveDrawingValue();
 
-        for (int n = 0; n < layout()->count(); ++n) {
-            QGraphicsLinearLayout *row = dynamic_cast<QGraphicsLinearLayout*>(layout()->itemAt(n));
+    for (int n = 0; n < layout()->count(); ++n) {
+        QGraphicsLinearLayout *row = dynamic_cast<QGraphicsLinearLayout*>(layout()->itemAt(n));
 
-            if (row) {
-                for (int j = 0; j < row->count(); ++j) {
-                    WidgetBar *sidebar = dynamic_cast<WidgetBar*>(row->itemAt(j));
-                    if (!sidebar || !sidebar->isVisible()) {
-                        continue;
-                    }
+        if (!row) {
+            continue;
+        }
 
-                    for (int i = 0; i < sidebar->count(); ++i) {
-                        if (dynamic_cast<MToolbarLabel*>(sidebar->widgetAt(i))) {
-                            reactionMap->setInactiveDrawingValue();
-                        } else if (sidebar->widgetAt(i) && sidebar->widgetAt(i)->isVisible()) {
-                            reactionMap->setReactiveDrawingValue();
-                        }
+        row->activate();
 
-                        MWidget *widget = sidebar->widgetAt(i);
-                        reactionMap->setTransform(widget, view);
-                        reactionMap->fillRectangle(widget->boundingRect());
-                    }
+        for (int j = 0; j < row->count(); ++j) {
+            WidgetBar *sidebar = dynamic_cast<WidgetBar *>(row->itemAt(j));
+            if (!sidebar || !sidebar->isVisible()) {
+                continue;
+            }
+
+            // Buttons sometimes require this.
+            sidebar->layout()->activate();
+
+            if (!paintWholeToolbar) {
+                reactionMap->setTransform(sidebar, view);
+                reactionMap->setInactiveDrawingValue();
+                reactionMap->fillRectangle(sidebar->boundingRect());
+            }
+
+            reactionMap->setReactiveDrawingValue();
+
+            for (int i = 0; i < sidebar->count(); ++i) {
+                QGraphicsWidget *widget = sidebar->widgetAt(i);
+
+                if (widget && widget->isVisible()
+                    && !qobject_cast<MToolbarLabel*>(widget)) {
+
+                    reactionMap->setTransform(widget, view);
+                    reactionMap->fillRectangle(widget->boundingRect());
                 }
+                // Otherwise leave as inactive.
             }
         }
     }

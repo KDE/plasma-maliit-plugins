@@ -340,25 +340,15 @@ void MImCorrectionCandidateWidget::finalizeOrientationChange()
     }
 }
 
-void MImCorrectionCandidateWidget::redrawReactionMaps()
+void MImCorrectionCandidateWidget::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view)
 {
-    if (!scene()) {
-        return;
-    }
+    // Clear all with inactive color.
+    reactionMap->setInactiveDrawingValue();
+    reactionMap->setTransform(QTransform());
+    reactionMap->fillRectangle(0, 0, reactionMap->width(), reactionMap->height());
 
-    foreach(QGraphicsView * view, scene()->views()) {
-        MReactionMap *reactionMap = MReactionMap::instance(view);
-        if (!reactionMap) {
-            continue;
-        }
-        // Clear all with inactive color.
-        reactionMap->setInactiveDrawingValue();
-        reactionMap->setTransform(QTransform());
-        reactionMap->fillRectangle(0, 0, reactionMap->width(), reactionMap->height());
-
-        // Draw the actual candidate candidatesWidget area.
-        reactionMap->setTransform(this, view);
-        reactionMap->setReactiveDrawingValue();
-        reactionMap->fillRectangle(candidatesWidget->geometry());
-    }
+    // Draw the actual candidate candidatesWidget area.
+    reactionMap->setTransform(this, view);
+    reactionMap->setReactiveDrawingValue();
+    reactionMap->fillRectangle(candidatesWidget->geometry());
 }
