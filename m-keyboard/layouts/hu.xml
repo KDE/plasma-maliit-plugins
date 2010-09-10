@@ -132,7 +132,7 @@
         </row>
 
         <row>
-          <key style="special" width="x-large">
+          <key style="special" width="xx-large">
             <binding action="sym" label="SYM"/>
           </key>
 
@@ -144,9 +144,9 @@
           </key>
 
           <key><binding label="."/></key>
-          <key><binding label="¨"/></key>
+          <key><binding dead="true" label="¨"/></key>
 
-          <key style="special" width="x-large">
+          <key style="special" width="xx-large">
             <binding action="backspace" label=""/>
           </key>
         </row>

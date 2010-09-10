@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
 <keyboard version="1.0" title="العربية" language="ar" catalog="ar" autocapitalization="false">
+  <!-- arabic layout uses same layout for landscape and portrait mode, hence no
+       portrait section needed -->
   <layout type="general" orientation="landscape">
      <section id="main">
        <row>
@@ -111,7 +113,7 @@
            <binding label="ظ"/>
          </key>
 
-         <key style="special" rtl="true">
+         <key style="special" rtl="false">
            <binding action="return"/>
          </key>
        </row>
