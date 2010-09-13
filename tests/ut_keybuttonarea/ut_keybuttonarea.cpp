@@ -825,9 +825,7 @@ void Ut_KeyButtonArea::testRtlKeys_data()
     QList<KeyBinding::KeyAction> rtlKeys;
     const QList<KeyBinding::KeyAction> nothing;
 
-    rtlKeys << KeyBinding::ActionBackspace
-            << KeyBinding::ActionLayoutMenu
-            << KeyBinding::ActionReturn;
+    rtlKeys << KeyBinding::ActionBackspace;
 
     QTest::newRow("SingleWidgetArea Landscape Arabic")
         << &createSingleWidgetKeyButtonArea
