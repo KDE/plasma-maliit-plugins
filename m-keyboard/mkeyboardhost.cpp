@@ -381,6 +381,12 @@ void MKeyboardHost::focusChanged(bool focusIn)
         }
         hideLockOnInfoBanner();
     }
+
+    if (focusIn) {
+        sharedHandleArea->show();
+    } else {
+        sharedHandleArea->hide();
+    }
 }
 
 
@@ -403,9 +409,13 @@ void MKeyboardHost::show()
             symbolView->hideSymbolView();
     }
 
-    updateCorrectionState();
-
+    // FIXME: This is from time when toolbar was attached on top of vkb widget
+    // and vbk was needed to be shown, even when the position was under visible
+    // screen. This is no longer the case and the following showKeyboard() should
+    // not be called on hardware mode. What does host::show() even mean in hw mode?
     vkbWidget->showKeyboard();
+
+    updateCorrectionState();
 }
 
 
