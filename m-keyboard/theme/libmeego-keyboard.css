@@ -85,8 +85,7 @@ MVirtualKeyboardStyle {
 
 MVirtualKeyboardStyle.Portrait {
     keyboard-area-size: 480 280;
-    /* should be 0.4mm or 4px, need to check*/
-    spacing-horizontal: 0.2mm;
+    spacing-horizontal: 0.4mm;
 
     label-margin-top: 1.2mm;
     label-margin-left-with-secondary: 4.6mm;
