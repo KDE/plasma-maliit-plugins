@@ -213,13 +213,12 @@ bool Ut_MHardwareKeyboard::checkLockedState(const unsigned int mask, const unsig
 void Ut_MHardwareKeyboard::testBasicModifierCycles_data()
 {
     QTest::addColumn<Qt::Key>("key");
-    QTest::addColumn<Qt::KeyboardModifier>("modifier");
     QTest::addColumn<unsigned int>("latchMask");
     QTest::addColumn<unsigned int>("lockMask");
-    QTest::newRow("Shift") << Qt::Key_Shift << Qt::ShiftModifier
+    QTest::newRow("Shift") << Qt::Key_Shift
                            << static_cast<unsigned int>(ShiftMask)
                            << static_cast<unsigned int>(LockMask);
-    QTest::newRow("Fn") << FnLevelKey << FnLevelModifier
+    QTest::newRow("Fn") << FnLevelKey
                         << static_cast<unsigned int>(FnModifierMask)
                         << static_cast<unsigned int>(FnModifierMask);
 }
@@ -227,11 +226,10 @@ void Ut_MHardwareKeyboard::testBasicModifierCycles_data()
 void Ut_MHardwareKeyboard::testBasicModifierCycles()
 {
     QFETCH(Qt::Key, key);
-    QFETCH(Qt::KeyboardModifier, modifier);
     QFETCH(unsigned int, latchMask);
     QFETCH(unsigned int, lockMask);
 
-    QSignalSpy modifierSpy(m_hkb, SIGNAL(modifierStateChanged(Qt::KeyboardModifier, ModifierState)));
+    QSignalSpy modifierSpy(m_hkb, SIGNAL(modifiersStateChanged()));
     QVERIFY(modifierSpy.isValid());
     QSignalSpy shiftSpy(m_hkb, SIGNAL(shiftStateChanged()));
     QVERIFY(shiftSpy.isValid());
@@ -247,8 +245,6 @@ void Ut_MHardwareKeyboard::testBasicModifierCycles()
     QVERIFY(checkLockedState(ShiftMask | LockMask | FnModifierMask, 0));
     QCOMPARE(modifierSpy.count(), 1);
     QCOMPARE(shiftSpy.count(), key == Qt::Key_Shift ? 1 : 0);
-    QCOMPARE(modifierSpy.at(0).at(0).value<Qt::KeyboardModifier>(), modifier);
-    QCOMPARE(modifierSpy.at(0).at(1).value<ModifierState>(), ModifierLatchedState);
     modifierSpy.clear();
     shiftSpy.clear();
 
@@ -274,8 +270,6 @@ void Ut_MHardwareKeyboard::testBasicModifierCycles()
     } else {
         QCOMPARE(shiftSpy.count(), 0);
     }
-    QCOMPARE(modifierSpy.at(1).at(0).value<Qt::KeyboardModifier>(), modifier);
-    QCOMPARE(modifierSpy.at(1).at(1).value<ModifierState>(), ModifierLockedState);
     modifierSpy.clear();
     shiftSpy.clear();
 
@@ -297,8 +291,6 @@ void Ut_MHardwareKeyboard::testBasicModifierCycles()
     QVERIFY(checkLockedState(ShiftMask | LockMask | FnModifierMask, 0));
     QCOMPARE(modifierSpy.count(), 1);
     QCOMPARE(shiftSpy.count(), key == Qt::Key_Shift ? 1 : 0);
-    QCOMPARE(modifierSpy.at(0).at(0).value<Qt::KeyboardModifier>(), modifier);
-    QCOMPARE(modifierSpy.at(0).at(1).value<ModifierState>(), ModifierClearState);
     modifierSpy.clear();
     shiftSpy.clear();
 
@@ -316,7 +308,7 @@ void Ut_MHardwareKeyboard::testBasicModifierCycles()
 
 void Ut_MHardwareKeyboard::testAutoCaps()
 {
-    QSignalSpy modifierSpy(m_hkb, SIGNAL(modifierStateChanged(Qt::KeyboardModifier, ModifierState)));
+    QSignalSpy modifierSpy(m_hkb, SIGNAL(modifiersStateChanged()));
     QVERIFY(modifierSpy.isValid());
     QSignalSpy shiftSpy(m_hkb, SIGNAL(shiftStateChanged()));
     QVERIFY(shiftSpy.isValid());
@@ -329,8 +321,6 @@ void Ut_MHardwareKeyboard::testAutoCaps()
     QVERIFY(checkLockedState(ShiftMask | LockMask | FnModifierMask, 0));
     QCOMPARE(modifierSpy.count(), 1);
     QCOMPARE(shiftSpy.count(), 1);
-    QCOMPARE(modifierSpy.at(0).at(0).value<Qt::KeyboardModifier>(), Qt::ShiftModifier);
-    QCOMPARE(modifierSpy.at(0).at(1).value<ModifierState>(), ModifierLatchedState);
 
     // Autocaps off
     m_hkb->setAutoCapitalization(false);
@@ -347,8 +337,6 @@ void Ut_MHardwareKeyboard::testAutoCaps()
     QVERIFY(checkLockedState(ShiftMask | LockMask | FnModifierMask, 0));
     QCOMPARE(modifierSpy.count(), 1);
     QCOMPARE(shiftSpy.count(), 1);
-    QCOMPARE(modifierSpy.at(0).at(0).value<Qt::KeyboardModifier>(), Qt::ShiftModifier);
-    QCOMPARE(modifierSpy.at(0).at(1).value<ModifierState>(), ModifierLatchedState);
     modifierSpy.clear();
     shiftSpy.clear();
 
@@ -364,8 +352,6 @@ void Ut_MHardwareKeyboard::testAutoCaps()
     QVERIFY(checkLockedState(ShiftMask | LockMask | FnModifierMask, 0));
     QCOMPARE(modifierSpy.count(), 1);
     QCOMPARE(shiftSpy.count(), 1);
-    QCOMPARE(modifierSpy.at(0).at(0).value<Qt::KeyboardModifier>(), Qt::ShiftModifier);
-    QCOMPARE(modifierSpy.at(0).at(1).value<ModifierState>(), ModifierClearState);
 
     // Afterwards normal clear -> latched -> locked cycle works
     QVERIFY(filterKeyPress(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, 0));
@@ -427,8 +413,6 @@ void Ut_MHardwareKeyboard::testAutoCaps()
     QVERIFY(checkLockedState(ShiftMask | LockMask | FnModifierMask, 0));
     QCOMPARE(modifierSpy.count(), 1);
     QCOMPARE(shiftSpy.count(), 1);
-    QCOMPARE(modifierSpy.at(0).at(0).value<Qt::KeyboardModifier>(), Qt::ShiftModifier);
-    QCOMPARE(modifierSpy.at(0).at(1).value<ModifierState>(), ModifierLatchedState);
 
     // Reset doesn't reset autocaps
     m_hkb->reset();
@@ -454,7 +438,7 @@ void Ut_MHardwareKeyboard::testStateReset()
 
     setState(state);
 
-    QSignalSpy modifierSpy(m_hkb, SIGNAL(modifierStateChanged(Qt::KeyboardModifier, ModifierState)));
+    QSignalSpy modifierSpy(m_hkb, SIGNAL(modifiersStateChanged()));
     QVERIFY(modifierSpy.isValid());
 
     // State is cleared on focus in...
@@ -463,11 +447,7 @@ void Ut_MHardwareKeyboard::testStateReset()
     QVERIFY(checkLockedState(ShiftMask | LockMask | FnModifierMask, 0));
     QVERIFY(!m_hkb->autoCaps);
     // ...and we always get notifications, even in clear state
-    QCOMPARE(modifierSpy.count(), 2);
-    QVERIFY(modifierSpy.at(0).at(0).value<Qt::KeyboardModifier>()
-            != modifierSpy.at(1).at(0).value<Qt::KeyboardModifier>());
-    QCOMPARE(modifierSpy.at(0).at(1).value<ModifierState>(), ModifierClearState);
-    QCOMPARE(modifierSpy.at(1).at(1).value<ModifierState>(), ModifierClearState);
+    QCOMPARE(modifierSpy.count(), 1);
 
     // Modifiers are also unlatched/unlocked on focus out.  We don't care about
     // notifications.
@@ -834,6 +814,7 @@ void Ut_MHardwareKeyboard::testSwitchLayout()
     LayoutsManager::createInstance(0);
     gSetXkbMapCallCount = 0;
     int switchCount = 0;
+    QSignalSpy scriptChangedSpy(m_hkb, SIGNAL(scriptChanged()));
 
     // shift + fn press together switch layout
     filterKeyPress(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, 0);
@@ -843,9 +824,11 @@ void Ut_MHardwareKeyboard::testSwitchLayout()
     // won't change shift fn level
     QVERIFY(checkLatchedState(ShiftMask | FnModifierMask, 0));
 
+    QCOMPARE(scriptChangedSpy.count(), 0);
     filterKeyRelease(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask|FnModifierMask);
     // only switch when one of fn/shift release
     QCOMPARE(gSetXkbMapCallCount, ++switchCount);
+    QCOMPARE(scriptChangedSpy.count(), 1);
     QCOMPARE(gLayout, secondaryLayout);
     QCOMPARE(gVariant, secondaryVariant);
     filterKeyRelease(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, FnModifierMask);
@@ -853,6 +836,7 @@ void Ut_MHardwareKeyboard::testSwitchLayout()
     QVERIFY(checkLatchedState(ShiftMask | FnModifierMask, 0));
 
     // no dependency on shift/fn press/release order
+    scriptChangedSpy.clear();
     filterKeyPress(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, 0);
     filterKeyPress(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, FnModifierMask);
     filterKeyRelease(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask|FnModifierMask);
@@ -861,7 +845,9 @@ void Ut_MHardwareKeyboard::testSwitchLayout()
     QVERIFY(checkLatchedState(ShiftMask | FnModifierMask, 0));
     QCOMPARE(gLayout, primaryLayout);
     QCOMPARE(gVariant, primaryVariant);
+    QCOMPARE(scriptChangedSpy.count(), 1);
 
+    scriptChangedSpy.clear();
     filterKeyPress(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, 0);
     filterKeyPress(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, FnModifierMask);
     filterKeyRelease(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask|FnModifierMask);
@@ -870,7 +856,9 @@ void Ut_MHardwareKeyboard::testSwitchLayout()
     QVERIFY(checkLatchedState(ShiftMask | FnModifierMask, 0));
     QCOMPARE(gLayout, secondaryLayout);
     QCOMPARE(gVariant, secondaryVariant);
+    QCOMPARE(scriptChangedSpy.count(), 1);
 
+    scriptChangedSpy.clear();
     filterKeyPress(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, 0);
     filterKeyPress(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask);
     filterKeyRelease(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask|FnModifierMask);
@@ -879,7 +867,9 @@ void Ut_MHardwareKeyboard::testSwitchLayout()
     QVERIFY(checkLatchedState(ShiftMask | FnModifierMask, 0));
     QCOMPARE(gLayout, primaryLayout);
     QCOMPARE(gVariant, primaryVariant);
+    QCOMPARE(scriptChangedSpy.count(), 1);
 
+    scriptChangedSpy.clear();
     filterKeyPress(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, 0);
     filterKeyPress(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask);
     QVERIFY(filterKeyPress(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, FnModifierMask|ShiftMask));
@@ -891,7 +881,9 @@ void Ut_MHardwareKeyboard::testSwitchLayout()
     QCOMPARE(gSetXkbMapCallCount, switchCount);
     QCOMPARE(gLayout, primaryLayout);
     QCOMPARE(gVariant, primaryVariant);
+    QCOMPARE(scriptChangedSpy.count(), 0);
 
+    scriptChangedSpy.clear();
     inputContextConnection->sendPreeditString("", PreeditNoCandidates);
     inputContextConnection->sendCommitString("");
     // ctrl + space press together also switch layout
@@ -899,6 +891,7 @@ void Ut_MHardwareKeyboard::testSwitchLayout()
     filterKeyPress(Qt::Key_Space, Qt::ControlModifier, " ", KeycodeNonCharacter, ControlMask);
     // switching happens when receive space press
     QCOMPARE(gSetXkbMapCallCount, ++switchCount);
+    QCOMPARE(scriptChangedSpy.count(), 1);
     QCOMPARE(gLayout, secondaryLayout);
     QCOMPARE(gVariant, secondaryVariant);
     filterKeyRelease(Qt::Key_Space, Qt::ControlModifier, "", KeycodeNonCharacter, ControlMask);
@@ -906,13 +899,16 @@ void Ut_MHardwareKeyboard::testSwitchLayout()
     QVERIFY(checkLatchedState(ShiftMask | FnModifierMask, 0));
     // won't switch again for key release
     QCOMPARE(gSetXkbMapCallCount, switchCount);
+    QCOMPARE(scriptChangedSpy.count(), 1);
 
     //space key press and release when control is holding won't insert space
     QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
 
+    scriptChangedSpy.clear();
     filterKeyPress(Qt::Key_Control, Qt::NoModifier, "", KeycodeNonCharacter, 0);
     filterKeyPress(Qt::Key_Space, Qt::ControlModifier, " ", KeycodeNonCharacter, ControlMask);
     QCOMPARE(gSetXkbMapCallCount, ++switchCount);
+    QCOMPARE(scriptChangedSpy.count(), 1);
     QCOMPARE(gLayout, primaryLayout);
     QCOMPARE(gVariant, primaryVariant);
     filterKeyRelease(Qt::Key_Control, Qt::NoModifier, "", KeycodeNonCharacter, ControlMask);
@@ -920,16 +916,19 @@ void Ut_MHardwareKeyboard::testSwitchLayout()
     QVERIFY(checkLatchedState(ShiftMask | FnModifierMask, 0));
     // won't switch again for key release
     QCOMPARE(gSetXkbMapCallCount, switchCount);
+    QCOMPARE(scriptChangedSpy.count(), 1);
 
     //space key press and release when control is holding won't insert space
     QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
 
+    scriptChangedSpy.clear();
     // shift + ctrl + space won't switch script
     filterKeyPress(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, 0);
     filterKeyPress(Qt::Key_Control, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask);
     filterKeyPress(Qt::Key_Space, Qt::ControlModifier, " ", KeycodeNonCharacter, ShiftMask|ControlMask);
     // won't switch
     QCOMPARE(gSetXkbMapCallCount, switchCount);
+    QCOMPARE(scriptChangedSpy.count(), 0);
     QCOMPARE(gLayout, primaryLayout);
     QCOMPARE(gVariant, primaryVariant);
     filterKeyRelease(Qt::Key_Control, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask|ControlMask);
@@ -938,6 +937,7 @@ void Ut_MHardwareKeyboard::testSwitchLayout()
     QVERIFY(checkLatchedState(ShiftMask | FnModifierMask, 0));
     // won't switch
     QCOMPARE(gSetXkbMapCallCount, switchCount);
+    QCOMPARE(scriptChangedSpy.count(), 0);
 
     // fn + ctrl + space won't switch script
     filterKeyPress(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, 0);
@@ -945,6 +945,7 @@ void Ut_MHardwareKeyboard::testSwitchLayout()
     filterKeyPress(Qt::Key_Space, Qt::ControlModifier, " ", KeycodeNonCharacter, FnModifierMask|ControlMask);
     // won't switch
     QCOMPARE(gSetXkbMapCallCount, switchCount);
+    QCOMPARE(scriptChangedSpy.count(), 0);
     QCOMPARE(gLayout, primaryLayout);
     QCOMPARE(gVariant, primaryVariant);
     filterKeyRelease(Qt::Key_Control, Qt::NoModifier, "", KeycodeNonCharacter, FnModifierMask|ControlMask);
@@ -953,6 +954,7 @@ void Ut_MHardwareKeyboard::testSwitchLayout()
     QVERIFY(checkLatchedState(ShiftMask | FnModifierMask, 0));
     // won't switch
     QCOMPARE(gSetXkbMapCallCount, switchCount);
+    QCOMPARE(scriptChangedSpy.count(), 0);
 
     LayoutsManager::destroyInstance();
 }

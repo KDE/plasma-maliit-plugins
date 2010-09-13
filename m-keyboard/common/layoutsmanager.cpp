@@ -421,22 +421,6 @@ QString LayoutsManager::symbolVariantFileName(HardwareSymbolVariant symVariant)
     return symFileName;
 }
 
-bool LayoutsManager::isCyrillicLanguage(const QString &language)
-{
-    bool val = false;
-
-    QString shortFormatLanguage = language;
-    if (shortFormatLanguage == "ru"    // Russian
-            || shortFormatLanguage == "pl" // Polish
-            || shortFormatLanguage == "bg" // Bulgaria
-            || shortFormatLanguage == "sr" // Serbian
-            || shortFormatLanguage == "ky" // Kirghiz
-            || shortFormatLanguage == "uk" // Ukrainian
-       )
-        val = true;
-    return val;
-}
-
 QMap<QString, QString> LayoutsManager::selectedLayouts() const
 {
     QMap<QString, QString> layouts;

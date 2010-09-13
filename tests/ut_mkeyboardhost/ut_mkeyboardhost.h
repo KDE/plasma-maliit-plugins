@@ -88,6 +88,9 @@ private slots:
 
     void testToolbar();
 
+    void testHandleHwKeyboardStateChanged_data();
+    void testHandleHwKeyboardStateChanged();
+
 private:
     void rotateToAngle(M::OrientationAngle);
     void triggerAutoCaps();

@@ -217,14 +217,12 @@ void MHardwareKeyboard::enable()
         // (to make sure whoever is listening is in sync with us).
         currentLatchedMods = 0;
         mXkb.latchModifiers(ShiftMask | FnModifierMask, 0);
-        emit modifierStateChanged(Qt::ShiftModifier, ModifierClearState);
         switch (currentKeyboardType) {
         case M::NumberContentType:
         case M::PhoneNumberContentType:
             // With number and phone number content type Fn must be permanently locked
             currentLockedMods = FnModifierMask;
             mXkb.lockModifiers(FnModifierMask, FnModifierMask);
-            emit modifierStateChanged(FnLevelModifier, ModifierLockedState);
             stateTransitionsDisabled = true;
             break;
         default:
@@ -232,9 +230,9 @@ void MHardwareKeyboard::enable()
             // clear locked modifiers for other keyboard types.
             currentLockedMods = 0;
             mXkb.lockModifiers(LockMask | FnModifierMask, 0);
-            emit modifierStateChanged(FnLevelModifier, ModifierClearState);
             break;
         }
+        emit modifiersStateChanged();
     }
 
     inputContextConnection.setRedirectKeys(true);
@@ -280,19 +278,18 @@ bool MHardwareKeyboard::passKeyOnPress(Qt::Key keyCode, const QString &text,
 }
 
 
-void MHardwareKeyboard::notifyModifierChange(
-    unsigned char previousModifiers, ModifierState onState, unsigned int shiftMask,
-    unsigned int affect, unsigned int value) const
+void MHardwareKeyboard::notifyModifierChange(unsigned char previousModifiers,
+                                             unsigned int shiftMask,
+                                             unsigned int affect,
+                                             unsigned int value) const
 {
     if ((affect & shiftMask) && ((value & shiftMask) != (previousModifiers & shiftMask))) {
         emit shiftStateChanged();
-        emit modifierStateChanged(
-            Qt::ShiftModifier, (value & shiftMask) ? onState : ModifierClearState);
+        emit modifiersStateChanged();
     }
     if ((affect & FnModifierMask)
         && ((value & FnModifierMask) != (previousModifiers & FnModifierMask))) {
-        emit modifierStateChanged(
-            FnLevelModifier, (value & FnModifierMask) ? onState : ModifierClearState);
+        emit modifiersStateChanged();
     }
 }
 
@@ -305,7 +302,7 @@ void MHardwareKeyboard::latchModifiers(unsigned int affect, unsigned int value)
     if (!(currentLatchedMods & ShiftMask)) {
         autoCaps = false;
     }
-    notifyModifierChange(savedLatchedMods, ModifierLatchedState, ShiftMask, affect, value);
+    notifyModifierChange(savedLatchedMods, ShiftMask, affect, value);
 }
 
 
@@ -314,7 +311,7 @@ void MHardwareKeyboard::lockModifiers(unsigned int affect, unsigned int value)
     mXkb.lockModifiers(affect, value);
     const unsigned int savedLockedMods = currentLockedMods;
     currentLockedMods = (currentLockedMods & ~affect) | (value & affect);
-    notifyModifierChange(savedLockedMods, ModifierLockedState, LockMask, affect, value);
+    notifyModifierChange(savedLockedMods, LockMask, affect, value);
 }
 
 
@@ -806,6 +803,7 @@ void MHardwareKeyboard::switchKeyMap()
         }
         if (mXkb.setXkbMap(LayoutsManager::instance().xkbModel(), nextLayout, nextVariant)) {
             LayoutsManager::instance().setXkbMap(nextLayout, nextVariant);
+            emit scriptChanged();
         }
     }
 }

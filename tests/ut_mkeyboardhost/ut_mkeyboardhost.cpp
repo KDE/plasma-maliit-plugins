@@ -26,6 +26,7 @@
 #include <mimenginewordsinterfacefactory.h>
 #include <mtoolbardata.h>
 #include <mimtoolbar.h>
+#include <layoutsmanager.h>
 
 #include "mgconfitem_stub.h"
 #include "minputcontextstubconnection.h"
@@ -61,6 +62,14 @@ namespace
 
     int gShowToolbarWidgetCalls = 0;
     int gHideToolbarWidgetCalls = 0;
+
+    const Qt::Key FnLevelKey = Qt::Key_AltGr;
+    const Qt::KeyboardModifier FnLevelModifier = Qt::GroupSwitchModifier;
+
+    MInputMethodBase::InputModeIndicator gInputMethodIndicator = MInputMethodBase::NoIndicator;
+
+    int gShowLockOnInfoBannerCallCount = 0;
+    int gHideLockOnInfoBannerCallCount = 0;
 }
 
 namespace QTest
@@ -81,6 +90,7 @@ Q_DECLARE_METATYPE(QSet<MIMHandlerState>)
 Q_DECLARE_METATYPE(MIMHandlerState)
 Q_DECLARE_METATYPE(ModifierState)
 Q_DECLARE_METATYPE(Ut_MKeyboardHost::TestOpList)
+Q_DECLARE_METATYPE(MInputMethodBase::InputModeIndicator)
 
 static void waitForSignal(const QObject* object, const char* signal, int timeout = 500)
 {
@@ -122,6 +132,21 @@ void MImToolbar::showToolbarWidget(QSharedPointer<const MToolbarData> )
 void MImToolbar::hideToolbarWidget()
 {
     ++gHideToolbarWidgetCalls;
+}
+
+void MInputMethodBase::sendInputModeIndicator(MInputMethodBase::InputModeIndicator indicatorState)
+{
+    gInputMethodIndicator = indicatorState;
+}
+
+void MKeyboardHost::showLockOnInfoBanner(const QString &)
+{
+    gShowLockOnInfoBannerCallCount++;
+}
+
+void MKeyboardHost::hideLockOnInfoBanner()
+{
+    gHideLockOnInfoBannerCallCount++;
 }
 
 // Actual test...............................................................
@@ -1311,6 +1336,83 @@ void Ut_MKeyboardHost::testToolbar()
     subject->setToolbar(nothing);
     QCOMPARE(gShowToolbarWidgetCalls, 0);
     QCOMPARE(gHideToolbarWidgetCalls, 1);
+}
+
+void Ut_MKeyboardHost::testHandleHwKeyboardStateChanged_data()
+{
+    QTest::addColumn<QString>("xkbLayout");
+    QTest::addColumn<QString>("xkbVariant");
+    QTest::addColumn<int>("shiftClickedCount");
+    QTest::addColumn<int>("fnClickedCount");
+    QTest::addColumn<MInputMethodBase::InputModeIndicator>("expectIndicator");
+    QTest::addColumn<bool>("notificationShowCalled");
+
+    QTest::newRow("English clear indicator") << QString("us") << QString("") << 0
+                                             << 0 << MInputMethodBase::LatinLower
+                                             << false;
+    QTest::newRow("English shift latched indicator") << QString("us") << QString("") << 1
+                                                     << 0 << MInputMethodBase::LatinUpper
+                                                     << false;
+    QTest::newRow("English shift locked indicator") << QString("us") << QString("") << 2
+                                                    << 0 << MInputMethodBase::LatinLocked
+                                                    << true;
+    QTest::newRow("English fn latched indicator") << QString("us") << QString("") << 0
+                                                  << 1 << MInputMethodBase::NumAndSymLatched
+                                                  << false;
+    QTest::newRow("English fn locked indicator") << QString("us") << QString("") << 0
+                                                 << 2 << MInputMethodBase::NumAndSymLocked
+                                                 << true;
+    QTest::newRow("Cyrillic clear indicator") << QString("ru") << QString("cyrillic") << 0
+                                              << 0 << MInputMethodBase::CyrillicLower
+                                              << false;
+    QTest::newRow("Cyrillic shift latched indicator") << QString("ru") << QString("cyrillic") << 1
+                                                      << 0 << MInputMethodBase::CyrillicUpper
+                                                      << false;
+    QTest::newRow("Cyrillic shift locked indicator") << QString("ru") << QString("cyrillic") << 2
+                                                     << 0 << MInputMethodBase::CyrillicLocked
+                                                     << true;
+    QTest::newRow("Latin clear indicator") << QString("ru") << QString("latin") << 0
+                                              << 0 << MInputMethodBase::LatinLower
+                                              << false;
+    QTest::newRow("Latin shift latched indicator") << QString("ru") << QString("latin") << 1
+                                                   << 0 << MInputMethodBase::LatinUpper
+                                                   << false;
+    QTest::newRow("Latin shift locked indicator") << QString("us") << QString("latin") << 2
+                                                  << 0 << MInputMethodBase::LatinLocked
+                                                  << true;
+    QTest::newRow("Arabic indicator") << QString("ara") << QString("") << 0
+                                      << 0 << MInputMethodBase::Arabic
+                                      << false;
+}
+
+void Ut_MKeyboardHost::testHandleHwKeyboardStateChanged()
+{
+    QFETCH(QString, xkbLayout);
+    QFETCH(QString, xkbVariant);
+    QFETCH(int, shiftClickedCount);
+    QFETCH(int, fnClickedCount);
+    QFETCH(MInputMethodBase::InputModeIndicator, expectIndicator);
+    QFETCH(bool, notificationShowCalled);
+
+    LayoutsManager::instance().setXkbMap(xkbLayout, xkbVariant);
+    QSet<MIMHandlerState> states;
+    states << Hardware;
+    subject->setState(states);
+    subject->focusChanged(true);
+    gShowLockOnInfoBannerCallCount = 0;
+
+    for (int i = 0; i < shiftClickedCount;  i++) {
+        subject->processKeyEvent(QEvent::KeyPress, Qt::Key_Shift, Qt::NoModifier, QString(""), false, 1, 0, 0);
+        subject->processKeyEvent(QEvent::KeyRelease, Qt::Key_Shift, Qt::ShiftModifier, QString(""), false, 1, 0, 0);
+    }
+
+    for (int i = 0; i < fnClickedCount;  i++) {
+        subject->processKeyEvent(QEvent::KeyPress, FnLevelKey, Qt::NoModifier, QString(""), false, 1, 0, 0);
+        subject->processKeyEvent(QEvent::KeyRelease, FnLevelKey, FnLevelModifier, QString(""), false, 1, 0, 0);
+    }
+
+    QCOMPARE(gInputMethodIndicator, expectIndicator);
+    QCOMPARE(gShowLockOnInfoBannerCallCount, notificationShowCalled ? 1 : 0);
 }
 
 QTEST_APPLESS_MAIN(Ut_MKeyboardHost);

@@ -46,13 +46,6 @@ public:
     //! \brief Destroy singleton
     static void destroyInstance();
 
-    /*!
-     * \brief Returns true if \a language belongs to cyrillic.
-     * Cyrillic language includes Russian, Polish, Bulgaria, Serbian, Kirghiz and Ukrainian.
-     * \param language Language name such as ru_RU or ru.
-     */
-    static bool isCyrillicLanguage(const QString &language);
-
     int languageCount() const;
 
     QStringList languageList() const;

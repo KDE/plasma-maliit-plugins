@@ -165,10 +165,11 @@ private slots:
     void showSymbolView();
 
     /*!
-     * Receives modifier state changed signal from hardware keyboard, sends input mode
-     * indicator state notification to Application Framework (Home screen status bar).
+     * Receives modifier state changed signal or script changed signal  from hardware
+     * keyboard, sends input mode indicator state notification to Application Framework
+     * (Home screen status bar).
      */
-    void handleModifierStateChanged(Qt::KeyboardModifier modifier, ModifierState state);
+    void handleHwKeyboardStateChanged();
 
     //! show FN/Caps Lock infobanner
     void showLockOnInfoBanner(const QString &notification);

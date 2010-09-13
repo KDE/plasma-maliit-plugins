@@ -1276,14 +1276,18 @@ void MKeyboardHost::setState(const QSet<MIMHandlerState> &state)
     if (activeState == OnScreen) {
         hideLockOnInfoBanner();
         sendInputModeIndicator(MInputMethodBase::NoIndicator);
-        disconnect(hardwareKeyboard, SIGNAL(modifierStateChanged(Qt::KeyboardModifier, ModifierState)),
-                   this, SLOT(handleModifierStateChanged(Qt::KeyboardModifier, ModifierState)));
+        disconnect(hardwareKeyboard, SIGNAL(modifiersStateChanged()),
+                   this, SLOT(handleHwkeyboardStateChanged()));
+        disconnect(hardwareKeyboard, SIGNAL(scriptChanged()),
+                   this, SLOT(handleHwkeyboardStateChanged()));
         if (haveFocus) {
             hardwareKeyboard->disable();
         }
     } else {
-        connect(hardwareKeyboard, SIGNAL(modifierStateChanged(Qt::KeyboardModifier, ModifierState)),
-                this, SLOT(handleModifierStateChanged(Qt::KeyboardModifier, ModifierState)));
+        connect(hardwareKeyboard, SIGNAL(modifiersStateChanged()),
+                this, SLOT(handleHwKeyboardStateChanged()));
+        connect(hardwareKeyboard, SIGNAL(scriptChanged()),
+                this, SLOT(handleHwKeyboardStateChanged()));
         if (haveFocus) {
             hardwareKeyboard->enable();
         }
@@ -1333,83 +1337,59 @@ void MKeyboardHost::showSymbolView()
     updateSymbolViewLevel();
 }
 
-void MKeyboardHost::handleModifierStateChanged(Qt::KeyboardModifier modifier, ModifierState state)
+void MKeyboardHost::handleHwKeyboardStateChanged()
 {
     // only change indicator state when there is focus is in a widget and state is Hardware.
     if (!haveFocus || activeState != Hardware)
         return;
-    const QString currentXkbLayout = LayoutsManager::instance().xkbLayout();
-    QString lockOnNotificationLabel;
-    MInputMethodBase::InputModeIndicator indicatorState = MInputMethodBase::LatinLower;
-    switch (modifier) {
-    case Qt::ShiftModifier:
-        switch (state) {
-        case ModifierClearState:
-            if (hardwareKeyboard->modifierState(FnLevelModifier) != ModifierClearState) {
-                return;
-            }
-            // Arabic xkb layout name is "ara".
-            if (currentXkbLayout == "ara") {
-                indicatorState = MInputMethodBase::Arabic;
-            } else if (LayoutsManager::isCyrillicLanguage(currentXkbLayout)) {
-                indicatorState = MInputMethodBase::CyrillicLower;
-            } else {
-                indicatorState = MInputMethodBase::LatinLower;
-            }
-            break;
-        case ModifierLatchedState:
-            if (currentXkbLayout == "ara") {
-                indicatorState = MInputMethodBase::Arabic;
-            } else if (LayoutsManager::isCyrillicLanguage(currentXkbLayout)) {
-                indicatorState = MInputMethodBase::CyrillicUpper;
-            } else {
-                indicatorState = MInputMethodBase::LatinUpper;
-            }
-            break;
-        case ModifierLockedState:
-            if (currentXkbLayout == "ara") {
-                indicatorState = MInputMethodBase::Arabic;
-            } else if (LayoutsManager::isCyrillicLanguage(currentXkbLayout)) {
-                indicatorState = MInputMethodBase::CyrillicLocked;
-            } else {
-                indicatorState = MInputMethodBase::LatinLocked;
-            }
-            //% "Caps lock on"
-            lockOnNotificationLabel = qtTrId("qtn_hwkb_caps_lock");
-            break;
+
+    const ModifierState shiftState = hardwareKeyboard->modifierState(Qt::ShiftModifier);
+    const ModifierState fnState = hardwareKeyboard->modifierState(FnLevelModifier);
+    const QString xkbLayout = LayoutsManager::instance().xkbLayout();
+    const QString xkbVariant = LayoutsManager::instance().xkbVariant();
+
+    MInputMethodBase::InputModeIndicator indicatorState = MInputMethodBase::NoIndicator;
+
+    if (fnState == ModifierLockedState) {
+        indicatorState = MInputMethodBase::NumAndSymLocked;
+
+    } else if (fnState == ModifierLatchedState) {
+        indicatorState = MInputMethodBase::NumAndSymLatched;
+
+    } else if (xkbLayout == "ara"
+        && xkbVariant.isEmpty()) {
+        indicatorState = MInputMethodBase::Arabic;
+
+    } else if (xkbVariant.isEmpty() || xkbVariant == "latin") {
+        indicatorState = MInputMethodBase::LatinLower;
+        if (shiftState == ModifierLockedState) {
+            indicatorState = MInputMethodBase::LatinLocked;
+        } else if (shiftState == ModifierLatchedState) {
+            indicatorState = MInputMethodBase::LatinUpper;
         }
-        break;
-    case FnLevelModifier:
-        switch (state) {
-        case ModifierClearState:
-            if (hardwareKeyboard->modifierState(Qt::ShiftModifier) != ModifierClearState) {
-                return;
-            }
-            // when fn key change back to clear, shows same label as shift is clear
-            if (currentXkbLayout == "ara") {
-                indicatorState = MInputMethodBase::Arabic;
-            } else if (LayoutsManager::isCyrillicLanguage(currentXkbLayout)) {
-                indicatorState = MInputMethodBase::CyrillicLower;
-            } else {
-                indicatorState = MInputMethodBase::LatinLower;
-            }
-            break;
-        case ModifierLatchedState:
-            indicatorState = MInputMethodBase::NumAndSymLatched;
-            break;
-        case ModifierLockedState:
-            indicatorState = MInputMethodBase::NumAndSymLocked;
-            //% "Symbol lock on"
-            lockOnNotificationLabel = qtTrId("qtn_hwkb_fn_lock");
-            break;
+
+    } else if (xkbVariant == "cyrillic") {
+        indicatorState = MInputMethodBase::CyrillicLower;
+        if (shiftState == ModifierLockedState) {
+            indicatorState = MInputMethodBase::CyrillicLocked;
+        } else if (shiftState == ModifierLatchedState) {
+            indicatorState = MInputMethodBase::CyrillicUpper;
         }
-        break;
-    default:
-        //do not deal with the other modifiers now.
-        return;
     }
+
     sendInputModeIndicator(indicatorState);
-    if (state == ModifierLockedState
+
+    QString lockOnNotificationLabel;
+
+    if (indicatorState == MInputMethodBase::LatinLocked
+        || indicatorState == MInputMethodBase::CyrillicLocked) {
+        //% "Caps lock on"
+        lockOnNotificationLabel = qtTrId("qtn_hwkb_caps_lock");
+    } else if (indicatorState == MInputMethodBase::NumAndSymLocked) {
+        //% "Symbol lock on"
+        lockOnNotificationLabel = qtTrId("qtn_hwkb_fn_lock");
+    }
+    if (!lockOnNotificationLabel.isEmpty()
         && hardwareKeyboard->keyboardType() != M::NumberContentType
         && hardwareKeyboard->keyboardType() != M::PhoneNumberContentType) {
         // notify the modifier is changed to locked state

@@ -127,11 +127,14 @@ signals:
     //! \brief Emitted when shift state is changed.
     void shiftStateChanged() const;
 
-    /*! \brief Emitted when the state of \a modifier is changed to \a state.
+    /*! \brief Emitted when the state of modifiers is changed between normal/latched/locked.
      *
      * Can be emitted also when the modifier state has not changed.
      */
-    void modifierStateChanged(Qt::KeyboardModifier modifier, ModifierState state) const;
+    void modifiersStateChanged() const;
+
+    //! \brief Emitted when the script is changed.
+    void scriptChanged() const;
 
 private slots:
     //! Called when long press timer started on key press timeouts.
@@ -168,7 +171,7 @@ private:
                         quint32 nativeModifiers) const;
 
     /*! When X11 modifier bits indicated by \a affect mask in \a value are changed
-     * compared to their state in \a previousModifiers, emit modifierStateChanged signal
+     * compared to their state in \a previousModifiers, emit modifierStatesChanged signal
      * with a modifier corresponding to the changed bit and state that is either
      * ModifierClearState (modifier off) or \a onState (modifier on).  \a shiftMask can be
      * either ShiftMask or LockMask, corresponding to different shift modifier masks used
@@ -178,11 +181,11 @@ private:
      *
      * Also emit shiftStateChanged if shift modifier state changes.
      *
-     * \sa modifierStateChanged
+     * \sa modifierStatesChanged
      * \sa shiftLevelChanged
      */
-    void notifyModifierChange(unsigned char previousModifiers, ModifierState onState,
-                              unsigned int shiftMask, unsigned int affect, unsigned int value) const;
+    void notifyModifierChange(unsigned char previousModifiers, unsigned int shiftMask,
+                              unsigned int affect, unsigned int value) const;
 
     /*! \brief Set latch state of modifiers indicated by \a affect to that indicated by \a value.
      *
