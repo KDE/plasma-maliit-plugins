@@ -1,3 +1,10 @@
+meego-keyboard (0.5.0-3) unstable; urgency=low
+
+  * Fixes: Navigation bar not coming back after vkb close.
+  * Changes: Fixture for matti get key
+
+ -- huaming wang <huaming.wang@nokia.com>  Tue, 14 Sep 2010 12:52:33 +0300
+
 meego-keyboard (0.5.0-2) unstable; urgency=low
 
   * Fixes: Change the ownership of candidatesModel to avoid unit test crash.
