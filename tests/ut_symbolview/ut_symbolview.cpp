@@ -43,9 +43,9 @@
 
 namespace
 {
-    const QString InputMethodSettingName("/meegotouch/inputmethods/languages");
-    const QString DefaultLanguageSettingName("/meegotouch/inputmethods/languages/default");
-    const QString DefaultLanguage("en_us");
+    const QString InputMethodSettingName("/meegotouch/inputmethods/virtualkeyboard/layouts");
+    const QString DefaultLayoutSettingName("/meegotouch/inputmethods/virtualkeyboard/layouts/default");
+    const QString DefaultLayout("en_us.xml");
 
     const QString TargetSettingsName("/meegotouch/target/name");
     const QString DefaultTargetName("Default");
@@ -74,11 +74,11 @@ void Ut_SymbolView::initTestCase()
     MGConfItem inputMethodSetting(InputMethodSettingName);
 
     QStringList langlist;
-    langlist << "en_us";
+    langlist << "en_us.xml";
     inputMethodSetting.set(QVariant(langlist));
 
-    MGConfItem defaultLanguageSetting(DefaultLanguageSettingName);
-    defaultLanguageSetting.set(QVariant(DefaultLanguage));
+    MGConfItem defaultLayoutSetting(DefaultLayoutSettingName);
+    defaultLayoutSetting.set(QVariant(DefaultLayout));
 
     LayoutsManager::createInstance(style);
 
@@ -103,7 +103,7 @@ void Ut_SymbolView::cleanupTestCase()
 
 void Ut_SymbolView::init()
 {
-    subject = new SymbolView(LayoutsManager::instance(), style, DefaultLanguage);
+    subject = new SymbolView(LayoutsManager::instance(), style, DefaultLayout);
 
     // Add to scene so reaction maps are drawn.
     // SymView needs scene window as parent so positions itself correctly
@@ -313,14 +313,14 @@ void Ut_SymbolView::testHideWithFlick()
 }
 
 
-void Ut_SymbolView::testSetLanguage()
+void Ut_SymbolView::testSetLayout()
 {
-    // set an invalid language, at least it won't crash
-    // and still has the laste valid language.
-    QString oldLanguage = subject->currentLanguage;
-    subject->setLanguage("ThisLanguageLayoutShouldNotExist");
-    QVERIFY(subject->currentLanguage != "ThisLanguageLayoutShouldNotExist");
-    QCOMPARE(subject->currentLanguage, oldLanguage);
+    // set an invalid layout, at least it won't crash
+    // and still has the laste valid layout.
+    QString oldLayout = subject->currentLayout;
+    subject->setLayout("ThisLayoutShouldNotExist");
+    QVERIFY(subject->currentLayout != "ThisLayoutShouldNotExist");
+    QCOMPARE(subject->currentLayout, oldLayout);
 }
 
 void Ut_SymbolView::testHardwareState()

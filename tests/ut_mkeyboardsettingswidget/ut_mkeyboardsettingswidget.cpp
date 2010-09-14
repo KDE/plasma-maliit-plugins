@@ -32,7 +32,7 @@
 #include <QSignalSpy>
 
 namespace {
-    const QString SettingsIMCorrectionSetting("/meegotouch/inputmethods/correctionenabled");
+    const QString SettingsIMCorrectionSetting("/meegotouch/inputmethods/virtualkeyboard/correctionenabled");
 };
 
 // Stubbing..................................................................

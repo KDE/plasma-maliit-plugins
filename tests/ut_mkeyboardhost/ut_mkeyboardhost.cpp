@@ -50,7 +50,7 @@
 
 namespace
 {
-    const QString InputMethodCorrectionSetting("/meegotouch/inputmethods/correctionenabled");
+    const QString InputMethodCorrectionSetting("/meegotouch/inputmethods/virtualkeyboard/correctionenabled");
     const QString InputMethodCorrectionEngine("/meegotouch/inputmethods/correctionengine");
     int gSetKeyboardStateCallCount = 0;
     MIMHandlerState gSetKeyboardStateParam = OnScreen;

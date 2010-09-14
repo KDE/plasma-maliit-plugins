@@ -24,8 +24,8 @@
 
 namespace
 {
-    const QString SettingsIMCorrectionSetting("/meegotouch/inputmethods/correctionenabled");
-    const QString InputMethodLanguages("/meegotouch/inputmethods/languages");
+    const QString SettingsIMCorrectionSetting("/meegotouch/inputmethods/virtualkeyboard/correctionenabled");
+    const QString InputMethodLayouts("/meegotouch/inputmethods/virtualkeyboard/layouts");
 };
 
 // Test init/deinit..........................................................
@@ -40,9 +40,9 @@ void Ut_MKeyboardSettings::cleanupTestCase()
 
 void Ut_MKeyboardSettings::init()
 {
-    MGConfItem layoutListSetting(InputMethodLanguages);
+    MGConfItem layoutListSetting(InputMethodLayouts);
     QStringList layoutlist;
-    layoutlist << "fi" << "ru" << "ar";
+    layoutlist << "fi.xml" << "ru.xml" << "ar.xml";
     layoutListSetting.set(QVariant(layoutlist));
 }
 
@@ -64,7 +64,7 @@ void Ut_MKeyboardSettings::testAvailableKeyboards()
     QVERIFY(subject->availableKeyboards().count() > 0);
 
     QStringList layoutList;
-    layoutList << "fi" << "ru" << "ar" << "en_gb";
+    layoutList << "fi.xml" << "ru.xml" << "ar.xml" << "en_gb.xml";
     foreach (const QString &layout, layoutList) {
         QVERIFY(subject->availableKeyboards().keys().contains(layout));
     }
@@ -72,9 +72,9 @@ void Ut_MKeyboardSettings::testAvailableKeyboards()
 
 void Ut_MKeyboardSettings::testSelectedKeyboards()
 {
-    MGConfItem layoutListSetting(InputMethodLanguages);
+    MGConfItem layoutListSetting(InputMethodLayouts);
     QStringList layoutList;
-    layoutList << "fi" << "ru" << "ar" << "en_gb";
+    layoutList << "fi.xml" << "ru.xml" << "ar.xml" << "en_gb.xml";
     layoutListSetting.set(QVariant(layoutList));
     std::auto_ptr<MKeyboardSettings> subject(new MKeyboardSettings);
     foreach (const QString &layout, layoutList) {
@@ -85,8 +85,8 @@ void Ut_MKeyboardSettings::testSelectedKeyboards()
 void Ut_MKeyboardSettings::testSetSelectedKeyboards()
 {
     QStringList oldLayouts;
-    oldLayouts << "fi" << "ar" << "en_gb";
-    MGConfItem layoutListSetting(InputMethodLanguages);
+    oldLayouts << "fi.xml" << "ar.xml" << "en_gb.xml";
+    MGConfItem layoutListSetting(InputMethodLayouts);
     layoutListSetting.set(QVariant(oldLayouts));
 
     std::auto_ptr<MKeyboardSettings> subject(new MKeyboardSettings);

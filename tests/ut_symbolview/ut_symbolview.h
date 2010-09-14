@@ -56,7 +56,7 @@ private slots:
     void testChangeTab();
     void testHideWithFlick_data();
     void testHideWithFlick();
-    void testSetLanguage();
+    void testSetLayout();
     void testHardwareState();
 
 private:

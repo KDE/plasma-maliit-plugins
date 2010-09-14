@@ -45,6 +45,8 @@
 
 namespace
 {
+    const QString InputMethodSettingName("/meegotouch/inputmethods/virtualkeyboard/layouts");
+    const QString DefaultLayoutSettingName("/meegotouch/inputmethods/virtualkeyboard/layouts/default");
     const int SceneRotationTime = 1400; // in ms
     const QString TargetSettingsName("/meegotouch/target/name");
     const QString DefaultTargetName("Default");
@@ -84,17 +86,17 @@ void Ut_MVirtualKeyboard::initTestCase()
 
     app = new MApplication(argc, argv);
 
-    QString InputMethodSetting("/meegotouch/inputmethods/languages");
+    QString InputMethodSetting(InputMethodSettingName);
     MGConfItem item1(InputMethodSetting);
 
-    QStringList langlist;
-    langlist << "en_GB" << "fi" << "ar";
-    item1.set(QVariant(langlist));
+    QStringList layoutlist;
+    layoutlist << "en_gb.xml" << "fi.xml" << "ar.xml";
+    item1.set(QVariant(layoutlist));
 
-    QString DefaultLanguageSetting("/meegotouch/inputmethods/languages/default");
-    MGConfItem item2(DefaultLanguageSetting);
-    QString defaultlanguage = "en_gb";
-    item2.set(QVariant(defaultlanguage));
+    QString DefaultLayoutSetting(DefaultLayoutSettingName);
+    MGConfItem item2(DefaultLayoutSetting);
+    QString defaultLayout = "en_gb.xml";
+    item2.set(QVariant(defaultLayout));
 
     // MVirtualkeyboard uses MPlainWindow internally so we need to instantiate it.
     new MPlainWindow; // creates a static instance
@@ -416,9 +418,9 @@ void Ut_MVirtualKeyboard::testShiftLevelChange()
 
 void Ut_MVirtualKeyboard::flickRightHandlerTest()
 {
-    QStringList langList = MGConfItem("/meegotouch/inputmethods/languages").value().toStringList();
-    langList.sort();
-    qDebug() << langList;
+    QStringList layoutList = MGConfItem(InputMethodSettingName).value().toStringList();
+    layoutList.sort();
+    qDebug() << layoutList;
 
     // Vkb has just been created and is running an animation.
     QTest::qWait(550);
@@ -427,14 +429,14 @@ void Ut_MVirtualKeyboard::flickRightHandlerTest()
     QVERIFY(spySwitchRequested.isValid());
 
     // flick right, switch direction left
-    QSignalSpy spy(m_vkb, SIGNAL(languageChanged(const QString &)));
+    QSignalSpy spy(m_vkb, SIGNAL(layoutChanged(const QString &)));
     int index = m_vkb->mainKeyboardSwitcher->current();
     m_vkb->flickRightHandler();
     QVERIFY(m_vkb->mainKeyboardSwitcher->current() != index);
     QCOMPARE(spy.count(), 1);
     QCOMPARE(spy.at(0).count(), 1);
-    //depends on the languages set through MGConfItem
-    QCOMPARE(spy.at(0).at(0).toString().toLower(), langList.at(0).toLower());
+    //depends on the layouts set through MGConfItem
+    QCOMPARE(spy.at(0).at(0).toString().toLower(), layoutList.at(0).toLower());
 
     QTest::qWait(550);
 
@@ -443,14 +445,14 @@ void Ut_MVirtualKeyboard::flickRightHandlerTest()
     m_vkb->flickRightHandler();
     if (spySwitchRequested.count()) {
         QCOMPARE(index, 0);
-        m_vkb->switchLanguage(spySwitchRequested.first().first().value<M::InputMethodSwitchDirection>(),
-                              false);
+        m_vkb->switchLayout(spySwitchRequested.first().first().value<M::InputMethodSwitchDirection>(),
+                            false);
     }
     QVERIFY(m_vkb->mainKeyboardSwitcher->current() != index);
     QCOMPARE(spy.count(), 2);
     QCOMPARE(spy.at(1).count(), 1);
-    //depends on the languages set through MGConfItem
-    QCOMPARE(spy.at(1).at(0).toString().toLower(), langList.at(2).toLower());
+    //depends on the layouts set through MGConfItem
+    QCOMPARE(spy.at(1).at(0).toString().toLower(), layoutList.at(2).toLower());
 
     QTest::qWait(550);
 
@@ -459,20 +461,20 @@ void Ut_MVirtualKeyboard::flickRightHandlerTest()
     m_vkb->flickRightHandler();
     if (spySwitchRequested.count()) {
         QCOMPARE(index, 0);
-        m_vkb->switchLanguage(spySwitchRequested.first().first().value<M::InputMethodSwitchDirection>(),
-                              false);
+        m_vkb->switchLayout(spySwitchRequested.first().first().value<M::InputMethodSwitchDirection>(),
+                            false);
     }
     QVERIFY(m_vkb->mainKeyboardSwitcher->current() != index);
     QCOMPARE(spy.count(), 3);
     QCOMPARE(spy.at(2).count(), 1);
-    //depends on the languages set through MGConfItem
-    QCOMPARE(spy.at(2).at(0).toString().toLower(), langList.at(1).toLower());
+    //depends on the layouts set through MGConfItem
+    QCOMPARE(spy.at(2).at(0).toString().toLower(), layoutList.at(1).toLower());
 }
 
 void Ut_MVirtualKeyboard::flickLeftHandlerTest()
 {
-    QStringList langList = MGConfItem("/meegotouch/inputmethods/languages").value().toStringList();
-    langList.sort();
+    QStringList layoutList = MGConfItem(InputMethodSettingName).value().toStringList();
+    layoutList.sort();
 
     // Vkb has just been created and is running an animation.
     QTest::qWait(550);
@@ -480,22 +482,22 @@ void Ut_MVirtualKeyboard::flickLeftHandlerTest()
     QSignalSpy spySwitchRequested(m_vkb, SIGNAL(pluginSwitchRequired(M::InputMethodSwitchDirection)));
     QVERIFY(spySwitchRequested.isValid());
 
-    QSignalSpy spy(m_vkb, SIGNAL(languageChanged(const QString &)));
+    QSignalSpy spy(m_vkb, SIGNAL(layoutChanged(const QString &)));
     int index = m_vkb->mainKeyboardSwitcher->current();
-    qDebug() << "index1: " << index << " lang:" << m_vkb->currentLanguage;
+    qDebug() << "index1: " << index << " layout:" << m_vkb->currentLayout;
     spySwitchRequested.clear();
     m_vkb->flickLeftHandler();
     if (spySwitchRequested.count()) {
-        QCOMPARE(index, langList.count() - 1);
-        m_vkb->switchLanguage(spySwitchRequested.first().first().value<M::InputMethodSwitchDirection>(),
-                              false);
+        QCOMPARE(index, layoutList.count() - 1);
+        m_vkb->switchLayout(spySwitchRequested.first().first().value<M::InputMethodSwitchDirection>(),
+                            false);
     }
-    qDebug() << "index2: " << m_vkb->mainKeyboardSwitcher->current() << " lang:" << m_vkb->currentLanguage;
+    qDebug() << "index2: " << m_vkb->mainKeyboardSwitcher->current() << " lang:" << m_vkb->currentLayout;
     QVERIFY(m_vkb->mainKeyboardSwitcher->current() != index);
     QCOMPARE(spy.count(), 1);
     QCOMPARE(spy.at(0).count(), 1);
-    //depends on the languages set through MGConfItem
-    QCOMPARE(spy.at(0).at(0).toString().toLower(), langList.at(2).toLower());
+    //depends on the layouts set through MGConfItem
+    QCOMPARE(spy.at(0).at(0).toString().toLower(), layoutList.at(2).toLower());
 
     QTest::qWait(550);
 
@@ -503,15 +505,15 @@ void Ut_MVirtualKeyboard::flickLeftHandlerTest()
     spySwitchRequested.clear();
     m_vkb->flickLeftHandler();
     if (spySwitchRequested.count()) {
-        QCOMPARE(index, langList.count() - 1);
-        m_vkb->switchLanguage(spySwitchRequested.first().first().value<M::InputMethodSwitchDirection>(),
-                              false);
+        QCOMPARE(index, layoutList.count() - 1);
+        m_vkb->switchLayout(spySwitchRequested.first().first().value<M::InputMethodSwitchDirection>(),
+                            false);
     }
     QVERIFY(m_vkb->mainKeyboardSwitcher->current() != index);
     QCOMPARE(spy.count(), 2);
     QCOMPARE(spy.at(1).count(), 1);
-    //depends on the languages set through MGConfItem
-    QCOMPARE(spy.at(1).at(0).toString().toLower(), langList.at(0).toLower());
+    //depends on the layouts set through MGConfItem
+    QCOMPARE(spy.at(1).at(0).toString().toLower(), layoutList.at(0).toLower());
 
     QTest::qWait(550);
 
@@ -519,15 +521,15 @@ void Ut_MVirtualKeyboard::flickLeftHandlerTest()
     spySwitchRequested.clear();
     m_vkb->flickLeftHandler();
     if (spySwitchRequested.count()) {
-        QCOMPARE(index, langList.count() - 1);
-        m_vkb->switchLanguage(spySwitchRequested.first().first().value<M::InputMethodSwitchDirection>(),
-                              false);
+        QCOMPARE(index, layoutList.count() - 1);
+        m_vkb->switchLayout(spySwitchRequested.first().first().value<M::InputMethodSwitchDirection>(),
+                            false);
     }
     QVERIFY(m_vkb->mainKeyboardSwitcher->current() != index);
     QCOMPARE(spy.count(), 3);
     QCOMPARE(spy.at(2).count(), 1);
-    //depends on the languages set through MGConfItem
-    QCOMPARE(spy.at(2).at(0).toString().toLower(), langList.at(1).toLower());
+    //depends on the layouts set through MGConfItem
+    QCOMPARE(spy.at(2).at(0).toString().toLower(), layoutList.at(1).toLower());
 }
 
 void Ut_MVirtualKeyboard::loadSymbolViewTemporarilyTest()
@@ -840,7 +842,7 @@ void Ut_MVirtualKeyboard::testReactionMaps()
     MReactionMapTester tester;
     gMReactionMapStub = &tester;
 
-    m_vkb->setLanguage(0);
+    m_vkb->setLayout(0);
 
     // Show keyboard
     m_vkb->showKeyboard();
@@ -861,9 +863,9 @@ void Ut_MVirtualKeyboard::testReactionMaps()
     // Check that all buttons are drawn with reactive color.
     QVERIFY(tester.testChildButtonReactiveAreas(view, m_vkb));
 
-    // Switch language, the chosen kb layouts are all different in terms of reaction maps they generate.
+    // Switch layout, the chosen kb layouts are all different in terms of reaction maps they generate.
     QSignalSpy updateSignal(m_vkb, SIGNAL(regionUpdated(QRegion)));
-    m_vkb->setLanguage(1);
+    m_vkb->setLayout(1);
     QTest::qWait(600);
 
     // Currently updating is done via kbhost when it receives region updates.
