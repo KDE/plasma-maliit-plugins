@@ -1021,6 +1021,7 @@ void Ut_MKeyboardHost::testKeyCycle()
     KeyEvent event1(text,  QEvent::KeyRelease, Qt::Key_unknown, KeyEvent::CycleSet);
     KeyEvent event2("456", QEvent::KeyRelease, Qt::Key_unknown, KeyEvent::CycleSet);
     KeyEvent space ( " ",  QEvent::KeyRelease, Qt::Key_Space);
+    KeyEvent invalid( "",  QEvent::KeyRelease, Qt::Key_unknown, KeyEvent::CycleSet);
 
     //this value must be greater that MultitapTime in the file mkeyboardhost.cpp
     const int MultitapTime = 2000;
@@ -1059,6 +1060,23 @@ void Ut_MKeyboardHost::testKeyCycle()
     subject->handleKeyClick(space);
     QCOMPARE(inputContext->preedit, QString(""));
     QCOMPARE(inputContext->commit, QString(event2.text()[0]) + " ");
+
+    // Test cycle key autocommit timeout:
+    inputContext->commit = "";
+    inputContext->preedit = "";
+
+    subject->handleKeyClick(event1);
+    subject->handleKeyClick(event1);
+    QCOMPARE(inputContext->preedit, QString(event1.text()[1]));
+    QCOMPARE(inputContext->commit, QString(""));
+    inputContext->commit = "";
+    inputContext->preedit = "";
+    QTest::qWait(MultitapTime);
+    QCOMPARE(inputContext->preedit, QString(""));
+    QCOMPARE(inputContext->commit, QString(event1.text()[1]));
+
+    // Empty cycle string should not cause crash:
+    subject->handleKeyClick(invalid);
 }
 
 void Ut_MKeyboardHost::testShiftState_data()

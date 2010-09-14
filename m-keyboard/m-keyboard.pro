@@ -43,6 +43,7 @@ HEADERS += \
     mkeyboardhost.h \
     mkeyboardsettings.h \
     mkeyboardplugin.h \
+    mkeyboardhost_p.h \
 
 SOURCES += \
     mkeyboardhost.cpp \

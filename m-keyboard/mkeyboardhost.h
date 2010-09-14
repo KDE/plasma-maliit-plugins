@@ -24,7 +24,6 @@
 #include "keyevent.h"
 #include <MNamespace>
 #include <QStringList>
-#include <QTime>
 #include <QTimer>
 #include <QPointer>
 
@@ -263,6 +262,8 @@ private:
     void initializeInputEngine();
 
 private:
+    class CycleKeyHandler; //! Reacts to cycle key press events.
+    friend class CycleKeyHandler;
     QString preedit;
     QString correctedPreedit;
 
@@ -305,8 +306,6 @@ private:
     QTimer backSpaceTimer;
 
     KeyEvent lastClickEvent;
-    QTime lastClickEventTime;
-    unsigned int multitapIndex;
 
     //! Keeps track of shift up/down status.
     bool shiftHeldDown;
@@ -341,6 +340,7 @@ private:
     //! Toolbar widget containing copy/paste and custom buttons.
     QPointer<MImToolbar> imToolbar;
 
+    CycleKeyHandler *cycleKeyHandler;
 #ifdef UNIT_TEST
     friend class Ut_MKeyboardHost;
 #endif

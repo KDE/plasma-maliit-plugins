@@ -16,6 +16,7 @@
 
 #include "flickgesturerecognizer.h"
 #include "mkeyboardhost.h"
+#include "mkeyboardhost_p.h"
 #include "mvirtualkeyboardstyle.h"
 #include "mvirtualkeyboard.h"
 #include "mhardwarekeyboard.h"
@@ -72,8 +73,77 @@ namespace
     const char * const MultitouchSettings = "/meegotouch/inputmethods/multitouch/enabled";
 }
 
+MKeyboardHost::CycleKeyHandler::CycleKeyHandler(MKeyboardHost &parent)
+    : QObject(&parent),
+    host(parent),
+    timer(),
+    cycleText(),
+    prevEvent()
+{
+    timer.setSingleShot(true);
+    timer.setInterval(MultitapTime);
+    connect(&timer, SIGNAL(timeout()), this, SLOT(commitCycleKey()));
+}
 
-MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *parent)
+MKeyboardHost::CycleKeyHandler::~CycleKeyHandler()
+{
+}
+
+bool MKeyboardHost::CycleKeyHandler::handleTextInputKeyClick(const KeyEvent &event)
+{
+    // If there's a pending keypress, handle it:
+    if (timer.isActive() && !(event == prevEvent)) {
+        timer.stop();
+        commitCycleKey();
+    }
+
+    if (event.specialKey() != KeyEvent::CycleSet) {
+        return false;  // Host should handle non-cyclekeys.
+    }
+
+    if (event.text().length() == 0) {
+        qWarning() << __PRETTY_FUNCTION__ << "Empty cycleset in layout";
+        return true;
+    }
+
+    if (event == prevEvent) {
+        // Cycling through same cycle key
+        if (host.preedit.length() > 0) {
+            // FIXME: appending the cycle key to the preedit --> pressing cycle key
+            // when there already is something in preedit will cause the whole preedit
+            // to be commited after timeout
+            host.setPreedit(host.preedit.left(host.preedit.length() - 1));
+        }
+        cycleIndex = (cycleIndex + 1) % cycleText.size();
+    }
+    else {
+        // Different key than last time, reset index and cycle text
+        prevEvent = event;
+        cycleIndex = 0;
+        cycleText = event.text();
+    }
+
+    host.preedit += cycleText[cycleIndex];
+    host.correctedPreedit = host.preedit;
+    host.inputContextConnection()->sendPreeditString(host.correctedPreedit, PreeditNoCandidates);
+
+    timer.start();
+
+    return true;
+}
+
+void MKeyboardHost::CycleKeyHandler::commitCycleKey()
+{
+    if (cycleText.length() > 0) {
+        host.sendString(host.correctedPreedit);
+        host.preedit.clear();
+        host.correctedPreedit.clear();
+        cycleText.clear();
+        prevEvent = KeyEvent();
+    }
+}
+
+MKeyboardHost::MKeyboardHost(MInputContextConnection *icConnection, QObject *parent)
     : MInputMethodBase(icConnection, parent),
       vkbStyleContainer(0),
       correctionCandidateWidget(0),
@@ -91,13 +161,13 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection* icConnection, QObject *par
       autoCapsTriggered(false),
       cursorPos(-1),
       inputMethodMode(M::InputMethodModeNormal),
-      backSpaceTimer(this),
-      multitapIndex(0),
+      backSpaceTimer(),
       shiftHeldDown(false),
       activeState(OnScreen),
       modifierLockOnBanner(0),
       haveFocus(false),
-      enableMultiTouch(false)
+      enableMultiTouch(false),
+      cycleKeyHandler(new CycleKeyHandler(*this))
 {
     displayHeight = MPlainWindow::instance()->visibleSceneSize(M::Landscape).height();
     displayWidth  = MPlainWindow::instance()->visibleSceneSize(M::Landscape).width();
@@ -432,10 +502,12 @@ void MKeyboardHost::setPreedit(const QString &preeditString)
     preedit = preeditString;
     correctedPreedit = preeditString;
     candidates.clear();
-    imCorrectionEngine->clearEngineBuffer();
-    imCorrectionEngine->appendString(preeditString);
     correctionCandidateWidget->setPreeditString(preeditString);
-    candidates = imCorrectionEngine->candidates();
+    if (imCorrectionEngine) {
+        imCorrectionEngine->clearEngineBuffer();
+        imCorrectionEngine->appendString(preeditString);
+        candidates = imCorrectionEngine->candidates();
+    }
 }
 
 
@@ -814,7 +886,7 @@ void MKeyboardHost::updateReactionMaps()
     clearReactionMaps(MReactionMap::Transparent);
 
     QList<QGraphicsView *> views = MPlainWindow::instance()->scene()->views();
-    foreach(QGraphicsView * view, views) {
+    foreach(QGraphicsView *view, views) {
         MReactionMap *reactionMap = MReactionMap::instance(view);
 
         if (!reactionMap) {
@@ -879,7 +951,6 @@ void MKeyboardHost::handleKeyClick(const KeyEvent &event)
     handleGeneralKeyClick(event);
 
     lastClickEvent = event;
-    lastClickEventTime = QTime::currentTime();
 }
 
 void MKeyboardHost::handleGeneralKeyClick(const KeyEvent &event)
@@ -951,39 +1022,16 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
         return;
     }
 
-    QString text(event.text());
-
-    // Handle multitap. Needs to be before any further handling of the text variable.
-    // Picks the relevant part of text variable.
-    if (event.specialKey() == KeyEvent::CycleSet) {
-        if ((lastClickEvent == event)
-            && (QTime::currentTime() < lastClickEventTime.addMSecs(MultitapTime))) {
-            if (preedit.length() > 0) {
-                setPreedit(preedit.left(preedit.length() - 1));
-            }
-            multitapIndex = (multitapIndex + 1) % text.size();
-        } else {
-            if (lastClickEvent.specialKey() == KeyEvent::CycleSet) {
-                inputContextConnection()->sendCommitString(correctedPreedit);
-                preedit.clear();
-                correctedPreedit.clear();
-            }
-            multitapIndex = 0;
-        }
-        text = text[multitapIndex];
+    if (cycleKeyHandler->handleTextInputKeyClick(event)) {
+        return;
     }
+    QString text(event.text());
 
     if (text.isEmpty()) {
         return;
     }
 
-    if (event.specialKey() == KeyEvent::CycleSet) {
-        preedit += text;
-        correctedPreedit = preedit;
-
-        inputContextConnection()->sendPreeditString(correctedPreedit, PreeditNoCandidates);
-
-    } else if (!correctionEnabled) {
+    if (!correctionEnabled) {
         if (correctedPreedit.length() > 0) {
             // we just entered accurate mode. send the previous preedit stuff.
             inputContextConnection()->sendCommitString(correctedPreedit);
