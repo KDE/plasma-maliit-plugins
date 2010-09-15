@@ -17,6 +17,7 @@ SUBDIRS = \
           ut_mimtoolbar \
           ut_mhardwarekeyboard \
           ut_hwkbcharloopsmanager \
+          ut_mkeyboardsettings \
           bm_keybuttonarea \
           bm_symbols \
           ft_mxkb \
