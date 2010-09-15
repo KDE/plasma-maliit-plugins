@@ -1287,9 +1287,9 @@ void MKeyboardHost::setState(const QSet<MIMHandlerState> &state)
         hideLockOnInfoBanner();
         sendInputModeIndicator(MInputMethodBase::NoIndicator);
         disconnect(hardwareKeyboard, SIGNAL(modifiersStateChanged()),
-                   this, SLOT(handleHwkeyboardStateChanged()));
+                   this, SLOT(handleHwKeyboardStateChanged()));
         disconnect(hardwareKeyboard, SIGNAL(scriptChanged()),
-                   this, SLOT(handleHwkeyboardStateChanged()));
+                   this, SLOT(handleHwKeyboardStateChanged()));
         if (haveFocus) {
             hardwareKeyboard->disable();
         }
