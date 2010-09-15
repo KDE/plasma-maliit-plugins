@@ -155,6 +155,9 @@ signals:
     void typeChanged(bool standard);
 
 private:
+    //! Helper for updateVisibility and initial state setting
+    void updateItemVisibility(const QSharedPointer<MToolbarItem> &item) const;
+
     //! \brief Set style mode to either shaped-toolbar (true) or full-toolbar (false)
     void setShapedMode(bool shaped);
 

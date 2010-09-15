@@ -144,20 +144,25 @@ void MImToolbar::setSelectionStatus(bool selection)
     }
 }
 
+void MImToolbar::updateItemVisibility(const QSharedPointer<MToolbarItem> &item) const
+{
+    if ((item->showOn() == MInputMethod::VisibleAlways)
+        || (textSelected && item->showOn() == MInputMethod::VisibleWhenSelectingText)
+        || (!textSelected && item->hideOn() == MInputMethod::VisibleWhenSelectingText)) {
+        item->setVisible(true);
+    }
+
+    if ((!textSelected && item->showOn() == MInputMethod::VisibleWhenSelectingText)
+        || (textSelected && item->hideOn() == MInputMethod::VisibleWhenSelectingText)) {
+        item->setVisible(false);
+    }
+}
+
 void MImToolbar::updateVisibility()
 {
     if (currentToolbar) {
         foreach (const QSharedPointer<MToolbarItem> item, currentToolbar->items()) {
-            if ((item->showOn() == MInputMethod::VisibleAlways)
-                || (textSelected && item->showOn() == MInputMethod::VisibleWhenSelectingText)
-                || (!textSelected && item->hideOn() == MInputMethod::VisibleWhenSelectingText)) {
-                item->setVisible(true);
-            }
-
-            if ((!textSelected && item->showOn() == MInputMethod::VisibleWhenSelectingText)
-                || (textSelected && item->hideOn() == MInputMethod::VisibleWhenSelectingText)) {
-                item->setVisible(false);
-            }
+            updateItemVisibility(item);
         }
     }
     arrangeWidgets();
@@ -222,6 +227,9 @@ void MImToolbar::createAndAppendWidget(QSharedPointer<MToolbarItem> item,
     } else {
         sidebar = rightWidget;
     }
+
+    updateItemVisibility(item);
+
     if (item->type() == MInputMethod::ItemButton) {
         widget = new MToolbarButton(item, sidebar);
 
@@ -231,10 +239,11 @@ void MImToolbar::createAndAppendWidget(QSharedPointer<MToolbarItem> item,
         widget = new MToolbarLabel(item, sidebar);
     }
     customWidgets.append(widget);
-    sidebar->append(widget, item->isVisible());
-    if (sidebar->count() == 1) {
+    if (sidebar->count() == 0) {
+        // must be done before appending so that isVisible() tells the truth
         sidebar->show();
     }
+    sidebar->append(widget, widget->isVisible());
 }
 
 void MImToolbar::setupRowLayout(QGraphicsLinearLayout *rowLayout,
@@ -406,8 +415,7 @@ void MImToolbar::showToolbarWidget(QSharedPointer<const MToolbarData> toolbar)
 
     setShapedMode(!toolbar->isCustom());
 
-    if (isVisible())
-        updateVisibility();
+    arrangeWidgets();
 
     if (oldToolbarCustom != toolbar->isCustom()) {
         emit typeChanged(!toolbar->isCustom());
