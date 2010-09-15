@@ -138,8 +138,8 @@
               <binding dead="true" label="`"/>
               <binding shift="true" dead="true" label="`"/>
             </key>
-            <key>
-              <binding action="backspace" label=""/>
+            <key style="special">
+              <binding action="return" label=""/>
             </key>
           </row>
 
