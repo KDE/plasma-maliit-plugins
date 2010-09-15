@@ -144,11 +144,13 @@ void WidgetBar::styleChanged()
 
 QSizeF WidgetBar::sizeHint(Qt::SizeHint which, const QSizeF &constraint) const
 {
+    foreach (const QPointer<MWidget> &widget, widgets) {
+        if (widget->isVisible()) {
+            return MStylableWidget::sizeHint(which, constraint);
+        }
+    }
     // if there is no visible items in the widgetbar, just return empty size.
-    if (count() <= 0)
-        return QSizeF(0, 0);
-    else
-        return MStylableWidget::sizeHint(which, constraint);
+    return QSizeF(0, 0);
 }
 
 void WidgetBar::updateLayout()
