@@ -1,3 +1,44 @@
+0.5.1-1
+========
+
+* meego-keyboard.schemas is Changed.
+  - /schemas/meegotouch/inputmethods/languages is changed to
+  /schemas/meegotouch/inputmethods/virtualkeyboard/layouts. It
+  stores initial layout file lists for meego-keyboard.
+  - /schemas/meegotouch/inputmethods/languages/default is changed to
+  /schemas/meegotouch/inputmethods/virtualkeyboard/layouts/default.
+  It stores default layout file name for meego-keyboard.
+
+* Internal changes in meego-keyboard:
+  - KeyboardData:
+    - layoutFile returns layout file name.
+
+  - LayoutsManager:
+    - layoutCount returns the count of keyboard layouts.
+    - languageList is removed. Use layoutFileList to instead.
+    - layoutFileList returns the keyboard layout name list.
+    - layout is changed to accepct layout name instead of language code
+    as the input parameter.
+    - defaultLanguage is replaced by defaultLayout.
+    - languagesChanged signal is renamed to layoutsChanged.
+    - loadLanguage is replaced by loadLayout.
+    - keyboardByName is changed to accepct layout file name instead of
+    language code as the input parameter.
+
+  - MVirtualKeyboard:
+    - selectedLanguage is replaced by selectedLayout.
+    - switchLanguage is replaced by switchLayout.
+    - setLanguage is replaced by setLayout.
+    - languageReset is replaced by keyboardsReset.
+    - languageChanged signal is renamed to layoutChanged.
+    - createMainSectionView and createSectionView are changed to accept
+    layout name instead of language code as the input parameter.
+
+  - SymbolView:
+    - SymbolView is changed to accept layout name instead of language code
+    as the input parameter.
+    - setLanguage is replaced by setLayout.
+
 0.5.0-1
 ========
 
