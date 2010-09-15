@@ -98,7 +98,7 @@
         </row>
 
         <row>
-          <key style="special" width="large">
+          <key style="special">
             <binding action="shift" label=""/>
           </key>
 
@@ -139,7 +139,7 @@
             <binding shift="true" label="Ç"/>
           </key>
 
-          <key style="special" width="large">
+          <key style="special">
             <binding action="return" label=""/>
           </key>
         </row>
@@ -266,7 +266,7 @@
         </row>
 
         <row>
-          <key style="special" width="large">
+          <key style="special">
             <binding action="shift" label=""/>
           </key>
 
@@ -307,7 +307,7 @@
             <binding shift="true" label="Ç"/>
           </key>
 
-          <key style="special" width="large">
+          <key style="special">
             <binding action="return" label=""/>
           </key>
         </row>
