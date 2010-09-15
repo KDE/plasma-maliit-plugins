@@ -51,8 +51,6 @@ private slots:
     void testPortraitBoxSize();
     void testLabelPosition_data();
     void testLabelPosition();
-    void testFlickCheck_data();
-    void testFlickCheck();
     void testSceneEvent_data();
     void testSceneEvent();
     void testPaint_data();
