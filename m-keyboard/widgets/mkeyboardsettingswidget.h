@@ -68,6 +68,7 @@ private:
     MDialog *keyboardDialog;
     MList *keyboardList;
     MContentItem *selectedKeyboardsItem;
+    friend class Ut_MKeyboardSettingsWidget;
 };
 
 #endif
