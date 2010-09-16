@@ -70,6 +70,9 @@ namespace
 
     int gShowLockOnInfoBannerCallCount = 0;
     int gHideLockOnInfoBannerCallCount = 0;
+
+    const char * const TargetSettingsName("/meegotouch/target/name");
+    const char * const DefaultTargetName("Default");
 }
 
 namespace QTest
@@ -158,6 +161,10 @@ void Ut_MKeyboardHost::initTestCase()
                                  (char *) "-local-theme" };
 
     disableQtPlugins();
+
+    MGConfItem target(TargetSettingsName);
+    target.set(DefaultTargetName); // this value is required by the theme daemon
+
     app = new MApplication(argc, app_name);
     inputContext = new MInputContextStubConnection;
     window = new MPlainWindow;
@@ -1413,6 +1420,24 @@ void Ut_MKeyboardHost::testHandleHwKeyboardStateChanged()
 
     QCOMPARE(gInputMethodIndicator, expectIndicator);
     QCOMPARE(gShowLockOnInfoBannerCallCount, notificationShowCalled ? 1 : 0);
+}
+
+void Ut_MKeyboardHost::testUserHide()
+{
+    QSignalSpy spy(subject, SIGNAL(regionUpdated(QRegion)));
+    QVERIFY(spy.isValid());
+
+    subject->show();
+    QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
+
+    QVERIFY(subject->vkbWidget->isFullyVisible());
+    subject->userHide();
+    QVERIFY(!subject->vkbWidget->isFullyVisible());
+    QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
+    QVERIFY(!subject->vkbWidget->isVisible());
+
+    QVERIFY(!spy.isEmpty());
+    QVERIFY(region(spy, spy.count() - 1).isEmpty());
 }
 
 QTEST_APPLESS_MAIN(Ut_MKeyboardHost);

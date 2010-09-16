@@ -900,7 +900,6 @@ KeyButtonArea * MVirtualKeyboard::createSectionView(const QString &language,
 
     eventHandler.addEventSource(view);
 
-    connect(view, SIGNAL(flickDown()), this, SLOT(hideKeyboard()));
     connect(view, SIGNAL(flickDown()), this, SIGNAL(userInitiatedHide()));
     connect(view, SIGNAL(flickUp(KeyBinding)),
             this, SLOT(flickUpHandler(KeyBinding)));

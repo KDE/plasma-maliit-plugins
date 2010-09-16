@@ -1117,6 +1117,7 @@ void MKeyboardHost::updateCorrectionState()
 
 void MKeyboardHost::userHide()
 {
+    vkbWidget->hideKeyboard();
     inputContextConnection()->notifyImInitiatedHiding();
 }
 

@@ -91,6 +91,8 @@ private slots:
     void testHandleHwKeyboardStateChanged_data();
     void testHandleHwKeyboardStateChanged();
 
+    void testUserHide();
+
 private:
     void rotateToAngle(M::OrientationAngle);
     void triggerAutoCaps();
