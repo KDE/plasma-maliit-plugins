@@ -440,8 +440,10 @@ void KeyButtonArea::touchPointMoved(const QPoint &pos, int id)
     }
 
     // Check if finger is on a key.
-    IKeyButton *key = keyAt(pos);
+    IKeyButton *key = gravitationalKeyAt(pos, tpi.initialKey);
+
     if (key) {
+
         tpi.fingerInsideArea = true;
 
         if ((tpi.activeKey != key) && feedbackPlayer) {
@@ -484,7 +486,7 @@ void KeyButtonArea::touchPointReleased(const QPoint &pos, int id)
         popup->hidePopup();
     }
 
-    IKeyButton *key = keyAt(pos);
+    IKeyButton *key = gravitationalKeyAt(pos, tpi.initialKey);
 
     if (key) {
         mTimestamp("KeyButtonArea", key->label());
@@ -501,6 +503,25 @@ void KeyButtonArea::touchPointReleased(const QPoint &pos, int id)
     } else {
         setActiveKey(0, tpi);
     }
+}
+
+IKeyButton *
+KeyButtonArea::gravitationalKeyAt(const QPoint &pos, IKeyButton *activeKey) const
+{
+    if (!activeKey) {
+        return keyAt(pos);
+    }
+
+    // TODO: Once the touchpoint moves outside of the gravity of the initial
+    // key we can skip this test and just return keyAt(pos) directly.
+    const qreal hGravity = style()->touchpointHorizontalGravity();
+    const qreal vGravity = style()->touchpointVerticalGravity();
+    const QRectF &br = activeKey->buttonRect();
+
+    return (((pos.x() > br.left() - hGravity)
+             && (pos.x() < br.right() + hGravity)
+             && (pos.y() > br.top() - vGravity)
+             && (pos.y() < br.bottom() + vGravity)) ? activeKey : keyAt(pos));
 }
 
 void

@@ -154,7 +154,7 @@ protected:
         IKeyButton *activeKey;
 
         //! Key that this touch point was first pressed on, if any.
-        const IKeyButton *initialKey;
+        IKeyButton *initialKey;
 
         //! Initial position of the touch point when it was first pressed.
         QPoint initialPos;
@@ -250,6 +250,9 @@ private:
     //! \brief Touch point release handler.
     //! \param id Touch point identifier defined by the system.
     void touchPointReleased(const QPoint &pos, int id);
+
+    //! \brief Gravitational key lookup
+    IKeyButton *gravitationalKeyAt(const QPoint &pos, IKeyButton *activeKey) const;
 
     void click(IKeyButton *key);
 
