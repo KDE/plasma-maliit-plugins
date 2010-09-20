@@ -1,10 +1,10 @@
 meego-keyboard (0.5.2~1) unstable; urgency=low
 
-  * [UNRELEASE]
+  * [UNRELEASED]
   * Fixes: NB#187131 - Toolbar containing paste is missing in a given scenario.
+  * Implemented: SWP#TINME-1024 - WYTIWYS error correction, enable error correction by default
 
  -- huaming wang <huaming.wang@nokia.com>  Wed, 22 Sep 2010 11:32:41 +0300
-
 
 meego-keyboard (0.5.1-1) unstable; urgency=low
 
