@@ -162,13 +162,14 @@ void SharedHandleArea::updatePosition()
     setPos(0, bottom - size().height());
 }
 
-void SharedHandleArea::watchOnMovement(QGraphicsWidget *widget)
+void SharedHandleArea::watchOnWidget(QGraphicsWidget *widget)
 {
     if (!widget) {
         return;
     }
 
     connect(widget, SIGNAL(yChanged()), this, SLOT(updatePosition()));
+    connect(widget, SIGNAL(visibleChanged()), this, SLOT(updatePosition()));
     watchedWidgets.append(widget);
     updatePositionAndRegion();
 

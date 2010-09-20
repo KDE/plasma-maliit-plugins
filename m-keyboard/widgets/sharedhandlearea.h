@@ -62,15 +62,15 @@ public:
      * if this param is true.
      *
      * This method will return unchanged \a region is all watched widgets
-     * are invisible. See also watchOnMovement.
+     * are invisible. See also watchOnWidget.
      */
     QRegion addRegion(const QRegion &region,
                       bool includeExtraInteractiveAreas) const;
 
     /*!
-     * \brief Ask toolbar to watch on position of given \a widget.
+     * \brief Ask handle area to watch on position and visibility of given \a widget.
      */
-    void watchOnMovement(QGraphicsWidget *widget);
+    void watchOnWidget(QGraphicsWidget *widget);
 
     //! Update position and geometry when orientation is changed
     void finalizeOrientationChange();

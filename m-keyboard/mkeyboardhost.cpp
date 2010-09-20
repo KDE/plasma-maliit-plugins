@@ -273,7 +273,7 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection *icConnection, QObject *par
     sharedHandleArea->setZValue(-1.0);
 
     vkbWidget->setSharedHandleArea(sharedHandleArea);
-    sharedHandleArea->watchOnMovement(vkbWidget);
+    sharedHandleArea->watchOnWidget(vkbWidget);
 
 
     createCorrectionCandidateWidget();
@@ -316,7 +316,7 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection *icConnection, QObject *par
             this, SLOT(handleKeyRelease(const KeyEvent &)));
 
     symbolView->setSharedHandleArea(sharedHandleArea);
-    sharedHandleArea->watchOnMovement(symbolView);
+    sharedHandleArea->watchOnWidget(symbolView);
 
     connect(vkbWidget, SIGNAL(layoutChanged(const QString &)),
             this, SLOT(handleVirtualKeyboardLayoutChanged(const QString &)));
