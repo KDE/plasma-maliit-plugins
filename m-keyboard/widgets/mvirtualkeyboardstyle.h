@@ -59,6 +59,8 @@ public:
 
     M_STYLE_ATTRIBUTE(int, flickGestureTimeout, FlickGestureTimeout)
     M_STYLE_ATTRIBUTE(qreal, flickGestureThresholdRatio, FlickGestureThresholdRatio)
+    M_STYLE_ATTRIBUTE(qreal, touchpointHorizontalGravity, TouchpointHorizontalGravity)
+    M_STYLE_ATTRIBUTE(qreal, touchpointVerticalGravity, TouchpointVerticalGravity)
 
     M_STYLE_ATTRIBUTE(int, keyHeight, keyHeight)
 

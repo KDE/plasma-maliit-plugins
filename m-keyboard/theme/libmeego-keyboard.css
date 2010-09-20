@@ -98,6 +98,9 @@ MVirtualKeyboardStyle.Portrait {
     menu-size: 470 342;
 
     key-height: 6.4mm;
+
+    touchpoint-horizontal-gravity: 24px;
+    touchpoint-vertical-gravity: 24px;
 }
 
 MVirtualKeyboardStyle.Landscape {
@@ -117,6 +120,9 @@ MVirtualKeyboardStyle.Landscape {
     menu-size: 790 342;
 
     key-height: 4.8mm;
+
+    touchpoint-horizontal-gravity: 48px;
+    touchpoint-vertical-gravity: 48px;
 }
 
 #InvisibleHandle.Portrait {
