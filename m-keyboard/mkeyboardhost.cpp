@@ -61,7 +61,7 @@ namespace
     const QString DefaultInputLanguage("en_GB");
     // TODO: check that these paths still hold
     const QString InputMethodCorrectionSetting("/meegotouch/inputmethods/virtualkeyboard/correctionenabled");
-    bool DefaultInputMethodCorrectionSettingOption = false;
+    bool DefaultInputMethodCorrectionSettingOption = true;
     const QString InputMethodCorrectionEngine("/meegotouch/inputmethods/correctionengine");
     const QString AutoCapsSentenceDelimiters(".?!¡¿"); // used as regexp character set content!
     const int RotationDuration = 750; //! After vkb hidden, how long to wait until shown again
