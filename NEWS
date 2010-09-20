@@ -1,3 +1,12 @@
+0.5.?-?
+=======
+
+* New CSS properties:
+  - touchpoint-horizontal-gravity, touchpoint-vertical-gravity: Allows to
+    control how far a finger can slip from the currently touched key button,
+    without releasing it. Distance is measured from button border.
+
+
 0.5.1-1
 ========
 
@@ -38,6 +47,7 @@
     - SymbolView is changed to accept layout name instead of language code
     as the input parameter.
     - setLanguage is replaced by setLayout.
+
 
 0.5.0-1
 ========
