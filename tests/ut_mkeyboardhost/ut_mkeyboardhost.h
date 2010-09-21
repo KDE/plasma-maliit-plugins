@@ -93,6 +93,8 @@ private slots:
 
     void testUserHide();
 
+    void testWYTIWYSErrorCorrection();
+
 private:
     void rotateToAngle(M::OrientationAngle);
     void triggerAutoCaps();

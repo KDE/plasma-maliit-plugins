@@ -32,6 +32,7 @@
 #include "minputcontextstubconnection.h"
 #include "ut_mkeyboardhost.h"
 #include "utils.h"
+#include "dummydriver_mkh.h"
 
 #include <MApplication>
 #include <MSceneManager>
@@ -1032,7 +1033,6 @@ void Ut_MKeyboardHost::testKeyCycle()
 
     if (!preedit.isEmpty()) {
         subject->preedit = preedit;
-        subject->correctedPreedit = preedit;
     }
 
     for (int n = 0; n < event1.text().length(); ++n) {
@@ -1456,6 +1456,33 @@ void Ut_MKeyboardHost::testUserHide()
 
     QVERIFY(!spy.isEmpty());
     QVERIFY(region(spy, spy.count() - 1).isEmpty());
+}
+
+void Ut_MKeyboardHost::testWYTIWYSErrorCorrection()
+{
+    // Pre-edit must not be auto-corrected
+
+    subject->show();
+    MGConfItem config(InputMethodCorrectionSetting);
+    config.set(QVariant(true));
+
+    if (subject->imCorrectionEngine) {
+        MImEngineWordsInterfaceFactory::instance()->deleteEngine(subject->imCorrectionEngine);
+    }
+
+    DummyDriverMkh *engine(new DummyDriverMkh);
+    subject->imCorrectionEngine = engine;
+    QStringList candidates;
+    candidates << "a" << "c" << "d";
+    engine->setCandidates(candidates);
+    engine->setSuggestedCandidateIndexReturnValue(1);
+
+    subject->handleKeyClick(KeyEvent("d"));
+    QCOMPARE(inputContext->preedit, QString("d"));
+
+    subject->hide();
+    delete engine;
+    subject->imCorrectionEngine = 0;
 }
 
 QTEST_APPLESS_MAIN(Ut_MKeyboardHost);

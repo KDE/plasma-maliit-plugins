@@ -124,8 +124,7 @@ bool MKeyboardHost::CycleKeyHandler::handleTextInputKeyClick(const KeyEvent &eve
     }
 
     host.preedit += cycleText[cycleIndex];
-    host.correctedPreedit = host.preedit;
-    host.inputContextConnection()->sendPreeditString(host.correctedPreedit, PreeditNoCandidates);
+    host.inputContextConnection()->sendPreeditString(host.preedit, PreeditNoCandidates);
 
     timer.start();
 
@@ -135,9 +134,8 @@ bool MKeyboardHost::CycleKeyHandler::handleTextInputKeyClick(const KeyEvent &eve
 void MKeyboardHost::CycleKeyHandler::commitCycleKey()
 {
     if (cycleText.length() > 0) {
-        host.sendString(host.correctedPreedit);
+        host.sendString(host.preedit);
         host.preedit.clear();
-        host.correctedPreedit.clear();
         cycleText.clear();
         prevEvent = KeyEvent();
     }
@@ -500,7 +498,6 @@ void MKeyboardHost::hide()
 void MKeyboardHost::setPreedit(const QString &preeditString)
 {
     preedit = preeditString;
-    correctedPreedit = preeditString;
     candidates.clear();
     correctionCandidateWidget->setPreeditString(preeditString);
     if (imCorrectionEngine) {
@@ -603,7 +600,6 @@ void MKeyboardHost::reset()
     switch (activeState) {
     case OnScreen:
         preedit.clear();
-        correctedPreedit.clear();
         candidates.clear();
         correctionCandidateWidget->setPreeditString("");
         if (engineReady)
@@ -749,11 +745,11 @@ void MKeyboardHost::mouseClickedOnPreedit(const QPoint &mousePos, const QRect &p
 
     // Use preeditRect if one was passed (not null).
     if (!preeditRect.isNull() && rotateRect(preeditRect, localRect)) {
-        correctionCandidateWidget->setPreeditString(correctedPreedit);
+        correctionCandidateWidget->setPreeditString(preedit);
         correctionCandidateWidget->setCandidates(candidates);
         correctionCandidateWidget->setPosition(localRect, bottomLimit);
     } else if (rotatePoint(mousePos, localMousePos)) {
-        correctionCandidateWidget->setPreeditString(correctedPreedit);
+        correctionCandidateWidget->setPreeditString(preedit);
         correctionCandidateWidget->setCandidates(candidates);
         correctionCandidateWidget->setPosition(localMousePos, bottomLimit);
     } else {
@@ -788,9 +784,9 @@ void MKeyboardHost::updatePreedit(const QString &updatedString)
     if (candidates.count() < 2)
         face = PreeditNoCandidates;
 
+    preedit = updatedString;
     inputContextConnection()->sendPreeditString(updatedString, face);
-    correctedPreedit = updatedString;
-    correctionCandidateWidget->setPreeditString(correctedPreedit);
+    correctionCandidateWidget->setPreeditString(updatedString);
 }
 
 
@@ -1032,18 +1028,17 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
     }
 
     if (!correctionEnabled) {
-        if (correctedPreedit.length() > 0) {
+        if (preedit.length() > 0) {
             // we just entered accurate mode. send the previous preedit stuff.
-            inputContextConnection()->sendCommitString(correctedPreedit);
+            inputContextConnection()->sendCommitString(preedit);
             preedit.clear();
-            correctedPreedit.clear();
         }
 
         inputContextConnection()->sendCommitString(text);
 
     } else if ((event.qtKey() == Qt::Key_Space) || (event.qtKey() == Qt::Key_Return) || (event.qtKey() == Qt::Key_Tab)) {
         // commit string
-        inputContextConnection()->sendCommitString(correctedPreedit);
+        inputContextConnection()->sendCommitString(preedit);
         if (lastClickEvent.specialKey() != KeyEvent::CycleSet) {
             imCorrectionEngine->setSuggestedCandidateIndex(correctionCandidateWidget->activeIndex());
             imCorrectionEngine->saveAndClearEngineBuffer();
@@ -1054,7 +1049,6 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
         // send trailing space
         inputContextConnection()->sendCommitString(text);
 
-        correctedPreedit.clear();
         preedit.clear();
     } else {
         // common case: just append stuff to current preedit
@@ -1063,36 +1057,9 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
         candidates.clear();
         imCorrectionEngine->appendCharacter(text.at(0));
         candidates = imCorrectionEngine->candidates();
-        correctedPreedit = preedit;
 
-        if (candidates.size() > 0) {
-            //deal with the candidates about capslock
-            candidates.replaceInStrings(preedit.toLower(), preedit, Qt::CaseInsensitive);
-
-            correctedPreedit = candidates[imCorrectionEngine->suggestedCandidateIndex()];
-
-            if (correctedPreedit.size() != preedit.size()) {
-                // Use the candidate with the same length as preedit
-                bool findEqualLength = false;
-
-                for (int i = 0; i < candidates.size(); i++) {
-                    QString candidate = candidates.at(i);
-                    if (candidate.size() == preedit.size()) {
-                        findEqualLength = true;
-                        correctedPreedit = candidate;
-                        correctionCandidateWidget->setPreeditString(correctedPreedit);
-                        break;
-                    }
-                }
-
-                // If no candidate of equal length, just use the preedit
-                if (!findEqualLength) {
-                    correctedPreedit = preedit;
-                }
-            }
-        }
         const PreeditFace face = candidates.count() < 2 ? PreeditNoCandidates : PreeditDefault;
-        inputContextConnection()->sendPreeditString(correctedPreedit, face);
+        inputContextConnection()->sendPreeditString(preedit, face);
     }
 }
 
@@ -1323,8 +1290,8 @@ void MKeyboardHost::setState(const QSet<MIMHandlerState> &state)
     if (activeState == actualState)
         return;
 
-    if ((activeState == OnScreen) && (correctedPreedit.length() > 0)) {
-        inputContextConnection()->sendCommitString(correctedPreedit);
+    if ((activeState == OnScreen) && (preedit.length() > 0)) {
+        inputContextConnection()->sendCommitString(preedit);
     }
 
     // Resets before changing the activeState to make sure clear.

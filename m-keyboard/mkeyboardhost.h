@@ -265,7 +265,6 @@ private:
     class CycleKeyHandler; //! Reacts to cycle key press events.
     friend class CycleKeyHandler;
     QString preedit;
-    QString correctedPreedit;
 
     MVirtualKeyboardStyleContainer *vkbStyleContainer;
 
