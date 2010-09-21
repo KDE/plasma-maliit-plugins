@@ -107,7 +107,7 @@ void KeyButtonArea::updatePopup(const QPoint &pointerPosition, const IKeyButton 
         key = keyAt(pointerPosition);
     }
 
-    if (!key || key->label().isEmpty()) {
+    if (!key || key->label().isEmpty() || key->key().style() != VKBDataKey::NormalStyle) {
         popup->hidePopup();
         return;
     }
