@@ -24,16 +24,21 @@
 <!ATTLIST section
   id CDATA #REQUIRED
   movable (true | false) "true"
-  type (sloppy | non-sloppy) "sloppy"
-  vertical_alignment (center | full | top | bottom) #REQUIRED
-  horizontal_alignment (center | full | left | right) #REQUIRED>
+  type (sloppy | non-sloppy) "sloppy">
+
+<!ATTLIST row
+  height (small | medium | large | x-large | xx-large) "medium"
+  fixed (true | false) "false">
 
 <!ATTLIST key
+  style (normal | special | deadkey) "normal"
+  width (small | medium | large | x-large | xx-large | stretched) "medium"
+  fixed (true | false) "false"
   rtl (true | false) "false">
 
 <!ATTLIST binding
   action (insert | shift | backspace | space | cycle | layout_menu | sym
-          | return | commit | decimal_separator | plus_minus_toggle) "insert"
+          | return | commit | decimal_separator | plus_minus_toggle | switch) "insert"
   shift (true|false) "false"
   alt (true|false) "false"
   label CDATA #IMPLIED
