@@ -29,6 +29,7 @@
 #include <MWidgetRecycler>
 #include <MList>
 #include <MLabel>
+#include <MGConfItem>
 #include <QGraphicsLinearLayout>
 #include <QStringListModel>
 
@@ -40,6 +41,9 @@ namespace
     const QString CandidatesListObjectName("CorrectionCandidateList");
     const QString CandidatesItemObjectName("CorrectionCandidateItem");
     const QString CandidatesItemLabelObjectName("CorrectionCandidateItemTitle");
+
+    // This GConf item defines whether multitouch is enabled or disabled
+    const QString MultitouchSettings = "/meegotouch/inputmethods/multitouch/enabled";
 };
 
 class MImCorrectionContentItemCreator : public MAbstractCellCreator<MImCorrectionCandidateItem>
@@ -113,6 +117,9 @@ MImCorrectionCandidateWidget::MImCorrectionCandidateWidget(QGraphicsWidget *pare
       candidatesModel(new QStringListModel(candidatesWidget)),
       candidateWidth(0)
 {
+    // By default multi-touch is disabled
+    setAcceptTouchEvents(MGConfItem(MultitouchSettings).value().toBool());
+
     setGeometry(QRectF(0, 0, sceneManager->visibleSceneSize().width(),
                 sceneManager->visibleSceneSize().height()));
 
@@ -351,3 +358,17 @@ void MImCorrectionCandidateWidget::paintReactionMap(MReactionMap *reactionMap, Q
     reactionMap->setReactiveDrawingValue();
     reactionMap->fillRectangle(candidatesWidget->geometry());
 }
+
+bool MImCorrectionCandidateWidget::sceneEvent(QEvent *e)
+{
+    MSceneWindow::sceneEvent(e);
+
+    // eat all the touch events to avoid the touch events
+    // go to the background virtual keyboard.
+    e->setAccepted(e->isAccepted()
+                   || e->type() == QEvent::TouchBegin
+                   || e->type() == QEvent::TouchUpdate
+                   || e->type() == QEvent::TouchEnd);
+    return e->isAccepted();
+}
+

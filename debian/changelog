@@ -3,6 +3,7 @@ meego-keyboard (0.5.1~1) unstable; urgency=low
   * NOT RELEASED
   * Fixes: NB#192118 - Two backspace buttons are there in the French vkb layout
   * Implemented: SWP#TINME-1053 - Change gconf to store filename instead of language code
+  * Fixes: NB#189562 - the key click goes to background vkb.
 
  -- Ning Chi <ext-chi.ning@nokia.com>  Wed, 15 Sep 2010 10:52:57 +0300
 

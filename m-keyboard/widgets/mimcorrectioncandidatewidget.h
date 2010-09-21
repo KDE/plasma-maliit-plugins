@@ -131,6 +131,7 @@ protected:
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *e);
     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *e);
     virtual void hideEvent(QHideEvent *event);
+    virtual bool sceneEvent(QEvent *event);
     /*! \reimp_end */
 
 protected slots:
