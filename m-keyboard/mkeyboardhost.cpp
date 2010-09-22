@@ -602,6 +602,7 @@ void MKeyboardHost::reset()
         preedit.clear();
         candidates.clear();
         correctionCandidateWidget->setPreeditString("");
+        correctionCandidateWidget->disappear();
         if (engineReady)
             imCorrectionEngine->clearEngineBuffer();
         break;

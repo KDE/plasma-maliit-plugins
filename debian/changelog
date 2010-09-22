@@ -5,6 +5,7 @@ meego-keyboard (0.5.2~1) unstable; urgency=low
   * Fixes: NB#190803 - Able to enter 'enter' key from HKB in the Free text field
   * Implemented: SWP#TINME-1024 - WYTIWYS error correction, enable error correction by default
   * Implemented: SWP#TINME-1055 - easier way to enter decimal separators with hwkbd
+  * Fixes: NB#187892 - Word suggestion list is still shown when the HKB is slided out.
 
  -- huaming wang <huaming.wang@nokia.com>  Wed, 22 Sep 2010 11:32:41 +0300
 
