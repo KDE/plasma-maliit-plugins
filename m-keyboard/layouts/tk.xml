@@ -145,7 +145,7 @@
         </row>
 
         <row>
-          <key style="special" width="x-large">
+          <key style="special" width="xx-large">
             <binding action="sym" label="SYM"/>
           </key>
 
@@ -162,7 +162,7 @@
             <binding shift="true" label="Ğ"/>
           </key>
 
-          <key style="special" width="x-large">
+          <key style="special" width="xx-large">
             <binding action="backspace" label=""/>
           </key>
         </row>
@@ -313,7 +313,7 @@
         </row>
 
         <row>
-          <key style="special" width="x-large">
+          <key style="special" width="xx-large">
             <binding action="sym" label="SYM"/>
           </key>
 
@@ -329,7 +329,7 @@
             <binding shift="true" label="Ğ"/>
           </key>
 
-          <key style="special" width="x-large">
+          <key style="special" width="xx-large">
             <binding action="backspace" label=""/>
           </key>
         </row>
