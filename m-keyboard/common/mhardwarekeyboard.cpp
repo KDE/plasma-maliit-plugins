@@ -270,7 +270,8 @@ void MHardwareKeyboard::reset()
 bool MHardwareKeyboard::actionOnPress(Qt::Key keyCode) const
 {
     static const Qt::Key pressPassKeys[] = {
-        Qt::Key_Backspace, Qt::Key_Delete, Qt::Key_Left, Qt::Key_Right, Qt::Key_Up, Qt::Key_Down };
+        Qt::Key_Return, Qt::Key_Backspace, Qt::Key_Delete,
+        Qt::Key_Left, Qt::Key_Right, Qt::Key_Up, Qt::Key_Down };
     static const Qt::Key * const keysEnd = pressPassKeys + ELEMENTS(pressPassKeys);
 
     return keysEnd != std::find(pressPassKeys, keysEnd, keyCode);
