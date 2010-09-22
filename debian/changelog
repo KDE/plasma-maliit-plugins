@@ -1,6 +1,7 @@
 meego-keyboard (0.5.2~1) unstable; urgency=low
 
   * [UNRELEASE]
+  * Fixes: NB#187131 - Toolbar containing paste is missing in a given scenario.
 
  -- huaming wang <huaming.wang@nokia.com>  Wed, 22 Sep 2010 11:32:41 +0300
 
