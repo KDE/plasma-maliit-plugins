@@ -22,6 +22,7 @@ SUBDIRS = \
           bm_keybuttonarea \
           bm_symbols \
           ft_mxkb \
+          ut_sharedhandlearea \
 
 target.commands += $$system(touch tests.xml)
 target.path = /usr/share/meego-keyboard-tests
