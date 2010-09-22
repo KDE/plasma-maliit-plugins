@@ -86,27 +86,6 @@ void WidgetBar::append(MWidget *widget, bool isAvailable)
     insert(count(), widget, isAvailable);
 }
 
-void WidgetBar::remove(MWidget *widget)
-{
-    mainLayout.removeItem(widget);
-    widgets.removeOne(widget);
-    disconnect(widget, 0, this, 0);
-}
-
-void WidgetBar::clear()
-{
-    foreach (QPointer<MWidget> widget, widgets) {
-        if (widget) {
-            disconnect(widget, 0, this, 0);
-        }
-    }
-
-    widgets.clear();
-    while (mainLayout.count() > 0) {
-        mainLayout.removeAt(0);
-    }
-}
-
 MWidget *WidgetBar::widgetAt(int index) const
 {
     MWidget *widget = 0;

@@ -17,9 +17,6 @@
 
 
 #include "mimtoolbar.h"
-#include "layoutsmanager.h"
-#include "mhardwarekeyboard.h"
-#include "mvirtualkeyboardstyle.h"
 #include "mtoolbarbutton.h"
 #include "mtoolbarlabel.h"
 
@@ -29,14 +26,12 @@
 #include <mtoolbarlayout.h>
 
 #include <MNamespace>
-#include <MButton>
 #include <QKeySequence>
 #include <QGraphicsLinearLayout>
 #include <QDebug>
 #include <MSceneManager>
 #include <mplainwindow.h>
 #include <mreactionmap.h>
-#include <MScalableImage>
 
 namespace
 {
@@ -49,11 +44,8 @@ namespace
 MImToolbar::MImToolbar(QGraphicsWidget *parent)
     : MStylableWidget(parent),
       textSelected(false),
-      copyPasteItem(new MToolbarItem(NameToolbarCopyPasteButton, MInputMethod::ItemButton)),
       leftBar(true, this),
       rightBar(true, this),
-      shiftState(ModifierClearState),
-      fnState(ModifierClearState),
       arrangeWidgetsCalled(false),
       arrangeWidgetsDisabledCount(0)
 {
@@ -445,26 +437,6 @@ void MImToolbar::hideToolbarWidget()
     unloadCustomWidgets();
     arrangeWidgets();
     setShapedMode(true);
-}
-
-void MImToolbar::removeItem(MWidget *widget)
-{
-    leftBar.remove(widget);
-    rightBar.remove(widget);
-
-    if (leftBar.count() == 0) {
-        leftBar.hide();
-    }
-    if (rightBar.count() == 0) {
-        rightBar.hide();
-    }
-
-    if (!layout()) {
-        qCritical() << __PRETTY_FUNCTION__ << "Layout does not exist";
-    }
-
-    layout()->invalidate();
-    layout()->activate();
 }
 
 void MImToolbar::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view)

@@ -40,9 +40,6 @@ private slots:
     void testInsert_data();
     void testInsert();
 
-    void testRemove_data();
-    void testRemove();
-
     void testLayoutContent_data();
     void testLayoutContent();
 

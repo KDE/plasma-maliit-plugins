@@ -23,19 +23,14 @@
 #include "widgetbar.h"
 #include "mkeyboardcommon.h"
 #include "mimtoolbarstyle.h"
-#include <minputmethodnamespace.h>
 
 #include <QPointer>
 #include <QSharedPointer>
 
 class MReactionMap;
-class ToolbarManager;
-class MVirtualKeyboardStyleContainer;
 class MToolbarButton;
 class MToolbarItem;
-class ToolbarWidget;
 class MToolbarData;
-class MToolbarItem;
 
 /*!
   \brief MImToolbar implement the toolbar for virtualkeyboard.
@@ -172,8 +167,6 @@ private:
 
     void setupLayout();
 
-    void updateRegion();
-
     void loadCustomWidgets();
 
     void unloadCustomWidgets();
@@ -186,17 +179,7 @@ private:
     void createAndAppendWidget(QSharedPointer<MToolbarItem> item, WidgetBar *leftWidget,
                                WidgetBar *rightWidget);
 
-    /*!
-     * \brief Removes an item from its layout.
-     * \param button Button to remove from either side.
-     */
-    void removeItem(MWidget *widget);
-
     bool textSelected;
-
-    //! ToolbarItem for Copy/Paste button.
-    // Don't call any method belongs to MToolbarItem which attributes are managed internally.
-    QSharedPointer<MToolbarItem> copyPasteItem;
 
     WidgetBar leftBar;  //! Widget to hold left-aligned toolbar widgets
     WidgetBar rightBar; //! Widget to hold right-aligned toolbar widgets
@@ -206,9 +189,6 @@ private:
     QList<QPointer<MWidget> > customWidgets; //! All custom widgets in this toolbar
 
     friend class Ut_MImToolbar;
-
-    ModifierState shiftState;
-    ModifierState fnState;
 
     bool arrangeWidgetsCalled;
     int arrangeWidgetsDisabledCount;

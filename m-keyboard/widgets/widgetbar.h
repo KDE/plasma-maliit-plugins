@@ -57,12 +57,6 @@ public:
     //! \param isAvailable Contains true if \a widget should appear on the screen
     void append(MWidget *widget, bool isAvailable);
 
-    //! \brief Removes the specified \a widget from the widget.
-    void remove(MWidget *widget);
-
-    //! \brief Removes all widgets from the widget.
-    void clear();
-
     //! \brief Retrieves a \a widget at specific \a index.
     MWidget *widgetAt(int index) const;
 

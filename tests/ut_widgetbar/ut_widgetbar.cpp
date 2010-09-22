@@ -101,56 +101,6 @@ void Ut_WidgetBar::testInsert()
     qDeleteAll(buttons);
 }
 
-void Ut_WidgetBar::testRemove_data()
-{
-    QTest::addColumn<int>("initialButtonCount");
-    QTest::addColumn<int>("removeIndex");
-
-    // Invalid removeIndex is converted to NULL pointer before testing.
-    QTest::newRow("Invalid 1") << 0 << 0;
-    QTest::newRow("Invalid 2") << 3 << 5;
-    QTest::newRow("First")     << 3 << 0;
-    QTest::newRow("Middle")    << 3 << 1;
-    QTest::newRow("End")       << 3 << 2;
-}
-
-void Ut_WidgetBar::testRemove()
-{
-    QFETCH(int, initialButtonCount);
-    QFETCH(int, removeIndex);
-
-    Q_ASSERT(initialButtonCount >= 0);
-
-    QList<MButton *> buttons;
-    for (int i = 0; i < initialButtonCount; ++i) {
-        MButton *button = new MButton;
-        buttons.append(button);
-        subject->append(button, true);
-    }
-    QCOMPARE(subject->count(), buttons.count());
-
-    MButton *buttonToRemove = 0;
-    if (removeIndex >= 0 && removeIndex < buttons.count()) {
-        buttonToRemove = buttons.at(removeIndex);
-        buttons.removeAt(removeIndex);
-    }
-
-    subject->remove(buttonToRemove);
-
-    // Make sure contents match.
-    QCOMPARE(subject->count(), buttons.count());
-    for (int i = 0; i < buttons.count(); ++i) {
-        QCOMPARE(subject->widgetAt(i), buttons.at(i));
-    }
-
-    qDeleteAll(buttons);
-    if (buttonToRemove) {
-        delete buttonToRemove;
-        buttonToRemove = 0;
-    }
-}
-
-
 void Ut_WidgetBar::testLayoutContent_data()
 {
     QTest::addColumn<int>("buttonCount");
