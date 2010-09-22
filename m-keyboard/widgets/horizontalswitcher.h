@@ -34,7 +34,7 @@ public:
         Left, Right
     };
 
-    explicit HorizontalSwitcher(bool enableAnimation = true, QGraphicsItem *parent = 0);
+    explicit HorizontalSwitcher(QGraphicsItem *parent = 0);
     virtual ~HorizontalSwitcher();
 
     //! \brief Slide to the next widget of current with given direction.

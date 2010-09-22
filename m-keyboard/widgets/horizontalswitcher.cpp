@@ -26,12 +26,12 @@ namespace
     const int SwitchFrames = 300;
 }
 
-HorizontalSwitcher::HorizontalSwitcher(bool enableAnimation, QGraphicsItem *parent) :
+HorizontalSwitcher::HorizontalSwitcher(QGraphicsItem *parent) :
     QGraphicsWidget(parent),
     currentIndex(-1),
     animTimeLine(SwitchDuration),
     loopingEnabled(false),
-    playAnimations(enableAnimation)
+    playAnimations(true)
 {
     setFlag(QGraphicsItem::ItemHasNoContents); // doesn't paint itself anything
     setObjectName("HorizontalSwitcher");
