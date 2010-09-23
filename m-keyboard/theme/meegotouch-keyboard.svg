@@ -263,7 +263,7 @@
 		<path style="opacity:0.5;" d="M208.191,303.268h-35.999c-10.373,0-14,3.631-14,14v36c0,10.371,3.627,14,14,14h35.999
 			c10.371,0,14-3.629,14-14v-36C222.191,306.898,218.562,303.268,208.191,303.268z"/>
 	</g>
-	<g id="egotouch-keyboard-toolbar-button-selected">
+	<g id="meegotouch-keyboard-toolbar-button-selected">
 		<path style="fill:#F7931E;" d="M282.192,229h-36c-10.372,0-14,3.631-14,14v36c0,10.371,3.628,14,14,14h36c10.369,0,14-3.629,14-14
 			v-36C296.192,232.631,292.562,229,282.192,229z"/>
 		<linearGradient id="SVGID_10_" gradientUnits="userSpaceOnUse" x1="264.1924" y1="229" x2="264.1924" y2="293.0005">
