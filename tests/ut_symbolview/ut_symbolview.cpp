@@ -335,6 +335,34 @@ void Ut_SymbolView::testHardwareState()
     QCOMPARE(subject->activeState, Hardware);
 }
 
+void Ut_SymbolView::testSetTemporarilyHidden()
+{
+    QCOMPARE(subject->activity, SymbolView::Inactive);
+
+    subject->setTemporarilyHidden(true);
+    QCOMPARE(subject->activity, SymbolView::Inactive);
+
+    subject->setTemporarilyHidden(false);
+    QCOMPARE(subject->activity, SymbolView::Inactive);
+
+    subject->showSymbolView();
+
+    QTest::qWait(200);
+
+    QCOMPARE(subject->activity, SymbolView::Active);
+
+    subject->setTemporarilyHidden(false);
+    QCOMPARE(subject->activity, SymbolView::Active);
+
+    subject->setTemporarilyHidden(true);
+    QCOMPARE(subject->activity, SymbolView::TemporarilyInactive);
+
+    QTest::qWait(200);
+
+    subject->setTemporarilyHidden(false);
+    QCOMPARE(subject->activity, SymbolView::Active);
+}
+
 void Ut_SymbolView::rotateToAngle(M::OrientationAngle angle)
 {
     subject->prepareToOrientationChange();

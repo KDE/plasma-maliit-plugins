@@ -103,6 +103,11 @@ public:
     //! Set pointer to handle area
     void setSharedHandleArea(const QPointer<SharedHandleArea> &newSharedHandleArea);
 
+    /*!
+     * \brief If \a hidden is true, hides active symbol view. Otherwise, shows temporarily inactive symbol view.
+     */
+    void setTemporarilyHidden(bool hidden);
+
 public slots:
     /*!
      * Handler to show the page.

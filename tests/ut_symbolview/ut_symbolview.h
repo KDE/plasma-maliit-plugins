@@ -58,6 +58,7 @@ private slots:
     void testHideWithFlick();
     void testSetLayout();
     void testHardwareState();
+    void testSetTemporarilyHidden();
 
 private:
     void rotateToAngle(M::OrientationAngle angle);

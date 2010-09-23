@@ -165,6 +165,11 @@ public:
     //! Returns whether autocaps is enabled.
     bool autoCapsEnabled() const;
 
+    /*!
+     * \brief If \a hidden is true, hides active keyboard. Otherwise, shows temporarily inactive keyboard.
+     */
+    void setTemporarilyHidden(bool hidden);
+
 public slots:
     /*!
      * Method to switch level. Changes into next possible level.

@@ -367,6 +367,11 @@ SymbolView::showSymbolView(SymbolView::ShowMode mode)
 void
 SymbolView::hideSymbolView(SymbolView::HideMode mode)
 {
+    if (activity == TemporarilyInactive && mode == NormalHideMode) {
+        activity = Inactive;
+        return;
+    }
+
     if (!isActive()) {
         return;
     }
@@ -683,3 +688,13 @@ void SymbolView::setSharedHandleArea(const QPointer<SharedHandleArea> &handleAre
     sharedHandleArea = handleArea;
     reposition(size().toSize().height());
 }
+
+void SymbolView::setTemporarilyHidden(bool hidden)
+{
+    if (hidden && activity == Active) {
+        hideSymbolView(TemporaryHideMode);
+    } else if (!hidden && activity == TemporarilyInactive) {
+        showSymbolView();
+    }
+}
+

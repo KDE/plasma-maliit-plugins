@@ -1076,3 +1076,13 @@ bool MVirtualKeyboard::autoCapsEnabled() const
 {
     return layoutsMgr.autoCapsEnabled(currentLayout);
 }
+
+void MVirtualKeyboard::setTemporarilyHidden(bool hidden)
+{
+    if (hidden && activity == Active) {
+        hideKeyboard(true, true);
+    } else if (!hidden && activity == TemporarilyInactive) {
+        showKeyboard(true);
+    }
+}
+

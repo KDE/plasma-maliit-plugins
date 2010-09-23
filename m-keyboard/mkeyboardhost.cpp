@@ -763,11 +763,8 @@ void MKeyboardHost::mouseClickedOnPreedit(const QPoint &mousePos, const QRect &p
 
 void MKeyboardHost::visualizationPriorityChanged(bool priority)
 {
-    if (priority == true) {
-        vkbWidget->hideKeyboard(true, true);
-    } else {
-        vkbWidget->showKeyboard(true);
-    }
+    vkbWidget->setTemporarilyHidden(priority);
+    symbolView->setTemporarilyHidden(priority);
 }
 
 

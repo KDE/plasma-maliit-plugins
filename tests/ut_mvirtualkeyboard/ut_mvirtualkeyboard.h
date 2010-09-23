@@ -79,6 +79,7 @@ private slots:
     void testReactionMaps();
     void flickUpHandlerTest_data();
     void flickUpHandlerTest();
+    void testSetTemporarilyHidden();
 
 signals:
     void fade(int);
