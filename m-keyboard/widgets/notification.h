@@ -51,8 +51,8 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *o, QWidget *);
     //! \reimp_end
 
-    //! Displays given text a short period of time
-    void displayText(const QString &);
+    //! Displays given text a short period of time, centered in area.
+    void displayText(const QString &msg, const QRectF &area);
 
 private slots:
     //! Method to update the opacity
@@ -72,7 +72,7 @@ private:
     void fadeIn();
 
     //! Recalculates geometry suitable for current text
-    void resetGeometry();
+    void resetGeometry(const QRectF &area);
 
     //! Getter for style container
     const MVirtualKeyboardStyleContainer &style() const;

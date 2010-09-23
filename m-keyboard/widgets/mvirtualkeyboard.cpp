@@ -815,7 +815,11 @@ void MVirtualKeyboard::onSectionSwitchStarting(int current, int next)
     }
 
     if ((current != -1) && (currentLayoutType == LayoutData::General)) {
-        notification->displayText(layoutsMgr.keyboardTitle(layoutsMgr.layoutFileList()[next]));
+        const QGraphicsWidget *const nextWidget = mainKeyboardSwitcher->widget(next);
+        QRectF br = nextWidget ? mainKeyboardSwitcher->mapRectToItem(this, nextWidget->boundingRect())
+                               : QRectF(QPointF(), MPlainWindow::instance()->visibleSceneSize());
+
+        notification->displayText(layoutsMgr.keyboardTitle(layoutsMgr.layoutFileList()[next]), br);
     }
 }
 

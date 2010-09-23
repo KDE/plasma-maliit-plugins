@@ -62,9 +62,11 @@ MApplication::~MApplication()
 {
 }
 
-void Notification::displayText(const QString &message)
+void Notification::displayText(const QString &message, const QRectF &area)
 {
     Q_UNUSED(message);
+    Q_UNUSED(area);
+    
     qDebug() << __PRETTY_FUNCTION__ << __FILE__ << __LINE__;
 }
 

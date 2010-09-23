@@ -24,7 +24,7 @@
 #include <QPainter>
 
 #include <MSceneManager>
-#include <mplainwindow.h>
+#include <float.h>
 
 namespace
 {
@@ -41,6 +41,7 @@ Notification::Notification(const MVirtualKeyboardStyleContainer *style, QGraphic
 {
     // Notification sets its own absolute opacity
     setFlag(ItemIgnoresParentOpacity, true);
+    setZValue(FLT_MAX);
 
     visibilityTimer.setInterval(HoldTime);
     visibilityTimer.setSingleShot(true);
@@ -80,11 +81,11 @@ Notification::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget
 
 
 void
-Notification::displayText(const QString &message)
+Notification::displayText(const QString &message, const QRectF &area)
 {
     if (this->message != message) {
         this->message = message;
-        resetGeometry();
+        resetGeometry(area);
     }
 
     fadeIn();
@@ -161,17 +162,14 @@ void Notification::fadeIn()
     }
 }
 
-
-void Notification::resetGeometry()
+void Notification::resetGeometry(const QRectF &area)
 {
     const QFontMetrics fm(font);
     const int width = fm.width(message) + Margin * 2;
     const int height = fm.height() + Margin * 2;
 
-    const QSize sceneSize = MPlainWindow::instance()->visibleSceneSize();
-
-    setGeometry(sceneSize.width() / 2 - width / 2,
-                -height,
+    setGeometry(area.width() / 2 - width / 2,
+                (area.height() - height) / 2,
                 width, height);
 }
 

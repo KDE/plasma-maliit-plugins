@@ -106,7 +106,7 @@ void Ut_Notification::testFadeInFadeOut()
 
     //this test should not crash
     subject->hide();
-    subject->displayText(text);
+    subject->displayText(text, QRectF());
     QVERIFY(subject->isVisible());
 
     // Fading in

@@ -17,7 +17,8 @@ MVirtualKeyboardStyle {
 
     deadkey-locked-color: #FFA500;
 
-    notification-font: "Nokia Sans Light" 24;
+    notification-font: "Nokia Sans Light" 56;
+    notification-font-opacity: 0.9;
     notification-border-color: #808080;
     notification-background-color: #323232;
     notification-text-color: #FFFFFF;
