@@ -85,6 +85,11 @@ public:
     virtual QSizeF sizeHint(Qt::SizeHint which, const QSizeF &constraint = QSizeF()) const;
     //! \reimp_end
 
+signals:
+    //! Emitted when availability of inserted widgets and thus the region changes.
+    //! Not emitted when widgets are removed/inserted!
+    void regionUpdated();
+
 private slots:
     //! Update layout when some child widget is shown or hidden.
     void updateLayout();

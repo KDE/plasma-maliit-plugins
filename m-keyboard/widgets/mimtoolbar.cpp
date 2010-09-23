@@ -53,7 +53,9 @@ MImToolbar::MImToolbar(QGraphicsWidget *parent)
       leftBar(true, this),
       rightBar(true, this),
       shiftState(ModifierClearState),
-      fnState(ModifierClearState)
+      fnState(ModifierClearState),
+      arrangeWidgetsCalled(false),
+      arrangeWidgetsDisabledCount(0)
 {
     leftBar.setObjectName(ObjectNameToolbarLeft);
     rightBar.setObjectName(ObjectNameToolbarRight);
@@ -61,7 +63,7 @@ MImToolbar::MImToolbar(QGraphicsWidget *parent)
 
     setupLayout();
 
-    connect(this, SIGNAL(visibleChanged()), this, SLOT(updateVisibility()));
+    connect(this, SIGNAL(visibleChanged()), this, SLOT(arrangeWidgets()));
     connect(MTheme::instance(), SIGNAL(themeChangeCompleted()),
             this, SLOT(updateFromStyle()));
 }
@@ -160,12 +162,13 @@ void MImToolbar::updateItemVisibility(const QSharedPointer<MToolbarItem> &item) 
 
 void MImToolbar::updateVisibility()
 {
+    suppressArrangeWidgets(true);
     if (currentToolbar) {
         foreach (const QSharedPointer<MToolbarItem> item, currentToolbar->items()) {
             updateItemVisibility(item);
         }
     }
-    arrangeWidgets();
+    suppressArrangeWidgets(false);
 }
 
 void MImToolbar::updateFromStyle()
@@ -262,6 +265,9 @@ void MImToolbar::setupRowLayout(QGraphicsLinearLayout *rowLayout,
 
     rowLayout->setAlignment(leftWidget, Qt::AlignBottom);
     rowLayout->setAlignment(rightWidget, Qt::AlignBottom);
+
+    connect(leftWidget, SIGNAL(regionUpdated()), this, SLOT(arrangeWidgets()));
+    connect(rightWidget, SIGNAL(regionUpdated()), this, SLOT(arrangeWidgets()));
 }
 
 void MImToolbar::unloadCustomWidgets()
@@ -294,8 +300,25 @@ void MImToolbar::unloadCustomWidgets()
     rightBar.cleanup();
 }
 
+void MImToolbar::suppressArrangeWidgets(bool suppress)
+{
+    arrangeWidgetsDisabledCount += suppress ? 1 : -1;
+    Q_ASSERT(arrangeWidgetsDisabledCount >= 0);
+
+    if (!suppress && (arrangeWidgetsDisabledCount == 0) && arrangeWidgetsCalled) {
+        arrangeWidgets();
+    } else if (suppress && (arrangeWidgetsDisabledCount == 1)) {
+        arrangeWidgetsCalled = false;
+    }
+}
+
 void MImToolbar::arrangeWidgets()
 {
+    if (arrangeWidgetsDisabledCount > 0) {
+        arrangeWidgetsCalled = true;
+        return;
+    }
+
     if (!layout()) {
         qCritical() << __PRETTY_FUNCTION__ << "Layout does not exist";
     }
@@ -319,42 +342,36 @@ void MImToolbar::arrangeWidgets()
 
 void MImToolbar::showGroup(const QString &group)
 {
-    bool changed = false;
-
     if (!currentToolbar) {
         return;
     }
+
+    suppressArrangeWidgets(true);
 
     foreach (const QSharedPointer<MToolbarItem> item, currentToolbar->items()) {
         if (item->group() == group && !(item->isVisible())) {
             item->setVisible(true);
-            changed = true;
         }
     }
 
-    if (changed) {
-        arrangeWidgets();
-    }
+    suppressArrangeWidgets(false);
 }
 
 void MImToolbar::hideGroup(const QString &group)
 {
-    bool changed = false;
-
     if (!currentToolbar) {
         return;
     }
 
+    suppressArrangeWidgets(true);
+
     foreach (const QSharedPointer<MToolbarItem> item, currentToolbar->items()) {
         if (item->group() == group && item->isVisible()) {
             item->setVisible(false);
-            changed = true;
         }
     }
 
-    if (changed) {
-        arrangeWidgets();
-    }
+    suppressArrangeWidgets(false);
 }
 
 void MImToolbar::sendKeySequence(const QString &keys)

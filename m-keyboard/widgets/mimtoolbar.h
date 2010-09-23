@@ -127,6 +127,9 @@ private slots:
     //! Update widget parameters when theme has been changed
     void updateFromStyle();
 
+    //! Invalidate and activate layouts, emit \a regionUpdated signal
+    void arrangeWidgets();
+
 signals:
     //! Emitted when toolbar's region changed
     void regionUpdated();
@@ -155,6 +158,12 @@ signals:
     void typeChanged(bool standard);
 
 private:
+    //! \brief Disable/enable \a arrangeWidgets.
+    //!
+    //! Supports recursive disabling (multiple calls with true argument require multiple
+    //! calls with false argument to enable again).
+    void suppressArrangeWidgets(bool suppress);
+
     //! Helper for updateVisibility and initial state setting
     void updateItemVisibility(const QSharedPointer<MToolbarItem> &item) const;
 
@@ -168,8 +177,6 @@ private:
     void loadCustomWidgets();
 
     void unloadCustomWidgets();
-
-    void arrangeWidgets();
 
     Qt::KeyboardModifiers keyModifiers(int key) const;
 
@@ -202,6 +209,9 @@ private:
 
     ModifierState shiftState;
     ModifierState fnState;
+
+    bool arrangeWidgetsCalled;
+    int arrangeWidgetsDisabledCount;
 
 private:
     M_STYLABLE_WIDGET(MImToolbarStyle)

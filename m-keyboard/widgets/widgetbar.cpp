@@ -188,6 +188,7 @@ void WidgetBar::updateLayout()
         }
         mainLayout.insertItem(layoutIndex, widget);
     }
+    emit regionUpdated();
 }
 
 int WidgetBar::layoutIndexOf(const MWidget *widget) const

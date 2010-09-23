@@ -61,6 +61,8 @@ private slots:
     void testReactionMaps();
     void testClose();
 
+    void testSuppressArrangeWidgets();
+
     void receiveKeyEvent(const QKeyEvent &);
 
 private:

@@ -255,7 +255,7 @@ void Ut_MImToolbar::testRegion()
     m_subject->showToolbarWidget(toolbarData);
     QCOMPARE(regionSignals.count(), 1);
     m_subject->updateVisibility();
-    QCOMPARE(regionSignals.count(), 2);
+    QCOMPARE(regionSignals.count(), 1);
 
     // Get region when there are two buttons on the right.
     const QRegion regionTwoButtons = m_subject->region();
@@ -275,7 +275,7 @@ void Ut_MImToolbar::testRegion()
     }
 
     // Button added, check that regionUpdate() was emitted.
-    QCOMPARE(regionSignals.count(), 3);
+    QCOMPARE(regionSignals.count(), 2);
 
     // Get region when there are three buttons on the right.
     const QRegion regionThreeButtons = m_subject->region();
@@ -289,15 +289,15 @@ void Ut_MImToolbar::testRegion()
         QVERIFY(!(regionThreeButtons - regionTwoButtons).isEmpty());
     }
     m_subject->finalizeOrientationChange();
-    QCOMPARE(regionSignals.count(), 3);
+    QCOMPARE(regionSignals.count(), 2);
 
     m_subject->hideToolbarWidget();
 
-    QCOMPARE(regionSignals.count(), 4);
+    QCOMPARE(regionSignals.count(), 3);
 
     m_subject->hide();
 
-    QCOMPARE(regionSignals.count(), 5);
+    QCOMPARE(regionSignals.count(), 4);
     QVERIFY(m_subject->region().isEmpty());
 }
 
@@ -387,6 +387,43 @@ MWidget* Ut_MImToolbar::find(const QString &name)
     }
 
     return 0;
+}
+
+void Ut_MImToolbar::testSuppressArrangeWidgets()
+{
+    QSignalSpy spy(m_subject, SIGNAL(regionUpdated()));
+    QVERIFY(spy.isValid());
+
+    m_subject->suppressArrangeWidgets(true);
+    m_subject->suppressArrangeWidgets(false);
+    QCOMPARE(spy.count(), 0);
+
+    m_subject->suppressArrangeWidgets(true);
+    m_subject->arrangeWidgets();
+    QCOMPARE(spy.count(), 0);
+    m_subject->suppressArrangeWidgets(false);
+    QCOMPARE(spy.count(), 1);
+    spy.clear();
+
+    m_subject->suppressArrangeWidgets(true);
+    m_subject->arrangeWidgets();
+    m_subject->arrangeWidgets();
+    QCOMPARE(spy.count(), 0);
+    m_subject->suppressArrangeWidgets(false);
+    QCOMPARE(spy.count(), 1);
+    spy.clear();
+
+    m_subject->suppressArrangeWidgets(true);
+    m_subject->arrangeWidgets();
+    QCOMPARE(spy.count(), 0);
+    m_subject->suppressArrangeWidgets(true);
+    m_subject->arrangeWidgets();
+    QCOMPARE(spy.count(), 0);
+    m_subject->suppressArrangeWidgets(false);
+    QCOMPARE(spy.count(), 0);
+    m_subject->suppressArrangeWidgets(false);
+    QCOMPARE(spy.count(), 1);
+    spy.clear();
 }
 
 QTEST_APPLESS_MAIN(Ut_MImToolbar);
