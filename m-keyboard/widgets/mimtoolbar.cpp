@@ -238,7 +238,7 @@ void MImToolbar::createAndAppendWidget(QSharedPointer<MToolbarItem> item,
         // must be done before appending so that isVisible() tells the truth
         sidebar->show();
     }
-    sidebar->append(widget, widget->isVisible());
+    sidebar->append(widget, item->isVisible());
 }
 
 void MImToolbar::setupRowLayout(QGraphicsLinearLayout *rowLayout,
