@@ -240,14 +240,17 @@ private:
     void handleFlickGesture(FlickGesture *gesture);
 
     //! \brief Touch point press handler.
+    //! \brief pos Current touchpoint position.
     //! \param id Touch point identifier defined by the system.
     void touchPointPressed(const QPoint &pos, int id);
 
     //! \brief Touch point move handler.
+    //! \brief pos Current touchpoint position.
     //! \param id Touch point identifier defined by the system.
     void touchPointMoved(const QPoint &pos, int id);
 
     //! \brief Touch point release handler.
+    //! \brief pos Current touchpoint position.
     //! \param id Touch point identifier defined by the system.
     void touchPointReleased(const QPoint &pos, int id);
 
