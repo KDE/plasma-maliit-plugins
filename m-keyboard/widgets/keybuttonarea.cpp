@@ -440,7 +440,7 @@ void KeyButtonArea::touchPointMoved(const QPoint &pos, int id)
     }
 
     // Check if finger is on a key.
-    IKeyButton *key = gravitationalKeyAt(pos, tpi.initialKey);
+    IKeyButton *key = gravitationalKeyAt(pos, id);
 
     if (key) {
 
@@ -486,7 +486,7 @@ void KeyButtonArea::touchPointReleased(const QPoint &pos, int id)
         popup->hidePopup();
     }
 
-    IKeyButton *key = gravitationalKeyAt(pos, tpi.initialKey);
+    IKeyButton *key = gravitationalKeyAt(pos, id);
 
     if (key) {
         mTimestamp("KeyButtonArea", key->label());
@@ -506,22 +506,27 @@ void KeyButtonArea::touchPointReleased(const QPoint &pos, int id)
 }
 
 IKeyButton *
-KeyButtonArea::gravitationalKeyAt(const QPoint &pos, IKeyButton *activeKey) const
+KeyButtonArea::gravitationalKeyAt(const QPoint &pos, int id)
 {
-    if (!activeKey) {
+    TouchPointInfo &tpi = touchPoints[id];
+
+    if (!tpi.initialKey || !tpi.checkGravity) {
         return keyAt(pos);
     }
 
-    // TODO: Once the touchpoint moves outside of the gravity of the initial
-    // key we can skip this test and just return keyAt(pos) directly.
     const qreal hGravity = style()->touchpointHorizontalGravity();
     const qreal vGravity = style()->touchpointVerticalGravity();
-    const QRectF &br = activeKey->buttonRect();
+    const QRectF &br = tpi.initialKey->buttonRect();
 
-    return (((pos.x() > br.left() - hGravity)
-             && (pos.x() < br.right() + hGravity)
-             && (pos.y() > br.top() - vGravity)
-             && (pos.y() < br.bottom() + vGravity)) ? activeKey : keyAt(pos));
+    if ((pos.x() > br.left() - hGravity)
+        && (pos.x() < br.right() + hGravity)
+        && (pos.y() > br.top() - vGravity)
+        && (pos.y() < br.bottom() + vGravity)) {
+        return tpi.initialKey;
+    } else {
+        tpi.checkGravity = false;
+        return keyAt(pos);
+    }
 }
 
 void
@@ -582,6 +587,7 @@ KeyButtonArea::TouchPointInfo::TouchPointInfo()
       activeKey(0),
       initialKey(0),
       initialPos(),
-      pos()
+      pos(),
+      checkGravity(true)
 {
 }

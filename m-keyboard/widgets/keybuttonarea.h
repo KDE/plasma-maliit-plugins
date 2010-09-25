@@ -161,6 +161,9 @@ protected:
 
         //! Last known position of the touch point
         QPoint pos;
+
+        //! Whether to perform gravity checks for this touchpoint.
+        bool checkGravity;
     };
 
     /*! \reimp */
@@ -255,7 +258,9 @@ private:
     void touchPointReleased(const QPoint &pos, int id);
 
     //! \brief Gravitational key lookup
-    IKeyButton *gravitationalKeyAt(const QPoint &pos, IKeyButton *activeKey) const;
+    //! \brief pos Current touchpoint position.
+    //! \brief id Touch point indentifier defined by the system.
+    IKeyButton *gravitationalKeyAt(const QPoint &pos, int id);
 
     void click(IKeyButton *key);
 
