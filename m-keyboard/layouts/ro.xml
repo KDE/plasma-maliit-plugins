@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
-<keyboard title="Romanian" version="1.0" catalog="ro" language="ro">
+<keyboard title="Română" version="1.0" catalog="ro" language="ro">
    <layout type="general" orientation="landscape">
       <section id="main">
         <row>

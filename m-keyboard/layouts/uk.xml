@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
-<keyboard title="Ukraina" version="1.0" catalog="uk" language="uk">
+<keyboard title="Українська" version="1.0" catalog="" language="uk">
     <layout type="general" orientation="landscape">
         <section id="main">
           <row>
