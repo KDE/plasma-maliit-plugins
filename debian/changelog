@@ -1,6 +1,5 @@
-meego-keyboard (0.5.2~1) unstable; urgency=low
+meego-keyboard (0.5.2-1) unstable; urgency=low
 
-  * [UNRELEASED]
   * Fixes: NB#187131 - Toolbar containing paste is missing in a given scenario.
   * Fixes: NB#190803 - Able to enter 'enter' key from HKB in the Free text field
   * Implemented: SWP#TINME-1024 - WYTIWYS error correction, enable error correction by default
@@ -8,7 +7,7 @@ meego-keyboard (0.5.2~1) unstable; urgency=low
   * Fixes: NB#187892 - Word suggestion list is still shown when the HKB is slided out.
   * Implemented: SWP#TINME-1040
 
- -- huaming wang <huaming.wang@nokia.com>  Wed, 22 Sep 2010 11:32:41 +0300
+ -- huaming wang <huaming.wang@nokia.com>  Mon, 27 Sep 2010 11:23:46 +0300
 
 meego-keyboard (0.5.1-1) unstable; urgency=low
 
