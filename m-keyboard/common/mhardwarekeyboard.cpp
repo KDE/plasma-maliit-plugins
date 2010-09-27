@@ -677,10 +677,8 @@ void MHardwareKeyboard::handleLongPressTimeout()
                                    ? 1 : 0) + shiftLevelBase);
     const QString text(keycodeToString(longPressKey, shiftLevel));
     if (!text.isEmpty()) {
-        preedit.clear();
-        inputContextConnection.sendCommitString(text);
-        latchModifiers(FnModifierMask | ShiftMask, 0);
-        pressedKeys.remove(longPressKey);
+        preedit = text;
+        inputContextConnection.sendPreeditString(text, PreeditKeyPress);
     }
 }
 
