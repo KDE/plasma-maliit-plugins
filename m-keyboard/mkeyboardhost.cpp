@@ -429,14 +429,6 @@ void MKeyboardHost::handleFocusChange(bool focusIn)
 
 void MKeyboardHost::show()
 {
-    QWidget *p = MPlainWindow::instance();
-
-    if (p->nativeParentWidget()) {
-        p = p->nativeParentWidget();
-    }
-
-    p->raise(); // make sure the window gets displayed
-
     if (activeState == MInputMethod::Hardware) {
         if (!hardwareKeyboard->symViewAvailable())
             symbolView->hideSymbolView();
