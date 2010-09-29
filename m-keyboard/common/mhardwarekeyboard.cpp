@@ -264,6 +264,8 @@ void MHardwareKeyboard::disable()
 void MHardwareKeyboard::reset()
 {
     qDebug() << __PRETTY_FUNCTION__;
+
+    preedit.clear();
 }
 
 

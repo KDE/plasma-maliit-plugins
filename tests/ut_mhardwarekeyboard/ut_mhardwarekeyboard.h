@@ -67,6 +67,9 @@ private slots:
     void testControlModifier();
 
     void testCorrectToAcceptedCharacter();
+
+    void testKeyInsertionOnReleaseAfterReset();
+
 private:
     bool checkLatchedState(unsigned int mask, unsigned int value) const;
     bool checkLockedState(unsigned int mask, unsigned int value) const;

@@ -984,4 +984,13 @@ void Ut_MHardwareKeyboard::testCorrectToAcceptedCharacter()
     QCOMPARE(inputContextConnection->lastCommitString().length(), 1);
 }
 
+
+void Ut_MHardwareKeyboard::testKeyInsertionOnReleaseAfterReset()
+{
+    QVERIFY(filterKeyPress(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, 0));
+    m_hkb->reset();
+    QVERIFY(filterKeyRelease(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, 0));
+    QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
+}
+
 QTEST_APPLESS_MAIN(Ut_MHardwareKeyboard);
