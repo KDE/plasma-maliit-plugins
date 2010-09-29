@@ -158,7 +158,7 @@
         <character label="s" accented_labels="&#x00DF;"/>
         <character label="u" accented_labels="&#x00FB;&#x00F9;&#x00FA;&#x00FC;"/>
     </language>
-    <language language_code="fr-CA" name="French_Canadian">
+    <language language_code="fr_CA" name="French_Canadian">
         <character label="A" accented_labels="&#x00C0;&#x00C2;&#x00C6;&#x00C1;&#x00C3;&#x00C4;"/>
         <character label="C" accented_labels="&#x00C7;"/>
         <character label="E" accented_labels="&#x00C9;&#x00C8;&#x00CB;&#x00CA;"/>
@@ -253,7 +253,7 @@
         <character label="s" accented_labels="&#x00DF;"/>
         <character label="u" accented_labels="&#x00F9;&#x00FC;&#x00FB;&#x00FA;"/>
     </language>
-    <language language_code="it-ch" name="Italian_for_Swiss">
+    <language language_code="it_CH" name="Italian_for_Swiss">
         <character label="A" accented_labels="&#x00C0;&#x00AA;&#x00C4;&#x00C1;&#x00C2;&#x00C3;"/>
         <character label="E" accented_labels="&#x00C8;&#x00C9;&#x00CB;&#x00CA;"/>
         <character label="I" accented_labels="&#x00CC;&#x00CE;&#x00CF;&#x00CD;"/>
@@ -362,7 +362,7 @@
         <character label="s" accented_labels="&#x00DF;"/>
         <character label="u" accented_labels="&#x00FA;&#x00FB;&#x00F9;&#x00FC;"/>
     </language>
-    <language language_code="pt-BR" name="Portuguese_Brazilian">
+    <language language_code="pt_BR" name="Portuguese_Brazilian">
         <character label="A" accented_labels="&#x00C3;&#x00C1;&#x00C0;&#x00C2;&#x00AA;&#x00C4;&#x00C6;"/>
         <character label="C" accented_labels="&#x00C7;"/>
         <character label="E" accented_labels="&#x00C9;&#x00CA;&#x00C8;&#x00CB;"/>
@@ -454,7 +454,7 @@
         <character label="s" accented_labels="&#x00DF;"/>
         <character label="u" accented_labels="&#x00FA;&#x00FC;&#x00F9;&#x00FB;"/>
     </language>
-    <language language_code="es-AM" name="Spanish_American">
+    <language language_code="es_US" name="Spanish_American">
         <character label="A" accented_labels="&#x00C1;&#x00AA;&#x00C4;&#x00C0;&#x00C2;&#x00C3;&#x00C6;"/>
         <character label="C" accented_labels="&#x00C7;"/>
         <character label="E" accented_labels="&#x00C9;&#x00CB;&#x00C8;&#x00CA;"/>
