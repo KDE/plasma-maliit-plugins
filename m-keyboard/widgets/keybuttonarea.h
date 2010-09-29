@@ -243,23 +243,23 @@ private:
     void handleFlickGesture(FlickGesture *gesture);
 
     //! \brief Touch point press handler.
-    //! \brief pos Current touchpoint position.
+    //! \param pos Current touchpoint position.
     //! \param id Touch point identifier defined by the system.
     void touchPointPressed(const QPoint &pos, int id);
 
     //! \brief Touch point move handler.
-    //! \brief pos Current touchpoint position.
+    //! \param pos Current touchpoint position.
     //! \param id Touch point identifier defined by the system.
     void touchPointMoved(const QPoint &pos, int id);
 
     //! \brief Touch point release handler.
-    //! \brief pos Current touchpoint position.
+    //! \param pos Current touchpoint position.
     //! \param id Touch point identifier defined by the system.
     void touchPointReleased(const QPoint &pos, int id);
 
     //! \brief Gravitational key lookup
-    //! \brief pos Current touchpoint position.
-    //! \brief id Touch point indentifier defined by the system.
+    //! \param pos Current touchpoint position.
+    //! \param id Touch point indentifier defined by the system.
     IKeyButton *gravitationalKeyAt(const QPoint &pos, int id);
 
     void click(IKeyButton *key);
