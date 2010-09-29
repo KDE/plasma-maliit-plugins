@@ -27,7 +27,6 @@
 #include "utils.h"
 #include <mplainwindow.h>
 #include <mtoolbardata.h>
-#include <mtoolbarrow.h>
 #include <mtoolbarlayout.h>
 #include <MTheme>
 #include <MSceneWindow>

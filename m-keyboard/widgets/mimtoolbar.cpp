@@ -22,7 +22,6 @@
 
 #include <mtoolbardata.h>
 #include <mtoolbaritem.h>
-#include <mtoolbarrow.h>
 #include <mtoolbarlayout.h>
 
 #include <MNamespace>
@@ -66,15 +65,24 @@ MImToolbar::~MImToolbar()
 
 void MImToolbar::setupLayout()
 {
-    QGraphicsLinearLayout *mainLayout = new QGraphicsLinearLayout(Qt::Vertical, this);
+    QGraphicsLinearLayout *mainLayout = new QGraphicsLinearLayout(Qt::Horizontal, this);
     mainLayout->setContentsMargins(0, 0, 0, 0);
 
-    QGraphicsLinearLayout *rowLayout = new QGraphicsLinearLayout(Qt::Horizontal, mainLayout);
+    // Empty button bars are hidden.
+    leftBar.hide();
+    rightBar.hide();
+    // Add the left and right side WidgetBar widgets with a stretch item in between.
+    mainLayout->addItem(&leftBar);
+    mainLayout->addStretch();
+    mainLayout->addItem(&rightBar);
 
-    setupRowLayout(rowLayout, &leftBar, &rightBar);
-    mainLayout->insertItem(0, rowLayout);
+    mainLayout->setAlignment(&leftBar, Qt::AlignBottom);
+    mainLayout->setAlignment(&rightBar, Qt::AlignBottom);
 
-    resize(geometry().width(), layout()->preferredHeight());
+    connect(&leftBar, SIGNAL(regionUpdated()), this, SLOT(arrangeWidgets()));
+    connect(&rightBar, SIGNAL(regionUpdated()), this, SLOT(arrangeWidgets()));
+
+    resize(geometry().width(), mainLayout->preferredHeight());
 }
 
 QRegion MImToolbar::region() const
@@ -182,28 +190,8 @@ void MImToolbar::loadCustomWidgets()
         qCritical() << __PRETTY_FUNCTION__ << "Layout does not exist";
     }
 
-    QList<QSharedPointer<const MToolbarRow> > rows = layout->rows();
 
-    //create additional rows if necessary
-    for (int n = 0; n < rows.count() - 1; ++n) {
-        QSharedPointer<const MToolbarRow> row = rows[n];
-        QGraphicsLinearLayout *rowLayout = new QGraphicsLinearLayout(Qt::Horizontal, mainLayout);
-        WidgetBar *leftWidget  = new WidgetBar(true, this);
-        WidgetBar *rightWidget = new WidgetBar(true, this);
-
-        leftWidget->setObjectName(ObjectNameToolbarLeft);
-        rightWidget->setObjectName(ObjectNameToolbarRight);
-        setupRowLayout(rowLayout, leftWidget, rightWidget);
-        mainLayout->insertItem(n, rowLayout);
-
-        foreach (QSharedPointer<MToolbarItem> item , row->items()) {
-            createAndAppendWidget(item, leftWidget, rightWidget);
-        }
-    }
-
-    //add custom items to bottom row
-    QSharedPointer<const MToolbarRow> row = rows.last();
-    foreach (QSharedPointer<MToolbarItem> item, row->items()) {
+    foreach (QSharedPointer<MToolbarItem> item, layout->items()) {
         createAndAppendWidget(item, &leftBar, &rightBar);
     }
 
@@ -241,51 +229,14 @@ void MImToolbar::createAndAppendWidget(QSharedPointer<MToolbarItem> item,
     sidebar->append(widget, item->isVisible());
 }
 
-void MImToolbar::setupRowLayout(QGraphicsLinearLayout *rowLayout,
-                                WidgetBar *leftWidget,
-                                WidgetBar *rightWidget)
-{
-    rowLayout->setContentsMargins(0, 0, 0, 0);
-
-    // Empty button bars are hidden.
-    leftWidget->hide();
-    rightWidget->hide();
-    // Add the left and right side WidgetBar widgets with a stretch item in between.
-    rowLayout->addItem(leftWidget);
-    rowLayout->addStretch();
-    rowLayout->addItem(rightWidget);
-
-    rowLayout->setAlignment(leftWidget, Qt::AlignBottom);
-    rowLayout->setAlignment(rightWidget, Qt::AlignBottom);
-
-    connect(leftWidget, SIGNAL(regionUpdated()), this, SLOT(arrangeWidgets()));
-    connect(rightWidget, SIGNAL(regionUpdated()), this, SLOT(arrangeWidgets()));
-}
-
 void MImToolbar::unloadCustomWidgets()
 {
     QGraphicsLinearLayout *mainLayout = static_cast<QGraphicsLinearLayout*>(layout());
-    QList<QGraphicsLinearLayout*> rows;
 
     if (!mainLayout) {
         qCritical() << __PRETTY_FUNCTION__ << "Layout does not exist";
     }
 
-    //delete all dynamically created rows
-    for (int n = 0; n < mainLayout->count() - 1; ++n) {
-        QGraphicsLinearLayout *rowLayout = dynamic_cast<QGraphicsLinearLayout*>(mainLayout->itemAt(n));
-
-        if (rowLayout) {
-            WidgetBar *leftBar  = dynamic_cast<WidgetBar*>(rowLayout->itemAt(0));
-            WidgetBar *rightBar = dynamic_cast<WidgetBar*>(rowLayout->itemAt(1));
-
-            delete leftBar;
-            delete rightBar;
-            rows << rowLayout;
-        }
-    }
-
-    qDeleteAll(rows);
     qDeleteAll(customWidgets);
     customWidgets.clear();
     leftBar.cleanup();
@@ -316,14 +267,6 @@ void MImToolbar::arrangeWidgets()
     }
 
     if (isVisible()) {
-        for (int n = 0; n < layout()->count(); ++n) {
-            QGraphicsLayout *rowLayout = dynamic_cast<QGraphicsLayout*>(layout()->itemAt(n));
-            if (rowLayout) {
-                rowLayout->invalidate();
-                rowLayout->activate();
-            }
-        }
-
         layout()->invalidate();
         layout()->activate();
         resize(geometry().width(), layout()->preferredHeight());
@@ -459,43 +402,41 @@ void MImToolbar::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view
     // Draw all widgets geometries.
     reactionMap->setReactiveDrawingValue();
 
-    for (int n = 0; n < layout()->count(); ++n) {
-        QGraphicsLinearLayout *row = dynamic_cast<QGraphicsLinearLayout*>(layout()->itemAt(n));
+    QGraphicsLinearLayout *mainLayout = static_cast<QGraphicsLinearLayout*>(layout());
 
-        if (!row) {
+    if (!mainLayout) {
+        return;
+    }
+
+    mainLayout->activate();
+
+    for (int j = 0; j < mainLayout->count(); ++j) {
+        WidgetBar *sidebar = dynamic_cast<WidgetBar *>(mainLayout->itemAt(j));
+        if (!sidebar || !sidebar->isVisible()) {
             continue;
         }
 
-        row->activate();
+        // Buttons sometimes require this.
+        sidebar->layout()->activate();
 
-        for (int j = 0; j < row->count(); ++j) {
-            WidgetBar *sidebar = dynamic_cast<WidgetBar *>(row->itemAt(j));
-            if (!sidebar || !sidebar->isVisible()) {
-                continue;
-            }
+        if (!paintWholeToolbar) {
+            reactionMap->setTransform(sidebar, view);
+            reactionMap->setInactiveDrawingValue();
+            reactionMap->fillRectangle(sidebar->boundingRect());
+        }
 
-            // Buttons sometimes require this.
-            sidebar->layout()->activate();
+        reactionMap->setReactiveDrawingValue();
 
-            if (!paintWholeToolbar) {
-                reactionMap->setTransform(sidebar, view);
-                reactionMap->setInactiveDrawingValue();
-                reactionMap->fillRectangle(sidebar->boundingRect());
-            }
+        for (int i = 0; i < sidebar->count(); ++i) {
+            QGraphicsWidget *widget = sidebar->widgetAt(i);
 
-            reactionMap->setReactiveDrawingValue();
-
-            for (int i = 0; i < sidebar->count(); ++i) {
-                QGraphicsWidget *widget = sidebar->widgetAt(i);
-
-                if (widget && widget->isVisible()
+            if (widget && widget->isVisible()
                     && !qobject_cast<MToolbarLabel*>(widget)) {
 
-                    reactionMap->setTransform(widget, view);
-                    reactionMap->fillRectangle(widget->boundingRect());
-                }
-                // Otherwise leave as inactive.
+                reactionMap->setTransform(widget, view);
+                reactionMap->fillRectangle(widget->boundingRect());
             }
+            // Otherwise leave as inactive.
         }
     }
 }

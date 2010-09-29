@@ -173,9 +173,6 @@ private:
 
     Qt::KeyboardModifiers keyModifiers(int key) const;
 
-    void setupRowLayout(QGraphicsLinearLayout *rowLayout, WidgetBar *leftBar,
-                        WidgetBar *rightBar);
-
     void createAndAppendWidget(QSharedPointer<MToolbarItem> item, WidgetBar *leftWidget,
                                WidgetBar *rightWidget);
 
