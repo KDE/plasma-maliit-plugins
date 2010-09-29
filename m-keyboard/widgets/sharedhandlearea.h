@@ -107,9 +107,6 @@ private slots:
     //! inputMethodAreaUpdated will be emitted even if position was not changed
     void updatePositionAndRegion(SignalsMode sendSignals = SignalsAuto);
 
-    //! Handle changes in toolbar type
-    void handleToolbarTypeChange(bool standard);
-
     /*!
      * \brief Move toolbar when other widgets are moved.
      *
@@ -139,7 +136,6 @@ private:
     MImToolbar &toolbar;
 
     M::InputMethodMode inputMethodMode;
-    bool standardToolbar;
 };
 
 #endif

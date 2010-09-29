@@ -54,7 +54,6 @@ private slots:
     void testKeySequenceString();
     void testCopy();
     void testPaste();
-    void testRegion_data();
     void testRegion();
 
     void testReactionMaps_data();

@@ -243,14 +243,6 @@ WidgetBarStyle {
     padding-right: 11;
 }
 
-WidgetBarStyle:shaped-toolbar {
-    background-image: "meegotouch-keyboard-toolbar-background" 10px 10px 10px 10px;
-}
-
-WidgetBarStyle:full-toolbar {
-    background-image: ;
-}
-
 MImCorrectionCandidateContainerStyle {
     background-image: "meegotouch-candidatelist-background" 15 15 15 15;
     margin-top: 0;
@@ -281,14 +273,6 @@ MImToolbarStyle {
     margin-bottom: 0;
     margin-left: 0;
     margin-right: 0;
-}
-
-MImToolbarStyle:full-toolbar {
-    background-image: "meegotouch-keyboard-toolbar-background" 15px 15px 15px 15px;
-}
-
-MImToolbarStyle:shaped-toolbar {
-    background-image: ;
 }
 
 MImToolbarStyle.Landscape {

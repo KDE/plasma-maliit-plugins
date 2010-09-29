@@ -147,11 +147,6 @@ signals:
      */
     void copyPasteClicked(CopyPasteState action);
 
-    //! \brief Emitted when toolbar type changes
-    //! \param standard true when toolbar is standard, false when a custom
-    //! toolbar is set by the application
-    void typeChanged(bool standard);
-
 private:
     //! \brief Disable/enable \a arrangeWidgets.
     //!
@@ -161,9 +156,6 @@ private:
 
     //! Helper for updateVisibility and initial state setting
     void updateItemVisibility(const QSharedPointer<MToolbarItem> &item) const;
-
-    //! \brief Set style mode to either shaped-toolbar (true) or full-toolbar (false)
-    void setShapedMode(bool shaped);
 
     void setupLayout();
 

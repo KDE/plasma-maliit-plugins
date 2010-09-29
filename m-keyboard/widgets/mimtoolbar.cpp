@@ -90,11 +90,7 @@ QRegion MImToolbar::region() const
     QRegion region;
 
     if (isVisible()) {
-        if (currentToolbar && currentToolbar->isCustom()) {
-            region = QRegion(mapRectToScene(rect()).toRect());
-        } else if (rightBar.isVisible()) {
-            region = QRegion(mapRectToScene(rightBar.geometry()).toRect());
-        }
+        region = QRegion(mapRectToScene(rect()).toRect());
     }
     return region;
 }
@@ -194,8 +190,6 @@ void MImToolbar::loadCustomWidgets()
     foreach (QSharedPointer<MToolbarItem> item, layout->items()) {
         createAndAppendWidget(item, &leftBar, &rightBar);
     }
-
-    mainLayout->invalidate();
 }
 
 void MImToolbar::createAndAppendWidget(QSharedPointer<MToolbarItem> item,
@@ -344,34 +338,20 @@ Qt::KeyboardModifiers MImToolbar::keyModifiers(int key) const
     return modify;
 }
 
-void MImToolbar::setShapedMode(bool shaped)
-{
-    if (shaped) {
-        style().setModeShapedToolbar();
-    } else {
-        style().setModeFullToolbar();
-    }
-    rightBar.setShapedMode(shaped);
-}
-
 void MImToolbar::showToolbarWidget(QSharedPointer<const MToolbarData> toolbar)
 {
     if (toolbar == currentToolbar) {
         return;
     }
+
     unloadCustomWidgets();
 
-    const bool oldToolbarCustom(currentToolbar ? currentToolbar->isCustom() : false);
     currentToolbar = toolbar;
     loadCustomWidgets();
 
-    setShapedMode(!toolbar->isCustom());
-
+    if (isVisible())
+        updateVisibility();
     arrangeWidgets();
-
-    if (oldToolbarCustom != toolbar->isCustom()) {
-        emit typeChanged(!toolbar->isCustom());
-    }
 }
 
 void MImToolbar::hideToolbarWidget()
@@ -379,7 +359,6 @@ void MImToolbar::hideToolbarWidget()
     currentToolbar.clear();
     unloadCustomWidgets();
     arrangeWidgets();
-    setShapedMode(true);
 }
 
 void MImToolbar::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view)
@@ -390,14 +369,9 @@ void MImToolbar::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view
 
     layout()->activate();
 
-    // Draw the whole toolbar background as inactive when custom toolbar is used.
-    const bool paintWholeToolbar = currentToolbar && currentToolbar->isCustom();
-
-    if (paintWholeToolbar) {
-        reactionMap->setTransform(this, view);
-        reactionMap->setInactiveDrawingValue();
-        reactionMap->fillRectangle(boundingRect());
-    }
+    reactionMap->setTransform(this, view);
+    reactionMap->setInactiveDrawingValue();
+    reactionMap->fillRectangle(boundingRect());
 
     // Draw all widgets geometries.
     reactionMap->setReactiveDrawingValue();
@@ -418,12 +392,6 @@ void MImToolbar::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view
 
         // Buttons sometimes require this.
         sidebar->layout()->activate();
-
-        if (!paintWholeToolbar) {
-            reactionMap->setTransform(sidebar, view);
-            reactionMap->setInactiveDrawingValue();
-            reactionMap->fillRectangle(sidebar->boundingRect());
-        }
 
         reactionMap->setReactiveDrawingValue();
 

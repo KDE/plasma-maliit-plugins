@@ -57,27 +57,16 @@ namespace
     QString ToolbarFileName  = "/testtoolbar.xml";
     QString ToolbarFileName2 = "/testtoolbar2.xml";
     QString ToolbarFileName4 = "/testtoolbar4.xml";
-
-    bool gCustomToolbar(true);
 }
 
 
 // Stubbing..................................................................
-
-// Warning: this may ruin toolbar type notification of MImToolbar
-bool MToolbarData::isCustom() const
-{
-    return gCustomToolbar;
-}
 
 void MToolbarButton::setIconFile(const QString &newIconFile)
 {
     //reimplement to avoid checking the exist of icon file.
     iconFile = newIconFile;
 }
-
-
-// Actual test...............................................................
 
 void Ut_MImToolbar::initTestCase()
 {
@@ -237,20 +226,11 @@ void Ut_MImToolbar::testPaste()
     spy.clear();
 }
 
-void Ut_MImToolbar::testRegion_data()
-{
-    QTest::addColumn<bool>("customToolbar");
-
-    QTest::newRow("custom toolbar") << true;
-    QTest::newRow("standard toolbar") << false;
-}
 
 void Ut_MImToolbar::testRegion()
 {
-    QFETCH(bool, customToolbar);
     QSignalSpy regionSignals(m_subject, SIGNAL(regionUpdated()));
 
-    gCustomToolbar = customToolbar;
     m_subject->showToolbarWidget(toolbarData);
     QCOMPARE(regionSignals.count(), 1);
     m_subject->updateVisibility();
@@ -279,14 +259,10 @@ void Ut_MImToolbar::testRegion()
     // Get region when there are three buttons on the right.
     const QRegion regionThreeButtons = m_subject->region();
 
-    if (customToolbar) {
-        // Custom toolbar always occupies the same region, because our toolbar
-        // contains one line only...
-        QCOMPARE(regionThreeButtons, regionTwoButtons);
-    } else {
-        // but standard toolbar grows when buttons are added.
-        QVERIFY(!(regionThreeButtons - regionTwoButtons).isEmpty());
-    }
+    // Toolbar always occupy the same region,
+    // because our toolbar contains one line only.
+    QCOMPARE(regionThreeButtons, regionTwoButtons);
+
     m_subject->finalizeOrientationChange();
     QCOMPARE(regionSignals.count(), 2);
 
@@ -303,19 +279,13 @@ void Ut_MImToolbar::testRegion()
 void Ut_MImToolbar::testReactionMaps_data()
 {
     QTest::addColumn<QString>("filename");
-    QTest::addColumn<bool>("shaped");
 
-    QTest::newRow("one row toolbar shaped toolbar")  << ToolbarFileName << true;
-    QTest::newRow("one row toolbar")  << ToolbarFileName << false;
-    QTest::newRow("two rows toolbar") << ToolbarFileName2 << false;
+    QTest::newRow("one row toolbar")  << ToolbarFileName;
 }
 
 void Ut_MImToolbar::testReactionMaps()
 {
     QFETCH(QString, filename);
-    QFETCH(bool, shaped);
-
-    gCustomToolbar = !shaped;
 
     toolbarData = QSharedPointer<MToolbarData>(new MToolbarData);
     QVERIFY(toolbarData->loadToolbarXml(filename));
@@ -347,8 +317,7 @@ void Ut_MImToolbar::testReactionMaps()
     // Check that middle point is either transparent or inactive, depending on whether toolbar is shaped or not.
     // Assuming also that no buttons extend to middle area.
     gMReactionMapStub->setTransform(m_subject, view);
-    MReactionMapTester::ReactionColorValue middlePointReactionColor = shaped ?
-                                                                      MReactionMapTester::Transparent : MReactionMapTester::Inactive;
+    MReactionMapTester::ReactionColorValue middlePointReactionColor = MReactionMapTester::Inactive;
     MReactionMapTester::ReactionColorValue actualMiddlePointColor = tester.colorAt(m_subject->boundingRect().center());
     QCOMPARE(actualMiddlePointColor, middlePointReactionColor);
 }

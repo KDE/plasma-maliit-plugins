@@ -28,8 +28,6 @@ class MImToolbarStyle : public MWidgetStyle
 class M_EXPORT MImToolbarStyleContainer : public MWidgetStyleContainer
 {
     M_STYLE_CONTAINER(MImToolbarStyle)
-    M_STYLE_MODE(FullToolbar)
-    M_STYLE_MODE(ShapedToolbar)
 };
 
 #endif

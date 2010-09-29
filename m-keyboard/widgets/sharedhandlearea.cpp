@@ -30,8 +30,7 @@ SharedHandleArea::SharedHandleArea(MImToolbar &toolbar, QGraphicsWidget *parent)
       invisibleHandle(*new Handle(this)),
       zeroSizeInvisibleHandle(*new QGraphicsWidget(this)),
       toolbar(toolbar),
-      inputMethodMode(M::InputMethodModeNormal),
-      standardToolbar(true)
+      inputMethodMode(M::InputMethodModeNormal)
 {
     zeroSizeInvisibleHandle.setObjectName("zeroSizeInvisibleHandle");
 
@@ -49,19 +48,11 @@ SharedHandleArea::SharedHandleArea(MImToolbar &toolbar, QGraphicsWidget *parent)
     mainLayout.setAlignment(&toolbar, Qt::AlignCenter);
 
     connect(&toolbar, SIGNAL(regionUpdated()), this, SIGNAL(regionUpdated()));
-    connect(&toolbar, SIGNAL(typeChanged(bool)), this, SLOT(handleToolbarTypeChange(bool)));
 }
 
 
 SharedHandleArea::~SharedHandleArea()
 {
-}
-
-
-void SharedHandleArea::handleToolbarTypeChange(const bool standard)
-{
-    standardToolbar = standard;
-    updateInvisibleHandleVisibility();
 }
 
 
