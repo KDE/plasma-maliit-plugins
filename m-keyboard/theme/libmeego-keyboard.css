@@ -1,4 +1,5 @@
 @const HEIGHT_CANDIDATEITEM:  6.4mm;
+@const HEIGHT_TOOLBARBUTTON: 4mm;
 
 MVirtualKeyboardStyle {
     background-image: "meegotouch-keyboard-background" 15px 15px 15px 15px;
@@ -211,8 +212,9 @@ MToolbarButtonStyle {
     margin-right: $MARGIN_SMALL;
     margin-top: 0;
     margin-bottom: 0;
-    preferred-size: 100 40;
-    maximum-size: 100 40;
+    minimum-size:   20% $HEIGHT_TOOLBARBUTTON;
+    preferred-size: 20% $HEIGHT_TOOLBARBUTTON;
+    maximum-size:   30% $HEIGHT_TOOLBARBUTTON;
     /*below reactive margins should be fixed*/
 /*  reactive-margin-left: 2;
     reactive-margin-right: 2;
@@ -221,6 +223,18 @@ MToolbarButtonStyle {
 
     press-feedback: ;
     release-feedback: ;
+}
+
+#MToolbarIconButton {
+    minimum-size:   10% $HEIGHT_TOOLBARBUTTON;
+    preferred-size: 10% $HEIGHT_TOOLBARBUTTON;
+    maximum-size:   10% $HEIGHT_TOOLBARBUTTON;
+}
+
+#MToolbarTextButton {
+    minimum-size:   10% $HEIGHT_TOOLBARBUTTON;
+    preferred-size: 10% $HEIGHT_TOOLBARBUTTON;
+    maximum-size:   20% $HEIGHT_TOOLBARBUTTON;
 }
 
 MToolbarButtonStyle:pressed {

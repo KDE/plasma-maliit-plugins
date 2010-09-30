@@ -69,6 +69,9 @@ public:
     //! Return pointer to corresponding toolbar item.
     QSharedPointer<MToolbarItem> item();
 
+    //! Select style name depending on item attributes.
+    void updateStyleName();
+
 signals:
     /*!
      * \brief Emitted when button is clicked.

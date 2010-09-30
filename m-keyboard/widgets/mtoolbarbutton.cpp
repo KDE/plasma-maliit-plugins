@@ -22,6 +22,11 @@
 #include <QPixmap>
 #include <QDebug>
 
+namespace {
+    const char * const  IconButtonStyleName = "MToolbarIconButton";
+    const char * const  TextButtonStyleName = "MToolbarTextButton";
+}
+
 MToolbarButton::MToolbarButton(QSharedPointer<MToolbarItem> item,
                                QGraphicsItem *parent)
     : MButton(parent),
@@ -31,7 +36,9 @@ MToolbarButton::MToolbarButton(QSharedPointer<MToolbarItem> item,
 {
     setView(new MToolbarButtonView(this));
 
-    if (item->name().isEmpty()) {
+    updateStyleName();
+
+    if (!item->name().isEmpty()) {
         setObjectName(item->name());
     }
 
@@ -120,6 +127,21 @@ QSharedPointer<MToolbarItem> MToolbarButton::item()
     return itemPtr;
 }
 
+void MToolbarButton::updateStyleName()
+{
+    if (!item()) {
+        return;
+    }
+
+    if (!item()->isCustom()) {
+        setStyleName(QString());
+    } else if (item()->text().isEmpty() && item()->textId().isEmpty()) {
+        setStyleName(IconButtonStyleName);
+    } else {
+        setStyleName(TextButtonStyleName);
+    }
+}
+
 void MToolbarButton::updateData(const QString &attribute)
 {
     if (attribute == "icon") {
@@ -139,6 +161,8 @@ void MToolbarButton::updateData(const QString &attribute)
         sizePercent = itemPtr->size();
         update();
     }
+
+    updateStyleName();
 }
 
 void MToolbarButton::onClick()
