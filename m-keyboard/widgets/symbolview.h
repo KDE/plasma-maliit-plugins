@@ -209,6 +209,12 @@ private slots:
     void handleHwLayoutChange();
 
 private:
+    //! Main layout indices
+    enum LayoutIndex {
+        GripIndex,
+        KeyboardIndex
+    };
+
     //! symbol view state wrt. \a showSymbolView / \a hideSymbolView calls.
     enum Activity {
         Active,                 // After showSymbolView(NormalShowMode) call
@@ -307,18 +313,8 @@ private:
      */
     bool mouseDownKeyArea;
 
-    //! Helper class for linear layouts that allows to wrap them in QPointers.
-    class LinearLayoutObject: public QObject, public QGraphicsLinearLayout
-    {
-    public:
-        LinearLayoutObject(Qt::Orientation orientation, QGraphicsLayoutItem *parent = 0);
-    };
-
-    //! Vertical layout is the main layout which holds toolbar and function row.
-    QPointer<LinearLayoutObject> verticalLayout;
-
-    //! This layout holds symbol characters and function row.
-    QPointer<LinearLayoutObject> keyAreaLayout;
+    //! The main layout holds toolbar, handles and key button areas.
+    QGraphicsLinearLayout *mainLayout;
 
     //! Handler for button events
     KeyEventHandler eventHandler;

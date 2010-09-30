@@ -125,11 +125,6 @@ void SymbolView::AnimationGroup::takeOverFromTimeLine(QTimeLine *target,
 
 }
 
-SymbolView::LinearLayoutObject::LinearLayoutObject(Qt::Orientation orientation, QGraphicsLayoutItem *parent)
-    : QObject(0)
-    , QGraphicsLinearLayout(orientation, parent)
-{}
-
 SymbolView::SymbolView(const LayoutsManager &layoutsManager, const MVirtualKeyboardStyleContainer *style,
                        const QString &layout, QGraphicsWidget *parent)
     : MWidget(parent),
@@ -144,6 +139,7 @@ SymbolView::SymbolView(const LayoutsManager &layoutsManager, const MVirtualKeybo
       currentOrientation(sceneManager.orientation()),
       currentLayout(layout),
       mouseDownKeyArea(false),
+      mainLayout(new QGraphicsLinearLayout(Qt::Vertical, this)),
       activeState(MInputMethod::OnScreen)
 {
     connect(&eventHandler, SIGNAL(keyPressed(KeyEvent)),
@@ -175,25 +171,17 @@ void SymbolView::setupLayout()
 
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Maximum);
 
-    if (!keyAreaLayout) {
-        verticalLayout =  new LinearLayoutObject(Qt::Vertical, this);
-    }
-
-    verticalLayout->setSpacing(0);
-    verticalLayout->setContentsMargins(0, 0, 0, 0);
+    mainLayout->setSpacing(0);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
 
     Grip *symbolViewGrip = new Grip(this);
     symbolViewGrip->setObjectName("KeyboardHandle");
-    verticalLayout->addItem(symbolViewGrip);
+    mainLayout->insertItem(GripIndex, symbolViewGrip);
+
+    // Urghs, we have a non-virtual override for setLayout ...
+    QGraphicsWidget::setLayout(mainLayout);
+
     connectHandle(symbolViewGrip);
-
-    if (!keyAreaLayout) {
-        keyAreaLayout = new LinearLayoutObject(Qt::Vertical);
-    }
-
-    keyAreaLayout->setSpacing(0);
-    keyAreaLayout->setContentsMargins(0, 0, 0, 0);
-    verticalLayout->addItem(keyAreaLayout);
 }
 
 void SymbolView::connectHandle(Handle *handle)
@@ -229,7 +217,7 @@ void SymbolView::reloadContent()
         loadSwitcherPages(layoutData, activePage);
         setShiftState(shiftState); // Sets level for sym pages.
     }
-    this->layout()->invalidate();
+    layout()->invalidate();
 }
 
 void SymbolView::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
@@ -238,7 +226,7 @@ void SymbolView::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWid
 
     if (background) {
         // Background covers everything except top layout.
-        background->draw(keyAreaLayout->geometry().toRect(), painter);
+        background->draw(mainLayout->itemAt(KeyboardIndex)->geometry().toRect(), painter);
     }
 }
 
@@ -394,7 +382,7 @@ void SymbolView::loadSwitcherPages(const LayoutData *kbLayout, const unsigned in
     layout()->invalidate();
 
     if (pageSwitcher) {
-        keyAreaLayout->removeItem(pageSwitcher);
+        mainLayout->removeItem(pageSwitcher);
         delete pageSwitcher;
         pageSwitcher = 0;
     }
@@ -438,7 +426,7 @@ void SymbolView::loadSwitcherPages(const LayoutData *kbLayout, const unsigned in
     }
 
     pageSwitcher->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
-    keyAreaLayout->addItem(pageSwitcher);
+    mainLayout->insertItem(KeyboardIndex, pageSwitcher);
 }
 
 
@@ -658,7 +646,7 @@ QRegion SymbolView::interactiveRegion() const
 
     // SymbolView always occupies the same area if opened.
     if (isActive()) {
-        region |= mapRectToScene(verticalLayout->geometry()).toRect();
+        region |= mapRectToScene(mainLayout->geometry()).toRect();
     }
 
     return region;
