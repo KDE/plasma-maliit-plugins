@@ -92,6 +92,8 @@ MHardwareKeyboard::MHardwareKeyboard(MInputContextConnection& icConnection, QObj
     longPressTimer.setSingleShot(true);
     longPressTimer.setInterval(longPressTime);
     connect(&longPressTimer, SIGNAL(timeout()), this, SLOT(handleLongPressTimeout()));
+    connect(&deadKeyMapper, SIGNAL(stateChanged(const QChar &)),
+            this, SIGNAL(deadKeyStateChanged(const QChar &)));
 }
 
 
@@ -220,6 +222,9 @@ void MHardwareKeyboard::enable()
         fnPressed = false;
         autoCaps = false;
 
+        preedit.clear();
+        deadKeyMapper.reset();
+
         // We reset state without using latch/lockModifiers in order to force notification
         // (to make sure whoever is listening is in sync with us).
         currentLatchedMods = 0;
@@ -250,6 +255,10 @@ void MHardwareKeyboard::disable()
 {
     qDebug() << __PRETTY_FUNCTION__;
 
+    inputContextConnection.sendPreeditString("", PreeditKeyPress);
+    preedit.clear();
+    deadKeyMapper.reset();
+
     inputContextConnection.setRedirectKeys(false);
     // Unlock and unlatch everything.  If for example non-Qt X application gets focus
     // after this focus out, there is no way to unlock Lock modifier using the
@@ -265,6 +274,7 @@ void MHardwareKeyboard::reset()
 {
     qDebug() << __PRETTY_FUNCTION__;
 
+    deadKeyMapper.reset();
     preedit.clear();
 }
 
@@ -475,15 +485,17 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
         if (eaten && !eatenBySymHandler) {
             correctToAcceptedCharacter(text, nativeScanCode, nativeModifiers);
 
-            // Long press feature, only applies for the latest keypress (i.e. the latest
-            // keypress event cancels the long press logic for the previous keypress)
-            longPressKey = nativeScanCode;
-            longPressModifiers = nativeModifiers;
-            longPressTimer.start();
-
-            if (!preedit.isEmpty()) {
+            if (!preedit.isEmpty() && (preedit != deadKeyMapper.currentDeadKey())) {
                 inputContextConnection.sendCommitString(preedit);
                 pressedKeys.remove(preeditScanCode);
+            }
+
+            if (!deadKeyMapper.filterKeyPress(text)) {
+                // Long press feature, only applies for the latest keypress (i.e. the latest
+                // keypress event cancels the long press logic for the previous keypress)
+                longPressKey = nativeScanCode;
+                longPressModifiers = nativeModifiers;
+                longPressTimer.start();
             }
             inputContextConnection.sendPreeditString(text, PreeditKeyPress);
             preedit = text;
@@ -586,13 +598,14 @@ bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers 
                                       ShiftMask);
         eaten = true;
     } else if (!eaten && !passKeyOnPress(keyCode, text, nativeScanCode, nativeModifiers)) {
-        if (keyWasPressed) {
+        const bool deadKey(preedit == deadKeyMapper.currentDeadKey());
+        if (keyWasPressed && !deadKey) {
             inputContextConnection.sendCommitString(preedit);
             preedit.clear();
         }
         eaten = true;
 
-        if (!autoCaps) {
+        if (!autoCaps && !deadKey) {
             latchModifiers(FnModifierMask | ShiftMask, 0);
         }
     }
@@ -675,8 +688,9 @@ void MHardwareKeyboard::handleLongPressTimeout()
     const unsigned int shiftLevelBase(currentLockedMods & FnModifierMask ? 0 : 2);
     const unsigned int shiftLevel(((shiftAndLock == ShiftMask) || (shiftAndLock == LockMask)
                                    ? 1 : 0) + shiftLevelBase);
-    const QString text(keycodeToString(longPressKey, shiftLevel));
+    QString text(keycodeToString(longPressKey, shiftLevel));
     if (!text.isEmpty()) {
+        (void)deadKeyMapper.filterKeyPress(text, true);
         preedit = text;
         inputContextConnection.sendPreeditString(text, PreeditKeyPress);
     }
@@ -756,7 +770,8 @@ void MHardwareKeyboard::setAutoCapitalization(bool state)
         if (((((currentLockedMods & (FnModifierMask | LockMask)) == 0)
               && ((currentLatchedMods & (FnModifierMask | ShiftMask)) == 0))
              || autoCaps)
-            && !stateTransitionsDisabled && (characterLoopIndex == -1)) {
+            && !stateTransitionsDisabled && (characterLoopIndex == -1)
+            && deadKeyMapper.currentDeadKey().isNull()) {
             latchModifiers(ShiftMask, state ? ShiftMask : 0);
             autoCaps = state;
         }
@@ -783,6 +798,12 @@ ModifierState MHardwareKeyboard::modifierState(Qt::KeyboardModifier modifier) co
     } else {
         return ModifierClearState;
     }
+}
+
+
+QChar MHardwareKeyboard::deadKeyState() const
+{
+    return deadKeyMapper.currentDeadKey();
 }
 
 
@@ -827,6 +848,7 @@ void MHardwareKeyboard::switchKeyMap()
             nextVariant = secondaryVariant;
         }
         if (mXkb.setXkbMap(LayoutsManager::instance().xkbModel(), nextLayout, nextVariant)) {
+            deadKeyMapper.setLayout(nextLayout, nextVariant);
             LayoutsManager::instance().setXkbMap(nextLayout, nextVariant);
             emit scriptChanged();
         }

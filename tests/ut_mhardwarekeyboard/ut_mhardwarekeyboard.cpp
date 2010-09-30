@@ -993,4 +993,121 @@ void Ut_MHardwareKeyboard::testKeyInsertionOnReleaseAfterReset()
     QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
 }
 
+
+void Ut_MHardwareKeyboard::testDeadKeys()
+{
+    QSignalSpy deadKeyStateSpy(m_hkb, SIGNAL(deadKeyStateChanged(const QChar &)));
+
+    MGConfItem layoutConfig(XkbLayoutSettingName);
+    layoutConfig.set("fr");
+    MGConfItem variantConfig(XkbVariantSettingName);
+    variantConfig.set("");
+
+    // The basic case, ^ + a => \^a
+
+    QVERIFY(filterKeyPress(Qt::Key_Dead_Circumflex, Qt::NoModifier, "^", KeycodeCharacter, 0));
+    QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
+    QCOMPARE(inputContextConnection->lastPreeditString().length(), 1);
+    QCOMPARE(inputContextConnection->lastPreeditString(), QString("^"));
+    QCOMPARE(deadKeyStateSpy.count(), 1);
+    QCOMPARE(deadKeyStateSpy.at(0).at(0).value<QChar>(), QChar('^'));
+    deadKeyStateSpy.clear();
+    QCOMPARE(m_hkb->deadKeyState(), QChar('^'));
+    QVERIFY(filterKeyRelease(Qt::Key_Dead_Circumflex, Qt::NoModifier, "^", KeycodeCharacter, 0));
+    QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
+    QCOMPARE(inputContextConnection->lastPreeditString(), QString("^"));
+
+    QVERIFY(filterKeyPress(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, 0));
+    QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
+    QCOMPARE(inputContextConnection->lastPreeditString().length(), 1);
+    QCOMPARE(inputContextConnection->lastPreeditString(), QString(QChar(0xe2)));
+    QCOMPARE(deadKeyStateSpy.count(), 1);
+    QCOMPARE(deadKeyStateSpy.at(0).at(0).value<QChar>(), QChar());
+    deadKeyStateSpy.clear();
+    QCOMPARE(m_hkb->deadKeyState(), QChar());
+
+    QVERIFY(filterKeyRelease(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, 0));
+    QCOMPARE(inputContextConnection->lastCommitString().length(), 1);
+    QCOMPARE(inputContextConnection->lastCommitString(), QString(QChar(0xe2)));
+
+    inputContextConnection->sendCommitString("");
+    inputContextConnection->sendPreeditString("", PreeditDefault);
+
+    // Switch dead key, ^ + \" + a => \"a
+
+    QVERIFY(filterKeyPress(Qt::Key_Dead_Circumflex, Qt::NoModifier, "^", KeycodeCharacter, 0));
+    QVERIFY(filterKeyRelease(Qt::Key_Dead_Circumflex, Qt::NoModifier, "^", KeycodeCharacter, 0));
+    QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
+    QCOMPARE(inputContextConnection->lastPreeditString().length(), 1);
+    QCOMPARE(inputContextConnection->lastPreeditString(), QString("^"));
+
+    QVERIFY(filterKeyPress(Qt::Key_Dead_Diaeresis, Qt::NoModifier, QString(QChar(0xa8)), KeycodeCharacter, 0));
+    QVERIFY(filterKeyRelease(Qt::Key_Dead_Diaeresis, Qt::NoModifier, QString(QChar(0xa8)), KeycodeCharacter, 0));
+    QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
+    QCOMPARE(inputContextConnection->lastPreeditString().length(), 1);
+    QCOMPARE(inputContextConnection->lastPreeditString(), QString(QChar(0xa8)));
+    QCOMPARE(deadKeyStateSpy.count(), 2);
+    QCOMPARE(deadKeyStateSpy.at(1).at(0).value<QChar>(), QChar(0xa8));
+    deadKeyStateSpy.clear();
+    QCOMPARE(m_hkb->deadKeyState(), QChar(0xa8));
+
+    QVERIFY(filterKeyPress(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, 0));
+    QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
+    QCOMPARE(inputContextConnection->lastPreeditString().length(), 1);
+    QCOMPARE(inputContextConnection->lastPreeditString(), QString(QChar(0xe4)));
+
+    QVERIFY(filterKeyRelease(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, 0));
+    QCOMPARE(inputContextConnection->lastCommitString().length(), 1);
+    QCOMPARE(inputContextConnection->lastCommitString(), QString(QChar(0xe4)));
+
+    inputContextConnection->sendCommitString("");
+    inputContextConnection->sendPreeditString("", PreeditDefault);
+
+    // Dead key with space
+
+    QVERIFY(filterKeyPress(Qt::Key_Dead_Circumflex, Qt::NoModifier, "^", KeycodeCharacter, 0));
+    QVERIFY(filterKeyRelease(Qt::Key_Dead_Circumflex, Qt::NoModifier, "^", KeycodeCharacter, 0));
+
+    QVERIFY(filterKeyPress(Qt::Key_Space, Qt::NoModifier, " ", KeycodeCharacter, 0));
+    QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
+    QCOMPARE(inputContextConnection->lastPreeditString().length(), 1);
+    QCOMPARE(inputContextConnection->lastPreeditString(), QString("^"));
+
+    QVERIFY(filterKeyRelease(Qt::Key_Space, Qt::NoModifier, " ", KeycodeCharacter, 0));
+    QCOMPARE(inputContextConnection->lastCommitString().length(), 1);
+    QCOMPARE(inputContextConnection->lastCommitString(), QString("^"));
+    QCOMPARE(m_hkb->deadKeyState(), QChar());
+
+    inputContextConnection->sendCommitString("");
+    inputContextConnection->sendPreeditString("", PreeditDefault);
+
+    // Dead key with a key it cannot be combined with
+
+    QVERIFY(filterKeyPress(Qt::Key_Dead_Circumflex, Qt::NoModifier, "^", KeycodeCharacter, 0));
+    QVERIFY(filterKeyRelease(Qt::Key_Dead_Circumflex, Qt::NoModifier, "^", KeycodeCharacter, 0));
+
+    QVERIFY(filterKeyPress(Qt::Key_D, Qt::NoModifier, "d", KeycodeCharacter, 0));
+    QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
+    QCOMPARE(inputContextConnection->lastPreeditString().length(), 1);
+    QCOMPARE(inputContextConnection->lastPreeditString(), QString("d"));
+
+    QVERIFY(filterKeyRelease(Qt::Key_Space, Qt::NoModifier, "d", KeycodeCharacter, 0));
+    QCOMPARE(inputContextConnection->lastCommitString().length(), 1);
+    QCOMPARE(inputContextConnection->lastCommitString(), QString("d"));
+    QCOMPARE(m_hkb->deadKeyState(), QChar());
+
+    inputContextConnection->sendCommitString("");
+    inputContextConnection->sendPreeditString("", PreeditDefault);
+
+    // Reset resets dead key mapper state
+
+    QVERIFY(filterKeyPress(Qt::Key_Dead_Circumflex, Qt::NoModifier, "^", KeycodeCharacter, 0));
+    QVERIFY(filterKeyRelease(Qt::Key_Dead_Circumflex, Qt::NoModifier, "^", KeycodeCharacter, 0));
+    QCOMPARE(m_hkb->deadKeyState(), QChar('^'));
+
+    m_hkb->reset();
+
+    QCOMPARE(m_hkb->deadKeyState(), QChar());
+}
+
 QTEST_APPLESS_MAIN(Ut_MHardwareKeyboard);

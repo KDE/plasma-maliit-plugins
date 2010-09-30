@@ -27,6 +27,7 @@
 #include <QRegExp>
 #include "mxkb.h"
 #include "hwkbcharloopsmanager.h"
+#include "hwkbdeadkeymapper.h"
 #include "mkeyboardcommon.h"
 #include <MNamespace>
 
@@ -64,6 +65,10 @@ public:
 
     //! \return current state for \a modifier key in hardware keyboard.
     ModifierState modifierState(Qt::KeyboardModifier modifier) const;
+
+    //! \return current dead key composing state in form of the active dead key character
+    //! or null character
+    QChar deadKeyState() const;
 
     //! Set auto capitalization state.
     void setAutoCapitalization(bool state);
@@ -133,6 +138,9 @@ signals:
      * Can be emitted also when the modifier state has not changed.
      */
     void modifiersStateChanged() const;
+
+    //! \brief Emitted when dead key composing state changes
+    void deadKeyStateChanged(const QChar &deadKey);
 
     //! \brief Emitted when the script is changed.
     void scriptChanged() const;
@@ -328,6 +336,8 @@ private:
     quint32 preeditScanCode;
 
     const QRegExp numberContentCharacterMatcher;
+
+    HwKbDeadKeyMapper deadKeyMapper;
 
     friend class Ut_MHardwareKeyboard;
     friend class Ft_MHardwareKeyboard;
