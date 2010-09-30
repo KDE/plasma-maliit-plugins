@@ -41,7 +41,8 @@ class WidgetBar : public MStylableWidget
 {
     Q_OBJECT
 public:
-    WidgetBar(bool useDividers, QGraphicsItem *parent = 0);
+    explicit WidgetBar(QGraphicsItem *parent = 0);
+
     virtual ~WidgetBar();
 
     //! \brief Number of widgets added to this widget.
@@ -96,11 +97,11 @@ private:
     int layoutIndexOf(const MWidget *widget) const;
 
 private:
+    Q_DISABLE_COPY(WidgetBar)
+
     typedef QList<QPointer<MWidget> > WidgetList;
 
     QGraphicsLinearLayout &mainLayout;
-
-    const bool useDividers;
 
     WidgetList widgets;
 

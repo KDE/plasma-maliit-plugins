@@ -44,9 +44,9 @@ namespace
 MImToolbar::MImToolbar(QGraphicsWidget *parent)
     : MStylableWidget(parent),
       textSelected(false),
-      leftBar(true, this),
-      rightBar(true, this),
-      centerBar(true, this),
+      leftBar(this),
+      rightBar(this),
+      centerBar(this),
       arrangeWidgetsCalled(false),
       arrangeWidgetsDisabledCount(0)
 {

@@ -28,10 +28,9 @@
 #include <MWidgetCreator>
 M_REGISTER_WIDGET_NO_CREATE(WidgetBar)
 
-WidgetBar::WidgetBar(bool useDividers, QGraphicsItem *parent)
+WidgetBar::WidgetBar(QGraphicsItem *parent)
     : MStylableWidget(parent),
-      mainLayout(*new QGraphicsLinearLayout(Qt::Horizontal, this)),
-      useDividers(useDividers)
+      mainLayout(*new QGraphicsLinearLayout(Qt::Horizontal, this))
 {
     mainLayout.setSpacing(0); // Spacing is handled by dividers.
     mainLayout.setContentsMargins(0, 0, 0, 0);

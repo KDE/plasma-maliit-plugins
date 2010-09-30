@@ -44,7 +44,7 @@ void Ut_WidgetBar::cleanupTestCase()
 
 void Ut_WidgetBar::init()
 {
-    subject = new WidgetBar(true);
+    subject = new WidgetBar;
 }
 
 void Ut_WidgetBar::cleanup()
