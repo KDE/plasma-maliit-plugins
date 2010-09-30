@@ -67,7 +67,7 @@ void Notification::displayText(const QString &message, const QRectF &area)
 {
     Q_UNUSED(message);
     Q_UNUSED(area);
-    
+
     qDebug() << __PRETTY_FUNCTION__ << __FILE__ << __LINE__;
 }
 
@@ -407,7 +407,7 @@ void Ut_MVirtualKeyboard::testShiftLevelChange()
     QFETCH(bool, shiftPressed);
     QFETCH(int, expectedMainLayoutLevel);
 
-    KeyButtonArea *mainKbLayout = static_cast<KeyButtonArea *>(m_vkb->mainKeyboardSwitcher->currentWidget()->layout()->itemAt(0));
+    KeyButtonArea *mainKbLayout = static_cast<KeyButtonArea *>(m_vkb->mainKeyboardSwitcher->currentWidget());
 
     // Enable or disable multi-touch.
     m_vkb->enableMultiTouch = enableMultiTouch;

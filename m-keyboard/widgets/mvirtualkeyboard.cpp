@@ -76,9 +76,7 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
       mainKeyboardSwitcher(0),
       notification(0),
       numberKeyboard(0),
-      numberLayout(0),
       phoneNumberKeyboard(0),
-      phoneNumberLayout(0),
       activeState(MInputMethod::OnScreen),
       eventHandler(this)
 {
@@ -119,15 +117,6 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
 
     mainLayout->addItem(mainKeyboardSwitcher); // start in qwerty
 
-    // create main widgets for number and phone number, and make the initial button areas
-    numberKeyboard = new QGraphicsWidget(this);
-    numberKeyboard->hide();
-    numberLayout = createKeyAreaLayout(numberKeyboard);
-
-    phoneNumberKeyboard = new QGraphicsWidget(this);
-    phoneNumberKeyboard->hide();
-    phoneNumberLayout = createKeyAreaLayout(phoneNumberKeyboard);
-
     connect(&layoutsMgr, SIGNAL(layoutsChanged()), this, SLOT(keyboardsReset()));
     connect(&layoutsMgr, SIGNAL(numberFormatChanged()), this, SLOT(numberKeyboardReset()));
     keyboardsReset(); // creates keyboard widgets
@@ -143,6 +132,9 @@ MVirtualKeyboard::~MVirtualKeyboard()
 
     delete notification;
     notification = 0;
+
+    delete phoneNumberKeyboard;
+    delete numberKeyboard;
 }
 
 
@@ -246,7 +238,7 @@ MVirtualKeyboard::switchLevel()
 
     for (int i = 0; i < mainKeyboardSwitcher->count(); ++i) {
         // handling main section:
-        KeyButtonArea *mainKba = keyboardWidget(SectionMainIndex, i);
+        KeyButtonArea *mainKba = keyboardWidget(i);
         if (mainKba) {
             mainKba->switchLevel(currentLevel);
             mainKba->setShiftState(shiftState);
@@ -401,16 +393,6 @@ void MVirtualKeyboard::resetState()
     // hideKeyboard(), we don't have to explicitly unlock them.
 }
 
-QGraphicsLinearLayout *MVirtualKeyboard::createKeyAreaLayout(QGraphicsWidget *parent)
-{
-    QGraphicsLinearLayout *layout = new QGraphicsLinearLayout(Qt::Vertical, parent);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(0);
-
-    return layout;
-}
-
-
 int MVirtualKeyboard::actualHeight() const
 {
     int result = size().height();
@@ -432,10 +414,6 @@ void MVirtualKeyboard::organizeContent(M::Orientation orientation)
         recreateKeyboards();
         mainKeyboardSwitcher->setCurrent(index);
         mainKeyboardSwitcher->setPreferredWidth(MPlainWindow::instance()->visibleSceneSize().width());
-
-        // invalidate layouts so we get updated size infos
-        numberKeyboard->layout()->invalidate();
-        phoneNumberKeyboard->layout()->invalidate();
     }
 
     mainLayout->invalidate();
@@ -590,25 +568,16 @@ void MVirtualKeyboard::drawButtonsReactionMaps(MReactionMap *reactionMap, QGraph
 {
     // Depending on which keyboard type is currently shown
     // we must pick the correct KeyButtonArea(s).
-
-    // Keyboard layout consists of one or more KeyButtonAreas,
-    // such as qwerty + function row.
-    QGraphicsLayout *keyboardLayout = 0;
-
     QGraphicsLayoutItem *item = mainLayout->itemAt(KeyboardIndex);
-    if (item == mainKeyboardSwitcher && mainKeyboardSwitcher->currentWidget()) {
-        keyboardLayout = mainKeyboardSwitcher->currentWidget()->layout();
-    } else {
-        keyboardLayout = static_cast<QGraphicsWidget *>(item)->layout();
-    }
 
-    // Draw reactive areas for all KeyButtonAreas in the layout.
-    // Note: Layout must not contain anything else than KeyButtonAreas.
-    if (keyboardLayout) {
-        for (int i = 0; i < keyboardLayout->count(); ++i) {
-            static_cast<KeyButtonArea *>(keyboardLayout->itemAt(i))->drawReactiveAreas(reactionMap,
-                                                                                       view);
-        }
+    if (item) {
+        const bool useWidgetFromSwitcher = (item == mainKeyboardSwitcher
+                                            && mainKeyboardSwitcher->currentWidget());
+
+        KeyButtonArea *kba = static_cast<KeyButtonArea *>(useWidgetFromSwitcher ? mainKeyboardSwitcher->currentWidget()
+                                                                                : item);
+
+        kba->drawReactiveAreas(reactionMap, view);
     }
 }
 
@@ -656,7 +625,6 @@ void MVirtualKeyboard::setKeyboardType(const int type)
 {
     // map m content type to layout model type
     LayoutData::LayoutType newLayoutType = LayoutData::General;
-    QGraphicsWidget *newWidget = 0;
 
     switch (type) {
     case M::NumberContentType:
@@ -673,35 +641,7 @@ void MVirtualKeyboard::setKeyboardType(const int type)
     }
 
     currentLayoutType = newLayoutType;
-
-    // remove what currently is in the keyboard position in the main layout
-    QGraphicsLayoutItem *previousItem = mainLayout->itemAt(KeyboardIndex);
-    mainLayout->removeItem(previousItem);
-    static_cast<QGraphicsWidget *>(previousItem)->hide();
-
-    // show appropriate keyboard widget
-    switch (currentLayoutType) {
-    case LayoutData::Number:
-        newWidget = numberKeyboard;
-        break;
-
-    case LayoutData::PhoneNumber:
-        newWidget = phoneNumberKeyboard;
-        break;
-    default:
-        newWidget = mainKeyboardSwitcher;
-        break;
-    }
-
-    mainLayout->insertItem(KeyboardIndex, newWidget);
-    if (activeState == MInputMethod::OnScreen) {
-        newWidget->show();
-    } else {
-        newWidget->hide();
-    }
-
-    // resize and update keyboards if needed
-    organizeContentAndSendRegion();
+    updateMainLayoutAtKeyboardIndex();
 }
 
 void MVirtualKeyboard::suppressRegionUpdate(bool suppress)
@@ -861,13 +801,7 @@ void MVirtualKeyboard::reloadSwitcherContent()
                                                            currentOrientation);
         mainSection->setObjectName("VirtualKeyboardMainRow");
         mainSection->setPreferredWidth(MPlainWindow::instance()->visibleSceneSize().width());
-
-        // create a new page for layout and append main and function sections
-        QGraphicsWidget *layoutPage = new QGraphicsWidget;
-        QGraphicsLinearLayout *keyboardLayout = createKeyAreaLayout(layoutPage);
-        keyboardLayout->addItem(mainSection);
-
-        mainKeyboardSwitcher->addWidget(layoutPage);
+        mainKeyboardSwitcher->addWidget(mainSection);
     }
 }
 
@@ -914,31 +848,22 @@ void MVirtualKeyboard::handleShiftPressed(bool shiftPressed)
         // When shift pressed, always use the second level. If not pressed, use whatever the current level is.
         const int level = shiftPressed ? 1 : currentLevel;
 
-        KeyButtonArea *mainKb = keyboardWidget(SectionMainIndex);
+        KeyButtonArea *mainKb = keyboardWidget();
         if (mainKb) {
             mainKb->switchLevel(level);
         }
     }
 }
 
-KeyButtonArea *MVirtualKeyboard::keyboardWidget(KeyboardSectionIndex sectionIndex, int layoutIndex) const
+KeyButtonArea *MVirtualKeyboard::keyboardWidget(int layoutIndex) const
 {
     if (!mainKeyboardSwitcher) {
         return 0;
     }
 
-    KeyButtonArea *kba = 0;
-    const QGraphicsWidget *activeKb = (layoutIndex == -1) ?
-                                       mainKeyboardSwitcher->currentWidget() :
-                                       mainKeyboardSwitcher->widget(layoutIndex);
-
-    if (activeKb
-        && activeKb->layout()
-        && activeKb->layout()->count() > sectionIndex) {
-        // The subwidgets have main section as first item in their layout.
-        kba = dynamic_cast<KeyButtonArea *>(activeKb->layout()->itemAt(sectionIndex));
-    }
-    return kba;
+    return static_cast<KeyButtonArea *>((layoutIndex == -1)
+                                        ? mainKeyboardSwitcher->currentWidget()
+                                        : mainKeyboardSwitcher->widget(layoutIndex));
 }
 
 void MVirtualKeyboard::recreateKeyboards()
@@ -951,52 +876,36 @@ void MVirtualKeyboard::recreateKeyboards()
 
 void MVirtualKeyboard::recreateSpecialKeyboards()
 {
-    // delete old number keyboards
-    for (int i = numberLayout->count(); i > 0; --i) {
-        delete numberLayout->itemAt(i - 1);
-    }
-
-    for (int i = phoneNumberLayout->count(); i > 0; --i) {
-        delete phoneNumberLayout->itemAt(i - 1);
-    }
+    // If mainLayout contains any of those, mainLayout will be updated by the
+    // QGraphicsLayoutItem dtor, and the layout items will be automatically
+    // removed from the mainLayout:
+    delete numberKeyboard;
+    numberKeyboard = 0;
+    delete phoneNumberKeyboard;
+    phoneNumberKeyboard = 0;
 
     // number:
     const QString defaultLayout = layoutsMgr.defaultLayoutFile();
 
-    KeyButtonArea *numberArea = createSectionView(defaultLayout, LayoutData::Number,
-                                                  currentOrientation, LayoutData::mainSection,
-                                                  false, numberKeyboard);
-
-    // TODO: remove me
-    KeyButtonArea *numberFunctionRow = createSectionView(defaultLayout, LayoutData::Number,
-                                                         currentOrientation, LayoutData::functionkeySection,
-                                                         false, numberKeyboard);
-
-    numberLayout->addItem(numberArea);
-    numberLayout->addItem(numberFunctionRow);
+    numberKeyboard = createSectionView(defaultLayout, LayoutData::Number,
+                                       currentOrientation, LayoutData::mainSection,
+                                       false, numberKeyboard);
 
     // phone:
-    KeyButtonArea *phoneArea = createSectionView(defaultLayout, LayoutData::PhoneNumber,
-                                                 currentOrientation, LayoutData::mainSection,
-                                                 false, phoneNumberKeyboard);
+    phoneNumberKeyboard = createSectionView(defaultLayout, LayoutData::PhoneNumber,
+                                            currentOrientation, LayoutData::mainSection,
+                                            false, phoneNumberKeyboard);
 
-    // TODO: remove me
-    KeyButtonArea *phoneFunctionArea = createSectionView(defaultLayout, LayoutData::PhoneNumber,
-                                                         currentOrientation, LayoutData::functionkeySection,
-                                                         false, phoneNumberKeyboard);
-
-    phoneNumberLayout->addItem(phoneArea);
-    phoneNumberLayout->addItem(phoneFunctionArea);
 
     // sanity check. Don't allow load failure for these
-    if (numberArea == 0 || numberFunctionRow == 0 || phoneArea == 0 || phoneFunctionArea == 0) {
+    if (!numberKeyboard || !phoneNumberKeyboard) {
         qFatal("Error loading number keyboard");
     }
 
-    numberArea->setObjectName("VirtualKeyboardNumberMainRow");
-    numberFunctionRow->setObjectName("VirtualKeyboardNumberFunctionRow");
-    phoneArea->setObjectName("VirtualKeyboardPhoneMainRow");
-    phoneFunctionArea->setObjectName("VirtualKeyboardPhoneFunctionRow");
+    numberKeyboard->setObjectName("VirtualKeyboardNumberMainRow");
+    phoneNumberKeyboard->setObjectName("VirtualKeyboardPhoneMainRow");
+
+    updateMainLayoutAtKeyboardIndex();
 }
 
 bool MVirtualKeyboard::symViewAvailable() const
@@ -1085,3 +994,42 @@ void MVirtualKeyboard::setTemporarilyHidden(bool hidden)
     }
 }
 
+void MVirtualKeyboard::updateMainLayoutAtKeyboardIndex()
+{
+    // remove what currently is in the keyboard position in the main layout
+    QGraphicsWidget *previousWidget = dynamic_cast<QGraphicsWidget *>(mainLayout->itemAt(KeyboardIndex));
+
+    if (previousWidget) {
+        if ((previousWidget == mainKeyboardSwitcher)
+            || (previousWidget == numberKeyboard)
+            || (previousWidget == phoneNumberKeyboard)) {
+            mainLayout->removeItem(previousWidget);
+            previousWidget->hide();
+        } else {
+            qWarning() << __PRETTY_FUNCTION__
+                       << "Unexpected widget found in main layout.";
+        }
+    }
+
+    // show appropriate keyboard widget
+    QGraphicsWidget *newWidget = 0;
+
+    switch (currentLayoutType) {
+    case LayoutData::Number:
+        newWidget = numberKeyboard;
+        break;
+
+    case LayoutData::PhoneNumber:
+        newWidget = phoneNumberKeyboard;
+        break;
+    default:
+        newWidget = mainKeyboardSwitcher;
+        break;
+    }
+
+    mainLayout->insertItem(KeyboardIndex, newWidget);
+    newWidget->setVisible(activeState == MInputMethod::OnScreen);
+
+    // resize and update keyboards if needed
+    organizeContentAndSendRegion();
+}

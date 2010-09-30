@@ -341,10 +341,7 @@ signals:
 
 
 private:
-    enum KeyboardSectionIndex {
-        SectionMainIndex = 0,
-        SectionFunctionIndex = 1
-    };
+    void updateMainLayoutAtKeyboardIndex();
 
     //! Getter for style container
     const MVirtualKeyboardStyleContainer &style() const;
@@ -364,7 +361,7 @@ private:
 
     const LayoutData *currentLayoutModel() const;
 
-    KeyButtonArea *keyboardWidget(KeyboardSectionIndex sectionIndex, int layoutIndex = -1) const;
+    KeyButtonArea *keyboardWidget(int layoutIndex = -1) const;
 
     /*!
      * Method to setup timeline
@@ -416,9 +413,6 @@ private:
 
     //! \brief Resets different components of vkb to their initial states.
     void resetState();
-
-    //! \brief Creates vertical linear layout with correct styling to hold multiple keyboard sections.
-    QGraphicsLinearLayout *createKeyAreaLayout(QGraphicsWidget *parent);
 
     //! \brief Returns height depending on current mode. It includes
     // toolbar only for hardware keyboard or whole widget for virtual
@@ -500,10 +494,7 @@ private:
     Notification *notification;
 
     QGraphicsWidget *numberKeyboard;
-    QGraphicsLinearLayout *numberLayout;
-
     QGraphicsWidget *phoneNumberKeyboard;
-    QGraphicsLinearLayout *phoneNumberLayout;
 
     QSharedPointer<QPixmap> backgroundPixmap;
 

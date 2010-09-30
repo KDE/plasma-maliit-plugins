@@ -184,8 +184,8 @@ void Ut_KeyButtonArea::testPortraitBoxSize()
 
             box = keyAt(0, 0)->buttonRect().size().toSize();
             qDebug() << "Current level" << level << "; Box size=" << box << subject->size();
-            QVERIFY(box.height() >= 60 && box.height() <= 80);
-            QVERIFY(box.width() >= 35 && box.width() <= 50);
+            QVERIFY(box.height() >= 50 && box.height() <= 80);
+            QVERIFY(box.width() >= 30 && box.width() <= 50);
         }
         ++fileCount;
     }
