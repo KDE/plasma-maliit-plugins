@@ -37,6 +37,7 @@ namespace
     const QString ObjectNameToolbar("MImToolbar");
     const QString ObjectNameToolbarLeft("VirtualKeyboardToolbarLeft");
     const QString ObjectNameToolbarRight("VirtualKeyboardToolbarRight");
+    const QString ObjectNameToolbarCenter("VirtualKeyboardToolbarCenter");
     const QString NameToolbarCopyPasteButton("VirtualKeyboardCopyPasteButton");
 };
 
@@ -45,11 +46,13 @@ MImToolbar::MImToolbar(QGraphicsWidget *parent)
       textSelected(false),
       leftBar(true, this),
       rightBar(true, this),
+      centerBar(true, this),
       arrangeWidgetsCalled(false),
       arrangeWidgetsDisabledCount(0)
 {
     leftBar.setObjectName(ObjectNameToolbarLeft);
     rightBar.setObjectName(ObjectNameToolbarRight);
+    centerBar.setObjectName(ObjectNameToolbarCenter);
     setObjectName(ObjectNameToolbar);
 
     setupLayout();
@@ -66,21 +69,31 @@ MImToolbar::~MImToolbar()
 void MImToolbar::setupLayout()
 {
     QGraphicsLinearLayout *mainLayout = new QGraphicsLinearLayout(Qt::Horizontal, this);
+
     mainLayout->setContentsMargins(0, 0, 0, 0);
 
     // Empty button bars are hidden.
     leftBar.hide();
     rightBar.hide();
+    centerBar.hide();
     // Add the left and right side WidgetBar widgets with a stretch item in between.
     mainLayout->addItem(&leftBar);
     mainLayout->addStretch();
+    mainLayout->addItem(&centerBar);
+    mainLayout->addStretch();
     mainLayout->addItem(&rightBar);
 
-    mainLayout->setAlignment(&leftBar, Qt::AlignBottom);
-    mainLayout->setAlignment(&rightBar, Qt::AlignBottom);
+    mainLayout->setAlignment(&leftBar, Qt::AlignBottom | Qt::AlignLeft);
+    mainLayout->setAlignment(&centerBar, Qt::AlignBottom | Qt::AlignHCenter);
+    mainLayout->setAlignment(&rightBar, Qt::AlignBottom | Qt::AlignRight);
 
     connect(&leftBar, SIGNAL(regionUpdated()), this, SLOT(arrangeWidgets()));
     connect(&rightBar, SIGNAL(regionUpdated()), this, SLOT(arrangeWidgets()));
+    connect(&centerBar, SIGNAL(regionUpdated()), this, SLOT(arrangeWidgets()));
+
+    leftBar.setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
+    centerBar.setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed));
+    rightBar.setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed));
 
     resize(geometry().width(), mainLayout->preferredHeight());
 }
@@ -188,21 +201,21 @@ void MImToolbar::loadCustomWidgets()
 
 
     foreach (QSharedPointer<MToolbarItem> item, layout->items()) {
-        createAndAppendWidget(item, &leftBar, &rightBar);
+        createAndAppendWidget(item);
     }
 }
 
-void MImToolbar::createAndAppendWidget(QSharedPointer<MToolbarItem> item,
-                                       WidgetBar *leftWidget,
-                                       WidgetBar *rightWidget)
+void MImToolbar::createAndAppendWidget(QSharedPointer<MToolbarItem> item)
 {
     MWidget *widget = 0;
     WidgetBar *sidebar = 0;
 
     if (item->alignment() == Qt::AlignLeft) {
-        sidebar = leftWidget;
+        sidebar = &leftBar;
+    } else if (item->alignment() == Qt::AlignRight) {
+        sidebar = &rightBar;
     } else {
-        sidebar = rightWidget;
+        sidebar = &centerBar;
     }
 
     updateItemVisibility(item);
@@ -235,6 +248,7 @@ void MImToolbar::unloadCustomWidgets()
     customWidgets.clear();
     leftBar.cleanup();
     rightBar.cleanup();
+    centerBar.cleanup();
 }
 
 void MImToolbar::suppressArrangeWidgets(bool suppress)

@@ -165,13 +165,13 @@ private:
 
     Qt::KeyboardModifiers keyModifiers(int key) const;
 
-    void createAndAppendWidget(QSharedPointer<MToolbarItem> item, WidgetBar *leftWidget,
-                               WidgetBar *rightWidget);
+    void createAndAppendWidget(QSharedPointer<MToolbarItem> item);
 
     bool textSelected;
 
-    WidgetBar leftBar;  //! Widget to hold left-aligned toolbar widgets
-    WidgetBar rightBar; //! Widget to hold right-aligned toolbar widgets
+    WidgetBar leftBar;   //! Widget to hold left-aligned toolbar widgets
+    WidgetBar rightBar;  //! Widget to hold right-aligned toolbar widgets
+    WidgetBar centerBar; //! Widget to hold center-aligned toolbar widgets
 
     QSharedPointer<const MToolbarData> currentToolbar; //! Pointer to definition of current toolbar
 
