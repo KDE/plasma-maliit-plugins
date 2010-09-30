@@ -293,7 +293,9 @@ endLayout:
 
 qreal SingleWidgetButtonArea::computeWidgetHeight() const
 {
-    qreal height = -(baseStyle()->spacingVertical());
+    qreal height = -(baseStyle()->spacingVertical())
+                   + baseStyle()->paddingTop()
+                   + baseStyle()->paddingBottom();
 
     for (int index = 0; index < rowList.count(); ++index) {
         height += preferredRowHeight(index);
@@ -460,7 +462,7 @@ void SingleWidgetButtonArea::updateButtonGeometriesForWidth(const int newAvailab
     const qreal equalButtonWidth = availableWidthForButtons / normalizedWidth;
 
     // This is used to update the button rectangles
-    qreal y = 0;
+    qreal y = baseStyle()->paddingTop();
 
     // Button margins
     const qreal leftMargin = HorizontalSpacing / 2;
@@ -477,7 +479,8 @@ void SingleWidgetButtonArea::updateButtonGeometriesForWidth(const int newAvailab
         row->buttonOffsets.clear();
 
         // Store the row offsets for fast key lookup:
-        const int lastRowOffset = (rowOffsets.isEmpty()) ? -(baseStyle()->spacingVertical() / 2)
+        const int lastRowOffset = (rowOffsets.isEmpty()) ? baseStyle()->paddingTop()
+                                                           - baseStyle()->spacingVertical() / 2
                                                          : rowOffsets.at(rowOffsets.count() - 1).second;
 
         rowOffsets.append(QPair<int, int>(lastRowOffset,
@@ -525,7 +528,10 @@ void SingleWidgetButtonArea::updateButtonGeometriesForWidth(const int newAvailab
 
         // We can precalculate button rectangles.
         br.moveTop(y - topMargin);
-        qreal x = spacerIndices.count(-1) * availableWidthForSpacers;
+
+        // A spacer with an index of -1 means it was put before any button in that row.
+        // Also add layout padding:
+        qreal x = baseStyle()->paddingLeft() + spacerIndices.count(-1) * availableWidthForSpacers;
 
         for (int buttonIndex = 0; buttonIndex < row->buttons.count(); ++buttonIndex) {
             SingleWidgetButton *button = row->buttons.at(buttonIndex);
