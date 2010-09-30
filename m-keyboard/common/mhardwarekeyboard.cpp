@@ -183,7 +183,6 @@ void MHardwareKeyboard::toggleCustomAutoRepeat(const bool enable)
             XK_ISO_Level3_Shift, // Fn
             XK_Multi_key, // Sym
             XK_Shift_L,
-            XK_Shift_R,
             XK_Control_R
         };
 
