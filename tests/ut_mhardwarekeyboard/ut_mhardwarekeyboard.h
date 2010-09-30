@@ -56,7 +56,6 @@ private slots:
     void testSymPlusCharacterBasic();
     void testSymPlusCharSwitchs();
 
-    void testReleaseEvents();
     void testDelete_data();
     void testDelete();
 
