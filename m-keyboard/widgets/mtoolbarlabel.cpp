@@ -15,6 +15,7 @@
  */
 
 #include "mtoolbarlabel.h"
+#include "mtoolbarlabelview.h"
 #include <mtoolbaritem.h>
 
 MToolbarLabel::MToolbarLabel(QSharedPointer<MToolbarItem> item,
@@ -22,6 +23,8 @@ MToolbarLabel::MToolbarLabel(QSharedPointer<MToolbarItem> item,
     : MLabel(parent),
       itemPtr(item)
 {
+    setView(new MToolbarLabelView(this));
+
     if (item->name().isEmpty()) {
         setObjectName(item->name());
     }

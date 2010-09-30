@@ -17,6 +17,7 @@ STYLE_HEADERS += \
     $$WIDGETS_DIR/mimtoolbarstyle.h \
     $$WIDGETS_DIR/mimcorrectioncandidatecontainerstyle.h \
     $$WIDGETS_DIR/mimcorrectioncandidateitemstyle.h \
+    $$WIDGETS_DIR/mtoolbarlabelstyle.h \
 
 HEADERS += \
     $$STYLE_HEADERS \
@@ -46,6 +47,7 @@ HEADERS += \
     $$WIDGETS_DIR/mkeyboardsettingswidget.h \
     $$WIDGETS_DIR/getcssproperty.h \
     $$WIDGETS_DIR/mimoverlay.h \
+    $$WIDGETS_DIR/mtoolbarlabelview.h \
 
 SOURCES += \
     $$WIDGETS_DIR/widgetbar.cpp \
@@ -71,6 +73,7 @@ SOURCES += \
     $$WIDGETS_DIR/sharedhandlearea.cpp \
     $$WIDGETS_DIR/mkeyboardsettingswidget.cpp \
     $$WIDGETS_DIR/mimoverlay.cpp \
+    $$WIDGETS_DIR/mtoolbarlabelview.cpp \
 
 INCLUDEPATH += $$WIDGETS_DIR
 DEPENDPATH += $$WIDGETS_DIR
