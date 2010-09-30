@@ -8,6 +8,7 @@ meego-keyboard (0.5.4-1) unstable; urgency=low
 
   * Adapted to im framework enum namespace changes
   * Implemented: SWP#TINME-1120 - KeyButtonAreaStyle
+  * Implemented: SWP#TINME-1041
 
  -- huaming wang <huaming.wang@nokia.com>  Thu, 14 Oct 2010 12:47:33 +0300
 
