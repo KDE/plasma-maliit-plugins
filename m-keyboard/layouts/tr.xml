@@ -335,5 +335,5 @@
         </row>
       </section>
    </layout>
-    <import file="symbols_hu_ro_tk.xml"/>
+    <import file="symbols_hu_ro_tr.xml"/>
 </keyboard>
