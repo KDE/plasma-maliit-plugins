@@ -1,3 +1,11 @@
+meego-keyboard (0.5.3~1) unstable; urgency=low
+
+  * [UNRELEASED]
+  * Fixes: NB#194475 - fixed by commit "visibility of symbol view depends on visualization priority"
+  * Fixes: Turkish language code is "tr", not "tk".
+
+ -- Ning Chi <ext-chi.ning@nokia.com>  Fri,  1 Oct 2010 12:09:43 +0300
+
 meego-keyboard (0.5.2-1) unstable; urgency=low
 
   * Fixes: NB#187131 - Toolbar containing paste is missing in a given scenario.
