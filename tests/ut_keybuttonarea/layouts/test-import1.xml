@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE VirtualKeyboardLayoutDTD SYSTEM 'VirtualKeyboardLayoutDTD.dtd'>
+<!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
 <keyboard title="test-import1-title" version="1.0" catalog="en_GB" language="test-import1-language" >
   <layout type="general" orientation="landscape" >
-    <section id="main" type="sloppy" vertical_alignment="center" horizontal_alignment="center" movable="false">
+    <section id="main" type="sloppy" movable="false">
       <row>
         <key>
           <binding label="1" />
