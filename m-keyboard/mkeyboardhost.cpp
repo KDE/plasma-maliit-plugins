@@ -165,7 +165,8 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection *icConnection, QObject *par
       modifierLockOnBanner(0),
       haveFocus(false),
       enableMultiTouch(false),
-      cycleKeyHandler(new CycleKeyHandler(*this))
+      cycleKeyHandler(new CycleKeyHandler(*this)),
+      currentIndicatorDeadKey(false)
 {
     displayHeight = MPlainWindow::instance()->visibleSceneSize(M::Landscape).height();
     displayWidth  = MPlainWindow::instance()->visibleSceneSize(M::Landscape).width();
@@ -1300,6 +1301,8 @@ void MKeyboardHost::setState(const QSet<MIMHandlerState> &state)
     if (activeState == OnScreen) {
         hideLockOnInfoBanner();
         sendInputModeIndicator(MInputMethodBase::NoIndicator);
+        disconnect(hardwareKeyboard, SIGNAL(deadKeyStateChanged(const QChar &)),
+                   this, SLOT(handleHwKeyboardStateChanged()));
         disconnect(hardwareKeyboard, SIGNAL(modifiersStateChanged()),
                    this, SLOT(handleHwKeyboardStateChanged()));
         disconnect(hardwareKeyboard, SIGNAL(scriptChanged()),
@@ -1308,6 +1311,9 @@ void MKeyboardHost::setState(const QSet<MIMHandlerState> &state)
             hardwareKeyboard->disable();
         }
     } else {
+        currentIndicatorDeadKey = false;
+        connect(hardwareKeyboard, SIGNAL(deadKeyStateChanged(const QChar &)),
+                this, SLOT(handleHwKeyboardStateChanged()));
         connect(hardwareKeyboard, SIGNAL(modifiersStateChanged()),
                 this, SLOT(handleHwKeyboardStateChanged()));
         connect(hardwareKeyboard, SIGNAL(scriptChanged()),
@@ -1361,6 +1367,26 @@ void MKeyboardHost::showSymbolView()
     updateSymbolViewLevel();
 }
 
+MInputMethodBase::InputModeIndicator MKeyboardHost::deadKeyToIndicator(const QChar &key)
+{
+    switch (key.unicode()) {
+    case 0x00b4:
+        return MInputMethodBase::DeadKeyAcute;
+    case 0x02c7:
+        return MInputMethodBase::DeadKeyCaron;
+    case 0x005e:
+        return MInputMethodBase::DeadKeyCircumflex;
+    case 0x00a8:
+        return MInputMethodBase::DeadKeyDiaeresis;
+    case 0x0060:
+        return MInputMethodBase::DeadKeyGrave;
+    case 0x007e:
+        return MInputMethodBase::DeadKeyTilde;
+    default:
+        return MInputMethodBase::NoIndicator;
+    }
+}
+
 void MKeyboardHost::handleHwKeyboardStateChanged()
 {
     // only change indicator state when there is focus is in a widget and state is Hardware.
@@ -1372,9 +1398,16 @@ void MKeyboardHost::handleHwKeyboardStateChanged()
     const QString xkbLayout = LayoutsManager::instance().xkbLayout();
     const QString xkbVariant = LayoutsManager::instance().xkbVariant();
 
-    MInputMethodBase::InputModeIndicator indicatorState = MInputMethodBase::NoIndicator;
+    const bool previousIndicatorDeadKey(currentIndicatorDeadKey);
 
-    if (fnState == ModifierLockedState) {
+    MInputMethodBase::InputModeIndicator indicatorState
+        = deadKeyToIndicator(hardwareKeyboard->deadKeyState());
+
+    currentIndicatorDeadKey = false;
+
+    if (indicatorState != MInputMethodBase::NoIndicator) {
+        currentIndicatorDeadKey = true;
+    } else if (fnState == ModifierLockedState) {
         indicatorState = MInputMethodBase::NumAndSymLocked;
 
     } else if (fnState == ModifierLatchedState) {
@@ -1414,6 +1447,7 @@ void MKeyboardHost::handleHwKeyboardStateChanged()
         lockOnNotificationLabel = qtTrId("qtn_hwkb_fn_lock");
     }
     if (!lockOnNotificationLabel.isEmpty()
+        && !previousIndicatorDeadKey
         && hardwareKeyboard->keyboardType() != M::NumberContentType
         && hardwareKeyboard->keyboardType() != M::PhoneNumberContentType) {
         // notify the modifier is changed to locked state

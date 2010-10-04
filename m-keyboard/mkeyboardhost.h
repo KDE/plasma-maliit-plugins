@@ -261,6 +261,10 @@ private:
     //! initialize input engine
     void initializeInputEngine();
 
+    //! \return input mode indicator corresponding to a dead \a key character or
+    //! MInputMethodBase::NoIndicator if not a (supported) dead key character
+    static MInputMethodBase::InputModeIndicator deadKeyToIndicator(const QChar &key);
+
 private:
     class CycleKeyHandler; //! Reacts to cycle key press events.
     friend class CycleKeyHandler;
@@ -340,6 +344,9 @@ private:
     QPointer<MImToolbar> imToolbar;
 
     CycleKeyHandler *cycleKeyHandler;
+
+    bool currentIndicatorDeadKey;
+
 #ifdef UNIT_TEST
     friend class Ut_MKeyboardHost;
 #endif
