@@ -76,6 +76,8 @@ namespace
     const QString VKBTagAccents              = QString("accents");
     const QString VKBTagAccentedLabels       = QString("accented_labels");
 
+    const QString VKBTagExtendedLabels       = QString("extended_labels");
+
     const QString VKBTagKeyAction            = QString("action");
     const QString VKBTagCycleSet             = QString("cycleset");
     const QString VKBTagSecondaryLabel       = QString("secondary_label");
@@ -510,6 +512,8 @@ void KeyboardData::parseTagBinding(const QDomElement &element, ParseParameters &
 
     binding->accents = element.attribute(VKBTagAccents);
     binding->accentedLabels = element.attribute(VKBTagAccentedLabels);
+
+    binding->extended_labels = element.attribute(VKBTagExtendedLabels);
 
     params.currentKey->bindings[shift ? VKBDataKey::Shift : VKBDataKey::NoShift] = binding;
 }

@@ -13,8 +13,10 @@
               <binding shift="true" label="W"/>
             </key>
             <key>
-              <binding accented_labels="éë" accents="´¨" label="e"/>
-              <binding shift="true" accented_labels="ÉË" accents="´¨" label="E"/>
+              <binding accented_labels="éë" accents="´¨" label="e"
+                       extended_labels="êè"/>
+              <binding shift="true" accented_labels="ÉË" accents="´¨" label="E"
+                       extended_labels="ÊÈ"/>
             </key>
             <key>
               <binding label="r"/>

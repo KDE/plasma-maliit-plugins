@@ -141,7 +141,10 @@ Binding describes the look and the behaviour of a key when current modifier
 state matches the \c shift and \c alt attributes.  Attributes affecting the
 behaviour are \c action, \c label, \c cycleset and \dead.  Attributes
 affecting the look are \c action, \c label, \c secondary_label, \c accents
-and \c accented_labels.
+and \c accented_labels.  \c extended_labels provides additional
+labels/characters that are often accented characters and displayed using a
+mechanism different from normal label/secondary label/accented label
+display.
 
 Attributes:
 
@@ -168,6 +171,8 @@ accents attribute.  If a dead key has been clicked and its \c label can be
 found in the \c accents attribute, the index of that character in \c accents
 is used to index \c accented_labels string and the found character is
 temporarily used in place of the value of the \c label attribute.
+\li \c extended_labels A string of characters to be made accessible in
+addition to other *_labels attributes.
 \li \c cycleset This is used together with the \c cycle \c action to provide
 multitap functionality for the key.  That is, repeated key clicks cycle
 through the characters in the \c cycleset string.

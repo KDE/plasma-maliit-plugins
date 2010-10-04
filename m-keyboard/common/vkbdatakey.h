@@ -81,6 +81,9 @@ public:
     //! \return what this key should do
     KeyAction action() const;
 
+    //! \return extra labels available for the key binding
+    QString extendedLabels() const;
+
 private:
     //! Helper method for toKeyEvent methods
     KeyEvent toKeyEventImpl(QKeyEvent::Type eventType,
@@ -98,6 +101,8 @@ private:
     QString accents;
     //! Labels corresponding to accents
     QString accentedLabels;
+    //! Extra labels of the extended_labels attribute
+    QString extended_labels;
     //! Secondary label
     QString secondary_label;
     //! Default key label
@@ -132,6 +137,11 @@ inline  bool KeyBinding::isDead() const
 inline KeyBinding::KeyAction KeyBinding::action() const
 {
     return keyAction;
+}
+
+inline QString KeyBinding::extendedLabels() const
+{
+    return extended_labels;
 }
 
 

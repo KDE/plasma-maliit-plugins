@@ -45,5 +45,6 @@
   secondary_label CDATA #IMPLIED
   accents CDATA #IMPLIED
   accented_labels CDATA #IMPLIED
+  extended_labels CDATA #IMPLIED
   cycleset CDATA #IMPLIED
   dead (true | false) "false">

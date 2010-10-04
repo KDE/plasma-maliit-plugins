@@ -525,6 +525,18 @@ void Ut_KeyButtonArea::testTwoDeadInOne()
     QCOMPARE(characterKey->label(), expectedCharacterLabel);
 }
 
+void Ut_KeyButtonArea::testExtendedLabels()
+{
+    keyboard = new KeyboardData(style);
+    QVERIFY(keyboard->loadNokiaKeyboard("test-layout.xml"));
+    subject = createSingleWidgetKeyButtonArea(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
+                                              false, 0);
+
+    const IKeyButton *eKey(keyAt(0, 2)); // e, ...
+    QCOMPARE(eKey->key().binding(false)->extendedLabels(), QString("%1%2").arg(QChar(0xea)).arg(QChar(0xe8)));
+    QCOMPARE(eKey->key().binding(true)->extendedLabels(), QString("%1%2").arg(QChar(0xca)).arg(QChar(0xc8)));
+}
+
 void Ut_KeyButtonArea::testImportedLayouts_data()
 {
     QTest::addColumn<KBACreator>("createKba");
