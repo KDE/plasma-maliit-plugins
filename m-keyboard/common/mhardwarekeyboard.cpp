@@ -462,7 +462,7 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
         keyCode = text.isEmpty() ? Qt::Key_unknown : static_cast<Qt::Key>(QKeySequence(text)[0]);
     }
 
-    pressedKeys.insert(nativeScanCode, true);
+    pressedKeys.insert(nativeScanCode, nativeModifiers);
 
     if (keyCode == SymKey) {
         characterLoopIndex = -1;
@@ -559,6 +559,7 @@ bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers 
         keyCode = text.isEmpty() ? Qt::Key_unknown : static_cast<Qt::Key>(QKeySequence(text)[0]);
     }
     const bool keyWasPressed(pressedKeys.contains(nativeScanCode));
+    const quint32 pressNativeModifiers(pressedKeys.value(nativeScanCode));
 
     // Relock modifiers; X seems to unlock Fn automatically on Fn release, which is not
     // desired at least with [phone] number content type.
@@ -584,8 +585,10 @@ bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers 
         handleCyclableModifierRelease(FnLevelKey, FnModifierMask, FnModifierMask, LockMask,
                                       LockMask);
         eaten = true;
-    } else if (!eaten && !passKeyOnPress(keyCode, text, nativeScanCode, nativeModifiers)) {
+    } else if (!eaten && !passKeyOnPress(keyCode, text, nativeScanCode, nativeModifiers)
+               && !(pressNativeModifiers & ControlMask)) {
         const bool deadKey(preedit == deadKeyMapper.currentDeadKey());
+
         if (keyWasPressed && !deadKey) {
             inputContextConnection.sendCommitString(preedit);
             preedit.clear();

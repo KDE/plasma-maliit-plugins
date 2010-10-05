@@ -294,7 +294,9 @@ private:
     //! An attribute of the last key event passed to filterKeyEvent.
     Qt::Key lastKeyCode;
 
-    typedef QHash<quint32, bool> PressedKeyMap; // key is native scan code / X keycode
+    // key is native scan code / X keycode, value is native modifiers at the time of the
+    // press event
+    typedef QHash<quint32, quint32> PressedKeyMap;
     PressedKeyMap pressedKeys;
 
     //! X modifier mask of currently latched modifiers.  This approximates X modifier state and

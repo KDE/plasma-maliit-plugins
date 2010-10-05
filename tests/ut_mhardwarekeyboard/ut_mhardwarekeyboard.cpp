@@ -954,6 +954,16 @@ void Ut_MHardwareKeyboard::testControlModifier()
     QVERIFY(!filterKeyPress(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, ControlMask));
     QVERIFY(!filterKeyRelease(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, ControlMask));
     filterKeyRelease(Qt::Key_Control, Qt::NoModifier, "", KeycodeNonCharacter, ControlMask);
+
+    // We also pass character release if it was pressed with control modifier.  This is a
+    // rather arbitrary decision and actually the main thing is that we don't try to
+    // commit anything (which would kill the selection).
+    inputContextConnection->sendCommitString("foo");
+    filterKeyPress(Qt::Key_Control, Qt::NoModifier, "", KeycodeNonCharacter, 0);
+    QVERIFY(!filterKeyPress(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, ControlMask));
+    filterKeyRelease(Qt::Key_Control, Qt::NoModifier, "", KeycodeNonCharacter, ControlMask);
+    QVERIFY(!filterKeyRelease(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, 0));
+    QCOMPARE(inputContextConnection->lastCommitString(), QString("foo"));
 }
 
 
@@ -1094,5 +1104,6 @@ void Ut_MHardwareKeyboard::testDeadKeys()
 
     QCOMPARE(m_hkb->deadKeyState(), QChar());
 }
+
 
 QTEST_APPLESS_MAIN(Ut_MHardwareKeyboard);
