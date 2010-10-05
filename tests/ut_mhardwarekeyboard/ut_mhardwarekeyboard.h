@@ -42,6 +42,8 @@ private slots:
     void testBasicModifierCycles_data();
     void testBasicModifierCycles();
     void testAutoCaps();
+    void testShiftPlusCharacter_data();
+    void testShiftPlusCharacter();
     void testStateReset_data();
     void testStateReset();
     void testModifierInNonTextContentType_data();

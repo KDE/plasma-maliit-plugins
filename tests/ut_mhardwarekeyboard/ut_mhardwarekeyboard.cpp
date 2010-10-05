@@ -424,6 +424,34 @@ void Ut_MHardwareKeyboard::testAutoCaps()
 }
 
 
+void Ut_MHardwareKeyboard::testShiftPlusCharacter_data()
+{
+    QTest::addColumn<int>("state");
+    QTest::newRow("Shift latched") << 1;
+    QTest::newRow("Autocaps") << 3;
+}
+
+void Ut_MHardwareKeyboard::testShiftPlusCharacter()
+{
+    QFETCH(int, state);
+
+    setState(state);
+
+    // Shift+<character> does not change modifier state.
+    filterKeyPress(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, 0);
+    QVERIFY(filterKeyPress(Qt::Key_A, Qt::NoModifier, "A", KeycodeCharacter, ShiftMask | LockMask));
+    QVERIFY(filterKeyRelease(Qt::Key_A, Qt::NoModifier, "A", KeycodeCharacter, ShiftMask | LockMask));
+    if (state == 3) {
+        // This doesn't change modifier state either, but clears autocapitalization flag.
+        m_hkb->setAutoCapitalization(false);
+    }
+    filterKeyRelease(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, ShiftMask | LockMask);
+
+    QVERIFY(checkLatchedState(ShiftMask | LockMask | FnModifierMask, LockMask));
+    QVERIFY(!m_hkb->autoCaps);
+}
+
+
 void Ut_MHardwareKeyboard::testStateReset_data()
 {
     QTest::addColumn<int>("state");

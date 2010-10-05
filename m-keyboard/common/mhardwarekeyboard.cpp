@@ -595,7 +595,7 @@ bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers 
         }
         eaten = true;
 
-        if (!autoCaps && !deadKey) {
+        if (!autoCaps && !deadKey && !(pressNativeModifiers & ShiftMask)) {
             latchModifiers(FnModifierMask | LockMask, 0);
         }
     }
@@ -754,7 +754,9 @@ void MHardwareKeyboard::setAutoCapitalization(bool state)
              || autoCaps)
             && !stateTransitionsDisabled && (characterLoopIndex == -1)
             && deadKeyMapper.currentDeadKey().isNull()) {
-            latchModifiers(LockMask, state ? LockMask : 0);
+            if (!(autoCaps && shiftsPressed)) {
+                latchModifiers(LockMask, state ? LockMask : 0);
+            }
             autoCaps = state;
         }
     }
