@@ -6,6 +6,7 @@ INSTALL_HEADERS += \
     $$WIDGETS_DIR/mvirtualkeyboardstyle.h \
     $$WIDGETS_DIR/keybuttonareastyle.h \
     $$WIDGETS_DIR/popupplugin.h \
+    $$WIDGETS_DIR/mimoverlay.h \
 
 STYLE_HEADERS += \
     $$WIDGETS_DIR/widgetbarstyle.h \
@@ -44,6 +45,7 @@ HEADERS += \
     $$WIDGETS_DIR/sharedhandlearea.h \
     $$WIDGETS_DIR/mkeyboardsettingswidget.h \
     $$WIDGETS_DIR/getcssproperty.h \
+    $$WIDGETS_DIR/mimoverlay.h \
 
 SOURCES += \
     $$WIDGETS_DIR/widgetbar.cpp \
@@ -67,7 +69,8 @@ SOURCES += \
     $$WIDGETS_DIR/handle.cpp \
     $$WIDGETS_DIR/grip.cpp \
     $$WIDGETS_DIR/sharedhandlearea.cpp \
-    $$WIDGETS_DIR/mkeyboardsettingswidget.cpp
+    $$WIDGETS_DIR/mkeyboardsettingswidget.cpp \
+    $$WIDGETS_DIR/mimoverlay.cpp \
 
 INCLUDEPATH += $$WIDGETS_DIR
 DEPENDPATH += $$WIDGETS_DIR
