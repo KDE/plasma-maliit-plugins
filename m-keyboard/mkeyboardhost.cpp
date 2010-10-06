@@ -789,7 +789,7 @@ void MKeyboardHost::updatePreedit(const QString &updatedString)
 }
 
 
-void MKeyboardHost::doBackspace()
+void MKeyboardHost::doBackspace(bool sendEvent)
 {
     // note: backspace shouldn't start accurate mode
     if (preedit.length() > 0) {
@@ -802,7 +802,7 @@ void MKeyboardHost::doBackspace()
             backSpaceTimer.stop();
             inputContextConnection()->sendCommitString("");
         }
-    } else {
+    } else if (sendEvent) {
         static const KeyEvent event("\b", QEvent::KeyRelease, Qt::Key_Backspace,
                                     KeyEvent::NotSpecial,
                                     vkbWidget->shiftStatus() != ModifierClearState
@@ -821,7 +821,7 @@ void MKeyboardHost::doBackspace()
 void MKeyboardHost::autoBackspace()
 {
     backSpaceTimer.start(BackspaceRepeatInterval); // Must restart before doBackspace
-    doBackspace();
+    doBackspace(true);  // send key press+release events too
 }
 
 void MKeyboardHost::handleKeyPress(const KeyEvent &event)
@@ -836,15 +836,18 @@ void MKeyboardHost::handleKeyPress(const KeyEvent &event)
         }
     }
 
+    bool signalOnly = true;
     if (((inputMethodMode == M::InputMethodModeDirect)
          && (event.specialKey() == KeyEvent::NotSpecial))
         || (event.qtKey() == Qt::Key_plusminus)) { // plusminus key makes an exception
 
-        inputContextConnection()->sendKeyEvent(event.toQKeyEvent());
+        signalOnly = false;
 
     } else if (event.qtKey() == Qt::Key_Backspace) {
         backSpaceTimer.start(AutoBackspaceDelay);
     }
+
+    inputContextConnection()->sendKeyEvent(event.toQKeyEvent(), signalOnly);
 }
 
 void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
@@ -859,16 +862,19 @@ void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
         }
     }
 
+    bool signalOnly = true;
     if (((inputMethodMode == M::InputMethodModeDirect)
          && (event.specialKey() == KeyEvent::NotSpecial))
         || (event.qtKey() == Qt::Key_plusminus)) { // plusminus key makes an exception
 
-        inputContextConnection()->sendKeyEvent(event.toQKeyEvent());
+        signalOnly = false;
 
     } else if ((event.qtKey() == Qt::Key_Backspace) && backSpaceTimer.isActive()) {
         backSpaceTimer.stop();
-        doBackspace();
+        doBackspace(false);  // don't send key press + release in doBackspace
     }
+
+    inputContextConnection()->sendKeyEvent(event.toQKeyEvent(), signalOnly);
 }
 
 void MKeyboardHost::updateReactionMaps()

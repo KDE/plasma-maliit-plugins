@@ -199,7 +199,7 @@ private:
     void resetVirtualKeyboardShiftState();
 
     //! Actual backspace operation
-    void doBackspace();
+    void doBackspace(bool sendEvent);
 
     // shows the layout menu
     void showLayoutMenu();

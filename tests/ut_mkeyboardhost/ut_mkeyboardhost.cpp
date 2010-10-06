@@ -1524,5 +1524,41 @@ void Ut_MKeyboardHost::testWYTIWYSErrorCorrection()
     subject->imCorrectionEngine = 0;
 }
 
+const struct {
+    const char *str;
+    Qt::Key key;
+}
+testEvents[] = {
+    { "k", Qt::Key_K },
+    { "+-", Qt::Key_plusminus },
+    { "\b", Qt::Key_Backspace },
+    { 0, Qt::Key_unknown }
+};
+
+void Ut_MKeyboardHost::testSignals(M::InputMethodMode inputMethodMode)
+{
+    subject->inputMethodMode = inputMethodMode;
+
+    inputContext->clear();
+    for(int i = 0; testEvents[i].str != 0; ++i ) {
+        subject->handleKeyPress(KeyEvent(testEvents[i].str, QEvent::KeyPress,
+                                         testEvents[i].key) );
+        QCOMPARE(inputContext->sendKeyEventCalls, 2*i+1);
+        subject->handleKeyRelease(KeyEvent(testEvents[i].str, QEvent::KeyRelease,
+                                         testEvents[i].key) );
+        QCOMPARE(inputContext->sendKeyEventCalls, 2*i+2);
+    }
+}
+
+void Ut_MKeyboardHost::testSignalsInNormalMode()
+{
+    testSignals(M::InputMethodModeNormal);
+}
+
+void Ut_MKeyboardHost::testSignalsInDirectMode()
+{
+    testSignals(M::InputMethodModeDirect);
+}
+
 QTEST_APPLESS_MAIN(Ut_MKeyboardHost);
 

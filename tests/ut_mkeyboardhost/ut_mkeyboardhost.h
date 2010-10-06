@@ -95,9 +95,13 @@ private slots:
 
     void testWYTIWYSErrorCorrection();
 
+    void testSignalsInNormalMode();
+    void testSignalsInDirectMode();
+
 private:
     void rotateToAngle(M::OrientationAngle);
     void triggerAutoCaps();
+    void testSignals(M::InputMethodMode inputMode);
 
 public:
     enum TestOperation {
