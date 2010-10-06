@@ -95,8 +95,10 @@ public:
         lastCommitStringM = string;
     }
 
-    virtual void sendKeyEvent(const QKeyEvent &keyEvent)
+    virtual void sendKeyEvent(const QKeyEvent &keyEvent,
+                              bool signalOnly)
     {
+        Q_UNUSED(signalOnly);
         ++keyEventCounter;
         lastKeyEventM = keyEvent;
     }

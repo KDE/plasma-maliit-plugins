@@ -34,7 +34,7 @@ public:
 
     virtual void sendPreeditString(const QString &string, PreeditFace preeditFace);
     virtual void sendCommitString(const QString &string);
-    virtual void sendKeyEvent(const QKeyEvent &keyEvent);
+    virtual void sendKeyEvent(const QKeyEvent &keyEvent, bool signalOnly);
     virtual void notifyImInitiatedHiding();
 
     virtual int contentType(bool &);
