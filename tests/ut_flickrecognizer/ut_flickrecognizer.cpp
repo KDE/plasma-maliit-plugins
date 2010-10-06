@@ -26,16 +26,16 @@
 #include <MSceneManager>
 #include <MWindow>
 #include <QGraphicsSceneMouseEvent>
-#include <QGraphicsWidget>
+#include <MSceneWindow>
 
 Q_DECLARE_METATYPE(FlickGesture::Direction);
 Q_DECLARE_METATYPE(QList<QPoint>);
 
-class FlickTarget : public QGraphicsWidget
+class FlickTarget : public MSceneWindow
 {
 public:
     FlickTarget(QGraphicsItem *parent = 0)
-        : QGraphicsWidget(parent)
+        : MSceneWindow(parent)
     {
     }
 
@@ -149,7 +149,8 @@ void Ut_FlickRecognizer::initTestCase()
     window->scene()->setSceneRect(QRect(QPoint(0, 0), sceneMgr->visibleSceneSize()));
 
     target = new FlickTarget;
-    window->scene()->addItem(target);
+    QSignalSpy spy(target, SIGNAL(appeared()));
+    target->appear(window);
     target->setPos(0, 0);
     target->resize(864, 480);
 
@@ -179,8 +180,13 @@ void Ut_FlickRecognizer::initTestCase()
     window->show();
     QTest::qWaitForWindowShown(window);
 
+    // Wait for target to be ready
+    while(spy.count() < 1) {
+        QTest::qWait(100);
+    }
     // Used to have trouble with delayed show caused by remote theme. Let's still have the check.
     QVERIFY(window->isVisible());
+    QVERIFY(window->testAttribute(Qt::WA_Mapped));
 }
 
 void Ut_FlickRecognizer::cleanupTestCase()
@@ -257,8 +263,6 @@ void Ut_FlickRecognizer::testTimeout()
     QCOMPARE(target->numberOfFlickGestures(), expectedNumOfGestures);
 }
 
-// comment below test cases due to MCompositor bug: NB#182701 breaks us
-#if 0
 void Ut_FlickRecognizer::testMovementThreshold_data()
 {
     QTest::addColumn<QPoint>("start");
@@ -392,7 +396,6 @@ void Ut_FlickRecognizer::testInvalidTwoFinger()
 
     QCOMPARE(target->numberOfFlickGestures(), (wasFlicked ? 1 : 0));
 }
-#endif
 
 
 QTEST_APPLESS_MAIN(Ut_FlickRecognizer);
