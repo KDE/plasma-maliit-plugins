@@ -3,6 +3,12 @@ meego-keyboard (0.5.3~1) unstable; urgency=low
   * [UNRELEASED]
   * Fixes: NB#194475 - fixed by commit "visibility of symbol view depends on visualization priority"
   * Fixes: Turkish language code is "tr", not "tk".
+  * Fixes: NB#188659 - Pressing Ctrl+A removes the text in a scenario
+  * Fixes: NB#185965 - Autorepeat of arrow keys shows Highlighted text if Autocaps text is present
+  * Fixes: hwkb: shift+character must not unlatch shift
+  * Fixes: hwkb character loop DTD
+  * Fixes: hwkb: invalid key insertion on release after reset()
+  * Implemented: initial dead key support for hardware keyboard
 
  -- Ning Chi <ext-chi.ning@nokia.com>  Fri,  1 Oct 2010 12:09:43 +0300
 
