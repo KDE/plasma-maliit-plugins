@@ -30,6 +30,13 @@ KeyBinding::KeyBinding()
 {
 }
 
+KeyBinding::KeyBinding(const QString &label)
+    : keyAction(ActionInsert),
+      keyLabel(label),
+      dead(false)
+{
+}
+
 QString KeyBinding::accented(QChar accent) const
 {
     QString activeLabel;
@@ -131,6 +138,15 @@ VKBDataKey::~VKBDataKey()
         delete bindings[NoShift];
     }
     delete bindings[Shift];
+}
+
+void VKBDataKey::setBinding(const KeyBinding &binding, bool shift)
+{
+    const KeyBinding *&store(bindings[shift ? Shift : NoShift]);
+    if (store) {
+        delete store;
+    }
+    store = &binding;
 }
 
 KeyEvent VKBDataKey::toKeyEvent(QKeyEvent::Type eventType, bool shift) const

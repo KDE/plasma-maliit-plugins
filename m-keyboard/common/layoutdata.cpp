@@ -90,6 +90,34 @@ LayoutSection::LayoutSection()
 {
 }
 
+LayoutSection::LayoutSection(const QString &characters, bool rtl,
+                             const MVirtualKeyboardStyleContainer *styleContainer)
+    : mMaxColumns(characters.length()),
+      mMaxNormalizedWidth(0),
+      movable(false),
+      sectionName("<dynamic section>"),
+      sectionType(Sloppy)
+{
+    Row *row(new Row);
+    row->heightType = Medium;
+    rows.append(row);
+
+    for (int i = 0; i < characters.length(); ++i) {
+        VKBDataKey *key(new VKBDataKey(VKBDataKey::NormalStyle, VKBDataKey::Medium, true, rtl));
+
+        row->keys.append(key);
+        if (styleContainer) {
+            row->normalizedWidth += key->normalizedWidth(*styleContainer);
+        }
+
+        KeyBinding *binding(new KeyBinding(characters[i]));
+        key->setBinding(*binding, false);
+        key->setBinding(*binding, true);
+    }
+
+    mMaxNormalizedWidth = row->normalizedWidth;
+}
+
 LayoutSection::~LayoutSection()
 {
     qDeleteAll(rows);

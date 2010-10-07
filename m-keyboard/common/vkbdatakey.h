@@ -51,6 +51,9 @@ public:
 
     KeyBinding();
 
+    //! \brief Create simple insert-action binding with a given label
+    explicit KeyBinding(const QString &label);
+
     /*!
      * Convert into a KeyEvent
      * \param eventType must be QEvent::KeyPress or QEvent::KeyRelease
@@ -181,6 +184,9 @@ public:
                         bool isFixed = false, bool isRtl = false);
 
     ~VKBDataKey();
+
+    //! \brief Set \a binding as the binding for given \a shift attribute
+    void setBinding(const KeyBinding &binding, bool shift);
 
     //! \return binding based on given attributes
     const KeyBinding *binding(bool shift = false) const;

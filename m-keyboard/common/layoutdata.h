@@ -28,6 +28,7 @@
 #include <QString>
 
 class VKBDataKey;
+class MVirtualKeyboardStyleContainer;
 
 /*!
  * \brief LayoutSection represents a named area of keys in a layout
@@ -55,6 +56,16 @@ public:
 
     ~LayoutSection();
     LayoutSection();
+
+    //! \brief Construct a layout section with standard insert-action buttons with labels that
+    //! correspond to characters in the \a characters string.
+    //!
+    //! The VKBDataKeys of the section will have just one binding for all levels.
+    //! \param characters labels for the keys
+    //! \param rtl passed directly to all keys of the section
+    //! \param styleContainer style used for normalized width calculation
+    explicit LayoutSection(const QString &characters, bool rtl = false,
+                           const MVirtualKeyboardStyleContainer *styleContainer = 0);
 
     //! \return section name
     const QString &name() const;
