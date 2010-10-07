@@ -181,8 +181,9 @@ void Ut_FlickRecognizer::initTestCase()
     QTest::qWaitForWindowShown(window);
 
     // Wait for target to be ready
-    while(spy.count() < 1) {
+    for(int waitCount=0; spy.count() < 1; ++waitCount) {
         QTest::qWait(100);
+        QVERIFY(waitCount<100);
     }
     // Used to have trouble with delayed show caused by remote theme. Let's still have the check.
     QVERIFY(window->isVisible());
