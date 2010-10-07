@@ -26,7 +26,6 @@
 #include <QList>
 #include <QSharedPointer>
 #include <QString>
-#include <QStringList>
 
 class VKBDataKey;
 
@@ -132,7 +131,6 @@ private:
 
     int mMaxColumns;
     qreal mMaxNormalizedWidth;
-    int maxRows;
     bool movable;
     QString sectionName;
     // TODO: remove? we only have one section type now

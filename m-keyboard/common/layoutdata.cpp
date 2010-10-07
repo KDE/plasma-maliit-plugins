@@ -85,7 +85,6 @@ LayoutData::SharedLayoutSection LayoutData::section(const QString &name) const
 LayoutSection::LayoutSection()
     : mMaxColumns(0),
       mMaxNormalizedWidth(0),
-      maxRows(0),
       movable(false),
       sectionType(Sloppy)
 {
