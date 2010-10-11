@@ -59,11 +59,11 @@ MInputMethodSettingsBase *MKeyboardPlugin::createInputMethodSettings()
     return inputMethodSettings;
 }
 
-QSet<MIMHandlerState> MKeyboardPlugin::supportedStates() const
+QSet<MInputMethod::HandlerState> MKeyboardPlugin::supportedStates() const
 {
-    QSet<MIMHandlerState> result;
+    QSet<MInputMethod::HandlerState> result;
 
-    result << OnScreen << Hardware;
+    result << MInputMethod::OnScreen << MInputMethod::Hardware;
     return result;
 }
 

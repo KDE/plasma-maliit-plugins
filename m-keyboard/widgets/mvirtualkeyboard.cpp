@@ -79,7 +79,7 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
       numberLayout(0),
       phoneNumberKeyboard(0),
       phoneNumberLayout(0),
-      activeState(OnScreen),
+      activeState(MInputMethod::OnScreen),
       eventHandler(this)
 {
     setObjectName("MVirtualKeyboard");
@@ -157,7 +157,7 @@ void MVirtualKeyboard::connectHandle(const T &handle)
 
 void MVirtualKeyboard::handleHandleFlickDown(const FlickGesture &/* gesture */)
 {
-    if (activeState == OnScreen) {
+    if (activeState == MInputMethod::OnScreen) {
         hideKeyboard();
         emit userInitiatedHide();
     }
@@ -281,9 +281,9 @@ MVirtualKeyboard::setupTimeLine()
 void
 MVirtualKeyboard::flickLeftHandler()
 {
-    if ((activeState == OnScreen) && !mainKeyboardSwitcher->isRunning()) {
+    if ((activeState == MInputMethod::OnScreen) && !mainKeyboardSwitcher->isRunning()) {
         if (mainKeyboardSwitcher->isAtBoundary(HorizontalSwitcher::Right)) {
-            emit pluginSwitchRequired(M::SwitchForward);
+            emit pluginSwitchRequired(MInputMethod::SwitchForward);
             return;
         }
 
@@ -305,9 +305,9 @@ MVirtualKeyboard::flickUpHandler(const KeyBinding &binding)
 void
 MVirtualKeyboard::flickRightHandler()
 {
-    if ((activeState == OnScreen) && !mainKeyboardSwitcher->isRunning()) {
+    if ((activeState == MInputMethod::OnScreen) && !mainKeyboardSwitcher->isRunning()) {
         if (mainKeyboardSwitcher->isAtBoundary(HorizontalSwitcher::Left)) {
-            emit pluginSwitchRequired(M::SwitchBackward);
+            emit pluginSwitchRequired(MInputMethod::SwitchBackward);
             return;
         }
 
@@ -416,7 +416,7 @@ int MVirtualKeyboard::actualHeight() const
 {
     int result = size().height();
 
-    if ((activeState != OnScreen)) {
+    if ((activeState != MInputMethod::OnScreen)) {
         result = 0;
     }
 
@@ -524,7 +524,7 @@ QRegion MVirtualKeyboard::region(const bool notJustMainKeyboardArea) const
         mainLayout->activate();
 
         // Main keyboard area (qwerty/number/etc.)
-        if (activeState == OnScreen) {
+        if (activeState == MInputMethod::OnScreen) {
             mainLayout->activate();
             rect = mainLayout->itemAt(KeyboardIndex)->geometry();
             region |= mapRectToScene(rect).toRect();
@@ -557,14 +557,14 @@ QRect MVirtualKeyboard::mainAreaSceneRect() const
 {
     QRect result;
 
-    if (activeState == OnScreen) {
+    if (activeState == MInputMethod::OnScreen) {
         result = region(false).boundingRect();
     }
 
     return result;
 }
 
-void MVirtualKeyboard::setKeyboardState(MIMHandlerState newState)
+void MVirtualKeyboard::setKeyboardState(MInputMethod::HandlerState newState)
 {
     if (activeState == newState) {
         return;
@@ -576,13 +576,13 @@ void MVirtualKeyboard::setKeyboardState(MIMHandlerState newState)
     activeState = newState;
     resetState();
 
-    static_cast<QGraphicsWidget *>(mainLayout->itemAt(KeyboardIndex))->setVisible(newState == OnScreen);
+    static_cast<QGraphicsWidget *>(mainLayout->itemAt(KeyboardIndex))->setVisible(newState == MInputMethod::OnScreen);
     showHideTimeline.stop(); // position must be updated by organizeContentAndSendRegion()
     organizeContentAndSendRegion();
     sendRegionUpdates = savedSendRegionUpdates;
 }
 
-MIMHandlerState MVirtualKeyboard::keyboardState() const
+MInputMethod::HandlerState MVirtualKeyboard::keyboardState() const
 {
     return activeState;
 }
@@ -641,7 +641,7 @@ void MVirtualKeyboard::paintReactionMap(MReactionMap *reactionMap, QGraphicsView
     reactionMap->fillRectangle(layout()->itemAt(KeyboardIndex)->geometry());
     reactionMap->fillRectangle(layout()->itemAt(KeyboardHandleIndex)->geometry());
 
-    if (activeState == OnScreen) {
+    if (activeState == MInputMethod::OnScreen) {
         drawButtonsReactionMaps(reactionMap, view);
     }
 }
@@ -695,7 +695,7 @@ void MVirtualKeyboard::setKeyboardType(const int type)
     }
 
     mainLayout->insertItem(KeyboardIndex, newWidget);
-    if (activeState == OnScreen) {
+    if (activeState == MInputMethod::OnScreen) {
         newWidget->show();
     } else {
         newWidget->hide();
@@ -1020,22 +1020,22 @@ void MVirtualKeyboard::setSharedHandleArea(const QPointer<SharedHandleArea> &new
 }
 
 
-void MVirtualKeyboard::switchLayout(M::InputMethodSwitchDirection direction, bool enableAnimation)
+void MVirtualKeyboard::switchLayout(MInputMethod::SwitchDirection direction, bool enableAnimation)
 {
     qDebug() << __PRETTY_FUNCTION__ << direction << enableAnimation;
-    if (direction == M::SwitchUndefined) {
+    if (direction == MInputMethod::SwitchUndefined) {
         return;
     }
 
     if (enableAnimation) {
-        if (direction == M::SwitchForward) {
+        if (direction == MInputMethod::SwitchForward) {
             mainKeyboardSwitcher->switchTo(HorizontalSwitcher::Right);
         } else {
             mainKeyboardSwitcher->switchTo(HorizontalSwitcher::Left);
         }
     } else {
         int current = mainKeyboardSwitcher->current();
-        if (direction == M::SwitchForward) {
+        if (direction == MInputMethod::SwitchForward) {
             current = (current + 1) % mainKeyboardSwitcher->count();
         } else {
             --current;

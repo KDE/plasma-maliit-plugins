@@ -325,14 +325,14 @@ void Ut_SymbolView::testSetLayout()
 
 void Ut_SymbolView::testHardwareState()
 {
-    subject->setKeyboardState(OnScreen);
-    QCOMPARE(subject->activeState, OnScreen);
+    subject->setKeyboardState(MInputMethod::OnScreen);
+    QCOMPARE(subject->activeState, MInputMethod::OnScreen);
 
     // Make sure were in landscape mode when in hardware state
     rotateToAngle(M::Angle0);
 
-    subject->setKeyboardState(Hardware);
-    QCOMPARE(subject->activeState, Hardware);
+    subject->setKeyboardState(MInputMethod::Hardware);
+    QCOMPARE(subject->activeState, MInputMethod::Hardware);
 }
 
 void Ut_SymbolView::testSetTemporarilyHidden()

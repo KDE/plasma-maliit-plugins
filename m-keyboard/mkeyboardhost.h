@@ -62,16 +62,18 @@ public:
     virtual void visualizationPriorityChanged(bool priority);
     virtual void appOrientationChanged(int angle);
     virtual void setToolbar(QSharedPointer<const MToolbarData> toolbar);
-    virtual void setState(const QSet<MIMHandlerState> &state);
+    virtual void setState(const QSet<MInputMethod::HandlerState> &state);
     virtual void processKeyEvent(QEvent::Type keyType, Qt::Key keyCode,
                                  Qt::KeyboardModifiers modifiers,
                                  const QString &text, bool autoRepeat, int count,
                                  quint32 nativeScanCode, quint32 nativeModifiers);
     virtual void clientChanged();
-    virtual void switchContext(M::InputMethodSwitchDirection direction, bool enableAnimation);
-    virtual QList<MInputMethodBase::MInputMethodSubView> subViews(MIMHandlerState state = OnScreen) const;
-    virtual void setActiveSubView(const QString &, MIMHandlerState state = OnScreen);
-    virtual QString activeSubView(MIMHandlerState state = OnScreen) const;
+    virtual void switchContext(MInputMethod::SwitchDirection direction, bool enableAnimation);
+    virtual QList<MInputMethodBase::MInputMethodSubView> subViews(MInputMethod::HandlerState state
+                                                                  = MInputMethod::OnScreen) const;
+    virtual void setActiveSubView(const QString &,
+                                  MInputMethod::HandlerState state = MInputMethod::OnScreen);
+    virtual QString activeSubView(MInputMethod::HandlerState state = MInputMethod::OnScreen) const;
     //! reimp_end
 
 private slots:
@@ -326,7 +328,7 @@ private:
     RegionList inputMethodAreaWidgetRegions;
 
     //! current active state
-    MIMHandlerState activeState;
+    MInputMethod::HandlerState activeState;
 
     QPointer<MBanner> modifierLockOnBanner; //! widget to notify modifier is in locked state
 

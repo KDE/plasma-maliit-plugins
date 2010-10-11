@@ -29,7 +29,8 @@
 #include "mimtoolbar.h"
 #include "mplainwindow.h"
 #include "utils.h"
-#include <mimdirection.h>
+
+#include <minputmethodnamespace.h>
 #include <MScene>
 #include <MSceneManager>
 #include <MSceneWindow>
@@ -53,7 +54,7 @@ namespace
 }
 
 Q_DECLARE_METATYPE(KeyBinding::KeyAction);
-Q_DECLARE_METATYPE(M::InputMethodSwitchDirection);
+Q_DECLARE_METATYPE(MInputMethod::SwitchDirection);
 Q_DECLARE_METATYPE(ModifierState);
 
 // STUBS
@@ -73,7 +74,7 @@ void Notification::displayText(const QString &message, const QRectF &area)
 
 void Ut_MVirtualKeyboard::initTestCase()
 {
-    qRegisterMetaType<M::InputMethodSwitchDirection>("M::InputMethodSwitchDirection");
+    qRegisterMetaType<MInputMethod::SwitchDirection>("MInputMethod::SwitchDirection");
     qRegisterMetaType<ModifierState>("ModifierState");
 
     disableQtPlugins();
@@ -427,7 +428,8 @@ void Ut_MVirtualKeyboard::flickRightHandlerTest()
     // Vkb has just been created and is running an animation.
     QTest::qWait(550);
 
-    QSignalSpy spySwitchRequested(m_vkb, SIGNAL(pluginSwitchRequired(M::InputMethodSwitchDirection)));
+    QSignalSpy spySwitchRequested(m_vkb,
+                                  SIGNAL(pluginSwitchRequired(MInputMethod::SwitchDirection)));
     QVERIFY(spySwitchRequested.isValid());
 
     // flick right, switch direction left
@@ -447,7 +449,7 @@ void Ut_MVirtualKeyboard::flickRightHandlerTest()
     m_vkb->flickRightHandler();
     if (spySwitchRequested.count()) {
         QCOMPARE(index, 0);
-        m_vkb->switchLayout(spySwitchRequested.first().first().value<M::InputMethodSwitchDirection>(),
+        m_vkb->switchLayout(spySwitchRequested.first().first().value<MInputMethod::SwitchDirection>(),
                             false);
     }
     QVERIFY(m_vkb->mainKeyboardSwitcher->current() != index);
@@ -463,7 +465,7 @@ void Ut_MVirtualKeyboard::flickRightHandlerTest()
     m_vkb->flickRightHandler();
     if (spySwitchRequested.count()) {
         QCOMPARE(index, 0);
-        m_vkb->switchLayout(spySwitchRequested.first().first().value<M::InputMethodSwitchDirection>(),
+        m_vkb->switchLayout(spySwitchRequested.first().first().value<MInputMethod::SwitchDirection>(),
                             false);
     }
     QVERIFY(m_vkb->mainKeyboardSwitcher->current() != index);
@@ -481,7 +483,8 @@ void Ut_MVirtualKeyboard::flickLeftHandlerTest()
     // Vkb has just been created and is running an animation.
     QTest::qWait(550);
 
-    QSignalSpy spySwitchRequested(m_vkb, SIGNAL(pluginSwitchRequired(M::InputMethodSwitchDirection)));
+    QSignalSpy spySwitchRequested(m_vkb,
+                                  SIGNAL(pluginSwitchRequired(MInputMethod::SwitchDirection)));
     QVERIFY(spySwitchRequested.isValid());
 
     QSignalSpy spy(m_vkb, SIGNAL(layoutChanged(const QString &)));
@@ -491,7 +494,7 @@ void Ut_MVirtualKeyboard::flickLeftHandlerTest()
     m_vkb->flickLeftHandler();
     if (spySwitchRequested.count()) {
         QCOMPARE(index, layoutList.count() - 1);
-        m_vkb->switchLayout(spySwitchRequested.first().first().value<M::InputMethodSwitchDirection>(),
+        m_vkb->switchLayout(spySwitchRequested.first().first().value<MInputMethod::SwitchDirection>(),
                             false);
     }
     qDebug() << "index2: " << m_vkb->mainKeyboardSwitcher->current() << " lang:" << m_vkb->currentLayout;
@@ -508,7 +511,7 @@ void Ut_MVirtualKeyboard::flickLeftHandlerTest()
     m_vkb->flickLeftHandler();
     if (spySwitchRequested.count()) {
         QCOMPARE(index, layoutList.count() - 1);
-        m_vkb->switchLayout(spySwitchRequested.first().first().value<M::InputMethodSwitchDirection>(),
+        m_vkb->switchLayout(spySwitchRequested.first().first().value<MInputMethod::SwitchDirection>(),
                             false);
     }
     QVERIFY(m_vkb->mainKeyboardSwitcher->current() != index);
@@ -524,7 +527,7 @@ void Ut_MVirtualKeyboard::flickLeftHandlerTest()
     m_vkb->flickLeftHandler();
     if (spySwitchRequested.count()) {
         QCOMPARE(index, layoutList.count() - 1);
-        m_vkb->switchLayout(spySwitchRequested.first().first().value<M::InputMethodSwitchDirection>(),
+        m_vkb->switchLayout(spySwitchRequested.first().first().value<MInputMethod::SwitchDirection>(),
                             false);
     }
     QVERIFY(m_vkb->mainKeyboardSwitcher->current() != index);
@@ -821,7 +824,7 @@ void Ut_MVirtualKeyboard::testSetKeyboardState()
 {
     qreal top = 0;
 
-    m_vkb->setKeyboardState(Hardware);
+    m_vkb->setKeyboardState(MInputMethod::Hardware);
     m_vkb->showKeyboard();
     QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
     top = m_vkb->geometry().top();
@@ -829,13 +832,13 @@ void Ut_MVirtualKeyboard::testSetKeyboardState()
     const qreal topInHardwareState(top);
 
     //show whole keyboard
-    m_vkb->setKeyboardState(OnScreen);
+    m_vkb->setKeyboardState(MInputMethod::OnScreen);
     top -= m_vkb->layout()->itemAt(MVirtualKeyboard::KeyboardIndex)->geometry().height()
         + m_vkb->layout()->itemAt(MVirtualKeyboard::KeyboardHandleIndex)->geometry().height();
     QCOMPARE(qRound(top), qRound(m_vkb->geometry().top()));
 
     //show toolbar only
-    m_vkb->setKeyboardState(Hardware);
+    m_vkb->setKeyboardState(MInputMethod::Hardware);
     QCOMPARE(qRound(topInHardwareState), qRound(m_vkb->geometry().top()));
 }
 

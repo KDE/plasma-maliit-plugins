@@ -21,6 +21,7 @@
 #include <QObject>
 #include <QString>
 #include <minputcontextconnection.h>
+#include <minputmethodnamespace.h>
 
 class MInputContextStubConnection: public MInputContextConnection
 {
@@ -32,7 +33,7 @@ public:
 
     void clear();
 
-    virtual void sendPreeditString(const QString &string, PreeditFace preeditFace);
+    virtual void sendPreeditString(const QString &string, MInputMethod::PreeditFace preeditFace);
     virtual void sendCommitString(const QString &string);
     virtual void sendKeyEvent(const QKeyEvent &keyEvent, bool signalOnly);
     virtual void notifyImInitiatedHiding();

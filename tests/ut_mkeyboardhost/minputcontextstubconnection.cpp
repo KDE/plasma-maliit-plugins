@@ -59,7 +59,8 @@ void MInputContextStubConnection::clear()
     keyRedirectionEnabled = false;
 }
 
-void MInputContextStubConnection::sendPreeditString(const QString &string, PreeditFace preeditFace)
+void MInputContextStubConnection::sendPreeditString(const QString &string,
+                                                    MInputMethod::PreeditFace preeditFace)
 {
     Q_UNUSED(preeditFace);
 

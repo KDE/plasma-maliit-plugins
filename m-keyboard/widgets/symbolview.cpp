@@ -145,7 +145,7 @@ SymbolView::SymbolView(const LayoutsManager &layoutsManager, const MVirtualKeybo
       currentOrientation(sceneManager.orientation()),
       currentLayout(layout),
       mouseDownKeyArea(false),
-      activeState(OnScreen)
+      activeState(MInputMethod::OnScreen)
 {
     connect(&eventHandler, SIGNAL(keyPressed(KeyEvent)),
             this,          SIGNAL(keyPressed(KeyEvent)));
@@ -216,13 +216,13 @@ void SymbolView::connectHandle(Handle *handle)
 
 void SymbolView::reloadContent()
 {
-    if (activeState == OnScreen) {
+    if (activeState == MInputMethod::OnScreen) {
         // Get layout model which for current layout and orientation.
         const LayoutData *layoutData = layoutsMgr.layout(currentLayout, LayoutData::General, currentOrientation);
 
         loadSwitcherPages(layoutData, activePage);
         setShiftState(shiftState);
-    } else if (activeState == Hardware && currentOrientation == M::Landscape) {
+    } else if (activeState == MInputMethod::Hardware && currentOrientation == M::Landscape) {
         const LayoutData *layoutData = layoutsMgr.hardwareLayout(LayoutData::General, M::Landscape);
         if (!layoutData) {
             // Get it by layout then.
@@ -523,12 +523,12 @@ int SymbolView::currentLevel() const
 
 void SymbolView::handleHwLayoutChange()
 {
-    if (activeState == Hardware) {
+    if (activeState == MInputMethod::Hardware) {
         reloadContent();
     }
 }
 
-void SymbolView::setKeyboardState(MIMHandlerState newState)
+void SymbolView::setKeyboardState(MInputMethod::HandlerState newState)
 {
     if (activeState != newState) {
         activeState = newState;
@@ -542,7 +542,7 @@ void SymbolView::setLayout(const QString &layoutFile)
         currentLayout = layoutFile;
 
     // Only on-screen sym follows layout.
-        if (activeState == OnScreen) {
+        if (activeState == MInputMethod::OnScreen) {
             reloadContent();
         }
     }

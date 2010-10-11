@@ -57,7 +57,7 @@ namespace
     const QString InputMethodCorrectionSetting("/meegotouch/inputmethods/virtualkeyboard/correctionenabled");
     const QString InputMethodCorrectionEngine("/meegotouch/inputmethods/correctionengine");
     int gSetKeyboardStateCallCount = 0;
-    MIMHandlerState gSetKeyboardStateParam = OnScreen;
+    MInputMethod::HandlerState gSetKeyboardStateParam = MInputMethod::OnScreen;
     const int SceneRotationTime = 1400; // in ms
     bool gAutoCapsEnabled = true;
 
@@ -93,8 +93,8 @@ namespace QTest
     }
 }
 
-Q_DECLARE_METATYPE(QSet<MIMHandlerState>)
-Q_DECLARE_METATYPE(MIMHandlerState)
+Q_DECLARE_METATYPE(QSet<MInputMethod::HandlerState>)
+Q_DECLARE_METATYPE(MInputMethod::HandlerState)
 Q_DECLARE_METATYPE(ModifierState)
 Q_DECLARE_METATYPE(Ut_MKeyboardHost::TestOpList)
 Q_DECLARE_METATYPE(MInputMethodBase::InputModeIndicator)
@@ -110,7 +110,7 @@ static void waitForSignal(const QObject* object, const char* signal, int timeout
 
 // Stubbing..................................................................
 
-void MVirtualKeyboard::setKeyboardState(MIMHandlerState state)
+void MVirtualKeyboard::setKeyboardState(MInputMethod::HandlerState state)
 {
     ++gSetKeyboardStateCallCount;
     gSetKeyboardStateParam = state;
@@ -837,40 +837,40 @@ void Ut_MKeyboardHost::testRegionSignals()
 
 void Ut_MKeyboardHost::testSetState_data()
 {
-    QSet<MIMHandlerState> state;
+    QSet<MInputMethod::HandlerState> state;
 
-    QTest::addColumn<QSet<MIMHandlerState> >("state");
+    QTest::addColumn<QSet<MInputMethod::HandlerState> >("state");
     QTest::addColumn<int>("expectedCallCount");
-    QTest::addColumn<MIMHandlerState>("expectedParameter");
+    QTest::addColumn<MInputMethod::HandlerState>("expectedParameter");
 
-    QTest::newRow("Empty") << state << 0 << OnScreen;
-
-    state.clear();
-    state << Hardware;
-    QTest::newRow("Hardware") << state << 1 << Hardware;
+    QTest::newRow("Empty") << state << 0 << MInputMethod::OnScreen;
 
     state.clear();
-    state << OnScreen;
-    QTest::newRow("OnScreen") << state << 0 << OnScreen;
+    state << MInputMethod::Hardware;
+    QTest::newRow("Hardware") << state << 1 << MInputMethod::Hardware;
 
     state.clear();
-    state << Accessory;
-    QTest::newRow("Accessory") << state << 1 << Accessory;
+    state << MInputMethod::OnScreen;
+    QTest::newRow("OnScreen") << state << 0 << MInputMethod::OnScreen;
 
     state.clear();
-    state << OnScreen << Hardware;
-    QTest::newRow("Sequence1") << state << 0 << Hardware;
+    state << MInputMethod::Accessory;
+    QTest::newRow("Accessory") << state << 1 << MInputMethod::Accessory;
 
     state.clear();
-    state << Hardware << Accessory;
-    QTest::newRow("Sequence2") << state << 1 << Hardware;
+    state << MInputMethod::OnScreen << MInputMethod::Hardware;
+    QTest::newRow("Sequence1") << state << 0 << MInputMethod::Hardware;
+
+    state.clear();
+    state << MInputMethod::Hardware << MInputMethod::Accessory;
+    QTest::newRow("Sequence2") << state << 1 << MInputMethod::Hardware;
 }
 
 void Ut_MKeyboardHost::testSetState()
 {
-    QFETCH(QSet<MIMHandlerState>, state);
+    QFETCH(QSet<MInputMethod::HandlerState>, state);
     QFETCH(int, expectedCallCount);
-    QFETCH(MIMHandlerState, expectedParameter);
+    QFETCH(MInputMethod::HandlerState, expectedParameter);
 
     qDebug() << "Probe state=" << state;
 
@@ -885,29 +885,29 @@ void Ut_MKeyboardHost::testSetState()
 
 void Ut_MKeyboardHost::testSetStateCombination()
 {
-    QSet<MIMHandlerState> state;
+    QSet<MInputMethod::HandlerState> state;
 
     gSetKeyboardStateCallCount = 0;
-    state << Hardware;
+    state << MInputMethod::Hardware;
     subject->update();
     subject->setState(state);
     QCOMPARE(gSetKeyboardStateCallCount, 1);
-    QCOMPARE(gSetKeyboardStateParam, Hardware);
+    QCOMPARE(gSetKeyboardStateParam, MInputMethod::Hardware);
     subject->setState(state);
     QCOMPARE(gSetKeyboardStateCallCount, 1);
-    QCOMPARE(gSetKeyboardStateParam, Hardware);
+    QCOMPARE(gSetKeyboardStateParam, MInputMethod::Hardware);
 
     state.clear();
-    state << Hardware << OnScreen;
+    state << MInputMethod::Hardware << MInputMethod::OnScreen;
     subject->setState(state);
     QCOMPARE(gSetKeyboardStateCallCount, 2);
-    QCOMPARE(gSetKeyboardStateParam, OnScreen);
+    QCOMPARE(gSetKeyboardStateParam, MInputMethod::OnScreen);
 
     state.clear();
-    state << OnScreen;
+    state << MInputMethod::OnScreen;
     subject->setState(state);
     QCOMPARE(gSetKeyboardStateCallCount, 2);
-    QCOMPARE(gSetKeyboardStateParam, OnScreen);
+    QCOMPARE(gSetKeyboardStateParam, MInputMethod::OnScreen);
     gSetKeyboardStateCallCount = 0;
 }
 
@@ -934,13 +934,13 @@ void Ut_MKeyboardHost::testSymbolKeyClick()
 void Ut_MKeyboardHost::testUpdateSymbolViewLevel()
 {
     subject->show();
-    QSet<MIMHandlerState> state;
+    QSet<MInputMethod::HandlerState> state;
 
     //hardware state
     QVERIFY(subject->hardwareKeyboard);
     QSignalSpy spy(subject->hardwareKeyboard, SIGNAL(shiftStateChanged()));
 
-    state << Hardware;
+    state << MInputMethod::Hardware;
     subject->update();
     subject->setState(state);
     subject->symbolView->showSymbolView();
@@ -981,7 +981,7 @@ void Ut_MKeyboardHost::testUpdateSymbolViewLevel()
     subject->autoCapsEnabled = false; // disable auto caps
     subject->vkbWidget->setShiftState(ModifierClearState);
     state.clear();
-    state << OnScreen;
+    state << MInputMethod::OnScreen;
     subject->setState(state);
     QSignalSpy spy1(subject->vkbWidget, SIGNAL(shiftLevelChanged()));
 
@@ -1163,8 +1163,8 @@ void Ut_MKeyboardHost::testCommitPreeditOnStateChange()
 {
     const QString text("fish");
     subject->setPreedit(text);
-    QSet<MIMHandlerState> state;
-    state << Hardware;
+    QSet<MInputMethod::HandlerState> state;
+    state << MInputMethod::Hardware;
     subject->setState(state);
     QCOMPARE(inputContext->commit, text);
 }
@@ -1191,7 +1191,7 @@ void Ut_MKeyboardHost::testLayoutMenuKeyClick()
 
 void Ut_MKeyboardHost::testShiftStateOnFocusChanged_data()
 {
-    QTest::addColumn<MIMHandlerState>("state");
+    QTest::addColumn<MInputMethod::HandlerState>("state");
     QTest::addColumn<ModifierState>("initialShiftState");
     QTest::addColumn<QString>("surroundingString");
     QTest::addColumn<bool>("autoCapitalizationEnabled");
@@ -1199,21 +1199,21 @@ void Ut_MKeyboardHost::testShiftStateOnFocusChanged_data()
     QTest::addColumn<ModifierState>("expectedShiftState");
 
     // corsor is at the begining.
-    QTest::newRow("screen lowercase") << OnScreen << ModifierClearState << QString("Test. ")
+    QTest::newRow("screen lowercase") << MInputMethod::OnScreen << ModifierClearState << QString("Test. ")
                                       << true << 0 << ModifierLatchedState;
-    QTest::newRow("screen latched") << OnScreen << ModifierLatchedState << QString("Test. ")
+    QTest::newRow("screen latched") << MInputMethod::OnScreen << ModifierLatchedState << QString("Test. ")
                                     << true << 2 << ModifierClearState;
     // cursor is right after a dot.
-    QTest::newRow("screen latched") << OnScreen << ModifierLatchedState << QString("Test. ")
+    QTest::newRow("screen latched") << MInputMethod::OnScreen << ModifierLatchedState << QString("Test. ")
                                     << true << 6 << ModifierLatchedState;
-    QTest::newRow("screen latched") << OnScreen << ModifierLatchedState << QString("Test. ")
+    QTest::newRow("screen latched") << MInputMethod::OnScreen << ModifierLatchedState << QString("Test. ")
                                     << true << 2  << ModifierClearState;
-    QTest::newRow("screen locked") << OnScreen << ModifierLockedState << QString("Test. ")
+    QTest::newRow("screen locked") << MInputMethod::OnScreen << ModifierLockedState << QString("Test. ")
                                    << true << 0 << ModifierLockedState;
-    QTest::newRow("screen locked") << OnScreen << ModifierLockedState << QString("Test. ")
+    QTest::newRow("screen locked") << MInputMethod::OnScreen << ModifierLockedState << QString("Test. ")
                                    << true << 2 << ModifierLockedState;
     // text entry disable autocaps.
-    QTest::newRow("screen locked") << OnScreen << ModifierLatchedState << QString("Test. ")
+    QTest::newRow("screen locked") << MInputMethod::OnScreen << ModifierLatchedState << QString("Test. ")
                                    << false << 0 << ModifierClearState;
 }
 
@@ -1221,14 +1221,14 @@ void Ut_MKeyboardHost::testShiftStateOnFocusChanged()
 {
     // all temporary shift state (not capslock) should be reset when
     // focus is changed, and new shift state depends on autocaps
-    QFETCH(MIMHandlerState, state);
+    QFETCH(MInputMethod::HandlerState, state);
     QFETCH(ModifierState, initialShiftState);
     QFETCH(QString, surroundingString);
     QFETCH(bool, autoCapitalizationEnabled);
     QFETCH(int, cursorPosition);
     QFETCH(ModifierState, expectedShiftState);
 
-    QSet<MIMHandlerState> set;
+    QSet<MInputMethod::HandlerState> set;
     set << state;
     subject->setState(set);
 
@@ -1293,8 +1293,8 @@ void Ut_MKeyboardHost::testShiftStateOnLayoutChanged()
     QFETCH(ModifierState, initialShiftState);
     QFETCH(ModifierState, expectedShiftState);
 
-    QSet<MIMHandlerState> set;
-    set << OnScreen;
+    QSet<MInputMethod::HandlerState> set;
+    set << MInputMethod::OnScreen;
     subject->setState(set);
 
     inputContext->surroundingString = surroundingString;
@@ -1437,8 +1437,8 @@ void Ut_MKeyboardHost::testHandleHwKeyboardStateChanged()
     QFETCH(int, deadKeyCharacterCode);
 
     LayoutsManager::instance().setXkbMap(xkbLayout, xkbVariant);
-    QSet<MIMHandlerState> states;
-    states << Hardware;
+    QSet<MInputMethod::HandlerState> states;
+    states << MInputMethod::Hardware;
     subject->setState(states);
     subject->focusChanged(true);
     gShowLockOnInfoBannerCallCount = 0;

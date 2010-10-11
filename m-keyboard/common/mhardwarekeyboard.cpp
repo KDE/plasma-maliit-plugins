@@ -254,7 +254,7 @@ void MHardwareKeyboard::disable()
 {
     qDebug() << __PRETTY_FUNCTION__;
 
-    inputContextConnection.sendPreeditString("", PreeditKeyPress);
+    inputContextConnection.sendPreeditString("", MInputMethod::PreeditKeyPress);
     preedit.clear();
     deadKeyMapper.reset();
 
@@ -502,7 +502,7 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
                 longPressModifiers = nativeModifiers;
                 longPressTimer.start();
             }
-            inputContextConnection.sendPreeditString(text, PreeditKeyPress);
+            inputContextConnection.sendPreeditString(text, MInputMethod::PreeditKeyPress);
             preedit = text;
             preeditScanCode = nativeScanCode;
         }
@@ -674,7 +674,7 @@ void MHardwareKeyboard::handleLongPressTimeout()
     if (!text.isEmpty()) {
         (void)deadKeyMapper.filterKeyPress(text, true);
         preedit = text;
-        inputContextConnection.sendPreeditString(text, PreeditKeyPress);
+        inputContextConnection.sendPreeditString(text, MInputMethod::PreeditKeyPress);
     }
 }
 
@@ -715,7 +715,7 @@ bool MHardwareKeyboard::handlePressWithSymModifier(QString &text, quint32 native
     lastSymText = text;
     characterLoopIndex = (characterLoopIndex + 1) % accentedCharacters.length();
     inputContextConnection.sendPreeditString(accentedCharacters[characterLoopIndex],
-                                             PreeditDefault);
+                                             MInputMethod::PreeditDefault);
     return true;
 }
 

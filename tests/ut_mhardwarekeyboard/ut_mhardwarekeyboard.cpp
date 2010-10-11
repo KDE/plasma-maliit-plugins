@@ -641,7 +641,7 @@ void Ut_MHardwareKeyboard::testSymPlusCharacterBasic()
     // Basic case: SymP(ress)+a{1,n}+SymR(elease)
     QVERIFY(filterKeyPress(SymKey, Qt::NoModifier, "", KeycodeNonCharacter, 0));
     for (int i = 0; i < iterations; ++i) {
-        inputContextConnection->sendPreeditString("", PreeditNoCandidates);
+        inputContextConnection->sendPreeditString("", MInputMethod::PreeditNoCandidates);
         QVERIFY(filterKeyPress(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, SymModifierMask));
         QCOMPARE(inputContextConnection->lastPreeditString().length(), 1);
         QVERIFY(filterKeyRelease(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, SymModifierMask));
@@ -675,7 +675,7 @@ void Ut_MHardwareKeyboard::testSymPlusCharSwitchs()
     QCOMPARE(inputContextConnection->lastCommitString(), QString(QChar(0x00E4)));
     QCOMPARE(inputContextConnection->lastPreeditString(), QString(QChar(0x00F6)));
     inputContextConnection->sendCommitString("");
-    inputContextConnection->sendPreeditString("", PreeditDefault);
+    inputContextConnection->sendPreeditString("", MInputMethod::PreeditDefault);
     QVERIFY(filterKeyRelease(Qt::Key_O, Qt::NoModifier, "o", KeycodeCharacter, SymModifierMask));
     QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
     QCOMPARE(inputContextConnection->lastPreeditString().length(), 0);
@@ -900,7 +900,7 @@ void Ut_MHardwareKeyboard::testSwitchLayout()
     QCOMPARE(scriptChangedSpy.count(), 0);
 
     scriptChangedSpy.clear();
-    inputContextConnection->sendPreeditString("", PreeditNoCandidates);
+    inputContextConnection->sendPreeditString("", MInputMethod::PreeditNoCandidates);
     inputContextConnection->sendCommitString("");
     // ctrl + space press together also switch layout
     filterKeyPress(Qt::Key_Control, Qt::NoModifier, "", KeycodeNonCharacter, 0);
@@ -1054,7 +1054,7 @@ void Ut_MHardwareKeyboard::testDeadKeys()
     QCOMPARE(inputContextConnection->lastCommitString(), QString(QChar(0xe2)));
 
     inputContextConnection->sendCommitString("");
-    inputContextConnection->sendPreeditString("", PreeditDefault);
+    inputContextConnection->sendPreeditString("", MInputMethod::PreeditDefault);
 
     // Switch dead key, ^ + \" + a => \"a
 
@@ -1084,7 +1084,7 @@ void Ut_MHardwareKeyboard::testDeadKeys()
     QCOMPARE(inputContextConnection->lastCommitString(), QString(QChar(0xe4)));
 
     inputContextConnection->sendCommitString("");
-    inputContextConnection->sendPreeditString("", PreeditDefault);
+    inputContextConnection->sendPreeditString("", MInputMethod::PreeditDefault);
 
     // Dead key with space
 
@@ -1102,7 +1102,7 @@ void Ut_MHardwareKeyboard::testDeadKeys()
     QCOMPARE(m_hkb->deadKeyState(), QChar());
 
     inputContextConnection->sendCommitString("");
-    inputContextConnection->sendPreeditString("", PreeditDefault);
+    inputContextConnection->sendPreeditString("", MInputMethod::PreeditDefault);
 
     // Dead key with a key it cannot be combined with
 
@@ -1120,7 +1120,7 @@ void Ut_MHardwareKeyboard::testDeadKeys()
     QCOMPARE(m_hkb->deadKeyState(), QChar());
 
     inputContextConnection->sendCommitString("");
-    inputContextConnection->sendPreeditString("", PreeditDefault);
+    inputContextConnection->sendPreeditString("", MInputMethod::PreeditDefault);
 
     // Reset resets dead key mapper state
 

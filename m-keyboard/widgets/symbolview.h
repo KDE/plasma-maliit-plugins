@@ -20,9 +20,9 @@
 #include "singlewidgetbuttonarea.h"
 #include "keyeventhandler.h"
 
+#include <minputmethodnamespace.h>
 #include <MButton>
 #include <MButtonGroup>
-#include <mimhandlerstate.h>
 #include <MWidget>
 
 #include <QPointer>
@@ -127,7 +127,7 @@ public slots:
      * When hardware keyboard is used, symbol view has hw layout specific layout variant, and function row is hidden.
      * \param state New state to be applied.
      */
-    void setKeyboardState(MIMHandlerState state);
+    void setKeyboardState(MInputMethod::HandlerState state);
 
     /*!
      * Method to load svc corresponding to given layout file name
@@ -331,7 +331,7 @@ private:
     //Symbol view is not owner of this object.
     QPointer<SharedHandleArea> sharedHandleArea;
 
-    MIMHandlerState activeState;
+    MInputMethod::HandlerState activeState;
 
 #ifdef UNIT_TEST
     friend class Ut_SymbolView;

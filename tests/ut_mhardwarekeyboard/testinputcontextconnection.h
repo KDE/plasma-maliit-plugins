@@ -85,7 +85,7 @@ public:
     // Methods we care about.................................................
 
     virtual void sendPreeditString(const QString &string,
-                                   PreeditFace /* preeditFace */)
+                                   MInputMethod::PreeditFace /* preeditFace */)
     {
         lastPreeditStringM = string;
     }

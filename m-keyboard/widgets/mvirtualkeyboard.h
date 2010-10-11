@@ -23,8 +23,7 @@
 #include "mkeyboardcommon.h"
 #include "singlewidgetbuttonarea.h"
 #include "layoutdata.h"
-#include <mimhandlerstate.h>
-#include <mimdirection.h>
+
 #include <minputmethodnamespace.h>
 #include <MWidget>
 #include <MNamespace>
@@ -134,14 +133,14 @@ public:
      * Any other value requires to hide everything except for toolbar.
      * \param newState actual state
      */
-    void setKeyboardState(MIMHandlerState newState);
+    void setKeyboardState(MInputMethod::HandlerState newState);
 
     /*!
      * \brief Returns current active state of the virtual keyboard.
-     * The virtual keyboard has three kinds of modes, OnScreen, Hardware, and Accessory, \sa MIMHandlerState.
+     * The virtual keyboard has three kinds of modes, OnScreen, Hardware, and Accessory, \sa MInputMethod::HandlerState.
      * \sa setKeyboardState().
      */
-    MIMHandlerState keyboardState() const;
+    MInputMethod::HandlerState keyboardState() const;
 
     /*!
      * \brief Returns whether the symbol view is available for current layout.
@@ -151,7 +150,7 @@ public:
     /*!
      * Switch layout to given direction, \sa MInputMethodBase::swipe
      */
-    void switchLayout(M::InputMethodSwitchDirection direction, bool enableAnimation);
+    void switchLayout(MInputMethod::SwitchDirection direction, bool enableAnimation);
 
     //! Set input method mode
     void setInputMethodMode(M::InputMethodMode mode);
@@ -332,7 +331,7 @@ signals:
     /*!
      * Inform that plugin should be switched in according to \a direction.
      */
-    void pluginSwitchRequired(M::InputMethodSwitchDirection direction);
+    void pluginSwitchRequired(MInputMethod::SwitchDirection direction);
 
     /*!
      * Inform that active plugin should be replaced with specified one.
@@ -508,7 +507,7 @@ private:
 
     QSharedPointer<QPixmap> backgroundPixmap;
 
-    MIMHandlerState activeState;
+    MInputMethod::HandlerState activeState;
 
     KeyEventHandler eventHandler;
 

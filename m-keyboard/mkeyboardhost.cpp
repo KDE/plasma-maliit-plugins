@@ -124,7 +124,8 @@ bool MKeyboardHost::CycleKeyHandler::handleTextInputKeyClick(const KeyEvent &eve
     }
 
     host.preedit += cycleText[cycleIndex];
-    host.inputContextConnection()->sendPreeditString(host.preedit, PreeditNoCandidates);
+    host.inputContextConnection()->sendPreeditString(host.preedit,
+                                                     MInputMethod::PreeditNoCandidates);
 
     timer.start();
 
@@ -161,7 +162,7 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection *icConnection, QObject *par
       inputMethodMode(M::InputMethodModeNormal),
       backSpaceTimer(),
       shiftHeldDown(false),
-      activeState(OnScreen),
+      activeState(MInputMethod::OnScreen),
       modifierLockOnBanner(0),
       haveFocus(false),
       enableMultiTouch(false),
@@ -221,8 +222,8 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection *icConnection, QObject *par
     connect(vkbWidget, SIGNAL(userInitiatedHide()),
             this, SLOT(userHide()));
 
-    connect(vkbWidget, SIGNAL(pluginSwitchRequired(M::InputMethodSwitchDirection)),
-            this, SIGNAL(pluginSwitchRequired(M::InputMethodSwitchDirection)));
+    connect(vkbWidget, SIGNAL(pluginSwitchRequired(MInputMethod::SwitchDirection)),
+            this, SIGNAL(pluginSwitchRequired(MInputMethod::SwitchDirection)));
 
     // construct hardware keyboard object
     hardwareKeyboard = new MHardwareKeyboard(*icConnection, this);
@@ -434,7 +435,7 @@ void MKeyboardHost::createCorrectionCandidateWidget()
 void MKeyboardHost::focusChanged(bool focusIn)
 {
     haveFocus = focusIn;
-    if (activeState == OnScreen) {
+    if (activeState == MInputMethod::OnScreen) {
         if (focusIn) {
             // reset the temporary shift state when focus is changed
             resetVirtualKeyboardShiftState();
@@ -469,7 +470,7 @@ void MKeyboardHost::show()
 
     p->raise(); // make sure the window gets displayed
 
-    if (activeState == Hardware) {
+    if (activeState == MInputMethod::Hardware) {
         if (!hardwareKeyboard->symViewAvailable())
             symbolView->hideSymbolView();
     } else {
@@ -540,7 +541,7 @@ void MKeyboardHost::resetVirtualKeyboardShiftState()
 {
     // reset the temporary shift state (shift on state set by user or auto capitalization,
     // besides capslocked)
-    if (activeState == OnScreen && vkbWidget->shiftStatus() != ModifierLockedState) {
+    if (activeState == MInputMethod::OnScreen && vkbWidget->shiftStatus() != ModifierLockedState) {
         autoCapsTriggered = false;
         vkbWidget->setShiftState(ModifierClearState);
     }
@@ -549,7 +550,7 @@ void MKeyboardHost::resetVirtualKeyboardShiftState()
 void MKeyboardHost::updateAutoCapitalization()
 {
     switch (activeState) {
-    case OnScreen:
+    case MInputMethod::OnScreen:
         autoCapsEnabled = vkbWidget->autoCapsEnabled();
         break;
     default:
@@ -583,13 +584,13 @@ void MKeyboardHost::updateAutoCapitalization()
                                  && (cursorPos <= surroundingText.length())
                                  && surroundingText.left(cursorPos).contains(autoCapsTrigger))));
 
-    if ((activeState == OnScreen)
+    if ((activeState == MInputMethod::OnScreen)
         && (vkbWidget->shiftStatus() != ModifierLockedState)) {
         // FIXME: This will break the behaviour of keeping shift latched when shift+character occured.
         // We would really need a state machine for the shift state handling.
         vkbWidget->setShiftState(autoCapsTriggered ?
                                  ModifierLatchedState : ModifierClearState);
-    } else if ((activeState == Hardware) &&
+    } else if ((activeState == MInputMethod::Hardware) &&
                (hardwareKeyboard->modifierState(Qt::ShiftModifier) != ModifierLockedState)) {
         hardwareKeyboard->setAutoCapitalization(autoCapsTriggered);
     }
@@ -599,7 +600,7 @@ void MKeyboardHost::reset()
 {
     qDebug() << __PRETTY_FUNCTION__;
     switch (activeState) {
-    case OnScreen:
+    case MInputMethod::OnScreen:
         preedit.clear();
         candidates.clear();
         correctionCandidateWidget->setPreeditString("");
@@ -607,10 +608,10 @@ void MKeyboardHost::reset()
         if (engineReady)
             imCorrectionEngine->clearEngineBuffer();
         break;
-    case Hardware:
+    case MInputMethod::Hardware:
         hardwareKeyboard->reset();
         break;
-    case Accessory:
+    case MInputMethod::Accessory:
         break;
     }
 }
@@ -778,10 +779,10 @@ void MKeyboardHost::appOrientationChanged(int angle)
 
 void MKeyboardHost::updatePreedit(const QString &updatedString)
 {
-    PreeditFace face = PreeditDefault;
+    MInputMethod::PreeditFace face = MInputMethod::PreeditDefault;
 
     if (candidates.count() < 2)
-        face = PreeditNoCandidates;
+        face = MInputMethod::PreeditNoCandidates;
 
     preedit = updatedString;
     inputContextConnection()->sendPreeditString(updatedString, face);
@@ -795,7 +796,9 @@ void MKeyboardHost::doBackspace()
     if (preedit.length() > 0) {
         if (!backSpaceTimer.isActive()) {
             setPreedit(preedit.left(preedit.length() - 1));
-            const PreeditFace face = candidates.count() < 2 ? PreeditNoCandidates : PreeditDefault;
+            const MInputMethod::PreeditFace face
+                = candidates.count() < 2
+                ? MInputMethod::PreeditNoCandidates : MInputMethod::PreeditDefault;
             inputContextConnection()->sendPreeditString(preedit, face);
         } else {
             reset();
@@ -830,7 +833,7 @@ void MKeyboardHost::handleKeyPress(const KeyEvent &event)
             return; //ignore duplicated event
         }
 
-        if (activeState == OnScreen && enableMultiTouch) {
+        if (activeState == MInputMethod::OnScreen && enableMultiTouch) {
             shiftHeldDown = true;
         }
     }
@@ -856,7 +859,7 @@ void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
             return; //ignore duplicated event
         }
 
-        if (activeState == OnScreen && enableMultiTouch) {
+        if (activeState == MInputMethod::OnScreen && enableMultiTouch) {
             shiftHeldDown = false;
         }
     }
@@ -935,7 +938,7 @@ void MKeyboardHost::handleKeyClick(const KeyEvent &event)
 {
     // Don't need send key events for Direct input mode here.
     // already send in handleKeyPress and handleKeyRelease.
-    if (activeState == Hardware && inputMethodMode != M::InputMethodModeDirect) {
+    if (activeState == MInputMethod::Hardware && inputMethodMode != M::InputMethodModeDirect) {
         // In hardware keyboard mode symbol view is just another source for
         // events that will be handled by duihardwarekeyboard.  The native
         // modifiers may not be correct (depending on the current hwkbd modifier
@@ -1062,7 +1065,9 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
         imCorrectionEngine->appendCharacter(text.at(0));
         candidates = imCorrectionEngine->candidates();
 
-        const PreeditFace face = candidates.count() < 2 ? PreeditNoCandidates : PreeditDefault;
+        const MInputMethod::PreeditFace face
+            = candidates.count() < 2
+            ? MInputMethod::PreeditNoCandidates : MInputMethod::PreeditDefault;
         inputContextConnection()->sendPreeditString(preedit, face);
     }
 }
@@ -1107,7 +1112,7 @@ void MKeyboardHost::synchronizeCorrectionSetting()
 
 void MKeyboardHost::updateCorrectionState()
 {
-    if (activeState == Hardware) {
+    if (activeState == MInputMethod::Hardware) {
         inputContextConnection()->setGlobalCorrectionEnabled(false);
         correctionEnabled = false;
     } else {
@@ -1262,7 +1267,7 @@ void MKeyboardHost::processKeyEvent(QEvent::Type keyType, Qt::Key keyCode,
                                     bool autoRepeat, int count, quint32 nativeScanCode,
                                     quint32 nativeModifiers)
 {
-    if ((activeState != Hardware) ||
+    if ((activeState != MInputMethod::Hardware) ||
         !hardwareKeyboard->filterKeyEvent(keyType, keyCode, modifiers, text,
                                           autoRepeat, count, nativeScanCode,
                                           nativeModifiers)) {
@@ -1277,24 +1282,24 @@ void MKeyboardHost::clientChanged()
     hide(); // could do some quick hide also
 }
 
-void MKeyboardHost::switchContext(M::InputMethodSwitchDirection direction, bool enableAnimation)
+void MKeyboardHost::switchContext(MInputMethod::SwitchDirection direction, bool enableAnimation)
 {
-    if (activeState == OnScreen) {
+    if (activeState == MInputMethod::OnScreen) {
         vkbWidget->switchLayout(direction, enableAnimation);
     }
 }
 
-void MKeyboardHost::setState(const QSet<MIMHandlerState> &state)
+void MKeyboardHost::setState(const QSet<MInputMethod::HandlerState> &state)
 {
     if (state.isEmpty()) {
         return;
     }
 
-    const MIMHandlerState actualState = *state.begin();
+    const MInputMethod::HandlerState actualState = *state.begin();
     if (activeState == actualState)
         return;
 
-    if ((activeState == OnScreen) && (preedit.length() > 0)) {
+    if ((activeState == MInputMethod::OnScreen) && (preedit.length() > 0)) {
         inputContextConnection()->sendCommitString(preedit);
     }
 
@@ -1303,7 +1308,7 @@ void MKeyboardHost::setState(const QSet<MIMHandlerState> &state)
     activeState = actualState;
 
     // Keeps separate states for symbol view in OnScreen state and Hardware state
-    if (activeState == OnScreen) {
+    if (activeState == MInputMethod::OnScreen) {
         hideLockOnInfoBanner();
         sendInputModeIndicator(MInputMethodBase::NoIndicator);
         disconnect(hardwareKeyboard, SIGNAL(deadKeyStateChanged(const QChar &)),
@@ -1336,7 +1341,7 @@ void MKeyboardHost::setState(const QSet<MIMHandlerState> &state)
 
 void MKeyboardHost::handleSymbolKeyClick()
 {
-    if (((activeState == Hardware) && !hardwareKeyboard->symViewAvailable())
+    if (((activeState == MInputMethod::Hardware) && !hardwareKeyboard->symViewAvailable())
         || !vkbWidget->symViewAvailable()) {
         return;
     }
@@ -1357,7 +1362,7 @@ void MKeyboardHost::updateSymbolViewLevel()
         return;
 
     ModifierState shiftState = ModifierClearState;
-    if (activeState == OnScreen) {
+    if (activeState == MInputMethod::OnScreen) {
         shiftState = vkbWidget->shiftStatus();
     } else {
         shiftState = hardwareKeyboard->modifierState(Qt::ShiftModifier);
@@ -1395,7 +1400,7 @@ MInputMethodBase::InputModeIndicator MKeyboardHost::deadKeyToIndicator(const QCh
 void MKeyboardHost::handleHwKeyboardStateChanged()
 {
     // only change indicator state when there is focus is in a widget and state is Hardware.
-    if (!haveFocus || activeState != Hardware)
+    if (!haveFocus || activeState != MInputMethod::Hardware)
         return;
 
     const ModifierState shiftState = hardwareKeyboard->modifierState(Qt::ShiftModifier);
@@ -1485,10 +1490,11 @@ void MKeyboardHost::hideLockOnInfoBanner()
     modifierLockOnBanner = 0;
 }
 
-QList<MInputMethodBase::MInputMethodSubView> MKeyboardHost::subViews(MIMHandlerState state) const
+QList<MInputMethodBase::MInputMethodSubView>
+MKeyboardHost::subViews(MInputMethod::HandlerState state) const
 {
     QList<MInputMethodBase::MInputMethodSubView> sViews;
-    if (state == OnScreen) {
+    if (state == MInputMethod::OnScreen) {
         QMap<QString, QString> selectedLayouts = LayoutsManager::instance().selectedLayouts();
         QMap<QString, QString>::const_iterator i = selectedLayouts.constBegin();
         while (i != selectedLayouts.constEnd()) {
@@ -1502,18 +1508,18 @@ QList<MInputMethodBase::MInputMethodSubView> MKeyboardHost::subViews(MIMHandlerS
     return sViews;
 }
 
-void MKeyboardHost::setActiveSubView(const QString &subViewId, MIMHandlerState state)
+void MKeyboardHost::setActiveSubView(const QString &subViewId, MInputMethod::HandlerState state)
 {
-    if (state == OnScreen) {
+    if (state == MInputMethod::OnScreen) {
         const QStringList layoutFileList = LayoutsManager::instance().layoutFileList();
         int index = layoutFileList.indexOf(subViewId);
         vkbWidget->setLayout(index);
     }
 }
 
-QString MKeyboardHost::activeSubView(MIMHandlerState state) const
+QString MKeyboardHost::activeSubView(MInputMethod::HandlerState state) const
 {
-    if (state == OnScreen) {
+    if (state == MInputMethod::OnScreen) {
         // return the active vkb layout
         return vkbWidget->selectedLayout();
     } else {
