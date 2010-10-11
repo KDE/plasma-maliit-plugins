@@ -789,7 +789,7 @@ void MKeyboardHost::updatePreedit(const QString &updatedString)
 }
 
 
-void MKeyboardHost::doBackspace(bool sendEvent)
+void MKeyboardHost::doBackspace()
 {
     // note: backspace shouldn't start accurate mode
     if (preedit.length() > 0) {
@@ -802,12 +802,11 @@ void MKeyboardHost::doBackspace(bool sendEvent)
             backSpaceTimer.stop();
             inputContextConnection()->sendCommitString("");
         }
-    } else if (sendEvent) {
-        static const KeyEvent event("\b", QEvent::KeyRelease, Qt::Key_Backspace,
-                                    KeyEvent::NotSpecial,
-                                    vkbWidget->shiftStatus() != ModifierClearState
-                                    ? Qt::ShiftModifier : Qt::NoModifier);
-        inputContextConnection()->sendKeyEvent(KeyEvent(event, QEvent::KeyPress).toQKeyEvent());
+    } else {
+        const KeyEvent event("\b", QEvent::KeyPress, Qt::Key_Backspace,
+                             KeyEvent::NotSpecial,
+                             vkbWidget->shiftStatus() != ModifierClearState
+                             ? Qt::ShiftModifier : Qt::NoModifier);
         inputContextConnection()->sendKeyEvent(event.toQKeyEvent());
     }
     // Backspace toggles shift off if it's on (not locked)
@@ -821,7 +820,7 @@ void MKeyboardHost::doBackspace(bool sendEvent)
 void MKeyboardHost::autoBackspace()
 {
     backSpaceTimer.start(BackspaceRepeatInterval); // Must restart before doBackspace
-    doBackspace(true);  // send key press+release events too
+    doBackspace();
 }
 
 void MKeyboardHost::handleKeyPress(const KeyEvent &event)
@@ -871,7 +870,7 @@ void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
 
     } else if ((event.qtKey() == Qt::Key_Backspace) && backSpaceTimer.isActive()) {
         backSpaceTimer.stop();
-        doBackspace(false);  // don't send key press + release in doBackspace
+        doBackspace();
     }
 
     inputContextConnection()->sendKeyEvent(event.toQKeyEvent(), signalOnly);
