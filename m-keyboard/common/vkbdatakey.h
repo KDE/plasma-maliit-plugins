@@ -207,8 +207,7 @@ public:
     WidthType width() const;
 
     //! Returns normalized width ratio
-    // Not const, because M_STYLE_ATTRIBUTE-generated getters are not const, for whatever reason ...
-    qreal normalizedWidth(const MVirtualKeyboardStyleContainer &styleContainer);
+    qreal normalizedWidth(const MVirtualKeyboardStyleContainer &styleContainer) const;
 
     //! Returns true if button uses fixed width type.
     bool isFixedWidth() const;

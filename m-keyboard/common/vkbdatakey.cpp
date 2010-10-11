@@ -154,7 +154,7 @@ VKBDataKey::WidthType VKBDataKey::width() const
     return mWidthType;
 }
 
-qreal VKBDataKey::normalizedWidth(const MVirtualKeyboardStyleContainer &styleContainer)
+qreal VKBDataKey::normalizedWidth(const MVirtualKeyboardStyleContainer &styleContainer) const
 {
     switch(mWidthType) {
     case Small:
