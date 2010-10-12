@@ -1,6 +1,7 @@
 meego-keyboard (0.5.4~1) unstable; urgency=low
 
-  * [UNRELEASE]
+  * [UNRELEASED]
+  * Adapted to im framework enum namespace changes
 
  -- huaming wang <huaming.wang@nokia.com>  Tue, 12 Oct 2010 16:44:48 +0300
 
