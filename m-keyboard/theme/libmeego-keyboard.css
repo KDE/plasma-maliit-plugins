@@ -24,9 +24,6 @@ MVirtualKeyboardStyle {
     notification-text-color: #FFFFFF;
     notification-opacity: 0.9;
 
-    releaseFeedback: ;
-    pressFeedback: ;
-
     flick-gesture-timeout: 400;
     flick-gesture-threshold-ratio: 0.5;
 
@@ -212,6 +209,9 @@ MToolbarButtonStyle {
     reactive-margin-right: 2;
     reactive-margin-top: 5;
     reactive-margin-bottom: 5;*/
+
+    press-feedback: ;
+    release-feedback: ;
 }
 
 MToolbarButtonStyle:pressed {
@@ -251,9 +251,6 @@ MImCorrectionCandidateContainerStyle {
 
     minimum-size: 15mm $HEIGHT_CANDIDATEITEM;
     maximum-size: 100% 100%;
-
-    releaseFeedback: ;
-    pressFeedback: ;
 }
 
 MImCorrectionCandidateItemStyle {
@@ -275,9 +272,6 @@ MImToolbarStyle {
     margin-bottom: 0;
     margin-left: 0;
     margin-right: 0;
-
-    releaseFeedback: ;
-    pressFeedback: ;
 }
 
 MImToolbarStyle:full-toolbar {

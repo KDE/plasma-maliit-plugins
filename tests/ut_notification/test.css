@@ -23,9 +23,6 @@ MVirtualKeyboardStyle {
     notification-background-color: #FF0000;
     notification-text-color: #0000FF;
     notification-opacity: 1.0;
-
-    releaseFeedback: ;
-    pressFeedback: ;
 }
 
 MVirtualKeyboardStyle.Portrait {
