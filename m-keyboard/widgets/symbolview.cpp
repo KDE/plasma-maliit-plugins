@@ -192,7 +192,6 @@ void SymbolView::setupLayout()
         keyAreaLayout = new LinearLayoutObject(Qt::Vertical);
     }
 
-    keyAreaLayout->setSpacing(style()->spacingVertical());
     keyAreaLayout->setContentsMargins(style()->paddingLeft(), style()->paddingTop(),
                                       style()->paddingRight(), style()->paddingBottom());
 

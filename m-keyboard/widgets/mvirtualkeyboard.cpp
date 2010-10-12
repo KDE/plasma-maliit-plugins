@@ -406,8 +406,6 @@ QGraphicsLinearLayout *MVirtualKeyboard::createKeyAreaLayout(QGraphicsWidget *pa
     QGraphicsLinearLayout *layout = new QGraphicsLinearLayout(Qt::Vertical, parent);
     layout->setContentsMargins(style()->paddingLeft(), style()->paddingTop(),
                                style()->paddingRight(), style()->paddingBottom());
-    layout->setSpacing(style()->spacingVertical());
-
     return layout;
 }
 
