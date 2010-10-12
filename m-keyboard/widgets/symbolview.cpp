@@ -141,7 +141,6 @@ SymbolView::SymbolView(const LayoutsManager &layoutsManager, const MVirtualKeybo
       shiftState(ModifierClearState),
       layoutsMgr(layoutsManager),
       pageSwitcher(0),
-      functionRow(0),
       currentOrientation(sceneManager.orientation()),
       currentLayout(layout),
       mouseDownKeyArea(false),
@@ -627,11 +626,6 @@ void SymbolView::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view
     // Draw current character view.
     if (pageSwitcher->currentWidget()) {
         static_cast<KeyButtonArea *>(pageSwitcher->currentWidget())->drawReactiveAreas(reactionMap, view);
-    }
-
-    // Draw function row.
-    if (functionRow) {
-        functionRow->drawReactiveAreas(reactionMap, view);
     }
 }
 

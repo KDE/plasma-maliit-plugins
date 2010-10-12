@@ -296,7 +296,6 @@ private:
     const LayoutsManager &layoutsMgr;
 
     QPointer<HorizontalSwitcher> pageSwitcher;
-    QPointer<KeyButtonArea> functionRow;
 
     M::Orientation currentOrientation;
 
