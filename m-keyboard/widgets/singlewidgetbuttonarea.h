@@ -64,6 +64,15 @@ private:
 
     qreal computeWidgetHeight() const;
 
+    //! \brief Return preferred height for a row
+    qreal preferredRowHeight(int row) const;
+
+    //! \brief Get the maximum width in this widget, in normalized units
+    qreal maxNormalizedWidth() const;
+
+    //! \brief Normalized width for a particular VKBDataKey.
+    qreal normalizedKeyWidth(const VKBDataKey *key) const;
+
 
     //! \brief Draws background.
     void drawKeyBackground(QPainter *painter, const SingleWidgetButton *button);
@@ -82,6 +91,7 @@ private:
 
     ButtonRowList rowList;
     const qreal widgetHeight;
+    qreal mMaxNormalizedWidth;
 
     QVector<QPair<int, int> > rowOffsets;
 

@@ -20,7 +20,6 @@
 #define VKBDATAKEY_H
 
 #include "keyevent.h"
-#include "mvirtualkeyboardstyle.h"
 
 #include <QSize>
 #include <QString>
@@ -211,9 +210,6 @@ public:
 
     //! Returns the width type.
     WidthType width() const;
-
-    //! Returns normalized width ratio
-    qreal normalizedWidth(const MVirtualKeyboardStyleContainer &styleContainer) const;
 
     //! Returns true if button uses fixed width type.
     bool isFixedWidth() const;

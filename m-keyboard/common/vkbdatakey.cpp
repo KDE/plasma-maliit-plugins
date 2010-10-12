@@ -170,31 +170,6 @@ VKBDataKey::WidthType VKBDataKey::width() const
     return mWidthType;
 }
 
-qreal VKBDataKey::normalizedWidth(const MVirtualKeyboardStyleContainer &styleContainer) const
-{
-    switch(mWidthType) {
-    case Small:
-        return styleContainer->keyWidthSmall();
-
-    case Medium:
-    case Stretched:
-        return styleContainer->keyWidthMedium();
-
-    case Large:
-        return styleContainer->keyWidthLarge();
-
-    case XLarge:
-        return styleContainer->keyWidthXLarge();
-
-    case XxLarge:
-        return styleContainer->keyWidthXxLarge();
-    }
-
-    qWarning() << __PRETTY_FUNCTION__
-               << "Could not compute normalized width from style";
-    return 0;
-}
-
 bool VKBDataKey::isFixedWidth() const
 {
     return isFixed;

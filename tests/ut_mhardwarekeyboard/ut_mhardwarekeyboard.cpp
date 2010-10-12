@@ -827,7 +827,7 @@ void Ut_MHardwareKeyboard::testSwitchLayout()
     MGConfItem secondaryVariantConfig(XkbSecondaryVariantSettingName);
     secondaryVariantConfig.set(QVariant(secondaryVariant));
 
-    LayoutsManager::createInstance(0);
+    LayoutsManager::createInstance();
     gSetXkbMapCallCount = 0;
     int switchCount = 0;
     QSignalSpy scriptChangedSpy(m_hkb, SIGNAL(scriptChanged()));

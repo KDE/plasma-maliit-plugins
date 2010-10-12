@@ -80,7 +80,7 @@ void Ut_SymbolView::initTestCase()
     MGConfItem defaultLayoutSetting(DefaultLayoutSettingName);
     defaultLayoutSetting.set(QVariant(DefaultLayout));
 
-    LayoutsManager::createInstance(style);
+    LayoutsManager::createInstance();
 
     qRegisterMetaType<KeyEvent>("KeyEvent");
 

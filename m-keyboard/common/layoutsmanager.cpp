@@ -51,13 +51,10 @@ namespace
 LayoutsManager *LayoutsManager::Instance = 0;
 
 
-LayoutsManager::LayoutsManager(const MVirtualKeyboardStyleContainer *newStyleContainer)
+// FIXME: Style of KeyButtonAreas should not be needed in classes that deal with data models.
+LayoutsManager::LayoutsManager()
     : configLayouts(InputMethodLayouts),
       xkbModelSetting(XkbModelSettingName),
-      styleContainer(newStyleContainer),
-      hwKeyboard(newStyleContainer),
-      numberKeyboard(newStyleContainer),
-      phoneNumberKeyboard(newStyleContainer),
       numberFormatSetting(NumberFormatSettingName),
       numberFormat(NumLatin),
       currentHwkbLayoutType(InvalidHardwareKeyboard)
@@ -83,11 +80,11 @@ LayoutsManager::~LayoutsManager()
     keyboards.clear();
 }
 
-void LayoutsManager::createInstance(const MVirtualKeyboardStyleContainer *styleContainer)
+void LayoutsManager::createInstance()
 {
     Q_ASSERT(!Instance);
     if (!Instance) {
-        Instance = new LayoutsManager(styleContainer);
+        Instance = new LayoutsManager;
     }
 }
 
@@ -259,7 +256,7 @@ bool LayoutsManager::loadLayout(const QString &layout)
     if (layout.isEmpty())
         return false;
 
-    KeyboardData *keyboard = new KeyboardData(styleContainer);
+    KeyboardData *keyboard = new KeyboardData;
 
     bool loaded = keyboard->loadNokiaKeyboard(layout);
 

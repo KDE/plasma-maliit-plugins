@@ -133,7 +133,7 @@ void Ut_KeyButtonArea::testLandscapeBoxSize()
         delete subject;
         subject = 0;
         delete keyboard;
-        keyboard = new KeyboardData(style);
+        keyboard = new KeyboardData;
         qDebug() << "Loading layout file" << info.fileName();
         QVERIFY(keyboard->loadNokiaKeyboard(info.fileName()));
         subject = createKba(style,
@@ -180,7 +180,7 @@ void Ut_KeyButtonArea::testPortraitBoxSize()
         delete subject;
         subject = 0;
         delete keyboard;
-        keyboard = new KeyboardData(style);
+        keyboard = new KeyboardData;
         qDebug() << "Loading layout file" << info.fileName();
         QVERIFY(keyboard->loadNokiaKeyboard(info.fileName()));
         subject = createKba(style, keyboard->layout(LayoutData::General, M::Portrait)->section(LayoutData::mainSection),
@@ -218,7 +218,7 @@ void Ut_KeyButtonArea::testLabelPosition()
     const int rowIndex = 2;
     const IKeyButton *button = 0;
 
-    keyboard = new KeyboardData(style);
+    keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
     subject = createKba(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                         false, 0);
@@ -266,7 +266,7 @@ void Ut_KeyButtonArea::testSceneEvent()
     QFETCH(KBACreator, createKba);
 
     //initialization
-    keyboard = new KeyboardData(style);
+    keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
     subject = createKba(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                         false, 0);
@@ -322,7 +322,7 @@ void Ut_KeyButtonArea::testPaint()
     QVERIFY(painter.begin(image));
 
     //initialization
-    keyboard = new KeyboardData(style);
+    keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
     subject = createKba(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                         false, 0);
@@ -344,7 +344,7 @@ void Ut_KeyButtonArea::testDeadkeys()
 {
     QFETCH(KBACreator, createKba);
 
-    keyboard = new KeyboardData(style);
+    keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("fr.xml"));
     subject = createKba(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                         false, 0);
@@ -426,7 +426,7 @@ void Ut_KeyButtonArea::testDeadkeys()
 
 void Ut_KeyButtonArea::testSelectedDeadkeys()
 {
-    keyboard = new KeyboardData(style);
+    keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("fr.xml"));
     subject = createSingleWidgetKeyButtonArea(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                                               false, 0);
@@ -493,7 +493,7 @@ void Ut_KeyButtonArea::testTwoDeadInOne()
     QFETCH(TestOpList, operations);
     QFETCH(QString, expectedCharacterLabel);
 
-    keyboard = new KeyboardData(style);
+    keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("test-layout.xml"));
     subject = createSingleWidgetKeyButtonArea(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                                               false, 0);
@@ -527,7 +527,7 @@ void Ut_KeyButtonArea::testTwoDeadInOne()
 
 void Ut_KeyButtonArea::testExtendedLabels()
 {
-    keyboard = new KeyboardData(style);
+    keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("test-layout.xml"));
     subject = createSingleWidgetKeyButtonArea(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                                               false, 0);
@@ -551,7 +551,7 @@ void Ut_KeyButtonArea::testImportedLayouts()
     // The first imported file test-import1.xml defines some landscape and portrait stuff, while
     // the second imported file test-import2.xml redefines the portrait stuff.
 
-    keyboard = new KeyboardData(style);
+    keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("test-importer.xml"));
     const LayoutData *model = keyboard->layout(LayoutData::General, M::Landscape);
     QVERIFY(model);
@@ -590,7 +590,7 @@ void Ut_KeyButtonArea::testPopup()
 {
     QFETCH(KBACreator, createKba);
 
-    keyboard = new KeyboardData(style);
+    keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
     subject = createKba(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                         true, 0);
@@ -631,7 +631,7 @@ void Ut_KeyButtonArea::testInitialization_data()
 void Ut_KeyButtonArea::testInitialization()
 {
     QFETCH(KBACreator, createKba);
-    keyboard = new KeyboardData(style);
+    keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
     subject = createKba(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                         false, 0);
@@ -642,7 +642,7 @@ void Ut_KeyButtonArea::testInitialization()
 void Ut_KeyButtonArea::testShiftCapsLock()
 {
     // Load any layout that has shift
-    keyboard = new KeyboardData(style);
+    keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
     const LayoutData *layout = keyboard->layout(LayoutData::General, M::Landscape);
     QVERIFY(layout);
@@ -664,7 +664,7 @@ void Ut_KeyButtonArea::testShiftCapsLock()
 
 void Ut_KeyButtonArea::testMultiTouch()
 {
-    keyboard = new KeyboardData(style);
+    keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
     const LayoutData *layout = keyboard->layout(LayoutData::General, M::Landscape);
     QVERIFY(layout);
@@ -797,7 +797,7 @@ void Ut_KeyButtonArea::testRtlKeys()
     QFETCH(QString, fileName);
     QFETCH(QList<KeyBinding::KeyAction>, expectedRtlKeys);
 
-    keyboard = new KeyboardData(style);
+    keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard(fileName));
     subject = createKba(style,
                         keyboard->layout(LayoutData::General, orientation)->section(LayoutData::mainSection),

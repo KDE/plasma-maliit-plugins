@@ -21,7 +21,6 @@
 
 #include "layoutdata.h"
 #include "vkbdatakey.h"
-#include "mvirtualkeyboardstyle.h"
 
 #include <QHash>
 #include <QList>
@@ -44,7 +43,7 @@ public:
     * \brief Constructor
     * private class
     */
-    explicit KeyboardData(const MVirtualKeyboardStyleContainer *styleContainer = 0);
+    explicit KeyboardData();
 
     /*!
     * \brief Destructor
@@ -168,8 +167,6 @@ protected:
     QString layoutFileName;
     QList<LayoutData *> layouts;
     QHash<QString, LayoutData::LayoutType> layoutTypeMap;
-
-    const MVirtualKeyboardStyleContainer *const styleContainer;
 };
 
 #endif

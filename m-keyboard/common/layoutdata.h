@@ -19,8 +19,6 @@
 #ifndef LAYOUTDATA_H
 #define LAYOUTDATA_H
 
-#include "mvirtualkeyboardstyle.h"
-
 #include <MNamespace>
 #include <QHash>
 #include <QList>
@@ -28,7 +26,6 @@
 #include <QString>
 
 class VKBDataKey;
-class MVirtualKeyboardStyleContainer;
 
 /*!
  * \brief LayoutSection represents a named area of keys in a layout
@@ -63,9 +60,7 @@ public:
     //! The VKBDataKeys of the section will have just one binding for all levels.
     //! \param characters labels for the keys
     //! \param rtl passed directly to all keys of the section
-    //! \param styleContainer style used for normalized width calculation
-    explicit LayoutSection(const QString &characters, bool rtl = false,
-                           const MVirtualKeyboardStyleContainer *styleContainer = 0);
+    explicit LayoutSection(const QString &characters, bool rtl = false);
 
     //! \return section name
     const QString &name() const;
@@ -78,12 +73,6 @@ public:
      * \return the maximum columns in this section
      */
     int maxColumns() const;
-
-    /*!
-     * \brief Get the maximum width in this section, but in normalized units
-     * \return the maxium normalized width in this section
-     */
-    qreal maxNormalizedWidth() const;
 
     /*!
      * \brief Get the maximum number of rows in this section
@@ -113,27 +102,22 @@ public:
      */
     VKBDataKey *vkbKey(int row, int column) const;
 
-    //! \brief Return preferred height for a row
-    qreal preferredRowHeight(int row, const MVirtualKeyboardStyleContainer &styleContainer) const;
+    //! \brief Return the row height class for given row.
+    RowHeightType rowHeightType(int row) const;
 
 private:
-    //! \brief Return the row height for given row.
-    LayoutSection::RowHeightType rowHeightType(int row) const;
-
     bool isInvalidRow(int row) const;
     bool isInvalidCell(int row, int column) const;
 
     struct Row {
         Row()
-            : heightType (LayoutSection::Medium),
-              normalizedWidth(0.0)
+            : heightType (LayoutSection::Medium)
         {}
 
         ~Row();
 
         QList<VKBDataKey *> keys;
         LayoutSection::RowHeightType heightType;
-        qreal normalizedWidth;
 
         // Index of a spacer refers to right side of a key;
         // -1 means spacer before first key.
@@ -141,7 +125,6 @@ private:
     };
 
     int mMaxColumns;
-    qreal mMaxNormalizedWidth;
     bool movable;
     QString sectionName;
     // TODO: remove? we only have one section type now

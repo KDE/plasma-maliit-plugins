@@ -112,7 +112,7 @@ void Ut_MVirtualKeyboard::initTestCase()
     vkbStyleContainer = new MVirtualKeyboardStyleContainer;
     vkbStyleContainer->initialize("MVirtualKeyboard", "MVirtualKeyboardView", 0);
 
-    LayoutsManager::createInstance(vkbStyleContainer);
+    LayoutsManager::createInstance();
 }
 
 void Ut_MVirtualKeyboard::cleanupTestCase()

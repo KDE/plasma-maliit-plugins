@@ -197,8 +197,7 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection *icConnection, QObject *par
     vkbStyleContainer = new MVirtualKeyboardStyleContainer;
     vkbStyleContainer->initialize("MVirtualKeyboard", "MVirtualKeyboardView", 0);
 
-    LayoutsManager::createInstance(vkbStyleContainer);
-
+    LayoutsManager::createInstance();
 
     FlickGestureRecognizer::registerSharedRecognizer();
 

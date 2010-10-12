@@ -21,14 +21,12 @@
 #include <QtTest/QtTest>
 
 class MApplication;
-class MVirtualKeyboardStyleContainer;
 
 class Ut_LayoutData : public QObject
 {
     Q_OBJECT
 private:
     MApplication *app;
-    MVirtualKeyboardStyleContainer *style;
 
 private slots:
     void init();

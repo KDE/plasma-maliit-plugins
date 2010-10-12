@@ -16,7 +16,6 @@
 
 
 
-#include "mvirtualkeyboardstyle.h"
 #include "keyboarddata.h"
 
 #include <QDebug>
@@ -139,14 +138,13 @@ ParseParameters::ParseParameters():
 {
 }
 
-KeyboardData::KeyboardData(const MVirtualKeyboardStyleContainer *newStyleContainer)
+KeyboardData::KeyboardData()
     : currentLayout(0),
       keyboardVersion(""),
       keyboardTitle(""),
       keyboardLanguage(""),
       keyboardCatalog(""),
-      keyboardAutoCapsEnabled(true),
-      styleContainer(newStyleContainer)
+      keyboardAutoCapsEnabled(true)
 {
     layoutTypeMap[VKBTagTypeGeneral] = LayoutData::General;
     layoutTypeMap[VKBTagTypeUrl] = LayoutData::Url;
@@ -484,9 +482,6 @@ void KeyboardData::parseTagRow(const QDomElement &element, ParseParameters &para
 
     params.currentSection->mMaxColumns = qMax(params.currentSection->maxColumns(),
                                               row->keys.size());
-
-    params.currentSection->mMaxNormalizedWidth = qMax(params.currentSection->maxNormalizedWidth(),
-                                                      row->normalizedWidth);
 }
 
 void KeyboardData::parseTagBinding(const QDomElement &element, ParseParameters &params)
@@ -529,12 +524,7 @@ void KeyboardData::parseTagKey(const QDomElement &element, ParseParameters &para
     params.currentKey = key;
     params.currentRow->keys.append(key);
 
-    if (styleContainer) {
-        params.currentRow->normalizedWidth += key->normalizedWidth(*styleContainer);
-    }
-
     parseChildren(element, params, &VKBTagBinding, &KeyboardData::parseTagBinding);
-
 
     if (key->bindings[1] == NULL) {
         key->bindings[1] = key->bindings[0];

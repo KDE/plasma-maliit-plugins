@@ -21,7 +21,6 @@
 #include "keyboarddata.h"
 #include "keyboardmapping.h"
 #include "layoutdata.h"
-#include "mvirtualkeyboardstyle.h"
 
 #include <MGConfItem>
 #include <MLocale>
@@ -41,7 +40,7 @@ public:
     static LayoutsManager &instance();
 
     //! \brief Create singleton
-    static void createInstance(const MVirtualKeyboardStyleContainer *styleContainer);
+    static void createInstance();
 
     //! \brief Destroy singleton
     static void destroyInstance();
@@ -124,7 +123,7 @@ signals:
 
 private:
     //! Default constructor
-    explicit LayoutsManager(const MVirtualKeyboardStyleContainer *styleContainer = 0);
+    explicit LayoutsManager();
 
     /*!
      * Returns the layout of the given layout name
@@ -175,9 +174,6 @@ private:
     //! Current keyboard is used when no layout name is specified
     //! in calls to public methods of this class.
     QMap<QString, KeyboardData *>::const_iterator current;
-
-    //! The shared style container.
-    const MVirtualKeyboardStyleContainer *const styleContainer;
 
     //! Current hardware layout (xkb) specific keyboard.
     KeyboardData hwKeyboard;

@@ -15,7 +15,6 @@
  */
 
 #include "ut_layoutdata.h"
-#include "mvirtualkeyboardstyle.h"
 #include "layoutdata.h"
 #include "vkbdatakey.h"
 #include "utils.h"
@@ -32,15 +31,10 @@ void Ut_LayoutData::initTestCase()
 
     disableQtPlugins();
     app = new MApplication(argc, app_name);
-
-    style = new MVirtualKeyboardStyleContainer;
-    style->initialize("MVirtualKeyboard", "MVirtualKeyboardView", 0);
 }
 
 void Ut_LayoutData::cleanupTestCase()
 {
-    delete style;
-    style = 0;
     delete app;
     app = 0;
 }
@@ -56,13 +50,12 @@ void Ut_LayoutData::cleanup()
 void Ut_LayoutData::testConstructFromString()
 {
     const QString characters("salmon");
-    const LayoutSection section(characters, false, style);
+    const LayoutSection section(characters, false);
 
     QCOMPARE(section.maxColumns(), characters.length());
     QCOMPARE(section.rowCount(), 1);
     QCOMPARE(section.keyCount(), characters.length());
     QCOMPARE(section.columnsAt(0), characters.length());
-    QCOMPARE(section.maxNormalizedWidth(), static_cast<qreal>(characters.length()));
     for (int i = 0; i < characters.length(); ++i) {
         const VKBDataKey * const key(section.vkbKey(0, i));
         QVERIFY(key);

@@ -84,16 +84,13 @@ LayoutData::SharedLayoutSection LayoutData::section(const QString &name) const
 
 LayoutSection::LayoutSection()
     : mMaxColumns(0),
-      mMaxNormalizedWidth(0),
       movable(false),
       sectionType(Sloppy)
 {
 }
 
-LayoutSection::LayoutSection(const QString &characters, bool rtl,
-                             const MVirtualKeyboardStyleContainer *styleContainer)
+LayoutSection::LayoutSection(const QString &characters, bool rtl)
     : mMaxColumns(characters.length()),
-      mMaxNormalizedWidth(0),
       movable(false),
       sectionName("<dynamic section>"),
       sectionType(Sloppy)
@@ -106,16 +103,11 @@ LayoutSection::LayoutSection(const QString &characters, bool rtl,
         VKBDataKey *key(new VKBDataKey(VKBDataKey::NormalStyle, VKBDataKey::Medium, true, rtl));
 
         row->keys.append(key);
-        if (styleContainer) {
-            row->normalizedWidth += key->normalizedWidth(*styleContainer);
-        }
 
         KeyBinding *binding(new KeyBinding(characters[i]));
         key->setBinding(*binding, false);
         key->setBinding(*binding, true);
     }
-
-    mMaxNormalizedWidth = row->normalizedWidth;
 }
 
 LayoutSection::~LayoutSection()
@@ -136,11 +128,6 @@ LayoutSection::Type LayoutSection::type() const
 int LayoutSection::maxColumns() const
 {
     return mMaxColumns;
-}
-
-qreal LayoutSection::maxNormalizedWidth() const
-{
-    return mMaxNormalizedWidth;
 }
 
 int LayoutSection::rowCount() const
@@ -176,36 +163,6 @@ VKBDataKey *LayoutSection::vkbKey(int row, int column) const
 {
     return (isInvalidCell(row, column) ? 0
                                        : rows[row]->keys[column]);
-}
-
-qreal LayoutSection::preferredRowHeight(int row, const MVirtualKeyboardStyleContainer &styleContainer) const
-{
-    const qreal normalHeight = styleContainer->keyHeight();
-
-    switch (rowHeightType(row)) {
-
-    case Small:
-        return normalHeight * styleContainer->rowHeightSmall();
-        break;
-
-    case Medium:
-        return normalHeight * styleContainer->rowHeightMedium();
-        break;
-
-    case Large:
-        return normalHeight * styleContainer->rowHeightLarge();
-        break;
-
-    case XLarge:
-        return normalHeight * styleContainer->rowHeightXLarge();
-        break;
-
-    case XxLarge:
-        return normalHeight * styleContainer->rowHeightXxLarge();
-        break;
-    }
-
-    return 0.0;
 }
 
 LayoutSection::RowHeightType LayoutSection::rowHeightType(int row) const

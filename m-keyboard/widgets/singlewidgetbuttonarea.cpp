@@ -67,12 +67,14 @@ SingleWidgetButtonArea::SingleWidgetButtonArea(const MVirtualKeyboardStyleContai
     : KeyButtonArea(style, sectionModel, usePopup, parent),
       rowList(sectionModel->rowCount()),
       widgetHeight(computeWidgetHeight()),
+      mMaxNormalizedWidth(maxNormalizedWidth()),
       shiftButton(0),
       textDirty(false),
       equalWidthButtons(true)
 {
     textLayout.setCacheEnabled(true);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+
     loadKeys();
 }
 
@@ -295,7 +297,7 @@ qreal SingleWidgetButtonArea::computeWidgetHeight() const
     qreal height = -(style()->spacingVertical());
 
     for (int index = 0; index < rowList.count(); ++index) {
-        height += sectionModel()->preferredRowHeight(index, style());
+        height += preferredRowHeight(index);
         height += style()->spacingVertical();
     }
 
@@ -454,7 +456,7 @@ void SingleWidgetButtonArea::updateButtonGeometriesForWidth(const int newAvailab
 
     // The following code cannot handle negative width:
     int availableWidth = qMax(0, newAvailableWidth);
-    const qreal normalizedWidth = qMax<qreal>(1.0, sectionModel()->maxNormalizedWidth());
+    const qreal normalizedWidth = qMax<qreal>(1.0, mMaxNormalizedWidth);
     const qreal availableWidthForButtons = availableWidth - ((normalizedWidth - 1) * HorizontalSpacing);
     const qreal equalButtonWidth = availableWidthForButtons / normalizedWidth;
 
@@ -470,7 +472,7 @@ void SingleWidgetButtonArea::updateButtonGeometriesForWidth(const int newAvailab
     QRectF br; // button bounding rectangle
 
     for (RowIterator row(rowList.begin()); row != rowList.end(); ++row) {
-        const qreal rowHeight = sectionModel()->preferredRowHeight(row - rowList.begin(), style());
+        const qreal rowHeight = preferredRowHeight(row - rowList.begin());
         br.setHeight(rowHeight + style()->spacingVertical());
 
         row->buttonOffsets.clear();
@@ -564,8 +566,79 @@ QRectF SingleWidgetButtonArea::boundingRect() const
                   size() + QSizeF(style()->spacingHorizontal() * 2, style()->spacingVertical()));
 }
 
+qreal SingleWidgetButtonArea::preferredRowHeight(int row) const
+{
+    const qreal normalHeight = style()->keyHeight();
+
+    switch (sectionModel()->rowHeightType(row)) {
+
+    case LayoutSection::Small:
+        return normalHeight * style()->rowHeightSmall();
+        break;
+
+    case LayoutSection::Medium:
+        return normalHeight * style()->rowHeightMedium();
+        break;
+
+    case LayoutSection::Large:
+        return normalHeight * style()->rowHeightLarge();
+        break;
+
+    case LayoutSection::XLarge:
+        return normalHeight * style()->rowHeightXLarge();
+        break;
+
+    case LayoutSection::XxLarge:
+        return normalHeight * style()->rowHeightXxLarge();
+        break;
+    }
+
+    return 0.0;
+}
+
+qreal SingleWidgetButtonArea::maxNormalizedWidth() const
+{
+    qreal maxRowWidth = 0.0;
+
+    for (int j = 0; j < sectionModel()->rowCount(); ++j) {
+        qreal rowWidth = 0.0;
+        for (int i = 0; i < sectionModel()->columnsAt(j); ++i) {
+            const VKBDataKey *key = sectionModel()->vkbKey(j, i);
+            rowWidth += normalizedKeyWidth(key);
+        }
+        maxRowWidth = qMax(maxRowWidth, rowWidth);
+    }
+    return maxRowWidth;
+}
+
+qreal SingleWidgetButtonArea::normalizedKeyWidth(const VKBDataKey *key) const
+{
+    switch(key->width()) {
+    case VKBDataKey::Small:
+        return style()->keyWidthSmall();
+
+    case VKBDataKey::Medium:
+    case VKBDataKey::Stretched:
+        return style()->keyWidthMedium();
+
+    case VKBDataKey::Large:
+        return style()->keyWidthLarge();
+
+    case VKBDataKey::XLarge:
+        return style()->keyWidthXLarge();
+
+    case VKBDataKey::XxLarge:
+        return style()->keyWidthXxLarge();
+    }
+
+    qWarning() << __PRETTY_FUNCTION__
+               << "Could not compute normalized width from style";
+    return 0.0;
+}
+
 void SingleWidgetButtonArea::onThemeChangeCompleted()
 {
+    mMaxNormalizedWidth = maxNormalizedWidth();
     KeyButtonArea::onThemeChangeCompleted();
     buildTextLayout();
 }
