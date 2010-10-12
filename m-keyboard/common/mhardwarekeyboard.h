@@ -97,6 +97,9 @@ public:
      */
     void reset();
 
+    //! \brief MInputMethodBase::clientChanged implementation
+    void clientChanged();
+
     /*!
      * \brief Filter input key events that come from the hardware keyboard.
      *

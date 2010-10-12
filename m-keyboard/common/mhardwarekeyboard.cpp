@@ -254,8 +254,10 @@ void MHardwareKeyboard::disable()
 {
     qDebug() << __PRETTY_FUNCTION__;
 
-    inputContextConnection.sendPreeditString("", MInputMethod::PreeditKeyPress);
-    preedit.clear();
+    if (!preedit.isEmpty()) {
+        inputContextConnection.sendPreeditString("", MInputMethod::PreeditKeyPress);
+        preedit.clear();
+    }
     deadKeyMapper.reset();
 
     inputContextConnection.setRedirectKeys(false);
@@ -275,6 +277,12 @@ void MHardwareKeyboard::reset()
 
     deadKeyMapper.reset();
     preedit.clear();
+}
+
+
+void MHardwareKeyboard::clientChanged()
+{
+    reset();
 }
 
 

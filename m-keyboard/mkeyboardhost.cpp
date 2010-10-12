@@ -600,12 +600,7 @@ void MKeyboardHost::reset()
     qDebug() << __PRETTY_FUNCTION__;
     switch (activeState) {
     case MInputMethod::OnScreen:
-        preedit.clear();
-        candidates.clear();
-        correctionCandidateWidget->setPreeditString("");
-        correctionCandidateWidget->disappear();
-        if (engineReady)
-            imCorrectionEngine->clearEngineBuffer();
+        resetInternalState();
         break;
     case MInputMethod::Hardware:
         hardwareKeyboard->reset();
@@ -615,6 +610,16 @@ void MKeyboardHost::reset()
     }
 }
 
+
+void MKeyboardHost::resetInternalState()
+{
+    preedit.clear();
+    candidates.clear();
+    correctionCandidateWidget->setPreeditString("");
+    correctionCandidateWidget->disappear();
+    if (engineReady)
+        imCorrectionEngine->clearEngineBuffer();
+}
 
 void MKeyboardHost::prepareOrientationChange()
 {
@@ -800,7 +805,7 @@ void MKeyboardHost::doBackspace()
                 ? MInputMethod::PreeditNoCandidates : MInputMethod::PreeditDefault;
             inputContextConnection()->sendPreeditString(preedit, face);
         } else {
-            reset();
+            resetInternalState();
             backSpaceTimer.stop();
             inputContextConnection()->sendCommitString("");
         }
@@ -1277,7 +1282,8 @@ void MKeyboardHost::processKeyEvent(QEvent::Type keyType, Qt::Key keyCode,
 
 void MKeyboardHost::clientChanged()
 {
-    reset();
+    hardwareKeyboard->clientChanged();
+    resetInternalState();
     hide(); // could do some quick hide also
 }
 
@@ -1303,7 +1309,7 @@ void MKeyboardHost::setState(const QSet<MInputMethod::HandlerState> &state)
     }
 
     // Resets before changing the activeState to make sure clear.
-    reset();
+    resetInternalState();
     activeState = actualState;
 
     // Keeps separate states for symbol view in OnScreen state and Hardware state

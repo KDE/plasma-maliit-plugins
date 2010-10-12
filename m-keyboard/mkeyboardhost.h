@@ -182,6 +182,9 @@ private slots:
     void handleVirtualKeyboardLayoutChanged(const QString &layout);
 
 private:
+    //! \brief Reset internal state, used by reset() and others
+    void resetInternalState();
+
     void createCorrectionCandidateWidget();
 
     //! Rotates coodinates from screen to window
