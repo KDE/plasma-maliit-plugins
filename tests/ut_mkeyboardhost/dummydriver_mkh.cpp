@@ -35,31 +35,31 @@ bool DummyDriverMkh::init()
     return true;
 }
 
-bool DummyDriverMkh::addDictionaryWord(const QString &w, M::DictionaryType type)
+bool DummyDriverMkh::addDictionaryWord(const QString &w, MImEngine::DictionaryType type)
 {
     Q_UNUSED(w);
     Q_UNUSED(type);
     return false;
 }
 
-bool DummyDriverMkh::removeDictionaryWord(const QString &w, M::DictionaryType type)
+bool DummyDriverMkh::removeDictionaryWord(const QString &w, MImEngine::DictionaryType type)
 {
     Q_UNUSED(w);
     Q_UNUSED(type);
     return false;
 }
 
-bool DummyDriverMkh::disableDictionary(M::DictionaryType type)
+bool DummyDriverMkh::disableDictionary(MImEngine::DictionaryType type)
 {
     Q_UNUSED(type);
     return false;
 }
-bool DummyDriverMkh::enableDictionary(M::DictionaryType type)
+bool DummyDriverMkh::enableDictionary(MImEngine::DictionaryType type)
 {
     Q_UNUSED(type);
     return false;
 }
-bool DummyDriverMkh::removeDictionary(M::DictionaryType type)
+bool DummyDriverMkh::removeDictionary(MImEngine::DictionaryType type)
 {
     Q_UNUSED(type);
     return false;
@@ -69,14 +69,28 @@ void DummyDriverMkh::appendString(const QString &s)
 {
     Q_UNUSED(s);
 }
+
+void DummyDriverMkh::reselectString(const QString &s)
+{
+    Q_UNUSED(s);
+}
+
 void DummyDriverMkh::appendCharacter(const QChar &c)
 {
     Q_UNUSED(c);
 }
 
-void DummyDriverMkh::setContext(const QString &s)
+void DummyDriverMkh::tapKeyboard(const QPoint &position, bool shift, QChar symbol)
+{
+    Q_UNUSED(position);
+    Q_UNUSED(shift);
+    Q_UNUSED(symbol);
+}
+
+void DummyDriverMkh::setContext(const QString &s, int cursor)
 {
     Q_UNUSED(s);
+    Q_UNUSED(cursor);
 }
 
 void DummyDriverMkh::disablePrediction()
@@ -152,9 +166,27 @@ bool  DummyDriverMkh::setSuggestedCandidateIndex(int index)
     return true;
 }
 
-void DummyDriverMkh::setExactWordPositionInList(int settings)
+void DummyDriverMkh::setExactWordPositionInList(MImEngine::ExactInListType setting)
 {
-    Q_UNUSED(settings);
+    Q_UNUSED(setting);
+}
+
+MImEngine::DictionaryType DummyDriverMkh::candidateSource(int index)
+{
+    Q_UNUSED(index);
+    return MImEngine::DictionaryTypeInvalid;
+}
+
+bool DummyDriverMkh::setKeyboardLayoutKeys(const QList<MImEngine::KeyboardLayoutKey> &keys)
+{
+    Q_UNUSED(keys);
+    return true;
+}
+
+QList<MImEngine::KeyboardLayoutKey> DummyDriverMkh::keyboardLayoutKeys()
+{
+    QList<MImEngine::KeyboardLayoutKey> keys;
+    return keys;
 }
 
 void DummyDriverMkh::clearEngineBuffer()
@@ -170,7 +202,7 @@ QString  DummyDriverMkh::language()
     return driverLanguage;
 }
 
-bool DummyDriverMkh::setLanguage(const QString  &l, M::LanguagePriority p)
+bool DummyDriverMkh::setLanguage(const QString  &l, MImEngine::LanguagePriority p)
 {
     Q_UNUSED(p);
     driverLanguage = l;

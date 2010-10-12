@@ -50,21 +50,25 @@ public:
 
     virtual bool init();
 
-    virtual bool addDictionaryWord(const QString &word, M::DictionaryType);
+    virtual bool addDictionaryWord(const QString &word, MImEngine::DictionaryType);
 
-    virtual bool removeDictionaryWord(const QString &word, M::DictionaryType);
+    virtual bool removeDictionaryWord(const QString &word, MImEngine::DictionaryType);
 
-    virtual bool disableDictionary(M::DictionaryType);
+    virtual bool disableDictionary(MImEngine::DictionaryType);
 
-    virtual bool enableDictionary(M::DictionaryType);
+    virtual bool enableDictionary(MImEngine::DictionaryType);
 
-    virtual bool removeDictionary(M::DictionaryType);
+    virtual bool removeDictionary(MImEngine::DictionaryType);
 
     virtual void appendString(const QString &s);
 
+    virtual void reselectString(const QString &s);
+
     virtual void appendCharacter(const QChar &c);
 
-    virtual void setContext(const QString &s);
+    virtual void tapKeyboard(const QPoint &position, bool shift, QChar symbol);
+
+    virtual void setContext(const QString &s, int cursor);
 
     virtual void disablePrediction();
 
@@ -94,7 +98,13 @@ public:
 
     virtual bool setSuggestedCandidateIndex(int index);
 
-    virtual void setExactWordPositionInList(int settings);
+    virtual void setExactWordPositionInList(MImEngine::ExactInListType setting);
+
+    virtual MImEngine::DictionaryType candidateSource(int index);
+
+    virtual bool setKeyboardLayoutKeys(const QList<MImEngine::KeyboardLayoutKey> &keys);
+
+    virtual QList<MImEngine::KeyboardLayoutKey> keyboardLayoutKeys();
 
     virtual void clearEngineBuffer();
 
@@ -102,7 +112,7 @@ public:
 
     virtual QString  language();
 
-    virtual bool setLanguage(const QString &language, M::LanguagePriority);
+    virtual bool setLanguage(const QString &language, MImEngine::LanguagePriority);
 
     virtual bool setKeyboardLayout(const QString &);
 
