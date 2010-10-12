@@ -21,16 +21,13 @@
 
 #include <QtPlugin>
 
-class MVirtualKeyboardStyleContainer;
 class QGraphicsItem;
 class PopupBase;
-
 
 class PopupPlugin
 {
 public:
-    virtual PopupBase *createPopup(const MVirtualKeyboardStyleContainer &styleContainer,
-                                   QGraphicsItem *parent) = 0;
+    virtual PopupBase *createPopup(QGraphicsItem *parent) = 0;
 };
 
 

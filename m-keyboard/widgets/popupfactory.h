@@ -21,7 +21,6 @@
 
 #include "popupbase.h"
 
-class MVirtualKeyboardStyleContainer;
 class QGraphicsItem;
 class PopupPlugin;
 
@@ -30,8 +29,7 @@ class PopupFactory
 {
 public:
     static PopupFactory *instance();
-    PopupBase *createPopup(const MVirtualKeyboardStyleContainer &styleContainer,
-                           QGraphicsItem *parent) const;
+    PopupBase *createPopup(QGraphicsItem *parent) const;
 
 private:
     PopupFactory();

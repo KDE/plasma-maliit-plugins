@@ -36,7 +36,7 @@ namespace
 class DummyPopup: public PopupBase
 {
 public:
-    DummyPopup(const MVirtualKeyboardStyleContainer &styleContainer);
+    DummyPopup();
     ~DummyPopup();
 
     //! \reimp
@@ -61,15 +61,14 @@ PopupFactory *PopupFactory::instance()
 
 
 PopupBase *
-PopupFactory::createPopup(const MVirtualKeyboardStyleContainer &styleContainer,
-                          QGraphicsItem *parent) const
+PopupFactory::createPopup(QGraphicsItem *parent) const
 {
     // if plugin present, use it to create popup, otherwise return dummy popup
     PopupBase *popup;
     if (plugin) {
-        popup = plugin->createPopup(styleContainer, parent);
+        popup = plugin->createPopup(parent);
     } else {
-        popup = new DummyPopup(styleContainer);
+        popup = new DummyPopup;
     }
 
     return popup;
@@ -108,9 +107,8 @@ PopupFactory::~PopupFactory()
 
 /////////////////////////////////
 // Dummy popup implementation
-DummyPopup::DummyPopup(const MVirtualKeyboardStyleContainer &styleContainer)
-    : PopupBase(styleContainer),
-      visible(false)
+DummyPopup::DummyPopup()
+    : visible(false)
 {
     // nothing
 }

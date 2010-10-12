@@ -17,18 +17,11 @@
 
 
 #include "popupbase.h"
-#include "mvirtualkeyboardstyle.h"
 
 #include <QDebug>
 #include <MTheme>
 
-PopupBase::PopupBase(const MVirtualKeyboardStyleContainer &styleContainer)
-    // TODO: Even though style value caching is apparently discouraged, we
-    // have to cache these pixmaps for now since popup size and
-    // boundingRect() result is (incorrectly) based on their size.  Presumably
-    // this caching should be eliminated when the popup is updated to
-    // match the layout guide.
-    : styleContainer(styleContainer)
+PopupBase::PopupBase()
 {
 }
 
@@ -42,3 +35,7 @@ void PopupBase::setTargetButton(const IKeyButton *key)
     Q_UNUSED(key)
 }
 
+void PopupBase::setKeyboardFont(const QFont &font)
+{
+    Q_UNUSED(font)
+}

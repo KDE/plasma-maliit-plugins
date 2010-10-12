@@ -27,7 +27,6 @@
 #include <QPixmap>
 
 class IKeyButton;
-class MVirtualKeyboardStyleContainer;
 class QGraphicsItem;
 
 /*!
@@ -37,7 +36,7 @@ class PopupBase
 {
 public:
     //! Constructor
-    PopupBase(const MVirtualKeyboardStyleContainer &styleContainer);
+    PopupBase();
 
     //! \brief Destructor
     virtual ~PopupBase();
@@ -47,6 +46,9 @@ public:
 
     //! \brief Sets popup content
     virtual void setTargetButton(const IKeyButton *key);
+
+    //! Sets the font used in keyboard to which this popup is associated with.
+    virtual void setKeyboardFont(const QFont &font);
 
     /*!
      * \brief Sets popup position at specified key in according to current orientation
@@ -66,7 +68,6 @@ public:
     virtual bool isPopupVisible() const = 0;
 
 protected:
-    const MVirtualKeyboardStyleContainer &styleContainer;
 
 #ifdef UNIT_TEST
     friend class Ut_IPopup;

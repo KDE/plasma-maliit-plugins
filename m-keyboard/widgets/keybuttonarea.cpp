@@ -59,7 +59,7 @@ KeyButtonArea::KeyButtonArea(const MVirtualKeyboardStyleContainer *style,
                              QGraphicsWidget *parent)
     : MWidget(parent),
       currentLevel(0),
-      popup(PopupFactory::instance()->createPopup(*style, this)),
+      popup(PopupFactory::instance()->createPopup(this)),
       styleContainer(style),
       newestTouchPointId(-1),
       wasGestureTriggered(false),
@@ -76,6 +76,7 @@ KeyButtonArea::KeyButtonArea(const MVirtualKeyboardStyleContainer *style,
 
     grabGesture(FlickGestureRecognizer::sharedGestureType());
 
+    popup->setKeyboardFont((*style)->font());
     popup->hidePopup();
 
     feedbackPlayer = MComponentData::feedbackPlayer();
@@ -580,6 +581,7 @@ void KeyButtonArea::modifiersChanged(bool /*shift*/, const QChar /*accent*/)
 void KeyButtonArea::onThemeChangeCompleted()
 {
     updateButtonGeometriesForWidth(size().width());
+    popup->setKeyboardFont(style()->font());
 }
 
 KeyButtonArea::TouchPointInfo::TouchPointInfo()
