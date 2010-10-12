@@ -1,3 +1,9 @@
+meego-keyboard (0.5.4~1) unstable; urgency=low
+
+  * [UNRELEASE]
+
+ -- huaming wang <huaming.wang@nokia.com>  Tue, 12 Oct 2010 16:44:48 +0300
+
 meego-keyboard (0.5.3-1) unstable; urgency=low
 
   * Fixes: NB#194475 - fixed by commit "visibility of symbol view depends on visualization priority"
