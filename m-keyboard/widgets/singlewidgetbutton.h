@@ -21,7 +21,7 @@
 
 #include "ikeybutton.h"
 
-class MVirtualKeyboardStyleContainer;
+class KeyButtonAreaStyleContainer;
 class QGraphicsItem;
 
 //! Represents a key model with the key's current binding state, and also contains its visible area.
@@ -29,7 +29,7 @@ class SingleWidgetButton : public IKeyButton
 {
 public:
     SingleWidgetButton(const VKBDataKey &key,
-                       const MVirtualKeyboardStyleContainer &style,
+                       const KeyButtonAreaStyleContainer &style,
                        QGraphicsItem &parent);
     virtual ~SingleWidgetButton();
 
@@ -104,7 +104,7 @@ private:
     IconInfo lowerCaseIcon;
     IconInfo upperCaseIcon;
 
-    const MVirtualKeyboardStyleContainer &styleContainer;
+    const KeyButtonAreaStyleContainer &styleContainer;
 
     QGraphicsItem &parentItem;
 };

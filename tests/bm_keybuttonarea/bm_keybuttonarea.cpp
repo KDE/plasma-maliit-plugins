@@ -17,7 +17,6 @@
 
 
 #include "bm_keybuttonarea.h"
-#include "mvirtualkeyboardstyle.h"
 #include "singlewidgetbuttonarea.h"
 #include "keyboarddata.h"
 #include "utils.h"
@@ -36,15 +35,10 @@ void Bm_KeyButtonArea::initTestCase()
 
     disableQtPlugins();
     app = new MApplication(argc, app_name);
-
-    style = new MVirtualKeyboardStyleContainer;
-    style->initialize("MVirtualKeyboard", "MVirtualKeyboardView", 0);
 }
 
 void Bm_KeyButtonArea::cleanupTestCase()
 {
-    delete style;
-    style = 0;
     delete app;
     app = 0;
 }
@@ -89,7 +83,7 @@ void Bm_KeyButtonArea::benchmarkPreDraw()
 
     keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard(filename));
-    subject = new SingleWidgetButtonArea(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection));
+    subject = new SingleWidgetButtonArea(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection));
 
     QBENCHMARK {
         subject->updateButtonGeometriesForWidth(864);
@@ -159,7 +153,7 @@ void Bm_KeyButtonArea::benchmarkPaint()
     QVERIFY(painter.begin(image) == true);
     keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard(filename));
-    subject = new SingleWidgetButtonArea(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection));
+    subject = new SingleWidgetButtonArea(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection));
 
     QBENCHMARK {
         subject->paint(&painter, 0 , 0);

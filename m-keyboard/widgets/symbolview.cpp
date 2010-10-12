@@ -474,8 +474,7 @@ KeyButtonArea *SymbolView::createKeyButtonArea(const LayoutData::SharedLayoutSec
     KeyButtonArea *keysWidget = 0;
 
     if (!section.isNull()) {
-        keysWidget = new SingleWidgetButtonArea(styleContainer, section, enablePopup);
-        keysWidget->setFont(style()->font());
+        keysWidget = new SingleWidgetButtonArea(section, enablePopup);
 
         eventHandler.addEventSource(keysWidget);
     }

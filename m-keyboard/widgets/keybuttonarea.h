@@ -20,12 +20,13 @@
 #define KEYBUTTONAREA_H
 
 #include "ikeybutton.h"
+#include "keybuttonareastyle.h"
 #include "keyevent.h"
 #include "layoutdata.h"
 #include "vkbdatakey.h"
 #include "mkeyboardcommon.h"
 
-#include <MWidget>
+#include <MStylableWidget>
 #include <QColor>
 #include <QHash>
 #include <QList>
@@ -46,7 +47,7 @@ class PopupBase;
  * \class KeyButtonArea
  * \brief KeyButtonArea is a view for virtual keyboard layout represented by LayoutModel
  */
-class KeyButtonArea : public MWidget
+class KeyButtonArea : public MStylableWidget
 {
     Q_OBJECT
     Q_DISABLE_COPY(KeyButtonArea)
@@ -54,13 +55,11 @@ class KeyButtonArea : public MWidget
 public:
     /*!
     * \brief Constructor
-    * \param style The shared VKB style container.
     * \param sectionModel A section model that this KeyButtonArea visualizes.
     * \param usePopup Sets whether popup should be used when long press occurs.
     * \param parent The widget's parent.
     */
-    KeyButtonArea(const MVirtualKeyboardStyleContainer *style,
-                  const LayoutData::SharedLayoutSection &sectionModel,
+    KeyButtonArea(const LayoutData::SharedLayoutSection &sectionModel,
                   bool usePopup = false,
                   QGraphicsWidget *parent = 0);
 
@@ -224,15 +223,15 @@ protected:
      */
     virtual void updateButtonGeometriesForWidth(int availableWidth) = 0;
 
-    //! \brief Getter for style container
-    const MVirtualKeyboardStyleContainer &style() const;
-
     const PopupBase &popupWidget() const;
 
     //! Sets button state and sends release & press events.
     void setActiveKey(IKeyButton *key, TouchPointInfo &tpi);
 
     void clearActiveKeys();
+
+    //! Expose style to derived classes.
+    const KeyButtonAreaStyleContainer &baseStyle() const;
 
 protected slots:
     //! Update background images, text layouts, etc. when the theme changed.
@@ -270,9 +269,6 @@ private:
     //! Popup to show additional information for a button
     PopupBase *popup;
 
-    //! style
-    const MVirtualKeyboardStyleContainer *styleContainer;
-
     //! Touch point id of the most recent press event.
     int newestTouchPointId;
 
@@ -304,6 +300,8 @@ private:
     const bool usePopup;
 
     static M::InputMethodMode InputMethodMode;
+
+    M_STYLABLE_WIDGET(KeyButtonAreaStyle)
 
 #ifdef UNIT_TEST
     friend class MReactionMapTester;

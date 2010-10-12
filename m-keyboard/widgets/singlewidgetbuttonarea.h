@@ -32,8 +32,7 @@
 class SingleWidgetButtonArea : public KeyButtonArea
 {
 public:
-    SingleWidgetButtonArea(const MVirtualKeyboardStyleContainer *style,
-                           const LayoutData::SharedLayoutSection &sectionModel,
+    SingleWidgetButtonArea(const LayoutData::SharedLayoutSection &sectionModel,
                            bool usePopup = false,
                            QGraphicsWidget *parent = 0);
 

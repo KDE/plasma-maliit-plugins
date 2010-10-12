@@ -53,14 +53,12 @@ namespace
 
 M::InputMethodMode KeyButtonArea::InputMethodMode;
 
-KeyButtonArea::KeyButtonArea(const MVirtualKeyboardStyleContainer *style,
-                             const LayoutData::SharedLayoutSection &sectionModel,
+KeyButtonArea::KeyButtonArea(const LayoutData::SharedLayoutSection &sectionModel,
                              bool usePopup,
                              QGraphicsWidget *parent)
-    : MWidget(parent),
+    : MStylableWidget(parent),
       currentLevel(0),
       popup(PopupFactory::instance()->createPopup(this)),
-      styleContainer(style),
       newestTouchPointId(-1),
       wasGestureTriggered(false),
       enableMultiTouch(MGConfItem(MultitouchSettings).value().toBool()),
@@ -76,7 +74,7 @@ KeyButtonArea::KeyButtonArea(const MVirtualKeyboardStyleContainer *style,
 
     grabGesture(FlickGestureRecognizer::sharedGestureType());
 
-    popup->setKeyboardFont((*style)->font());
+    popup->setKeyboardFont(style()->font());
     popup->hidePopup();
 
     feedbackPlayer = MComponentData::feedbackPlayer();
@@ -551,11 +549,6 @@ void KeyButtonArea::drawReactiveAreas(MReactionMap */*reactionMap*/, QGraphicsVi
     // Empty default implementation. Geometries of buttons are known by derived classes.
 }
 
-const MVirtualKeyboardStyleContainer &KeyButtonArea::style() const
-{
-    return *styleContainer;
-}
-
 const PopupBase &KeyButtonArea::popupWidget() const
 {
     return *popup;
@@ -582,6 +575,11 @@ void KeyButtonArea::onThemeChangeCompleted()
 {
     updateButtonGeometriesForWidth(size().width());
     popup->setKeyboardFont(style()->font());
+}
+
+const KeyButtonAreaStyleContainer &KeyButtonArea::baseStyle() const
+{
+    return style();
 }
 
 KeyButtonArea::TouchPointInfo::TouchPointInfo()

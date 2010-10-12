@@ -25,7 +25,7 @@
 class MApplication;
 class IKeyButton;
 class VKBDataKey;
-class MVirtualKeyboardStyleContainer;
+class KeyButtonAreaStyleContainer;
 class QGraphicsItem;
 class KeyboardData;
 
@@ -37,7 +37,7 @@ private:
     IKeyButton *subject;
     QGraphicsItem *parent;
     VKBDataKey *dataKey;
-    MVirtualKeyboardStyleContainer *style;
+    KeyButtonAreaStyleContainer *style;
 
 private slots:
     void init();

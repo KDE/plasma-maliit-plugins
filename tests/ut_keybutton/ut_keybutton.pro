@@ -5,7 +5,7 @@ INCLUDEPATH += .
 
 include(../common_check.pri)
 
-STYLE_HEADERS += $$WIDGETS_DIR/mvirtualkeyboardstyle.h
+STYLE_HEADERS += $$WIDGETS_DIR/keybuttonareastyle.h
 
 # Input
 HEADERS += ut_keybutton.h \

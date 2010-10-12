@@ -18,7 +18,7 @@
 
 #include "ut_keybutton.h"
 
-#include "mvirtualkeyboardstyle.h"
+#include "keybuttonareastyle.h"
 #include "singlewidgetbutton.h"
 #include "singlewidgetbuttonarea.h"
 #include "vkbdatakey.h"
@@ -39,8 +39,8 @@ void Ut_KeyButton::initTestCase()
     disableQtPlugins();
     app = new MApplication(argc, app_name);
 
-    style = new MVirtualKeyboardStyleContainer;
-    style->initialize("MVirtualKeyboard", "MVirtualKeyboardView", 0);
+    style = new KeyButtonAreaStyleContainer;
+    style->initialize("", "", 0);
 
     parent = new QGraphicsWidget;
     dataKey = createDataKey();

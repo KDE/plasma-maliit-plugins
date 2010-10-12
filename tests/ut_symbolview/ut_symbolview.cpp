@@ -86,7 +86,7 @@ void Ut_SymbolView::initTestCase()
 
     new MPlainWindow;
 
-    if ((*style)->keyHeight() <= 0) {
+    if ((*style)->paddingTop() <= 0) {
         QSKIP("This test is sipped due to incorrect value received from CSS", SkipAll);
     }
 }

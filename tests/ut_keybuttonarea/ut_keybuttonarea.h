@@ -25,7 +25,6 @@
 #include "flickgesture.h"
 
 class MApplication;
-class MVirtualKeyboardStyleContainer;
 class KeyButtonArea;
 class KeyboardData;
 class IKeyButton;
@@ -35,7 +34,6 @@ class Ut_KeyButtonArea : public QObject
     Q_OBJECT
 private:
     MApplication *app;
-    MVirtualKeyboardStyleContainer *style;
     KeyButtonArea *subject;
     KeyboardData *keyboard;
 

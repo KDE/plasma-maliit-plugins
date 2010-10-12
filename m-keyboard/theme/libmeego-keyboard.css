@@ -2,18 +2,11 @@
 
 MVirtualKeyboardStyle {
     background-image: "meegotouch-keyboard-background" 15px 15px 15px 15px;
-    font: "Nokia Sans Light" 28;
-    font-opacity: 0.9;
-    font-color: #000000;
 
-    secondary-font: $FONT_SMALL;
+    font-opacity: 0.9;
 
     padding-top: 2.2mm;
     padding-bottom: $MARGIN_DOUBLE;
-
-    spacing-vertical: 2mm;
-    /* should be 0.4mm or 4px, need to check*/
-    spacing-horizontal: 0.2mm;
 
     deadkey-locked-color: #FFA500;
 
@@ -23,6 +16,36 @@ MVirtualKeyboardStyle {
     notification-background-color: #323232;
     notification-text-color: #FFFFFF;
     notification-opacity: 0.9;
+}
+
+MVirtualKeyboardStyle.Portrait {
+    keyboard-area-size: 480 280;
+
+    padding-left: $MARGIN_DOUBLE;
+    padding-right:$MARGIN_DOUBLE;
+
+    tab-button-size: 91 70;
+    menu-size: 470 342;
+}
+
+MVirtualKeyboardStyle.Landscape {
+    keyboard-area-size: 864 280;
+
+    padding-left: $MARGIN_DOUBLE;
+    padding-right: $MARGIN_DOUBLE;
+
+    tab-button-size: 108 70;
+    menu-size: 790 342;
+}
+
+KeyButtonAreaStyle {
+    font: "Nokia Sans Light" 28;
+    font-color: #000000;
+    secondary-font: $FONT_SMALL;
+
+    spacing-vertical: 2mm;
+    /* should be 0.4mm or 4px, need to check*/
+    spacing-horizontal: 0.2mm;
 
     flick-gesture-timeout: 400;
     flick-gesture-threshold-ratio: 0.5;
@@ -81,29 +104,19 @@ MVirtualKeyboardStyle {
     /* End of single widget keyboard button styling */
 }
 
-MVirtualKeyboardStyle.Portrait {
-    keyboard-area-size: 480 280;
+KeyButtonAreaStyle.Portrait {
     spacing-horizontal: 0.4mm;
-
     label-margin-top: 1.2mm;
     label-margin-left-with-secondary: 4.6mm;
     secondary-label-separation: 0.9mm;
 
-    padding-left: $MARGIN_DOUBLE;
-    padding-right:$MARGIN_DOUBLE;
-
-    tab-button-size: 91 70;
-    menu-size: 470 342;
-
-    key-height: 6.4mm;
-
     touchpoint-horizontal-gravity: 24px;
     touchpoint-vertical-gravity: 24px;
+
+    key-height: 6.4mm;
 }
 
-MVirtualKeyboardStyle.Landscape {
-    keyboard-area-size: 864 280;
-
+KeyButtonAreaStyle.Landscape {
     padding-top: 1.3mm;
     spacing-vertical: $MARGIN_DOUBLE;
 
@@ -111,16 +124,10 @@ MVirtualKeyboardStyle.Landscape {
     label-margin-left-with-secondary: -1; /* not used, labels are centered horizontally */
     secondary-label-separation: 0;
 
-    padding-left: $MARGIN_DOUBLE;
-    padding-right: $MARGIN_DOUBLE;
-
-    tab-button-size: 108 70;
-    menu-size: 790 342;
-
-    key-height: 4.8mm;
-
     touchpoint-horizontal-gravity: 48px;
     touchpoint-vertical-gravity: 48px;
+
+    key-height: 4.8mm;
 }
 
 #InvisibleHandle.Portrait {

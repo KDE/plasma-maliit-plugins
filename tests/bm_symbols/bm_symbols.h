@@ -23,7 +23,6 @@
 #include <QObject>
 
 class MApplication;
-class MVirtualKeyboardStyleContainer;
 class KeyButtonArea;
 class KeyboardData;
 
@@ -32,7 +31,6 @@ class Bm_Symbols : public QObject
     Q_OBJECT
 private:
     MApplication *app;
-    MVirtualKeyboardStyleContainer *style;
     KeyButtonArea *subject;
     KeyboardData *keyboard;
 

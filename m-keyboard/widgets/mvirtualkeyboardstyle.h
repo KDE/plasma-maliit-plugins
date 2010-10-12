@@ -36,15 +36,9 @@ class MVirtualKeyboardStyle : public MWidgetStyle
 
 public:
     M_STYLE_ATTRIBUTE(QSize, keyboardAreaSize, KeyboardAreaSize)
-    M_STYLE_ATTRIBUTE(qreal, spacingVertical, SpacingVertical)
-    M_STYLE_ATTRIBUTE(qreal, spacingHorizontal, SpacingHorizontal)
-    M_STYLE_ATTRIBUTE(QColor, fontColor, FontColor)
+
     M_STYLE_ATTRIBUTE(qreal, fontOpacity, FontOpacity)
-    M_STYLE_ATTRIBUTE(QFont, font, Font)
-    M_STYLE_ATTRIBUTE(QFont, secondaryFont, SecondaryFont)
-    M_STYLE_ATTRIBUTE(int, labelMarginTop, LabelMarginTop)
-    M_STYLE_ATTRIBUTE(int, labelMarginLeftWithSecondary, LabelMarginLeftWithSecondary)
-    M_STYLE_ATTRIBUTE(int, secondaryLabelSeparation, SecondaryLabelSeparation)
+
     M_STYLE_ATTRIBUTE(QSize, tabButtonSize, TabButtonSize)
 
     M_STYLE_ATTRIBUTE(QSize, menuSize, MenuSize)
@@ -56,75 +50,6 @@ public:
     M_STYLE_ATTRIBUTE(qreal, notificationOpacity, NotificationOpacity)
 
     M_STYLE_ATTRIBUTE(QColor, deadkeyLockedColor, DeadkeyLockedColor)
-
-    M_STYLE_ATTRIBUTE(int, flickGestureTimeout, FlickGestureTimeout)
-    M_STYLE_ATTRIBUTE(qreal, flickGestureThresholdRatio, FlickGestureThresholdRatio)
-    M_STYLE_ATTRIBUTE(qreal, touchpointHorizontalGravity, TouchpointHorizontalGravity)
-    M_STYLE_ATTRIBUTE(qreal, touchpointVerticalGravity, TouchpointVerticalGravity)
-
-    M_STYLE_ATTRIBUTE(int, keyHeight, keyHeight)
-
-    M_STYLE_ATTRIBUTE(qreal, keyWidthSmall, KeyWidthSmall)
-    M_STYLE_ATTRIBUTE(int,  keyWidthSmallFixed, KeyWidthSmallFixed)
-
-    M_STYLE_ATTRIBUTE(qreal, keyWidthMedium, KeyWidthMedium)
-    M_STYLE_ATTRIBUTE(int,  keyWidthMediumFixed, KeyWidthMediumFixed)
-
-    M_STYLE_ATTRIBUTE(qreal, keyWidthLarge,  KeyWidthLarge)
-    M_STYLE_ATTRIBUTE(int,  keyWidthLargeFixed,  KeyWidthLargeFixed)
-
-    M_STYLE_ATTRIBUTE(qreal, keyWidthXLarge, KeyWidthXLarge)
-    M_STYLE_ATTRIBUTE(int,  keyWidthXLargeFixed, KeyWidthXLargeFixed)
-
-    M_STYLE_ATTRIBUTE(qreal, keyWidthXxLarge, KeyWidthXxLarge)
-    M_STYLE_ATTRIBUTE(int,  keyWidthXxLargeFixed, KeyWidthXxLargeFixed)
-
-    M_STYLE_ATTRIBUTE(qreal, keyWidthStretched, KeyWidthStretched)
-    M_STYLE_ATTRIBUTE(int,  keyWidthStretchedFixed, KeyWidthStretchedFixed)
-
-    M_STYLE_ATTRIBUTE(qreal, rowHeightSmall, RowHeightSmall)
-
-    M_STYLE_ATTRIBUTE(qreal, rowHeightMedium, RowHeightMedium)
-
-    M_STYLE_ATTRIBUTE(qreal, rowHeightLarge,  RowHeightLarge)
-
-    M_STYLE_ATTRIBUTE(qreal, rowHeightXLarge, RowHeightXLarge)
-
-    M_STYLE_ATTRIBUTE(qreal, rowHeightXxLarge, RowHeightXxLarge)
-
-    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackground, KeyBackground)
-    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundPressed, KeyBackgroundPressed)
-    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSelected, KeyBackgroundSelected)
-    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundPressedSelected, KeyBackgroundPressedSelected)
-
-    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSpecial, KeyBackgroundSpecial)
-    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSpecialPressed, KeyBackgroundSpecialPressed)
-    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSpecialSelected, KeyBackgroundSpecialSelected)
-    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSpecialPressedSelected, KeyBackgroundSpecialPressedSelected)
-
-    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDeadkey, KeyBackgroundDeadkey)
-    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDeadkeyPressed, KeyBackgroundDeadkeyPressed)
-    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDeadkeySelected, KeyBackgroundDeadkeySelected)
-    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDeadkeyPressedSelected, KeyBackgroundDeadkeyPressedSelected)
-
-    M_STYLE_ATTRIBUTE(QSize,   keyBackspaceIconSize,    KeyBackspaceIconSize)
-    M_STYLE_ATTRIBUTE(QString, keyBackspaceIconId,      KeyBackspaceIconId)
-    M_STYLE_ATTRIBUTE(QString, keyBackspaceIconIdRtl,   KeyBackspaceIconIdRtl)
-
-    M_STYLE_ATTRIBUTE(QSize, keyMenuIconSize, KeyMenuIconSize)
-    M_STYLE_ATTRIBUTE(QString, keyMenuIconId, KeyMenuIconId)
-    M_STYLE_ATTRIBUTE(QString, keyMenuIconIdRtl, KeyMenuIconIdRtl)
-
-    M_STYLE_ATTRIBUTE(QSize, keyEnterIconSize, KeyEnterIconSize)
-    M_STYLE_ATTRIBUTE(QString, keyEnterIconId, KeyEnterIconId)
-    M_STYLE_ATTRIBUTE(QString, keyEnterIconIdRtl, KeyEnterIconIdRtl)
-
-    M_STYLE_ATTRIBUTE(QSize, keyTabIconSize, KeyTabIconSize)
-    M_STYLE_ATTRIBUTE(QString, keyTabIconId, KeyTabIconId)
-
-    M_STYLE_ATTRIBUTE(QSize, keyShiftIconSize, KeyShiftIconSize)
-    M_STYLE_ATTRIBUTE(QString, keyShiftIconId, KeyShiftIconId)
-    M_STYLE_ATTRIBUTE(QString, keyShiftUppercaseIconId, KeyShiftUppercaseIconId)
 };
 
 class MVirtualKeyboardStyleContainer : public MWidgetStyleContainer

@@ -18,7 +18,6 @@
 
 #include "bm_symbols.h"
 #include "mvirtualkeyboard.h"
-#include "mvirtualkeyboardstyle.h"
 #include "keyboarddata.h"
 #include "keybuttonarea.h"
 #include "utils.h"
@@ -36,15 +35,10 @@ void Bm_Symbols::initTestCase()
 
     disableQtPlugins();
     app = new MApplication(argc, app_name);
-
-    style = new MVirtualKeyboardStyleContainer;
-    style->initialize("MVirtualKeyboard", "MVirtualKeyboardView", 0);
 }
 
 void Bm_Symbols::cleanupTestCase()
 {
-    delete style;
-    style = 0;
     delete app;
     app = 0;
 }
@@ -92,7 +86,7 @@ void Bm_Symbols::benchmarkDraw()
     const LayoutData::SharedLayoutSection section = keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::symbolsSymSection);
     QVERIFY(!section.isNull());
 
-    subject = new SingleWidgetButtonArea(style, section);
+    subject = new SingleWidgetButtonArea(section);
 
     QBENCHMARK {
         subject->paint(&painter, 0, 0);

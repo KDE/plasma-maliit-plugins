@@ -46,7 +46,7 @@ SingleWidgetButton::IconInfo::~IconInfo()
 }
 
 SingleWidgetButton::SingleWidgetButton(const VKBDataKey &key,
-                                       const MVirtualKeyboardStyleContainer &style,
+                                       const KeyButtonAreaStyleContainer &style,
                                        QGraphicsItem &parent)
     : width(0),
       dataKey(key),

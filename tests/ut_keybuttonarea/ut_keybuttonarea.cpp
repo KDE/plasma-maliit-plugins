@@ -15,7 +15,6 @@
  */
 
 #include "ut_keybuttonarea.h"
-#include "mvirtualkeyboardstyle.h"
 #include "singlewidgetbuttonarea.h"
 #include "singlewidgetbutton.h"
 #include "flickgesturerecognizer.h"
@@ -42,8 +41,7 @@ Q_DECLARE_METATYPE(KeyEvent);
 Q_DECLARE_METATYPE(IKeyButton*);
 Q_DECLARE_METATYPE(const IKeyButton*);
 
-typedef KeyButtonArea *(*KBACreator)(MVirtualKeyboardStyleContainer *styleContainer,
-                                     const LayoutData::SharedLayoutSection &section,
+typedef KeyButtonArea *(*KBACreator)(const LayoutData::SharedLayoutSection &section,
                                      bool usePopup,
                                      QGraphicsWidget *parent);
 
@@ -52,12 +50,11 @@ Q_DECLARE_METATYPE(IKeyButton::ButtonState);
 Q_DECLARE_METATYPE(QList<KeyBinding::KeyAction>);
 Q_DECLARE_METATYPE(Ut_KeyButtonArea::TestOpList);
 
-KeyButtonArea *createSingleWidgetKeyButtonArea(MVirtualKeyboardStyleContainer *styleContainer,
-                                               const LayoutData::SharedLayoutSection &section,
+KeyButtonArea *createSingleWidgetKeyButtonArea(const LayoutData::SharedLayoutSection &section,
                                                bool usePopup = false,
                                                QGraphicsWidget *parent = 0)
 {
-    return new SingleWidgetButtonArea(styleContainer, section, usePopup, parent);
+    return new SingleWidgetButtonArea(section, usePopup, parent);
 }
 
 
@@ -69,9 +66,6 @@ void Ut_KeyButtonArea::initTestCase()
 
     disableQtPlugins();
     app = new MApplication(argc, app_name);
-
-    style = new MVirtualKeyboardStyleContainer;
-    style->initialize("MVirtualKeyboard", "MVirtualKeyboardView", 0);
 
     qRegisterMetaType<KeyEvent>();
     qRegisterMetaType<const IKeyButton*>();
@@ -92,8 +86,6 @@ void Ut_KeyButtonArea::cleanupTestCase()
 {
     FlickGestureRecognizer::unregisterSharedRecognizer();
     delete MPlainWindow::instance();
-    delete style;
-    style = 0;
     delete app;
     app = 0;
 }
@@ -136,8 +128,7 @@ void Ut_KeyButtonArea::testLandscapeBoxSize()
         keyboard = new KeyboardData;
         qDebug() << "Loading layout file" << info.fileName();
         QVERIFY(keyboard->loadNokiaKeyboard(info.fileName()));
-        subject = createKba(style,
-                            keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
+        subject = createKba(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                             false, 0);
         MPlainWindow::instance()->scene()->addItem(subject);
 
@@ -183,7 +174,7 @@ void Ut_KeyButtonArea::testPortraitBoxSize()
         keyboard = new KeyboardData;
         qDebug() << "Loading layout file" << info.fileName();
         QVERIFY(keyboard->loadNokiaKeyboard(info.fileName()));
-        subject = createKba(style, keyboard->layout(LayoutData::General, M::Portrait)->section(LayoutData::mainSection),
+        subject = createKba(keyboard->layout(LayoutData::General, M::Portrait)->section(LayoutData::mainSection),
                             false, 0);
         MPlainWindow::instance()->scene()->addItem(subject);
 
@@ -220,7 +211,7 @@ void Ut_KeyButtonArea::testLabelPosition()
 
     keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
-    subject = createKba(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
+    subject = createKba(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                         false, 0);
     MPlainWindow::instance()->scene()->addItem(subject);
 
@@ -236,8 +227,8 @@ void Ut_KeyButtonArea::testLabelPosition()
               << QPoint(-buttonSize.width(), 0)         // not on any key
               << QPoint(0, -buttonSize.height())        // not on any key
               << QPoint(1, 100 * buttonSize.height())   // not on any key
-              << QPoint(startX + buttonSize.width() + (*style)->paddingLeft() + (*style)->spacingHorizontal()*2 + 1,
-                        (*style)->paddingTop() + (buttonSize.height() + (*style)->spacingVertical()) * rowIndex + 1)
+              << QPoint(startX + buttonSize.width() + subject->style()->paddingLeft() + subject->style()->spacingHorizontal()*2 + 1,
+                        subject->style()->paddingTop() + (buttonSize.height() + subject->style()->spacingVertical()) * rowIndex + 1)
               << QPoint(startX + buttonSize.width() * 100 + 1, buttonSize.height() * rowIndex + 1); // not on any key
     outcome << 0
             << subject->section->vkbKey(0, 0)
@@ -268,7 +259,7 @@ void Ut_KeyButtonArea::testSceneEvent()
     //initialization
     keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
-    subject = createKba(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
+    subject = createKba(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                         false, 0);
     MPlainWindow::instance()->scene()->addItem(subject);
     subject->resize(defaultLayoutSize());
@@ -287,9 +278,9 @@ void Ut_KeyButtonArea::testSceneEvent()
     QVERIFY(spy.isValid());
     QVERIFY(spyPressed.isValid());
 
-    press->setPos(QPoint((*style)->paddingTop() + 1, (*style)->paddingLeft() + 1));
-    release->setPos(QPoint((*style)->paddingTop() + 10, (*style)->paddingLeft() + 10));
-    move->setPos(QPoint((*style)->paddingTop() + 10, (*style)->paddingLeft() + 10));
+    press->setPos(QPoint(subject->style()->paddingTop() + 1, subject->style()->paddingLeft() + 1));
+    release->setPos(QPoint(subject->style()->paddingTop() + 10, subject->style()->paddingLeft() + 10));
+    move->setPos(QPoint(subject->style()->paddingTop() + 10, subject->style()->paddingLeft() + 10));
 
     //actual testing
     subject->sceneEvent(press);
@@ -324,7 +315,7 @@ void Ut_KeyButtonArea::testPaint()
     //initialization
     keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
-    subject = createKba(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
+    subject = createKba(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                         false, 0);
     subject->resize(defaultLayoutSize());
     MPlainWindow::instance()->scene()->addItem(subject);
@@ -346,7 +337,7 @@ void Ut_KeyButtonArea::testDeadkeys()
 
     keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("fr.xml"));
-    subject = createKba(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
+    subject = createKba(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                         false, 0);
     MPlainWindow::instance()->scene()->addItem(subject);
     subject->resize(defaultLayoutSize());
@@ -428,7 +419,7 @@ void Ut_KeyButtonArea::testSelectedDeadkeys()
 {
     keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("fr.xml"));
-    subject = createSingleWidgetKeyButtonArea(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
+    subject = createSingleWidgetKeyButtonArea(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                                               false, 0);
     MPlainWindow::instance()->scene()->addItem(subject);
 
@@ -495,7 +486,7 @@ void Ut_KeyButtonArea::testTwoDeadInOne()
 
     keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("test-layout.xml"));
-    subject = createSingleWidgetKeyButtonArea(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
+    subject = createSingleWidgetKeyButtonArea(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                                               false, 0);
 
     IKeyButton *deadkey = keyAt(2, 8); // accents ´ and ¨
@@ -529,7 +520,7 @@ void Ut_KeyButtonArea::testExtendedLabels()
 {
     keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("test-layout.xml"));
-    subject = createSingleWidgetKeyButtonArea(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
+    subject = createSingleWidgetKeyButtonArea(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                                               false, 0);
 
     const IKeyButton *eKey(keyAt(0, 2)); // e, ...
@@ -555,7 +546,7 @@ void Ut_KeyButtonArea::testImportedLayouts()
     QVERIFY(keyboard->loadNokiaKeyboard("test-importer.xml"));
     const LayoutData *model = keyboard->layout(LayoutData::General, M::Landscape);
     QVERIFY(model);
-    subject = createKba(style, model->section(LayoutData::mainSection),
+    subject = createKba(model->section(LayoutData::mainSection),
                         false, 0);
 
     // Check that language and title information are not overwritten by imported files.
@@ -572,7 +563,7 @@ void Ut_KeyButtonArea::testImportedLayouts()
     // Second imported defines portrait layout with key labeled "2"
     delete subject;
     model = keyboard->layout(LayoutData::General, M::Portrait);
-    subject = createKba(style, model->section(LayoutData::mainSection),
+    subject = createKba(model->section(LayoutData::mainSection),
                         false, 0);
     changeOrientation(M::Angle90);
     QCOMPARE(keyAt(0, 0)->label(), QString("2"));
@@ -592,12 +583,12 @@ void Ut_KeyButtonArea::testPopup()
 
     keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
-    subject = createKba(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
+    subject = createKba(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                         true, 0);
     MPlainWindow::instance()->scene()->addItem(subject);
     subject->resize(defaultLayoutSize());
 
-    const QPoint mousePos((*style)->paddingTop() + 1, (*style)->paddingLeft() + 1); // approximately the top left key on layout
+    const QPoint mousePos(subject->style()->paddingTop() + 1, subject->style()->paddingLeft() + 1); // approximately the top left key on layout
     const int touchId = 0;
 
     // Test popup activation
@@ -633,7 +624,7 @@ void Ut_KeyButtonArea::testInitialization()
     QFETCH(KBACreator, createKba);
     keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
-    subject = createKba(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
+    subject = createKba(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                         false, 0);
     subject->resize(defaultLayoutSize());
 
@@ -648,7 +639,7 @@ void Ut_KeyButtonArea::testShiftCapsLock()
     QVERIFY(layout);
     const LayoutData::SharedLayoutSection section = layout->section(LayoutData::mainSection);
 
-    subject = createSingleWidgetKeyButtonArea(style, section,
+    subject = createSingleWidgetKeyButtonArea(section,
                                               false, 0);
 
     SingleWidgetButton *shiftButton = static_cast<SingleWidgetButtonArea *>(subject)->shiftButton;
@@ -670,7 +661,7 @@ void Ut_KeyButtonArea::testMultiTouch()
     QVERIFY(layout);
     const LayoutData::SharedLayoutSection section = layout->section(LayoutData::mainSection);
 
-    subject = createSingleWidgetKeyButtonArea(style, section,
+    subject = createSingleWidgetKeyButtonArea(section,
                                               false, 0);
     MPlainWindow::instance()->scene()->addItem(subject);
     subject->resize(defaultLayoutSize());
@@ -799,8 +790,7 @@ void Ut_KeyButtonArea::testRtlKeys()
 
     keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard(fileName));
-    subject = createKba(style,
-                        keyboard->layout(LayoutData::General, orientation)->section(LayoutData::mainSection),
+    subject = createKba(keyboard->layout(LayoutData::General, orientation)->section(LayoutData::mainSection),
                         false, 0);
 
     SingleWidgetButtonArea *buttonArea = dynamic_cast<SingleWidgetButtonArea *>(subject);
@@ -835,7 +825,7 @@ QSize Ut_KeyButtonArea::defaultLayoutSize()
     // Take visible scene size as layout size, but reduce keyboard's paddings first from its width.
     // The height value is ignored since KeyButtonAreas determine their own height.
     return MPlainWindow::instance()->visibleSceneSize()
-            - QSize((*style)->paddingLeft() + (*style)->paddingRight(), 0);
+            - QSize(subject->style()->paddingLeft() + subject->style()->paddingRight(), 0);
 }
 
 // Helper method to get key in certain row and column from current subject.

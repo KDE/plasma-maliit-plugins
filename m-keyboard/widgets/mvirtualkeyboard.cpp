@@ -895,7 +895,7 @@ KeyButtonArea * MVirtualKeyboard::createSectionView(const QString &layout,
                                                     QGraphicsWidget *parent)
 {
     const LayoutData *model = layoutsMgr.layout(layout, layoutType, orientation);
-    KeyButtonArea *view = new SingleWidgetButtonArea(styleContainer, model->section(section),
+    KeyButtonArea *view = new SingleWidgetButtonArea(model->section(section),
                                                      usePopup, parent);
 
     eventHandler.addEventSource(view);

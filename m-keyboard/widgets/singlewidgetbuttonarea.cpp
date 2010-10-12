@@ -60,11 +60,10 @@ namespace {
     }
 }
 
-SingleWidgetButtonArea::SingleWidgetButtonArea(const MVirtualKeyboardStyleContainer *style,
-                                               const LayoutData::SharedLayoutSection &sectionModel,
+SingleWidgetButtonArea::SingleWidgetButtonArea(const LayoutData::SharedLayoutSection &sectionModel,
                                                bool usePopup,
                                                QGraphicsWidget *parent)
-    : KeyButtonArea(style, sectionModel, usePopup, parent),
+    : KeyButtonArea(sectionModel, usePopup, parent),
       rowList(sectionModel->rowCount()),
       widgetHeight(computeWidgetHeight()),
       mMaxNormalizedWidth(maxNormalizedWidth()),
@@ -127,7 +126,7 @@ void SingleWidgetButtonArea::loadKeys()
         for (int col = 0; col < numColumns; ++col) {
             // Parameters to fetch from base class.
             VKBDataKey *dataKey = sectionModel()->vkbKey(row, col);
-            SingleWidgetButton *button = new SingleWidgetButton(*dataKey, style(), *this);
+            SingleWidgetButton *button = new SingleWidgetButton(*dataKey, baseStyle(), *this);
 
             // TODO: Remove restriction to have only one shift button per layout?
             if (dataKey->binding()->action() == KeyBinding::ActionShift) {
@@ -154,7 +153,7 @@ void SingleWidgetButtonArea::buildTextLayout()
 
     QList<QTextLayout::FormatRange> formatList;
     QTextCharFormat secondaryFormat;
-    secondaryFormat.setFont(style()->secondaryFont());
+    secondaryFormat.setFont(baseStyle()->secondaryFont());
 
     // QTextLayout requires text content to be set before creating QTextLines.
     // While concatenating the text, also build 'additional formats' used for secondary
@@ -189,16 +188,16 @@ void SingleWidgetButtonArea::buildTextLayout()
         textLayout.setAdditionalFormats(formatList);
     }
 
-    QFontMetrics fm(style()->font());
+    QFontMetrics fm(baseStyle()->font());
     QFontMetrics secondaryFm(secondaryFormat.font());
     const int labelHeight = fm.height();
     const int secondaryLabelHeight = secondaryFm.height();
-    const int topMargin = style()->labelMarginTop();
-    const int labelLeftWithSecondary = style()->labelMarginLeftWithSecondary();
-    const int secondarySeparation = style()->secondaryLabelSeparation();
+    const int topMargin = baseStyle()->labelMarginTop();
+    const int labelLeftWithSecondary = baseStyle()->labelMarginLeftWithSecondary();
+    const int secondarySeparation = baseStyle()->secondaryLabelSeparation();
     const bool landscape = (MPlainWindow::instance()->orientation() == M::Landscape);
 
-    textLayout.setFont(style()->font());
+    textLayout.setFont(baseStyle()->font());
     textLayout.setText(labelContent);
 
     textLayout.beginLayout();
@@ -294,11 +293,11 @@ endLayout:
 
 qreal SingleWidgetButtonArea::computeWidgetHeight() const
 {
-    qreal height = -(style()->spacingVertical());
+    qreal height = -(baseStyle()->spacingVertical());
 
     for (int index = 0; index < rowList.count(); ++index) {
         height += preferredRowHeight(index);
-        height += style()->spacingVertical();
+        height += baseStyle()->spacingVertical();
     }
 
     return qMax<qreal>(0.0, height);
@@ -326,7 +325,7 @@ void SingleWidgetButtonArea::paint(QPainter *painter, const QStyleOptionGraphics
         buildTextLayout();
     }
     // Draw text next.
-    painter->setPen(style()->fontColor());
+    painter->setPen(baseStyle()->fontColor());
     textLayout.draw(painter, QPoint());
 }
 
@@ -344,14 +343,14 @@ void SingleWidgetButtonArea::drawKeyBackground(QPainter *painter,
     case IKeyButton::Normal:
         switch (button->key().style()) {
         case VKBDataKey::SpecialStyle:
-            background = style()->keyBackgroundSpecial();
+            background = baseStyle()->keyBackgroundSpecial();
             break;
         case VKBDataKey::DeadkeyStyle:
-            background = style()->keyBackgroundDeadkey();
+            background = baseStyle()->keyBackgroundDeadkey();
             break;
         case VKBDataKey::NormalStyle:
         default:
-            background = style()->keyBackground();
+            background = baseStyle()->keyBackground();
             break;
         }
         break;
@@ -359,14 +358,14 @@ void SingleWidgetButtonArea::drawKeyBackground(QPainter *painter,
     case IKeyButton::Pressed:
         switch (button->key().style()) {
         case VKBDataKey::SpecialStyle:
-            background = style()->keyBackgroundSpecialPressed();
+            background = baseStyle()->keyBackgroundSpecialPressed();
             break;
         case VKBDataKey::DeadkeyStyle:
-            background = style()->keyBackgroundDeadkeyPressed();
+            background = baseStyle()->keyBackgroundDeadkeyPressed();
             break;
         case VKBDataKey::NormalStyle:
         default:
-            background = style()->keyBackgroundPressed();
+            background = baseStyle()->keyBackgroundPressed();
             break;
         }
         break;
@@ -374,14 +373,14 @@ void SingleWidgetButtonArea::drawKeyBackground(QPainter *painter,
     case IKeyButton::Selected:
         switch (button->key().style()) {
         case VKBDataKey::SpecialStyle:
-            background = style()->keyBackgroundSpecialSelected();
+            background = baseStyle()->keyBackgroundSpecialSelected();
             break;
         case VKBDataKey::DeadkeyStyle:
-            background = style()->keyBackgroundDeadkeySelected();
+            background = baseStyle()->keyBackgroundDeadkeySelected();
             break;
         case VKBDataKey::NormalStyle:
         default:
-            background = style()->keyBackgroundSelected();
+            background = baseStyle()->keyBackgroundSelected();
             break;
         }
         break;
@@ -451,8 +450,8 @@ void SingleWidgetButtonArea::updateButtonGeometriesForWidth(const int newAvailab
 
     rowOffsets.clear();
 
-    const qreal HorizontalSpacing = style()->spacingHorizontal();
-    const qreal VerticalSpacing = style()->spacingVertical();
+    const qreal HorizontalSpacing = baseStyle()->spacingHorizontal();
+    const qreal VerticalSpacing = baseStyle()->spacingVertical();
 
     // The following code cannot handle negative width:
     int availableWidth = qMax(0, newAvailableWidth);
@@ -473,12 +472,12 @@ void SingleWidgetButtonArea::updateButtonGeometriesForWidth(const int newAvailab
 
     for (RowIterator row(rowList.begin()); row != rowList.end(); ++row) {
         const qreal rowHeight = preferredRowHeight(row - rowList.begin());
-        br.setHeight(rowHeight + style()->spacingVertical());
+        br.setHeight(rowHeight + baseStyle()->spacingVertical());
 
         row->buttonOffsets.clear();
 
         // Store the row offsets for fast key lookup:
-        const int lastRowOffset = (rowOffsets.isEmpty()) ? -(style()->spacingVertical() / 2)
+        const int lastRowOffset = (rowOffsets.isEmpty()) ? -(baseStyle()->spacingVertical() / 2)
                                                          : rowOffsets.at(rowOffsets.count() - 1).second;
 
         rowOffsets.append(QPair<int, int>(lastRowOffset,
@@ -562,34 +561,34 @@ QRectF SingleWidgetButtonArea::boundingRect() const
     // Extend the bounding rectangle to all directions by the amount of spacing.
     // FIXME: Currently, spacingHorizontal works like a button *padding*, hence
     // we need to 2x it to get the *intended* spacing:
-    return QRectF(-QPoint(style()->spacingHorizontal(), style()->spacingVertical() / 2),
-                  size() + QSizeF(style()->spacingHorizontal() * 2, style()->spacingVertical()));
+    return QRectF(-QPoint(baseStyle()->spacingHorizontal(), baseStyle()->spacingVertical() / 2),
+                  size() + QSizeF(baseStyle()->spacingHorizontal() * 2, baseStyle()->spacingVertical()));
 }
 
 qreal SingleWidgetButtonArea::preferredRowHeight(int row) const
 {
-    const qreal normalHeight = style()->keyHeight();
+    const qreal normalHeight = baseStyle()->keyHeight();
 
     switch (sectionModel()->rowHeightType(row)) {
 
     case LayoutSection::Small:
-        return normalHeight * style()->rowHeightSmall();
+        return normalHeight * baseStyle()->rowHeightSmall();
         break;
 
     case LayoutSection::Medium:
-        return normalHeight * style()->rowHeightMedium();
+        return normalHeight * baseStyle()->rowHeightMedium();
         break;
 
     case LayoutSection::Large:
-        return normalHeight * style()->rowHeightLarge();
+        return normalHeight * baseStyle()->rowHeightLarge();
         break;
 
     case LayoutSection::XLarge:
-        return normalHeight * style()->rowHeightXLarge();
+        return normalHeight * baseStyle()->rowHeightXLarge();
         break;
 
     case LayoutSection::XxLarge:
-        return normalHeight * style()->rowHeightXxLarge();
+        return normalHeight * baseStyle()->rowHeightXxLarge();
         break;
     }
 
@@ -615,20 +614,20 @@ qreal SingleWidgetButtonArea::normalizedKeyWidth(const VKBDataKey *key) const
 {
     switch(key->width()) {
     case VKBDataKey::Small:
-        return style()->keyWidthSmall();
+        return baseStyle()->keyWidthSmall();
 
     case VKBDataKey::Medium:
     case VKBDataKey::Stretched:
-        return style()->keyWidthMedium();
+        return baseStyle()->keyWidthMedium();
 
     case VKBDataKey::Large:
-        return style()->keyWidthLarge();
+        return baseStyle()->keyWidthLarge();
 
     case VKBDataKey::XLarge:
-        return style()->keyWidthXLarge();
+        return baseStyle()->keyWidthXLarge();
 
     case VKBDataKey::XxLarge:
-        return style()->keyWidthXxLarge();
+        return baseStyle()->keyWidthXxLarge();
     }
 
     qWarning() << __PRETTY_FUNCTION__

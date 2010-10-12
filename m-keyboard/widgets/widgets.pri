@@ -4,11 +4,13 @@ INSTALL_HEADERS += \
     $$WIDGETS_DIR/ikeybutton.h \
     $$WIDGETS_DIR/popupbase.h \
     $$WIDGETS_DIR/mvirtualkeyboardstyle.h \
+    $$WIDGETS_DIR/keybuttonareastyle.h \
     $$WIDGETS_DIR/popupplugin.h \
 
 STYLE_HEADERS += \
     $$WIDGETS_DIR/widgetbarstyle.h \
     $$WIDGETS_DIR/mvirtualkeyboardstyle.h \
+    $$WIDGETS_DIR/keybuttonareastyle.h \
     $$WIDGETS_DIR/handlestyle.h \
     $$WIDGETS_DIR/mtoolbarbuttonstyle.h \
     $$WIDGETS_DIR/mimtoolbarstyle.h \
