@@ -635,9 +635,9 @@ qreal SingleWidgetButtonArea::normalizedKeyWidth(const VKBDataKey *key) const
     return 0.0;
 }
 
-void SingleWidgetButtonArea::applyStyle()
+void SingleWidgetButtonArea::onThemeChangeCompleted()
 {
     mMaxNormalizedWidth = maxNormalizedWidth();
-    KeyButtonArea::applyStyle();
+    KeyButtonArea::onThemeChangeCompleted();
     buildTextLayout();
 }

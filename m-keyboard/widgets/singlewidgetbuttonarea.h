@@ -51,7 +51,7 @@ protected:
     virtual void updateButtonGeometriesForWidth(int availableWidth);
     virtual IKeyButton *keyAt(const QPoint &pos) const;
     virtual void modifiersChanged(bool shift, QChar accent = QChar());
-    virtual void applyStyle();
+    virtual void onThemeChangeCompleted();
     /*! \reimp_end */
 
 private:

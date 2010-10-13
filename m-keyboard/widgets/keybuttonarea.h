@@ -174,7 +174,6 @@ protected:
     virtual void grabMouseEvent(QEvent *e);
     virtual void ungrabMouseEvent(QEvent *e);
     virtual bool event(QEvent *event);
-    virtual void applyStyle();
     /*! \reimp_end */
 
     //! Called when widget is about to lose visibility.
@@ -233,6 +232,10 @@ protected:
 
     //! Expose style to derived classes.
     const KeyButtonAreaStyleContainer &baseStyle() const;
+
+protected slots:
+    //! Update background images, text layouts, etc. when the theme changed.
+    virtual void onThemeChangeCompleted();
 
 private:
     //! \brief Handler for flick gestures from Qt gesture framework.

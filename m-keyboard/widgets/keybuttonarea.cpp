@@ -78,6 +78,10 @@ KeyButtonArea::KeyButtonArea(const LayoutData::SharedLayoutSection &sectionModel
     popup->hidePopup();
 
     feedbackPlayer = MComponentData::feedbackPlayer();
+
+    connect(MTheme::instance(), SIGNAL(themeChangeCompleted()),
+            this, SLOT(onThemeChangeCompleted()),
+            Qt::UniqueConnection);
 }
 
 KeyButtonArea::~KeyButtonArea()
@@ -567,9 +571,8 @@ void KeyButtonArea::modifiersChanged(bool /*shift*/, const QChar /*accent*/)
     // Empty default implementation
 }
 
-void KeyButtonArea::applyStyle()
+void KeyButtonArea::onThemeChangeCompleted()
 {
-    MStylableWidget::applyStyle();
     updateButtonGeometriesForWidth(size().width());
     popup->setKeyboardFont(style()->font());
 }
