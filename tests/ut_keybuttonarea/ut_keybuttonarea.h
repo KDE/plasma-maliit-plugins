@@ -69,6 +69,7 @@ private slots:
     void testMultiTouch();
     void testRtlKeys_data();
     void testRtlKeys();
+    void testLongKeyPress();
 
 private:
     void changeOrientation(M::OrientationAngle angle);

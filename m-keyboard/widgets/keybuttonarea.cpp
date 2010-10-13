@@ -49,6 +49,9 @@ namespace
 
     // This GConf item defines whether multitouch is enabled or disabled
     const char * const MultitouchSettings = "/meegotouch/inputmethods/multitouch/enabled";
+
+    // Timeout for long press
+    const int LongPressTimeOut = 500;
 }
 
 M::InputMethodMode KeyButtonArea::InputMethodMode;
@@ -82,6 +85,11 @@ KeyButtonArea::KeyButtonArea(const LayoutData::SharedLayoutSection &sectionModel
     connect(MTheme::instance(), SIGNAL(themeChangeCompleted()),
             this, SLOT(onThemeChangeCompleted()),
             Qt::UniqueConnection);
+
+    longPressTimer.setSingleShot(true);
+    longPressTimer.setInterval(LongPressTimeOut);
+    connect(&longPressTimer, SIGNAL(timeout()),
+            this, SLOT(handleLongKeyPressed()));
 }
 
 KeyButtonArea::~KeyButtonArea()
@@ -108,6 +116,7 @@ void KeyButtonArea::updatePopup(const QPoint &pointerPosition, const IKeyButton 
 
     if (!key || key->label().isEmpty() || key->key().style() != VKBDataKey::NormalStyle) {
         popup->hidePopup();
+        longPressTimer.stop();
         return;
     }
 
@@ -126,6 +135,11 @@ void KeyButtonArea::updatePopup(const QPoint &pointerPosition, const IKeyButton 
     popup->setTargetButton(key);
 
     popup->showPopup();
+
+    // start timer if finger is moved to other key
+    if (touchPoints[newestTouchPointId].activeKey != key) {
+        longPressTimer.start();
+    }
 }
 
 int KeyButtonArea::maxColumns() const
@@ -307,6 +321,7 @@ void KeyButtonArea::ungrabMouseEvent(QEvent */*event*/)
     // Make sure popup is hidden even if mouse grab
     // is lost without mouse release event.
     popup->hidePopup();
+    longPressTimer.stop();
 }
 
 bool KeyButtonArea::event(QEvent *e)
@@ -362,6 +377,7 @@ void KeyButtonArea::handleFlickGesture(FlickGesture *gesture)
     // Any flick gesture, complete or not, resets active keys etc.
     if (!wasGestureTriggered && (gesture->state() != Qt::NoGesture)) {
         popup->hidePopup();
+        longPressTimer.stop();
         clearActiveKeys();
 
         wasGestureTriggered = true;
@@ -462,6 +478,7 @@ void KeyButtonArea::touchPointMoved(const QPoint &pos, int id)
         // Finger has slid off the keys
         if (tpi.fingerInsideArea && (id == newestTouchPointId)) {
             popup->hidePopup();
+            longPressTimer.stop();
         }
 
         tpi.fingerInsideArea = false;
@@ -483,6 +500,7 @@ void KeyButtonArea::touchPointReleased(const QPoint &pos, int id)
     // Hide popup otherwise it could be shown on another touch point.
     if (id == newestTouchPointId) {
         popup->hidePopup();
+        longPressTimer.stop();
     }
 
     IKeyButton *key = gravitationalKeyAt(pos, id);
@@ -580,6 +598,20 @@ void KeyButtonArea::onThemeChangeCompleted()
 const KeyButtonAreaStyleContainer &KeyButtonArea::baseStyle() const
 {
     return style();
+}
+
+void KeyButtonArea::handleLongKeyPressed()
+{
+    QString accent;
+
+    if (activeDeadkey) {
+        accent = activeDeadkey->label();
+    }
+
+    TouchPointInfo &tpi = touchPoints[newestTouchPointId];
+    if (tpi.activeKey) {
+        emit longKeyPressed(tpi.activeKey, accent, level() % 2);
+    }
 }
 
 KeyButtonArea::TouchPointInfo::TouchPointInfo()

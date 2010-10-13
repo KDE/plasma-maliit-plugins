@@ -811,6 +811,83 @@ void Ut_KeyButtonArea::testRtlKeys()
     }
 }
 
+void Ut_KeyButtonArea::testLongKeyPress()
+{
+    const int LongPressTimeOut = 600; //this value depends on timeout of long press
+
+    keyboard = new KeyboardData;
+    QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
+
+    subject = createSingleWidgetKeyButtonArea(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
+                                              true, 0);
+
+    MPlainWindow::instance()->scene()->addItem(subject);
+    subject->resize(defaultLayoutSize());
+
+    SingleWidgetButton *key0 = dynamic_cast<SingleWidgetButton *>(keyAt(0, 0));
+    SingleWidgetButton *key1 = dynamic_cast<SingleWidgetButton *>(keyAt(1, 3));
+
+    QVERIFY(key0);
+    QVERIFY(key1);
+
+    QPoint point0 = key0->buttonBoundingRect().center().toPoint();
+    QPoint point1 = key1->buttonBoundingRect().center().toPoint();
+
+    QSignalSpy spy(subject, SIGNAL(longKeyPressed(const IKeyButton*, const QString &, bool)));
+
+    QVERIFY(spy.isValid());
+
+    // click is not long press
+    subject->touchPointPressed(point0, 0);
+    subject->touchPointReleased(point0, 0);
+    QVERIFY(spy.isEmpty());
+    QTest::qWait(LongPressTimeOut);
+    QVERIFY(spy.isEmpty());
+
+    // long press on the key
+    subject->touchPointPressed(point0, 0);
+    QTest::qWait(LongPressTimeOut);
+    QCOMPARE(spy.count(), 1);
+    QVERIFY(spy.first().count() > 0);
+    QCOMPARE(spy.first().first().value<const IKeyButton *>(), key0);
+    spy.clear();
+    subject->touchPointReleased(point0, 0);
+
+    // long press with multitouch
+    subject->touchPointPressed(point0, 0);
+    subject->touchPointPressed(point1, 1);
+    QTest::qWait(LongPressTimeOut);
+    QCOMPARE(spy.count(), 1);
+    QVERIFY(spy.first().count() > 0);
+    QCOMPARE(spy.first().first().value<const IKeyButton *>(), key1);
+    spy.clear();
+    subject->touchPointReleased(point0, 0);
+    subject->touchPointReleased(point1, 1);
+    QVERIFY(spy.isEmpty());
+
+    // long press after movement
+    subject->touchPointPressed(point0, 0);
+    subject->touchPointMoved(point1, 0);
+    QTest::qWait(LongPressTimeOut);
+    QCOMPARE(spy.count(), 1);
+    QVERIFY(spy.first().count() > 0);
+    QCOMPARE(spy.first().first().value<const IKeyButton *>(), key1);
+    spy.clear();
+    subject->touchPointReleased(point0, 0);
+    QVERIFY(spy.isEmpty());
+
+    // long press should be detected if last pressed key is not released
+    subject->touchPointPressed(point0, 0);
+    subject->touchPointPressed(point1, 1);
+    subject->touchPointReleased(point0, 0);
+    QTest::qWait(LongPressTimeOut);
+    QCOMPARE(spy.count(), 1);
+    QVERIFY(spy.first().count() > 0);
+    QCOMPARE(spy.first().first().value<const IKeyButton *>(), key1);
+    spy.clear();
+    subject->touchPointReleased(point1, 1);
+}
+
 void Ut_KeyButtonArea::changeOrientation(M::OrientationAngle angle)
 {
     if (MPlainWindow::instance()->orientationAngle() != angle) {

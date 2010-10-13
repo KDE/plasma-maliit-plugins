@@ -32,6 +32,7 @@
 #include <QList>
 #include <QStringList>
 #include <QTouchEvent>
+#include <QTimer>
 
 class FlickGesture;
 class MFeedbackPlayer;
@@ -125,6 +126,19 @@ signals:
      * \param upperCase contains true if key is in uppercase state
      */
     void keyClicked(const IKeyButton *key, const QString &accent, bool upperCase);
+
+    /*!
+     * \brief Emitted when long press is detected.
+     * Long press detection is:
+     * - cancelled when latest pressed key is released;
+     * - restarted when finger is moved to other key;
+     * - restarted when new touch point is recognized by KeyButtonArea.
+     *
+     * \param key describes pressed button.
+     * \param accent Active accent in KeyButtonArea at the time of long press occured.
+     * \param upperCase Upper case state in KeyButtonArea at the time of long press occured.
+     */
+    void longKeyPressed(const IKeyButton *key, const QString &accent, bool upperCase);
 
     //! Emitted when flicked right
     void flickRight();
@@ -237,6 +251,9 @@ protected slots:
     //! Update background images, text layouts, etc. when the theme changed.
     virtual void onThemeChangeCompleted();
 
+    //! Handle long press on the key
+    virtual void handleLongKeyPressed();
+
 private:
     //! \brief Handler for flick gestures from Qt gesture framework.
     void handleFlickGesture(FlickGesture *gesture);
@@ -300,6 +317,9 @@ private:
     const bool usePopup;
 
     static M::InputMethodMode InputMethodMode;
+
+    //! This timer is used to recognize long press.
+    QTimer longPressTimer;
 
     M_STYLABLE_WIDGET(KeyButtonAreaStyle)
 
