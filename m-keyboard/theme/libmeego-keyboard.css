@@ -4,9 +4,8 @@ MVirtualKeyboardStyle {
     background-image: "meegotouch-keyboard-background" 15px 15px 15px 15px;
 
     font-opacity: 0.9;
-
-    padding-top: 2.2mm;
-    padding-bottom: $MARGIN_DOUBLE;
+    font-color: #00FF00;
+    text-color: #0000FF;
 
     deadkey-locked-color: #FFA500;
 
@@ -21,18 +20,12 @@ MVirtualKeyboardStyle {
 MVirtualKeyboardStyle.Portrait {
     keyboard-area-size: 480 280;
 
-    padding-left: $MARGIN_DOUBLE;
-    padding-right:$MARGIN_DOUBLE;
-
     tab-button-size: 91 70;
     menu-size: 470 342;
 }
 
 MVirtualKeyboardStyle.Landscape {
     keyboard-area-size: 864 280;
-
-    padding-left: $MARGIN_DOUBLE;
-    padding-right: $MARGIN_DOUBLE;
 
     tab-button-size: 108 70;
     menu-size: 790 342;
@@ -46,6 +39,9 @@ KeyButtonAreaStyle {
     spacing-vertical: 2mm;
     /* should be 0.4mm or 4px, need to check*/
     spacing-horizontal: 0.2mm;
+
+    padding-top: 2.2mm;
+    padding-bottom: $MARGIN_DOUBLE;
 
     flick-gesture-timeout: 400;
     flick-gesture-threshold-ratio: 0.5;
@@ -110,6 +106,9 @@ KeyButtonAreaStyle.Portrait {
     label-margin-left-with-secondary: 4.6mm;
     secondary-label-separation: 0.9mm;
 
+    padding-left: $MARGIN_DOUBLE;
+    padding-right:$MARGIN_DOUBLE;
+
     touchpoint-horizontal-gravity: 24px;
     touchpoint-vertical-gravity: 24px;
 
@@ -123,6 +122,9 @@ KeyButtonAreaStyle.Landscape {
     label-margin-top: 0.6mm;
     label-margin-left-with-secondary: -1; /* not used, labels are centered horizontally */
     secondary-label-separation: 0;
+
+    padding-left: $MARGIN_DOUBLE;
+    padding-right: $MARGIN_DOUBLE;
 
     touchpoint-horizontal-gravity: 48px;
     touchpoint-vertical-gravity: 48px;
