@@ -456,7 +456,9 @@ void SingleWidgetButtonArea::updateButtonGeometriesForWidth(const int newAvailab
     const qreal VerticalSpacing = baseStyle()->spacingVertical();
 
     // The following code cannot handle negative width:
-    int availableWidth = qMax(0, newAvailableWidth);
+    int availableWidth = qMax<qreal>(0, newAvailableWidth
+                                        - (baseStyle()->paddingLeft() + baseStyle()->paddingRight()));
+
     const qreal normalizedWidth = qMax<qreal>(1.0, mMaxNormalizedWidth);
     const qreal availableWidthForButtons = availableWidth - ((normalizedWidth - 1) * HorizontalSpacing);
     const qreal equalButtonWidth = availableWidthForButtons / normalizedWidth;
