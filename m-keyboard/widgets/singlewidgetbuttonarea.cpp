@@ -496,14 +496,6 @@ void SingleWidgetButtonArea::updateButtonGeometriesForWidth(const int newAvailab
         }
         rowWidth -= HorizontalSpacing;
 
-        if (availableWidth < rowWidth + 0.5) {
-            // TODO: Find out the root cause, and fix it!
-            qWarning() << __PRETTY_FUNCTION__
-                       << "Using more width (" << rowWidth
-                       << ") than available (" << availableWidth
-                       << ")!";
-        }
-
         qreal availableWidthForSpacers = 0;
         const QList<int> spacerIndices = sectionModel()->spacerIndices(row - rowList.begin());
         int spacerCount = row->stretchButton ? spacerIndices.count() + 1
