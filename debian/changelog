@@ -1,10 +1,9 @@
-meego-keyboard (0.5.4~1) unstable; urgency=low
+meego-keyboard (0.5.4-1) unstable; urgency=low
 
-  * [UNRELEASED]
   * Adapted to im framework enum namespace changes
   * Implemented: SWP#TINME-1120 - KeyButtonAreaStyle
 
- -- huaming wang <huaming.wang@nokia.com>  Tue, 12 Oct 2010 16:44:48 +0300
+ -- huaming wang <huaming.wang@nokia.com>  Thu, 14 Oct 2010 12:47:33 +0300
 
 meego-keyboard (0.5.3-1) unstable; urgency=low
 
