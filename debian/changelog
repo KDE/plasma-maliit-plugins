@@ -1,8 +1,10 @@
-meego-keyboard (0.5.5~1) unstable; urgency=low
+meego-keyboard (0.5.5-1) unstable; urgency=low
 
-  * [UNRELEASED]
+  * New: KeyButtonArea detects long key press
+  * Changes: Removed function row leftovers from symbol view
+  * Fixes: compilation error in unit tests
 
- -- huaming wang <huaming.wang@nokia.com>  Thu, 14 Oct 2010 12:50:07 +0300
+ -- huaming wang <huaming.wang@nokia.com>  Fri, 15 Oct 2010 10:55:28 +0300
 
 meego-keyboard (0.5.4-1) unstable; urgency=low
 
