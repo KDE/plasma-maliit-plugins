@@ -331,5 +331,5 @@
           </row>
         </section>
     </layout>
-    <import file="symbols_cs_pl_sk.xml"/>
+    <import file="symbols.xml"/>
 </keyboard>

@@ -39,43 +39,33 @@
        <row>
          <key>
            <binding label="*"/>
-           <binding shift="true" label="&#x20AC;"/>
          </key>
          <key>
            <binding label="#"/>
-           <binding shift="true" label="&#x00A3;"/>
          </key>
          <key>
            <binding label="+"/>
-           <binding shift="true" label="&#x0024;"/>
          </key>
          <key>
            <binding label="-"/>
-           <binding shift="true" label="&#x00A5;"/>
          </key>
          <key>
            <binding label="_"/>
-           <binding shift="true" label="&#x00A7;"/>
          </key>
          <key>
            <binding label="&#x0025;"/>
-           <binding shift="true" label="&#x2030;"/>
          </key>
          <key>
            <binding label="&#x003D;"/>
-           <binding shift="true" label="&#x003C;"/>
          </key>
          <key>
            <binding label="&#x0026;"/>
-           <binding shift="true" label="&#x003E;"/>
          </key>
          <key>
            <binding label="("/>
-           <binding shift="true" label="&#x005B;"/>
          </key>
          <key>
            <binding label=")"/>
-           <binding shift="true" label="&#x005D;"/>
          </key>
        </row>
 
@@ -85,35 +75,27 @@
          </key>
          <key>
            <binding label="@"/>
-           <binding shift="true" label="&#x0060;"/>
          </key>
          <key>
            <binding label="~"/>
-           <binding shift="true" label="&#x005E;"/>
          </key>
          <key>
            <binding label="/"/>
-           <binding shift="true" label="&#x007C;"/>
          </key>
          <key>
            <binding label="\"/>
-           <binding shift="true" label="&#x201C;"/>
          </key>
          <key>
            <binding label="&#x0027;"/>
-           <binding shift="true" label="&#x201D;"/>
          </key>
          <key>
            <binding label="&#x0022;"/>
-           <binding shift="true" label="&#x201E;"/>
          </key>
          <key>
            <binding label="&#x003F;"/>
-           <binding shift="true" label="&#x00BF;"/>
          </key>
          <key>
            <binding label="&#x0021;"/>
-           <binding shift="true" label="&#x00A1;"/>
          </key>
          <key style="special">
            <binding action="backspace"/>
@@ -127,7 +109,6 @@
 
          <key>
            <binding label="&#x003B;"/>
-           <binding shift="true" label="&#x00AB;"/>
          </key>
          <key>
            <binding label="&#x002C;"/>
@@ -142,7 +123,6 @@
          </key>
          <key>
            <binding label="&#x003A;"/>
-           <binding shift="true" label="&#x00BB;"/>
          </key>
 
          <key style="special" width="xx-large">
@@ -155,87 +135,67 @@
      <section id="symbols1" type="non-sloppy">
        <row>
          <key>
-         <binding label="&#x00E0;"/>
-           <binding shift="true" label="&#x00C0;"/>
+           <binding label="1"/>
          </key>
          <key>
-           <binding label="&#x00E1;"/>
-           <binding shift="true" label="&#x00C1;"/>
+           <binding label="2"/>
          </key>
          <key>
-           <binding label="&#x00E2;"/>
-           <binding shift="true" label="&#x00C2;"/>
+           <binding label="3"/>
          </key>
          <key>
-           <binding label="&#x00E3;"/>
-           <binding shift="true" label="&#x00C3;"/>
+           <binding label="4"/>
          </key>
          <key>
-           <binding label="&#x00E4;"/>
-           <binding shift="true" label="&#x00C4;"/>
+           <binding label="5"/>
          </key>
          <key>
-           <binding label="&#x00E5;"/>
-           <binding shift="true" label="&#x00C5;"/>
+           <binding label="6"/>
          </key>
          <key>
-           <binding label="&#x00E6;"/>
-           <binding shift="true" label="&#x00C6;"/>
+           <binding label="7"/>
          </key>
          <key>
-           <binding label="&#x00E7;"/>
-           <binding shift="true" label="&#x00C7;"/>
+           <binding label="8"/>
          </key>
          <key>
-           <binding label="&#x00E8;"/>
-           <binding shift="true" label="&#x00C8;"/>
+           <binding label="9"/>
          </key>
          <key>
-           <binding label="&#x00E9;"/>
-           <binding shift="true" label="&#x00C9;"/>
+           <binding label="0"/>
          </key>
        </row>
 
        <row>
-          <key>
-           <binding label="&#x00EA;"/>
-           <binding shift="true" label="&#x00CA;"/>
+         <key>
+           <binding label="&#x20AC;"/>
          </key>
          <key>
-           <binding label="&#x00EB;"/>
-           <binding shift="true" label="&#x00CB;"/>
+           <binding label="&#x00A3;"/>
          </key>
          <key>
-           <binding label="&#x00EC;"/>
-           <binding shift="true" label="&#x00CC;"/>
+           <binding label="&#x0024;"/>
          </key>
          <key>
-           <binding label="&#x00ED;"/>
-           <binding shift="true" label="&#x00CD;"/>
+           <binding label="&#x00A5;"/>
          </key>
          <key>
-           <binding label="&#x00EE;"/>
-           <binding shift="true" label="&#x00CE;"/>
+           <binding label="&#x00A7;"/>
          </key>
          <key>
-           <binding label="&#x00EF;"/>
-           <binding shift="true" label="&#x00CF;"/>
+           <binding label="&#x2030;"/>
          </key>
          <key>
-           <binding label="&#x00F1;"/>
-           <binding shift="true" label="&#x00D1;"/>
+           <binding label="&#x003C;"/>
          </key>
          <key>
-           <binding label="&#x00F2;"/>
-           <binding shift="true" label="&#x00D2;"/>
+           <binding label="&#x003E;"/>
          </key>
          <key>
-           <binding label="&#x00F3;"/>
-           <binding shift="true" label="&#x00D3;"/>
+           <binding label="&#x005B;"/>
          </key>
          <key>
-           <binding label="&#x00F4;"/>
-           <binding shift="true" label="&#x00D4;"/>
+           <binding label="&#x005D;"/>
          </key>
        </row>
 
@@ -244,35 +204,28 @@
            <binding action="switch" label="2/2"/>
          </key>
          <key>
-           <binding label="&#x00F5;"/>
-           <binding shift="true" label="&#x00D5;"/>
+           <binding label="&#x0060;"/>
          </key>
          <key>
-           <binding label="&#x00F6;"/>
-           <binding shift="true" label="&#x00D6;"/>
+           <binding label="&#x005E;"/>
          </key>
          <key>
-           <binding label="&#x00F8;"/>
-           <binding shift="true" label="&#x00D8;"/>
+           <binding label="&#x007C;"/>
          </key>
          <key>
-           <binding label="&#x0153;"/>
-           <binding shift="true" label="&#x0152;"/>
+           <binding label="&#x201C;"/>
          </key>
          <key>
-           <binding label="&#x00DF;"/>
+           <binding label="&#x201D;"/>
          </key>
          <key>
-           <binding label="&#x00F9;"/>
-           <binding shift="true" label="&#x00D9;"/>
+           <binding label="&#x201E;"/>
          </key>
          <key>
-           <binding label="&#x00FA;"/>
-           <binding shift="true" label="&#x00DA;"/>
+           <binding label="&#x00BF;"/>
          </key>
          <key>
-           <binding label="&#x00FB;"/>
-           <binding shift="true" label="&#x00DB;"/>
+           <binding label="&#x00A1;"/>
          </key>
          <key style="special">
            <binding action="backspace"/>
@@ -284,12 +237,10 @@
            <binding action="sym" label="ABC"/>
          </key>
          <key>
-           <binding label="&#x00FC;"/>
-           <binding shift="true" label="&#x00DC;"/>
+           <binding label="&#x00AB;"/>
          </key>
          <key>
-           <binding label="&#x00FD;"/>
-           <binding shift="true" label="&#x00DD;"/>
+           <binding label="&#x002C;"/>
          </key>
 
          <key width="stretched">
@@ -297,12 +248,10 @@
          </key>
 
          <key>
-           <binding label="&#x00F0;"/>
-           <binding shift="true" label="&#x00D0;"/>
+           <binding label="&#x002E;"/>
          </key>
          <key>
-           <binding label="&#x00FE;"/>
-           <binding shift="true" label="&#x00DE;"/>
+           <binding label="&#x00BB;"/>
          </key>
 
          <key style="special" width="xx-large">
@@ -350,43 +299,33 @@
        <row>
          <key>
            <binding label="*"/>
-           <binding shift="true" label="&#x20AC;"/>
          </key>
          <key>
            <binding label="#"/>
-           <binding shift="true" label="&#x00A3;"/>
          </key>
          <key>
            <binding label="+"/>
-           <binding shift="true" label="&#x0024;"/>
          </key>
          <key>
            <binding label="-"/>
-           <binding shift="true" label="&#x00A5;"/>
          </key>
          <key>
            <binding label="_"/>
-           <binding shift="true" label="&#x00A7;"/>
          </key>
          <key>
            <binding label="&#x0025;"/>
-           <binding shift="true" label="&#x2030;"/>
          </key>
          <key>
            <binding label="&#x003D;"/>
-           <binding shift="true" label="&#x003C;"/>
          </key>
          <key>
            <binding label="&#x0026;"/>
-           <binding shift="true" label="&#x003E;"/>
          </key>
          <key>
            <binding label="("/>
-           <binding shift="true" label="&#x005B;"/>
          </key>
          <key>
            <binding label=")"/>
-           <binding shift="true" label="&#x005D;"/>
          </key>
        </row>
 
@@ -396,35 +335,27 @@
          </key>
          <key>
            <binding label="@"/>
-           <binding shift="true" label="&#x0060;"/>
          </key>
          <key>
            <binding label="~"/>
-           <binding shift="true" label="&#x005E;"/>
          </key>
          <key>
            <binding label="/"/>
-           <binding shift="true" label="&#x007C;"/>
          </key>
          <key>
            <binding label="\"/>
-           <binding shift="true" label="&#x201C;"/>
          </key>
          <key>
            <binding label="&#x0027;"/>
-           <binding shift="true" label="&#x201D;"/>
          </key>
          <key>
            <binding label="&#x0022;"/>
-           <binding shift="true" label="&#x201E;"/>
          </key>
          <key>
            <binding label="&#x003F;"/>
-           <binding shift="true" label="&#x00BF;"/>
          </key>
-          <key>
+         <key>
            <binding label="&#x0021;"/>
-           <binding shift="true" label="&#x00A1;"/>
          </key>
          <key style="special">
            <binding action="backspace"/>
@@ -435,113 +366,96 @@
          <key style="special" width="xx-large">
            <binding action="sym" label="ABC"/>
          </key>
+
          <key>
            <binding label="&#x003B;"/>
-           <binding shift="true" label="&#x00AB;"/>
          </key>
          <key>
            <binding label="&#x002C;"/>
          </key>
+
          <key width="stretched">
            <binding action="space"/>
          </key>
+
          <key>
            <binding label="&#x002E;"/>
          </key>
          <key>
            <binding label="&#x003A;"/>
-           <binding shift="true" label="&#x00BB;"/>
          </key>
+
          <key style="special" width="xx-large">
            <binding action="return"/>
          </key>
+
        </row>
      </section>
 
      <section id="symbols1" type="non-sloppy">
        <row>
          <key>
-         <binding label="&#x00E0;"/>
-           <binding shift="true" label="&#x00C0;"/>
+           <binding label="1"/>
          </key>
          <key>
-           <binding label="&#x00E1;"/>
-           <binding shift="true" label="&#x00C1;"/>
+           <binding label="2"/>
          </key>
          <key>
-           <binding label="&#x00E2;"/>
-           <binding shift="true" label="&#x00C2;"/>
+           <binding label="3"/>
          </key>
          <key>
-           <binding label="&#x00E3;"/>
-           <binding shift="true" label="&#x00C3;"/>
+           <binding label="4"/>
          </key>
          <key>
-           <binding label="&#x00E4;"/>
-           <binding shift="true" label="&#x00C4;"/>
+           <binding label="5"/>
          </key>
          <key>
-           <binding label="&#x00E5;"/>
-           <binding shift="true" label="&#x00C5;"/>
+           <binding label="6"/>
          </key>
          <key>
-           <binding label="&#x00E6;"/>
-           <binding shift="true" label="&#x00C6;"/>
+           <binding label="7"/>
          </key>
          <key>
-           <binding label="&#x00E7;"/>
-           <binding shift="true" label="&#x00C7;"/>
+           <binding label="8"/>
          </key>
          <key>
-           <binding label="&#x00E8;"/>
-           <binding shift="true" label="&#x00C8;"/>
+           <binding label="9"/>
          </key>
          <key>
-           <binding label="&#x00E9;"/>
-           <binding shift="true" label="&#x00C9;"/>
+           <binding label="0"/>
          </key>
        </row>
 
        <row>
-          <key>
-           <binding label="&#x00EA;"/>
-           <binding shift="true" label="&#x00CA;"/>
+         <key>
+           <binding label="&#x20AC;"/>
          </key>
          <key>
-           <binding label="&#x00EB;"/>
-           <binding shift="true" label="&#x00CB;"/>
+           <binding label="&#x00A3;"/>
          </key>
          <key>
-           <binding label="&#x00EC;"/>
-           <binding shift="true" label="&#x00CC;"/>
+           <binding label="&#x0024;"/>
          </key>
          <key>
-           <binding label="&#x00ED;"/>
-           <binding shift="true" label="&#x00CD;"/>
+           <binding label="&#x00A5;"/>
          </key>
          <key>
-           <binding label="&#x00EE;"/>
-           <binding shift="true" label="&#x00CE;"/>
+           <binding label="&#x00A7;"/>
          </key>
          <key>
-           <binding label="&#x00EF;"/>
-           <binding shift="true" label="&#x00CF;"/>
+           <binding label="&#x2030;"/>
          </key>
          <key>
-           <binding label="&#x00F1;"/>
-           <binding shift="true" label="&#x00D1;"/>
+           <binding label="&#x003C;"/>
          </key>
          <key>
-           <binding label="&#x00F2;"/>
-           <binding shift="true" label="&#x00D2;"/>
+           <binding label="&#x003E;"/>
          </key>
          <key>
-           <binding label="&#x00F3;"/>
-           <binding shift="true" label="&#x00D3;"/>
+           <binding label="&#x005B;"/>
          </key>
          <key>
-           <binding label="&#x00F4;"/>
-           <binding shift="true" label="&#x00D4;"/>
+           <binding label="&#x005D;"/>
          </key>
        </row>
 
@@ -550,35 +464,28 @@
            <binding action="switch" label="2/2"/>
          </key>
          <key>
-           <binding label="&#x00F5;"/>
-           <binding shift="true" label="&#x00D5;"/>
+           <binding label="&#x0060;"/>
          </key>
          <key>
-           <binding label="&#x00F6;"/>
-           <binding shift="true" label="&#x00D6;"/>
+           <binding label="&#x005E;"/>
          </key>
          <key>
-           <binding label="&#x00F8;"/>
-           <binding shift="true" label="&#x00D8;"/>
+           <binding label="&#x007C;"/>
          </key>
          <key>
-           <binding label="&#x0153;"/>
-           <binding shift="true" label="&#x0152;"/>
+           <binding label="&#x201C;"/>
          </key>
          <key>
-           <binding label="&#x00DF;"/>
+           <binding label="&#x201D;"/>
          </key>
          <key>
-           <binding label="&#x00F9;"/>
-           <binding shift="true" label="&#x00D9;"/>
+           <binding label="&#x201E;"/>
          </key>
          <key>
-           <binding label="&#x00FA;"/>
-           <binding shift="true" label="&#x00DA;"/>
+           <binding label="&#x00BF;"/>
          </key>
          <key>
-           <binding label="&#x00FB;"/>
-           <binding shift="true" label="&#x00DB;"/>
+           <binding label="&#x00A1;"/>
          </key>
          <key style="special">
            <binding action="backspace"/>
@@ -590,12 +497,10 @@
            <binding action="sym" label="ABC"/>
          </key>
          <key>
-           <binding label="&#x00FC;"/>
-           <binding shift="true" label="&#x00DC;"/>
+           <binding label="&#x00AB;"/>
          </key>
          <key>
-           <binding label="&#x00FD;"/>
-           <binding shift="true" label="&#x00DD;"/>
+           <binding label="&#x002C;"/>
          </key>
 
          <key width="stretched">
@@ -603,12 +508,10 @@
          </key>
 
          <key>
-           <binding label="&#x00F0;"/>
-           <binding shift="true" label="&#x00D0;"/>
+           <binding label="&#x002E;"/>
          </key>
          <key>
-           <binding label="&#x00FE;"/>
-           <binding shift="true" label="&#x00DE;"/>
+           <binding label="&#x00BB;"/>
          </key>
 
          <key style="special" width="xx-large">
@@ -618,4 +521,3 @@
      </section>
    </layout>
 </keyboard>
-
