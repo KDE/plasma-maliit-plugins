@@ -1,3 +1,9 @@
+meego-keyboard (0.5.6~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- huaming wang <huaming.wang@nokia.com>  Fri, 15 Oct 2010 10:59:48 +0300
+
 meego-keyboard (0.5.5-1) unstable; urgency=low
 
   * New: KeyButtonArea detects long key press
