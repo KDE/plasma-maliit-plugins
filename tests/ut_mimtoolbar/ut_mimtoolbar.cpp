@@ -111,7 +111,7 @@ void Ut_MImToolbar::init()
 
     //fill up toolbar with some data
     toolbarData = QSharedPointer<MToolbarData>(new MToolbarData);
-    bool ok = toolbarData->loadNokiaToolbarXml(ToolbarFileName);
+    bool ok = toolbarData->loadToolbarXml(ToolbarFileName);
     QVERIFY(ok);
 }
 
@@ -319,7 +319,7 @@ void Ut_MImToolbar::testReactionMaps()
     gCustomToolbar = !shaped;
 
     toolbarData = QSharedPointer<MToolbarData>(new MToolbarData);
-    QVERIFY(toolbarData->loadNokiaToolbarXml(filename));
+    QVERIFY(toolbarData->loadToolbarXml(filename));
 
     m_subject->showToolbarWidget(toolbarData);
 
@@ -360,7 +360,7 @@ void Ut_MImToolbar::testClose()
     QVERIFY(spy.isValid());
 
     toolbarData = QSharedPointer<MToolbarData>(new MToolbarData);
-    bool ok = toolbarData->loadNokiaToolbarXml(ToolbarFileName4);
+    bool ok = toolbarData->loadToolbarXml(ToolbarFileName4);
     QVERIFY(ok);
 
     m_subject->showToolbarWidget(toolbarData);

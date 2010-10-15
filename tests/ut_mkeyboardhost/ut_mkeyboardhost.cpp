@@ -1341,10 +1341,10 @@ void Ut_MKeyboardHost::testToolbar()
     QSharedPointer<MToolbarData> nothing;
     bool ok;
 
-    ok = toolbar1->loadNokiaToolbarXml(toolbarName1);
+    ok = toolbar1->loadToolbarXml(toolbarName1);
     QVERIFY2(ok, "toolbar1.xml was not loaded correctly");
 
-    ok = toolbar2->loadNokiaToolbarXml(toolbarName2);
+    ok = toolbar2->loadToolbarXml(toolbarName2);
     QVERIFY2(ok, "toolbar2.xml was not loaded correctly");
 
     // verify is showToolbarWidget was called
