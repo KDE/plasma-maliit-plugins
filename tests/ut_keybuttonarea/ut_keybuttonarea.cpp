@@ -45,7 +45,25 @@ typedef KeyButtonArea *(*KBACreator)(const LayoutData::SharedLayoutSection &sect
                                      bool usePopup,
                                      QGraphicsWidget *parent);
 
+typedef QTouchEvent::TouchPoint (*TpCreator)(int id,
+                                             Qt::TouchPointState state,
+                                             const QPointF &pos,
+                                             const QPointF &lastPos);
+
+typedef QList<QTouchEvent::TouchPoint> TpList;
+typedef QList<IKeyButton *> ButtonList;
+typedef QList<IKeyButton::ButtonState> ButtonStateList;
+typedef QList<ButtonStateList> TpButtonStateMatrix;
+
 Q_DECLARE_METATYPE(KBACreator);
+Q_DECLARE_METATYPE(TpCreator);
+
+Q_DECLARE_METATYPE(TpList);
+Q_DECLARE_METATYPE(ButtonList);
+Q_DECLARE_METATYPE(ButtonStateList);
+Q_DECLARE_METATYPE(TpButtonStateMatrix);
+Q_DECLARE_METATYPE(QList<int>);
+
 Q_DECLARE_METATYPE(IKeyButton::ButtonState);
 Q_DECLARE_METATYPE(QList<KeyBinding::KeyAction>);
 Q_DECLARE_METATYPE(Ut_KeyButtonArea::TestOpList);
@@ -57,12 +75,12 @@ KeyButtonArea *createSingleWidgetKeyButtonArea(const LayoutData::SharedLayoutSec
     return new SingleWidgetButtonArea(section, usePopup, parent);
 }
 
-
 void Ut_KeyButtonArea::initTestCase()
 {
-    static int argc = 2;
-    static char *app_name[2] = { (char *) "ut_keybuttonarea",
-                                 (char *) "-local-theme" };
+    static int argc = 3;
+    static char *app_name[3] = { (char *) "ut_keybuttonarea",
+                                 (char *) "-local-theme",
+                                 (char *) "-software"};
 
     disableQtPlugins();
     app = new MApplication(argc, app_name);
@@ -254,6 +272,9 @@ void Ut_KeyButtonArea::testSceneEvent_data()
 
 void Ut_KeyButtonArea::testSceneEvent()
 {
+    QSKIP("Overlapping testcase, remove?",
+          SkipAll);
+
     QFETCH(KBACreator, createKba);
 
     //initialization
@@ -327,7 +348,6 @@ void Ut_KeyButtonArea::testPaint()
     subject->resize(defaultLayoutSize());
     MPlainWindow::instance()->scene()->addItem(subject);
 
-    subject->touchPointPressed(QPoint(20, 20), 0); // top left button
     //actual testing
     subject->paint(&painter, 0, 0);
 }
@@ -586,6 +606,7 @@ void Ut_KeyButtonArea::testPopup_data()
 
 void Ut_KeyButtonArea::testPopup()
 {
+    TpCreator createTp = &KeyButtonArea::createTouchPoint;
     QFETCH(KBACreator, createKba);
 
     keyboard = new KeyboardData;
@@ -596,29 +617,18 @@ void Ut_KeyButtonArea::testPopup()
     subject->resize(defaultLayoutSize());
 
     const QPoint mousePos(subject->style()->paddingTop() + 1, subject->style()->paddingLeft() + 1); // approximately the top left key on layout
-    const int touchId = 0;
     QVERIFY(&subject->popup());
 
-    // Test popup activation
-    // direct call
-    // Popup won't show up unless it is given a position. We give it via a mouse press.
-    //popup should be shown immediately, so we comment out this part of test
-#if 0
-    subject->touchPointPressed(mousePos, touchId);
-    subject->popupStart();
-    QVERIFY(subject->isPopupActive());
-    subject->popup->hidePopup();
-    QVERIFY(!subject->isPopupActive());
-    subject->touchPointReleased(mousePos, touchId);
+    QTouchEvent::TouchPoint tp(0);
+    tp.setScreenPos(mousePos);
+    subject->touchPointPressed(createTp(0, Qt::TouchPointPressed,
+                                        subject->mapToScene(mousePos),
+                                        QPointF()));
 
-    subject->touchPointPressed(mousePos, touchId);
-    QVERIFY(!subject->isPopupActive());
-    subject->touchPointReleased(mousePos, touchId);
-#endif
-
-    subject->touchPointPressed(mousePos, touchId);
     QVERIFY(subject->popup().isVisible());
-    subject->touchPointReleased(mousePos, touchId);
+    subject->touchPointReleased(createTp(0, Qt::TouchPointReleased,
+                                         subject->mapToScene(mousePos),
+                                         subject->mapToScene(mousePos)));
 }
 
 void Ut_KeyButtonArea::testInitialization_data()
@@ -663,6 +673,9 @@ void Ut_KeyButtonArea::testShiftCapsLock()
 
 void Ut_KeyButtonArea::testMultiTouch()
 {
+    QSKIP("Move signal tests into separate slot, and remove this one (overlapping tests)",
+          SkipAll);
+
     keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
     const LayoutData *layout = keyboard->layout(LayoutData::General, M::Landscape);
@@ -691,28 +704,36 @@ void Ut_KeyButtonArea::testMultiTouch()
     QVERIFY(clicked.isValid());
 
     const QPoint pos0 = key0->buttonRect().center().toPoint();
+    QTouchEvent::TouchPoint tp0(0);
+    tp0.setScreenPos(pos0);
+
     const QPoint pos1 = key1->buttonRect().center().toPoint();
+    QTouchEvent::TouchPoint tp1(1);
+    tp1.setScreenPos(pos1);
+
     const QPoint pos2 = key2->buttonRect().center().toPoint();
+    QTouchEvent::TouchPoint tp2(2);
+    tp2.setScreenPos(pos2);
 
     /*
      * Verify following conditions:
      * 1) signals are emitted in correct order
      * 2) every signal corresponds to correct key
      */
-    subject->touchPointPressed(pos0, 0);
+    subject->touchPointPressed(tp0);
     QCOMPARE(pressed.count(), 1);
     QVERIFY(pressed.at(0).first().value<const IKeyButton*>() == key0);
     QCOMPARE(released.count(), 0);
     QCOMPARE(clicked.count(), 0);
 
-    subject->touchPointPressed(pos1, 1);
+    subject->touchPointPressed(tp1);
     QCOMPARE(pressed.count(), 2);
     QVERIFY(pressed.at(1).first().value<const IKeyButton*>() == key1);
     QCOMPARE(released.count(), 0);
     QCOMPARE(clicked.count(), 0);
 
-    subject->touchPointReleased(pos0, 0);
-    subject->touchPointReleased(pos1, 1);
+    subject->touchPointReleased(tp0);
+    subject->touchPointReleased(tp1);
     QCOMPARE(pressed.count(), 2);
     QCOMPARE(released.count(), 2);
     QVERIFY(released.at(0).first().value<const IKeyButton*>() == key0);
@@ -726,12 +747,12 @@ void Ut_KeyButtonArea::testMultiTouch()
     clicked.clear();
 
     // Verify if could click on some keys while other key is pressed
-    subject->touchPointPressed(pos0, 0);
-    subject->touchPointPressed(pos1, 1);
-    subject->touchPointReleased(pos0, 0);
-    subject->touchPointPressed(pos2, 0);
-    subject->touchPointReleased(pos2, 0);
-    subject->touchPointReleased(pos1, 1);
+    subject->touchPointPressed(tp0);
+    subject->touchPointPressed(tp1);
+    subject->touchPointReleased(tp0);
+    subject->touchPointPressed(tp2);
+    subject->touchPointReleased(tp2);
+    subject->touchPointReleased(tp1);
 
     QCOMPARE(pressed.count(), 3);
     QCOMPARE(released.count(), 3);
@@ -821,7 +842,8 @@ void Ut_KeyButtonArea::testRtlKeys()
 
 void Ut_KeyButtonArea::testLongKeyPress()
 {
-    const int LongPressTimeOut = 600; //this value depends on timeout of long press
+    TpCreator createTp = &KeyButtonArea::createTouchPoint;
+    const int LongPressTimeOut = 1500; //this value depends on timeout of long press
 
     keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
@@ -839,61 +861,265 @@ void Ut_KeyButtonArea::testLongKeyPress()
     QVERIFY(key1);
 
     QPoint point0 = key0->buttonBoundingRect().center().toPoint();
+    QTouchEvent::TouchPoint tp0(createTp(0, Qt::TouchPointPressed,
+                                         subject->mapToScene(point0),
+                                         QPointF()));
+
     QPoint point1 = key1->buttonBoundingRect().center().toPoint();
+    QTouchEvent::TouchPoint tp1(createTp(1, Qt::TouchPointPressed,
+                                         subject->mapToScene(point1),
+                                         QPointF()));
 
     QSignalSpy spy(subject, SIGNAL(longKeyPressed(const IKeyButton*, const QString &, bool)));
 
     QVERIFY(spy.isValid());
 
     // click is not long press
-    subject->touchPointPressed(point0, 0);
-    subject->touchPointReleased(point0, 0);
+    subject->touchPointPressed(tp0);
+    subject->touchPointReleased(tp1);
     QVERIFY(spy.isEmpty());
     QTest::qWait(LongPressTimeOut);
     QVERIFY(spy.isEmpty());
 
     // long press on the key
-    subject->touchPointPressed(point0, 0);
+    subject->touchPointPressed(tp0);
     QTest::qWait(LongPressTimeOut);
     QCOMPARE(spy.count(), 1);
     QVERIFY(spy.first().count() > 0);
     QCOMPARE(spy.first().first().value<const IKeyButton *>(), key0);
     spy.clear();
-    subject->touchPointReleased(point0, 0);
+    subject->touchPointReleased(tp0);
 
     // long press with multitouch
-    subject->touchPointPressed(point0, 0);
-    subject->touchPointPressed(point1, 1);
+    subject->touchPointPressed(tp0);
+    subject->touchPointPressed(tp1);
     QTest::qWait(LongPressTimeOut);
     QCOMPARE(spy.count(), 1);
     QVERIFY(spy.first().count() > 0);
     QCOMPARE(spy.first().first().value<const IKeyButton *>(), key1);
     spy.clear();
-    subject->touchPointReleased(point0, 0);
-    subject->touchPointReleased(point1, 1);
+    subject->touchPointReleased(tp0);
+    subject->touchPointReleased(tp1);
     QVERIFY(spy.isEmpty());
 
     // long press after movement
-    subject->touchPointPressed(point0, 0);
-    subject->touchPointMoved(point1, 0);
+    subject->touchPointPressed(tp0);
+    tp0.setStartScenePos(QPointF(52, 37));
+    subject->touchPointMoved(tp0);
     QTest::qWait(LongPressTimeOut);
     QCOMPARE(spy.count(), 1);
     QVERIFY(spy.first().count() > 0);
-    QCOMPARE(spy.first().first().value<const IKeyButton *>(), key1);
+    QCOMPARE(spy.first().first().value<const IKeyButton *>(), key0);
     spy.clear();
-    subject->touchPointReleased(point0, 0);
+    subject->touchPointReleased(tp0);
     QVERIFY(spy.isEmpty());
 
-    // long press should be detected if last pressed key is not released
-    subject->touchPointPressed(point0, 0);
-    subject->touchPointPressed(point1, 1);
-    subject->touchPointReleased(point0, 0);
-    QTest::qWait(LongPressTimeOut);
-    QCOMPARE(spy.count(), 1);
-    QVERIFY(spy.first().count() > 0);
-    QCOMPARE(spy.first().first().value<const IKeyButton *>(), key1);
-    spy.clear();
-    subject->touchPointReleased(point1, 1);
+    // TODO? long press should be detected if last pressed key is not released
+}
+
+void Ut_KeyButtonArea::testTouchPoints_data()
+{
+    TpCreator createTp = &KeyButtonArea::createTouchPoint;
+
+    QTest::addColumn<int>("expectedClickedSignals");
+    QTest::addColumn<QString>("labels");
+    QTest::addColumn<QSize>("kbaSize");
+
+    QTest::addColumn<TpList>("touchPoints");
+    QTest::addColumn<TpButtonStateMatrix>("expectedStates");
+
+    QTest::newRow("single button")
+        << 1 << "a" << QSize(50, 50)
+        << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(12, 24), QPointF(0, 0))
+                     << createTp(0, Qt::TouchPointReleased, QPointF(16, 20), QPointF(12, 24)))
+        << (TpButtonStateMatrix() << (ButtonStateList() << IKeyButton::Pressed)
+                                  << (ButtonStateList() << IKeyButton::Normal));
+
+    QTest::newRow("single button, commit before next hit")
+        << 2 << "a" << QSize(50, 50)
+        << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(12, 24), QPointF(0, 0))
+                     << createTp(1, Qt::TouchPointPressed, QPointF(16, 20), QPointF(0, 0))
+                     << createTp(1, Qt::TouchPointReleased, QPointF(16, 20), QPointF(12, 24))
+                     << createTp(0, Qt::TouchPointReleased, QPointF(16, 20), QPointF(16, 20)))
+        << (TpButtonStateMatrix() << (ButtonStateList() << IKeyButton::Pressed)
+                                  << (ButtonStateList() << IKeyButton::Pressed)
+                                  << (ButtonStateList() << IKeyButton::Normal)
+                                  << (ButtonStateList() << IKeyButton::Normal));
+
+    QTest::newRow("2 buttons, 3 touchpoint transactions")
+        << 3 << "ab" << QSize(100, 50)
+        << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(12, 24), QPointF(0, 0))
+                     << createTp(1, Qt::TouchPointPressed, QPointF(80, 20), QPointF(0, 0))
+                     << createTp(0, Qt::TouchPointReleased, QPointF(16, 20), QPointF(12, 24))
+                     << createTp(1, Qt::TouchPointPressed, QPointF(12, 24), QPointF(0, 0))
+                     << createTp(1, Qt::TouchPointReleased, QPointF(16, 20), QPointF(16, 24))
+                     << createTp(0, Qt::TouchPointReleased, QPointF(80, 20), QPointF(80, 20)))
+        << (TpButtonStateMatrix() << (ButtonStateList() << IKeyButton::Pressed
+                                                        << IKeyButton::Normal)
+                                  << (ButtonStateList() << IKeyButton::Normal
+                                                        << IKeyButton::Pressed)
+                                  << (ButtonStateList() << IKeyButton::Normal
+                                                        << IKeyButton::Pressed)
+                                  << (ButtonStateList() << IKeyButton::Pressed
+                                                        << IKeyButton::Normal)
+                                  << (ButtonStateList() << IKeyButton::Normal
+                                                        << IKeyButton::Normal)
+                                  << (ButtonStateList() << IKeyButton::Normal
+                                                        << IKeyButton::Normal));
+
+    QTest::newRow("move into button, release")
+        << 1 << "a" << QSize(50, 50)
+        << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(0, 0), QPointF(0, 0))
+                     << createTp(0, Qt::TouchPointMoved, QPointF(2, 0), QPointF(0, 0))
+                     << createTp(0, Qt::TouchPointMoved, QPointF(10, 10), QPointF(2, 0))
+                     << createTp(0, Qt::TouchPointMoved, QPointF(12, 14), QPointF(10, 10))
+                     << createTp(0, Qt::TouchPointReleased, QPointF(12, 14), QPointF(12, 14)))
+        << (TpButtonStateMatrix() << (ButtonStateList() << IKeyButton::Normal)
+                                  << (ButtonStateList() << IKeyButton::Normal)
+                                  << (ButtonStateList() << IKeyButton::Pressed)
+                                  << (ButtonStateList() << IKeyButton::Pressed)
+                                  << (ButtonStateList() << IKeyButton::Normal));
+
+    QTest::newRow("move over button, release outside")
+        << 0 << "a" << QSize(50, 50)
+        << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(0, 0), QPointF(0, 0))
+                     << createTp(0, Qt::TouchPointMoved, QPointF(2, 0), QPointF(0, 0))
+                     << createTp(0, Qt::TouchPointMoved, QPointF(10, 10), QPointF(2, 0))
+                     << createTp(0, Qt::TouchPointMoved, QPointF(50, 50), QPointF(10, 10))
+                     << createTp(0, Qt::TouchPointReleased, QPointF(50, 50), QPointF(50, 50)))
+        << (TpButtonStateMatrix() << (ButtonStateList() << IKeyButton::Normal)
+                                  << (ButtonStateList() << IKeyButton::Normal)
+                                  << (ButtonStateList() << IKeyButton::Pressed)
+                                  << (ButtonStateList() << IKeyButton::Normal)
+                                  << (ButtonStateList() << IKeyButton::Normal));
+
+    QTest::newRow("tap inside button, release outside")
+        << 0 << "a" << QSize(50, 50)
+        << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(12, 12), QPointF(12, 12))
+                     << createTp(0, Qt::TouchPointMoved, QPointF(2, 0), QPointF(12, 12))
+                     << createTp(0, Qt::TouchPointMoved, QPointF(10, 10), QPointF(2, 0))
+                     << createTp(0, Qt::TouchPointMoved, QPointF(30, 30), QPointF(10, 10))
+                     << createTp(0, Qt::TouchPointReleased, QPointF(50, 50), QPointF(30, 30)))
+        << (TpButtonStateMatrix() << (ButtonStateList() << IKeyButton::Pressed)
+                                  << (ButtonStateList() << IKeyButton::Normal)
+                                  << (ButtonStateList() << IKeyButton::Pressed)
+                                  << (ButtonStateList() << IKeyButton::Pressed)
+                                  << (ButtonStateList() << IKeyButton::Normal));
+
+    QTest::newRow("move into button, press on button with second touchpoint, release first")
+        << 2 << "a" << QSize(50, 50)
+        << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(0, 0), QPointF(0, 0))
+                     << createTp(0, Qt::TouchPointMoved, QPointF(2, 0), QPointF(0, 0))
+                     << createTp(0, Qt::TouchPointMoved, QPointF(10, 10), QPointF(2, 0))
+                     << createTp(0, Qt::TouchPointMoved, QPointF(12, 14), QPointF(10, 10))
+                     << createTp(1, Qt::TouchPointPressed, QPointF(20, 20), QPointF(20, 20))
+                     << createTp(0, Qt::TouchPointReleased, QPointF(12, 14), QPointF(12, 14))
+                     << createTp(0, Qt::TouchPointMoved, QPointF(50, 50), QPointF(20, 20)))
+        << (TpButtonStateMatrix() << (ButtonStateList() << IKeyButton::Normal)
+                                  << (ButtonStateList() << IKeyButton::Normal)
+                                  << (ButtonStateList() << IKeyButton::Pressed)
+                                  << (ButtonStateList() << IKeyButton::Pressed)
+                                  << (ButtonStateList() << IKeyButton::Pressed)
+                                  << (ButtonStateList() << IKeyButton::Normal)
+                                  << (ButtonStateList() << IKeyButton::Normal));
+
+    QTest::newRow("sudden move from a to b")
+        << 1 << "ab" << QSize(100, 50)
+        << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(12, 24), QPointF(0, 0))
+                     << createTp(0, Qt::TouchPointMoved, QPointF(30, 20), QPointF(12, 24))
+                     << createTp(0, Qt::TouchPointMoved, QPointF(80, 20), QPointF(30, 20))
+                     << createTp(0, Qt::TouchPointReleased, QPointF(80, 20), QPointF(80, 20)))
+        << (TpButtonStateMatrix() << (ButtonStateList() << IKeyButton::Pressed
+                                                        << IKeyButton::Normal)
+                                  << (ButtonStateList() << IKeyButton::Pressed
+                                                        << IKeyButton::Normal)
+                                  << (ButtonStateList() << IKeyButton::Normal
+                                                        << IKeyButton::Pressed)
+                                  << (ButtonStateList() << IKeyButton::Normal
+                                                        << IKeyButton::Normal));
+
+    QTest::newRow("sudden release while moving from a to b")
+        << 0 << "ab" << QSize(100, 50)
+        << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(12, 24), QPointF(0, 0))
+                     << createTp(0, Qt::TouchPointMoved, QPointF(30, 20), QPointF(12, 24))
+                     << createTp(0, Qt::TouchPointReleased, QPointF(80, 20), QPointF(30, 20)))
+        << (TpButtonStateMatrix() << (ButtonStateList() << IKeyButton::Pressed
+                                                        << IKeyButton::Normal)
+                                  << (ButtonStateList() << IKeyButton::Pressed
+                                                        << IKeyButton::Normal)
+                                  << (ButtonStateList() << IKeyButton::Normal
+                                                        << IKeyButton::Normal));
+
+    QTest::newRow("sudden release while moving from a to b, mixed with other touchpoint transaction")
+        << 2 << "ab" << QSize(100, 50)
+        << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(12, 24), QPointF(0, 0))
+                     << createTp(0, Qt::TouchPointMoved, QPointF(30, 20), QPointF(12, 24))
+                     << createTp(1, Qt::TouchPointPressed, QPointF(70, 16), QPointF(0, 0))
+                     << createTp(0, Qt::TouchPointReleased, QPointF(80, 20), QPointF(30, 20))
+                     << createTp(1, Qt::TouchPointMoved, QPointF(0, 0), QPointF(70, 16)))
+        << (TpButtonStateMatrix() << (ButtonStateList() << IKeyButton::Pressed
+                                                        << IKeyButton::Normal)
+                                  << (ButtonStateList() << IKeyButton::Pressed
+                                                        << IKeyButton::Normal)
+                                  << (ButtonStateList() << IKeyButton::Normal
+                                                        << IKeyButton::Pressed)
+                                  << (ButtonStateList() << IKeyButton::Normal
+                                                        << IKeyButton::Normal)
+                                  << (ButtonStateList() << IKeyButton::Normal
+                                                        << IKeyButton::Normal));
+}
+
+void Ut_KeyButtonArea::testTouchPoints()
+{
+    // How it works:
+    // For each touchpoint, I send it to the appropiate handler in KBA.
+    // I then compare the button state against the expected button state.
+    // It might look a bit complex, but actually it isn't.
+    // touchPoints is just a series of synthetic Qt touchpoints.
+    // The expectedStates maxtrix has strlen(labels) rows and
+    // count(touchPoints) columns.
+
+    QFETCH(int, expectedClickedSignals);
+    QFETCH(QString, labels);
+    QFETCH(QSize, kbaSize);
+    QFETCH(TpList, touchPoints);
+    QFETCH(TpButtonStateMatrix, expectedStates);
+
+    subject = Ut_KeyButtonArea::createArea(labels, kbaSize);
+    QSignalSpy spy(subject, SIGNAL(keyClicked(const IKeyButton*, QString, bool, QPoint)));
+
+    ButtonList tracedButtons;
+    for (int i = 0; i < labels.count(); ++i) {
+        tracedButtons << keyAt(0, i);
+    }
+
+    for (int i = 0; i < touchPoints.size(); ++i) {
+        QTouchEvent::TouchPoint tp = touchPoints.at(i);
+
+        switch (tp.state()) {
+        case Qt::TouchPointPressed:
+            subject->touchPointPressed(tp);
+            break;
+
+        case Qt::TouchPointMoved:
+            subject->touchPointMoved(tp);
+            break;
+
+        case Qt::TouchPointReleased:
+            subject->touchPointReleased(tp);
+            break;
+
+        default:
+            break;
+        }
+
+        const ButtonStateList &bsl = expectedStates.at(i);
+        for (int k = 0; k < bsl.size(); ++k) {
+            QCOMPARE(tracedButtons.at(k)->state(), bsl.at(k));
+        }
+    }
+
+    QCOMPARE(spy.count(), expectedClickedSignals);
 }
 
 void Ut_KeyButtonArea::changeOrientation(M::OrientationAngle angle)
@@ -930,5 +1156,39 @@ IKeyButton *Ut_KeyButtonArea::keyAt(unsigned int row, unsigned int column) const
 
     return key;
 }
+
+KeyButtonArea *Ut_KeyButtonArea::createArea(const QString &labels,
+                                            const QSize &size)
+{
+    LayoutData::SharedLayoutSection section;
+    section = LayoutData::SharedLayoutSection(new LayoutSection(labels));
+    SingleWidgetButtonArea *swba = new SingleWidgetButtonArea(LayoutData::SharedLayoutSection(section));
+
+    // Reset the style:
+    KeyButtonAreaStyle *s = const_cast<KeyButtonAreaStyle *>(swba->style().operator->());
+    s->setSpacingHorizontal(0);
+    s->setSpacingVertical(0);
+    s->setMarginLeft(0);
+    s->setMarginTop(0);
+    s->setMarginRight(0);
+    s->setMarginBottom(0);
+
+    // Padding of 2 allows to start touchpoint tests from outside the area, eg:
+    s->setPaddingLeft(2);
+    s->setPaddingTop(2);
+    s->setPaddingRight(2);
+    s->setPaddingBottom(2);
+
+    s->setButtonBoundingRectTopAdjustment(0);
+    s->setButtonBoundingRectBottomAdjustment(0);
+
+    s->setTouchpointHorizontalGravity(0);
+    s->setTouchpointVerticalGravity(0);
+
+    swba->resize(size);
+
+    return swba;
+}
+
 
 QTEST_APPLESS_MAIN(Ut_KeyButtonArea);

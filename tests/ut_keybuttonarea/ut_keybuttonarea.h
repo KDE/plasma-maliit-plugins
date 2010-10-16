@@ -71,11 +71,18 @@ private slots:
     void testRtlKeys();
     void testLongKeyPress();
 
+    void testTouchPoints_data();
+    void testTouchPoints();
+
 private:
     void changeOrientation(M::OrientationAngle angle);
     QSize defaultLayoutSize();
 
-    IKeyButton *keyAt(unsigned int row, unsigned int column) const;
+    IKeyButton *keyAt(unsigned int row,
+                      unsigned int column) const;
+
+    static KeyButtonArea *createArea(const QString &labels,
+                                     const QSize &size);
 
 public:
     enum TestOperation {

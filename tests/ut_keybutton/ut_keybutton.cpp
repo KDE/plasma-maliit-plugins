@@ -18,6 +18,7 @@
 
 #include "ut_keybutton.h"
 
+#include "ikeybutton.h"
 #include "keybuttonareastyle.h"
 #include "singlewidgetbutton.h"
 #include "singlewidgetbuttonarea.h"
@@ -30,8 +31,12 @@
 #include <QSignalSpy>
 #include <QDebug>
 
+Q_DECLARE_METATYPE(QList<Ut_KeyButton::DirectionPair>)
+
 void Ut_KeyButton::initTestCase()
 {
+    qRegisterMetaType< QList<DirectionPair> >("QList<DirectionPair>");
+
     static int argc = 2;
     static char *app_name[] = { (char*) "ut_keybutton",
                                 (char *) "-local-theme" };
@@ -126,6 +131,74 @@ void Ut_KeyButton::testIsDead()
 
     delete subject;
     delete key;
+}
+
+void Ut_KeyButton::testTouchPointCount_data()
+{
+    QTest::addColumn<int>("initialCount");
+    QTest::addColumn< QList<DirectionPair> >("countDirectionList");
+    QTest::addColumn<int>("expectedCount");
+    QTest::addColumn<IKeyButton::ButtonState>("expectedButtonState");
+
+    QTest::newRow("increase and press button")
+        << 0 << (QList<DirectionPair>() << DirectionPair(Up, true))
+        << 1 << IKeyButton::Pressed;
+
+    QTest::newRow("decrease and release button")
+        << 1 << (QList<DirectionPair>() << DirectionPair(Down, true))
+        << 0 << IKeyButton::Normal;
+
+    QTest::newRow("try to take more than possible")
+        << 0 << (QList<DirectionPair>() << DirectionPair(Up, true)
+                                        << DirectionPair(Down, true)
+                                        << DirectionPair(Down, false))
+        << 0 << IKeyButton::Normal;
+
+    QTest::newRow("try to take more than possible, again")
+        << 0 << (QList<DirectionPair>() << DirectionPair(Up, true)
+                                        << DirectionPair(Down, true)
+                                        << DirectionPair(Down, false)
+                                        << DirectionPair(Up, true))
+        << 1 << IKeyButton::Pressed;
+
+    QTest::newRow("go to the limit")
+        << SingleWidgetButton::touchPointLimit() << (QList<DirectionPair>() << DirectionPair(Up, false))
+        << SingleWidgetButton::touchPointLimit() << IKeyButton::Pressed;
+
+    QTest::newRow("go to the limit, again")
+        << SingleWidgetButton::touchPointLimit() << (QList<DirectionPair>() << DirectionPair(Up, false)
+                                         << DirectionPair(Down, true)
+                                         << DirectionPair(Down, true))
+        << SingleWidgetButton::touchPointLimit() - 2 << IKeyButton::Pressed;
+}
+
+void Ut_KeyButton::testTouchPointCount()
+{
+    QFETCH(int, initialCount);
+    QFETCH(QList<DirectionPair>, countDirectionList);
+    QFETCH(int, expectedCount);
+    QFETCH(IKeyButton::ButtonState, expectedButtonState);
+
+    for (int idx = 0; idx < initialCount; ++idx) {
+        subject->increaseTouchPointCount();
+    }
+
+    QCOMPARE(subject->touchPointCount(), initialCount);
+
+    foreach(const DirectionPair &pair, countDirectionList) {
+        switch (pair.first) {
+        case Up:
+            QCOMPARE(subject->increaseTouchPointCount(), pair.second);
+            break;
+
+        case Down:
+            QCOMPARE(subject->decreaseTouchPointCount(), pair.second);
+            break;
+        }
+    }
+
+    QCOMPARE(subject->touchPointCount(), expectedCount);
+    QCOMPARE(subject->state(), expectedButtonState);
 }
 
 VKBDataKey *Ut_KeyButton::createDataKey()

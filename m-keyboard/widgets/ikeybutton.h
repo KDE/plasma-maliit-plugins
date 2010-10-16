@@ -63,6 +63,30 @@ public:
 
     //! \brief Tells whether this key represents a dead key.
     virtual bool isDeadKey() const = 0;
+
+    //! \brief Tells whether this key represents a shift key.
+    virtual bool isShiftKey() const = 0;
+
+    //! \brief Tells wether this key represends a normal key
+    //!        (e.g., q, w, e, r, t, y).
+    virtual bool isNormalKey() const = 0;
+
+
+    //! \brief Called when a new touchpoint was registered on this button.
+    //! \returns true if the counter could be increased.
+    //!          Cannot exceed total active touchpoint limit
+    virtual bool increaseTouchPointCount() = 0;
+
+    //! \brief Called when a touchpoint left the button.
+    //! \returns true if the counter could be decreased.
+    //!          Cannot become negative.
+    virtual bool decreaseTouchPointCount() = 0;
+
+    //! \brief Resets touchpoint count.
+    virtual void resetTouchPointCount() = 0;
+
+    //! \brief Get current touchpoint count.
+    virtual int touchPointCount() const = 0;
 };
 
 #endif

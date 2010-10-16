@@ -44,7 +44,10 @@ KeyButtonAreaStyle {
     padding-top: 2.2mm;
     padding-bottom: $MARGIN_DOUBLE;
 
-    flick-gesture-timeout: 400;
+    long-press-timeout: 700;
+    idle-vkb-timeout: 700;
+    flick-gesture-timeout: 500;
+
     flick-gesture-threshold-ratio: 0.5;
 
     /* Single widget keyboard button styling */
@@ -99,6 +102,16 @@ KeyButtonAreaStyle {
     key-shift-icon-id: "icon-m-input-methods-shift";
     key-shift-uppercase-icon-id: "icon-m-input-methods-capslock";
     /* End of single widget keyboard button styling */
+
+    /* touch behaviour */
+    button-bounding-rect-top-adjustment: -6;
+    button-bounding-rect-bottom-adjustment: 6;
+
+    /* debugging-related attributes */
+    draw-button-bounding-rects: false;
+    draw-button-rects: false;
+    debug-touch-points: false;
+    draw-reactive-areas: false;
 }
 
 KeyButtonAreaStyle.Portrait {
@@ -110,8 +123,8 @@ KeyButtonAreaStyle.Portrait {
     padding-left: $MARGIN_DOUBLE;
     padding-right:$MARGIN_DOUBLE;
 
-    touchpoint-horizontal-gravity: 24px;
-    touchpoint-vertical-gravity: 24px;
+    touchpoint-horizontal-gravity: 6.2mm;
+    touchpoint-vertical-gravity: 9.6mm;
 
     key-height: 6.4mm;
 }
@@ -127,8 +140,8 @@ KeyButtonAreaStyle.Landscape {
     padding-left: $MARGIN_DOUBLE;
     padding-right: $MARGIN_DOUBLE;
 
-    touchpoint-horizontal-gravity: 48px;
-    touchpoint-vertical-gravity: 48px;
+    touchpoint-horizontal-gravity: 8.2mm;
+    touchpoint-vertical-gravity: 7.2mm;
 
     key-height: 4.8mm;
 }

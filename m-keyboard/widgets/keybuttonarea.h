@@ -33,6 +33,7 @@
 #include <QStringList>
 #include <QTouchEvent>
 #include <QTimer>
+#include <QTime>
 
 class FlickGesture;
 class MFeedbackPlayer;
@@ -164,56 +165,25 @@ signals:
     void relativeButtonBaseWidthChanged(qreal baseWidth);
 
 protected:
-    //! Stores touch point specific information.
-    struct TouchPointInfo {
-        TouchPointInfo();
-
-        //! True if finger is held down and is inside the layout's area.
-        bool fingerInsideArea;
-
-        //! Currently held down key
-        IKeyButton *activeKey;
-
-        //! Key that this touch point was first pressed on, if any.
-        IKeyButton *initialKey;
-
-        //! Initial position of the touch point when it was first pressed.
-        QPoint initialPos;
-
-        //! Last known position of the touch point
-        QPoint pos;
-
-        //! Corrected touch point for key click.
-        QPoint correctedTouchPoint;
-
-        //! Whether to perform gravity checks for this touchpoint.
-        bool checkGravity;
-    };
-
     /*! \reimp */
     virtual void resizeEvent(QGraphicsSceneResizeEvent *event);
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
-    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-    virtual QVariant itemChange(GraphicsItemChange, const QVariant &);
-    virtual void grabMouseEvent(QEvent *e);
-    virtual void ungrabMouseEvent(QEvent *e);
+    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+    virtual QVariant itemChange(GraphicsItemChange change,
+                                const QVariant &value);
+
+    virtual void grabMouseEvent(QEvent *event);
+    virtual void ungrabMouseEvent(QEvent *event);
     virtual bool event(QEvent *event);
     /*! \reimp_end */
 
     //! Called when widget is about to lose visibility.
     virtual void handleVisibilityChanged(bool visible);
 
-
     //! Shows popup and updates its content and position.
-    void updatePopup(const QPoint &pos, const IKeyButton *key = 0);
-
-    /*!
-    * \brief Verifies should we process cursor movement or not
-    * \param pos QPointF new cursor position
-    * \return bool
-    */
-    bool isObservableMove(const QPointF &prevPos, const QPointF &pos);
+    //! \param key current key
+    void updatePopup(IKeyButton *key = 0);
 
     /*!
     * \brief Get level count of the virtual keyboard.
@@ -250,12 +220,17 @@ protected:
 
     const PopupBase &popup() const;
 
+    void printTouchPoint(const QTouchEvent::TouchPoint &tp,
+                         const IKeyButton *key,
+                         const IKeyButton *lastKey = 0) const;
+
     //! Sets button state and sends release & press events.
-    void setActiveKey(IKeyButton *key, TouchPointInfo &tpi);
+    //void setActiveKey(IKeyButton *key, TouchPointInfo &tpi);
 
-    void clearActiveKeys();
-
+    //! Relative button base width in currently active layout
     qreal mRelativeButtonBaseWidth;
+
+    bool debugTouchPoints;
 
 protected slots:
     //! Update background images, text layouts, etc. when the theme changed.
@@ -264,40 +239,64 @@ protected slots:
     //! Handle long press on the key
     virtual void handleLongKeyPressed();
 
+    //! Handle idle VKB
+    virtual void handleIdleVkb();
+
 private:
     //! \brief Handler for flick gestures from Qt gesture framework.
     void handleFlickGesture(FlickGesture *gesture);
 
     //! \brief Touch point press handler.
-    //! \param pos Current touchpoint position.
-    //! \param id Touch point identifier defined by the system.
-    void touchPointPressed(const QPoint &pos, int id);
+    //! \param tp The unprocessed Qt touchpoint.
+    void touchPointPressed(const QTouchEvent::TouchPoint &tp);
 
     //! \brief Touch point move handler.
-    //! \param pos Current touchpoint position.
-    //! \param id Touch point identifier defined by the system.
-    void touchPointMoved(const QPoint &pos, int id);
+    //! \param tp The unprocessed Qt touchpoint.
+    void touchPointMoved(const QTouchEvent::TouchPoint &tp);
 
     //! \brief Touch point release handler.
-    //! \param pos Current touchpoint position.
-    //! \param id Touch point identifier defined by the system.
-    void touchPointReleased(const QPoint &pos, int id);
+    //! \param tp The unprocessed Qt touchpoint.
+    void touchPointReleased(const QTouchEvent::TouchPoint &tp);
+
+    static QTouchEvent::TouchPoint createTouchPoint(int id,
+                                                    Qt::TouchPointState state,
+                                                    const QPointF &pos,
+                                                    const QPointF &lastPos);
+    struct GravitationalLookupResult
+    {
+        GravitationalLookupResult(IKeyButton *newKey,
+                                  IKeyButton *newLastKey)
+            : key(newKey)
+            , lastKey(newLastKey)
+        {}
+
+        IKeyButton *key;
+        IKeyButton *lastKey;
+    };
 
     //! \brief Gravitational key lookup
-    //! \param pos Current touchpoint position.
-    //! \param id Touch point indentifier defined by the system.
-    IKeyButton *gravitationalKeyAt(const QPoint &pos, int id);
+    //! \param mappedPos Current position of touchpoint,
+    //!        mapped to widget space.
+    //! \param mappedLastPos Last position of touchpoint,
+    //!        mapped to widget space.
+    //! \param mappedStartPos Start position of touchpoint,
+    //!        mapped to widget space.
+    //! \returns adjusted key and last key, using \a keyAt.
+    GravitationalLookupResult gravitationalKeyAt(const QPoint &mappedPos,
+                                                 const QPoint &mappedLastPos,
+                                                 const QPoint &mappedStartPos) const;
 
     void click(IKeyButton *key, const QPoint &touchPoint = QPoint());
+
+    //! Checks for speed typing mode
+    //! \warning Not side-effect free when \a restartTimers is actively used.
+    bool isInSpeedTypingMode(bool restartTimers = false);
 
     //! Current level
     int currentLevel;
 
     //! Popup to show additional information for a button
     PopupBase *mPopup;
-
-    //! Touch point id of the most recent press event.
-    int newestTouchPointId;
 
     //! List of punctuation labels
     QList<QStringList> punctuationsLabels;
@@ -307,14 +306,16 @@ private:
 
     //! Whether a gesture was already triggered for any active touch point.
     bool wasGestureTriggered;
-
-    //! Keys are QTouchEvent::TouchPoint id
-    QMap<int, TouchPointInfo> touchPoints;
-
     bool enableMultiTouch;
+
+    //! Active key, there can only be one at a time.
+    IKeyButton *activeKey;
 
     //! Activated dead key
     IKeyButton *activeDeadkey;
+
+    //! Activated shift key
+    IKeyButton *activeShiftKey;
 
     /*!
      * Feedback player instance
@@ -328,6 +329,13 @@ private:
 
     //! This timer is used to recognize long press.
     QTimer longPressTimer;
+
+
+    //! Whenever the VKB idles, gestures are activated.
+    QTimer idleVkbTimer;
+
+    //! Used to measure elapsed time between two touchpoint press events:
+    QTime lastTouchPointPressEvent;
 
     M_STYLABLE_WIDGET(KeyButtonAreaStyle)
 

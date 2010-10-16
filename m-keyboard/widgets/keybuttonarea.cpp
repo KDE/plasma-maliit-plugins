@@ -38,7 +38,6 @@
 
 namespace
 {
-    const int GestureTimeOut = 1000;
     const qreal ZValueButtons = 0.0;
 
     // Minimal distinguishable cursor/finger movement
@@ -50,45 +49,68 @@ namespace
     // This GConf item defines whether multitouch is enabled or disabled
     const char * const MultitouchSettings = "/meegotouch/inputmethods/multitouch/enabled";
 
-    // Timeout for long press
-    const int LongPressTimeOut = 500;
-
     // Minimal distance (in px) for touch point from key button edge.
     const int CorrectionDistanceThreshold = 2;
+
+    // Used for error correction:
+    QPoint gAdjustedPositionForCorrection = QPoint();
+
+    // Used for touchpoint conversion from mouse events:
+    QPointF gLastMousePos = QPointF();
+
+    bool isInsideAreaOf(const QPoint &target,
+                        const QPoint &origin,
+                        int xDistance,
+                        int yDistance)
+    {
+        // Given target and origin, is target inside the rectangle of
+        // (2 * xDistance) x (2 * yDistance), of which origin is the center?
+        return ((target.x() > origin.x() - xDistance)
+                && (target.x() < origin.x() + xDistance)
+                && (target.y() > origin.y() - yDistance)
+                && (target.y() < origin.y() + yDistance));
+    }
 }
 
 M::InputMethodMode KeyButtonArea::InputMethodMode;
 
-KeyButtonArea::KeyButtonArea(const LayoutData::SharedLayoutSection &sectionModel,
+KeyButtonArea::KeyButtonArea(const LayoutData::SharedLayoutSection &newSection,
                              bool usePopup,
                              QGraphicsWidget *parent)
     : MStylableWidget(parent),
       mRelativeButtonBaseWidth(0),
+      debugTouchPoints(style()->debugTouchPoints()),
       currentLevel(0),
       mPopup(usePopup ? PopupFactory::instance()->createPopup(this) : 0),
-      newestTouchPointId(-1),
       wasGestureTriggered(false),
       enableMultiTouch(MGConfItem(MultitouchSettings).value().toBool()),
+      activeKey(0),
       activeDeadkey(0),
+      activeShiftKey(0),
       feedbackPlayer(0),
-      section(sectionModel)
+      section(newSection)
 {
     // By default multi-touch is disabled
     if (enableMultiTouch) {
         setAcceptTouchEvents(true);
     }
 
+    lastTouchPointPressEvent.restart();
     grabGesture(FlickGestureRecognizer::sharedGestureType());
     feedbackPlayer = MComponentData::feedbackPlayer();
 
     longPressTimer.setSingleShot(true);
-    longPressTimer.setInterval(LongPressTimeOut);
+    idleVkbTimer.setSingleShot(true);
 
     connect(&longPressTimer, SIGNAL(timeout()),
             this, SLOT(handleLongKeyPressed()));
 
+    connect(&idleVkbTimer, SIGNAL(timeout()),
+            this, SLOT(handleIdleVkb()));
+
     connect(MTheme::instance(), SIGNAL(themeChangeCompleted()),
-            this, SLOT(onThemeChangeCompleted()));
+            this, SLOT(onThemeChangeCompleted()),
+            Qt::UniqueConnection);
 }
 
 KeyButtonArea::~KeyButtonArea()
@@ -111,21 +133,14 @@ const LayoutData::SharedLayoutSection &KeyButtonArea::sectionModel() const
     return section;
 }
 
-void KeyButtonArea::updatePopup(const QPoint &pointerPosition, const IKeyButton *key)
+void KeyButtonArea::updatePopup(IKeyButton *key)
 {
     if (!mPopup) {
         return;
     }
 
-    // Use prefetched key if given.
-    if (!key) {
-        // TODO: use gravitationalKeyAt() instead?
-        key = keyAt(pointerPosition);
-    }
-
     if (!key) {
         mPopup->cancel();
-        longPressTimer.stop();
         return;
     }
 
@@ -138,8 +153,6 @@ void KeyButtonArea::updatePopup(const QPoint &pointerPosition, const IKeyButton 
     mPopup->handleKeyPressedOnMainArea(key,
                                        activeDeadkey ? activeDeadkey->label() : QString(),
                                        level() % 2);
-
-    longPressTimer.start();
 }
 
 int KeyButtonArea::maxColumns() const
@@ -160,7 +173,6 @@ KeyButtonArea::handleVisibilityChanged(bool visible)
     }
 
     if (!visible) {
-        clearActiveKeys();
         unlockDeadkeys();
     }
 }
@@ -188,14 +200,6 @@ void KeyButtonArea::setShiftState(ModifierState /*newShiftState*/)
     // Empty default implementation
 }
 
-bool
-KeyButtonArea::isObservableMove(const QPointF &prevPos, const QPointF &pos)
-{
-    qreal movement = qAbs(prevPos.x() - pos.x()) + qAbs(prevPos.y() - pos.y());
-
-    return movement >= MovementThreshold;
-}
-
 void KeyButtonArea::resizeEvent(QGraphicsSceneResizeEvent *event)
 {
     const int newWidth = static_cast<int>(event->newSize().width());
@@ -205,82 +209,60 @@ void KeyButtonArea::resizeEvent(QGraphicsSceneResizeEvent *event)
     }
 }
 
-void
-KeyButtonArea::mousePressEvent(QGraphicsSceneMouseEvent *event)
+void KeyButtonArea::mousePressEvent(QGraphicsSceneMouseEvent *ev)
 {
-    if (!enableMultiTouch) {
-        // Qt always assigns zero to the first touch point, so pass id = 0.
-        touchPointPressed(event->pos().toPoint(), 0);
+    if (enableMultiTouch) {
+        return;
     }
+
+    touchPointPressed(createTouchPoint(0, Qt::TouchPointPressed,
+                                       mapToScene(ev->pos()),
+                                       mapToScene(gLastMousePos)));
+
+    gLastMousePos = ev->pos();
 }
 
+void KeyButtonArea::mouseMoveEvent(QGraphicsSceneMouseEvent *ev)
+{
+    if (enableMultiTouch) {
+        return;
+    }
 
-void
-KeyButtonArea::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+    touchPointMoved(createTouchPoint(0, Qt::TouchPointMoved,
+                                     mapToScene(ev->pos()),
+                                     mapToScene(gLastMousePos)));
+
+    gLastMousePos = ev->pos();
+}
+
+void KeyButtonArea::mouseReleaseEvent(QGraphicsSceneMouseEvent *ev)
 {
     if (scene()->mouseGrabberItem() == this) {
         // Ungrab mouse explicitly since we probably used grabMouse() to get it.
         ungrabMouse();
     }
 
-    if (!enableMultiTouch) {
-        touchPointReleased(event->pos().toPoint(), 0);
-    }
-}
-
-
-void KeyButtonArea::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-{
-    if (!enableMultiTouch) {
-        touchPointMoved(event->pos().toPoint(), 0);
-    }
-}
-
-void KeyButtonArea::setActiveKey(IKeyButton *key, TouchPointInfo &tpi)
-{
-    // Selected buttons are currently skipped.
-    QString accent;
-
-    if (activeDeadkey) {
-        accent = activeDeadkey->label();
+    if (enableMultiTouch) {
+        return;
     }
 
-    if (tpi.activeKey && (tpi.activeKey != key)) {
-        // Release key
-        tpi.activeKey->setDownState(false);
-        // odd level numbers are upper case,
-        // even level numbers are lower case
-        emit keyReleased(tpi.activeKey, accent, level() % 2);
-        tpi.activeKey = 0;
-    }
+    touchPointReleased(createTouchPoint(0, Qt::TouchPointReleased,
+                                        mapToScene(ev->pos()),
+                                        mapToScene(gLastMousePos)));
 
-    if (key && (tpi.activeKey != key)) {
-        // Press key
-        tpi.activeKey = key;
-        tpi.activeKey->setDownState(true);
-        emit keyPressed(tpi.activeKey, accent, level() % 2);
-    }
-}
-
-void KeyButtonArea::clearActiveKeys()
-{
-    for (int i = 0; i < touchPoints.count(); ++i) {
-        setActiveKey(0, touchPoints[i]);
-    }
+    gLastMousePos = ev->pos();
 }
 
 void KeyButtonArea::click(IKeyButton *key, const QPoint &touchPoint)
 {
+    if (!key) {
+        return;
+    }
+
     if (!key->isDeadKey()) {
-        QString accent;
-
-        if (activeDeadkey) {
-            accent = activeDeadkey->label();
-        }
-
+        const QString accent = (activeDeadkey ? activeDeadkey->label() : QString());
+        emit keyClicked(key, accent, activeShiftKey || level() % 2, touchPoint);
         unlockDeadkeys();
-
-        emit keyClicked(key, accent, level() % 2, touchPoint);
     } else if (key == activeDeadkey) {
         unlockDeadkeys();
     } else {
@@ -293,6 +275,10 @@ void KeyButtonArea::click(IKeyButton *key, const QPoint &touchPoint)
         activeDeadkey->setSelected(true);
 
         updateButtonModifiers();
+    }
+
+    if (key == activeShiftKey) {
+        activeShiftKey = 0;
     }
 }
 
@@ -336,40 +322,39 @@ void KeyButtonArea::ungrabMouseEvent(QEvent *)
     }
 
     longPressTimer.stop();
+    activeKey = 0;
 }
 
-bool KeyButtonArea::event(QEvent *e)
+bool KeyButtonArea::event(QEvent *ev)
 {
     bool eaten = false;
 
-    if (e->type() == QEvent::Gesture) {
+    if (ev->type() == QEvent::Gesture) {
         const Qt::GestureType flickGestureType = FlickGestureRecognizer::sharedGestureType();
-        FlickGesture *flickGesture = static_cast<FlickGesture *>(static_cast<QGestureEvent *>(e)->gesture(flickGestureType));
+        FlickGesture *flickGesture = static_cast<FlickGesture *>(static_cast<QGestureEvent *>(ev)->gesture(flickGestureType));
 
         if (flickGesture) {
             handleFlickGesture(flickGesture);
             eaten = true;
         }
-    } else if (e->type() == QEvent::TouchBegin
-               || e->type() == QEvent::TouchUpdate
-               || e->type() == QEvent::TouchEnd) {
-        QTouchEvent *touch = static_cast<QTouchEvent*>(e);
-
-        if (e->type() == QEvent::TouchBegin) {
-            touchPoints.clear();
-        }
+    } else if (ev->type() == QEvent::TouchBegin
+               || ev->type() == QEvent::TouchUpdate
+               || ev->type() == QEvent::TouchEnd) {
+        QTouchEvent *touch = static_cast<QTouchEvent*>(ev);
 
         foreach (const QTouchEvent::TouchPoint &tp, touch->touchPoints()) {
 
             switch (tp.state()) {
             case Qt::TouchPointPressed:
-                touchPointPressed(mapFromScene(tp.screenPos()).toPoint(), tp.id());
+                touchPointPressed(tp);
                 break;
+
             case Qt::TouchPointMoved:
-                touchPointMoved(mapFromScene(tp.screenPos()).toPoint(), tp.id());
+                touchPointMoved(tp);
                 break;
+
             case Qt::TouchPointReleased:
-                touchPointReleased(mapFromScene(tp.screenPos()).toPoint(), tp.id());
+                touchPointReleased(tp);
                 break;
             default:
                 break;
@@ -379,7 +364,7 @@ bool KeyButtonArea::event(QEvent *e)
         eaten = true;
     }
 
-    return eaten || MWidget::event(e);
+    return eaten || MWidget::event(ev);
 }
 
 void KeyButtonArea::handleFlickGesture(FlickGesture *gesture)
@@ -390,17 +375,22 @@ void KeyButtonArea::handleFlickGesture(FlickGesture *gesture)
 
     // Any flick gesture, complete or not, resets active keys etc.
     if (!wasGestureTriggered && (gesture->state() != Qt::NoGesture)) {
+
         if (mPopup) {
             mPopup->cancel();
         }
 
-        longPressTimer.stop();
-        clearActiveKeys();
+        if (activeKey) {
+            activeKey->resetTouchPointCount();
+        }
 
+        activeKey = 0;
+        longPressTimer.stop();
         wasGestureTriggered = true;
     }
 
     if (gesture->state() == Qt::GestureFinished) {
+
         switch (gesture->direction()) {
         case FlickGesture::Left:
             emit flickLeft();
@@ -428,149 +418,214 @@ void KeyButtonArea::handleFlickGesture(FlickGesture *gesture)
     }
 }
 
-void KeyButtonArea::touchPointPressed(const QPoint &pos, int id)
+void KeyButtonArea::touchPointPressed(const QTouchEvent::TouchPoint &tp)
 {
-    newestTouchPointId = id;
-
-    // Create new TouchPointInfo structure and overwrite any previous one.
-    touchPoints[id] = TouchPointInfo();
-    TouchPointInfo &tpi = touchPoints[id];
-    tpi.pos = pos;
-    tpi.initialPos = pos;
-
-    // Reset gesture checks.
     wasGestureTriggered = false;
 
+    // Gestures only slow down in speed typing mode:
+    if (isInSpeedTypingMode(true)) {
+        idleVkbTimer.stop();
+        // TODO: check how expensive gesture (un)grabbing is:
+        ungrabGesture(FlickGestureRecognizer::sharedGestureType());
+    }
+
+    const QPoint pos = mapFromScene(tp.scenePos()).toPoint();
     IKeyButton *key = keyAt(pos);
+
+    if (debugTouchPoints) {
+        printTouchPoint(tp, key);
+    }
+
     if (!key) {
+        longPressTimer.stop();
         return;
     }
 
-    mTimestamp("KeyButtonArea", key->label());
+    // Try to commit currently active key before activating new key:
+    if (activeKey
+        && activeKey->isNormalKey()
+        && activeKey->touchPointCount() > 0) {
+        // TODO: play release sound? Potentially confusing to user, who
+        // might still press this key.
+        emit keyClicked(activeKey, QString(), activeShiftKey || level() % 2,
+                        gAdjustedPositionForCorrection);
 
-    tpi.initialKey = key;
-    tpi.fingerInsideArea = true;
-
-    if (id == newestTouchPointId) {
-        updatePopup(pos, key);
+        activeKey->resetTouchPointCount();
+        activeKey = 0;
     }
 
-    setActiveKey(key, tpi);
+    if (key->increaseTouchPointCount()
+        && key->touchPointCount() == 1) {
+
+        if (key->isShiftKey()) {
+            activeShiftKey = key;
+        } else {
+            activeKey = key;
+        }
+
+        feedbackPlayer->play(MFeedbackPlayer::Press);
+        updatePopup(key);
+        longPressTimer.start(style()->longPressTimeout());
+
+        emit keyPressed(key, (activeDeadkey ? activeDeadkey->label() : QString()),
+                        activeShiftKey || level() % 2);
+    }
 }
 
-void KeyButtonArea::touchPointMoved(const QPoint &pos, int id)
+void KeyButtonArea::touchPointMoved(const QTouchEvent::TouchPoint &tp)
 {
-    TouchPointInfo &tpi = touchPoints[id];
-
-    if (!isObservableMove(tpi.pos, pos))
-        return;
-
-    tpi.pos = pos;
-
     if (wasGestureTriggered) {
+        longPressTimer.stop();
         return;
     }
 
-    // Check if finger is on a key.
-    IKeyButton *key = gravitationalKeyAt(pos, id);
+    const QPoint pos = mapFromScene(tp.scenePos()).toPoint();
+    const QPoint lastPos = mapFromScene(tp.lastScenePos()).toPoint();
+    const QPoint startPos = mapFromScene(tp.startScenePos()).toPoint();
 
-    if (key) {
+    const GravitationalLookupResult lookup = gravitationalKeyAt(pos, lastPos, startPos);
 
-        tpi.fingerInsideArea = true;
+    // For a moving touchpoint, we only need to consider enter-key or leave-key events:
+    if (lookup.key != lookup.lastKey) {
 
-        if ((tpi.activeKey != key) && feedbackPlayer) {
-            // Finger has slid from a key to an adjacent one.
+        if (lookup.key
+            && lookup.key->increaseTouchPointCount()
+            && lookup.key->touchPointCount() == 1) {
+            activeKey = lookup.key;
             feedbackPlayer->play(MFeedbackPlayer::Press);
+            longPressTimer.start(style()->longPressTimeout());
         }
 
-        // If popup is visible, always update the position.
-        if (id == newestTouchPointId) {
-            updatePopup(pos, key);
-        }
-    } else {
-        if (tpi.fingerInsideArea && feedbackPlayer) {
+        if (lookup.lastKey
+            && lookup.lastKey->decreaseTouchPointCount()
+            && lookup.lastKey->touchPointCount() == 0) {
             feedbackPlayer->play(MFeedbackPlayer::Cancel);
         }
-        // Finger has slid off the keys
-        if (mPopup && tpi.fingerInsideArea && (id == newestTouchPointId)) {
-            mPopup->cancel();
-            longPressTimer.stop();
-        }
-
-        tpi.fingerInsideArea = false;
     }
 
-    setActiveKey(key, tpi);
+    if (!lookup.key) {
+        longPressTimer.stop();
+    } else {
+        updatePopup(lookup.key);
+    }
+
+    if (debugTouchPoints) {
+        printTouchPoint(tp, lookup.key, lookup.lastKey);
+    }
 }
 
-void KeyButtonArea::touchPointReleased(const QPoint &pos, int id)
+void KeyButtonArea::touchPointReleased(const QTouchEvent::TouchPoint &tp)
 {
-    TouchPointInfo &tpi = touchPoints[id];
-
-    tpi.fingerInsideArea = false;
-
     if (wasGestureTriggered) {
         return;
+    }
+
+    idleVkbTimer.start(style()->idleVkbTimeout());
+
+    const QPoint pos = mapFromScene(tp.scenePos()).toPoint();
+    const QPoint lastPos = mapFromScene(tp.lastScenePos()).toPoint();
+    const QPoint startPos = mapFromScene(tp.startScenePos()).toPoint();
+
+    const GravitationalLookupResult lookup = gravitationalKeyAt(pos, lastPos, startPos);
+
+    if (lookup.key
+        && lookup.key->decreaseTouchPointCount()
+        && lookup.key->touchPointCount() == 0) {
+
+        if (lookup.key == activeKey) {
+            activeKey = 0;
+        }
+
+        // Don't play key release sound in speed typing mode,
+        // as it might be too much feedback:
+        if (!isInSpeedTypingMode()) {
+            feedbackPlayer->play(MFeedbackPlayer::Release);
+        }
+
+        longPressTimer.stop();
+
+        emit keyReleased(lookup.key, (activeDeadkey ? activeDeadkey->label() : QString()),
+                         activeShiftKey || level() % 2);
+
+        if (lookup.key == activeShiftKey) {
+            activeShiftKey = 0;
+        }
+
+        click(lookup.key, gAdjustedPositionForCorrection);
+    }
+
+    if (lookup.lastKey
+        && lookup.lastKey != lookup.key
+        && lookup.lastKey->decreaseTouchPointCount()
+        && lookup.lastKey->touchPointCount() == 0) {
+        feedbackPlayer->play(MFeedbackPlayer::Cancel);
+
+        emit keyReleased(lookup.lastKey, (activeDeadkey ? activeDeadkey->label() : QString()),
+                         activeShiftKey || level() % 2);
+
+        if (lookup.lastKey == activeShiftKey) {
+            activeShiftKey = 0;
+        }
     }
 
     // We're finished with this touch point, inform popup:
-    if (mPopup && (id == newestTouchPointId)) {
+    if (mPopup) {
         mPopup->cancel();
-        longPressTimer.stop();
     }
 
-    IKeyButton *key = gravitationalKeyAt(pos, id);
+    longPressTimer.stop();
 
-    if (key) {
-        mTimestamp("KeyButtonArea", key->label());
-
-        // It's presumably possible that we're getting this release event on top
-        // of another after press event (of another key) without first getting a
-        // move event (or at least such move event that we handle).  Which means
-        // that we must send release event for the previous key and press event
-        // for this key before sending release and clicked events for this key.
-        setActiveKey(key, tpi); // in most cases, does nothing
-        setActiveKey(0, tpi); // release key
-
-        click(key, tpi.correctedTouchPoint);
-    } else {
-        setActiveKey(0, tpi);
+    if (debugTouchPoints) {
+        printTouchPoint(tp, lookup.key, lookup.lastKey);
     }
 }
 
-IKeyButton *
-KeyButtonArea::gravitationalKeyAt(const QPoint &pos, int id)
+QTouchEvent::TouchPoint KeyButtonArea::createTouchPoint(int id,
+                                                        Qt::TouchPointState state,
+                                                        const QPointF &pos,
+                                                        const QPointF &lastPos)
 {
-    TouchPointInfo &tpi = touchPoints[id];
+    QTouchEvent::TouchPoint tp(id);
+    tp.setState(state);
+    tp.setScenePos(pos);
+    tp.setLastScenePos(lastPos);
 
-    if (!tpi.initialKey || !tpi.checkGravity) {
-        return keyAt(pos);
-    }
+    return tp;
+}
+
+KeyButtonArea::GravitationalLookupResult
+KeyButtonArea::gravitationalKeyAt(const QPoint &pos,
+                                  const QPoint &lastPos,
+                                  const QPoint &startPos) const
+{
+    // TODO: Needs explicit test coverage, maybe.
+    IKeyButton *key = 0;
+    IKeyButton *lastKey = 0;
 
     const qreal hGravity = style()->touchpointHorizontalGravity();
     const qreal vGravity = style()->touchpointVerticalGravity();
-    const QRectF &br = tpi.initialKey->buttonRect();
 
-    if ((pos.x() > br.left() - hGravity)
-        && (pos.x() < br.right() + hGravity)
-        && (pos.y() > br.top() - vGravity)
-        && (pos.y() < br.bottom() + vGravity)) {
+    key = keyAt(isInsideAreaOf(pos, startPos, hGravity, vGravity)
+                ? startPos : pos);
 
-        // use correctedTouchPoint to record the touch point
-        // and force it to be inside the key button area(with CorrectionDistanceThreshold).
-        QPoint correctedPos = pos;
-        correctedPos.setX(qBound<int>((br.left() + CorrectionDistanceThreshold), pos.x(),
-                                      (br.right() - CorrectionDistanceThreshold)));
-        correctedPos.setY(qBound<int>((br.top() + CorrectionDistanceThreshold), pos.y(),
-                                      (br.bottom() - CorrectionDistanceThreshold)));
-        tpi.correctedTouchPoint = correctedPos;
+    lastKey = keyAt(isInsideAreaOf(lastPos, startPos, hGravity, vGravity)
+                    ? startPos : lastPos);
 
-        return tpi.initialKey;
-    } else {
-        tpi.checkGravity = false;
-        tpi.correctedTouchPoint = pos;
-        return keyAt(pos);
+    // Check whether error correction needs updated position:
+    if (key) {
+        QPoint &ec = gAdjustedPositionForCorrection;
+        const QRectF &br = key->buttonRect();
+
+        ec.setX(qBound<int>(br.left() + CorrectionDistanceThreshold,
+                            pos.x(),
+                            br.right() - CorrectionDistanceThreshold));
+
+        ec.setY(qBound<int>(br.top() + CorrectionDistanceThreshold,
+                            pos.y(),
+                            br.bottom() - CorrectionDistanceThreshold));
     }
+
+    return GravitationalLookupResult(key, lastKey);
 }
 
 void
@@ -591,6 +646,24 @@ void KeyButtonArea::drawReactiveAreas(MReactionMap */*reactionMap*/, QGraphicsVi
 const PopupBase &KeyButtonArea::popup() const
 {
     return *mPopup;
+}
+
+void KeyButtonArea::printTouchPoint(const QTouchEvent::TouchPoint &tp,
+                                    const IKeyButton *key,
+                                    const IKeyButton *lastKey) const
+{
+    // Sorry that this looks a bit funny ... it does the job, though.
+    qDebug() << "\ntouchpoint:" << tp.id() << "(start:" << tp.startScenePos()
+                                << ", last:" << tp.lastScenePos()
+                                << ", pos:"  << tp.scenePos() << ")\n      "
+             << "key:" << key
+                       << "(label:" << (key ? QString("%1: %2").arg(key->label())
+                                                               .arg(key->state())
+                                            : QString()) << ")\n "
+             << "last key:" << lastKey
+                            << "(label:" << (lastKey ? QString("%1: %2").arg(lastKey->label())
+                                                                        .arg(lastKey->state())
+                                                     : QString()) << ")";
 }
 
 void KeyButtonArea::updateButtonModifiers()
@@ -622,27 +695,27 @@ const KeyButtonAreaStyleContainer &KeyButtonArea::baseStyle() const
 
 void KeyButtonArea::handleLongKeyPressed()
 {
-    QString accent;
-
-    if (activeDeadkey) {
-        accent = activeDeadkey->label();
+    if (!activeKey) {
+        return;
     }
 
-    TouchPointInfo &tpi = touchPoints[newestTouchPointId];
-    if (tpi.activeKey) {
-        if (mPopup) {
-            mPopup->handleLongKeyPressedOnMainArea(tpi.activeKey, accent, level() % 2);
-        }
-        emit longKeyPressed(tpi.activeKey, accent, level() % 2);
+    const QString accent = (activeDeadkey ? activeDeadkey->label()
+                                          : QString());
+
+    if (mPopup) {
+        mPopup->handleLongKeyPressedOnMainArea(activeKey, accent, level() % 2);
     }
+
+    emit longKeyPressed(activeKey, accent, level() % 2);
 }
 
-KeyButtonArea::TouchPointInfo::TouchPointInfo()
-    : fingerInsideArea(false),
-      activeKey(0),
-      initialKey(0),
-      initialPos(),
-      pos(),
-      checkGravity(true)
+void KeyButtonArea::handleIdleVkb()
 {
+    grabGesture(FlickGestureRecognizer::sharedGestureType());
+}
+
+bool KeyButtonArea::isInSpeedTypingMode(bool restartTimers)
+{
+    return ((restartTimers ? lastTouchPointPressEvent.restart()
+                           : lastTouchPointPressEvent.elapsed()) < style()->idleVkbTimeout());
 }

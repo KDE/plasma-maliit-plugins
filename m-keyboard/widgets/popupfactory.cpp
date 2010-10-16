@@ -47,12 +47,12 @@ public:
     virtual void cancel()
     {}
 
-    virtual void handleKeyPressedOnMainArea(const IKeyButton *,
+    virtual void handleKeyPressedOnMainArea(IKeyButton *,
                                             const QString &,
                                             bool)
     {}
 
-    virtual void handleLongKeyPressedOnMainArea(const IKeyButton *,
+    virtual void handleLongKeyPressedOnMainArea(IKeyButton *,
                                                 const QString &,
                                                 bool)
     {}

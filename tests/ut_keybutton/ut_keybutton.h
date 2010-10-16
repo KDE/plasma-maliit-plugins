@@ -19,11 +19,13 @@
 #ifndef UT_KEYBUTTON_H
 #define UT_KEYBUTTON_H
 
+#include <ikeybutton.h>
+
 #include <QtTest/QTest>
 #include <QObject>
+#include <QList>
 
 class MApplication;
-class IKeyButton;
 class VKBDataKey;
 class KeyButtonAreaStyleContainer;
 class QGraphicsItem;
@@ -32,7 +34,17 @@ class KeyboardData;
 class Ut_KeyButton: public QObject
 {
     Q_OBJECT
+
+public:
+    enum Direction {
+        Down,
+        Up
+    };
+
+    typedef QPair<Direction, bool> DirectionPair;
+
 private:
+
     MApplication *app;
     IKeyButton *subject;
     QGraphicsItem *parent;
@@ -51,9 +63,15 @@ private slots:
     void testBinding();
     void testIsDead();
 
+    void testTouchPointCount_data();
+    void testTouchPointCount();
+
 private:
     VKBDataKey *createDataKey();
 };
+
+Q_DECLARE_METATYPE(Ut_KeyButton::DirectionPair)
+Q_DECLARE_METATYPE(IKeyButton::ButtonState)
 
 #endif
 

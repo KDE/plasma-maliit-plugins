@@ -55,7 +55,8 @@ SingleWidgetButton::SingleWidgetButton(const VKBDataKey &key,
       currentState(Normal),
       selected(false),
       styleContainer(style),
-      parentItem(parent)
+      parentItem(parent),
+      currentTouchPointCount(0)
 {
     if (dataKey.binding(false)) {
         loadIcon(false);
@@ -145,6 +146,60 @@ const KeyBinding &SingleWidgetButton::binding() const
 bool SingleWidgetButton::isDeadKey() const
 {
     return binding().isDead();
+}
+
+bool SingleWidgetButton::isShiftKey() const
+{
+    return binding().action() == KeyBinding::ActionShift;
+}
+
+bool SingleWidgetButton::isNormalKey() const
+{
+    return binding().action() == KeyBinding::ActionInsert;
+}
+
+bool SingleWidgetButton::increaseTouchPointCount()
+{
+    if (++currentTouchPointCount <= touchPointLimit()) {
+        if (currentTouchPointCount > 0) {
+            setDownState(true);
+        }
+
+        return true;
+    } else {
+        --currentTouchPointCount;
+        return false;
+    }
+}
+
+bool SingleWidgetButton::decreaseTouchPointCount()
+{
+    if (--currentTouchPointCount >= 0) {
+        if (currentTouchPointCount == 0) {
+            setDownState(false);
+        }
+
+        return true;
+    } else {
+        ++currentTouchPointCount;
+        return false;
+    }
+}
+
+void SingleWidgetButton::resetTouchPointCount()
+{
+    while (decreaseTouchPointCount())
+    {}
+}
+
+int SingleWidgetButton::touchPointCount() const
+{
+    return currentTouchPointCount;
+}
+
+int SingleWidgetButton::touchPointLimit()
+{
+    return 20;
 }
 
 const QPixmap *SingleWidgetButton::icon() const

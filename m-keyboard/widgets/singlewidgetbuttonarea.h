@@ -74,7 +74,17 @@ private:
 
 
     //! \brief Draws background.
-    void drawKeyBackground(QPainter *painter, const SingleWidgetButton *button);
+    void drawKeyBackground(QPainter *painter,
+                           const SingleWidgetButton *button);
+
+    //! \brief Draws button rects/bounding rects, for debugging purposes
+    void drawDebugRects(QPainter *painter,
+                        const SingleWidgetButton *button,
+                        bool drawBoundingRects,
+                        bool drawRects);
+
+    //! \brief Draws reactive areas of buttons, for debugging purposes
+    void drawDebugReactiveAreas(QPainter *painter);
 
     struct ButtonRow {
         QList<SingleWidgetButton*> buttons;

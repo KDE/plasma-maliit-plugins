@@ -79,9 +79,6 @@ SingleWidgetButtonArea::SingleWidgetButtonArea(const LayoutData::SharedLayoutSec
 
 SingleWidgetButtonArea::~SingleWidgetButtonArea()
 {
-    // Release any key that might be pressed before destroying them.
-    clearActiveKeys();
-
     for (RowIterator rowIter(rowList.begin()); rowIter != rowList.end(); ++rowIter) {
         qDeleteAll(rowIter->buttons);
         rowIter->buttons.clear();
@@ -307,7 +304,8 @@ qreal SingleWidgetButtonArea::computeWidgetHeight() const
 
 void SingleWidgetButtonArea::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
-    const MScalableImage *background = baseStyle()->backgroundImage();
+    const KeyButtonAreaStyleContainer &style(baseStyle());
+    const MScalableImage *background = style->backgroundImage();
 
     if (background) {
         background->draw(boundingRect().toRect(), painter);
@@ -316,24 +314,24 @@ void SingleWidgetButtonArea::paint(QPainter *painter, const QStyleOptionGraphics
     // Draw images first.
     foreach (const ButtonRow &row, rowList) {
         foreach (const SingleWidgetButton *button, row.buttons) {
-
-            // Note: we should always get scalable images directly from style container.
-            // Caching pointers of the images is very danger, because images could be
-            // deleted by mtheme daemon in some cases (e.g. display language is changed).
-
-            // Draw button background.
             drawKeyBackground(painter, button);
-
-            // Draw icon.
             button->drawIcon(button->cachedButtonRect.toRect(), painter);
+            drawDebugRects(painter, button,
+                           style->drawButtonBoundingRects(),
+                           style->drawButtonRects());
         }
+    }
+
+    if (style->drawReactiveAreas()) {
+        drawDebugReactiveAreas(painter);
     }
 
     if (textDirty) {
         buildTextLayout();
     }
+
     // Draw text next.
-    painter->setPen(baseStyle()->fontColor());
+    painter->setPen(style->fontColor());
     textLayout.draw(painter, QPoint());
 }
 
@@ -402,6 +400,65 @@ void SingleWidgetButtonArea::drawKeyBackground(QPainter *painter,
     }
 }
 
+void SingleWidgetButtonArea::drawDebugRects(QPainter *painter,
+                                            const SingleWidgetButton *button,
+                                            bool drawBoundingRects,
+                                            bool drawRects)
+{
+    if (drawBoundingRects) {
+        painter->save();
+        painter->setPen(Qt::red);
+        painter->setBrush(QBrush(QColor(64, 0, 0, 64)));
+        painter->drawRect(button->buttonBoundingRect());
+        painter->drawText(button->buttonRect().adjusted(4, 4, -4, -4),
+                          QString("%1x%2").arg(button->buttonBoundingRect().width())
+                          .arg(button->buttonBoundingRect().height()));
+        painter->restore();
+    }
+
+    if (drawRects) {
+        painter->save();
+        painter->setPen(Qt::green);
+        painter->setBrush(QBrush(QColor(0, 64, 0, 64)));
+        painter->drawRect(button->buttonRect());
+        painter->drawText(button->buttonRect().adjusted(4, 16, -4, -16),
+                          QString("%1x%2").arg(button->buttonRect().width())
+                          .arg(button->buttonRect().height()));
+        painter->restore();
+    }
+}
+
+void SingleWidgetButtonArea::drawDebugReactiveAreas(QPainter *painter)
+{
+    painter->save();
+
+    for (int rowIdx = 0; rowIdx < rowList.size(); ++rowIdx) {
+        QPair<int, int> rowPair = rowOffsets[rowIdx];
+        painter->setPen(Qt::darkMagenta);
+        painter->drawLine(QPointF(0, rowPair.first),
+                          QPointF(size().width(), rowPair.first));
+
+        painter->setPen(Qt::magenta);
+        painter->drawLine(QPointF(0, rowPair.second),
+                          QPointF(size().width(), rowPair.second));
+
+        QVector<QPair<qreal, qreal> > buttonOffsets = rowList[rowIdx].buttonOffsets;
+
+        for(int colIdx = 0; colIdx < buttonOffsets.size(); ++colIdx) {
+            QPair<qreal, qreal> colPair = buttonOffsets[colIdx];
+            painter->setPen(Qt::cyan);
+            painter->drawLine(QPointF(colPair.first, rowPair.first),
+                              QPointF(colPair.first, rowPair.second));
+
+            painter->setPen(Qt::darkCyan);
+            painter->drawLine(QPointF(colPair.second, rowPair.first),
+                              QPointF(colPair.second, rowPair.second));
+        }
+    }
+
+    painter->restore();
+}
+
 IKeyButton *SingleWidgetButtonArea::keyAt(const QPoint &pos) const
 {
     const int numRows = rowList.count();
@@ -459,12 +516,13 @@ void SingleWidgetButtonArea::updateButtonGeometriesForWidth(const int newAvailab
     widgetHeight = computeWidgetHeight();
     rowOffsets.clear();
 
-    const qreal HorizontalSpacing = baseStyle()->spacingHorizontal();
-    const qreal VerticalSpacing = baseStyle()->spacingVertical();
+    const KeyButtonAreaStyleContainer &style(baseStyle());
+    const qreal HorizontalSpacing = style->spacingHorizontal();
+    const qreal VerticalSpacing = style->spacingVertical();
 
     // The following code cannot handle negative width:
     int availableWidth = qMax<qreal>(0, newAvailableWidth
-                                        - (baseStyle()->paddingLeft() + baseStyle()->paddingRight()));
+                                        - (style->paddingLeft() + style->paddingRight()));
 
     const qreal normalizedWidth = qMax<qreal>(1.0, mMaxNormalizedWidth);
     const qreal availableWidthForButtons = availableWidth - ((normalizedWidth - 1) * HorizontalSpacing);
@@ -472,7 +530,7 @@ void SingleWidgetButtonArea::updateButtonGeometriesForWidth(const int newAvailab
     emit relativeButtonBaseWidthChanged(mRelativeButtonBaseWidth);
 
     // This is used to update the button rectangles
-    qreal y = baseStyle()->paddingTop();
+    qreal y = style->paddingTop();
 
     // Button margins
     const qreal leftMargin = HorizontalSpacing / 2;
@@ -485,17 +543,27 @@ void SingleWidgetButtonArea::updateButtonGeometriesForWidth(const int newAvailab
 
     for (RowIterator row(rowList.begin()); row != rowList.end(); ++row) {
         const qreal rowHeight = preferredRowHeight(row - rowList.begin());
-        br.setHeight(rowHeight + baseStyle()->spacingVertical() * rowListFactor);
+        br.setHeight(rowHeight + style->spacingVertical() * rowListFactor);
 
         row->buttonOffsets.clear();
 
-        // Store the row offsets for fast key lookup:
-        const int lastRowOffset = (rowOffsets.isEmpty()) ? baseStyle()->paddingTop()
-                                                           - (baseStyle()->spacingVertical() / 2) * rowListFactor
+        // Store the row offsets for fast key lookup (the first row's height
+        // can be adjusted through buttonBoundingRectTopAdjustment,
+        // buttonBoundingRectBottomAdjustment):
+        const int prevRowOffset = (rowOffsets.isEmpty()) ? style->paddingTop()
+                                                           - (style->spacingVertical() / 2) * rowListFactor
+                                                           + style->buttonBoundingRectTopAdjustment()
                                                          : rowOffsets.at(rowOffsets.count() - 1).second;
 
-        rowOffsets.append(QPair<int, int>(lastRowOffset,
-                                          lastRowOffset + static_cast<int>(br.height() + 0.5)));
+        const int nextRowOffset = prevRowOffset
+                                  + br.height()
+                                  + (rowOffsets.isEmpty() ? - style->buttonBoundingRectTopAdjustment()
+                                                            + style->buttonBoundingRectBottomAdjustment()
+                                                          : 0)
+                                  + 0.5;
+
+        // TODO: also resolve overlapping conflicts in bounding boxes, not only lookup list ...
+        rowOffsets.append(QPair<int, int>(prevRowOffset, qMax<int>(prevRowOffset, nextRowOffset)));
 
         // Update row width
         qreal rowWidth = 0;
@@ -534,7 +602,7 @@ void SingleWidgetButtonArea::updateButtonGeometriesForWidth(const int newAvailab
 
         // A spacer with an index of -1 means it was put before any button in that row.
         // Also add layout padding:
-        qreal x = baseStyle()->paddingLeft() + spacerIndices.count(-1) * availableWidthForSpacers;
+        qreal x = style->paddingLeft() + spacerIndices.count(-1) * availableWidthForSpacers;
 
         for (int buttonIndex = 0; buttonIndex < row->buttons.count(); ++buttonIndex) {
             SingleWidgetButton *button = row->buttons.at(buttonIndex);
@@ -543,7 +611,9 @@ void SingleWidgetButtonArea::updateButtonGeometriesForWidth(const int newAvailab
             br.setWidth(button->width + leftMargin + rightMargin);
 
             // save it (but cover up for rounding errors, ie, extra spacing pixels):
-            button->cachedBoundingRect = br.adjusted(-1, 0, 1, 0);
+            button->cachedBoundingRect = br.adjusted(-1, style->buttonBoundingRectTopAdjustment(),
+                                                      1, style->buttonBoundingRectBottomAdjustment());
+
             button->cachedButtonRect = br.adjusted(leftMargin, topMargin, -rightMargin, -bottomMargin);
 
             // Store the button offsets for fast key lookup:

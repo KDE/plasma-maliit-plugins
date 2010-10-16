@@ -45,7 +45,16 @@ public:
     virtual const VKBDataKey &key() const;
     virtual const KeyBinding &binding() const;
     virtual bool isDeadKey() const;
+    virtual bool isShiftKey() const;
+    virtual bool isNormalKey() const;
+    virtual bool increaseTouchPointCount();
+    virtual bool decreaseTouchPointCount();
+    virtual void resetTouchPointCount();
+    virtual int touchPointCount() const;
     //! \reimp_end
+
+    //! Return limit for active touchpoints
+    static int touchPointLimit();
 
     //! \brief Returns the icon of this button, if it has one.
     const QPixmap *icon() const;
@@ -107,6 +116,9 @@ private:
     const KeyButtonAreaStyleContainer &styleContainer;
 
     QGraphicsItem &parentItem;
+
+    //! Touchpoint count
+    int currentTouchPointCount;
 };
 
 #endif // SINGLEWIDGETBUTTON_H

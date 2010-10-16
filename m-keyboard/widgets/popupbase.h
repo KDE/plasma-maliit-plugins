@@ -53,7 +53,7 @@ public:
     //! \param keyPos key's position
     //! \param screenPos key's position on the screen
     //! \param keySize  key's size
-    virtual void handleKeyPressedOnMainArea(const IKeyButton *key,
+    virtual void handleKeyPressedOnMainArea(IKeyButton *key,
                                             const QString &accent,
                                             bool upperCase) = 0;
 
@@ -61,7 +61,7 @@ public:
     //! \param keyPos key's position
     //! \param screenPos key's position on the screen
     //! \param keySize  key's size
-    virtual void handleLongKeyPressedOnMainArea(const IKeyButton *key,
+    virtual void handleLongKeyPressedOnMainArea(IKeyButton *key,
                                                 const QString &accent,
                                                 bool upperCase) = 0;
 

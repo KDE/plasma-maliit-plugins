@@ -35,6 +35,8 @@ public:
     M_STYLE_ATTRIBUTE(int, labelMarginTop, LabelMarginTop)
     M_STYLE_ATTRIBUTE(int, labelMarginLeftWithSecondary, LabelMarginLeftWithSecondary)
     M_STYLE_ATTRIBUTE(int, secondaryLabelSeparation, SecondaryLabelSeparation)
+    M_STYLE_ATTRIBUTE(int, longPressTimeout, LongPressTimeout)
+    M_STYLE_ATTRIBUTE(int, idleVkbTimeout, IdleVkbTimeout)
     M_STYLE_ATTRIBUTE(int, flickGestureTimeout, FlickGestureTimeout)
     M_STYLE_ATTRIBUTE(qreal, flickGestureThresholdRatio, FlickGestureThresholdRatio)
     M_STYLE_ATTRIBUTE(qreal, touchpointHorizontalGravity, TouchpointHorizontalGravity)
@@ -98,6 +100,14 @@ public:
     M_STYLE_ATTRIBUTE(QSize, keyShiftIconSize, KeyShiftIconSize)
     M_STYLE_ATTRIBUTE(QString, keyShiftIconId, KeyShiftIconId)
     M_STYLE_ATTRIBUTE(QString, keyShiftUppercaseIconId, KeyShiftUppercaseIconId)
+
+    M_STYLE_ATTRIBUTE(qreal, buttonBoundingRectTopAdjustment, ButtonBoundingRectTopAdjustment);
+    M_STYLE_ATTRIBUTE(qreal, buttonBoundingRectBottomAdjustment, ButtonBoundingRectBottomAdjustment);
+
+    M_STYLE_ATTRIBUTE(bool, drawButtonBoundingRects, DrawButtonBoundingRects)
+    M_STYLE_ATTRIBUTE(bool, drawButtonRects, DrawButtonRects)
+    M_STYLE_ATTRIBUTE(bool, debugTouchPoints, DebugTouchPoints)
+    M_STYLE_ATTRIBUTE(bool, drawReactiveAreas, drawReactiveAreas)
 };
 
 class M_EXPORT KeyButtonAreaStyleContainer : public MWidgetStyleContainer
