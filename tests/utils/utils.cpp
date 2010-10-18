@@ -19,6 +19,8 @@
 #include <stdlib.h>
 #ifdef MEEGOTOUCH
 #include <MApplication>
+#include <mplainwindow.h>
+#include <MSceneWindow>
 #endif
 #include <QApplication>
 #include <QCommonStyle>
@@ -39,4 +41,14 @@ void disableQtPlugins()
     // TODO: Check if hardwiring the QStyle can be removed at a later state.
     QApplication::setStyle(new QCommonStyle);
 }
+
+// Create graphics scene
+#ifdef MEEGOTOUCH
+void createMScene(MPlainWindow *w)
+{
+    w->show();
+    MSceneWindow *sceneWindow = new MSceneWindow;
+    sceneWindow->appear(w);
+}
+#endif
 

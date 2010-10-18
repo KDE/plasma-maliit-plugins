@@ -73,7 +73,7 @@ void Ut_KeyButtonArea::initTestCase()
     qRegisterMetaType<IKeyButton::ButtonState>();
     qRegisterMetaType<TestOpList>("TestOpList");
 
-    new MPlainWindow; // Create singleton
+    createMScene(new MPlainWindow); // also create singleton
 
     FlickGestureRecognizer::registerSharedRecognizer();
 

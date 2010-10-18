@@ -19,6 +19,7 @@
 #include <sharedhandlearea.h>
 #include <mgconfitem_stub.h>
 #include <mplainwindow.h>
+#include <MSceneWindow>
 
 #include <MApplication>
 #include <MScene>
@@ -31,20 +32,20 @@ namespace
 
 void Ut_SharedHandleArea::initTestCase()
 {
-        static int dummyArgc = 3;
-        static char *dummyArgv[3] = { (char *) "./ut_sharedhandlearea",
-                                      (char *) "-local-theme",
-                                      (char *) "-software"  };
-        // this value is required by the theme daemon
-        MGConfItem(TargetSettingsName).set(DefaultTargetName);
+    static int dummyArgc = 3;
+    static char *dummyArgv[3] = { (char *) "./ut_sharedhandlearea",
+        (char *) "-local-theme",
+        (char *) "-software"  };
+    // this value is required by the theme daemon
+    MGConfItem(TargetSettingsName).set(DefaultTargetName);
 
-        disableQtPlugins();
-        app = new MApplication(dummyArgc, dummyArgv);
+    disableQtPlugins();
+    app = new MApplication(dummyArgc, dummyArgv);
 
-        new MPlainWindow; // Create singleton
+    createMScene(new MPlainWindow); // also create singleton
 
-        parent = new QGraphicsWidget;
-        MPlainWindow::instance()->scene()->addItem(parent);
+    parent = new QGraphicsWidget;
+    MPlainWindow::instance()->scene()->addItem(parent);
 }
 
 void Ut_SharedHandleArea::cleanupTestCase()
@@ -58,7 +59,6 @@ void Ut_SharedHandleArea::init()
 {
     imToolbar = new MImToolbar;
     subject = new SharedHandleArea(*imToolbar, parent);
-    MPlainWindow::instance()->scene()->addItem(subject);
 }
 
 void Ut_SharedHandleArea::cleanup()

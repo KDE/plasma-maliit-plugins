@@ -17,8 +17,15 @@
 
 #ifndef UTILS_H
 
+class MPlainWindow;
+
 // Disable loading of MInputContext and QtMaemo6Style
 void disableQtPlugins();
+
+#ifdef MEEGOTOUCH
+// Create graphics scene
+void createMScene(MPlainWindow *w);
+#endif
 
 #endif
 
