@@ -60,11 +60,11 @@ namespace {
     }
 }
 
-SingleWidgetButtonArea::SingleWidgetButtonArea(const LayoutData::SharedLayoutSection &sectionModel,
+SingleWidgetButtonArea::SingleWidgetButtonArea(const LayoutData::SharedLayoutSection &section,
                                                bool usePopup,
                                                QGraphicsWidget *parent)
-    : KeyButtonArea(sectionModel, usePopup, parent),
-      rowList(sectionModel->rowCount()),
+    : KeyButtonArea(section, usePopup, parent),
+      rowList(section->rowCount()),
       widgetHeight(computeWidgetHeight()),
       mMaxNormalizedWidth(maxNormalizedWidth()),
       shiftButton(0),

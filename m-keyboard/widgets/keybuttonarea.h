@@ -61,9 +61,9 @@ public:
     * \param usePopup Sets whether popup should be used when long press occurs.
     * \param parent The widget's parent.
     */
-    KeyButtonArea(const LayoutData::SharedLayoutSection &sectionModel,
-                  bool usePopup = false,
-                  QGraphicsWidget *parent = 0);
+    explicit KeyButtonArea(const LayoutData::SharedLayoutSection &sectionModel,
+                           bool usePopup = false,
+                           QGraphicsWidget *parent = 0);
 
     //! \brief Destructor
     virtual ~KeyButtonArea();

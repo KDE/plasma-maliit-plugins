@@ -32,9 +32,9 @@
 class SingleWidgetButtonArea : public KeyButtonArea
 {
 public:
-    SingleWidgetButtonArea(const LayoutData::SharedLayoutSection &sectionModel,
-                           bool usePopup = false,
-                           QGraphicsWidget *parent = 0);
+    explicit SingleWidgetButtonArea(const LayoutData::SharedLayoutSection &section,
+                                    bool usePopup = false,
+                                    QGraphicsWidget *parent = 0);
 
     virtual ~SingleWidgetButtonArea();
 
