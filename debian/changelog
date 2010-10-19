@@ -1,12 +1,11 @@
-meego-keyboard (0.5.6~1) unstable; urgency=low
+meego-keyboard (0.5.6-1) unstable; urgency=low
 
-  * [UNRELEASED]
   * Toolbar is single line
   * Copy/paste button is on the left side of toolbar
   * Toolbar is rectangular
   * Custom toolbar buttons aligned in the center
 
- -- huaming wang <huaming.wang@nokia.com>  Fri, 15 Oct 2010 10:59:48 +0300
+ -- huaming wang <huaming.wang@nokia.com>  Tue, 19 Oct 2010 13:36:17 +0300
 
 meego-keyboard (0.5.5-1) unstable; urgency=low
 
