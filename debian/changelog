@@ -1,6 +1,7 @@
 meego-keyboard (0.5.8~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Changes: forward touch position for key click
 
  -- huaming wang <huaming.wang@noknokia.comm>  Fri, 22 Oct 2010 10:19:03 +0300
 
