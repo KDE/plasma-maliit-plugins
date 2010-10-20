@@ -2,19 +2,17 @@
 
 
 STARTUP_TEMPLATE="<case name=\"init_testcase\" description=\"stop other components\" requirement=\"\" timeout=\"120\">
-        <step expected_result=\"0\">initctl stop xsession/meego-im-uiserver</step>
-        <step expected_result=\"0\">initctl stop xsession/mcompositor</step>
-        <step expected_result=\"0\">initctl stop xsession/mthome</step>
-        <step expected_result=\"0\">initctl stop xsession/sysuid</step>
+        <step expected_result=\"0\">dsmetool --telinit shutdown</step>
+        <step expected_result=\"0\">initctl stop xsession</step>
+        <step expected_result=\"0\">initctl start xsession/dbus</step>
+        <step expected_result=\"0\">source /tmp/session_bus_address.user</step>
       </case>
       "
 UT_STARTUP="${STARTUP_TEMPLATE}"
 
 FINAL_TEMPLATE="<case name=\"zfinal_testcase\" description=\"restart stopped components\" requirement=\"\" timeout=\"120\">
-        <step expected_result=\"0\">initctl start xsession/mcompositor</step>
-        <step expected_result=\"0\">initctl start xsession/meego-im-uiserver</step>
-        <step expected_result=\"0\">initctl start xsession/mthome</step>
-        <step expected_result=\"0\">initctl start xsession/sysuid</step>
+        <step expected_result=\"0\">initctl start xsession</step>
+        <step expected_result=\"0\">dsmetool --telinit user</step>
       </case>
       "
 UT_FINAL="${FINAL_TEMPLATE}"
