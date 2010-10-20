@@ -613,6 +613,7 @@ void MKeyboardHost::reset()
 
 void MKeyboardHost::resetInternalState()
 {
+    backSpaceTimer.stop();
     preedit.clear();
     candidates.clear();
     correctionCandidateWidget->setPreeditString("");
@@ -806,7 +807,6 @@ void MKeyboardHost::doBackspace()
             inputContextConnection()->sendPreeditString(preedit, face);
         } else {
             resetInternalState();
-            backSpaceTimer.stop();
             inputContextConnection()->sendCommitString("");
         }
     } else {
