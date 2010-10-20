@@ -22,6 +22,7 @@
 #include <QDomDocument>
 #include <QFile>
 #include <QDebug>
+#include <QStringList>
 
 namespace
 {
@@ -78,11 +79,14 @@ HwKbCharLoopsManager::~HwKbCharLoopsManager()
 
 bool HwKbCharLoopsManager::setCharLoopsLanguage(const QString &language)
 {
-    qDebug() << __PRETTY_FUNCTION__ << language;
     bool val = true;
+    const QStringList icuLocaleParts(language.split("_", QString::SkipEmptyParts));
+
     if (currentCharLoopLanguage != language) {
         if (charLoops.contains(language)) {
             current = charLoops.constFind(language).value();
+        } else if (!icuLocaleParts.isEmpty() && charLoops.contains(icuLocaleParts[0])) {
+            current = charLoops.constFind(icuLocaleParts[0]).value();
         } else {
             current = 0;
             val = false;

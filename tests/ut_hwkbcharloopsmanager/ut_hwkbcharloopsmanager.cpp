@@ -81,6 +81,12 @@ void Ut_HwKbCharLoopsManager::testSyncLanguage()
     QCOMPARE(m_subject->currentCharLoopLanguage, QString("fi"));
     systemDisplayLanguage.set(QVariant("ar"));
     QCOMPARE(m_subject->currentCharLoopLanguage, QString("ar"));
+
+    // If no specific match is found, less specific match is used, if available
+    systemDisplayLanguage.set(QVariant("fi_FO"));
+    QCOMPARE(m_subject->currentCharLoopLanguage, QString("fi_FO"));
+    QVERIFY(m_subject->current);
+    QCOMPARE(m_subject->current->language, QString("fi"));
 }
 
 QTEST_APPLESS_MAIN(Ut_HwKbCharLoopsManager);
