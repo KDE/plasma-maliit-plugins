@@ -85,8 +85,8 @@ Notification::displayText(const QString &message, const QRectF &area)
 {
     if (this->message != message) {
         this->message = message;
-        resetGeometry(area);
     }
+    resetGeometry(area);
 
     fadeIn();
 }
