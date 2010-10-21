@@ -652,6 +652,7 @@ void MKeyboardHost::finalizeOrientationChange()
         // is null.
         if (success && !rect.isNull() && rotateRect(rect, localRect)) {
             correctionHost->setPosition(localRect);
+            correctionHost->showCorrectionWidget(correctionHost->candidateMode());
         } else {
             correctionHost->hideCorrectionWidget();
         }
@@ -757,7 +758,8 @@ void MKeyboardHost::handleVisualizationPriorityChange(bool priority)
 void MKeyboardHost::handleAppOrientationChange(int angle)
 {
     // The application receiving input has changed its orientation. Let's change ours.
-    MPlainWindow::instance()->setOrientationAngle((M::OrientationAngle)angle);
+    MPlainWindow::instance()->setOrientationAngle(static_cast<M::OrientationAngle>(angle));
+    this->angle = static_cast<M::OrientationAngle>(angle);
 }
 
 
