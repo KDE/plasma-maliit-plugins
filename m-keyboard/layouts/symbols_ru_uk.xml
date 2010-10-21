@@ -222,10 +222,10 @@
            <binding label="&#x201E;"/>
          </key>
          <key>
-           <binding label="&#x00BF;"/>
+           <binding label="&#x00A7;"/>
          </key>
          <key>
-           <binding label="&#x00A1;"/>
+           <binding label="&#x2116;"/>
          </key>
          <key style="special">
            <binding action="backspace"/>
@@ -482,10 +482,10 @@
            <binding label="&#x201E;"/>
          </key>
          <key>
-           <binding label="&#x00BF;"/>
+           <binding label="&#x00A7;"/>
          </key>
          <key>
-           <binding label="&#x00A1;"/>
+           <binding label="&#x2116;"/>
          </key>
          <key style="special">
            <binding action="backspace"/>
