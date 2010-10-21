@@ -51,6 +51,8 @@ namespace
     const int SceneRotationTime = 1400; // in ms
     const QString TargetSettingsName("/meegotouch/target/name");
     const QString DefaultTargetName("Default");
+
+    int gDisplayTextCalls = 0;
 }
 
 Q_DECLARE_METATYPE(KeyBinding::KeyAction);
@@ -69,6 +71,7 @@ void Notification::displayText(const QString &message, const QRectF &area)
     Q_UNUSED(area);
 
     qDebug() << __PRETTY_FUNCTION__ << __FILE__ << __LINE__;
+    ++gDisplayTextCalls;
 }
 
 
@@ -936,6 +939,32 @@ void Ut_MVirtualKeyboard::testSetTemporarilyHidden()
 
     m_vkb->setTemporarilyHidden(false);
     QCOMPARE(m_vkb->activity, MVirtualKeyboard::Active);
+}
+
+void Ut_MVirtualKeyboard::testLanguageNotification()
+{
+    gDisplayTextCalls = 0;
+    QVERIFY(!m_vkb->pendingNotificationRequest);
+
+    m_vkb->requestLanguageNotification();
+    QVERIFY(m_vkb->pendingNotificationRequest);
+
+    m_vkb->showKeyboard();
+    QCOMPARE(gDisplayTextCalls, 0);
+    QVERIFY(m_vkb->pendingNotificationRequest);
+
+    QTest::qWait(MVirtualKeyboard::ShowHideTime / 4);
+    m_vkb->requestLanguageNotification();
+    QCOMPARE(gDisplayTextCalls, 0);
+    QVERIFY(m_vkb->pendingNotificationRequest);
+
+    QTest::qWait(MVirtualKeyboard::ShowHideTime);
+    QCOMPARE(gDisplayTextCalls, 1);
+    QVERIFY(!m_vkb->pendingNotificationRequest);
+
+    m_vkb->requestLanguageNotification();
+    QVERIFY(!m_vkb->pendingNotificationRequest);
+    QCOMPARE(gDisplayTextCalls, 2);
 }
 
 // End of test functions!

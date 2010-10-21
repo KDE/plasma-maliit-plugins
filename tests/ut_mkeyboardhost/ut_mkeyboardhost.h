@@ -98,6 +98,9 @@ private slots:
     void testSignalsInNormalMode();
     void testSignalsInDirectMode();
 
+    void testShowLanguageNotification_data();
+    void testShowLanguageNotification();
+
 private:
     void rotateToAngle(M::OrientationAngle);
     void triggerAutoCaps();

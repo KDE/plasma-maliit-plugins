@@ -80,6 +80,7 @@ private slots:
     void flickUpHandlerTest_data();
     void flickUpHandlerTest();
     void testSetTemporarilyHidden();
+    void testLanguageNotification();
 
 signals:
     void fade(int);

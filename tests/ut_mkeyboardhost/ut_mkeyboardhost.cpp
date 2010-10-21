@@ -74,6 +74,7 @@ namespace
 
     int gShowLockOnInfoBannerCallCount = 0;
     int gHideLockOnInfoBannerCallCount = 0;
+    int gRequestLanguageNotificationCallCount = 0;
 
     const char * const TargetSettingsName("/meegotouch/target/name");
     const char * const DefaultTargetName("Default");
@@ -124,6 +125,11 @@ QString MVirtualKeyboard::layoutLanguage() const
 bool MVirtualKeyboard::autoCapsEnabled() const
 {
     return gAutoCapsEnabled;
+}
+
+void MVirtualKeyboard::requestLanguageNotification()
+{
+    ++gRequestLanguageNotificationCallCount;
 }
 
 bool MHardwareKeyboard::autoCapsEnabled() const
@@ -1563,6 +1569,31 @@ void Ut_MKeyboardHost::testSignalsInNormalMode()
 void Ut_MKeyboardHost::testSignalsInDirectMode()
 {
     testSignals(M::InputMethodModeDirect);
+}
+
+void Ut_MKeyboardHost::testShowLanguageNotification_data()
+{
+    QTest::addColumn<MInputMethod::HandlerState>("state");
+    QTest::addColumn<int>("expectedCallCount");
+
+    QTest::newRow("OnScreen") << MInputMethod::OnScreen << 1;
+    QTest::newRow("Hardware") << MInputMethod::Hardware << 0;
+    QTest::newRow("Accessory") << MInputMethod::Accessory << 0;
+}
+
+void Ut_MKeyboardHost::testShowLanguageNotification()
+{
+    QFETCH(MInputMethod::HandlerState, state);
+    QFETCH(int, expectedCallCount);
+    QSet<MInputMethod::HandlerState> states;
+
+    states << state;
+
+    gRequestLanguageNotificationCallCount = 0;
+    subject->update();
+    subject->setState(states);
+    subject->showLanguageNotification();
+    QCOMPARE(gRequestLanguageNotificationCallCount, expectedCallCount);
 }
 
 QTEST_APPLESS_MAIN(Ut_MKeyboardHost);

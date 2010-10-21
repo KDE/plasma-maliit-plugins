@@ -169,6 +169,10 @@ public:
      */
     void setTemporarilyHidden(bool hidden);
 
+    //! Show notification informing about current language if keyboard is active, otherwise create
+    //! pending request.
+    void requestLanguageNotification();
+
 public slots:
     /*!
      * Method to switch level. Changes into next possible level.
@@ -423,6 +427,9 @@ private:
     template <class T>
     void connectHandle(const T &handleLike);
 
+    //! Show notification informing about current language
+    void showLanguageNotification();
+
 private:
     //! Main layout indices
     enum LayoutIndex {
@@ -508,6 +515,8 @@ private:
     //! Handle area containing toolbar widget.
     // MVirtualKeyboard is not owner of this object.
     QPointer<SharedHandleArea> sharedHandleArea;
+
+    bool pendingNotificationRequest;
 };
 
 #endif

@@ -1532,6 +1532,13 @@ QString MKeyboardHost::activeSubView(MInputMethod::HandlerState state) const
     }
 }
 
+void MKeyboardHost::showLanguageNotification()
+{
+    if (activeState == MInputMethod::OnScreen && vkbWidget) {
+        vkbWidget->requestLanguageNotification();
+    }
+}
+
 void MKeyboardHost::handleVirtualKeyboardLayoutChanged(const QString &layout)
 {
     // reset the temporary shift state when layout is changed

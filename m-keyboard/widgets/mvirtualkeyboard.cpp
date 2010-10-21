@@ -78,7 +78,8 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
       numberKeyboard(0),
       phoneNumberKeyboard(0),
       activeState(MInputMethod::OnScreen),
-      eventHandler(this)
+      eventHandler(this),
+      pendingNotificationRequest(false)
 {
     setObjectName("MVirtualKeyboard");
     hide();
@@ -404,6 +405,19 @@ int MVirtualKeyboard::actualHeight() const
     return result;
 }
 
+void MVirtualKeyboard::showLanguageNotification()
+{
+    pendingNotificationRequest = false;
+    if ((mainKeyboardSwitcher->current() != -1) && (currentLayoutType == LayoutData::General)) {
+        const QGraphicsWidget *const widget = mainKeyboardSwitcher->currentWidget();
+        const QRectF br = widget ? mainKeyboardSwitcher->mapRectToItem(this, widget->boundingRect())
+                          : QRectF(QPointF(), MPlainWindow::instance()->visibleSceneSize());
+        const QString layoutFile(layoutsMgr.layoutFileList()[mainKeyboardSwitcher->current()]);
+
+        notification->displayText(layoutsMgr.keyboardTitle(layoutFile), br);
+    }
+}
+
 void MVirtualKeyboard::organizeContent(M::Orientation orientation)
 {
     if (currentOrientation != orientation) {
@@ -465,6 +479,10 @@ MVirtualKeyboard::showHideFinished()
         emit hidden();
     } else {
         emit opened();
+
+        if (pendingNotificationRequest || mainKeyboardSwitcher->count() > 1) {
+            showLanguageNotification();
+        }
     }
 
     sendVKBRegion();
@@ -642,6 +660,9 @@ void MVirtualKeyboard::setKeyboardType(const int type)
 
     currentLayoutType = newLayoutType;
     updateMainLayoutAtKeyboardIndex();
+    if (mainKeyboardSwitcher->count() > 1 && (currentLayoutType == LayoutData::General)) {
+        requestLanguageNotification();
+    }
 }
 
 void MVirtualKeyboard::suppressRegionUpdate(bool suppress)
@@ -992,6 +1013,16 @@ void MVirtualKeyboard::setTemporarilyHidden(bool hidden)
     } else if (!hidden && activity == TemporarilyInactive) {
         showKeyboard(true);
     }
+}
+
+void MVirtualKeyboard::requestLanguageNotification()
+{
+    if (activity != Active || showHideTimeline.state() != QTimeLine::NotRunning) {
+        pendingNotificationRequest = true;
+        return;
+    }
+
+    showLanguageNotification();
 }
 
 void MVirtualKeyboard::updateMainLayoutAtKeyboardIndex()
