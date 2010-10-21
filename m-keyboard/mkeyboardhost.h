@@ -97,6 +97,12 @@ private slots:
      */
     void handleKeyRelease(const KeyEvent &event);
 
+    /*!
+     * Handles user long press a key.
+     * \param event internal key event
+     */
+    void handleLongKeyPress(const KeyEvent &event);
+
     //! \brief Draws reaction maps for the topmost widget.
     void updateReactionMaps();
 

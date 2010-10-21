@@ -93,6 +93,8 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
             this, SIGNAL(keyReleased(const KeyEvent &)));
     connect(&eventHandler, SIGNAL(keyClicked(const KeyEvent &)),
             this, SIGNAL(keyClicked(const KeyEvent &)));
+    connect(&eventHandler, SIGNAL(longKeyPressed(const KeyEvent &)),
+            this, SIGNAL(longKeyPressed(const KeyEvent &)));
     connect(&eventHandler, SIGNAL(shiftPressed(bool)),
             this, SLOT(handleShiftPressed(bool)));
 

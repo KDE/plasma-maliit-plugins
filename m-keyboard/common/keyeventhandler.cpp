@@ -44,6 +44,10 @@ void KeyEventHandler::addEventSource(MImAbstractKeyArea *eventSource)
     ok = connect(eventSource, SIGNAL(keyClicked(const MImAbstractKey *, const QString &, bool, const QPoint &)),
                  this, SLOT(handleKeyClick(const MImAbstractKey *, const QString &, bool, const QPoint &)));
     Q_ASSERT(ok);
+
+    ok = connect(eventSource, SIGNAL(longKeyPressed(const MImAbstractKey *, const QString &, bool)),
+                 this, SLOT(handleLongKeyPress(const MImAbstractKey *, const QString &, bool)));
+    Q_ASSERT(ok);
 }
 
 void KeyEventHandler::handleKeyPress(const MImAbstractKey *key, const QString &accent, bool upperCase)
@@ -81,6 +85,13 @@ void KeyEventHandler::handleKeyClick(const MImAbstractKey *key, const QString &a
     } else {
         emit keyClicked(event);
     }
+}
+
+void KeyEventHandler::handleLongKeyPress(const MImAbstractKey *key, const QString &accent, bool upperCase)
+{
+    const KeyEvent event = keyToKeyEvent(*key, QEvent::KeyPress, accent, upperCase);
+
+    emit longKeyPressed(event);
 }
 
 KeyEvent KeyEventHandler::keyToKeyEvent(const MImAbstractKey &key, QKeyEvent::Type eventType,

@@ -71,6 +71,13 @@ signals:
     void keyClicked(const KeyEvent &event);
 
     /*!
+     * \brief Emitted when key is long pressed.
+     *
+     * \param event key event
+     */
+    void longKeyPressed(const KeyEvent &event);
+
+    /*!
      * \brief Emitted when shift key is pressed or released
      * \param state Contains true is key is pressed
      */
@@ -91,6 +98,11 @@ private slots:
      * \brief Generates KeyEvent for given \a key and emits keyClicked
      */
     void handleKeyClick(const MImAbstractKey *key, const QString &accent, bool upperCase, const QPoint &point);
+
+    /*!
+     * \brief Generates KeyEvent for given \a key and emits longKeyPress
+     */
+    void handleLongKeyPress(const MImAbstractKey *key, const QString &accent, bool upperCase);
 
 private:
     //! Turn key button into a KeyEvent, considering current accent and modifier state

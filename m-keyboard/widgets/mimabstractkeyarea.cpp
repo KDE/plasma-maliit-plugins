@@ -703,7 +703,10 @@ void MImAbstractKeyArea::handleLongKeyPressed()
         mPopup->handleLongKeyPressedOnMainArea(activeKey, accent, level() % 2);
     }
 
-    emit longKeyPressed(activeKey, accent, level() % 2);
+    if (activeKey) {
+        // Note: the activeKey could be set to NULL by mPopup
+        emit longKeyPressed(activeKey, accent, level() % 2);
+    }
 }
 
 void MImAbstractKeyArea::handleIdleVkb()

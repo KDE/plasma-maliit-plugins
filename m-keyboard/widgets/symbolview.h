@@ -168,6 +168,11 @@ signals:
      */
     void keyReleased(const KeyEvent &event);
 
+    /*!
+     * \brief Emitted when key is long pressed
+     */
+    void longKeyPressed(const KeyEvent &event);
+
     //! Emitted when SymbolView has changed its interactive region.
     void regionUpdated(const QRegion &);
 

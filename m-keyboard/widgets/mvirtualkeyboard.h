@@ -294,6 +294,11 @@ signals:
      */
     void keyClicked(const KeyEvent &event);
 
+    /*!
+     * \brief Emitted when key is long pressed
+     */
+    void longKeyPressed(const KeyEvent &event);
+
     //! \see MAbstractInputMethod::regionUpdated()
     void regionUpdated(const QRegion &);
 

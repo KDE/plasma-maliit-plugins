@@ -66,6 +66,7 @@ namespace
     const int MaximumErrorCorrectionCandidate = 5;
     const int RotationDuration = 750; //! After vkb hidden, how long to wait until shown again
     const int AutoBackspaceDelay = 500;      // in ms
+    const int LongPressTime = 600;           // in ms
     const int BackspaceRepeatInterval = 100; // in ms
     const int MultitapTime = 1500;           // in ms
     const Qt::KeyboardModifier FnLevelModifier = Qt::GroupSwitchModifier;
@@ -212,6 +213,8 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
             this, SLOT(handleKeyPress(const KeyEvent &)));
     connect(vkbWidget, SIGNAL(keyReleased(const KeyEvent &)),
             this, SLOT(handleKeyRelease(const KeyEvent &)));
+    connect(vkbWidget, SIGNAL(longKeyPressed(const KeyEvent &)),
+            this, SLOT(handleLongKeyPress(const KeyEvent &)));
     connect(vkbWidget, SIGNAL(showSymbolViewRequested()),
             this, SLOT(showSymbolView()));
 
@@ -315,6 +318,8 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
             this, SLOT(handleKeyPress(const KeyEvent &)));
     connect(symbolView, SIGNAL(keyReleased(const KeyEvent &)),
             this, SLOT(handleKeyRelease(const KeyEvent &)));
+    connect(symbolView, SIGNAL(longKeyPressed(const KeyEvent &)),
+            this, SLOT(handleLongKeyPress(const KeyEvent &)));
 
     symbolView->setSharedHandleArea(sharedHandleArea);
     sharedHandleArea->watchOnWidget(symbolView);
@@ -1008,6 +1013,18 @@ void MKeyboardHost::handleGeneralKeyClick(const KeyEvent &event)
     }
 }
 
+void MKeyboardHost::handleLongKeyPress(const KeyEvent &event)
+{
+    if (event.qtKey() == Qt::Key_Space
+        && correctionEnabled
+        && correctionHost->isActive()
+        && correctionHost->candidateMode() == MImCorrectionHost::WordTrackerMode
+        && candidates.size() > 0) {
+        // long tap space key when word tracker is visible will switch to word list.
+        correctionHost->showCorrectionWidget(MImCorrectionHost::WordListMode);
+    }
+}
+
 void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
 {
     // Discard KeyPress & Drop type of events.
@@ -1049,11 +1066,16 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
 
     } else if ((event.qtKey() == Qt::Key_Space) || (event.qtKey() == Qt::Key_Return) || (event.qtKey() == Qt::Key_Tab)) {
         // commit suggestion if correction candidate widget is visible and with popupMode
+        // or ignore it if correction widget is visible and with suggestionlist mode
         // otherwise commit preedit
         if (event.qtKey() == Qt::Key_Space
-            && correctionHost->isActive()
-            && correctionHost->candidateMode() == MImCorrectionHost::WordTrackerMode) {
-            inputMethodHost()->sendCommitString(correctionHost->suggestion());
+            && correctionHost->isActive()) {
+            if (correctionHost->candidateMode() == MImCorrectionHost::WordTrackerMode) {
+                inputMethodHost()->sendCommitString(correctionHost->suggestion());
+            } else {
+                // ignore space click when word list is visible.
+                return;
+            }
         } else {
             inputMethodHost()->sendCommitString(preedit);
         }

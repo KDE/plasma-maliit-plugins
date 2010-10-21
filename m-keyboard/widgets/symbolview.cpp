@@ -148,6 +148,8 @@ SymbolView::SymbolView(const LayoutsManager &layoutsManager, const MVirtualKeybo
             this,          SIGNAL(keyReleased(KeyEvent)));
     connect(&eventHandler, SIGNAL(keyClicked(KeyEvent)),
             this,          SIGNAL(keyClicked(KeyEvent)));
+    connect(&eventHandler, SIGNAL(longKeyPressed(const KeyEvent &)),
+            this,          SIGNAL(longKeyPressed(const KeyEvent &)));
     connect(&eventHandler, SIGNAL(shiftPressed(bool)),
             this,          SLOT(handleShiftPressed(bool)));
 
