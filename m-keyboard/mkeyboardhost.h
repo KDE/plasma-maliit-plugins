@@ -278,6 +278,9 @@ private:
     //! MInputMethod::NoIndicator if not a (supported) dead key character
     static MInputMethod::InputModeIndicator deadKeyToIndicator(const QChar &key);
 
+    //! update input engine keyboard layout according keyboard layout.
+    void updateEngineKeyboardLayout();
+
 private:
     class CycleKeyHandler; //! Reacts to cycle key press events.
     friend class CycleKeyHandler;
@@ -359,6 +362,9 @@ private:
     CycleKeyHandler *cycleKeyHandler;
 
     bool currentIndicatorDeadKey;
+
+    //! Indicates whether engine layout need to be updated
+    bool engineLayoutDirty;
 
 #ifdef UNIT_TEST
     friend class Ut_MKeyboardHost;

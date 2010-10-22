@@ -169,7 +169,8 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
       haveFocus(false),
       enableMultiTouch(false),
       cycleKeyHandler(new CycleKeyHandler(*this)),
-      currentIndicatorDeadKey(false)
+      currentIndicatorDeadKey(false),
+      engineLayoutDirty(false)
 {
     displayHeight = MPlainWindow::instance()->visibleSceneSize(M::Landscape).height();
     displayWidth  = MPlainWindow::instance()->visibleSceneSize(M::Landscape).width();
@@ -486,6 +487,9 @@ void MKeyboardHost::show()
     // not be called on hardware mode. What does host::show() even mean in hw mode?
     vkbWidget->showKeyboard();
 
+    // update input engine keyboard layout.
+    updateEngineKeyboardLayout();
+
     updateCorrectionState();
 }
 
@@ -689,8 +693,11 @@ void MKeyboardHost::finalizeOrientationChange()
             correctionCandidateWidget->disappear();
         }
     }
+
+    // reload keyboard layout for engine when orientation is changed
+    engineLayoutDirty = true;
     if (vkbWidget->isVisible()) {
-        imCorrectionEngine->setKeyboardLayoutKeys(vkbWidget->mainLayoutKeys());
+        updateEngineKeyboardLayout();
     }
 
     rotationInProgress = false;
@@ -1124,7 +1131,8 @@ void MKeyboardHost::initializeInputEngine()
         // TODO: maybe we should check return values here and in case of failure
         // be always in accurate mode, for example
         imCorrectionEngine->setLanguage(language, MImEngine::LanguagePriorityPrimary);
-        imCorrectionEngine->setKeyboardLayoutKeys(vkbWidget->mainLayoutKeys());
+        engineLayoutDirty = true;
+        updateEngineKeyboardLayout();
         synchronizeCorrectionSetting();
         imCorrectionEngine->disablePrediction();
         imCorrectionEngine->disableCompletion();
@@ -1590,4 +1598,15 @@ void MKeyboardHost::handleVirtualKeyboardLayoutChanged(const QString &layout)
     initializeInputEngine();
     updateAutoCapitalization();
     emit activeSubViewChanged(layout);
+}
+
+void MKeyboardHost::updateEngineKeyboardLayout()
+{
+    if (!engineReady || !engineLayoutDirty)
+        return;
+
+    if (activeState == MInputMethod::OnScreen) {
+        imCorrectionEngine->setKeyboardLayoutKeys(vkbWidget->mainLayoutKeys());
+    }
+    engineLayoutDirty = false;
 }
