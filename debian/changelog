@@ -1,10 +1,9 @@
-meego-keyboard (0.5.7~1) unstable; urgency=low
+meego-keyboard (0.5.7-1) unstable; urgency=low
 
-  * [UNRELEASED]
   * Fixes: NB#198448 - Sym + char works only for Eng language
   * Fixes: NB#197620 - With the text selected from the HKB,invoking VKB is making the text to disappear.
 
- -- huaming wang <huaming.wang@nokia.com>  Tue, 19 Oct 2010 13:39:54 +0300
+ -- huaming wang <huaming.wang@nokia.com>  Fri, 22 Oct 2010 10:15:49 +0300
 
 meego-keyboard (0.5.6-1) unstable; urgency=low
 
