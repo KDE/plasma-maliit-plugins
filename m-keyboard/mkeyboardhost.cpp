@@ -51,6 +51,8 @@
 #include <MSceneManager>
 #include <MSceneWindow>
 #include <MBanner>
+#include <MLocale>
+#include <MBreakIterator>
 #include <MLibrary>
 
 M_LIBRARY
@@ -503,7 +505,7 @@ void MKeyboardHost::setPreedit(const QString &preeditString)
     correctionCandidateWidget->setPreeditString(preeditString);
     if (imCorrectionEngine) {
         imCorrectionEngine->clearEngineBuffer();
-        imCorrectionEngine->appendString(preeditString);
+        imCorrectionEngine->reselectString(preeditString);
         candidates = imCorrectionEngine->candidates();
     }
 }
@@ -525,6 +527,7 @@ void MKeyboardHost::update()
     }
 
     updateAutoCapitalization();
+    updateContext();
 
     const int inputMethodModeValue = inputMethodHost()->inputMethodMode(valid);
     if (valid) {
@@ -592,6 +595,24 @@ void MKeyboardHost::updateAutoCapitalization()
     } else if ((activeState == MInputMethod::Hardware) &&
                (hardwareKeyboard->modifierState(Qt::ShiftModifier) != ModifierLockedState)) {
         hardwareKeyboard->setAutoCapitalization(autoCapsTriggered);
+    }
+}
+
+void MKeyboardHost::updateContext()
+{
+    if (!correctionEnabled || !preedit.isEmpty()) {
+        return;
+    }
+
+    bool valid = false;
+    const int type = inputMethodHost()->contentType(valid);
+    if (!valid || (type == M::NumberContentType)
+        || (type == M::PhoneNumberContentType)) {
+        return;
+    }
+
+    if (inputMethodHost()->surroundingText(surroundingText, cursorPos)) {
+        imCorrectionEngine->setContext(surroundingText, cursorPos);
     }
 }
 
@@ -667,6 +688,9 @@ void MKeyboardHost::finalizeOrientationChange()
         } else {
             correctionCandidateWidget->disappear();
         }
+    }
+    if (vkbWidget->isVisible()) {
+        imCorrectionEngine->setKeyboardLayoutKeys(vkbWidget->mainLayoutKeys());
     }
 
     rotationInProgress = false;
@@ -1067,7 +1091,15 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
         preedit += text;
 
         candidates.clear();
-        imCorrectionEngine->appendCharacter(text.at(0));
+
+        qDebug() << "event touch point:" << event.pos();
+        // send touch point to engine if not in symbol view
+        // otherwise send character to engine.
+        if ( !symbolView->isActive())
+            imCorrectionEngine->tapKeyboard(event.pos(), vkbWidget->shiftStatus() != ModifierClearState, text.at(0));
+        else
+            imCorrectionEngine->appendCharacter(text.at(0));
+
         candidates = imCorrectionEngine->candidates();
 
         const MInputMethod::PreeditFace face
@@ -1091,13 +1123,13 @@ void MKeyboardHost::initializeInputEngine()
     if (engineReady) {
         // TODO: maybe we should check return values here and in case of failure
         // be always in accurate mode, for example
-        imCorrectionEngine->setKeyboardLayout(language);
-        imCorrectionEngine->setLanguage(language, M::LanguagePriorityPrimary);
+        imCorrectionEngine->setLanguage(language, MImEngine::LanguagePriorityPrimary);
+        imCorrectionEngine->setKeyboardLayoutKeys(vkbWidget->mainLayoutKeys());
         synchronizeCorrectionSetting();
         imCorrectionEngine->disablePrediction();
         imCorrectionEngine->disableCompletion();
         imCorrectionEngine->setMaximumErrors(6);
-        imCorrectionEngine->setExactWordPositionInList(2);
+        imCorrectionEngine->setExactWordPositionInList(MImEngine::ExactInListFirst);
     }
 }
 

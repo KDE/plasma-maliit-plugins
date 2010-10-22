@@ -202,6 +202,9 @@ private:
     //! update autocapitalization state
     void updateAutoCapitalization();
 
+    //! update context
+    void updateContext();
+
     /*!
      * Reset temporary shift state (shift on state set by user or auto capitalization,
      * besides capslocked) for virtual keyboard.
