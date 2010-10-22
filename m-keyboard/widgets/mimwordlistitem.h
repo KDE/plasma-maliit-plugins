@@ -14,11 +14,18 @@
  * of this file.
  */
 
-#include "mimcorrectioncandidateitemview.h"
-#include "mimcorrectioncandidateitem.h"
 
-MImCorrectionCandidateItemView::MImCorrectionCandidateItemView(MImCorrectionCandidateItem *controller)
-    : MContentItemView(controller)
+
+#ifndef MIMWORDLISTITEM_H
+#define MIMWORDLISTITEM_H
+
+#include <MContentItem>
+
+class MImWordListItem : public MContentItem
 {
-}
+    Q_OBJECT
+public:
+    explicit MImWordListItem(QGraphicsItem *parent = 0);
+};
 
+#endif

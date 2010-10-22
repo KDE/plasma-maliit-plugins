@@ -14,22 +14,14 @@
  * of this file.
  */
 
-#ifndef MIMCORRECTIONCANDIDATEITEMVIEW_H
-#define MIMCORRECTIONCANDIDATEITEMVIEW_H
 
-#include <mcontentitemview.h>
-#include "mimcorrectioncandidateitemstyle.h"
 
-class MImCorrectionCandidateItem;
+#include "mimwordlistitem.h"
 
-class MImCorrectionCandidateItemView : public MContentItemView
+#include <mwidgetcreator.h>
+M_REGISTER_WIDGET_NO_CREATE(MImWordListItem)
+
+MImWordListItem::MImWordListItem(QGraphicsItem *parent)
+    :  MContentItem(MContentItem::SingleTextLabel, parent)
 {
-    Q_OBJECT
-    M_VIEW(MContentItemModel, MImCorrectionCandidateItemStyle)
-
-public:
-    explicit MImCorrectionCandidateItemView(MImCorrectionCandidateItem *controller);
-};
-
-#endif
-
+}

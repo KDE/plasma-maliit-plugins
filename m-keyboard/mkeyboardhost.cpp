@@ -20,7 +20,7 @@
 #include "mvirtualkeyboardstyle.h"
 #include "mvirtualkeyboard.h"
 #include "mhardwarekeyboard.h"
-#include "mimcorrectioncandidatewidget.h"
+#include "mimcorrectionhost.h"
 #include "keyboarddata.h"
 #include "layoutsmanager.h"
 #include "symbolview.h"
@@ -63,6 +63,7 @@ namespace
     bool DefaultInputMethodCorrectionSettingOption = true;
     const QString InputMethodCorrectionEngine("/meegotouch/inputmethods/correctionengine");
     const QString AutoCapsSentenceDelimiters(".?!¡¿"); // used as regexp character set content!
+    const int MaximumErrorCorrectionCandidate = 5;
     const int RotationDuration = 750; //! After vkb hidden, how long to wait until shown again
     const int AutoBackspaceDelay = 500;      // in ms
     const int BackspaceRepeatInterval = 100; // in ms
@@ -144,7 +145,7 @@ void MKeyboardHost::CycleKeyHandler::commitCycleKey()
 MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
     : MAbstractInputMethod(imHost, parent),
       vkbStyleContainer(0),
-      correctionCandidateWidget(0),
+      correctionHost(0),
       vkbWidget(0),
       symbolView(0),
       imCorrectionEngine(0),
@@ -159,7 +160,7 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
       autoCapsTriggered(false),
       cursorPos(-1),
       inputMethodMode(M::InputMethodModeNormal),
-      backSpaceTimer(),
+      backspaceTimer(),
       shiftHeldDown(false),
       activeState(MInputMethod::OnScreen),
       modifierLockOnBanner(0),
@@ -167,7 +168,8 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
       enableMultiTouch(false),
       cycleKeyHandler(new CycleKeyHandler(*this)),
       currentIndicatorDeadKey(false),
-      engineLayoutDirty(false)
+      engineLayoutDirty(false),
+      backspaceMode(NormalBackspace)
 {
     displayHeight = MPlainWindow::instance()->visibleSceneSize(M::Landscape).height();
     displayWidth  = MPlainWindow::instance()->visibleSceneSize(M::Landscape).width();
@@ -350,8 +352,8 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
 
     feedbackPlayer = MComponentData::feedbackPlayer();
 
-    backSpaceTimer.setSingleShot(true);
-    connect(&backSpaceTimer, SIGNAL(timeout()), this, SLOT(autoBackspace()));
+    backspaceTimer.setSingleShot(true);
+    connect(&backspaceTimer, SIGNAL(timeout()), this, SLOT(autoBackspace()));
 
     // hide main layout when symbol view is shown to improve performance
     connect(symbolView, SIGNAL(opened()), vkbWidget, SLOT(hideMainArea()));
@@ -367,8 +369,8 @@ MKeyboardHost::~MKeyboardHost()
     vkbWidget = 0;
     delete symbolView;
     symbolView = 0;
-    delete correctionCandidateWidget;
-    correctionCandidateWidget = 0;
+    delete correctionHost;
+    correctionHost = 0;
     delete sceneWindow;
     sceneWindow = 0;
     delete vkbStyleContainer;
@@ -379,20 +381,21 @@ MKeyboardHost::~MKeyboardHost()
         MImEngineWordsInterfaceFactory::instance()->deleteEngine(imCorrectionEngine);
         imCorrectionEngine = 0;
     }
-    backSpaceTimer.stop();
+    backspaceMode = NormalBackspace;
+    backspaceTimer.stop();
     LayoutsManager::destroyInstance();
 }
 
 void MKeyboardHost::createCorrectionCandidateWidget()
 {
     // construct correction candidate widget
-    correctionCandidateWidget = new MImCorrectionCandidateWidget(sceneWindow);
-    correctionCandidateWidget->hide();
+    correctionHost = new MImCorrectionHost(sceneWindow);
+    correctionHost->hideCorrectionWidget();
 
-    connect(correctionCandidateWidget, SIGNAL(regionUpdated(const QRegion &)),
+    connect(correctionHost, SIGNAL(regionUpdated(const QRegion &)),
             this, SLOT(handleRegionUpdate(const QRegion &)));
-    connect(correctionCandidateWidget, SIGNAL(candidateClicked(const QString &)),
-            this, SLOT(updatePreedit(const QString &)));
+    connect(correctionHost, SIGNAL(candidateClicked(const QString &)),
+            this, SLOT(commitString(const QString &)));
 }
 
 
@@ -458,7 +461,7 @@ void MKeyboardHost::show()
 
 void MKeyboardHost::hide()
 {
-    correctionCandidateWidget->disappear();
+    correctionHost->hideCorrectionWidget();
     symbolView->hideSymbolView();
     vkbWidget->hideKeyboard();
 }
@@ -468,12 +471,12 @@ void MKeyboardHost::setPreedit(const QString &preeditString)
 {
     preedit = preeditString;
     candidates.clear();
-    correctionCandidateWidget->setPreeditString(preeditString);
     if (imCorrectionEngine) {
         imCorrectionEngine->clearEngineBuffer();
         imCorrectionEngine->reselectString(preeditString);
         candidates = imCorrectionEngine->candidates();
     }
+    updatePreedit(preedit, candidates.count());
 }
 
 
@@ -600,11 +603,11 @@ void MKeyboardHost::reset()
 
 void MKeyboardHost::resetInternalState()
 {
-    backSpaceTimer.stop();
+    backspaceMode = NormalBackspace;
+    backspaceTimer.stop();
     preedit.clear();
     candidates.clear();
-    correctionCandidateWidget->setPreeditString("");
-    correctionCandidateWidget->disappear();
+    correctionHost->reset();
     if (engineReady)
         imCorrectionEngine->clearEngineBuffer();
 }
@@ -618,7 +621,7 @@ void MKeyboardHost::prepareOrientationChange()
 
     symbolView->prepareToOrientationChange();
     vkbWidget->prepareToOrientationChange();
-    correctionCandidateWidget->prepareToOrientationChange();
+    correctionHost->prepareToOrientationChange();
 }
 
 void MKeyboardHost::finalizeOrientationChange()
@@ -637,10 +640,10 @@ void MKeyboardHost::finalizeOrientationChange()
     }
 
     // Finalize candidate list after so its region will apply.
-    correctionCandidateWidget->finalizeOrientationChange();
+    correctionHost->finalizeOrientationChange();
 
     // If correction candidate widget was open we need to reposition it.
-    if (correctionCandidateWidget->isVisible()) {
+    if (correctionHost->isActive()) {
         bool success = false;
         const QRect rect = inputMethodHost()->preeditRectangle(success);
         QRect localRect;
@@ -648,11 +651,9 @@ void MKeyboardHost::finalizeOrientationChange()
         // the correct coordinates for pre-edit rectangle, so rect here
         // is null.
         if (success && !rect.isNull() && rotateRect(rect, localRect)) {
-            const int bottomLimit = sceneWindow->mapRectFromScene(vkbWidget->mainAreaSceneRect()).top();
-
-            correctionCandidateWidget->setPosition(localRect, bottomLimit);
+            correctionHost->setPosition(localRect);
         } else {
-            correctionCandidateWidget->disappear();
+            correctionHost->hideCorrectionWidget();
         }
     }
 
@@ -735,29 +736,14 @@ bool MKeyboardHost::rotateRect(const QRect &screenRect, QRect &windowRect)
 
 void MKeyboardHost::handleMouseClickOnPreedit(const QPoint &mousePos, const QRect &preeditRect)
 {
-    if (candidates.size() <= 1)
+    Q_UNUSED(mousePos);
+    Q_UNUSED(preeditRect);
+    // Shows suggestion list when there are some candidates.
+    // Even show suggestion list when there is only original input word in candidates.
+    if (candidates.size() <= 0)
         return;
 
-    QPoint localMousePos;
-    QRect localRect;
-
-    // Bottom limit for positioning candidate list widget. Keep above keyboard.
-    const int bottomLimit = sceneWindow->mapRectFromScene(vkbWidget->mainAreaSceneRect()).top();
-
-    // Use preeditRect if one was passed (not null).
-    if (!preeditRect.isNull() && rotateRect(preeditRect, localRect)) {
-        correctionCandidateWidget->setPreeditString(preedit);
-        correctionCandidateWidget->setCandidates(candidates);
-        correctionCandidateWidget->setPosition(localRect, bottomLimit);
-    } else if (rotatePoint(mousePos, localMousePos)) {
-        correctionCandidateWidget->setPreeditString(preedit);
-        correctionCandidateWidget->setCandidates(candidates);
-        correctionCandidateWidget->setPosition(localMousePos, bottomLimit);
-    } else {
-        return;
-    }
-
-    correctionCandidateWidget->showWidget();
+    correctionHost->showCorrectionWidget(MImCorrectionHost::WordListMode);
 }
 
 
@@ -775,16 +761,18 @@ void MKeyboardHost::handleAppOrientationChange(int angle)
 }
 
 
-void MKeyboardHost::updatePreedit(const QString &updatedString)
+void MKeyboardHost::commitString(const QString &updatedString)
 {
-    MInputMethod::PreeditFace face = MInputMethod::PreeditDefault;
-
-    if (candidates.count() < 2)
-        face = MInputMethod::PreeditNoCandidates;
-
-    preedit = updatedString;
-    inputMethodHost()->sendPreeditString(updatedString, face);
-    correctionCandidateWidget->setPreeditString(updatedString);
+    if (candidates.count() > 1) {
+        int suggestionIndex = candidates.indexOf(updatedString);
+        if (suggestionIndex >= 0) {
+            qDebug() << "save index:" << suggestionIndex;
+            imCorrectionEngine->setSuggestedCandidateIndex(suggestionIndex);
+        }
+    }
+    imCorrectionEngine->saveAndClearEngineBuffer();
+    inputMethodHost()->sendCommitString(updatedString);
+    preedit.clear();
 }
 
 
@@ -792,12 +780,8 @@ void MKeyboardHost::doBackspace()
 {
     // note: backspace shouldn't start accurate mode
     if (preedit.length() > 0) {
-        if (!backSpaceTimer.isActive()) {
+        if (!backspaceTimer.isActive()) {
             setPreedit(preedit.left(preedit.length() - 1));
-            const MInputMethod::PreeditFace face
-                = candidates.count() < 2
-                ? MInputMethod::PreeditNoCandidates : MInputMethod::PreeditDefault;
-            inputMethodHost()->sendPreeditString(preedit, face);
         } else {
             resetInternalState();
             inputMethodHost()->sendCommitString("");
@@ -820,7 +804,7 @@ void MKeyboardHost::doBackspace()
 
 void MKeyboardHost::autoBackspace()
 {
-    backSpaceTimer.start(BackspaceRepeatInterval); // Must restart before doBackspace
+    backspaceTimer.start(BackspaceRepeatInterval); // Must restart before doBackspace
     doBackspace();
 }
 
@@ -844,7 +828,17 @@ void MKeyboardHost::handleKeyPress(const KeyEvent &event)
         requestType = MInputMethod::EventRequestBoth;
 
     } else if (event.qtKey() == Qt::Key_Backspace) {
-        backSpaceTimer.start(AutoBackspaceDelay);
+        if (correctionHost->isActive()
+            && correctionHost->candidateMode() == MImCorrectionHost::WordTrackerMode) {
+            // hide word tracker when backspace key press
+            correctionHost->hideCorrectionWidget();
+            // WordTrackerBackspace mode: hide word tracker when backspace key press.
+            // And remove preedit if holding backspace long enough. But does nothing
+            // for backspace key release.
+            startBackspace(WordTrackerBackspace);
+        } else {
+            startBackspace(NormalBackspace);
+        }
     }
 
     inputMethodHost()->sendKeyEvent(event.toQKeyEvent(), requestType);
@@ -869,9 +863,16 @@ void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
 
         requestType = MInputMethod::EventRequestBoth;
 
-    } else if ((event.qtKey() == Qt::Key_Backspace) && backSpaceTimer.isActive()) {
-        backSpaceTimer.stop();
-        doBackspace();
+    } else if ((event.qtKey() == Qt::Key_Backspace)) {
+        if ( backspaceTimer.isActive()) {
+            backspaceTimer.stop();
+            // If the backspace Mode is WordTrackerBackspace, don't need to
+            // do backspace.
+            if (backspaceMode != WordTrackerBackspace) {
+                doBackspace();
+            }
+            backspaceMode = NormalBackspace;
+        }
     }
 
     inputMethodHost()->sendKeyEvent(event.toQKeyEvent(), requestType);
@@ -895,8 +896,8 @@ void MKeyboardHost::updateReactionMaps()
         }
 
         // Candidates widget
-        if (correctionCandidateWidget && correctionCandidateWidget->isVisible()) {
-            correctionCandidateWidget->paintReactionMap(reactionMap, view);
+        if (correctionHost && correctionHost->isActive()) {
+            correctionHost->paintReactionMap(reactionMap, view);
 
             // Correction candidate widget always occupies whole screen.
             continue;
@@ -1036,24 +1037,32 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
         if (preedit.length() > 0) {
             // we just entered accurate mode. send the previous preedit stuff.
             inputMethodHost()->sendCommitString(preedit);
+            if (engineReady)
+                imCorrectionEngine->clearEngineBuffer();
             preedit.clear();
         }
 
         inputMethodHost()->sendCommitString(text);
 
     } else if ((event.qtKey() == Qt::Key_Space) || (event.qtKey() == Qt::Key_Return) || (event.qtKey() == Qt::Key_Tab)) {
-        // commit string
-        inputMethodHost()->sendCommitString(preedit);
-        if (lastClickEvent.specialKey() != KeyEvent::CycleSet) {
-            imCorrectionEngine->setSuggestedCandidateIndex(correctionCandidateWidget->activeIndex());
-            imCorrectionEngine->saveAndClearEngineBuffer();
-            correctionCandidateWidget->setPreeditString("");
+        // commit suggestion if correction candidate widget is visible and with popupMode
+        // otherwise commit preedit
+        if (event.qtKey() == Qt::Key_Space
+            && correctionHost->isActive()
+            && correctionHost->candidateMode() == MImCorrectionHost::WordTrackerMode) {
+            inputMethodHost()->sendCommitString(correctionHost->suggestion());
         } else {
-            imCorrectionEngine->clearEngineBuffer();
+            inputMethodHost()->sendCommitString(preedit);
+        }
+
+        if (lastClickEvent.specialKey() != KeyEvent::CycleSet) {
+            candidates.clear();
+            correctionHost->reset();
         }
         // send trailing space
         inputMethodHost()->sendCommitString(text);
 
+        imCorrectionEngine->clearEngineBuffer();
         preedit.clear();
     } else {
         // common case: just append stuff to current preedit
@@ -1061,7 +1070,6 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
 
         candidates.clear();
 
-        qDebug() << "event touch point:" << event.pos();
         // send touch point to engine if not in symbol view
         // otherwise send character to engine.
         if ( !symbolView->isActive())
@@ -1070,11 +1078,27 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
             imCorrectionEngine->appendCharacter(text.at(0));
 
         candidates = imCorrectionEngine->candidates();
+        MImEngine::DictionaryType sourceDictionaryType = imCorrectionEngine->candidateSource(0);
 
-        const MInputMethod::PreeditFace face
-            = candidates.count() < 2
-            ? MInputMethod::PreeditNoCandidates : MInputMethod::PreeditDefault;
-        inputMethodHost()->sendPreeditString(preedit, face);
+        correctionHost->setCandidates(candidates);
+
+        updatePreedit(preedit, candidates.count());
+
+        // because the written word (preedit) should be on the top of candidate list.
+        // So when there are some other candidates and the preedit is not a valid
+        // dictionary word, show word tracker.
+        if (candidates.count() > 1
+            && sourceDictionaryType == MImEngine::DictionaryTypeInvalid) {
+            bool success = false;
+            const QRect rect = inputMethodHost()->preeditRectangle(success);
+            QRect localRect;
+            if (success && !rect.isNull() && rotateRect(rect, localRect)) {
+                correctionHost->setPosition(localRect);
+                correctionHost->showCorrectionWidget(MImCorrectionHost::WordTrackerMode);
+            }
+        } else {
+            correctionHost->hideCorrectionWidget();
+        }
     }
 }
 
@@ -1097,8 +1121,8 @@ void MKeyboardHost::initializeInputEngine()
         updateEngineKeyboardLayout();
         synchronizeCorrectionSetting();
         imCorrectionEngine->disablePrediction();
-        imCorrectionEngine->disableCompletion();
-        imCorrectionEngine->setMaximumErrors(6);
+        imCorrectionEngine->enableCompletion();
+        imCorrectionEngine->setMaximumCandidates(MaximumErrorCorrectionCandidate);
         imCorrectionEngine->setExactWordPositionInList(MImEngine::ExactInListFirst);
     }
 }
@@ -1571,4 +1595,24 @@ void MKeyboardHost::updateEngineKeyboardLayout()
         imCorrectionEngine->setKeyboardLayoutKeys(vkbWidget->mainLayoutKeys());
     }
     engineLayoutDirty = false;
+}
+
+void MKeyboardHost::updatePreedit(const QString &string, int candidateCount)
+{
+    // preedit style type depends on candidateCount.
+    // candidateCount     styleType
+    //  0 or 1            PreeditNoCandidates
+    //  1 or >1           PreeditDefault
+    MInputMethod::PreeditFace face = MInputMethod::PreeditNoCandidates;
+    if (candidateCount > 1) {
+        face = MInputMethod::PreeditDefault;
+    }
+
+    inputMethodHost()->sendPreeditString(string, face);
+}
+
+void MKeyboardHost::startBackspace(MKeyboardHost::BackspaceMode mode)
+{
+    backspaceMode = mode;
+    backspaceTimer.start(AutoBackspaceDelay);
 }

@@ -17,17 +17,26 @@
 #ifndef MIMCORRECTIONCANDIDATEITEMSTYLE_H
 #define MIMCORRECTIONCANDIDATEITEMSTYLE_H
 
-#include <mcontentitemstyle.h>
+#include <MWidgetStyle>
 
-class MImCorrectionCandidateItemStyle : public MContentItemStyle
+class MImCorrectionCandidateItemStyle : public MWidgetStyle
 {
     Q_OBJECT
     M_STYLE(MImCorrectionCandidateItemStyle)
+
+    M_STYLE_ATTRIBUTE(QFont, font, Font)
+    M_STYLE_ATTRIBUTE(QColor, fontColor, FontColor)
+
+    M_STYLE_ATTRIBUTE(int, pressTimeout, PressTimeout)
+    M_STYLE_ATTRIBUTE(int, releaseMissDelta, ReleaseMissDelta)
 };
 
-class M_EXPORT MImCorrectionCandidateItemStyleContainer : public MContentItemStyleContainer
+class M_EXPORT MImCorrectionCandidateItemStyleContainer : public MWidgetStyleContainer
 {
     M_STYLE_CONTAINER(MImCorrectionCandidateItemStyle)
+
+    M_STYLE_MODE(Landscape)
+    M_STYLE_MODE(Portrait)
 };
 
 #endif

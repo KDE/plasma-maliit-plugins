@@ -29,7 +29,7 @@
 
 class MFeedbackPlayer;
 class MGConfItem;
-class MImCorrectionCandidateWidget;
+class MImCorrectionHost;
 class MSceneWindow;
 class MVirtualKeyboard;
 class MVirtualKeyboardStyleContainer;
@@ -101,9 +101,11 @@ private slots:
     void updateReactionMaps();
 
     /*!
-     * Update the pre-edit word
+     * \brief Commits \a string.
+     *
+     * If there exists preedit, the preedit will be replaced.
      */
-    void updatePreedit(const QString &string);
+    void commitString(const QString &string);
 
     /*! \brief Prepares vkb for orientation change when application is about to rotate.
      *
@@ -281,6 +283,20 @@ private:
     //! update input engine keyboard layout according keyboard layout.
     void updateEngineKeyboardLayout();
 
+    //! update preedit according error correction candidates.
+    void updatePreedit(const QString &string, int candidateCount);
+
+    /*!
+     * \brief This enum defines different mode for backspace clicking.
+     */
+    enum BackspaceMode {
+        NormalBackspace, //!< backspace for normal state.
+        WordTrackerBackspace //!< backspace when word tracker is visible.
+    };
+
+    //! start backspaceTimer according \a mode
+    void startBackspace(BackspaceMode mode);
+
 private:
     class CycleKeyHandler; //! Reacts to cycle key press events.
     friend class CycleKeyHandler;
@@ -288,7 +304,7 @@ private:
 
     MVirtualKeyboardStyleContainer *vkbStyleContainer;
 
-    MImCorrectionCandidateWidget *correctionCandidateWidget;
+    MImCorrectionHost *correctionHost;
     MVirtualKeyboard *vkbWidget;
     MHardwareKeyboard *hardwareKeyboard;
     SymbolView *symbolView;
@@ -322,7 +338,7 @@ private:
 
     int inputMethodMode;
 
-    QTimer backSpaceTimer;
+    QTimer backspaceTimer;
 
     KeyEvent lastClickEvent;
 
@@ -361,6 +377,8 @@ private:
 
     //! Indicates whether engine layout need to be updated
     bool engineLayoutDirty;
+
+    BackspaceMode backspaceMode;
 
 #ifdef UNIT_TEST
     friend class Ut_MKeyboardHost;

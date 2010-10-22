@@ -15,15 +15,192 @@
  */
 
 #include "mimcorrectioncandidateitem.h"
-#include "mimcorrectioncandidateitemview.h"
+#include <QTimer>
+#include <QFontMetricsF>
+#include <QGraphicsSceneMouseEvent>
+#include <QDebug>
 
-MImCorrectionCandidateItem::MImCorrectionCandidateItem(MContentItem::ContentItemStyle itemStyle, QGraphicsItem *parent)
-    : MContentItem(itemStyle, parent)
+namespace {
+    const int DefaultPressTimeout = 250;
+    const int DefaultReleaseMissDelta = 30;
+}
+
+#include <mwidgetcreator.h>
+M_REGISTER_WIDGET_NO_CREATE(MImCorrectionCandidateItem)
+
+MImCorrectionCandidateItem::MImCorrectionCandidateItem(const QString &title, QGraphicsItem *parent)
+    : MStylableWidget(parent),
+      mSelected(false),
+      mDown(false),
+      mTitle(title),
+      styleModeChangeTimer(),
+      queuedStyleModeChange(false)
+      
 {
-    setView(new MImCorrectionCandidateItemView(this));
+    styleModeChangeTimer.setSingleShot(true);
+    connect(&styleModeChangeTimer, SIGNAL(timeout()), SLOT(applyQueuedStyleModeChange()));
+
+    connect(this, SIGNAL(visibleChanged()),
+            this, SLOT(handleVisibilityChanged()));
 }
 
 MImCorrectionCandidateItem::~MImCorrectionCandidateItem()
 {
 }
 
+void MImCorrectionCandidateItem::setTitle(const QString &string)
+{
+    if (mTitle != string) {
+        mTitle = string;
+        update();
+    }
+}
+
+QString MImCorrectionCandidateItem::title() const
+{
+    return mTitle;
+}
+
+void MImCorrectionCandidateItem::setSelected(bool select)
+{
+    mSelected = select;
+    if (mSelected)
+        style().setModeSelected();
+    else 
+        style().setModeDefault();
+}
+
+bool MImCorrectionCandidateItem::selected() const
+{
+    return mSelected;
+}
+
+void MImCorrectionCandidateItem::click()
+{
+    emit clicked();
+}
+
+void MImCorrectionCandidateItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    event->accept();
+    if (mDown)
+        return;
+    
+    style()->pressFeedback().play();
+    mDown = true;
+    updateStyleMode();
+}
+
+void MImCorrectionCandidateItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    event->accept();
+    if (!mDown)
+        return;
+    
+    mDown = false;
+    updateStyleMode();
+
+    QPointF touch = event->scenePos();
+    QRectF rect = sceneBoundingRect();
+    int releaseMissDelta = style()->releaseMissDelta();
+    releaseMissDelta = (releaseMissDelta > 0) ? releaseMissDelta : DefaultReleaseMissDelta;
+    rect.adjust(-releaseMissDelta, -releaseMissDelta,
+                releaseMissDelta, releaseMissDelta);
+    bool pressed = rect.contains(touch);
+
+    if (pressed) {
+        style()->releaseFeedback().play();
+        click();
+    }
+}
+
+void MImCorrectionCandidateItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    event->accept();
+
+    QPointF touch = event->scenePos();
+    QRectF rect = sceneBoundingRect();
+    int releaseMissDelta = style()->releaseMissDelta();
+    releaseMissDelta = (releaseMissDelta > 0) ? releaseMissDelta : DefaultReleaseMissDelta;
+    rect.adjust(-releaseMissDelta, -releaseMissDelta,
+                releaseMissDelta, releaseMissDelta);
+    bool pressed = rect.contains(touch);
+
+    if (pressed != mDown) {
+        if (pressed) {
+            style()->pressFeedback().play();
+        } else {
+            style()->cancelFeedback().play();
+        }
+        mDown = pressed;
+        updateStyleMode();
+    }
+}
+
+void MImCorrectionCandidateItem::updateStyleMode()
+{
+    if (mDown) {
+        int pressTimeout = style()->pressTimeout();
+        pressTimeout = (pressTimeout > 0) ? pressTimeout : DefaultPressTimeout;
+        if (styleModeChangeTimer.isActive()) {
+            styleModeChangeTimer.start(pressTimeout);
+            return;
+        }
+        styleModeChangeTimer.start(pressTimeout);
+        style().setModePressed();
+    } else {
+        if (isSelected()) {
+            style().setModeSelected();
+        } else {
+            if (styleModeChangeTimer.isActive()) {
+                queuedStyleModeChange = true;
+                return;
+            }
+            style().setModeDefault();
+        }
+    }
+
+    applyStyle();
+    update();
+}
+
+void MImCorrectionCandidateItem::applyQueuedStyleModeChange()
+{
+    if (queuedStyleModeChange) {
+        queuedStyleModeChange = false;
+        updateStyleMode();
+    }
+}
+
+void MImCorrectionCandidateItem::drawContents(QPainter *painter, const QStyleOptionGraphicsItem *option) const
+{
+    Q_UNUSED(option);
+    if (!mTitle.isEmpty()) {
+        painter->setFont(style()->font());
+        painter->setPen(style()->fontColor());
+        QSizeF s = size() - QSizeF(style()->marginLeft() + style()->marginRight(),
+                                   style()->marginTop() + style()->marginBottom());
+        painter->drawText(QRectF(0, 0, s.width(), s.height()), Qt::AlignCenter, mTitle); 
+    }
+}
+
+qreal MImCorrectionCandidateItem::idealWidth() const
+{
+    qreal width = 0.0;
+    if (!mTitle.isEmpty()) {
+        QFontMetricsF fm(style()->font());
+        width = fm.width(mTitle);
+    }
+    width += style()->marginLeft() + style()->marginRight()
+             + style()->paddingRight() + style()->paddingLeft();
+    return width;
+}
+
+void MImCorrectionCandidateItem::handleVisibilityChanged()
+{
+    //clear select and down state when hidden
+    if (!isVisible()) {
+        mSelected = false;
+        mDown =false;
+    }
+}
