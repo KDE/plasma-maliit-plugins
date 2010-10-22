@@ -1,3 +1,9 @@
+meego-keyboard (0.5.8~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- huaming wang <huaming.wang@noknokia.comm>  Fri, 22 Oct 2010 10:19:03 +0300
+
 meego-keyboard (0.5.7-1) unstable; urgency=low
 
   * Fixes: NB#198448 - Sym + char works only for Eng language
