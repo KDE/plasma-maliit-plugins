@@ -272,7 +272,7 @@ void Ut_KeyButtonArea::testSceneEvent()
     QGraphicsSceneMouseEvent *press = new QGraphicsSceneMouseEvent(QEvent::GraphicsSceneMousePress);
     QGraphicsSceneMouseEvent *release = new QGraphicsSceneMouseEvent(QEvent::GraphicsSceneMouseRelease);
     QGraphicsSceneMouseEvent *move = new QGraphicsSceneMouseEvent(QEvent::GraphicsSceneMouseMove);
-    QSignalSpy spy(subject, SIGNAL(keyClicked(const IKeyButton*, const QString&, bool)));
+    QSignalSpy spy(subject, SIGNAL(keyClicked(const IKeyButton*, const QString&, bool, const QPoint&)));
     QSignalSpy spyPressed(subject, SIGNAL(keyPressed(const IKeyButton*, const QString&, bool)));
 
     QVERIFY(spy.isValid());
@@ -290,6 +290,13 @@ void Ut_KeyButtonArea::testSceneEvent()
     QCOMPARE(spy.count(), 0);
     subject->sceneEvent(release);
     QCOMPARE(spy.count(), 1);
+    QList<QVariant> arguments = spy.takeFirst(); // take the first signal
+    QCOMPARE(arguments.count(), 4);
+
+    // verify the corrected touch point is within touched key button area.
+    IKeyButton *key = keyAt(0, 0);
+    QVERIFY(key->buttonRect().contains(arguments.at(3).toPoint()));
+
     QCOMPARE(spyPressed.count(), 1);
 
     delete press;
@@ -341,7 +348,7 @@ void Ut_KeyButtonArea::testDeadkeys()
                         false, 0);
     MPlainWindow::instance()->scene()->addItem(subject);
     subject->resize(defaultLayoutSize());
-    QSignalSpy spy(subject, SIGNAL(keyClicked(const IKeyButton*, const QString&, bool)));
+    QSignalSpy spy(subject, SIGNAL(keyClicked(const IKeyButton*, const QString&, bool, const QPoint&)));
     IKeyButton *key = 0;
     QList<int> positions;
     int i;
@@ -676,7 +683,7 @@ void Ut_KeyButtonArea::testMultiTouch()
 
     QSignalSpy pressed(subject, SIGNAL(keyPressed(const IKeyButton*, const QString&, bool)));
     QSignalSpy released(subject, SIGNAL(keyReleased(const IKeyButton*, const QString&, bool)));
-    QSignalSpy clicked(subject, SIGNAL(keyClicked(const IKeyButton*, const QString&, bool )));
+    QSignalSpy clicked(subject, SIGNAL(keyClicked(const IKeyButton*, const QString&, bool, const QPoint&)));
 
     QVERIFY(pressed.isValid());
     QVERIFY(released.isValid());
