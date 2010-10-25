@@ -152,6 +152,9 @@ private slots:
     //! This overloaded function handles region updates from sharedHandleArea.
     void handleInputMethodAreaUpdate();
 
+    //! Changes plugin into given direction
+    void switchPlugin(MInputMethod::SwitchDirection direction);
+
     //! Sends key event
     void sendKeyEvent(const QKeyEvent &);
 

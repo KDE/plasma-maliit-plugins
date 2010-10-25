@@ -222,7 +222,7 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
             this, SLOT(userHide()));
 
     connect(vkbWidget, SIGNAL(pluginSwitchRequired(MInputMethod::SwitchDirection)),
-            this, SIGNAL(pluginSwitchRequired(MInputMethod::SwitchDirection)));
+            this, SLOT(switchPlugin(MInputMethod::SwitchDirection)));
 
     // construct hardware keyboard object
     hardwareKeyboard = new MHardwareKeyboard(*imHost, this);
@@ -1168,7 +1168,7 @@ void MKeyboardHost::sendCopyPaste(CopyPasteState action)
 
 void MKeyboardHost::showLayoutMenu()
 {
-    emit settingsRequested();
+    inputMethodHost()->showSettings();
 }
 
 void MKeyboardHost::setRegionInfo(RegionList &regionStore,
@@ -1246,6 +1246,11 @@ void MKeyboardHost::handleInputMethodAreaUpdate(const QRegion &region)
 void MKeyboardHost::handleInputMethodAreaUpdate()
 {
     emit inputMethodAreaUpdated(combineInputMethodArea());
+}
+
+void MKeyboardHost::switchPlugin(MInputMethod::SwitchDirection direction)
+{
+    inputMethodHost()->switchPlugin(direction);
 }
 
 void MKeyboardHost::sendKeyEvent(const QKeyEvent &key)

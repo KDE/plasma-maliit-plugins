@@ -162,3 +162,17 @@ void MInputMethodHostStub::setRedirectKeys(bool enabled)
 void MInputMethodHostStub::setDetectableAutoRepeat(bool /*enabled*/)
 {
 }
+
+void MInputMethodHostStub::switchPlugin(MInputMethod::SwitchDirection direction)
+{
+    Q_UNUSED(direction);
+}
+
+void MInputMethodHostStub::switchPlugin(const QString &pluginName)
+{
+    Q_UNUSED(pluginName);
+}
+
+void MInputMethodHostStub::showSettings()
+{
+}

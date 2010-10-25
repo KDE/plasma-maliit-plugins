@@ -54,6 +54,10 @@ public:
     virtual void setRedirectKeys(bool enabled);
     virtual void setDetectableAutoRepeat(bool enabled);
 
+    virtual void switchPlugin(MInputMethod::SwitchDirection direction);
+    virtual void switchPlugin(const QString &pluginName);
+    virtual void showSettings();
+
     QString preedit;
     QString commit;
     QList<QKeyEvent *> keyEvents;

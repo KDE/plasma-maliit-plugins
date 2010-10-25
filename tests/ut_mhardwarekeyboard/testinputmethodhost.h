@@ -128,6 +128,18 @@ public:
         return keyEventCounter;
     }
 
+    virtual void switchPlugin(MInputMethod::SwitchDirection /*direction*/)
+    {
+    }
+
+    virtual void switchPlugin(const QString & /*pluginName*/)
+    {
+    }
+
+    virtual void showSettings()
+    {
+    }
+
 private:
     Q_DISABLE_COPY(TestInputMethodHost)
 
