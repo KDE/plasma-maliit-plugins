@@ -77,9 +77,11 @@ void HorizontalSwitcher::switchTo(SwitchDirection direction)
 
     // Current item is about to leave
     leaveAnim.setItem(currentWidget);
+    currentWidget->setEnabled(false);
 
     // New item is about to enter
     enterAnim.setItem(nextWidget);
+    nextWidget->setEnabled(false);
 
     // Try to fit current size.
     nextWidget->resize(size());
@@ -278,6 +280,10 @@ void HorizontalSwitcher::finishAnimation()
 
     // Discard cached sizehint info before telling that the switch is done.
     updateGeometry();
+
+    if (currentWidget()) {
+        currentWidget()->setEnabled(true);
+    }
 
     emit switchDone(oldIndex, currentIndex);
     emit switchDone(old, slides.at(currentIndex));
