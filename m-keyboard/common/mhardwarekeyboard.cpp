@@ -530,7 +530,8 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
         inputContextConnection.sendKeyEvent(
             QKeyEvent(QEvent::KeyPress, keyCode,
                       modifiers & ~Qt::KeyboardModifiers(Qt::ShiftModifier),
-                      text, autoRepeat, count));
+                      text, autoRepeat, count),
+            MInputMethod::EventRequestEventOnly);
         eaten = true;
     }
 
@@ -611,7 +612,8 @@ bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers 
     else if (shiftsPressed && (keyCode == Qt::Key_Delete)) {
         inputContextConnection.sendKeyEvent(
             QKeyEvent(QEvent::KeyRelease, keyCode,
-                      modifiers & ~Qt::KeyboardModifiers(Qt::ShiftModifier), text, false, 1));
+                      modifiers & ~Qt::KeyboardModifiers(Qt::ShiftModifier), text, false, 1),
+            MInputMethod::EventRequestEventOnly);
         eaten = true;
     }
 

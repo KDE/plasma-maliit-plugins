@@ -1,6 +1,7 @@
 meego-keyboard (0.5.8~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#198827, Backspace removes two characters
   * Changes: forward touch position for key click
   * Implemented: SWP#TINME-1136 - Language indicator working with 3rd party plugin.
 

@@ -75,9 +75,10 @@ void MInputContextStubConnection::sendCommitString(const QString &string)
 }
 
 
-void MInputContextStubConnection::sendKeyEvent(const QKeyEvent &keyEvent_, bool signalOnly)
+void MInputContextStubConnection::sendKeyEvent(const QKeyEvent &keyEvent_,
+                                               MInputMethod::EventRequestType requestType)
 {
-    Q_UNUSED(signalOnly);
+    Q_UNUSED(requestType);
     keyEvents.append(new QKeyEvent(keyEvent_));
     ++sendKeyEventCalls;
 }

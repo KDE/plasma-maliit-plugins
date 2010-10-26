@@ -814,7 +814,8 @@ void MKeyboardHost::doBackspace()
                              KeyEvent::NotSpecial,
                              vkbWidget->shiftStatus() != ModifierClearState
                              ? Qt::ShiftModifier : Qt::NoModifier);
-        inputContextConnection()->sendKeyEvent(event.toQKeyEvent());
+        inputContextConnection()->sendKeyEvent(event.toQKeyEvent(),
+                                               MInputMethod::EventRequestEventOnly);
     }
     // Backspace toggles shift off if it's on (not locked)
     // except if autoCaps is on and cursor is at 0 position.
@@ -842,18 +843,18 @@ void MKeyboardHost::handleKeyPress(const KeyEvent &event)
         }
     }
 
-    bool signalOnly = true;
+    MInputMethod::EventRequestType requestType = MInputMethod::EventRequestSignalOnly;
     if (((inputMethodMode == M::InputMethodModeDirect)
          && (event.specialKey() == KeyEvent::NotSpecial))
         || (event.qtKey() == Qt::Key_plusminus)) { // plusminus key makes an exception
 
-        signalOnly = false;
+        requestType = MInputMethod::EventRequestBoth;
 
     } else if (event.qtKey() == Qt::Key_Backspace) {
         backSpaceTimer.start(AutoBackspaceDelay);
     }
 
-    inputContextConnection()->sendKeyEvent(event.toQKeyEvent(), signalOnly);
+    inputContextConnection()->sendKeyEvent(event.toQKeyEvent(), requestType);
 }
 
 void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
@@ -868,19 +869,19 @@ void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
         }
     }
 
-    bool signalOnly = true;
+    MInputMethod::EventRequestType requestType = MInputMethod::EventRequestSignalOnly;
     if (((inputMethodMode == M::InputMethodModeDirect)
          && (event.specialKey() == KeyEvent::NotSpecial))
         || (event.qtKey() == Qt::Key_plusminus)) { // plusminus key makes an exception
 
-        signalOnly = false;
+        requestType = MInputMethod::EventRequestBoth;
 
     } else if ((event.qtKey() == Qt::Key_Backspace) && backSpaceTimer.isActive()) {
         backSpaceTimer.stop();
         doBackspace();
     }
 
-    inputContextConnection()->sendKeyEvent(event.toQKeyEvent(), signalOnly);
+    inputContextConnection()->sendKeyEvent(event.toQKeyEvent(), requestType);
 }
 
 void MKeyboardHost::updateReactionMaps()
@@ -1276,7 +1277,8 @@ void MKeyboardHost::processKeyEvent(QEvent::Type keyType, Qt::Key keyCode,
                                           autoRepeat, count, nativeScanCode,
                                           nativeModifiers)) {
         inputContextConnection()->sendKeyEvent(QKeyEvent(keyType, keyCode, modifiers, text,
-                                                         autoRepeat, count));
+                                                         autoRepeat, count),
+                                               MInputMethod::EventRequestEventOnly);
     }
 }
 

@@ -96,9 +96,9 @@ public:
     }
 
     virtual void sendKeyEvent(const QKeyEvent &keyEvent,
-                              bool signalOnly)
+                              MInputMethod::EventRequestType requestType)
     {
-        Q_UNUSED(signalOnly);
+        Q_UNUSED(requestType);
         ++keyEventCounter;
         lastKeyEventM = keyEvent;
     }
