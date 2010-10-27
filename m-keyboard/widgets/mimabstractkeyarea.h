@@ -85,6 +85,9 @@ public:
     //! Returns relative button base width
     qreal relativeButtonBaseWidth() const;
 
+    //! Returns all keys.
+    virtual QList<const MImAbstractKey *> keys() = 0;
+
 public slots:
     /*!
      * This slot is used to switch levels

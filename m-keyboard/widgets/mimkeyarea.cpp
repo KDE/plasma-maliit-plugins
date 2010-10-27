@@ -716,3 +716,14 @@ void MImKeyArea::onThemeChangeCompleted()
     MImAbstractKeyArea::onThemeChangeCompleted();
     buildTextLayout();
 }
+
+QList<const MImAbstractKey *> MImKeyArea::keys()
+{
+    QList<const MImAbstractKey *> keyList;
+    foreach (const ButtonRow &row, rowList) {
+        foreach (const MImKey *button, row.buttons) {
+            keyList << button;
+        }
+    }
+    return keyList;
+}

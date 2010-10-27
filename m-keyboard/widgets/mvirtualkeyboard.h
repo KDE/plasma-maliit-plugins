@@ -27,6 +27,7 @@
 #include <minputmethodnamespace.h>
 #include <MWidget>
 #include <MNamespace>
+#include <mimenginetypes.h>
 #include <QPixmap>
 #include <QSharedPointer>
 #include <QTimeLine>
@@ -168,6 +169,11 @@ public:
     //! Show notification informing about current language if keyboard is active, otherwise create
     //! pending request.
     void requestLanguageNotification();
+
+    /*!
+     * \brief Returns the keys in the main layout.
+     */
+    QList<MImEngine::KeyboardLayoutKey> mainLayoutKeys() const;
 
 public slots:
     /*!
