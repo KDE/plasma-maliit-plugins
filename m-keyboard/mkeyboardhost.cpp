@@ -31,7 +31,7 @@
 #include "sharedhandlearea.h"
 
 #include <mimenginewordsinterfacefactory.h>
-#include <minputcontextconnection.h>
+#include <mabstractinputmethodhost.h>
 #include <mplainwindow.h>
 #include <mtoolbardata.h>
 #include <mgconfitem.h>
@@ -124,8 +124,8 @@ bool MKeyboardHost::CycleKeyHandler::handleTextInputKeyClick(const KeyEvent &eve
     }
 
     host.preedit += cycleText[cycleIndex];
-    host.inputContextConnection()->sendPreeditString(host.preedit,
-                                                     MInputMethod::PreeditNoCandidates);
+    host.inputMethodHost()->sendPreeditString(host.preedit,
+                                              MInputMethod::PreeditNoCandidates);
 
     timer.start();
 
@@ -142,8 +142,8 @@ void MKeyboardHost::CycleKeyHandler::commitCycleKey()
     }
 }
 
-MKeyboardHost::MKeyboardHost(MInputContextConnection *icConnection, QObject *parent)
-    : MInputMethodBase(icConnection, parent),
+MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
+    : MInputMethodBase(imHost, parent),
       vkbStyleContainer(0),
       correctionCandidateWidget(0),
       vkbWidget(0),
@@ -225,7 +225,7 @@ MKeyboardHost::MKeyboardHost(MInputContextConnection *icConnection, QObject *par
             this, SIGNAL(pluginSwitchRequired(MInputMethod::SwitchDirection)));
 
     // construct hardware keyboard object
-    hardwareKeyboard = new MHardwareKeyboard(*icConnection, this);
+    hardwareKeyboard = new MHardwareKeyboard(*imHost, this);
     connect(hardwareKeyboard, SIGNAL(symbolKeyClicked()),
             this, SLOT(handleSymbolKeyClick()));
 
@@ -513,12 +513,12 @@ void MKeyboardHost::update()
 {
     bool valid = false;
 
-    const bool hasSelection = inputContextConnection()->hasSelection(valid);
+    const bool hasSelection = inputMethodHost()->hasSelection(valid);
     if (valid) {
         imToolbar->setSelectionStatus(hasSelection);
     }
 
-    const int type = inputContextConnection()->contentType(valid);
+    const int type = inputMethodHost()->contentType(valid);
     if (valid) {
         hardwareKeyboard->setKeyboardType(static_cast<M::TextContentType>(type));
         vkbWidget->setKeyboardType(type);
@@ -526,7 +526,7 @@ void MKeyboardHost::update()
 
     updateAutoCapitalization();
 
-    const int inputMethodModeValue = inputContextConnection()->inputMethodMode(valid);
+    const int inputMethodModeValue = inputMethodHost()->inputMethodMode(valid);
     if (valid) {
         inputMethodMode = inputMethodModeValue;
         hardwareKeyboard->setInputMethodMode(static_cast<M::InputMethodMode>(inputMethodMode));
@@ -557,16 +557,16 @@ void MKeyboardHost::updateAutoCapitalization()
         break;
     }
     bool valid = false;
-    const int type = inputContextConnection()->contentType(valid);
+    const int type = inputMethodHost()->contentType(valid);
     autoCapsEnabled = (autoCapsEnabled
                        && valid
                        && (type != M::NumberContentType)
                        && (type != M::PhoneNumberContentType));
     autoCapsEnabled = (autoCapsEnabled
-                       && inputContextConnection()->autoCapitalizationEnabled(valid)
+                       && inputMethodHost()->autoCapitalizationEnabled(valid)
                        && valid);
     autoCapsEnabled = (autoCapsEnabled
-                       && inputContextConnection()->surroundingText(surroundingText, cursorPos));
+                       && inputMethodHost()->surroundingText(surroundingText, cursorPos));
 
     if (!autoCapsEnabled)
         return;
@@ -655,7 +655,7 @@ void MKeyboardHost::finalizeOrientationChange()
     // If correction candidate widget was open we need to reposition it.
     if (correctionCandidateWidget->isVisible()) {
         bool success = false;
-        const QRect rect = inputContextConnection()->preeditRectangle(success);
+        const QRect rect = inputMethodHost()->preeditRectangle(success);
         QRect localRect;
         // Note: For Qt applications we don't have means to retrieve
         // the correct coordinates for pre-edit rectangle, so rect here
@@ -790,7 +790,7 @@ void MKeyboardHost::updatePreedit(const QString &updatedString)
         face = MInputMethod::PreeditNoCandidates;
 
     preedit = updatedString;
-    inputContextConnection()->sendPreeditString(updatedString, face);
+    inputMethodHost()->sendPreeditString(updatedString, face);
     correctionCandidateWidget->setPreeditString(updatedString);
 }
 
@@ -804,18 +804,18 @@ void MKeyboardHost::doBackspace()
             const MInputMethod::PreeditFace face
                 = candidates.count() < 2
                 ? MInputMethod::PreeditNoCandidates : MInputMethod::PreeditDefault;
-            inputContextConnection()->sendPreeditString(preedit, face);
+            inputMethodHost()->sendPreeditString(preedit, face);
         } else {
             resetInternalState();
-            inputContextConnection()->sendCommitString("");
+            inputMethodHost()->sendCommitString("");
         }
     } else {
         const KeyEvent event("\b", QEvent::KeyPress, Qt::Key_Backspace,
                              KeyEvent::NotSpecial,
                              vkbWidget->shiftStatus() != ModifierClearState
                              ? Qt::ShiftModifier : Qt::NoModifier);
-        inputContextConnection()->sendKeyEvent(event.toQKeyEvent(),
-                                               MInputMethod::EventRequestEventOnly);
+        inputMethodHost()->sendKeyEvent(event.toQKeyEvent(),
+                                        MInputMethod::EventRequestEventOnly);
     }
     // Backspace toggles shift off if it's on (not locked)
     // except if autoCaps is on and cursor is at 0 position.
@@ -854,7 +854,7 @@ void MKeyboardHost::handleKeyPress(const KeyEvent &event)
         backSpaceTimer.start(AutoBackspaceDelay);
     }
 
-    inputContextConnection()->sendKeyEvent(event.toQKeyEvent(), requestType);
+    inputMethodHost()->sendKeyEvent(event.toQKeyEvent(), requestType);
 }
 
 void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
@@ -881,7 +881,7 @@ void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
         doBackspace();
     }
 
-    inputContextConnection()->sendKeyEvent(event.toQKeyEvent(), requestType);
+    inputMethodHost()->sendKeyEvent(event.toQKeyEvent(), requestType);
 }
 
 void MKeyboardHost::updateReactionMaps()
@@ -1042,15 +1042,15 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
     if (!correctionEnabled) {
         if (preedit.length() > 0) {
             // we just entered accurate mode. send the previous preedit stuff.
-            inputContextConnection()->sendCommitString(preedit);
+            inputMethodHost()->sendCommitString(preedit);
             preedit.clear();
         }
 
-        inputContextConnection()->sendCommitString(text);
+        inputMethodHost()->sendCommitString(text);
 
     } else if ((event.qtKey() == Qt::Key_Space) || (event.qtKey() == Qt::Key_Return) || (event.qtKey() == Qt::Key_Tab)) {
         // commit string
-        inputContextConnection()->sendCommitString(preedit);
+        inputMethodHost()->sendCommitString(preedit);
         if (lastClickEvent.specialKey() != KeyEvent::CycleSet) {
             imCorrectionEngine->setSuggestedCandidateIndex(correctionCandidateWidget->activeIndex());
             imCorrectionEngine->saveAndClearEngineBuffer();
@@ -1059,7 +1059,7 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
             imCorrectionEngine->clearEngineBuffer();
         }
         // send trailing space
-        inputContextConnection()->sendCommitString(text);
+        inputMethodHost()->sendCommitString(text);
 
         preedit.clear();
     } else {
@@ -1073,7 +1073,7 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
         const MInputMethod::PreeditFace face
             = candidates.count() < 2
             ? MInputMethod::PreeditNoCandidates : MInputMethod::PreeditDefault;
-        inputContextConnection()->sendPreeditString(preedit, face);
+        inputMethodHost()->sendPreeditString(preedit, face);
     }
 }
 
@@ -1118,16 +1118,16 @@ void MKeyboardHost::synchronizeCorrectionSetting()
 void MKeyboardHost::updateCorrectionState()
 {
     if (activeState == MInputMethod::Hardware) {
-        inputContextConnection()->setGlobalCorrectionEnabled(false);
+        inputMethodHost()->setGlobalCorrectionEnabled(false);
         correctionEnabled = false;
     } else {
         if (!engineReady) {
-            inputContextConnection()->setGlobalCorrectionEnabled(false);
+            inputMethodHost()->setGlobalCorrectionEnabled(false);
             correctionEnabled = false;
             return;
         }
         bool val = false;
-        bool enabled = inputContextConnection()->correctionEnabled(val);
+        bool enabled = inputMethodHost()->correctionEnabled(val);
         if (val)
             correctionEnabled = enabled && imCorrectionEngine->correctionEnabled();
         else
@@ -1139,7 +1139,7 @@ void MKeyboardHost::updateCorrectionState()
         // application, and there is no focus widget, no activateContext, calling
         // setGlobalCorrectionEnabled() at that time, can not record the setting.
         // Only after the application is running, this setGlobalCorrectionEnabled() can take effect
-        inputContextConnection()->setGlobalCorrectionEnabled(imCorrectionEngine->correctionEnabled());
+        inputMethodHost()->setGlobalCorrectionEnabled(imCorrectionEngine->correctionEnabled());
     }
 }
 
@@ -1147,7 +1147,7 @@ void MKeyboardHost::updateCorrectionState()
 void MKeyboardHost::userHide()
 {
     vkbWidget->hideKeyboard();
-    inputContextConnection()->notifyImInitiatedHiding();
+    inputMethodHost()->notifyImInitiatedHiding();
 }
 
 
@@ -1155,10 +1155,10 @@ void MKeyboardHost::sendCopyPaste(CopyPasteState action)
 {
     switch (action) {
     case InputMethodCopy:
-        inputContextConnection()->copy();
+        inputMethodHost()->copy();
         break;
     case InputMethodPaste:
-        inputContextConnection()->paste();
+        inputMethodHost()->paste();
         break;
     default:
         qDebug() << __PRETTY_FUNCTION__ << "invalid action" << action;
@@ -1250,12 +1250,12 @@ void MKeyboardHost::handleInputMethodAreaUpdate()
 
 void MKeyboardHost::sendKeyEvent(const QKeyEvent &key)
 {
-    inputContextConnection()->sendKeyEvent(key);
+    inputMethodHost()->sendKeyEvent(key);
 }
 
 void MKeyboardHost::sendString(const QString &text)
 {
-    inputContextConnection()->sendCommitString(text);
+    inputMethodHost()->sendCommitString(text);
 }
 
 void MKeyboardHost::setToolbar(QSharedPointer<const MToolbarData> toolbar)
@@ -1276,9 +1276,9 @@ void MKeyboardHost::processKeyEvent(QEvent::Type keyType, Qt::Key keyCode,
         !hardwareKeyboard->filterKeyEvent(keyType, keyCode, modifiers, text,
                                           autoRepeat, count, nativeScanCode,
                                           nativeModifiers)) {
-        inputContextConnection()->sendKeyEvent(QKeyEvent(keyType, keyCode, modifiers, text,
-                                                         autoRepeat, count),
-                                               MInputMethod::EventRequestEventOnly);
+        inputMethodHost()->sendKeyEvent(QKeyEvent(keyType, keyCode, modifiers, text,
+                                                  autoRepeat, count),
+                                        MInputMethod::EventRequestEventOnly);
     }
 }
 
@@ -1307,7 +1307,7 @@ void MKeyboardHost::setState(const QSet<MInputMethod::HandlerState> &state)
         return;
 
     if ((activeState == MInputMethod::OnScreen) && (preedit.length() > 0)) {
-        inputContextConnection()->sendCommitString(preedit);
+        inputMethodHost()->sendCommitString(preedit);
     }
 
     // Resets before changing the activeState to make sure clear.

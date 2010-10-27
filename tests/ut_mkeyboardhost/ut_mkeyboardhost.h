@@ -27,7 +27,7 @@
 
 class MApplication;
 class MKeyboardHost;
-class MInputContextStubConnection;
+class MInputMethodHostStub;
 class MWindow;
 
 class Ut_MKeyboardHost : public QObject
@@ -36,7 +36,7 @@ class Ut_MKeyboardHost : public QObject
 private:
     MApplication *app;
     MKeyboardHost *subject;
-    MInputContextStubConnection *inputContext;
+    MInputMethodHostStub *inputMethodHost;
     MWindow *window;
 
 private slots:

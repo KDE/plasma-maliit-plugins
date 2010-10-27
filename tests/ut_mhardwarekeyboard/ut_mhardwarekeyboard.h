@@ -23,7 +23,7 @@
 
 class MApplication;
 class MHardwareKeyboard;
-class TestInputContextConnection;
+class TestInputMethodHost;
 
 class Ut_MHardwareKeyboard : public QObject
 {
@@ -31,7 +31,7 @@ class Ut_MHardwareKeyboard : public QObject
 private:
     MApplication *app;
     MHardwareKeyboard *m_hkb;
-    TestInputContextConnection *inputContextConnection;
+    TestInputMethodHost *inputMethodHost;
 
 private slots:
     void initTestCase();

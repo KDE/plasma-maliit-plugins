@@ -16,20 +16,20 @@
 
 
 
-#ifndef MINPUTCONTEXTSTUBCONNECTION_H
+#ifndef MINPUTMETHODHOSTSTUB_H
 
 #include <QObject>
 #include <QString>
-#include <minputcontextconnection.h>
+#include <mabstractinputmethodhost.h>
 #include <minputmethodnamespace.h>
 
-class MInputContextStubConnection: public MInputContextConnection
+class MInputMethodHostStub: public MAbstractInputMethodHost
 {
     Q_OBJECT
 
 public:
-    MInputContextStubConnection();
-    virtual ~MInputContextStubConnection();
+    MInputMethodHostStub();
+    virtual ~MInputMethodHostStub();
 
     void clear();
 

@@ -14,11 +14,12 @@
  * of this file.
  */
 
-#include "minputcontextstubconnection.h"
+#include "minputmethodhoststub.h"
+
 #include <mnamespace.h>
 #include <QKeyEvent>
 
-MInputContextStubConnection::MInputContextStubConnection()
+MInputMethodHostStub::MInputMethodHostStub()
 {
     clear();
     predictionEnabled_ = true;
@@ -29,13 +30,13 @@ MInputContextStubConnection::MInputContextStubConnection()
     keyRedirectionEnabled = false;
 }
 
-MInputContextStubConnection::~MInputContextStubConnection()
+MInputMethodHostStub::~MInputMethodHostStub()
 {
     qDeleteAll(keyEvents);
     keyEvents.clear();
 }
 
-void MInputContextStubConnection::clear()
+void MInputMethodHostStub::clear()
 {
     preedit.clear();
     commit.clear();
@@ -59,8 +60,8 @@ void MInputContextStubConnection::clear()
     keyRedirectionEnabled = false;
 }
 
-void MInputContextStubConnection::sendPreeditString(const QString &string,
-                                                    MInputMethod::PreeditFace preeditFace)
+void MInputMethodHostStub::sendPreeditString(const QString &string,
+                                             MInputMethod::PreeditFace preeditFace)
 {
     Q_UNUSED(preeditFace);
 
@@ -68,96 +69,96 @@ void MInputContextStubConnection::sendPreeditString(const QString &string,
     ++sendPreeditCalls;
 }
 
-void MInputContextStubConnection::sendCommitString(const QString &string)
+void MInputMethodHostStub::sendCommitString(const QString &string)
 {
     commit += string;
     ++sendCommitStringCalls;
 }
 
 
-void MInputContextStubConnection::sendKeyEvent(const QKeyEvent &keyEvent_,
-                                               MInputMethod::EventRequestType requestType)
+void MInputMethodHostStub::sendKeyEvent(const QKeyEvent &keyEvent_,
+                                        MInputMethod::EventRequestType requestType)
 {
     Q_UNUSED(requestType);
     keyEvents.append(new QKeyEvent(keyEvent_));
     ++sendKeyEventCalls;
 }
 
-void MInputContextStubConnection::notifyImInitiatedHiding()
+void MInputMethodHostStub::notifyImInitiatedHiding()
 {
     ++notifyImInitiatedHidingCalls;
 }
 
-int MInputContextStubConnection::contentType(bool &val)
+int MInputMethodHostStub::contentType(bool &val)
 {
     val = true;
     return contentType_;
 }
 
-bool MInputContextStubConnection::correctionEnabled(bool &val)
+bool MInputMethodHostStub::correctionEnabled(bool &val)
 {
     val = true;
     return correctionEnabled_;
 }
 
-bool MInputContextStubConnection::predictionEnabled(bool &val)
+bool MInputMethodHostStub::predictionEnabled(bool &val)
 {
     val = true;
     return predictionEnabled_;
 }
 
-bool MInputContextStubConnection::surroundingText(QString &text, int &cursorPosition)
+bool MInputMethodHostStub::surroundingText(QString &text, int &cursorPosition)
 {
     text = surroundingString;
     cursorPosition = cursorPos;
     return true;
 }
 
-int MInputContextStubConnection::inputMethodMode(bool &valid)
+int MInputMethodHostStub::inputMethodMode(bool &valid)
 {
     valid = true;
     return inputmethodMode_;
 }
 
-bool MInputContextStubConnection::hasSelection(bool &valid)
+bool MInputMethodHostStub::hasSelection(bool &valid)
 {
     valid = true;
     return textSelected;
 }
 
-QRect MInputContextStubConnection::preeditRectangle(bool &valid)
+QRect MInputMethodHostStub::preeditRectangle(bool &valid)
 {
     valid = true;
     return QRect();
 }
 
-bool MInputContextStubConnection::autoCapitalizationEnabled(bool &val)
+bool MInputMethodHostStub::autoCapitalizationEnabled(bool &val)
 {
     val = true;
     return autoCapitalizationEnabled_;
 }
 
-void MInputContextStubConnection::copy()
+void MInputMethodHostStub::copy()
 {
     ++copyCalls;
 }
 
-void MInputContextStubConnection::paste()
+void MInputMethodHostStub::paste()
 {
     ++pasteCalls;
 }
 
-void MInputContextStubConnection::setGlobalCorrectionEnabled(bool enabled)
+void MInputMethodHostStub::setGlobalCorrectionEnabled(bool enabled)
 {
     globalCorrectionEnabled = enabled;
     ++setGlobalCorrectionEnabledCalls;
 }
 
-void MInputContextStubConnection::setRedirectKeys(bool enabled)
+void MInputMethodHostStub::setRedirectKeys(bool enabled)
 {
     keyRedirectionEnabled = enabled;
 }
 
-void MInputContextStubConnection::setDetectableAutoRepeat(bool /*enabled*/)
+void MInputMethodHostStub::setDetectableAutoRepeat(bool /*enabled*/)
 {
 }

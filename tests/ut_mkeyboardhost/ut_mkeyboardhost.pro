@@ -11,13 +11,13 @@ PKGCONFIG += gconf-2.0
 
 # Input
 HEADERS += ut_mkeyboardhost.h \
-           minputcontextstubconnection.h \
+           minputmethodhoststub.h \
            dummydriver_mkh.h \
            ../stubs/mgconfitem_stub.h \
            ../stubs/fakegconf.h \
 
 SOURCES += ut_mkeyboardhost.cpp \
-           minputcontextstubconnection.cpp \
+           minputmethodhoststub.cpp \
            dummydriver_mkh.cpp \
            ../stubs/fakegconf.cpp \
 

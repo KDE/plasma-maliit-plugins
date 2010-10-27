@@ -19,7 +19,7 @@
 #include <QTextCodec>
 #include <algorithm>
 
-#include <minputcontextconnection.h>
+#include <mabstractinputmethodhost.h>
 
 #include "mhardwarekeyboard.h"
 #include "layoutsmanager.h"
@@ -72,11 +72,11 @@ namespace
     }
 };
 
-MHardwareKeyboard::MHardwareKeyboard(MInputContextConnection& icConnection, QObject *parent)
+MHardwareKeyboard::MHardwareKeyboard(MAbstractInputMethodHost& imHost, QObject *parent)
     : QObject(parent),
       currentKeyboardType(M::FreeTextContentType),
       autoCaps(false),
-      inputContextConnection(icConnection),
+      inputMethodHost(imHost),
       lastEventType(QEvent::KeyRelease),
       currentLatchedMods(0),
       currentLockedMods(0),
@@ -202,7 +202,7 @@ void MHardwareKeyboard::toggleCustomAutoRepeat(const bool enable)
 
     XkbFreeKeyboard(description, 0, True);
 
-    inputContextConnection.setDetectableAutoRepeat(enable);
+    inputMethodHost.setDetectableAutoRepeat(enable);
 }
 
 void MHardwareKeyboard::enable()
@@ -246,7 +246,7 @@ void MHardwareKeyboard::enable()
         emit modifiersStateChanged();
     }
 
-    inputContextConnection.setRedirectKeys(true);
+    inputMethodHost.setRedirectKeys(true);
 }
 
 
@@ -255,12 +255,12 @@ void MHardwareKeyboard::disable()
     qDebug() << __PRETTY_FUNCTION__;
 
     if (!preedit.isEmpty()) {
-        inputContextConnection.sendPreeditString("", MInputMethod::PreeditKeyPress);
+        inputMethodHost.sendPreeditString("", MInputMethod::PreeditKeyPress);
         preedit.clear();
     }
     deadKeyMapper.reset();
 
-    inputContextConnection.setRedirectKeys(false);
+    inputMethodHost.setRedirectKeys(false);
     // Unlock and unlatch everything.  If for example non-Qt X application gets focus
     // after this focus out, there is no way to unlock Lock modifier using the
     // physical keyboard.  So better clear the state as well as we can.
@@ -499,7 +499,7 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
             correctToAcceptedCharacter(text, nativeScanCode, nativeModifiers);
 
             if (!preedit.isEmpty() && (preedit != deadKeyMapper.currentDeadKey())) {
-                inputContextConnection.sendCommitString(preedit);
+                inputMethodHost.sendCommitString(preedit);
                 pressedKeys.remove(preeditScanCode);
             }
 
@@ -510,7 +510,7 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
                 longPressModifiers = nativeModifiers;
                 longPressTimer.start();
             }
-            inputContextConnection.sendPreeditString(text, MInputMethod::PreeditKeyPress);
+            inputMethodHost.sendPreeditString(text, MInputMethod::PreeditKeyPress);
             preedit = text;
             preeditScanCode = nativeScanCode;
         }
@@ -527,7 +527,7 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
     // on our platform but Qt is not going to change that, so we work around the problem
     // by removing the shift modifier.
     if (shiftsPressed && (keyCode == Qt::Key_Delete)) {
-        inputContextConnection.sendKeyEvent(
+        inputMethodHost.sendKeyEvent(
             QKeyEvent(QEvent::KeyPress, keyCode,
                       modifiers & ~Qt::KeyboardModifiers(Qt::ShiftModifier),
                       text, autoRepeat, count),
@@ -599,7 +599,7 @@ bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers 
         const bool deadKey(preedit == deadKeyMapper.currentDeadKey());
 
         if (keyWasPressed && !deadKey) {
-            inputContextConnection.sendCommitString(preedit);
+            inputMethodHost.sendCommitString(preedit);
             preedit.clear();
         }
         eaten = true;
@@ -610,7 +610,7 @@ bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers 
     }
     // See the same case in filterKeyPress
     else if (shiftsPressed && (keyCode == Qt::Key_Delete)) {
-        inputContextConnection.sendKeyEvent(
+        inputMethodHost.sendKeyEvent(
             QKeyEvent(QEvent::KeyRelease, keyCode,
                       modifiers & ~Qt::KeyboardModifiers(Qt::ShiftModifier), text, false, 1),
             MInputMethod::EventRequestEventOnly);
@@ -684,7 +684,7 @@ void MHardwareKeyboard::handleLongPressTimeout()
     if (!text.isEmpty()) {
         (void)deadKeyMapper.filterKeyPress(text, true);
         preedit = text;
-        inputContextConnection.sendPreeditString(text, MInputMethod::PreeditKeyPress);
+        inputMethodHost.sendPreeditString(text, MInputMethod::PreeditKeyPress);
     }
 }
 
@@ -692,7 +692,7 @@ void MHardwareKeyboard::handleLongPressTimeout()
 void MHardwareKeyboard::commitSymPlusCharacterCycle()
 {
     const QString accentedCharacters = hwkbCharLoopsManager.characterLoop(lastSymText[0]);
-    inputContextConnection.sendCommitString(QString(accentedCharacters[characterLoopIndex]));
+    inputMethodHost.sendCommitString(QString(accentedCharacters[characterLoopIndex]));
     characterLoopIndex = -1;
     latchModifiers(FnModifierMask | LockMask, 0);
 }
@@ -724,8 +724,8 @@ bool MHardwareKeyboard::handlePressWithSymModifier(QString &text, quint32 native
 
     lastSymText = text;
     characterLoopIndex = (characterLoopIndex + 1) % accentedCharacters.length();
-    inputContextConnection.sendPreeditString(accentedCharacters[characterLoopIndex],
-                                             MInputMethod::PreeditDefault);
+    inputMethodHost.sendPreeditString(accentedCharacters[characterLoopIndex],
+                                      MInputMethod::PreeditDefault);
     return true;
 }
 

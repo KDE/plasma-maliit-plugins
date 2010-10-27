@@ -18,7 +18,7 @@
 #include "ut_mhardwarekeyboard.h"
 #include "hwkbcharloopsmanager_stub.h"
 #include "mhardwarekeyboard.h"
-#include "testinputcontextconnection.h"
+#include "testinputmethodhost.h"
 #include "layoutsmanager.h"
 #include "utils.h"
 #include <MApplication>
@@ -126,8 +126,8 @@ void Ut_MHardwareKeyboard::cleanupTestCase()
 
 void Ut_MHardwareKeyboard::init()
 {
-    inputContextConnection = new TestInputContextConnection;
-    m_hkb = new MHardwareKeyboard(*inputContextConnection, 0);
+    inputMethodHost = new TestInputMethodHost;
+    m_hkb = new MHardwareKeyboard(*inputMethodHost, 0);
     m_hkb->reset();
     m_hkb->enable();
     m_hkb->setKeyboardType(M::FreeTextContentType);
@@ -137,7 +137,7 @@ void Ut_MHardwareKeyboard::init()
 void Ut_MHardwareKeyboard::cleanup()
 {
     delete m_hkb;
-    delete inputContextConnection;
+    delete inputMethodHost;
 }
 
 
@@ -641,21 +641,21 @@ void Ut_MHardwareKeyboard::testSymPlusCharacterBasic()
     // Basic case: SymP(ress)+a{1,n}+SymR(elease)
     QVERIFY(filterKeyPress(SymKey, Qt::NoModifier, "", KeycodeNonCharacter, 0));
     for (int i = 0; i < iterations; ++i) {
-        inputContextConnection->sendPreeditString("", MInputMethod::PreeditNoCandidates);
+        inputMethodHost->sendPreeditString("", MInputMethod::PreeditNoCandidates);
         QVERIFY(filterKeyPress(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, SymModifierMask));
-        QCOMPARE(inputContextConnection->lastPreeditString().length(), 1);
+        QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
         QVERIFY(filterKeyRelease(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, SymModifierMask));
-        QCOMPARE(inputContextConnection->lastPreeditString().length(), 1);
-        QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
+        QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+        QCOMPARE(inputMethodHost->lastCommitString().length(), 0);
     }
-    QCOMPARE(inputContextConnection->lastPreeditString(), QString(result));
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString(result));
 
     QVERIFY(filterKeyRelease(SymKey, Qt::NoModifier, "", KeycodeNonCharacter, SymModifierMask));
-    QCOMPARE(inputContextConnection->keyEventsSent(), static_cast<unsigned int >(0));
-    QCOMPARE(inputContextConnection->lastCommitString().length(), 1);
-    QCOMPARE(inputContextConnection->lastCommitString(), QString(result));
+    QCOMPARE(inputMethodHost->keyEventsSent(), static_cast<unsigned int >(0));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+    QCOMPARE(inputMethodHost->lastCommitString(), QString(result));
 
-    QCOMPARE(inputContextConnection->keyEventsSent(), static_cast<unsigned int >(0));
+    QCOMPARE(inputMethodHost->keyEventsSent(), static_cast<unsigned int >(0));
     QCOMPARE(symSpy.count(), 0);
 }
 
@@ -670,24 +670,24 @@ void Ut_MHardwareKeyboard::testSymPlusCharSwitchs()
     QVERIFY(filterKeyPress(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, SymModifierMask));
     QVERIFY(filterKeyRelease(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, SymModifierMask));
     QVERIFY(filterKeyPress(Qt::Key_O, Qt::NoModifier, "o", KeycodeCharacter, SymModifierMask));
-    QCOMPARE(inputContextConnection->lastCommitString().length(), 1);
-    QCOMPARE(inputContextConnection->lastPreeditString().length(), 1);
-    QCOMPARE(inputContextConnection->lastCommitString(), QString(QChar(0x00E4)));
-    QCOMPARE(inputContextConnection->lastPreeditString(), QString(QChar(0x00F6)));
-    inputContextConnection->sendCommitString("");
-    inputContextConnection->sendPreeditString("", MInputMethod::PreeditDefault);
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastCommitString(), QString(QChar(0x00E4)));
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString(QChar(0x00F6)));
+    inputMethodHost->sendCommitString("");
+    inputMethodHost->sendPreeditString("", MInputMethod::PreeditDefault);
     QVERIFY(filterKeyRelease(Qt::Key_O, Qt::NoModifier, "o", KeycodeCharacter, SymModifierMask));
-    QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
-    QCOMPARE(inputContextConnection->lastPreeditString().length(), 0);
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 0);
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 0);
 
     // ...and result of Sym+o is committed on b press.  Since b has no loops, it's not
     // handled by the sym+foo logic, which we can tell by observing that long press logic
     // is activated for it.
     QVERIFY(filterKeyPress(Qt::Key_B, Qt::NoModifier, "b", KeycodeCharacter, SymModifierMask));
-    QCOMPARE(inputContextConnection->lastCommitString(), QString(QChar(0x00F6)));
-    QCOMPARE(inputContextConnection->lastPreeditString(), QString("b"));
+    QCOMPARE(inputMethodHost->lastCommitString(), QString(QChar(0x00F6)));
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("b"));
     QVERIFY(filterKeyRelease(Qt::Key_B, Qt::NoModifier, "b", KeycodeCharacter, SymModifierMask));
-    QCOMPARE(inputContextConnection->lastCommitString(), QString("b"));
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("b"));
 
     QVERIFY(filterKeyRelease(SymKey, Qt::NoModifier, "", KeycodeNonCharacter, SymModifierMask));
 
@@ -699,17 +699,17 @@ void Ut_MHardwareKeyboard::testSymPlusCharSwitchs()
 
     QVERIFY(filterKeyPress(Qt::Key_A, Qt::NoModifier, "A", KeycodeCharacter, SymModifierMask | LockMask));
     QVERIFY(filterKeyRelease(Qt::Key_A, Qt::NoModifier, "A", KeycodeCharacter, SymModifierMask | LockMask));
-    QCOMPARE(inputContextConnection->lastPreeditString(), QString(QChar(0x00C4)));
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString(QChar(0x00C4)));
     QVERIFY(checkLatchedState(LockMask | FnModifierMask, LockMask));
     // The following press must unlatch shift and be handled as if "o" event was received...
     QVERIFY(filterKeyPress(Qt::Key_O, Qt::NoModifier, "O", KeycodeCharacterO, SymModifierMask | LockMask));
     QVERIFY(checkLatchedState(ShiftMask | LockMask | FnModifierMask, 0));
-    QCOMPARE(inputContextConnection->lastCommitString(), QString(QChar(0x00C4)));
-    QCOMPARE(inputContextConnection->lastPreeditString(), QString(QChar(0x00F6)));
+    QCOMPARE(inputMethodHost->lastCommitString(), QString(QChar(0x00C4)));
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString(QChar(0x00F6)));
     QVERIFY(filterKeyRelease(Qt::Key_O, Qt::NoModifier, "o", KeycodeCharacterO, SymModifierMask));
     // ...which means that this must continue started cycle, not start a new one
     QVERIFY(filterKeyPress(Qt::Key_O, Qt::NoModifier, "o", KeycodeCharacterO, SymModifierMask));
-    QCOMPARE(inputContextConnection->lastPreeditString(), QString(QChar(0x00F2)));
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString(QChar(0x00F2)));
     QVERIFY(filterKeyRelease(Qt::Key_O, Qt::NoModifier, "o", KeycodeCharacterO, SymModifierMask));
 
     QVERIFY(filterKeyRelease(SymKey, Qt::NoModifier, "", KeycodeNonCharacter, SymModifierMask));
@@ -729,8 +729,8 @@ void Ut_MHardwareKeyboard::testSymPlusCharSwitchs()
 
     // Key for which there is no loop defined
     QVERIFY(filterKeyPress(Qt::Key_O, Qt::NoModifier, "B", KeycodeCharacterB, SymModifierMask | LockMask));
-    QCOMPARE(inputContextConnection->lastCommitString(), QString(QChar(0x00C0)));
-    QCOMPARE(inputContextConnection->lastPreeditString(), QString("b"));
+    QCOMPARE(inputMethodHost->lastCommitString(), QString(QChar(0x00C0)));
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("b"));
     QCOMPARE(m_hkb->longPressKey, KeycodeCharacterB);
     QCOMPARE(m_hkb->longPressModifiers, SymModifierMask);
     QVERIFY(checkLatchedState(LockMask | ShiftMask | FnModifierMask, 0));
@@ -762,18 +762,18 @@ void Ut_MHardwareKeyboard::testDelete()
     filterKeyPress(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, 0);
 
     QVERIFY(filterKeyPress(Qt::Key_Delete, Qt::ShiftModifier, "\177", KeycodeCharacter, 0));
-    QCOMPARE(inputContextConnection->keyEventsSent(), static_cast<unsigned int>(1));
-    QCOMPARE(inputContextConnection->lastKeyEvent().type(), QEvent::KeyPress);
-    QCOMPARE(inputContextConnection->lastKeyEvent().key(), static_cast<int>(Qt::Key_Delete));
-    QCOMPARE(inputContextConnection->lastKeyEvent().modifiers(), Qt::NoModifier);
-    QCOMPARE(inputContextConnection->lastKeyEvent().text(), QString("\177"));
+    QCOMPARE(inputMethodHost->keyEventsSent(), static_cast<unsigned int>(1));
+    QCOMPARE(inputMethodHost->lastKeyEvent().type(), QEvent::KeyPress);
+    QCOMPARE(inputMethodHost->lastKeyEvent().key(), static_cast<int>(Qt::Key_Delete));
+    QCOMPARE(inputMethodHost->lastKeyEvent().modifiers(), Qt::NoModifier);
+    QCOMPARE(inputMethodHost->lastKeyEvent().text(), QString("\177"));
 
     QVERIFY(filterKeyRelease(Qt::Key_Delete, Qt::ShiftModifier, "\177", KeycodeCharacter, 0));
-    QCOMPARE(inputContextConnection->keyEventsSent(), static_cast<unsigned int>(2));
-    QCOMPARE(inputContextConnection->lastKeyEvent().type(), QEvent::KeyRelease);
-    QCOMPARE(inputContextConnection->lastKeyEvent().key(), static_cast<int>(Qt::Key_Delete));
-    QCOMPARE(inputContextConnection->lastKeyEvent().modifiers(), Qt::NoModifier);
-    QCOMPARE(inputContextConnection->lastKeyEvent().text(), QString("\177"));
+    QCOMPARE(inputMethodHost->keyEventsSent(), static_cast<unsigned int>(2));
+    QCOMPARE(inputMethodHost->lastKeyEvent().type(), QEvent::KeyRelease);
+    QCOMPARE(inputMethodHost->lastKeyEvent().key(), static_cast<int>(Qt::Key_Delete));
+    QCOMPARE(inputMethodHost->lastKeyEvent().modifiers(), Qt::NoModifier);
+    QCOMPARE(inputMethodHost->lastKeyEvent().text(), QString("\177"));
 
     filterKeyRelease(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, 0);
 }
@@ -795,8 +795,8 @@ void Ut_MHardwareKeyboard::testDirectInputMode()
     // Anyother key will be ignored
     QVERIFY(!filterKeyPress(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, 0));
     QVERIFY(!filterKeyRelease(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, 0));
-    QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
-    QCOMPARE(inputContextConnection->lastPreeditString().length(), 0);
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 0);
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 0);
 
     // shift and fn will be ignored
     QVERIFY(!filterKeyPress(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, 0));
@@ -900,8 +900,8 @@ void Ut_MHardwareKeyboard::testSwitchLayout()
     QCOMPARE(scriptChangedSpy.count(), 0);
 
     scriptChangedSpy.clear();
-    inputContextConnection->sendPreeditString("", MInputMethod::PreeditNoCandidates);
-    inputContextConnection->sendCommitString("");
+    inputMethodHost->sendPreeditString("", MInputMethod::PreeditNoCandidates);
+    inputMethodHost->sendCommitString("");
     // ctrl + space press together also switch layout
     filterKeyPress(Qt::Key_Control, Qt::NoModifier, "", KeycodeNonCharacter, 0);
     filterKeyPress(Qt::Key_Space, Qt::ControlModifier, " ", KeycodeNonCharacter, ControlMask);
@@ -918,7 +918,7 @@ void Ut_MHardwareKeyboard::testSwitchLayout()
     QCOMPARE(scriptChangedSpy.count(), 1);
 
     //space key press and release when control is holding won't insert space
-    QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 0);
 
     scriptChangedSpy.clear();
     filterKeyPress(Qt::Key_Control, Qt::NoModifier, "", KeycodeNonCharacter, 0);
@@ -935,7 +935,7 @@ void Ut_MHardwareKeyboard::testSwitchLayout()
     QCOMPARE(scriptChangedSpy.count(), 1);
 
     //space key press and release when control is holding won't insert space
-    QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 0);
 
     scriptChangedSpy.clear();
     // shift + ctrl + space won't switch script
@@ -986,12 +986,12 @@ void Ut_MHardwareKeyboard::testControlModifier()
     // We also pass character release if it was pressed with control modifier.  This is a
     // rather arbitrary decision and actually the main thing is that we don't try to
     // commit anything (which would kill the selection).
-    inputContextConnection->sendCommitString("foo");
+    inputMethodHost->sendCommitString("foo");
     filterKeyPress(Qt::Key_Control, Qt::NoModifier, "", KeycodeNonCharacter, 0);
     QVERIFY(!filterKeyPress(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, ControlMask));
     filterKeyRelease(Qt::Key_Control, Qt::NoModifier, "", KeycodeNonCharacter, ControlMask);
     QVERIFY(!filterKeyRelease(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, 0));
-    QCOMPARE(inputContextConnection->lastCommitString(), QString("foo"));
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("foo"));
 }
 
 
@@ -999,12 +999,12 @@ void Ut_MHardwareKeyboard::testCorrectToAcceptedCharacter()
 {
     m_hkb->setKeyboardType(M::NumberContentType);
     QVERIFY(filterKeyPress(Qt::Key_Colon, Qt::GroupSwitchModifier, ":", KeycodeCharacterPeriod, FnModifierMask));
-    QCOMPARE(inputContextConnection->lastPreeditString().length(), 1);
-    QCOMPARE(inputContextConnection->lastPreeditString(), QString("."));
-    QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("."));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 0);
     QVERIFY(filterKeyRelease(Qt::Key_Colon, Qt::GroupSwitchModifier, ":", KeycodeCharacterPeriod, FnModifierMask));
-    QCOMPARE(inputContextConnection->lastCommitString(), QString("."));
-    QCOMPARE(inputContextConnection->lastCommitString().length(), 1);
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("."));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
 }
 
 
@@ -1013,7 +1013,7 @@ void Ut_MHardwareKeyboard::testKeyInsertionOnReleaseAfterReset()
     QVERIFY(filterKeyPress(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, 0));
     m_hkb->reset();
     QVERIFY(filterKeyRelease(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, 0));
-    QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 0);
 }
 
 
@@ -1029,62 +1029,62 @@ void Ut_MHardwareKeyboard::testDeadKeys()
     // The basic case, ^ + a => \^a
 
     QVERIFY(filterKeyPress(Qt::Key_Dead_Circumflex, Qt::NoModifier, "^", KeycodeCharacter, 0));
-    QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
-    QCOMPARE(inputContextConnection->lastPreeditString().length(), 1);
-    QCOMPARE(inputContextConnection->lastPreeditString(), QString("^"));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 0);
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("^"));
     QCOMPARE(deadKeyStateSpy.count(), 1);
     QCOMPARE(deadKeyStateSpy.at(0).at(0).value<QChar>(), QChar('^'));
     deadKeyStateSpy.clear();
     QCOMPARE(m_hkb->deadKeyState(), QChar('^'));
     QVERIFY(filterKeyRelease(Qt::Key_Dead_Circumflex, Qt::NoModifier, "^", KeycodeCharacter, 0));
-    QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
-    QCOMPARE(inputContextConnection->lastPreeditString(), QString("^"));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 0);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("^"));
 
     QVERIFY(filterKeyPress(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, 0));
-    QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
-    QCOMPARE(inputContextConnection->lastPreeditString().length(), 1);
-    QCOMPARE(inputContextConnection->lastPreeditString(), QString(QChar(0xe2)));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 0);
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString(QChar(0xe2)));
     QCOMPARE(deadKeyStateSpy.count(), 1);
     QCOMPARE(deadKeyStateSpy.at(0).at(0).value<QChar>(), QChar());
     deadKeyStateSpy.clear();
     QCOMPARE(m_hkb->deadKeyState(), QChar());
 
     QVERIFY(filterKeyRelease(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, 0));
-    QCOMPARE(inputContextConnection->lastCommitString().length(), 1);
-    QCOMPARE(inputContextConnection->lastCommitString(), QString(QChar(0xe2)));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+    QCOMPARE(inputMethodHost->lastCommitString(), QString(QChar(0xe2)));
 
-    inputContextConnection->sendCommitString("");
-    inputContextConnection->sendPreeditString("", MInputMethod::PreeditDefault);
+    inputMethodHost->sendCommitString("");
+    inputMethodHost->sendPreeditString("", MInputMethod::PreeditDefault);
 
     // Switch dead key, ^ + \" + a => \"a
 
     QVERIFY(filterKeyPress(Qt::Key_Dead_Circumflex, Qt::NoModifier, "^", KeycodeCharacter, 0));
     QVERIFY(filterKeyRelease(Qt::Key_Dead_Circumflex, Qt::NoModifier, "^", KeycodeCharacter, 0));
-    QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
-    QCOMPARE(inputContextConnection->lastPreeditString().length(), 1);
-    QCOMPARE(inputContextConnection->lastPreeditString(), QString("^"));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 0);
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("^"));
 
     QVERIFY(filterKeyPress(Qt::Key_Dead_Diaeresis, Qt::NoModifier, QString(QChar(0xa8)), KeycodeCharacter, 0));
     QVERIFY(filterKeyRelease(Qt::Key_Dead_Diaeresis, Qt::NoModifier, QString(QChar(0xa8)), KeycodeCharacter, 0));
-    QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
-    QCOMPARE(inputContextConnection->lastPreeditString().length(), 1);
-    QCOMPARE(inputContextConnection->lastPreeditString(), QString(QChar(0xa8)));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 0);
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString(QChar(0xa8)));
     QCOMPARE(deadKeyStateSpy.count(), 2);
     QCOMPARE(deadKeyStateSpy.at(1).at(0).value<QChar>(), QChar(0xa8));
     deadKeyStateSpy.clear();
     QCOMPARE(m_hkb->deadKeyState(), QChar(0xa8));
 
     QVERIFY(filterKeyPress(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, 0));
-    QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
-    QCOMPARE(inputContextConnection->lastPreeditString().length(), 1);
-    QCOMPARE(inputContextConnection->lastPreeditString(), QString(QChar(0xe4)));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 0);
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString(QChar(0xe4)));
 
     QVERIFY(filterKeyRelease(Qt::Key_A, Qt::NoModifier, "a", KeycodeCharacter, 0));
-    QCOMPARE(inputContextConnection->lastCommitString().length(), 1);
-    QCOMPARE(inputContextConnection->lastCommitString(), QString(QChar(0xe4)));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+    QCOMPARE(inputMethodHost->lastCommitString(), QString(QChar(0xe4)));
 
-    inputContextConnection->sendCommitString("");
-    inputContextConnection->sendPreeditString("", MInputMethod::PreeditDefault);
+    inputMethodHost->sendCommitString("");
+    inputMethodHost->sendPreeditString("", MInputMethod::PreeditDefault);
 
     // Dead key with space
 
@@ -1092,17 +1092,17 @@ void Ut_MHardwareKeyboard::testDeadKeys()
     QVERIFY(filterKeyRelease(Qt::Key_Dead_Circumflex, Qt::NoModifier, "^", KeycodeCharacter, 0));
 
     QVERIFY(filterKeyPress(Qt::Key_Space, Qt::NoModifier, " ", KeycodeCharacter, 0));
-    QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
-    QCOMPARE(inputContextConnection->lastPreeditString().length(), 1);
-    QCOMPARE(inputContextConnection->lastPreeditString(), QString("^"));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 0);
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("^"));
 
     QVERIFY(filterKeyRelease(Qt::Key_Space, Qt::NoModifier, " ", KeycodeCharacter, 0));
-    QCOMPARE(inputContextConnection->lastCommitString().length(), 1);
-    QCOMPARE(inputContextConnection->lastCommitString(), QString("^"));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("^"));
     QCOMPARE(m_hkb->deadKeyState(), QChar());
 
-    inputContextConnection->sendCommitString("");
-    inputContextConnection->sendPreeditString("", MInputMethod::PreeditDefault);
+    inputMethodHost->sendCommitString("");
+    inputMethodHost->sendPreeditString("", MInputMethod::PreeditDefault);
 
     // Dead key with a key it cannot be combined with
 
@@ -1110,17 +1110,17 @@ void Ut_MHardwareKeyboard::testDeadKeys()
     QVERIFY(filterKeyRelease(Qt::Key_Dead_Circumflex, Qt::NoModifier, "^", KeycodeCharacter, 0));
 
     QVERIFY(filterKeyPress(Qt::Key_D, Qt::NoModifier, "d", KeycodeCharacter, 0));
-    QCOMPARE(inputContextConnection->lastCommitString().length(), 0);
-    QCOMPARE(inputContextConnection->lastPreeditString().length(), 1);
-    QCOMPARE(inputContextConnection->lastPreeditString(), QString("d"));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 0);
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("d"));
 
     QVERIFY(filterKeyRelease(Qt::Key_Space, Qt::NoModifier, "d", KeycodeCharacter, 0));
-    QCOMPARE(inputContextConnection->lastCommitString().length(), 1);
-    QCOMPARE(inputContextConnection->lastCommitString(), QString("d"));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("d"));
     QCOMPARE(m_hkb->deadKeyState(), QChar());
 
-    inputContextConnection->sendCommitString("");
-    inputContextConnection->sendPreeditString("", MInputMethod::PreeditDefault);
+    inputMethodHost->sendCommitString("");
+    inputMethodHost->sendPreeditString("", MInputMethod::PreeditDefault);
 
     // Reset resets dead key mapper state
 

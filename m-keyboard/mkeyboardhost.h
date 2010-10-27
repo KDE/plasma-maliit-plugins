@@ -40,6 +40,7 @@ class QWidget;
 class MBanner;
 class SharedHandleArea;
 class MImToolbar;
+class MAbstractInputMethodHost;
 
 
 //! Logic class for virtual keyboard
@@ -48,7 +49,7 @@ class MKeyboardHost: public MInputMethodBase
     Q_OBJECT
 
 public:
-    MKeyboardHost(MInputContextConnection *icConnection, QObject *parent = 0);
+    MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent = 0);
     virtual ~MKeyboardHost();
 
     //! reimp

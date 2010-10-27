@@ -1,16 +1,19 @@
-#include <minputcontextconnection.h>
+#ifndef TESTINPUTMETHODHOST_H
+#define TESTINPUTMETHODHOST_H
+
+#include <mabstractinputmethodhost.h>
 #include <QString>
 #include <QKeyEvent>
 
 /*!
- * \brief Dummy input context connection for ut_mhardwarekeyboard
+ * \brief Dummy input method host for ut_mhardwarekeyboard
  */
-class TestInputContextConnection : public MInputContextConnection
+class TestInputMethodHost : public MAbstractInputMethodHost
 {
     Q_OBJECT
 
 public:
-    TestInputContextConnection()
+    TestInputMethodHost()
         : lastKeyEventM(QEvent::KeyRelease, 0, Qt::NoModifier),
           keyEventCounter(0)
     {
@@ -126,10 +129,12 @@ public:
     }
 
 private:
-    Q_DISABLE_COPY(TestInputContextConnection)
+    Q_DISABLE_COPY(TestInputMethodHost)
 
     QString lastPreeditStringM;
     QString lastCommitStringM;
     QKeyEvent lastKeyEventM;
     unsigned int keyEventCounter;
 };
+
+#endif

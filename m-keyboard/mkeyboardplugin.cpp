@@ -43,11 +43,11 @@ QStringList MKeyboardPlugin::languages() const
 
 
 MInputMethodBase *
-MKeyboardPlugin::createInputMethod(MInputContextConnection *icConnection)
+MKeyboardPlugin::createInputMethod(MAbstractInputMethodHost *host)
 {
     loadTranslation();
     mTimestamp("MKeyboardPlugin", "start");
-    MInputMethodBase *inputMethod = new MKeyboardHost(icConnection);
+    MInputMethodBase *inputMethod = new MKeyboardHost(host);
     mTimestamp("MKeyboardPlugin", "end");
     return inputMethod;
 }

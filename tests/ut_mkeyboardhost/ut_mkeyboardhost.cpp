@@ -29,7 +29,7 @@
 #include <layoutsmanager.h>
 
 #include "mgconfitem_stub.h"
-#include "minputcontextstubconnection.h"
+#include "minputmethodhoststub.h"
 #include "ut_mkeyboardhost.h"
 #include "utils.h"
 #include "dummydriver_mkh.h"
@@ -176,7 +176,7 @@ void Ut_MKeyboardHost::initTestCase()
     target.set(DefaultTargetName); // this value is required by the theme daemon
 
     app = new MApplication(argc, app_name);
-    inputContext = new MInputContextStubConnection;
+    inputMethodHost = new MInputMethodHostStub;
     window = new MPlainWindow;
 
     MGConfItem(MultitouchSettings).set(true);
@@ -189,8 +189,8 @@ void Ut_MKeyboardHost::cleanupTestCase()
 {
     delete window;
     window = 0;
-    delete inputContext;
-    inputContext = 0;
+    delete inputMethodHost;
+    inputMethodHost = 0;
     delete app;
     app = 0;
 }
@@ -203,8 +203,8 @@ void Ut_MKeyboardHost::init()
     MGConfItem config(InputMethodCorrectionSetting);
     config.set(QVariant(false));
 
-    subject = new MKeyboardHost(inputContext, 0);
-    inputContext->clear();
+    subject = new MKeyboardHost(inputMethodHost, 0);
+    inputMethodHost->clear();
     gAutoCapsEnabled = true;
 
     window->hide();
@@ -348,24 +348,24 @@ void Ut_MKeyboardHost::testHandleClick()
     qDebug() << "correctionEnabled:" << subject->correctionEnabled;
     qDebug() << "subject->preedit:" << subject->preedit;
     QCOMPARE(subject->preedit, QString("a"));
-    QCOMPARE(inputContext->preedit, QString("a"));
+    QCOMPARE(inputMethodHost->preedit, QString("a"));
 
     subject->handleKeyClick(KeyEvent(" ", QEvent::KeyRelease, Qt::Key_Space));
     QVERIFY(subject->preedit.isEmpty());
-    QCOMPARE(inputContext->commit, QString("a "));
-    inputContext->clear();
+    QCOMPARE(inputMethodHost->commit, QString("a "));
+    inputMethodHost->clear();
 
     subject->handleKeyClick(KeyEvent("a"));
     subject->handleKeyClick(KeyEvent("\n", QEvent::KeyRelease, Qt::Key_Return));
     QVERIFY(subject->preedit.isEmpty());
-    QCOMPARE(inputContext->commit, QString("a\n"));
-    inputContext->clear();
+    QCOMPARE(inputMethodHost->commit, QString("a\n"));
+    inputMethodHost->clear();
 
     subject->handleKeyClick(KeyEvent("a"));
     subject->handleKeyPress(KeyEvent("\b", QEvent::KeyPress, Qt::Key_Backspace));
     subject->handleKeyRelease(KeyEvent("\b", QEvent::KeyRelease, Qt::Key_Backspace));
     QVERIFY(subject->preedit.isEmpty());
-    inputContext->clear();
+    inputMethodHost->clear();
 
     // turn off error correction
     config.set(QVariant(false));
@@ -375,7 +375,7 @@ void Ut_MKeyboardHost::testHandleClick()
 
     subject->handleKeyClick(KeyEvent("m"));
     subject->handleKeyClick(KeyEvent("a"));
-    QCOMPARE(inputContext->commit, QString("ma"));
+    QCOMPARE(inputMethodHost->commit, QString("ma"));
     QVERIFY(subject->preedit.isEmpty());
 
     // turn on error correction
@@ -387,9 +387,9 @@ void Ut_MKeyboardHost::testHandleClick()
     subject->handleKeyPress(KeyEvent("\b", QEvent::KeyPress, Qt::Key_Backspace));
     subject->handleKeyRelease(KeyEvent("\b", QEvent::KeyRelease, Qt::Key_Backspace));
     QVERIFY(subject->preedit.isEmpty());
-    QCOMPARE(inputContext->commit, QString("ma"));
-    QVERIFY(inputContext->keyEvents.count() != 0);
-    inputContext->clear();
+    QCOMPARE(inputMethodHost->commit, QString("ma"));
+    QVERIFY(inputMethodHost->keyEvents.count() != 0);
+    inputMethodHost->clear();
 }
 
 void Ut_MKeyboardHost::testDirectMode()
@@ -406,21 +406,21 @@ void Ut_MKeyboardHost::testDirectMode()
     subject->inputMethodMode = M::InputMethodModeDirect;
 
     for (int n = 0; n < testData.count(); ++n) {
-        inputContext->clear();
+        inputMethodHost->clear();
         subject->handleKeyRelease(testData.at(n));
-        QCOMPARE(inputContext->sendKeyEventCalls, 1);
-        QVERIFY(inputContext->keyEvents.first()->text() == testData.at(n).text());
-        QVERIFY(inputContext->keyEvents.first()->key() == expectedKeys.at(n));
-        QVERIFY(inputContext->keyEvents.first()->type() == QEvent::KeyRelease);
+        QCOMPARE(inputMethodHost->sendKeyEventCalls, 1);
+        QVERIFY(inputMethodHost->keyEvents.first()->text() == testData.at(n).text());
+        QVERIFY(inputMethodHost->keyEvents.first()->key() == expectedKeys.at(n));
+        QVERIFY(inputMethodHost->keyEvents.first()->type() == QEvent::KeyRelease);
     }
 
     for (int n = 0; n < testData.count(); ++n) {
-        inputContext->clear();
+        inputMethodHost->clear();
         subject->handleKeyPress(KeyEvent(testData.at(n), QEvent::KeyPress));
-        QCOMPARE(inputContext->sendKeyEventCalls, 1);
-        QVERIFY(inputContext->keyEvents.first()->text() == testData.at(n).text());
-        QVERIFY(inputContext->keyEvents.first()->key() == expectedKeys.at(n));
-        QVERIFY(inputContext->keyEvents.first()->type() == QEvent::KeyPress);
+        QCOMPARE(inputMethodHost->sendKeyEventCalls, 1);
+        QVERIFY(inputMethodHost->keyEvents.first()->text() == testData.at(n).text());
+        QVERIFY(inputMethodHost->keyEvents.first()->key() == expectedKeys.at(n));
+        QVERIFY(inputMethodHost->keyEvents.first()->type() == QEvent::KeyPress);
     }
 }
 
@@ -461,25 +461,25 @@ void Ut_MKeyboardHost::testErrorCorrectionOption()
 
 void Ut_MKeyboardHost::testAutoCaps()
 {
-    inputContext->surroundingString = "Test string. You can using it!    ";
-    inputContext->autoCapitalizationEnabled_ = true;
+    inputMethodHost->surroundingString = "Test string. You can using it!    ";
+    inputMethodHost->autoCapitalizationEnabled_ = true;
     subject->correctionEnabled = true;
-    inputContext->contentType_ = M::FreeTextContentType;
+    inputMethodHost->contentType_ = M::FreeTextContentType;
     subject->show();
 
-    inputContext->cursorPos = 0;
+    inputMethodHost->cursorPos = 0;
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
 
-    inputContext->cursorPos = 1;
+    inputMethodHost->cursorPos = 1;
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
 
-    inputContext->cursorPos = 12;
+    inputMethodHost->cursorPos = 12;
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
 
-    inputContext->cursorPos = 13;
+    inputMethodHost->cursorPos = 13;
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
 
@@ -487,23 +487,23 @@ void Ut_MKeyboardHost::testAutoCaps()
     subject->hide();
     subject->show();
 
-    inputContext->cursorPos = 13;
+    inputMethodHost->cursorPos = 13;
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
 
-    inputContext->cursorPos = 16;
+    inputMethodHost->cursorPos = 16;
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
 
-    inputContext->cursorPos = 31;
+    inputMethodHost->cursorPos = 31;
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
 
-    inputContext->cursorPos = 33;
+    inputMethodHost->cursorPos = 33;
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
 
-    inputContext->cursorPos = 0;
+    inputMethodHost->cursorPos = 0;
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
     // When autoCaps is on and shift is latched, any key input except shift and backspace (in an sepcial case)
@@ -517,12 +517,12 @@ void Ut_MKeyboardHost::testAutoCaps()
 
     // If there are some preedit, capitalization should be off.
     subject->preedit = "Test";
-    inputContext->cursorPos = 0;
+    inputMethodHost->cursorPos = 0;
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
 
     subject->preedit = "";
-    inputContext->cursorPos = 0;
+    inputMethodHost->cursorPos = 0;
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
     // The special case for backspace when autoCaps is on, that is cursor is at 0 position,
@@ -535,7 +535,7 @@ void Ut_MKeyboardHost::testAutoCaps()
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
 
     // If cursor is not at 0 position, backspace should also change the shift state.
-    inputContext->cursorPos = 2;
+    inputMethodHost->cursorPos = 2;
     subject->update();
     subject->vkbWidget->setShiftState(ModifierLatchedState);
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
@@ -547,7 +547,7 @@ void Ut_MKeyboardHost::testAutoCaps()
     // Test holding backspace with preedit.
     press = KeyEvent("", QEvent::KeyPress, Qt::Key_Backspace);
     release = KeyEvent(press, QEvent::KeyRelease);
-    inputContext->cursorPos = 18;
+    inputMethodHost->cursorPos = 18;
     subject->preedit = "You can use";
     // initial state: preedit("You can use"), shift state:latched, start holding backspace
     subject->update();
@@ -575,7 +575,7 @@ void Ut_MKeyboardHost::testAutoCaps()
     // final state: preedit(""), shift state:on, after holding backspace enough time.
     QVERIFY(subject->preedit.isEmpty());
     QVERIFY(!subject->backSpaceTimer.isActive());
-    inputContext->cursorPos = 13;
+    inputMethodHost->cursorPos = 13;
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
     subject->handleKeyRelease(release);
@@ -586,8 +586,8 @@ void Ut_MKeyboardHost::testAutoCaps()
     QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
 
     // Disable autoCaps
-    inputContext->autoCapitalizationEnabled_ = false;
-    inputContext->cursorPos = 0;
+    inputMethodHost->autoCapitalizationEnabled_ = false;
+    inputMethodHost->cursorPos = 0;
     subject->show();
     subject->update();
     QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
@@ -604,7 +604,7 @@ void Ut_MKeyboardHost::testAutoCaps()
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
 
     // Backspace will also change the shift state when cursor is at 0 position.
-    inputContext->cursorPos = 0;
+    inputMethodHost->cursorPos = 0;
     subject->vkbWidget->setShiftState(ModifierLatchedState);
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
     press = KeyEvent("", QEvent::KeyPress, Qt::Key_Backspace);
@@ -616,7 +616,7 @@ void Ut_MKeyboardHost::testAutoCaps()
 
     // Test autocaps if autCaps flag is off from layout
     gAutoCapsEnabled = false;
-    inputContext->cursorPos = 0;
+    inputMethodHost->cursorPos = 0;
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
     gAutoCapsEnabled = true;
@@ -637,26 +637,26 @@ void Ut_MKeyboardHost::testApplicationOrientationChanged()
 
 void Ut_MKeyboardHost::testCopyPaste()
 {
-    inputContext->clear();
+    inputMethodHost->clear();
 
     subject->sendCopyPaste(InputMethodNoCopyPaste);
-    QVERIFY(inputContext->copyCalls == 0);
-    QVERIFY(inputContext->pasteCalls == 0);
+    QVERIFY(inputMethodHost->copyCalls == 0);
+    QVERIFY(inputMethodHost->pasteCalls == 0);
 
     subject->sendCopyPaste(InputMethodCopy);
-    QVERIFY(inputContext->copyCalls == 1);
-    QVERIFY(inputContext->pasteCalls == 0);
+    QVERIFY(inputMethodHost->copyCalls == 1);
+    QVERIFY(inputMethodHost->pasteCalls == 0);
 
-    inputContext->clear();
+    inputMethodHost->clear();
     subject->sendCopyPaste(InputMethodPaste);
-    QVERIFY(inputContext->copyCalls == 0);
-    QVERIFY(inputContext->pasteCalls == 1);
+    QVERIFY(inputMethodHost->copyCalls == 0);
+    QVERIFY(inputMethodHost->pasteCalls == 1);
 }
 
 void Ut_MKeyboardHost::testPlusMinus()
 {
     QString text = QChar(0xb1);
-    inputContext->sendKeyEventCalls = 0;
+    inputMethodHost->sendKeyEventCalls = 0;
     KeyEvent press(text, QEvent::KeyPress, Qt::Key_plusminus, KeyEvent::NotSpecial);
     KeyEvent release(press, QEvent::KeyRelease);
 
@@ -665,11 +665,11 @@ void Ut_MKeyboardHost::testPlusMinus()
     subject->handleKeyRelease(release);
     subject->handleKeyClick(release); // Should be ignored.
 
-    QCOMPARE(inputContext->sendKeyEventCalls, 2);
-    QCOMPARE(inputContext->keyEvents.first()->text(), text);
-    QVERIFY(inputContext->keyEvents.first()->key() == Qt::Key_plusminus);
-    QCOMPARE(inputContext->keyEvents.first()->type(), QEvent::KeyPress);
-    QCOMPARE(inputContext->keyEvents.at(1)->type(), QEvent::KeyRelease);
+    QCOMPARE(inputMethodHost->sendKeyEventCalls, 2);
+    QCOMPARE(inputMethodHost->keyEvents.first()->text(), text);
+    QVERIFY(inputMethodHost->keyEvents.first()->key() == Qt::Key_plusminus);
+    QCOMPARE(inputMethodHost->keyEvents.first()->type(), QEvent::KeyPress);
+    QCOMPARE(inputMethodHost->keyEvents.at(1)->type(), QEvent::KeyRelease);
 }
 
 static QRegion region(const QSignalSpy &spy, int index)
@@ -1037,8 +1037,8 @@ void Ut_MKeyboardHost::testKeyCycle()
     const int MultitapTime = 2000;
 
     subject->update();
-    inputContext->preedit = "";
-    inputContext->commit = "";
+    inputMethodHost->preedit = "";
+    inputMethodHost->commit = "";
 
     if (!preedit.isEmpty()) {
         subject->preedit = preedit;
@@ -1046,43 +1046,43 @@ void Ut_MKeyboardHost::testKeyCycle()
 
     for (int n = 0; n < event1.text().length(); ++n) {
         subject->handleKeyClick(event1);
-        QCOMPARE(inputContext->preedit, preedit + QString(text[n]));
-        QCOMPARE(inputContext->commit, QString(""));
+        QCOMPARE(inputMethodHost->preedit, preedit + QString(text[n]));
+        QCOMPARE(inputMethodHost->commit, QString(""));
     }
-    QCOMPARE(inputContext->preedit, preedit + QString(text[text.length() - 1]));
-    QCOMPARE(inputContext->commit, QString(""));
+    QCOMPARE(inputMethodHost->preedit, preedit + QString(text[text.length() - 1]));
+    QCOMPARE(inputMethodHost->commit, QString(""));
 
     subject->handleKeyClick(event2);
-    QCOMPARE(inputContext->commit, preedit + QString(text[text.length() - 1]));
-    QCOMPARE(inputContext->preedit, QString(event2.text()[0]));
+    QCOMPARE(inputMethodHost->commit, preedit + QString(text[text.length() - 1]));
+    QCOMPARE(inputMethodHost->preedit, QString(event2.text()[0]));
 
-    inputContext->commit = "";
+    inputMethodHost->commit = "";
 
     QTest::qWait(MultitapTime);
     subject->handleKeyClick(event2);
-    QCOMPARE(inputContext->preedit, QString(event2.text()[0]));
-    QCOMPARE(inputContext->commit, QString(event2.text()[0]));
+    QCOMPARE(inputMethodHost->preedit, QString(event2.text()[0]));
+    QCOMPARE(inputMethodHost->commit, QString(event2.text()[0]));
 
-    inputContext->commit  = "";
-    inputContext->preedit = "";
+    inputMethodHost->commit  = "";
+    inputMethodHost->preedit = "";
 
     subject->handleKeyClick(space);
-    QCOMPARE(inputContext->preedit, QString(""));
-    QCOMPARE(inputContext->commit, QString(event2.text()[0]) + " ");
+    QCOMPARE(inputMethodHost->preedit, QString(""));
+    QCOMPARE(inputMethodHost->commit, QString(event2.text()[0]) + " ");
 
     // Test cycle key autocommit timeout:
-    inputContext->commit = "";
-    inputContext->preedit = "";
+    inputMethodHost->commit = "";
+    inputMethodHost->preedit = "";
 
     subject->handleKeyClick(event1);
     subject->handleKeyClick(event1);
-    QCOMPARE(inputContext->preedit, QString(event1.text()[1]));
-    QCOMPARE(inputContext->commit, QString(""));
-    inputContext->commit = "";
-    inputContext->preedit = "";
+    QCOMPARE(inputMethodHost->preedit, QString(event1.text()[1]));
+    QCOMPARE(inputMethodHost->commit, QString(""));
+    inputMethodHost->commit = "";
+    inputMethodHost->preedit = "";
     QTest::qWait(MultitapTime);
-    QCOMPARE(inputContext->preedit, QString(""));
-    QCOMPARE(inputContext->commit, QString(event1.text()[1]));
+    QCOMPARE(inputMethodHost->preedit, QString(""));
+    QCOMPARE(inputMethodHost->commit, QString(event1.text()[1]));
 
     // Empty cycle string should not cause crash:
     subject->handleKeyClick(invalid);
@@ -1172,7 +1172,7 @@ void Ut_MKeyboardHost::testCommitPreeditOnStateChange()
     QSet<MInputMethod::HandlerState> state;
     state << MInputMethod::Hardware;
     subject->setState(state);
-    QCOMPARE(inputContext->commit, text);
+    QCOMPARE(inputMethodHost->commit, text);
 }
 
 void Ut_MKeyboardHost::testLayoutMenuKeyClick_data()
@@ -1241,9 +1241,9 @@ void Ut_MKeyboardHost::testShiftStateOnFocusChanged()
     subject->vkbWidget->setShiftState(initialShiftState);
 
     subject->focusChanged(true);
-    inputContext->surroundingString = surroundingString;
-    inputContext->autoCapitalizationEnabled_ = autoCapitalizationEnabled;
-    inputContext->cursorPos = cursorPosition;
+    inputMethodHost->surroundingString = surroundingString;
+    inputMethodHost->autoCapitalizationEnabled_ = autoCapitalizationEnabled;
+    inputMethodHost->cursorPos = cursorPosition;
     subject->update();
 
     QCOMPARE(subject->vkbWidget->shiftStatus(), expectedShiftState);
@@ -1303,9 +1303,9 @@ void Ut_MKeyboardHost::testShiftStateOnLayoutChanged()
     set << MInputMethod::OnScreen;
     subject->setState(set);
 
-    inputContext->surroundingString = surroundingString;
-    inputContext->autoCapitalizationEnabled_ = autoCapitalizationEnabled;
-    inputContext->cursorPos = cursorPosition;
+    inputMethodHost->surroundingString = surroundingString;
+    inputMethodHost->autoCapitalizationEnabled_ = autoCapitalizationEnabled;
+    inputMethodHost->cursorPos = cursorPosition;
     subject->vkbWidget->setShiftState(initialShiftState);
 
     gAutoCapsEnabled = layoutAutoCapitalization;
@@ -1326,8 +1326,8 @@ void Ut_MKeyboardHost::triggerAutoCaps()
     gAutoCapsEnabled = true;
     subject->preedit.clear();
     subject->cursorPos = 0;
-    inputContext->contentType_ = M::FreeTextContentType;
-    inputContext->autoCapitalizationEnabled_ = true;
+    inputMethodHost->contentType_ = M::FreeTextContentType;
+    inputMethodHost->autoCapitalizationEnabled_ = true;
 
     // Update
     subject->updateAutoCapitalization();
@@ -1523,7 +1523,7 @@ void Ut_MKeyboardHost::testWYTIWYSErrorCorrection()
     engine->setSuggestedCandidateIndexReturnValue(1);
 
     subject->handleKeyClick(KeyEvent("d"));
-    QCOMPARE(inputContext->preedit, QString("d"));
+    QCOMPARE(inputMethodHost->preedit, QString("d"));
 
     subject->hide();
     delete engine;
@@ -1547,17 +1547,17 @@ void Ut_MKeyboardHost::testSignals(M::InputMethodMode inputMethodMode)
 {
     subject->inputMethodMode = inputMethodMode;
 
-    inputContext->clear();
+    inputMethodHost->clear();
     for(int i = 0; testEvents[i].str != 0; ++i ) {
         if (testEvents[i].key == Qt::Key_Backspace) {
             QSKIP("Backspace key is known to be broken", SkipSingle);
         }
         subject->handleKeyPress(KeyEvent(testEvents[i].str, QEvent::KeyPress,
                                          testEvents[i].key) );
-        QCOMPARE(inputContext->sendKeyEventCalls, 2*i+1);
+        QCOMPARE(inputMethodHost->sendKeyEventCalls, 2*i+1);
         subject->handleKeyRelease(KeyEvent(testEvents[i].str, QEvent::KeyRelease,
                                          testEvents[i].key) );
-        QCOMPARE(inputContext->sendKeyEventCalls, 2*i+2);
+        QCOMPARE(inputMethodHost->sendKeyEventCalls, 2*i+2);
     }
 }
 

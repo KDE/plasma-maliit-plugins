@@ -31,7 +31,7 @@
 #include "mkeyboardcommon.h"
 #include <MNamespace>
 
-class MInputContextConnection;
+class MAbstractInputMethodHost;
 
 /*!
   \brief MHardwareKeyboard implements the hardware keyboard for inputmethod plugin.
@@ -48,11 +48,11 @@ class MHardwareKeyboard : public QObject
 public:
     /*!
      * \brief Constructor for creating an MHardwareKeyboard object.
-     * \param icConnection input context connection to use for sending events and
+     * \param imHost input method host to use for sending events and
      * pre-edit and commit strings
      * \param parent Parent object.
      */
-    MHardwareKeyboard(MInputContextConnection& icConnection, QObject *parent = 0);
+    MHardwareKeyboard(MAbstractInputMethodHost& imHost, QObject *parent = 0);
 
     //! Destructor
     ~MHardwareKeyboard();
@@ -272,7 +272,7 @@ private:
     //!
     //! Custom autorepeat means that only backspace and arrow keys have autorepeat
     //! functionality.  This also sets hardwired key repeat rate and delay and enables
-    //! detectable autorepeat (see \a MInputContextConnection::setDetectableAutoRepeat).
+    //! detectable autorepeat (see \a MAbstractInputMethodHost::setDetectableAutoRepeat).
     //!
     //! Note: this doesn't aim to save and restore autorepeat configuration.  With false
     //! parameter autorepeat is simply enabled for all keys and detectable autorepeat is
@@ -290,7 +290,7 @@ private:
     MXkb mXkb;
     bool autoCaps;
     HwKbCharLoopsManager hwkbCharLoopsManager;
-    MInputContextConnection& inputContextConnection;
+    MAbstractInputMethodHost& inputMethodHost;
 
     //! An attribute of the last key event passed to filterKeyEvent.
     QEvent::Type lastEventType;
