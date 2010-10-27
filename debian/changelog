@@ -2,8 +2,9 @@ meego-keyboard (0.5.8~1) unstable; urgency=low
 
   * [UNRELEASED]
   * Changes: forward touch position for key click
+  * Implemented: SWP#TINME-1136 - Language indicator working with 3rd party plugin.
 
- -- huaming wang <huaming.wang@noknokia.comm>  Fri, 22 Oct 2010 10:19:03 +0300
+ -- huaming wang <huaming.wang@nokia.comm>  Fri, 22 Oct 2010 10:19:03 +0300
 
 meego-keyboard (0.5.7-1) unstable; urgency=low
 
