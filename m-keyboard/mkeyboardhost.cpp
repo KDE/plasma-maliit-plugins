@@ -446,7 +446,7 @@ void MKeyboardHost::focusChanged(bool focusIn)
             hardwareKeyboard->disable();
         }
         if (!focusIn) {
-            sendInputModeIndicator(MInputMethodBase::NoIndicator);
+            inputMethodHost()->setInputModeIndicator(MInputMethod::NoIndicator);
         }
         hideLockOnInfoBanner();
     }
@@ -1322,7 +1322,8 @@ void MKeyboardHost::setState(const QSet<MInputMethod::HandlerState> &state)
     // Keeps separate states for symbol view in OnScreen state and Hardware state
     if (activeState == MInputMethod::OnScreen) {
         hideLockOnInfoBanner();
-        sendInputModeIndicator(MInputMethodBase::NoIndicator);
+        inputMethodHost()->setInputModeIndicator(MInputMethod::NoIndicator);
+
         disconnect(hardwareKeyboard, SIGNAL(deadKeyStateChanged(const QChar &)),
                    this, SLOT(handleHwKeyboardStateChanged()));
         disconnect(hardwareKeyboard, SIGNAL(modifiersStateChanged()),
@@ -1389,23 +1390,23 @@ void MKeyboardHost::showSymbolView()
     updateSymbolViewLevel();
 }
 
-MInputMethodBase::InputModeIndicator MKeyboardHost::deadKeyToIndicator(const QChar &key)
+MInputMethod::InputModeIndicator MKeyboardHost::deadKeyToIndicator(const QChar &key)
 {
     switch (key.unicode()) {
     case 0x00b4:
-        return MInputMethodBase::DeadKeyAcute;
+        return MInputMethod::DeadKeyAcuteIndicator;
     case 0x02c7:
-        return MInputMethodBase::DeadKeyCaron;
+        return MInputMethod::DeadKeyCaronIndicator;
     case 0x005e:
-        return MInputMethodBase::DeadKeyCircumflex;
+        return MInputMethod::DeadKeyCircumflexIndicator;
     case 0x00a8:
-        return MInputMethodBase::DeadKeyDiaeresis;
+        return MInputMethod::DeadKeyDiaeresisIndicator;
     case 0x0060:
-        return MInputMethodBase::DeadKeyGrave;
+        return MInputMethod::DeadKeyGraveIndicator;
     case 0x007e:
-        return MInputMethodBase::DeadKeyTilde;
+        return MInputMethod::DeadKeyTildeIndicator;
     default:
-        return MInputMethodBase::NoIndicator;
+        return MInputMethod::NoIndicator;
     }
 }
 
@@ -1422,49 +1423,49 @@ void MKeyboardHost::handleHwKeyboardStateChanged()
 
     const bool previousIndicatorDeadKey(currentIndicatorDeadKey);
 
-    MInputMethodBase::InputModeIndicator indicatorState
+    MInputMethod::InputModeIndicator indicatorState
         = deadKeyToIndicator(hardwareKeyboard->deadKeyState());
 
     currentIndicatorDeadKey = false;
 
-    if (indicatorState != MInputMethodBase::NoIndicator) {
+    if (indicatorState != MInputMethod::NoIndicator) {
         currentIndicatorDeadKey = true;
     } else if (fnState == ModifierLockedState) {
-        indicatorState = MInputMethodBase::NumAndSymLocked;
+        indicatorState = MInputMethod::NumAndSymLockedIndicator;
 
     } else if (fnState == ModifierLatchedState) {
-        indicatorState = MInputMethodBase::NumAndSymLatched;
+        indicatorState = MInputMethod::NumAndSymLatchedIndicator;
 
     } else if (xkbLayout == "ara"
         && xkbVariant.isEmpty()) {
-        indicatorState = MInputMethodBase::Arabic;
+        indicatorState = MInputMethod::ArabicIndicator;
 
     } else if (xkbVariant.isEmpty() || xkbVariant == "latin") {
-        indicatorState = MInputMethodBase::LatinLower;
+        indicatorState = MInputMethod::LatinLowerIndicator;
         if (shiftState == ModifierLockedState) {
-            indicatorState = MInputMethodBase::LatinLocked;
+            indicatorState = MInputMethod::LatinLockedIndicator;
         } else if (shiftState == ModifierLatchedState) {
-            indicatorState = MInputMethodBase::LatinUpper;
+            indicatorState = MInputMethod::LatinUpperIndicator;
         }
 
     } else if (xkbVariant == "cyrillic") {
-        indicatorState = MInputMethodBase::CyrillicLower;
+        indicatorState = MInputMethod::CyrillicLowerIndicator;
         if (shiftState == ModifierLockedState) {
-            indicatorState = MInputMethodBase::CyrillicLocked;
+            indicatorState = MInputMethod::CyrillicLockedIndicator;
         } else if (shiftState == ModifierLatchedState) {
-            indicatorState = MInputMethodBase::CyrillicUpper;
+            indicatorState = MInputMethod::CyrillicUpperIndicator;
         }
     }
 
-    sendInputModeIndicator(indicatorState);
+    inputMethodHost()->setInputModeIndicator(indicatorState);
 
     QString lockOnNotificationLabel;
 
-    if (indicatorState == MInputMethodBase::LatinLocked
-        || indicatorState == MInputMethodBase::CyrillicLocked) {
+    if (indicatorState == MInputMethod::LatinLockedIndicator
+        || indicatorState == MInputMethod::CyrillicLockedIndicator) {
         //% "Caps lock on"
         lockOnNotificationLabel = qtTrId("qtn_hwkb_caps_lock");
-    } else if (indicatorState == MInputMethodBase::NumAndSymLocked) {
+    } else if (indicatorState == MInputMethod::NumAndSymLockedIndicator) {
         //% "Symbol lock on"
         lockOnNotificationLabel = qtTrId("qtn_hwkb_fn_lock");
     }

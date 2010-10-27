@@ -272,8 +272,8 @@ private:
     void initializeInputEngine();
 
     //! \return input mode indicator corresponding to a dead \a key character or
-    //! MInputMethodBase::NoIndicator if not a (supported) dead key character
-    static MInputMethodBase::InputModeIndicator deadKeyToIndicator(const QChar &key);
+    //! MInputMethod::NoIndicator if not a (supported) dead key character
+    static MInputMethod::InputModeIndicator deadKeyToIndicator(const QChar &key);
 
 private:
     class CycleKeyHandler; //! Reacts to cycle key press events.

@@ -53,6 +53,7 @@ public:
     virtual bool surroundingText(QString &text, int &cursorPosition);
     virtual void setRedirectKeys(bool enabled);
     virtual void setDetectableAutoRepeat(bool enabled);
+    virtual void setInputModeIndicator(MInputMethod::InputModeIndicator indicator);
 
     virtual void switchPlugin(MInputMethod::SwitchDirection direction);
     virtual void switchPlugin(const QString &pluginName);
@@ -88,6 +89,7 @@ public:
     int inputmethodMode_;
     bool textSelected;
     bool keyRedirectionEnabled;
+    MInputMethod::InputModeIndicator indicator;
 };
 
 #endif

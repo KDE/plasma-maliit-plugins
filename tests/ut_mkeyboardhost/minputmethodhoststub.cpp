@@ -28,6 +28,7 @@ MInputMethodHostStub::MInputMethodHostStub()
     contentType_ = 0;
     inputmethodMode_ = M::InputMethodModeNormal;
     keyRedirectionEnabled = false;
+    indicator = MInputMethod::NoIndicator;
 }
 
 MInputMethodHostStub::~MInputMethodHostStub()
@@ -58,6 +59,7 @@ void MInputMethodHostStub::clear()
     pasteCalls = 0;
     textSelected = false;
     keyRedirectionEnabled = false;
+    indicator = MInputMethod::NoIndicator;
 }
 
 void MInputMethodHostStub::sendPreeditString(const QString &string,
@@ -161,6 +163,11 @@ void MInputMethodHostStub::setRedirectKeys(bool enabled)
 
 void MInputMethodHostStub::setDetectableAutoRepeat(bool /*enabled*/)
 {
+}
+
+void MInputMethodHostStub::setInputModeIndicator(MInputMethod::InputModeIndicator newIndicator)
+{
+    indicator = newIndicator;
 }
 
 void MInputMethodHostStub::switchPlugin(MInputMethod::SwitchDirection direction)

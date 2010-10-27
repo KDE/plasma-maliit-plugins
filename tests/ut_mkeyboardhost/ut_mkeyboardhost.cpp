@@ -70,8 +70,6 @@ namespace
     const Qt::Key FnLevelKey = Qt::Key_AltGr;
     const Qt::KeyboardModifier FnLevelModifier = Qt::GroupSwitchModifier;
 
-    MInputMethodBase::InputModeIndicator gInputMethodIndicator = MInputMethodBase::NoIndicator;
-
     int gShowLockOnInfoBannerCallCount = 0;
     int gHideLockOnInfoBannerCallCount = 0;
     int gRequestLanguageNotificationCallCount = 0;
@@ -98,7 +96,7 @@ Q_DECLARE_METATYPE(QSet<MInputMethod::HandlerState>)
 Q_DECLARE_METATYPE(MInputMethod::HandlerState)
 Q_DECLARE_METATYPE(ModifierState)
 Q_DECLARE_METATYPE(Ut_MKeyboardHost::TestOpList)
-Q_DECLARE_METATYPE(MInputMethodBase::InputModeIndicator)
+Q_DECLARE_METATYPE(MInputMethod::InputModeIndicator)
 
 static void waitForSignal(const QObject* object, const char* signal, int timeout = 500)
 {
@@ -145,11 +143,6 @@ void MImToolbar::showToolbarWidget(QSharedPointer<const MToolbarData> )
 void MImToolbar::hideToolbarWidget()
 {
     ++gHideToolbarWidgetCalls;
-}
-
-void MInputMethodBase::sendInputModeIndicator(MInputMethodBase::InputModeIndicator indicatorState)
-{
-    gInputMethodIndicator = indicatorState;
 }
 
 void MKeyboardHost::showLockOnInfoBanner(const QString &)
@@ -1378,58 +1371,59 @@ void Ut_MKeyboardHost::testHandleHwKeyboardStateChanged_data()
     QTest::addColumn<QString>("xkbVariant");
     QTest::addColumn<int>("shiftClickedCount");
     QTest::addColumn<int>("fnClickedCount");
-    QTest::addColumn<MInputMethodBase::InputModeIndicator>("expectIndicator");
+    QTest::addColumn<MInputMethod::InputModeIndicator>("expectIndicator");
     QTest::addColumn<bool>("notificationShowCalled");
     QTest::addColumn<int>("deadKeyCharacterCode");
 
     QTest::newRow("English clear indicator") << QString("us") << QString("") << 0
-                                             << 0 << MInputMethodBase::LatinLower
+                                             << 0 << MInputMethod::LatinLowerIndicator
                                              << false << 0;
     QTest::newRow("English shift latched indicator") << QString("us") << QString("") << 1
-                                                     << 0 << MInputMethodBase::LatinUpper
+                                                     << 0 << MInputMethod::LatinUpperIndicator
                                                      << false << 0;
     QTest::newRow("English shift locked indicator") << QString("us") << QString("") << 2
-                                                    << 0 << MInputMethodBase::LatinLocked
+                                                    << 0 << MInputMethod::LatinLockedIndicator
                                                     << true << 0;
     QTest::newRow("English fn latched indicator") << QString("us") << QString("") << 0
-                                                  << 1 << MInputMethodBase::NumAndSymLatched
+                                                  << 1 << MInputMethod::NumAndSymLatchedIndicator
                                                   << false << 0;
     QTest::newRow("English fn locked indicator") << QString("us") << QString("") << 0
-                                                 << 2 << MInputMethodBase::NumAndSymLocked
+                                                 << 2 << MInputMethod::NumAndSymLockedIndicator
                                                  << true << 0;
     QTest::newRow("Cyrillic clear indicator") << QString("ru") << QString("cyrillic") << 0
-                                              << 0 << MInputMethodBase::CyrillicLower
+                                              << 0 << MInputMethod::CyrillicLowerIndicator
                                               << false << 0;
     QTest::newRow("Cyrillic shift latched indicator") << QString("ru") << QString("cyrillic") << 1
-                                                      << 0 << MInputMethodBase::CyrillicUpper
+                                                      << 0 << MInputMethod::CyrillicUpperIndicator
                                                       << false << 0;
     QTest::newRow("Cyrillic shift locked indicator") << QString("ru") << QString("cyrillic") << 2
-                                                     << 0 << MInputMethodBase::CyrillicLocked
+                                                     << 0 << MInputMethod::CyrillicLockedIndicator
                                                      << true << 0;
     QTest::newRow("Latin clear indicator") << QString("ru") << QString("latin") << 0
-                                              << 0 << MInputMethodBase::LatinLower
+                                              << 0 << MInputMethod::LatinLowerIndicator
                                               << false << 0;
     QTest::newRow("Latin shift latched indicator") << QString("ru") << QString("latin") << 1
-                                                   << 0 << MInputMethodBase::LatinUpper
+                                                   << 0 << MInputMethod::LatinUpperIndicator
                                                    << false << 0;
     QTest::newRow("Latin shift locked indicator") << QString("us") << QString("latin") << 2
-                                                  << 0 << MInputMethodBase::LatinLocked
+                                                  << 0 << MInputMethod::LatinLockedIndicator
                                                   << true << 0;
     QTest::newRow("Arabic indicator") << QString("ara") << QString("") << 0
-                                      << 0 << MInputMethodBase::Arabic
+                                      << 0 << MInputMethod::ArabicIndicator
                                       << false << 0;
     QTest::newRow("DeadKeyAcute") << QString("br") << QString("") << 2 << 0
-                                  << MInputMethodBase::DeadKeyAcute << true << 0x00b4;
+                                  << MInputMethod::DeadKeyAcuteIndicator << true << 0x00b4;
     QTest::newRow("DeadKeyCaron") << QString("sk") << QString("") << 2 << 0
-                                  << MInputMethodBase::DeadKeyCaron << true << 0x02c7;
+                                  << MInputMethod::DeadKeyCaronIndicator << true << 0x02c7;
     QTest::newRow("DeadKeyCircumflex") << QString("br") << QString("") << 2 << 0
-                                       << MInputMethodBase::DeadKeyCircumflex << true << 0x005e;
+                                       << MInputMethod::DeadKeyCircumflexIndicator
+                                       << true << 0x005e;
     QTest::newRow("DeadKeyDiaeresis") << QString("fr") << QString("") << 2 << 0
-                                      << MInputMethodBase::DeadKeyDiaeresis << true << 0x00a8;
+                                      << MInputMethod::DeadKeyDiaeresisIndicator << true << 0x00a8;
     QTest::newRow("DeadKeyGrave") << QString("br") << QString("") << 2 << 0
-                                  << MInputMethodBase::DeadKeyGrave << true << 0x0060;
+                                  << MInputMethod::DeadKeyGraveIndicator << true << 0x0060;
     QTest::newRow("DeadKeyTilde") << QString("br") << QString("") << 2 << 0
-                                  << MInputMethodBase::DeadKeyTilde << true << 0x007e;
+                                  << MInputMethod::DeadKeyTildeIndicator << true << 0x007e;
 }
 
 void Ut_MKeyboardHost::testHandleHwKeyboardStateChanged()
@@ -1438,7 +1432,7 @@ void Ut_MKeyboardHost::testHandleHwKeyboardStateChanged()
     QFETCH(QString, xkbVariant);
     QFETCH(int, shiftClickedCount);
     QFETCH(int, fnClickedCount);
-    QFETCH(MInputMethodBase::InputModeIndicator, expectIndicator);
+    QFETCH(MInputMethod::InputModeIndicator, expectIndicator);
     QFETCH(bool, notificationShowCalled);
     QFETCH(int, deadKeyCharacterCode);
 
@@ -1471,7 +1465,7 @@ void Ut_MKeyboardHost::testHandleHwKeyboardStateChanged()
                                  QString(QChar(deadKeyCharacterCode)), false, 1, 0, 0);
     }
 
-    QCOMPARE(gInputMethodIndicator, expectIndicator);
+    QCOMPARE(inputMethodHost->indicator, expectIndicator);
     QCOMPARE(gShowLockOnInfoBannerCallCount, notificationShowCalled ? 1 : 0);
 
     if (deadKeyCharacterCode) {
@@ -1480,7 +1474,7 @@ void Ut_MKeyboardHost::testHandleHwKeyboardStateChanged()
                                  QString("A"), false, 1, 0, 0);
         subject->processKeyEvent(QEvent::KeyRelease, Qt::Key_A, Qt::NoModifier,
                                  QString("A"), false, 1, 0, 0);
-        QCOMPARE(gInputMethodIndicator, MInputMethodBase::LatinLocked);
+        QCOMPARE(inputMethodHost->indicator, MInputMethod::LatinLockedIndicator);
         QCOMPARE(gShowLockOnInfoBannerCallCount, 1);
     }
 }

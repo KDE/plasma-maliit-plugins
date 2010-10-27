@@ -128,6 +128,10 @@ public:
         return keyEventCounter;
     }
 
+    virtual void setInputModeIndicator(MInputMethod::InputModeIndicator /*indicator*/)
+    {
+    }
+
     virtual void switchPlugin(MInputMethod::SwitchDirection /*direction*/)
     {
     }
