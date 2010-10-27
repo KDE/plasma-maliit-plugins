@@ -214,6 +214,7 @@ MToolbarLabelStyle {
     minimum-size:   10% $HEIGHT_TOOLBARITEM;
     preferred-size: 20% $HEIGHT_TOOLBARITEM;
     maximum-size:   20% $HEIGHT_TOOLBARITEM;
+    color: $COLOR_INVERTED_FOREGROUND;
 }
 
 MToolbarButtonStyle {
