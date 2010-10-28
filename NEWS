@@ -1,3 +1,27 @@
+0.5.9-1
+=======
+
+* Speed typing improvements
+
+* Internal changes in meego-keyboard:
+  - Cleaned up PopupBase API. It now takes a KeyButtonArea parameter, which
+    enables easier communication between popup and the currently active
+    KeyButtonArea; the interface consists of:
+    - updatePos, cancel, handleKeyPressedOnMainArea,
+      handleLongKeyPressedOnMainArea, isVisible, setEnabled
+  - SingleWidgetButtonArea headers are now exported.
+
+* New CSS attributes for KeyButtonAreaStyle:
+  - debugging-related:
+    - draw-button-bounding-rects: [false|true];
+    - draw-button-rects: [false|true];
+    - debug-touchpoints: [false|true];
+    - draw-reactive-areas: [false|true];
+  - others:
+    - button-bounding-rect-top-adjustment: [int];
+    - button-bounding-rect-bottom-adjustment: [int];
+    - idle-vkb-timeout: [int in ms];
+
 0.5.?-?
 =======
 
