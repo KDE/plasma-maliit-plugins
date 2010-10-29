@@ -350,6 +350,7 @@ MImCorrectionCandidateItemStyle {
     font-color: $COLOR_INVERTED_FOREGROUND;
     press-timeout: 250;
     release-miss-delta: 30;
+    long-tap-timeout: 600;
 
     margin-top: 1.1mm;
     margin-bottom: 1.1mm;

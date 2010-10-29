@@ -18,11 +18,15 @@
 #include <QTimer>
 #include <QFontMetricsF>
 #include <QGraphicsSceneMouseEvent>
+#include <QTapAndHoldGesture>
 #include <QDebug>
+
+#include <MTheme>
 
 namespace {
     const int DefaultPressTimeout = 250;
     const int DefaultReleaseMissDelta = 30;
+    const int DefaultLongTapTimeout = 600;
 }
 
 #include <mwidgetcreator.h>
@@ -34,6 +38,7 @@ MImCorrectionCandidateItem::MImCorrectionCandidateItem(const QString &title, QGr
       mDown(false),
       mTitle(title),
       styleModeChangeTimer(),
+      longTapTimer(),
       queuedStyleModeChange(false)
       
 {
@@ -42,6 +47,11 @@ MImCorrectionCandidateItem::MImCorrectionCandidateItem(const QString &title, QGr
 
     connect(this, SIGNAL(visibleChanged()),
             this, SLOT(handleVisibilityChanged()));
+
+    setupLongTapTimer();
+    connect(MTheme::instance(), SIGNAL(themeChangeCompleted()),
+            this, SLOT(onThemeChangeCompleted()),
+            Qt::UniqueConnection);
 }
 
 MImCorrectionCandidateItem::~MImCorrectionCandidateItem()
@@ -70,14 +80,27 @@ void MImCorrectionCandidateItem::setSelected(bool select)
         style().setModeDefault();
 }
 
-bool MImCorrectionCandidateItem::selected() const
+bool MImCorrectionCandidateItem::isSelected() const
 {
     return mSelected;
 }
 
 void MImCorrectionCandidateItem::click()
 {
+    qDebug() << __PRETTY_FUNCTION__;
     emit clicked();
+}
+
+void MImCorrectionCandidateItem::longTap()
+{
+    qDebug() << __PRETTY_FUNCTION__;
+    // Clear down state and update style.
+    if (mDown) {
+        mDown = false;
+        updateStyleMode();
+    }
+
+    emit longTapped();
 }
 
 void MImCorrectionCandidateItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -89,13 +112,16 @@ void MImCorrectionCandidateItem::mousePressEvent(QGraphicsSceneMouseEvent *event
     style()->pressFeedback().play();
     mDown = true;
     updateStyleMode();
+    longTapTimer.start();
 }
 
 void MImCorrectionCandidateItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     event->accept();
-    if (!mDown)
+    if (!mDown) {
         return;
+    }
+    longTapTimer.stop();
     
     mDown = false;
     updateStyleMode();
@@ -127,6 +153,7 @@ void MImCorrectionCandidateItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     bool pressed = rect.contains(touch);
 
     if (pressed != mDown) {
+        longTapTimer.stop();
         if (pressed) {
             style()->pressFeedback().play();
         } else {
@@ -136,6 +163,7 @@ void MImCorrectionCandidateItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
         updateStyleMode();
     }
 }
+
 
 void MImCorrectionCandidateItem::updateStyleMode()
 {
@@ -200,7 +228,24 @@ void MImCorrectionCandidateItem::handleVisibilityChanged()
 {
     //clear select and down state when hidden
     if (!isVisible()) {
-        mSelected = false;
-        mDown =false;
+        if (mDown || mSelected) {
+            mSelected = false;
+            mDown =false;
+            updateStyleMode();
+        }
     }
+}
+
+void MImCorrectionCandidateItem::setupLongTapTimer()
+{
+    longTapTimer.setSingleShot(true);
+    int longTapTimeout = style()->longTapTimeout();
+    longTapTimer.setInterval(longTapTimeout);
+    connect(&longTapTimer, SIGNAL(timeout()), SLOT(longTap()), Qt::UniqueConnection);
+}
+
+void MImCorrectionCandidateItem::onThemeChangeCompleted()
+{
+    // reset long tap timer
+    setupLongTapTimer();
 }

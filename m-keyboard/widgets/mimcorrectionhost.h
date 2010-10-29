@@ -146,6 +146,8 @@ protected slots:
 
     void sendRegion();
 
+    void longTap();
+
 private:
     bool rotationInProgress;
     QPoint wordTrackerPosition;

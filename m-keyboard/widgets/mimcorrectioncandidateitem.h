@@ -30,8 +30,14 @@ public:
 
     virtual ~MImCorrectionCandidateItem();
 
+    /*
+     * \brief Sets title label.
+     */
     void setTitle(const QString &);
 
+    /*
+     * \brief Returns current title label.
+     */
     QString title() const;
 
     /*!
@@ -41,15 +47,27 @@ public:
      */
     qreal idealWidth() const;
     
+    /*!
+     * \brief Select item.
+     */
     void setSelected(bool);
 
-    bool selected() const;
+    /*
+     * \brief Returns selected state.
+     */
+    bool isSelected() const;
 
 public Q_SLOTS:
     /*!
      \brief Makes the list cell to send clicked() signal.
      */
      void click();
+
+    /*!
+     *\brief Makes the list cell to send longTapped signal.
+     *\param pos The position of the tap.
+     */
+    void longTap();
 
 protected:
     /*! \reimp */
@@ -60,24 +78,37 @@ protected:
     /*! \reimp_end */
 
 Q_SIGNALS:
-     /*!
-      \brief The signal is emitted when the item is clicked.
-      */
+    /*!
+     * \brief The signal is emitted when the item is clicked.
+     */
     void clicked();
+
+    /*!
+     * \brief The signal is emitted when the item has been tapped and holded.
+     */
+    void longTapped();
 
 private Q_SLOTS:
     void applyQueuedStyleModeChange();
 
     void handleVisibilityChanged();
 
+    /*!
+     * Update stored style stuffs when the theme changed.
+     */
+    void onThemeChangeCompleted();
+
 private:
+    void updateStyleMode();
+
+    void setupLongTapTimer();
+
     bool mSelected;
     bool mDown;
     QString mTitle;
     QTimer styleModeChangeTimer;
+    QTimer longTapTimer;
     bool queuedStyleModeChange;
-
-    void updateStyleMode();
 
     M_STYLABLE_WIDGET(MImCorrectionCandidateItemStyle)
 };

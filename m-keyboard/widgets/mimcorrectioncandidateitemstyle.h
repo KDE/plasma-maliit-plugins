@@ -29,6 +29,7 @@ class MImCorrectionCandidateItemStyle : public MWidgetStyle
 
     M_STYLE_ATTRIBUTE(int, pressTimeout, PressTimeout)
     M_STYLE_ATTRIBUTE(int, releaseMissDelta, ReleaseMissDelta)
+    M_STYLE_ATTRIBUTE(int, longTapTimeout, LongTapTimeout)
 };
 
 class M_EXPORT MImCorrectionCandidateItemStyleContainer : public MWidgetStyleContainer

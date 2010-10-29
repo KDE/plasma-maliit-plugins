@@ -106,6 +106,7 @@ MImWordTracker::MImWordTracker(MSceneWindow *parentWindow)
     mainLayout->addItem(candidateItem);
     mainLayout->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     connect(candidateItem, SIGNAL(clicked()), this, SLOT(select()));
+    connect(candidateItem, SIGNAL(longTapped()), this, SLOT(longTap()));
 
     connect(MTheme::instance(), SIGNAL(themeChangeCompleted()),
             this, SLOT(onThemeChangeCompleted()),
@@ -173,6 +174,17 @@ void MImWordTracker::select()
     }
     if (!mCandidate.isEmpty()) {
         emit candidateClicked(mCandidate);
+    }
+}
+
+void MImWordTracker::longTap()
+{
+    if (showHideTimeline.state() == QTimeLine::Running) {
+        // Ignore select actions during animation.
+        return;
+    }
+    if (!mCandidate.isEmpty()) {
+        emit longTapped();
     }
 }
 

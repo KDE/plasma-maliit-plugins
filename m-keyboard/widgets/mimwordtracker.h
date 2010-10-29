@@ -97,11 +97,18 @@ signals:
     //! Emitted when word tracker is clicked.
     void candidateClicked(const QString &);
 
+    /*!
+     * \brief The signal is emitted when the word tracker has been tapped and holded.
+     */
+    void longTapped();
+
     //! Emitted when the occupied region of word tracker is changed.
     void regionChanged();
 
 protected slots:
     void select();
+
+    void longTap();
 
     /*!
      * Method to fade the vkb during transition

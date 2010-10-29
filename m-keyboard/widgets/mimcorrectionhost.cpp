@@ -44,6 +44,7 @@ MImCorrectionHost::MImCorrectionHost(MSceneWindow *parentWindow)
       wordList(new MImWordList())
 {
     connect(wordTracker, SIGNAL(candidateClicked(QString)), this, SLOT(handleCandidateClicked(QString)));
+    connect(wordTracker, SIGNAL(longTapped()), this, SLOT(longTap()));
     connect(wordTracker, SIGNAL(regionChanged()), this, SLOT(sendRegion()));
 
     connect(wordList, SIGNAL(candidateClicked(QString)), this, SLOT(handleCandidateClicked(QString)));
@@ -213,4 +214,13 @@ void MImCorrectionHost::reset()
 {
     setCandidates(QStringList());
     hideCorrectionWidget();
+}
+
+void MImCorrectionHost::longTap()
+{
+    qDebug() << __PRETTY_FUNCTION__;
+    if (!isActive())
+        return;
+
+    showCorrectionWidget(WordListMode);
 }
