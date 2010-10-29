@@ -463,10 +463,8 @@ void KeyButtonArea::touchPointPressed(const QTouchEvent::TouchPoint &tp)
             activeKey = key;
         }
 
-        feedbackPlayer->play(MFeedbackPlayer::Press);
         updatePopup(key);
         longPressTimer.start(style()->longPressTimeout());
-
         emit keyPressed(key, (activeDeadkey ? activeDeadkey->label() : QString()),
                         activeShiftKey || level() % 2);
     }
@@ -492,14 +490,22 @@ void KeyButtonArea::touchPointMoved(const QTouchEvent::TouchPoint &tp)
             && lookup.key->increaseTouchPointCount()
             && lookup.key->touchPointCount() == 1) {
             activeKey = lookup.key;
+            // Reaction map cannot discover when we move from one key
+            // (= reactive area) to another
             feedbackPlayer->play(MFeedbackPlayer::Press);
             longPressTimer.start(style()->longPressTimeout());
+            emit keyPressed(lookup.key, (activeDeadkey ? activeDeadkey->label() : QString()),
+                            activeShiftKey || level() % 2);
         }
 
         if (lookup.lastKey
             && lookup.lastKey->decreaseTouchPointCount()
             && lookup.lastKey->touchPointCount() == 0) {
+            // Reaction map cannot discover when we move from one key
+            // (= reactive area) to another
             feedbackPlayer->play(MFeedbackPlayer::Cancel);
+            emit keyReleased(lookup.lastKey, (activeDeadkey ? activeDeadkey->label() : QString()),
+                             activeShiftKey || level() % 2);
         }
     }
 
@@ -536,14 +542,7 @@ void KeyButtonArea::touchPointReleased(const QTouchEvent::TouchPoint &tp)
             activeKey = 0;
         }
 
-        // Don't play key release sound in speed typing mode,
-        // as it might be too much feedback:
-        if (!isInSpeedTypingMode()) {
-            feedbackPlayer->play(MFeedbackPlayer::Release);
-        }
-
         longPressTimer.stop();
-
         emit keyReleased(lookup.key, (activeDeadkey ? activeDeadkey->label() : QString()),
                          activeShiftKey || level() % 2);
 
@@ -558,8 +557,6 @@ void KeyButtonArea::touchPointReleased(const QTouchEvent::TouchPoint &tp)
         && lookup.lastKey != lookup.key
         && lookup.lastKey->decreaseTouchPointCount()
         && lookup.lastKey->touchPointCount() == 0) {
-        feedbackPlayer->play(MFeedbackPlayer::Cancel);
-
         emit keyReleased(lookup.lastKey, (activeDeadkey ? activeDeadkey->label() : QString()),
                          activeShiftKey || level() % 2);
 
