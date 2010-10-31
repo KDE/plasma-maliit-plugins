@@ -16,9 +16,9 @@
 
 
 
-#include "ut_vkbdatakey.h"
+#include "ut_mimkeymodel.h"
 #include "utils.h"
-#include <vkbdatakey.h>
+#include <mimkeymodel.h>
 
 #include <MApplication>
 #include <MTheme>
@@ -30,39 +30,39 @@
 Q_DECLARE_METATYPE(Qt::Key)
 
 
-void Ut_VKBDataKey::initTestCase()
+void Ut_MImKeyModel::initTestCase()
 {
     static int argc = 2;
-    static char *app_name[2] = { (char *) "ut_vkbdatakey",
+    static char *app_name[2] = { (char *) "ut_mimkeymodel",
                                  (char *) "-local-theme" };
 
     disableQtPlugins();
     app = new MApplication(argc, app_name);
 }
 
-void Ut_VKBDataKey::cleanupTestCase()
+void Ut_MImKeyModel::cleanupTestCase()
 {
     delete app;
     app = 0;
 }
 
-void Ut_VKBDataKey::init()
+void Ut_MImKeyModel::init()
 {
-    subject = new VKBDataKey;
+    subject = new MImKeyModel;
 }
 
-void Ut_VKBDataKey::cleanup()
+void Ut_MImKeyModel::cleanup()
 {
     delete subject;
     subject = 0;
 }
 
-void Ut_VKBDataKey::testCreate()
+void Ut_MImKeyModel::testCreate()
 {
     QVERIFY(subject != 0);
 }
 
-void Ut_VKBDataKey::testAccent()
+void Ut_MImKeyModel::testAccent()
 {
     const QString label = "a";
     QChar accentedChars[] = { 0xE0, 0xE1, };
@@ -82,8 +82,8 @@ void Ut_VKBDataKey::testAccent()
             << label[0]
             << label[0];
 
-    KeyBinding *noShiftBinding = new KeyBinding;
-    subject->bindings[VKBDataKey::NoShift] = noShiftBinding;
+    MImKeyBinding *noShiftBinding = new MImKeyBinding;
+    subject->bindings[MImKeyModel::NoShift] = noShiftBinding;
     noShiftBinding->keyLabel = label;
     noShiftBinding->accented_labels = QString(accentedChars,
                                      sizeof(accentedChars) / sizeof(accentedChars[0]));
@@ -96,10 +96,10 @@ void Ut_VKBDataKey::testAccent()
         QCOMPARE(subject->toKeyEvent(QEvent::KeyRelease, testAccents.at(i), false).text().at(0),
                  testExpected.at(i));
     }
-    QCOMPARE(subject->binding(true), static_cast<KeyBinding *>(0));
+    QCOMPARE(subject->binding(true), static_cast<MImKeyBinding *>(0));
 }
 
-void Ut_VKBDataKey::testKeyCode_data()
+void Ut_MImKeyModel::testKeyCode_data()
 {
     QTest::addColumn<QString>("label");
     QTest::addColumn<Qt::Key>("keyCode");
@@ -110,18 +110,18 @@ void Ut_VKBDataKey::testKeyCode_data()
     QTest::newRow("e") << "e" << Qt::Key_E;
 }
 
-void Ut_VKBDataKey::testKeyCode()
+void Ut_MImKeyModel::testKeyCode()
 {
     QFETCH(QString, label);
     QFETCH(Qt::Key, keyCode);
 
-    KeyBinding *noShiftBinding = new KeyBinding;
-    subject->bindings[VKBDataKey::NoShift] = noShiftBinding;
+    MImKeyBinding *noShiftBinding = new MImKeyBinding;
+    subject->bindings[MImKeyModel::NoShift] = noShiftBinding;
     noShiftBinding->keyLabel = label;
 
     QCOMPARE(static_cast<Qt::Key>(subject->toKeyEvent(QEvent::KeyPress, false).toQKeyEvent().key()),
              keyCode);
 }
 
-QTEST_APPLESS_MAIN(Ut_VKBDataKey);
+QTEST_APPLESS_MAIN(Ut_MImKeyModel);
 

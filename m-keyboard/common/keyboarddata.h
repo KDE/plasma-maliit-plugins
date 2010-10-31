@@ -20,7 +20,7 @@
 #define KEYBOARDDATA_H
 
 #include "layoutdata.h"
-#include "vkbdatakey.h"
+#include "mimkeymodel.h"
 
 #include <QHash>
 #include <QList>
@@ -106,8 +106,8 @@ private:
     */
     static M::Orientation orientation(const QString &orientationString);
 
-    //! \brief Translate key action string into a KeyBinding::KeyAction
-    static KeyBinding::KeyAction keyActionFromString(const QString &typeStr);
+    //! \brief Translate key action string into a MImKeyBinding::KeyAction
+    static MImKeyBinding::KeyAction keyActionFromString(const QString &typeStr);
 
     //! Parse XML tag for layout
     void parseTagLayout(const QDomElement &element, ParseParameters &params);
@@ -146,9 +146,9 @@ private:
     //! Parse XML tag for import
     void parseTagImport(const QDomElement &element, ParseParameters &params);
 
-    static VKBDataKey::StyleType toStyleType(const QString &attributeValue);
+    static MImKeyModel::StyleType toStyleType(const QString &attributeValue);
 
-    static VKBDataKey::WidthType toWidthType(const QString &attributeValue);
+    static MImKeyModel::WidthType toWidthType(const QString &attributeValue);
 
     static LayoutSection::RowHeightType toHeightType(const QString &attributeValue);
 

@@ -113,7 +113,7 @@ namespace
 }
 
 struct ParseParameters {
-    VKBDataKey *currentKey;
+    MImKeyModel *currentKey;
 
     //! New rows will be added to currentSection
     LayoutData::SharedLayoutSection currentSection;
@@ -160,33 +160,33 @@ KeyboardData::~KeyboardData()
     layouts.clear();
 }
 
-inline VKBDataKey::StyleType KeyboardData::toStyleType(const QString &attributeValue)
+inline MImKeyModel::StyleType KeyboardData::toStyleType(const QString &attributeValue)
 {
-    VKBDataKey::StyleType type = VKBDataKey::NormalStyle;
+    MImKeyModel::StyleType type = MImKeyModel::NormalStyle;
 
     if (attributeValue == "special") {
-        type = VKBDataKey::SpecialStyle;
+        type = MImKeyModel::SpecialStyle;
     } else if (attributeValue == "deadkey") {
-        type = VKBDataKey::DeadkeyStyle;
+        type = MImKeyModel::DeadkeyStyle;
     }
 
     return type;
 }
 
-inline VKBDataKey::WidthType KeyboardData::toWidthType(const QString &attributeValue)
+inline MImKeyModel::WidthType KeyboardData::toWidthType(const QString &attributeValue)
 {
-    VKBDataKey::WidthType widthType = VKBDataKey::Medium;
+    MImKeyModel::WidthType widthType = MImKeyModel::Medium;
 
     if (attributeValue == "small") {
-        widthType = VKBDataKey::Small;
+        widthType = MImKeyModel::Small;
     } else  if (attributeValue == "large") {
-        widthType = VKBDataKey::Large;
+        widthType = MImKeyModel::Large;
     } else  if (attributeValue == "x-large") {
-        widthType = VKBDataKey::XLarge;
+        widthType = MImKeyModel::XLarge;
     } else  if (attributeValue == "xx-large") {
-        widthType = VKBDataKey::XxLarge;
+        widthType = MImKeyModel::XxLarge;
     } else  if (attributeValue == "stretched") {
-        widthType = VKBDataKey::Stretched;
+        widthType = MImKeyModel::Stretched;
     }
 
     return widthType;
@@ -488,18 +488,18 @@ void KeyboardData::parseTagBinding(const QDomElement &element, ParseParameters &
 {
     const bool shift = toBoolean(element.attribute(VKBTagShift, "false"));
 
-    if (params.currentKey->bindings[shift ? VKBDataKey::Shift : VKBDataKey::NoShift]) {
+    if (params.currentKey->bindings[shift ? MImKeyModel::Shift : MImKeyModel::NoShift]) {
         qWarning() << "Ignoring duplicate binding with same shift attribute on line"
                    << element.lineNumber() << "column" << element.columnNumber()
                    << "in layout file" << *params.fileName;
         return;
     }
 
-    KeyBinding *binding = new KeyBinding;
+    MImKeyBinding *binding = new MImKeyBinding;
 
     binding->keyLabel = element.attribute(VKBTagLabel);
     binding->keyAction = keyActionFromString(element.attribute(VKBTagKeyAction));
-    if (binding->keyAction == KeyBinding::ActionCycle) {
+    if (binding->keyAction == MImKeyBinding::ActionCycle) {
         binding->cycleSet = element.attribute(VKBTagCycleSet);
     }
     binding->secondary_label = element.attribute(VKBTagSecondaryLabel);
@@ -510,17 +510,17 @@ void KeyboardData::parseTagBinding(const QDomElement &element, ParseParameters &
 
     binding->extended_labels = element.attribute(VKBTagExtendedLabels);
 
-    params.currentKey->bindings[shift ? VKBDataKey::Shift : VKBDataKey::NoShift] = binding;
+    params.currentKey->bindings[shift ? MImKeyModel::Shift : MImKeyModel::NoShift] = binding;
 }
 
 void KeyboardData::parseTagKey(const QDomElement &element, ParseParameters &params)
 {
-    VKBDataKey::StyleType type = toStyleType(element.attribute(StyleString, StyleStringDefValue));
-    VKBDataKey::WidthType widthType = toWidthType(element.attribute(WidthTypeString, WidthTypeStringDefValue));
+    MImKeyModel::StyleType type = toStyleType(element.attribute(StyleString, StyleStringDefValue));
+    MImKeyModel::WidthType widthType = toWidthType(element.attribute(WidthTypeString, WidthTypeStringDefValue));
     const bool isRtl = toBoolean(element.attribute(RtlString, RtlStringDefValue));
     const bool isFixed = toBoolean(element.attribute(FixedString, FixedStringDefValue));
 
-    VKBDataKey *key = new VKBDataKey(type, widthType, isFixed, isRtl);
+    MImKeyModel *key = new MImKeyModel(type, widthType, isFixed, isRtl);
     params.currentKey = key;
     params.currentRow->keys.append(key);
 
@@ -540,37 +540,37 @@ void KeyboardData::parseTagSpacer(const QDomElement &, ParseParameters &params)
     params.currentRow->spacerIndices.append(params.currentRow->keys.count() - 1);
 }
 
-KeyBinding::KeyAction KeyboardData::keyActionFromString(const QString &typeStr)
+MImKeyBinding::KeyAction KeyboardData::keyActionFromString(const QString &typeStr)
 {
-    KeyBinding::KeyAction result;
+    MImKeyBinding::KeyAction result;
 
     if (typeStr == ActionStrShift)
-        result = KeyBinding::ActionShift;
+        result = MImKeyBinding::ActionShift;
     else if (typeStr == ActionStrInsert)
-        result = KeyBinding::ActionInsert;
+        result = MImKeyBinding::ActionInsert;
     else if (typeStr == ActionStrBackspace)
-        result = KeyBinding::ActionBackspace;
+        result = MImKeyBinding::ActionBackspace;
     else if (typeStr == ActionStrSpace)
-        result = KeyBinding::ActionSpace;
+        result = MImKeyBinding::ActionSpace;
     else if (typeStr == ActionStrCycle)
-        result = KeyBinding::ActionCycle;
+        result = MImKeyBinding::ActionCycle;
     else if (typeStr == ActionStrLayoutMenu)
-        result = KeyBinding::ActionLayoutMenu;
+        result = MImKeyBinding::ActionLayoutMenu;
     else if (typeStr == ActionStrSym)
-        result = KeyBinding::ActionSym;
+        result = MImKeyBinding::ActionSym;
     else if (typeStr == ActionStrReturn)
-        result = KeyBinding::ActionReturn;
+        result = MImKeyBinding::ActionReturn;
     else if (typeStr == ActionStrDecimalSeparator)
-        result = KeyBinding::ActionDecimalSeparator;
+        result = MImKeyBinding::ActionDecimalSeparator;
     else if (typeStr == ActionStrPlusMinusToggle)
-        result = KeyBinding::ActionPlusMinusToggle;
+        result = MImKeyBinding::ActionPlusMinusToggle;
     else if (typeStr == ActionStrTab)
-        result = KeyBinding::ActionTab;
+        result = MImKeyBinding::ActionTab;
     else if (typeStr == ActionStrCommit)
-        result = KeyBinding::ActionCommit;
+        result = MImKeyBinding::ActionCommit;
     else if (typeStr == ActionStrSwitch)
-        result = KeyBinding::ActionSwitch;
+        result = MImKeyBinding::ActionSwitch;
     else
-        result = KeyBinding::ActionInsert;
+        result = MImKeyBinding::ActionInsert;
     return result;
 }

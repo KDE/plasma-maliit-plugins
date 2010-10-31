@@ -17,12 +17,12 @@
 #include "ut_keyeventhandler.h"
 #include "keyeventhandler.h"
 #include "mvirtualkeyboardstyle.h"
-#include "singlewidgetbuttonarea.h"
-#include "singlewidgetbutton.h"
+#include "mimkeyarea.h"
+#include "mimkey.h"
 #include "flickupbutton.h"
 #include "mbuttonarea.h"
 #include "keyboarddata.h"
-#include "vkbdatakey.h"
+#include "mimkeymodel.h"
 #include "mplainwindow.h"
 #include "popupbase.h"
 
@@ -38,17 +38,17 @@
 
 namespace
 {
-//    const int LongPressTime = 1000; // same as in keybuttonarea.cpp
+//    const int LongPressTime = 1000; // same as in mimabstractkeyarea.cpp
 }
 
 Q_DECLARE_METATYPE(KeyEvent);
-Q_DECLARE_METATYPE(IKeyButton*);
+Q_DECLARE_METATYPE(MImAbstractKey*);
 
 
 void Ut_KeyEventHandler::initTestCase()
 {
     static int argc = 1;
-    static char *app_name[1] = { (char *) "ut_keybuttonarea" };
+    static char *app_name[1] = { (char *) "ut_mimabstractkeyarea" };
 
     // Avoid waiting if im server is not responding
     MApplication::setLoadMInputContext(false);
@@ -58,7 +58,7 @@ void Ut_KeyEventHandler::initTestCase()
     style->initialize("MVirtualKeyboard", "MVirtualKeyboardView", 0);
 
     qRegisterMetaType<KeyEvent>();
-    qRegisterMetaType<IKeyButton*>();
+    qRegisterMetaType<MImAbstractKey*>();
 
     new MPlainWindow; // Create singleton
 }
@@ -76,8 +76,8 @@ void Ut_KeyEventHandler::init()
 {
     keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("en.xml"));
-    keyArea = new SingleWidgetButtonArea(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::functionkeySection),
-                        KeyButtonArea::ButtonSizeEqualExpanding,
+    keyArea = new MImKeyArea(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::functionkeySection),
+                        MImAbstractKeyArea::ButtonSizeEqualExpanding,
                         false, 0);
     MPlainWindow::instance()->scene()->addItem(keyArea);
 
@@ -85,10 +85,10 @@ void Ut_KeyEventHandler::init()
 
     subject = new KeyEventHandler();
 
-    space = findKey(KeyBinding::ActionSpace);
+    space = findKey(MImKeyBinding::ActionSpace);
     QVERIFY(space);
 
-    shift = findKey(KeyBinding::ActionShift);
+    shift = findKey(MImKeyBinding::ActionShift);
     QVERIFY(shift);
 }
 
@@ -180,19 +180,19 @@ void Ut_KeyEventHandler::testKeyClick()
 QSize Ut_KeyEventHandler::defaultLayoutSize()
 {
     // Take visible scene size as layout size, but reduce keyboard's paddings first from its width.
-    // The height value is ignored since KeyButtonAreas determine their own height.
+    // The height value is ignored since MImAbstractKeyAreas determine their own height.
     return MPlainWindow::instance()->visibleSceneSize()
             - QSize((*style)->paddingLeft() + (*style)->paddingRight(), 0);
 }
 
 // Helper method to get key
-const IKeyButton *Ut_KeyEventHandler::findKey(KeyBinding::KeyAction action)
+const MImAbstractKey *Ut_KeyEventHandler::findKey(MImKeyBinding::KeyAction action)
 {
-    SingleWidgetButtonArea *buttonArea = dynamic_cast<SingleWidgetButtonArea *>(keyArea);
+    MImKeyArea *buttonArea = dynamic_cast<MImKeyArea *>(keyArea);
     Q_ASSERT(buttonArea);
 
-    foreach (const SingleWidgetButtonArea::ButtonRow &row, buttonArea->rowList) {
-        foreach (SingleWidgetButton *button, row.buttons) {
+    foreach (const MImKeyArea::ButtonRow &row, buttonArea->rowList) {
+        foreach (MImKey *button, row.buttons) {
             if (button->binding().action() == action) {
                 return button;
             }

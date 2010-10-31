@@ -23,7 +23,7 @@
 #include <QDebug>
 #include <QGraphicsItem>
 
-#include "keybuttonarea.h"
+#include "mimabstractkeyarea.h"
 #include "widgetbar.h"
 
 #include <MButton>
@@ -331,7 +331,7 @@ bool MReactionMapTester::testReactionMapGrid(const QGraphicsView *view,
 
             MReactionMapTester::ReactionColorValue expectedColor;
 
-            const KeyButtonArea *kba = dynamic_cast<const KeyButtonArea*>(item);
+            const MImAbstractKeyArea *kba = dynamic_cast<const MImAbstractKeyArea*>(item);
 
             // Choose expected color.
             // The expected color is based on which item was under current grid point.

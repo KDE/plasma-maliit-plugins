@@ -17,7 +17,7 @@
 
 
 #include "mvirtualkeyboardstyle.h"
-#include "singlewidgetbuttonarea.h"
+#include "mimkeyarea.h"
 
 #include <QDebug>
 #include <QEvent>
@@ -60,11 +60,11 @@ namespace {
     }
 }
 
-SingleWidgetButtonArea::SingleWidgetButtonArea(const LayoutData::SharedLayoutSection &section,
-                                               bool usePopup,
-                                               QGraphicsWidget *parent)
-    : KeyButtonArea(section, usePopup, parent),
-      rowList(section->rowCount()),
+MImKeyArea::MImKeyArea(const LayoutData::SharedLayoutSection &newSection,
+                       bool usePopup,
+                       QGraphicsWidget *parent)
+    : MImAbstractKeyArea(newSection, usePopup, parent),
+      rowList(newSection->rowCount()),
       widgetHeight(computeWidgetHeight()),
       mMaxNormalizedWidth(maxNormalizedWidth()),
       shiftButton(0),
@@ -77,7 +77,7 @@ SingleWidgetButtonArea::SingleWidgetButtonArea(const LayoutData::SharedLayoutSec
     loadKeys();
 }
 
-SingleWidgetButtonArea::~SingleWidgetButtonArea()
+MImKeyArea::~MImKeyArea()
 {
     for (RowIterator rowIter(rowList.begin()); rowIter != rowList.end(); ++rowIter) {
         qDeleteAll(rowIter->buttons);
@@ -85,7 +85,7 @@ SingleWidgetButtonArea::~SingleWidgetButtonArea()
     }
 }
 
-QSizeF SingleWidgetButtonArea::sizeHint(Qt::SizeHint which, const QSizeF &/*constraint*/) const
+QSizeF MImKeyArea::sizeHint(Qt::SizeHint which, const QSizeF &/*constraint*/) const
 {
     int width = 0;
     if (which == Qt::MaximumSize) {
@@ -96,19 +96,19 @@ QSizeF SingleWidgetButtonArea::sizeHint(Qt::SizeHint which, const QSizeF &/*cons
     return QSizeF(width, widgetHeight);
 }
 
-void SingleWidgetButtonArea::drawReactiveAreas(MReactionMap *reactionMap, QGraphicsView *view)
+void MImKeyArea::drawReactiveAreas(MReactionMap *reactionMap, QGraphicsView *view)
 {
     reactionMap->setTransform(this, view);
     reactionMap->setReactiveDrawingValue();
 
     foreach (const ButtonRow &row, rowList) {
-        foreach (const SingleWidgetButton *const button, row.buttons) {
+        foreach (const MImKey *const button, row.buttons) {
             reactionMap->fillRectangle(button->buttonBoundingRect());
         }
     }
 }
 
-void SingleWidgetButtonArea::loadKeys()
+void MImKeyArea::loadKeys()
 {
     const int numRows = rowCount();
 
@@ -122,17 +122,17 @@ void SingleWidgetButtonArea::loadKeys()
         // Add buttons
         for (int col = 0; col < numColumns; ++col) {
             // Parameters to fetch from base class.
-            VKBDataKey *dataKey = sectionModel()->vkbKey(row, col);
-            SingleWidgetButton *button = new SingleWidgetButton(*dataKey, baseStyle(), *this);
+            MImKeyModel *dataKey = sectionModel()->keyModel(row, col);
+            MImKey *button = new MImKey(*dataKey, baseStyle(), *this);
 
             // TODO: Remove restriction to have only one shift button per layout?
-            if (dataKey->binding()->action() == KeyBinding::ActionShift) {
+            if (dataKey->binding()->action() == MImKeyBinding::ActionShift) {
                 shiftButton = button;
             }
 
             // Only one stretching item per row.
             if (!rowIter->stretchButton) {
-                rowIter->stretchButton = (dataKey->width() == VKBDataKey::Stretched ? button : 0);
+                rowIter->stretchButton = (dataKey->width() == MImKeyModel::Stretched ? button : 0);
             }
 
             rowIter->buttons.append(button);
@@ -142,7 +142,7 @@ void SingleWidgetButtonArea::loadKeys()
     updateGeometry();
 }
 
-void SingleWidgetButtonArea::buildTextLayout()
+void MImKeyArea::buildTextLayout()
 {
     textDirty = false;
 
@@ -159,7 +159,7 @@ void SingleWidgetButtonArea::buildTextLayout()
 
     foreach (const ButtonRow &row, rowList) {
 
-        foreach (const SingleWidgetButton *button, row.buttons) {
+        foreach (const MImKey *button, row.buttons) {
             // primary label
             QString label = button->label();
 
@@ -203,13 +203,13 @@ void SingleWidgetButtonArea::buildTextLayout()
         // rowHasSecondaryLabel is needed for the vertical alignment of
         // secondary label purposes.
         bool rowHasSecondaryLabel = false;
-        foreach (SingleWidgetButton *button, row->buttons) {
+        foreach (MImKey *button, row->buttons) {
             if (!button->secondaryLabel().isEmpty()) {
                 rowHasSecondaryLabel = true;
             }
         }
 
-        foreach (SingleWidgetButton *button, row->buttons) {
+        foreach (MImKey *button, row->buttons) {
 
             const QString &label(button->label());
             const QString &secondary(button->secondaryLabel());
@@ -288,7 +288,7 @@ endLayout:
     textLayout.endLayout();
 }
 
-qreal SingleWidgetButtonArea::computeWidgetHeight() const
+qreal MImKeyArea::computeWidgetHeight() const
 {
     qreal height = -(baseStyle()->spacingVertical())
                    + baseStyle()->paddingTop()
@@ -302,9 +302,9 @@ qreal SingleWidgetButtonArea::computeWidgetHeight() const
     return qMax<qreal>(0.0, height);
 }
 
-void SingleWidgetButtonArea::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
+void MImKeyArea::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
-    const KeyButtonAreaStyleContainer &style(baseStyle());
+    const MImAbstractKeyAreaStyleContainer &style(baseStyle());
     const MScalableImage *background = style->backgroundImage();
 
     if (background) {
@@ -313,7 +313,7 @@ void SingleWidgetButtonArea::paint(QPainter *painter, const QStyleOptionGraphics
 
     // Draw images first.
     foreach (const ButtonRow &row, rowList) {
-        foreach (const SingleWidgetButton *button, row.buttons) {
+        foreach (const MImKey *button, row.buttons) {
             drawKeyBackground(painter, button);
             button->drawIcon(button->cachedButtonRect.toRect(), painter);
             drawDebugRects(painter, button,
@@ -335,8 +335,8 @@ void SingleWidgetButtonArea::paint(QPainter *painter, const QStyleOptionGraphics
     textLayout.draw(painter, QPoint());
 }
 
-void SingleWidgetButtonArea::drawKeyBackground(QPainter *painter,
-                                               const SingleWidgetButton *button)
+void MImKeyArea::drawKeyBackground(QPainter *painter,
+                                               const MImKey *button)
 {
     if (!button) {
         return;
@@ -346,45 +346,45 @@ void SingleWidgetButtonArea::drawKeyBackground(QPainter *painter,
 
     switch (button->state()) {
 
-    case IKeyButton::Normal:
+    case MImAbstractKey::Normal:
         switch (button->key().style()) {
-        case VKBDataKey::SpecialStyle:
+        case MImKeyModel::SpecialStyle:
             background = baseStyle()->keyBackgroundSpecial();
             break;
-        case VKBDataKey::DeadkeyStyle:
+        case MImKeyModel::DeadkeyStyle:
             background = baseStyle()->keyBackgroundDeadkey();
             break;
-        case VKBDataKey::NormalStyle:
+        case MImKeyModel::NormalStyle:
         default:
             background = baseStyle()->keyBackground();
             break;
         }
         break;
 
-    case IKeyButton::Pressed:
+    case MImAbstractKey::Pressed:
         switch (button->key().style()) {
-        case VKBDataKey::SpecialStyle:
+        case MImKeyModel::SpecialStyle:
             background = baseStyle()->keyBackgroundSpecialPressed();
             break;
-        case VKBDataKey::DeadkeyStyle:
+        case MImKeyModel::DeadkeyStyle:
             background = baseStyle()->keyBackgroundDeadkeyPressed();
             break;
-        case VKBDataKey::NormalStyle:
+        case MImKeyModel::NormalStyle:
         default:
             background = baseStyle()->keyBackgroundPressed();
             break;
         }
         break;
 
-    case IKeyButton::Selected:
+    case MImAbstractKey::Selected:
         switch (button->key().style()) {
-        case VKBDataKey::SpecialStyle:
+        case MImKeyModel::SpecialStyle:
             background = baseStyle()->keyBackgroundSpecialSelected();
             break;
-        case VKBDataKey::DeadkeyStyle:
+        case MImKeyModel::DeadkeyStyle:
             background = baseStyle()->keyBackgroundDeadkeySelected();
             break;
-        case VKBDataKey::NormalStyle:
+        case MImKeyModel::NormalStyle:
         default:
             background = baseStyle()->keyBackgroundSelected();
             break;
@@ -400,8 +400,8 @@ void SingleWidgetButtonArea::drawKeyBackground(QPainter *painter,
     }
 }
 
-void SingleWidgetButtonArea::drawDebugRects(QPainter *painter,
-                                            const SingleWidgetButton *button,
+void MImKeyArea::drawDebugRects(QPainter *painter,
+                                            const MImKey *button,
                                             bool drawBoundingRects,
                                             bool drawRects)
 {
@@ -428,7 +428,7 @@ void SingleWidgetButtonArea::drawDebugRects(QPainter *painter,
     }
 }
 
-void SingleWidgetButtonArea::drawDebugReactiveAreas(QPainter *painter)
+void MImKeyArea::drawDebugReactiveAreas(QPainter *painter)
 {
     painter->save();
 
@@ -459,7 +459,7 @@ void SingleWidgetButtonArea::drawDebugReactiveAreas(QPainter *painter)
     painter->restore();
 }
 
-IKeyButton *SingleWidgetButtonArea::keyAt(const QPoint &pos) const
+MImAbstractKey *MImKeyArea::keyAt(const QPoint &pos) const
 {
     const int numRows = rowList.count();
 
@@ -483,7 +483,7 @@ IKeyButton *SingleWidgetButtonArea::keyAt(const QPoint &pos) const
     return currentRow.buttons.at(buttonIndex);
 }
 
-void SingleWidgetButtonArea::setShiftState(ModifierState newShiftState)
+void MImKeyArea::setShiftState(ModifierState newShiftState)
 {
     if (shiftButton) {
         shiftButton->setModifiers(newShiftState != ModifierClearState);
@@ -491,13 +491,13 @@ void SingleWidgetButtonArea::setShiftState(ModifierState newShiftState)
     }
 }
 
-void SingleWidgetButtonArea::modifiersChanged(const bool shift, const QChar accent)
+void MImKeyArea::modifiersChanged(const bool shift, const QChar accent)
 {
     for (RowIterator row(rowList.begin()); row != rowList.end(); ++row) {
-        foreach (SingleWidgetButton *button, row->buttons) {
+        foreach (MImKey *button, row->buttons) {
             // Shift button and selected keys are detached from the normal level changing.
             if (button != this->shiftButton
-                && button->state() != IKeyButton::Selected) {
+                && button->state() != MImAbstractKey::Selected) {
                 button->setModifiers(shift, accent);
             }
         }
@@ -507,7 +507,7 @@ void SingleWidgetButtonArea::modifiersChanged(const bool shift, const QChar acce
 
 }
 
-void SingleWidgetButtonArea::updateButtonGeometriesForWidth(const int newAvailableWidth)
+void MImKeyArea::updateButtonGeometriesForWidth(const int newAvailableWidth)
 {
     if (sectionModel()->maxColumns() == 0) {
         return;
@@ -516,7 +516,7 @@ void SingleWidgetButtonArea::updateButtonGeometriesForWidth(const int newAvailab
     widgetHeight = computeWidgetHeight();
     rowOffsets.clear();
 
-    const KeyButtonAreaStyleContainer &style(baseStyle());
+    const MImAbstractKeyAreaStyleContainer &style(baseStyle());
     const qreal HorizontalSpacing = style->spacingHorizontal();
     const qreal VerticalSpacing = style->spacingVertical();
 
@@ -567,7 +567,7 @@ void SingleWidgetButtonArea::updateButtonGeometriesForWidth(const int newAvailab
 
         // Update row width
         qreal rowWidth = 0;
-        foreach (SingleWidgetButton *button, row->buttons) {
+        foreach (MImKey *button, row->buttons) {
             button->width = button->preferredWidth(mRelativeButtonBaseWidth, HorizontalSpacing);
             rowWidth += button->width + HorizontalSpacing;
         }
@@ -605,7 +605,7 @@ void SingleWidgetButtonArea::updateButtonGeometriesForWidth(const int newAvailab
         qreal x = style->paddingLeft() + spacerIndices.count(-1) * availableWidthForSpacers;
 
         for (int buttonIndex = 0; buttonIndex < row->buttons.count(); ++buttonIndex) {
-            SingleWidgetButton *button = row->buttons.at(buttonIndex);
+            MImKey *button = row->buttons.at(buttonIndex);
 
             br.moveLeft(x - leftMargin);
             br.setWidth(button->width + leftMargin + rightMargin);
@@ -635,12 +635,12 @@ void SingleWidgetButtonArea::updateButtonGeometriesForWidth(const int newAvailab
     textDirty = true;
 }
 
-QRectF SingleWidgetButtonArea::boundingRect() const
+QRectF MImKeyArea::boundingRect() const
 {
     return QRectF(0, 0, size().width(), widgetHeight);
 }
 
-qreal SingleWidgetButtonArea::preferredRowHeight(int row) const
+qreal MImKeyArea::preferredRowHeight(int row) const
 {
     const qreal normalHeight = baseStyle()->keyHeight();
 
@@ -670,14 +670,14 @@ qreal SingleWidgetButtonArea::preferredRowHeight(int row) const
     return 0.0;
 }
 
-qreal SingleWidgetButtonArea::maxNormalizedWidth() const
+qreal MImKeyArea::maxNormalizedWidth() const
 {
     qreal maxRowWidth = 0.0;
 
     for (int j = 0; j < sectionModel()->rowCount(); ++j) {
         qreal rowWidth = 0.0;
         for (int i = 0; i < sectionModel()->columnsAt(j); ++i) {
-            const VKBDataKey *key = sectionModel()->vkbKey(j, i);
+            const MImKeyModel *key = sectionModel()->keyModel(j, i);
             rowWidth += normalizedKeyWidth(key);
         }
         maxRowWidth = qMax(maxRowWidth, rowWidth);
@@ -685,23 +685,23 @@ qreal SingleWidgetButtonArea::maxNormalizedWidth() const
     return maxRowWidth;
 }
 
-qreal SingleWidgetButtonArea::normalizedKeyWidth(const VKBDataKey *key) const
+qreal MImKeyArea::normalizedKeyWidth(const MImKeyModel *key) const
 {
     switch(key->width()) {
-    case VKBDataKey::Small:
+    case MImKeyModel::Small:
         return baseStyle()->keyWidthSmall();
 
-    case VKBDataKey::Medium:
-    case VKBDataKey::Stretched:
+    case MImKeyModel::Medium:
+    case MImKeyModel::Stretched:
         return baseStyle()->keyWidthMedium();
 
-    case VKBDataKey::Large:
+    case MImKeyModel::Large:
         return baseStyle()->keyWidthLarge();
 
-    case VKBDataKey::XLarge:
+    case MImKeyModel::XLarge:
         return baseStyle()->keyWidthXLarge();
 
-    case VKBDataKey::XxLarge:
+    case MImKeyModel::XxLarge:
         return baseStyle()->keyWidthXxLarge();
     }
 
@@ -710,9 +710,9 @@ qreal SingleWidgetButtonArea::normalizedKeyWidth(const VKBDataKey *key) const
     return 0.0;
 }
 
-void SingleWidgetButtonArea::onThemeChangeCompleted()
+void MImKeyArea::onThemeChangeCompleted()
 {
     mMaxNormalizedWidth = maxNormalizedWidth();
-    KeyButtonArea::onThemeChangeCompleted();
+    MImAbstractKeyArea::onThemeChangeCompleted();
     buildTextLayout();
 }

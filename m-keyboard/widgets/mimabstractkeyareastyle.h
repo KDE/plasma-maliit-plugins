@@ -13,18 +13,18 @@
  * and appearing in the file LICENSE.LGPL included in the packaging
  * of this file.
  */
-#ifndef KEYBUTTONAREASTYLE_H
-#define KEYBUTTONAREASTYLE_H
+#ifndef MIMABSTRACTKEYAREASTYLE_H
+#define MIMABSTRACTKEYAREASTYLE_H
 
 #include <MWidgetStyle>
 
 /*!
-    \brief Style for KeyButtonArea derived classes.
+    \brief Style for MImAbstractKeyArea derived classes.
 */
-class M_EXPORT KeyButtonAreaStyle : public MWidgetStyle
+class M_EXPORT MImAbstractKeyAreaStyle : public MWidgetStyle
 {
     Q_OBJECT
-    M_STYLE(KeyButtonAreaStyle)
+    M_STYLE(MImAbstractKeyAreaStyle)
 
 public:
     M_STYLE_ATTRIBUTE(qreal, spacingVertical, SpacingVertical)
@@ -110,10 +110,10 @@ public:
     M_STYLE_ATTRIBUTE(bool, drawReactiveAreas, drawReactiveAreas)
 };
 
-class M_EXPORT KeyButtonAreaStyleContainer : public MWidgetStyleContainer
+class M_EXPORT MImAbstractKeyAreaStyleContainer : public MWidgetStyleContainer
 {
-    M_STYLE_CONTAINER(KeyButtonAreaStyle)
+    M_STYLE_CONTAINER(MImAbstractKeyAreaStyle)
 };
 
 
-#endif // KEYBUTTONAREASTYLE_H
+#endif // MIMABSTRACTKEYAREASTYLE_H

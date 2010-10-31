@@ -22,9 +22,9 @@
 #include <QKeyEvent>
 #include <QPoint>
 
-class KeyButtonArea;
+class MImAbstractKeyArea;
 class KeyEvent;
-class IKeyButton;
+class MImAbstractKey;
 class QString;
 
 /*!
@@ -41,7 +41,7 @@ public:
     explicit KeyEventHandler(QObject *parent = 0);
 
     //! Connects this object to signals from given \a source
-    void addEventSource(KeyButtonArea *eventSource);
+    void addEventSource(MImAbstractKeyArea *eventSource);
 
 signals:
     /*!
@@ -80,21 +80,21 @@ private slots:
     /*!
      * \brief Generates KeyEvent for given \a key and emits keyPressed
      */
-    void handleKeyPress(const IKeyButton *key, const QString &accent, bool upperCase);
+    void handleKeyPress(const MImAbstractKey *key, const QString &accent, bool upperCase);
 
     /*!
      * \brief Generates KeyEvent for given \a key and emits keyReleased
      */
-    void handleKeyRelease(const IKeyButton *key, const QString &accent, bool upperCase);
+    void handleKeyRelease(const MImAbstractKey *key, const QString &accent, bool upperCase);
 
     /*!
      * \brief Generates KeyEvent for given \a key and emits keyClicked
      */
-    void handleKeyClick(const IKeyButton *key, const QString &accent, bool upperCase, const QPoint &point);
+    void handleKeyClick(const MImAbstractKey *key, const QString &accent, bool upperCase, const QPoint &point);
 
 private:
     //! Turn key button into a KeyEvent, considering current accent and modifier state
-    KeyEvent keyToKeyEvent(const IKeyButton &key, QKeyEvent::Type eventType,
+    KeyEvent keyToKeyEvent(const MImAbstractKey &key, QKeyEvent::Type eventType,
                            const QString &accent, bool upperCase, const QPoint &point = QPoint()) const;
 
 private:

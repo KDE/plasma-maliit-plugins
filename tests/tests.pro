@@ -7,12 +7,12 @@ SUBDIRS = \
           ut_mkeyboardhost \
           ut_mkeyboardplugin \
           ut_mimcorrectioncandidatewidget \
-          ut_keybutton \
-          ut_keybuttonarea \
+          ut_mimkey \
+          ut_mimabstractkeyarea \
           ut_flickrecognizer \
           ut_symbolview \
           ut_notification \
-          ut_vkbdatakey \
+          ut_mimkeymodel \
           ut_horizontalswitcher \
           ut_layoutsmanager \
           ut_mimtoolbar \
@@ -20,7 +20,7 @@ SUBDIRS = \
           ut_hwkbcharloopsmanager \
           ut_mkeyboardsettings \
           ut_mkeyboardsettingswidget \
-          bm_keybuttonarea \
+          bm_mimabstractkeyarea \
           bm_symbols \
           ft_mxkb \
           ut_sharedhandlearea \

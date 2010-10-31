@@ -265,7 +265,7 @@ bool SymbolView::sceneEventFilter(QGraphicsItem */*watched*/, QEvent *event)
         case QEvent::GraphicsSceneMouseRelease: {
             // Even though at this point ungrabbing the child widget would allow release
             // event to reach it the order is wrong. We now cope with the situation because
-            // we know KeyButtonAreas will ungrab even an implicit grab on release event.
+            // we know MImAbstractKeyAreas will ungrab even an implicit grab on release event.
             mouseDownKeyArea = false;
 
             // Hide SymbolView if temporary mode was on.
@@ -432,7 +432,7 @@ void SymbolView::loadSwitcherPages(const LayoutData *kbLayout, const unsigned in
 
 void SymbolView::addPage(const LayoutData::SharedLayoutSection &symbolSection)
 {
-    KeyButtonArea *page = createKeyButtonArea(symbolSection);
+    MImAbstractKeyArea *page = createMImAbstractKeyArea(symbolSection);
 
     if (page) {
         page->setObjectName("SymbolMainRow");
@@ -454,13 +454,13 @@ void SymbolView::addPage(const LayoutData::SharedLayoutSection &symbolSection)
     }
 }
 
-KeyButtonArea *SymbolView::createKeyButtonArea(const LayoutData::SharedLayoutSection &section,
+MImAbstractKeyArea *SymbolView::createMImAbstractKeyArea(const LayoutData::SharedLayoutSection &section,
                                                bool enablePopup)
 {
-    KeyButtonArea *keysWidget = 0;
+    MImAbstractKeyArea *keysWidget = 0;
 
     if (!section.isNull()) {
-        keysWidget = new SingleWidgetButtonArea(section, enablePopup);
+        keysWidget = new MImKeyArea(section, enablePopup);
 
         eventHandler.addEventSource(keysWidget);
     }
@@ -491,7 +491,7 @@ void SymbolView::setShiftState(ModifierState newShiftState)
     shiftState = newShiftState;
 
     for (int i = 0; i < pageSwitcher->count(); ++i) {
-        KeyButtonArea *mainKba = static_cast<KeyButtonArea *>(pageSwitcher->widget(i));
+        MImAbstractKeyArea *mainKba = static_cast<MImAbstractKeyArea *>(pageSwitcher->widget(i));
         if (mainKba) {
             mainKba->setShiftState(shiftState);
         }
@@ -592,7 +592,7 @@ void SymbolView::handleShiftPressed(bool shiftPressed)
     if (enableMultiTouch) {
         const int level = shiftPressed ? 1 : currentLevel();
 
-        KeyButtonArea *mainKba = static_cast<KeyButtonArea *>(pageSwitcher->currentWidget());
+        MImAbstractKeyArea *mainKba = static_cast<MImAbstractKeyArea *>(pageSwitcher->currentWidget());
         if (mainKba) {
             mainKba->switchLevel(level);
         }
@@ -612,7 +612,7 @@ void SymbolView::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view
 
     // Draw current character view.
     if (pageSwitcher->currentWidget()) {
-        static_cast<KeyButtonArea *>(pageSwitcher->currentWidget())->drawReactiveAreas(reactionMap, view);
+        static_cast<MImAbstractKeyArea *>(pageSwitcher->currentWidget())->drawReactiveAreas(reactionMap, view);
     }
 }
 
@@ -636,7 +636,7 @@ bool SymbolView::isActive() const
 QString SymbolView::pageTitle(const int pageIndex) const
 {
     Q_ASSERT(pageSwitcher && (pageSwitcher->count() > pageIndex));
-    const QString sectionName = qobject_cast<const KeyButtonArea *>(pageSwitcher->widget(pageIndex))->sectionModel()->name();
+    const QString sectionName = qobject_cast<const MImAbstractKeyArea *>(pageSwitcher->widget(pageIndex))->sectionModel()->name();
     return sectionName.mid(SymbolSectionPrefix.length());
 }
 

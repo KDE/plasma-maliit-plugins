@@ -19,7 +19,7 @@
 #include "flickgesture.h"
 #include "flickgesturerecognizer.h"
 #include "mvirtualkeyboardstyle.h"
-#include "keybuttonarea.h"
+#include "mimabstractkeyarea.h"
 #include "popupbase.h"
 #include "popupfactory.h"
 
@@ -72,11 +72,11 @@ namespace
     }
 }
 
-M::InputMethodMode KeyButtonArea::InputMethodMode;
+M::InputMethodMode MImAbstractKeyArea::InputMethodMode;
 
-KeyButtonArea::KeyButtonArea(const LayoutData::SharedLayoutSection &newSection,
-                             bool usePopup,
-                             QGraphicsWidget *parent)
+MImAbstractKeyArea::MImAbstractKeyArea(const LayoutData::SharedLayoutSection &newSection,
+                                       bool usePopup,
+                                       QGraphicsWidget *parent)
     : MStylableWidget(parent),
       mRelativeButtonBaseWidth(0),
       debugTouchPoints(style()->debugTouchPoints()),
@@ -113,27 +113,27 @@ KeyButtonArea::KeyButtonArea(const LayoutData::SharedLayoutSection &newSection,
             Qt::UniqueConnection);
 }
 
-KeyButtonArea::~KeyButtonArea()
+MImAbstractKeyArea::~MImAbstractKeyArea()
 {
     delete mPopup;
 }
 
-void KeyButtonArea::setInputMethodMode(M::InputMethodMode inputMethodMode)
+void MImAbstractKeyArea::setInputMethodMode(M::InputMethodMode inputMethodMode)
 {
     InputMethodMode = inputMethodMode;
 }
 
-qreal KeyButtonArea::relativeButtonBaseWidth() const
+qreal MImAbstractKeyArea::relativeButtonBaseWidth() const
 {
     return mRelativeButtonBaseWidth;
 }
 
-const LayoutData::SharedLayoutSection &KeyButtonArea::sectionModel() const
+const LayoutData::SharedLayoutSection &MImAbstractKeyArea::sectionModel() const
 {
     return section;
 }
 
-void KeyButtonArea::updatePopup(IKeyButton *key)
+void MImAbstractKeyArea::updatePopup(MImAbstractKey *key)
 {
     if (!mPopup) {
         return;
@@ -155,18 +155,18 @@ void KeyButtonArea::updatePopup(IKeyButton *key)
                                        level() % 2);
 }
 
-int KeyButtonArea::maxColumns() const
+int MImAbstractKeyArea::maxColumns() const
 {
     return section->maxColumns();
 }
 
-int KeyButtonArea::rowCount() const
+int MImAbstractKeyArea::rowCount() const
 {
     return section->rowCount();
 }
 
 void
-KeyButtonArea::handleVisibilityChanged(bool visible)
+MImAbstractKeyArea::handleVisibilityChanged(bool visible)
 {
     if (mPopup) {
         mPopup->setEnabled(visible);
@@ -178,7 +178,7 @@ KeyButtonArea::handleVisibilityChanged(bool visible)
 }
 
 void
-KeyButtonArea::switchLevel(int level)
+MImAbstractKeyArea::switchLevel(int level)
 {
     if (level != currentLevel) {
         currentLevel = level;
@@ -190,17 +190,17 @@ KeyButtonArea::switchLevel(int level)
     }
 }
 
-int KeyButtonArea::level() const
+int MImAbstractKeyArea::level() const
 {
     return currentLevel;
 }
 
-void KeyButtonArea::setShiftState(ModifierState /*newShiftState*/)
+void MImAbstractKeyArea::setShiftState(ModifierState /*newShiftState*/)
 {
     // Empty default implementation
 }
 
-void KeyButtonArea::resizeEvent(QGraphicsSceneResizeEvent *event)
+void MImAbstractKeyArea::resizeEvent(QGraphicsSceneResizeEvent *event)
 {
     const int newWidth = static_cast<int>(event->newSize().width());
 
@@ -209,7 +209,7 @@ void KeyButtonArea::resizeEvent(QGraphicsSceneResizeEvent *event)
     }
 }
 
-void KeyButtonArea::mousePressEvent(QGraphicsSceneMouseEvent *ev)
+void MImAbstractKeyArea::mousePressEvent(QGraphicsSceneMouseEvent *ev)
 {
     if (enableMultiTouch) {
         return;
@@ -222,7 +222,7 @@ void KeyButtonArea::mousePressEvent(QGraphicsSceneMouseEvent *ev)
     gLastMousePos = ev->pos();
 }
 
-void KeyButtonArea::mouseMoveEvent(QGraphicsSceneMouseEvent *ev)
+void MImAbstractKeyArea::mouseMoveEvent(QGraphicsSceneMouseEvent *ev)
 {
     if (enableMultiTouch) {
         return;
@@ -235,7 +235,7 @@ void KeyButtonArea::mouseMoveEvent(QGraphicsSceneMouseEvent *ev)
     gLastMousePos = ev->pos();
 }
 
-void KeyButtonArea::mouseReleaseEvent(QGraphicsSceneMouseEvent *ev)
+void MImAbstractKeyArea::mouseReleaseEvent(QGraphicsSceneMouseEvent *ev)
 {
     if (scene()->mouseGrabberItem() == this) {
         // Ungrab mouse explicitly since we probably used grabMouse() to get it.
@@ -253,7 +253,7 @@ void KeyButtonArea::mouseReleaseEvent(QGraphicsSceneMouseEvent *ev)
     gLastMousePos = ev->pos();
 }
 
-void KeyButtonArea::click(IKeyButton *key, const QPoint &touchPoint)
+void MImAbstractKeyArea::click(MImAbstractKey *key, const QPoint &touchPoint)
 {
     if (!key) {
         return;
@@ -282,7 +282,7 @@ void KeyButtonArea::click(IKeyButton *key, const QPoint &touchPoint)
     }
 }
 
-QVariant KeyButtonArea::itemChange(GraphicsItemChange change, const QVariant &value)
+QVariant MImAbstractKeyArea::itemChange(GraphicsItemChange change, const QVariant &value)
 {
     switch (change) {
     case QGraphicsItem::ItemVisibleChange:
@@ -296,9 +296,9 @@ QVariant KeyButtonArea::itemChange(GraphicsItemChange change, const QVariant &va
     return QGraphicsItem::itemChange(change, value);
 }
 
-void KeyButtonArea::grabMouseEvent(QEvent */*event*/)
+void MImAbstractKeyArea::grabMouseEvent(QEvent */*event*/)
 {
-    // If keybuttonarea is hidden without mouseReleaseEvent
+    // If mimabstractkeyarea is hidden without mouseReleaseEvent
     // the enabled <flicked> would stay true if mouse
     // grab is obtained again without mousePressEvent.
     // This would ignore mouseReleaseEvent and would not cause keyClicked.
@@ -314,7 +314,7 @@ void KeyButtonArea::grabMouseEvent(QEvent */*event*/)
     FlickGestureRecognizer::instance()->setTimeout(Timeout);
 }
 
-void KeyButtonArea::ungrabMouseEvent(QEvent *)
+void MImAbstractKeyArea::ungrabMouseEvent(QEvent *)
 {
     // Make sure popup can respond to mouse grab removal:
     if (mPopup) {
@@ -325,7 +325,7 @@ void KeyButtonArea::ungrabMouseEvent(QEvent *)
     activeKey = 0;
 }
 
-bool KeyButtonArea::event(QEvent *ev)
+bool MImAbstractKeyArea::event(QEvent *ev)
 {
     bool eaten = false;
 
@@ -367,7 +367,7 @@ bool KeyButtonArea::event(QEvent *ev)
     return eaten || MWidget::event(ev);
 }
 
-void KeyButtonArea::handleFlickGesture(FlickGesture *gesture)
+void MImAbstractKeyArea::handleFlickGesture(FlickGesture *gesture)
 {
     if (InputMethodMode == M::InputMethodModeDirect) {
         return;
@@ -405,7 +405,7 @@ void KeyButtonArea::handleFlickGesture(FlickGesture *gesture)
             break;
 
         case FlickGesture::Up: {
-                const IKeyButton *flickedKey = keyAt(gesture->startPosition());
+                const MImAbstractKey *flickedKey = keyAt(gesture->startPosition());
                 if (flickedKey) {
                     emit flickUp(flickedKey->binding());
                 }
@@ -418,7 +418,7 @@ void KeyButtonArea::handleFlickGesture(FlickGesture *gesture)
     }
 }
 
-void KeyButtonArea::touchPointPressed(const QTouchEvent::TouchPoint &tp)
+void MImAbstractKeyArea::touchPointPressed(const QTouchEvent::TouchPoint &tp)
 {
     wasGestureTriggered = false;
 
@@ -430,7 +430,7 @@ void KeyButtonArea::touchPointPressed(const QTouchEvent::TouchPoint &tp)
     }
 
     const QPoint pos = mapFromScene(tp.scenePos()).toPoint();
-    IKeyButton *key = keyAt(pos);
+    MImAbstractKey *key = keyAt(pos);
 
     if (debugTouchPoints) {
         printTouchPoint(tp, key);
@@ -470,7 +470,7 @@ void KeyButtonArea::touchPointPressed(const QTouchEvent::TouchPoint &tp)
     }
 }
 
-void KeyButtonArea::touchPointMoved(const QTouchEvent::TouchPoint &tp)
+void MImAbstractKeyArea::touchPointMoved(const QTouchEvent::TouchPoint &tp)
 {
     if (wasGestureTriggered) {
         longPressTimer.stop();
@@ -520,7 +520,7 @@ void KeyButtonArea::touchPointMoved(const QTouchEvent::TouchPoint &tp)
     }
 }
 
-void KeyButtonArea::touchPointReleased(const QTouchEvent::TouchPoint &tp)
+void MImAbstractKeyArea::touchPointReleased(const QTouchEvent::TouchPoint &tp)
 {
     if (wasGestureTriggered) {
         return;
@@ -577,7 +577,7 @@ void KeyButtonArea::touchPointReleased(const QTouchEvent::TouchPoint &tp)
     }
 }
 
-QTouchEvent::TouchPoint KeyButtonArea::createTouchPoint(int id,
+QTouchEvent::TouchPoint MImAbstractKeyArea::createTouchPoint(int id,
                                                         Qt::TouchPointState state,
                                                         const QPointF &pos,
                                                         const QPointF &lastPos)
@@ -590,14 +590,14 @@ QTouchEvent::TouchPoint KeyButtonArea::createTouchPoint(int id,
     return tp;
 }
 
-KeyButtonArea::GravitationalLookupResult
-KeyButtonArea::gravitationalKeyAt(const QPoint &pos,
+MImAbstractKeyArea::GravitationalLookupResult
+MImAbstractKeyArea::gravitationalKeyAt(const QPoint &pos,
                                   const QPoint &lastPos,
                                   const QPoint &startPos) const
 {
     // TODO: Needs explicit test coverage, maybe.
-    IKeyButton *key = 0;
-    IKeyButton *lastKey = 0;
+    MImAbstractKey *key = 0;
+    MImAbstractKey *lastKey = 0;
 
     const qreal hGravity = style()->touchpointHorizontalGravity();
     const qreal vGravity = style()->touchpointVerticalGravity();
@@ -626,7 +626,7 @@ KeyButtonArea::gravitationalKeyAt(const QPoint &pos,
 }
 
 void
-KeyButtonArea::unlockDeadkeys()
+MImAbstractKeyArea::unlockDeadkeys()
 {
     if (activeDeadkey) {
         activeDeadkey->setSelected(false);
@@ -635,19 +635,19 @@ KeyButtonArea::unlockDeadkeys()
     }
 }
 
-void KeyButtonArea::drawReactiveAreas(MReactionMap */*reactionMap*/, QGraphicsView */*view*/)
+void MImAbstractKeyArea::drawReactiveAreas(MReactionMap */*reactionMap*/, QGraphicsView */*view*/)
 {
     // Empty default implementation. Geometries of buttons are known by derived classes.
 }
 
-const PopupBase &KeyButtonArea::popup() const
+const PopupBase &MImAbstractKeyArea::popup() const
 {
     return *mPopup;
 }
 
-void KeyButtonArea::printTouchPoint(const QTouchEvent::TouchPoint &tp,
-                                    const IKeyButton *key,
-                                    const IKeyButton *lastKey) const
+void MImAbstractKeyArea::printTouchPoint(const QTouchEvent::TouchPoint &tp,
+                                    const MImAbstractKey *key,
+                                    const MImAbstractKey *lastKey) const
 {
     // Sorry that this looks a bit funny ... it does the job, though.
     qDebug() << "\ntouchpoint:" << tp.id() << "(start:" << tp.startScenePos()
@@ -663,7 +663,7 @@ void KeyButtonArea::printTouchPoint(const QTouchEvent::TouchPoint &tp,
                                                      : QString()) << ")";
 }
 
-void KeyButtonArea::updateButtonModifiers()
+void MImAbstractKeyArea::updateButtonModifiers()
 {
     bool shift = (currentLevel == 1);
 
@@ -675,22 +675,22 @@ void KeyButtonArea::updateButtonModifiers()
     modifiersChanged(shift, accent);
 }
 
-void KeyButtonArea::modifiersChanged(bool /*shift*/, const QChar /*accent*/)
+void MImAbstractKeyArea::modifiersChanged(bool /*shift*/, const QChar /*accent*/)
 {
     // Empty default implementation
 }
 
-void KeyButtonArea::onThemeChangeCompleted()
+void MImAbstractKeyArea::onThemeChangeCompleted()
 {
     updateButtonGeometriesForWidth(size().width());
 }
 
-const KeyButtonAreaStyleContainer &KeyButtonArea::baseStyle() const
+const MImAbstractKeyAreaStyleContainer &MImAbstractKeyArea::baseStyle() const
 {
     return style();
 }
 
-void KeyButtonArea::handleLongKeyPressed()
+void MImAbstractKeyArea::handleLongKeyPressed()
 {
     if (!activeKey) {
         return;
@@ -706,12 +706,12 @@ void KeyButtonArea::handleLongKeyPressed()
     emit longKeyPressed(activeKey, accent, level() % 2);
 }
 
-void KeyButtonArea::handleIdleVkb()
+void MImAbstractKeyArea::handleIdleVkb()
 {
     grabGesture(FlickGestureRecognizer::sharedGestureType());
 }
 
-bool KeyButtonArea::isInSpeedTypingMode(bool restartTimers)
+bool MImAbstractKeyArea::isInSpeedTypingMode(bool restartTimers)
 {
     return ((restartTimers ? lastTouchPointPressEvent.restart()
                            : lastTouchPointPressEvent.elapsed()) < style()->idleVkbTimeout());

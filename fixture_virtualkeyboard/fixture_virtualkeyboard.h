@@ -19,10 +19,10 @@
 #ifndef FIXTURE_VIRTUALKEYBOARD_H
 #define FIXTURE_VIRTUALKEYBOARD_H
 
-class IKeyButton;
-class SingleWidgetButtonArea;
+class MImAbstractKey;
+class MImKeyArea;
 
-#include "vkbdatakey.h"
+#include "mimkeymodel.h"
 #include "tasfixtureplugininterface.h"
 
 #include <QObject>
@@ -46,15 +46,15 @@ public:
      *  \param widget the button area widget that is queried for the button of a given label.
      *  \param label  button label of the virtualkeyboard
      */
-    virtual const IKeyButton *getKey(const SingleWidgetButtonArea * const widget,
+    virtual const MImAbstractKey *getKey(const MImKeyArea * const widget,
                                      const QString &label) const;
     /*!
      *  \brief Get the IkeyButton (button details) by providing the action associated  by  a keyboard button
      *  \param widget the button area widget that is queried for the button of a given action.
      *  \param action  Action associated with a keyboard button
      */
-    virtual const IKeyButton *getKey(const SingleWidgetButtonArea * widget,
-                                     const KeyBinding::KeyAction action) const;
+    virtual const MImAbstractKey *getKey(const MImKeyArea * widget,
+                                     const MImKeyBinding::KeyAction action) const;
 };
 
 #endif

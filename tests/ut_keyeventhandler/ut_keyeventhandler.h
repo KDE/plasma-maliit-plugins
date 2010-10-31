@@ -20,13 +20,13 @@
 #include <QtTest/QtTest>
 #include <QObject>
 #include "mnamespace.h"
-#include "vkbdatakey.h"
+#include "mimkeymodel.h"
 
 class MApplication;
 class MVirtualKeyboardStyleContainer;
-class KeyButtonArea;
+class MImAbstractKeyArea;
 class KeyboardData;
-class IKeyButton;
+class MImAbstractKey;
 class KeyEventHandler;
 
 class Ut_KeyEventHandler : public QObject
@@ -36,11 +36,11 @@ class Ut_KeyEventHandler : public QObject
 private:
     MApplication *app;
     MVirtualKeyboardStyleContainer *style;
-    KeyButtonArea *keyArea;
+    MImAbstractKeyArea *keyArea;
     KeyboardData *keyboard;
     KeyEventHandler *subject;
-    const IKeyButton *space;
-    const IKeyButton *shift;
+    const MImAbstractKey *space;
+    const MImAbstractKey *shift;
 
 private slots:
     void init();
@@ -54,7 +54,7 @@ private slots:
 
 private:
     QSize defaultLayoutSize();
-    const IKeyButton *findKey(KeyBinding::KeyAction);
+    const MImAbstractKey *findKey(MImKeyBinding::KeyAction);
 };
 
 #endif // UT_KEYEVENTHANDLER_H

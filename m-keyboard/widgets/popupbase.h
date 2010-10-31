@@ -17,8 +17,8 @@
 #ifndef POPUPBASE_H
 #define POPUPBASE_H
 
-class IKeyButton;
-class KeyButtonArea;
+class MImAbstractKey;
+class MImAbstractKeyArea;
 
 class QPointF;
 class QPoint;
@@ -33,7 +33,7 @@ class PopupBase
 public:
     //! Constructor
     //! \param mainArea Allows PopupBase to forward requests to the main area
-    explicit PopupBase(const KeyButtonArea  *mainArea);
+    explicit PopupBase(const MImAbstractKeyArea  *mainArea);
 
     //! \brief Destructor
     virtual ~PopupBase();
@@ -53,7 +53,7 @@ public:
     //! \param keyPos key's position
     //! \param screenPos key's position on the screen
     //! \param keySize  key's size
-    virtual void handleKeyPressedOnMainArea(IKeyButton *key,
+    virtual void handleKeyPressedOnMainArea(MImAbstractKey *key,
                                             const QString &accent,
                                             bool upperCase) = 0;
 
@@ -61,7 +61,7 @@ public:
     //! \param keyPos key's position
     //! \param screenPos key's position on the screen
     //! \param keySize  key's size
-    virtual void handleLongKeyPressedOnMainArea(IKeyButton *key,
+    virtual void handleLongKeyPressedOnMainArea(MImAbstractKey *key,
                                                 const QString &accent,
                                                 bool upperCase) = 0;
 

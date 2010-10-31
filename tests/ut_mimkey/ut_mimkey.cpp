@@ -16,13 +16,13 @@
 
 
 
-#include "ut_keybutton.h"
+#include "ut_mimkey.h"
 
-#include "ikeybutton.h"
-#include "keybuttonareastyle.h"
-#include "singlewidgetbutton.h"
-#include "singlewidgetbuttonarea.h"
-#include "vkbdatakey.h"
+#include "mimabstractkey.h"
+#include "mimabstractkeyareastyle.h"
+#include "mimkey.h"
+#include "mimkeyarea.h"
+#include "mimkeymodel.h"
 #include "utils.h"
 
 #include <MApplication>
@@ -44,7 +44,7 @@ void Ut_KeyButton::initTestCase()
     disableQtPlugins();
     app = new MApplication(argc, app_name);
 
-    style = new KeyButtonAreaStyleContainer;
+    style = new MImAbstractKeyAreaStyleContainer;
     style->initialize("", "", 0);
 
     parent = new QGraphicsWidget;
@@ -62,7 +62,7 @@ void Ut_KeyButton::cleanupTestCase()
 
 void Ut_KeyButton::init()
 {
-    subject = new SingleWidgetButton(*dataKey, *style, *parent);
+    subject = new MImKey(*dataKey, *style, *parent);
 }
 
 void Ut_KeyButton::cleanup()
@@ -117,11 +117,11 @@ void Ut_KeyButton::testBinding()
 
 void Ut_KeyButton::testIsDead()
 {
-    VKBDataKey *key = new VKBDataKey;
-    KeyBinding *binding = new KeyBinding;
-    key->bindings[VKBDataKey::NoShift] = binding;
+    MImKeyModel *key = new MImKeyModel;
+    MImKeyBinding *binding = new MImKeyBinding;
+    key->bindings[MImKeyModel::NoShift] = binding;
 
-    IKeyButton *subject = new SingleWidgetButton(*key, *style, *parent);
+    MImAbstractKey *subject = new MImKey(*key, *style, *parent);
 
     for (int i = 0; i < 2; ++i) {
         bool isDead = (i != 0);
@@ -138,38 +138,38 @@ void Ut_KeyButton::testTouchPointCount_data()
     QTest::addColumn<int>("initialCount");
     QTest::addColumn< QList<DirectionPair> >("countDirectionList");
     QTest::addColumn<int>("expectedCount");
-    QTest::addColumn<IKeyButton::ButtonState>("expectedButtonState");
+    QTest::addColumn<MImAbstractKey::ButtonState>("expectedButtonState");
 
     QTest::newRow("increase and press button")
         << 0 << (QList<DirectionPair>() << DirectionPair(Up, true))
-        << 1 << IKeyButton::Pressed;
+        << 1 << MImAbstractKey::Pressed;
 
     QTest::newRow("decrease and release button")
         << 1 << (QList<DirectionPair>() << DirectionPair(Down, true))
-        << 0 << IKeyButton::Normal;
+        << 0 << MImAbstractKey::Normal;
 
     QTest::newRow("try to take more than possible")
         << 0 << (QList<DirectionPair>() << DirectionPair(Up, true)
                                         << DirectionPair(Down, true)
                                         << DirectionPair(Down, false))
-        << 0 << IKeyButton::Normal;
+        << 0 << MImAbstractKey::Normal;
 
     QTest::newRow("try to take more than possible, again")
         << 0 << (QList<DirectionPair>() << DirectionPair(Up, true)
                                         << DirectionPair(Down, true)
                                         << DirectionPair(Down, false)
                                         << DirectionPair(Up, true))
-        << 1 << IKeyButton::Pressed;
+        << 1 << MImAbstractKey::Pressed;
 
     QTest::newRow("go to the limit")
-        << SingleWidgetButton::touchPointLimit() << (QList<DirectionPair>() << DirectionPair(Up, false))
-        << SingleWidgetButton::touchPointLimit() << IKeyButton::Pressed;
+        << MImKey::touchPointLimit() << (QList<DirectionPair>() << DirectionPair(Up, false))
+        << MImKey::touchPointLimit() << MImAbstractKey::Pressed;
 
     QTest::newRow("go to the limit, again")
-        << SingleWidgetButton::touchPointLimit() << (QList<DirectionPair>() << DirectionPair(Up, false)
+        << MImKey::touchPointLimit() << (QList<DirectionPair>() << DirectionPair(Up, false)
                                          << DirectionPair(Down, true)
                                          << DirectionPair(Down, true))
-        << SingleWidgetButton::touchPointLimit() - 2 << IKeyButton::Pressed;
+        << MImKey::touchPointLimit() - 2 << MImAbstractKey::Pressed;
 }
 
 void Ut_KeyButton::testTouchPointCount()
@@ -177,7 +177,7 @@ void Ut_KeyButton::testTouchPointCount()
     QFETCH(int, initialCount);
     QFETCH(QList<DirectionPair>, countDirectionList);
     QFETCH(int, expectedCount);
-    QFETCH(IKeyButton::ButtonState, expectedButtonState);
+    QFETCH(MImAbstractKey::ButtonState, expectedButtonState);
 
     for (int idx = 0; idx < initialCount; ++idx) {
         subject->increaseTouchPointCount();
@@ -201,24 +201,24 @@ void Ut_KeyButton::testTouchPointCount()
     QCOMPARE(subject->state(), expectedButtonState);
 }
 
-VKBDataKey *Ut_KeyButton::createDataKey()
+MImKeyModel *Ut_KeyButton::createDataKey()
 {
-    VKBDataKey *key = new VKBDataKey;
+    MImKeyModel *key = new MImKeyModel;
 
-    KeyBinding *binding1 = new KeyBinding;
+    MImKeyBinding *binding1 = new MImKeyBinding;
     binding1->keyLabel = "a";
     binding1->dead = false;
     binding1->accents = "`´^¨";
     binding1->accented_labels = QString(L'à') + L'á' + L'á' + L'â' + L'ä';
 
-    KeyBinding *binding2 = new KeyBinding;
+    MImKeyBinding *binding2 = new MImKeyBinding;
     binding2->keyLabel = "A";
     binding2->dead = false;
     binding2->accents = "`´^¨";
     binding2->accented_labels = QString(L'À') + L'Á' + L'Â' + L'Ä';
 
-    key->bindings[VKBDataKey::NoShift] = binding1;
-    key->bindings[VKBDataKey::Shift] = binding2;
+    key->bindings[MImKeyModel::NoShift] = binding1;
+    key->bindings[MImKeyModel::Shift] = binding2;
 
     return key;
 }

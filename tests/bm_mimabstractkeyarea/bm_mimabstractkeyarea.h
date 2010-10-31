@@ -23,15 +23,15 @@
 #include <QObject>
 
 class MApplication;
-class KeyButtonArea;
+class MImAbstractKeyArea;
 class KeyboardData;
 
-class Bm_KeyButtonArea : public QObject
+class Bm_MImAbstractKeyArea : public QObject
 {
     Q_OBJECT
 private:
     MApplication *app;
-    KeyButtonArea *subject;
+    MImAbstractKeyArea *subject;
     KeyboardData *keyboard;
 
 private slots:

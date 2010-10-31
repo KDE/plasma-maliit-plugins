@@ -73,7 +73,7 @@ private:
     bool pressReceived;
 
     friend class FlickGestureRecognizer;
-    friend class Ut_KeyButtonArea;
+    friend class Ut_MImAbstractKeyArea;
 };
 
 #endif

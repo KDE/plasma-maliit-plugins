@@ -20,12 +20,12 @@
 #include <QtPlugin>
 
 class PopupBase;
-class KeyButtonArea;
+class MImAbstractKeyArea;
 
 class PopupPlugin
 {
 public:
-    virtual PopupBase *createPopup(KeyButtonArea *mainArea) const = 0;
+    virtual PopupBase *createPopup(MImAbstractKeyArea *mainArea) const = 0;
 };
 
 Q_DECLARE_INTERFACE(PopupPlugin,

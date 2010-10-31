@@ -1,7 +1,7 @@
 COMMON_DIR = ./common
 
 INSTALL_HEADERS += \
-    $$COMMON_DIR/vkbdatakey.h \
+    $$COMMON_DIR/mimkeymodel.h \
     $$COMMON_DIR/keyevent.h \
     $$COMMON_DIR/layoutdata.h \
     $$COMMON_DIR/mkeyboardcommon.h \
@@ -12,7 +12,7 @@ HEADERS += \
     $$COMMON_DIR/keyevent.h \
     $$COMMON_DIR/layoutdata.h \
     $$COMMON_DIR/layoutsmanager.h \
-    $$COMMON_DIR/vkbdatakey.h \
+    $$COMMON_DIR/mimkeymodel.h \
     $$COMMON_DIR/mxkb.h \
     $$COMMON_DIR/mhardwarekeyboard.h \
     $$COMMON_DIR/hwkbcharloops.h \
@@ -28,7 +28,7 @@ SOURCES += \
     $$COMMON_DIR/keyevent.cpp\
     $$COMMON_DIR/layoutdata.cpp\
     $$COMMON_DIR/layoutsmanager.cpp\
-    $$COMMON_DIR/vkbdatakey.cpp\
+    $$COMMON_DIR/mimkeymodel.cpp\
     $$COMMON_DIR/mxkb.cpp \
     $$COMMON_DIR/mhardwarekeyboard.cpp \
     $$COMMON_DIR/hwkbcharloops.cpp \

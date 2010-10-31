@@ -17,7 +17,7 @@
 
 
 #include "layoutdata.h"
-#include "vkbdatakey.h"
+#include "mimkeymodel.h"
 
 #include <QtAlgorithms>
 #include <QDebug>
@@ -100,11 +100,11 @@ LayoutSection::LayoutSection(const QString &characters, bool rtl)
     rows.append(row);
 
     for (int i = 0; i < characters.length(); ++i) {
-        VKBDataKey *key(new VKBDataKey(VKBDataKey::NormalStyle, VKBDataKey::Medium, true, rtl));
+        MImKeyModel *key(new MImKeyModel(MImKeyModel::NormalStyle, MImKeyModel::Medium, true, rtl));
 
         row->keys.append(key);
 
-        KeyBinding *binding(new KeyBinding(characters[i]));
+        MImKeyBinding *binding(new MImKeyBinding(characters[i]));
         key->setBinding(*binding, false);
         key->setBinding(*binding, true);
     }
@@ -159,7 +159,7 @@ QList<int> LayoutSection::spacerIndices(int row) const
                               : rows[row]->spacerIndices);
 }
 
-VKBDataKey *LayoutSection::vkbKey(int row, int column) const
+MImKeyModel *LayoutSection::keyModel(int row, int column) const
 {
     return (isInvalidCell(row, column) ? 0
                                        : rows[row]->keys[column]);

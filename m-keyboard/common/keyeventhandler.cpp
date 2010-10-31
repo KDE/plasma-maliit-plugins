@@ -17,8 +17,8 @@
 
 #include "keyeventhandler.h"
 #include "keyevent.h"
-#include "ikeybutton.h"
-#include "keybuttonarea.h"
+#include "mimabstractkey.h"
+#include "mimabstractkeyarea.h"
 
 #include <QDebug>
 
@@ -29,24 +29,24 @@ KeyEventHandler::KeyEventHandler(QObject *parent)
 {
 }
 
-void KeyEventHandler::addEventSource(KeyButtonArea *eventSource)
+void KeyEventHandler::addEventSource(MImAbstractKeyArea *eventSource)
 {
     bool ok = false;
 
-    ok = connect(eventSource, SIGNAL(keyPressed(const IKeyButton *, const QString &, bool)),
-                 this, SLOT(handleKeyPress(const IKeyButton *, const QString &, bool)));
+    ok = connect(eventSource, SIGNAL(keyPressed(const MImAbstractKey *, const QString &, bool)),
+                 this, SLOT(handleKeyPress(const MImAbstractKey *, const QString &, bool)));
     Q_ASSERT(ok);
 
-    ok = connect(eventSource, SIGNAL(keyReleased(const IKeyButton *, const QString &, bool)),
-                 this, SLOT(handleKeyRelease(const IKeyButton *, const QString &, bool)));
+    ok = connect(eventSource, SIGNAL(keyReleased(const MImAbstractKey *, const QString &, bool)),
+                 this, SLOT(handleKeyRelease(const MImAbstractKey *, const QString &, bool)));
     Q_ASSERT(ok);
 
-    ok = connect(eventSource, SIGNAL(keyClicked(const IKeyButton *, const QString &, bool, const QPoint &)),
-                 this, SLOT(handleKeyClick(const IKeyButton *, const QString &, bool, const QPoint &)));
+    ok = connect(eventSource, SIGNAL(keyClicked(const MImAbstractKey *, const QString &, bool, const QPoint &)),
+                 this, SLOT(handleKeyClick(const MImAbstractKey *, const QString &, bool, const QPoint &)));
     Q_ASSERT(ok);
 }
 
-void KeyEventHandler::handleKeyPress(const IKeyButton *key, const QString &accent, bool upperCase)
+void KeyEventHandler::handleKeyPress(const MImAbstractKey *key, const QString &accent, bool upperCase)
 {
     const KeyEvent event = keyToKeyEvent(*key, QEvent::KeyPress, accent, upperCase);
     emit keyPressed(event);
@@ -59,7 +59,7 @@ void KeyEventHandler::handleKeyPress(const IKeyButton *key, const QString &accen
     }
 }
 
-void KeyEventHandler::handleKeyRelease(const IKeyButton *key, const QString &accent, bool upperCase)
+void KeyEventHandler::handleKeyRelease(const MImAbstractKey *key, const QString &accent, bool upperCase)
 {
     const KeyEvent event = keyToKeyEvent(*key, QEvent::KeyRelease, accent, upperCase);
 
@@ -71,7 +71,7 @@ void KeyEventHandler::handleKeyRelease(const IKeyButton *key, const QString &acc
     }
 }
 
-void KeyEventHandler::handleKeyClick(const IKeyButton *key, const QString &accent, bool upperCase,
+void KeyEventHandler::handleKeyClick(const MImAbstractKey *key, const QString &accent, bool upperCase,
                                      const QPoint &point)
 {
     const KeyEvent event = keyToKeyEvent(*key, QEvent::KeyRelease, accent, upperCase, point);
@@ -83,7 +83,7 @@ void KeyEventHandler::handleKeyClick(const IKeyButton *key, const QString &accen
     }
 }
 
-KeyEvent KeyEventHandler::keyToKeyEvent(const IKeyButton &key, QKeyEvent::Type eventType,
+KeyEvent KeyEventHandler::keyToKeyEvent(const MImAbstractKey &key, QKeyEvent::Type eventType,
                                          const QString &accent, bool upperCase, const QPoint &point) const
 {
     KeyEvent event;

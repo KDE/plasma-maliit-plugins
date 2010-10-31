@@ -23,9 +23,9 @@
 #include "layoutdata.h"
 #include "layoutsmanager.h"
 #include "notification.h"
-#include "vkbdatakey.h"
+#include "mimkeymodel.h"
 #include "mimtoolbar.h"
-#include "ikeybutton.h"
+#include "mimabstractkey.h"
 #include "keyevent.h"
 #include "grip.h"
 #include "sharedhandlearea.h"
@@ -204,7 +204,7 @@ MVirtualKeyboard::switchLevel()
 
     for (int i = 0; i < mainKeyboardSwitcher->count(); ++i) {
         // handling main section:
-        KeyButtonArea *mainKba = keyboardWidget(i);
+        MImAbstractKeyArea *mainKba = keyboardWidget(i);
         if (mainKba) {
             mainKba->switchLevel(currentLevel);
             mainKba->setShiftState(shiftState);
@@ -252,9 +252,9 @@ MVirtualKeyboard::flickLeftHandler()
 
 
 void
-MVirtualKeyboard::flickUpHandler(const KeyBinding &binding)
+MVirtualKeyboard::flickUpHandler(const MImKeyBinding &binding)
 {
-    if (binding.action() == KeyBinding::ActionSym) {
+    if (binding.action() == MImKeyBinding::ActionSym) {
         emit showSymbolViewRequested();
     }
 }
@@ -354,7 +354,7 @@ void MVirtualKeyboard::resetState()
     // Default state for shift is ShiftOff.
     setShiftState(ModifierClearState);
 
-    // Dead keys are unlocked in KeyButtonArea::onHide().
+    // Dead keys are unlocked in MImAbstractKeyArea::onHide().
     // As long as this method is private, and only called from
     // hideKeyboard(), we don't have to explicitly unlock them.
 }
@@ -551,14 +551,14 @@ MInputMethod::HandlerState MVirtualKeyboard::keyboardState() const
 void MVirtualKeyboard::drawButtonsReactionMaps(MReactionMap *reactionMap, QGraphicsView *view)
 {
     // Depending on which keyboard type is currently shown
-    // we must pick the correct KeyButtonArea(s).
+    // we must pick the correct MImAbstractKeyArea(s).
     QGraphicsLayoutItem *item = mainLayout->itemAt(KeyboardIndex);
 
     if (item) {
         const bool useWidgetFromSwitcher = (item == mainKeyboardSwitcher
                                             && mainKeyboardSwitcher->currentWidget());
 
-        KeyButtonArea *kba = static_cast<KeyButtonArea *>(useWidgetFromSwitcher ? mainKeyboardSwitcher->currentWidget()
+        MImAbstractKeyArea *kba = static_cast<MImAbstractKeyArea *>(useWidgetFromSwitcher ? mainKeyboardSwitcher->currentWidget()
                                                                                 : item);
 
         kba->drawReactiveAreas(reactionMap, view);
@@ -733,9 +733,9 @@ void MVirtualKeyboard::onSectionSwitchStarting(int current, int next)
 {
     if (mainKeyboardSwitcher->currentWidget()) {
         // Current widget is animated off the screen but if mouse is not moved
-        // relative to screen it appears to KeyButtonArea as if mouse was held
+        // relative to screen it appears to MImAbstractKeyArea as if mouse was held
         // still. We explicitly call ungrabMouse() to prevent long press event
-        // in KeyButtonArea. Visible effect of not doing this is would be
+        // in MImAbstractKeyArea. Visible effect of not doing this is would be
         // appearing popup, for example.
         mainKeyboardSwitcher->currentWidget()->ungrabMouse();
     }
@@ -767,7 +767,7 @@ void MVirtualKeyboard::createSwitcher()
     mainKeyboardSwitcher->setLooping(true);
     mainKeyboardSwitcher->setPreferredWidth(MPlainWindow::instance()->visibleSceneSize().width());
 
-    // In addition to animating sections (KeyButtonAreas), we also
+    // In addition to animating sections (MImAbstractKeyAreas), we also
     // use switcher to provide us the moving direction logic.
     // These are the signals we track to update our state.
     connect(mainKeyboardSwitcher, SIGNAL(switchStarting(int, int)),
@@ -784,7 +784,7 @@ void MVirtualKeyboard::reloadSwitcherContent()
 
     // Load certain type and orientation from all layouts.
     foreach (const QString &layoutFile, layoutsMgr.layoutFileList()) {
-        KeyButtonArea *mainSection = createMainSectionView(layoutFile, LayoutData::General,
+        MImAbstractKeyArea *mainSection = createMainSectionView(layoutFile, LayoutData::General,
                                                            currentOrientation);
         mainSection->setObjectName("VirtualKeyboardMainRow");
         mainSection->setPreferredWidth(MPlainWindow::instance()->visibleSceneSize().width());
@@ -793,12 +793,12 @@ void MVirtualKeyboard::reloadSwitcherContent()
 }
 
 
-KeyButtonArea *MVirtualKeyboard::createMainSectionView(const QString &layout,
+MImAbstractKeyArea *MVirtualKeyboard::createMainSectionView(const QString &layout,
                                                        LayoutData::LayoutType layoutType,
                                                        M::Orientation orientation,
                                                        QGraphicsWidget *parent)
 {
-    KeyButtonArea *buttonArea = createSectionView(layout, layoutType, orientation,
+    MImAbstractKeyArea *buttonArea = createSectionView(layout, layoutType, orientation,
                                                   LayoutData::mainSection,
                                                   true, parent);
 
@@ -809,7 +809,7 @@ KeyButtonArea *MVirtualKeyboard::createMainSectionView(const QString &layout,
     return buttonArea;
 }
 
-KeyButtonArea * MVirtualKeyboard::createSectionView(const QString &layout,
+MImAbstractKeyArea * MVirtualKeyboard::createSectionView(const QString &layout,
                                                     LayoutData::LayoutType layoutType,
                                                     M::Orientation orientation,
                                                     const QString &section,
@@ -817,14 +817,14 @@ KeyButtonArea * MVirtualKeyboard::createSectionView(const QString &layout,
                                                     QGraphicsWidget *parent)
 {
     const LayoutData *model = layoutsMgr.layout(layout, layoutType, orientation);
-    KeyButtonArea *view = new SingleWidgetButtonArea(model->section(section),
+    MImAbstractKeyArea *view = new MImKeyArea(model->section(section),
                                                      usePopup, parent);
 
     eventHandler.addEventSource(view);
 
     connect(view, SIGNAL(flickDown()), this, SIGNAL(userInitiatedHide()));
-    connect(view, SIGNAL(flickUp(KeyBinding)),
-            this, SLOT(flickUpHandler(KeyBinding)));
+    connect(view, SIGNAL(flickUp(MImKeyBinding)),
+            this, SLOT(flickUpHandler(MImKeyBinding)));
     connect(view, SIGNAL(regionUpdated(QRegion)),
             this, SLOT(sendVKBRegion(QRegion)));
 
@@ -837,20 +837,20 @@ void MVirtualKeyboard::handleShiftPressed(bool shiftPressed)
         // When shift pressed, always use the second level. If not pressed, use whatever the current level is.
         const int level = shiftPressed ? 1 : currentLevel;
 
-        KeyButtonArea *mainKb = keyboardWidget();
+        MImAbstractKeyArea *mainKb = keyboardWidget();
         if (mainKb) {
             mainKb->switchLevel(level);
         }
     }
 }
 
-KeyButtonArea *MVirtualKeyboard::keyboardWidget(int layoutIndex) const
+MImAbstractKeyArea *MVirtualKeyboard::keyboardWidget(int layoutIndex) const
 {
     if (!mainKeyboardSwitcher) {
         return 0;
     }
 
-    return static_cast<KeyButtonArea *>((layoutIndex == -1)
+    return static_cast<MImAbstractKeyArea *>((layoutIndex == -1)
                                         ? mainKeyboardSwitcher->currentWidget()
                                         : mainKeyboardSwitcher->widget(layoutIndex));
 }
@@ -966,7 +966,7 @@ void MVirtualKeyboard::showMainArea()
 
 void MVirtualKeyboard::setInputMethodMode(M::InputMethodMode mode)
 {
-    KeyButtonArea::setInputMethodMode(mode);
+    MImAbstractKeyArea::setInputMethodMode(mode);
 }
 
 bool MVirtualKeyboard::autoCapsEnabled() const

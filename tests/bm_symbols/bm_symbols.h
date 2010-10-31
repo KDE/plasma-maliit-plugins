@@ -23,7 +23,7 @@
 #include <QObject>
 
 class MApplication;
-class KeyButtonArea;
+class MImAbstractKeyArea;
 class KeyboardData;
 
 class Bm_Symbols : public QObject
@@ -31,7 +31,7 @@ class Bm_Symbols : public QObject
     Q_OBJECT
 private:
     MApplication *app;
-    KeyButtonArea *subject;
+    MImAbstractKeyArea *subject;
     KeyboardData *keyboard;
 
 private slots:

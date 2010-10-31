@@ -20,13 +20,13 @@
 #include "popupbase.h"
 
 class PopupPlugin;
-class KeyButtonArea;
+class MImAbstractKeyArea;
 
 class PopupFactory
 {
 public:
     static PopupFactory *instance();
-    PopupBase *createPopup(KeyButtonArea *mainArea) const;
+    PopupBase *createPopup(MImAbstractKeyArea *mainArea) const;
 
 private:
     PopupFactory();

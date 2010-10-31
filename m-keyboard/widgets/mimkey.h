@@ -19,19 +19,21 @@
 #ifndef SINGLEWIDGETBUTTON_H
 #define SINGLEWIDGETBUTTON_H
 
-#include "ikeybutton.h"
+#include "mimabstractkey.h"
 
-class KeyButtonAreaStyleContainer;
+class MImAbstractKeyAreaStyleContainer;
 class QGraphicsItem;
 
 //! Represents a key model with the key's current binding state, and also contains its visible area.
-class SingleWidgetButton : public IKeyButton
+class MImKey
+    : public MImAbstractKey
 {
 public:
-    SingleWidgetButton(const VKBDataKey &key,
-                       const KeyButtonAreaStyleContainer &style,
-                       QGraphicsItem &parent);
-    virtual ~SingleWidgetButton();
+    explicit MImKey(const MImKeyModel &model,
+                    const MImAbstractKeyAreaStyleContainer &style,
+                    QGraphicsItem &parent);
+
+    virtual ~MImKey();
 
     //! \reimp
     virtual const QString label() const;
@@ -42,8 +44,8 @@ public:
     virtual void setDownState(bool down);
     virtual void setSelected(bool select);
     virtual ButtonState state() const;
-    virtual const VKBDataKey &key() const;
-    virtual const KeyBinding &binding() const;
+    virtual const MImKeyModel &key() const;
+    virtual const MImKeyBinding &binding() const;
     virtual bool isDeadKey() const;
     virtual bool isShiftKey() const;
     virtual bool isNormalKey() const;
@@ -80,7 +82,7 @@ public:
     QRectF cachedButtonRect;
 
     //! The width for this button. Not managed by this class.
-    //! It is used by SingleWidgetButtonArea to store the correct button size.
+    //! It is used by MImKeyArea to store the correct button size.
     qreal width;
 
 private:
@@ -97,11 +99,9 @@ private:
     };
 
     void loadIcon(bool shift);
-
     const IconInfo &iconInfo() const;
 
-    //! The key this button represents
-    const VKBDataKey &dataKey;
+    const MImKeyModel &model;
 
     bool shift;
     QChar accent;
@@ -113,7 +113,7 @@ private:
     IconInfo lowerCaseIcon;
     IconInfo upperCaseIcon;
 
-    const KeyButtonAreaStyleContainer &styleContainer;
+    const MImAbstractKeyAreaStyleContainer &styleContainer;
 
     QGraphicsItem &parentItem;
 

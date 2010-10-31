@@ -19,7 +19,7 @@
 #include "bm_symbols.h"
 #include "mvirtualkeyboard.h"
 #include "keyboarddata.h"
-#include "keybuttonarea.h"
+#include "mimabstractkeyarea.h"
 #include "utils.h"
 
 #include <MApplication>
@@ -86,7 +86,7 @@ void Bm_Symbols::benchmarkDraw()
     const LayoutData::SharedLayoutSection section = keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::symbolsSymSection);
     QVERIFY(!section.isNull());
 
-    subject = new SingleWidgetButtonArea(section);
+    subject = new MImKeyArea(section);
 
     QBENCHMARK {
         subject->paint(&painter, 0, 0);

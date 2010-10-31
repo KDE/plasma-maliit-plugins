@@ -6,10 +6,10 @@ INCLUDEPATH += . \
 include(../common_check.pri)
 
 # Input
-HEADERS += ut_vkbdatakey.h \
-           $$COMMON_DIR/vkbdatakey.h \
+HEADERS += ut_mimkeymodel.h \
+           $$COMMON_DIR/mimkeymodel.h \
 
-SOURCES += ut_vkbdatakey.cpp \
-           $$COMMON_DIR/vkbdatakey.cpp \
+SOURCES += ut_mimkeymodel.cpp \
+           $$COMMON_DIR/mimkeymodel.cpp \
            $$COMMON_DIR/keyevent.cpp \
 

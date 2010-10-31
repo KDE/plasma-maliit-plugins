@@ -23,7 +23,7 @@
 #include "mvirtualkeyboardstyle.h"
 #include "horizontalswitcher.h"
 #include "keyevent.h"
-#include "keybuttonarea.h"
+#include "mimabstractkeyarea.h"
 #include "layoutsmanager.h"
 #include "symbolview.h"
 #include "ut_symbolview.h"
@@ -302,7 +302,7 @@ void Ut_SymbolView::testHideWithFlick()
 {
     QFETCH(int, tabIndex);
     QVERIFY(subject->pageSwitcher && subject->pageSwitcher->count() >= tabIndex);
-    KeyButtonArea *page = static_cast<KeyButtonArea *>(subject->pageSwitcher->widget(tabIndex));
+    MImAbstractKeyArea *page = static_cast<MImAbstractKeyArea *>(subject->pageSwitcher->widget(tabIndex));
 
     // Using qtest rows we dont need to worry about symbol view's show/hide timers
     // ignoring the call because subject is re-created every time.

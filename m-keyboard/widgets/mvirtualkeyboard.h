@@ -21,7 +21,7 @@
 
 #include "keyeventhandler.h"
 #include "mkeyboardcommon.h"
-#include "singlewidgetbuttonarea.h"
+#include "mimkeyarea.h"
 #include "layoutdata.h"
 
 #include <minputmethodnamespace.h>
@@ -43,7 +43,7 @@ class HorizontalSwitcher;
 class KeyEvent;
 class LayoutsManager;
 class Notification;
-class VKBDataKey;
+class MImKeyModel;
 class VkbToolbar;
 class MImToolbar;
 class MReactionMap;
@@ -231,7 +231,7 @@ private slots:
      * \brief Handler for upward flick operation
      * \param binding Key binding
      */
-    void flickUpHandler(const KeyBinding &binding);
+    void flickUpHandler(const MImKeyBinding &binding);
 
     /*!
      * Method to fade the vkb during transition
@@ -361,7 +361,7 @@ private:
 
     const LayoutData *currentLayoutModel() const;
 
-    KeyButtonArea *keyboardWidget(int layoutIndex = -1) const;
+    MImAbstractKeyArea *keyboardWidget(int layoutIndex = -1) const;
 
     /*!
      * Method to setup timeline
@@ -392,13 +392,13 @@ private:
     void reloadSwitcherContent();
 
     //! Creates a new section widget of given layout/layout type and orientation.
-    KeyButtonArea *createMainSectionView(const QString &layout,
+    MImAbstractKeyArea *createMainSectionView(const QString &layout,
                                          LayoutData::LayoutType,
                                          M::Orientation orientation,
                                          QGraphicsWidget *parent = 0);
 
     // creates a new section widget
-    KeyButtonArea *createSectionView(const QString &layout,
+    MImAbstractKeyArea *createSectionView(const QString &layout,
                                      LayoutData::LayoutType layoutType,
                                      M::Orientation orientation,
                                      const QString &section,

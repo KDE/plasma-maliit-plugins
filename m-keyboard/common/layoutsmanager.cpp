@@ -51,7 +51,7 @@ namespace
 LayoutsManager *LayoutsManager::Instance = 0;
 
 
-// FIXME: Style of KeyButtonAreas should not be needed in classes that deal with data models.
+// FIXME: Style of MImAbstractKeyAreas should not be needed in classes that deal with data models.
 LayoutsManager::LayoutsManager()
     : configLayouts(InputMethodLayouts),
       xkbModelSetting(XkbModelSettingName),

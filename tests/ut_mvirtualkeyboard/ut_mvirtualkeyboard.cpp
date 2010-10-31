@@ -25,7 +25,7 @@
 #include "layoutsmanager.h"
 #include "notification.h"
 #include "ut_mvirtualkeyboard.h"
-#include "vkbdatakey.h"
+#include "mimkeymodel.h"
 #include "mimtoolbar.h"
 #include "mplainwindow.h"
 #include "utils.h"
@@ -55,7 +55,7 @@ namespace
     int gDisplayTextCalls = 0;
 }
 
-Q_DECLARE_METATYPE(KeyBinding::KeyAction);
+Q_DECLARE_METATYPE(MImKeyBinding::KeyAction);
 Q_DECLARE_METATYPE(MInputMethod::SwitchDirection);
 Q_DECLARE_METATYPE(ModifierState);
 
@@ -153,8 +153,8 @@ void Ut_MVirtualKeyboard::clickBackspaceTest()
     FlickUpButton *button = 0;
 
     for (int i = 0; i < numFunctionKeys; i++) {
-        const VKBDataKey *key = functionkeySection->getVKBKey(0, 0, i);
-        if (key->action == VKBDataKey::ActionBackspace)
+        const MImKeyModel *key = functionkeySection->getVKBKey(0, 0, i);
+        if (key->action == MImKeyModel::ActionBackspace)
             button = static_cast<FlickUpButton *>(m_vkb->functionKeysMap.value(i));
     }
     QVERIFY(button != 0);
@@ -183,8 +183,8 @@ void Ut_MVirtualKeyboard::clickSpaceTest()
     FlickUpButton *button = 0;
 
     for (int i = 0; i < numFunctionKeys; i++) {
-        const VKBDataKey *key = functionkeySection->getVKBKey(0, 0, i);
-        if (key->action == VKBDataKey::ActionSpace)
+        const MImKeyModel *key = functionkeySection->getVKBKey(0, 0, i);
+        if (key->action == MImKeyModel::ActionSpace)
             button = static_cast<FlickUpButton *>(m_vkb->functionKeysMap.value(i));
     }
     QVERIFY(button != 0);
@@ -227,7 +227,7 @@ void Ut_MVirtualKeyboard::clickHyphenTest()
 #if 0
     FlickUpButton *button = 0;
     for (int i = 0; i < numFunctionKeys; i++) {
-        const VKBDataKey *key = functionkeySection->getVKBKey(0, 0, i);
+        const MImKeyModel *key = functionkeySection->getVKBKey(0, 0, i);
 
         if (key->label == "-")
             button = static_cast<FlickUpButton *>(m_vkb->functionKeysMap.value(i));
@@ -250,7 +250,7 @@ void Ut_MVirtualKeyboard::clickPunctQuesTest()
 #if 0
     FlickUpButton *button = 0;
     for (int i = 0; i < numFunctionKeys; i++) {
-        const VKBDataKey *key = functionkeySection->getVKBKey(0, 0, i);
+        const MImKeyModel *key = functionkeySection->getVKBKey(0, 0, i);
 
         if (key->label == "?")
             button = static_cast<FlickUpButton *>(m_vkb->functionKeysMap.value(i));
@@ -272,7 +272,7 @@ void Ut_MVirtualKeyboard::clickPunctDotTest()
     FlickUpButton *button = 0;
 
     for (int i = 0; i < numFunctionKeys; i++) {
-        const VKBDataKey *key = functionkeySection->getVKBKey(0, 0, i);
+        const MImKeyModel *key = functionkeySection->getVKBKey(0, 0, i);
 
         if (key->label == ".")
             button = static_cast<FlickUpButton *>(m_vkb->functionKeysMap.value(i));
@@ -410,7 +410,7 @@ void Ut_MVirtualKeyboard::testShiftLevelChange()
     QFETCH(bool, shiftPressed);
     QFETCH(int, expectedMainLayoutLevel);
 
-    KeyButtonArea *mainKbLayout = static_cast<KeyButtonArea *>(m_vkb->mainKeyboardSwitcher->currentWidget());
+    MImAbstractKeyArea *mainKbLayout = static_cast<MImAbstractKeyArea *>(m_vkb->mainKeyboardSwitcher->currentWidget());
 
     // Enable or disable multi-touch.
     m_vkb->enableMultiTouch = enableMultiTouch;
@@ -593,9 +593,9 @@ void Ut_MVirtualKeyboard::longPressBackSpace()
     FlickUpButton *button = 0;
 
     for (int i = 0; i < numFunctionKeys; i++) {
-        const VKBDataKey *key = functionkeySection->getVKBKey(0, 0, i);
+        const MImKeyModel *key = functionkeySection->getVKBKey(0, 0, i);
 
-        if (key->action == VKBDataKey::ActionBackspace)
+        if (key->action == MImKeyModel::ActionBackspace)
             button = static_cast<FlickUpButton *>(m_vkb->functionKeysMap.value(i));
     }
     QVERIFY(button != 0);
@@ -734,9 +734,9 @@ void Ut_MVirtualKeyboard::symbolKeyTestCapsLock()
     QCOMPARE(m_vkb->shiftStatus(), MVirtualKeyboard::ShiftOff);
 
     for (int i = 0; i < numFunctionKeys; i++) {
-        const VKBDataKey *key = functionkeySection->getVKBKey(0, 0, i);
+        const MImKeyModel *key = functionkeySection->getVKBKey(0, 0, i);
 
-        if (key->action == VKBDataKey::ActionShift)
+        if (key->action == MImKeyModel::ActionShift)
             shift = static_cast<ShiftButton *>(m_vkb->functionKeysMap.value(i));
     }
     QVERIFY(shift != 0);
@@ -887,26 +887,26 @@ void Ut_MVirtualKeyboard::testReactionMaps()
 
 void Ut_MVirtualKeyboard::flickUpHandlerTest_data()
 {
-    QTest::addColumn<KeyBinding::KeyAction>("action");
+    QTest::addColumn<MImKeyBinding::KeyAction>("action");
     QTest::addColumn<int>("expected");
 
-    for (int n = 0; n < KeyBinding::NumActions; ++n) {
-        QTest::newRow("") << KeyBinding::KeyAction(n)
-            << (n == KeyBinding::ActionSym ? 1 : 0);
+    for (int n = 0; n < MImKeyBinding::NumActions; ++n) {
+        QTest::newRow("") << MImKeyBinding::KeyAction(n)
+            << (n == MImKeyBinding::ActionSym ? 1 : 0);
     }
 }
 void Ut_MVirtualKeyboard::flickUpHandlerTest()
 {
-    QFETCH(KeyBinding::KeyAction, action);
+    QFETCH(MImKeyBinding::KeyAction, action);
     QFETCH(int, expected);
-    KeyBinding binding;
+    MImKeyBinding binding;
 
     binding.keyAction = action;
 
     QSignalSpy spy(m_vkb, SIGNAL(showSymbolViewRequested()));
     QVERIFY(spy.isValid());
 
-    m_vkb->flickUpHandler(KeyBinding());
+    m_vkb->flickUpHandler(MImKeyBinding());
     QCOMPARE(spy.count(), 0);
 
     m_vkb->flickUpHandler(binding);

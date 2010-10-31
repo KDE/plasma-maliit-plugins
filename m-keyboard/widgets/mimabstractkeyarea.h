@@ -16,14 +16,14 @@
 
 
 
-#ifndef KEYBUTTONAREA_H
-#define KEYBUTTONAREA_H
+#ifndef MIMABSTRACTKEYAREA_H
+#define MIMABSTRACTKEYAREA_H
 
-#include "ikeybutton.h"
-#include "keybuttonareastyle.h"
+#include "mimabstractkey.h"
+#include "mimabstractkeyareastyle.h"
 #include "keyevent.h"
 #include "layoutdata.h"
-#include "vkbdatakey.h"
+#include "mimkeymodel.h"
 #include "mkeyboardcommon.h"
 
 #include <MStylableWidget>
@@ -47,27 +47,28 @@ class PopupHost;
 class PopupBase;
 
 /*!
- * \class KeyButtonArea
- * \brief KeyButtonArea is a view for virtual keyboard layout represented by LayoutModel
+ * \class MImAbstractKeyArea
+ * \brief MImAbstractKeyArea is a view for virtual keyboard layout represented by LayoutModel
  */
-class KeyButtonArea : public MStylableWidget
+class MImAbstractKeyArea
+    : public MStylableWidget
 {
     Q_OBJECT
-    Q_DISABLE_COPY(KeyButtonArea)
+    Q_DISABLE_COPY(MImAbstractKeyArea)
 
 public:
     /*!
     * \brief Constructor
-    * \param sectionModel A section model that this KeyButtonArea visualizes.
+    * \param section A section that this MImAbstractKeyArea visualizes.
     * \param usePopup Sets whether popup should be used when long press occurs.
     * \param parent The widget's parent.
     */
-    explicit KeyButtonArea(const LayoutData::SharedLayoutSection &sectionModel,
-                           bool usePopup = false,
-                           QGraphicsWidget *parent = 0);
+    explicit MImAbstractKeyArea(const LayoutData::SharedLayoutSection &section,
+                                bool usePopup = false,
+                                QGraphicsWidget *parent = 0);
 
     //! \brief Destructor
-    virtual ~KeyButtonArea();
+    virtual ~MImAbstractKeyArea();
 
     //! \return layout model
     const LayoutData::SharedLayoutSection &sectionModel() const;
@@ -75,10 +76,10 @@ public:
     //! Returns current level of this layout.
     int level() const;
 
-    //! Expose style used by KeyButtonArea.
-    const KeyButtonAreaStyleContainer &baseStyle() const;
+    //! Expose style used by MImAbstractKeyArea.
+    const MImAbstractKeyAreaStyleContainer &baseStyle() const;
 
-    //! Set input method mode for all KeyButtonArea instances
+    //! Set input method mode for all MImAbstractKeyArea instances
     static void setInputMethodMode(M::InputMethodMode inputMethodMode);
 
     //! Returns relative button base width
@@ -112,7 +113,7 @@ signals:
      * \param accent label of pressed dead key if any
      * \param upperCase contains true if key is in uppercase state
      */
-    void keyPressed(const IKeyButton *key, const QString &accent, bool upperCase);
+    void keyPressed(const MImAbstractKey *key, const QString &accent, bool upperCase);
 
     /*!
      * \brief Emitted when key is released
@@ -122,7 +123,7 @@ signals:
      * \param accent label of pressed dead key if any
      * \param upperCase contains true if key is in uppercase state
      */
-    void keyReleased(const IKeyButton *key, const QString &accent, bool upperCase);
+    void keyReleased(const MImAbstractKey *key, const QString &accent, bool upperCase);
 
     /*!
      * \brief Emitted when user releases mouse button/lifts finger
@@ -132,20 +133,20 @@ signals:
      * \param upperCase contains true if key is in uppercase state
      * \param touchPoint the touch point for the key
      */
-    void keyClicked(const IKeyButton *key, const QString &accent, bool upperCase, const QPoint &touchPoint);
+    void keyClicked(const MImAbstractKey *key, const QString &accent, bool upperCase, const QPoint &touchPoint);
 
     /*!
      * \brief Emitted when long press is detected.
      * Long press detection is:
      * - cancelled when latest pressed key is released;
      * - restarted when finger is moved to other key;
-     * - restarted when new touch point is recognized by KeyButtonArea.
+     * - restarted when new touch point is recognized by MImAbstractKeyArea.
      *
      * \param key describes pressed button.
-     * \param accent Active accent in KeyButtonArea at the time of long press occured.
-     * \param upperCase Upper case state in KeyButtonArea at the time of long press occured.
+     * \param accent Active accent in MImAbstractKeyArea at the time of long press occured.
+     * \param upperCase Upper case state in MImAbstractKeyArea at the time of long press occured.
      */
-    void longKeyPressed(const IKeyButton *key, const QString &accent, bool upperCase);
+    void longKeyPressed(const MImAbstractKey *key, const QString &accent, bool upperCase);
 
     //! Emitted when flicked right
     void flickRight();
@@ -158,7 +159,7 @@ signals:
 
     //! \brief Emitted when flicked up
     //! \param binding Information about the key where mouse button was pressed
-    void flickUp(const KeyBinding &binding);
+    void flickUp(const MImKeyBinding &binding);
 
     //! \brief Emitted if button width has changed
     //! \param baseWidth base width used for relative button widths
@@ -183,7 +184,7 @@ protected:
 
     //! Shows popup and updates its content and position.
     //! \param key current key
-    void updatePopup(IKeyButton *key = 0);
+    void updatePopup(MImAbstractKey *key = 0);
 
     /*!
     * \brief Get level count of the virtual keyboard.
@@ -211,7 +212,7 @@ protected:
     //!
     //! Accepts positions outside widget geometry because
     //! of reactive margins.
-    virtual IKeyButton *keyAt(const QPoint &pos) const = 0;
+    virtual MImAbstractKey *keyAt(const QPoint &pos) const = 0;
 
     /*! \brief Calculates button and row geometry based on given \a availableWidth.
      *  \post Button rectangle cache and row width cache are up to date.
@@ -221,11 +222,11 @@ protected:
     const PopupBase &popup() const;
 
     void printTouchPoint(const QTouchEvent::TouchPoint &tp,
-                         const IKeyButton *key,
-                         const IKeyButton *lastKey = 0) const;
+                         const MImAbstractKey *key,
+                         const MImAbstractKey *lastKey = 0) const;
 
     //! Sets button state and sends release & press events.
-    //void setActiveKey(IKeyButton *key, TouchPointInfo &tpi);
+    //void setActiveKey(MImAbstractKey *key, TouchPointInfo &tpi);
 
     //! Relative button base width in currently active layout
     qreal mRelativeButtonBaseWidth;
@@ -264,14 +265,14 @@ private:
                                                     const QPointF &lastPos);
     struct GravitationalLookupResult
     {
-        GravitationalLookupResult(IKeyButton *newKey,
-                                  IKeyButton *newLastKey)
+        GravitationalLookupResult(MImAbstractKey *newKey,
+                                  MImAbstractKey *newLastKey)
             : key(newKey)
             , lastKey(newLastKey)
         {}
 
-        IKeyButton *key;
-        IKeyButton *lastKey;
+        MImAbstractKey *key;
+        MImAbstractKey *lastKey;
     };
 
     //! \brief Gravitational key lookup
@@ -286,7 +287,7 @@ private:
                                                  const QPoint &mappedLastPos,
                                                  const QPoint &mappedStartPos) const;
 
-    void click(IKeyButton *key, const QPoint &touchPoint = QPoint());
+    void click(MImAbstractKey *key, const QPoint &touchPoint = QPoint());
 
     //! Checks for speed typing mode
     //! \warning Not side-effect free when \a restartTimers is actively used.
@@ -309,13 +310,13 @@ private:
     bool enableMultiTouch;
 
     //! Active key, there can only be one at a time.
-    IKeyButton *activeKey;
+    MImAbstractKey *activeKey;
 
     //! Activated dead key
-    IKeyButton *activeDeadkey;
+    MImAbstractKey *activeDeadkey;
 
     //! Activated shift key
-    IKeyButton *activeShiftKey;
+    MImAbstractKey *activeShiftKey;
 
     /*!
      * Feedback player instance
@@ -337,13 +338,13 @@ private:
     //! Used to measure elapsed time between two touchpoint press events:
     QTime lastTouchPointPressEvent;
 
-    M_STYLABLE_WIDGET(KeyButtonAreaStyle)
+    M_STYLABLE_WIDGET(MImAbstractKeyAreaStyle)
 
 #ifdef UNIT_TEST
     friend class MReactionMapTester;
-    friend class Ut_KeyButtonArea;
+    friend class Ut_MImAbstractKeyArea;
     friend class Ut_SymbolView;
-    friend class Bm_KeyButtonArea; //benchmarks
+    friend class Bm_MImAbstractKeyArea; //benchmarks
 #endif
 };
 

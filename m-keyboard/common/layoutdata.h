@@ -25,7 +25,7 @@
 #include <QSharedPointer>
 #include <QString>
 
-class VKBDataKey;
+class MImKeyModel;
 
 /*!
  * \brief LayoutSection represents a named area of keys in a layout
@@ -57,7 +57,7 @@ public:
     //! \brief Construct a layout section with standard insert-action buttons with labels that
     //! correspond to characters in the \a characters string.
     //!
-    //! The VKBDataKeys of the section will have just one binding for all levels.
+    //! The MImKeyModels of the section will have just one binding for all levels.
     //! \param characters labels for the keys
     //! \param rtl passed directly to all keys of the section
     explicit LayoutSection(const QString &characters, bool rtl = false);
@@ -100,7 +100,7 @@ public:
      * \param column
      * \return key
      */
-    VKBDataKey *vkbKey(int row, int column) const;
+    MImKeyModel *keyModel(int row, int column) const;
 
     //! \brief Return the row height class for given row.
     RowHeightType rowHeightType(int row) const;
@@ -116,7 +116,7 @@ private:
 
         ~Row();
 
-        QList<VKBDataKey *> keys;
+        QList<MImKeyModel *> keys;
         LayoutSection::RowHeightType heightType;
 
         // Index of a spacer refers to right side of a key;

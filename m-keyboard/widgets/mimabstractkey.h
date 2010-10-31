@@ -16,13 +16,13 @@
 
 
 
-#ifndef IKEYBUTTON_H
-#define IKEYBUTTON_H
+#ifndef MIMABSTRACTKEY_H
+#define MIMABSTRACTKEY_H
 
-#include "vkbdatakey.h"
+#include "mimkeymodel.h"
 
 //! Represents a key model with the key's current binding state, and also contains its visible area.
-class IKeyButton
+class MImAbstractKey
 {
 public:
     enum ButtonState {
@@ -56,10 +56,10 @@ public:
     virtual ButtonState state() const = 0;
 
     //! \return the key this button represents
-    virtual const VKBDataKey &key() const = 0;
+    virtual const MImKeyModel &key() const = 0;
 
     //! \brief Get current active key binding.
-    virtual const KeyBinding &binding() const = 0;
+    virtual const MImKeyBinding &binding() const = 0;
 
     //! \brief Tells whether this key represents a dead key.
     virtual bool isDeadKey() const = 0;

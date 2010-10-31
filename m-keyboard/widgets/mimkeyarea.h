@@ -16,27 +16,28 @@
 
 
 
-#ifndef SINGLEWIDGETBUTTONAREA_H
-#define SINGLEWIDGETBUTTONAREA_H
+#ifndef MIMKEYAREA_H
+#define MIMKEYAREA_H
 
-#include "keybuttonarea.h"
-#include "singlewidgetbutton.h"
+#include "mimabstractkeyarea.h"
+#include "mimkey.h"
 
 #include <MScalableImage>
 #include <QTextLayout>
 
 /*!
- * \brief SingleWidgetButtonArea is an implementation of KeyButtonArea which
+ * \brief MImKeyArea is an implementation of MImAbstractKeyArea which
  * does not use separate widgets for buttons, but instead draws them explicitly.
  */
-class SingleWidgetButtonArea : public KeyButtonArea
+class MImKeyArea
+    : public MImAbstractKeyArea
 {
 public:
-    explicit SingleWidgetButtonArea(const LayoutData::SharedLayoutSection &section,
-                                    bool usePopup = false,
-                                    QGraphicsWidget *parent = 0);
+    explicit MImKeyArea(const LayoutData::SharedLayoutSection &section,
+                        bool usePopup = false,
+                        QGraphicsWidget *parent = 0);
 
-    virtual ~SingleWidgetButtonArea();
+    virtual ~MImKeyArea();
 
     //! \reimp
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *view);
@@ -49,7 +50,7 @@ protected:
     virtual QSizeF sizeHint(Qt::SizeHint which, const QSizeF &constraint) const;
     virtual void drawReactiveAreas(MReactionMap *reactionMap, QGraphicsView *view);
     virtual void updateButtonGeometriesForWidth(int availableWidth);
-    virtual IKeyButton *keyAt(const QPoint &pos) const;
+    virtual MImAbstractKey *keyAt(const QPoint &pos) const;
     virtual void modifiersChanged(bool shift, QChar accent = QChar());
     virtual void onThemeChangeCompleted();
     /*! \reimp_end */
@@ -69,17 +70,17 @@ private:
     //! \brief Get the maximum width in this widget, in normalized units
     qreal maxNormalizedWidth() const;
 
-    //! \brief Normalized width for a particular VKBDataKey.
-    qreal normalizedKeyWidth(const VKBDataKey *key) const;
+    //! \brief Normalized width for a particular MImKeyModel.
+    qreal normalizedKeyWidth(const MImKeyModel *key) const;
 
 
     //! \brief Draws background.
     void drawKeyBackground(QPainter *painter,
-                           const SingleWidgetButton *button);
+                           const MImKey *button);
 
     //! \brief Draws button rects/bounding rects, for debugging purposes
     void drawDebugRects(QPainter *painter,
-                        const SingleWidgetButton *button,
+                        const MImKey *button,
                         bool drawBoundingRects,
                         bool drawRects);
 
@@ -87,11 +88,11 @@ private:
     void drawDebugReactiveAreas(QPainter *painter);
 
     struct ButtonRow {
-        QList<SingleWidgetButton*> buttons;
+        QList<MImKey*> buttons;
         QVector<QPair<qreal, qreal> > buttonOffsets;
 
         //! each row can have one stretch button
-        SingleWidgetButton *stretchButton;
+        MImKey *stretchButton;
     };
 
     typedef QVector<ButtonRow> ButtonRowList;
@@ -105,7 +106,7 @@ private:
     QVector<QPair<int, int> > rowOffsets;
 
     //! Shift button is stored here if current layout has a shift button.
-    SingleWidgetButton *shiftButton;
+    MImKey *shiftButton;
 
     QTextLayout textLayout;
     bool textDirty;
@@ -113,12 +114,12 @@ private:
     bool equalWidthButtons;
 
 #ifdef UNIT_TEST
-    friend class Ut_KeyButtonArea;
+    friend class Ut_MImAbstractKeyArea;
     friend class Ut_KeyEventHandler;
-    friend class Bm_KeyButtonArea; //benchmarks
+    friend class Bm_MImAbstractKeyArea; //benchmarks
 #endif
 
     friend class FixtureVirtualKeyboard; //!< needed for testing
 };
 
-#endif // SINGLEWIDGETBUTTONAREA_H
+#endif // MIMKEYAREA_H

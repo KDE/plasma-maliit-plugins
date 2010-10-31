@@ -17,7 +17,7 @@
 #ifndef SYMBOLVIEW_H
 #define SYMBOLVIEW_H
 
-#include "singlewidgetbuttonarea.h"
+#include "mimkeyarea.h"
 #include "keyeventhandler.h"
 
 #include <minputmethodnamespace.h>
@@ -150,7 +150,7 @@ public slots:
 
 
 signals:
-    //! Used to broadcast shift state to all pages/KeyButtonAreas.
+    //! Used to broadcast shift state to all pages/MImAbstractKeyAreas.
     void levelSwitched(int);
 
     /*!
@@ -241,8 +241,8 @@ private:
     //! \brief Helper method to create and add a new page.
     void addPage(const LayoutData::SharedLayoutSection &symbolSection);
 
-    //! \brief Creates KeyButtonArea from given section model and connects appropriate signals.
-    KeyButtonArea *createKeyButtonArea(const LayoutData::SharedLayoutSection &section,
+    //! \brief Creates MImAbstractKeyArea from given section model and connects appropriate signals.
+    MImAbstractKeyArea *createMImAbstractKeyArea(const LayoutData::SharedLayoutSection &section,
                                        bool enablePopup = true);
 
     //! Getter for style container

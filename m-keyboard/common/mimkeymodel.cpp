@@ -17,9 +17,9 @@
 #include <QKeySequence>
 #include <QDebug>
 
-#include "vkbdatakey.h"
+#include "mimkeymodel.h"
 
-KeyBinding::KeyBinding()
+MImKeyBinding::MImKeyBinding()
     : keyAction(ActionInsert),
       cycleSet(""),
       accents(""),
@@ -30,14 +30,14 @@ KeyBinding::KeyBinding()
 {
 }
 
-KeyBinding::KeyBinding(const QString &label)
+MImKeyBinding::MImKeyBinding(const QString &label)
     : keyAction(ActionInsert),
       keyLabel(label),
       dead(false)
 {
 }
 
-QString KeyBinding::accented(QChar accent) const
+QString MImKeyBinding::accented(QChar accent) const
 {
     QString activeLabel;
     int index = accents.indexOf(accent);
@@ -50,12 +50,12 @@ QString KeyBinding::accented(QChar accent) const
     return activeLabel;
 }
 
-QString KeyBinding::accentedLabels() const
+QString MImKeyBinding::accentedLabels() const
 {
     return accented_labels;
 }
 
-KeyEvent KeyBinding::toKeyEventImpl(QKeyEvent::Type eventType,
+KeyEvent MImKeyBinding::toKeyEventImpl(QKeyEvent::Type eventType,
                                     Qt::KeyboardModifiers modifiers,
                                     const QString &labelText) const
 {
@@ -116,18 +116,18 @@ KeyEvent KeyBinding::toKeyEventImpl(QKeyEvent::Type eventType,
     return KeyEvent(text, eventType, key, specialKey, modifiers);
 }
 
-KeyEvent KeyBinding::toKeyEvent(QKeyEvent::Type eventType, Qt::KeyboardModifiers modifiers) const
+KeyEvent MImKeyBinding::toKeyEvent(QKeyEvent::Type eventType, Qt::KeyboardModifiers modifiers) const
 {
     return toKeyEventImpl(eventType, modifiers, label());
 }
 
-KeyEvent KeyBinding::toKeyEvent(QKeyEvent::Type eventType, QChar accent, Qt::KeyboardModifiers modifiers) const
+KeyEvent MImKeyBinding::toKeyEvent(QKeyEvent::Type eventType, QChar accent, Qt::KeyboardModifiers modifiers) const
 {
     return toKeyEventImpl(eventType, modifiers, accented(accent));
 }
 
 
-VKBDataKey::VKBDataKey(VKBDataKey::StyleType style, VKBDataKey::WidthType widthType, bool isFixed, bool isRtl)
+MImKeyModel::MImKeyModel(MImKeyModel::StyleType style, MImKeyModel::WidthType widthType, bool isFixed, bool isRtl)
     : mStyle(style),
       mWidthType(widthType),
       isFixed(isFixed),
@@ -137,7 +137,7 @@ VKBDataKey::VKBDataKey(VKBDataKey::StyleType style, VKBDataKey::WidthType widthT
     bindings[Shift] = 0;
 }
 
-VKBDataKey::~VKBDataKey()
+MImKeyModel::~MImKeyModel()
 {
     if (bindings[NoShift] != bindings[Shift]) {
         delete bindings[NoShift];
@@ -145,42 +145,42 @@ VKBDataKey::~VKBDataKey()
     delete bindings[Shift];
 }
 
-void VKBDataKey::setBinding(const KeyBinding &binding, bool shift)
+void MImKeyModel::setBinding(const MImKeyBinding &binding, bool shift)
 {
-    const KeyBinding *&store(bindings[shift ? Shift : NoShift]);
+    const MImKeyBinding *&store(bindings[shift ? Shift : NoShift]);
     if (store) {
         delete store;
     }
     store = &binding;
 }
 
-KeyEvent VKBDataKey::toKeyEvent(QKeyEvent::Type eventType, bool shift) const
+KeyEvent MImKeyModel::toKeyEvent(QKeyEvent::Type eventType, bool shift) const
 {
     Qt::KeyboardModifiers modifiers(shift ? Qt::ShiftModifier : Qt::NoModifier);
     return binding(shift)->toKeyEvent(eventType, modifiers);
 }
 
-KeyEvent VKBDataKey::toKeyEvent(QKeyEvent::Type eventType, QChar accent, bool shift) const
+KeyEvent MImKeyModel::toKeyEvent(QKeyEvent::Type eventType, QChar accent, bool shift) const
 {
     return binding(shift)->toKeyEvent(eventType, accent, shift ? Qt::ShiftModifier : Qt::NoModifier);
 }
 
-VKBDataKey::StyleType VKBDataKey::style() const
+MImKeyModel::StyleType MImKeyModel::style() const
 {
     return mStyle;
 }
 
-VKBDataKey::WidthType VKBDataKey::width() const
+MImKeyModel::WidthType MImKeyModel::width() const
 {
     return mWidthType;
 }
 
-bool VKBDataKey::isFixedWidth() const
+bool MImKeyModel::isFixedWidth() const
 {
     return isFixed;
 }
 
-bool VKBDataKey::rtl() const
+bool MImKeyModel::rtl() const
 {
     return isRtl;
 }

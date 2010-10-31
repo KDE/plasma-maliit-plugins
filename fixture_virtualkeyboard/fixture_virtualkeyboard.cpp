@@ -17,9 +17,9 @@
 
 
 #include "fixture_virtualkeyboard.h"
-#include "singlewidgetbuttonarea.h"
-#include "singlewidgetbutton.h"
-#include "ikeybutton.h"
+#include "mimkeyarea.h"
+#include "mimkey.h"
+#include "mimabstractkey.h"
 
 #include <QDebug>
 #include <QString>
@@ -38,7 +38,7 @@ FixtureVirtualKeyboard::~FixtureVirtualKeyboard()
 /*!
  *  \brief execute is called when implementing a fixture from ruby matti
  */
-bool FixtureVirtualKeyboard::execute(void *objectInstance, 
+bool FixtureVirtualKeyboard::execute(void *objectInstance,
                                      const QString &actionName,
                                      const QHash<QString, QString> &parameters,
                                      QString &stdOut)
@@ -46,15 +46,15 @@ bool FixtureVirtualKeyboard::execute(void *objectInstance,
     qDebug() << "FixtureVirtualKeyboard::execute action:" << actionName;
 
     if (objectInstance == 0) {
-        stdOut = "This fixture can be called for KeyButtonArea only!";
+        stdOut = "This fixture can be called for MImAbstractKeyArea only!";
         return false;
     }
 
     QGraphicsItem *gItem = (QGraphicsItem*)objectInstance;
-    const SingleWidgetButtonArea *const widget =  qgraphicsitem_cast<SingleWidgetButtonArea *>(gItem);
+    const MImKeyArea *const widget =  qgraphicsitem_cast<MImKeyArea *>(gItem);
 
     if (!widget) {
-        stdOut = "This fixture can be called for Keybuttonarea only!";
+        stdOut = "This fixture can be called for MImAbstractKeyArea only!";
         return false;
     }
 
@@ -65,25 +65,25 @@ bool FixtureVirtualKeyboard::execute(void *objectInstance,
         }
     }
 
-    const IKeyButton *button = 0;
+    const MImAbstractKey *button = 0;
     const QString key = QString(parameters.value("key"));
 
     if (key == "Backspace") {
-        button = getKey(widget, KeyBinding::ActionBackspace);
+        button = getKey(widget, MImKeyBinding::ActionBackspace);
     } else if (key == "Shift") {
-        button = getKey(widget, KeyBinding::ActionShift);
+        button = getKey(widget, MImKeyBinding::ActionShift);
     } else if (key == "Sym") {
-        button = getKey(widget, KeyBinding::ActionSym);
+        button = getKey(widget, MImKeyBinding::ActionSym);
     } else if (key == "+/-") {
-        button = getKey(widget, KeyBinding::ActionPlusMinusToggle);
+        button = getKey(widget, MImKeyBinding::ActionPlusMinusToggle);
     } else if (key == "*+") {
-        button = getKey(widget, KeyBinding::ActionCycle);
+        button = getKey(widget, MImKeyBinding::ActionCycle);
     } else if (key == "Space") {
-        button = getKey(widget, KeyBinding::ActionSpace);
+        button = getKey(widget, MImKeyBinding::ActionSpace);
     } else if (key == "Enter") {
-        button = getKey(widget, KeyBinding::ActionReturn);
+        button = getKey(widget, MImKeyBinding::ActionReturn);
     } else if (key == "AccentKeys") {
-        button = getKey(widget, KeyBinding::ActionSwitch);
+        button = getKey(widget, MImKeyBinding::ActionSwitch);
     } else {
         button = getKey(widget, key);
     }
@@ -102,13 +102,13 @@ bool FixtureVirtualKeyboard::execute(void *objectInstance,
     return false;
 }
 
-const IKeyButton * FixtureVirtualKeyboard::getKey(const SingleWidgetButtonArea * const widget,
+const MImAbstractKey * FixtureVirtualKeyboard::getKey(const MImKeyArea * const widget,
                                                   const QString &label) const
 {
     Q_ASSERT(widget);
 
-    foreach (const SingleWidgetButtonArea::ButtonRow &row, widget->rowList) {
-        foreach (const SingleWidgetButton *button, row.buttons) {
+    foreach (const MImKeyArea::ButtonRow &row, widget->rowList) {
+        foreach (const MImKey *button, row.buttons) {
             if (button->label() == label) {
                 return button;
             }
@@ -118,13 +118,13 @@ const IKeyButton * FixtureVirtualKeyboard::getKey(const SingleWidgetButtonArea *
     return 0;
 }
 
-const IKeyButton * FixtureVirtualKeyboard::getKey(const SingleWidgetButtonArea * const widget,
-                                                  KeyBinding::KeyAction action) const
+const MImAbstractKey * FixtureVirtualKeyboard::getKey(const MImKeyArea * const widget,
+                                                  MImKeyBinding::KeyAction action) const
 {
     Q_ASSERT(widget);
 
-    foreach (const SingleWidgetButtonArea::ButtonRow &row, widget->rowList) {
-        foreach (const SingleWidgetButton *button, row.buttons) {
+    foreach (const MImKeyArea::ButtonRow &row, widget->rowList) {
+        foreach (const MImKey *button, row.buttons) {
             if (button->binding().action() == action) {
                 return button;
             }

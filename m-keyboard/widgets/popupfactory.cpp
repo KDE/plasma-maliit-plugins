@@ -31,7 +31,7 @@ namespace
 class DummyPopup: public PopupBase
 {
 public:
-    explicit DummyPopup(KeyButtonArea *mainArea)
+    explicit DummyPopup(MImAbstractKeyArea *mainArea)
         : PopupBase(mainArea)
     {}
 
@@ -47,12 +47,12 @@ public:
     virtual void cancel()
     {}
 
-    virtual void handleKeyPressedOnMainArea(IKeyButton *,
+    virtual void handleKeyPressedOnMainArea(MImAbstractKey *,
                                             const QString &,
                                             bool)
     {}
 
-    virtual void handleLongKeyPressedOnMainArea(IKeyButton *,
+    virtual void handleLongKeyPressedOnMainArea(MImAbstractKey *,
                                                 const QString &,
                                                 bool)
     {}
@@ -73,7 +73,7 @@ PopupFactory *PopupFactory::instance()
     return &instance;
 }
 
-PopupBase *PopupFactory::createPopup(KeyButtonArea *mainArea) const
+PopupBase *PopupFactory::createPopup(MImAbstractKeyArea *mainArea) const
 {
     return (plugin ? plugin->createPopup(mainArea)
                    : new DummyPopup(mainArea));

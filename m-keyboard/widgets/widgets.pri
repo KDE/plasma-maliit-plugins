@@ -1,20 +1,20 @@
 WIDGETS_DIR = ./widgets
 
 INSTALL_HEADERS += \
-    $$WIDGETS_DIR/ikeybutton.h \
+    $$WIDGETS_DIR/mimabstractkey.h \
     $$WIDGETS_DIR/popupbase.h \
     $$WIDGETS_DIR/mvirtualkeyboardstyle.h \
-    $$WIDGETS_DIR/keybuttonareastyle.h \
+    $$WIDGETS_DIR/mimabstractkeyareastyle.h \
     $$WIDGETS_DIR/popupplugin.h \
     $$WIDGETS_DIR/mimoverlay.h \
-    $$WIDGETS_DIR/keybuttonarea.h \
-    $$WIDGETS_DIR/singlewidgetbutton.h \
-    $$WIDGETS_DIR/singlewidgetbuttonarea.h \
+    $$WIDGETS_DIR/mimabstractkeyarea.h \
+    $$WIDGETS_DIR/mimkey.h \
+    $$WIDGETS_DIR/mimkeyarea.h \
 
 STYLE_HEADERS += \
     $$WIDGETS_DIR/widgetbarstyle.h \
     $$WIDGETS_DIR/mvirtualkeyboardstyle.h \
-    $$WIDGETS_DIR/keybuttonareastyle.h \
+    $$WIDGETS_DIR/mimabstractkeyareastyle.h \
     $$WIDGETS_DIR/handlestyle.h \
     $$WIDGETS_DIR/mtoolbarbuttonstyle.h \
     $$WIDGETS_DIR/mimtoolbarstyle.h \
@@ -35,9 +35,9 @@ HEADERS += \
     $$WIDGETS_DIR/horizontalswitcher.h \
     $$WIDGETS_DIR/notification.h \
     $$WIDGETS_DIR/symbolview.h \
-    $$WIDGETS_DIR/keybuttonarea.h \
-    $$WIDGETS_DIR/singlewidgetbutton.h \
-    $$WIDGETS_DIR/singlewidgetbuttonarea.h \
+    $$WIDGETS_DIR/mimabstractkeyarea.h \
+    $$WIDGETS_DIR/mimkey.h \
+    $$WIDGETS_DIR/mimkeyarea.h \
     $$WIDGETS_DIR/popupfactory.h \
     $$WIDGETS_DIR/mtoolbarbutton.h \
     $$WIDGETS_DIR/mtoolbarbuttonview.h \
@@ -61,9 +61,9 @@ SOURCES += \
     $$WIDGETS_DIR/horizontalswitcher.cpp \
     $$WIDGETS_DIR/notification.cpp \
     $$WIDGETS_DIR/symbolview.cpp \
-    $$WIDGETS_DIR/keybuttonarea.cpp \
-    $$WIDGETS_DIR/singlewidgetbutton.cpp \
-    $$WIDGETS_DIR/singlewidgetbuttonarea.cpp \
+    $$WIDGETS_DIR/mimabstractkeyarea.cpp \
+    $$WIDGETS_DIR/mimkey.cpp \
+    $$WIDGETS_DIR/mimkeyarea.cpp \
     $$WIDGETS_DIR/popupbase.cpp \
     $$WIDGETS_DIR/popupfactory.cpp \
     $$WIDGETS_DIR/mtoolbarbutton.cpp \

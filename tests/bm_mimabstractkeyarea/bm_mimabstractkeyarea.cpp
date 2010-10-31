@@ -16,8 +16,8 @@
 
 
 
-#include "bm_keybuttonarea.h"
-#include "singlewidgetbuttonarea.h"
+#include "bm_mimabstractkeyarea.h"
+#include "mimkeyarea.h"
 #include "keyboarddata.h"
 #include "utils.h"
 
@@ -27,29 +27,29 @@
 #include <QDir>
 
 
-void Bm_KeyButtonArea::initTestCase()
+void Bm_MImAbstractKeyArea::initTestCase()
 {
     static int argc = 2;
-    static char *app_name[2] = { (char *) "bm_keybuttonarea",
+    static char *app_name[2] = { (char *) "bm_mimabstractkeyarea",
                                  (char *) "-local-theme" };
 
     disableQtPlugins();
     app = new MApplication(argc, app_name);
 }
 
-void Bm_KeyButtonArea::cleanupTestCase()
+void Bm_MImAbstractKeyArea::cleanupTestCase()
 {
     delete app;
     app = 0;
 }
 
-void Bm_KeyButtonArea::init()
+void Bm_MImAbstractKeyArea::init()
 {
     keyboard = 0;
     subject = 0;
 }
 
-void Bm_KeyButtonArea::cleanup()
+void Bm_MImAbstractKeyArea::cleanup()
 {
     delete subject;
     subject = 0;
@@ -57,7 +57,7 @@ void Bm_KeyButtonArea::cleanup()
     keyboard = 0;
 }
 
-void Bm_KeyButtonArea::benchmarkPreDraw_data()
+void Bm_MImAbstractKeyArea::benchmarkPreDraw_data()
 {
     QDir dir("/usr/share/meegotouch/virtual-keyboard/layouts/");
     QStringList filters;
@@ -77,13 +77,13 @@ void Bm_KeyButtonArea::benchmarkPreDraw_data()
     }
 }
 
-void Bm_KeyButtonArea::benchmarkPreDraw()
+void Bm_MImAbstractKeyArea::benchmarkPreDraw()
 {
     QFETCH(QString, filename);
 
     keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard(filename));
-    subject = new SingleWidgetButtonArea(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection));
+    subject = new MImKeyArea(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection));
 
     QBENCHMARK {
         subject->updateButtonGeometriesForWidth(864);
@@ -91,7 +91,7 @@ void Bm_KeyButtonArea::benchmarkPreDraw()
     }
 }
 
-void Bm_KeyButtonArea::benchmarkLoadXML_data()
+void Bm_MImAbstractKeyArea::benchmarkLoadXML_data()
 {
     QDir dir("/usr/share/meegotouch/virtual-keyboard/layouts/");
     QStringList filters;
@@ -109,7 +109,7 @@ void Bm_KeyButtonArea::benchmarkLoadXML_data()
 
 // TODO: This test should not be here anymore.
 //       Maybe test initialization speed of widget with section data model?
-void Bm_KeyButtonArea::benchmarkLoadXML()
+void Bm_MImAbstractKeyArea::benchmarkLoadXML()
 {
     QFETCH(QString, filename);
 
@@ -123,7 +123,7 @@ void Bm_KeyButtonArea::benchmarkLoadXML()
     }
 }
 
-void Bm_KeyButtonArea::benchmarkPaint_data()
+void Bm_MImAbstractKeyArea::benchmarkPaint_data()
 {
     QDir dir("/usr/share/meegotouch/virtual-keyboard/layouts/");
     QStringList filters;
@@ -143,7 +143,7 @@ void Bm_KeyButtonArea::benchmarkPaint_data()
     }
 }
 
-void Bm_KeyButtonArea::benchmarkPaint()
+void Bm_MImAbstractKeyArea::benchmarkPaint()
 {
     QImage *image = new QImage(QSize(864, 480), QImage::Format_ARGB32_Premultiplied);
     QPainter painter;
@@ -153,7 +153,7 @@ void Bm_KeyButtonArea::benchmarkPaint()
     QVERIFY(painter.begin(image) == true);
     keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard(filename));
-    subject = new SingleWidgetButtonArea(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection));
+    subject = new MImKeyArea(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection));
 
     QBENCHMARK {
         subject->paint(&painter, 0 , 0);
@@ -163,4 +163,4 @@ void Bm_KeyButtonArea::benchmarkPaint()
     delete image;
 }
 
-QTEST_APPLESS_MAIN(Bm_KeyButtonArea);
+QTEST_APPLESS_MAIN(Bm_MImAbstractKeyArea);

@@ -16,21 +16,40 @@
 
 
 
-#ifndef UT_VKBDATAKEY_H
-#define UT_VKBDATAKEY_H
+#ifndef UT_KEYBUTTON_H
+#define UT_KEYBUTTON_H
+
+#include <mimabstractkey.h>
 
 #include <QtTest/QTest>
 #include <QObject>
+#include <QList>
 
 class MApplication;
-class VKBDataKey;
+class MImKeyModel;
+class MImAbstractKeyAreaStyleContainer;
+class QGraphicsItem;
+class KeyboardData;
 
-class Ut_VKBDataKey : public QObject
+class Ut_KeyButton: public QObject
 {
     Q_OBJECT
+
+public:
+    enum Direction {
+        Down,
+        Up
+    };
+
+    typedef QPair<Direction, bool> DirectionPair;
+
 private:
+
     MApplication *app;
-    VKBDataKey *subject;
+    MImAbstractKey *subject;
+    QGraphicsItem *parent;
+    MImKeyModel *dataKey;
+    MImAbstractKeyAreaStyleContainer *style;
 
 private slots:
     void init();
@@ -38,11 +57,21 @@ private slots:
     void initTestCase();
     void cleanupTestCase();
 
-    void testCreate();
-    void testAccent();
-    void testKeyCode_data();
-    void testKeyCode();
+    void testSetModifier_data();
+    void testSetModifier();
+    void testKey();
+    void testBinding();
+    void testIsDead();
+
+    void testTouchPointCount_data();
+    void testTouchPointCount();
+
+private:
+    MImKeyModel *createDataKey();
 };
+
+Q_DECLARE_METATYPE(Ut_KeyButton::DirectionPair)
+Q_DECLARE_METATYPE(MImAbstractKey::ButtonState)
 
 #endif
 

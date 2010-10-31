@@ -30,7 +30,7 @@ MVirtualKeyboardStyle.Landscape {
     menu-size: 790 342;
 }
 
-KeyButtonAreaStyle {
+MImAbstractKeyAreaStyle {
     background-image: "meegotouch-keyboard-background" 15px 15px 15px 15px;
 
     font: "Nokia Sans Light" 28;
@@ -114,7 +114,7 @@ KeyButtonAreaStyle {
     draw-reactive-areas: false;
 }
 
-KeyButtonAreaStyle.Portrait {
+MImAbstractKeyAreaStyle.Portrait {
     spacing-horizontal: 0.4mm;
     label-margin-top: 1.2mm;
     label-margin-left-with-secondary: 4.6mm;
@@ -129,7 +129,7 @@ KeyButtonAreaStyle.Portrait {
     key-height: 6.4mm;
 }
 
-KeyButtonAreaStyle.Landscape {
+MImAbstractKeyAreaStyle.Landscape {
     padding-top: 1.3mm;
     spacing-vertical: $MARGIN_DOUBLE;
 

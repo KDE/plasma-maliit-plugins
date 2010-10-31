@@ -16,8 +16,8 @@
 
 
 
-#include "singlewidgetbutton.h"
-#include "singlewidgetbuttonarea.h"
+#include "mimkey.h"
+#include "mimkeyarea.h"
 #include "mvirtualkeyboardstyle.h"
 #include "getcssproperty.h"
 
@@ -33,64 +33,64 @@ namespace {
     }
 }
 
-SingleWidgetButton::IconInfo::IconInfo()
+MImKey::IconInfo::IconInfo()
     : pixmap(0)
 {
 }
 
-SingleWidgetButton::IconInfo::~IconInfo()
+MImKey::IconInfo::~IconInfo()
 {
     if (pixmap) {
         MTheme::releasePixmap(pixmap);
     }
 }
 
-SingleWidgetButton::SingleWidgetButton(const VKBDataKey &key,
-                                       const KeyButtonAreaStyleContainer &style,
-                                       QGraphicsItem &parent)
+MImKey::MImKey(const MImKeyModel &newModel,
+               const MImAbstractKeyAreaStyleContainer &style,
+               QGraphicsItem &parent)
     : width(0),
-      dataKey(key),
+      model(newModel),
       shift(false),
-      currentLabel(dataKey.binding(false)->label()),
+      currentLabel(model.binding(false)->label()),
       currentState(Normal),
       selected(false),
       styleContainer(style),
       parentItem(parent),
       currentTouchPointCount(0)
 {
-    if (dataKey.binding(false)) {
+    if (model.binding(false)) {
         loadIcon(false);
     }
-    if (dataKey.binding(true)) {
+    if (model.binding(true)) {
         loadIcon(true);
     }
 }
 
-SingleWidgetButton::~SingleWidgetButton()
+MImKey::~MImKey()
 {
 }
 
-const QString SingleWidgetButton::label() const
+const QString MImKey::label() const
 {
     return currentLabel;
 }
 
-const QString SingleWidgetButton::secondaryLabel() const
+const QString MImKey::secondaryLabel() const
 {
     return binding().secondaryLabel();
 }
 
-const QRectF &SingleWidgetButton::buttonRect() const
+const QRectF &MImKey::buttonRect() const
 {
     return cachedButtonRect;
 }
 
-const QRectF &SingleWidgetButton::buttonBoundingRect() const
+const QRectF &MImKey::buttonBoundingRect() const
 {
     return cachedBoundingRect;
 }
 
-void SingleWidgetButton::setModifiers(bool shift, QChar accent)
+void MImKey::setModifiers(bool shift, QChar accent)
 {
     if (this->shift != shift || this->accent != accent) {
         this->shift = shift;
@@ -101,7 +101,7 @@ void SingleWidgetButton::setModifiers(bool shift, QChar accent)
     }
 }
 
-void SingleWidgetButton::setDownState(bool down)
+void MImKey::setDownState(bool down)
 {
     ButtonState newState;
 
@@ -118,7 +118,7 @@ void SingleWidgetButton::setDownState(bool down)
     }
 }
 
-void SingleWidgetButton::setSelected(bool select)
+void MImKey::setSelected(bool select)
 {
     if (selected != select) {
         selected = select;
@@ -128,37 +128,37 @@ void SingleWidgetButton::setSelected(bool select)
     }
 }
 
-SingleWidgetButton::ButtonState SingleWidgetButton::state() const
+MImKey::ButtonState MImKey::state() const
 {
     return currentState;
 }
 
-const VKBDataKey &SingleWidgetButton::key() const
+const MImKeyModel &MImKey::key() const
 {
-    return dataKey;
+    return model;
 }
 
-const KeyBinding &SingleWidgetButton::binding() const
+const MImKeyBinding &MImKey::binding() const
 {
-    return *dataKey.binding(shift);
+    return *model.binding(shift);
 }
 
-bool SingleWidgetButton::isDeadKey() const
+bool MImKey::isDeadKey() const
 {
     return binding().isDead();
 }
 
-bool SingleWidgetButton::isShiftKey() const
+bool MImKey::isShiftKey() const
 {
-    return binding().action() == KeyBinding::ActionShift;
+    return binding().action() == MImKeyBinding::ActionShift;
 }
 
-bool SingleWidgetButton::isNormalKey() const
+bool MImKey::isNormalKey() const
 {
-    return binding().action() == KeyBinding::ActionInsert;
+    return binding().action() == MImKeyBinding::ActionInsert;
 }
 
-bool SingleWidgetButton::increaseTouchPointCount()
+bool MImKey::increaseTouchPointCount()
 {
     if (++currentTouchPointCount <= touchPointLimit()) {
         if (currentTouchPointCount > 0) {
@@ -172,7 +172,7 @@ bool SingleWidgetButton::increaseTouchPointCount()
     }
 }
 
-bool SingleWidgetButton::decreaseTouchPointCount()
+bool MImKey::decreaseTouchPointCount()
 {
     if (--currentTouchPointCount >= 0) {
         if (currentTouchPointCount == 0) {
@@ -186,33 +186,33 @@ bool SingleWidgetButton::decreaseTouchPointCount()
     }
 }
 
-void SingleWidgetButton::resetTouchPointCount()
+void MImKey::resetTouchPointCount()
 {
     while (decreaseTouchPointCount())
     {}
 }
 
-int SingleWidgetButton::touchPointCount() const
+int MImKey::touchPointCount() const
 {
     return currentTouchPointCount;
 }
 
-int SingleWidgetButton::touchPointLimit()
+int MImKey::touchPointLimit()
 {
     return 20;
 }
 
-const QPixmap *SingleWidgetButton::icon() const
+const QPixmap *MImKey::icon() const
 {
     return iconInfo().pixmap;
 }
 
-QString SingleWidgetButton::iconId() const
+QString MImKey::iconId() const
 {
     return iconInfo().id;
 }
 
-void SingleWidgetButton::drawIcon(const QRect &rectangle, QPainter *painter) const
+void MImKey::drawIcon(const QRect &rectangle, QPainter *painter) const
 {
     const QPixmap *iconPixmap = icon();
     if (iconPixmap) {
@@ -222,32 +222,32 @@ void SingleWidgetButton::drawIcon(const QRect &rectangle, QPainter *painter) con
     }
 }
 
-void SingleWidgetButton::update()
+void MImKey::update()
 {
     // Invalidate this button's area.
     parentItem.update(buttonRect());
 }
 
-int SingleWidgetButton::preferredFixedWidth() const
+int MImKey::preferredFixedWidth() const
 {
-    switch(dataKey.width()) {
-    case VKBDataKey::Small:
+    switch(model.width()) {
+    case MImKeyModel::Small:
         return styleContainer->keyWidthSmallFixed();
 
-    case VKBDataKey::Medium:
+    case MImKeyModel::Medium:
         return styleContainer->keyWidthMediumFixed();
 
-    case VKBDataKey::Large:
+    case MImKeyModel::Large:
         return styleContainer->keyWidthLargeFixed();
 
-    case VKBDataKey::XLarge:
+    case MImKeyModel::XLarge:
         return styleContainer->keyWidthXLargeFixed();
 
-    case VKBDataKey::XxLarge:
+    case MImKeyModel::XxLarge:
         return styleContainer->keyWidthXxLargeFixed();
 
     // This one of course makes no real sense:
-    case VKBDataKey::Stretched:
+    case MImKeyModel::Stretched:
         return styleContainer->keyWidthStretchedFixed();
     }
 
@@ -256,35 +256,35 @@ int SingleWidgetButton::preferredFixedWidth() const
     return -1;
 }
 
-qreal SingleWidgetButton::preferredWidth(qreal pixelPerSizeUnit, qreal spacing) const
+qreal MImKey::preferredWidth(qreal pixelPerSizeUnit, qreal spacing) const
 {
-    switch(dataKey.width()) {
-    case VKBDataKey::Small:
+    switch(model.width()) {
+    case MImKeyModel::Small:
         return computeWidth(pixelPerSizeUnit,
                             spacing,
                             styleContainer->keyWidthSmall());
 
-    case VKBDataKey::Medium:
+    case MImKeyModel::Medium:
         return computeWidth(pixelPerSizeUnit,
                             spacing,
                             styleContainer->keyWidthMedium());
 
-    case VKBDataKey::Large:
+    case MImKeyModel::Large:
         return computeWidth(pixelPerSizeUnit,
                             spacing,
                             styleContainer->keyWidthLarge());
 
-    case VKBDataKey::XLarge:
+    case MImKeyModel::XLarge:
         return computeWidth(pixelPerSizeUnit,
                             spacing,
                             styleContainer->keyWidthXLarge());
 
-    case VKBDataKey::XxLarge:
+    case MImKeyModel::XxLarge:
         return computeWidth(pixelPerSizeUnit,
                             spacing,
                             styleContainer->keyWidthXxLarge());
 
-    case VKBDataKey::Stretched:
+    case MImKeyModel::Stretched:
         return computeWidth(pixelPerSizeUnit,
                             spacing,
                             styleContainer->keyWidthStretched());
@@ -295,19 +295,19 @@ qreal SingleWidgetButton::preferredWidth(qreal pixelPerSizeUnit, qreal spacing) 
     return -1;
 }
 
-void SingleWidgetButton::loadIcon(bool shift)
+void MImKey::loadIcon(bool shift)
 {
     IconInfo &iconInfo(shift ? upperCaseIcon : lowerCaseIcon);
-    const KeyBinding::KeyAction action(dataKey.binding(shift)->action());
+    const MImKeyBinding::KeyAction action(model.binding(shift)->action());
     QSize size;
     QString iconProperty;
 
     switch(action) {
-        case KeyBinding::ActionBackspace:
+        case MImKeyBinding::ActionBackspace:
             iconProperty = "keyBackspaceIconId";
             size = styleContainer->keyBackspaceIconSize();
             break;
-        case KeyBinding::ActionShift:
+        case MImKeyBinding::ActionShift:
             if (shift) {
                 iconProperty = "keyShiftUppercaseIconId";
             } else {
@@ -315,18 +315,18 @@ void SingleWidgetButton::loadIcon(bool shift)
             }
             size = styleContainer->keyShiftIconSize();
             break;
-        case KeyBinding::ActionReturn:
-            if (dataKey.binding(shift)->label().isEmpty()) {
+        case MImKeyBinding::ActionReturn:
+            if (model.binding(shift)->label().isEmpty()) {
                 iconProperty = "keyEnterIconId";
                 size = styleContainer->keyEnterIconSize();
             }
             break;
-        case KeyBinding::ActionLayoutMenu:
+        case MImKeyBinding::ActionLayoutMenu:
             iconProperty = "keyMenuIconId";
             size = styleContainer->keyMenuIconSize();
             break;
-        case KeyBinding::ActionTab:
-            if (dataKey.binding(shift)->label().isEmpty()) {
+        case MImKeyBinding::ActionTab:
+            if (model.binding(shift)->label().isEmpty()) {
                 iconProperty = "keyTabIconId";
                 size = styleContainer->keyTabIconSize();
             }
@@ -335,14 +335,14 @@ void SingleWidgetButton::loadIcon(bool shift)
             break;
     }
 
-    iconInfo.id = getCSSProperty<QString>(styleContainer, iconProperty, dataKey.rtl());
+    iconInfo.id = getCSSProperty<QString>(styleContainer, iconProperty, model.rtl());
 
     if (!iconInfo.id.isEmpty()) {
         iconInfo.pixmap = MTheme::pixmap(iconInfo.id, size);
     }
 }
 
-const SingleWidgetButton::IconInfo &SingleWidgetButton::iconInfo() const
+const MImKey::IconInfo &MImKey::iconInfo() const
 {
     return (shift ? upperCaseIcon : lowerCaseIcon);
 }

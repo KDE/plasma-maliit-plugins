@@ -8,8 +8,8 @@ LIBS += -L/usr/lib -Wl,-rpath=/usr/lib/meego-im-plugins/ -lmeego-keyboard
 
 
 # Input
-HEADERS += ut_keybuttonarea.h ../ut_flickrecognizer/flickutil.h
-SOURCES += ut_keybuttonarea.cpp ../ut_flickrecognizer/flickutil.cpp
+HEADERS += ut_mimabstractkeyarea.h ../ut_flickrecognizer/flickutil.h
+SOURCES += ut_mimabstractkeyarea.cpp ../ut_flickrecognizer/flickutil.cpp
 
 VKB_TEST_DATA = layouts/*.xml
 vkb_test_data.path = /usr/share/meegotouch/virtual-keyboard/layouts

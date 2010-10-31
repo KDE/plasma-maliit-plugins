@@ -16,8 +16,8 @@
 
 
 
-#ifndef VKBDATAKEY_H
-#define VKBDATAKEY_H
+#ifndef MIMKEYMODEL_H
+#define MIMKEYMODEL_H
 
 #include "keyevent.h"
 
@@ -25,9 +25,9 @@
 #include <QString>
 
 /*!
- * \brief KeyBinding is a primitive action and label bound to a key
+ * \brief MImKeyBinding is a primitive action and label bound to a key
  */
-class KeyBinding
+class MImKeyBinding
 {
 public:
     //! Key action
@@ -48,10 +48,10 @@ public:
         NumActions
     };
 
-    KeyBinding();
+    MImKeyBinding();
 
     //! \brief Create simple insert-action binding with a given label
-    explicit KeyBinding(const QString &label);
+    explicit MImKeyBinding(const QString &label);
 
     /*!
      * Convert into a KeyEvent
@@ -116,46 +116,46 @@ private:
     bool dead;
 
     friend class KeyboardData;
-    friend class Ut_VKBDataKey;
+    friend class Ut_MImKeyModel;
     friend class Ut_KeyButton;
     friend class Ut_MVirtualKeyboard;
 };
 
 
-inline QString KeyBinding::label() const
+inline QString MImKeyBinding::label() const
 {
     // TODO: get localized decimal separator from some singleton class
     // which has up-to-date localization setting information
     return keyAction == ActionDecimalSeparator ? "." : keyLabel;
 }
 
-inline QString KeyBinding::secondaryLabel() const
+inline QString MImKeyBinding::secondaryLabel() const
 {
     return secondary_label;
 }
 
-inline  bool KeyBinding::isDead() const
+inline  bool MImKeyBinding::isDead() const
 {
     return dead;
 }
 
-inline KeyBinding::KeyAction KeyBinding::action() const
+inline MImKeyBinding::KeyAction MImKeyBinding::action() const
 {
     return keyAction;
 }
 
-inline QString KeyBinding::extendedLabels() const
+inline QString MImKeyBinding::extendedLabels() const
 {
     return extended_labels;
 }
 
 
 /*!
- * \brief VKBDataKey is a container for bindings of a key in a keyboard layout
+ * \brief MImKeyModel is a container for bindings of a key in a keyboard layout
  *
  * Bindings are differentiated with attributes such as shift and alt
  */
-class VKBDataKey
+class MImKeyModel
 {
 public:
     //! Style Type
@@ -182,16 +182,16 @@ public:
      * \param isFixed Contains true if button should use fixed width type.
      * \param isRtl Contains true if button should use RTL icon.
      */
-    explicit VKBDataKey(StyleType type = NormalStyle, WidthType widthType = Medium,
+    explicit MImKeyModel(StyleType type = NormalStyle, WidthType widthType = Medium,
                         bool isFixed = false, bool isRtl = false);
 
-    ~VKBDataKey();
+    ~MImKeyModel();
 
     //! \brief Set \a binding as the binding for given \a shift attribute
-    void setBinding(const KeyBinding &binding, bool shift);
+    void setBinding(const MImKeyBinding &binding, bool shift);
 
     //! \return binding based on given attributes
-    const KeyBinding *binding(bool shift = false) const;
+    const MImKeyBinding *binding(bool shift = false) const;
 
     /*!
      * Convert into a KeyEvent
@@ -229,7 +229,7 @@ private:
 
     // All indices always contain a binding object, though more than one index may contain
     // the same binding
-    const KeyBinding *bindings[NumBindings];
+    const MImKeyBinding *bindings[NumBindings];
 
     StyleType mStyle;
 
@@ -242,12 +242,12 @@ private:
     bool isRtl;
 
     friend class KeyboardData;
-    friend class Ut_VKBDataKey;
+    friend class Ut_MImKeyModel;
     friend class Ut_KeyButton;
 };
 
 
-inline const KeyBinding *VKBDataKey::binding(bool shift) const
+inline const MImKeyBinding *MImKeyModel::binding(bool shift) const
 {
     return bindings[shift ? Shift : NoShift];
 }

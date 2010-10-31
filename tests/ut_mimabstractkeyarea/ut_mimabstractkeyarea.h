@@ -14,8 +14,8 @@
  * of this file.
  */
 
-#ifndef UT_KEYBUTTONAREA_H
-#define UT_KEYBUTTONAREA_H
+#ifndef UT_MIMABSTRACTKEYAREA_H
+#define UT_MIMABSTRACTKEYAREA_H
 
 #include <QList>
 #include <QObject>
@@ -25,16 +25,16 @@
 #include "flickgesture.h"
 
 class MApplication;
-class KeyButtonArea;
+class MImAbstractKeyArea;
 class KeyboardData;
-class IKeyButton;
+class MImAbstractKey;
 
-class Ut_KeyButtonArea : public QObject
+class Ut_MImAbstractKeyArea : public QObject
 {
     Q_OBJECT
 private:
     MApplication *app;
-    KeyButtonArea *subject;
+    MImAbstractKeyArea *subject;
     KeyboardData *keyboard;
 
 private slots:
@@ -78,10 +78,10 @@ private:
     void changeOrientation(M::OrientationAngle angle);
     QSize defaultLayoutSize();
 
-    IKeyButton *keyAt(unsigned int row,
+    MImAbstractKey *keyAt(unsigned int row,
                       unsigned int column) const;
 
-    static KeyButtonArea *createArea(const QString &labels,
+    static MImAbstractKeyArea *createArea(const QString &labels,
                                      const QSize &size);
 
 public:
@@ -94,4 +94,4 @@ public:
     typedef QList<TestOperation> TestOpList;
 };
 
-#endif // UT_KEYBUTTONAREA_H
+#endif // UT_MIMABSTRACTKEYAREA_H

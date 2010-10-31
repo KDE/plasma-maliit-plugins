@@ -16,7 +16,7 @@
 
 #include "ut_layoutdata.h"
 #include "layoutdata.h"
-#include "vkbdatakey.h"
+#include "mimkeymodel.h"
 #include "utils.h"
 
 #include <MApplication>
@@ -57,10 +57,10 @@ void Ut_LayoutData::testConstructFromString()
     QCOMPARE(section.keyCount(), characters.length());
     QCOMPARE(section.columnsAt(0), characters.length());
     for (int i = 0; i < characters.length(); ++i) {
-        const VKBDataKey * const key(section.vkbKey(0, i));
+        const MImKeyModel * const key(section.keyModel(0, i));
         QVERIFY(key);
-        QCOMPARE(key->style(), VKBDataKey::NormalStyle);
-        QCOMPARE(key->width(), VKBDataKey::Medium);
+        QCOMPARE(key->style(), MImKeyModel::NormalStyle);
+        QCOMPARE(key->width(), MImKeyModel::Medium);
         QVERIFY(key->isFixedWidth());
         QCOMPARE(key->rtl(), false);
         QCOMPARE(key->binding(false)->label(), QString(characters[i]));
@@ -68,7 +68,7 @@ void Ut_LayoutData::testConstructFromString()
         QCOMPARE(key->binding(false)->secondaryLabel(), QString());
         QVERIFY(!key->binding(false)->isDead());
         QCOMPARE(key->binding(false)->extendedLabels(), QString());
-        QCOMPARE(key->binding(false)->action(), KeyBinding::ActionInsert);
+        QCOMPARE(key->binding(false)->action(), MImKeyBinding::ActionInsert);
     }
 }
 

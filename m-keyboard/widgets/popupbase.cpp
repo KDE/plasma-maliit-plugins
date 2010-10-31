@@ -15,7 +15,7 @@
  */
 #include "popupbase.h"
 
-PopupBase::PopupBase(const KeyButtonArea *)
+PopupBase::PopupBase(const MImAbstractKeyArea *)
 {}
 
 PopupBase::~PopupBase()
