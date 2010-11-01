@@ -28,6 +28,7 @@ class QGraphicsWidget;
 class QGraphicsLinearLayout;
 class MImCorrectionCandidateItem;
 class MSceneWindow;
+class MReactionMap;
 
 /*!
  * \brief The MImWordTracker class is used to show error correction word tracker.
@@ -86,6 +87,11 @@ public:
      * \brief Returns the visible region of word tracker.
      */
     QRegion region() const;
+
+    /*!
+     * \brief Draw its reactive areas onto the reaction map
+     */
+    void paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view);
 
 signals:
     //! Emitted when word tracker is clicked.

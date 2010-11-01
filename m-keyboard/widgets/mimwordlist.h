@@ -25,6 +25,7 @@ class QGraphicsLinearLayout;
 class MContentItem;
 class MImWordListItem;
 class MImWordList;
+class MReactionMap;
 
 /*!
  * \brief MIMWordListWindow is used as the plain translucent parent window for word list dialog.
@@ -100,6 +101,11 @@ public:
      * \brief Returns the occupied region of word list widget.
      */
     QRegion region() const;
+
+    /*!
+     * \brief Draw its reactive areas onto the reaction map
+     */
+    void paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view);
 
 signals:
     /*!

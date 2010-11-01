@@ -899,8 +899,9 @@ void MKeyboardHost::updateReactionMaps()
         if (correctionHost && correctionHost->isActive()) {
             correctionHost->paintReactionMap(reactionMap, view);
 
-            // Correction candidate widget always occupies whole screen.
-            continue;
+            // Correction candidate widget occupies whole screen when it is WordListMode.
+            if (correctionHost->candidateMode() == MImCorrectionHost::WordListMode)
+                continue;
         }
 
         // Paint either symview or vkb widget reactive areas.

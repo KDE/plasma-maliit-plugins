@@ -29,6 +29,7 @@
 #include <MGConfItem>
 #include <MContentItem>
 #include <MTheme>
+#include <mreactionmap.h>
 
 #include <mwidgetcreator.h>
 M_REGISTER_WIDGET_NO_CREATE(MImWordList)
@@ -163,4 +164,15 @@ QRegion MImWordList::region() const
         ret = QRegion(0, 0, visibleSceneSize.width(), visibleSceneSize.height());
     }
     return ret;
+}
+
+void MImWordList::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *)
+{
+    if (!isVisible())
+        return;
+    // word list take whole screen. And inner contentitem will play their
+    // default feedback. Don't need reaction map.
+    reactionMap->setInactiveDrawingValue();
+    reactionMap->setTransform(QTransform());
+    reactionMap->fillRectangle(0, 0, reactionMap->width(), reactionMap->height());
 }

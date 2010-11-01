@@ -173,21 +173,16 @@ void MImCorrectionHost::finalizeOrientationChange()
     }
 }
 
-void MImCorrectionHost::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *)
+void MImCorrectionHost::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view)
 {
-    // Clear all with inactive color.
-    reactionMap->setInactiveDrawingValue();
-    reactionMap->setTransform(QTransform());
-    reactionMap->fillRectangle(0, 0, reactionMap->width(), reactionMap->height());
-
-    // Draw the actual candidate candidatesWidget area.
-    reactionMap->setReactiveDrawingValue();
+    if (!isActive())
+        return;
 
     if (wordTracker->isVisible()) {
-        reactionMap->fillRectangle(wordTracker->geometry());
+        wordTracker->paintReactionMap(reactionMap, view);
     }
     if (wordList->isVisible()) {
-        reactionMap->fillRectangle(wordList->geometry());
+        wordList->paintReactionMap(reactionMap, view);
     }
 }
 

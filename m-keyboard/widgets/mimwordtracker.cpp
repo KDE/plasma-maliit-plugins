@@ -278,3 +278,18 @@ void MImWordTracker::onThemeChangeCompleted()
     // reset time line
     setupTimeLine();
 }
+
+void MImWordTracker::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view)
+{
+    if (!isVisible())
+        return;
+
+    // Clear all with inactive color.
+    reactionMap->setTransform(this, view);
+    reactionMap->setInactiveDrawingValue();
+    reactionMap->fillRectangle(geometry());
+
+    // Draw the actual word tracker area.
+    reactionMap->setReactiveDrawingValue();
+    reactionMap->fillRectangle(geometry());
+}
