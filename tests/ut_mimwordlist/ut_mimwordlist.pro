@@ -8,7 +8,7 @@ include(../common_check.pri)
 
 LIBS += -Wl,-rpath=/usr/lib/meego-im-plugins/ -lmeego-keyboard
 
-HEADERS += ut_mimcorrectioncandidatewidget.h \
+HEADERS += ut_mimwordlist.h \
 
-SOURCES += ut_mimcorrectioncandidatewidget.cpp \
+SOURCES += ut_mimwordlist.cpp \
 

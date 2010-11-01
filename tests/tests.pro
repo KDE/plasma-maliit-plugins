@@ -6,7 +6,9 @@ SUBDIRS = \
           ut_mvirtualkeyboard \
           ut_mkeyboardhost \
           ut_mkeyboardplugin \
-          ut_mimcorrectioncandidatewidget \
+          ut_mimcorrectionhost \
+          ut_mimwordlist \
+          ut_mimwordtracker \
           ut_mimkey \
           ut_mimabstractkeyarea \
           ut_flickrecognizer \

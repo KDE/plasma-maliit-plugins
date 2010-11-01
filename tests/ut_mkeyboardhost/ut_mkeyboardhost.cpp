@@ -16,7 +16,7 @@
 
 
 
-#include <mimcorrectioncandidatewidget.h>
+#include <mimcorrectionhost.h>
 #include <mvirtualkeyboard.h>
 #include <mhardwarekeyboard.h>
 #include <mkeyboardhost.h>
@@ -541,7 +541,7 @@ void Ut_MKeyboardHost::testAutoCaps()
 
     // press and release backspace before timeout will only delete one character,
     subject->handleKeyPress(press);
-    QVERIFY(subject->backSpaceTimer.isActive());
+    QVERIFY(subject->backspaceTimer.isActive());
     subject->handleKeyRelease(release);
     subject->handleKeyClick(release);
     subject->update();
@@ -550,15 +550,15 @@ void Ut_MKeyboardHost::testAutoCaps()
 
     // but hold backspace longer than timeout, will delete the whole preedit.
     subject->handleKeyPress(press);
-    int interval = subject->backSpaceTimer.interval();
+    int interval = subject->backspaceTimer.interval();
     QTest::qWait(interval / 2);
-    QVERIFY(subject->backSpaceTimer.isActive());
+    QVERIFY(subject->backspaceTimer.isActive());
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
     QTest::qWait((interval / 2) + 50);
     // final state: preedit(""), shift state:on, after holding backspace enough time.
     QVERIFY(subject->preedit.isEmpty());
-    QVERIFY(!subject->backSpaceTimer.isActive());
+    QVERIFY(!subject->backspaceTimer.isActive());
     inputMethodHost->cursorPos = 13;
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
@@ -738,12 +738,13 @@ void Ut_MKeyboardHost::testRegionSignals()
     // In opaque mode, candidate widget has its own window, so no regions are sent to kbhost.
 #ifndef DUI_IM_DISABLE_TRANSLUCENCY
     // Ditto for correction candidate widget
-    subject->correctionCandidateWidget->showWidget();
+    subject->correctionHost->setCandidates((QStringList() << "abc" << "def"));
+    subject->correctionHost->showCorrectionWidget();
     ++c1;
     QCOMPARE(inputMethodHost->setScreenRegionCalls, c1);
     QCOMPARE(inputMethodHost->setInputMethodAreaCalls, c2);
 
-    subject->correctionCandidateWidget->hide();
+    subject->correctionHost->hideCorrectionWidget(false);
     ++c1;
     QCOMPARE(inputMethodHost->setScreenRegionCalls, c1);
     QCOMPARE(inputMethodHost->setInputMethodAreaCalls, c2);

@@ -16,21 +16,21 @@
 
 
 
-#ifndef UT_MIMCORRECTIONCANDIDATEWIDGET_H
-#define UT_MIMCORRECTIONCANDIDATEWIDGET_H
+#ifndef UT_MIMWORDLIST_H
+#define UT_MIMWORDLIST_H
 
-#include "mimcorrectioncandidatewidget.h"
+#include "mimwordlist.h"
 #include "mapplication.h"
 #include <QtTest/QTest>
 #include <QObject>
 
-class Ut_MImCorrectionCandidateWidget : public QObject
+class Ut_MImWordList : public QObject
 {
     Q_OBJECT
 
 private:
     MApplication *app;
-    MImCorrectionCandidateWidget *m_subject;
+    MImWordList *m_subject;
 
 private slots:
     //! initialize application and class
@@ -38,16 +38,9 @@ private slots:
     void init();
     void cleanup();
     void cleanupTestCase();
-    void checkPositionByPoint_data();
-    void checkPositionByPoint();
-    void checkPositionByPreeditRect();
-    void checkActiveIndex();
-    void checkPreeditString();
-    void setCandidatesAndSelect();
-    void checkShowWidget();
-
-private:
-    QSize testCandidateWidgetSize;
+    void testCandidates_data();
+    void testCandidates();
+    void testSelect();
 };
 
 #endif
