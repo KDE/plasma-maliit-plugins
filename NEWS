@@ -4,6 +4,14 @@
 * Speed typing improvements
 
 * Internal changes in meego-keyboard:
+  - The following classes were renamed:
+    - KeyButtonArea          => MImAbstractKeyArea
+    - KeyButtonAreaStyle     => MImAbstractkeyAreaStyle
+    - SingleWidgetButtonArea => MImKeyArea
+    - IKeyButton             => MImAbstractKey
+    - SingleWidgetButton     => MImKey
+    - VKBDataKey             => MImKeyModel
+    - KeyBinding             => MImKeyBinding
   - Cleaned up PopupBase API. It now takes a KeyButtonArea parameter, which
     enables easier communication between popup and the currently active
     KeyButtonArea; the interface consists of:
