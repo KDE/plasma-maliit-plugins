@@ -20,7 +20,6 @@
 
 #include <MSceneManager>
 #include <MScene>
-#include <MSceneWindow>
 #include <MGConfItem>
 #include <mplainwindow.h>
 
@@ -34,16 +33,13 @@ namespace
     const char * const MultitouchSetting = "/meegotouch/inputmethods/multitouch/enabled";
 };
 
-
 MImOverlay::MImOverlay()
-    : MWidget(),
-      parentWindow(new MSceneWindow)
+    : MSceneWindow()
 {
-    setParentItem(parentWindow);
-    parentWindow->setManagedManually(true);
-    MPlainWindow::instance()->sceneManager()->appearSceneWindowNow(parentWindow);
+    setManagedManually(true);
+    MPlainWindow::instance()->sceneManager()->appearSceneWindowNow(this);
     // The z-value should always be more than vkb and text widget's z-value
-    parentWindow->setZValue(FLT_MAX);
+    setZValue(FLT_MAX);
 
     // By default multi-touch is disabled
     setAcceptTouchEvents(MGConfItem(MultitouchSetting).value().toBool());

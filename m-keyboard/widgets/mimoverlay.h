@@ -17,9 +17,7 @@
 #ifndef MIMOVERLAY_H
 #define MIMOVERLAY_H
 
-#include <MWidget>
-
-class MSceneWindow;
+#include <MSceneWindow>
 
 /*!
   * \brief The MImOverLay class could be used to show an plain translucent overlay widget.
@@ -27,7 +25,7 @@ class MSceneWindow;
   * MImOverlay is a translucent overlay widget, fully covering the visible screen area. While visible,
   * it prevents mouse and touch events from reaching the virtual keyboard or the application.
 */
-class MImOverlay : public MWidget
+class MImOverlay : public MSceneWindow
 {
     Q_OBJECT
 
@@ -57,9 +55,6 @@ protected:
     /*! \reimp */
     virtual bool sceneEvent(QEvent *event);
     /*! \reimp_end */
-
-    //! parent scene window.
-    MSceneWindow * parentWindow;
 
 private:
     Q_DISABLE_COPY(MImOverlay)

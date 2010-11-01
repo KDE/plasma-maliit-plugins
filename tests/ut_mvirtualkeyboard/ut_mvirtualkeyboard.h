@@ -27,9 +27,27 @@
 class MApplication;
 class MVirtualKeyboard;
 class MVirtualKeyboardStyleContainer;
+class MImAbstractKeyArea;
 class QGraphicsScene;
 class LayoutSection;
 class MSceneWindow;
+
+// Helper class
+class ReactionMapPainter
+    : public QObject
+{
+    Q_OBJECT
+
+private:
+    MVirtualKeyboard *vkb;
+
+public:
+    explicit ReactionMapPainter(MVirtualKeyboard *vkb);
+    virtual ~ReactionMapPainter();
+
+public slots:
+    void paintReactionMap();
+};
 
 class Ut_MVirtualKeyboard : public QObject
 {
@@ -37,6 +55,7 @@ class Ut_MVirtualKeyboard : public QObject
 private:
     MApplication *app;
     MVirtualKeyboard *m_vkb;
+    ReactionMapPainter *m_reactionMapPainter;
     MSceneWindow *vkbParent;
     MVirtualKeyboardStyleContainer *vkbStyleContainer;
     const LayoutData::SharedLayoutSection functionkeySection;
@@ -87,6 +106,7 @@ signals:
 
 private:
     void rotateToAngle(M::OrientationAngle angle);
+    void resetKeyAreaStyle(MImAbstractKeyArea *area);
 };
 
 #endif

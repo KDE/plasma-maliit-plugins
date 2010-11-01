@@ -347,6 +347,7 @@ private:
     friend class MReactionMapTester;
     friend class Ut_MImAbstractKeyArea;
     friend class Ut_SymbolView;
+    friend class Ut_MVirtualKeyboard;
     friend class Bm_MImAbstractKeyArea; //benchmarks
 #endif
 };

@@ -25,6 +25,7 @@
 
 #include "mimabstractkeyarea.h"
 #include "widgetbar.h"
+#include "mimoverlay.h"
 
 #include <MButton>
 #include <MDeviceProfile>
@@ -314,11 +315,20 @@ bool MReactionMapTester::testReactionMapGrid(const QGraphicsView *view,
                 && !subject->isAncestorOf(item)) {
                 // We are not interested in this scene item.
                 // It's probably the parent scene window.
-                const MButton *m = dynamic_cast<const MButton*>(item);
-                if (m) {
+                if (const MButton *m = dynamic_cast<const MButton *>(item)) {
                     qDebug() << "skip" << m << m->text() << scenePoint << region;
                 }
                 item = 0;
+            } else if (const MImOverlay *overlay = dynamic_cast<const MImOverlay *>(item)) {
+                qDebug() << "skip MImOverlay " << overlay << scenePoint << region;
+                ++skipCount;
+                continue;
+            } else if (const MImAbstractKeyArea *area = dynamic_cast<const MImAbstractKeyArea *>(item)) {
+                if (area->objectName() == "VirtualKeyboardExtendedArea") {
+                    qDebug() << "skip ExtendedKeys - cannot draw reaction maps ATM";
+                    ++skipCount;
+                    continue;
+                }
             }
 
             // If we hit MLabel take the parent item which may be MButton or WidgetBar
@@ -338,8 +348,7 @@ bool MReactionMapTester::testReactionMapGrid(const QGraphicsView *view,
             if (!item) {
                 // No scene item -> we should be transparent
                 expectedColor = Transparent;
-            } else if (dynamic_cast<const MButton *>(item)
-                       || (kba && kba->keyAt(kba->mapFromScene(scenePoint).toPoint()))) {
+            } else if ((kba && kba->keyAt(kba->mapFromScene(scenePoint).toPoint()))) {
                 // Buttons should always have reactive color.
                 expectedColor = ReactivePressRelease;
             } else {
