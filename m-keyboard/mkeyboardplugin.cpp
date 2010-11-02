@@ -52,10 +52,10 @@ MKeyboardPlugin::createInputMethod(MAbstractInputMethodHost *host)
     return inputMethod;
 }
 
-MInputMethodSettingsBase *MKeyboardPlugin::createInputMethodSettings()
+MAbstractInputMethodSettings *MKeyboardPlugin::createInputMethodSettings()
 {
     loadTranslation();
-    MInputMethodSettingsBase *inputMethodSettings = new MKeyboardSettings;
+    MAbstractInputMethodSettings *inputMethodSettings = new MKeyboardSettings;
     return inputMethodSettings;
 }
 

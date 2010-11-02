@@ -20,17 +20,17 @@
 #include <QObject>
 #include <MWidget>
 #include <MGConfItem>
-#include <minputmethodsettingsbase.h>
+#include <mabstractinputmethodsettings.h>
 
 class QGraphicsWidget;
 
 /*!
  * \brief MKeyboardSettings is the implemetation of meego-keyboard setting.
- * MKeyboardSettings implement MInputMethodSettingsBase and create the meego-keyboard
+ * MKeyboardSettings implement MAbstractInputMethodSettings and create the meego-keyboard
  * setting. It provides below functionalities: get/set error corretion, get/set
  * installed (selected) keyboards.
  */
-class MKeyboardSettings: public QObject, public MInputMethodSettingsBase
+class MKeyboardSettings: public QObject, public MAbstractInputMethodSettings
 {
     Q_OBJECT
     Q_DISABLE_COPY(MKeyboardSettings)
