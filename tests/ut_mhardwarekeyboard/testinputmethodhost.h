@@ -139,6 +139,14 @@ public:
     virtual void switchPlugin(const QString & /*pluginName*/)
     {
     }
+    
+    virtual void setScreenRegion(const QRegion & /*region*/)
+    {
+    }
+
+    virtual void setInputMethodArea(const QRegion & /*region*/)
+    {
+    }
 
     virtual void showSettings()
     {

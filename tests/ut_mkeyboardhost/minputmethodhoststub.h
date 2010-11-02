@@ -57,6 +57,8 @@ public:
 
     virtual void switchPlugin(MInputMethod::SwitchDirection direction);
     virtual void switchPlugin(const QString &pluginName);
+    virtual void setScreenRegion(const QRegion &region);
+    virtual void setInputMethodArea(const QRegion &region);
     virtual void showSettings();
 
     QString preedit;
@@ -77,6 +79,8 @@ public:
     int addRedirectedKeyCalls;
     int removeRedirectedKeyCalls;
     int setNextKeyRedirectedCalls;
+    int setScreenRegionCalls;
+    int setInputMethodAreaCalls;
 
     bool predictionEnabled_;
     bool correctionEnabled_;

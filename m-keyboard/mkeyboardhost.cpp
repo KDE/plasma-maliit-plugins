@@ -1233,7 +1233,7 @@ void MKeyboardHost::handleRegionUpdate(const QRegion &region)
 
 void MKeyboardHost::handleRegionUpdate()
 {
-    emit regionUpdated(combineRegion());
+    inputMethodHost()->setScreenRegion(combineRegion());
     updateReactionMaps();
 }
 
@@ -1247,7 +1247,7 @@ void MKeyboardHost::handleInputMethodAreaUpdate(const QRegion &region)
 
 void MKeyboardHost::handleInputMethodAreaUpdate()
 {
-    emit inputMethodAreaUpdated(combineInputMethodArea());
+    inputMethodHost()->setInputMethodArea(combineInputMethodArea());
 }
 
 void MKeyboardHost::switchPlugin(MInputMethod::SwitchDirection direction)

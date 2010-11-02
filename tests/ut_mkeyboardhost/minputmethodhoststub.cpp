@@ -60,6 +60,8 @@ void MInputMethodHostStub::clear()
     textSelected = false;
     keyRedirectionEnabled = false;
     indicator = MInputMethod::NoIndicator;
+    setScreenRegionCalls = 0;
+    setInputMethodAreaCalls = 0;
 }
 
 void MInputMethodHostStub::sendPreeditString(const QString &string,
@@ -178,6 +180,18 @@ void MInputMethodHostStub::switchPlugin(MInputMethod::SwitchDirection direction)
 void MInputMethodHostStub::switchPlugin(const QString &pluginName)
 {
     Q_UNUSED(pluginName);
+}
+
+void MInputMethodHostStub::setScreenRegion(const QRegion &region)
+{
+    Q_UNUSED(region);
+    setScreenRegionCalls++;
+}
+
+void MInputMethodHostStub::setInputMethodArea(const QRegion &region)
+{
+    Q_UNUSED(region);
+    setInputMethodAreaCalls++;
 }
 
 void MInputMethodHostStub::showSettings()
