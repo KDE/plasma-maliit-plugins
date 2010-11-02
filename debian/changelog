@@ -6,6 +6,7 @@ meego-keyboard (0.5.9~1) unstable; urgency=low
   * Implemented: SWP#TINME-1133
   * Implemented: SWP#TINME-1139
   * Implemented: SWP#TINME-1137
+  * Adapated to im framework API changes. Depends on 0.19.27.
 
  -- huaming wang <huaming.wang@nokia.com>  Thu, 28 Oct 2010 11:29:16 +0300
 
