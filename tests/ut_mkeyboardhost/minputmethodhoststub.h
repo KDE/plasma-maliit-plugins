@@ -80,7 +80,9 @@ public:
     int removeRedirectedKeyCalls;
     int setNextKeyRedirectedCalls;
     int setScreenRegionCalls;
+    QList<QRegion> screenRegions;
     int setInputMethodAreaCalls;
+    QList<QRegion> inputMethodAreas;
 
     bool predictionEnabled_;
     bool correctionEnabled_;

@@ -114,6 +114,12 @@ public:
         TriggerAutoCaps
     };
 
+    enum RegionType {
+        ScreenRegion,
+        InputMethodArea
+    };
+
+    QRegion region(RegionType type, int index);
     typedef QList<TestOperation> TestOpList;
 };
 

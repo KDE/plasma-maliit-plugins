@@ -656,41 +656,46 @@ void Ut_MKeyboardHost::testPlusMinus()
     QCOMPARE(inputMethodHost->keyEvents.at(1)->type(), QEvent::KeyRelease);
 }
 
-static QRegion region(const QSignalSpy &spy, int index)
+QRegion Ut_MKeyboardHost::region(RegionType type, int index)
 {
-    return spy.at(index).at(0).value<QRegion>();
+    switch(type) {
+    case ScreenRegion:
+        return inputMethodHost->screenRegions.at(index);
+        break;
+
+    case InputMethodArea:
+        return inputMethodHost->inputMethodAreas.at(index);
+        break;
+    }
 }
 
 void Ut_MKeyboardHost::testRegionSignals()
 {
-    qRegisterMetaType<QRegion>("QRegion");
-    QSignalSpy spy(subject, SIGNAL(regionUpdated(QRegion)));
-    QSignalSpy spy2(subject, SIGNAL(inputMethodAreaUpdated(QRegion)));
-
-    // Counts for signal spy
-    int c1 = 0;
-    int c2 = 0;
+    // method call counts for region stuff
+    int c1 = 0; // region updated
+    int c2 = 0; // input method area updated
 
     subject->show();
     ++c1;
     ++c2;
+
     // We must immediately get non-empty region so that passthrough window
     // is made visible right before the animation starts.
-    QCOMPARE(spy.count(), c1);
-    QCOMPARE(spy2.count(), c2);
-
-    QCOMPARE(region(spy, c1 - 1), region(spy2, 0));
-    QVERIFY(!region(spy, c1 - 1).isEmpty());
+    QCOMPARE(inputMethodHost->setScreenRegionCalls, c1);
+    QCOMPARE(inputMethodHost->setInputMethodAreaCalls, c2);
+    QCOMPARE(region(ScreenRegion, c1 - 1), region(InputMethodArea, 0));
+    QVERIFY(!region(ScreenRegion, c1 - 1).isEmpty());
 
     // We must get another region when the vkb is fully visible
     QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
     ++c1;
     ++c2;
-    QCOMPARE(spy.count(), c1);
-    QCOMPARE(spy2.count(), c2);
-    qDebug() << "Passthrough region: " << region(spy, 1);
-    qDebug() << "libmeegotouch region: " << region(spy2, 1);
-    QVERIFY((region(spy, c1 - 1) - region(spy2, 1)).isEmpty());
+    QCOMPARE(inputMethodHost->setScreenRegionCalls, c1);
+    QCOMPARE(inputMethodHost->setInputMethodAreaCalls, c2);
+
+    qDebug() << "Passthrough region: " << region(ScreenRegion, 1);
+    qDebug() << "libmeegotouch region: " << region(InputMethodArea, 1);
+    QVERIFY((region(ScreenRegion, c1 - 1) - region(InputMethodArea, 1)).isEmpty());
 
     // In normal input method mode there is no invisible handle with non-zero area
     const QRect zeroSizeInvisibleHandleRect(
@@ -706,28 +711,28 @@ void Ut_MKeyboardHost::testRegionSignals()
     subject->sharedHandleArea->setInputMethodMode(M::InputMethodModeDirect);
     ++c1;
     ++c2;
-    QCOMPARE(spy.count(), c1);
-    QCOMPARE(spy2.count(), c2);
+    QCOMPARE(inputMethodHost->setScreenRegionCalls, c1);
+    QCOMPARE(inputMethodHost->setInputMethodAreaCalls, c2);
 
     const QRect invisibleHandleRect(
         dynamic_cast<QGraphicsWidget*>(subject->sharedHandleArea->layout()->itemAt(0))
         ->geometry().toRect());
     QVERIFY(!invisibleHandleRect.isEmpty());
     const QRegion invisibleHandleRegion(
-        invisibleHandleRect.translated(0, (region(spy2, 0).boundingRect().top()
+        invisibleHandleRect.translated(0, (region(InputMethodArea, 0).boundingRect().top()
                                            - invisibleHandleRect.height())));
 
-    QCOMPARE(region(spy, c1 - 1), region(spy2, c2 - 1) + invisibleHandleRegion);
+    QCOMPARE(region(ScreenRegion, c1 - 1), region(InputMethodArea, c2 - 1) + invisibleHandleRegion);
 
     subject->vkbWidget->setInputMethodMode(M::InputMethodModeNormal);
     subject->sharedHandleArea->setInputMethodMode(M::InputMethodModeNormal);
     ++c1;
     ++c2;
-    QCOMPARE(spy.count(), c1);
-    QCOMPARE(spy2.count(), c2);
+    QCOMPARE(inputMethodHost->setScreenRegionCalls, c1);
+    QCOMPARE(inputMethodHost->setInputMethodAreaCalls, c2);
 
-    QCOMPARE(region(spy, c1 - 1), region(spy2, c2 - 1));
-    QCOMPARE(region(spy, c1 - 1), region(spy2, c1 - 3));
+    QCOMPARE(region(ScreenRegion, c1 - 1), region(InputMethodArea, c2 - 1));
+    QCOMPARE(region(ScreenRegion, c1 - 1), region(InputMethodArea, c1 - 3));
 #endif
 
     // In opaque mode, candidate widget has its own window, so no regions are sent to kbhost.
@@ -735,57 +740,60 @@ void Ut_MKeyboardHost::testRegionSignals()
     // Ditto for correction candidate widget
     subject->correctionCandidateWidget->showWidget();
     ++c1;
-    QCOMPARE(spy.count(), c1);
-    QCOMPARE(spy2.count(), c2);
+    QCOMPARE(inputMethodHost->setScreenRegionCalls, c1);
+    QCOMPARE(inputMethodHost->setInputMethodAreaCalls, c2);
 
     subject->correctionCandidateWidget->hide();
     ++c1;
-    QCOMPARE(spy.count(), c1);
-    QCOMPARE(spy2.count(), c2);
-    QCOMPARE(region(spy, c1 - 1), region(spy2, c2 - 1));
+    QCOMPARE(inputMethodHost->setScreenRegionCalls, c1);
+    QCOMPARE(inputMethodHost->setInputMethodAreaCalls, c2);
+    QCOMPARE(region(ScreenRegion, c1 - 1), region(InputMethodArea, c2 - 1));
 #endif
 
     // But symbol view also changes input method area
     const int c1BeforeSymOpen = c1;
     subject->showSymbolView();
-    waitForSignal(subject, SIGNAL(regionUpdated(const QRegion &)));
+    QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
+
     ++c1;
     ++c2;
-    QCOMPARE(spy.count(), c1);
-    QCOMPARE(spy2.count(), c2);
+    QCOMPARE(inputMethodHost->setScreenRegionCalls, c1);
+    QCOMPARE(inputMethodHost->setInputMethodAreaCalls, c2);
+
     subject->symbolView->hideSymbolView();
-    waitForSignal(subject, SIGNAL(regionUpdated(const QRegion &)));
+    QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
     ++c1;
     ++c2;
-    QCOMPARE(spy.count(), c1);
-    QCOMPARE(spy2.count(), c2);
+    QCOMPARE(inputMethodHost->setScreenRegionCalls, c1);
+    QCOMPARE(inputMethodHost->setInputMethodAreaCalls, c2);
+
     // the same as before opening it
-    QCOMPARE(region(spy, c1BeforeSymOpen - 1), region(spy, c1 - 1));
+    QCOMPARE(region(ScreenRegion, c1BeforeSymOpen - 1), region(ScreenRegion, c1 - 1));
 
     // Hide the keyboard -> empty region and input method area
     subject->hide();
     QTest::qWait(MVirtualKeyboard::ShowHideTime + 50); // really hidden after animation is finished
     ++c1;
     ++c2;
-    QCOMPARE(spy.count(), c1);
-    QCOMPARE(spy2.count(), c2);
-    QCOMPARE(region(spy, c1 - 1), QRegion());
-    QCOMPARE(region(spy2, c2 - 1), QRegion());
+    QCOMPARE(inputMethodHost->setScreenRegionCalls, c1);
+    QCOMPARE(inputMethodHost->setInputMethodAreaCalls, c2);
+    QCOMPARE(region(ScreenRegion, c1 - 1), QRegion());
+    QCOMPARE(region(InputMethodArea, c2 - 1), QRegion());
 
     // Regions and rotation
 
     // Preparation: store 270deg-angle region obtained as safely as possible
-    spy.clear();
-    spy2.clear();
+    inputMethodHost->clear();
+
     rotateToAngle(M::Angle270);
     subject->show();
     QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
 
-    QCOMPARE(spy.count(), 2);
-    QCOMPARE(spy2.count(), 2);
-    QCOMPARE(region(spy, 1), region(spy2, 1));
+    QCOMPARE(inputMethodHost->setScreenRegionCalls, 2);
+    QCOMPARE(inputMethodHost->setInputMethodAreaCalls, 2);
+    QCOMPARE(region(ScreenRegion, 1), region(InputMethodArea, 1));
 
-    QRegion region270(region(spy, 1));
+    QRegion region270(region(ScreenRegion, 1));
     subject->hide();
     QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
     rotateToAngle(M::Angle0);
@@ -794,8 +802,8 @@ void Ut_MKeyboardHost::testRegionSignals()
 
     subject->show();
     QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
-    spy.clear();
-    spy2.clear();
+
+    inputMethodHost->clear();
 
     // Rotate three times repeatedly with long and short waits in between.  We
     // should end up with a region identical to that stored in region270.  The
@@ -810,19 +818,25 @@ void Ut_MKeyboardHost::testRegionSignals()
     qDebug() << "Waiting for rotation animation to finish...";
     QTest::qWait(SceneRotationTime); // wait until rotation animation is finished
     qDebug() << "Waiting for rotation animation to finish...done!";
+
     // Sanity checks
     qDebug() << "Orientations finished:" << orientationSpy.count();
+
     QCOMPARE(window->orientationAngle(), M::Angle270);
-    QVERIFY(spy.count() > 0);
-    QCOMPARE(spy.count(), spy2.count());
+    QVERIFY(inputMethodHost->setScreenRegionCalls > 0);
+    QCOMPARE(inputMethodHost->setInputMethodAreaCalls, inputMethodHost->setScreenRegionCalls);
+
     qDebug() << "Region after animation is finished:" << subject->vkbWidget->region();
+
     // Now, is the region sane after those consequtive rotations?
-    QCOMPARE(region(spy, spy.count() - 1), region(spy2, spy2.count() - 1));
+    QCOMPARE(region(ScreenRegion, inputMethodHost->setScreenRegionCalls - 1),
+             region(InputMethodArea, inputMethodHost->setInputMethodAreaCalls - 1));
+
     // Remove the next two lines when QCOMPARE is enabled
-    qDebug() << "Actual region:" << region(spy, spy.count() - 1);
+    qDebug() << "Actual region:" << region(ScreenRegion, inputMethodHost->setScreenRegionCalls - 1);
     qDebug() << "Expected region:" << region270;
     // This fails at the moment. libmeegotouch/Qt bug suspected.
-    //QCOMPARE(region(spy, spy.count() - 1), region270);
+    //QCOMPARE(region(ScreenRegion, spy.count() - 1), region270);
 }
 
 void Ut_MKeyboardHost::testSetState_data()
@@ -1472,9 +1486,6 @@ void Ut_MKeyboardHost::testHandleHwKeyboardStateChanged()
 
 void Ut_MKeyboardHost::testUserHide()
 {
-    QSignalSpy spy(subject, SIGNAL(regionUpdated(QRegion)));
-    QVERIFY(spy.isValid());
-
     subject->show();
     QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
 
@@ -1484,8 +1495,8 @@ void Ut_MKeyboardHost::testUserHide()
     QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
     QVERIFY(!subject->vkbWidget->isVisible());
 
-    QVERIFY(!spy.isEmpty());
-    QVERIFY(region(spy, spy.count() - 1).isEmpty());
+    QVERIFY(inputMethodHost->setScreenRegionCalls > 0);
+    QVERIFY(region(ScreenRegion, inputMethodHost->setScreenRegionCalls - 1).isEmpty());
 }
 
 void Ut_MKeyboardHost::testWYTIWYSErrorCorrection()
