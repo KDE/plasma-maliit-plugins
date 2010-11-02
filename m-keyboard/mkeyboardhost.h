@@ -53,22 +53,22 @@ public:
     virtual ~MKeyboardHost();
 
     //! reimp
-    virtual void focusChanged(bool focusIn);
+    virtual void handleFocusChange(bool focusIn);
     virtual void show();
     virtual void hide();
     virtual void setPreedit(const QString &preeditString);
     virtual void update();
     virtual void reset();
-    virtual void mouseClickedOnPreedit(const QPoint &mousePos, const QRect &preeditRect);
-    virtual void visualizationPriorityChanged(bool priority);
-    virtual void appOrientationChanged(int angle);
+    virtual void handleMouseClickOnPreedit(const QPoint &mousePos, const QRect &preeditRect);
+    virtual void handleVisualizationPriorityChange(bool priority);
+    virtual void handleAppOrientationChange(int angle);
     virtual void setToolbar(QSharedPointer<const MToolbarData> toolbar);
     virtual void setState(const QSet<MInputMethod::HandlerState> &state);
     virtual void processKeyEvent(QEvent::Type keyType, Qt::Key keyCode,
                                  Qt::KeyboardModifiers modifiers,
                                  const QString &text, bool autoRepeat, int count,
                                  quint32 nativeScanCode, quint32 nativeModifiers);
-    virtual void clientChanged();
+    virtual void handleClientChange();
     virtual void switchContext(MInputMethod::SwitchDirection direction, bool enableAnimation);
     virtual QList<MAbstractInputMethod::MInputMethodSubView> subViews(MInputMethod::HandlerState state
                                                                   = MInputMethod::OnScreen) const;

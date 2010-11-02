@@ -416,7 +416,7 @@ void Ut_MKeyboardHost::testNotCrash()
     subject->reset();
     subject->setPreedit("string");
     subject->initializeInputEngine();
-    subject->mouseClickedOnPreedit(QPoint(0, 0), QRect(0, 0, 1, 1));
+    subject->handleMouseClickOnPreedit(QPoint(0, 0), QRect(0, 0, 1, 1));
 }
 
 void Ut_MKeyboardHost::testErrorCorrectionOption()
@@ -613,7 +613,7 @@ void Ut_MKeyboardHost::testApplicationOrientationChanged()
 
     for (int i = 0; i < 5; ++i) {
         M::OrientationAngle currentAngle = angles[i % 4];
-        im->appOrientationChanged(static_cast<int>(currentAngle));
+        im->handleAppOrientationChange(static_cast<int>(currentAngle));
         QTest::qWait(1500);
         QCOMPARE(currentAngle, MPlainWindow::instance()->orientationAngle());
     }
@@ -1224,7 +1224,7 @@ void Ut_MKeyboardHost::testShiftStateOnFocusChanged()
 
     subject->vkbWidget->setShiftState(initialShiftState);
 
-    subject->focusChanged(true);
+    subject->handleFocusChange(true);
     inputMethodHost->surroundingString = surroundingString;
     inputMethodHost->autoCapitalizationEnabled_ = autoCapitalizationEnabled;
     inputMethodHost->cursorPos = cursorPosition;
@@ -1300,7 +1300,7 @@ void Ut_MKeyboardHost::testShiftStateOnLayoutChanged()
 
 void Ut_MKeyboardHost::rotateToAngle(M::OrientationAngle angle)
 {
-    subject->appOrientationChanged(angle);
+    subject->handleAppOrientationChange(angle);
     QTest::qWait(SceneRotationTime); // wait until rotation animation is finished
 }
 
@@ -1431,7 +1431,7 @@ void Ut_MKeyboardHost::testHandleHwKeyboardStateChanged()
     QSet<MInputMethod::HandlerState> states;
     states << MInputMethod::Hardware;
     subject->setState(states);
-    subject->focusChanged(true);
+    subject->handleFocusChange(true);
     gShowLockOnInfoBannerCallCount = 0;
 
     for (int i = 0; i < shiftClickedCount;  i++) {

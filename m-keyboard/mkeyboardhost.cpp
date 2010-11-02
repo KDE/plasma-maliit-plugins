@@ -396,7 +396,7 @@ void MKeyboardHost::createCorrectionCandidateWidget()
 }
 
 
-void MKeyboardHost::focusChanged(bool focusIn)
+void MKeyboardHost::handleFocusChange(bool focusIn)
 {
     haveFocus = focusIn;
     if (activeState == MInputMethod::OnScreen) {
@@ -733,7 +733,7 @@ bool MKeyboardHost::rotateRect(const QRect &screenRect, QRect &windowRect)
 }
 
 
-void MKeyboardHost::mouseClickedOnPreedit(const QPoint &mousePos, const QRect &preeditRect)
+void MKeyboardHost::handleMouseClickOnPreedit(const QPoint &mousePos, const QRect &preeditRect)
 {
     if (candidates.size() <= 1)
         return;
@@ -761,14 +761,14 @@ void MKeyboardHost::mouseClickedOnPreedit(const QPoint &mousePos, const QRect &p
 }
 
 
-void MKeyboardHost::visualizationPriorityChanged(bool priority)
+void MKeyboardHost::handleVisualizationPriorityChange(bool priority)
 {
     vkbWidget->setTemporarilyHidden(priority);
     symbolView->setTemporarilyHidden(priority);
 }
 
 
-void MKeyboardHost::appOrientationChanged(int angle)
+void MKeyboardHost::handleAppOrientationChange(int angle)
 {
     // The application receiving input has changed its orientation. Let's change ours.
     MPlainWindow::instance()->setOrientationAngle((M::OrientationAngle)angle);
@@ -1289,7 +1289,7 @@ void MKeyboardHost::processKeyEvent(QEvent::Type keyType, Qt::Key keyCode,
     }
 }
 
-void MKeyboardHost::clientChanged()
+void MKeyboardHost::handleClientChange()
 {
     hardwareKeyboard->clientChanged();
     resetInternalState();
