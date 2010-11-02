@@ -1,20 +1,21 @@
 WIDGETS_DIR = ./widgets
 
-INSTALL_HEADERS += \
+PUBLIC_HEADERS += \
     $$WIDGETS_DIR/mimabstractkey.h \
     $$WIDGETS_DIR/popupbase.h \
-    $$WIDGETS_DIR/mvirtualkeyboardstyle.h \
-    $$WIDGETS_DIR/mimabstractkeyareastyle.h \
     $$WIDGETS_DIR/popupplugin.h \
     $$WIDGETS_DIR/mimoverlay.h \
     $$WIDGETS_DIR/mimabstractkeyarea.h \
     $$WIDGETS_DIR/mimkey.h \
     $$WIDGETS_DIR/mimkeyarea.h \
 
-STYLE_HEADERS += \
-    $$WIDGETS_DIR/widgetbarstyle.h \
+PUBLIC_STYLE_HEADERS += \
     $$WIDGETS_DIR/mvirtualkeyboardstyle.h \
     $$WIDGETS_DIR/mimabstractkeyareastyle.h \
+
+STYLE_HEADERS += \
+    $$PUBLIC_STYLE_HEADERS \
+    $$WIDGETS_DIR/widgetbarstyle.h \
     $$WIDGETS_DIR/handlestyle.h \
     $$WIDGETS_DIR/mtoolbarbuttonstyle.h \
     $$WIDGETS_DIR/mimtoolbarstyle.h \
@@ -23,7 +24,7 @@ STYLE_HEADERS += \
     $$WIDGETS_DIR/mtoolbarlabelstyle.h \
 
 HEADERS += \
-    $$INSTALL_HEADERS \
+    $$PUBLIC_HEADERS \
     $$STYLE_HEADERS \
     $$WIDGETS_DIR/widgetbar.h \
     $$WIDGETS_DIR/mimcorrectioncandidatewindow.h \
@@ -35,7 +36,6 @@ HEADERS += \
     $$WIDGETS_DIR/horizontalswitcher.h \
     $$WIDGETS_DIR/notification.h \
     $$WIDGETS_DIR/symbolview.h \
-    $$WIDGETS_DIR/mimabstractkeyarea.h \
     $$WIDGETS_DIR/mimkey.h \
     $$WIDGETS_DIR/mimkeyarea.h \
     $$WIDGETS_DIR/popupfactory.h \
@@ -47,8 +47,9 @@ HEADERS += \
     $$WIDGETS_DIR/sharedhandlearea.h \
     $$WIDGETS_DIR/mkeyboardsettingswidget.h \
     $$WIDGETS_DIR/getcssproperty.h \
-    $$WIDGETS_DIR/mimoverlay.h \
     $$WIDGETS_DIR/mtoolbarlabelview.h \
+
+INSTALL_HEADERS += $$PUBLIC_HEADERS + $$PUBLIC_STYLE_HEADERS
 
 SOURCES += \
     $$WIDGETS_DIR/widgetbar.cpp \
