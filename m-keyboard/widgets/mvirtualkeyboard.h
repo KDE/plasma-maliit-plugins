@@ -145,7 +145,7 @@ public:
     bool symViewAvailable() const;
 
     /*!
-     * Switch layout to given direction, \sa MInputMethodBase::swipe
+     * Switch layout to given direction, \sa MAbstractInputMethod::swipe
      */
     void switchLayout(MInputMethod::SwitchDirection direction, bool enableAnimation);
 
@@ -294,10 +294,10 @@ signals:
      */
     void keyClicked(const KeyEvent &event);
 
-    //! \see MInputMethodBase::regionUpdated()
+    //! \see MAbstractInputMethod::regionUpdated()
     void regionUpdated(const QRegion &);
 
-    //! \see MInputMethodBase::inputMethodAreaUpdated()
+    //! \see MAbstractInputMethod::inputMethodAreaUpdated()
     void inputMethodAreaUpdated(const QRegion &);
 
     //! This signal is emitted when input layout is changed

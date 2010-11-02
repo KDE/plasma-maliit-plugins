@@ -145,7 +145,7 @@ void MKeyboardHost::CycleKeyHandler::commitCycleKey()
 }
 
 MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
-    : MInputMethodBase(imHost, parent),
+    : MAbstractInputMethod(imHost, parent),
       vkbStyleContainer(0),
       correctionCandidateWidget(0),
       vkbWidget(0),
@@ -1543,15 +1543,15 @@ void MKeyboardHost::hideLockOnInfoBanner()
     modifierLockOnBanner = 0;
 }
 
-QList<MInputMethodBase::MInputMethodSubView>
+QList<MAbstractInputMethod::MInputMethodSubView>
 MKeyboardHost::subViews(MInputMethod::HandlerState state) const
 {
-    QList<MInputMethodBase::MInputMethodSubView> sViews;
+    QList<MAbstractInputMethod::MInputMethodSubView> sViews;
     if (state == MInputMethod::OnScreen) {
         QMap<QString, QString> selectedLayouts = LayoutsManager::instance().selectedLayouts();
         QMap<QString, QString>::const_iterator i = selectedLayouts.constBegin();
         while (i != selectedLayouts.constEnd()) {
-            MInputMethodBase::MInputMethodSubView subView;
+            MAbstractInputMethod::MInputMethodSubView subView;
             subView.subViewId = i.key();
             subView.subViewTitle = i.value();
             sViews.append(subView);

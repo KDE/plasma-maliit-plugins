@@ -97,7 +97,7 @@ public:
      */
     void reset();
 
-    //! \brief MInputMethodBase::clientChanged implementation
+    //! \brief MAbstractInputMethod::clientChanged implementation
     void clientChanged();
 
     /*!

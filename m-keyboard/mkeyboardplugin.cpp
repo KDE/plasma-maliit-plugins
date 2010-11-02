@@ -42,12 +42,12 @@ QStringList MKeyboardPlugin::languages() const
 }
 
 
-MInputMethodBase *
+MAbstractInputMethod *
 MKeyboardPlugin::createInputMethod(MAbstractInputMethodHost *host)
 {
     loadTranslation();
     mTimestamp("MKeyboardPlugin", "start");
-    MInputMethodBase *inputMethod = new MKeyboardHost(host);
+    MAbstractInputMethod *inputMethod = new MKeyboardHost(host);
     mTimestamp("MKeyboardPlugin", "end");
     return inputMethod;
 }

@@ -617,7 +617,7 @@ void Ut_MKeyboardHost::testAutoCaps()
 
 void Ut_MKeyboardHost::testApplicationOrientationChanged()
 {
-    MInputMethodBase *im = subject;
+    MAbstractInputMethod *im = subject;
     M::OrientationAngle angles[] = { M::Angle0, M::Angle90, M::Angle180, M::Angle270 };
 
     for (int i = 0; i < 5; ++i) {

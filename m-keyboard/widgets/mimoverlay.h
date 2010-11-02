@@ -49,7 +49,7 @@ signals:
     /*!
      * \breif Updates the screen region used by the widget.
      *
-     * \see MInputMethodBase::regionUpdated()
+     * \see MAbstractInputMethod::regionUpdated()
      */
     void regionUpdated(const QRegion &);
 

@@ -40,7 +40,7 @@ public:
     //! \reimp
     virtual QString name() const;
     virtual QStringList languages() const;
-    virtual MInputMethodBase *createInputMethod(MAbstractInputMethodHost *host);
+    virtual MAbstractInputMethod *createInputMethod(MAbstractInputMethodHost *host);
     virtual MInputMethodSettingsBase *createInputMethodSettings();
     virtual QSet<MInputMethod::HandlerState> supportedStates() const;
     //! \reimp_end

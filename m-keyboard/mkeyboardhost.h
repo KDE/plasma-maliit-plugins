@@ -20,7 +20,7 @@
 #define MKEYBOARDHOST_H
 
 #include "mkeyboardcommon.h"
-#include "minputmethodbase.h"
+#include "mabstractinputmethod.h"
 #include "keyevent.h"
 #include <MNamespace>
 #include <QStringList>
@@ -44,7 +44,7 @@ class MAbstractInputMethodHost;
 
 
 //! Logic class for virtual keyboard
-class MKeyboardHost: public MInputMethodBase
+class MKeyboardHost: public MAbstractInputMethod
 {
     Q_OBJECT
 
@@ -70,7 +70,7 @@ public:
                                  quint32 nativeScanCode, quint32 nativeModifiers);
     virtual void clientChanged();
     virtual void switchContext(MInputMethod::SwitchDirection direction, bool enableAnimation);
-    virtual QList<MInputMethodBase::MInputMethodSubView> subViews(MInputMethod::HandlerState state
+    virtual QList<MAbstractInputMethod::MInputMethodSubView> subViews(MInputMethod::HandlerState state
                                                                   = MInputMethod::OnScreen) const;
     virtual void setActiveSubView(const QString &,
                                   MInputMethod::HandlerState state = MInputMethod::OnScreen);
@@ -132,7 +132,7 @@ private slots:
     virtual void sendCopyPaste(CopyPasteState action);
 
     /*! Receive region updates from widgets, combine them and signal as input method's region
-     * using \a MInputMethodBase::regionUpdated.
+     * using \a MAbstractInputMethod::regionUpdated.
      *
      * \param region updated region
      */
@@ -143,7 +143,7 @@ private slots:
 
     /*!
      * Receive region updates from widgets, combine them and signal as input
-     * method area using \a MInputMethodBase::inputMethodAreaUpdated.
+     * method area using \a MAbstractInputMethod::inputMethodAreaUpdated.
      *
      * \param region updated region
      */
