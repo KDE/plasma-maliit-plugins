@@ -20,9 +20,6 @@
 #include "mvirtualkeyboardstyle.h"
 #include "mvirtualkeyboard.h"
 #include "mhardwarekeyboard.h"
-#ifdef M_IM_DISABLE_TRANSLUCENCY
-#include "mimcorrectioncandidatewindow.h"
-#endif
 #include "mimcorrectioncandidatewidget.h"
 #include "keyboarddata.h"
 #include "layoutsmanager.h"
@@ -376,12 +373,6 @@ MKeyboardHost::~MKeyboardHost()
     sceneWindow = 0;
     delete vkbStyleContainer;
     vkbStyleContainer = 0;
-#ifdef M_IM_DISABLE_TRANSLUCENCY
-    delete correctionSceneWindow;
-    correctionSceneWindow = 0;
-    delete correctionWindow;
-    correctionWindow = 0;
-#endif
     delete inputMethodCorrectionSettings;
     inputMethodCorrectionSettings = 0;
     if (imCorrectionEngine) {
@@ -394,41 +385,12 @@ MKeyboardHost::~MKeyboardHost()
 
 void MKeyboardHost::createCorrectionCandidateWidget()
 {
-#ifdef M_IM_DISABLE_TRANSLUCENCY
-    // Use a separate translucent window for correction candidate widget
-    correctionWindow = new MImCorrectionCandidateWindow();
-    MWindow *correctionView = new MWindow(new MSceneManager, correctionWindow);
-    // Enable translucent in hardware rendering
-    correctionView->setTranslucentBackground(!MApplication::softwareRendering());
-
-    // No auto fill in software rendering
-    if (MApplication::softwareRendering())
-        correctionView->viewport()->setAutoFillBackground(false);
-    QSize sceneSize = correctionView->visibleSceneSize(M::Landscape);
-    int w = correctionView->visibleSceneSize().width();
-    int h = correctionView->visibleSceneSize().height();
-    correctionView->scene()->setSceneRect(0, 0, w, h);
-    correctionWindow->resize(sceneSize);
-    correctionView->setMinimumSize(1, 1);
-    correctionView->setMaximumSize(w, h);
-
-    correctionSceneWindow = new MSceneWindow;
-    correctionSceneWindow->setManagedManually(true); // we want the scene window to remain in origin
-    correctionView->sceneManager()->appearSceneWindowNow(correctionSceneWindow);
-
-    // construct correction candidate widget
-    correctionCandidateWidget = new MImCorrectionCandidateWidget(correctionSceneWindow);
-    correctionCandidateWidget->hide();
-    connect(correctionCandidateWidget, SIGNAL(regionUpdated(const QRegion &)),
-            correctionWindow, SLOT(handleRegionUpdate(const QRegion &)));
-#else
     // construct correction candidate widget
     correctionCandidateWidget = new MImCorrectionCandidateWidget(sceneWindow);
     correctionCandidateWidget->hide();
 
     connect(correctionCandidateWidget, SIGNAL(regionUpdated(const QRegion &)),
             this, SLOT(handleRegionUpdate(const QRegion &)));
-#endif
     connect(correctionCandidateWidget, SIGNAL(candidateClicked(const QString &)),
             this, SLOT(updatePreedit(const QString &)));
 }

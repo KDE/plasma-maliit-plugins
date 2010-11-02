@@ -27,7 +27,6 @@ HEADERS += \
     $$PUBLIC_HEADERS \
     $$STYLE_HEADERS \
     $$WIDGETS_DIR/widgetbar.h \
-    $$WIDGETS_DIR/mimcorrectioncandidatewindow.h \
     $$WIDGETS_DIR/mimcorrectioncandidatewidget.h \
     $$WIDGETS_DIR/mimcorrectioncandidateitem.h \
     $$WIDGETS_DIR/mimcorrectioncandidateitemview.h \
@@ -53,7 +52,6 @@ INSTALL_HEADERS += $$PUBLIC_HEADERS + $$PUBLIC_STYLE_HEADERS
 
 SOURCES += \
     $$WIDGETS_DIR/widgetbar.cpp \
-    $$WIDGETS_DIR/mimcorrectioncandidatewindow.cpp \
     $$WIDGETS_DIR/mimcorrectioncandidatewidget.cpp \
     $$WIDGETS_DIR/mimcorrectioncandidateitem.cpp \
     $$WIDGETS_DIR/mimcorrectioncandidateitemview.cpp \

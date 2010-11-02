@@ -330,10 +330,6 @@ private:
     bool shiftHeldDown;
 
     MSceneWindow *sceneWindow;
-#ifdef M_IM_DISABLE_TRANSLUCENCY
-    QWidget *correctionWindow;
-    MSceneWindow *correctionSceneWindow;
-#endif
 
     //! Regions of widgets created by MKeyboardHost
     RegionList widgetRegions;
