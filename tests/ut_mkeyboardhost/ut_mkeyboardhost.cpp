@@ -98,15 +98,6 @@ Q_DECLARE_METATYPE(ModifierState)
 Q_DECLARE_METATYPE(Ut_MKeyboardHost::TestOpList)
 Q_DECLARE_METATYPE(MInputMethod::InputModeIndicator)
 
-static void waitForSignal(const QObject* object, const char* signal, int timeout = 500)
-{
-    QEventLoop eventLoop;
-    QObject::connect(object, signal, &eventLoop, SLOT(quit()));
-    QTimer::singleShot(timeout, &eventLoop, SLOT(quit()));
-    eventLoop.exec();
-}
-
-
 // Stubbing..................................................................
 
 void MVirtualKeyboard::setKeyboardState(MInputMethod::HandlerState state)

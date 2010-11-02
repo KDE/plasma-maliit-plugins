@@ -22,6 +22,9 @@
 #include <mplainwindow.h>
 #include <MSceneWindow>
 #endif
+#include <QObject>
+#include <QTimer>
+#include <QEventLoop>
 #include <QApplication>
 #include <QCommonStyle>
 
@@ -41,6 +44,16 @@ void disableQtPlugins()
     // TODO: Check if hardwiring the QStyle can be removed at a later state.
     QApplication::setStyle(new QCommonStyle);
 }
+
+// Wait for signal or timeout; use SIGNAL macro for signal
+void waitForSignal(const QObject* object, const char* signal, int timeout)
+{
+    QEventLoop eventLoop;
+    QObject::connect(object, signal, &eventLoop, SLOT(quit()));
+    QTimer::singleShot(timeout, &eventLoop, SLOT(quit()));
+    eventLoop.exec();
+}
+
 
 // Create graphics scene
 #ifdef MEEGOTOUCH

@@ -18,6 +18,8 @@
 #include "horizontalswitcher.h"
 #include "utils.h"
 
+#include <QGraphicsView>
+#include <QGraphicsScene>
 #include <QApplication>
 #include <QPointer>
 
@@ -26,8 +28,9 @@ Q_DECLARE_METATYPE(QGraphicsWidget *);
 
 void Ut_HorizontalSwitcher::initTestCase()
 {
-    static int argc = 1;
-    static char *app_name[1] = { (char *) "ut_horizontalswitcher" };
+    static int argc = 2;
+    static char *app_name[2] = { (char *) "ut_horizontalswitcher",
+                                 (char *) "-software"};
 
     disableQtPlugins();
     app = new QApplication(argc, app_name);
@@ -186,6 +189,49 @@ void Ut_HorizontalSwitcher::testSwitchLeftRight()
     subject->switchTo(direction);
     QCOMPARE(subject->current(), expectedIndex);
     QCOMPARE(subject->currentWidget(), expectedWidget);
+}
+
+void Ut_HorizontalSwitcher::testDisabledDuringTransitions_data()
+{
+    QTest::addColumn<bool>("playAnimation");
+    QTest::newRow("without animation") << false;
+    QTest::newRow("with animation") << true;
+}
+
+void Ut_HorizontalSwitcher::testDisabledDuringTransitions()
+{
+    QFETCH(bool, playAnimation);
+
+    QGraphicsView view;
+    view.setScene(new QGraphicsScene);
+    view.show();
+
+    QGraphicsWidget *root  = new QGraphicsWidget;
+    QGraphicsWidget *left  = new QGraphicsWidget(root);
+    QGraphicsWidget *right = new QGraphicsWidget(root);
+    QSignalSpy spy(subject, SIGNAL(switchDone(QGraphicsWidget*, QGraphicsWidget*)));
+
+    view.scene()->addItem(root);
+    subject->setDuration(1);
+    subject->setAnimationEnabled(playAnimation);
+    subject->addWidget(left);
+    subject->addWidget(right);
+
+    QCOMPARE(subject->currentWidget(), left);
+    QVERIFY(left->isEnabled());
+    QVERIFY(right->isEnabled());
+
+    subject->switchTo(HorizontalSwitcher::Right);
+    waitForSignal(subject, SIGNAL(switchDone(QGraphicsWidget*, QGraphicsWidget*)), 1000);
+
+    QCOMPARE(subject->currentWidget(), right);
+    QVERIFY(left->isEnabled());
+    QVERIFY(right->isEnabled());
+
+    root->hide();
+    root->show();
+    QVERIFY(left->isEnabled());
+    QVERIFY(right->isEnabled());
 }
 
 // comment below test cases due to MCompositor bug: NB#182701 breaks us

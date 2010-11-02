@@ -18,9 +18,13 @@
 #ifndef UTILS_H
 
 class MPlainWindow;
+class QObject;
 
 // Disable loading of MInputContext and QtMaemo6Style
 void disableQtPlugins();
+
+// Wait for signal or timeout; use SIGNAL macro for signal
+void waitForSignal(const QObject* object, const char* signal, int timeout = 500);
 
 #ifdef MEEGOTOUCH
 // Create graphics scene

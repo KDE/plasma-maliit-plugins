@@ -42,6 +42,8 @@ private slots:
     void testShowWidgets();
     void testSwitchLeftRight_data();
     void testSwitchLeftRight();
+    void testDisabledDuringTransitions_data();
+    void testDisabledDuringTransitions();
 // comment below test cases due to MCompositor bug: NB#182701 breaks us
 #if 0
     void testSwitchSignals();

@@ -260,7 +260,6 @@ QSizeF HorizontalSwitcher::sizeHint(Qt::SizeHint which, const QSizeF &constraint
     return hint;
 }
 
-
 void HorizontalSwitcher::finishAnimation()
 {
     int oldIndex = -1;
@@ -269,6 +268,7 @@ void HorizontalSwitcher::finishAnimation()
     QGraphicsWidget *old = static_cast<QGraphicsWidget *>(leaveAnim.item());
     if (old) {
         oldIndex = slides.indexOf(old);
+        old->setEnabled(true);
         old->hide();
     }
 
