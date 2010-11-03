@@ -64,6 +64,7 @@ SOURCES += \
     $$WIDGETS_DIR/horizontalswitcher.cpp \
     $$WIDGETS_DIR/notification.cpp \
     $$WIDGETS_DIR/symbolview.cpp \
+    $$WIDGETS_DIR/mimabstractkey.cpp \
     $$WIDGETS_DIR/mimabstractkeyarea.cpp \
     $$WIDGETS_DIR/mimkey.cpp \
     $$WIDGETS_DIR/mimkeyarea.cpp \

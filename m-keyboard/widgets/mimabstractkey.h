@@ -20,16 +20,22 @@
 #define MIMABSTRACTKEY_H
 
 #include "mimkeymodel.h"
+#include <QList>
 
 //! Represents a key model with the key's current binding state, and also contains its visible area.
 class MImAbstractKey
 {
+protected:
+    static QList<MImAbstractKey *> activeKeys;
+
 public:
     enum ButtonState {
         Normal,  //! Normal is the "up" state for not selected buttons.
         Pressed, //! Button is Pressed when it's set down.
         Selected //! Selected is the "up" state for selected buttons.
     };
+
+    virtual ~MImAbstractKey();
 
     //! \brief Returns current label. It is affected by active modifiers.
     virtual const QString label() const = 0;
@@ -87,6 +93,17 @@ public:
 
     //! \brief Get current touchpoint count.
     virtual int touchPointCount() const = 0;
+
+    //! \brief Returns most recent key that became active, and wasn't released yet.
+    //!        If no key is active, returns 0.
+    static MImAbstractKey* lastActiveKey();
+
+    //! \brief Resets active keys to normal state.
+    static void resetActiveKeys();
+
+    //! \brief Filter active keys, by predicate callback.
+    //! \returns keys for which the predicate returns true.
+    static QList<const MImAbstractKey *> filterActiveKeys(bool (predicate)(const MImAbstractKey *));
 };
 
 #endif

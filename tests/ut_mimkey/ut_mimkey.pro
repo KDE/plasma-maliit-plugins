@@ -16,6 +16,7 @@ HEADERS += ut_mimkey.h \
            $$STYLE_HEADERS
 
 SOURCES += ut_mimkey.cpp \
+           $$WIDGETS_DIR/mimabstractkey.cpp \
            $$WIDGETS_DIR/mimkey.cpp \
            $$COMMON_DIR/mimkeymodel.cpp \
            $$COMMON_DIR/keyevent.cpp

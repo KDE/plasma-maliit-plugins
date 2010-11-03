@@ -18,7 +18,6 @@
 
 #include "ut_mimkey.h"
 
-#include "mimabstractkey.h"
 #include "mimabstractkeyareastyle.h"
 #include "mimkey.h"
 #include "mimkeyarea.h"
@@ -32,10 +31,32 @@
 #include <QDebug>
 
 Q_DECLARE_METATYPE(QList<Ut_KeyButton::DirectionPair>)
+Q_DECLARE_METATYPE(Ut_KeyButton::KeyList)
+Q_DECLARE_METATYPE(QList<Ut_KeyButton::KeyTriple>)
+Q_DECLARE_METATYPE(QList<int>)
+
+namespace {
+    bool shiftPredicate(const MImAbstractKey *key)
+    {
+        return (key && key->binding().action() == MImKeyBinding::ActionShift);
+    }
+
+    bool insertPredicate(const MImAbstractKey *key)
+    {
+        return (key && key->binding().action() == MImKeyBinding::ActionInsert);
+    }
+
+    bool activePredicate(const MImAbstractKey *key)
+    {
+        return (key && key->state() != MImAbstractKey::Normal);
+    }
+}
 
 void Ut_KeyButton::initTestCase()
 {
     qRegisterMetaType< QList<DirectionPair> >("QList<DirectionPair>");
+    qRegisterMetaType<KeyList>("KeyList");
+    qRegisterMetaType< QList<KeyTriple> >("QList<KeyTriple>");
 
     static int argc = 2;
     static char *app_name[] = { (char*) "ut_keybutton",
@@ -48,7 +69,7 @@ void Ut_KeyButton::initTestCase()
     style->initialize("", "", 0);
 
     parent = new QGraphicsWidget;
-    dataKey = createDataKey();
+    dataKey = createKeyModel();
 }
 
 void Ut_KeyButton::cleanupTestCase()
@@ -67,6 +88,7 @@ void Ut_KeyButton::init()
 
 void Ut_KeyButton::cleanup()
 {
+    MImAbstractKey::resetActiveKeys();
     delete subject;
     subject = 0;
 }
@@ -201,7 +223,123 @@ void Ut_KeyButton::testTouchPointCount()
     QCOMPARE(subject->state(), expectedButtonState);
 }
 
-MImKeyModel *Ut_KeyButton::createDataKey()
+void Ut_KeyButton::testResetTouchPointCount()
+{
+    QCOMPARE(subject->touchPointCount(), 0);
+
+    for (int idx = 0; idx < 3; ++idx) {
+        subject->increaseTouchPointCount();
+    }
+
+    QCOMPARE(subject->touchPointCount(), 3);
+
+    subject->resetTouchPointCount();
+    QCOMPARE(subject->touchPointCount(), 0);
+}
+
+void Ut_KeyButton::testActiveKeys_data()
+{
+    QTest::addColumn<KeyList>("availableKeys");
+    QTest::addColumn< QList<KeyTriple> >("keyControlSequence");
+    QTest::addColumn< QList<int> >("expectedActiveKeys");
+
+    QTest::newRow("single key")
+        << (KeyList() << createKey())
+        << (QList<KeyTriple>() << KeyTriple(0, MImAbstractKey::Pressed, 0))
+        << (QList<int>() << 0);
+
+    QTest::newRow("two keys")
+        << (KeyList() << createKey() << createKey())
+        << (QList<KeyTriple>() << KeyTriple(0, MImAbstractKey::Pressed, 0)
+                               << KeyTriple(1, MImAbstractKey::Selected, 1)
+                               << KeyTriple(0, MImAbstractKey::Normal, 1))
+        << (QList<int>() << 1);
+
+    QTest::newRow("last active key")
+        << (KeyList() << createKey() << createKey() << createKey())
+        << (QList<KeyTriple>() << KeyTriple(0, MImAbstractKey::Pressed, 0)
+                               << KeyTriple(1, MImAbstractKey::Selected, 1)
+                               << KeyTriple(2, MImAbstractKey::Normal, 1)
+                               << KeyTriple(1, MImAbstractKey::Normal, 0)
+                               << KeyTriple(2, MImAbstractKey::Pressed, 2)
+                               << KeyTriple(0, MImAbstractKey::Normal, 2)
+                               << KeyTriple(2, MImAbstractKey::Normal, -1))
+        << (QList<int>());
+}
+
+void Ut_KeyButton::testActiveKeys()
+{
+    QFETCH(KeyList, availableKeys);
+    QFETCH(QList<KeyTriple>, keyControlSequence);
+    QFETCH(QList<int>, expectedActiveKeys);
+    const MImAbstractKey *const noKey = 0;
+
+    foreach (const KeyTriple &triple, keyControlSequence) {
+        availableKeys.at(triple.index)->setDownState(triple.state != MImAbstractKey::Normal);
+        if (triple.lastActiveIndex > -1) {
+            QCOMPARE(MImAbstractKey::lastActiveKey(),
+                     availableKeys.at(triple.lastActiveIndex));
+        } else {
+            QCOMPARE(MImAbstractKey::lastActiveKey(), noKey);
+        }
+    }
+
+    foreach (int idx, expectedActiveKeys) {
+        QVERIFY(MImAbstractKey::activeKeys.contains(availableKeys.at(idx)));
+    }
+
+    // Verify that remaining keys (those not listed in expectedActiveKeys)
+    // are not in MImAbstractKey::activeKeys:
+    foreach (int idx, expectedActiveKeys) {
+        availableKeys.removeAt(idx);
+    }
+
+    foreach (MImAbstractKey *key, availableKeys) {
+        QVERIFY(not MImAbstractKey::activeKeys.contains(key));
+    }
+}
+
+void Ut_KeyButton::testResetActiveKeys()
+{
+    QCOMPARE(MImAbstractKey::activeKeys.count(), 0);
+
+    KeyList keys;
+    keys << createKey(true) << createKey(false) << createKey(true);
+    QCOMPARE(MImAbstractKey::activeKeys.count(), 2);
+
+    MImAbstractKey::resetActiveKeys();
+}
+
+void Ut_KeyButton::testFilterActiveKeys()
+{
+    KeyList keys;
+    keys << createKey(true) << createKey(true);
+
+    MImKeyBinding *b = new MImKeyBinding;
+    b->keyAction = MImKeyBinding::ActionShift;
+    MImKeyModel *model = new MImKeyModel;
+    model->bindings[MImKeyModel::NoShift] = b;
+    MImKey *shift = new MImKey(*model, *style, *parent);
+    shift->setDownState(true);
+    keys << shift;
+    QVERIFY(MImAbstractKey::activeKeys.contains(shift));
+
+    QVERIFY(MImAbstractKey::filterActiveKeys(&shiftPredicate).contains(shift));
+    QCOMPARE(MImAbstractKey::filterActiveKeys(&shiftPredicate).count(), 1);
+    QVERIFY(not MImAbstractKey::filterActiveKeys(&insertPredicate).contains(shift));
+    QCOMPARE(MImAbstractKey::filterActiveKeys(&insertPredicate).count(), 2);
+    QCOMPARE(MImAbstractKey::filterActiveKeys(&activePredicate).count(),
+             keys.count());
+}
+
+MImKey *Ut_KeyButton::createKey(bool state)
+{
+    MImKey *key = new MImKey(*dataKey, *style, *parent);
+    key->setDownState(state);
+    return key;
+}
+
+MImKeyModel *Ut_KeyButton::createKeyModel()
 {
     MImKeyModel *key = new MImKeyModel;
 
@@ -210,12 +348,14 @@ MImKeyModel *Ut_KeyButton::createDataKey()
     binding1->dead = false;
     binding1->accents = "`´^¨";
     binding1->accented_labels = QString(L'à') + L'á' + L'á' + L'â' + L'ä';
+    binding1->keyAction = MImKeyBinding::ActionInsert;
 
     MImKeyBinding *binding2 = new MImKeyBinding;
     binding2->keyLabel = "A";
     binding2->dead = false;
     binding2->accents = "`´^¨";
     binding2->accented_labels = QString(L'À') + L'Á' + L'Â' + L'Ä';
+    binding2->keyAction = MImKeyBinding::ActionInsert;
 
     key->bindings[MImKeyModel::NoShift] = binding1;
     key->bindings[MImKeyModel::Shift] = binding2;

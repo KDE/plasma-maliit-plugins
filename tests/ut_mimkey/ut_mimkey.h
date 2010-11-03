@@ -19,6 +19,7 @@
 #ifndef UT_KEYBUTTON_H
 #define UT_KEYBUTTON_H
 
+#define protected public
 #include <mimabstractkey.h>
 
 #include <QtTest/QTest>
@@ -27,6 +28,7 @@
 
 class MApplication;
 class MImKeyModel;
+class MImKey;
 class MImAbstractKeyAreaStyleContainer;
 class QGraphicsItem;
 class KeyboardData;
@@ -41,7 +43,30 @@ public:
         Up
     };
 
+    struct KeyTriple {
+        int index;
+        MImAbstractKey::ButtonState state;
+        int lastActiveIndex;
+
+        // Needed for metatype registration:
+        KeyTriple()
+            : index(-1)
+            , state(MImAbstractKey::Normal)
+            , lastActiveIndex(-1)
+        {}
+
+        KeyTriple(int newIndex,
+                  MImAbstractKey::ButtonState newState,
+                  int newLastActiveIndex)
+            : index(newIndex)
+            , state(newState)
+            , lastActiveIndex(newLastActiveIndex)
+        {}
+
+    };
+
     typedef QPair<Direction, bool> DirectionPair;
+    typedef QList<MImAbstractKey *> KeyList;
 
 private:
 
@@ -65,12 +90,20 @@ private slots:
 
     void testTouchPointCount_data();
     void testTouchPointCount();
+    void testResetTouchPointCount();
+
+    void testActiveKeys_data();
+    void testActiveKeys();
+    void testResetActiveKeys();
+    void testFilterActiveKeys();
 
 private:
-    MImKeyModel *createDataKey();
+    MImKey *createKey(bool state = false);
+    MImKeyModel *createKeyModel();
 };
 
 Q_DECLARE_METATYPE(Ut_KeyButton::DirectionPair)
+Q_DECLARE_METATYPE(Ut_KeyButton::KeyTriple)
 Q_DECLARE_METATYPE(MImAbstractKey::ButtonState)
 
 #endif
