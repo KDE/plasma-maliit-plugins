@@ -1,6 +1,5 @@
-meego-keyboard (0.5.9~1) unstable; urgency=low
+meego-keyboard (0.5.9-1) unstable; urgency=low
 
-  * [UNRELEASED]
   * Implemented: SWP#TINME-1075
   * Implemented: SWP#TINME-1097
   * Implemented: SWP#TINME-1133
@@ -8,7 +7,7 @@ meego-keyboard (0.5.9~1) unstable; urgency=low
   * Implemented: SWP#TINME-1137
   * Adapated to im framework API changes. Depends on 0.19.27.
 
- -- huaming wang <huaming.wang@nokia.com>  Thu, 28 Oct 2010 11:29:16 +0300
+ -- Gibran Rodriguez <ext-gibran.rodriguez@nokia.com>  Wed, 03 Nov 2010 14:29:10 +0200
 
 meego-keyboard (0.5.8-1) unstable; urgency=low
 
