@@ -36,6 +36,10 @@ ifneq (,$(filter n900,$(TMP_BUILD_OPTS)))
     QMAKE_OPTIONS += DEFINES+=NOCONTROLPANEL
 endif
 
+ifneq (,$(filter timestamps,$(TMP_BUILD_OPTS)))
+    QMAKE_OPTIONS += DEFINES+=M_TIMESTAMP
+endif
+
 QMAKE_OPTIONS += DEFINES+=RELEASE_BUILD
 
 # shared library versions, option 1
@@ -46,7 +50,7 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 
-	qmake $(QMAKE_OPTIONS)
+	qmake -r $(QMAKE_OPTIONS)
 
 	touch configure-stamp
 
