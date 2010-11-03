@@ -1,3 +1,9 @@
+meego-keyboard (0.5.10~1) unstable; urgency=low
+
+  *[UNRELEASED] 
+
+ -- Gibran Rodriguez <ext-gibran.rodriguez@nokia.com>  Wed, 03 Nov 2010 14:38:51 +0200
+
 meego-keyboard (0.5.9-1) unstable; urgency=low
 
   * Implemented: SWP#TINME-1075
