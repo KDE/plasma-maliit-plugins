@@ -16,6 +16,9 @@
 
 
 #include "horizontalswitcher.h"
+#include "mimabstractkey.h"
+#include "mimabstractkeyarea.h"
+
 #include <QGraphicsSceneResizeEvent>
 #include <QGraphicsScene>
 #include <QDebug>
@@ -82,6 +85,8 @@ void HorizontalSwitcher::switchTo(SwitchDirection direction)
     // New item is about to enter
     enterAnim.setItem(nextWidget);
     nextWidget->setEnabled(false);
+    MImAbstractKey::resetActiveKeys();
+
 
     // Try to fit current size.
     nextWidget->resize(size());
@@ -148,9 +153,15 @@ void HorizontalSwitcher::setCurrent(int index)
         emit switchDone(old, widget);
 
         updateGeometry();
+        MImAbstractKey::resetActiveKeys();
 
         if (old) {
             old->hide();
+
+            MImAbstractKeyArea *const keyArea = dynamic_cast<MImAbstractKeyArea *>(old);
+            if (keyArea) {
+                keyArea->modifiersChanged(false);
+            }
         }
     }
 }

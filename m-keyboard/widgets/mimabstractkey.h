@@ -103,7 +103,7 @@ public:
 
     //! \brief Filter active keys, by predicate callback.
     //! \returns keys for which the predicate returns true.
-    static QList<const MImAbstractKey *> filterActiveKeys(bool (predicate)(const MImAbstractKey *));
+    static QList<MImAbstractKey *> filterActiveKeys(bool (predicate)(const MImAbstractKey *));
 };
 
 #endif

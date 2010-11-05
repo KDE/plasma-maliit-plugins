@@ -23,6 +23,19 @@
 class QApplication;
 class HorizontalSwitcher;
 
+class MImAbstractKeyArea
+    : public QObject
+{
+    Q_OBJECT
+
+public:
+    void modifiersChanged(bool, QChar ch = QChar())
+    {
+        Q_UNUSED(ch);
+    }
+};
+
+
 class Ut_HorizontalSwitcher : public QObject
 {
     Q_OBJECT

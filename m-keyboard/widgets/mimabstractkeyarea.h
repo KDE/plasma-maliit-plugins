@@ -88,6 +88,13 @@ public:
     //! Returns all keys.
     virtual QList<const MImAbstractKey *> keys() = 0;
 
+    /*! \brief Notification for derived classes about button modifier change.
+     *
+     *  Derived classes should not change the level of selected dead keys. This is to
+     *  ensure all dead keys can be used with all characters in every level.
+     */
+    virtual void modifiersChanged(bool shift, QChar accent = QChar());
+
 public slots:
     /*!
      * This slot is used to switch levels
@@ -101,7 +108,7 @@ public slots:
     /*!
      * \brief unlock all locked deadkeys
      */
-    void unlockDeadkeys();
+    void unlockDeadKeys(MImAbstractKey *deadKey);
 
 signals:
     //! \brief Emitted when the covered region changed
@@ -202,14 +209,8 @@ protected:
     int rowCount() const;
 
     //! \brief Updates button labels and/or icons according to current level and deadkey.
-    void updateButtonModifiers();
-
-    /*! \brief Notification for derived classes about button modifier change.
-     *
-     *  Derived classes should not change the level of selected dead keys. This is to
-     *  ensure all dead keys can be used with all characters in every level.
-     */
-    virtual void modifiersChanged(bool shift, QChar accent = QChar());
+    //! \param accent the accent version of a dead key.
+    void updateButtonModifiers(const QChar &accent = QChar());
 
     //! \brief Returns key at given \a pos.
     //!
@@ -312,18 +313,7 @@ private:
     bool wasGestureTriggered;
     bool enableMultiTouch;
 
-    //! Active key, there can only be one at a time.
-    MImAbstractKey *activeKey;
-
-    //! Activated dead key
-    MImAbstractKey *activeDeadkey;
-
-    //! Activated shift key
-    MImAbstractKey *activeShiftKey;
-
-    /*!
-     * Feedback player instance
-     */
+    //! Feedback player instance
     MFeedbackPlayer *feedbackPlayer;
 
     //! layout section viewed by this class

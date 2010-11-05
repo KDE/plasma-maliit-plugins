@@ -68,11 +68,27 @@ Q_DECLARE_METATYPE(MImAbstractKey::ButtonState);
 Q_DECLARE_METATYPE(QList<MImKeyBinding::KeyAction>);
 Q_DECLARE_METATYPE(Ut_MImAbstractKeyArea::TestOpList);
 
-MImAbstractKeyArea *createSingleWidgetMImAbstractKeyArea(const LayoutData::SharedLayoutSection &section,
-                                               bool usePopup = false,
-                                               QGraphicsWidget *parent = 0)
-{
-    return new MImKeyArea(section, usePopup, parent);
+namespace {
+
+    MImAbstractKeyArea *createKeyArea(const LayoutData::SharedLayoutSection &section,
+                                      bool usePopup = false,
+                                      QGraphicsWidget *parent = 0)
+    {
+        return new MImKeyArea(section, usePopup, parent);
+    }
+
+
+    bool isDeadKey(const MImAbstractKey *key)
+    {
+        return key->isDeadKey();
+    }
+
+    MImAbstractKey *findActiveDeadKey()
+    {
+        QList<MImAbstractKey*> activeKeys = MImAbstractKey::filterActiveKeys(&isDeadKey);
+
+        return (activeKeys.isEmpty() ? 0 : activeKeys.first());
+    }
 }
 
 void Ut_MImAbstractKeyArea::initTestCase()
@@ -124,7 +140,7 @@ void Ut_MImAbstractKeyArea::cleanup()
 void Ut_MImAbstractKeyArea::testLandscapeBoxSize_data()
 {
     QTest::addColumn<KBACreator>("createKba");
-    QTest::newRow("SingleWidgetArea") << &createSingleWidgetMImAbstractKeyArea;
+    QTest::newRow("SingleWidgetArea") << &createKeyArea;
 }
 
 void Ut_MImAbstractKeyArea::testLandscapeBoxSize()
@@ -170,7 +186,7 @@ void Ut_MImAbstractKeyArea::testLandscapeBoxSize()
 void Ut_MImAbstractKeyArea::testPortraitBoxSize_data()
 {
     QTest::addColumn<KBACreator>("createKba");
-    QTest::newRow("SingleWidgetArea") << &createSingleWidgetMImAbstractKeyArea;
+    QTest::newRow("SingleWidgetArea") << &createKeyArea;
 }
 
 void Ut_MImAbstractKeyArea::testPortraitBoxSize()
@@ -213,7 +229,7 @@ void Ut_MImAbstractKeyArea::testPortraitBoxSize()
 void Ut_MImAbstractKeyArea::testLabelPosition_data()
 {
     QTest::addColumn<KBACreator>("createKba");
-    QTest::newRow("SingleWidgetArea") << &createSingleWidgetMImAbstractKeyArea;
+    QTest::newRow("SingleWidgetArea") << &createKeyArea;
 }
 
 void Ut_MImAbstractKeyArea::testLabelPosition()
@@ -267,7 +283,7 @@ void Ut_MImAbstractKeyArea::testLabelPosition()
 void Ut_MImAbstractKeyArea::testSceneEvent_data()
 {
     QTest::addColumn<KBACreator>("createKba");
-    QTest::newRow("SingleWidgetArea") << &createSingleWidgetMImAbstractKeyArea;
+    QTest::newRow("SingleWidgetArea") << &createKeyArea;
 }
 
 void Ut_MImAbstractKeyArea::testSceneEvent()
@@ -328,7 +344,7 @@ void Ut_MImAbstractKeyArea::testSceneEvent()
 void Ut_MImAbstractKeyArea::testPaint_data()
 {
     QTest::addColumn<KBACreator>("createKba");
-    QTest::newRow("SingleWidgetArea") << &createSingleWidgetMImAbstractKeyArea;
+    QTest::newRow("SingleWidgetArea") << &createKeyArea;
 }
 
 void Ut_MImAbstractKeyArea::testPaint()
@@ -355,7 +371,7 @@ void Ut_MImAbstractKeyArea::testPaint()
 void Ut_MImAbstractKeyArea::testDeadkeys_data()
 {
     QTest::addColumn<KBACreator>("createKba");
-    QTest::newRow("SingleWidgetArea") << &createSingleWidgetMImAbstractKeyArea;
+    QTest::newRow("SingleWidgetArea") << &createKeyArea;
 }
 
 void Ut_MImAbstractKeyArea::testDeadkeys()
@@ -416,7 +432,7 @@ void Ut_MImAbstractKeyArea::testDeadkeys()
     }
 
     //after unlock the dead key, test the shift status
-    subject->unlockDeadkeys();
+    subject->unlockDeadKeys(findActiveDeadKey());
     for (i = 0; i < positions.count(); i++) {
         QCOMPARE(keyAt(0, positions[i])->label(), upperUnicodes.at(i));
     }
@@ -446,7 +462,7 @@ void Ut_MImAbstractKeyArea::testSelectedDeadkeys()
 {
     keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("fr.xml"));
-    subject = createSingleWidgetMImAbstractKeyArea(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
+    subject = createKeyArea(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                                               false, 0);
     MPlainWindow::instance()->scene()->addItem(subject);
 
@@ -513,7 +529,7 @@ void Ut_MImAbstractKeyArea::testTwoDeadInOne()
 
     keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("test-layout.xml"));
-    subject = createSingleWidgetMImAbstractKeyArea(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
+    subject = createKeyArea(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                                               false, 0);
 
     MImAbstractKey *deadkey = keyAt(2, 8); // accents ´ and ¨
@@ -547,7 +563,7 @@ void Ut_MImAbstractKeyArea::testExtendedLabels()
 {
     keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("test-layout.xml"));
-    subject = createSingleWidgetMImAbstractKeyArea(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
+    subject = createKeyArea(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                                               false, 0);
 
     const MImAbstractKey *eKey(keyAt(0, 2)); // e, ...
@@ -558,7 +574,7 @@ void Ut_MImAbstractKeyArea::testExtendedLabels()
 void Ut_MImAbstractKeyArea::testImportedLayouts_data()
 {
     QTest::addColumn<KBACreator>("createKba");
-    QTest::newRow("SingleWidgetArea") << &createSingleWidgetMImAbstractKeyArea;
+    QTest::newRow("SingleWidgetArea") << &createKeyArea;
 }
 
 void Ut_MImAbstractKeyArea::testImportedLayouts()
@@ -601,7 +617,7 @@ void Ut_MImAbstractKeyArea::testImportedLayouts()
 void Ut_MImAbstractKeyArea::testPopup_data()
 {
     QTest::addColumn<KBACreator>("createKba");
-    QTest::newRow("SingleWidgetArea") << &createSingleWidgetMImAbstractKeyArea;
+    QTest::newRow("SingleWidgetArea") << &createKeyArea;
 }
 
 void Ut_MImAbstractKeyArea::testPopup()
@@ -634,7 +650,7 @@ void Ut_MImAbstractKeyArea::testPopup()
 void Ut_MImAbstractKeyArea::testInitialization_data()
 {
     QTest::addColumn<KBACreator>("createKba");
-    QTest::newRow("SingleWidgetArea") << &createSingleWidgetMImAbstractKeyArea;
+    QTest::newRow("SingleWidgetArea") << &createKeyArea;
 }
 
 void Ut_MImAbstractKeyArea::testInitialization()
@@ -657,7 +673,7 @@ void Ut_MImAbstractKeyArea::testShiftCapsLock()
     QVERIFY(layout);
     const LayoutData::SharedLayoutSection section = layout->section(LayoutData::mainSection);
 
-    subject = createSingleWidgetMImAbstractKeyArea(section,
+    subject = createKeyArea(section,
                                               false, 0);
 
     MImKey *shiftButton = static_cast<MImKeyArea *>(subject)->shiftButton;
@@ -682,7 +698,7 @@ void Ut_MImAbstractKeyArea::testMultiTouch()
     QVERIFY(layout);
     const LayoutData::SharedLayoutSection section = layout->section(LayoutData::mainSection);
 
-    subject = createSingleWidgetMImAbstractKeyArea(section,
+    subject = createKeyArea(section,
                                               false, 0);
     MPlainWindow::instance()->scene()->addItem(subject);
     subject->resize(defaultLayoutSize());
@@ -786,25 +802,25 @@ void Ut_MImAbstractKeyArea::testRtlKeys_data()
     rtlKeys << MImKeyBinding::ActionBackspace;
 
     QTest::newRow("SingleWidgetArea Landscape Arabic")
-        << &createSingleWidgetMImAbstractKeyArea
+        << &createKeyArea
         << M::Landscape
         << ar
         << rtlKeys;
 
     QTest::newRow("SingleWidgetArea Portrait Arabic" )
-        << &createSingleWidgetMImAbstractKeyArea
+        << &createKeyArea
         << M::Portrait
         << ar
         << rtlKeys;
 
     QTest::newRow("SingleWidgetArea Landscape English")
-        << &createSingleWidgetMImAbstractKeyArea
+        << &createKeyArea
         << M::Landscape
         << en_gb
         << nothing;
 
     QTest::newRow("SingleWidgetArea Portrait English" )
-        << &createSingleWidgetMImAbstractKeyArea
+        << &createKeyArea
         << M::Portrait
         << en_gb
         << nothing;
@@ -848,7 +864,7 @@ void Ut_MImAbstractKeyArea::testLongKeyPress()
     keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
 
-    subject = createSingleWidgetMImAbstractKeyArea(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
+    subject = createKeyArea(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                                               true, 0);
 
     MPlainWindow::instance()->scene()->addItem(subject);

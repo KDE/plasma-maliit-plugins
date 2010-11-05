@@ -32,13 +32,14 @@ void MImAbstractKey::resetActiveKeys()
 {
     while (!activeKeys.isEmpty()) {
         MImAbstractKey *key = activeKeys.takeFirst();
+        key->setSelected(false);
         key->resetTouchPointCount();
     }
 }
 
-QList<const MImAbstractKey *> MImAbstractKey::filterActiveKeys(bool (predicate)(const MImAbstractKey *))
+QList<MImAbstractKey *> MImAbstractKey::filterActiveKeys(bool (predicate)(const MImAbstractKey *))
 {
-    QList<const MImAbstractKey *> result;
+    QList<MImAbstractKey *> result;
 
     foreach(MImAbstractKey *key, activeKeys) {
         if (predicate(key)) {

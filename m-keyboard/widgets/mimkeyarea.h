@@ -40,6 +40,7 @@ public:
     virtual ~MImKeyArea();
 
     //! \reimp
+    virtual void modifiersChanged(bool shift, QChar accent = QChar());
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *view);
     virtual QRectF boundingRect() const;
     virtual void setShiftState(ModifierState newShiftState);
@@ -52,7 +53,6 @@ protected:
     virtual void drawReactiveAreas(MReactionMap *reactionMap, QGraphicsView *view);
     virtual void updateButtonGeometriesForWidth(int availableWidth);
     virtual MImAbstractKey *keyAt(const QPoint &pos) const;
-    virtual void modifiersChanged(bool shift, QChar accent = QChar());
     virtual void onThemeChangeCompleted();
     /*! \reimp_end */
 
