@@ -116,10 +116,10 @@ void MImKey::setDownState(bool down)
         currentState = newState;
 
         if ((currentState == Pressed || currentState == Selected)
-            && (not activeKeys.contains(this))) {
-            activeKeys.append(this);
+            && (not mActiveKeys.contains(this))) {
+            mActiveKeys.append(this);
         } else { // currentState == Normal
-            activeKeys.removeAll(this);
+            mActiveKeys.removeAll(this);
         }
 
         update();

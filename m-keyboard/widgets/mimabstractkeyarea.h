@@ -191,6 +191,7 @@ protected:
 
     //! Called when widget is about to lose visibility.
     virtual void handleVisibilityChanged(bool visible);
+    virtual void invalidateBackgroundCache() = 0;
 
     //! Shows popup and updates its content and position.
     //! \param key current key

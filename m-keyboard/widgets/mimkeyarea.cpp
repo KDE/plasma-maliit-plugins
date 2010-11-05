@@ -69,6 +69,7 @@ MImKeyArea::MImKeyArea(const LayoutData::SharedLayoutSection &newSection,
       mMaxNormalizedWidth(maxNormalizedWidth()),
       shiftButton(0),
       textDirty(false),
+      cachedBackgroundDirty(true),
       equalWidthButtons(true)
 {
     textLayout.setCacheEnabled(true);
@@ -302,28 +303,45 @@ qreal MImKeyArea::computeWidgetHeight() const
     return qMax<qreal>(0.0, height);
 }
 
-void MImKeyArea::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
+void MImKeyArea::paint(QPainter *onScreenPainter,
+                       const QStyleOptionGraphicsItem *,
+                       QWidget *)
 {
     const MImAbstractKeyAreaStyleContainer &style(baseStyle());
-    const MScalableImage *background = style->backgroundImage();
 
-    if (background) {
-        background->draw(boundingRect().toRect(), painter);
-    }
+    if (cachedBackgroundDirty) {
+        cachedBackground.reset(new QPixmap(boundingRect().size().toSize()));
+        cachedBackground->fill(Qt::transparent);
+        QPainter offScreenPainter(cachedBackground.get());
 
-    // Draw images first.
-    foreach (const ButtonRow &row, rowList) {
-        foreach (const MImKey *button, row.buttons) {
-            drawKeyBackground(painter, button);
-            button->drawIcon(button->cachedButtonRect.toRect(), painter);
-            drawDebugRects(painter, button,
-                           style->drawButtonBoundingRects(),
-                           style->drawButtonRects());
+        const MScalableImage *background = style->backgroundImage();
+
+        if (background) {
+            background->draw(boundingRect().toRect(), &offScreenPainter);
+        }
+
+        // Draw images first.
+        foreach (const ButtonRow &row, rowList) {
+            foreach (const MImKey *button, row.buttons) {
+                drawKeyBackground(&offScreenPainter, button);
+                button->drawIcon(button->cachedButtonRect.toRect(), &offScreenPainter);
+                drawDebugRects(&offScreenPainter, button,
+                               style->drawButtonBoundingRects(),
+                               style->drawButtonRects());
+            }
+        }
+
+        if (style->drawReactiveAreas()) {
+            drawDebugReactiveAreas(&offScreenPainter);
         }
     }
 
-    if (style->drawReactiveAreas()) {
-        drawDebugReactiveAreas(painter);
+    onScreenPainter->drawPixmap(boundingRect().toRect(), *cachedBackground.get());
+
+    foreach (const MImAbstractKey *abstractKey, MImAbstractKey::activeKeys()) {
+        const MImKey *key = static_cast<const MImKey *>(abstractKey);
+        drawKeyBackground(onScreenPainter, key);
+        key->drawIcon(key->cachedButtonRect.toRect(), onScreenPainter);
     }
 
     if (textDirty) {
@@ -331,8 +349,10 @@ void MImKeyArea::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWid
     }
 
     // Draw text next.
-    painter->setPen(style->fontColor());
-    textLayout.draw(painter, QPoint());
+    onScreenPainter->setPen(style->fontColor());
+    textLayout.draw(onScreenPainter, QPoint());
+
+    cachedBackgroundDirty = false;
 }
 
 void MImKeyArea::drawKeyBackground(QPainter *painter,
@@ -504,7 +524,6 @@ void MImKeyArea::modifiersChanged(const bool shift, const QChar accent)
     }
 
     textDirty = true;
-
 }
 
 void MImKeyArea::updateButtonGeometriesForWidth(const int newAvailableWidth)
@@ -715,6 +734,16 @@ void MImKeyArea::onThemeChangeCompleted()
     mMaxNormalizedWidth = maxNormalizedWidth();
     MImAbstractKeyArea::onThemeChangeCompleted();
     buildTextLayout();
+}
+
+void MImKeyArea::handleVisibilityChanged(bool)
+{
+    invalidateBackgroundCache();
+}
+
+void MImKeyArea::invalidateBackgroundCache()
+{
+    cachedBackgroundDirty = true;
 }
 
 QList<const MImAbstractKey *> MImKeyArea::keys()

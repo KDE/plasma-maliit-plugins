@@ -24,6 +24,8 @@
 
 #include <MScalableImage>
 #include <QTextLayout>
+#include <QPixmap>
+#include <memory>
 
 /*!
  * \brief MImKeyArea is an implementation of MImAbstractKeyArea which
@@ -54,6 +56,8 @@ protected:
     virtual void updateButtonGeometriesForWidth(int availableWidth);
     virtual MImAbstractKey *keyAt(const QPoint &pos) const;
     virtual void onThemeChangeCompleted();
+    virtual void handleVisibilityChanged(bool visible);
+    virtual void invalidateBackgroundCache();
     /*! \reimp_end */
 
 private:
@@ -111,6 +115,9 @@ private:
 
     QTextLayout textLayout;
     bool textDirty;
+
+    std::auto_ptr<QPixmap> cachedBackground;
+    bool cachedBackgroundDirty;
 
     bool equalWidthButtons;
 

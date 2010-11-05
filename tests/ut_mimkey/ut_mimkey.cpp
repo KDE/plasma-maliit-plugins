@@ -285,7 +285,7 @@ void Ut_KeyButton::testActiveKeys()
     }
 
     foreach (int idx, expectedActiveKeys) {
-        QVERIFY(MImAbstractKey::activeKeys.contains(availableKeys.at(idx)));
+        QVERIFY(MImAbstractKey::mActiveKeys.contains(availableKeys.at(idx)));
     }
 
     // Verify that remaining keys (those not listed in expectedActiveKeys)
@@ -295,17 +295,17 @@ void Ut_KeyButton::testActiveKeys()
     }
 
     foreach (MImAbstractKey *key, availableKeys) {
-        QVERIFY(not MImAbstractKey::activeKeys.contains(key));
+        QVERIFY(not MImAbstractKey::mActiveKeys.contains(key));
     }
 }
 
 void Ut_KeyButton::testResetActiveKeys()
 {
-    QCOMPARE(MImAbstractKey::activeKeys.count(), 0);
+    QCOMPARE(MImAbstractKey::mActiveKeys.count(), 0);
 
     KeyList keys;
     keys << createKey(true) << createKey(false) << createKey(true);
-    QCOMPARE(MImAbstractKey::activeKeys.count(), 2);
+    QCOMPARE(MImAbstractKey::mActiveKeys.count(), 2);
 
     MImAbstractKey::resetActiveKeys();
 }
@@ -322,7 +322,7 @@ void Ut_KeyButton::testFilterActiveKeys()
     MImKey *shift = new MImKey(*model, *style, *parent);
     shift->setDownState(true);
     keys << shift;
-    QVERIFY(MImAbstractKey::activeKeys.contains(shift));
+    QVERIFY(MImAbstractKey::mActiveKeys.contains(shift));
 
     QVERIFY(MImAbstractKey::filterActiveKeys(&shiftPredicate).contains(shift));
     QCOMPARE(MImAbstractKey::filterActiveKeys(&shiftPredicate).count(), 1);

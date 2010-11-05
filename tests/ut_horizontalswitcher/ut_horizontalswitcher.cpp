@@ -14,8 +14,11 @@
  * of this file.
  */
 
+//#define MIMABSTRACTKEYAREA_H
+
 #include "ut_horizontalswitcher.h"
 #include "horizontalswitcher.h"
+#include "mimabstractkeyarea.h"
 #include "utils.h"
 
 #include <QGraphicsView>
@@ -25,7 +28,6 @@
 
 Q_DECLARE_METATYPE(HorizontalSwitcher::SwitchDirection);
 Q_DECLARE_METATYPE(QGraphicsWidget *);
-Q_DECLARE_METATYPE(MImAbstractKeyArea *);
 
 void Ut_HorizontalSwitcher::initTestCase()
 {
@@ -37,7 +39,6 @@ void Ut_HorizontalSwitcher::initTestCase()
     app = new QApplication(argc, app_name);
 
     qRegisterMetaType<QGraphicsWidget *>();
-    qRegisterMetaType<MImAbstractKeyArea *>();
 }
 
 void Ut_HorizontalSwitcher::cleanupTestCase()

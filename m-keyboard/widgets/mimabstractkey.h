@@ -26,7 +26,7 @@
 class MImAbstractKey
 {
 protected:
-    static QList<MImAbstractKey *> activeKeys;
+    static QList<MImAbstractKey *> mActiveKeys;
 
 public:
     enum ButtonState {
@@ -104,6 +104,9 @@ public:
     //! \brief Filter active keys, by predicate callback.
     //! \returns keys for which the predicate returns true.
     static QList<MImAbstractKey *> filterActiveKeys(bool (predicate)(const MImAbstractKey *));
+
+    //! \brief Returns all active keys
+    static const QList<MImAbstractKey *> &activeKeys();
 };
 
 #endif
