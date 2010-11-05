@@ -16,8 +16,6 @@ contains( DEFINES, RELEASE_BUILD ) {
 } 
 
 CONFIG += plugin meegotouch meegoimengine meegoimenginewords meegoimframework meegoreactionmap
-#CONFIG += mcontrolpanel
-DEFINES += NOCONTROLPANEL
 
 CONFIG += link_pkgconfig
 PKGCONFIG += gconf-2.0 xkbfile

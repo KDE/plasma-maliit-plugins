@@ -32,10 +32,6 @@ ifneq (,$(filter coverage,$(TMP_BUILD_OPTS)))
 	QMAKE_OPTIONS += COV_OPTION=on
 endif
 
-ifneq (,$(filter n900,$(TMP_BUILD_OPTS)))
-    QMAKE_OPTIONS += DEFINES+=NOCONTROLPANEL
-endif
-
 ifneq (,$(filter timestamps,$(TMP_BUILD_OPTS)))
     QMAKE_OPTIONS += DEFINES+=M_TIMESTAMP
 endif
