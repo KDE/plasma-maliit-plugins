@@ -29,7 +29,7 @@ class MImKey
     : public MImAbstractKey
 {
 public:
-    explicit MImKey(const MImKeyModel &model,
+    explicit MImKey(const MImKeyModel &mModel,
                     const MImAbstractKeyAreaStyleContainer &style,
                     QGraphicsItem &parent);
 
@@ -44,7 +44,7 @@ public:
     virtual void setDownState(bool down);
     virtual void setSelected(bool select);
     virtual ButtonState state() const;
-    virtual const MImKeyModel &key() const;
+    virtual const MImKeyModel &model() const;
     virtual const MImKeyBinding &binding() const;
     virtual bool isDeadKey() const;
     virtual bool isShiftKey() const;
@@ -101,7 +101,7 @@ private:
     void loadIcon(bool shift);
     const IconInfo &iconInfo() const;
 
-    const MImKeyModel &model;
+    const MImKeyModel &mModel;
 
     bool shift;
     QChar accent;

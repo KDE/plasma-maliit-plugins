@@ -49,19 +49,19 @@ MImKey::MImKey(const MImKeyModel &newModel,
                const MImAbstractKeyAreaStyleContainer &style,
                QGraphicsItem &parent)
     : width(0),
-      model(newModel),
+      mModel(newModel),
       shift(false),
-      currentLabel(model.binding(false)->label()),
+      currentLabel(mModel.binding(false)->label()),
       currentState(Normal),
       selected(false),
       styleContainer(style),
       parentItem(parent),
       currentTouchPointCount(0)
 {
-    if (model.binding(false)) {
+    if (mModel.binding(false)) {
         loadIcon(false);
     }
-    if (model.binding(true)) {
+    if (mModel.binding(true)) {
         loadIcon(true);
     }
 }
@@ -141,14 +141,14 @@ MImKey::ButtonState MImKey::state() const
     return currentState;
 }
 
-const MImKeyModel &MImKey::key() const
+const MImKeyModel &MImKey::model() const
 {
-    return model;
+    return mModel;
 }
 
 const MImKeyBinding &MImKey::binding() const
 {
-    return *model.binding(shift);
+    return *mModel.binding(shift);
 }
 
 bool MImKey::isDeadKey() const
@@ -238,7 +238,7 @@ void MImKey::update()
 
 int MImKey::preferredFixedWidth() const
 {
-    switch(model.width()) {
+    switch(mModel.width()) {
     case MImKeyModel::Small:
         return styleContainer->keyWidthSmallFixed();
 
@@ -266,7 +266,7 @@ int MImKey::preferredFixedWidth() const
 
 qreal MImKey::preferredWidth(qreal pixelPerSizeUnit, qreal spacing) const
 {
-    switch(model.width()) {
+    switch(mModel.width()) {
     case MImKeyModel::Small:
         return computeWidth(pixelPerSizeUnit,
                             spacing,
@@ -306,7 +306,7 @@ qreal MImKey::preferredWidth(qreal pixelPerSizeUnit, qreal spacing) const
 void MImKey::loadIcon(bool shift)
 {
     IconInfo &iconInfo(shift ? upperCaseIcon : lowerCaseIcon);
-    const MImKeyBinding::KeyAction action(model.binding(shift)->action());
+    const MImKeyBinding::KeyAction action(mModel.binding(shift)->action());
     QSize size;
     QString iconProperty;
 
@@ -324,7 +324,7 @@ void MImKey::loadIcon(bool shift)
             size = styleContainer->keyShiftIconSize();
             break;
         case MImKeyBinding::ActionReturn:
-            if (model.binding(shift)->label().isEmpty()) {
+            if (mModel.binding(shift)->label().isEmpty()) {
                 iconProperty = "keyEnterIconId";
                 size = styleContainer->keyEnterIconSize();
             }
@@ -334,7 +334,7 @@ void MImKey::loadIcon(bool shift)
             size = styleContainer->keyMenuIconSize();
             break;
         case MImKeyBinding::ActionTab:
-            if (model.binding(shift)->label().isEmpty()) {
+            if (mModel.binding(shift)->label().isEmpty()) {
                 iconProperty = "keyTabIconId";
                 size = styleContainer->keyTabIconSize();
             }
@@ -343,7 +343,7 @@ void MImKey::loadIcon(bool shift)
             break;
     }
 
-    iconInfo.id = getCSSProperty<QString>(styleContainer, iconProperty, model.rtl());
+    iconInfo.id = getCSSProperty<QString>(styleContainer, iconProperty, mModel.rtl());
 
     if (!iconInfo.id.isEmpty()) {
         iconInfo.pixmap = MTheme::pixmap(iconInfo.id, size);

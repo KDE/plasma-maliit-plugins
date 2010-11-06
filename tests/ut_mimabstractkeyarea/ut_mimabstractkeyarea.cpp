@@ -275,7 +275,7 @@ void Ut_MImAbstractKeyArea::testLabelPosition()
     for (int n = 0; n < positions.count(); ++n) {
         qDebug() << "test position" << positions.at(n);
         button = subject->keyAt(positions.at(n));
-        const MImKeyModel *result = (button ? &button->key() : 0);
+        const MImKeyModel *result = (button ? &button->model() : 0);
         QCOMPARE(result, outcome.at(n));
     }
 }
@@ -536,8 +536,8 @@ void Ut_MImAbstractKeyArea::testTwoDeadInOne()
     MImAbstractKey *characterKey = keyAt(0, 2); // e, éë, ÉË
 
     QVERIFY(deadkey);
-    QVERIFY(deadkey->key().binding(false)->isDead());
-    QVERIFY(deadkey->key().binding(true)->isDead());
+    QVERIFY(deadkey->model().binding(false)->isDead());
+    QVERIFY(deadkey->model().binding(true)->isDead());
 
     foreach (TestOperation op, operations) {
         switch (op) {
@@ -567,8 +567,8 @@ void Ut_MImAbstractKeyArea::testExtendedLabels()
                                               false, 0);
 
     const MImAbstractKey *eKey(keyAt(0, 2)); // e, ...
-    QCOMPARE(eKey->key().binding(false)->extendedLabels(), QString("%1%2").arg(QChar(0xea)).arg(QChar(0xe8)));
-    QCOMPARE(eKey->key().binding(true)->extendedLabels(), QString("%1%2").arg(QChar(0xca)).arg(QChar(0xc8)));
+    QCOMPARE(eKey->model().binding(false)->extendedLabels(), QString("%1%2").arg(QChar(0xea)).arg(QChar(0xe8)));
+    QCOMPARE(eKey->model().binding(true)->extendedLabels(), QString("%1%2").arg(QChar(0xca)).arg(QChar(0xc8)));
 }
 
 void Ut_MImAbstractKeyArea::testImportedLayouts_data()
@@ -845,11 +845,11 @@ void Ut_MImAbstractKeyArea::testRtlKeys()
         for (int column = 0; column < keyArea->sectionModel()->columnsAt(row); ++column) {
             MImKey *key = keyArea->rowList[row].keys[column];
             QVERIFY(key != 0);
-            if (expectedRtlKeys.contains(key->key().binding()->action())) {
-                QVERIFY(key->key().rtl());
+            if (expectedRtlKeys.contains(key->model().binding()->action())) {
+                QVERIFY(key->model().rtl());
                 QVERIFY2(key->iconId().contains("-rtl-"), "This is not RTL icon");
             } else if (!key->iconId().isEmpty()) {
-                QVERIFY(!key->key().rtl());
+                QVERIFY(!key->model().rtl());
                 QVERIFY2(!key->iconId().contains("-rtl-"), "This is not LTR icon");
             }
         }

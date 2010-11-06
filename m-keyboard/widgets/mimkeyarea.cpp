@@ -368,7 +368,7 @@ void MImKeyArea::drawKeyBackground(QPainter *painter,
     switch (key->state()) {
 
     case MImAbstractKey::Normal:
-        switch (key->key().style()) {
+        switch (key->model().style()) {
         case MImKeyModel::SpecialStyle:
             background = baseStyle()->keyBackgroundSpecial();
             break;
@@ -383,7 +383,7 @@ void MImKeyArea::drawKeyBackground(QPainter *painter,
         break;
 
     case MImAbstractKey::Pressed:
-        switch (key->key().style()) {
+        switch (key->model().style()) {
         case MImKeyModel::SpecialStyle:
             background = baseStyle()->keyBackgroundSpecialPressed();
             break;
@@ -398,7 +398,7 @@ void MImKeyArea::drawKeyBackground(QPainter *painter,
         break;
 
     case MImAbstractKey::Selected:
-        switch (key->key().style()) {
+        switch (key->model().style()) {
         case MImKeyModel::SpecialStyle:
             background = baseStyle()->keyBackgroundSpecialSelected();
             break;

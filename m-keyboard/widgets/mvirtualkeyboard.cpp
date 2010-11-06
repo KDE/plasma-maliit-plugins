@@ -1041,11 +1041,11 @@ QList<MImEngine::KeyboardLayoutKey> MVirtualKeyboard::mainLayoutKeys() const
     MImAbstractKeyArea *mainKb = keyboardWidget();
     foreach (const MImAbstractKey *ikey, mainKb->keys()) {
         // only care about the keys which insert characters.
-        if (ikey->key().binding()->action() == MImKeyBinding::ActionInsert) {
+        if (ikey->model().binding()->action() == MImKeyBinding::ActionInsert) {
             bool isPunctuation = false;
             bool isSymbol = false;
             QList<QChar> symbols;
-            foreach (const QChar &c, ikey->key().binding()->label()) {
+            foreach (const QChar &c, ikey->model().binding()->label()) {
                 symbols << c;
                 if (c.isPunct())
                     isPunctuation = true;
@@ -1056,7 +1056,7 @@ QList<MImEngine::KeyboardLayoutKey> MVirtualKeyboard::mainLayoutKeys() const
             if (isSymbol)
                 continue;
 
-            foreach (const QChar &c, ikey->key().binding()->accentedLabels()) {
+            foreach (const QChar &c, ikey->model().binding()->accentedLabels()) {
                 symbols << c;
             }
 

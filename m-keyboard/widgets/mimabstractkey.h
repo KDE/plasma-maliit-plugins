@@ -62,7 +62,7 @@ public:
     virtual ButtonState state() const = 0;
 
     //! \return the key this button represents
-    virtual const MImKeyModel &key() const = 0;
+    virtual const MImKeyModel &model() const = 0;
 
     //! \brief Get current active key binding.
     virtual const MImKeyBinding &binding() const = 0;

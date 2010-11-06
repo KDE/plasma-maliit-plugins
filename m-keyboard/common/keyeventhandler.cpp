@@ -103,9 +103,9 @@ KeyEvent KeyEventHandler::keyToKeyEvent(const MImAbstractKey &key, QKeyEvent::Ty
     upperCase |= shiftHeldDown;
 
     if (accent.isEmpty()) {
-        event = key.key().toKeyEvent(eventType, upperCase);
+        event = key.model().toKeyEvent(eventType, upperCase);
     } else {
-        event = key.key().toKeyEvent(eventType, accent.at(0), upperCase);
+        event = key.model().toKeyEvent(eventType, accent.at(0), upperCase);
     }
     event.setPos(point);
 

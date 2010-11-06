@@ -123,7 +123,7 @@ void Ut_KeyButton::testSetModifier()
 
 void Ut_KeyButton::testKey()
 {
-    QCOMPARE(&subject->key(), dataKey);
+    QCOMPARE(&subject->model(), dataKey);
 }
 
 void Ut_KeyButton::testBinding()
