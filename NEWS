@@ -1,3 +1,19 @@
+0.5.10-1
+========
+
+* Internal changes in meego-keyboard:
+  - MImAbstractKey:
+    - renamed key() => model()
+    - added resetActiveKeys(): will release all stuck keys
+    - added visitActiveKeys(.): takes a functor, and applies it to all active
+      keys. Aborts iteration if functor returns true.
+    - added MImAbstractKeyVisitor interface
+    - added lastActiveKey(): returns most recently pressed key that wasn't
+      released yet.
+
+  - MImAbstractKeyArea:
+    - renamed updateButtonGeometriesForWith() => updateKeyGeometries()
+
 0.5.9-1
 =======
 
