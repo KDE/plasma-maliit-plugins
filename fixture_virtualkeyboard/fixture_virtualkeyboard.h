@@ -47,14 +47,14 @@ public:
      *  \param label  button label of the virtualkeyboard
      */
     virtual const MImAbstractKey *getKey(const MImKeyArea * const widget,
-                                     const QString &label) const;
+                                         const QString &label) const;
     /*!
      *  \brief Get the IkeyButton (button details) by providing the action associated  by  a keyboard button
      *  \param widget the button area widget that is queried for the button of a given action.
      *  \param action  Action associated with a keyboard button
      */
     virtual const MImAbstractKey *getKey(const MImKeyArea * widget,
-                                     const MImKeyBinding::KeyAction action) const;
+                                         const MImKeyBinding::KeyAction action) const;
 };
 
 #endif

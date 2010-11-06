@@ -1014,7 +1014,7 @@ void Ut_MVirtualKeyboard::resetKeyAreaStyle(MImAbstractKeyArea *area)
     // Those adjustments dont work for reaction maps:
     s->setButtonBoundingRectTopAdjustment(0);
     s->setButtonBoundingRectBottomAdjustment(0);
-    area->updateButtonGeometriesForWidth(area->geometry().width());
+    area->updateKeyGeometries(area->geometry().width());
 }
 
 QTEST_APPLESS_MAIN(Ut_MVirtualKeyboard);

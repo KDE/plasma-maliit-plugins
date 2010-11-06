@@ -103,14 +103,14 @@ bool FixtureVirtualKeyboard::execute(void *objectInstance,
 }
 
 const MImAbstractKey * FixtureVirtualKeyboard::getKey(const MImKeyArea * const widget,
-                                                  const QString &label) const
+                                                      const QString &label) const
 {
     Q_ASSERT(widget);
 
-    foreach (const MImKeyArea::ButtonRow &row, widget->rowList) {
-        foreach (const MImKey *button, row.buttons) {
-            if (button->label() == label) {
-                return button;
+    foreach (const MImKeyArea::KeyRow &row, widget->rowList) {
+        foreach (const MImKey *key, row.keys) {
+            if (key->label() == label) {
+                return key;
             }
         }
     }
@@ -119,14 +119,14 @@ const MImAbstractKey * FixtureVirtualKeyboard::getKey(const MImKeyArea * const w
 }
 
 const MImAbstractKey * FixtureVirtualKeyboard::getKey(const MImKeyArea * const widget,
-                                                  MImKeyBinding::KeyAction action) const
+                                                      MImKeyBinding::KeyAction action) const
 {
     Q_ASSERT(widget);
 
-    foreach (const MImKeyArea::ButtonRow &row, widget->rowList) {
-        foreach (const MImKey *button, row.buttons) {
-            if (button->binding().action() == action) {
-                return button;
+    foreach (const MImKeyArea::KeyRow &row, widget->rowList) {
+        foreach (const MImKey *key, row.keys) {
+            if (key->binding().action() == action) {
+                return key;
             }
         }
     }

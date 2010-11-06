@@ -676,7 +676,7 @@ void Ut_MImAbstractKeyArea::testShiftCapsLock()
     subject = createKeyArea(section,
                                               false, 0);
 
-    MImKey *shiftButton = static_cast<MImKeyArea *>(subject)->shiftButton;
+    MImKey *shiftButton = static_cast<MImKeyArea *>(subject)->shiftKey;
     QVERIFY(shiftButton);
     QVERIFY(shiftButton->state() == MImAbstractKey::Normal);
 
@@ -838,19 +838,19 @@ void Ut_MImAbstractKeyArea::testRtlKeys()
     subject = createKba(keyboard->layout(LayoutData::General, orientation)->section(LayoutData::mainSection),
                         false, 0);
 
-    MImKeyArea *buttonArea = dynamic_cast<MImKeyArea *>(subject);
+    MImKeyArea *keyArea = dynamic_cast<MImKeyArea *>(subject);
 
-    QVERIFY2(buttonArea != 0, "Unknown type of button area");
-    for (int row = 0; row < buttonArea->rowCount(); ++row) {
-        for (int column = 0; column < buttonArea->sectionModel()->columnsAt(row); ++column) {
-            MImKey *button = buttonArea->rowList[row].buttons[column];
-            QVERIFY(button != 0);
-            if (expectedRtlKeys.contains(button->key().binding()->action())) {
-                QVERIFY(button->key().rtl());
-                QVERIFY2(button->iconId().contains("-rtl-"), "This is not RTL icon");
-            } else if (!button->iconId().isEmpty()) {
-                QVERIFY(!button->key().rtl());
-                QVERIFY2(!button->iconId().contains("-rtl-"), "This is not LTR icon");
+    QVERIFY2(keyArea != 0, "Unknown type of button area");
+    for (int row = 0; row < keyArea->rowCount(); ++row) {
+        for (int column = 0; column < keyArea->sectionModel()->columnsAt(row); ++column) {
+            MImKey *key = keyArea->rowList[row].keys[column];
+            QVERIFY(key != 0);
+            if (expectedRtlKeys.contains(key->key().binding()->action())) {
+                QVERIFY(key->key().rtl());
+                QVERIFY2(key->iconId().contains("-rtl-"), "This is not RTL icon");
+            } else if (!key->iconId().isEmpty()) {
+                QVERIFY(!key->key().rtl());
+                QVERIFY2(!key->iconId().contains("-rtl-"), "This is not LTR icon");
             }
         }
     }
@@ -1167,7 +1167,7 @@ MImAbstractKey *Ut_MImAbstractKeyArea::keyAt(unsigned int row, unsigned int colu
 
     MImKeyArea *buttonArea = dynamic_cast<MImKeyArea *>(subject);
     if (buttonArea) {
-        key = buttonArea->rowList[row].buttons[column];
+        key = buttonArea->rowList[row].keys[column];
     }
 
     return key;

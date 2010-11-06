@@ -14,8 +14,6 @@
  * of this file.
  */
 
-
-
 #ifndef MIMABSTRACTKEYAREA_H
 #define MIMABSTRACTKEYAREA_H
 
@@ -46,10 +44,7 @@ class QTextLayout;
 class PopupHost;
 class PopupBase;
 
-/*!
- * \class MImAbstractKeyArea
- * \brief MImAbstractKeyArea is a view for virtual keyboard layout represented by LayoutModel
- */
+//! \brief MImAbstractKeyArea is a view for virtual keyboard layout represented by LayoutModel
 class MImAbstractKeyArea
     : public MStylableWidget
 {
@@ -57,12 +52,10 @@ class MImAbstractKeyArea
     Q_DISABLE_COPY(MImAbstractKeyArea)
 
 public:
-    /*!
-    * \brief Constructor
-    * \param section A section that this MImAbstractKeyArea visualizes.
-    * \param usePopup Sets whether popup should be used when long press occurs.
-    * \param parent The widget's parent.
-    */
+    //! \brief Constructor
+    //! \param section section that is shown by this key area
+    //! \param usePopup whether popup should be used
+    //! \param parent key area's parent
     explicit MImAbstractKeyArea(const LayoutData::SharedLayoutSection &section,
                                 bool usePopup = false,
                                 QGraphicsWidget *parent = 0);
@@ -70,44 +63,51 @@ public:
     //! \brief Destructor
     virtual ~MImAbstractKeyArea();
 
-    //! \return layout model
+    //! \brief Returns section shown by this key area.
     const LayoutData::SharedLayoutSection &sectionModel() const;
 
-    //! Returns current level of this layout.
+    //! \brief Returns current level of this layout.
     int level() const;
 
-    //! Expose style used by MImAbstractKeyArea.
+    //! \brief Exposes style used by this key area.
     const MImAbstractKeyAreaStyleContainer &baseStyle() const;
 
-    //! Set input method mode for all MImAbstractKeyArea instances
+    //! \brief Sets input method mode for all MImAbstractKeyArea instances.
+    //! \param inputMethodMode the new input method mode
     static void setInputMethodMode(M::InputMethodMode inputMethodMode);
 
-    //! Returns relative button base width
-    qreal relativeButtonBaseWidth() const;
+    //! \brief Returns relative button base width
+    qreal relativeKeyBaseWidth() const;
 
-    //! Returns all keys.
-    virtual QList<const MImAbstractKey *> keys() = 0;
+    //! \brief Returns all keys from this key area.
+    virtual QList<const MImAbstractKey *> keys() const = 0;
 
-    /*! \brief Notification for derived classes about button modifier change.
-     *
-     *  Derived classes should not change the level of selected dead keys. This is to
-     *  ensure all dead keys can be used with all characters in every level.
-     */
-    virtual void modifiersChanged(bool shift, QChar accent = QChar());
+    //! \brief Notification for derived classes about button modifier change.
+    //!
+    //! Derived classes should not change the level of selected dead keys. This is to
+    //! ensure all dead keys can be used with all characters in every level.
+    //! \param shift whether shift modifier is enabled
+    //! \param accent which accented version should be used, for a key
+    virtual void modifiersChanged(bool shift,
+                                  const QChar &accent = QChar());
 
 public slots:
-    /*!
-     * This slot is used to switch levels
-     */
+    //! \brief Tell key area to switch levels for all keys.
+    //! \param level the new level
     void switchLevel(int level);
 
-    virtual void setShiftState(ModifierState newShiftState);
+    //! \brief Set shift state.
+    //! \param shiftState the new shift state
+    virtual void setShiftState(ModifierState shiftState);
 
-    virtual void drawReactiveAreas(MReactionMap *reactionMap, QGraphicsView *view);
+    //! \brief Draw reactive areas for all keys.
+    //! \param reactionMap the reaction map to draw onto
+    //! \param view the view to be used
+    virtual void drawReactiveAreas(MReactionMap *reactionMap,
+                                   QGraphicsView *view);
 
-    /*!
-     * \brief unlock all locked deadkeys
-     */
+    //! \brief Unlock all locked dead keys.
+    //! \param deadKey the corresponding dead key
     void unlockDeadKeys(MImAbstractKey *deadKey);
 
 signals:
@@ -115,68 +115,71 @@ signals:
     //! \param region The changed region
     void regionUpdated(const QRegion &region);
 
-    /*!
-     * \brief Emitted when key is pressed
-     * Note that this happens also when user keeps finger down/mouse
-     * button pressed and moves over another key (event is about the new key)
-     * \param key describes pressed button
-     * \param accent label of pressed dead key if any
-     * \param upperCase contains true if key is in uppercase state
-     */
-    void keyPressed(const MImAbstractKey *key, const QString &accent, bool upperCase);
+    //! \brief Emitted when key is pressed
+    //!
+    //! Note that this happens also when user keeps finger down/mouse
+    //! button pressed and moves over another key (event is about the new key)
+    //! \param key describes pressed button
+    //! \param accent label of pressed dead key if any
+    //! \param upperCase contains true if key is in uppercase state
+    void keyPressed(const MImAbstractKey *key,
+                    const QString &accent,
+                    bool upperCase);
 
-    /*!
-     * \brief Emitted when key is released
-     * Note that this happens also when user keeps finger down/mouse
-     * button pressed and moves over another key (event is about the old key)
-     * \param key describes released button
-     * \param accent label of pressed dead key if any
-     * \param upperCase contains true if key is in uppercase state
-     */
-    void keyReleased(const MImAbstractKey *key, const QString &accent, bool upperCase);
+    //! \brief Emitted when key is released.
+    //!
+    //! Note that this happens also when user keeps finger down/mouse
+    //! button pressed and moves over another key (event is about the old key)
+    //! \param key describes released button
+    //! \param accent label of pressed dead key if any
+    //! \param upperCase contains true if key is in uppercase state
+    void keyReleased(const MImAbstractKey *key,
+                     const QString &accent,
+                     bool upperCase);
 
-    /*!
-     * \brief Emitted when user releases mouse button/lifts finger
-     * Except when done on a dead key
-     * \param key describes clicked button
-     * \param accent label of pressed dead key if any
-     * \param upperCase contains true if key is in uppercase state
-     * \param touchPoint the touch point for the key
-     */
-    void keyClicked(const MImAbstractKey *key, const QString &accent, bool upperCase, const QPoint &touchPoint);
+    //! \brief Emitted when user releases mouse button/lifts finger.
+    //!
+    //! Except when done on a dead key
+    //! \param key describes clicked button
+    //! \param accent label of pressed dead key if any
+    //! \param upperCase contains true if key is in uppercase state
+    //! \param touchPoint the touch point for the key
+    void keyClicked(const MImAbstractKey *key,
+                    const QString &accent, bool upperCase,
+                    const QPoint &touchPoint);
 
-    /*!
-     * \brief Emitted when long press is detected.
-     * Long press detection is:
-     * - cancelled when latest pressed key is released;
-     * - restarted when finger is moved to other key;
-     * - restarted when new touch point is recognized by MImAbstractKeyArea.
-     *
-     * \param key describes pressed button.
-     * \param accent Active accent in MImAbstractKeyArea at the time of long press occured.
-     * \param upperCase Upper case state in MImAbstractKeyArea at the time of long press occured.
-     */
-    void longKeyPressed(const MImAbstractKey *key, const QString &accent, bool upperCase);
+    //! \brief Emitted when long press is detected.
+    //!
+    //! Long press detection is:
+    //! - cancelled when latest pressed key is released;
+    //! - restarted when finger is moved to other key;
+    //! - restarted when new touch point is recognized by MImAbstractKeyArea.
+    //! \param key describes pressed button
+    //! \param accent active accent in MImAbstractKeyArea at the time of long press occured
+    //! \param upperCase upper case state in MImAbstractKeyArea at the time of long press occured
+    void longKeyPressed(const MImAbstractKey *key,
+                        const QString &accent,
+                        bool upperCase);
 
-    //! Emitted when flicked right
+    //! \brief Emitted when key area is flicked right.
     void flickRight();
 
-    //! Emitted when flicked left
+    //! \brief Emitted when key area is flicked left.
     void flickLeft();
 
-    //! Emitted when flicked down
+    //! \brief Emitted when key area is flicked down.
     void flickDown();
 
-    //! \brief Emitted when flicked up
+    //! \brief Emitted when key area is flicked up.
     //! \param binding Information about the key where mouse button was pressed
     void flickUp(const MImKeyBinding &binding);
 
     //! \brief Emitted if button width has changed
     //! \param baseWidth base width used for relative button widths
-    void relativeButtonBaseWidthChanged(qreal baseWidth);
+    void relativeKeyBaseWidthChanged(qreal baseWidth);
 
 protected:
-    /*! \reimp */
+    //! \reimp
     virtual void resizeEvent(QGraphicsSceneResizeEvent *event);
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
@@ -187,56 +190,54 @@ protected:
     virtual void grabMouseEvent(QEvent *event);
     virtual void ungrabMouseEvent(QEvent *event);
     virtual bool event(QEvent *event);
-    /*! \reimp_end */
+    //! \reimp_end
 
-    //! Called when widget is about to lose visibility.
+    //! \brief Called when key area's visibility changed.
+    //! \param visible the new visbility status
     virtual void handleVisibilityChanged(bool visible);
+
+    //! \brief Invalidates the current background cache.
     virtual void invalidateBackgroundCache() = 0;
 
     //! Shows popup and updates its content and position.
     //! \param key current key
     void updatePopup(MImAbstractKey *key = 0);
 
-    /*!
-    * \brief Get level count of the virtual keyboard.
-    * \return int. The level count.
-    */
+    //! \brief Get maximum number of columns in this key area.
     int maxColumns() const;
 
-    /*!
-    * \brief Get row count of the virtual keyboard, in current level.
-    * \return int. The row count.
-    */
+    //! \brief Get number of rows in this key area.
     int rowCount() const;
 
-    //! \brief Updates button labels and/or icons according to current level and deadkey.
+    //! \brief Updates button labels and/or icons according to current level
+    //!        and deadkey.
     //! \param accent the accent version of a dead key.
-    void updateButtonModifiers(const QChar &accent = QChar());
+    void updateKeyModifiers(const QChar &accent = QChar());
 
     //! \brief Returns key at given \a pos.
     //!
     //! Accepts positions outside widget geometry because
     //! of reactive margins.
+    //! \param pos the position (in key area space) to look up key
     virtual MImAbstractKey *keyAt(const QPoint &pos) const = 0;
 
-    /*! \brief Calculates button and row geometry based on given \a availableWidth.
-     *  \post Button rectangle cache and row width cache are up to date.
-     */
-    virtual void updateButtonGeometriesForWidth(int availableWidth) = 0;
+    //! \brief Updates key (and row) geometry based on given \a availableWidth.
+    //! \param availableWidth with of the key area
+    virtual void updateKeyGeometries(int availableWidth) = 0;
 
+    //! \brief Returns popup
     const PopupBase &popup() const;
 
+    //! \brief Print touch point information, for debugging purposes.
+    //! \param tp the touch point
+    //! \param key key underneath touch point
+    //! \param lastKey last key that was associated to the touch point
     void printTouchPoint(const QTouchEvent::TouchPoint &tp,
                          const MImAbstractKey *key,
                          const MImAbstractKey *lastKey = 0) const;
 
-    //! Sets button state and sends release & press events.
-    //void setActiveKey(MImAbstractKey *key, TouchPointInfo &tpi);
-
-    //! Relative button base width in currently active layout
-    qreal mRelativeButtonBaseWidth;
-
-    bool debugTouchPoints;
+    qreal mRelativeKeyBaseWidth; //!< Relative key base width in currently active layout
+    bool debugTouchPoints; //!< Whether touch point debugging is enabled
 
 protected slots:
     //! Update background images, text layouts, etc. when the theme changed.
@@ -250,6 +251,7 @@ protected slots:
 
 private:
     //! \brief Handler for flick gestures from Qt gesture framework.
+    //! \param gesture the flick gesture
     void handleFlickGesture(FlickGesture *gesture);
 
     //! \brief Touch point press handler.
@@ -264,10 +266,17 @@ private:
     //! \param tp The unprocessed Qt touchpoint.
     void touchPointReleased(const QTouchEvent::TouchPoint &tp);
 
+    //! \brief Helper method to create touch points
+    //! \param id touch point id
+    //! \param state touch point state
+    //! \param pos touch point scene position
+    //! \param lastPos last touch point scene position
     static QTouchEvent::TouchPoint createTouchPoint(int id,
                                                     Qt::TouchPointState state,
                                                     const QPointF &pos,
                                                     const QPointF &lastPos);
+
+    //! \brief Helper struct to store results of \a gravitationalKeyAt
     struct GravitationalLookupResult
     {
         GravitationalLookupResult(MImAbstractKey *newKey,
@@ -292,45 +301,28 @@ private:
                                                  const QPoint &mappedLastPos,
                                                  const QPoint &mappedStartPos) const;
 
-    void click(MImAbstractKey *key, const QPoint &touchPoint = QPoint());
+    //! \brief Trigger a keyClicked signal, and update key area state.
+    //! \param key the clicked key
+    //! \param pos where the key was clicked
+    void click(MImAbstractKey *key,
+               const QPoint &pos = QPoint());
 
-    //! Checks for speed typing mode
+    //! \brief Checks for speed typing mode
     //! \warning Not side-effect free when \a restartTimers is actively used.
     bool isInSpeedTypingMode(bool restartTimers = false);
 
-    //! Current level
-    int currentLevel;
-
-    //! Popup to show additional information for a button
-    PopupBase *mPopup;
-
-    //! List of punctuation labels
-    QList<QStringList> punctuationsLabels;
-
-    //! List of accent labels
-    QList<QStringList> accentLabels;
-
-    //! Whether a gesture was already triggered for any active touch point.
-    bool wasGestureTriggered;
-    bool enableMultiTouch;
-
-    //! Feedback player instance
-    MFeedbackPlayer *feedbackPlayer;
-
-    //! layout section viewed by this class
-    const LayoutData::SharedLayoutSection section;
-
-    static M::InputMethodMode InputMethodMode;
-
-    //! This timer is used to recognize long press.
-    QTimer longPressTimer;
-
-
-    //! Whenever the VKB idles, gestures are activated.
-    QTimer idleVkbTimer;
-
-    //! Used to measure elapsed time between two touchpoint press events:
-    QTime lastTouchPointPressEvent;
+    int currentLevel; //!< current level
+    PopupBase *mPopup; //!< popup to show additional information for a button
+    QList<QStringList> punctuationsLabels; //!< list of punctuation labels
+    QList<QStringList> accentLabels; //!< list of accent labels
+    bool wasGestureTriggered; //!< whether a gesture was already triggered for any active touch point
+    bool enableMultiTouch; //!< whether this key area operates in multitouch mode
+    MFeedbackPlayer *feedbackPlayer; //!< Feedback player instance
+    const LayoutData::SharedLayoutSection section; //!< layout section shown by this key area
+    static M::InputMethodMode InputMethodMode; //!< used input method mode (same for all key areas)
+    QTimer longPressTimer; //!< used to recognize long press
+    QTimer idleVkbTimer;  //!< Whenever this key area of the VKB idles, gestures are activated.
+    QTime lastTouchPointPressEvent; //!< measures elapsed time between two touchpoint press events
 
     M_STYLABLE_WIDGET(MImAbstractKeyAreaStyle)
 

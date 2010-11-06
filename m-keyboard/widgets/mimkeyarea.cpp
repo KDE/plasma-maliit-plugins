@@ -14,8 +14,6 @@
  * of this file.
  */
 
-
-
 #include "mvirtualkeyboardstyle.h"
 #include "mimkeyarea.h"
 
@@ -65,12 +63,12 @@ MImKeyArea::MImKeyArea(const LayoutData::SharedLayoutSection &newSection,
                        QGraphicsWidget *parent)
     : MImAbstractKeyArea(newSection, usePopup, parent),
       rowList(newSection->rowCount()),
-      widgetHeight(computeWidgetHeight()),
-      mMaxNormalizedWidth(maxNormalizedWidth()),
-      shiftButton(0),
+      cachedWidgetHeight(computeWidgetHeight()),
+      mMaxNormalizedWidth(computeMaxNormalizedWidth()),
+      shiftKey(0),
       textDirty(false),
       cachedBackgroundDirty(true),
-      equalWidthButtons(true)
+      equalWidthKeys(true)
 {
     textLayout.setCacheEnabled(true);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
@@ -81,12 +79,13 @@ MImKeyArea::MImKeyArea(const LayoutData::SharedLayoutSection &newSection,
 MImKeyArea::~MImKeyArea()
 {
     for (RowIterator rowIter(rowList.begin()); rowIter != rowList.end(); ++rowIter) {
-        qDeleteAll(rowIter->buttons);
-        rowIter->buttons.clear();
+        qDeleteAll(rowIter->keys);
+        rowIter->keys.clear();
     }
 }
 
-QSizeF MImKeyArea::sizeHint(Qt::SizeHint which, const QSizeF &/*constraint*/) const
+QSizeF MImKeyArea::sizeHint(Qt::SizeHint which,
+                            const QSizeF &) const
 {
     int width = 0;
     if (which == Qt::MaximumSize) {
@@ -94,17 +93,18 @@ QSizeF MImKeyArea::sizeHint(Qt::SizeHint which, const QSizeF &/*constraint*/) co
         // will apply a constraint for this.
         width = QWIDGETSIZE_MAX;
     }
-    return QSizeF(width, widgetHeight);
+    return QSizeF(width, cachedWidgetHeight);
 }
 
-void MImKeyArea::drawReactiveAreas(MReactionMap *reactionMap, QGraphicsView *view)
+void MImKeyArea::drawReactiveAreas(MReactionMap *reactionMap,
+                                   QGraphicsView *view)
 {
     reactionMap->setTransform(this, view);
     reactionMap->setReactiveDrawingValue();
 
-    foreach (const ButtonRow &row, rowList) {
-        foreach (const MImKey *const button, row.buttons) {
-            reactionMap->fillRectangle(button->buttonBoundingRect());
+    foreach (const KeyRow &row, rowList) {
+        foreach (const MImKey *const key, row.keys) {
+            reactionMap->fillRectangle(key->buttonBoundingRect());
         }
     }
 }
@@ -118,25 +118,25 @@ void MImKeyArea::loadKeys()
     for (int row = 0; row != numRows; ++row, ++rowIter) {
         const int numColumns = sectionModel()->columnsAt(row);
 
-        rowIter->stretchButton = 0;
+        rowIter->stretchKey = 0;
 
-        // Add buttons
+        // Add keys
         for (int col = 0; col < numColumns; ++col) {
             // Parameters to fetch from base class.
             MImKeyModel *dataKey = sectionModel()->keyModel(row, col);
-            MImKey *button = new MImKey(*dataKey, baseStyle(), *this);
+            MImKey *key = new MImKey(*dataKey, baseStyle(), *this);
 
-            // TODO: Remove restriction to have only one shift button per layout?
+            // TODO: Remove restriction to have only one shift key per layout?
             if (dataKey->binding()->action() == MImKeyBinding::ActionShift) {
-                shiftButton = button;
+                shiftKey = key;
             }
 
             // Only one stretching item per row.
-            if (!rowIter->stretchButton) {
-                rowIter->stretchButton = (dataKey->width() == MImKeyModel::Stretched ? button : 0);
+            if (!rowIter->stretchKey) {
+                rowIter->stretchKey = (dataKey->width() == MImKeyModel::Stretched ? key : 0);
             }
 
-            rowIter->buttons.append(button);
+            rowIter->keys.append(key);
         }
     }
 
@@ -158,22 +158,23 @@ void MImKeyArea::buildTextLayout()
     // labels. This must be done before QTextLayout::beginLayout().
     QString labelContent;
 
-    foreach (const ButtonRow &row, rowList) {
-
-        foreach (const MImKey *button, row.buttons) {
+    foreach (const KeyRow &row, rowList) {
+        foreach (const MImKey *key, row.keys) {
             // primary label
-            QString label = button->label();
+            QString label = key->label();
 
             if (!label.isEmpty()) {
                 // Add whitespace for QTextLine to be able to cut.
                 labelContent += label + " ";
 
                 // try secondary label
-                label = button->secondaryLabel();
+                label = key->secondaryLabel();
 
                 if (!label.isEmpty()) {
                     // Add formatting for this secondary label.
-                    QTextLayout::FormatRange formatRange = {labelContent.length(), label.length(), secondaryFormat};
+                    QTextLayout::FormatRange formatRange = {labelContent.length(),
+                                                            label.length(),
+                                                            secondaryFormat};
                     formatList.append(formatRange);
                     labelContent += label + " ";
                 }
@@ -204,16 +205,16 @@ void MImKeyArea::buildTextLayout()
         // rowHasSecondaryLabel is needed for the vertical alignment of
         // secondary label purposes.
         bool rowHasSecondaryLabel = false;
-        foreach (MImKey *button, row->buttons) {
-            if (!button->secondaryLabel().isEmpty()) {
+
+        foreach (const MImKey *key, row->keys) {
+            if (!key->secondaryLabel().isEmpty()) {
                 rowHasSecondaryLabel = true;
             }
         }
 
-        foreach (MImKey *button, row->buttons) {
-
-            const QString &label(button->label());
-            const QString &secondary(button->secondaryLabel());
+        foreach (const MImKey *key, row->keys) {
+            const QString &label(key->label());
+            const QString &secondary(key->secondaryLabel());
             QPoint labelPos;
             QPoint secondaryLabelPos;
 
@@ -222,14 +223,14 @@ void MImKeyArea::buildTextLayout()
                 continue;
             }
 
-            const QRectF &buttonRect = button->cachedButtonRect;
+            const QRectF &keyRect = key->cachedButtonRect;
 
             if (!rowHasSecondaryLabel) {
                 // All horizontally centered.
-                labelPos = fm.boundingRect(buttonRect.x(),
-                                           buttonRect.y(),
-                                           buttonRect.width(),
-                                           buttonRect.height(),
+                labelPos = fm.boundingRect(keyRect.x(),
+                                           keyRect.y(),
+                                           keyRect.width(),
+                                           keyRect.height(),
                                            Qt::AlignCenter,
                                            label).topLeft();
             } else {
@@ -242,22 +243,22 @@ void MImKeyArea::buildTextLayout()
                 if (landscape) {
                     // primary label: horizontally centered, top margin defines y
                     // secondary: horizontally centered, primary bottom + separation margin defines y
-                    const int primaryY = buttonRect.top() + topMargin;
-                    labelPos.setX(buttonRect.center().x() - fm.width(label) / 2);
+                    const int primaryY = keyRect.top() + topMargin;
+                    labelPos.setX(keyRect.center().x() - fm.width(label) / 2);
                     labelPos.setY(primaryY);
                     if (!secondary.isEmpty()) {
-                        secondaryLabelPos.setX(buttonRect.center().x() - secondaryFm.width(secondary) / 2);
+                        secondaryLabelPos.setX(keyRect.center().x() - secondaryFm.width(secondary) / 2);
                         secondaryLabelPos.setY(primaryY + labelHeight + secondarySeparation);
                     }
                 } else {
                     // primary label: horizontally according to left margin, vertically centered
                     // secondary: horizontally on right of primary + separation margin, vertically centered
-                    const int primaryX = buttonRect.left() + labelLeftWithSecondary;
+                    const int primaryX = keyRect.left() + labelLeftWithSecondary;
                     labelPos.setX(primaryX);
-                    labelPos.setY(buttonRect.center().y() - labelHeight / 2);
+                    labelPos.setY(keyRect.center().y() - labelHeight / 2);
                     if (!secondary.isEmpty()) {
                         secondaryLabelPos.setX(primaryX + fm.width(label) + secondarySeparation);
-                        secondaryLabelPos.setY(buttonRect.center().y() - secondaryLabelHeight / 2);
+                        secondaryLabelPos.setY(keyRect.center().y() - secondaryLabelHeight / 2);
                     }
                 }
             }
@@ -321,11 +322,11 @@ void MImKeyArea::paint(QPainter *onScreenPainter,
         }
 
         // Draw images first.
-        foreach (const ButtonRow &row, rowList) {
-            foreach (const MImKey *button, row.buttons) {
-                drawKeyBackground(&offScreenPainter, button);
-                button->drawIcon(button->cachedButtonRect.toRect(), &offScreenPainter);
-                drawDebugRects(&offScreenPainter, button,
+        foreach (const KeyRow &row, rowList) {
+            foreach (const MImKey *key, row.keys) {
+                drawKeyBackground(&offScreenPainter, key);
+                key->drawIcon(key->cachedButtonRect.toRect(), &offScreenPainter);
+                drawDebugRects(&offScreenPainter, key,
                                style->drawButtonBoundingRects(),
                                style->drawButtonRects());
             }
@@ -356,18 +357,18 @@ void MImKeyArea::paint(QPainter *onScreenPainter,
 }
 
 void MImKeyArea::drawKeyBackground(QPainter *painter,
-                                               const MImKey *button)
+                                   const MImAbstractKey *key) const
 {
-    if (!button) {
+    if (!key) {
         return;
     }
 
     const MScalableImage *background = 0;
 
-    switch (button->state()) {
+    switch (key->state()) {
 
     case MImAbstractKey::Normal:
-        switch (button->key().style()) {
+        switch (key->key().style()) {
         case MImKeyModel::SpecialStyle:
             background = baseStyle()->keyBackgroundSpecial();
             break;
@@ -382,7 +383,7 @@ void MImKeyArea::drawKeyBackground(QPainter *painter,
         break;
 
     case MImAbstractKey::Pressed:
-        switch (button->key().style()) {
+        switch (key->key().style()) {
         case MImKeyModel::SpecialStyle:
             background = baseStyle()->keyBackgroundSpecialPressed();
             break;
@@ -397,7 +398,7 @@ void MImKeyArea::drawKeyBackground(QPainter *painter,
         break;
 
     case MImAbstractKey::Selected:
-        switch (button->key().style()) {
+        switch (key->key().style()) {
         case MImKeyModel::SpecialStyle:
             background = baseStyle()->keyBackgroundSpecialSelected();
             break;
@@ -416,23 +417,23 @@ void MImKeyArea::drawKeyBackground(QPainter *painter,
     }
 
     if (background) {
-        background->draw(button->cachedButtonRect.toRect(), painter);
+        background->draw(key->buttonRect().toRect(), painter);
     }
 }
 
 void MImKeyArea::drawDebugRects(QPainter *painter,
-                                            const MImKey *button,
-                                            bool drawBoundingRects,
-                                            bool drawRects)
+                                const MImAbstractKey *key,
+                                bool drawBoundingRects,
+                                bool drawRects) const
 {
     if (drawBoundingRects) {
         painter->save();
         painter->setPen(Qt::red);
         painter->setBrush(QBrush(QColor(64, 0, 0, 64)));
-        painter->drawRect(button->buttonBoundingRect());
-        painter->drawText(button->buttonRect().adjusted(4, 4, -4, -4),
-                          QString("%1x%2").arg(button->buttonBoundingRect().width())
-                          .arg(button->buttonBoundingRect().height()));
+        painter->drawRect(key->buttonBoundingRect());
+        painter->drawText(key->buttonRect().adjusted(4, 4, -4, -4),
+                          QString("%1x%2").arg(key->buttonBoundingRect().width())
+                          .arg(key->buttonBoundingRect().height()));
         painter->restore();
     }
 
@@ -440,10 +441,10 @@ void MImKeyArea::drawDebugRects(QPainter *painter,
         painter->save();
         painter->setPen(Qt::green);
         painter->setBrush(QBrush(QColor(0, 64, 0, 64)));
-        painter->drawRect(button->buttonRect());
-        painter->drawText(button->buttonRect().adjusted(4, 16, -4, -16),
-                          QString("%1x%2").arg(button->buttonRect().width())
-                          .arg(button->buttonRect().height()));
+        painter->drawRect(key->buttonRect());
+        painter->drawText(key->buttonRect().adjusted(4, 16, -4, -16),
+                          QString("%1x%2").arg(key->buttonRect().width())
+                          .arg(key->buttonRect().height()));
         painter->restore();
     }
 }
@@ -462,10 +463,10 @@ void MImKeyArea::drawDebugReactiveAreas(QPainter *painter)
         painter->drawLine(QPointF(0, rowPair.second),
                           QPointF(size().width(), rowPair.second));
 
-        QVector<QPair<qreal, qreal> > buttonOffsets = rowList[rowIdx].buttonOffsets;
+        const QVector<QPair<qreal, qreal> > &keyOffsets = rowList[rowIdx].keyOffsets;
 
-        for(int colIdx = 0; colIdx < buttonOffsets.size(); ++colIdx) {
-            QPair<qreal, qreal> colPair = buttonOffsets[colIdx];
+        for(int colIdx = 0; colIdx < keyOffsets.size(); ++colIdx) {
+            QPair<qreal, qreal> colPair = keyOffsets[colIdx];
             painter->setPen(Qt::cyan);
             painter->drawLine(QPointF(colPair.first, rowPair.first),
                               QPointF(colPair.first, rowPair.second));
@@ -493,32 +494,33 @@ MImAbstractKey *MImKeyArea::keyAt(const QPoint &pos) const
         return 0;
     }
 
-    const ButtonRow &currentRow = rowList.at(rowIndex);
-    const int buttonIndex = binaryRangeFind<qreal>(pos.x(), currentRow.buttonOffsets);
+    const KeyRow &currentRow = rowList.at(rowIndex);
+    const int keyIndex = binaryRangeFind<qreal>(pos.x(), currentRow.keyOffsets);
 
-    if (buttonIndex == -1) {
+    if (keyIndex == -1) {
         return 0;
     }
 
-    return currentRow.buttons.at(buttonIndex);
+    return currentRow.keys.at(keyIndex);
 }
 
 void MImKeyArea::setShiftState(ModifierState newShiftState)
 {
-    if (shiftButton) {
-        shiftButton->setModifiers(newShiftState != ModifierClearState);
-        shiftButton->setSelected(newShiftState == ModifierLockedState);
+    if (shiftKey) {
+        shiftKey->setModifiers(newShiftState != ModifierClearState);
+        shiftKey->setSelected(newShiftState == ModifierLockedState);
     }
 }
 
-void MImKeyArea::modifiersChanged(const bool shift, const QChar accent)
+void MImKeyArea::modifiersChanged(const bool shift,
+                                  const QChar &accent)
 {
     for (RowIterator row(rowList.begin()); row != rowList.end(); ++row) {
-        foreach (MImKey *button, row->buttons) {
-            // Shift button and selected keys are detached from the normal level changing.
-            if (button != this->shiftButton
-                && button->state() != MImAbstractKey::Selected) {
-                button->setModifiers(shift, accent);
+        foreach (MImKey *key, row->keys) {
+            // Shift key and selected keys are detached from the normal level changing.
+            if (key != this->shiftKey
+                && key->state() != MImAbstractKey::Selected) {
+                key->setModifiers(shift, accent);
             }
         }
     }
@@ -526,13 +528,13 @@ void MImKeyArea::modifiersChanged(const bool shift, const QChar accent)
     textDirty = true;
 }
 
-void MImKeyArea::updateButtonGeometriesForWidth(const int newAvailableWidth)
+void MImKeyArea::updateKeyGeometries(const int newAvailableWidth)
 {
     if (sectionModel()->maxColumns() == 0) {
         return;
     }
 
-    widgetHeight = computeWidgetHeight();
+    cachedWidgetHeight = computeWidgetHeight();
     rowOffsets.clear();
 
     const MImAbstractKeyAreaStyleContainer &style(baseStyle());
@@ -544,27 +546,27 @@ void MImKeyArea::updateButtonGeometriesForWidth(const int newAvailableWidth)
                                         - (style->paddingLeft() + style->paddingRight()));
 
     const qreal normalizedWidth = qMax<qreal>(1.0, mMaxNormalizedWidth);
-    const qreal availableWidthForButtons = availableWidth - ((normalizedWidth - 1) * HorizontalSpacing);
-    mRelativeButtonBaseWidth = availableWidthForButtons / normalizedWidth;
-    emit relativeButtonBaseWidthChanged(mRelativeButtonBaseWidth);
+    const qreal availableWidthForKeys = availableWidth - ((normalizedWidth - 1) * HorizontalSpacing);
+    mRelativeKeyBaseWidth = availableWidthForKeys / normalizedWidth;
+    emit relativeKeyBaseWidthChanged(mRelativeKeyBaseWidth);
 
-    // This is used to update the button rectangles
+    // This is used to update the key rectangles
     qreal y = style->paddingTop();
 
-    // Button margins
+    // key margins
     const qreal leftMargin = HorizontalSpacing / 2;
     const qreal rightMargin = HorizontalSpacing - leftMargin;
     const qreal topMargin = VerticalSpacing / 2;
     const qreal bottomMargin = VerticalSpacing - topMargin;
 
-    QRectF br; // button bounding rectangle
+    QRectF br; // key bounding rectangle
     const qreal rowListFactor = (rowList.count() > 1 ? 1 : 0);
 
     for (RowIterator row(rowList.begin()); row != rowList.end(); ++row) {
         const qreal rowHeight = preferredRowHeight(row - rowList.begin());
         br.setHeight(rowHeight + style->spacingVertical() * rowListFactor);
 
-        row->buttonOffsets.clear();
+        row->keyOffsets.clear();
 
         // Store the row offsets for fast key lookup (the first row's height
         // can be adjusted through buttonBoundingRectTopAdjustment,
@@ -586,23 +588,23 @@ void MImKeyArea::updateButtonGeometriesForWidth(const int newAvailableWidth)
 
         // Update row width
         qreal rowWidth = 0;
-        foreach (MImKey *button, row->buttons) {
-            button->width = button->preferredWidth(mRelativeButtonBaseWidth, HorizontalSpacing);
-            rowWidth += button->width + HorizontalSpacing;
+        foreach (MImKey *key, row->keys) {
+            key->width = key->preferredWidth(mRelativeKeyBaseWidth, HorizontalSpacing);
+            rowWidth += key->width + HorizontalSpacing;
         }
         rowWidth -= HorizontalSpacing;
 
         qreal availableWidthForSpacers = 0;
         const QList<int> spacerIndices = sectionModel()->spacerIndices(row - rowList.begin());
-        int spacerCount = row->stretchButton ? spacerIndices.count() + 1
-                                             : spacerIndices.count();
+        int spacerCount = row->stretchKey ? spacerIndices.count() + 1
+                                          : spacerIndices.count();
 
-        if (row->stretchButton) {
-            rowWidth -=  row->stretchButton->width;
+        if (row->stretchKey) {
+            rowWidth -=  row->stretchKey->width;
 
-            // Handle the case of one stretch button/no other spacer elments directly:
+            // Handle the case of one stretch key/no other spacer elments directly:
             if (spacerCount == 1) {
-                row->stretchButton->width = availableWidth - rowWidth;
+                row->stretchKey->width = availableWidth - rowWidth;
                 rowWidth = availableWidth;
                 spacerCount = 0;
             }
@@ -611,40 +613,40 @@ void MImKeyArea::updateButtonGeometriesForWidth(const int newAvailableWidth)
         if ((spacerCount > 0) && (availableWidth > rowWidth)) {
             availableWidthForSpacers = (availableWidth - rowWidth) / spacerCount;
 
-            if (row->stretchButton) {
-                row->stretchButton->width = availableWidthForSpacers;
+            if (row->stretchKey) {
+                row->stretchKey->width = availableWidthForSpacers;
             }
         }
 
-        // We can precalculate button rectangles.
+        // We can precalculate key rectangles.
         br.moveTop(y - (rowList.count() > 1 ? topMargin : 0));
 
-        // A spacer with an index of -1 means it was put before any button in that row.
+        // A spacer with an index of -1 means it was put before any key in that row.
         // Also add layout padding:
         qreal x = style->paddingLeft() + spacerIndices.count(-1) * availableWidthForSpacers;
 
-        for (int buttonIndex = 0; buttonIndex < row->buttons.count(); ++buttonIndex) {
-            MImKey *button = row->buttons.at(buttonIndex);
+        for (int keyIndex = 0; keyIndex < row->keys.count(); ++keyIndex) {
+            MImKey *const key = row->keys.at(keyIndex);
 
             br.moveLeft(x - leftMargin);
-            br.setWidth(button->width + leftMargin + rightMargin);
+            br.setWidth(key->width + leftMargin + rightMargin);
 
             // save it (but cover up for rounding errors, ie, extra spacing pixels):
-            button->cachedBoundingRect = br.adjusted(-1, style->buttonBoundingRectTopAdjustment(),
-                                                      1, style->buttonBoundingRectBottomAdjustment());
+            key->cachedBoundingRect = br.adjusted(-1, style->buttonBoundingRectTopAdjustment(),
+                                                   1, style->buttonBoundingRectBottomAdjustment());
 
-            button->cachedButtonRect = br.adjusted(leftMargin, topMargin, -rightMargin, -bottomMargin);
+            key->cachedButtonRect = br.adjusted(leftMargin, topMargin, -rightMargin, -bottomMargin);
 
-            // Store the button offsets for fast key lookup:
-            row->buttonOffsets.append(QPair<qreal, qreal>(button->cachedBoundingRect.left(),
-                                                          button->cachedBoundingRect.right()));
+            // Store the key offsets for fast key lookup:
+            row->keyOffsets.append(QPair<qreal, qreal>(key->cachedBoundingRect.left(),
+                                                       key->cachedBoundingRect.right()));
 
-            // Increase x to the next button bounding rect border.
-            x += button->width + HorizontalSpacing;
+            // Increase x to the next key bounding rect border.
+            x += key->width + HorizontalSpacing;
 
             // Our spacerIndex is a multi-set, hence we need to add
             // availableWidthForSpacers for every ocurrence of spacerIndex:
-            x += spacerIndices.count(buttonIndex) * availableWidthForSpacers;
+            x += spacerIndices.count(keyIndex) * availableWidthForSpacers;
         }
 
         y += br.height();
@@ -656,7 +658,7 @@ void MImKeyArea::updateButtonGeometriesForWidth(const int newAvailableWidth)
 
 QRectF MImKeyArea::boundingRect() const
 {
-    return QRectF(0, 0, size().width(), widgetHeight);
+    return QRectF(0, 0, size().width(), cachedWidgetHeight);
 }
 
 qreal MImKeyArea::preferredRowHeight(int row) const
@@ -689,24 +691,28 @@ qreal MImKeyArea::preferredRowHeight(int row) const
     return 0.0;
 }
 
-qreal MImKeyArea::maxNormalizedWidth() const
+qreal MImKeyArea::computeMaxNormalizedWidth() const
 {
     qreal maxRowWidth = 0.0;
 
     for (int j = 0; j < sectionModel()->rowCount(); ++j) {
         qreal rowWidth = 0.0;
+
         for (int i = 0; i < sectionModel()->columnsAt(j); ++i) {
             const MImKeyModel *key = sectionModel()->keyModel(j, i);
             rowWidth += normalizedKeyWidth(key);
         }
+
         maxRowWidth = qMax(maxRowWidth, rowWidth);
     }
+
     return maxRowWidth;
 }
 
-qreal MImKeyArea::normalizedKeyWidth(const MImKeyModel *key) const
+qreal MImKeyArea::normalizedKeyWidth(const MImKeyModel *model) const
 {
-    switch(key->width()) {
+    switch(model->width()) {
+
     case MImKeyModel::Small:
         return baseStyle()->keyWidthSmall();
 
@@ -731,7 +737,7 @@ qreal MImKeyArea::normalizedKeyWidth(const MImKeyModel *key) const
 
 void MImKeyArea::onThemeChangeCompleted()
 {
-    mMaxNormalizedWidth = maxNormalizedWidth();
+    mMaxNormalizedWidth = computeMaxNormalizedWidth();
     MImAbstractKeyArea::onThemeChangeCompleted();
     buildTextLayout();
 }
@@ -746,13 +752,15 @@ void MImKeyArea::invalidateBackgroundCache()
     cachedBackgroundDirty = true;
 }
 
-QList<const MImAbstractKey *> MImKeyArea::keys()
+QList<const MImAbstractKey *> MImKeyArea::keys() const
 {
     QList<const MImAbstractKey *> keyList;
-    foreach (const ButtonRow &row, rowList) {
-        foreach (const MImKey *button, row.buttons) {
-            keyList << button;
+
+    foreach (const KeyRow &row, rowList) {
+        foreach (const MImKey *key, row.keys) {
+            keyList.append(key);
         }
     }
+
     return keyList;
 }

@@ -86,8 +86,8 @@ void Bm_MImAbstractKeyArea::benchmarkPreDraw()
     subject = new MImKeyArea(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection));
 
     QBENCHMARK {
-        subject->updateButtonGeometriesForWidth(864);
-        subject->updateButtonModifiers();
+        subject->updateKeyGeometries(864);
+        subject->updateKeyModifiers();
     }
 }
 

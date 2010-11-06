@@ -14,8 +14,6 @@
  * of this file.
  */
 
-
-
 #include "flickgesture.h"
 #include "flickgesturerecognizer.h"
 #include "mvirtualkeyboardstyle.h"
@@ -95,7 +93,7 @@ MImAbstractKeyArea::MImAbstractKeyArea(const LayoutData::SharedLayoutSection &ne
                                        bool usePopup,
                                        QGraphicsWidget *parent)
     : MStylableWidget(parent),
-      mRelativeButtonBaseWidth(0),
+      mRelativeKeyBaseWidth(0),
       debugTouchPoints(style()->debugTouchPoints()),
       currentLevel(0),
       mPopup(usePopup ? PopupFactory::instance()->createPopup(this) : 0),
@@ -137,9 +135,9 @@ void MImAbstractKeyArea::setInputMethodMode(M::InputMethodMode inputMethodMode)
     InputMethodMode = inputMethodMode;
 }
 
-qreal MImAbstractKeyArea::relativeButtonBaseWidth() const
+qreal MImAbstractKeyArea::relativeKeyBaseWidth() const
 {
-    return mRelativeButtonBaseWidth;
+    return mRelativeKeyBaseWidth;
 }
 
 const LayoutData::SharedLayoutSection &MImAbstractKeyArea::sectionModel() const
@@ -200,7 +198,7 @@ MImAbstractKeyArea::switchLevel(int level)
 
         // Update uppercase / lowercase
         const MImAbstractKey *const deadKey = findActiveDeadKey();
-        updateButtonModifiers(deadKey ? deadKey->label().at(0) : '\0');
+        updateKeyModifiers(deadKey ? deadKey->label().at(0) : '\0');
 
         update();
     }
@@ -221,7 +219,7 @@ void MImAbstractKeyArea::resizeEvent(QGraphicsSceneResizeEvent *event)
     const int newWidth = static_cast<int>(event->newSize().width());
 
     if (newWidth != static_cast<int>(event->oldSize().width())) {
-        updateButtonGeometriesForWidth(newWidth);
+        updateKeyGeometries(newWidth);
     }
 }
 
@@ -269,7 +267,8 @@ void MImAbstractKeyArea::mouseReleaseEvent(QGraphicsSceneMouseEvent *ev)
     gLastMousePos = ev->pos();
 }
 
-void MImAbstractKeyArea::click(MImAbstractKey *key, const QPoint &touchPoint)
+void MImAbstractKeyArea::click(MImAbstractKey *key,
+                               const QPoint &pos)
 {
     if (!key) {
         return;
@@ -280,7 +279,7 @@ void MImAbstractKeyArea::click(MImAbstractKey *key, const QPoint &touchPoint)
 
     if (!key->isDeadKey()) {
         const QString accent = (activeDeadKey ? activeDeadKey->label() : QString());
-        emit keyClicked(key, accent, haveActiveShiftKeys || level() % 2, touchPoint);
+        emit keyClicked(key, accent, haveActiveShiftKeys || level() % 2, pos);
 
         if (!key->isDeadKey()) {
             unlockDeadKeys(activeDeadKey);
@@ -295,7 +294,7 @@ void MImAbstractKeyArea::click(MImAbstractKey *key, const QPoint &touchPoint)
 
         // key is the new deadkey:
         key->setSelected(true);
-        updateButtonModifiers(key->label().at(0));
+        updateKeyModifiers(key->label().at(0));
     }
 }
 
@@ -639,10 +638,11 @@ void MImAbstractKeyArea::unlockDeadKeys(MImAbstractKey *deadKey)
 
     deadKey->setSelected(false);
     deadKey->resetTouchPointCount();
-    updateButtonModifiers('\0');
+    updateKeyModifiers('\0');
 }
 
-void MImAbstractKeyArea::drawReactiveAreas(MReactionMap */*reactionMap*/, QGraphicsView */*view*/)
+void MImAbstractKeyArea::drawReactiveAreas(MReactionMap *,
+                                           QGraphicsView *)
 {
     // Empty default implementation. Geometries of buttons are known by derived classes.
 }
@@ -670,7 +670,7 @@ void MImAbstractKeyArea::printTouchPoint(const QTouchEvent::TouchPoint &tp,
                                                      : QString()) << ")";
 }
 
-void MImAbstractKeyArea::updateButtonModifiers(const QChar &accent)
+void MImAbstractKeyArea::updateKeyModifiers(const QChar &accent)
 {
     // We currently don't allow active dead key level changing. If we did,
     // we should update activeDeadKey level before delivering its accent to
@@ -679,14 +679,16 @@ void MImAbstractKeyArea::updateButtonModifiers(const QChar &accent)
     modifiersChanged(shift, accent);
 }
 
-void MImAbstractKeyArea::modifiersChanged(bool /*shift*/, const QChar /*accent*/)
+void MImAbstractKeyArea::modifiersChanged(bool,
+                                          const QChar &)
 {
     // Empty default implementation
 }
 
 void MImAbstractKeyArea::onThemeChangeCompleted()
 {
-    updateButtonGeometriesForWidth(size().width());
+    // TODO: update all other CSS attributes that are mapped to members.
+    updateKeyGeometries(size().width());
 }
 
 const MImAbstractKeyAreaStyleContainer &MImAbstractKeyArea::baseStyle() const

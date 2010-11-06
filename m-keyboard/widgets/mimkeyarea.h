@@ -14,8 +14,6 @@
  * of this file.
  */
 
-
-
 #ifndef MIMKEYAREA_H
 #define MIMKEYAREA_H
 
@@ -27,99 +25,109 @@
 #include <QPixmap>
 #include <memory>
 
-/*!
- * \brief MImKeyArea is an implementation of MImAbstractKeyArea which
- * does not use separate widgets for buttons, but instead draws them explicitly.
- */
+//! \brief MImKeyArea reimplements MImAbstractKeyArea and is optimized for drawing.
 class MImKeyArea
     : public MImAbstractKeyArea
 {
+    Q_DISABLE_COPY(MImKeyArea)
+
 public:
+    //! \brief Contructor, see \a MImAbstractKeyArea
     explicit MImKeyArea(const LayoutData::SharedLayoutSection &section,
                         bool usePopup = false,
                         QGraphicsWidget *parent = 0);
 
+    //! \brief Destructor
     virtual ~MImKeyArea();
 
     //! \reimp
-    virtual void modifiersChanged(bool shift, QChar accent = QChar());
-    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *view);
+    virtual void modifiersChanged(bool shift,
+                                  const QChar &accent = QChar());
+    virtual void paint(QPainter *painter,
+                       const QStyleOptionGraphicsItem *option,
+                       QWidget *view);
     virtual QRectF boundingRect() const;
     virtual void setShiftState(ModifierState newShiftState);
-    virtual QList<const MImAbstractKey *> keys();
+    virtual QList<const MImAbstractKey *> keys() const;
     //! \reimp_end
 
 protected:
-    /*! \reimp */
-    virtual QSizeF sizeHint(Qt::SizeHint which, const QSizeF &constraint) const;
-    virtual void drawReactiveAreas(MReactionMap *reactionMap, QGraphicsView *view);
-    virtual void updateButtonGeometriesForWidth(int availableWidth);
+    //! \reimp
+    virtual QSizeF sizeHint(Qt::SizeHint which,
+                            const QSizeF &constraint) const;
+    virtual void drawReactiveAreas(MReactionMap *reactionMap,
+                                   QGraphicsView *view);
+    virtual void updateKeyGeometries(int availableWidth);
     virtual MImAbstractKey *keyAt(const QPoint &pos) const;
     virtual void onThemeChangeCompleted();
     virtual void handleVisibilityChanged(bool visible);
     virtual void invalidateBackgroundCache();
-    /*! \reimp_end */
+    //! \reimp_end
 
 private:
-    //! \brief Creates buttons for key data models
+    //! \brief Creates buttons for key data models.
     void loadKeys();
 
     //! \brief Builds QTextLayout representation of current button labels for faster drawing.
     void buildTextLayout();
 
+    //! \brief Returns the new height of the key area.
     qreal computeWidgetHeight() const;
 
-    //! \brief Return preferred height for a row
+    //! \brief Return preferred height for a row.
+    //! \param row the index of the queried row
     qreal preferredRowHeight(int row) const;
 
-    //! \brief Get the maximum width in this widget, in normalized units
-    qreal maxNormalizedWidth() const;
+    //! \brief Compute the maximum width in this widget, in normalized units.
+    qreal computeMaxNormalizedWidth() const;
 
-    //! \brief Normalized width for a particular MImKeyModel.
-    qreal normalizedKeyWidth(const MImKeyModel *key) const;
+    //! \brief Returns normalized width for a particular MImKeyModel.
+    //! \param model the key model to be queried
+    qreal normalizedKeyWidth(const MImKeyModel *model) const;
 
 
-    //! \brief Draws background.
+    //! \brief Draws background for a given key.
+    //! \param painter the painter to be used
+    //! \param key key for which background shall be drawn
     void drawKeyBackground(QPainter *painter,
-                           const MImKey *button);
+                           const MImAbstractKey *key) const;
 
-    //! \brief Draws button rects/bounding rects, for debugging purposes
+    //! \brief Draws button rects/bounding rects, for debugging purposes.
+    //! \param painter the painter to be used
+    //! \param key key for which rects/bounding rects shall be drawn
+    //! \param drawBoundingRects whether to draw bounding rects
+    //! \param drawRects whether to draw rects
     void drawDebugRects(QPainter *painter,
-                        const MImKey *button,
+                        const MImAbstractKey *key,
                         bool drawBoundingRects,
-                        bool drawRects);
+                        bool drawRects) const;
 
-    //! \brief Draws reactive areas of buttons, for debugging purposes
+    //! \brief Draws reactive areas of buttons, for debugging purposes.
+    //! \param painter the painter to be used
     void drawDebugReactiveAreas(QPainter *painter);
 
-    struct ButtonRow {
-        QList<MImKey*> buttons;
-        QVector<QPair<qreal, qreal> > buttonOffsets;
+    //! \brief Helper struct to store a row of keys.
+    struct KeyRow {
+        QList<MImKey*> keys; //!< keys in a row
+        QVector<QPair<qreal, qreal> > keyOffsets; //!< cached offsets for faster key lookups
+        MImKey *stretchKey; //!< each row can have one stretched key
 
-        //! each row can have one stretch button
-        MImKey *stretchButton;
     };
 
-    typedef QVector<ButtonRow> ButtonRowList;
-    typedef ButtonRowList::iterator RowIterator;
-    typedef ButtonRowList::const_iterator ConstRowIterator;
+    typedef QVector<KeyRow> KeyRowList;
+    typedef KeyRowList::iterator RowIterator;
+    typedef KeyRowList::const_iterator ConstRowIterator;
 
-    ButtonRowList rowList;
-    qreal widgetHeight;
-    qreal mMaxNormalizedWidth;
-
-    QVector<QPair<int, int> > rowOffsets;
-
-    //! Shift button is stored here if current layout has a shift button.
-    MImKey *shiftButton;
-
-    QTextLayout textLayout;
-    bool textDirty;
-
-    std::auto_ptr<QPixmap> cachedBackground;
-    bool cachedBackgroundDirty;
-
-    bool equalWidthButtons;
+    KeyRowList rowList; //!< stores all rows of this key area
+    qreal cachedWidgetHeight; //!< cached widget height
+    qreal mMaxNormalizedWidth; //!< maximal normalized width, for all rows
+    QVector<QPair<int, int> > rowOffsets; //!< cached offsets for faster key lookups
+    MImKey *shiftKey; //!< stores shift key, if available in this key area
+    QTextLayout textLayout; //!< used to draw key labels onto key area
+    bool textDirty; //!< dirty text cache flag
+    std::auto_ptr<QPixmap> cachedBackground; //!< cached background, containing all keys in inactive state
+    bool cachedBackgroundDirty; //!< dirty background cache flag
+    bool equalWidthKeys; //!< whether to assume equal width for all keys
 
 #ifdef UNIT_TEST
     friend class Ut_MImAbstractKeyArea;
