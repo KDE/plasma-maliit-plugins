@@ -116,10 +116,10 @@ void MImKey::setDownState(bool down)
         currentState = newState;
 
         if ((currentState == Pressed || currentState == Selected)
-            && (not mActiveKeys.contains(this))) {
-            mActiveKeys.append(this);
+            && (not activeKeys.contains(this))) {
+            activeKeys.append(this);
         } else { // currentState == Normal
-            mActiveKeys.removeAll(this);
+            activeKeys.removeAll(this);
         }
 
         update();
@@ -220,9 +220,11 @@ QString MImKey::iconId() const
     return iconInfo().id;
 }
 
-void MImKey::drawIcon(const QRect &rectangle, QPainter *painter) const
+void MImKey::drawIcon(QPainter *painter) const
 {
-    const QPixmap *iconPixmap = icon();
+    const QPixmap *iconPixmap(icon());
+    const QRect rectangle(buttonRect().toRect());
+
     if (iconPixmap) {
         QPointF iconPos(rectangle.x() + (rectangle.width() - iconPixmap->width()) / 2,
                         rectangle.y() + (rectangle.height() - iconPixmap->height()) / 2);
@@ -303,6 +305,10 @@ qreal MImKey::preferredWidth(qreal pixelPerSizeUnit, qreal spacing) const
     return -1;
 }
 
+bool MImKey::belongsTo(const QGraphicsItem *item) const
+{
+    return (item && (&parentItem == item));
+}
 void MImKey::loadIcon(bool shift)
 {
     IconInfo &iconInfo(shift ? upperCaseIcon : lowerCaseIcon);

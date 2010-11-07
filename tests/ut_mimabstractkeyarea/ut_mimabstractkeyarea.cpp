@@ -76,19 +76,6 @@ namespace {
     {
         return new MImKeyArea(section, usePopup, parent);
     }
-
-
-    bool isDeadKey(const MImAbstractKey *key)
-    {
-        return key->isDeadKey();
-    }
-
-    MImAbstractKey *findActiveDeadKey()
-    {
-        QList<MImAbstractKey*> activeKeys = MImAbstractKey::filterActiveKeys(&isDeadKey);
-
-        return (activeKeys.isEmpty() ? 0 : activeKeys.first());
-    }
 }
 
 void Ut_MImAbstractKeyArea::initTestCase()
@@ -432,7 +419,10 @@ void Ut_MImAbstractKeyArea::testDeadkeys()
     }
 
     //after unlock the dead key, test the shift status
-    subject->unlockDeadKeys(findActiveDeadKey());
+    SpecialKeyFinder finder(SpecialKeyFinder::FindDeadKey);
+    MImAbstractKey::visitActiveKeys(&finder);
+
+    subject->unlockDeadKeys(finder.deadKey());
     for (i = 0; i < positions.count(); i++) {
         QCOMPARE(keyAt(0, positions[i])->label(), upperUnicodes.at(i));
     }

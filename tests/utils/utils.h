@@ -17,6 +17,8 @@
 
 #ifndef UTILS_H
 
+#include "mimabstractkey.h"
+
 class MPlainWindow;
 class QObject;
 
@@ -30,6 +32,85 @@ void waitForSignal(const QObject* object, const char* signal, int timeout = 500)
 // Create graphics scene
 void createMScene(MPlainWindow *w);
 #endif
+
+// copy'n'paste from MImAbstractArea impl file, but counts visits, too:
+class SpecialKeyFinder
+    : public MImAbstractKeyVisitor
+{
+public:
+    enum FindMode {
+        FindShiftKey,
+        FindDeadKey,
+        FindBoth
+    };
+
+private:
+    MImAbstractKey *mShiftKey;
+    MImAbstractKey *mDeadKey;
+    FindMode mode;
+    int mVisits;
+
+public:
+    explicit SpecialKeyFinder(FindMode newMode = FindBoth)
+        : mShiftKey(0)
+        , mDeadKey(0)
+        , mode(newMode)
+        , mVisits(0)
+    {}
+
+    MImAbstractKey *shiftKey() const
+    {
+        return mShiftKey;
+    }
+
+    MImAbstractKey *deadKey() const
+    {
+        return mDeadKey;
+    }
+
+    int visits() const
+    {
+        return mVisits;
+    }
+
+    bool operator()(MImAbstractKey *key)
+    {
+        ++mVisits;
+
+        if (!key) {
+            return false;
+        }
+
+        if (key->isShiftKey()) {
+            mShiftKey = key;
+        } else if (key->isDeadKey()) {
+            mDeadKey = key;
+        }
+
+        switch (mode) {
+        case FindShiftKey:
+            if (mShiftKey) {
+                return true;
+            }
+            break;
+
+        case FindDeadKey:
+            if (mDeadKey) {
+                return true;
+            }
+            break;
+
+        case FindBoth:
+            if (mShiftKey && mDeadKey) {
+                return true;
+            }
+            break;
+        }
+
+
+        return false;
+    }
+};
 
 #endif
 

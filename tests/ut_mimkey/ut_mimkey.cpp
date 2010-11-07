@@ -36,20 +36,29 @@ Q_DECLARE_METATYPE(QList<Ut_KeyButton::KeyTriple>)
 Q_DECLARE_METATYPE(QList<int>)
 
 namespace {
-    bool shiftPredicate(const MImAbstractKey *key)
-    {
-        return (key && key->binding().action() == MImKeyBinding::ActionShift);
-    }
 
-    bool insertPredicate(const MImAbstractKey *key)
+    class ActiveKeyFinder
+            : public MImAbstractKeyVisitor
     {
-        return (key && key->binding().action() == MImKeyBinding::ActionInsert);
-    }
+    public:
+        bool found;
+        MImAbstractKey *findMe;
+        int visits;
 
-    bool activePredicate(const MImAbstractKey *key)
-    {
-        return (key && key->state() != MImAbstractKey::Normal);
-    }
+        explicit ActiveKeyFinder(MImAbstractKey *newFindMe = 0)
+            : found(false)
+            , findMe(newFindMe)
+            , visits(0)
+        {}
+
+        bool operator()(MImAbstractKey *key)
+        {
+            ++visits;
+
+            found = (found || (key == findMe));
+            return found;
+        }
+    };
 }
 
 void Ut_KeyButton::initTestCase()
@@ -285,32 +294,39 @@ void Ut_KeyButton::testActiveKeys()
     }
 
     foreach (int idx, expectedActiveKeys) {
-        QVERIFY(MImAbstractKey::mActiveKeys.contains(availableKeys.at(idx)));
+        ActiveKeyFinder finder(availableKeys.at(idx));
+        MImAbstractKey::visitActiveKeys(&finder);
+
+        QVERIFY(finder.found);
     }
 
     // Verify that remaining keys (those not listed in expectedActiveKeys)
     // are not in MImAbstractKey::activeKeys:
-    foreach (int idx, expectedActiveKeys) {
-        availableKeys.removeAt(idx);
-    }
+    for (int idx = 0; idx < availableKeys.count(); ++idx) {
+        if (!expectedActiveKeys.contains(idx)) {
+            ActiveKeyFinder finder(availableKeys.at(idx));
+            MImAbstractKey::visitActiveKeys(&finder);
 
-    foreach (MImAbstractKey *key, availableKeys) {
-        QVERIFY(not MImAbstractKey::mActiveKeys.contains(key));
+            QVERIFY(not finder.found);
+        }
     }
 }
 
 void Ut_KeyButton::testResetActiveKeys()
 {
-    QCOMPARE(MImAbstractKey::mActiveKeys.count(), 0);
+    ActiveKeyFinder finder;
+    MImAbstractKey::visitActiveKeys(&finder);
+    QCOMPARE(finder.visits, 0);
 
     KeyList keys;
     keys << createKey(true) << createKey(false) << createKey(true);
-    QCOMPARE(MImAbstractKey::mActiveKeys.count(), 2);
+    MImAbstractKey::visitActiveKeys(&finder);
+    QCOMPARE(finder.visits, 2);
 
     MImAbstractKey::resetActiveKeys();
 }
 
-void Ut_KeyButton::testFilterActiveKeys()
+void Ut_KeyButton::testVisitActiveKeys()
 {
     KeyList keys;
     keys << createKey(true) << createKey(true);
@@ -322,14 +338,11 @@ void Ut_KeyButton::testFilterActiveKeys()
     MImKey *shift = new MImKey(*model, *style, *parent);
     shift->setDownState(true);
     keys << shift;
-    QVERIFY(MImAbstractKey::mActiveKeys.contains(shift));
 
-    QVERIFY(MImAbstractKey::filterActiveKeys(&shiftPredicate).contains(shift));
-    QCOMPARE(MImAbstractKey::filterActiveKeys(&shiftPredicate).count(), 1);
-    QVERIFY(not MImAbstractKey::filterActiveKeys(&insertPredicate).contains(shift));
-    QCOMPARE(MImAbstractKey::filterActiveKeys(&insertPredicate).count(), 2);
-    QCOMPARE(MImAbstractKey::filterActiveKeys(&activePredicate).count(),
-             keys.count());
+    SpecialKeyFinder finder;
+    MImAbstractKey::visitActiveKeys(&finder);
+    QCOMPARE(finder.shiftKey(), shift);
+    QCOMPARE(finder.visits(), keys.count());
 }
 
 MImKey *Ut_KeyButton::createKey(bool state)

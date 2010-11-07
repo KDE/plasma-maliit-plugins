@@ -69,22 +69,78 @@ namespace
                 && (target.y() < origin.y() + yDistance));
     }
 
-    bool isShiftKey(const MImAbstractKey *key)
+    //! \brief Helper class responsible for finding active special keys.
+    //!
+    //! Can be used as visitor.
+    class SpecialKeyFinder
+            : public MImAbstractKeyVisitor
     {
-        return key->isShiftKey();
-    }
+    public:
+        enum FindMode {
+            FindShiftKey,
+            FindDeadKey,
+            FindBoth
+        };
 
-    bool isDeadKey(const MImAbstractKey *key)
-    {
-        return key->isDeadKey();
-    }
+    private:
+        MImAbstractKey *mShiftKey;
+        MImAbstractKey *mDeadKey;
+        FindMode mode;
 
-    MImAbstractKey *findActiveDeadKey()
-    {
-        QList<MImAbstractKey*> activeKeys = MImAbstractKey::filterActiveKeys(&isDeadKey);
+    public:
+        explicit SpecialKeyFinder(FindMode newMode = FindBoth)
+            : MImAbstractKeyVisitor()
+            , mShiftKey(0)
+            , mDeadKey(0)
+            , mode(newMode)
+        {}
 
-        return (activeKeys.isEmpty() ? 0 : activeKeys.first());
-    }
+        MImAbstractKey *shiftKey() const
+        {
+            return mShiftKey;
+        }
+
+        MImAbstractKey *deadKey() const
+        {
+            return mDeadKey;
+        }
+
+        bool operator()(MImAbstractKey *key)
+        {
+            if (!key) {
+                return false;
+            }
+
+            if (key->isShiftKey()) {
+                mShiftKey = key;
+            } else if (key->isDeadKey()) {
+                mDeadKey = key;
+            }
+
+            switch (mode) {
+            case FindShiftKey:
+                if (mShiftKey) {
+                    return true;
+                }
+                break;
+
+            case FindDeadKey:
+                if (mDeadKey) {
+                    return true;
+                }
+                break;
+
+            case FindBoth:
+                if (mShiftKey && mDeadKey) {
+                    return true;
+                }
+                break;
+            }
+
+
+            return false;
+        }
+    };
 }
 
 M::InputMethodMode MImAbstractKeyArea::InputMethodMode;
@@ -161,10 +217,12 @@ void MImAbstractKeyArea::updatePopup(MImAbstractKey *key)
     // screen position, so we can use mapToScene to calculate screen position:
     const QPoint pos = mapToScene(buttonRect.topLeft()).toPoint();
 
-    const MImAbstractKey *const activeDeadKey = findActiveDeadKey();
+    SpecialKeyFinder finder(SpecialKeyFinder::FindDeadKey);
+    MImAbstractKey::visitActiveKeys(&finder);
+
     mPopup->updatePos(buttonRect.topLeft(), pos, buttonRect.toRect().size());
     mPopup->handleKeyPressedOnMainArea(key,
-                                       activeDeadKey ? activeDeadKey->label() : QString(),
+                                       (finder.deadKey() ? finder.deadKey()->label() : QString()),
                                        level() % 2);
 }
 
@@ -186,7 +244,10 @@ MImAbstractKeyArea::handleVisibilityChanged(bool visible)
     }
 
     if (!visible) {
-        unlockDeadKeys(findActiveDeadKey());
+        SpecialKeyFinder finder(SpecialKeyFinder::FindDeadKey);
+        MImAbstractKey::visitActiveKeys(&finder);
+
+        unlockDeadKeys(finder.deadKey());
     }
 }
 
@@ -197,8 +258,10 @@ MImAbstractKeyArea::switchLevel(int level)
         currentLevel = level;
 
         // Update uppercase / lowercase
-        const MImAbstractKey *const deadKey = findActiveDeadKey();
-        updateKeyModifiers(deadKey ? deadKey->label().at(0) : '\0');
+        SpecialKeyFinder finder(SpecialKeyFinder::FindDeadKey);
+        MImAbstractKey::visitActiveKeys(&finder);
+
+        updateKeyModifiers(finder.deadKey() ? finder.deadKey()->label().at(0) : '\0');
 
         update();
     }
@@ -274,22 +337,23 @@ void MImAbstractKeyArea::click(MImAbstractKey *key,
         return;
     }
 
-    const bool haveActiveShiftKeys = not MImAbstractKey::filterActiveKeys(&isShiftKey).isEmpty();
-    MImAbstractKey *const activeDeadKey = findActiveDeadKey();
+    SpecialKeyFinder finder;
+    MImAbstractKey::visitActiveKeys(&finder);
+    const bool hasActiveShiftKeys = (finder.shiftKey() != 0);
 
     if (!key->isDeadKey()) {
-        const QString accent = (activeDeadKey ? activeDeadKey->label() : QString());
-        emit keyClicked(key, accent, haveActiveShiftKeys || level() % 2, pos);
+        const QString accent = (finder.deadKey() ? finder.deadKey()->label() : QString());
+        emit keyClicked(key, accent, hasActiveShiftKeys || level() % 2, pos);
 
         if (!key->isDeadKey()) {
-            unlockDeadKeys(activeDeadKey);
+            unlockDeadKeys(finder.deadKey());
         }
-    } else if (key == activeDeadKey) {
-        unlockDeadKeys(activeDeadKey);
+    } else if (key == finder.deadKey()) {
+        unlockDeadKeys(finder.deadKey());
     } else {
         // Deselect previous dead key, if any:
-        if (activeDeadKey) {
-            activeDeadKey->setSelected(false);
+        if (finder.deadKey()) {
+            finder.deadKey()->setSelected(false);
         }
 
         // key is the new deadkey:
@@ -457,7 +521,9 @@ void MImAbstractKeyArea::touchPointPressed(const QTouchEvent::TouchPoint &tp)
 
     // Try to commit currently active key before activating new key:
     MImAbstractKey *const lastActiveKey = MImAbstractKey::lastActiveKey();
-    const bool haveActiveShiftKeys = not MImAbstractKey::filterActiveKeys(&isShiftKey).isEmpty();
+    SpecialKeyFinder finder;
+    MImAbstractKey::visitActiveKeys(&finder);
+    const bool hasActiveShiftKeys = (finder.shiftKey() != 0);
 
     if (lastActiveKey
         && lastActiveKey->isNormalKey()
@@ -465,7 +531,7 @@ void MImAbstractKeyArea::touchPointPressed(const QTouchEvent::TouchPoint &tp)
         // TODO: play release sound? Potentially confusing to user, who
         // might still press this key.
         emit keyClicked(lastActiveKey, QString(),
-                        haveActiveShiftKeys || level() % 2,
+                        hasActiveShiftKeys || level() % 2,
                         gAdjustedPositionForCorrection);
 
         lastActiveKey->resetTouchPointCount();
@@ -476,9 +542,8 @@ void MImAbstractKeyArea::touchPointPressed(const QTouchEvent::TouchPoint &tp)
         updatePopup(key);
         longPressTimer.start(style()->longPressTimeout());
 
-        const MImAbstractKey *const activeDeadKey = findActiveDeadKey();
-        emit keyPressed(key, (activeDeadKey ? activeDeadKey->label() : QString()),
-                        haveActiveShiftKeys || level() % 2);
+        emit keyPressed(key, (finder.deadKey() ? finder.deadKey()->label() : QString()),
+                        hasActiveShiftKeys || level() % 2);
     }
 }
 
@@ -494,8 +559,9 @@ void MImAbstractKeyArea::touchPointMoved(const QTouchEvent::TouchPoint &tp)
     const QPoint startPos = mapFromScene(tp.startScenePos()).toPoint();
 
     const GravitationalLookupResult lookup = gravitationalKeyAt(pos, lastPos, startPos);
-    const bool haveActiveShiftKeys = not MImAbstractKey::filterActiveKeys(&isShiftKey).isEmpty();
-    const MImAbstractKey *const activeDeadKey = findActiveDeadKey();
+    SpecialKeyFinder finder;
+    MImAbstractKey::visitActiveKeys(&finder);
+    const bool hasActiveShiftKeys = (finder.shiftKey() != 0);
 
     // For a moving touchpoint, we only need to consider enter-key or leave-key events:
     if (lookup.key != lookup.lastKey) {
@@ -508,8 +574,8 @@ void MImAbstractKeyArea::touchPointMoved(const QTouchEvent::TouchPoint &tp)
             feedbackPlayer->play(MFeedbackPlayer::Press);
             longPressTimer.start(style()->longPressTimeout());
             emit keyPressed(lookup.key,
-                            (activeDeadKey ? activeDeadKey->label() : QString()),
-                            haveActiveShiftKeys || level() % 2);
+                            (finder.deadKey() ? finder.deadKey()->label() : QString()),
+                            hasActiveShiftKeys || level() % 2);
         }
 
         if (lookup.lastKey
@@ -519,8 +585,8 @@ void MImAbstractKeyArea::touchPointMoved(const QTouchEvent::TouchPoint &tp)
             // (= reactive area) to another
             feedbackPlayer->play(MFeedbackPlayer::Cancel);
             emit keyReleased(lookup.lastKey,
-                             (activeDeadKey ? activeDeadKey->label() : QString()),
-                             haveActiveShiftKeys || level() % 2);
+                             (finder.deadKey() ? finder.deadKey()->label() : QString()),
+                             hasActiveShiftKeys || level() % 2);
         }
     }
 
@@ -548,16 +614,17 @@ void MImAbstractKeyArea::touchPointReleased(const QTouchEvent::TouchPoint &tp)
     const QPoint startPos = mapFromScene(tp.startScenePos()).toPoint();
 
     const GravitationalLookupResult lookup = gravitationalKeyAt(pos, lastPos, startPos);
-    const bool haveActiveShiftKeys = not MImAbstractKey::filterActiveKeys(&isShiftKey).isEmpty();
-    const MImAbstractKey *activeDeadKey = findActiveDeadKey();
+    SpecialKeyFinder finder;
+    MImAbstractKey::visitActiveKeys(&finder);
+    const bool hasActiveShiftKeys = (finder.shiftKey() != 0);
 
     if (lookup.key
         && lookup.key->decreaseTouchPointCount()
         && lookup.key->touchPointCount() == 0) {
         longPressTimer.stop();
         emit keyReleased(lookup.key,
-                         (activeDeadKey ? activeDeadKey->label() : QString()),
-                         haveActiveShiftKeys || level() % 2);
+                         (finder.deadKey() ? finder.deadKey()->label() : QString()),
+                         hasActiveShiftKeys || level() % 2);
 
         click(lookup.key, gAdjustedPositionForCorrection);
     }
@@ -566,8 +633,9 @@ void MImAbstractKeyArea::touchPointReleased(const QTouchEvent::TouchPoint &tp)
         && lookup.lastKey != lookup.key
         && lookup.lastKey->decreaseTouchPointCount()
         && lookup.lastKey->touchPointCount() == 0) {
-        emit keyReleased(lookup.lastKey, (activeDeadKey ? activeDeadKey->label() : QString()),
-                         haveActiveShiftKeys || level() % 2);
+        emit keyReleased(lookup.lastKey,
+                         (finder.deadKey() ? finder.deadKey()->label() : QString()),
+                         hasActiveShiftKeys || level() % 2);
     }
 
     // We're finished with this touch point, inform popup:
@@ -583,9 +651,9 @@ void MImAbstractKeyArea::touchPointReleased(const QTouchEvent::TouchPoint &tp)
 }
 
 QTouchEvent::TouchPoint MImAbstractKeyArea::createTouchPoint(int id,
-                                                        Qt::TouchPointState state,
-                                                        const QPointF &pos,
-                                                        const QPointF &lastPos)
+                                                             Qt::TouchPointState state,
+                                                             const QPointF &pos,
+                                                             const QPointF &lastPos)
 {
     QTouchEvent::TouchPoint tp(id);
     tp.setState(state);
@@ -704,9 +772,11 @@ void MImAbstractKeyArea::handleLongKeyPressed()
         return;
     }
 
-    const MImAbstractKey *const deadKey = findActiveDeadKey();
-    const QString accent = (deadKey ? deadKey->label()
-                                    : QString());
+    SpecialKeyFinder finder(SpecialKeyFinder::FindDeadKey);
+    MImAbstractKey::visitActiveKeys(&finder);
+
+    const QString accent = (finder.deadKey() ? finder.deadKey()->label()
+                                           : QString());
 
     if (mPopup) {
         mPopup->handleLongKeyPressedOnMainArea(lastActiveKey, accent, level() % 2);

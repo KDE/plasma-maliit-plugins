@@ -19,7 +19,6 @@
 #ifndef UT_KEYBUTTON_H
 #define UT_KEYBUTTON_H
 
-#define protected public
 #include <mimabstractkey.h>
 
 #include <QtTest/QTest>
@@ -95,7 +94,7 @@ private slots:
     void testActiveKeys_data();
     void testActiveKeys();
     void testResetActiveKeys();
-    void testFilterActiveKeys();
+    void testVisitActiveKeys();
 
 private:
     MImKey *createKey(bool state = false);

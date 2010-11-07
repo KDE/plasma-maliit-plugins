@@ -23,6 +23,7 @@
 
 class MImAbstractKeyAreaStyleContainer;
 class QGraphicsItem;
+class MImKeyArea;
 
 //! Represents a key model with the key's current binding state, and also contains its visible area.
 class MImKey
@@ -40,7 +41,8 @@ public:
     virtual const QString secondaryLabel() const;
     virtual const QRectF &buttonRect() const;
     virtual const QRectF &buttonBoundingRect() const;
-    virtual void setModifiers(bool shift, QChar accent = QChar());
+    virtual void setModifiers(bool shift,
+                              QChar accent = QChar());
     virtual void setDownState(bool down);
     virtual void setSelected(bool select);
     virtual ButtonState state() const;
@@ -64,9 +66,8 @@ public:
     //! \brief Returns icon identifier, if it was loaded.
     QString iconId() const;
 
-    //! \brief Draws the icon of this button, if it has one, to the given rectangle.
-    void drawIcon(const QRect &rectangle, QPainter *painter) const;
-
+    //! \brief Draws the icon of this key, if available.
+    virtual void drawIcon(QPainter *painter) const;
     //! \brief Calls parent item's QGraphicsItem::update() who actually draws the button.
     void update();
 
@@ -75,6 +76,10 @@ public:
 
     //! Returns preferred dynamic width
     qreal preferredWidth(qreal pixelPerSizeUnit, qreal spacing) const;
+
+    //! \brief Whether a key belongs to a given graphics item.
+    //! \param item the graphics item that logically contains this key
+    virtual bool belongsTo(const QGraphicsItem *item) const;
 
     //! Cache for the buttons position and size. They can always
     //! be calculated but are faster to access this way.

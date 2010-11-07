@@ -56,6 +56,115 @@ namespace {
         // not found:
         return -1;
     }
+
+    //! \brief Helper class responsible for key-painting aspect.
+    //!
+    //! Can be used as visitor.
+    class KeyPainter
+        : public MImAbstractKeyVisitor
+    {
+    private:
+        const MImKeyArea *const keyArea; //!< owner of the keys
+        QPainter *const painter; //!< used for painting
+
+    public:
+        explicit KeyPainter(const MImKeyArea *newKeyArea,
+                            QPainter *newPainter)
+            : keyArea(newKeyArea)
+            , painter(newPainter)
+        {
+            Q_ASSERT(keyArea != 0);
+            Q_ASSERT(painter != 0);
+        }
+
+        //! \brief Paints background or icon of given key.
+        //! \param abstractKey the given key
+        bool operator()(MImAbstractKey *abstractKey)
+        {
+            return operator()(dynamic_cast<const MImKey *>(abstractKey));
+        }
+
+        //! \brief Paints background or icon of given key.
+        //! \param key the given key
+        bool operator()(const MImKey *key) const
+        {
+            if (key && key->belongsTo(keyArea)) {
+                drawBackground(painter, key);
+                key->drawIcon(painter);
+            }
+
+            // If used as visitor, then we need to visit all active keys:
+            return false;
+        }
+
+        //! \brief Draws background for a given key.
+        //! \param painter the painter to be used
+        //! \param key key for which background shall be drawn
+        void drawBackground(QPainter *painter,
+                            const MImAbstractKey *key) const
+        {
+            if (!key) {
+                return;
+            }
+
+            const MScalableImage *background = 0;
+
+            switch (key->state()) {
+
+            case MImAbstractKey::Normal:
+                switch (key->model().style()) {
+                case MImKeyModel::SpecialStyle:
+                    background = keyArea->baseStyle()->keyBackgroundSpecial();
+                    break;
+                case MImKeyModel::DeadkeyStyle:
+                    background = keyArea->baseStyle()->keyBackgroundDeadkey();
+                    break;
+                case MImKeyModel::NormalStyle:
+                default:
+                    background = keyArea->baseStyle()->keyBackground();
+                    break;
+                }
+                break;
+
+            case MImAbstractKey::Pressed:
+                switch (key->model().style()) {
+                case MImKeyModel::SpecialStyle:
+                    background = keyArea->baseStyle()->keyBackgroundSpecialPressed();
+                    break;
+                case MImKeyModel::DeadkeyStyle:
+                    background = keyArea->baseStyle()->keyBackgroundDeadkeyPressed();
+                    break;
+                case MImKeyModel::NormalStyle:
+                default:
+                    background = keyArea->baseStyle()->keyBackgroundPressed();
+                    break;
+                }
+                break;
+
+            case MImAbstractKey::Selected:
+                switch (key->model().style()) {
+                case MImKeyModel::SpecialStyle:
+                    background = keyArea->baseStyle()->keyBackgroundSpecialSelected();
+                    break;
+                case MImKeyModel::DeadkeyStyle:
+                    background = keyArea->baseStyle()->keyBackgroundDeadkeySelected();
+                    break;
+                case MImKeyModel::NormalStyle:
+                default:
+                    background = keyArea->baseStyle()->keyBackgroundSelected();
+                    break;
+                }
+                break;
+
+            default:
+                break;
+            }
+
+            if (background) {
+                background->draw(key->buttonRect().toRect(), painter);
+            }
+        }
+    };
 }
 
 MImKeyArea::MImKeyArea(const LayoutData::SharedLayoutSection &newSection,
@@ -322,10 +431,11 @@ void MImKeyArea::paint(QPainter *onScreenPainter,
         }
 
         // Draw images first.
+        const KeyPainter kp(this, &offScreenPainter);
+
         foreach (const KeyRow &row, rowList) {
             foreach (const MImKey *key, row.keys) {
-                drawKeyBackground(&offScreenPainter, key);
-                key->drawIcon(key->cachedButtonRect.toRect(), &offScreenPainter);
+                kp(key);
                 drawDebugRects(&offScreenPainter, key,
                                style->drawButtonBoundingRects(),
                                style->drawButtonRects());
@@ -338,12 +448,8 @@ void MImKeyArea::paint(QPainter *onScreenPainter,
     }
 
     onScreenPainter->drawPixmap(boundingRect().toRect(), *cachedBackground.get());
-
-    foreach (const MImAbstractKey *abstractKey, MImAbstractKey::activeKeys()) {
-        const MImKey *key = static_cast<const MImKey *>(abstractKey);
-        drawKeyBackground(onScreenPainter, key);
-        key->drawIcon(key->cachedButtonRect.toRect(), onScreenPainter);
-    }
+    KeyPainter kp(this, onScreenPainter);
+    MImAbstractKey::visitActiveKeys(&kp);
 
     if (textDirty) {
         buildTextLayout();
@@ -354,71 +460,6 @@ void MImKeyArea::paint(QPainter *onScreenPainter,
     textLayout.draw(onScreenPainter, QPoint());
 
     cachedBackgroundDirty = false;
-}
-
-void MImKeyArea::drawKeyBackground(QPainter *painter,
-                                   const MImAbstractKey *key) const
-{
-    if (!key) {
-        return;
-    }
-
-    const MScalableImage *background = 0;
-
-    switch (key->state()) {
-
-    case MImAbstractKey::Normal:
-        switch (key->model().style()) {
-        case MImKeyModel::SpecialStyle:
-            background = baseStyle()->keyBackgroundSpecial();
-            break;
-        case MImKeyModel::DeadkeyStyle:
-            background = baseStyle()->keyBackgroundDeadkey();
-            break;
-        case MImKeyModel::NormalStyle:
-        default:
-            background = baseStyle()->keyBackground();
-            break;
-        }
-        break;
-
-    case MImAbstractKey::Pressed:
-        switch (key->model().style()) {
-        case MImKeyModel::SpecialStyle:
-            background = baseStyle()->keyBackgroundSpecialPressed();
-            break;
-        case MImKeyModel::DeadkeyStyle:
-            background = baseStyle()->keyBackgroundDeadkeyPressed();
-            break;
-        case MImKeyModel::NormalStyle:
-        default:
-            background = baseStyle()->keyBackgroundPressed();
-            break;
-        }
-        break;
-
-    case MImAbstractKey::Selected:
-        switch (key->model().style()) {
-        case MImKeyModel::SpecialStyle:
-            background = baseStyle()->keyBackgroundSpecialSelected();
-            break;
-        case MImKeyModel::DeadkeyStyle:
-            background = baseStyle()->keyBackgroundDeadkeySelected();
-            break;
-        case MImKeyModel::NormalStyle:
-        default:
-            background = baseStyle()->keyBackgroundSelected();
-            break;
-        }
-        break;
-
-    default:
-        break;
-    }
-
-    if (background) {
-        background->draw(key->buttonRect().toRect(), painter);
-    }
 }
 
 void MImKeyArea::drawDebugRects(QPainter *painter,

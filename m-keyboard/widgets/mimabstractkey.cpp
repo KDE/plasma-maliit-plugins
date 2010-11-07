@@ -16,41 +16,33 @@
 
 #include "mimabstractkey.h"
 
-QList<MImAbstractKey *> MImAbstractKey::mActiveKeys;
+QList<MImAbstractKey *> MImAbstractKey::activeKeys;
 
 MImAbstractKey::~MImAbstractKey()
 {
-    mActiveKeys.removeAll(this);
+    activeKeys.removeAll(this);
 }
 
 MImAbstractKey* MImAbstractKey::lastActiveKey()
 {
-    return (mActiveKeys.isEmpty() ? 0 : mActiveKeys.last());
+    return (activeKeys.isEmpty() ? 0 : activeKeys.last());
 }
 
 void MImAbstractKey::resetActiveKeys()
 {
-    while (!mActiveKeys.isEmpty()) {
-        MImAbstractKey *key = mActiveKeys.takeFirst();
+    while (!activeKeys.isEmpty()) {
+        MImAbstractKey *key = activeKeys.takeFirst();
         key->setSelected(false);
         key->resetTouchPointCount();
     }
 }
 
-QList<MImAbstractKey *> MImAbstractKey::filterActiveKeys(bool (predicate)(const MImAbstractKey *))
+void MImAbstractKey::visitActiveKeys(MImAbstractKeyVisitor *visitor)
 {
-    QList<MImAbstractKey *> result;
-
-    foreach(MImAbstractKey *key, mActiveKeys) {
-        if (predicate(key)) {
-            result.append(key);
+    foreach(MImAbstractKey *key, activeKeys) {
+        if ((*visitor)(key)) {
+            break;
         }
     }
-
-    return result;
 }
 
-const QList<MImAbstractKey *> &MImAbstractKey::activeKeys()
-{
-    return mActiveKeys;
-}

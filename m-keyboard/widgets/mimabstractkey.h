@@ -22,11 +22,22 @@
 #include "mimkeymodel.h"
 #include <QList>
 
+class QRect;
+class QPainter;
+class MImAbstractKey;
+
+//! Visitor interface that can be used for MImAbstractKey::visitActiveKeys
+class MImAbstractKeyVisitor
+{
+public:
+    virtual bool operator()(MImAbstractKey *key) = 0;
+};
+
 //! Represents a key model with the key's current binding state, and also contains its visible area.
 class MImAbstractKey
 {
 protected:
-    static QList<MImAbstractKey *> mActiveKeys;
+    static QList<MImAbstractKey *> activeKeys;
 
 public:
     enum ButtonState {
@@ -50,7 +61,8 @@ public:
     virtual const QRectF &buttonBoundingRect() const = 0;
 
     //! \brief Sets shift and accent. Affects label and/or icon.
-    virtual void setModifiers(bool shift, QChar accent = QChar()) = 0;
+    virtual void setModifiers(bool shift,
+                              QChar accent = QChar()) = 0;
 
     //! \brief Sets the button's state to pressed. Selectable has this too.
     virtual void setDownState(bool down) = 0;
@@ -76,7 +88,6 @@ public:
     //! \brief Tells wether this key represends a normal key
     //!        (e.g., q, w, e, r, t, y).
     virtual bool isNormalKey() const = 0;
-
 
     //! \brief Called when a new touchpoint was registered on this button.
     //! \returns true if the counter could be increased.
@@ -107,12 +118,10 @@ public:
     //! \sa visitActiveKeys
     static void resetActiveKeys();
 
-    //! \brief Filter active keys, by predicate callback.
-    //! \returns keys for which the predicate returns true.
-    static QList<MImAbstractKey *> filterActiveKeys(bool (predicate)(const MImAbstractKey *));
-
-    //! \brief Returns all active keys
-    static const QList<MImAbstractKey *> &activeKeys();
+    //! \brief Visit active keys.
+    //! \param visitor must overload 'bool operator()(MImAbstractKey *key)',
+    //!        aborts to visit next key when true is returned.
+    static void visitActiveKeys(MImAbstractKeyVisitor *visitor);
 };
 
 #endif

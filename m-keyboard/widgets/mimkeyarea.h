@@ -85,13 +85,6 @@ private:
     //! \param model the key model to be queried
     qreal normalizedKeyWidth(const MImKeyModel *model) const;
 
-
-    //! \brief Draws background for a given key.
-    //! \param painter the painter to be used
-    //! \param key key for which background shall be drawn
-    void drawKeyBackground(QPainter *painter,
-                           const MImAbstractKey *key) const;
-
     //! \brief Draws button rects/bounding rects, for debugging purposes.
     //! \param painter the painter to be used
     //! \param key key for which rects/bounding rects shall be drawn
