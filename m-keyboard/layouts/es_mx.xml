@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
-<keyboard title="Español-Latin America" version="1.0" catalog="es_mx" language="es_mx">
+<keyboard title="Español (América Latina)" version="1.0" catalog="" language="es_mx">
     <layout type="general" orientation="landscape">
         <section id="main">
           <row>
