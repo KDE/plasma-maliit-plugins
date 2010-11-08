@@ -408,7 +408,7 @@ void MVirtualKeyboard::organizeContent(M::Orientation orientation)
 void
 MVirtualKeyboard::fade(int frame)
 {
-    const float opacity = float(frame) / ShowHideFrames;
+    const qreal opacity = static_cast<qreal>(frame) / ShowHideFrames;
     const QSize sceneSize = sceneManager->visibleSceneSize();
 
     if (!hideShowByFadingOnly) {

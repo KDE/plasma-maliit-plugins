@@ -30,7 +30,6 @@
 #include <MScene>
 #include <MSceneWindow>
 #include <MGConfItem>
-#include <float.h>
 
 #include <mwidgetcreator.h>
 M_REGISTER_WIDGET_NO_CREATE(MImWordTracker)
