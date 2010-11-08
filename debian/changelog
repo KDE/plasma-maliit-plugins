@@ -3,6 +3,7 @@ meego-keyboard (0.5.10~1) unstable; urgency=low
   *[UNRELEASED] 
   * Fixes: NB#194728 - Settings: Latin America Spanish endonym wrong in active input method
   * Implemented: SWP#TINME-1117
+  * Fixes: NB#194521, Dead key is desactivated when pressing shift
 
  -- Gibran Rodriguez <ext-gibran.rodriguez@nokia.com>  Wed, 03 Nov 2010 14:38:51 +0200
 

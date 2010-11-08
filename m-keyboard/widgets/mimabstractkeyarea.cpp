@@ -262,7 +262,9 @@ void MImAbstractKeyArea::click(MImAbstractKey *key, const QPoint &touchPoint)
     if (!key->isDeadKey()) {
         const QString accent = (activeDeadkey ? activeDeadkey->label() : QString());
         emit keyClicked(key, accent, activeShiftKey || level() % 2, touchPoint);
-        unlockDeadkeys();
+        if (!key->isShiftKey()) {
+            unlockDeadkeys();
+        }
     } else if (key == activeDeadkey) {
         unlockDeadkeys();
     } else {
