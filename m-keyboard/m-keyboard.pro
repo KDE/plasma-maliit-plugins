@@ -3,6 +3,7 @@ TARGET = $$qtLibraryTarget(meego-keyboard)
 
 OBJECTS_DIR = .obj
 MOC_DIR = .moc
+M_MGEN_OUTDIR = .gen
 
 # we have this line temporarily until new libmeegotouch without rpath is integrated
 QT += xml
