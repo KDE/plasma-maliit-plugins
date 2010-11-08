@@ -340,9 +340,9 @@ void Ut_MKeyboardHost::testHandleClick()
     inputMethodHost->clear();
 
     subject->handleKeyClick(KeyEvent("a"));
-    subject->handleKeyClick(KeyEvent("\n", QEvent::KeyRelease, Qt::Key_Return));
+    subject->handleKeyClick(KeyEvent("\r", QEvent::KeyRelease, Qt::Key_Return));
     QVERIFY(subject->preedit.isEmpty());
-    QCOMPARE(inputMethodHost->commit, QString("a\n"));
+    QCOMPARE(inputMethodHost->commit, QString("a\r"));
     inputMethodHost->clear();
 
     subject->handleKeyClick(KeyEvent("a"));
@@ -382,7 +382,7 @@ void Ut_MKeyboardHost::testDirectMode()
     QList<Qt::Key> expectedKeys;
 
     testData << KeyEvent("\b", QEvent::KeyRelease, Qt::Key_Backspace)
-             << KeyEvent("\n", QEvent::KeyRelease, Qt::Key_Return)
+             << KeyEvent("\r", QEvent::KeyRelease, Qt::Key_Return)
              << KeyEvent(" ", QEvent::KeyRelease, Qt::Key_Space);
     expectedKeys << Qt::Key_Backspace << Qt::Key_Return << Qt::Key_Space;
     QVERIFY(testData.count() == expectedKeys.count());

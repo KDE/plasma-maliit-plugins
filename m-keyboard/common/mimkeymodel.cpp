@@ -77,7 +77,7 @@ KeyEvent MImKeyBinding::toKeyEventImpl(QKeyEvent::Type eventType,
         break;
     case ActionReturn:
         key = Qt::Key_Return;
-        text = "\n";
+        text = "\r";
         break;
     case ActionTab:
         key = Qt::Key_Tab;
