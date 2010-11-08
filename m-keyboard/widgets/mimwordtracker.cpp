@@ -125,6 +125,12 @@ MImWordTracker::~MImWordTracker()
 void MImWordTracker::setCandidate(const QString &string)
 {
     mCandidate = string;
+    if (isVisible()
+        && showHideTimeline.state() == QTimeLine::Running
+        && showHideTimeline.direction() == QTimeLine::Backward) {
+        // don't update during hiding animation
+        return;
+    }
     candidateItem->setTitle(string);
 
     mIdealWidth = candidateItem->idealWidth();;
