@@ -480,6 +480,7 @@ void MKeyboardHost::setPreedit(const QString &preeditString)
         imCorrectionEngine->clearEngineBuffer();
         imCorrectionEngine->reselectString(preeditString);
         candidates = imCorrectionEngine->candidates();
+        correctionHost->setCandidates(candidates);
     }
     updatePreedit(preedit, candidates.count());
 }
