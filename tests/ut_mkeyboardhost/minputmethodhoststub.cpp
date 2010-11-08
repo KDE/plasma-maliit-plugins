@@ -68,9 +68,11 @@ void MInputMethodHostStub::clear()
 }
 
 void MInputMethodHostStub::sendPreeditString(const QString &string,
-                                             MInputMethod::PreeditFace preeditFace)
+                                             MInputMethod::PreeditFace preeditFace,
+                                             int pos)
 {
     Q_UNUSED(preeditFace);
+    Q_UNUSED(pos);
 
     preedit = string;
     ++sendPreeditCalls;

@@ -56,7 +56,7 @@ public:
     virtual void handleFocusChange(bool focusIn);
     virtual void show();
     virtual void hide();
-    virtual void setPreedit(const QString &preeditString);
+    virtual void setPreedit(const QString &preeditString, int cursor);
     virtual void update();
     virtual void reset();
     virtual void handleMouseClickOnPreedit(const QPoint &mousePos, const QRect &preeditRect);
@@ -295,8 +295,8 @@ private:
     //! update input engine keyboard layout according keyboard layout.
     void updateEngineKeyboardLayout();
 
-    //! update preedit according error correction candidates.
-    void updatePreedit(const QString &string, int candidateCount);
+    //! update preedit string.
+    void updatePreedit(const QString &string, int candidateCount, int cursor = -1);
 
     /*!
      * \brief This enum defines different mode for backspace clicking.

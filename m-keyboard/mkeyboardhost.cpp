@@ -115,7 +115,7 @@ bool MKeyboardHost::CycleKeyHandler::handleTextInputKeyClick(const KeyEvent &eve
             // FIXME: appending the cycle key to the preedit --> pressing cycle key
             // when there already is something in preedit will cause the whole preedit
             // to be commited after timeout
-            host.setPreedit(host.preedit.left(host.preedit.length() - 1));
+            host.setPreedit(host.preedit.left(host.preedit.length() - 1), (host.preedit.length() - 1));
         }
         cycleIndex = (cycleIndex + 1) % cycleText.size();
     }
@@ -463,8 +463,10 @@ void MKeyboardHost::hide()
 }
 
 
-void MKeyboardHost::setPreedit(const QString &preeditString)
+void MKeyboardHost::setPreedit(const QString &preeditString, int cursor)
 {
+    Q_UNUSED(cursor);
+    int preeditCursorPos = preeditString.length();
     preedit = preeditString;
     candidates.clear();
     if (imCorrectionEngine) {
@@ -473,7 +475,7 @@ void MKeyboardHost::setPreedit(const QString &preeditString)
         candidates = imCorrectionEngine->candidates();
         correctionHost->setCandidates(candidates);
     }
-    updatePreedit(preedit, candidates.count());
+    updatePreedit(preedit, candidates.count(), preeditCursorPos);
 }
 
 
@@ -781,7 +783,7 @@ void MKeyboardHost::doBackspace()
     // note: backspace shouldn't start accurate mode
     if (preedit.length() > 0) {
         if (!backspaceTimer.isActive()) {
-            setPreedit(preedit.left(preedit.length() - 1));
+            setPreedit(preedit.left(preedit.length() - 1), (preedit.length() - 1));
         } else {
             resetInternalState();
             inputMethodHost()->sendCommitString("");
@@ -1126,7 +1128,7 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
 
         correctionHost->setCandidates(candidates);
 
-        updatePreedit(preedit, candidates.count());
+        updatePreedit(preedit, candidates.count(), preedit.length());
 
         // because the written word (preedit) should be on the top of candidate list.
         // So when there are some other candidates and the preedit is not a valid
@@ -1665,7 +1667,7 @@ void MKeyboardHost::updateEngineKeyboardLayout()
     engineLayoutDirty = false;
 }
 
-void MKeyboardHost::updatePreedit(const QString &string, int candidateCount)
+void MKeyboardHost::updatePreedit(const QString &string, int candidateCount, int cursor)
 {
     // preedit style type depends on candidateCount.
     // candidateCount     styleType
@@ -1676,7 +1678,7 @@ void MKeyboardHost::updatePreedit(const QString &string, int candidateCount)
         face = MInputMethod::PreeditDefault;
     }
 
-    inputMethodHost()->sendPreeditString(string, face);
+    inputMethodHost()->sendPreeditString(string, face, cursor);
 }
 
 void MKeyboardHost::startBackspace(MKeyboardHost::BackspaceMode mode)

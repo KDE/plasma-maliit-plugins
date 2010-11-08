@@ -33,7 +33,7 @@ public:
 
     void clear();
 
-    virtual void sendPreeditString(const QString &string, MInputMethod::PreeditFace preeditFace);
+    virtual void sendPreeditString(const QString &string, MInputMethod::PreeditFace preeditFace, int cursorPos = -1);
     virtual void sendCommitString(const QString &string);
     virtual void sendKeyEvent(const QKeyEvent &keyEvent,
                               MInputMethod::EventRequestType requestType = MInputMethod::EventRequestBoth);

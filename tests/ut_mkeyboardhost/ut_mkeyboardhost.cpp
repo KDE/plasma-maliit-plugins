@@ -434,7 +434,7 @@ void Ut_MKeyboardHost::testNotCrash()
     subject->show();
     subject->hide();
     subject->reset();
-    subject->setPreedit("string");
+    subject->setPreedit("string", -1);
     subject->initializeInputEngine();
     subject->handleMouseClickOnPreedit(QPoint(0, 0), QRect(0, 0, 1, 1));
 }
@@ -693,7 +693,7 @@ void Ut_MKeyboardHost::testSendStringFromToolbar()
     QString toolbarString("bacon");
 
     inputMethodHost->clear();
-    subject->setPreedit(preeditString);
+    subject->setPreedit(preeditString, -1);
     subject->sendStringFromToolbar(toolbarString);
     QCOMPARE(inputMethodHost->sendCommitStringCalls, 2);
     QCOMPARE(inputMethodHost->commit, preeditString+toolbarString);
@@ -1215,7 +1215,7 @@ void Ut_MKeyboardHost::testShiftState()
 void Ut_MKeyboardHost::testCommitPreeditOnStateChange()
 {
     const QString text("fish");
-    subject->setPreedit(text);
+    subject->setPreedit(text, text.length());
     QSet<MInputMethod::HandlerState> state;
     state << MInputMethod::Hardware;
     subject->setState(state);
@@ -1670,7 +1670,7 @@ void Ut_MKeyboardHost::testAutoPunctuation()
     subject->imCorrectionEngine = engine;
     QStringList candidates;
     candidates << "foo" << "foobar";
-    subject->setPreedit("fo");
+    subject->setPreedit("fo", -1);
     engine->setCandidates(candidates);
     engine->setSuggestedCandidateIndexReturnValue(0);
     inputMethodHost->preeditRectangleReturnValue = QRect(0, 0, 100, 100);
