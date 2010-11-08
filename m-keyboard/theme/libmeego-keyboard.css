@@ -101,6 +101,9 @@ MImAbstractKeyAreaStyle {
     key-shift-icon-size: 38 38;
     key-shift-icon-id: "icon-m-input-methods-shift";
     key-shift-uppercase-icon-id: "icon-m-input-methods-capslock";
+
+    key-tab-icon-size: 0 0;
+    key-tab-icon-id: ; /* non-existant currently */
     /* End of single widget keyboard button styling */
 
     /* touch behaviour */
