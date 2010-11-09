@@ -71,12 +71,12 @@ public:
     /*!
      * \brief Appears word tracker widget with or without default animation.
      */
-    void appear(bool withAnimation = true);
+    void appear(bool withAnimation = false);
     
     /*!
      * \brief Disappear word tracker widget with or without default animation.
      */
-    void disappear(bool withAnimation = true);
+    void disappear(bool withAnimation = false);
 
     /*!
      * \brief Sets the position of word tracker.

@@ -122,7 +122,7 @@ void MImCorrectionHost::showCorrectionWidget(MImCorrectionHost::CandidateMode mo
     currentMode = mode;
 
     if (candidates.isEmpty()) {
-        hideCorrectionWidget(false);
+        hideCorrectionWidget();
         return;
     }
 
@@ -131,20 +131,20 @@ void MImCorrectionHost::showCorrectionWidget(MImCorrectionHost::CandidateMode mo
 
         if (!wordTracker->isVisible()) {
             wordList->disappear();
-            wordTracker->appear();
+            wordTracker->appear(false);
         }
     } else {
         // Always highlight the first item in the candidate list
         // which is the origin input word
         wordList->setHighlightCandidate(candidates.at(0));
-        wordTracker->disappear();
+        wordTracker->disappear(false);
         wordList->appear();
     }
 }
 
-void MImCorrectionHost::hideCorrectionWidget(bool withAnimation)
+void MImCorrectionHost::hideCorrectionWidget()
 {
-    wordTracker->disappear(withAnimation);
+    wordTracker->disappear(false);
     wordList->disappear();
 }
 

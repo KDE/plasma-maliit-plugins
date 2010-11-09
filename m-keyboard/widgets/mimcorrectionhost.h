@@ -79,11 +79,9 @@ public:
     virtual void showCorrectionWidget(CandidateMode mode = WordTrackerMode);
 
     /*!
-     * \brief Hides candidate widget with or without animation according \a withAnimation.
-     *
-     * \param withAnimation if ture hide widget by useing animation.
+     * \brief Hides candidate widget.
      */
-    virtual void hideCorrectionWidget(bool withAnimation = true);
+    virtual void hideCorrectionWidget();
 
     /*!
      * \brief Returns current used mode for the candidate widget.
