@@ -1024,6 +1024,19 @@ void MKeyboardHost::handleLongKeyPress(const KeyEvent &event)
     }
 }
 
+void MKeyboardHost::sendCommitStringOrReturnEvent(const KeyEvent &event) const
+{
+    // We send return as a normal key event instead of an input method event so
+    // that it properly triggers returnPressed signal emission in MTextEdit and
+    // QLineEdit (and possibly in other similar targets).
+    if (event.qtKey() == Qt::Key_Return) {
+        inputMethodHost()->sendKeyEvent(KeyEvent(event, QEvent::KeyPress).toQKeyEvent(), MInputMethod::EventRequestEventOnly);
+        inputMethodHost()->sendKeyEvent(event.toQKeyEvent(), MInputMethod::EventRequestEventOnly);
+    } else {
+        inputMethodHost()->sendCommitString(event.text());
+    }
+}
+
 void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
 {
     // Discard KeyPress & Drop type of events.
@@ -1061,7 +1074,7 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
             preedit.clear();
         }
 
-        inputMethodHost()->sendCommitString(text);
+        sendCommitStringOrReturnEvent(event);
 
     } else if ((event.qtKey() == Qt::Key_Space) || (event.qtKey() == Qt::Key_Return) || (event.qtKey() == Qt::Key_Tab)) {
         // commit suggestion if correction candidate widget is visible and with popupMode
@@ -1083,8 +1096,8 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
             candidates.clear();
             correctionHost->reset();
         }
-        // send trailing space
-        inputMethodHost()->sendCommitString(text);
+        // Send trailing space.
+        sendCommitStringOrReturnEvent(event);
 
         imCorrectionEngine->clearEngineBuffer();
         preedit.clear();

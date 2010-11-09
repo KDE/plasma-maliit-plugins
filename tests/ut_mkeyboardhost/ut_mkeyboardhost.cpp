@@ -342,7 +342,14 @@ void Ut_MKeyboardHost::testHandleClick()
     subject->handleKeyClick(KeyEvent("a"));
     subject->handleKeyClick(KeyEvent("\r", QEvent::KeyRelease, Qt::Key_Return));
     QVERIFY(subject->preedit.isEmpty());
-    QCOMPARE(inputMethodHost->commit, QString("a\r"));
+    QCOMPARE(inputMethodHost->commit, QString("a"));
+    QCOMPARE(inputMethodHost->keyEvents.count(), 2);
+    QCOMPARE(inputMethodHost->keyEvents[0]->text(), QString("\r"));
+    QCOMPARE(inputMethodHost->keyEvents[0]->key(), static_cast<int>(Qt::Key_Return));
+    QCOMPARE(inputMethodHost->keyEvents[0]->type(), QEvent::KeyPress);
+    QCOMPARE(inputMethodHost->keyEvents[1]->text(), QString("\r"));
+    QCOMPARE(inputMethodHost->keyEvents[1]->key(), static_cast<int>(Qt::Key_Return));
+    QCOMPARE(inputMethodHost->keyEvents[1]->type(), QEvent::KeyRelease);
     inputMethodHost->clear();
 
     subject->handleKeyClick(KeyEvent("a"));
@@ -356,6 +363,19 @@ void Ut_MKeyboardHost::testHandleClick()
     QTest::qWait(100);
     QCOMPARE(subject->imCorrectionEngine->correctionEnabled(), false);
     QCOMPARE(subject->correctionEnabled, false);
+
+    subject->handleKeyClick(KeyEvent("a"));
+    subject->handleKeyClick(KeyEvent("\r", QEvent::KeyRelease, Qt::Key_Return));
+    QVERIFY(subject->preedit.isEmpty());
+    QCOMPARE(inputMethodHost->commit, QString("a"));
+    QCOMPARE(inputMethodHost->keyEvents.count(), 2);
+    QCOMPARE(inputMethodHost->keyEvents[0]->text(), QString("\r"));
+    QCOMPARE(inputMethodHost->keyEvents[0]->key(), static_cast<int>(Qt::Key_Return));
+    QCOMPARE(inputMethodHost->keyEvents[0]->type(), QEvent::KeyPress);
+    QCOMPARE(inputMethodHost->keyEvents[1]->text(), QString("\r"));
+    QCOMPARE(inputMethodHost->keyEvents[1]->key(), static_cast<int>(Qt::Key_Return));
+    QCOMPARE(inputMethodHost->keyEvents[1]->type(), QEvent::KeyRelease);
+    inputMethodHost->clear();
 
     subject->handleKeyClick(KeyEvent("m"));
     subject->handleKeyClick(KeyEvent("a"));

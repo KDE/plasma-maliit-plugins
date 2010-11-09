@@ -303,6 +303,10 @@ private:
     //! start backspaceTimer according \a mode
     void startBackspace(BackspaceMode mode);
 
+    //! Send return as press&release event pair, send as input method event with
+    //! commit string otherwise.
+    void sendCommitStringOrReturnEvent(const KeyEvent &event) const;
+
 private:
     class CycleKeyHandler; //! Reacts to cycle key press events.
     friend class CycleKeyHandler;
