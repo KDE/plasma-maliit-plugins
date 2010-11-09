@@ -89,7 +89,6 @@ private slots:
 protected:
     //! \reimp
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
-    virtual void styleChanged();
     //! \reimp_end
 
 private:

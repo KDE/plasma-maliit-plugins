@@ -34,10 +34,6 @@ WidgetBar::WidgetBar(QGraphicsItem *parent)
 {
     mainLayout.setSpacing(0); // Spacing is handled by dividers.
     mainLayout.setContentsMargins(0, 0, 0, 0);
-
-    // Update style by calling styleChanged(). This if for widgets that don't have
-    // object name set.
-    styleChanged();
 }
 
 WidgetBar::~WidgetBar()
@@ -103,12 +99,6 @@ void WidgetBar::cleanup()
 void WidgetBar::mousePressEvent(QGraphicsSceneMouseEvent *)
 {
     // Stop propagating
-}
-
-void WidgetBar::styleChanged()
-{
-    setContentsMargins(style()->paddingLeft(), style()->paddingTop(),
-                       style()->paddingRight(), 0);
 }
 
 QSizeF WidgetBar::sizeHint(Qt::SizeHint which, const QSizeF &constraint) const
