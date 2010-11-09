@@ -152,7 +152,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
       imCorrectionEngine(0),
       inputMethodCorrectionSettings(new MGConfItem(InputMethodCorrectionSetting)),
       inputMethodCorrectionEngine(new MGConfItem(InputMethodCorrectionEngine)),
-      engineReady(false),
       angle(M::Angle0),
       rotationInProgress(false),
       correctionEnabled(false),
@@ -345,7 +344,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
                                 inputMethodCorrectionEngine->value().toString());
 
         if (imCorrectionEngine) {
-            engineReady = true;
             initializeInputEngine();
             connect(inputMethodCorrectionSettings, SIGNAL(valueChanged()),
                     this, SLOT(synchronizeCorrectionSetting()));
@@ -614,7 +612,7 @@ void MKeyboardHost::resetInternalState()
     preedit.clear();
     candidates.clear();
     correctionHost->reset();
-    if (engineReady)
+    if (imCorrectionEngine)
         imCorrectionEngine->clearEngineBuffer();
 }
 
@@ -1058,7 +1056,7 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
         if (preedit.length() > 0) {
             // we just entered accurate mode. send the previous preedit stuff.
             inputMethodHost()->sendCommitString(preedit);
-            if (engineReady)
+            if (imCorrectionEngine)
                 imCorrectionEngine->clearEngineBuffer();
             preedit.clear();
         }
@@ -1139,7 +1137,7 @@ void MKeyboardHost::initializeInputEngine()
 
     qDebug() << __PRETTY_FUNCTION__ << "- used language:" << language;
 
-    if (engineReady) {
+    if (imCorrectionEngine) {
         // TODO: maybe we should check return values here and in case of failure
         // be always in accurate mode, for example
         imCorrectionEngine->setLanguage(language, MImEngine::LanguagePriorityPrimary);
@@ -1173,7 +1171,7 @@ void MKeyboardHost::updateCorrectionState()
         inputMethodHost()->setGlobalCorrectionEnabled(false);
         correctionEnabled = false;
     } else {
-        if (!engineReady) {
+        if (!imCorrectionEngine) {
             inputMethodHost()->setGlobalCorrectionEnabled(false);
             correctionEnabled = false;
             return;
@@ -1614,7 +1612,7 @@ void MKeyboardHost::handleVirtualKeyboardLayoutChanged(const QString &layout)
 
 void MKeyboardHost::updateEngineKeyboardLayout()
 {
-    if (!engineReady || !engineLayoutDirty)
+    if (!imCorrectionEngine || !engineLayoutDirty)
         return;
 
     if (activeState == MInputMethod::OnScreen) {

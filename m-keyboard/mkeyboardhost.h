@@ -321,7 +321,6 @@ private:
     MGConfItem *inputMethodCorrectionEngine;
 
     QStringList candidates;
-    bool engineReady;
 
     M::OrientationAngle angle;
     int displayWidth;
