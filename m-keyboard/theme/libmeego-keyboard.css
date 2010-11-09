@@ -8,7 +8,8 @@ MVirtualKeyboardStyle {
 
     deadkey-locked-color: #FFA500;
 
-    notification-font: "Nokia Sans Light" 56;
+    notification-font: $FONT_KEYBOARD;
+    notification-font-size: 56;
     notification-font-opacity: 0.9;
     notification-border-color: #808080;
     notification-background-color: #323232;
@@ -33,8 +34,8 @@ MVirtualKeyboardStyle.Landscape {
 MImAbstractKeyAreaStyle {
     background-image: "meegotouch-keyboard-background" 15px 15px 15px 15px;
 
-    font: "Nokia Sans Light" 28;
-    font-color: #000000;
+    font: $FONT_KEYBOARD;
+    font-color: $COLOR_FOREGROUND;
     secondary-font: $FONT_SMALL;
 
     spacing-vertical: 2mm;
@@ -214,8 +215,8 @@ MImAbstractKeyAreaStyle.Landscape {
     text-left-offset: 12;
     text-right-offset: 12;
 
-    font: "Nokia Sans" 20;
-    text-color: #000000;
+    font: $FONT_SMALL_REGULAR;
+    text-color: $COLOR_FOREGROUND;
 
     preferred-size: 414 56;
     minimum-size: 414 56;
@@ -324,7 +325,7 @@ MImWordList MContentItemStyle:selected {
 }
 
 MImWordListItem MLabelStyle#MImWordListLabel {
-    font: "Nokia Standard" bold 26;
+    font: $FONT_LARGE_BOLD;
     color: $COLOR_INVERTED_FOREGROUND;
     margin-top:    $INDENT_DEFAULT;
     margin-bottom: 0;
@@ -333,7 +334,7 @@ MImWordListItem MLabelStyle#MImWordListLabel {
 }
 
 MImWordListItem MLabelStyle#MImWordListLabelSelected {
-    font: "Nokia Standard" bold 26;
+    font: $FONT_LARGE_BOLD;
     color: #0000ff;
     margin-top:    $INDENT_DEFAULT;
     margin-bottom: 0;
@@ -348,7 +349,6 @@ MImCorrectionCandidateItemStyle {
 
     background-opacity: 1.0;
 
-    /*font: "Nokia Sans Light" 24; */
     font: $FONT_DEFAULT; 
     font-color: $COLOR_INVERTED_FOREGROUND;
     press-timeout: 250;
