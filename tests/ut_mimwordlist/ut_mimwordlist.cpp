@@ -89,8 +89,11 @@ void Ut_MImWordList::testSelect()
     QStringList candidates = (QStringList() << "abc" << "def" << "ghi" << "jfk" << "lmn");
     m_subject->setCandidates(candidates);
     m_subject->appear();
-    QTest::qWait(500);
+    QTest::qWait(600);
     QVERIFY(m_subject->isVisible());
+    if (m_subject->sceneWindowState() == MSceneWindow::Appearing) {
+        QSKIP("word list is during appearing animation", SkipSingle);
+    }
     QSignalSpy clickSpy(m_subject, SIGNAL(candidateClicked(const QString &)));
 
     m_subject->candidateItems[2]->click();

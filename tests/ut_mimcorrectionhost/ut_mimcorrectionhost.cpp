@@ -139,6 +139,9 @@ void Ut_MImCorrectionHost::checkSuggestion()
 
     m_subject->setCandidates(candidates);
     m_subject->showCorrectionWidget(candidateMode);
+    if (candidateMode == MImCorrectionHost::WordListMode) {
+        QTest::qWait(600);
+    }
     // default suggestion is the first one in candidate list which is
     // different with preedit
     QCOMPARE(m_subject->suggestion(), candidates.at(1));

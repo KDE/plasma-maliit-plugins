@@ -744,7 +744,7 @@ void Ut_MKeyboardHost::testRegionSignals()
     QCOMPARE(inputMethodHost->setScreenRegionCalls, c1);
     QCOMPARE(inputMethodHost->setInputMethodAreaCalls, c2);
 
-    subject->correctionHost->hideCorrectionWidget(false);
+    subject->correctionHost->hideCorrectionWidget();
     ++c1;
     QCOMPARE(inputMethodHost->setScreenRegionCalls, c1);
     QCOMPARE(inputMethodHost->setInputMethodAreaCalls, c2);
