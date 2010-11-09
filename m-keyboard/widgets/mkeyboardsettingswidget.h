@@ -51,6 +51,8 @@ private slots:
     void updateSelectedKeyboards(const QModelIndex &);
     void setErrorCorrectionState(bool toggled);
     void syncErrorCorrectionState();
+    void setWordCompletionState(bool toggled);
+    void syncWordCompletionState();
     void handleVisibilityChanged();
 
 private:
@@ -65,6 +67,8 @@ private:
     MLinearLayoutPolicy *portraitPolicy;
     MButton *errorCorrectionSwitch;
     MLabel *errorCorrectionLabel;
+    MButton *wordCompletionSwitch;
+    MLabel *wordCompletionLabel;
     MDialog *keyboardDialog;
     MList *keyboardList;
     MContentItem *selectedKeyboardsItem;

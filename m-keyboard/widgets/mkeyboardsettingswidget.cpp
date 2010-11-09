@@ -129,6 +129,7 @@ void MKeyboardSettingsWidget::buildUi()
     connect(selectedKeyboardsItem, SIGNAL(clicked()), this, SLOT(showKeyboardList()));
     addItem(selectedKeyboardsItem);
 
+    // Error correction settings
     errorCorrectionSwitch = new MButton(this);
     errorCorrectionSwitch->setObjectName(ObjectNameErrorCorrectionButton);
     errorCorrectionSwitch->setViewType(MButton::switchType);
@@ -137,11 +138,34 @@ void MKeyboardSettingsWidget::buildUi()
     //% "Error correction"
     errorCorrectionLabel->setText(qtTrId("qtn_txts_error_correction"));
     errorCorrectionLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    QGraphicsLinearLayout *l = new QGraphicsLinearLayout(Qt::Horizontal);
-    l->addItem(errorCorrectionLabel);
-    l->addItem(errorCorrectionSwitch);
-    l->setAlignment(errorCorrectionSwitch, Qt::AlignCenter);
-    (qobject_cast<MKeyboardSettingsWidget *>(this))->addItem(l);
+    QGraphicsLinearLayout *eCLayout = new QGraphicsLinearLayout(Qt::Horizontal);
+    eCLayout->addItem(errorCorrectionLabel);
+    eCLayout->addItem(errorCorrectionSwitch);
+    eCLayout->setAlignment(errorCorrectionSwitch, Qt::AlignCenter);
+
+    // Word completion settings
+    wordCompletionSwitch = new MButton(this);
+    wordCompletionSwitch->setObjectName(ObjectNameErrorCorrectionButton);
+    wordCompletionSwitch->setViewType(MButton::switchType);
+    wordCompletionSwitch->setCheckable(true);
+    wordCompletionLabel = new MLabel(this);
+    //% "Word completion"
+    wordCompletionLabel->setText(qtTrId("qtn_txts_word_completion"));
+    wordCompletionLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    QGraphicsLinearLayout *wCLayout = new QGraphicsLinearLayout(Qt::Horizontal);
+    wCLayout->addItem(wordCompletionLabel);
+    wCLayout->addItem(wordCompletionSwitch);
+    wCLayout->setAlignment(wordCompletionSwitch, Qt::AlignCenter);
+
+    // Add the error correction+word completion widgets to this layout to
+    // have proper alignment of the widgets to the right side.
+    QGraphicsLinearLayout *vertLayout = new QGraphicsLinearLayout(Qt::Vertical);
+
+    // Add the error correction widgets to a vertical layout
+    vertLayout->addItem(eCLayout);
+    // Add the word completion widgets to a vertical layout
+    vertLayout->addItem(wCLayout);
+    addItem(vertLayout);
 }
 
 void MKeyboardSettingsWidget::addItem(QGraphicsLayoutItem *item)
@@ -162,10 +186,14 @@ void MKeyboardSettingsWidget::retranslateUi()
 
 void MKeyboardSettingsWidget::updateTitle()
 {
-    if (!errorCorrectionLabel || !settingsObject || !selectedKeyboardsItem)
+    if (!errorCorrectionLabel || !wordCompletionLabel
+        || !settingsObject || !selectedKeyboardsItem)
         return;
+
     //% "Error correction"
     errorCorrectionLabel->setText(qtTrId("qtn_txts_error_correction"));
+    //% "Word completion"
+    wordCompletionLabel->setText(qtTrId("qtn_txts_word_completion"));
     QStringList keyboards = settingsObject->selectedKeyboards().values();
     //% "Installed keyboards (%1)"
     QString title = qtTrId("qtn_txts_installed_keyboards")
@@ -194,13 +222,17 @@ void MKeyboardSettingsWidget::connectSlots()
     connect(this, SIGNAL(visibleChanged()),
             this, SLOT(handleVisibilityChanged()));
 
-    if (!settingsObject || !errorCorrectionSwitch)
+    if (!settingsObject || !errorCorrectionSwitch || !wordCompletionSwitch)
         return;
 
     connect(errorCorrectionSwitch, SIGNAL(toggled(bool)),
             this, SLOT(setErrorCorrectionState(bool)));
     connect(settingsObject, SIGNAL(errorCorrectionChanged()),
             this, SLOT(syncErrorCorrectionState()));
+    connect(wordCompletionSwitch, SIGNAL(toggled(bool)),
+            this, SLOT(setWordCompletionState(bool)));
+    connect(settingsObject, SIGNAL(wordCompletionChanged()),
+            this, SLOT(syncWordCompletionState()));
     connect(settingsObject, SIGNAL(selectedKeyboardsChanged()),
             this, SLOT(updateTitle()));
     connect(settingsObject, SIGNAL(selectedKeyboardsChanged()),
@@ -237,6 +269,7 @@ void MKeyboardSettingsWidget::updateKeyboardModel()
 {
     if (!settingsObject || !keyboardList)
         return;
+
     //always reload available layouts in case user install/remove some layouts
     settingsObject->readAvailableKeyboards();
     QStandardItemModel *model = static_cast<QStandardItemModel*> (keyboardList->itemModel());
@@ -258,6 +291,7 @@ void MKeyboardSettingsWidget::updateKeyboardSelectionModel()
 {
     if (!settingsObject || !keyboardList)
         return;
+
     QStandardItemModel *model = static_cast<QStandardItemModel*> (keyboardList->itemModel());
     foreach (const QString &keyboard, settingsObject->selectedKeyboards().values()) {
         QList<QStandardItem *> items = model->findItems(keyboard);
@@ -285,22 +319,45 @@ void MKeyboardSettingsWidget::updateSelectedKeyboards(const QModelIndex &index)
     retranslateUi();
 }
 
-void MKeyboardSettingsWidget::setErrorCorrectionState(bool toggled)
+void MKeyboardSettingsWidget::setErrorCorrectionState(bool enabled)
 {
     if (!settingsObject)
         return;
-    if (toggled != settingsObject->errorCorrection())
-        settingsObject->setErrorCorrection(toggled) ;
+
+    if (settingsObject->errorCorrection() != enabled)
+        settingsObject->setErrorCorrection(enabled) ;
 }
 
 void MKeyboardSettingsWidget::syncErrorCorrectionState()
 {
     if (!settingsObject)
         return;
+
     const bool errorCorrectionState = settingsObject->errorCorrection();
     if (errorCorrectionSwitch
         && errorCorrectionSwitch->isChecked() != errorCorrectionState) {
         errorCorrectionSwitch->setChecked(errorCorrectionState);
+    }
+}
+
+void MKeyboardSettingsWidget::setWordCompletionState(bool enabled)
+{
+    if (!settingsObject)
+        return;
+
+    if (settingsObject->wordCompletion() != enabled)
+        settingsObject->setWordCompletion(enabled) ;
+}
+
+void MKeyboardSettingsWidget::syncWordCompletionState()
+{
+    if (!settingsObject)
+        return;
+
+    const bool wordCompletionState = settingsObject->wordCompletion();
+    if (wordCompletionSwitch
+        && wordCompletionSwitch->isChecked() != wordCompletionState) {
+        wordCompletionSwitch->setChecked(wordCompletionState);
     }
 }
 

@@ -27,8 +27,8 @@ class QGraphicsWidget;
 /*!
  * \brief MKeyboardSettings is the implemetation of meego-keyboard setting.
  * MKeyboardSettings implement MAbstractInputMethodSettings and create the meego-keyboard
- * setting. It provides below functionalities: get/set error corretion, get/set
- * installed (selected) keyboards.
+ * setting. It provides below functionalities: get/set error corretion, get/set word
+ * completion, get/set installed (selected) keyboards.
  */
 class MKeyboardSettings: public QObject, public MAbstractInputMethodSettings
 {
@@ -65,12 +65,21 @@ public:
     //! Sets error correction option.
     void setErrorCorrection(bool);
 
+    //! Returns the boolean value of word completion option.
+    bool wordCompletion() const;
+
+    //! Sets word completion option.
+    void setWordCompletion(bool);
+
 Q_SIGNALS:
     //! Emitted when selected keyboards are changed.
     void selectedKeyboardsChanged();
 
     //! Emitted when error correction option is changed.
     void errorCorrectionChanged();
+
+    //! Emitted when word completion option is changed.
+    void wordCompletionChanged();
 
 private:
     QString keyboardTitle(const QString &layoutFile) const;
@@ -84,6 +93,7 @@ private:
     //! all available keyboards
     QList<KeyboardInfo> availableKeyboardInfos;
     MGConfItem keyboardErrorCorrectionConf;
+    MGConfItem keyboardWordCompletionConf;
     MGConfItem selectedKeyboardsConf;
 };
 

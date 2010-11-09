@@ -25,7 +25,8 @@
 #include <QDebug>
 
 namespace {
-    const QString SettingsIMCorrectionSetting("/meegotouch/inputmethods/virtualkeyboard/correctionenabled");
+    const QString SettingsImErrorCorrection("/meegotouch/inputmethods/virtualkeyboard/correctionenabled");
+    const QString SettingsImWordCompletion("/meegotouch/inputmethods/virtualkeyboard/completionenabled");
     const QString InputMethodLayouts("/meegotouch/inputmethods/virtualkeyboard/layouts");
     const QString VKBConfigurationPath("/usr/share/meegotouch/virtual-keyboard/layouts/");
     const QString VKBLayoutsFilterRule("*.xml");
@@ -33,12 +34,15 @@ namespace {
 };
 
 MKeyboardSettings::MKeyboardSettings()
-    : keyboardErrorCorrectionConf(SettingsIMCorrectionSetting),
+    : keyboardErrorCorrectionConf(SettingsImErrorCorrection),
+      keyboardWordCompletionConf(SettingsImWordCompletion),
       selectedKeyboardsConf(InputMethodLayouts)
 {
     readAvailableKeyboards();
     connect(&keyboardErrorCorrectionConf, SIGNAL(valueChanged()),
             this, SIGNAL(errorCorrectionChanged()));
+    connect(&keyboardWordCompletionConf, SIGNAL(valueChanged()),
+            this, SIGNAL(wordCompletionChanged()));
     connect(&selectedKeyboardsConf, SIGNAL(valueChanged()),
             this, SIGNAL(selectedKeyboardsChanged()));
 }
@@ -154,6 +158,15 @@ bool  MKeyboardSettings::errorCorrection() const
 
 void  MKeyboardSettings::setErrorCorrection(bool enabled)
 {
-    if (keyboardErrorCorrectionConf.value().toBool() != enabled)
-        keyboardErrorCorrectionConf.set(enabled);
+    keyboardErrorCorrectionConf.set(enabled);
+}
+
+bool  MKeyboardSettings::wordCompletion() const
+{
+    return keyboardWordCompletionConf.value().toBool();
+}
+
+void  MKeyboardSettings::setWordCompletion(bool enabled)
+{
+    keyboardWordCompletionConf.set(enabled);
 }
