@@ -37,7 +37,8 @@ namespace
 
 Notification::Notification(const MVirtualKeyboardStyleContainer *style, QGraphicsWidget *parent)
     : MWidget(parent),
-      styleContainer(style)
+      styleContainer(style),
+      opacity(0)
 {
     // Notification sets its own absolute opacity
     setFlag(ItemIgnoresParentOpacity, true);
@@ -124,6 +125,7 @@ void Notification::fadeOut()
 void Notification::getStyleValues()
 {
     font = style()->notificationFont();
+    font.setPixelSize(style()->notificationFontSize());
     border = style()->notificationBorderColor();
     background = style()->notificationBackgroundColor();
     textColor = style()->notificationTextColor();

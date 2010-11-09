@@ -44,6 +44,7 @@ public:
     M_STYLE_ATTRIBUTE(QSize, menuSize, MenuSize)
 
     M_STYLE_ATTRIBUTE(QFont, notificationFont, NotificationFont)
+    M_STYLE_ATTRIBUTE(int, notificationFontSize, NotificationFontSize)
     M_STYLE_ATTRIBUTE(QColor, notificationBorderColor, NotificationBorderColor)
     M_STYLE_ATTRIBUTE(QColor, notificationBackgroundColor, NotificationBackgroundColor)
     M_STYLE_ATTRIBUTE(QColor, notificationTextColor, NotificationTextColor)
