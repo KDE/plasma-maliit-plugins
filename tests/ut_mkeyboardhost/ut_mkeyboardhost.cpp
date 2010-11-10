@@ -676,6 +676,34 @@ void Ut_MKeyboardHost::testPlusMinus()
     QCOMPARE(inputMethodHost->keyEvents.at(1)->type(), QEvent::KeyRelease);
 }
 
+void Ut_MKeyboardHost::testSendString()
+{
+    QString testString("bacon");
+
+    inputMethodHost->clear();
+
+    subject->sendString(testString);
+    QCOMPARE(inputMethodHost->sendCommitStringCalls, 1);
+    QCOMPARE(inputMethodHost->commit, testString);
+}
+
+void Ut_MKeyboardHost::testSendStringFromToolbar()
+{
+    QString preeditString("delicious");
+    QString toolbarString("bacon");
+
+    inputMethodHost->clear();
+    subject->setPreedit(preeditString);
+    subject->sendStringFromToolbar(toolbarString);
+    QCOMPARE(inputMethodHost->sendCommitStringCalls, 2);
+    QCOMPARE(inputMethodHost->commit, preeditString+toolbarString);
+
+    inputMethodHost->clear();
+    subject->sendStringFromToolbar(toolbarString);
+    QCOMPARE(inputMethodHost->sendCommitStringCalls, 1);
+    QCOMPARE(inputMethodHost->commit, toolbarString);
+}
+
 QRegion Ut_MKeyboardHost::region(RegionType type, int index)
 {
     switch(type) {

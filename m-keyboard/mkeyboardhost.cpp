@@ -249,7 +249,7 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
                  this, SLOT(sendKeyEvent(const QKeyEvent &)));
     Q_ASSERT(ok);
     ok = connect(imToolbar, SIGNAL(sendStringRequest(const QString &)),
-                 this, SLOT(sendString(const QString &)));
+                 this, SLOT(sendStringFromToolbar(const QString &)));
     Q_ASSERT(ok);
     ok = connect(imToolbar, SIGNAL(copyPasteClicked(CopyPasteState)),
                  this, SLOT(sendCopyPaste(CopyPasteState)));
@@ -1326,6 +1326,15 @@ void MKeyboardHost::sendKeyEvent(const QKeyEvent &key)
 void MKeyboardHost::sendString(const QString &text)
 {
     inputMethodHost()->sendCommitString(text);
+}
+
+void MKeyboardHost::sendStringFromToolbar(const QString &text)
+{
+    if (!preedit.isEmpty()) {
+        sendString(preedit);
+    }
+    reset();
+    sendString(text);
 }
 
 void MKeyboardHost::setToolbar(QSharedPointer<const MToolbarData> toolbar)

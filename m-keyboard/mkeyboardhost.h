@@ -169,6 +169,9 @@ private slots:
     //! Sends string
     void sendString(const QString &);
 
+    //! Sends string from toolbar
+    void sendStringFromToolbar(const QString &);
+
     //! Handle symbol key click.
     void handleSymbolKeyClick();
 

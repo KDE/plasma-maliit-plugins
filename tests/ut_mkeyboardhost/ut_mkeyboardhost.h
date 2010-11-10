@@ -60,6 +60,9 @@ private slots:
     void testCopyPaste();
     void testPlusMinus();
 
+    void testSendString();
+    void testSendStringFromToolbar();
+
     void testRegionSignals();
 
     void testSetState_data();
