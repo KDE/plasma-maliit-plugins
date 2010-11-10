@@ -1,3 +1,9 @@
+meego-keyboard (0.5.11~1) unstable; urgency=low
+
+  * [UNRELEASED]  
+
+ -- Gibran Rodriguez <ext-gibran.rodriguez@nokia.com>  Wed, 10 Nov 2010 15:08:45 +0200
+
 meego-keyboard (0.5.10-1) unstable; urgency=low
 
   * Fixes: NB#194728 - Settings: Latin America Spanish endonym wrong in active input method
