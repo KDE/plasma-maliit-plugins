@@ -59,6 +59,12 @@ namespace {
             return found;
         }
     };
+
+    bool isActiveKeyState(MImAbstractKey::ButtonState state)
+    {
+        return ((state == MImAbstractKey::Pressed)
+                || (state == MImAbstractKey::Selected));
+    }
 }
 
 void Ut_KeyButton::initTestCase()
@@ -284,7 +290,7 @@ void Ut_KeyButton::testActiveKeys()
     const MImAbstractKey *const noKey = 0;
 
     foreach (const KeyTriple &triple, keyControlSequence) {
-        availableKeys.at(triple.index)->setDownState(triple.state != MImAbstractKey::Normal);
+        availableKeys.at(triple.index)->setDownState(isActiveKeyState(triple.state));
         if (triple.lastActiveIndex > -1) {
             QCOMPARE(MImAbstractKey::lastActiveKey(),
                      availableKeys.at(triple.lastActiveIndex));
