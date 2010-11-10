@@ -24,6 +24,7 @@
 #include <QPainter>
 #include <QTextCharFormat>
 #include <QTextLine>
+#include <QList>
 
 #include <MApplication>
 #include <MComponentData>
@@ -63,21 +64,32 @@ namespace {
     class KeyPainter
         : public MImAbstractKeyVisitor
     {
+    public:
+        //! PaintMode can be used to optimize drawing for HW acceleration
+        enum PaintMode {
+            PaintBackground, //!< Only draw background of given keys, fills up iconKeys
+            PaintBackgroundAndIcon  //!< Draw both, background and icon, in one go
+        };
+
     private:
         const MImKeyArea *const keyArea; //!< owner of the keys
         QPainter *const painter; //!< used for painting
+        PaintMode mode; //!< current paint mode
+        mutable QList<const MImKey *> iconKeys; //!< collects keys with icons, \sa drawIcons
 
     public:
         explicit KeyPainter(const MImKeyArea *newKeyArea,
-                            QPainter *newPainter)
+                            QPainter *newPainter,
+                            PaintMode newMode = PaintBackgroundAndIcon)
             : keyArea(newKeyArea)
             , painter(newPainter)
+            , mode(newMode)
         {
             Q_ASSERT(keyArea != 0);
             Q_ASSERT(painter != 0);
         }
 
-        //! \brief Paints background or icon of given key.
+        //! \brief Paints background or icon of given key, depending on PaintMode
         //! \param abstractKey the given key
         bool operator()(MImAbstractKey *abstractKey)
         {
@@ -89,12 +101,36 @@ namespace {
         bool operator()(const MImKey *key) const
         {
             if (key && key->belongsTo(keyArea)) {
-                drawBackground(painter, key);
-                key->drawIcon(painter);
+                switch (mode) {
+
+                case PaintBackground:
+                    // Collect keys first, need to call drawIcons separately:
+                    drawBackground(painter, key);
+
+                    if (key->icon()) {
+                        iconKeys.append(key);
+                    }
+
+                    break;
+
+                case PaintBackgroundAndIcon:
+                default:
+                    drawBackground(painter, key);
+                    key->drawIcon(painter);
+                    break;
+                }
             }
 
             // If used as visitor, then we need to visit all active keys:
             return false;
+        }
+
+        //! \brief Draw all previously visited keys with icons
+        void drawIcons() const
+        {
+            foreach (const MImKey *key, iconKeys) {
+                key->drawIcon(painter);
+            }
         }
 
         //! \brief Draws background for a given key.
@@ -430,17 +466,23 @@ void MImKeyArea::paint(QPainter *onScreenPainter,
             background->draw(boundingRect().toRect(), &offScreenPainter);
         }
 
-        // Draw images first.
-        const KeyPainter kp(this, &offScreenPainter);
+        const bool drawButtonBoundingRects(style->drawButtonBoundingRects());
+        const bool drawButtonRects(style->drawButtonRects());
+
+        // In case of HW acceleration, we want to avoid switching between textures, if possible
+        // Draw backgrounds first, icons later:
+        const KeyPainter kp(this, &offScreenPainter, KeyPainter::PaintBackground);
 
         foreach (const KeyRow &row, rowList) {
             foreach (const MImKey *key, row.keys) {
                 kp(key);
                 drawDebugRects(&offScreenPainter, key,
-                               style->drawButtonBoundingRects(),
-                               style->drawButtonRects());
+                               drawButtonBoundingRects,
+                               drawButtonRects);
             }
         }
+
+        kp.drawIcons();
 
         if (style->drawReactiveAreas()) {
             drawDebugReactiveAreas(&offScreenPainter);
@@ -448,8 +490,10 @@ void MImKeyArea::paint(QPainter *onScreenPainter,
     }
 
     onScreenPainter->drawPixmap(boundingRect().toRect(), *cachedBackground.get());
-    KeyPainter kp(this, onScreenPainter);
+
+    KeyPainter kp(this, onScreenPainter, KeyPainter::PaintBackground);
     MImAbstractKey::visitActiveKeys(&kp);
+    kp.drawIcons();
 
     if (textDirty) {
         buildTextLayout();
