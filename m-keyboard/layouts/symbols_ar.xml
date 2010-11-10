@@ -360,9 +360,6 @@
             <key>
               <binding label="&#x0021;"/>
             </key>
-            <key>
-              <binding label="&#x066B;"/>
-            </key>
             <key style="special" rtl="true">
               <binding action="backspace"/>
             </key>
