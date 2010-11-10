@@ -213,6 +213,7 @@ MImKeyArea::MImKeyArea(const LayoutData::SharedLayoutSection &newSection,
       shiftKey(0),
       textDirty(false),
       cachedBackgroundDirty(true),
+      hasCachedBackground(false),
       equalWidthKeys(true)
 {
     textLayout.setCacheEnabled(true);
@@ -455,15 +456,30 @@ void MImKeyArea::paint(QPainter *onScreenPainter,
 {
     const MImAbstractKeyAreaStyleContainer &style(baseStyle());
 
-    if (cachedBackgroundDirty) {
-        cachedBackground.reset(new QPixmap(boundingRect().size().toSize()));
-        cachedBackground->fill(Qt::transparent);
+    // Key areas are disabled during animations. Once we are animated, it
+    // makes no sense to maintain the offscreen cache (especially when
+    // HW-accelerated). Therefore, we draw directly to the screen.
+    // However, we need to remember whether we drew a current version of the
+    // key area to the offscreen cache at all (that's what hasCachedBackground
+    // is for).
+    QPainter *currentPainter = onScreenPainter;
+    if (cachedBackgroundDirty
+        || !isEnabled()
+        || !hasCachedBackground) {
+
+        // TODO: find out why size()'s height is incorrect for popup.
+        initCachedBackground(QSize(size().width(), cachedWidgetHeight));
         QPainter offScreenPainter(cachedBackground.get());
+
+        if (isEnabled()) {
+            currentPainter = &offScreenPainter;
+            hasCachedBackground = true;
+        }
 
         const MScalableImage *background = style->backgroundImage();
 
         if (background) {
-            background->draw(boundingRect().toRect(), &offScreenPainter);
+            background->draw(boundingRect().toRect(), currentPainter);
         }
 
         const bool drawButtonBoundingRects(style->drawButtonBoundingRects());
@@ -471,12 +487,12 @@ void MImKeyArea::paint(QPainter *onScreenPainter,
 
         // In case of HW acceleration, we want to avoid switching between textures, if possible
         // Draw backgrounds first, icons later:
-        const KeyPainter kp(this, &offScreenPainter, KeyPainter::PaintBackground);
+        const KeyPainter kp(this, currentPainter, KeyPainter::PaintBackground);
 
         foreach (const KeyRow &row, rowList) {
             foreach (const MImKey *key, row.keys) {
                 kp(key);
-                drawDebugRects(&offScreenPainter, key,
+                drawDebugRects(currentPainter, key,
                                drawButtonBoundingRects,
                                drawButtonRects);
             }
@@ -485,11 +501,13 @@ void MImKeyArea::paint(QPainter *onScreenPainter,
         kp.drawIcons();
 
         if (style->drawReactiveAreas()) {
-            drawDebugReactiveAreas(&offScreenPainter);
+            drawDebugReactiveAreas(currentPainter);
         }
     }
 
-    onScreenPainter->drawPixmap(boundingRect().toRect(), *cachedBackground.get());
+    if (hasCachedBackground) {
+        onScreenPainter->drawPixmap(boundingRect().toRect(), *cachedBackground.get());
+    }
 
     KeyPainter kp(this, onScreenPainter, KeyPainter::PaintBackground);
     MImAbstractKey::visitActiveKeys(&kp);
@@ -565,6 +583,17 @@ void MImKeyArea::drawDebugReactiveAreas(QPainter *painter)
     painter->restore();
 }
 
+void MImKeyArea::initCachedBackground(const QSize &newSize)
+{
+    if (cachedBackground.get() && newSize == cachedBackground->size()) {
+        return; // already initialized
+    }
+
+    cachedBackground.reset(new QPixmap(newSize));
+    cachedBackground->fill(Qt::transparent);
+    hasCachedBackground = false;
+}
+
 MImAbstractKey *MImKeyArea::keyAt(const QPoint &pos) const
 {
     const int numRows = rowList.count();
@@ -620,6 +649,8 @@ void MImKeyArea::updateKeyGeometries(const int newAvailableWidth)
     }
 
     cachedWidgetHeight = computeWidgetHeight();
+    initCachedBackground(QSize(newAvailableWidth, cachedWidgetHeight));
+
     rowOffsets.clear();
 
     const MImAbstractKeyAreaStyleContainer &style(baseStyle());
@@ -835,6 +866,7 @@ void MImKeyArea::handleVisibilityChanged(bool)
 void MImKeyArea::invalidateBackgroundCache()
 {
     cachedBackgroundDirty = true;
+    hasCachedBackground = false;
 }
 
 QList<const MImAbstractKey *> MImKeyArea::keys() const

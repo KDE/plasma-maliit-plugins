@@ -184,7 +184,9 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
     // It uses animation to carry out the orientation change transform
     // (e.g. rotation and position animation). We do this because transform
     // happens in the scene, not in the view (MWindow) anymore.
+    // Enforcing full viewport updates helps to paint correctly in software mode.
     MPlainWindow::instance()->sceneManager()->appearSceneWindowNow(sceneWindow);
+    MPlainWindow::instance()->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 
     // Because we set vkbWidget as a child of sceneWindow the vkb
     // will always be in correct orientation. However the animation will be

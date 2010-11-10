@@ -23,6 +23,7 @@
 #include <MScalableImage>
 #include <QTextLayout>
 #include <QPixmap>
+#include <QSize>
 #include <memory>
 
 //! \brief MImKeyArea reimplements MImAbstractKeyArea and is optimized for drawing.
@@ -99,6 +100,10 @@ private:
     //! \param painter the painter to be used
     void drawDebugReactiveAreas(QPainter *painter);
 
+    //! \brief Initializes the pixmap used for background caching
+    //! \param size the new size
+    void initCachedBackground(const QSize &size);
+
     //! \brief Helper struct to store a row of keys.
     struct KeyRow {
         QList<MImKey*> keys; //!< keys in a row
@@ -120,6 +125,7 @@ private:
     bool textDirty; //!< dirty text cache flag
     std::auto_ptr<QPixmap> cachedBackground; //!< cached background, containing all keys in inactive state
     bool cachedBackgroundDirty; //!< dirty background cache flag
+    bool hasCachedBackground; //!< stores whether we already cached the background
     bool equalWidthKeys; //!< whether to assume equal width for all keys
 
 #ifdef UNIT_TEST
