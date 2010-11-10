@@ -30,9 +30,9 @@
 #include <QSignalSpy>
 #include <QDebug>
 
-Q_DECLARE_METATYPE(QList<Ut_KeyButton::DirectionPair>)
-Q_DECLARE_METATYPE(Ut_KeyButton::KeyList)
-Q_DECLARE_METATYPE(QList<Ut_KeyButton::KeyTriple>)
+Q_DECLARE_METATYPE(QList<Ut_MImKey::DirectionPair>)
+Q_DECLARE_METATYPE(Ut_MImKey::KeyList)
+Q_DECLARE_METATYPE(QList<Ut_MImKey::KeyTriple>)
 Q_DECLARE_METATYPE(QList<int>)
 
 namespace {
@@ -67,14 +67,14 @@ namespace {
     }
 }
 
-void Ut_KeyButton::initTestCase()
+void Ut_MImKey::initTestCase()
 {
     qRegisterMetaType< QList<DirectionPair> >("QList<DirectionPair>");
     qRegisterMetaType<KeyList>("KeyList");
     qRegisterMetaType< QList<KeyTriple> >("QList<KeyTriple>");
 
     static int argc = 2;
-    static char *app_name[] = { (char*) "ut_keybutton",
+    static char *app_name[] = { (char*) "ut_mimkey",
                                 (char *) "-local-theme" };
 
     disableQtPlugins();
@@ -87,7 +87,7 @@ void Ut_KeyButton::initTestCase()
     dataKey = createKeyModel();
 }
 
-void Ut_KeyButton::cleanupTestCase()
+void Ut_MImKey::cleanupTestCase()
 {
     delete style;
     delete dataKey;
@@ -96,19 +96,19 @@ void Ut_KeyButton::cleanupTestCase()
     delete parent;
 }
 
-void Ut_KeyButton::init()
+void Ut_MImKey::init()
 {
     subject = new MImKey(*dataKey, *style, *parent);
 }
 
-void Ut_KeyButton::cleanup()
+void Ut_MImKey::cleanup()
 {
     MImAbstractKey::resetActiveKeys();
     delete subject;
     subject = 0;
 }
 
-void Ut_KeyButton::testSetModifier_data()
+void Ut_MImKey::testSetModifier_data()
 {
     QTest::addColumn<bool>("shift");
     QTest::addColumn<QChar>("accent");
@@ -126,7 +126,7 @@ void Ut_KeyButton::testSetModifier_data()
     QTest::newRow("shift, l'accent grave")          << true  << grave << QString(L'À');
 }
 
-void Ut_KeyButton::testSetModifier()
+void Ut_MImKey::testSetModifier()
 {
     QFETCH(bool, shift);
     QFETCH(QChar, accent);
@@ -136,12 +136,12 @@ void Ut_KeyButton::testSetModifier()
     QCOMPARE(subject->label(), expectedLabel);
 }
 
-void Ut_KeyButton::testKey()
+void Ut_MImKey::testKey()
 {
     QCOMPARE(&subject->model(), dataKey);
 }
 
-void Ut_KeyButton::testBinding()
+void Ut_MImKey::testBinding()
 {
     bool shift = false;
     subject->setModifiers(shift);
@@ -152,7 +152,7 @@ void Ut_KeyButton::testBinding()
     QCOMPARE(&subject->binding(), dataKey->binding(shift));
 }
 
-void Ut_KeyButton::testIsDead()
+void Ut_MImKey::testIsDead()
 {
     MImKeyModel *key = new MImKeyModel;
     MImKeyBinding *binding = new MImKeyBinding;
@@ -170,7 +170,7 @@ void Ut_KeyButton::testIsDead()
     delete key;
 }
 
-void Ut_KeyButton::testTouchPointCount_data()
+void Ut_MImKey::testTouchPointCount_data()
 {
     QTest::addColumn<int>("initialCount");
     QTest::addColumn< QList<DirectionPair> >("countDirectionList");
@@ -209,7 +209,7 @@ void Ut_KeyButton::testTouchPointCount_data()
         << MImKey::touchPointLimit() - 2 << MImAbstractKey::Pressed;
 }
 
-void Ut_KeyButton::testTouchPointCount()
+void Ut_MImKey::testTouchPointCount()
 {
     QFETCH(int, initialCount);
     QFETCH(QList<DirectionPair>, countDirectionList);
@@ -238,7 +238,7 @@ void Ut_KeyButton::testTouchPointCount()
     QCOMPARE(subject->state(), expectedButtonState);
 }
 
-void Ut_KeyButton::testResetTouchPointCount()
+void Ut_MImKey::testResetTouchPointCount()
 {
     QCOMPARE(subject->touchPointCount(), 0);
 
@@ -252,7 +252,7 @@ void Ut_KeyButton::testResetTouchPointCount()
     QCOMPARE(subject->touchPointCount(), 0);
 }
 
-void Ut_KeyButton::testActiveKeys_data()
+void Ut_MImKey::testActiveKeys_data()
 {
     QTest::addColumn<KeyList>("availableKeys");
     QTest::addColumn< QList<KeyTriple> >("keyControlSequence");
@@ -282,7 +282,7 @@ void Ut_KeyButton::testActiveKeys_data()
         << (QList<int>());
 }
 
-void Ut_KeyButton::testActiveKeys()
+void Ut_MImKey::testActiveKeys()
 {
     QFETCH(KeyList, availableKeys);
     QFETCH(QList<KeyTriple>, keyControlSequence);
@@ -318,7 +318,7 @@ void Ut_KeyButton::testActiveKeys()
     }
 }
 
-void Ut_KeyButton::testResetActiveKeys()
+void Ut_MImKey::testResetActiveKeys()
 {
     ActiveKeyFinder finder;
     MImAbstractKey::visitActiveKeys(&finder);
@@ -332,7 +332,7 @@ void Ut_KeyButton::testResetActiveKeys()
     MImAbstractKey::resetActiveKeys();
 }
 
-void Ut_KeyButton::testVisitActiveKeys()
+void Ut_MImKey::testVisitActiveKeys()
 {
     KeyList keys;
     keys << createKey(true) << createKey(true);
@@ -351,14 +351,14 @@ void Ut_KeyButton::testVisitActiveKeys()
     QCOMPARE(finder.visits(), keys.count());
 }
 
-MImKey *Ut_KeyButton::createKey(bool state)
+MImKey *Ut_MImKey::createKey(bool state)
 {
     MImKey *key = new MImKey(*dataKey, *style, *parent);
     key->setDownState(state);
     return key;
 }
 
-MImKeyModel *Ut_KeyButton::createKeyModel()
+MImKeyModel *Ut_MImKey::createKeyModel()
 {
     MImKeyModel *key = new MImKeyModel;
 
@@ -382,4 +382,4 @@ MImKeyModel *Ut_KeyButton::createKeyModel()
     return key;
 }
 
-QTEST_APPLESS_MAIN(Ut_KeyButton);
+QTEST_APPLESS_MAIN(Ut_MImKey);

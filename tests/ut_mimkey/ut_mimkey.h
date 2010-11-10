@@ -16,8 +16,8 @@
 
 
 
-#ifndef UT_KEYBUTTON_H
-#define UT_KEYBUTTON_H
+#ifndef UT_MIMKEY_H
+#define UT_MIMKEY_H
 
 #include <mimabstractkey.h>
 
@@ -32,7 +32,7 @@ class MImAbstractKeyAreaStyleContainer;
 class QGraphicsItem;
 class KeyboardData;
 
-class Ut_KeyButton: public QObject
+class Ut_MImKey: public QObject
 {
     Q_OBJECT
 
@@ -101,8 +101,8 @@ private:
     MImKeyModel *createKeyModel();
 };
 
-Q_DECLARE_METATYPE(Ut_KeyButton::DirectionPair)
-Q_DECLARE_METATYPE(Ut_KeyButton::KeyTriple)
+Q_DECLARE_METATYPE(Ut_MImKey::DirectionPair)
+Q_DECLARE_METATYPE(Ut_MImKey::KeyTriple)
 Q_DECLARE_METATYPE(MImAbstractKey::ButtonState)
 
 #endif

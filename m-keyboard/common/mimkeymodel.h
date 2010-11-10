@@ -117,7 +117,7 @@ private:
 
     friend class KeyboardData;
     friend class Ut_MImKeyModel;
-    friend class Ut_KeyButton;
+    friend class Ut_MImKey;
     friend class Ut_MVirtualKeyboard;
 };
 
@@ -243,7 +243,7 @@ private:
 
     friend class KeyboardData;
     friend class Ut_MImKeyModel;
-    friend class Ut_KeyButton;
+    friend class Ut_MImKey;
 };
 
 
