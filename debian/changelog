@@ -2,6 +2,7 @@ meego-keyboard (0.5.11~1) unstable; urgency=low
 
   * [UNRELEASED]  
   * Fixes: NB#199711 - COREWEB: /usr/bin/meego-im-uiserver 'MWidgetView::style MWidgetController::style style WidgetBar::styleChanged WidgetBar::WidgetBar'
+  * Fixes: NB#195713 - Pre-edit text disappears when emoticon is inserted in custom toolbar in widgetsgallery
 
  -- Gibran Rodriguez <ext-gibran.rodriguez@nokia.com>  Wed, 10 Nov 2010 15:08:45 +0200
 
