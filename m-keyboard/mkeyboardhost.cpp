@@ -334,13 +334,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
     connect(hardwareKeyboard, SIGNAL(shiftStateChanged()),
             this, SLOT(updateSymbolViewLevel()));
 
-    connect(vkbWidget, SIGNAL(copyPasteRequest(CopyPasteState)),
-            this, SLOT(sendCopyPaste(CopyPasteState)));
-    connect(vkbWidget, SIGNAL(sendKeyEventRequest(const QKeyEvent &)),
-            this, SLOT(sendKeyEvent(const QKeyEvent &)));
-    connect(vkbWidget, SIGNAL(sendStringRequest(const QString &)),
-            this, SLOT(sendString(const QString &)));
-
     if (!inputMethodCorrectionEngine->value().isNull()) {
         imCorrectionEngine = MImEngineWordsInterfaceFactory::instance()->createEngine(
                                 inputMethodCorrectionEngine->value().toString());

@@ -318,15 +318,6 @@ signals:
      */
     void copyPasteClicked(CopyPasteState action);
 
-    //! Emitted when require a copy/paste action
-    void copyPasteRequest(CopyPasteState);
-
-    //! Emitted when require sending a keyevent
-    void sendKeyEventRequest(const QKeyEvent &);
-
-    //! Emitted when require sending a string
-    void sendStringRequest(const QString &);
-
     //! Emitted when shift state is changed
     void shiftLevelChanged();
 
