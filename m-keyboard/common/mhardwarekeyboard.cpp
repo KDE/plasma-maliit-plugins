@@ -261,7 +261,10 @@ void MHardwareKeyboard::disable()
     disconnect(QApplication::clipboard(), SIGNAL(dataChanged()), this, 0);
 
     if (!preedit.isEmpty()) {
-        inputMethodHost.sendPreeditString("", MInputMethod::PreeditKeyPress);
+        QList<MInputMethod::PreeditTextFormat> preeditFormats;
+        MInputMethod::PreeditTextFormat preeditFormat(0, 0, MInputMethod::PreeditKeyPress);
+        preeditFormats << preeditFormat;
+        inputMethodHost.sendPreeditString("", preeditFormats);
         preedit.clear();
     }
     deadKeyMapper.reset();
@@ -582,7 +585,10 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
                 longPressModifiers = nativeModifiers;
                 longPressTimer.start();
             }
-            inputMethodHost.sendPreeditString(text, MInputMethod::PreeditKeyPress);
+            QList<MInputMethod::PreeditTextFormat> preeditFormats;
+            MInputMethod::PreeditTextFormat preeditFormat(0, text.length(), MInputMethod::PreeditKeyPress);
+            preeditFormats << preeditFormat;
+            inputMethodHost.sendPreeditString(text, preeditFormats);
             preedit = text;
             preeditScanCode = nativeScanCode;
         }
@@ -772,7 +778,11 @@ void MHardwareKeyboard::handleLongPressTimeout()
     if (!text.isEmpty()) {
         (void)deadKeyMapper.filterKeyPress(text, true);
         preedit = text;
-        inputMethodHost.sendPreeditString(text, MInputMethod::PreeditKeyPress);
+
+        QList<MInputMethod::PreeditTextFormat> preeditFormats;
+        MInputMethod::PreeditTextFormat preeditFormat(0, preedit.length(), MInputMethod::PreeditKeyPress);
+        preeditFormats << preeditFormat;
+        inputMethodHost.sendPreeditString(text, preeditFormats);
     }
 }
 
@@ -812,8 +822,12 @@ bool MHardwareKeyboard::handlePressWithSymModifier(QString &text, quint32 native
 
     lastSymText = text;
     characterLoopIndex = (characterLoopIndex + 1) % accentedCharacters.length();
+
+    QList<MInputMethod::PreeditTextFormat> preeditFormats;
+    MInputMethod::PreeditTextFormat preeditFormat(0, 1, MInputMethod::PreeditDefault);
+    preeditFormats << preeditFormat;
     inputMethodHost.sendPreeditString(accentedCharacters[characterLoopIndex],
-                                      MInputMethod::PreeditDefault);
+                                      preeditFormats);
     return true;
 }
 
