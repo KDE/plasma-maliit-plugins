@@ -23,7 +23,7 @@
 
 #include <MApplication>
 #include <MComponentData>
-#include <MFeedbackPlayer>
+#include <MFeedback>
 #include <MSceneManager>
 #include <MGConfItem>
 #include <QDebug>
@@ -33,6 +33,7 @@
 #include <QHash>
 #include <QKeyEvent>
 #include <mtimestamp.h>
+
 
 namespace
 {
@@ -155,7 +156,8 @@ MImAbstractKeyArea::MImAbstractKeyArea(const LayoutData::SharedLayoutSection &ne
       mPopup(usePopup ? PopupFactory::instance()->createPopup(this) : 0),
       wasGestureTriggered(false),
       enableMultiTouch(MGConfItem(MultitouchSettings).value().toBool()),
-      feedbackPlayer(0),
+      feedbackPress(MFeedback::Press),
+      feedbackCancel(MFeedback::Cancel),
       section(newSection)
 {
     // By default multi-touch is disabled
@@ -165,7 +167,6 @@ MImAbstractKeyArea::MImAbstractKeyArea(const LayoutData::SharedLayoutSection &ne
 
     lastTouchPointPressEvent.restart();
     grabGesture(FlickGestureRecognizer::sharedGestureType());
-    feedbackPlayer = MComponentData::feedbackPlayer();
 
     longPressTimer.setSingleShot(true);
     idleVkbTimer.setSingleShot(true);
@@ -407,6 +408,10 @@ void MImAbstractKeyArea::ungrabMouseEvent(QEvent *)
 bool MImAbstractKeyArea::event(QEvent *ev)
 {
     bool eaten = false;
+    QString start, end;
+    start = QString("%1|start").arg(ev->type());
+    end = QString("%1|end").arg(ev->type());
+    mTimestamp("MImAbstractKeyArea", start);
 
     if (ev->type() == QEvent::Gesture) {
         const Qt::GestureType flickGestureType = FlickGestureRecognizer::sharedGestureType();
@@ -443,7 +448,10 @@ bool MImAbstractKeyArea::event(QEvent *ev)
         eaten = true;
     }
 
-    return eaten || MWidget::event(ev);
+    const bool result = eaten || MWidget::event(ev);
+
+    mTimestamp("MImAbstractKeyArea", end);
+    return result;
 }
 
 void MImAbstractKeyArea::handleFlickGesture(FlickGesture *gesture)
@@ -498,6 +506,7 @@ void MImAbstractKeyArea::handleFlickGesture(FlickGesture *gesture)
 
 void MImAbstractKeyArea::touchPointPressed(const QTouchEvent::TouchPoint &tp)
 {
+    mTimestamp("MImAbstractKeyArea", "start");
     wasGestureTriggered = false;
 
     // Gestures only slow down in speed typing mode:
@@ -516,6 +525,7 @@ void MImAbstractKeyArea::touchPointPressed(const QTouchEvent::TouchPoint &tp)
 
     if (!key) {
         longPressTimer.stop();
+        mTimestamp("MImAbstractKeyArea", "end");
         return;
     }
 
@@ -545,6 +555,7 @@ void MImAbstractKeyArea::touchPointPressed(const QTouchEvent::TouchPoint &tp)
         emit keyPressed(key, (finder.deadKey() ? finder.deadKey()->label() : QString()),
                         hasActiveShiftKeys || level() % 2);
     }
+    mTimestamp("MImAbstractKeyArea", "end");
 }
 
 void MImAbstractKeyArea::touchPointMoved(const QTouchEvent::TouchPoint &tp)
@@ -553,6 +564,7 @@ void MImAbstractKeyArea::touchPointMoved(const QTouchEvent::TouchPoint &tp)
         longPressTimer.stop();
         return;
     }
+    mTimestamp("MImAbstractKeyArea", "start");
 
     const QPoint pos = mapFromScene(tp.scenePos()).toPoint();
     const QPoint lastPos = mapFromScene(tp.lastScenePos()).toPoint();
@@ -566,16 +578,20 @@ void MImAbstractKeyArea::touchPointMoved(const QTouchEvent::TouchPoint &tp)
     // For a moving touchpoint, we only need to consider enter-key or leave-key events:
     if (lookup.key != lookup.lastKey) {
 
-        if (lookup.key
-            && lookup.key->increaseTouchPointCount()
-            && lookup.key->touchPointCount() == 1) {
-            // Reaction map cannot discover when we move from one key
-            // (= reactive area) to another
-            feedbackPlayer->play(MFeedbackPlayer::Press);
-            longPressTimer.start(style()->longPressTimeout());
-            emit keyPressed(lookup.key,
-                            (finder.deadKey() ? finder.deadKey()->label() : QString()),
-                            hasActiveShiftKeys || level() % 2);
+        if (lookup.key) {
+            updatePopup(lookup.key);
+
+            if (lookup.key->increaseTouchPointCount()
+                && lookup.key->touchPointCount() == 1) {
+                // Reaction map cannot discover when we move from one key
+                // (= reactive area) to another
+                // slot is called asynchronously to get screen update as fast as possible
+                QMetaObject::invokeMethod(&feedbackPress, "play", Qt::QueuedConnection);
+                longPressTimer.start(style()->longPressTimeout());
+                emit keyPressed(lookup.key,
+                                (finder.deadKey() ? finder.deadKey()->label() : QString()),
+                                hasActiveShiftKeys || level() % 2);
+            }
         }
 
         if (lookup.lastKey
@@ -583,7 +599,8 @@ void MImAbstractKeyArea::touchPointMoved(const QTouchEvent::TouchPoint &tp)
             && lookup.lastKey->touchPointCount() == 0) {
             // Reaction map cannot discover when we move from one key
             // (= reactive area) to another
-            feedbackPlayer->play(MFeedbackPlayer::Cancel);
+            // slot is called asynchronously to get screen update as fast as possible
+            QMetaObject::invokeMethod(&feedbackCancel, "play", Qt::QueuedConnection);
             emit keyReleased(lookup.lastKey,
                              (finder.deadKey() ? finder.deadKey()->label() : QString()),
                              hasActiveShiftKeys || level() % 2);
@@ -592,13 +609,12 @@ void MImAbstractKeyArea::touchPointMoved(const QTouchEvent::TouchPoint &tp)
 
     if (!lookup.key) {
         longPressTimer.stop();
-    } else {
-        updatePopup(lookup.key);
     }
 
     if (debugTouchPoints) {
         printTouchPoint(tp, lookup.key, lookup.lastKey);
     }
+    mTimestamp("MImAbstractKeyArea", "end");
 }
 
 void MImAbstractKeyArea::touchPointReleased(const QTouchEvent::TouchPoint &tp)
@@ -606,6 +622,7 @@ void MImAbstractKeyArea::touchPointReleased(const QTouchEvent::TouchPoint &tp)
     if (wasGestureTriggered) {
         return;
     }
+    mTimestamp("MImAbstractKeyArea", "start");
 
     idleVkbTimer.start(style()->idleVkbTimeout());
 
@@ -648,6 +665,7 @@ void MImAbstractKeyArea::touchPointReleased(const QTouchEvent::TouchPoint &tp)
     if (debugTouchPoints) {
         printTouchPoint(tp, lookup.key, lookup.lastKey);
     }
+    mTimestamp("MImAbstractKeyArea", "end");
 }
 
 QTouchEvent::TouchPoint MImAbstractKeyArea::createTouchPoint(int id,

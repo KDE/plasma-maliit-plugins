@@ -25,6 +25,7 @@
 #include "mkeyboardcommon.h"
 
 #include <MStylableWidget>
+#include <MFeedback>
 #include <QColor>
 #include <QHash>
 #include <QList>
@@ -34,7 +35,6 @@
 #include <QTime>
 
 class FlickGesture;
-class MFeedbackPlayer;
 class MReactionMap;
 class MScalableImage;
 class MVirtualKeyboardStyleContainer;
@@ -318,7 +318,8 @@ private:
     QList<QStringList> accentLabels; //!< list of accent labels
     bool wasGestureTriggered; //!< whether a gesture was already triggered for any active touch point
     bool enableMultiTouch; //!< whether this key area operates in multitouch mode
-    MFeedbackPlayer *feedbackPlayer; //!< Feedback player instance
+    MFeedback feedbackPress; //!< Press feedback
+    MFeedback feedbackCancel; //!< Cancel feedback
     const LayoutData::SharedLayoutSection section; //!< layout section shown by this key area
     static M::InputMethodMode InputMethodMode; //!< used input method mode (same for all key areas)
     QTimer longPressTimer; //!< used to recognize long press
