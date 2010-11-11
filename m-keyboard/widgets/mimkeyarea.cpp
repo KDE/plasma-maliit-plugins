@@ -32,6 +32,7 @@
 #include <mplainwindow.h>
 #include <mreactionmap.h>
 #include <MTheme>
+#include <MTimestamp>
 
 namespace {
     template<class T>
@@ -454,6 +455,7 @@ void MImKeyArea::paint(QPainter *onScreenPainter,
                        const QStyleOptionGraphicsItem *,
                        QWidget *)
 {
+    mTimestamp("MImKeyArea", "start");
     const MImAbstractKeyAreaStyleContainer &style(baseStyle());
 
     // Key areas are disabled during animations. Once we are animated, it
@@ -522,6 +524,7 @@ void MImKeyArea::paint(QPainter *onScreenPainter,
     textLayout.draw(onScreenPainter, QPoint());
 
     cachedBackgroundDirty = false;
+    mTimestamp("MImKeyArea", "end");
 }
 
 void MImKeyArea::drawDebugRects(QPainter *painter,
