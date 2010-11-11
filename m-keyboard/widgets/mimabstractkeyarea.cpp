@@ -345,7 +345,7 @@ void MImAbstractKeyArea::click(MImAbstractKey *key,
         const QString accent = (finder.deadKey() ? finder.deadKey()->label() : QString());
         emit keyClicked(key, accent, hasActiveShiftKeys || level() % 2, pos);
 
-        if (!key->isDeadKey()) {
+        if (!key->isShiftKey()) {
             unlockDeadKeys(finder.deadKey());
         }
     } else if (key == finder.deadKey()) {
