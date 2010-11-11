@@ -30,45 +30,13 @@ MVirtualKeyboardStyle.Landscape {
 }
 
 MImAbstractKeyAreaStyle {
-    background-image: "meegotouch-keyboard-background" 15px 15px 15px 15px;
-
+    /*** Font Settings ***/
     font: $FONT_KEYBOARD;
     font-color: $COLOR_FOREGROUND;
     secondary-font: $FONT_SMALL;
 
-    spacing-vertical: 2mm;
-    spacing-horizontal: 0.4mm;
-
-    padding-top: 2.2mm;
-    padding-bottom: $MARGIN_DOUBLE;
-
-    long-press-timeout: 700;
-    idle-vkb-timeout: 700;
-    flick-gesture-timeout: 500;
-
-    flick-gesture-threshold-ratio: 0.5;
-
-    /* Single widget keyboard button styling */
-    /* TODO: give correct size */
-    key-width-small: 0.5;
-    key-width-small-fixed: 48;
-    key-width-medium: 1.0;
-    key-width-medium-fixed: 48;
-    key-width-large: 1.3;
-    key-width-large-fixed: 48;
-    key-width-x-large: 1.5;
-    key-width-x-large-fixed: 48;
-    key-width-xx-large: 2.0;
-    key-width-xx-large-fixed: 48;
-    key-width-stretched: -1;
-    key-width-stretched-fixed: 48;
-
-    row-height-small: 0.5;
-    row-height-medium: 1.0;
-    row-height-large: 1.3;
-    row-height-x-large: 1.5;
-    row-height-xx-large: 2.0;
-
+    /*** Graphical assets ***/
+    background-image: "meegotouch-keyboard-background" 15px 15px 15px 15px;
     key-background: "meegotouch-keyboard-key" 15 15 15 15;
     key-background-pressed: "meegotouch-keyboard-key-pressed" 15 15 15 15;
     key-background-selected: "meegotouch-keyboard-key-selected" 15 15 15 15;
@@ -102,17 +70,52 @@ MImAbstractKeyAreaStyle {
 
     key-tab-icon-size: 0 0;
     key-tab-icon-id: ; /* non-existant currently */
-    /* End of single widget keyboard button styling */
 
-    /* touch behaviour */
+    /*** Behaviour ***/
+    long-press-timeout: 700;
+    idle-vkb-timeout: 700;
+
+    flick-gesture-timeout: 500;
+    flick-gesture-threshold-ratio: 0.5;
+
+    /*** Hackish Behaviour ***/
     button-bounding-rect-top-adjustment: -6;
     button-bounding-rect-bottom-adjustment: 6;
 
-    /* debugging-related attributes */
+    /*** Key Geometry ***/
+    /*** Key Area Geometry ***/
+
+    /*** Debugging ***/
     draw-button-bounding-rects: false;
     draw-button-rects: false;
     debug-touch-points: false;
     draw-reactive-areas: false;
+
+    /*** LEGACY ***/
+    spacing-vertical: 2mm;
+    spacing-horizontal: 0.4mm;
+
+    padding-top: 2.2mm;
+    padding-bottom: $MARGIN_DOUBLE;
+
+    key-width-small: 0.5;
+    key-width-small-fixed: 48;
+    key-width-medium: 1.0;
+    key-width-medium-fixed: 48;
+    key-width-large: 1.3;
+    key-width-large-fixed: 48;
+    key-width-x-large: 1.5;
+    key-width-x-large-fixed: 48;
+    key-width-xx-large: 2.0;
+    key-width-xx-large-fixed: 48;
+    key-width-stretched: -1;
+    key-width-stretched-fixed: 48;
+
+    row-height-small: 0.5;
+    row-height-medium: 1.0;
+    row-height-large: 1.3;
+    row-height-x-large: 1.5;
+    row-height-xx-large: 2.0;
 }
 
 MImAbstractKeyAreaStyle.Portrait {
