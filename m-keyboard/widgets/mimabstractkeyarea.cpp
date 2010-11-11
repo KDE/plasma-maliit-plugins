@@ -564,6 +564,11 @@ void MImAbstractKeyArea::touchPointMoved(const QTouchEvent::TouchPoint &tp)
         longPressTimer.stop();
         return;
     }
+
+    if (tp.scenePos() == tp.lastScenePos()) {
+        return;
+    }
+
     mTimestamp("MImAbstractKeyArea", "start");
 
     const QPoint pos = mapFromScene(tp.scenePos()).toPoint();
