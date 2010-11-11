@@ -18,7 +18,8 @@ MVirtualKeyboardStyle {
 
     close-button-margin : 10;
 
-    notification-font: "Nokia Sans Light" 42;
+    notification-font: $FONT_KEYBOARD;
+    notification-font-size: 42;
     notification-border-color: #00FF00;
     notification-background-color: #FF0000;
     notification-text-color: #0000FF;

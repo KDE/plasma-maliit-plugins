@@ -125,15 +125,11 @@ void Ut_Notification::testFadeInFadeOut()
 //This test depends on values in test.css
 void Ut_Notification::testCSS()
 {
-    //construct font in the same way as mstylesheet.cpp
-    QFont expected("Nokia Sans Light");
-    expected.setPixelSize(42);
-
-    QVERIFY(subject->background == QColor(Qt::red));
-    QVERIFY(subject->border == QColor(Qt::green));
-    QVERIFY(subject->textColor == QColor(Qt::blue));
-    QVERIFY(subject->opacity == 1.0);
-    QCOMPARE(subject->font, expected);
+    QCOMPARE(subject->background, QColor(Qt::red));
+    QCOMPARE(subject->border, QColor(Qt::green));
+    QCOMPARE(subject->textColor, QColor(Qt::blue));
+    QCOMPARE(subject->opacity, 1.0);
+    QCOMPARE(subject->font.pixelSize(), 42);
 }
 
 QTEST_APPLESS_MAIN(Ut_Notification);
