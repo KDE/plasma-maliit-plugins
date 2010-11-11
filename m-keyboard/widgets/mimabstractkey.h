@@ -110,12 +110,13 @@ public:
     static MImAbstractKey* lastActiveKey();
 
     //! \brief Resets active keys to normal state.
-    //! \warning Be careful when using this. Some key areas may have according
-    //!          to key modifiers. If all active keys are reset, together with
-    //!          the modifiers, those key areas will be out of sync with
-    //!          respect to actual state/displayed state.
-    //!          It is usually better to write a specialized visitor.
-    //! \sa visitActiveKeys
+    //! \warning Be careful when using this. Some key areas may have changed
+    //!          their visual appearance according to key modifiers. However,
+    //!          if all active keys are reset, those key areas might not be
+    //!          aware of this change.
+    //!          It is usually better to write a specialized visitor, unless
+    //!          you know what you're doing.
+    //! \sa visitActiveKeys, MImAbstractKeyVisitor
     static void resetActiveKeys();
 
     //! \brief Visit active keys.
