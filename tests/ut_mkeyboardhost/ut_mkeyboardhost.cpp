@@ -1641,5 +1641,55 @@ void Ut_MKeyboardHost::testShowLanguageNotification()
     QCOMPARE(gRequestLanguageNotificationCallCount, expectedCallCount);
 }
 
+
+void Ut_MKeyboardHost::testAutoPunctuation_data()
+{
+    QTest::addColumn<QChar>("character");
+    QTest::addColumn<bool>("autopunctuated");
+
+    QTest::newRow(".") << QChar('.') << true;
+    QTest::newRow(",") << QChar(',') << true;
+    QTest::newRow("!") << QChar('!') << true;
+    QTest::newRow("?") << QChar('?') << true;
+    QTest::newRow("a") << QChar('a') << false;
+}
+
+void Ut_MKeyboardHost::testAutoPunctuation()
+{
+    QFETCH(QChar, character);
+    QFETCH(bool, autopunctuated);
+
+    MGConfItem config(InputMethodCorrectionSetting);
+    config.set(QVariant(true));
+
+    if (subject->imCorrectionEngine) {
+        MImEngineWordsInterfaceFactory::instance()->deleteEngine(subject->imCorrectionEngine);
+    }
+
+    DummyDriverMkh *engine(new DummyDriverMkh);
+    subject->imCorrectionEngine = engine;
+    QStringList candidates;
+    candidates << "foo" << "foobar";
+    subject->setPreedit("fo");
+    engine->setCandidates(candidates);
+    engine->setSuggestedCandidateIndexReturnValue(0);
+    inputMethodHost->preeditRectangleReturnValue = QRect(0, 0, 100, 100);
+    subject->handleKeyClick(KeyEvent("o"));
+    subject->handleKeyClick(KeyEvent(" ", QEvent::KeyRelease, Qt::Key_Space));
+    inputMethodHost->commit.clear();
+    inputMethodHost->preedit.clear();
+    subject->handleKeyClick(KeyEvent(character, QEvent::KeyRelease));
+
+    if (autopunctuated) {
+        QCOMPARE(inputMethodHost->commit, QString(character) + " ");
+        QCOMPARE(inputMethodHost->sendKeyEventCalls, 1);
+        QCOMPARE(inputMethodHost->keyEvents[0]->key(), static_cast<int>(Qt::Key_Backspace));
+    } else {
+        QCOMPARE(inputMethodHost->commit, QString());
+        QCOMPARE(inputMethodHost->preedit, QString(character));
+        QCOMPARE(inputMethodHost->sendKeyEventCalls, 0);
+    }
+}
+
 QTEST_APPLESS_MAIN(Ut_MKeyboardHost);
 

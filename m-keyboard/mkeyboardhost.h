@@ -392,6 +392,8 @@ private:
 
     BackspaceMode backspaceMode;
 
+    bool wordTrackerSuggestionAcceptedWithSpace;
+
 #ifdef UNIT_TEST
     friend class Ut_MKeyboardHost;
 #endif

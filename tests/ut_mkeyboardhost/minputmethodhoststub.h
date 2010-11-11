@@ -96,6 +96,7 @@ public:
     bool textSelected;
     bool keyRedirectionEnabled;
     MInputMethod::InputModeIndicator indicator;
+    QRect preeditRectangleReturnValue;
 };
 
 #endif

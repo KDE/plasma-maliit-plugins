@@ -39,6 +39,7 @@ MInputMethodHostStub::~MInputMethodHostStub()
 
 void MInputMethodHostStub::clear()
 {
+    preeditRectangleReturnValue = QRect();
     preedit.clear();
     commit.clear();
     qDeleteAll(keyEvents);
@@ -135,7 +136,7 @@ bool MInputMethodHostStub::hasSelection(bool &valid)
 QRect MInputMethodHostStub::preeditRectangle(bool &valid)
 {
     valid = true;
-    return QRect();
+    return preeditRectangleReturnValue;
 }
 
 bool MInputMethodHostStub::autoCapitalizationEnabled(bool &val)

@@ -63,6 +63,7 @@ namespace
     bool DefaultInputMethodCorrectionSettingOption = true;
     const QString InputMethodCorrectionEngine("/meegotouch/inputmethods/correctionengine");
     const QString AutoCapsSentenceDelimiters(".?!¡¿"); // used as regexp character set content!
+    const QString AutoPunctuationTriggers(".,?!");
     const int MaximumErrorCorrectionCandidate = 5;
     const int RotationDuration = 750; //! After vkb hidden, how long to wait until shown again
     const int AutoBackspaceDelay = 500;      // in ms
@@ -169,7 +170,8 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
       cycleKeyHandler(new CycleKeyHandler(*this)),
       currentIndicatorDeadKey(false),
       engineLayoutDirty(false),
-      backspaceMode(NormalBackspace)
+      backspaceMode(NormalBackspace),
+      wordTrackerSuggestionAcceptedWithSpace(false)
 {
     displayHeight = MPlainWindow::instance()->visibleSceneSize(M::Landscape).height();
     displayWidth  = MPlainWindow::instance()->visibleSceneSize(M::Landscape).width();
@@ -602,6 +604,7 @@ void MKeyboardHost::reset()
 
 void MKeyboardHost::resetInternalState()
 {
+    wordTrackerSuggestionAcceptedWithSpace = false;
     backspaceMode = NormalBackspace;
     backspaceTimer.stop();
     preedit.clear();
@@ -1034,6 +1037,14 @@ void MKeyboardHost::sendCommitStringOrReturnEvent(const KeyEvent &event) const
 
 void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
 {
+    const bool wordTrackerSuggestionAcceptedWithSpacePrev(wordTrackerSuggestionAcceptedWithSpace);
+    if (!((event.specialKey() == KeyEvent::Sym)
+          || (event.specialKey() == KeyEvent::Switch)
+          || (event.specialKey() == KeyEvent::Sym)
+          || (event.qtKey() == Qt::Key_Shift))) {
+        wordTrackerSuggestionAcceptedWithSpace = false;
+    }
+
     // Discard KeyPress & Drop type of events.
     if (event.type() != QEvent::KeyRelease
 
@@ -1078,6 +1089,7 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
         if (event.qtKey() == Qt::Key_Space
             && correctionHost->isActive()) {
             if (correctionHost->candidateMode() == MImCorrectionHost::WordTrackerMode) {
+                wordTrackerSuggestionAcceptedWithSpace = true;
                 inputMethodHost()->sendCommitString(correctionHost->suggestion());
             } else {
                 // ignore space click when word list is visible.
@@ -1096,6 +1108,10 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
 
         imCorrectionEngine->clearEngineBuffer();
         preedit.clear();
+    } else if (wordTrackerSuggestionAcceptedWithSpacePrev && (text.length() == 1)
+               && AutoPunctuationTriggers.contains(text[0])) {
+        doBackspace();
+        inputMethodHost()->sendCommitString(text + " ");
     } else {
         // common case: just append stuff to current preedit
         preedit += text;

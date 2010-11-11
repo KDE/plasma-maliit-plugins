@@ -104,6 +104,9 @@ private slots:
     void testShowLanguageNotification_data();
     void testShowLanguageNotification();
 
+    void testAutoPunctuation_data();
+    void testAutoPunctuation();
+
 private:
     void rotateToAngle(M::OrientationAngle);
     void triggerAutoCaps();
