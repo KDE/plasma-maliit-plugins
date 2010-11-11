@@ -1,3 +1,13 @@
+0.5.11
+========
+
+* Changes in meego-keyboard:
+    - changed signature of following signals in MImAbstractKeyArea:
+        - keyPressed
+        - keyReleased
+        - keyClicked
+        - longKeyPressed
+
 0.5.10-1
 ========
 

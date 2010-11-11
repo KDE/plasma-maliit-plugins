@@ -123,7 +123,7 @@ signals:
     //! \param accent label of pressed dead key if any
     //! \param upperCase contains true if key is in uppercase state
     void keyPressed(const MImAbstractKey *key,
-                    const QString &accent,
+                    QString accent,
                     bool upperCase);
 
     //! \brief Emitted when key is released.
@@ -134,7 +134,7 @@ signals:
     //! \param accent label of pressed dead key if any
     //! \param upperCase contains true if key is in uppercase state
     void keyReleased(const MImAbstractKey *key,
-                     const QString &accent,
+                     QString accent,
                      bool upperCase);
 
     //! \brief Emitted when user releases mouse button/lifts finger.
@@ -145,8 +145,9 @@ signals:
     //! \param upperCase contains true if key is in uppercase state
     //! \param touchPoint the touch point for the key
     void keyClicked(const MImAbstractKey *key,
-                    const QString &accent, bool upperCase,
-                    const QPoint &touchPoint);
+                    QString accent,
+                    bool upperCase,
+                    QPoint touchPoint);
 
     //! \brief Emitted when long press is detected.
     //!
@@ -158,7 +159,7 @@ signals:
     //! \param accent active accent in MImAbstractKeyArea at the time of long press occured
     //! \param upperCase upper case state in MImAbstractKeyArea at the time of long press occured
     void longKeyPressed(const MImAbstractKey *key,
-                        const QString &accent,
+                        QString accent,
                         bool upperCase);
 
     //! \brief Emitted when key area is flicked right.
