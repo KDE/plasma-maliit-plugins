@@ -40,7 +40,7 @@ namespace
     //!object name for settings' widgets
     const QString ObjectNameSelectedKeyboardsItem("SelectedKeyboardsItem");
     const QString ObjectNameErrorCorrectionButton("KeyboardErrorCorrectionButton");
-
+    const QString ObjectNameWordCompletionButton("KeyboardWordCompletionButton");
     const int MKeyboardLayoutRole = Qt::UserRole + 1;
 };
 
@@ -131,7 +131,7 @@ void MKeyboardSettingsWidget::buildUi()
 
     // Error correction settings
     errorCorrectionSwitch = new MButton(this);
-    errorCorrectionSwitch->setObjectName(ObjectNameErrorCorrectionButton);
+    errorCorrectionSwitch->setObjectName(ObjectNameWordCompletionButton);
     errorCorrectionSwitch->setViewType(MButton::switchType);
     errorCorrectionSwitch->setCheckable(true);
     errorCorrectionLabel = new MLabel(this);
