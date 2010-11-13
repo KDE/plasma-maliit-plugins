@@ -37,8 +37,7 @@ MImAbstractKeyAreaStyle {
     secondary-font: $FONT_SMALL;
 
     spacing-vertical: 2mm;
-    /* should be 0.4mm or 4px, need to check*/
-    spacing-horizontal: 0.2mm;
+    spacing-horizontal: 0.4mm;
 
     padding-top: 2.2mm;
     padding-bottom: $MARGIN_DOUBLE;
