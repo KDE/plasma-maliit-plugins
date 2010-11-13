@@ -1,11 +1,13 @@
 meego-keyboard (0.5.12~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#204452
 
  -- huaming wang <huaming.wang@nokia.com>  Wed, 17 Nov 2010 13:54:28 +0200
 
 meego-keyboard (0.5.11-1) unstable; urgency=low
 
+  * [UNRELEASED]  
   * Fixes: NB#199711 - COREWEB: /usr/bin/meego-im-uiserver 'MWidgetView::style MWidgetController::style style WidgetBar::styleChanged WidgetBar::WidgetBar'
   * Fixes: NB#195713 - Pre-edit text disappears when emoticon is inserted in custom toolbar in widgetsgallery
   * Implemented: SWP#TINME-1135
