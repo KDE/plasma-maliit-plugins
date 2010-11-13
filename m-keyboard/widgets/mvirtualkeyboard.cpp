@@ -787,7 +787,7 @@ void MVirtualKeyboard::reloadSwitcherContent()
     // Load certain type and orientation from all layouts.
     foreach (const QString &layoutFile, layoutsMgr.layoutFileList()) {
         MImAbstractKeyArea *mainSection = createMainSectionView(layoutFile, LayoutData::General,
-                                                           currentOrientation);
+                                                                currentOrientation);
         mainSection->setObjectName("VirtualKeyboardMainRow");
         mainSection->setPreferredWidth(MPlainWindow::instance()->visibleSceneSize().width());
         mainKeyboardSwitcher->addWidget(mainSection);
@@ -796,31 +796,31 @@ void MVirtualKeyboard::reloadSwitcherContent()
 
 
 MImAbstractKeyArea *MVirtualKeyboard::createMainSectionView(const QString &layout,
-                                                       LayoutData::LayoutType layoutType,
-                                                       M::Orientation orientation,
-                                                       QGraphicsWidget *parent)
+                                                            LayoutData::LayoutType layoutType,
+                                                            M::Orientation orientation,
+                                                            QGraphicsWidget *parent)
 {
-    MImAbstractKeyArea *buttonArea = createSectionView(layout, layoutType, orientation,
-                                                  LayoutData::mainSection,
-                                                  true, parent);
+    MImAbstractKeyArea *keyArea = createSectionView(layout, layoutType, orientation,
+                                                    LayoutData::mainSection,
+                                                    true, parent);
 
     // horizontal flick handling only on main section of qwerty
-    connect(buttonArea, SIGNAL(flickLeft()), this, SLOT(flickLeftHandler()));
-    connect(buttonArea, SIGNAL(flickRight()), this, SLOT(flickRightHandler()));
+    connect(keyArea, SIGNAL(flickLeft()), this, SLOT(flickLeftHandler()));
+    connect(keyArea, SIGNAL(flickRight()), this, SLOT(flickRightHandler()));
 
-    return buttonArea;
+    return keyArea;
 }
 
 MImAbstractKeyArea * MVirtualKeyboard::createSectionView(const QString &layout,
-                                                    LayoutData::LayoutType layoutType,
-                                                    M::Orientation orientation,
-                                                    const QString &section,
-                                                    bool usePopup,
-                                                    QGraphicsWidget *parent)
+                                                         LayoutData::LayoutType layoutType,
+                                                         M::Orientation orientation,
+                                                         const QString &section,
+                                                         bool usePopup,
+                                                         QGraphicsWidget *parent)
 {
     const LayoutData *model = layoutsMgr.layout(layout, layoutType, orientation);
     MImAbstractKeyArea *view = new MImKeyArea(model->section(section),
-                                                     usePopup, parent);
+                                              usePopup, parent);
 
     eventHandler.addEventSource(view);
 
