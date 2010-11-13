@@ -539,7 +539,16 @@ void MVirtualKeyboard::setKeyboardState(MInputMethod::HandlerState newState)
     activeState = newState;
     resetState();
 
+
     static_cast<QGraphicsWidget *>(mainLayout->itemAt(KeyboardIndex))->setVisible(newState == MInputMethod::OnScreen);
+    if (newState != MInputMethod::OnScreen) {
+        MImAbstractKeyArea *keyArea = dynamic_cast<MImAbstractKeyArea *>(mainKeyboardSwitcher->currentWidget());
+
+        if (keyArea) {
+            keyArea->hidePopup();
+        }
+    }
+
     showHideTimeline.stop(); // position must be updated by organizeContentAndSendRegion()
     organizeContentAndSendRegion();
     sendRegionUpdates = savedSendRegionUpdates;
@@ -807,6 +816,7 @@ MImAbstractKeyArea *MVirtualKeyboard::createMainSectionView(const QString &layou
     // horizontal flick handling only on main section of qwerty
     connect(keyArea, SIGNAL(flickLeft()), this, SLOT(flickLeftHandler()));
     connect(keyArea, SIGNAL(flickRight()), this, SLOT(flickRightHandler()));
+    connect(this, SIGNAL(hidden()), keyArea, SLOT(hidePopup()));
 
     return keyArea;
 }

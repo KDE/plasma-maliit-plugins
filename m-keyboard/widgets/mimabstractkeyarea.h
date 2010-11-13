@@ -110,6 +110,9 @@ public slots:
     //! \param deadKey the corresponding dead key
     void unlockDeadKeys(MImAbstractKey *deadKey);
 
+    //! \brief Hide popup
+    void hidePopup();
+
 signals:
     //! \brief Emitted when the covered region changed
     //! \param region The changed region

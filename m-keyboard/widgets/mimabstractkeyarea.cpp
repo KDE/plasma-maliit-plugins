@@ -241,7 +241,7 @@ void
 MImAbstractKeyArea::handleVisibilityChanged(bool visible)
 {
     if (mPopup) {
-        mPopup->setEnabled(visible);
+        mPopup->setVisible(visible);
     }
 
     if (!visible) {
@@ -730,6 +730,15 @@ void MImAbstractKeyArea::unlockDeadKeys(MImAbstractKey *deadKey)
     deadKey->setSelected(false);
     deadKey->resetTouchPointCount();
     updateKeyModifiers('\0');
+}
+
+void MImAbstractKeyArea::hidePopup()
+{
+    if (!mPopup) {
+        return;
+    }
+
+    mPopup->setVisible(false);
 }
 
 void MImAbstractKeyArea::drawReactiveAreas(MReactionMap *,

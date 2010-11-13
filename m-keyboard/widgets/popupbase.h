@@ -68,8 +68,8 @@ public:
     //! Returns whether PopupBase has any visible components
     virtual bool isVisible() const = 0;
 
-    //! Enables/disables PopupBase completely (affects visibility)
-    virtual void setEnabled(bool ok) = 0;
+    //! Toggles visibility of PopupBase
+    virtual void setVisible(bool visible) = 0;
 };
 
 #endif

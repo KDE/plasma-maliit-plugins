@@ -62,7 +62,7 @@ public:
         return false;
     }
 
-    virtual void setEnabled(bool)
+    virtual void setVisible(bool)
     {}
     //! \reimp_end
 };
