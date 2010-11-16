@@ -20,6 +20,7 @@
 #include "mimabstractkey.h"
 
 class MPlainWindow;
+class MSceneWindow;
 class QObject;
 
 // Disable loading of MInputContext and QtMaemo6Style
@@ -29,8 +30,8 @@ void disableQtPlugins();
 void waitForSignal(const QObject* object, const char* signal, int timeout = 500);
 
 #ifdef MEEGOTOUCH
-// Create graphics scene
-void createMScene(MPlainWindow *w);
+// Create a scene window, set it to manual managed, and appear it.
+MSceneWindow *createMSceneWindow(MPlainWindow *w);
 #endif
 
 // copy'n'paste from MImAbstractArea impl file, but counts visits, too:

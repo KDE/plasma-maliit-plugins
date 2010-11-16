@@ -82,7 +82,7 @@ void Ut_MImToolbar::initTestCase()
     qRegisterMetaType<CopyPasteState>("CopyPasteState");
     LayoutsManager::createInstance();
 
-    createMScene(new MPlainWindow); // also create singleton
+    sceneWindow = createMSceneWindow(new MPlainWindow); // also create singleton MPlainWindow
 
     ToolbarFileName = QCoreApplication::applicationDirPath() + ToolbarFileName;
     QVERIFY(QFile::exists(ToolbarFileName));
@@ -113,6 +113,7 @@ void Ut_MImToolbar::cleanupTestCase()
 {
     toolbarData.clear();
     LayoutsManager::destroyInstance();
+    delete sceneWindow;
     delete MPlainWindow::instance();
     delete app;
     app = 0;

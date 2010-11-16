@@ -28,6 +28,7 @@ class MApplication;
 class MImAbstractKeyArea;
 class KeyboardData;
 class MImAbstractKey;
+class MSceneWindow;
 
 class Ut_MImAbstractKeyArea : public QObject
 {
@@ -36,6 +37,7 @@ private:
     MApplication *app;
     MImAbstractKeyArea *subject;
     KeyboardData *keyboard;
+    MSceneWindow *sceneWindow;
 
 private slots:
     void init();

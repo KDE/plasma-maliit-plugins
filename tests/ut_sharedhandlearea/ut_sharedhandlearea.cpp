@@ -42,7 +42,7 @@ void Ut_SharedHandleArea::initTestCase()
     disableQtPlugins();
     app = new MApplication(dummyArgc, dummyArgv);
 
-    createMScene(new MPlainWindow); // also create singleton
+    sceneWindow = createMSceneWindow(new MPlainWindow); // also create singleton
 
     parent = new QGraphicsWidget;
     MPlainWindow::instance()->scene()->addItem(parent);
@@ -51,6 +51,7 @@ void Ut_SharedHandleArea::initTestCase()
 void Ut_SharedHandleArea::cleanupTestCase()
 {
     delete parent;
+    delete sceneWindow;
     delete MPlainWindow::instance();
     delete app;
 }

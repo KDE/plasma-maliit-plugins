@@ -28,6 +28,7 @@ class MApplication;
 class MImToolbar;
 class QKeyEvent;
 class MWidget;
+class MSceneWindow;
 
 class Ut_MImToolbar : public QObject
 {
@@ -36,6 +37,7 @@ class Ut_MImToolbar : public QObject
 private:
     MApplication *app;
     MImToolbar *m_subject;
+    MSceneWindow *sceneWindow;
     int keyEvents;
     QSharedPointer<MToolbarData> toolbarData;
 

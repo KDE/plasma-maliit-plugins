@@ -21,6 +21,7 @@
 #include <MApplication>
 #include <mplainwindow.h>
 #include <MSceneWindow>
+#include <MSceneManager>
 #endif
 #include <QObject>
 #include <QTimer>
@@ -55,13 +56,15 @@ void waitForSignal(const QObject* object, const char* signal, int timeout)
 }
 
 
-// Create graphics scene
+// Create a scene window, set it to manual managed, and appear it.
 #ifdef MEEGOTOUCH
-void createMScene(MPlainWindow *w)
+MSceneWindow * createMSceneWindow(MPlainWindow *w)
 {
-    w->show();
     MSceneWindow *sceneWindow = new MSceneWindow;
-    sceneWindow->appear(w);
+    sceneWindow->setManagedManually(true); // we want the scene window to remain in origin
+    w->sceneManager()->appearSceneWindowNow(sceneWindow);
+    w->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
+    return sceneWindow;
 }
 #endif
 

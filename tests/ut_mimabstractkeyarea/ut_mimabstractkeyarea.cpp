@@ -27,6 +27,7 @@
 
 #include <MApplication>
 #include <MScene>
+#include <MSceneWindow>
 #include <MSceneManager>
 #include <MTheme>
 
@@ -94,7 +95,7 @@ void Ut_MImAbstractKeyArea::initTestCase()
     qRegisterMetaType<MImAbstractKey::ButtonState>();
     qRegisterMetaType<TestOpList>("TestOpList");
 
-    createMScene(new MPlainWindow); // also create singleton
+    sceneWindow = createMSceneWindow(new MPlainWindow); // also create singleton
 
     FlickGestureRecognizer::registerSharedRecognizer();
 
@@ -106,6 +107,7 @@ void Ut_MImAbstractKeyArea::initTestCase()
 void Ut_MImAbstractKeyArea::cleanupTestCase()
 {
     FlickGestureRecognizer::unregisterSharedRecognizer();
+    delete sceneWindow;
     delete MPlainWindow::instance();
     delete app;
     app = 0;

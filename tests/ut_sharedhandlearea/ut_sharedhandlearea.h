@@ -26,6 +26,7 @@
 #include <mimtoolbar.h>
 
 class MApplication;
+class MSceneWindow;
 class SharedHandleArea;
 
 class Ut_SharedHandleArea : public QObject
@@ -33,6 +34,7 @@ class Ut_SharedHandleArea : public QObject
     Q_OBJECT
 
     MApplication *app;
+    MSceneWindow *sceneWindow;
     QPointer<SharedHandleArea> subject;
     QPointer<QGraphicsWidget> parent;
     QPointer<MImToolbar> imToolbar;
