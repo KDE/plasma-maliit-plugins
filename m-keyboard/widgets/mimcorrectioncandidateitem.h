@@ -25,6 +25,9 @@ class MImCorrectionCandidateItem: public MStylableWidget
 {
     Q_OBJECT
     Q_DISABLE_COPY(MImCorrectionCandidateItem)
+
+    Q_PROPERTY(QString title READ title WRITE setTitle)
+
 public:
     explicit MImCorrectionCandidateItem(const QString &title = QString(), QGraphicsItem *parent = 0);
 
