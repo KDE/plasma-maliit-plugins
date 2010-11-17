@@ -11,9 +11,11 @@ QT += xml
 contains( DEFINES, RELEASE_BUILD ) {
     QMAKE_CFLAGS -= -Werror
     QMAKE_CXXFLAGS -= -Werror
+    CONFIG += release
 } else {
     QMAKE_CFLAGS += -Werror
     QMAKE_CXXFLAGS += -Werror
+    CONFIG += debug
 } 
 
 CONFIG += plugin meegotouch meegoimengine meegoimenginewords meegoimframework meegoreactionmap

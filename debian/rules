@@ -15,6 +15,7 @@ ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
 	CFLAGS += -O0
 else
 	CFLAGS += -O2
+        QMAKE_OPTIONS += DEFINES+=RELEASE_BUILD
 endif
 
 ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
@@ -36,7 +37,6 @@ ifneq (,$(filter timestamps,$(TMP_BUILD_OPTS)))
     QMAKE_OPTIONS += DEFINES+=M_TIMESTAMP
 endif
 
-QMAKE_OPTIONS += DEFINES+=RELEASE_BUILD
 
 # shared library versions, option 1
 version=0.1.0
