@@ -1,3 +1,9 @@
+meego-keyboard (0.5.12~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- huaming wang <huaming.wang@nokia.com>  Wed, 17 Nov 2010 13:54:28 +0200
+
 meego-keyboard (0.5.11-1) unstable; urgency=low
 
   * Fixes: NB#199711 - COREWEB: /usr/bin/meego-im-uiserver 'MWidgetView::style MWidgetController::style style WidgetBar::styleChanged WidgetBar::WidgetBar'
