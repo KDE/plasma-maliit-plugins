@@ -73,6 +73,7 @@ namespace
     const Qt::KeyboardModifier FnLevelModifier = Qt::GroupSwitchModifier;
     // This GConf item defines whether multitouch is enabled or disabled
     const char * const MultitouchSettings = "/meegotouch/inputmethods/multitouch/enabled";
+    const char * const NotificationObjectName = "ModifierLockNotification";
 }
 
 MKeyboardHost::CycleKeyHandler::CycleKeyHandler(MKeyboardHost &parent)
@@ -329,6 +330,9 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
 
     connect(vkbWidget, SIGNAL(layoutChanged(const QString &)),
             this, SLOT(handleVirtualKeyboardLayoutChanged(const QString &)));
+
+    connect(vkbWidget, SIGNAL(shiftLevelChanged()),
+            this, SLOT(handleVirtualKeyboardCapsLock()));
 
     connect(vkbWidget, SIGNAL(shiftLevelChanged()),
             this, SLOT(updateSymbolViewLevel()));
@@ -1557,6 +1561,20 @@ void MKeyboardHost::handleHwKeyboardStateChanged()
     }
 }
 
+void MKeyboardHost::handleVirtualKeyboardCapsLock()
+{
+    if (activeState != MInputMethod::OnScreen)
+        return;
+
+    if (vkbWidget->shiftStatus() == ModifierLockedState) {
+        //% "Caps lock on"
+        QString lockOnNotificationLabel = qtTrId("qtn_hwkb_caps_lock");
+        showLockOnInfoBanner(lockOnNotificationLabel);
+    } else if (modifierLockOnBanner) {
+        hideLockOnInfoBanner();
+    }
+}
+
 void MKeyboardHost::showLockOnInfoBanner(const QString &notification)
 {
     if (modifierLockOnBanner) {
@@ -1565,6 +1583,7 @@ void MKeyboardHost::showLockOnInfoBanner(const QString &notification)
         //TODO: discuss with UI designer whether we need to specify
         // the disappear time out.
         modifierLockOnBanner = new MBanner;
+        modifierLockOnBanner->setObjectName(NotificationObjectName);
         modifierLockOnBanner->setTitle(notification);
         modifierLockOnBanner->appear(MSceneWindow::DestroyWhenDone);
     }

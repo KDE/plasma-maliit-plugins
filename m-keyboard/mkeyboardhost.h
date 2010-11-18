@@ -188,6 +188,9 @@ private slots:
      */
     void handleHwKeyboardStateChanged();
 
+    //!Receives modifier state changed and shows Caps Lock infobanner
+    void handleVirtualKeyboardCapsLock();
+
     //! show FN/Caps Lock infobanner
     void showLockOnInfoBanner(const QString &notification);
 
