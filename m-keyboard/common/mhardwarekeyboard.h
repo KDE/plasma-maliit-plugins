@@ -24,6 +24,7 @@
 #include <QString>
 #include <QEvent>
 #include <QTimer>
+#include <QTime>
 #include <QRegExp>
 #include "mxkb.h"
 #include "hwkbcharloopsmanager.h"
@@ -151,6 +152,9 @@ signals:
 private slots:
     //! Called when long press timer started on key press timeouts.
     void handleLongPressTimeout();
+
+    //! Display notification for Ctrl+C
+    void handleClipboardDataChange();
 
 private:
     //! \brief If character is not accepted by the client, try to find an acceptable character
@@ -343,6 +347,8 @@ private:
     const QRegExp numberContentCharacterMatcher;
 
     HwKbDeadKeyMapper deadKeyMapper;
+
+    QTime lastCtrlCTime;
 
     friend class Ut_MHardwareKeyboard;
     friend class Ft_MHardwareKeyboard;

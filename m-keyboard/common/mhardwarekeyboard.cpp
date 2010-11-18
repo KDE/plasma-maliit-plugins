@@ -17,8 +17,13 @@
 #include <QDebug>
 #include <QX11Info>
 #include <QTextCodec>
+#include <QApplication>
+#include <QClipboard>
 #include <algorithm>
 
+#include <mplainwindow.h>
+#include <MSceneWindow>
+#include <MBanner>
 #include <mabstractinputmethodhost.h>
 
 #include "mhardwarekeyboard.h"
@@ -36,6 +41,7 @@
 
 namespace
 {
+    const int CopyValidForNotificationInterval(500); // in ms
     const Qt::KeyboardModifier FnLevelModifier = Qt::GroupSwitchModifier;
     const Qt::Key FnLevelKey = Qt::Key_AltGr;
     const Qt::Key SymKey = Qt::Key_Multi_key;
@@ -209,10 +215,8 @@ void MHardwareKeyboard::enable()
 {
     qDebug() << __PRETTY_FUNCTION__;
 
-    // We don't know how many requirements for direct mode will be yet besides
-    // symbol view is required for symbol key. So redirect all the keys to plugin,
-    // but now only handle symbol key.
     if (imMode != M::InputMethodModeDirect) {
+        connect(QApplication::clipboard(), SIGNAL(dataChanged()), this, SLOT(handleClipboardDataChange()));
         toggleCustomAutoRepeat(true);
 
         shiftShiftCapsLock = false;
@@ -254,6 +258,8 @@ void MHardwareKeyboard::disable()
 {
     qDebug() << __PRETTY_FUNCTION__;
 
+    disconnect(QApplication::clipboard(), SIGNAL(dataChanged()), this, 0);
+
     if (!preedit.isEmpty()) {
         inputMethodHost.sendPreeditString("", MInputMethod::PreeditKeyPress);
         preedit.clear();
@@ -283,6 +289,22 @@ void MHardwareKeyboard::reset()
 void MHardwareKeyboard::clientChanged()
 {
     reset();
+}
+
+
+void MHardwareKeyboard::handleClipboardDataChange()
+{
+    if (!lastCtrlCTime.isValid()
+        || (lastCtrlCTime.addMSecs(CopyValidForNotificationInterval) < QTime::currentTime())) {
+        lastCtrlCTime = QTime();
+        return;
+    }
+    lastCtrlCTime = QTime();
+
+    MBanner &textCopiedBanner(*new MBanner);
+    textCopiedBanner.setStyleName("InformationBanner");
+    textCopiedBanner.setTitle(qtTrId("qtn_comm_text_copied"));
+    textCopiedBanner.appear(MPlainWindow::instance(), MSceneWindow::DestroyWhenDone);
 }
 
 
@@ -493,6 +515,8 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
         if (nativeModifiers & SymModifierMask) {
             eatenBySymHandler = handlePressWithSymModifier(text, nativeScanCode, nativeModifiers);
             eaten = eaten || eatenBySymHandler;
+        } else if ((nativeModifiers & ControlMask) && (keyCode == Qt::Key_C)) {
+            lastCtrlCTime.start();
         }
 
         if (eaten && !eatenBySymHandler) {
