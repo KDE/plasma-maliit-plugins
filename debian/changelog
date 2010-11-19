@@ -2,6 +2,9 @@ meego-keyboard (0.5.12~1) unstable; urgency=low
 
   * [UNRELEASED]
   * Fixes: NB#204452
+  * Fixes: NB#202563 - HW key navigation fails in phone dialer while entering numbers
+  * Fixes: NB#185293 - Ctrl related keys are not working in the number field and the phone application
+  * Implemented: SWP#TINME-1169 Hardware keyboard "text copied to clipboard" notification
 
  -- huaming wang <huaming.wang@nokia.com>  Wed, 17 Nov 2010 13:54:28 +0200
 
