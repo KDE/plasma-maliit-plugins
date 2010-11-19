@@ -312,7 +312,8 @@ bool MHardwareKeyboard::actionOnPress(Qt::Key keyCode) const
 {
     static const Qt::Key pressPassKeys[] = {
         Qt::Key_Return, Qt::Key_Backspace, Qt::Key_Delete,
-        Qt::Key_Left, Qt::Key_Right, Qt::Key_Up, Qt::Key_Down };
+        Qt::Key_Left, Qt::Key_Right, Qt::Key_Up, Qt::Key_Down,
+        Qt::Key_Home, Qt::Key_End, Qt::Key_PageUp, Qt::Key_PageDown };
     static const Qt::Key * const keysEnd = pressPassKeys + ELEMENTS(pressPassKeys);
 
     return keysEnd != std::find(pressPassKeys, keysEnd, keyCode);
@@ -461,6 +462,42 @@ void MHardwareKeyboard::correctToAcceptedCharacter(QString &text, const quint32 
     }
 }
 
+bool MHardwareKeyboard::filterArrowKeys(QEvent::Type eventType, Qt::Key keyCode,
+                                        Qt::KeyboardModifiers modifiers,
+                                        QString text, bool autoRepeat, int count,
+                                        quint32 nativeModifiers) const
+{
+    // Home/End/PageUp/PageDown only when user is holding Fn down
+    if (!fnPressed && (nativeModifiers & FnModifierMask)
+        && (keyCode <= Qt::Key_PageDown) && (keyCode >= Qt::Key_Home)) {
+        Q_ASSERT(text.isEmpty());
+        switch (keyCode) {
+        case Qt::Key_Home:
+            keyCode = Qt::Key_Left;
+            break;
+        case Qt::Key_End:
+            keyCode = Qt::Key_Right;
+            break;
+        case Qt::Key_PageUp:
+            keyCode = Qt::Key_Up;
+            break;
+        case Qt::Key_PageDown:
+            keyCode = Qt::Key_Down;
+            break;
+        default:
+            Q_ASSERT_X(false, "MHardwareKeyboard::filterArrowKeys",
+                       "Left, Right, Up or Down with Fn modifier");
+            break;
+        }
+        inputMethodHost.sendKeyEvent(
+            QKeyEvent(eventType, keyCode, modifiers, text, autoRepeat, count),
+            MInputMethod::EventRequestEventOnly);
+        return true;
+    }
+
+    return false;
+}
+
 bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers modifiers,
                                        QString text, bool autoRepeat, int count,
                                        quint32 nativeScanCode, quint32 nativeModifiers)
@@ -557,6 +594,9 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
                       text, autoRepeat, count),
             MInputMethod::EventRequestEventOnly);
         eaten = true;
+    } else if (!eaten){
+        eaten = filterArrowKeys(QEvent::KeyPress, keyCode, modifiers, text, autoRepeat, count,
+                                nativeModifiers);
     }
 
     // Relatch modifiers, X unlatches them on press but we want to unlatch on release
@@ -639,6 +679,9 @@ bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers 
                       modifiers & ~Qt::KeyboardModifiers(Qt::ShiftModifier), text, false, 1),
             MInputMethod::EventRequestEventOnly);
         eaten = true;
+    } else if (!eaten) {
+        eaten = filterArrowKeys(QEvent::KeyRelease, keyCode, modifiers, text, false, 1,
+                                nativeModifiers);
     }
 
     pressedKeys.remove(nativeScanCode);

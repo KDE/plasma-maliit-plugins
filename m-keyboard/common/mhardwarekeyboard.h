@@ -271,6 +271,11 @@ private:
                           QString text,
                           quint32 nativeScanCode, quint32 nativeModifiers);
 
+    //! Helper for filterKeyRelease and filterKeyPress, handle arrow keys with Fn
+    bool filterArrowKeys(QEvent::Type eventType, Qt::Key keyCode,
+                         Qt::KeyboardModifiers modifiers,
+                         QString text, bool autoRepeat, int count,
+                         quint32 nativeModifiers) const;
 
     //! \brief Toggle custom autorepeat if \a enable is true, disable it otherwise
     //!

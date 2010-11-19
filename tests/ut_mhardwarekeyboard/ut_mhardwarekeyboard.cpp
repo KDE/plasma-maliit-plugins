@@ -1134,4 +1134,27 @@ void Ut_MHardwareKeyboard::testDeadKeys()
 }
 
 
+void Ut_MHardwareKeyboard::testArrowKeyFiltering()
+{
+    // Filter when Fn is not being held down
+    QVERIFY(filterKeyPress(Qt::Key_Home, Qt::NoModifier, "", KeycodeCharacter, FnModifierMask));
+
+    QCOMPARE(inputMethodHost->keyEventsSent(), static_cast<unsigned int>(1));
+    QCOMPARE(inputMethodHost->lastKeyEvent().key(), static_cast<int>(Qt::Key_Left));
+    QCOMPARE(inputMethodHost->lastKeyEvent().type(), QEvent::KeyPress);
+
+    QVERIFY(filterKeyRelease(Qt::Key_Home, Qt::NoModifier, "", KeycodeCharacter, FnModifierMask));
+
+    QCOMPARE(inputMethodHost->keyEventsSent(), static_cast<unsigned int>(2));
+    QCOMPARE(inputMethodHost->lastKeyEvent().key(), static_cast<int>(Qt::Key_Left));
+    QCOMPARE(inputMethodHost->lastKeyEvent().type(), QEvent::KeyRelease);
+
+    // Don't filter when Fn is pressed
+    filterKeyPress(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, 0);
+    QVERIFY(!filterKeyPress(Qt::Key_Home, Qt::NoModifier, "", KeycodeCharacter, FnModifierMask));
+    QVERIFY(!filterKeyRelease(Qt::Key_Home, Qt::NoModifier, "", KeycodeCharacter, FnModifierMask));
+    filterKeyRelease(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, FnModifierMask);
+}
+
+
 QTEST_APPLESS_MAIN(Ut_MHardwareKeyboard);
