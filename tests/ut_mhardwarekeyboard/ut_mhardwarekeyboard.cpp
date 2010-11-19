@@ -1157,4 +1157,23 @@ void Ut_MHardwareKeyboard::testArrowKeyFiltering()
 }
 
 
+void Ut_MHardwareKeyboard::testCtrlShortcutsWithFn()
+{
+    // Must work as if Fn was not on.
+    QVERIFY(filterKeyPress(Qt::Key_Percent, Qt::ControlModifier, "", KeycodeCharacter, FnModifierMask | ControlMask));
+
+    QCOMPARE(inputMethodHost->keyEventsSent(), static_cast<unsigned int>(1));
+    QCOMPARE(inputMethodHost->lastKeyEvent().key(), static_cast<int>(Qt::Key_A));
+    QCOMPARE(inputMethodHost->lastKeyEvent().modifiers(), Qt::ControlModifier);
+    QCOMPARE(inputMethodHost->lastKeyEvent().type(), QEvent::KeyPress);
+
+    QVERIFY(filterKeyRelease(Qt::Key_Percent, Qt::ControlModifier, "", KeycodeCharacter, FnModifierMask | ControlMask));
+
+    QCOMPARE(inputMethodHost->keyEventsSent(), static_cast<unsigned int>(2));
+    QCOMPARE(inputMethodHost->lastKeyEvent().key(), static_cast<int>(Qt::Key_A));
+    QCOMPARE(inputMethodHost->lastKeyEvent().modifiers(), Qt::ControlModifier);
+    QCOMPARE(inputMethodHost->lastKeyEvent().type(), QEvent::KeyRelease);
+}
+
+
 QTEST_APPLESS_MAIN(Ut_MHardwareKeyboard);

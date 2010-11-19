@@ -498,6 +498,20 @@ bool MHardwareKeyboard::filterArrowKeys(QEvent::Type eventType, Qt::Key keyCode,
     return false;
 }
 
+void MHardwareKeyboard::filterMaybeIgnoreFn(Qt::Key &keyCode, QString &text,
+                                            quint32 nativeScanCode, quint32 nativeModifiers) const
+{
+    // When Fn is pressed while also being locked, fn modifier is ignored for obtaining the text.
+    // We also ignore Fn completely with Control.
+    if ((keyCode != FnLevelKey) && ((fnPressed && (currentLockedMods & FnModifierMask))
+                                    || ((nativeModifiers & FnModifierMask)
+                                        && (nativeModifiers & ControlMask)))) {
+        text = keycodeToString(nativeScanCode, (nativeModifiers & ShiftMask) ? 1 : 0);
+        keyCode = text.isEmpty() ? Qt::Key_unknown : static_cast<Qt::Key>(QKeySequence(text)[0]);
+    }
+}
+
+
 bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers modifiers,
                                        QString text, bool autoRepeat, int count,
                                        quint32 nativeScanCode, quint32 nativeModifiers)
@@ -516,14 +530,11 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
         return eaten;
     }
 
-    // When Fn is pressed while also being locked, fn modifier is ignored for obtaining the text
-    if ((keyCode != FnLevelKey) && fnPressed && (currentLockedMods & FnModifierMask)) {
-        text = keycodeToString(nativeScanCode, (nativeModifiers & ShiftMask) ? 1 : 0);
-        keyCode = text.isEmpty() ? Qt::Key_unknown : static_cast<Qt::Key>(QKeySequence(text)[0]);
-    }
+    filterMaybeIgnoreFn(keyCode, text, nativeScanCode, nativeModifiers);
+
     // When shift is latched (using lock modifier), shift modifier must not reverse the
     // effect of Lock
-    else if ((currentLatchedMods & LockMask) && (nativeModifiers & ShiftMask)
+    if ((currentLatchedMods & LockMask) && (nativeModifiers & ShiftMask)
              && (keyCode != Qt::Key_Shift) && (text.length() == 1) && text[0].isLetter()) {
         text = keycodeToString(nativeScanCode, (nativeModifiers & FnModifierMask) ? 3 : 1);
         keyCode = text.isEmpty() ? Qt::Key_unknown : static_cast<Qt::Key>(QKeySequence(text)[0]);
@@ -594,6 +605,13 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
                       text, autoRepeat, count),
             MInputMethod::EventRequestEventOnly);
         eaten = true;
+    }
+    // We ignore Fn completely with Control.  keyCode and text have been adjusted already.
+    else if ((nativeModifiers & ControlMask) && (nativeModifiers & FnModifierMask)) {
+        inputMethodHost.sendKeyEvent(
+            QKeyEvent(QEvent::KeyPress, keyCode, modifiers, text, autoRepeat, count),
+            MInputMethod::EventRequestEventOnly);
+        eaten = true;
     } else if (!eaten){
         eaten = filterArrowKeys(QEvent::KeyPress, keyCode, modifiers, text, autoRepeat, count,
                                 nativeModifiers);
@@ -626,11 +644,8 @@ bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers 
         return eaten;
     }
 
-    // When Fn is pressed while also being locked, fn modifier is ignored for obtaining the text
-    if ((keyCode != FnLevelKey) && fnPressed && (currentLockedMods & FnModifierMask)) {
-        text = keycodeToString(nativeScanCode, (nativeModifiers & ShiftMask) ? 1 : 0);
-        keyCode = text.isEmpty() ? Qt::Key_unknown : static_cast<Qt::Key>(QKeySequence(text)[0]);
-    }
+    filterMaybeIgnoreFn(keyCode, text, nativeScanCode, nativeModifiers);
+
     const bool keyWasPressed(pressedKeys.contains(nativeScanCode));
     const quint32 pressNativeModifiers(pressedKeys.value(nativeScanCode));
 
@@ -677,6 +692,12 @@ bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers 
         inputMethodHost.sendKeyEvent(
             QKeyEvent(QEvent::KeyRelease, keyCode,
                       modifiers & ~Qt::KeyboardModifiers(Qt::ShiftModifier), text, false, 1),
+            MInputMethod::EventRequestEventOnly);
+        eaten = true;
+    // We ignore Fn completely with Control.  keyCode and text have been adjusted already.
+    } else if ((nativeModifiers & ControlMask) && (nativeModifiers & FnModifierMask)) {
+        inputMethodHost.sendKeyEvent(
+            QKeyEvent(QEvent::KeyRelease, keyCode, modifiers, text, false, 1),
             MInputMethod::EventRequestEventOnly);
         eaten = true;
     } else if (!eaten) {

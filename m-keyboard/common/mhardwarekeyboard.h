@@ -277,6 +277,11 @@ private:
                          QString text, bool autoRepeat, int count,
                          quint32 nativeModifiers) const;
 
+    //! Recognize cases where we need to pretend Fn modifier was not on and change
+    //! \a keyCode and \a text accordingly.
+    void filterMaybeIgnoreFn(Qt::Key &keyCode, QString &text,
+                             quint32 nativeScanCode, quint32 nativeModifiers) const;
+
     //! \brief Toggle custom autorepeat if \a enable is true, disable it otherwise
     //!
     //! Custom autorepeat means that only backspace and arrow keys have autorepeat

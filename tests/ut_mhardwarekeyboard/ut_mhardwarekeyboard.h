@@ -75,6 +75,8 @@ private slots:
 
     void testArrowKeyFiltering();
 
+    void testCtrlShortcutsWithFn();
+
 private:
     bool checkLatchedState(unsigned int mask, unsigned int value) const;
     bool checkLockedState(unsigned int mask, unsigned int value) const;
