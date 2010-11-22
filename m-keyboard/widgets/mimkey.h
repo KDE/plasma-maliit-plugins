@@ -130,11 +130,6 @@ public:
                     qreal right,
                     qreal bottom);
 
-    //! Cache for the buttons position and size. They can always
-    //! be calculated but are faster to access this way.
-    QRectF cachedBoundingRect;
-    QRectF cachedButtonRect;
-
     //! The width for this button. Not managed by this class.
     //! It is used by MImKeyArea to store the correct button size.
     qreal width;
@@ -154,6 +149,7 @@ private:
 
     void loadIcon(bool shift);
     const IconInfo &iconInfo() const;
+    void updateButtonRects();
 
     const MImKeyModel &mModel;
 
@@ -175,6 +171,8 @@ private:
     int currentTouchPointCount;
 
     Geometry currentGeometry;
+    QRectF cachedButtonRect;
+    QRectF cachedButtonBoundingRect;
 };
 
 #endif // SINGLEWIDGETBUTTON_H

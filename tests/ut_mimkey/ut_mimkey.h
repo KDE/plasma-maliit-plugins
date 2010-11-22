@@ -96,6 +96,8 @@ private slots:
     void testResetActiveKeys();
     void testVisitActiveKeys();
 
+    void testKeyRects();
+
 private:
     MImKey *createKey(bool state = false);
     MImKeyModel *createKeyModel();

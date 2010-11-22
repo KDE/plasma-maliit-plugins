@@ -351,6 +351,42 @@ void Ut_MImKey::testVisitActiveKeys()
     QCOMPARE(finder.visits(), keys.count());
 }
 
+void Ut_MImKey::testKeyRects()
+{
+    std::auto_ptr<MImKey> key(createKey());
+    QVERIFY(key->buttonRect().isEmpty());
+    QVERIFY(key->buttonBoundingRect().isEmpty());
+
+    const QPointF topLeft(50, 50);
+    key->setPos(topLeft);
+    QCOMPARE(key->buttonRect().topLeft(), topLeft);
+    QCOMPARE(key->buttonBoundingRect().topLeft(), topLeft);
+
+    const qreal width(200);
+    key->setWidth(width);
+    QCOMPARE(key->buttonRect().width(), width);
+    QCOMPARE(key->buttonBoundingRect().width(), width);
+
+    const qreal height(100);
+    key->setHeight(height);
+    QCOMPARE(key->buttonRect().height(), height);
+    QCOMPARE(key->buttonBoundingRect().height(), height);
+
+    const qreal margin0(10);
+    const qreal margin1(0);
+    const QRectF expectedRect(topLeft.x(), topLeft.y(), width, height);
+    const QRectF expectedBoundingRect(expectedRect.adjusted(-margin0, -margin1,
+                                                            margin1, margin0));
+    key->setMargins(margin0, margin1, margin1, margin0);
+    QCOMPARE(key->buttonRect(), expectedRect);
+    QCOMPARE(key->buttonBoundingRect(), expectedBoundingRect);
+
+    key.reset(createKey());
+    key->setGeometry(MImKey::Geometry(topLeft, width, height, margin0, margin1, margin1, margin0));
+    QCOMPARE(key->buttonRect(), expectedRect);
+    QCOMPARE(key->buttonBoundingRect(), expectedBoundingRect);
+}
+
 MImKey *Ut_MImKey::createKey(bool state)
 {
     MImKey *key = new MImKey(*dataKey, *style, *parent);

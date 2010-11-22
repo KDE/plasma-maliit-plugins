@@ -119,7 +119,7 @@ private:
     KeyRowList rowList; //!< stores all rows of this key area
     qreal cachedWidgetHeight; //!< cached widget height
     qreal mMaxNormalizedWidth; //!< maximal normalized width, for all rows
-    QVector<QPair<int, int> > rowOffsets; //!< cached offsets for faster key lookups
+    QVector<QPair<qreal, qreal> > rowOffsets; //!< cached offsets for faster key lookups
     MImKey *shiftKey; //!< stores shift key, if available in this key area
     QTextLayout textLayout; //!< used to draw key labels onto key area
     bool textDirty; //!< dirty text cache flag

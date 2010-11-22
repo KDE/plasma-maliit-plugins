@@ -113,7 +113,15 @@ const QRectF &MImKey::buttonRect() const
 
 const QRectF &MImKey::buttonBoundingRect() const
 {
-    return cachedBoundingRect;
+    return cachedButtonBoundingRect;
+}
+
+void MImKey::updateButtonRects()
+{
+    const Geometry &g = currentGeometry;
+    cachedButtonRect = QRectF(g.pos.x(), g.pos.y(), g.width, g.height);
+    cachedButtonBoundingRect = cachedButtonRect.adjusted(-g.marginLeft,  -g.marginTop,
+                                                          g.marginRight,  g.marginBottom);
 }
 
 void MImKey::setModifiers(bool shift, QChar accent)
@@ -344,21 +352,25 @@ const MImKey::Geometry &MImKey::geometry() const
 void MImKey::setGeometry(const MImKey::Geometry &geometry)
 {
     currentGeometry = geometry;
+    updateButtonRects();
 }
 
 void MImKey::setPos(const QPointF &pos)
 {
     currentGeometry.pos = pos;
+    updateButtonRects();
 }
 
 void MImKey::setWidth(qreal width)
 {
     currentGeometry.width = width;
+    updateButtonRects();
 }
 
 void MImKey::setHeight(qreal height)
 {
     currentGeometry.height = height;
+    updateButtonRects();
 }
 
 void MImKey::setMargins(qreal left,
@@ -370,6 +382,7 @@ void MImKey::setMargins(qreal left,
     currentGeometry.marginTop = top;
     currentGeometry.marginRight = right;
     currentGeometry.marginBottom = bottom;
+    updateButtonRects();
 }
 
 void MImKey::loadIcon(bool shift)

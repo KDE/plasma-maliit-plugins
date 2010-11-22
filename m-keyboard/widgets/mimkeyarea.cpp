@@ -202,6 +202,111 @@ namespace {
             }
         }
     };
+
+    class KeyGeometryUpdater
+    {
+    public:
+        typedef QVector<QPair<qreal, qreal> > OffsetList;
+
+        // RelativeWidth not supported yet:
+        enum KeyWidthMode {
+            RelativeWidth,
+            FixedWidth
+        };
+
+    private:
+        const MImAbstractKeyAreaStyleContainer &style;
+        const qreal availableWidth;
+        KeyWidthMode mode;
+
+        // key bounding rect related members:
+        QPoint currentPos;
+        int rowHeight;
+        OffsetList mRowOffsets;
+        OffsetList mKeyOffsets;
+
+        // spacer related members:
+        QList<int> spacerIndices;
+        qreal spacerWidth;
+
+    public:
+        explicit KeyGeometryUpdater(const MImAbstractKeyAreaStyleContainer &newStyle,
+                                    const qreal newAvailableWidth,
+                                    KeyWidthMode newMode = RelativeWidth)
+            : style(newStyle)
+            , availableWidth(newAvailableWidth)
+            , mode(newMode)
+            , rowHeight(0)
+            , spacerWidth(0.0)
+        {}
+
+        OffsetList rowOffsets() const
+        {
+            return mRowOffsets;
+        }
+
+        OffsetList keyOffsets() const
+        {
+            return mKeyOffsets;
+        }
+
+        void processRow(const QList<MImKey *> &row,
+                        int newRowHeight,
+                        const QList<int> &newSpacerIndices)
+        {
+
+            currentPos.rx() = 0;
+            currentPos.ry() += rowHeight;
+            rowHeight = newRowHeight;
+            spacerIndices = newSpacerIndices;
+            const qreal totalKeyWidth = updateGeometry(row, rowHeight);
+
+            spacerWidth = qAbs((availableWidth - totalKeyWidth)
+                               / ((spacerIndices.count() ==  0) ? 1 : spacerIndices.count()));
+
+            mRowOffsets.append(QPair<qreal, qreal>(currentPos.y(), currentPos.y() + newRowHeight));
+            mKeyOffsets.clear();
+
+            updatePosition(row);
+        }
+
+    private:
+        qreal updateGeometry(const QList<MImKey *> &row,
+                             qreal rowHeight) const
+        {
+            qreal totalKeyWidth;
+
+            foreach (MImKey *const key, row) {
+                // TODO: add left/right margins to width computation!
+                // TODO: reimpl stretch keys
+                MImKey::Geometry g(key->geometry());
+                g.height = rowHeight;
+                g.width = key->preferredFixedWidth();
+                key->setGeometry(g);
+
+                totalKeyWidth += key->buttonBoundingRect().width();
+            }
+
+            return totalKeyWidth;
+        }
+
+        void updatePosition(const QList<MImKey *> &row)
+        {
+            int index = 0;
+            currentPos.rx() += spacerIndices.count(-1) * spacerWidth;
+
+            foreach (MImKey *const key, row) {
+                key->setPos(currentPos);
+
+                const qreal nextPosX = key->buttonBoundingRect().width();
+                mKeyOffsets.append(QPair<qreal, qreal>(currentPos.x(), nextPosX));
+
+                currentPos.rx() = nextPosX;
+                currentPos.rx() += spacerIndices.count(index) * spacerWidth;
+                ++index;
+            }
+        }
+    };
 }
 
 MImKeyArea::MImKeyArea(const LayoutData::SharedLayoutSection &newSection,
@@ -370,7 +475,7 @@ void MImKeyArea::buildTextLayout()
                 continue;
             }
 
-            const QRectF &keyRect = key->cachedButtonRect;
+            const QRectF &keyRect = key->buttonRect();
 
             if (!rowHasSecondaryLabel) {
                 // All horizontally centered.
@@ -560,7 +665,7 @@ void MImKeyArea::drawDebugReactiveAreas(QPainter *painter)
     painter->save();
 
     for (int rowIdx = 0; rowIdx < rowList.size(); ++rowIdx) {
-        QPair<int, int> rowPair = rowOffsets[rowIdx];
+        QPair<qreal, qreal> rowPair = rowOffsets[rowIdx];
         painter->setPen(Qt::darkMagenta);
         painter->drawLine(QPointF(0, rowPair.first),
                           QPointF(size().width(), rowPair.first));
@@ -605,7 +710,7 @@ MImAbstractKey *MImKeyArea::keyAt(const QPoint &pos) const
         return 0;
     }
 
-    const int rowIndex = binaryRangeFind<int>(pos.y(), rowOffsets);
+    const int rowIndex = binaryRangeFind<qreal>(pos.y(), rowOffsets);
 
     if (rowIndex == -1) {
         return 0;
@@ -654,58 +759,29 @@ void MImKeyArea::updateKeyGeometries(const int newAvailableWidth)
     cachedWidgetHeight = computeWidgetHeight();
     initCachedBackground(QSize(newAvailableWidth, cachedWidgetHeight));
 
-    rowOffsets.clear();
+    KeyGeometryUpdater updater = KeyGeometryUpdater(baseStyle(), newAvailableWidth);
 
-    const MImAbstractKeyAreaStyleContainer &style(baseStyle());
-    const qreal HorizontalSpacing = style->spacingHorizontal();
-    const qreal VerticalSpacing = style->spacingVertical();
+    for (RowIterator rowIter = rowList.begin();
+         rowIter != rowList.end();
+         ++rowIter) {
+        const int rowIndex = std::distance(rowList.begin(), rowIter);
+        updater.processRow(rowIter->keys,
+                           preferredRowHeight(rowIndex),
+                           sectionModel()->spacerIndices(rowIndex));
+        rowIter->keyOffsets = updater.keyOffsets();
+    }
 
-    // The following code cannot handle negative width:
-    int availableWidth = qMax<qreal>(0, newAvailableWidth
-                                        - (style->paddingLeft() + style->paddingRight()));
+    rowOffsets = updater.rowOffsets();
 
-    const qreal normalizedWidth = qMax<qreal>(1.0, mMaxNormalizedWidth);
-    const qreal availableWidthForKeys = availableWidth - ((normalizedWidth - 1) * HorizontalSpacing);
-    mRelativeKeyBaseWidth = availableWidthForKeys / normalizedWidth;
-    emit relativeKeyBaseWidthChanged(mRelativeKeyBaseWidth);
+    // Positions may have changed, rebuild text layout.
+    textDirty = true;
+}
 
-    // This is used to update the key rectangles
-    qreal y = style->paddingTop();
+        //rowOffsets.append();
 
-    // key margins
-    const qreal leftMargin = HorizontalSpacing / 2;
-    const qreal rightMargin = HorizontalSpacing - leftMargin;
-    const qreal topMargin = VerticalSpacing / 2;
-    const qreal bottomMargin = VerticalSpacing - topMargin;
-
-    QRectF br; // key bounding rectangle
-    const qreal rowListFactor = (rowList.count() > 1 ? 1 : 0);
-
-    for (RowIterator row(rowList.begin()); row != rowList.end(); ++row) {
-        const qreal rowHeight = preferredRowHeight(row - rowList.begin());
-        br.setHeight(rowHeight + style->spacingVertical() * rowListFactor);
-
-        row->keyOffsets.clear();
-
-        // Store the row offsets for fast key lookup (the first row's height
-        // can be adjusted through buttonBoundingRectTopAdjustment,
-        // buttonBoundingRectBottomAdjustment):
-        const int prevRowOffset = (rowOffsets.isEmpty()) ? style->paddingTop()
-                                                           - (style->spacingVertical() / 2) * rowListFactor
-                                                           + style->buttonBoundingRectTopAdjustment()
-                                                         : rowOffsets.at(rowOffsets.count() - 1).second;
-
-        const int nextRowOffset = prevRowOffset
-                                  + br.height()
-                                  + (rowOffsets.isEmpty() ? - style->buttonBoundingRectTopAdjustment()
-                                                            + style->buttonBoundingRectBottomAdjustment()
-                                                          : 0)
-                                  + 0.5;
-
-        // TODO: also resolve overlapping conflicts in bounding boxes, not only lookup list ...
-        rowOffsets.append(QPair<int, int>(prevRowOffset, qMax<int>(prevRowOffset, nextRowOffset)));
 
         // Update row width
+        /*
         qreal rowWidth = 0;
         foreach (MImKey *key, row->keys) {
             key->width = key->preferredWidth(mRelativeKeyBaseWidth, HorizontalSpacing);
@@ -736,28 +812,18 @@ void MImKeyArea::updateKeyGeometries(const int newAvailableWidth)
                 row->stretchKey->width = availableWidthForSpacers;
             }
         }
-
-        // We can precalculate key rectangles.
-        br.moveTop(y - (rowList.count() > 1 ? topMargin : 0));
+        */
 
         // A spacer with an index of -1 means it was put before any key in that row.
         // Also add layout padding:
-        qreal x = style->paddingLeft() + spacerIndices.count(-1) * availableWidthForSpacers;
+       // qreal x = style->paddingLeft() + spacerIndices.count(-1) * availableWidthForSpacers;
 
-        for (int keyIndex = 0; keyIndex < row->keys.count(); ++keyIndex) {
-            MImKey *const key = row->keys.at(keyIndex);
-
-            br.moveLeft(x - leftMargin);
-            br.setWidth(key->width + leftMargin + rightMargin);
-
-            // save it (but cover up for rounding errors, ie, extra spacing pixels):
-            key->cachedBoundingRect = br.adjusted(-1, style->buttonBoundingRectTopAdjustment(),
-                                                   1, style->buttonBoundingRectBottomAdjustment());
-
-            key->cachedButtonRect = br.adjusted(leftMargin, topMargin, -rightMargin, -bottomMargin);
+/*
+        for (int keyIndex = 0; keyIndex < rowIter->keys.count(); ++keyIndex) {
+            MImKey *const key = rowIter->keys.at(keyIndex);
 
             // Store the key offsets for fast key lookup:
-            row->keyOffsets.append(QPair<qreal, qreal>(key->cachedBoundingRect.left(),
+            rowIter->keyOffsets.append(QPair<qreal, qreal>(key->cachedBoundingRect.left(),
                                                        key->cachedBoundingRect.right()));
 
             // Increase x to the next key bounding rect border.
@@ -771,9 +837,8 @@ void MImKeyArea::updateKeyGeometries(const int newAvailableWidth)
         y += br.height();
     }
 
-    // Positions may have changed, rebuild text layout.
-    textDirty = true;
 }
+*/
 
 QRectF MImKeyArea::boundingRect() const
 {
