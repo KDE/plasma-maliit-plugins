@@ -131,7 +131,7 @@ void MKeyboardSettingsWidget::buildUi()
 
     // Error correction settings
     errorCorrectionSwitch = new MButton(this);
-    errorCorrectionSwitch->setObjectName(ObjectNameWordCompletionButton);
+    errorCorrectionSwitch->setObjectName(ObjectNameErrorCorrectionButton);
     errorCorrectionSwitch->setViewType(MButton::switchType);
     errorCorrectionSwitch->setCheckable(true);
     errorCorrectionLabel = new MLabel(this);
@@ -145,7 +145,7 @@ void MKeyboardSettingsWidget::buildUi()
 
     // Word completion settings
     wordCompletionSwitch = new MButton(this);
-    wordCompletionSwitch->setObjectName(ObjectNameErrorCorrectionButton);
+    wordCompletionSwitch->setObjectName(ObjectNameWordCompletionButton);
     wordCompletionSwitch->setViewType(MButton::switchType);
     wordCompletionSwitch->setCheckable(true);
     wordCompletionLabel = new MLabel(this);
