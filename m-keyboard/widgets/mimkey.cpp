@@ -45,6 +45,32 @@ MImKey::IconInfo::~IconInfo()
     }
 }
 
+MImKey::Geometry::Geometry()
+    : pos()
+    , width(0.0)
+    , height(0.0)
+    , marginLeft(0.0)
+    , marginTop(0.0)
+    , marginRight(0.0)
+    , marginBottom(0.0)
+{}
+
+MImKey::Geometry::Geometry(const QPointF &newPos,
+                           qreal newWidth,
+                           qreal newHeight,
+                           qreal newMarginLeft,
+                           qreal newMarginTop,
+                           qreal newMarginRight,
+                           qreal newMarginBottom)
+    : pos(newPos)
+    , width(newWidth)
+    , height(newHeight)
+    , marginLeft(newMarginLeft)
+    , marginTop(newMarginTop)
+    , marginRight(newMarginRight)
+    , marginBottom(newMarginBottom)
+{}
+
 MImKey::MImKey(const MImKeyModel &newModel,
                const MImAbstractKeyAreaStyleContainer &style,
                QGraphicsItem &parent)
@@ -309,6 +335,43 @@ bool MImKey::belongsTo(const QGraphicsItem *item) const
 {
     return (item && (&parentItem == item));
 }
+
+const MImKey::Geometry &MImKey::geometry() const
+{
+    return currentGeometry;
+}
+
+void MImKey::setGeometry(const MImKey::Geometry &geometry)
+{
+    currentGeometry = geometry;
+}
+
+void MImKey::setPos(const QPointF &pos)
+{
+    currentGeometry.pos = pos;
+}
+
+void MImKey::setWidth(qreal width)
+{
+    currentGeometry.width = width;
+}
+
+void MImKey::setHeight(qreal height)
+{
+    currentGeometry.height = height;
+}
+
+void MImKey::setMargins(qreal left,
+                        qreal top,
+                        qreal right,
+                        qreal bottom)
+{
+    currentGeometry.marginLeft = left;
+    currentGeometry.marginTop = top;
+    currentGeometry.marginRight = right;
+    currentGeometry.marginBottom = bottom;
+}
+
 void MImKey::loadIcon(bool shift)
 {
     IconInfo &iconInfo(shift ? upperCaseIcon : lowerCaseIcon);

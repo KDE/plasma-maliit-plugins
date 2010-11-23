@@ -20,6 +20,7 @@
 #define SINGLEWIDGETBUTTON_H
 
 #include "mimabstractkey.h"
+#include <QPointF>
 
 class MImAbstractKeyAreaStyleContainer;
 class QGraphicsItem;
@@ -30,6 +31,25 @@ class MImKey
     : public MImAbstractKey
 {
 public:
+    struct Geometry {
+        QPointF pos;
+        qreal width;
+        qreal height;
+        qreal marginLeft;
+        qreal marginTop;
+        qreal marginRight;
+        qreal marginBottom;
+
+        Geometry();
+        Geometry(const QPointF &newPos,
+                 qreal newWidth,
+                 qreal newHeight,
+                 qreal newMarginLeft,
+                 qreal newMarginTop,
+                 qreal newMarginRight,
+                 qreal newMarginBottom);
+    };
+
     explicit MImKey(const MImKeyModel &mModel,
                     const MImAbstractKeyAreaStyleContainer &style,
                     QGraphicsItem &parent);
@@ -81,6 +101,35 @@ public:
     //! \param item the graphics item that logically contains this key
     virtual bool belongsTo(const QGraphicsItem *item) const;
 
+    //! \brief Returns the geometry of the key, used for drawing.
+    const MImKey::Geometry &geometry() const;
+
+    //! \brief Set new geometry of the key.
+    //! \param geometry the new geometry
+    void setGeometry(const MImKey::Geometry &geometry);
+
+    //! \brief Set position (relative to parent item).
+    //! \param pos the new position
+    void setPos(const QPointF &pos);
+
+    //! \brief Set the key width.
+    //! \param width the new width
+    void setWidth(qreal width);
+
+    //! \brief Set the key height.
+    //! \param height the new height
+    void setHeight(qreal height);
+
+    //! \brief Set the margins of the key, used for layouting and reactive areas.
+    //! \param left left margin
+    //! \param top top margin
+    //! \param right right margin
+    //! \param bottom bottom margin
+    void setMargins(qreal left,
+                    qreal top,
+                    qreal right,
+                    qreal bottom);
+
     //! Cache for the buttons position and size. They can always
     //! be calculated but are faster to access this way.
     QRectF cachedBoundingRect;
@@ -124,6 +173,8 @@ private:
 
     //! Touchpoint count
     int currentTouchPointCount;
+
+    Geometry currentGeometry;
 };
 
 #endif // SINGLEWIDGETBUTTON_H
