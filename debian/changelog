@@ -1,3 +1,9 @@
+meego-keyboard (0.5.13~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- huaming wang <huaming.wang@nokia.com>  Tue, 23 Nov 2010 12:03:05 +0200
+
 meego-keyboard (0.5.12-1) unstable; urgency=low
 
   * Fixes: NB#204452
