@@ -523,6 +523,7 @@ void MKeyboardHost::update()
 
     updateAutoCapitalization();
     updateContext();
+    updateCorrectionWidgetPosition();
 
     const int inputMethodModeValue = inputMethodHost()->inputMethodMode(valid);
     if (valid) {
@@ -672,11 +673,8 @@ void MKeyboardHost::finalizeOrientationChange()
     // If correction candidate widget was open we need to reposition it.
     if (correctionHost->isActive()) {
         bool success = false;
-        const QRect rect = inputMethodHost()->preeditRectangle(success);
+        const QRect rect = inputMethodHost()->cursorRectangle(success);
         QRect localRect;
-        // Note: For Qt applications we don't have means to retrieve
-        // the correct coordinates for pre-edit rectangle, so rect here
-        // is null.
         if (success && !rect.isNull() && rotateRect(rect, localRect)) {
             correctionHost->setPosition(localRect);
             correctionHost->showCorrectionWidget(correctionHost->candidateMode());
@@ -1164,7 +1162,7 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
         if (candidates.count() > 1
             && sourceDictionaryType == MImEngine::DictionaryTypeInvalid) {
             bool success = false;
-            const QRect rect = inputMethodHost()->preeditRectangle(success);
+            const QRect rect = inputMethodHost()->cursorRectangle(success);
             QRect localRect;
             if (success && !rect.isNull() && rotateRect(rect, localRect)) {
                 correctionHost->setPosition(localRect);
@@ -1717,4 +1715,17 @@ void MKeyboardHost::startBackspace(MKeyboardHost::BackspaceMode mode)
 {
     backspaceMode = mode;
     backspaceTimer.start(AutoBackspaceDelay);
+}
+
+void MKeyboardHost::updateCorrectionWidgetPosition()
+{
+    if (correctionEnabled && correctionHost->isActive()
+        && correctionHost->candidateMode() == MImCorrectionHost::WordTrackerMode) {
+        bool success = false;
+        const QRect rect = inputMethodHost()->cursorRectangle(success);
+        QRect localRect;
+        if (success && !rect.isNull() && rotateRect(rect, localRect)) {
+            correctionHost->setPosition(localRect);
+        }
+    }
 }

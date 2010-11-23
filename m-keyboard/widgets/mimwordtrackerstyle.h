@@ -27,6 +27,11 @@ class MImWordTrackerStyle : public MWidgetStyle
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *,  wordtrackerPointerImage, WordtrackPointerImage)
     M_STYLE_ATTRIBUTE(QSize, wordtrackerPointerSize, WordtrackerPointerSize)
     M_STYLE_ATTRIBUTE(int, wordtrackerPointerOverlap, WordtrackerPointerOverlap)
+    M_STYLE_ATTRIBUTE(int, wordtrackerPointerTopMargin, WordtrackerPointerTopMargin)
+    M_STYLE_ATTRIBUTE(int, wordtrackerPointerLeftMargin, WordtrackerPointerLeftMargin)
+    M_STYLE_ATTRIBUTE(int, wordtrackerPointerRightMargin, WordtrackerPointerRightMargin)
+    M_STYLE_ATTRIBUTE(int, wordtrackerLeftMargin, WordtrackerLeftMargin)
+    M_STYLE_ATTRIBUTE(int, wordtrackerRightMargin, WordtrackerRightMargin)
 
     M_STYLE_ATTRIBUTE(int, showHideFrames, ShowHideFrames)
     M_STYLE_ATTRIBUTE(int, showHideTime, ShowHideTime)

@@ -45,6 +45,7 @@ public:
     virtual int inputMethodMode(bool &);
     virtual bool hasSelection(bool &valid);
     virtual QRect preeditRectangle(bool &);
+    virtual QRect cursorRectangle(bool &valid);
     virtual bool correctionEnabled(bool &);
     virtual bool predictionEnabled(bool &);
     virtual void setGlobalCorrectionEnabled(bool);
@@ -99,6 +100,7 @@ public:
     bool keyRedirectionEnabled;
     MInputMethod::InputModeIndicator indicator;
     QRect preeditRectangleReturnValue;
+    QRect cursorRectangleReturnValue;
 };
 
 #endif

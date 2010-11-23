@@ -29,12 +29,6 @@
 #include <mplainwindow.h>
 #include <MGConfItem>
 
-namespace
-{
-    const int CandidatesPreeditGap = 10; // Gap between pre-edit and candidates
-    const int MinimumCandidateWidget = 64; // Minimum length of a candidate.
-};
-
 MImCorrectionHost::MImCorrectionHost(MSceneWindow *parentWindow)
     : QObject(parentWindow),
       rotationInProgress(false),
@@ -82,39 +76,13 @@ void MImCorrectionHost::setCandidates(const QStringList list)
     wordList->setCandidates(candidates);
 }
 
-QPoint MImCorrectionHost::position() const
+void MImCorrectionHost::setPosition(const QRect &cursorRect)
 {
-    return wordTrackerPosition;
-}
-
-void MImCorrectionHost::setPosition(const QPoint &position)
-{
-    wordTrackerPosition = position;
-
-    int sceneWidth = MPlainWindow::instance()->sceneManager()->visibleSceneSize().width();
-    wordTrackerPosition.setX(qBound(0, wordTrackerPosition.x(), (int)(sceneWidth - wordTracker->idealWidth())));
-
-    wordTracker->setPosition(wordTrackerPosition);
-}
-
-void MImCorrectionHost::setPosition(const QRect &preeditRect)
-{
-    if (preeditRect.isNull() || !preeditRect.isValid()) {
-        setPosition(QPoint(0, 0));
+    if (cursorRect.isNull() || !cursorRect.isValid()) {
         return;
     }
 
-    QPoint position;
-
-    // Set horizontal position
-    // the right side correction widget is aligned with the right side of
-    // pre-edit rectangle + MinimumCandidateWidget
-    position.setX(preeditRect.right() + MinimumCandidateWidget - wordTracker->idealWidth());
-
-    // Set vertical position
-    // Vertically the candidatesWidget is below the pre-edit + CandidatesPreeditGap.
-    position.setY(preeditRect.bottom() + CandidatesPreeditGap);
-    setPosition(position);
+    wordTracker->setPosition(cursorRect);
 }
 
 void MImCorrectionHost::showCorrectionWidget(MImCorrectionHost::CandidateMode mode)

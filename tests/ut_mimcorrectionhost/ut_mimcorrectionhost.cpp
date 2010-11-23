@@ -154,25 +154,5 @@ void Ut_MImCorrectionHost::checkSuggestion()
     QCOMPARE(spy.first().first().toString(), clickedCandidate);
 }
 
-void Ut_MImCorrectionHost::checkPosition()
-{
-    QStringList candidates;
-    candidates << "fug" << "rug" << "dug" << "tug";
-    m_subject->setCandidates(candidates);
-
-    const QSize sceneSize = MPlainWindow::instance()->visibleSceneSize();
-    int width = m_subject->wordTracker->idealWidth();
-
-    //set a position to check whether the word tracker is still inside screen.
-    QPoint insidePos(sceneSize.width() - width, 100);
-    m_subject->setPosition(insidePos);
-    QCOMPARE(m_subject->position(), insidePos);
-
-    QPoint outsidepPos(sceneSize.width(), 100);
-    m_subject->setPosition(outsidepPos);
-    QVERIFY(m_subject->position() != outsidepPos);
-    QCOMPARE(m_subject->position(), insidePos);
-}
-
 QTEST_APPLESS_MAIN(Ut_MImCorrectionHost);
 

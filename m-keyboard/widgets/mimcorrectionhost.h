@@ -90,19 +90,10 @@ public:
      */
     CandidateMode candidateMode() const;
 
-    /*! \brief Sets the position of word tracker.
-     *
-     * The word tracker cannot be outside screen.
-     */
-    void setPosition(const QPoint &pos);
-
     /*!
-     * \brief Sets the position of word tracker based on pre-edit rectangle.
-     *
-     * TODO: this method will be removed. Will only support to set word tracker position
-     * according the cursor position, not base on pre-edit rectangle anymore.
+     * \brief Sets the position of word tracker based on cursor rectangle.
      */
-    void setPosition(const QRect &preeditRect);
+    void setPosition(const QRect &cursorRect);
 
     /*!
      * \brief Returns the suggested word.
@@ -111,11 +102,6 @@ public:
      * the word list.
      */
     QString suggestion() const;
-
-    /*! Returns the actual position
-     * \return QPoint Returns the actual set position.
-     */
-    QPoint position() const;
 
     /*!
      * \brief Draw its reactive areas onto the reaction map

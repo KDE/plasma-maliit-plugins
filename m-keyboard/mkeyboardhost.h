@@ -325,6 +325,9 @@ private:
     //! commit string otherwise.
     void sendCommitStringOrReturnEvent(const KeyEvent &event) const;
 
+    //! update correction widget position.
+    void updateCorrectionWidgetPosition();
+
 private:
     class CycleKeyHandler; //! Reacts to cycle key press events.
     friend class CycleKeyHandler;

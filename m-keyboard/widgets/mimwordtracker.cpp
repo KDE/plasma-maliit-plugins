@@ -163,7 +163,7 @@ void MImWordTracker::drawBackground(QPainter *painter, const QStyleOptionGraphic
     MStylableWidget::drawBackground(painter, option);
     if (style()->wordtrackerPointerImage()) {
          const QSize pointerSize = style()->wordtrackerPointerSize();
-         QRect rect = QRect((idealWidth() - pointerSize.width())/2,
+         QRect rect = QRect(pointerXOffset,
                             style()->wordtrackerPointerOverlap() - pointerSize.height(),
                             pointerSize.width(),
                             pointerSize.height());
@@ -264,8 +264,31 @@ void MImWordTracker::disappear(bool withAnimation)
     }
 }
 
-void MImWordTracker::setPosition(const QPoint &pos)
+void MImWordTracker::setPosition(const QRect &cursorRect)
 {
+    if (cursorRect.isNull())
+        return;
+
+    QPoint pos = cursorRect.bottomLeft();
+    pos.setX(pos.x() + cursorRect.width()/2);
+
+    const QSize pointerSize = style()->wordtrackerPointerSize();
+    const int sceneWidth = MPlainWindow::instance()->sceneManager()->visibleSceneSize().width();
+    pos.setX(pos.x() - style()->wordtrackerPointerLeftMargin() - pointerSize.width()/2);
+    pos.setY(pos.y() + style()->wordtrackerPointerTopMargin());
+
+    if (pos.x() < style()->wordtrackerLeftMargin()) {
+        pos.setX(style()->wordtrackerLeftMargin());
+    } else if (pos.x() > sceneWidth - mIdealWidth - style()->wordtrackerRightMargin()) {
+        pos.setX(sceneWidth - mIdealWidth - style()->wordtrackerRightMargin());
+    }
+    // pointerXOffset is the related x offset for the cursor from the left side of word tracker.
+    pointerXOffset = cursorRect.bottomLeft().x() + cursorRect.width()/2
+                     - pointerSize.width()/2 - pos.x(); //- style()->wordtrackerLeftMargin();
+    pointerXOffset = qBound<qreal>(style()->wordtrackerPointerLeftMargin(),
+                                   pointerXOffset,
+                                   mIdealWidth - style()->wordtrackerPointerRightMargin()- pointerSize.width());
+
     QRectF widgetRect, containerRect;
     QSizeF containerSize = preferredSize();
     containerSize.setHeight(containerSize.height() + pointerHeight());

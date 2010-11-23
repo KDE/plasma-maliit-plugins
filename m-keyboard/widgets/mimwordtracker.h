@@ -23,6 +23,7 @@
 #include "mimwordtrackerstyle.h"
 
 #include <QTimeLine>
+#include <QPoint>
 
 class QGraphicsWidget;
 class QGraphicsLinearLayout;
@@ -79,9 +80,9 @@ public:
     void disappear(bool withAnimation = false);
 
     /*!
-     * \brief Sets the position of word tracker.
+     * \brief Sets the position for word tracker according cursor rectangle.
      */
-    void setPosition(const QPoint &pos);
+    void setPosition(const QRect &cursorRect);
 
     /*!
      * \brief Returns the visible region of word tracker.
@@ -139,6 +140,7 @@ private:
     QGraphicsLinearLayout *mainLayout;
     MImCorrectionCandidateItem *candidateItem;
     QTimeLine showHideTimeline;
+    qreal pointerXOffset;
 
     M_STYLABLE_WIDGET(MImWordTrackerStyle)
 };

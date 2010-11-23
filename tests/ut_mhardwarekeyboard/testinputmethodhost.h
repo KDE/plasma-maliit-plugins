@@ -61,6 +61,11 @@ public:
         return QRect();
     }
 
+    virtual QRect cursorRectangle(bool &/* valid */)
+    {
+        return QRect();
+    }
+
     virtual void notifyImInitiatedHiding()
     {
     }

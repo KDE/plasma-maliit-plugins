@@ -1,4 +1,4 @@
-@const HEIGHT_CANDIDATEITEM:  3.2mm;
+@const HEIGHT_CANDIDATEITEM:  3.4mm;
 @const HEIGHT_TOOLBARITEM: 4mm;
 
 MVirtualKeyboardStyle {
@@ -286,8 +286,11 @@ MImWordTrackerStyle {
     background-image: "meegotouch-wordtracker-background" 18px 18px 18px 18px;
 
     wordtracker-pointer-image: "meegotouch-wordtracker-pointer" 0 0 0 0;
-    wordtracker-pointer-size: 13 12;
+    wordtracker-pointer-size: 15 12;
     wordtracker-pointer-overlap: 1;
+    wordtracker-pointer-top-margin: $MARGIN_DOUBLE;
+    wordtracker-pointer-left-margin: $MARGIN_DOUBLE;
+    wordtracker-pointer-right-margin: $MARGIN_DOUBLE;
 
     show-hide-frames: 100;
     show-hide-time: 400;
@@ -298,13 +301,16 @@ MImWordTrackerStyle {
     margin-left: 0;
     margin-right: 0;
 
+    wordtracker-left-margin: $MARGIN_XLARGE;
+    wordtracker-right-margin: $MARGIN_XLARGE;
+
     padding-top:  0;
     padding-bottom: 0;
-    padding-right: 0.8mm;
-    padding-left: 0.8mm;
+    padding-right: 0;
+    padding-left: 0;
    
-    minimum-size: 6.4mm $HEIGHT_CANDIDATEITEM;
-    maximum-size: 100% 100%;
+    minimum-size: 7.5mm $HEIGHT_CANDIDATEITEM;
+    maximum-size: 18.6mm 100%;
 }
 
 MImWordList MContentItemStyle {
@@ -354,8 +360,8 @@ MImCorrectionCandidateItemStyle {
 
     margin-top: 1.1mm;
     margin-bottom: 1.1mm;
-    margin-left: 0;
-    margin-right: 0;
+    margin-left: $MARGIN_DOUBLE;
+    margin-right: $MARGIN_DOUBLE;
 
     padding-top:  0;
     padding-bottom: 0;
