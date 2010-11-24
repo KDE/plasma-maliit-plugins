@@ -108,11 +108,29 @@ public:
     M_STYLE_ATTRIBUTE(bool, drawButtonRects, DrawButtonRects)
     M_STYLE_ATTRIBUTE(bool, debugTouchPoints, DebugTouchPoints)
     M_STYLE_ATTRIBUTE(bool, drawReactiveAreas, drawReactiveAreas)
+
+    M_STYLE_ATTRIBUTE(qreal, keyMarginLeft, KeyMarginLeft)
+    M_STYLE_ATTRIBUTE(qreal, keyMarginTop, KeyMarginTop)
+    M_STYLE_ATTRIBUTE(qreal, keyMarginRight, KeyMarginRight)
+    M_STYLE_ATTRIBUTE(qreal, keyMarginBottom, KeyMarginBottom)
+
+    M_STYLE_ATTRIBUTE(qreal, firstKeyMarginLeft, FirstKeyMarginLeft)
+    M_STYLE_ATTRIBUTE(qreal, firstRowMarginTop, FirstRowMarginTop)
+    M_STYLE_ATTRIBUTE(qreal, lastKeyMarginRight, LastKeyMarginRight)
+    M_STYLE_ATTRIBUTE(qreal, lastRowMarginBottom, LastRowMarginBottom)
 };
 
 class M_EXPORT MImAbstractKeyAreaStyleContainer : public MWidgetStyleContainer
 {
     M_STYLE_CONTAINER(MImAbstractKeyAreaStyle)
+    M_STYLE_MODE(Keys35)
+    M_STYLE_MODE(Keys36)
+    M_STYLE_MODE(Keys37)
+    M_STYLE_MODE(Keys38)
+    M_STYLE_MODE(Keys39)
+    M_STYLE_MODE(Keys40)
+    M_STYLE_MODE(Keys41)
+    M_STYLE_MODE(Keys42)
 };
 
 
