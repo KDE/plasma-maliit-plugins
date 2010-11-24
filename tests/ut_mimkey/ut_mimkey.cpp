@@ -373,10 +373,12 @@ void Ut_MImKey::testKeyRects()
     QCOMPARE(key->buttonBoundingRect().height(), height);
 
     const qreal margin0(10);
-    const qreal margin1(0);
-    const QRectF expectedRect(topLeft.x(), topLeft.y(), width, height);
-    const QRectF expectedBoundingRect(expectedRect.adjusted(-margin0, -margin1,
-                                                            margin1, margin0));
+    const qreal margin1(5);
+    const QRectF expectedBoundingRect(topLeft.x(), topLeft.y(),
+                                      width + margin0 + margin1,
+                                      height + margin1 + margin0);
+    const QRectF expectedRect(expectedBoundingRect.adjusted( margin0,  margin1,
+                                                            -margin1, -margin0));
     key->setMargins(margin0, margin1, margin1, margin0);
     QCOMPARE(key->buttonRect(), expectedRect);
     QCOMPARE(key->buttonBoundingRect(), expectedBoundingRect);

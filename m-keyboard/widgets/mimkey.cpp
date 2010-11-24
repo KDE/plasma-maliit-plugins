@@ -119,9 +119,11 @@ const QRectF &MImKey::buttonBoundingRect() const
 void MImKey::updateButtonRects()
 {
     const Geometry &g = currentGeometry;
-    cachedButtonRect = QRectF(g.pos.x(), g.pos.y(), g.width, g.height);
-    cachedButtonBoundingRect = cachedButtonRect.adjusted(-g.marginLeft,  -g.marginTop,
-                                                          g.marginRight,  g.marginBottom);
+    cachedButtonBoundingRect = QRectF(g.pos.x(), g.pos.y(),
+                                      g.width + g.marginLeft + g.marginRight,
+                                      g.height + g.marginTop + g.marginBottom);
+    cachedButtonRect = cachedButtonBoundingRect.adjusted( g.marginLeft,   g.marginTop,
+                                                         -g.marginRight, -g.marginBottom);
 }
 
 void MImKey::setModifiers(bool shift, QChar accent)
