@@ -41,9 +41,7 @@ namespace
     const QString PhoneNumberKeyboardFileArabic("phonenumber_ar.xml");
     const QString PhoneNumberKeyboardFileLatin("phonenumber.xml");
     const QString PhoneNumberKeyboardFileRussian("phonenumber_ru.xml");
-    const QString SymbolKeyboardFileUs("hwsymbols_us.xml");
-    const QString SymbolKeyboardFileEuro("hwsymbols_euro.xml");
-    const QString SymbolKeyboardFileArabic("hwsymbols_arabic.xml");
+    const QString SymbolKeyboardFileCommon("hwsymbols_common.xml");
     const QString SymbolKeyboardFileChinese("hwsymbols_chinese.xml");
     const QString FallbackXkbModel("evdev");
 }
@@ -401,18 +399,12 @@ QString LayoutsManager::symbolVariantFileName(HardwareSymbolVariant symVariant)
     QString symFileName;
 
     switch (symVariant) {
-    case HwSymbolVariantUs:
-        symFileName = SymbolKeyboardFileUs;
-        break;
-    case HwSymbolVariantArabic:
-        symFileName = SymbolKeyboardFileArabic;
-        break;
     case HwSymbolVariantChinese:
         symFileName = SymbolKeyboardFileChinese;
         break;
-    case HwSymbolVariantEuro:
+    case HwSymbolVariantCommon:
     default:
-        symFileName = SymbolKeyboardFileEuro;
+        symFileName = SymbolKeyboardFileCommon;
         break;
     }
 

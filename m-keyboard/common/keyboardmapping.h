@@ -41,9 +41,7 @@ enum HardwareKeyboardLayout {
 };
 
 enum HardwareSymbolVariant {
-    HwSymbolVariantUs,
-    HwSymbolVariantEuro,
-    HwSymbolVariantArabic,
+    HwSymbolVariantCommon,
     HwSymbolVariantChinese,
 
     NumberOfHardwareSymbolVariants
@@ -52,21 +50,21 @@ enum HardwareSymbolVariant {
 // The array below follows mapping as defined in
 // table 3 in Hardware Keyboard UI Specification.
 static const HardwareSymbolVariant HwkbLayoutToSymVariant[NumberOfHardwareKeyboardTypes] = {
-    HwSymbolVariantUs,      // CommonEnglish
-    HwSymbolVariantArabic,  // ArabicLatin
-    HwSymbolVariantChinese, // ChineseHK,
-    HwSymbolVariantChinese, // ChinesePrcSeap,
-    HwSymbolVariantChinese, // ChineseTw,
-    HwSymbolVariantEuro,    // Czech,
-    HwSymbolVariantEuro,    // DanishNorwegian,
-    HwSymbolVariantEuro,    // FinnishSwedish,
-    HwSymbolVariantEuro,    // French,
-    HwSymbolVariantEuro,    // German,
-    HwSymbolVariantEuro,    // Italian,
-    HwSymbolVariantEuro,    // Portuguese,
-    HwSymbolVariantEuro,    // RussianLatin,
-    HwSymbolVariantEuro,    // Spanish,
-    HwSymbolVariantEuro     // Swiss,
+    HwSymbolVariantCommon,  // CommonEnglish
+    HwSymbolVariantCommon,  // ArabicLatin
+    HwSymbolVariantChinese, // ChineseHK
+    HwSymbolVariantChinese, // ChinesePrcSeap
+    HwSymbolVariantChinese, // ChineseTw
+    HwSymbolVariantCommon,  // Czech
+    HwSymbolVariantCommon,  // DanishNorwegian
+    HwSymbolVariantCommon,  // FinnishSwedish
+    HwSymbolVariantCommon,  // French
+    HwSymbolVariantCommon,  // German
+    HwSymbolVariantCommon,  // Italian
+    HwSymbolVariantCommon,  // Portuguese
+    HwSymbolVariantCommon,  // RussianLatin
+    HwSymbolVariantCommon,  // Spanish
+    HwSymbolVariantCommon   // Swiss
 };
 
 //! Maps xkb layout name to HardwareKeyboardLayout enum. If xkb name
