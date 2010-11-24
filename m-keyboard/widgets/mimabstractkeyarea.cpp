@@ -180,6 +180,8 @@ MImAbstractKeyArea::MImAbstractKeyArea(const LayoutData::SharedLayoutSection &ne
     connect(MTheme::instance(), SIGNAL(themeChangeCompleted()),
             this, SLOT(onThemeChangeCompleted()),
             Qt::UniqueConnection);
+
+    switchStyleMode();
 }
 
 MImAbstractKeyArea::~MImAbstractKeyArea()
@@ -788,6 +790,7 @@ void MImAbstractKeyArea::modifiersChanged(bool,
 void MImAbstractKeyArea::onThemeChangeCompleted()
 {
     // TODO: update all other CSS attributes that are mapped to members.
+    switchStyleMode();
     updateKeyGeometries(size().width());
 }
 
@@ -826,4 +829,45 @@ bool MImAbstractKeyArea::isInSpeedTypingMode(bool restartTimers)
 {
     return ((restartTimers ? lastTouchPointPressEvent.restart()
                            : lastTouchPointPressEvent.elapsed()) < style()->idleVkbTimeout());
+}
+
+void MImAbstractKeyArea::switchStyleMode()
+{
+    switch(section->keyCount()) {
+
+    case 35:
+        style().setModeKeys35();
+        break;
+
+    case 36:
+        style().setModeKeys36();
+        break;
+
+    case 37:
+        style().setModeKeys37();
+        break;
+
+    case 38:
+        style().setModeKeys38();
+        break;
+
+    case 39:
+        style().setModeKeys39();
+        break;
+
+    case 40:
+        style().setModeKeys40();
+        break;
+
+    case 41:
+        style().setModeKeys41();
+        break;
+
+    case 42:
+        style().setModeKeys42();
+        break;
+
+    default:
+        break;
+    }
 }

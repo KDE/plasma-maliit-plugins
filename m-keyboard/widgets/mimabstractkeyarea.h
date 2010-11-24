@@ -314,6 +314,9 @@ private:
     //! \warning Not side-effect free when \a restartTimers is actively used.
     bool isInSpeedTypingMode(bool restartTimers = false);
 
+    //! Switch style mode.
+    void switchStyleMode();
+
     int currentLevel; //!< current level
     PopupBase *mPopup; //!< popup to show additional information for a button
     QList<QStringList> punctuationsLabels; //!< list of punctuation labels
