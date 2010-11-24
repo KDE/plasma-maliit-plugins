@@ -1,9 +1,8 @@
-meego-keyboard (0.5.13~1) unstable; urgency=low
+meego-keyboard (0.5.13-1) unstable; urgency=low
 
-  * [UNRELEASED]
   * Implemented: SWP#TINME-1153 Implement support to show cursor in pre-edit
 
- -- huaming wang <huaming.wang@nokia.com>  Tue, 23 Nov 2010 12:03:05 +0200
+ -- huaming wang <huaming.wang@nokia.com>  Wed, 24 Nov 2010 11:53:43 +0200
 
 meego-keyboard (0.5.12-1) unstable; urgency=low
 
