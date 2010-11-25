@@ -74,7 +74,7 @@
               <binding label="%"/>
             </key>
             <key>
-              <binding label="&#2030;"/>
+              <binding label="&#x2030;"/>
             </key>
             <key>
               <binding label="&#x003C;"/>
