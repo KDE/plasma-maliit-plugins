@@ -579,13 +579,15 @@ endLayout:
 
 qreal MImKeyArea::computeWidgetHeight() const
 {
-    qreal height = -(baseStyle()->spacingVertical())
-                   + baseStyle()->paddingTop()
-                   + baseStyle()->paddingBottom();
+    qreal height = 0.0;
 
     for (int index = 0; index < rowList.count(); ++index) {
         height += preferredKeyHeight(index);
-        height += baseStyle()->spacingVertical();
+
+        height += (index == 0 ? baseStyle()->firstRowMarginTop()
+                              : baseStyle()->keyMarginTop());
+        height += (index == rowList.count() - 1 ? baseStyle()->lastRowMarginBottom()
+                                                : baseStyle()->keyMarginBottom());
     }
 
     return qMax<qreal>(0.0, height);
