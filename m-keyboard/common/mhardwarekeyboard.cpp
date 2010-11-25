@@ -609,6 +609,10 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
             inputMethodHost.sendPreeditString(text, preeditFormats);
             preedit = text;
             preeditScanCode = nativeScanCode;
+        } else if (!eaten) {
+            if (longPressTimer.isActive()) {
+                longPressTimer.stop();
+            }
         }
         // Unlatch modifiers on keys for which there is a known action on press event.
         // Currently this means arrow keys and backspace/delete.
