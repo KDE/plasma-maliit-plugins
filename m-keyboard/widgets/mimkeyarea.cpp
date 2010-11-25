@@ -255,6 +255,7 @@ namespace {
         }
 
         void processRow(const QList<MImKey *> &row,
+                        MImKey *const stretchKey,
                         qreal newKeyHeight,
                         const QList<int> &newSpacerIndices,
                         int flags = NormalRow)
@@ -262,7 +263,7 @@ namespace {
 
             currentPos.rx() = 0;
             spacerIndices = newSpacerIndices;
-            const QSizeF rowSize = updateGeometry(row, newKeyHeight, flags);
+            const QSizeF rowSize = updateGeometry(row, stretchKey, newKeyHeight, flags);
 
             spacerWidth = qAbs((availableWidth - rowSize.width())
                                / ((spacerIndices.count() ==  0) ? 1 : spacerIndices.count()));
@@ -277,6 +278,7 @@ namespace {
 
     private:
         QSizeF updateGeometry(const QList<MImKey *> &row,
+                              MImKey *const stretchKey,
                               qreal keyHeight,
                               int flags) const
         {
@@ -287,7 +289,6 @@ namespace {
             qreal rowWidth = 0.0;
 
             foreach (MImKey *const key, row) {
-                // TODO: reimpl stretch keys
                 MImKey::Geometry g(key->geometry());
                 g.height = keyHeight;
                 g.width = key->preferredFixedWidth();
@@ -301,18 +302,25 @@ namespace {
             }
 
             MImKey *first = row.first();
-            MImKey::Geometry firstG(first->geometry());
-            rowWidth -= firstG.marginLeft;
-            firstG.marginLeft = style->firstKeyMarginLeft();
-            rowWidth += firstG.marginLeft;
-            first->setGeometry(firstG);
+            MImKey::Geometry firstGeometry(first->geometry());
+            rowWidth -= firstGeometry.marginLeft;
+            firstGeometry.marginLeft = style->firstKeyMarginLeft();
+            rowWidth += firstGeometry.marginLeft;
+            first->setGeometry(firstGeometry);
 
             MImKey *last = row.last();
-            MImKey::Geometry lastG(last->geometry());
-            rowWidth -= lastG.marginRight;
-            lastG.marginRight = style->lastKeyMarginRight();
-            rowWidth += lastG.marginRight;
-            last->setGeometry(lastG);
+            MImKey::Geometry lastGeometry(last->geometry());
+            rowWidth -= lastGeometry.marginRight;
+            lastGeometry.marginRight = style->lastKeyMarginRight();
+            rowWidth += lastGeometry.marginRight;
+            last->setGeometry(lastGeometry);
+
+            // Assign remaining available width to stretchKey, but leave its margins untouched:
+            if (stretchKey) {
+                rowWidth -= stretchKey->geometry().width;
+                stretchKey->setWidth(availableWidth - rowWidth);
+                rowWidth += stretchKey->geometry().width;
+            }
 
             return QSizeF(rowWidth, first->buttonBoundingRect().height());
         }
@@ -804,6 +812,7 @@ void MImKeyArea::updateKeyGeometries(const int newAvailableWidth)
         }
 
         updater.processRow(rowIter->keys,
+                           rowIter->stretchKey,
                            preferredRowHeight(rowIndex),
                            sectionModel()->spacerIndices(rowIndex),
                            flags);
