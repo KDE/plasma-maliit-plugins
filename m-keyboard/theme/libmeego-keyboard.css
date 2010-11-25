@@ -130,7 +130,7 @@ MImAbstractKeyAreaStyle.Portrait {
     touchpoint-horizontal-gravity: 6.2mm;
     touchpoint-vertical-gravity: 9.6mm;
 
-    key-height: 6.4mm;
+    key-height-medium: 6.4mm;
 }
 
 MImAbstractKeyAreaStyle.Landscape {
@@ -147,7 +147,7 @@ MImAbstractKeyAreaStyle.Landscape {
     touchpoint-horizontal-gravity: 8.2mm;
     touchpoint-vertical-gravity: 7.2mm;
 
-    key-height: 4.8mm;
+    key-height-medium: 4.8mm;
 }
 
 #InvisibleHandle.Portrait {

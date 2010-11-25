@@ -584,7 +584,7 @@ qreal MImKeyArea::computeWidgetHeight() const
                    + baseStyle()->paddingBottom();
 
     for (int index = 0; index < rowList.count(); ++index) {
-        height += preferredRowHeight(index);
+        height += preferredKeyHeight(index);
         height += baseStyle()->spacingVertical();
     }
 
@@ -813,7 +813,7 @@ void MImKeyArea::updateKeyGeometries(const int newAvailableWidth)
 
         updater.processRow(rowIter->keys,
                            rowIter->stretchKey,
-                           preferredRowHeight(rowIndex),
+                           preferredKeyHeight(rowIndex),
                            sectionModel()->spacerIndices(rowIndex),
                            flags);
         rowIter->keyOffsets = updater.keyOffsets();
@@ -893,30 +893,29 @@ QRectF MImKeyArea::boundingRect() const
     return QRectF(0, 0, size().width(), cachedWidgetHeight);
 }
 
-qreal MImKeyArea::preferredRowHeight(int row) const
+qreal MImKeyArea::preferredKeyHeight(int row) const
 {
-    const qreal normalHeight = baseStyle()->keyHeight();
-
     switch (sectionModel()->rowHeightType(row)) {
 
-    case LayoutSection::Small:
-        return normalHeight * baseStyle()->rowHeightSmall();
+    default:
+    case LayoutSection::Medium:
+        return baseStyle()->keyHeightMedium();
         break;
 
-    case LayoutSection::Medium:
-        return normalHeight * baseStyle()->rowHeightMedium();
+    case LayoutSection::Small:
+        return baseStyle()->keyHeightSmall();
         break;
 
     case LayoutSection::Large:
-        return normalHeight * baseStyle()->rowHeightLarge();
+        return baseStyle()->keyHeightLarge();
         break;
 
     case LayoutSection::XLarge:
-        return normalHeight * baseStyle()->rowHeightXLarge();
+        return baseStyle()->keyHeightXLarge();
         break;
 
     case LayoutSection::XxLarge:
-        return normalHeight * baseStyle()->rowHeightXxLarge();
+        return baseStyle()->keyHeightXxLarge();
         break;
     }
 

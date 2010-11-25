@@ -42,12 +42,11 @@ public:
     M_STYLE_ATTRIBUTE(qreal, touchpointHorizontalGravity, TouchpointHorizontalGravity)
     M_STYLE_ATTRIBUTE(qreal, touchpointVerticalGravity, TouchpointVerticalGravity)
 
-    M_STYLE_ATTRIBUTE(int, keyHeight, keyHeight)
-    M_STYLE_ATTRIBUTE(qreal, rowHeightSmall, RowHeightSmall)
-    M_STYLE_ATTRIBUTE(qreal, rowHeightMedium, RowHeightMedium)
-    M_STYLE_ATTRIBUTE(qreal, rowHeightLarge,  RowHeightLarge)
-    M_STYLE_ATTRIBUTE(qreal, rowHeightXLarge, RowHeightXLarge)
-    M_STYLE_ATTRIBUTE(qreal, rowHeightXxLarge, RowHeightXxLarge)
+    M_STYLE_ATTRIBUTE(qreal, keyHeightSmall, keyHeightSmall)
+    M_STYLE_ATTRIBUTE(qreal, keyHeightMedium, keyHeightMedium)
+    M_STYLE_ATTRIBUTE(qreal, keyHeightLarge,  keyHeightLarge)
+    M_STYLE_ATTRIBUTE(qreal, keyHeightXLarge, keyHeightXLarge)
+    M_STYLE_ATTRIBUTE(qreal, keyHeightXxLarge, keyHeightXxLarge)
 
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackground, KeyBackground)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundPressed, KeyBackgroundPressed)

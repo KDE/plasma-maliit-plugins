@@ -75,9 +75,9 @@ private:
     //! \brief Returns the new height of the key area.
     qreal computeWidgetHeight() const;
 
-    //! \brief Return preferred height for a row.
+    //! \brief Return preferred key height for a row.
     //! \param row the index of the queried row
-    qreal preferredRowHeight(int row) const;
+    qreal preferredKeyHeight(int row) const;
 
     //! \brief Compute the maximum width in this widget, in normalized units.
     qreal computeMaxNormalizedWidth() const;
