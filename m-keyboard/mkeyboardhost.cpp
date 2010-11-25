@@ -367,6 +367,8 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
     // hide main layout when symbol view is shown to improve performance
     connect(symbolView, SIGNAL(opened()), vkbWidget, SLOT(hideMainArea()));
     connect(symbolView, SIGNAL(aboutToHide()), vkbWidget, SLOT(showMainArea()));
+
+    hide();
 }
 
 MKeyboardHost::~MKeyboardHost()
@@ -438,6 +440,8 @@ void MKeyboardHost::handleFocusChange(bool focusIn)
 
 void MKeyboardHost::show()
 {
+    MPlainWindow::instance()->sceneManager()->appearSceneWindowNow(sceneWindow);
+
     if (activeState == MInputMethod::Hardware) {
         if (!hardwareKeyboard->symViewAvailable())
             symbolView->hideSymbolView();
@@ -465,6 +469,8 @@ void MKeyboardHost::hide()
     correctionHost->hideCorrectionWidget();
     symbolView->hideSymbolView();
     vkbWidget->hideKeyboard();
+
+    MPlainWindow::instance()->sceneManager()->disappearSceneWindowNow(sceneWindow);
 }
 
 
