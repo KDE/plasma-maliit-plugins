@@ -37,9 +37,7 @@ namespace
     const QString PhoneNumberKeyboardFileArabic("phonenumber_ar.xml");
     const QString PhoneNumberKeyboardFileLatin("phonenumber.xml");
     const QString PhoneNumberKeyboardFileRussian("phonenumber_ru.xml");
-    const QString SymbolKeyboardFileUs("hwsymbols_us.xml");
-    const QString SymbolKeyboardFileEuro("hwsymbols_euro.xml");
-    const QString SymbolKeyboardFileArabic("hwsymbols_arabic.xml");
+    const QString SymbolKeyboardFileCommon("hwsymbols_common.xml");
     const QString SymbolKeyboardFileChinese("hwsymbols_chinese.xml");
     // Our keyboard loader stub fails for filenames not in this list
     QStringList LoadableKeyboards;
@@ -290,17 +288,17 @@ void Ut_LayoutsManager::testPhoneNumberLayouts()
 
 void Ut_LayoutsManager::testHardwareSymLayout_data()
 {
-    const QString &SymbolKeyboardFileDefault(SymbolKeyboardFileUs);
+    const QString &SymbolKeyboardFileDefault(SymbolKeyboardFileCommon);
 
     QTest::addColumn<QString>("xkbLayout");
     QTest::addColumn<QString>("expectedHwSymFile");
 
     QTest::newRow("non-existing hw layout") << "non-existing" << SymbolKeyboardFileDefault;
-    QTest::newRow("finnish hw layout") << "fi" << SymbolKeyboardFileEuro;
-    QTest::newRow("german hw layout") << "de" << SymbolKeyboardFileEuro;
-    QTest::newRow("polish hw layout") << "po" << SymbolKeyboardFileDefault;
+    QTest::newRow("finnish hw layout") << "fi" << SymbolKeyboardFileCommon;
+    QTest::newRow("german hw layout") << "de" << SymbolKeyboardFileCommon;
+    QTest::newRow("polish hw layout") << "po" << SymbolKeyboardFileCommon;
     QTest::newRow("chinese hw layout") << "cn" << SymbolKeyboardFileChinese;
-    QTest::newRow("arabic hw layout") << "ara" << SymbolKeyboardFileArabic;
+    QTest::newRow("arabic hw layout") << "ara" << SymbolKeyboardFileCommon;
 }
 
 void Ut_LayoutsManager::testHardwareSymLayout()
@@ -310,10 +308,8 @@ void Ut_LayoutsManager::testHardwareSymLayout()
 
     LoadableKeyboards.clear();
     LoadableKeyboards
-            << SymbolKeyboardFileUs
-            << SymbolKeyboardFileEuro
-            << SymbolKeyboardFileChinese
-            << SymbolKeyboardFileArabic;
+            << SymbolKeyboardFileCommon
+            << SymbolKeyboardFileChinese;
 
     std::auto_ptr<LayoutsManager> subject(new LayoutsManager);
 
