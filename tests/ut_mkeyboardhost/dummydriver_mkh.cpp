@@ -155,6 +155,11 @@ int DummyDriverMkh::matchedLength()
     return 0;
 }
 
+QStringList DummyDriverMkh::matchedSyllables()
+{
+    return QStringList();
+}
+
 int DummyDriverMkh::suggestedCandidateIndex()
 {
     return suggestedCandidateIndexValue;
@@ -240,6 +245,17 @@ void DummyDriverMkh::setMaximumErrors(int maxErrors)
 int DummyDriverMkh::maximumErrors()
 {
     return maximumErrorsCount;
+}
+
+bool DummyDriverMkh::setScript(const QString &s)
+{
+    Q_UNUSED(s);
+    return false;
+}
+
+QString DummyDriverMkh::script()
+{
+    return QString();
 }
 
 QString DummyDriverMkh::driver()

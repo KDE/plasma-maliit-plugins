@@ -94,6 +94,8 @@ public:
 
     virtual int matchedLength();
 
+    virtual QStringList matchedSyllables();
+
     virtual int suggestedCandidateIndex();
 
     virtual bool setSuggestedCandidateIndex(int index);
@@ -129,6 +131,10 @@ public:
     virtual void setMaximumCandidates(int maxCandidates);
 
     virtual int maximumCandidates();
+
+    virtual bool setScript(const QString &s);
+
+    virtual QString script();
 
     virtual QString driver();
 
