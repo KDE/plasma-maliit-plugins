@@ -49,6 +49,10 @@ namespace
     const unsigned int KeycodeCharacterO(32); // keycode of "o" under xorg / Xephyr combination
     const unsigned int KeycodeCharacterB(56); // keycode of "b" under xorg / Xephyr combination
     const unsigned int KeycodeCharacterPeriod(60); // keycode of "." under xorg / Xephyr combination
+    const unsigned int KeycodeCharacterQ(24); // keycode of "q" under xorg / Xephyr combination
+    const unsigned int KeycodeCharacter1(24); // keycode of "1" under xorg / Xephyr combination
+    const unsigned int KeycodeCharacterP(33); // keycode of "p" under xorg / Xephyr combination
+    const unsigned int KeycodeCharacter0(33); // keycode of "0" under xorg / Xephyr combination
     const unsigned int KeycodeNonCharacter(50);  // keycode of left shift under xorg / Xephyr combination
 
     const QString XkbLayoutSettingName("/meegotouch/inputmethods/hwkeyboard/layout");
@@ -97,6 +101,14 @@ QString MHardwareKeyboard::keycodeToString(unsigned int keycode, unsigned int sh
         return QString("o");
     } else if ((keycode == KeycodeCharacterB) && (shiftLevel == 0)) {
         return QString("b");
+    } else if ((keycode == KeycodeCharacterQ) && (shiftLevel == 0)) {
+        return QString("q");
+    } else if ((keycode == KeycodeCharacter1) && (shiftLevel == 2)) {
+        return QString("1");
+    } else if ((keycode == KeycodeCharacterP) && (shiftLevel == 0)) {
+        return QString("p");
+    } else if ((keycode == KeycodeCharacter0) && (shiftLevel == 2)) {
+        return QString("0");
     } else if (keycode == KeycodeCharacterPeriod) {
         return QString(".");
     } else {
@@ -1007,13 +1019,74 @@ void Ut_MHardwareKeyboard::testControlModifier()
 void Ut_MHardwareKeyboard::testCorrectToAcceptedCharacter()
 {
     m_hkb->setKeyboardType(M::NumberContentType);
+
+    // Test M::NumberContentType:
+    // Long pressing a number must not commit a letter
+    QVERIFY(filterKeyPress(Qt::Key_Q, Qt::GroupSwitchModifier, "1", KeycodeCharacter1, FnModifierMask));
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("1"));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 0);
+    m_hkb->handleLongPressTimeout();
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("1"));
+    QVERIFY(filterKeyRelease(Qt::Key_Q, Qt::GroupSwitchModifier, "1", KeycodeCharacter1, FnModifierMask));
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("1"));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+
+    // Pressing number with Fn must not commit a letter
+    QVERIFY(filterKeyPress(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, 0));
+    QVERIFY(filterKeyPress(Qt::Key_Q, Qt::GroupSwitchModifier, "1", KeycodeCharacter1, FnModifierMask));
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("1"));
+    QVERIFY(filterKeyRelease(Qt::Key_Q, Qt::GroupSwitchModifier, "1", KeycodeCharacter1, FnModifierMask));
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("1"));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+    QVERIFY(filterKeyRelease(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, FnModifierMask));
+
+    // Long pressing of a number with Fn must not commit a letter
+    QVERIFY(filterKeyPress(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, 0));
+    QVERIFY(filterKeyPress(Qt::Key_Q, Qt::GroupSwitchModifier, "1", KeycodeCharacter1, FnModifierMask));
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("1"));
+    m_hkb->handleLongPressTimeout();
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("1"));
+    QVERIFY(filterKeyRelease(Qt::Key_Q, Qt::GroupSwitchModifier, "1", KeycodeCharacter1, FnModifierMask));
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("1"));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+    QVERIFY(filterKeyRelease(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, FnModifierMask));
+
+    // Take character from another shift level if necessary
     QVERIFY(filterKeyPress(Qt::Key_Colon, Qt::GroupSwitchModifier, ":", KeycodeCharacterPeriod, FnModifierMask));
     QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
     QCOMPARE(inputMethodHost->lastPreeditString(), QString("."));
-    QCOMPARE(inputMethodHost->lastCommitString().length(), 0);
     QVERIFY(filterKeyRelease(Qt::Key_Colon, Qt::GroupSwitchModifier, ":", KeycodeCharacterPeriod, FnModifierMask));
     QCOMPARE(inputMethodHost->lastCommitString(), QString("."));
     QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+
+    m_hkb->setKeyboardType(M::PhoneNumberContentType);
+
+    // Test M::PhoneNumberContentType:
+    // Long pressing a number over "p" must commit "p"
+    QVERIFY(filterKeyPress(Qt::Key_P, Qt::GroupSwitchModifier, "0", KeycodeCharacter0, FnModifierMask));
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("0"));
+    m_hkb->handleLongPressTimeout();
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("p"));
+    QVERIFY(filterKeyRelease(Qt::Key_P, Qt::GroupSwitchModifier, "1", KeycodeCharacter0, FnModifierMask));
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("p"));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+
+    // Pressing number with Fn over "p" must commit "p"
+    QVERIFY(filterKeyPress(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, 0));
+    QVERIFY(filterKeyPress(Qt::Key_P, Qt::GroupSwitchModifier, "p", KeycodeCharacterP, FnModifierMask));
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("p"));
+    QVERIFY(filterKeyRelease(Qt::Key_P, Qt::GroupSwitchModifier, "p", KeycodeCharacterP, FnModifierMask));
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("p"));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+    QVERIFY(filterKeyRelease(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, FnModifierMask));
 }
 
 

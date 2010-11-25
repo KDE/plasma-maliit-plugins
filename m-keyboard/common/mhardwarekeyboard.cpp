@@ -62,6 +62,11 @@ namespace
                                                   .arg(QChar(0x0669)) // Arabic numbers end
                                                   .arg(QChar(0x066b))); // Arabic decimal separator
 
+    //! Character set for MTextEdit phone number content type
+    const QString PhoneNumberContentCharacterSetRegexp(QString("[-+0-9%1-%2*p#() ]")
+                                                       .arg(QChar(0x0660)) // Arabic numbers begin
+                                                       .arg(QChar(0x0669))); // Arabic numbers end
+
     const int KeyCodeShift = 3;
     const int KeyCodeMask = 7;
 
@@ -93,7 +98,8 @@ MHardwareKeyboard::MHardwareKeyboard(MAbstractInputMethodHost& imHost, QObject *
       longPressTimer(this),
       imMode(M::InputMethodModeNormal),
       fnPressed(false),
-      numberContentCharacterMatcher(NumberContentCharacterSetRegexp)
+      numberContentCharacterMatcher(NumberContentCharacterSetRegexp),
+      phoneNumberContentCharacterMatcher(PhoneNumberContentCharacterSetRegexp)
 {
     longPressTimer.setSingleShot(true);
     longPressTimer.setInterval(longPressTime);
@@ -447,21 +453,31 @@ bool MHardwareKeyboard::handleScriptSwitchOnRelease(Qt::Key keyCode, Qt::Keyboar
     return false;
 }
 
-void MHardwareKeyboard::correctToAcceptedCharacter(QString &text, const quint32 nativeScanCode,
-                                                   quint32 &nativeModifiers) const
+void MHardwareKeyboard::correctToAcceptedCharacter(QString &text, quint32 nativeScanCode,
+                                                   quint32 nativeModifiers, bool &fnPressState) const
 {
-    if ((currentKeyboardType != M::NumberContentType)
-        || numberContentCharacterMatcher.exactMatch(text)) {
-        return;
-    }
+    const unsigned int shiftAndLock(nativeModifiers & (ShiftMask | LockMask));
+    const unsigned int shiftLevelBase((fnPressState && !(currentLockedMods & FnModifierMask))
+                                       || (!fnPressState && (currentLockedMods & FnModifierMask)) ? 0 : 2);
+    const unsigned int shiftLevel(((shiftAndLock == ShiftMask) || (shiftAndLock == LockMask)
+                                   ? 1 : 0) + shiftLevelBase);
 
-    // It's sufficient for us to consider only the first level since all we really want to
-    // do is make it possible to enter decimal separators without long press or pressing
-    // Fn.
-    const QString noFnCandidate(keycodeToString(nativeScanCode, 0));
-    if (numberContentCharacterMatcher.exactMatch(noFnCandidate)) {
-        text = noFnCandidate;
-        nativeModifiers &= ~FnModifierMask;
+    if (currentKeyboardType == M::NumberContentType
+        && numberContentCharacterMatcher.exactMatch(text) == false) {
+        QString candidate(keycodeToString(nativeScanCode, shiftLevel));
+
+        if (numberContentCharacterMatcher.exactMatch(candidate)) {
+            text = candidate;
+            fnPressState = !fnPressState;
+        }
+    } else if (currentKeyboardType == M::PhoneNumberContentType
+               && phoneNumberContentCharacterMatcher.exactMatch(text) == false) {
+        QString candidate(keycodeToString(nativeScanCode, shiftLevel));
+
+        if (phoneNumberContentCharacterMatcher.exactMatch(candidate)) {
+            text = candidate;
+            fnPressState = !fnPressState;
+        }
     }
 }
 
@@ -571,7 +587,8 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
         }
 
         if (eaten && !eatenBySymHandler) {
-            correctToAcceptedCharacter(text, nativeScanCode, nativeModifiers);
+            bool fnPressState = fnPressed;
+            correctToAcceptedCharacter(text, nativeScanCode, nativeModifiers, fnPressState);
 
             if (!preedit.isEmpty() && (preedit != deadKeyMapper.currentDeadKey())) {
                 inputMethodHost.sendCommitString(preedit);
@@ -583,6 +600,7 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
                 // keypress event cancels the long press logic for the previous keypress)
                 longPressKey = nativeScanCode;
                 longPressModifiers = nativeModifiers;
+                longPressFnPressState = fnPressState;
                 longPressTimer.start();
             }
             QList<MInputMethod::PreeditTextFormat> preeditFormats;
@@ -776,6 +794,8 @@ void MHardwareKeyboard::handleLongPressTimeout()
                                    ? 1 : 0) + shiftLevelBase);
     QString text(keycodeToString(longPressKey, shiftLevel));
     if (!text.isEmpty()) {
+        longPressFnPressState = !longPressFnPressState;
+        correctToAcceptedCharacter(text, longPressKey, longPressModifiers, longPressFnPressState);
         (void)deadKeyMapper.filterKeyPress(text, true);
         preedit = text;
 

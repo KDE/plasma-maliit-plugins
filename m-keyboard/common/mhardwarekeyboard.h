@@ -160,13 +160,13 @@ private:
     //! \brief If character is not accepted by the client, try to find an acceptable character
     //! on another shift level
     //!
-    //! Only supports MTextEdit's number content type at the moment and even for that we
-    //! simply have a hardwired set of accepted characters, instead of considering the
-    //! current decimal separator.
+    //! Only supports MTextEdit's number and phone number content type at the moment and
+    //! even for those we simply have a hardwired set of accepted characters, instead of
+    //! considering the current decimal separator.
     //!
-    //! \post text and nativeModifiers possibly modified for the found character
+    //! \post text and fnPressState possibly modified for the found character
     void correctToAcceptedCharacter(QString &text, quint32 nativeScanCode,
-                                    quint32 &nativeModifiers) const;
+                                    quint32 nativeModifiers, bool &fnPressState) const;
 
     //! \brief Helper for \a filterKeyPress that handles script switching shortcuts
     bool handleScriptSwitchOnPress(Qt::Key keyCode, Qt::KeyboardModifiers modifiers);
@@ -343,6 +343,7 @@ private:
     QTimer longPressTimer;
     quint32 longPressKey;       // native scan code / X keycode
     quint32 longPressModifiers; // X modifier mask
+    bool longPressFnPressState; // Status of Fn key for accepted character
 
     M::InputMethodMode imMode;
 
@@ -355,6 +356,7 @@ private:
     quint32 preeditScanCode;
 
     const QRegExp numberContentCharacterMatcher;
+    const QRegExp phoneNumberContentCharacterMatcher;
 
     HwKbDeadKeyMapper deadKeyMapper;
 
