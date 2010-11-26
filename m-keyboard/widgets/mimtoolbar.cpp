@@ -71,6 +71,7 @@ void MImToolbar::setupLayout()
     QGraphicsLinearLayout *mainLayout = new QGraphicsLinearLayout(Qt::Horizontal, this);
 
     mainLayout->setContentsMargins(0, 0, 0, 0);
+    mainLayout->setSpacing(0);
 
     // Empty button bars are hidden.
     leftBar.hide();
@@ -160,12 +161,12 @@ void MImToolbar::updateItemVisibility(const QSharedPointer<MToolbarItem> &item) 
     if ((item->showOn() == MInputMethod::VisibleAlways)
         || (textSelected && item->showOn() == MInputMethod::VisibleWhenSelectingText)
         || (!textSelected && item->hideOn() == MInputMethod::VisibleWhenSelectingText)) {
-        item->setVisible(true);
+        item->setVisible(true, false);
     }
 
     if ((!textSelected && item->showOn() == MInputMethod::VisibleWhenSelectingText)
         || (textSelected && item->hideOn() == MInputMethod::VisibleWhenSelectingText)) {
-        item->setVisible(false);
+        item->setVisible(false, false);
     }
 }
 
@@ -293,7 +294,7 @@ void MImToolbar::showGroup(const QString &group)
 
     foreach (const QSharedPointer<MToolbarItem> item, currentToolbar->items()) {
         if (item->group() == group && !(item->isVisible())) {
-            item->setVisible(true);
+            item->setVisible(true, false);
         }
     }
 
@@ -310,7 +311,7 @@ void MImToolbar::hideGroup(const QString &group)
 
     foreach (const QSharedPointer<MToolbarItem> item, currentToolbar->items()) {
         if (item->group() == group && item->isVisible()) {
-            item->setVisible(false);
+            item->setVisible(false, false);
         }
     }
 

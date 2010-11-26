@@ -239,7 +239,7 @@ MToolbarButtonStyle {
     margin-bottom: 0;
     minimum-size:   20% $HEIGHT_TOOLBARITEM;
     preferred-size: 20% $HEIGHT_TOOLBARITEM;
-    maximum-size:   30% $HEIGHT_TOOLBARITEM;
+    maximum-size:   20% $HEIGHT_TOOLBARITEM;
     /*below reactive margins should be fixed*/
 /*  reactive-margin-left: 2;
     reactive-margin-right: 2;
@@ -256,9 +256,15 @@ MToolbarButtonStyle {
     maximum-size:   10% $HEIGHT_TOOLBARITEM;
 }
 
-#MToolbarTextButton {
+#MToolbarTextButton.Landscape {
     minimum-size:   10% $HEIGHT_TOOLBARITEM;
     preferred-size: 10% $HEIGHT_TOOLBARITEM;
+    maximum-size:   10% $HEIGHT_TOOLBARITEM;
+}
+
+#MToolbarTextButton.Portrait {
+    minimum-size:   10% $HEIGHT_TOOLBARITEM;
+    preferred-size: 20% $HEIGHT_TOOLBARITEM;
     maximum-size:   20% $HEIGHT_TOOLBARITEM;
 }
 

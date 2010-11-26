@@ -134,7 +134,10 @@ void MToolbarButton::updateStyleName()
         return;
     }
 
-    if (!item()->isCustom()) {
+    // for the standard item and top left or top right item,
+    // use default style. Otherwise use icon style for icon item,
+    // text style for text item.
+    if (!item()->isCustom() || item()->alignment() != Qt::AlignCenter) {
         setStyleName(QString());
     } else if (item()->text().isEmpty() && item()->textId().isEmpty()) {
         setStyleName(IconButtonStyleName);

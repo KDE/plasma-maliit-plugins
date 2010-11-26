@@ -3,6 +3,8 @@ meego-keyboard (0.5.15~1) unstable; urgency=low
   * [UNRELEASED]
   * Changes: Catch up with meegotouch-inputmethodengine update on Version 0.4 .
   * Changes: use cursor position to locate wordtracker.
+  * Fixes: NB#206444 - Strange behavior of Smiley Picker and Done/Send buttons in Conversational View
+  * Fixes: NB#204964 - Toolbar button label is truncated in portrait mode
 
  -- huaming wang <huaming.wang@nokia.com>  Fri, 26 Nov 2010 12:36:30 +0200
 
