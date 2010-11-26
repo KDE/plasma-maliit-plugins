@@ -1,3 +1,9 @@
+meego-keyboard (0.5.15~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- huaming wang <huaming.wang@nokia.com>  Fri, 26 Nov 2010 12:36:30 +0200
+
 meego-keyboard (0.5.14-1) unstable; urgency=low
 
   * Fixes: NB#204084 - Some characters missing from HWKB mode
