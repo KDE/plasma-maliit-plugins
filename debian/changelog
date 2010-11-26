@@ -3,6 +3,7 @@ meego-keyboard (0.5.14~1) unstable; urgency=low
   * [UNRELEASED]
   * Fixes: NB#204084 - Some characters missing from HWKB mode
   * Fixes: NB#187296 - Nothing is happening when trying to enter number char by long pressing from HKB in the number text field.
+  * Fixes: NB#204828 - With HWKB, two characters get inserted when slipping fast/moderate character + enter key on multi-line text edit
 
  -- huaming wang <huaming.wang@nokia.com>  Wed, 24 Nov 2010 11:55:57 +0200
 
