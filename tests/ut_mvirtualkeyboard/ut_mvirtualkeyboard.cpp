@@ -879,7 +879,6 @@ void Ut_MVirtualKeyboard::testReactionMaps()
     QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
     QVERIFY(m_vkb->isFullyVisible());
     QCOMPARE(MPlainWindow::instance()->scene(), m_vkb->scene());
-    resetKeyAreaStyle(dynamic_cast<MImAbstractKeyArea *>(m_vkb->mainKeyboardSwitcher->currentWidget()));
 
     // Clear with transparent color
     gMReactionMapStub->setTransparentDrawingValue();
@@ -899,7 +898,6 @@ void Ut_MVirtualKeyboard::testReactionMaps()
     QSignalSpy updateSignal(m_vkb, SIGNAL(regionUpdated(QRegion)));
     m_vkb->setLayout(1);
     QTest::qWait(600);
-    resetKeyAreaStyle(dynamic_cast<MImAbstractKeyArea *>(m_vkb->mainKeyboardSwitcher->currentWidget()));
 
     // Currently updating is done via kbhost when it receives region updates.
     // Kbhost is not present so we paint reaction map explicitly.
@@ -1002,19 +1000,4 @@ void Ut_MVirtualKeyboard::rotateToAngle(M::OrientationAngle angle)
     m_vkb->finalizeOrientationChange();
 }
 
-void Ut_MVirtualKeyboard::resetKeyAreaStyle(MImAbstractKeyArea *area)
-{
-    if (!area) {
-        return;
-    }
-
-    // Reset the style:
-    MImAbstractKeyAreaStyle *s = const_cast<MImAbstractKeyAreaStyle *>(area->style().operator->());
-    // Those adjustments dont work for reaction maps:
-    s->setButtonBoundingRectTopAdjustment(0);
-    s->setButtonBoundingRectBottomAdjustment(0);
-    area->updateKeyGeometries(area->geometry().width());
-}
-
 QTEST_APPLESS_MAIN(Ut_MVirtualKeyboard);
-

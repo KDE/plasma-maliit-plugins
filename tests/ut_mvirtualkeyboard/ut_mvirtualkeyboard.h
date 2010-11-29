@@ -106,7 +106,6 @@ signals:
 
 private:
     void rotateToAngle(M::OrientationAngle angle);
-    void resetKeyAreaStyle(MImAbstractKeyArea *area);
 };
 
 #endif

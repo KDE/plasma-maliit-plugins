@@ -214,60 +214,6 @@ void Ut_MImAbstractKeyArea::testPortraitBoxSize()
     QVERIFY(fileCount > 0);
 }
 
-void Ut_MImAbstractKeyArea::testLabelPosition_data()
-{
-    QTest::addColumn<KBACreator>("createKba");
-    QTest::newRow("SingleWidgetArea") << &createKeyArea;
-}
-
-void Ut_MImAbstractKeyArea::testLabelPosition()
-{
-    QFETCH(KBACreator, createKba);
-
-    QList<QPoint> positions;
-    QList<const MImKeyModel *> outcome;
-    QSize buttonSize;
-    int startX;
-    const int rowIndex = 2;
-    const MImAbstractKey *button = 0;
-
-    keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
-    subject = createKba(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
-                        false, 0);
-    MPlainWindow::instance()->scene()->addItem(subject);
-
-    subject->resize(defaultLayoutSize());
-
-    const MImAbstractKey *firstButton = keyAt(0, 0);
-
-    button = keyAt(2, 0); // Third row's first button
-    buttonSize = button->buttonBoundingRect().size().toSize();
-    startX = button->buttonBoundingRect().x();
-    positions << QPoint(-50, -50)                       // not on any key
-              << firstButton->buttonRect().topLeft().toPoint() + QPoint(-1, -1) // reactive margin should get this
-              << QPoint(-buttonSize.width(), 0)         // not on any key
-              << QPoint(0, -buttonSize.height())        // not on any key
-              << QPoint(1, 100 * buttonSize.height())   // not on any key
-              << QPoint(startX + buttonSize.width() + subject->style()->paddingLeft() + subject->style()->spacingHorizontal()*2 + 1,
-                        subject->style()->paddingTop() + (buttonSize.height() + subject->style()->spacingVertical()) * rowIndex + 1)
-              << QPoint(startX + buttonSize.width() * 100 + 1, buttonSize.height() * rowIndex + 1); // not on any key
-    outcome << 0
-            << subject->section->keyModel(0, 0)
-            << 0
-            << 0
-            << 0
-            << subject->section->keyModel(rowIndex, 1)
-            << 0;
-    QVERIFY(positions.count() == outcome.count());
-    for (int n = 0; n < positions.count(); ++n) {
-        qDebug() << "test position" << positions.at(n);
-        button = subject->keyAt(positions.at(n));
-        const MImKeyModel *result = (button ? &button->model() : 0);
-        QCOMPARE(result, outcome.at(n));
-    }
-}
-
 void Ut_MImAbstractKeyArea::testSceneEvent_data()
 {
     QTest::addColumn<KBACreator>("createKba");
@@ -924,6 +870,29 @@ void Ut_MImAbstractKeyArea::testLongKeyPress()
     // TODO? long press should be detected if last pressed key is not released
 }
 
+void Ut_MImAbstractKeyArea::testKeyLayout()
+{
+    const int margin = 5;
+    const QSize size(50, 50);
+    subject = Ut_MImAbstractKeyArea::createArea("Q", size, QSize(size.width() - 2 * margin,
+                                                                 size.height() - 2 * margin));
+
+    MImAbstractKeyAreaStyle *s = const_cast<MImAbstractKeyAreaStyle *>(subject->style().operator->());
+    s->setFirstKeyMarginLeft(margin);
+    s->setFirstKeyMarginLeft(margin);
+    s->setFirstRowMarginTop(margin);
+    s->setLastKeyMarginRight(margin);
+    s->setLastRowMarginBottom(margin);
+
+    subject->updateKeyGeometries(size.width());
+
+    QVERIFY(!subject->keyAt(QPoint(-1, -1)));
+    QVERIFY(subject->keyAt(QPoint(0, 0)));
+    QVERIFY(subject->keyAt(QPoint(size.width() / 2, size.height() / 2)));
+    QVERIFY(subject->keyAt(QPoint(size.width(), size.height())));
+    QVERIFY(!subject->keyAt(QPoint(size.width() + 1, size.height() + 1)));
+}
+
 void Ut_MImAbstractKeyArea::testTouchPoints_data()
 {
     TpCreator createTp = &MImAbstractKeyArea::createTouchPoint;
@@ -937,15 +906,15 @@ void Ut_MImAbstractKeyArea::testTouchPoints_data()
 
     QTest::newRow("single button")
         << 1 << "a" << QSize(50, 50)
-        << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(12, 24), QPointF(0, 0))
+        << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(12, 24), QPointF(-1, -1))
                      << createTp(0, Qt::TouchPointReleased, QPointF(16, 20), QPointF(12, 24)))
         << (TpButtonStateMatrix() << (ButtonStateList() << MImAbstractKey::Pressed)
                                   << (ButtonStateList() << MImAbstractKey::Normal));
 
     QTest::newRow("single button, commit before next hit")
         << 2 << "a" << QSize(50, 50)
-        << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(12, 24), QPointF(0, 0))
-                     << createTp(1, Qt::TouchPointPressed, QPointF(16, 20), QPointF(0, 0))
+        << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(12, 24), QPointF(-1, -1))
+                     << createTp(1, Qt::TouchPointPressed, QPointF(16, 20), QPointF(-1, -1))
                      << createTp(1, Qt::TouchPointReleased, QPointF(16, 20), QPointF(12, 24))
                      << createTp(0, Qt::TouchPointReleased, QPointF(16, 20), QPointF(16, 20)))
         << (TpButtonStateMatrix() << (ButtonStateList() << MImAbstractKey::Pressed)
@@ -955,10 +924,10 @@ void Ut_MImAbstractKeyArea::testTouchPoints_data()
 
     QTest::newRow("2 buttons, 3 touchpoint transactions")
         << 3 << "ab" << QSize(100, 50)
-        << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(12, 24), QPointF(0, 0))
-                     << createTp(1, Qt::TouchPointPressed, QPointF(80, 20), QPointF(0, 0))
+        << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(12, 24), QPointF(-1, -1))
+                     << createTp(1, Qt::TouchPointPressed, QPointF(80, 20), QPointF(-1, -1))
                      << createTp(0, Qt::TouchPointReleased, QPointF(16, 20), QPointF(12, 24))
-                     << createTp(1, Qt::TouchPointPressed, QPointF(12, 24), QPointF(0, 0))
+                     << createTp(1, Qt::TouchPointPressed, QPointF(12, 24), QPointF(-1, -1))
                      << createTp(1, Qt::TouchPointReleased, QPointF(16, 20), QPointF(16, 24))
                      << createTp(0, Qt::TouchPointReleased, QPointF(80, 20), QPointF(80, 20)))
         << (TpButtonStateMatrix() << (ButtonStateList() << MImAbstractKey::Pressed
@@ -976,9 +945,9 @@ void Ut_MImAbstractKeyArea::testTouchPoints_data()
 
     QTest::newRow("move into button, release")
         << 1 << "a" << QSize(50, 50)
-        << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(0, 0), QPointF(0, 0))
-                     << createTp(0, Qt::TouchPointMoved, QPointF(2, 0), QPointF(0, 0))
-                     << createTp(0, Qt::TouchPointMoved, QPointF(10, 10), QPointF(2, 0))
+        << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(-1, -1), QPointF(-1, -1))
+                     << createTp(0, Qt::TouchPointMoved, QPointF(2, -1), QPointF(-1, -1))
+                     << createTp(0, Qt::TouchPointMoved, QPointF(10, 10), QPointF(2, -1))
                      << createTp(0, Qt::TouchPointMoved, QPointF(12, 14), QPointF(10, 10))
                      << createTp(0, Qt::TouchPointReleased, QPointF(12, 14), QPointF(12, 14)))
         << (TpButtonStateMatrix() << (ButtonStateList() << MImAbstractKey::Normal)
@@ -989,11 +958,11 @@ void Ut_MImAbstractKeyArea::testTouchPoints_data()
 
     QTest::newRow("move over button, release outside")
         << 0 << "a" << QSize(50, 50)
-        << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(0, 0), QPointF(0, 0))
-                     << createTp(0, Qt::TouchPointMoved, QPointF(2, 0), QPointF(0, 0))
-                     << createTp(0, Qt::TouchPointMoved, QPointF(10, 10), QPointF(2, 0))
-                     << createTp(0, Qt::TouchPointMoved, QPointF(50, 50), QPointF(10, 10))
-                     << createTp(0, Qt::TouchPointReleased, QPointF(50, 50), QPointF(50, 50)))
+        << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(-1, -1), QPointF(-1, -1))
+                     << createTp(0, Qt::TouchPointMoved, QPointF(2, -1), QPointF(-1, -1))
+                     << createTp(0, Qt::TouchPointMoved, QPointF(10, 10), QPointF(2, -1))
+                     << createTp(0, Qt::TouchPointMoved, QPointF(51, 51), QPointF(10, 10))
+                     << createTp(0, Qt::TouchPointReleased, QPointF(51, 51), QPointF(51, 51)))
         << (TpButtonStateMatrix() << (ButtonStateList() << MImAbstractKey::Normal)
                                   << (ButtonStateList() << MImAbstractKey::Normal)
                                   << (ButtonStateList() << MImAbstractKey::Pressed)
@@ -1003,10 +972,10 @@ void Ut_MImAbstractKeyArea::testTouchPoints_data()
     QTest::newRow("tap inside button, release outside")
         << 0 << "a" << QSize(50, 50)
         << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(12, 12), QPointF(12, 12))
-                     << createTp(0, Qt::TouchPointMoved, QPointF(2, 0), QPointF(12, 12))
-                     << createTp(0, Qt::TouchPointMoved, QPointF(10, 10), QPointF(2, 0))
+                     << createTp(0, Qt::TouchPointMoved, QPointF(2, -1), QPointF(12, 12))
+                     << createTp(0, Qt::TouchPointMoved, QPointF(10, 10), QPointF(2, -1))
                      << createTp(0, Qt::TouchPointMoved, QPointF(30, 30), QPointF(10, 10))
-                     << createTp(0, Qt::TouchPointReleased, QPointF(50, 50), QPointF(30, 30)))
+                     << createTp(0, Qt::TouchPointReleased, QPointF(51, 51), QPointF(30, 30)))
         << (TpButtonStateMatrix() << (ButtonStateList() << MImAbstractKey::Pressed)
                                   << (ButtonStateList() << MImAbstractKey::Normal)
                                   << (ButtonStateList() << MImAbstractKey::Pressed)
@@ -1015,13 +984,13 @@ void Ut_MImAbstractKeyArea::testTouchPoints_data()
 
     QTest::newRow("move into button, press on button with second touchpoint, release first")
         << 2 << "a" << QSize(50, 50)
-        << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(0, 0), QPointF(0, 0))
-                     << createTp(0, Qt::TouchPointMoved, QPointF(2, 0), QPointF(0, 0))
-                     << createTp(0, Qt::TouchPointMoved, QPointF(10, 10), QPointF(2, 0))
+        << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(-1, -1), QPointF(-1, -1))
+                     << createTp(0, Qt::TouchPointMoved, QPointF(2, -1), QPointF(-1, -1))
+                     << createTp(0, Qt::TouchPointMoved, QPointF(10, 10), QPointF(2, -1))
                      << createTp(0, Qt::TouchPointMoved, QPointF(12, 14), QPointF(10, 10))
                      << createTp(1, Qt::TouchPointPressed, QPointF(20, 20), QPointF(20, 20))
                      << createTp(0, Qt::TouchPointReleased, QPointF(12, 14), QPointF(12, 14))
-                     << createTp(0, Qt::TouchPointMoved, QPointF(50, 50), QPointF(20, 20)))
+                     << createTp(0, Qt::TouchPointMoved, QPointF(51, 51), QPointF(20, 20)))
         << (TpButtonStateMatrix() << (ButtonStateList() << MImAbstractKey::Normal)
                                   << (ButtonStateList() << MImAbstractKey::Normal)
                                   << (ButtonStateList() << MImAbstractKey::Pressed)
@@ -1032,7 +1001,7 @@ void Ut_MImAbstractKeyArea::testTouchPoints_data()
 
     QTest::newRow("sudden move from a to b")
         << 1 << "ab" << QSize(100, 50)
-        << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(12, 24), QPointF(0, 0))
+        << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(12, 24), QPointF(-1, -1))
                      << createTp(0, Qt::TouchPointMoved, QPointF(30, 20), QPointF(12, 24))
                      << createTp(0, Qt::TouchPointMoved, QPointF(80, 20), QPointF(30, 20))
                      << createTp(0, Qt::TouchPointReleased, QPointF(80, 20), QPointF(80, 20)))
@@ -1047,7 +1016,7 @@ void Ut_MImAbstractKeyArea::testTouchPoints_data()
 
     QTest::newRow("sudden release while moving from a to b")
         << 0 << "ab" << QSize(100, 50)
-        << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(12, 24), QPointF(0, 0))
+        << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(12, 24), QPointF(-1, -1))
                      << createTp(0, Qt::TouchPointMoved, QPointF(30, 20), QPointF(12, 24))
                      << createTp(0, Qt::TouchPointReleased, QPointF(80, 20), QPointF(30, 20)))
         << (TpButtonStateMatrix() << (ButtonStateList() << MImAbstractKey::Pressed
@@ -1059,11 +1028,11 @@ void Ut_MImAbstractKeyArea::testTouchPoints_data()
 
     QTest::newRow("sudden release while moving from a to b, mixed with other touchpoint transaction")
         << 2 << "ab" << QSize(100, 50)
-        << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(12, 24), QPointF(0, 0))
+        << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(12, 24), QPointF(-1, -1))
                      << createTp(0, Qt::TouchPointMoved, QPointF(30, 20), QPointF(12, 24))
-                     << createTp(1, Qt::TouchPointPressed, QPointF(70, 16), QPointF(0, 0))
+                     << createTp(1, Qt::TouchPointPressed, QPointF(70, 16), QPointF(-1, -1))
                      << createTp(0, Qt::TouchPointReleased, QPointF(80, 20), QPointF(30, 20))
-                     << createTp(1, Qt::TouchPointMoved, QPointF(0, 0), QPointF(70, 16)))
+                     << createTp(1, Qt::TouchPointMoved, QPointF(-1, -1), QPointF(70, 16)))
         << (TpButtonStateMatrix() << (ButtonStateList() << MImAbstractKey::Pressed
                                                         << MImAbstractKey::Normal)
                                   << (ButtonStateList() << MImAbstractKey::Pressed
@@ -1165,7 +1134,8 @@ MImAbstractKey *Ut_MImAbstractKeyArea::keyAt(unsigned int row, unsigned int colu
 }
 
 MImAbstractKeyArea *Ut_MImAbstractKeyArea::createArea(const QString &labels,
-                                            const QSize &size)
+                                                      const QSize &size,
+                                                      const QSize &fixedNormalKeySize)
 {
     LayoutData::SharedLayoutSection section;
     section = LayoutData::SharedLayoutSection(new LayoutSection(labels));
@@ -1173,22 +1143,29 @@ MImAbstractKeyArea *Ut_MImAbstractKeyArea::createArea(const QString &labels,
 
     // Reset the style:
     MImAbstractKeyAreaStyle *s = const_cast<MImAbstractKeyAreaStyle *>(swba->style().operator->());
-    s->setSpacingHorizontal(0);
-    s->setSpacingVertical(0);
     s->setMarginLeft(0);
     s->setMarginTop(0);
     s->setMarginRight(0);
     s->setMarginBottom(0);
 
-    // Padding of 2 allows to start touchpoint tests from outside the area, eg:
-    s->setPaddingLeft(2);
-    s->setPaddingTop(2);
-    s->setPaddingRight(2);
-    s->setPaddingBottom(2);
+    // Padding became obsolete with first/last key/row margins:
+    s->setPaddingLeft(0);
+    s->setPaddingTop(0);
+    s->setPaddingRight(0);
+    s->setPaddingBottom(0);
 
-    s->setButtonBoundingRectTopAdjustment(0);
-    s->setButtonBoundingRectBottomAdjustment(0);
+    // TODO: ... or just rename it to padding already?!
+    s->setFirstKeyMarginLeft(1);
+    s->setFirstRowMarginTop(1);
+    s->setLastKeyMarginRight(1);
+    s->setLastRowMarginBottom(1);
 
+    // Key geometry:
+    s->setKeyHeightMedium(fixedNormalKeySize.height());
+    s->setKeyWidthMediumFixed(fixedNormalKeySize.width());
+    s->setKeyWidthMedium(1.0);
+
+    // Behaviour:
     s->setTouchpointHorizontalGravity(0);
     s->setTouchpointVerticalGravity(0);
 

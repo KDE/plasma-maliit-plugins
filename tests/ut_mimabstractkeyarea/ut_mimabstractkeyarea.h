@@ -29,6 +29,7 @@ class MImAbstractKeyArea;
 class KeyboardData;
 class MImAbstractKey;
 class MSceneWindow;
+class MImAbstractKeyAreaStyle;
 
 class Ut_MImAbstractKeyArea : public QObject
 {
@@ -49,8 +50,6 @@ private slots:
     void testLandscapeBoxSize();
     void testPortraitBoxSize_data();
     void testPortraitBoxSize();
-    void testLabelPosition_data();
-    void testLabelPosition();
     void testSceneEvent_data();
     void testSceneEvent();
     void testPaint_data();
@@ -72,6 +71,7 @@ private slots:
     void testRtlKeys_data();
     void testRtlKeys();
     void testLongKeyPress();
+    void testKeyLayout();
 
     void testTouchPoints_data();
     void testTouchPoints();
@@ -84,7 +84,8 @@ private:
                       unsigned int column) const;
 
     static MImAbstractKeyArea *createArea(const QString &labels,
-                                     const QSize &size);
+                                          const QSize &size,
+                                          const QSize &fixedNormalKeySize = QSize(48, 48));
 
 public:
     enum TestOperation {
