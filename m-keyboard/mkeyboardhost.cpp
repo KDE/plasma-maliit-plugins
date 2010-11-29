@@ -27,7 +27,7 @@
 #include "mimtoolbar.h"
 #include "sharedhandlearea.h"
 
-#include <mimenginewordsinterfacefactory.h>
+#include <mimenginefactory.h>
 #include <mabstractinputmethodhost.h>
 #include <mplainwindow.h>
 #include <mtoolbardata.h>
@@ -346,7 +346,7 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
             this, SLOT(updateSymbolViewLevel()));
 
     if (!inputMethodCorrectionEngine->value().isNull()) {
-        imCorrectionEngine = MImEngineWordsInterfaceFactory::instance()->createEngine(
+        imCorrectionEngine = MImEngineFactory::instance()->createEngineWords(
                                 inputMethodCorrectionEngine->value().toString());
 
         if (imCorrectionEngine) {
@@ -389,7 +389,7 @@ MKeyboardHost::~MKeyboardHost()
     delete inputMethodCorrectionSettings;
     inputMethodCorrectionSettings = 0;
     if (imCorrectionEngine) {
-        MImEngineWordsInterfaceFactory::instance()->deleteEngine(imCorrectionEngine);
+        MImEngineFactory::instance()->deleteEngine(imCorrectionEngine);
         imCorrectionEngine = 0;
     }
     backspaceMode = NormalBackspace;

@@ -23,7 +23,7 @@
 #include <mvirtualkeyboardstyle.h>
 #include <symbolview.h>
 #include <sharedhandlearea.h>
-#include <mimenginewordsinterfacefactory.h>
+#include <mimenginefactory.h>
 #include <mtoolbardata.h>
 #include <mimtoolbar.h>
 #include <layoutsmanager.h>
@@ -1557,7 +1557,7 @@ void Ut_MKeyboardHost::testWYTIWYSErrorCorrection()
     config.set(QVariant(true));
 
     if (subject->imCorrectionEngine) {
-        MImEngineWordsInterfaceFactory::instance()->deleteEngine(subject->imCorrectionEngine);
+        MImEngineFactory::instance()->deleteEngine(subject->imCorrectionEngine);
     }
 
     DummyDriverMkh *engine(new DummyDriverMkh);
@@ -1663,7 +1663,7 @@ void Ut_MKeyboardHost::testAutoPunctuation()
     config.set(QVariant(true));
 
     if (subject->imCorrectionEngine) {
-        MImEngineWordsInterfaceFactory::instance()->deleteEngine(subject->imCorrectionEngine);
+        MImEngineFactory::instance()->deleteEngine(subject->imCorrectionEngine);
     }
 
     DummyDriverMkh *engine(new DummyDriverMkh);

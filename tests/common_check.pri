@@ -49,6 +49,7 @@ for(OPTION,$$list($$lower($$COV_OPTION))){
 
 QMAKE_CLEAN += *.gcno *.gcda
 
+LIBS += -lmeegoimengine
 CONFIG += meegoimframework meegoimengine
 
 OBJECTS_DIR = .obj

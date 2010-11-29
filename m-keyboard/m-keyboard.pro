@@ -18,7 +18,8 @@ contains( DEFINES, RELEASE_BUILD ) {
     CONFIG += debug
 } 
 
-CONFIG += plugin meegotouch meegoimengine meegoimenginewords meegoimframework meegoreactionmap
+LIBS += -lmeegoimengine
+CONFIG += plugin meegotouch meegoimengine meegoimframework meegoreactionmap
 
 CONFIG += link_pkgconfig
 PKGCONFIG += gconf-2.0 xkbfile
