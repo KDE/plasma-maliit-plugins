@@ -20,7 +20,6 @@
 #include "mimabstractkey.h"
 #include "mimabstractkeyarea.h"
 
-#include <MTimestamp>
 #include <QDebug>
 
 KeyEventHandler::KeyEventHandler(QObject *parent)
@@ -34,29 +33,25 @@ void KeyEventHandler::addEventSource(MImAbstractKeyArea *eventSource)
 {
     bool ok = false;
 
-    ok = connect(eventSource, SIGNAL(keyPressed(const MImAbstractKey *, QString, bool)),
-                 this, SLOT(handleKeyPress(const MImAbstractKey *, const QString &, bool)),
-                 Qt::QueuedConnection);
+    ok = connect(eventSource, SIGNAL(keyPressed(const MImAbstractKey *, const QString &, bool)),
+                 this, SLOT(handleKeyPress(const MImAbstractKey *, const QString &, bool)));
     Q_ASSERT(ok);
 
-    ok = connect(eventSource, SIGNAL(keyReleased(const MImAbstractKey *, QString, bool)),
-                 this, SLOT(handleKeyRelease(const MImAbstractKey *, const QString &, bool)),
-                 Qt::QueuedConnection);
+    ok = connect(eventSource, SIGNAL(keyReleased(const MImAbstractKey *, const QString &, bool)),
+                 this, SLOT(handleKeyRelease(const MImAbstractKey *, const QString &, bool)));
     Q_ASSERT(ok);
 
-    ok = connect(eventSource, SIGNAL(keyClicked(const MImAbstractKey *, QString, bool, QPoint)),
-                 this, SLOT(handleKeyClick(const MImAbstractKey *, const QString &, bool, const QPoint &)),
-                 Qt::QueuedConnection);
+    ok = connect(eventSource, SIGNAL(keyClicked(const MImAbstractKey *, const QString &, bool, const QPoint &)),
+                 this, SLOT(handleKeyClick(const MImAbstractKey *, const QString &, bool, const QPoint &)));
     Q_ASSERT(ok);
 
-    ok = connect(eventSource, SIGNAL(longKeyPressed(const MImAbstractKey *, QString, bool)),
+    ok = connect(eventSource, SIGNAL(longKeyPressed(const MImAbstractKey *, const QString &, bool)),
                  this, SLOT(handleLongKeyPress(const MImAbstractKey *, const QString &, bool)));
     Q_ASSERT(ok);
 }
 
 void KeyEventHandler::handleKeyPress(const MImAbstractKey *key, const QString &accent, bool upperCase)
 {
-    mTimestamp("KeyEventHandler", "start");
     const KeyEvent event = keyToKeyEvent(*key, QEvent::KeyPress, accent, upperCase);
     emit keyPressed(event);
 
@@ -66,12 +61,10 @@ void KeyEventHandler::handleKeyPress(const MImAbstractKey *key, const QString &a
     } else if (shiftHeldDown) {
         ignoreShiftClick = true;
     }
-    mTimestamp("KeyEventHandler", "end");
 }
 
 void KeyEventHandler::handleKeyRelease(const MImAbstractKey *key, const QString &accent, bool upperCase)
 {
-    mTimestamp("KeyEventHandler", "start");
     const KeyEvent event = keyToKeyEvent(*key, QEvent::KeyRelease, accent, upperCase);
 
     emit keyReleased(event);
@@ -80,13 +73,11 @@ void KeyEventHandler::handleKeyRelease(const MImAbstractKey *key, const QString 
         shiftHeldDown = false;
         emit shiftPressed(false);
     }
-    mTimestamp("KeyEventHandler", "end");
 }
 
 void KeyEventHandler::handleKeyClick(const MImAbstractKey *key, const QString &accent, bool upperCase,
                                      const QPoint &point)
 {
-    mTimestamp("KeyEventHandler", "start");
     const KeyEvent event = keyToKeyEvent(*key, QEvent::KeyRelease, accent, upperCase, point);
 
     if (event.qtKey() == Qt::Key_Shift && ignoreShiftClick) {
@@ -94,7 +85,6 @@ void KeyEventHandler::handleKeyClick(const MImAbstractKey *key, const QString &a
     } else {
         emit keyClicked(event);
     }
-    mTimestamp("KeyEventHandler", "end");
 }
 
 void KeyEventHandler::handleLongKeyPress(const MImAbstractKey *key, const QString &accent, bool upperCase)
