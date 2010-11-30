@@ -269,6 +269,7 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
     sharedHandleArea = new SharedHandleArea(*imToolbar, sceneWindow);
     sharedHandleArea->resize(MPlainWindow::instance()->visibleSceneSize().width(),
                              sharedHandleArea->size().height());
+    sharedHandleArea->hide();
     ok = connect(imToolbar, SIGNAL(regionUpdated()),
                  sharedHandleArea, SLOT(updatePositionAndRegion()));
     Q_ASSERT(ok);

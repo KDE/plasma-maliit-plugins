@@ -722,6 +722,7 @@ void Ut_MKeyboardHost::testRegionSignals()
     // method call counts for region stuff
     int c1 = 0; // region updated
     int c2 = 0; // input method area updated
+    inputMethodHost->setScreenRegionCalls = 0;
 
     subject->show();
     ++c1;
@@ -1662,6 +1663,7 @@ void Ut_MKeyboardHost::testAutoPunctuation()
     MGConfItem config(InputMethodCorrectionSetting);
     config.set(QVariant(true));
 
+    subject->show();
     if (subject->imCorrectionEngine) {
         MImEngineFactory::instance()->deleteEngine(subject->imCorrectionEngine);
     }
@@ -1673,7 +1675,7 @@ void Ut_MKeyboardHost::testAutoPunctuation()
     subject->setPreedit("fo", -1);
     engine->setCandidates(candidates);
     engine->setSuggestedCandidateIndexReturnValue(0);
-    inputMethodHost->preeditRectangleReturnValue = QRect(0, 0, 100, 100);
+    inputMethodHost->cursorRectangleReturnValue = QRect(0, 0, 100, 100);
     subject->handleKeyClick(KeyEvent("o"));
     subject->handleKeyClick(KeyEvent(" ", QEvent::KeyRelease, Qt::Key_Space));
     inputMethodHost->commit.clear();
