@@ -32,7 +32,7 @@ class DummyPopup: public PopupBase
 {
 public:
     explicit DummyPopup(MImAbstractKeyArea *mainArea)
-        : PopupBase(mainArea)
+        : PopupBase(mainArea),visible(false)
     {}
 
     virtual ~DummyPopup()
@@ -45,26 +45,36 @@ public:
     {}
 
     virtual void cancel()
-    {}
+    {
+        visible = false;
+    }
 
     virtual void handleKeyPressedOnMainArea(MImAbstractKey *,
                                             const QString &,
                                             bool)
-    {}
+    {
+        visible = true;
+    }
 
     virtual void handleLongKeyPressedOnMainArea(MImAbstractKey *,
                                                 const QString &,
                                                 bool)
-    {}
+    {
+        visible = true;
+    }
 
     virtual bool isVisible() const
     {
-        return false;
+        return visible;
     }
 
-    virtual void setVisible(bool)
-    {}
+    virtual void setVisible(bool visiblityProperty)
+    {
+        visible = visiblityProperty;
+    }
     //! \reimp_end
+private:
+    bool visible;
 };
 
 PopupFactory *PopupFactory::instance()
