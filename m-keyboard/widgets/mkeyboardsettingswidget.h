@@ -57,7 +57,7 @@ private slots:
 
 private:
     void buildUi();
-    void addItem(QGraphicsLayoutItem *item);
+    void addItem(QGraphicsLayoutItem *item, int row, int column);
     void updateKeyboardModel();
     void notifyNoKeyboards();
     void connectSlots();

@@ -127,7 +127,8 @@ void MKeyboardSettingsWidget::buildUi()
     selectedKeyboardsItem = new MContentItem(MContentItem::TwoTextLabels, this);
     selectedKeyboardsItem->setObjectName(ObjectNameSelectedKeyboardsItem);
     connect(selectedKeyboardsItem, SIGNAL(clicked()), this, SLOT(showKeyboardList()));
-    addItem(selectedKeyboardsItem);
+    // Put to first row, first column on the grid
+    addItem(selectedKeyboardsItem, 0, 0);
 
     // Error correction settings
     errorCorrectionSwitch = new MButton(this);
@@ -142,6 +143,8 @@ void MKeyboardSettingsWidget::buildUi()
     eCLayout->addItem(errorCorrectionLabel);
     eCLayout->addItem(errorCorrectionSwitch);
     eCLayout->setAlignment(errorCorrectionSwitch, Qt::AlignCenter);
+    // Put to first row, second column on the grid
+    addItem(eCLayout, 0, 1);
 
     // Word completion settings
     wordCompletionSwitch = new MButton(this);
@@ -156,24 +159,12 @@ void MKeyboardSettingsWidget::buildUi()
     wCLayout->addItem(wordCompletionLabel);
     wCLayout->addItem(wordCompletionSwitch);
     wCLayout->setAlignment(wordCompletionSwitch, Qt::AlignCenter);
-
-    // Add the error correction+word completion widgets to this layout to
-    // have proper alignment of the widgets to the right side.
-    QGraphicsLinearLayout *vertLayout = new QGraphicsLinearLayout(Qt::Vertical);
-
-    // Add the error correction widgets to a vertical layout
-    vertLayout->addItem(eCLayout);
-    // Add the word completion widgets to a vertical layout
-    vertLayout->addItem(wCLayout);
-    addItem(vertLayout);
+    // Put to second row, second column on the grid
+    addItem(wCLayout, 1, 1);
 }
 
-void MKeyboardSettingsWidget::addItem(QGraphicsLayoutItem *item)
+void MKeyboardSettingsWidget::addItem(QGraphicsLayoutItem *item, int row, int column)
 {
-    int count = landscapePolicy->count();
-    int row = count / 2;
-    int column = count % 2;
-
     landscapePolicy->addItem(item, row, column);
     portraitPolicy->addItem(item);
 }
