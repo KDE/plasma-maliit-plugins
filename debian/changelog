@@ -2,6 +2,7 @@ meego-keyboard (0.5.15~1) unstable; urgency=low
 
   * [UNRELEASED]
   * Changes: Catch up with meegotouch-inputmethodengine update on Version 0.4 .
+  * Changes: use cursor position to locate wordtracker.
 
  -- huaming wang <huaming.wang@nokia.com>  Fri, 26 Nov 2010 12:36:30 +0200
 
