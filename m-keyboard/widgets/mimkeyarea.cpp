@@ -208,12 +208,6 @@ namespace {
     public:
         typedef QVector<QPair<qreal, qreal> > OffsetList;
 
-        // RelativeWidth not supported yet:
-        enum KeyWidthMode {
-            RelativeWidth,
-            FixedWidth
-        };
-
         enum RowTypeFlags {
             NormalRow = 0,
             FirstRow = 1,
@@ -223,7 +217,6 @@ namespace {
     private:
         const MImAbstractKeyAreaStyleContainer &style;
         const qreal availableWidth;
-        KeyWidthMode mode;
 
         // key bounding rect related members:
         QPoint currentPos;
@@ -234,14 +227,16 @@ namespace {
         QList<int> spacerIndices;
         qreal spacerWidth;
 
+        const qreal mRelativeKeyWidth;
+
     public:
         explicit KeyGeometryUpdater(const MImAbstractKeyAreaStyleContainer &newStyle,
-                                    const qreal newAvailableWidth,
-                                    KeyWidthMode newMode = RelativeWidth)
+                                    qreal newAvailableWidth,
+                                    qreal maxNormalizedWidth)
             : style(newStyle)
             , availableWidth(newAvailableWidth)
-            , mode(newMode)
             , spacerWidth(0.0)
+            , mRelativeKeyWidth(computeRelativeKeyWidth(maxNormalizedWidth))
         {}
 
         OffsetList rowOffsets() const
@@ -252,6 +247,11 @@ namespace {
         OffsetList keyOffsets() const
         {
             return mKeyOffsets;
+        }
+
+        qreal relativeKeyWidth() const
+        {
+            return mRelativeKeyWidth;
         }
 
         void processRow(const QList<MImKey *> &row,
@@ -277,21 +277,37 @@ namespace {
         }
 
     private:
+        qreal computeRelativeKeyWidth(qreal maxNormalizedWidth) const
+        {
+            const qreal widthConsumedByMargins = (style->keyMarginLeft() + style->keyMarginRight())
+                                                 * qMax<qreal>(0.0, maxNormalizedWidth - 1)
+                                                 + style->firstKeyMarginLeft()
+                                                 + style->lastKeyMarginRight();
+
+            return ((availableWidth - widthConsumedByMargins) / qMax<qreal>(1.0, maxNormalizedWidth));
+        }
+
         QSizeF updateGeometry(const QList<MImKey *> &row,
-                              MImKey *const stretchKey,
+                              MImKey *const,
                               qreal keyHeight,
                               int flags) const
         {
+            QSizeF result;
+            MImKey *stretchKey = 0;
             const qreal marginTop = (flags & FirstRow ? style->firstRowMarginTop()
                                                       : style->keyMarginTop());
             const qreal marginBottom = (flags & LastRow ? style->lastRowMarginBottom()
                                                         : style->keyMarginBottom());
             qreal rowWidth = 0.0;
+            const qreal spacingBetweenKeys = style->keyMarginRight() + style->keyMarginLeft();
 
             foreach (MImKey *const key, row) {
+
                 MImKey::Geometry g(key->geometry());
                 g.height = keyHeight;
-                g.width = key->preferredFixedWidth();
+                g.width = (style->useFixedKeyWidth() ? key->preferredFixedWidth()
+                                                     : key->preferredWidth(mRelativeKeyWidth,
+                                                                           spacingBetweenKeys));
                 g.marginLeft = style->keyMarginLeft();
                 g.marginTop = marginTop;
                 g.marginRight = style->keyMarginRight();
@@ -299,21 +315,29 @@ namespace {
                 key->setGeometry(g);
 
                 rowWidth += key->buttonBoundingRect().width();
+
+                if (!stretchKey && key->model().width() == MImKeyModel::Stretched) {
+                    stretchKey = key;
+                }
             }
 
-            MImKey *first = row.first();
-            MImKey::Geometry firstGeometry(first->geometry());
-            rowWidth -= firstGeometry.marginLeft;
-            firstGeometry.marginLeft = style->firstKeyMarginLeft();
-            rowWidth += firstGeometry.marginLeft;
-            first->setGeometry(firstGeometry);
+            if (!row.isEmpty()) {
+                MImKey *first = row.first();
+                MImKey::Geometry firstGeometry(first->geometry());
+                rowWidth -= firstGeometry.marginLeft;
+                firstGeometry.marginLeft = style->firstKeyMarginLeft();
+                rowWidth += firstGeometry.marginLeft;
+                first->setGeometry(firstGeometry);
 
-            MImKey *last = row.last();
-            MImKey::Geometry lastGeometry(last->geometry());
-            rowWidth -= lastGeometry.marginRight;
-            lastGeometry.marginRight = style->lastKeyMarginRight();
-            rowWidth += lastGeometry.marginRight;
-            last->setGeometry(lastGeometry);
+                MImKey *last = row.last();
+                MImKey::Geometry lastGeometry(last->geometry());
+                rowWidth -= lastGeometry.marginRight;
+                lastGeometry.marginRight = style->lastKeyMarginRight();
+                rowWidth += lastGeometry.marginRight;
+                last->setGeometry(lastGeometry);
+
+                result.rheight() = first->buttonBoundingRect().height();
+            }
 
             // Assign remaining available width to stretchKey, but leave its margins untouched:
             if (stretchKey) {
@@ -322,7 +346,8 @@ namespace {
                 rowWidth += stretchKey->geometry().width;
             }
 
-            return QSizeF(rowWidth, first->buttonBoundingRect().height());
+            result.rwidth() = rowWidth;
+            return result;
         }
 
         void updatePosition(const QList<MImKey *> &row)
@@ -581,7 +606,7 @@ qreal MImKeyArea::computeWidgetHeight() const
 {
     qreal height = baseStyle()->size().height();
 
-    if (qFuzzyCompare(height, -1.0)) {
+    if (height < 0) {
         for (int index = 0; index < rowList.count(); ++index) {
             height += preferredKeyHeight(index);
 
@@ -798,7 +823,8 @@ void MImKeyArea::updateKeyGeometries(const int newAvailableWidth)
     cachedWidgetHeight = computeWidgetHeight();
     initCachedBackground(QSize(newAvailableWidth, cachedWidgetHeight));
 
-    KeyGeometryUpdater updater = KeyGeometryUpdater(baseStyle(), newAvailableWidth);
+    KeyGeometryUpdater updater = KeyGeometryUpdater(baseStyle(), newAvailableWidth,
+                                                    computeMaxNormalizedWidth());
 
     for (RowIterator rowIter = rowList.begin();
          rowIter != rowList.end();
@@ -824,73 +850,11 @@ void MImKeyArea::updateKeyGeometries(const int newAvailableWidth)
     }
 
     rowOffsets = updater.rowOffsets();
+    mRelativeKeyBaseWidth = updater.relativeKeyWidth();
 
     // Positions may have changed, rebuild text layout.
     textDirty = true;
 }
-
-        //rowOffsets.append();
-
-
-        // Update row width
-        /*
-        qreal rowWidth = 0;
-        foreach (MImKey *key, row->keys) {
-            key->width = key->preferredWidth(mRelativeKeyBaseWidth, HorizontalSpacing);
-            rowWidth += key->width + HorizontalSpacing;
-        }
-        rowWidth -= HorizontalSpacing;
-
-        qreal availableWidthForSpacers = 0;
-        const QList<int> spacerIndices = sectionModel()->spacerIndices(row - rowList.begin());
-        int spacerCount = row->stretchKey ? spacerIndices.count() + 1
-                                          : spacerIndices.count();
-
-        if (row->stretchKey) {
-            rowWidth -=  row->stretchKey->width;
-
-            // Handle the case of one stretch key/no other spacer elments directly:
-            if (spacerCount == 1) {
-                row->stretchKey->width = availableWidth - rowWidth;
-                rowWidth = availableWidth;
-                spacerCount = 0;
-            }
-        }
-
-        if ((spacerCount > 0) && (availableWidth > rowWidth)) {
-            availableWidthForSpacers = (availableWidth - rowWidth) / spacerCount;
-
-            if (row->stretchKey) {
-                row->stretchKey->width = availableWidthForSpacers;
-            }
-        }
-        */
-
-        // A spacer with an index of -1 means it was put before any key in that row.
-        // Also add layout padding:
-       // qreal x = style->paddingLeft() + spacerIndices.count(-1) * availableWidthForSpacers;
-
-/*
-        for (int keyIndex = 0; keyIndex < rowIter->keys.count(); ++keyIndex) {
-            MImKey *const key = rowIter->keys.at(keyIndex);
-
-            // Store the key offsets for fast key lookup:
-            rowIter->keyOffsets.append(QPair<qreal, qreal>(key->cachedBoundingRect.left(),
-                                                       key->cachedBoundingRect.right()));
-
-            // Increase x to the next key bounding rect border.
-            x += key->width + HorizontalSpacing;
-
-            // Our spacerIndex is a multi-set, hence we need to add
-            // availableWidthForSpacers for every ocurrence of spacerIndex:
-            x += spacerIndices.count(keyIndex) * availableWidthForSpacers;
-        }
-
-        y += br.height();
-    }
-
-}
-*/
 
 QRectF MImKeyArea::boundingRect() const
 {

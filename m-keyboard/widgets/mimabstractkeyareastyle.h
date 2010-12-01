@@ -65,6 +65,8 @@ public:
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDeadkeySelected, KeyBackgroundDeadkeySelected)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDeadkeyPressedSelected, KeyBackgroundDeadkeyPressedSelected)
 
+    M_STYLE_ATTRIBUTE(bool, useFixedKeyWidth, UseFixedKeyWidth)
+
     M_STYLE_ATTRIBUTE(qreal, keyWidthSmall, KeyWidthSmall)
     M_STYLE_ATTRIBUTE(qreal,  keyWidthSmallFixed, KeyWidthSmallFixed)
 
