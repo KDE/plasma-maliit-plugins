@@ -1576,20 +1576,14 @@ void Ut_MKeyboardHost::testWYTIWYSErrorCorrection()
     subject->imCorrectionEngine = 0;
 }
 
-const struct {
+struct TestSignalEvent {
     const char *str;
     Qt::Key key;
-}
-testEvents[] = {
-    { "k", Qt::Key_K },
-    { "+-", Qt::Key_plusminus },
-    { " ", Qt::Key_Space },
-    { "s", Qt::Key_S },
-    { "\b", Qt::Key_Backspace },
-    { 0, Qt::Key_unknown }
+    int expectedPressSignal;
+    int expectedReleaseSignal;
 };
 
-void Ut_MKeyboardHost::testSignals(M::InputMethodMode inputMethodMode)
+void Ut_MKeyboardHost::testSignals(M::InputMethodMode inputMethodMode, const TestSignalEvent *testEvents)
 {
     subject->inputMethodMode = inputMethodMode;
 
@@ -1598,23 +1592,44 @@ void Ut_MKeyboardHost::testSignals(M::InputMethodMode inputMethodMode)
         if (testEvents[i].key == Qt::Key_Backspace) {
             QSKIP("Backspace key is known to be broken", SkipSingle);
         }
+        inputMethodHost->sendKeyEventCalls = 0;
         subject->handleKeyPress(KeyEvent(testEvents[i].str, QEvent::KeyPress,
                                          testEvents[i].key) );
-        QCOMPARE(inputMethodHost->sendKeyEventCalls, 2*i+1);
+        QCOMPARE(inputMethodHost->sendKeyEventCalls, testEvents[i].expectedPressSignal);
+        inputMethodHost->sendKeyEventCalls = 0;
         subject->handleKeyRelease(KeyEvent(testEvents[i].str, QEvent::KeyRelease,
                                          testEvents[i].key) );
-        QCOMPARE(inputMethodHost->sendKeyEventCalls, 2*i+2);
+        QCOMPARE(inputMethodHost->sendKeyEventCalls, testEvents[i].expectedReleaseSignal);
     }
 }
 
 void Ut_MKeyboardHost::testSignalsInNormalMode()
 {
-    testSignals(M::InputMethodModeNormal);
+    // only few keys generate signals in normal mode
+    const TestSignalEvent testEvents[] = {
+        { "k", Qt::Key_K, 0, 0 },
+        { "+-", Qt::Key_plusminus, 1, 1 },
+        { " ", Qt::Key_Space, 0, 0 },
+        { "s", Qt::Key_S, 0, 0 },
+        { "\b", Qt::Key_Backspace, 1, 1 },
+        { 0, Qt::Key_unknown, 0, 0 }
+    };
+
+    testSignals(M::InputMethodModeNormal, testEvents);
 }
 
 void Ut_MKeyboardHost::testSignalsInDirectMode()
 {
-    testSignals(M::InputMethodModeDirect);
+    const TestSignalEvent testEvents[] = {
+        { "k", Qt::Key_K, 1, 1 },
+        { "+-", Qt::Key_plusminus, 1, 1 },
+        { " ", Qt::Key_Space, 1, 1 },
+        { "s", Qt::Key_S, 1, 1 },
+        { "\b", Qt::Key_Backspace, 1, 1 },
+        { 0, Qt::Key_unknown, 0, 0 }
+    };
+
+    testSignals(M::InputMethodModeDirect, testEvents);
 }
 
 void Ut_MKeyboardHost::testShowLanguageNotification_data()

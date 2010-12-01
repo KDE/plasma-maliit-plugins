@@ -29,6 +29,7 @@ class MApplication;
 class MKeyboardHost;
 class MInputMethodHostStub;
 class MWindow;
+struct TestSignalEvent;
 
 class Ut_MKeyboardHost : public QObject
 {
@@ -110,7 +111,7 @@ private slots:
 private:
     void rotateToAngle(M::OrientationAngle);
     void triggerAutoCaps();
-    void testSignals(M::InputMethodMode inputMode);
+    void testSignals(M::InputMethodMode inputMode, const TestSignalEvent *testEvents);
 
 public:
     enum TestOperation {

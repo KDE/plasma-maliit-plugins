@@ -855,6 +855,7 @@ void MKeyboardHost::handleKeyPress(const KeyEvent &event)
         || (event.qtKey() == Qt::Key_plusminus)) { // plusminus key makes an exception
 
         requestType = MInputMethod::EventRequestBoth;
+        inputMethodHost()->sendKeyEvent(event.toQKeyEvent(), requestType);
 
     } else if (event.qtKey() == Qt::Key_Backspace) {
         if (correctionHost->isActive()
@@ -869,8 +870,6 @@ void MKeyboardHost::handleKeyPress(const KeyEvent &event)
             startBackspace(NormalBackspace);
         }
     }
-
-    inputMethodHost()->sendKeyEvent(event.toQKeyEvent(), requestType);
 }
 
 void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
@@ -891,6 +890,7 @@ void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
         || (event.qtKey() == Qt::Key_plusminus)) { // plusminus key makes an exception
 
         requestType = MInputMethod::EventRequestBoth;
+        inputMethodHost()->sendKeyEvent(event.toQKeyEvent(), requestType);
 
     } else if ((event.qtKey() == Qt::Key_Backspace)) {
         if ( backspaceTimer.isActive()) {
@@ -903,8 +903,6 @@ void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
             backspaceMode = NormalBackspace;
         }
     }
-
-    inputMethodHost()->sendKeyEvent(event.toQKeyEvent(), requestType);
 }
 
 void MKeyboardHost::updateReactionMaps()
