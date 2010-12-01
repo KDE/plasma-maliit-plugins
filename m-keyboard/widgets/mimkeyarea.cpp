@@ -280,8 +280,8 @@ namespace {
         {
             const qreal widthConsumedByMargins = (style->keyMarginLeft() + style->keyMarginRight())
                                                  * qMax<qreal>(0.0, maxNormalizedWidth - 1)
-                                                 + style->firstKeyMarginLeft()
-                                                 + style->lastKeyMarginRight();
+                                                 + style->paddingLeft()
+                                                 + style->paddingRight();
 
             return ((availableWidth - widthConsumedByMargins) / qMax<qreal>(1.0, maxNormalizedWidth));
         }
@@ -292,9 +292,9 @@ namespace {
         {
             QSizeF result;
             MImKey *stretchKey = 0;
-            const qreal marginTop = (flags & FirstRow ? style->firstRowMarginTop()
+            const qreal marginTop = (flags & FirstRow ? style->paddingTop()
                                                       : style->keyMarginTop());
-            const qreal marginBottom = (flags & LastRow ? style->lastRowMarginBottom()
+            const qreal marginBottom = (flags & LastRow ? style->paddingBottom()
                                                         : style->keyMarginBottom());
             qreal rowWidth = 0.0;
             const qreal spacingBetweenKeys = style->keyMarginRight() + style->keyMarginLeft();
@@ -323,14 +323,14 @@ namespace {
                 MImKey *first = row.first();
                 MImKey::Geometry firstGeometry(first->geometry());
                 rowWidth -= firstGeometry.marginLeft;
-                firstGeometry.marginLeft = style->firstKeyMarginLeft();
+                firstGeometry.marginLeft = style->paddingLeft();
                 rowWidth += firstGeometry.marginLeft;
                 first->setGeometry(firstGeometry);
 
                 MImKey *last = row.last();
                 MImKey::Geometry lastGeometry(last->geometry());
                 rowWidth -= lastGeometry.marginRight;
-                lastGeometry.marginRight = style->lastKeyMarginRight();
+                lastGeometry.marginRight = style->paddingRight();
                 rowWidth += lastGeometry.marginRight;
                 last->setGeometry(lastGeometry);
 
@@ -601,9 +601,9 @@ qreal MImKeyArea::computeWidgetHeight() const
         for (int index = 0; index < rowList.count(); ++index) {
             height += preferredKeyHeight(index);
 
-            height += (index == 0 ? baseStyle()->firstRowMarginTop()
+            height += (index == 0 ? baseStyle()->paddingTop()
                                   : baseStyle()->keyMarginTop());
-            height += (index == rowList.count() - 1 ? baseStyle()->lastRowMarginBottom()
+            height += (index == rowList.count() - 1 ? baseStyle()->paddingBottom()
                                                     : baseStyle()->keyMarginBottom());
         }
     }

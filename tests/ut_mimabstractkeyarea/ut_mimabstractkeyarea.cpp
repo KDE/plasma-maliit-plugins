@@ -878,11 +878,10 @@ void Ut_MImAbstractKeyArea::testKeyLayout()
                                                                  size.height() - 2 * margin));
 
     MImAbstractKeyAreaStyle *s = const_cast<MImAbstractKeyAreaStyle *>(subject->style().operator->());
-    s->setFirstKeyMarginLeft(margin);
-    s->setFirstKeyMarginLeft(margin);
-    s->setFirstRowMarginTop(margin);
-    s->setLastKeyMarginRight(margin);
-    s->setLastRowMarginBottom(margin);
+    s->setPaddingLeft(margin);
+    s->setPaddingRight(margin);
+    s->setPaddingTop(margin);
+    s->setPaddingBottom(margin);
 
     subject->updateKeyGeometries(size.width());
 
@@ -1143,22 +1142,18 @@ MImAbstractKeyArea *Ut_MImAbstractKeyArea::createArea(const QString &labels,
 
     // Reset the style:
     MImAbstractKeyAreaStyle *s = const_cast<MImAbstractKeyAreaStyle *>(swba->style().operator->());
+
+    // Margins:
     s->setMarginLeft(0);
     s->setMarginTop(0);
     s->setMarginRight(0);
     s->setMarginBottom(0);
 
-    // Padding became obsolete with first/last key/row margins:
-    s->setPaddingLeft(0);
-    s->setPaddingTop(0);
-    s->setPaddingRight(0);
-    s->setPaddingBottom(0);
-
-    // TODO: ... or just rename it to padding already?!
-    s->setFirstKeyMarginLeft(1);
-    s->setFirstRowMarginTop(1);
-    s->setLastKeyMarginRight(1);
-    s->setLastRowMarginBottom(1);
+    // Paddings:
+    s->setPaddingLeft(1);
+    s->setPaddingTop(1);
+    s->setPaddingRight(1);
+    s->setPaddingBottom(1);
 
     // Key geometry:
     s->setKeyHeightMedium(fixedNormalKeySize.height());
