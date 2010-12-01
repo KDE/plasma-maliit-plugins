@@ -579,15 +579,17 @@ endLayout:
 
 qreal MImKeyArea::computeWidgetHeight() const
 {
-    qreal height = 0.0;
+    qreal height = baseStyle()->size().height();
 
-    for (int index = 0; index < rowList.count(); ++index) {
-        height += preferredKeyHeight(index);
+    if (qFuzzyCompare(height, -1.0)) {
+        for (int index = 0; index < rowList.count(); ++index) {
+            height += preferredKeyHeight(index);
 
-        height += (index == 0 ? baseStyle()->firstRowMarginTop()
-                              : baseStyle()->keyMarginTop());
-        height += (index == rowList.count() - 1 ? baseStyle()->lastRowMarginBottom()
-                                                : baseStyle()->keyMarginBottom());
+            height += (index == 0 ? baseStyle()->firstRowMarginTop()
+                                  : baseStyle()->keyMarginTop());
+            height += (index == rowList.count() - 1 ? baseStyle()->lastRowMarginBottom()
+                                                    : baseStyle()->keyMarginBottom());
+        }
     }
 
     return qMax<qreal>(0.0, height);
@@ -971,6 +973,8 @@ qreal MImKeyArea::normalizedKeyWidth(const MImKeyModel *model) const
 void MImKeyArea::onThemeChangeCompleted()
 {
     mMaxNormalizedWidth = computeMaxNormalizedWidth();
+    cachedWidgetHeight = computeWidgetHeight();
+
     MImAbstractKeyArea::onThemeChangeCompleted();
     buildTextLayout();
 }

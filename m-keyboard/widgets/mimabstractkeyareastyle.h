@@ -43,7 +43,7 @@ public:
     M_STYLE_ATTRIBUTE(qreal, touchpointHorizontalGravity, TouchpointHorizontalGravity)
     M_STYLE_ATTRIBUTE(qreal, touchpointVerticalGravity, TouchpointVerticalGravity)
 
-    M_STYLE_ATTRIBUTE(QSizeF, size, Size)
+    M_STYLE_ATTRIBUTE(QSize, size, Size)
     M_STYLE_ATTRIBUTE(qreal, keyHeightSmall, KeyHeightSmall)
     M_STYLE_ATTRIBUTE(qreal, keyHeightMedium, KeyHeightMedium)
     M_STYLE_ATTRIBUTE(qreal, keyHeightLarge,  KeyHeightLarge)
