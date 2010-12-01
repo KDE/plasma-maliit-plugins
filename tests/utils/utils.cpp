@@ -29,6 +29,11 @@
 #include <QApplication>
 #include <QCommonStyle>
 
+#ifdef Q_WS_X11
+#include <X11/Xlib.h>
+#include <X11/Xatom.h>
+#endif
+
 // Disable loading of MInputContext and QtMaemo6Style
 void disableQtPlugins()
 {
@@ -46,6 +51,25 @@ void disableQtPlugins()
     QApplication::setStyle(new QCommonStyle);
 }
 
+void setCustomCompositorRegion(QWidget *window)
+{
+#ifdef Q_WS_X11
+    unsigned int customRegion[] = {0, 0, 864, 480};
+    Display *dpy =  QX11Info::display();
+    Atom customRegionAtom = XInternAtom(dpy, "_MEEGOTOUCH_CUSTOM_REGION", False);
+    XChangeProperty(dpy,
+                    window->winId(),
+                    customRegionAtom,
+                    XA_CARDINAL, 32,
+                    PropModeReplace,
+                    reinterpret_cast<unsigned char *>(&customRegion[0]),
+                    4);
+    XSync(dpy, False);
+#else
+    Q_UNUSED(window);
+#endif
+}
+
 // Wait for signal or timeout; use SIGNAL macro for signal
 void waitForSignal(const QObject* object, const char* signal, int timeout)
 {
@@ -54,7 +78,6 @@ void waitForSignal(const QObject* object, const char* signal, int timeout)
     QTimer::singleShot(timeout, &eventLoop, SLOT(quit()));
     eventLoop.exec();
 }
-
 
 // Create a scene window, set it to manual managed, and appear it.
 #ifdef MEEGOTOUCH

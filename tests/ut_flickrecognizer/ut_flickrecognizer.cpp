@@ -177,6 +177,9 @@ void Ut_FlickRecognizer::initTestCase()
     window->viewport()->grabGesture(gtype);
     target->grabGesture(gtype);
 
+    setCustomCompositorRegion(window);
+
+    QApplication::setActiveWindow(window);
     window->show();
     QTest::qWaitForWindowShown(window);
 
