@@ -1,3 +1,9 @@
+meego-keyboard (0.5.16~1) unstable; urgency=low
+
+  *[UNRELEASED] 
+
+ -- Gibran Rodriguez <ext-gibran.rodriguez@nokia.com>  Wed, 01 Dec 2010 11:28:37 +0200
+
 meego-keyboard (0.5.15-1) unstable; urgency=low
 
   * Changes: Catch up with meegotouch-inputmethodengine update on Version 0.4 .
