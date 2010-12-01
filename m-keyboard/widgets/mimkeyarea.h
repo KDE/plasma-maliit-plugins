@@ -108,8 +108,6 @@ private:
     struct KeyRow {
         QList<MImKey*> keys; //!< keys in a row
         QVector<QPair<qreal, qreal> > keyOffsets; //!< cached offsets for faster key lookups
-        MImKey *stretchKey; //!< each row can have one stretched key
-
     };
 
     typedef QVector<KeyRow> KeyRowList;

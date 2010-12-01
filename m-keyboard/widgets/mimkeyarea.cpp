@@ -255,7 +255,6 @@ namespace {
         }
 
         void processRow(const QList<MImKey *> &row,
-                        MImKey *const stretchKey,
                         qreal newKeyHeight,
                         const QList<int> &newSpacerIndices,
                         int flags = NormalRow)
@@ -263,7 +262,7 @@ namespace {
 
             currentPos.rx() = 0;
             spacerIndices = newSpacerIndices;
-            const QSizeF rowSize = updateGeometry(row, stretchKey, newKeyHeight, flags);
+            const QSizeF rowSize = updateGeometry(row, newKeyHeight, flags);
 
             spacerWidth = qAbs((availableWidth - rowSize.width())
                                / ((spacerIndices.count() ==  0) ? 1 : spacerIndices.count()));
@@ -288,7 +287,6 @@ namespace {
         }
 
         QSizeF updateGeometry(const QList<MImKey *> &row,
-                              MImKey *const,
                               qreal keyHeight,
                               int flags) const
         {
@@ -430,8 +428,6 @@ void MImKeyArea::loadKeys()
     for (int row = 0; row != numRows; ++row, ++rowIter) {
         const int numColumns = sectionModel()->columnsAt(row);
 
-        rowIter->stretchKey = 0;
-
         // Add keys
         for (int col = 0; col < numColumns; ++col) {
             // Parameters to fetch from base class.
@@ -441,11 +437,6 @@ void MImKeyArea::loadKeys()
             // TODO: Remove restriction to have only one shift key per layout?
             if (dataKey->binding()->action() == MImKeyBinding::ActionShift) {
                 shiftKey = key;
-            }
-
-            // Only one stretching item per row.
-            if (!rowIter->stretchKey) {
-                rowIter->stretchKey = (dataKey->width() == MImKeyModel::Stretched ? key : 0);
             }
 
             rowIter->keys.append(key);
@@ -842,7 +833,6 @@ void MImKeyArea::updateKeyGeometries(const int newAvailableWidth)
         }
 
         updater.processRow(rowIter->keys,
-                           rowIter->stretchKey,
                            preferredKeyHeight(rowIndex),
                            sectionModel()->spacerIndices(rowIndex),
                            flags);
