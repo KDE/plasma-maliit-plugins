@@ -113,6 +113,8 @@ public:
     M_STYLE_ATTRIBUTE(qreal, keyMarginTop, KeyMarginTop)
     M_STYLE_ATTRIBUTE(qreal, keyMarginRight, KeyMarginRight)
     M_STYLE_ATTRIBUTE(qreal, keyMarginBottom, KeyMarginBottom)
+
+    M_STYLE_ATTRIBUTE(bool, syncStyleModeWithKeyCount, SyncStyleModeWithKeyCount)
 };
 
 class M_EXPORT MImAbstractKeyAreaStyleContainer : public MWidgetStyleContainer

@@ -95,6 +95,9 @@ MImAbstractKeyAreaStyle {
     padding-right: 0.4mm;
     padding-bottom: 0.4mm;
 
+    /*** Miscelleanous ***/
+    sync-style-mode-with-key-count: true;
+
     /*** Debugging ***/
     draw-button-bounding-rects: false;
     draw-button-rects: false;

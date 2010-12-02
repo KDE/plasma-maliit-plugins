@@ -833,6 +833,10 @@ bool MImAbstractKeyArea::isInSpeedTypingMode(bool restartTimers)
 
 void MImAbstractKeyArea::switchStyleMode()
 {
+    if (!style()->syncStyleModeWithKeyCount()) {
+        return;
+    }
+
     switch(section->keyCount()) {
 
     case 13:
