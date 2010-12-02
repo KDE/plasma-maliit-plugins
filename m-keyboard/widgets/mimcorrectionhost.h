@@ -45,7 +45,7 @@ class MImCorrectionHost : public QObject
     friend class Ut_MImCorrectionHost;
 
 public:
-    //! CandidateMode is used by showCorrectionWidget and setMode.
+    //! CandidateMode is used by showCorrectionWidget.
     enum CandidateMode {
         WordTrackerMode,  //!< word tracker
         WordListMode      //!< word suggestion list
@@ -138,6 +138,7 @@ private:
     QStringList candidates;
     CandidateMode currentMode;
     QString suggestionString;
+    bool pendingCandidatesUpdate;
 
     MImWordTracker *wordTracker;
     MImWordList *wordList;

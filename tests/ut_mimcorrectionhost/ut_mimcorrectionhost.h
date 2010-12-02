@@ -47,6 +47,8 @@ private slots:
     void checkCandidatesAndPreedit();
     void checkSuggestion_data();
     void checkSuggestion();
+    void checkpendingCandidatesUpdate_data();
+    void checkpendingCandidatesUpdate();
 };
 
 #endif

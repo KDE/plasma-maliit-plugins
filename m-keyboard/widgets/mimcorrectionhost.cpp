@@ -34,6 +34,7 @@ MImCorrectionHost::MImCorrectionHost(MSceneWindow *parentWindow)
       rotationInProgress(false),
       wordTrackerPosition(0, 0),
       currentMode(MImCorrectionHost::WordTrackerMode),
+      pendingCandidatesUpdate(false),
       wordTracker(new MImWordTracker(parentWindow)),
       wordList(new MImWordList())
 {
@@ -72,8 +73,15 @@ void MImCorrectionHost::setCandidates(const QStringList list)
         suggestionString = candidates.at(1);
     }
 
-    wordTracker->setCandidate(suggestionString);
-    wordList->setCandidates(candidates);
+    if (isActive()) {
+        if (currentMode == WordTrackerMode) {
+            wordTracker->setCandidate(suggestionString);
+        } else {
+            wordList->setCandidates(candidates);
+        }
+    } else {
+        pendingCandidatesUpdate = true;
+    }
 }
 
 void MImCorrectionHost::setPosition(const QRect &cursorRect)
@@ -87,11 +95,20 @@ void MImCorrectionHost::setPosition(const QRect &cursorRect)
 
 void MImCorrectionHost::showCorrectionWidget(MImCorrectionHost::CandidateMode mode)
 {
+    bool modeChanged = (currentMode != mode);
     currentMode = mode;
 
     if (candidates.isEmpty()) {
         hideCorrectionWidget();
         return;
+    }
+    if (pendingCandidatesUpdate || modeChanged) {
+        if (currentMode == WordTrackerMode) {
+            wordTracker->setCandidate(suggestionString);
+        } else {
+            wordList->setCandidates(candidates);
+        }
+        pendingCandidatesUpdate = false;
     }
 
     if (currentMode == WordTrackerMode) {

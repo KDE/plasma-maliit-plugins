@@ -1,6 +1,7 @@
 meego-keyboard (0.5.16~1) unstable; urgency=low
 
   *[UNRELEASED] 
+  * Changes: pending updating candidates for word tracker or word list
 
  -- Gibran Rodriguez <ext-gibran.rodriguez@nokia.com>  Wed, 01 Dec 2010 11:28:37 +0200
 
