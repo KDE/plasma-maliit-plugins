@@ -1,3 +1,37 @@
+0.5.20
+======
+
+* Internal changes in meego-keyboard:
+  - MImKey:
+    - New geometry API (MImKey::Geometry) - a key's bounding rect is now
+      defined by the key's margins. Geometry can be accessed or modifed through
+      ::geometry(), ::setGeometry(.), although there some convenience functions
+      for key position, key width and key height. Key position refers to the 
+      top left corner of the bounding rect.
+
+  - MImKeyArea:
+    - Changed key layouting. Instead of spacing between keys, the layout is now
+      fully determined by key size and key margins. That is, spacing between
+      two keys only depends on their pairing margins.
+
+  - MImAbstractKeyArea:
+    - Changes between different style modes (key13 and key30-key45), depending
+      on how many keys a layout has. This gives tighter control over layouts.
+      The old behaviour can be activated through
+      "sync-style-mode-with-key-count: false;"
+
+  - MImAbstractKeyAreaStyle:
+    - Renamed row-height* to key-height*, because that's closer to reality.
+    - key-height (row-height) was removed, just use key-height-medium instead.
+    - padding behaviour changed:
+      - padding-left overrides key-margin-left of the left-most key in a row,
+      - padding-top overrides key-margin-top of all keys in top row,
+      - padding-right overrides key-margin-right of the right-most key in a
+        row,
+      - padding-bottom overrides key-margin-bottom of all keys in bottom row.
+    - size allows to override height from key area height computation, if > -1.
+      Overriding width is not supported yet.
+       
 0.5.15
 ========
 
