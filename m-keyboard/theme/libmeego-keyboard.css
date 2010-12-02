@@ -16,14 +16,12 @@ MVirtualKeyboardStyle {
 }
 
 MVirtualKeyboardStyle.Portrait {
-    keyboard-area-size: 480 280;
-
     tab-button-size: 91 70;
     menu-size: 470 342;
 }
 
 MVirtualKeyboardStyle.Landscape {
-    keyboard-area-size: 864 280;
+    keyboard-area-size: 854 236;
 
     tab-button-size: 108 70;
     menu-size: 790 342;
@@ -78,76 +76,224 @@ MImAbstractKeyAreaStyle {
     flick-gesture-timeout: 500;
     flick-gesture-threshold-ratio: 0.5;
 
-    /*** Hackish Behaviour ***/
-    button-bounding-rect-top-adjustment: -6;
-    button-bounding-rect-bottom-adjustment: 6;
-
     /*** Key Geometry ***/
-    /*** Key Area Geometry ***/
+    key-width-small: 0.5;
+    key-width-medium: 1.0;
+    key-width-large: 1.3;
+    key-width-x-large: 1.5;
+    key-width-xx-large: 2.0;
+    key-width-stretched: -1;
+
+    key-margin-left: 0.2mm;
+    key-margin-top: 0.2mm;
+    key-margin-right: 0.2mm;
+    key-margin-bottom: 0.2mm;
+
+    first-key-margin-left: 0.4mm;
+    first-row-margin-top: 0.4mm;
+    last-key-margin-right: 0.4mm;
+    last-row-margin-bottom: 0.4mm;
 
     /*** Debugging ***/
     draw-button-bounding-rects: false;
     draw-button-rects: false;
     debug-touch-points: false;
     draw-reactive-areas: false;
-
-    /*** LEGACY ***/
-    spacing-vertical: 2mm;
-    spacing-horizontal: 0.4mm;
-
-    padding-top: 2.2mm;
-    padding-bottom: $MARGIN_DOUBLE;
-
-    key-width-small: 0.5;
-    key-width-small-fixed: 48;
-    key-width-medium: 1.0;
-    key-width-medium-fixed: 48;
-    key-width-large: 1.3;
-    key-width-large-fixed: 48;
-    key-width-x-large: 1.5;
-    key-width-x-large-fixed: 48;
-    key-width-xx-large: 2.0;
-    key-width-xx-large-fixed: 48;
-    key-width-stretched: -1;
-    key-width-stretched-fixed: 48;
-
-    row-height-small: 0.5;
-    row-height-medium: 1.0;
-    row-height-large: 1.3;
-    row-height-x-large: 1.5;
-    row-height-xx-large: 2.0;
-}
-
-MImAbstractKeyAreaStyle.Portrait {
-    spacing-horizontal: 0.4mm;
-    label-margin-top: 1.2mm;
-    label-margin-left-with-secondary: 4.6mm;
-    secondary-label-separation: 0.9mm;
-
-    padding-left: $MARGIN_DOUBLE;
-    padding-right:$MARGIN_DOUBLE;
-
-    touchpoint-horizontal-gravity: 6.2mm;
-    touchpoint-vertical-gravity: 9.6mm;
-
-    key-height-medium: 6.4mm;
 }
 
 MImAbstractKeyAreaStyle.Landscape {
-    padding-top: 1.3mm;
-    spacing-vertical: $MARGIN_DOUBLE;
-
+    /*** Label Setttings ***/
     label-margin-top: 0.6mm;
     label-margin-left-with-secondary: -1; /* not used, labels are centered horizontally */
     secondary-label-separation: 0;
 
-    padding-left: $MARGIN_DOUBLE;
-    padding-right: $MARGIN_DOUBLE;
-
+    /*** Behaviour ***/
     touchpoint-horizontal-gravity: 8.2mm;
     touchpoint-vertical-gravity: 7.2mm;
 
-    key-height-medium: 4.8mm;
+    /*** Key Geometry ***/
+    key-height-small: -1; /* unused */
+    key-height-medium: 48px;
+    key-height-large: 66px;
+    key-height-x-large: 82px;
+    key-height-xx-large: -1; /* unused */
+
+    key-width-small-fixed: -1; /* unused */
+    key-width-medium-fixed: 76px;
+    key-width-large-fixed: 94px;
+    key-width-x-large-fixed: 160px;
+    key-width-xx-large-fixed: 244px;
+    key-width-stretched-fixed: -1; /* unused */
+    
+    key-margin-left: 4px;
+    key-margin-top: 0px;
+    key-margin-right: 4px;
+    key-margin-bottom: 8px;
+
+    first-key-margin-left: 11px;
+    first-row-margin-top: 12px;
+    last-key-margin-right: 11px;
+    last-row-margin-bottom: 12px;
+
+    /*** Key Area Geometry ***/
+    size: 854 236;
+}
+
+MImAbstractKeyAreaStyle.Portrait {
+    /*** Label Setttings ***/
+    label-margin-top: 1.2mm;
+    label-margin-left-with-secondary: 4.6mm;
+    secondary-label-separation: 0.9mm;
+
+    /*** Behaviour ***/
+    touchpoint-horizontal-gravity: 6.2mm;
+    touchpoint-vertical-gravity: 9.6mm;
+
+    /*** Key Geometry ***/
+    key-height-small: -1; /* unused */
+    key-height-medium: 62px;
+    key-height-large: 82px;
+    key-height-x-large: 98px;
+    key-height-xx-large: -1; /* unused */
+
+    key-width-small-fixed: -1; /* unused */
+    key-width-medium-fixed: 40px;
+    key-width-large-fixed: 56px;
+    key-width-x-large-fixed: 88px;
+    key-width-xx-large-fixed: 136px;
+    key-width-stretched-fixed: -1; /* unused */
+   
+    key-margin-left: 4px;
+    key-margin-top: 0px;
+    key-margin-right: 4px;
+    key-margin-bottom: 16px;
+
+    first-key-margin-left: 4px;
+    first-row-margin-top: 12px;
+    last-key-margin-right: 4px;
+    last-row-margin-bottom: 12px;
+
+    /*** Key Area Geometry ***/
+    size: 480 320;
+}
+
+MImAbstractKeyAreaStyle.Landscape:keys13 {
+}
+
+MImAbstractKeyAreaStyle.Portrait:keys13 {
+    key-width-medium-fixed: 150px;
+    key-width-large-fixed: 150px;
+    key-width-x-large-fixed: 308px;
+   
+    first-key-margin-left: 7px;
+    last-key-margin-right: 7px;
+}
+
+MImAbstractKeyAreaStyle.Landscape:keys33 {
+}
+
+MImAbstractKeyAreaStyle.Portrait:keys33 {
+}
+
+MImAbstractKeyAreaStyle.Landscape:keys35 {
+}
+
+MImAbstractKeyAreaStyle.Portrait:keys35 {
+}
+
+MImAbstractKeyAreaStyle.Landscape:keys36 {
+}
+
+MImAbstractKeyAreaStyle.Portrait:keys36 {
+}
+
+MImAbstractKeyAreaStyle.Landscape:keys37 {
+    use-fixed-key-width: true;
+
+    key-width-xx-large-fixed: 160px;
+}
+
+MImAbstractKeyAreaStyle.Portrait:keys37 {
+    use-fixed-key-width: true;
+
+    key-width-xx-large-fixed: 88px;
+}
+
+MImAbstractKeyAreaStyle.Landscape:keys38 {
+    key-width-medium-fixed: 72px;
+    key-width-large-fixed: 87px;
+    key-width-x-large-fixed: 150px;
+    key-width-xx-large-fixed: 306px;
+    
+    key-margin-left: 3px;
+    key-margin-right: 3px;
+
+    first-key-margin-left: 1px;
+    last-key-margin-right: 1px;
+}
+
+MImAbstractKeyAreaStyle.Portrait:keys38 {
+    key-width-medium-fixed: 38px;
+    key-width-large-fixed: 60px;
+    key-width-x-large-fixed: 88px;
+    key-width-xx-large-fixed: 158px;
+   
+    key-margin-left: 3px;
+    key-margin-right: 3px;
+
+    first-key-margin-left: 1px;
+    last-key-margin-right: 1px;
+}
+
+MImAbstractKeyAreaStyle.Landscape:keys39 {
+    key-width-medium-fixed: 72px;
+    key-width-large-fixed: 87px;
+    key-width-x-large-fixed: 150px;
+    key-width-xx-large-fixed: 306px;
+    
+    key-margin-left: 3px;
+    key-margin-right: 3px;
+
+    first-key-margin-left: 1px;
+    last-key-margin-right: 1px;
+}
+
+MImAbstractKeyAreaStyle.Portrait:keys39 {
+    key-width-medium-fixed: 38px;
+    key-width-large-fixed: 60px;
+    key-width-xx-large-fixed: 170px;
+   
+    key-margin-left: 3px;
+    key-margin-right: 3px;
+
+    first-key-margin-left: 1px;
+    last-key-margin-right: 1px;
+}
+
+MImAbstractKeyAreaStyle.Landscape:keys40 {
+    key-width-medium-fixed: 72px;
+    key-width-large-fixed: 87px;
+    key-width-x-large-fixed: 150px;
+    key-width-xx-large-fixed: 228px;
+    
+    key-margin-left: 3px;
+    key-margin-right: 3px;
+
+    first-key-margin-left: 1px;
+    last-key-margin-right: 1px;
+}
+
+MImAbstractKeyAreaStyle.Portrait:keys40 {
+    key-width-medium-fixed: 38px;
+    key-width-large-fixed: 60px;
+    key-width-x-large-fixed: 80px;
+    key-width-xx-large-fixed: 130px;
+   
+    key-margin-left: 3px;
+    key-margin-right: 3px;
+
+    first-key-margin-left: 1px;
+    last-key-margin-right: 1px;
 }
 
 #InvisibleHandle.Portrait {

@@ -27,26 +27,28 @@ class M_EXPORT MImAbstractKeyAreaStyle : public MWidgetStyle
     M_STYLE(MImAbstractKeyAreaStyle)
 
 public:
-    M_STYLE_ATTRIBUTE(qreal, spacingVertical, SpacingVertical)
-    M_STYLE_ATTRIBUTE(qreal, spacingHorizontal, SpacingHorizontal)
     M_STYLE_ATTRIBUTE(QColor, fontColor, FontColor)
     M_STYLE_ATTRIBUTE(QFont, font, Font)
     M_STYLE_ATTRIBUTE(QFont, secondaryFont, SecondaryFont)
+
     M_STYLE_ATTRIBUTE(int, labelMarginTop, LabelMarginTop)
     M_STYLE_ATTRIBUTE(int, labelMarginLeftWithSecondary, LabelMarginLeftWithSecondary)
     M_STYLE_ATTRIBUTE(int, secondaryLabelSeparation, SecondaryLabelSeparation)
+
     M_STYLE_ATTRIBUTE(int, longPressTimeout, LongPressTimeout)
     M_STYLE_ATTRIBUTE(int, idleVkbTimeout, IdleVkbTimeout)
     M_STYLE_ATTRIBUTE(int, flickGestureTimeout, FlickGestureTimeout)
+
     M_STYLE_ATTRIBUTE(qreal, flickGestureThresholdRatio, FlickGestureThresholdRatio)
     M_STYLE_ATTRIBUTE(qreal, touchpointHorizontalGravity, TouchpointHorizontalGravity)
     M_STYLE_ATTRIBUTE(qreal, touchpointVerticalGravity, TouchpointVerticalGravity)
 
-    M_STYLE_ATTRIBUTE(qreal, keyHeightSmall, keyHeightSmall)
-    M_STYLE_ATTRIBUTE(qreal, keyHeightMedium, keyHeightMedium)
-    M_STYLE_ATTRIBUTE(qreal, keyHeightLarge,  keyHeightLarge)
-    M_STYLE_ATTRIBUTE(qreal, keyHeightXLarge, keyHeightXLarge)
-    M_STYLE_ATTRIBUTE(qreal, keyHeightXxLarge, keyHeightXxLarge)
+    M_STYLE_ATTRIBUTE(QSizeF, size, Size)
+    M_STYLE_ATTRIBUTE(qreal, keyHeightSmall, KeyHeightSmall)
+    M_STYLE_ATTRIBUTE(qreal, keyHeightMedium, KeyHeightMedium)
+    M_STYLE_ATTRIBUTE(qreal, keyHeightLarge,  KeyHeightLarge)
+    M_STYLE_ATTRIBUTE(qreal, keyHeightXLarge, KeyHeightXLarge)
+    M_STYLE_ATTRIBUTE(qreal, keyHeightXxLarge, KeyHeightXxLarge)
 
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackground, KeyBackground)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundPressed, KeyBackgroundPressed)
@@ -64,22 +66,22 @@ public:
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDeadkeyPressedSelected, KeyBackgroundDeadkeyPressedSelected)
 
     M_STYLE_ATTRIBUTE(qreal, keyWidthSmall, KeyWidthSmall)
-    M_STYLE_ATTRIBUTE(int,  keyWidthSmallFixed, KeyWidthSmallFixed)
+    M_STYLE_ATTRIBUTE(qreal,  keyWidthSmallFixed, KeyWidthSmallFixed)
 
     M_STYLE_ATTRIBUTE(qreal, keyWidthMedium, KeyWidthMedium)
-    M_STYLE_ATTRIBUTE(int,  keyWidthMediumFixed, KeyWidthMediumFixed)
+    M_STYLE_ATTRIBUTE(qreal,  keyWidthMediumFixed, KeyWidthMediumFixed)
 
     M_STYLE_ATTRIBUTE(qreal, keyWidthLarge,  KeyWidthLarge)
-    M_STYLE_ATTRIBUTE(int,  keyWidthLargeFixed,  KeyWidthLargeFixed)
+    M_STYLE_ATTRIBUTE(qreal,  keyWidthLargeFixed,  KeyWidthLargeFixed)
 
     M_STYLE_ATTRIBUTE(qreal, keyWidthXLarge, KeyWidthXLarge)
-    M_STYLE_ATTRIBUTE(int,  keyWidthXLargeFixed, KeyWidthXLargeFixed)
+    M_STYLE_ATTRIBUTE(qreal,  keyWidthXLargeFixed, KeyWidthXLargeFixed)
 
     M_STYLE_ATTRIBUTE(qreal, keyWidthXxLarge, KeyWidthXxLarge)
-    M_STYLE_ATTRIBUTE(int,  keyWidthXxLargeFixed, KeyWidthXxLargeFixed)
+    M_STYLE_ATTRIBUTE(qreal,  keyWidthXxLargeFixed, KeyWidthXxLargeFixed)
 
     M_STYLE_ATTRIBUTE(qreal, keyWidthStretched, KeyWidthStretched)
-    M_STYLE_ATTRIBUTE(int,  keyWidthStretchedFixed, KeyWidthStretchedFixed)
+    M_STYLE_ATTRIBUTE(qreal,  keyWidthStretchedFixed, KeyWidthStretchedFixed)
 
     M_STYLE_ATTRIBUTE(QSize,   keyBackspaceIconSize,    KeyBackspaceIconSize)
     M_STYLE_ATTRIBUTE(QString, keyBackspaceIconId,      KeyBackspaceIconId)
@@ -100,9 +102,6 @@ public:
     M_STYLE_ATTRIBUTE(QString, keyShiftIconId, KeyShiftIconId)
     M_STYLE_ATTRIBUTE(QString, keyShiftUppercaseIconId, KeyShiftUppercaseIconId)
 
-    M_STYLE_ATTRIBUTE(qreal, buttonBoundingRectTopAdjustment, ButtonBoundingRectTopAdjustment);
-    M_STYLE_ATTRIBUTE(qreal, buttonBoundingRectBottomAdjustment, ButtonBoundingRectBottomAdjustment);
-
     M_STYLE_ATTRIBUTE(bool, drawButtonBoundingRects, DrawButtonBoundingRects)
     M_STYLE_ATTRIBUTE(bool, drawButtonRects, DrawButtonRects)
     M_STYLE_ATTRIBUTE(bool, debugTouchPoints, DebugTouchPoints)
@@ -122,6 +121,12 @@ public:
 class M_EXPORT MImAbstractKeyAreaStyleContainer : public MWidgetStyleContainer
 {
     M_STYLE_CONTAINER(MImAbstractKeyAreaStyle)
+    M_STYLE_MODE(Keys13)
+    M_STYLE_MODE(Keys30)
+    M_STYLE_MODE(Keys31)
+    M_STYLE_MODE(Keys32)
+    M_STYLE_MODE(Keys33)
+    M_STYLE_MODE(Keys34)
     M_STYLE_MODE(Keys35)
     M_STYLE_MODE(Keys36)
     M_STYLE_MODE(Keys37)
@@ -130,6 +135,9 @@ class M_EXPORT MImAbstractKeyAreaStyleContainer : public MWidgetStyleContainer
     M_STYLE_MODE(Keys40)
     M_STYLE_MODE(Keys41)
     M_STYLE_MODE(Keys42)
+    M_STYLE_MODE(Keys43)
+    M_STYLE_MODE(Keys44)
+    M_STYLE_MODE(Keys45)
 };
 
 

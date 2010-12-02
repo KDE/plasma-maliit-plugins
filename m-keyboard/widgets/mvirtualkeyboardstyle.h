@@ -35,8 +35,6 @@ class MVirtualKeyboardStyle : public MWidgetStyle
     M_STYLE(MVirtualKeyboardStyle)
 
 public:
-    M_STYLE_ATTRIBUTE(QSize, keyboardAreaSize, KeyboardAreaSize)
-
     M_STYLE_ATTRIBUTE(qreal, fontOpacity, FontOpacity)
 
     M_STYLE_ATTRIBUTE(QSize, tabButtonSize, TabButtonSize)
