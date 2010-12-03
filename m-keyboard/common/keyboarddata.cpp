@@ -229,9 +229,8 @@ LayoutData *KeyboardData::layoutPrivate(LayoutData::LayoutType type,
         if (layoutModel->type() == type) {
             if (layoutModel->orientation() == orientation) {
                 return layoutModel;
-            } else if (portraitFallback && (orientation == M::Portrait)) {
-                // According to requirements, when portrait layout is needed,
-                // landscape is used as a fallback
+            } else if (portraitFallback) {
+                // Use a nearest match
                 bestMatch = layoutModel;
             }
         }

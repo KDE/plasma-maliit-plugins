@@ -113,9 +113,6 @@
          </key>
 
          <key>
-           <binding label="&#x003B;"/>
-         </key>
-         <key>
            <binding label="&#x002C;"/>
          </key>
 
@@ -125,9 +122,6 @@
 
          <key>
            <binding label="&#x002E;"/>
-         </key>
-         <key>
-           <binding label="&#x003A;"/>
          </key>
 
          <key style="special" width="x-large">
@@ -245,9 +239,7 @@
          <key style="special" width="x-large">
            <binding action="sym" label="ABC"/>
          </key>
-         <key>
-           <binding label="&#x003B;"/>
-         </key>
+
          <key>
            <binding label="&#x002C;"/>
          </key>
@@ -258,9 +250,6 @@
 
          <key>
            <binding label="&#x002E;"/>
-         </key>
-         <key>
-           <binding label="&#x003A;"/>
          </key>
 
          <key style="special" width="x-large">

@@ -3,6 +3,7 @@ meego-keyboard (0.5.18~1) unstable; urgency=low
   * [UNRELEASED]
   * Fixes: NB#208276 - Excess communication between application and IM server delays key-presses
   * Changes: Modifying  dependency from libmeegoimenginewords-dev to libmeegoimengine-dev
+  * Fixes: NB#205462 - Remove 'w' from supported characters in telephony input mode
 
  -- huaming wang <huaming.wang@nokia.com>  Tue, 07 Dec 2010 11:58:56 +0200
 
