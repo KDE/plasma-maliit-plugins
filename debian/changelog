@@ -1,9 +1,11 @@
-meego-keyboard (0.5.16~1) unstable; urgency=low
+meego-keyboard (0.5.16-1) unstable; urgency=low
 
-  *[UNRELEASED] 
+  * Fixes: Ut_FlickRecognizer unit test failure
   * Changes: pending updating candidates for word tracker or word list
+  * Changes: use correct id for notification when all keyboards are unselecte
+  * Changes: skip the ut_mimtoolbar testRegion case due to Qt regression.
 
- -- Gibran Rodriguez <ext-gibran.rodriguez@nokia.com>  Wed, 01 Dec 2010 11:28:37 +0200
+ -- Ning Chi <ext-chi.ning@nokia.com>  Fri, 03 Dec 2010 16:08:39 +0200
 
 meego-keyboard (0.5.15-1) unstable; urgency=low
 
