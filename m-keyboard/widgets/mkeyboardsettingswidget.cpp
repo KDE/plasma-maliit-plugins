@@ -355,8 +355,8 @@ void MKeyboardSettingsWidget::syncWordCompletionState()
 void MKeyboardSettingsWidget::notifyNoKeyboards()
 {
     MBanner *noKeyboardsNotification = new MBanner;
-    //% "No keyboards installed"
-    noKeyboardsNotification->setTitle(qtTrId("qtn_txts_no_keyboards"));
+    //% "Note: you have uninstalled all virtual keyboards"
+    noKeyboardsNotification->setTitle(qtTrId("qtn_txts_no_keyboards_notification"));
     noKeyboardsNotification->appear(MSceneWindow::DestroyWhenDone);
 }
 
