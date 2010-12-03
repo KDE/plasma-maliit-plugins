@@ -5,6 +5,7 @@ STARTUP_TEMPLATE="<case name=\"init_testcase\" description=\"stop other componen
         <step expected_result=\"0\">dsmetool --telinit shutdown</step>
         <step expected_result=\"0\">initctl stop xsession</step>
         <step expected_result=\"0\">initctl start xsession/dbus</step>
+        <step expected_result=\"0\">initctl start xsession/mthemedaemon</step>
         <step expected_result=\"0\">source /tmp/session_bus_address.user</step>
       </case>
       "

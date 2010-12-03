@@ -46,7 +46,7 @@ int MSceneManager::execDialog(MDialog *dialog)
 void Ut_MKeyboardSettingsWidget::initTestCase()
 {
     static char *argv[2] = { (char *) "ut_mkeyboardsettingswidget",
-                             (char *) "-local-theme" };
+                             (char *) "-software" };
     static int argc = 2;
     disableQtPlugins();
     app = new MApplication(argc, argv);

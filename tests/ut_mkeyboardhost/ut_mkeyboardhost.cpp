@@ -152,7 +152,7 @@ void Ut_MKeyboardHost::initTestCase()
 {
     static int argc = 2;
     static char *app_name[2] = { (char *)"ut_mvirtualkeyboardhost",
-                                 (char *) "-local-theme" };
+                                 (char *) "-software" };
 
     disableQtPlugins();
 

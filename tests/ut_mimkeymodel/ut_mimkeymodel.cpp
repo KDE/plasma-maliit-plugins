@@ -34,7 +34,7 @@ void Ut_MImKeyModel::initTestCase()
 {
     static int argc = 2;
     static char *app_name[2] = { (char *) "ut_mimkeymodel",
-                                 (char *) "-local-theme" };
+                                 (char *) "-software" };
 
     disableQtPlugins();
     app = new MApplication(argc, app_name);

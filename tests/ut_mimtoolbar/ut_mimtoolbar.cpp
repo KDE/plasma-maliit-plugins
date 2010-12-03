@@ -72,7 +72,7 @@ void Ut_MImToolbar::initTestCase()
 {
     static int dummyArgc = 2;
     static char *dummyArgv[2] = { (char *) "./ut_mimtoolbar",
-                                  (char *) "-local-theme" };
+                                  (char *) "-software" };
     // this value is required by the theme daemon
     MGConfItem(TargetSettingsName).set(DefaultTargetName);
 

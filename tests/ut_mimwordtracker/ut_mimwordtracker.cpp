@@ -32,7 +32,7 @@ void Ut_MImWordTracker::initTestCase()
 {
     static int dummyArgc = 2;
     static char *dummyArgv[2] = { (char *) "./ut_mimcorrectioncandidatewidget",
-                                  (char *) "-local-theme" };
+                                  (char *) "-software" };
     disableQtPlugins();
     app = new MApplication(dummyArgc, dummyArgv);
 

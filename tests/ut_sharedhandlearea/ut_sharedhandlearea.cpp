@@ -32,9 +32,8 @@ namespace
 
 void Ut_SharedHandleArea::initTestCase()
 {
-    static int dummyArgc = 3;
-    static char *dummyArgv[3] = { (char *) "./ut_sharedhandlearea",
-        (char *) "-local-theme",
+    static int dummyArgc = 2;
+    static char *dummyArgv[2] = { (char *) "./ut_sharedhandlearea",
         (char *) "-software"  };
     // this value is required by the theme daemon
     MGConfItem(TargetSettingsName).set(DefaultTargetName);

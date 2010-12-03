@@ -123,8 +123,8 @@ void Ut_MHardwareKeyboard::initTestCase()
 {
     disableQtPlugins();
 
-    static char *argv[3] = {(char *)"ut_mhardwarekeyboard", (char *)"-software", (char *) "-local-theme"};
-    static int argc = 3;
+    static char *argv[2] = {(char *)"ut_mhardwarekeyboard", (char *)"-software"};
+    static int argc = 2;
     app = new MApplication(argc, argv);
 
     qRegisterMetaType<ModifierState>("ModifierState");

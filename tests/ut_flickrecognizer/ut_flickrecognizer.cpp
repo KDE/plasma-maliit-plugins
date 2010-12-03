@@ -136,9 +136,8 @@ void Ut_FlickRecognizer::initTestCase()
     qRegisterMetaType<FlickGesture::Direction>("FlickGesture::Direction");
     qRegisterMetaType< QList<QPoint> >("QList<QPoint>");
 
-    static int argc = 3;
-    static char *app_args[3] = { (char *) "ut_flickrecognizer",
-                                 (char *) "-local-theme",
+    static int argc = 2;
+    static char *app_args[2] = { (char *) "ut_flickrecognizer",
                                  (char *) "-software" };
 
     disableQtPlugins();

@@ -103,10 +103,9 @@ void Ut_MVirtualKeyboard::initTestCase()
 
     disableQtPlugins();
 
-    static char *argv[3] = {(char *) "ut_mvirtualkeyboard",
-                            (char *) "-software",
-                            (char *) "-local-theme"};
-    static int argc = 3;
+    static char *argv[2] = {(char *) "ut_mvirtualkeyboard",
+                            (char *) "-software"};
+    static int argc = 2;
 
     // This value is required by the theme daemon
     MGConfItem(TargetSettingsName).set(DefaultTargetName);

@@ -31,7 +31,7 @@ void Ut_WidgetBar::initTestCase()
 {
     MApplication::setLoadMInputContext(false);
     static char *argv[2] = { (char *) "ut_buttonbar",
-                             (char *) "-local-theme" };
+                             (char *) "-software" };
     static int argc = 2;
     disableQtPlugins();
     app = new MApplication(argc, argv);

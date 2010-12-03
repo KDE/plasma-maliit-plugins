@@ -81,9 +81,8 @@ namespace {
 
 void Ut_MImAbstractKeyArea::initTestCase()
 {
-    static int argc = 3;
-    static char *app_name[3] = { (char *) "ut_mimabstractkeyarea",
-                                 (char *) "-local-theme",
+    static int argc = 2;
+    static char *app_name[2] = { (char *) "ut_mimabstractkeyarea",
                                  (char *) "-software"};
 
     disableQtPlugins();

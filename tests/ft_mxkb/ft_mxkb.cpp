@@ -37,7 +37,7 @@ void Ft_MXkb::initTestCase()
 {
     disableQtPlugins();
 
-    static char *argv[3] = {(char *) "ft_mxkb", (char *) "-software", (char *) "-local-theme"};
+    static char *argv[3] = {(char *) "ft_mxkb", (char *) "-software", (char *) "-software"};
     static int argc = 3;
     app = new MApplication(argc, argv);
 }
