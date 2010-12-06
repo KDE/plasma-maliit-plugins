@@ -32,8 +32,19 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QHash>
 #include <QKeyEvent>
+#include <QFile>
+#include <QTextStream>
+#include <QDir>
+#include <QCoreApplication>
 #include <mtimestamp.h>
 
+#ifdef unix
+#include <time.h>
+#include <sys/time.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#endif
 
 namespace
 {
@@ -46,7 +57,10 @@ namespace
     const qreal PixelsToMoveEventsFactor = 0.02;
 
     // This GConf item defines whether multitouch is enabled or disabled
-    const char * const MultitouchSettings = "/meegotouch/inputmethods/multitouch/enabled";
+    const char *const MultitouchSettings = "/meegotouch/inputmethods/multitouch/enabled";
+
+    const char *const MImUserDirectory = ".meego-im";
+    const char *const MImTouchPointsLogfile = "touchpoints.csv";
 
     // Minimal distance (in px) for touch point from key button edge.
     const int CorrectionDistanceThreshold = 2;
@@ -142,6 +156,88 @@ namespace
             return false;
         }
     };
+
+    //! Handles destruction order of internal QFile and QTextStream correctly
+    //! and extends lifetime of QFile to QTextStream.
+    class StreamHandle
+    {
+    public:
+        explicit StreamHandle(const QString &fileName)
+            : mFile(fileName)
+            , mStream(&mFile)
+        {
+            mStream.setCodec("utf-8");
+            lastAccess.start();
+        }
+
+        QFile &file()
+        {
+            return mFile;
+        }
+
+        QTextStream &stream()
+        {
+            // Just make sure we don't lose too much in case of a uiserver crash:
+            if (lastAccess.elapsed() > 10000) {
+                mStream.flush();
+                lastAccess.restart();
+            }
+
+            return mStream;
+        }
+
+    private:
+        QFile mFile;
+        QTextStream mStream;
+        QTime lastAccess;
+    };
+
+    QString toString(const QPointF &p, const QString &separator = ", ")
+    {
+        return QString("%1%2%3").arg(p.x())
+                                .arg(separator)
+                                .arg(p.y());
+    }
+
+    QString toString(const QRectF &r, const QString separator = ", ")
+    {
+        return QString("%1%2%3%4%5").arg(toString(r.topLeft(), separator))
+                                    .arg(separator)
+                                    .arg(r.width())
+                                    .arg(separator)
+                                    .arg(r.height());
+    }
+
+    QString toString(Qt::TouchPointState state)
+    {
+        switch(state) {
+        default:
+            return "n/a";
+
+        case Qt::TouchPointPressed:
+            return "pressed";
+
+        case Qt::TouchPointMoved:
+            return "moved";
+
+        case Qt::TouchPointStationary:
+            return "stationary";
+
+        case Qt::TouchPointReleased:
+            return "released";
+        }
+    }
+
+    QString timeStamp()
+    {
+#ifdef unix
+        struct timeval tv;
+        gettimeofday(&tv, 0);
+        return  QString("%1.%2").arg(tv.tv_sec).arg(tv.tv_usec);
+#else
+        return QTime::currentTime().toString();
+#endif
+    }
 }
 
 M::InputMethodMode MImAbstractKeyArea::InputMethodMode;
@@ -521,8 +617,9 @@ void MImAbstractKeyArea::touchPointPressed(const QTouchEvent::TouchPoint &tp)
     const QPoint pos = mapFromScene(tp.scenePos()).toPoint();
     MImAbstractKey *key = keyAt(pos);
 
+
     if (debugTouchPoints) {
-        printTouchPoint(tp, key);
+        logTouchPoint(tp, key);
     }
 
     if (!key) {
@@ -619,7 +716,7 @@ void MImAbstractKeyArea::touchPointMoved(const QTouchEvent::TouchPoint &tp)
     }
 
     if (debugTouchPoints) {
-        printTouchPoint(tp, lookup.key, lookup.lastKey);
+        logTouchPoint(tp, lookup.key, lookup.lastKey);
     }
     mTimestamp("MImAbstractKeyArea", "end");
 }
@@ -670,7 +767,7 @@ void MImAbstractKeyArea::touchPointReleased(const QTouchEvent::TouchPoint &tp)
     longPressTimer.stop();
 
     if (debugTouchPoints) {
-        printTouchPoint(tp, lookup.key, lookup.lastKey);
+        logTouchPoint(tp, lookup.key, lookup.lastKey);
     }
     mTimestamp("MImAbstractKeyArea", "end");
 }
@@ -754,22 +851,51 @@ const PopupBase &MImAbstractKeyArea::popup() const
     return *mPopup;
 }
 
-void MImAbstractKeyArea::printTouchPoint(const QTouchEvent::TouchPoint &tp,
-                                    const MImAbstractKey *key,
-                                    const MImAbstractKey *lastKey) const
+void MImAbstractKeyArea::logTouchPoint(const QTouchEvent::TouchPoint &tp,
+                                       const MImAbstractKey *key,
+                                       const MImAbstractKey *lastKey) const
 {
-    // Sorry that this looks a bit funny ... it does the job, though.
-    qDebug() << "\ntouchpoint:" << tp.id() << "(start:" << tp.startScenePos()
-                                << ", last:" << tp.lastScenePos()
-                                << ", pos:"  << tp.scenePos() << ")\n      "
-             << "key:" << key
-                       << "(label:" << (key ? QString("%1: %2").arg(key->label())
-                                                               .arg(key->state())
-                                            : QString()) << ")\n "
-             << "last key:" << lastKey
-                            << "(label:" << (lastKey ? QString("%1: %2").arg(lastKey->label())
-                                                                        .arg(lastKey->state())
-                                                     : QString()) << ")";
+    if (!QDir::home().exists(MImUserDirectory)) {
+        QDir::home().mkdir(MImUserDirectory);
+    }
+
+    static StreamHandle handle(QString("%1/%2/%3-%4").arg(QDir::homePath())
+                                                     .arg(MImUserDirectory)
+                                                     .arg(QCoreApplication::applicationPid())
+                                                     .arg(MImTouchPointsLogfile));
+
+    QFile &file = handle.file();
+    QTextStream &out = handle.stream();
+
+    if (!file.isOpen()) {
+        file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
+        out << "time (sec.msec)\t"
+            << "tp_id\t"
+            << "tp_state\t"
+            << "start_x\t" << "start_y\t"
+            << "last_x\t" << "last_y\t"
+            << "current_x\t" << "current_y\t"
+            << "center_x\t" << "center_y\t"
+            << "delta_x\t" << "delta_y\t"
+            << "label\t"
+            << "label_last\t"
+            << "br_x\t" << "br_y\t" << "br_w\t" << "br_h\n";
+    }
+
+    out << timeStamp() << "\t"
+        << tp.id() << "\t"
+        << toString(tp.state()) << "\t"
+        << toString(tp.startScenePos(), "\t") << "\t"
+        << toString(tp.lastScenePos(), "\t") << "\t"
+        << toString(tp.scenePos(), "\t") << "\t"
+        << (key ? toString(mapRectToScene(key->buttonBoundingRect()).center(), "\t")
+                : "n/a\t") << "\t"
+        << (key ? toString(tp.scenePos() - mapRectToScene(key->buttonBoundingRect()).center(), "\t")
+                : "n/a\t") << "\t"
+        << (key ? key->label() : "n/a") << "\t"
+        << (lastKey ? lastKey->label() : "n/a") << "\t"
+        << (key ? toString(mapRectToScene(key->buttonBoundingRect()), "\t")
+                : "n/a\t\t\t") << "\n";
 }
 
 void MImAbstractKeyArea::updateKeyModifiers(const QChar &accent)

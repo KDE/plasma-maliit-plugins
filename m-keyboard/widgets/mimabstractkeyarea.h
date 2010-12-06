@@ -231,13 +231,14 @@ protected:
     //! \brief Returns popup
     const PopupBase &popup() const;
 
-    //! \brief Print touch point information, for debugging purposes.
+    //! \brief Log touch point information to
+    //!        $HOME/.meego-im/vkb-touchpoints.log, for debugging purposes.
     //! \param tp the touch point
     //! \param key key underneath touch point
     //! \param lastKey last key that was associated to the touch point
-    void printTouchPoint(const QTouchEvent::TouchPoint &tp,
-                         const MImAbstractKey *key,
-                         const MImAbstractKey *lastKey = 0) const;
+    void logTouchPoint(const QTouchEvent::TouchPoint &tp,
+                       const MImAbstractKey *key,
+                       const MImAbstractKey *lastKey = 0) const;
 
     qreal mRelativeKeyBaseWidth; //!< Relative key base width in currently active layout
     bool debugTouchPoints; //!< Whether touch point debugging is enabled
