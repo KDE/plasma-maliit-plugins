@@ -1,3 +1,9 @@
+meego-keyboard (0.5.17-1) unsatble; urgency=low
+
+  * Changes: do not use local theme for unit tests
+
+ -- huaming wang <huaming.wang@nokia.com>  Tue, 07 Dec 2010 11:56:48 +0200
+
 meego-keyboard (0.5.16-1) unstable; urgency=low
 
   * Fixes: Ut_FlickRecognizer unit test failure
