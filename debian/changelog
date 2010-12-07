@@ -1,3 +1,9 @@
+meego-keyboard (0.5.18~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- huaming wang <huaming.wang@nokia.com>  Tue, 07 Dec 2010 11:58:56 +0200
+
 meego-keyboard (0.5.17-1) unsatble; urgency=low
 
   * Changes: do not use local theme for unit tests
