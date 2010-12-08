@@ -115,7 +115,7 @@
               <binding label="&#x002C;"/>
             </key>
 
-            <key width="stretched">
+            <key width="xx-large">
               <binding action="space"/>
             </key>
 
@@ -245,7 +245,7 @@
               <binding label="&#x060C;"/>
             </key>
 
-            <key width="stretched">
+            <key width="xx-large">
               <binding action="space"/>
             </key>
 
