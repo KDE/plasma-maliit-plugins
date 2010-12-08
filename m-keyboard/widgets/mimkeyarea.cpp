@@ -822,10 +822,15 @@ void MImKeyArea::updateKeyGeometries(const int newAvailableWidth)
         return;
     }
 
-    cachedWidgetHeight = computeWidgetHeight();
-    initCachedBackground(QSize(newAvailableWidth, cachedWidgetHeight));
+    // Size specified in CSS can override width, for fixed key width layouts:
+    const int effectiveWidth = (baseStyle()->useFixedKeyWidth()
+                                && (baseStyle()->size().width() > -1) ? baseStyle()->size().width()
+                                                                      : newAvailableWidth);
 
-    KeyGeometryUpdater updater = KeyGeometryUpdater(baseStyle(), newAvailableWidth,
+    cachedWidgetHeight = computeWidgetHeight();
+    initCachedBackground(QSize(effectiveWidth, cachedWidgetHeight));
+
+    KeyGeometryUpdater updater = KeyGeometryUpdater(baseStyle(), effectiveWidth,
                                                     computeMaxNormalizedWidth());
 
     for (RowIterator rowIter = rowList.begin();
