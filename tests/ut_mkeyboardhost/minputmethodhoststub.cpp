@@ -70,17 +70,25 @@ void MInputMethodHostStub::clear()
 
 void MInputMethodHostStub::sendPreeditString(const QString &string,
                                              const QList<MInputMethod::PreeditTextFormat> &preeditFormats,
+                                             int replaceStart,
+                                             int replaceLength,
                                              int pos)
 {
     Q_UNUSED(preeditFormats);
+    Q_UNUSED(replaceStart);
+    Q_UNUSED(replaceLength);
     Q_UNUSED(pos);
 
     preedit = string;
     ++sendPreeditCalls;
 }
 
-void MInputMethodHostStub::sendCommitString(const QString &string)
+void MInputMethodHostStub::sendCommitString(const QString &string, int replaceStart,
+                                            int replaceLength, int pos)
 {
+    Q_UNUSED(replaceStart);
+    Q_UNUSED(replaceLength);
+    Q_UNUSED(pos);
     commit += string;
     ++sendCommitStringCalls;
 }
@@ -208,4 +216,10 @@ void MInputMethodHostStub::setInputMethodArea(const QRegion &region)
 
 void MInputMethodHostStub::showSettings()
 {
+}
+
+void MInputMethodHostStub::setSelection(int start, int length)
+{
+    Q_UNUSED(start);
+    Q_UNUSED(length);
 }

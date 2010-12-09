@@ -94,13 +94,19 @@ public:
 
     virtual void sendPreeditString(const QString &string,
                                    const QList<MInputMethod::PreeditTextFormat> &/*preeditFormats*/,
+                                   int /*replaceStart*/,
+                                   int /*replaceLength*/,
                                    int /*cursorPos*/)
     {
         lastPreeditStringM = string;
     }
 
-    virtual void sendCommitString(const QString &string)
+    virtual void sendCommitString(const QString &string, int replaceStart = 0,
+                                  int replaceLength = 0, int pos = -1)
     {
+        Q_UNUSED(replaceStart);
+        Q_UNUSED(replaceLength);
+        Q_UNUSED(pos);
         lastCommitStringM = string;
     }
 
@@ -155,6 +161,10 @@ public:
     }
 
     virtual void showSettings()
+    {
+    }
+
+    virtual void setSelection(int /*start*/, int /*length*/)
     {
     }
 

@@ -299,7 +299,8 @@ private:
     void updateEngineKeyboardLayout();
 
     //! set preedit string and cursor position.
-    void localSetPreedit(const QString &preeditString, int cursorPosition);
+    void localSetPreedit(const QString &preeditString, int replaceStart, int replaceLength,
+                         int cursorPosition);
 
     /*!
      * \brief send preedit string and cursor to application and its style depends on \a candidateCount.
@@ -308,14 +309,16 @@ private:
      * \param candidateCount The count of candidates suggested by input engine.
      * \param cursorPosition The cursor position inside preedit. Default value -1 indicates to hide the cursor.
      */
-    void updatePreedit(const QString &string, int candidateCount, int cursorPosition = -1);
+    void updatePreedit(const QString &string, int candidateCount, int replaceStart = 0,
+                       int replaceLength = 0, int cursorPosition = -1);
 
     /*!
      * \brief This enum defines different mode for backspace clicking.
      */
     enum BackspaceMode {
-        NormalBackspace, //!< backspace for normal state.
-        WordTrackerBackspace //!< backspace when word tracker is visible.
+        NormalBackspaceMode,      //!< backspace for normal state.
+        AutoBackspaceMode,        //!< auto backspace state.
+        WordTrackerBackspaceMode  //!< backspace when word tracker is visible.
     };
 
     //! start backspaceTimer according \a mode
@@ -327,6 +330,9 @@ private:
 
     //! update correction widget position.
     void updateCorrectionWidgetPosition();
+
+    //! Sends backspace key event to application.
+    void sendBackSpaceKeyEvent() const;
 
 private:
     class CycleKeyHandler; //! Reacts to cycle key press events.
@@ -365,6 +371,7 @@ private:
     bool autoCapsTriggered;
     QString surroundingText;
     int cursorPos;
+    int preeditCursorPos;
 
     int inputMethodMode;
 

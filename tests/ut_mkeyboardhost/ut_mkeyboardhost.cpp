@@ -327,6 +327,8 @@ void Ut_MKeyboardHost::testHandleClick()
     MGConfItem config(InputMethodCorrectionSetting);
     config.set(QVariant(true));
 
+    QVERIFY(subject->preedit.isEmpty());
+    inputMethodHost->clear();
     subject->update();
     subject->handleKeyClick(KeyEvent("a"));
     qDebug() << "correctionEnabled:" << subject->correctionEnabled;
@@ -579,6 +581,7 @@ void Ut_MKeyboardHost::testAutoCaps()
     release = KeyEvent(press, QEvent::KeyRelease);
     inputMethodHost->cursorPos = 18;
     subject->preedit = "You can use";
+    subject->preeditCursorPos = -1;
     // initial state: preedit("You can use"), shift state:latched, start holding backspace
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);

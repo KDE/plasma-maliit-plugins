@@ -35,8 +35,11 @@ public:
 
     virtual void sendPreeditString(const QString &string,
                                    const QList<MInputMethod::PreeditTextFormat> &preeditFormats,
+                                   int replaceStart = 0,
+                                   int replaceLength = 0,
                                    int cursorPos = -1);
-    virtual void sendCommitString(const QString &string);
+    virtual void sendCommitString(const QString &string, int replaceStart = 0,
+                                  int replaceLength = 0, int cursorPos = -1);
     virtual void sendKeyEvent(const QKeyEvent &keyEvent,
                               MInputMethod::EventRequestType requestType = MInputMethod::EventRequestBoth);
     virtual void notifyImInitiatedHiding();
@@ -63,6 +66,7 @@ public:
     virtual void setScreenRegion(const QRegion &region);
     virtual void setInputMethodArea(const QRegion &region);
     virtual void showSettings();
+    virtual void setSelection(int start, int length);
 
     QString preedit;
     QString commit;
