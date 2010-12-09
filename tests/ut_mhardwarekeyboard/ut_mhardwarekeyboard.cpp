@@ -1260,5 +1260,75 @@ void Ut_MHardwareKeyboard::testCtrlShortcutsWithFn()
     QCOMPARE(inputMethodHost->lastKeyEvent().type(), QEvent::KeyRelease);
 }
 
+void Ut_MHardwareKeyboard::testPressTwoKeys()
+{
+    // Press 'Q' and then press 'Return'. See that 'Q' is committed before
+    // actual release of 'Q'.
+    QVERIFY(filterKeyPress(Qt::Key_Q, Qt::GroupSwitchModifier, "q", KeycodeCharacterQ, 0));
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("q"));
+
+    QVERIFY(!filterKeyPress(Qt::Key_Return, Qt::GroupSwitchModifier, "", KeycodeNonCharacter, 0));
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("q"));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("q"));
+
+    QVERIFY(filterKeyRelease(Qt::Key_Q, Qt::GroupSwitchModifier, "q", KeycodeCharacterQ, 0));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("q"));
+
+    QVERIFY(!filterKeyRelease(Qt::Key_Return, Qt::GroupSwitchModifier, "", KeycodeNonCharacter, 0));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("q"));
+
+    // Set pre-edit and commit strings to known value
+    QVERIFY(filterKeyPress(Qt::Key_O, Qt::GroupSwitchModifier, "o", KeycodeCharacterO, 0));
+    QVERIFY(filterKeyRelease(Qt::Key_O, Qt::GroupSwitchModifier, "o", KeycodeCharacterO, 0));
+
+    // Press 'Q' and then press 'Control'. See that 'Q' is not committed before
+    // actual release of 'Q'.
+    QVERIFY(filterKeyPress(Qt::Key_Q, Qt::GroupSwitchModifier, "q", KeycodeCharacterQ, 0));
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("q"));
+
+    QVERIFY(filterKeyPress(Qt::Key_Control, Qt::GroupSwitchModifier, "", KeycodeNonCharacter, 0));
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("q"));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("o"));
+
+    QVERIFY(filterKeyRelease(Qt::Key_Q, Qt::GroupSwitchModifier, "q", KeycodeCharacterQ, 0));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("q"));
+
+    QVERIFY(filterKeyRelease(Qt::Key_Control, Qt::GroupSwitchModifier, "", KeycodeNonCharacter, 0));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("q"));
+
+    // Set pre-edit and commit strings to known value.
+    QVERIFY(filterKeyPress(Qt::Key_O, Qt::GroupSwitchModifier, "o", KeycodeCharacterO, 0));
+    QVERIFY(filterKeyRelease(Qt::Key_O, Qt::GroupSwitchModifier, "o", KeycodeCharacterO, 0));
+
+    // Press 'Q' and then press 'P'. See that 'Q' gets committed before
+    // actual release of 'Q'.
+    QVERIFY(filterKeyPress(Qt::Key_Q, Qt::GroupSwitchModifier, "q", KeycodeCharacterQ, 0));
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("q"));
+
+    QVERIFY(filterKeyPress(Qt::Key_P, Qt::GroupSwitchModifier, "p", KeycodeCharacterP, 0));
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("p"));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("q"));
+
+    QVERIFY(filterKeyRelease(Qt::Key_Q, Qt::GroupSwitchModifier, "q", KeycodeCharacterQ, 0));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("q"));
+
+    QVERIFY(filterKeyRelease(Qt::Key_P, Qt::GroupSwitchModifier, "p", KeycodeCharacterP, 0));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("p"));
+}
 
 QTEST_APPLESS_MAIN(Ut_MHardwareKeyboard);

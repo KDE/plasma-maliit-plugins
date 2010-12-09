@@ -77,6 +77,8 @@ private slots:
 
     void testCtrlShortcutsWithFn();
 
+    void testPressTwoKeys();
+
 private:
     bool checkLatchedState(unsigned int mask, unsigned int value) const;
     bool checkLockedState(unsigned int mask, unsigned int value) const;

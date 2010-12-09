@@ -572,6 +572,8 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
         eaten = true;
     } else if (keyCode == Qt::Key_Shift) {
         eaten = true;
+    } else if (keyCode == Qt::Key_Control) {
+        eaten = true;
     } else if (keyCode == FnLevelKey) {
         fnPressed = true;
         eaten = true;
@@ -586,14 +588,15 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
             lastCtrlCTime.start();
         }
 
+        if (!preedit.isEmpty() && (preedit != deadKeyMapper.currentDeadKey())) {
+            inputMethodHost.sendCommitString(preedit);
+            pressedKeys.remove(preeditScanCode);
+            preedit.clear();
+        }
+
         if (eaten && !eatenBySymHandler) {
             bool fnPressState = fnPressed;
             correctToAcceptedCharacter(text, nativeScanCode, nativeModifiers, fnPressState);
-
-            if (!preedit.isEmpty() && (preedit != deadKeyMapper.currentDeadKey())) {
-                inputMethodHost.sendCommitString(preedit);
-                pressedKeys.remove(preeditScanCode);
-            }
 
             if (!deadKeyMapper.filterKeyPress(text)) {
                 // Long press feature, only applies for the latest keypress (i.e. the latest
@@ -695,6 +698,8 @@ bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers 
         if (--shiftsPressed == 0) {
             shiftShiftCapsLock = false;
         }
+        eaten = true;
+    } else if (keyCode == Qt::Key_Control) {
         eaten = true;
     } else if (keyCode == FnLevelKey) {
         fnPressed = false;
