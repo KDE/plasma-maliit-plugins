@@ -1,12 +1,11 @@
-meego-keyboard (0.5.18~1) unstable; urgency=low
+meego-keyboard (0.5.18-1) unstable; urgency=low
 
-  * [UNRELEASED]
   * Fixes: NB#208276 - Excess communication between application and IM server delays key-presses
   * Changes: Modifying  dependency from libmeegoimenginewords-dev to libmeegoimengine-dev
   * Fixes: NB#205462 - Remove 'w' from supported characters in telephony input mode
   * Fixes: NB#203531 - Duplicate symbols in VKB (landscape only)
 
- -- huaming wang <huaming.wang@nokia.com>  Tue, 07 Dec 2010 11:58:56 +0200
+ -- huaming wang <huaming.wang@nokia.com>  Thu, 09 Dec 2010 11:46:54 +0200
 
 meego-keyboard (0.5.17-1) unstable; urgency=low
 
