@@ -40,7 +40,7 @@
             <spacer/>
 
             <key>
-              <binding label="&#x002A;&#x002B;" cycleset="&#x002A;&#x002B;" action="cycle"/>
+              <binding label="&#x002A;&#x002B;" cycleset="&#x002A;&#x002B;p" action="cycle"/>
             </key>
             <key>
               <binding label="&#x0023;"/>
