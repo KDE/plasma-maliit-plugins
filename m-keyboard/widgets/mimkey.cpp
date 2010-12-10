@@ -194,12 +194,14 @@ bool MImKey::isDeadKey() const
 
 bool MImKey::isShiftKey() const
 {
-    return binding().action() == MImKeyBinding::ActionShift;
+    return (binding().action() == MImKeyBinding::ActionShift
+            && !isDeadKey());
 }
 
 bool MImKey::isNormalKey() const
 {
-    return binding().action() == MImKeyBinding::ActionInsert;
+    return (binding().action() == MImKeyBinding::ActionInsert
+            && !isDeadKey());
 }
 
 bool MImKey::increaseTouchPointCount()
