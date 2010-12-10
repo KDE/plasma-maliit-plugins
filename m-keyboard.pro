@@ -6,7 +6,9 @@ SUBDIRS = m-keyboard \
       fixture_virtualkeyboard \
       translations \
 
-include (doc/doc.pri)
+CONFIG(docs) {
+    include (doc/doc.pri)
+}
 
 #error-correction 
 GCONF_DATA = meego-keyboard.schemas

@@ -1,3 +1,5 @@
+include(../common_top.pri)
+
 TEMPLATE = app
 CONFIG += QtTest meegotouch meegoimframework
 

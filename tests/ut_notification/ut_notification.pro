@@ -1,4 +1,5 @@
-TEMPLATE = app
+include(../common_top.pri)
+
 CONFIG += QtTest meegotouch MImServer meegoimframework
 DEPENDPATH += .
 INCLUDEPATH += 	. \

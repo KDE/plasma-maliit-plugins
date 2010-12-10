@@ -1,3 +1,5 @@
+include(../mconfig.pri)
+
 TEMPLATE = lib 
 TARGET = $$qtLibraryTarget(meego-keyboard)
 
@@ -7,16 +9,6 @@ M_MGEN_OUTDIR = .gen
 
 # we have this line temporarily until new libmeegotouch without rpath is integrated
 QT += xml
-
-contains( DEFINES, RELEASE_BUILD ) {
-    QMAKE_CFLAGS -= -Werror
-    QMAKE_CXXFLAGS -= -Werror
-    CONFIG += release
-} else {
-    QMAKE_CFLAGS += -Werror
-    QMAKE_CXXFLAGS += -Werror
-    CONFIG += debug
-} 
 
 LIBS += -lmeegoimengine
 CONFIG += plugin meegotouch meegoimengine meegoimframework meegoreactionmap

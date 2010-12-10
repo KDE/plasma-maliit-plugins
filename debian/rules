@@ -4,18 +4,17 @@
 export DH_VERBOSE=1
 
 DEBDIR = ..
-CFLAGS = -Wall -g
 
 comma :=,
 empty :=
 space := $(empty) $(empty)
 
 
+# Set the build type (debug/release)
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-	CFLAGS += -O0
+	QMAKE_OPTIONS+=CONFIG+=debug
 else
-	CFLAGS += -O2
-        QMAKE_OPTIONS += DEFINES+=RELEASE_BUILD
+	QMAKE_OPTIONS+=CONFIG+=release
 endif
 
 ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
@@ -84,12 +83,6 @@ install: build
 
 	#libmeegotouch0 package 
 	INSTALL_ROOT=$(CURDIR)/debian/tmp make  $(PARALLEL_MAKEFLAGS) install
-
-	#libmeegotouch-doc package
-
-	#make  $(PARALLEL_MAKEFLAGS) doc
-	#mkdir -p ${CURDIR}/debian/tmp/usr/share/doc/libmeegotouch/api
-	#cp -r doc/html/*  ${CURDIR}/debian/tmp/usr/share/doc/libmeegotouch/api/
 
 
 # Build architecture-independent files here.
