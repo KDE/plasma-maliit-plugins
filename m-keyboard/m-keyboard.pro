@@ -1,5 +1,9 @@
 include(../mconfig.pri)
 
+# Revert linker optimization for release build of the this target.
+# It causes problem in the integration.
+QMAKE_LFLAGS_RELEASE-=-Wl,--as-needed
+
 TEMPLATE = lib 
 TARGET = $$qtLibraryTarget(meego-keyboard)
 
