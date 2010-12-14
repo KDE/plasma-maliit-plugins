@@ -425,10 +425,7 @@ MVirtualKeyboard::showHideFinished()
         }
 
         hide();
-        emit hidden();
     } else {
-        emit opened();
-
         if (pendingNotificationRequest || mainKeyboardSwitcher->count() > 1) {
             showLanguageNotification();
         }
@@ -743,7 +740,7 @@ MImAbstractKeyArea *MVirtualKeyboard::createMainSectionView(const QString &layou
     // horizontal flick handling only on main section of qwerty
     connect(keyArea, SIGNAL(flickLeft()), this, SLOT(flickLeftHandler()));
     connect(keyArea, SIGNAL(flickRight()), this, SLOT(flickRightHandler()));
-    connect(this, SIGNAL(hidden()), keyArea, SLOT(hidePopup()));
+    connect(this, SIGNAL(displayExited()), keyArea, SLOT(hidePopup()));
 
     return keyArea;
 }

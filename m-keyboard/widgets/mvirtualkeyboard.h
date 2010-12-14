@@ -303,12 +303,6 @@ signals:
     //! Emitted when shift state is changed
     void shiftLevelChanged();
 
-    //! Emitted after the widget has finished hiding.
-    void hidden();
-
-    //! Emitted when fully visible.
-    void opened();
-
     //! Emitted when symbol view should be shown
     void showSymbolViewRequested();
 
