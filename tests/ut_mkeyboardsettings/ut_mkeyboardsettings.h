@@ -37,7 +37,7 @@ private slots:
     void testSelectedKeyboards();
     void testSetSelectedKeyboards();
     void testErrorCorrection();
-
+    void testWordCompletion();
 };
 
 #endif

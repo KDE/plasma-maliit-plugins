@@ -24,7 +24,8 @@
 
 namespace
 {
-    const QString SettingsIMCorrectionSetting("/meegotouch/inputmethods/virtualkeyboard/correctionenabled");
+    const QString SettingsImCorrection("/meegotouch/inputmethods/virtualkeyboard/correctionenabled");
+    const QString SettingsImWordCompletion("/meegotouch/inputmethods/virtualkeyboard/completionenabled");
     const QString InputMethodLayouts("/meegotouch/inputmethods/virtualkeyboard/layouts");
 };
 
@@ -108,7 +109,7 @@ void Ut_MKeyboardSettings::testSetSelectedKeyboards()
 
 void Ut_MKeyboardSettings::testErrorCorrection()
 {
-    MGConfItem errorCorrectionSetting(SettingsIMCorrectionSetting);
+    MGConfItem errorCorrectionSetting(SettingsImCorrection);
 
     std::auto_ptr<MKeyboardSettings> subject(new MKeyboardSettings);
 
@@ -126,6 +127,28 @@ void Ut_MKeyboardSettings::testErrorCorrection()
     subject->setErrorCorrection(false);
     QCOMPARE(errorCorrectionSetting.value().toBool(), false);
     QCOMPARE(subject->errorCorrection(), errorCorrectionSetting.value().toBool());
+}
+
+void Ut_MKeyboardSettings::testWordCompletion()
+{
+    MGConfItem wordCompletionSetting(SettingsImWordCompletion);
+
+    std::auto_ptr<MKeyboardSettings> subject(new MKeyboardSettings);
+
+    wordCompletionSetting.set(QVariant(false));
+    QCOMPARE(subject->wordCompletion(), wordCompletionSetting.value().toBool());
+
+    wordCompletionSetting.set(QVariant(true));
+    QCOMPARE(subject->wordCompletion(), wordCompletionSetting.value().toBool());
+
+
+    subject->setWordCompletion(true);
+    QCOMPARE(wordCompletionSetting.value().toBool(), true);
+    QCOMPARE(subject->wordCompletion(), wordCompletionSetting.value().toBool());
+
+    subject->setWordCompletion(false);
+    QCOMPARE(wordCompletionSetting.value().toBool(), false);
+    QCOMPARE(subject->wordCompletion(), wordCompletionSetting.value().toBool());
 }
 
 QTEST_APPLESS_MAIN(Ut_MKeyboardSettings);

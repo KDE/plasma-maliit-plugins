@@ -32,7 +32,8 @@
 #include <QSignalSpy>
 
 namespace {
-    const QString SettingsIMCorrectionSetting("/meegotouch/inputmethods/virtualkeyboard/correctionenabled");
+    const QString SettingsImCorrection("/meegotouch/inputmethods/virtualkeyboard/correctionenabled");
+    const QString SettingsImWordCompletion("/meegotouch/inputmethods/virtualkeyboard/completionenabled");
 };
 
 // Stubbing..................................................................
@@ -64,6 +65,7 @@ void Ut_MKeyboardSettingsWidget::init()
     subject = new MKeyboardSettingsWidget(settingsObject);
     QVERIFY(subject->selectedKeyboardsItem);
     QVERIFY(subject->errorCorrectionSwitch);
+    QVERIFY(subject->wordCompletionSwitch);
 }
 
 void Ut_MKeyboardSettingsWidget::cleanup()
@@ -113,7 +115,7 @@ void Ut_MKeyboardSettingsWidget::testShowKeyboardList()
 
 void Ut_MKeyboardSettingsWidget::testKeyboardErrorCorrection()
 {
-    MGConfItem errorCorrectionSetting(SettingsIMCorrectionSetting);
+    MGConfItem errorCorrectionSetting(SettingsImCorrection);
 
     QVERIFY(subject->errorCorrectionSwitch);
     settingsObject->setErrorCorrection(true);
@@ -132,6 +134,29 @@ void Ut_MKeyboardSettingsWidget::testKeyboardErrorCorrection()
     QCOMPARE(spy.count(), 1);
     QCOMPARE(spy.takeFirst().at(0).toBool(), false);
     QCOMPARE(errorCorrectionSetting.value().toBool(), false);
+}
+
+void Ut_MKeyboardSettingsWidget::testKeyboardWordCompletion()
+{
+    MGConfItem wordCompletionSetting(SettingsImWordCompletion);
+
+    QVERIFY(subject->wordCompletionSwitch);
+    settingsObject->setWordCompletion(true);
+    QCOMPARE(subject->wordCompletionSwitch->isChecked(), true);
+    settingsObject->setWordCompletion(false);
+    QCOMPARE(subject->wordCompletionSwitch->isChecked(), false);
+
+    QSignalSpy spy(subject->wordCompletionSwitch, SIGNAL(toggled(bool)));
+    subject->setWordCompletionState(true);
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.takeFirst().at(0).toBool(), true);
+    QCOMPARE(wordCompletionSetting.value().toBool(), true);
+
+    spy.clear();
+    subject->setWordCompletionState(false);
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.takeFirst().at(0).toBool(), false);
+    QCOMPARE(wordCompletionSetting.value().toBool(), false);
 }
 
 void Ut_MKeyboardSettingsWidget::testHandleVisibilityChanged()

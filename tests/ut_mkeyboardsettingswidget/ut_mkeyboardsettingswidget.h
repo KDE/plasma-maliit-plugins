@@ -35,6 +35,7 @@ private slots:
 
     void testShowKeyboardList();
     void testKeyboardErrorCorrection();
+    void testKeyboardWordCompletion();
     void testHandleVisibilityChanged();
 
 private:

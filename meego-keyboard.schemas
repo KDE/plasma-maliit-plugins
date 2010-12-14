@@ -38,5 +38,17 @@
       </locale>
     </schema>
 
+    <schema>
+      <key>/schemas/meegotouch/inputmethods/virtualkeyboard/completionenabled</key>
+      <applyto>/meegotouch/inputmethods/virtualkeyboard/completionenabled</applyto>
+      <owner>meegotouch</owner>
+      <type>bool</type>
+      <default>true</default>
+      <locale name="C">
+        <short>Whether word completion is enabled</short>
+        <long>Whether word completion is enabled for meegotouch virtual keyboard</long>
+      </locale>
+    </schema>
+
   </schemalist>
 </gconfschemafile>

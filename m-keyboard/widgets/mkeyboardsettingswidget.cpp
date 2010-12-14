@@ -112,6 +112,7 @@ MKeyboardSettingsWidget::MKeyboardSettingsWidget(MKeyboardSettings *settings, QG
 
     buildUi();
     syncErrorCorrectionState();
+    syncWordCompletionState();
     retranslateUi();
     connectSlots();
 }
@@ -316,7 +317,7 @@ void MKeyboardSettingsWidget::setErrorCorrectionState(bool enabled)
         return;
 
     if (settingsObject->errorCorrection() != enabled)
-        settingsObject->setErrorCorrection(enabled) ;
+        settingsObject->setErrorCorrection(enabled);
 }
 
 void MKeyboardSettingsWidget::syncErrorCorrectionState()
@@ -337,7 +338,7 @@ void MKeyboardSettingsWidget::setWordCompletionState(bool enabled)
         return;
 
     if (settingsObject->wordCompletion() != enabled)
-        settingsObject->setWordCompletion(enabled) ;
+        settingsObject->setWordCompletion(enabled);
 }
 
 void MKeyboardSettingsWidget::syncWordCompletionState()
