@@ -321,8 +321,8 @@ void MVirtualKeyboard::showKeyboard(bool fadeOnly)
         // show() so that we can use region().  We cannot use sendVKBRegion() since region
         // updates are suppressed and because we want to apply the offset.
         regionOffset = mapOffsetToScene(regionOffset);
-        emit regionUpdated(region(true).translated(regionOffset));
-        emit inputMethodAreaUpdated(region(true).translated(regionOffset));
+        emit regionUpdated(region().translated(regionOffset));
+        emit inputMethodAreaUpdated(region().translated(regionOffset));
     } else if (hideShowByFadingOnly) {
         // fade() doesn't alter the position when we're just fading
         setPos(0, sceneManager->visibleSceneSize().height() - size().height());
@@ -456,11 +456,11 @@ void MVirtualKeyboard::sendVKBRegion(const QRegion &extraRegion)
         return;
     }
 
-    emit regionUpdated(region(true) |= extraRegion);
-    emit inputMethodAreaUpdated(region(true));
+    emit regionUpdated(region() |= extraRegion);
+    emit inputMethodAreaUpdated(region());
 }
 
-QRegion MVirtualKeyboard::region(const bool notJustMainKeyboardArea) const
+QRegion MVirtualKeyboard::region() const
 {
     QRegion region;
     QRectF rect;
@@ -470,10 +470,8 @@ QRegion MVirtualKeyboard::region(const bool notJustMainKeyboardArea) const
 
         rect = mainLayout->itemAt(KeyboardIndex)->geometry();
         region |= mapRectToScene(rect).toRect();
-        if (notJustMainKeyboardArea) {
-            rect = mainLayout->itemAt(KeyboardHandleIndex)->geometry();
-            region |= mapRectToScene(rect).toRect();
-        }
+        rect = mainLayout->itemAt(KeyboardHandleIndex)->geometry();
+        region |= mapRectToScene(rect).toRect();
     }
 
     return region;

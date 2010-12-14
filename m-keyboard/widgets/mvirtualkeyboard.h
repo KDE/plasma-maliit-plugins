@@ -330,13 +330,8 @@ private:
     //! Getter for style container
     const MVirtualKeyboardStyleContainer &style() const;
 
-    /*!
-     * \brief Calculate region occupied by keyboard.
-     * \param notJustMainKeyboardArea Set this param to true if you want to include toolbar into region.
-     * \param includeExtraInteractiveAreas Set this param to true if you want to include transparent
-     * interactive area into region
-     */
-    QRegion region(bool notJustMainKeyboardArea = true) const;
+    //! \return region occupied by keyboard in scene coordinates
+    QRegion region() const;
 
     /*!
      * \brief Maps \a offset to scene coordinate.
