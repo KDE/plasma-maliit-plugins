@@ -47,7 +47,8 @@ SharedHandleArea::SharedHandleArea(MImToolbar &toolbar, QGraphicsWidget *parent)
     mainLayout.addItem(&toolbar);
     mainLayout.setAlignment(&toolbar, Qt::AlignCenter);
 
-    connect(&toolbar, SIGNAL(regionUpdated()), this, SIGNAL(regionUpdated()));
+    connect(&toolbar, SIGNAL(regionUpdated()), this, SLOT(updatePositionAndRegion()));
+    connect(this, SIGNAL(visibleChanged()), this, SLOT(updatePositionAndRegion()));
 }
 
 
@@ -142,7 +143,7 @@ void SharedHandleArea::updatePositionAndRegion(SignalsMode signalsMode)
 
 void SharedHandleArea::updatePosition()
 {
-    qreal bottom = MPlainWindow::instance()->visibleSceneSize().height() + size().height();
+    qreal bottom = MPlainWindow::instance()->visibleSceneSize().height();
 
     foreach (const QGraphicsWidget *widget, watchedWidgets) {
         if (widget && widget->isVisible()) {
@@ -162,7 +163,7 @@ void SharedHandleArea::watchOnWidget(QGraphicsWidget *widget)
     connect(widget, SIGNAL(yChanged()), this, SLOT(updatePosition()));
     connect(widget, SIGNAL(visibleChanged()), this, SLOT(updatePosition()));
     watchedWidgets.append(widget);
-    updatePositionAndRegion();
+    updatePositionAndRegion(SignalsAuto);
 
     watchedWidgets.removeAll(QPointer<QGraphicsWidget>()); //remove all invalid pointers
 }

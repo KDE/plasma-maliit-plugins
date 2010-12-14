@@ -186,6 +186,7 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
       activeState(MInputMethod::OnScreen),
       modifierLockOnBanner(0),
       haveFocus(false),
+      sipRequested(false),
       enableMultiTouch(false),
       cycleKeyHandler(new CycleKeyHandler(*this)),
       currentIndicatorDeadKey(false),
@@ -286,8 +287,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
     sharedHandleArea->resize(MPlainWindow::instance()->visibleSceneSize().width(),
                              sharedHandleArea->size().height());
     sharedHandleArea->hide();
-    ok = connect(imToolbar, SIGNAL(regionUpdated()),
-                 sharedHandleArea, SLOT(updatePositionAndRegion()));
     Q_ASSERT(ok);
     sharedHandleArea->setInputMethodMode(static_cast<M::InputMethodMode>(inputMethodMode));
 
@@ -433,53 +432,59 @@ void MKeyboardHost::handleFocusChange(bool focusIn)
             hardwareKeyboard->enable();
         } else {
             hardwareKeyboard->disable();
-        }
-        if (!focusIn) {
             inputMethodHost()->setInputModeIndicator(MInputMethod::NoIndicator);
         }
         hideLockOnInfoBanner();
-    }
-
-    if (focusIn) {
-        sharedHandleArea->show();
-    } else {
-        sharedHandleArea->hide();
     }
 }
 
 
 void MKeyboardHost::show()
 {
+    sipRequested = true;
     MPlainWindow::instance()->sceneManager()->appearSceneWindowNow(sceneWindow);
 
     if (activeState == MInputMethod::Hardware) {
+        sharedHandleArea->show();
         if (!hardwareKeyboard->symViewAvailable())
             symbolView->hideSymbolView();
     } else {
-        //Onscreen state
+        // Prevent region updates from shared handle area, let MVirtualKeyboard trigger
+        // the update (just once)
+        const bool wasBlocked(sharedHandleArea->blockSignals(true));
+        sharedHandleArea->show();
+        sharedHandleArea->blockSignals(wasBlocked);
+        // Onscreen state
         if (!vkbWidget->symViewAvailable())
             symbolView->hideSymbolView();
+        vkbWidget->showKeyboard();
     }
-
-    // FIXME: This is from time when toolbar was attached on top of vkb widget
-    // and vbk was needed to be shown, even when the position was under visible
-    // screen. This is no longer the case and the following showKeyboard() should
-    // not be called on hardware mode. What does host::show() even mean in hw mode?
-    vkbWidget->showKeyboard();
 
     // update input engine keyboard layout.
     updateEngineKeyboardLayout();
-
     updateCorrectionState();
 }
 
 
 void MKeyboardHost::hide()
 {
+    sipRequested = false;
+    if (activeState == MInputMethod::OnScreen) {
+        // Prevent region updates from shared handle area, let MVirtualKeyboard trigger
+        // the update (just once)
+        const bool wasBlocked(sharedHandleArea->blockSignals(true));
+        sharedHandleArea->hide();
+        sharedHandleArea->blockSignals(wasBlocked);
+    } else {
+        sharedHandleArea->hide();
+    }
     correctionHost->hideCorrectionWidget();
     symbolView->hideSymbolView();
     vkbWidget->hideKeyboard();
 
+    // TODO: the following line which was added to improve plugin switching (see
+    // the commit comment) causes the animation started by the previous line to
+    // not be seen.
     MPlainWindow::instance()->sceneManager()->disappearSceneWindowNow(sceneWindow);
 }
 
@@ -1575,6 +1580,9 @@ void MKeyboardHost::setState(const QSet<MInputMethod::HandlerState> &state)
         if (haveFocus) {
             hardwareKeyboard->disable();
         }
+        if (sipRequested) {
+            vkbWidget->showKeyboard();
+        }
     } else {
         currentIndicatorDeadKey = false;
         connect(hardwareKeyboard, SIGNAL(deadKeyStateChanged(const QChar &)),
@@ -1586,6 +1594,7 @@ void MKeyboardHost::setState(const QSet<MInputMethod::HandlerState> &state)
         if (haveFocus) {
             hardwareKeyboard->enable();
         }
+        vkbWidget->hideKeyboard();
     }
 
     // Hide symbol view before changing the state.
@@ -1595,7 +1604,6 @@ void MKeyboardHost::setState(const QSet<MInputMethod::HandlerState> &state)
     symbolView->hideSymbolView();
 
     symbolView->setKeyboardState(actualState);
-    vkbWidget->setKeyboardState(actualState);
     updateCorrectionState();
     updateAutoCapitalization();
 }

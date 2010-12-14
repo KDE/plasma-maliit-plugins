@@ -77,7 +77,6 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
       notification(0),
       numberKeyboard(0),
       phoneNumberKeyboard(0),
-      activeState(MInputMethod::OnScreen),
       eventHandler(this),
       pendingNotificationRequest(false)
 {
@@ -153,10 +152,8 @@ void MVirtualKeyboard::connectHandle(const T &handle)
 
 void MVirtualKeyboard::handleHandleFlickDown(const FlickGesture &/* gesture */)
 {
-    if (activeState == MInputMethod::OnScreen) {
-        hideKeyboard();
-        emit userInitiatedHide();
-    }
+    hideKeyboard();
+    emit userInitiatedHide();
 }
 
 
@@ -241,7 +238,7 @@ MVirtualKeyboard::setupTimeLine()
 void
 MVirtualKeyboard::flickLeftHandler()
 {
-    if ((activeState == MInputMethod::OnScreen) && !mainKeyboardSwitcher->isRunning()) {
+    if (!mainKeyboardSwitcher->isRunning()) {
         if (mainKeyboardSwitcher->isAtBoundary(HorizontalSwitcher::Right)) {
             emit pluginSwitchRequired(MInputMethod::SwitchForward);
             return;
@@ -265,7 +262,7 @@ MVirtualKeyboard::flickUpHandler(const MImKeyBinding &binding)
 void
 MVirtualKeyboard::flickRightHandler()
 {
-    if ((activeState == MInputMethod::OnScreen) && !mainKeyboardSwitcher->isRunning()) {
+    if (!mainKeyboardSwitcher->isRunning()) {
         if (mainKeyboardSwitcher->isAtBoundary(HorizontalSwitcher::Left)) {
             emit pluginSwitchRequired(MInputMethod::SwitchBackward);
             return;
@@ -304,9 +301,9 @@ void MVirtualKeyboard::showKeyboard(bool fadeOnly)
                 shift = sharedHandleArea->size().height();
             }
             setPos(0, sceneManager->visibleSceneSize().height() + shift);
-            regionOffset.setY(-actualHeight() - shift);
+            regionOffset.setY(-size().height() - shift);
         } else {
-            setPos(0, sceneManager->visibleSceneSize().height() - actualHeight());
+            setPos(0, sceneManager->visibleSceneSize().height() - size().height());
         }
 
         suppressRegionUpdate(true); // Don't send separate region update for imtoolbar.
@@ -328,7 +325,7 @@ void MVirtualKeyboard::showKeyboard(bool fadeOnly)
         emit inputMethodAreaUpdated(region(true).translated(regionOffset));
     } else if (hideShowByFadingOnly) {
         // fade() doesn't alter the position when we're just fading
-        setPos(0, sceneManager->visibleSceneSize().height() - actualHeight());
+        setPos(0, sceneManager->visibleSceneSize().height() - size().height());
         show();
     }
 }
@@ -361,17 +358,6 @@ void MVirtualKeyboard::resetState()
     // hideKeyboard(), we don't have to explicitly unlock them.
 }
 
-int MVirtualKeyboard::actualHeight() const
-{
-    int result = size().height();
-
-    if ((activeState != MInputMethod::OnScreen)) {
-        result = 0;
-    }
-
-    return result;
-}
-
 void MVirtualKeyboard::showLanguageNotification()
 {
     pendingNotificationRequest = false;
@@ -400,7 +386,7 @@ void MVirtualKeyboard::organizeContent(M::Orientation orientation)
     mainLayout->invalidate();
     resize(MPlainWindow::instance()->visibleSceneSize().width(), mainLayout->preferredHeight());
     if ((activity == Active) && (showHideTimeline.state() != QTimeLine::Running)) {
-        setPos(0, sceneManager->visibleSceneSize().height() - actualHeight());
+        setPos(0, sceneManager->visibleSceneSize().height() - size().height());
     }
 }
 
@@ -418,14 +404,10 @@ MVirtualKeyboard::fade(int frame)
             shift = sharedHandleArea->size().height();
         }
         //vkb should be under sharedHandleArea
-        setPos(0, sceneSize.height() + shift - (opacity * (actualHeight() + shift)));
+        setPos(0, sceneSize.height() + shift - (opacity * (size().height() + shift)));
     }
 
     this->setOpacity(opacity);
-    if (sharedHandleArea) {
-        // fade sharedHandleArea together
-        sharedHandleArea->setOpacity(opacity);
-    }
     update();
 }
 
@@ -486,18 +468,10 @@ QRegion MVirtualKeyboard::region(const bool notJustMainKeyboardArea) const
     if (isVisible()) {
         mainLayout->activate();
 
-        // Main keyboard area (qwerty/number/etc.)
-        if (activeState == MInputMethod::OnScreen) {
-            mainLayout->activate();
-            rect = mainLayout->itemAt(KeyboardIndex)->geometry();
-            region |= mapRectToScene(rect).toRect();
-            if (notJustMainKeyboardArea) {
-                rect = mainLayout->itemAt(KeyboardHandleIndex)->geometry();
-                region |= mapRectToScene(rect).toRect();
-            }
-        } else {
-            // set offscreen rectangle to provide proper positioning for toolbar
-            rect = QRectF(0, 0, size().width(), 1);
+        rect = mainLayout->itemAt(KeyboardIndex)->geometry();
+        region |= mapRectToScene(rect).toRect();
+        if (notJustMainKeyboardArea) {
+            rect = mainLayout->itemAt(KeyboardHandleIndex)->geometry();
             region |= mapRectToScene(rect).toRect();
         }
     }
@@ -515,49 +489,6 @@ QPoint MVirtualKeyboard::mapOffsetToScene(QPointF offset)
                   offset.y() - startingPoint.y());
 }
 
-
-QRect MVirtualKeyboard::mainAreaSceneRect() const
-{
-    QRect result;
-
-    if (activeState == MInputMethod::OnScreen) {
-        result = region(false).boundingRect();
-    }
-
-    return result;
-}
-
-void MVirtualKeyboard::setKeyboardState(MInputMethod::HandlerState newState)
-{
-    if (activeState == newState) {
-        return;
-    }
-
-    bool savedSendRegionUpdates = sendRegionUpdates;
-    sendRegionUpdates = true; // our region is changed, so we must sent it now
-
-    activeState = newState;
-    resetState();
-
-
-    static_cast<QGraphicsWidget *>(mainLayout->itemAt(KeyboardIndex))->setVisible(newState == MInputMethod::OnScreen);
-    if (newState != MInputMethod::OnScreen) {
-        MImAbstractKeyArea *keyArea = dynamic_cast<MImAbstractKeyArea *>(mainKeyboardSwitcher->currentWidget());
-
-        if (keyArea) {
-            keyArea->hidePopup();
-        }
-    }
-
-    showHideTimeline.stop(); // position must be updated by organizeContentAndSendRegion()
-    organizeContentAndSendRegion();
-    sendRegionUpdates = savedSendRegionUpdates;
-}
-
-MInputMethod::HandlerState MVirtualKeyboard::keyboardState() const
-{
-    return activeState;
-}
 
 void MVirtualKeyboard::drawButtonsReactionMaps(MReactionMap *reactionMap, QGraphicsView *view)
 {
@@ -604,9 +535,7 @@ void MVirtualKeyboard::paintReactionMap(MReactionMap *reactionMap, QGraphicsView
     reactionMap->fillRectangle(layout()->itemAt(KeyboardIndex)->geometry());
     reactionMap->fillRectangle(layout()->itemAt(KeyboardHandleIndex)->geometry());
 
-    if (activeState == MInputMethod::OnScreen) {
-        drawButtonsReactionMaps(reactionMap, view);
-    }
+    drawButtonsReactionMaps(reactionMap, view);
 }
 
 
@@ -961,6 +890,7 @@ void MVirtualKeyboard::switchLayout(MInputMethod::SwitchDirection direction, boo
 
 void MVirtualKeyboard::hideMainArea()
 {
+    // TODO: do we need an activity check here (and in showMainArea)?
     QGraphicsItem *item = dynamic_cast<QGraphicsItem*>(mainLayout->itemAt(KeyboardIndex));
     if (item) {
         item->hide();
@@ -1039,7 +969,7 @@ void MVirtualKeyboard::updateMainLayoutAtKeyboardIndex()
     }
 
     mainLayout->insertItem(KeyboardIndex, newWidget);
-    newWidget->setVisible(activeState == MInputMethod::OnScreen);
+    newWidget->setVisible(true);
 
     // resize and update keyboards if needed
     organizeContentAndSendRegion();

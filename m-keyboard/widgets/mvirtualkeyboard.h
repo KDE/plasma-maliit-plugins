@@ -125,21 +125,6 @@ public:
     void finalizeOrientationChange();
 
     /*!
-     * \brief Shows or hides some keyboard's widgets depending on keyboard state.
-     * OnScreen requires to show all keyboard components.
-     * Any other value requires to hide everything except for toolbar.
-     * \param newState actual state
-     */
-    void setKeyboardState(MInputMethod::HandlerState newState);
-
-    /*!
-     * \brief Returns current active state of the virtual keyboard.
-     * The virtual keyboard has three kinds of modes, OnScreen, Hardware, and Accessory, \sa MInputMethod::HandlerState.
-     * \sa setKeyboardState().
-     */
-    MInputMethod::HandlerState keyboardState() const;
-
-    /*!
      * \brief Returns whether the symbol view is available for current layout.
      */
     bool symViewAvailable() const;
@@ -151,9 +136,6 @@ public:
 
     //! Set input method mode
     void setInputMethodMode(M::InputMethodMode mode);
-
-    //! Return bounding rectangle of main keyboard area in scene coordinates
-    QRect mainAreaSceneRect() const;
 
     //! Set pointer to shared handle area
     void setSharedHandleArea(const QPointer<SharedHandleArea> &newSharedHandleArea);
@@ -416,11 +398,6 @@ private:
     //! \brief Resets different components of vkb to their initial states.
     void resetState();
 
-    //! \brief Returns height depending on current mode. It includes
-    // toolbar only for hardware keyboard or whole widget for virtual
-    // keyboard
-    int actualHeight() const;
-
     //! Connect signals from a \a handle widget or whatever provides identical flick signals
     template <class T>
     void connectHandle(const T &handleLike);
@@ -502,8 +479,6 @@ private:
     QGraphicsWidget *phoneNumberKeyboard;
 
     QSharedPointer<QPixmap> backgroundPixmap;
-
-    MInputMethod::HandlerState activeState;
 
     KeyEventHandler eventHandler;
 

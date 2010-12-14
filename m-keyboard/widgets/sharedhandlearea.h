@@ -105,7 +105,7 @@ private slots:
     //! Update widget position and notify about region update.
     //! \param sendSignals If this parameter contains true then signals regionUpdated and
     //! inputMethodAreaUpdated will be emitted even if position was not changed
-    void updatePositionAndRegion(SignalsMode sendSignals = SignalsAuto);
+    void updatePositionAndRegion(SignalsMode sendSignals = SignalsEnforce);
 
     /*!
      * \brief Move toolbar when other widgets are moved.

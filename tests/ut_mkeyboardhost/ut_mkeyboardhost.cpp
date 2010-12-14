@@ -56,8 +56,6 @@ namespace
 
     const QString CorrectionSetting("/meegotouch/inputmethods/virtualkeyboard/correctionenabled");
     const QString InputMethodCorrectionEngine("/meegotouch/inputmethods/correctionengine");
-    int gSetKeyboardStateCallCount = 0;
-    MInputMethod::HandlerState gSetKeyboardStateParam = MInputMethod::OnScreen;
     const int SceneRotationTime = 1400; // in ms
     bool gAutoCapsEnabled = true;
 
@@ -99,12 +97,6 @@ Q_DECLARE_METATYPE(Ut_MKeyboardHost::TestOpList)
 Q_DECLARE_METATYPE(MInputMethod::InputModeIndicator)
 
 // Stubbing..................................................................
-
-void MVirtualKeyboard::setKeyboardState(MInputMethod::HandlerState state)
-{
-    ++gSetKeyboardStateCallCount;
-    gSetKeyboardStateParam = state;
-}
 
 QString MVirtualKeyboard::layoutLanguage() const
 {
@@ -1004,75 +996,33 @@ void Ut_MKeyboardHost::testSetState_data()
     QSet<MInputMethod::HandlerState> state;
 
     QTest::addColumn<QSet<MInputMethod::HandlerState> >("state");
-    QTest::addColumn<int>("expectedCallCount");
     QTest::addColumn<MInputMethod::HandlerState>("expectedParameter");
 
-    QTest::newRow("Empty") << state << 0 << MInputMethod::OnScreen;
+    QTest::newRow("Empty") << state << MInputMethod::OnScreen;
 
     state.clear();
     state << MInputMethod::Hardware;
-    QTest::newRow("Hardware") << state << 1 << MInputMethod::Hardware;
+    QTest::newRow("Hardware") << state << MInputMethod::Hardware;
 
     state.clear();
     state << MInputMethod::OnScreen;
-    QTest::newRow("OnScreen") << state << 0 << MInputMethod::OnScreen;
+    QTest::newRow("OnScreen") << state << MInputMethod::OnScreen;
 
     state.clear();
     state << MInputMethod::Accessory;
-    QTest::newRow("Accessory") << state << 1 << MInputMethod::Accessory;
-
-    state.clear();
-    state << MInputMethod::OnScreen << MInputMethod::Hardware;
-    QTest::newRow("Sequence1") << state << 0 << MInputMethod::Hardware;
-
-    state.clear();
-    state << MInputMethod::Hardware << MInputMethod::Accessory;
-    QTest::newRow("Sequence2") << state << 1 << MInputMethod::Hardware;
+    QTest::newRow("Accessory") << state << MInputMethod::Accessory;
 }
 
 void Ut_MKeyboardHost::testSetState()
 {
     QFETCH(QSet<MInputMethod::HandlerState>, state);
-    QFETCH(int, expectedCallCount);
     QFETCH(MInputMethod::HandlerState, expectedParameter);
 
     qDebug() << "Probe state=" << state;
 
-    gSetKeyboardStateCallCount = 0;
     subject->update();
     subject->setState(state);
-    QCOMPARE(gSetKeyboardStateCallCount, expectedCallCount);
-    if (gSetKeyboardStateCallCount) {
-        QCOMPARE(gSetKeyboardStateParam, expectedParameter);
-    }
-}
-
-void Ut_MKeyboardHost::testSetStateCombination()
-{
-    QSet<MInputMethod::HandlerState> state;
-
-    gSetKeyboardStateCallCount = 0;
-    state << MInputMethod::Hardware;
-    subject->update();
-    subject->setState(state);
-    QCOMPARE(gSetKeyboardStateCallCount, 1);
-    QCOMPARE(gSetKeyboardStateParam, MInputMethod::Hardware);
-    subject->setState(state);
-    QCOMPARE(gSetKeyboardStateCallCount, 1);
-    QCOMPARE(gSetKeyboardStateParam, MInputMethod::Hardware);
-
-    state.clear();
-    state << MInputMethod::Hardware << MInputMethod::OnScreen;
-    subject->setState(state);
-    QCOMPARE(gSetKeyboardStateCallCount, 2);
-    QCOMPARE(gSetKeyboardStateParam, MInputMethod::OnScreen);
-
-    state.clear();
-    state << MInputMethod::OnScreen;
-    subject->setState(state);
-    QCOMPARE(gSetKeyboardStateCallCount, 2);
-    QCOMPARE(gSetKeyboardStateParam, MInputMethod::OnScreen);
-    gSetKeyboardStateCallCount = 0;
+    QCOMPARE(subject->activeState, expectedParameter);
 }
 
 void Ut_MKeyboardHost::testSymbolKeyClick()

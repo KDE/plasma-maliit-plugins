@@ -404,6 +404,10 @@ private:
     //! \sa focusChanged
     bool haveFocus;
 
+    //! In practice show() and hide() correspond to application SIP (close)
+    //! requests.  We track the current shown/SIP requested state using this variable.
+    bool sipRequested;
+
     //! Contains true if multi-touch is enabled
     bool enableMultiTouch;
 

@@ -68,7 +68,6 @@ private slots:
 
     void testSetState_data();
     void testSetState();
-    void testSetStateCombination();
 
     void testSymbolKeyClick();
     void testUpdateSymbolViewLevel();

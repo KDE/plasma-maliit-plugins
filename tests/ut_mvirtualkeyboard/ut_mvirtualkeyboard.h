@@ -94,7 +94,6 @@ private slots:
     void symbolKeyTestCapsLock();
     void interceptPress();
     void bug_137295();
-    void testSetKeyboardState();
     void testReactionMaps();
     void flickUpHandlerTest_data();
     void flickUpHandlerTest();

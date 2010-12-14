@@ -845,28 +845,6 @@ void Ut_MVirtualKeyboard::bug_137295()
 #endif
 }
 
-void Ut_MVirtualKeyboard::testSetKeyboardState()
-{
-    qreal top = 0;
-
-    m_vkb->setKeyboardState(MInputMethod::Hardware);
-    m_vkb->showKeyboard();
-    QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
-    top = m_vkb->geometry().top();
-
-    const qreal topInHardwareState(top);
-
-    //show whole keyboard
-    m_vkb->setKeyboardState(MInputMethod::OnScreen);
-    top -= m_vkb->layout()->itemAt(MVirtualKeyboard::KeyboardIndex)->geometry().height()
-        + m_vkb->layout()->itemAt(MVirtualKeyboard::KeyboardHandleIndex)->geometry().height();
-    QCOMPARE(qRound(top), qRound(m_vkb->geometry().top()));
-
-    //show toolbar only
-    m_vkb->setKeyboardState(MInputMethod::Hardware);
-    QCOMPARE(qRound(topInHardwareState), qRound(m_vkb->geometry().top()));
-}
-
 void Ut_MVirtualKeyboard::testReactionMaps()
 {
     MReactionMapTester tester;
