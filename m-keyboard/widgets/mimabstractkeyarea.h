@@ -298,12 +298,9 @@ private:
     //!        mapped to widget space.
     //! \param mappedLastPos Last position of touchpoint,
     //!        mapped to widget space.
-    //! \param mappedStartPos Start position of touchpoint,
-    //!        mapped to widget space.
     //! \returns adjusted key and last key, using \a keyAt.
     GravitationalLookupResult gravitationalKeyAt(const QPoint &mappedPos,
-                                                 const QPoint &mappedLastPos,
-                                                 const QPoint &mappedStartPos) const;
+                                                 const QPoint &mappedLastPos) const;
 
     //! \brief Trigger a keyClicked signal, and update key area state.
     //! \param key the clicked key

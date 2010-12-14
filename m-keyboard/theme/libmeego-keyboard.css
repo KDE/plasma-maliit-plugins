@@ -112,8 +112,8 @@ MImAbstractKeyAreaStyle.Landscape {
     secondary-label-separation: 0;
 
     /*** Behaviour ***/
-    touchpoint-horizontal-gravity: 8.2mm;
-    touchpoint-vertical-gravity: 7.2mm;
+    touchpoint-horizontal-gravity: 32px;
+    touchpoint-vertical-gravity: 20px;
 
     /*** Key Geometry ***/
     key-height-small: -1; /* unused */
@@ -150,8 +150,8 @@ MImAbstractKeyAreaStyle.Portrait {
     secondary-label-separation: 0.9mm;
 
     /*** Behaviour ***/
-    touchpoint-horizontal-gravity: 6.2mm;
-    touchpoint-vertical-gravity: 9.6mm;
+    touchpoint-horizontal-gravity: 17px;
+    touchpoint-vertical-gravity: 26px;
 
     /*** Key Geometry ***/
     key-height-small: -1; /* unused */

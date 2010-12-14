@@ -71,17 +71,19 @@ namespace
     // Used for touchpoint conversion from mouse events:
     QPointF gLastMousePos = QPointF();
 
-    bool isInsideAreaOf(const QPoint &target,
-                        const QPoint &origin,
-                        int xDistance,
-                        int yDistance)
+    QPointF adjustedByGravity(const MImAbstractKey *const key,
+                              const QPoint &pos,
+                              int horizontalGravity,
+                              int verticalGravity)
     {
-        // Given target and origin, is target inside the rectangle of
-        // (2 * xDistance) x (2 * yDistance), of which origin is the center?
-        return ((target.x() > origin.x() - xDistance)
-                && (target.x() < origin.x() + xDistance)
-                && (target.y() > origin.y() - yDistance)
-                && (target.y() < origin.y() + yDistance));
+        if (key
+            && key->isGravityActive()
+            && key->buttonBoundingRect().adjusted(-horizontalGravity, -verticalGravity,
+                                                   horizontalGravity,  verticalGravity).contains(pos)) {
+            return key->buttonBoundingRect().center();
+        }
+
+        return pos;
     }
 
     //! \brief Helper class responsible for finding active special keys.
@@ -655,6 +657,13 @@ void MImAbstractKeyArea::touchPointPressed(const QTouchEvent::TouchPoint &tp)
         updatePopup(key);
         longPressTimer.start(style()->longPressTimeout());
 
+        // We activate the key's gravity here because a key cannot
+        // differentiate between initially-pressed-key or
+        // activated-by-moving-onto-it.
+        // However, the key deactivates the gravity itself again
+        // (touchpoint count goes from 1 to 0).
+        key->activateGravity();
+
         emit keyPressed(key, (finder.deadKey() ? finder.deadKey()->label() : QString()),
                         hasActiveShiftKeys || level() % 2);
     }
@@ -678,7 +687,7 @@ void MImAbstractKeyArea::touchPointMoved(const QTouchEvent::TouchPoint &tp)
     const QPoint lastPos = mapFromScene(tp.lastScenePos()).toPoint();
     const QPoint startPos = mapFromScene(tp.startScenePos()).toPoint();
 
-    const GravitationalLookupResult lookup = gravitationalKeyAt(pos, lastPos, startPos);
+    const GravitationalLookupResult lookup = gravitationalKeyAt(pos, lastPos);
     SpecialKeyFinder finder;
     MImAbstractKey::visitActiveKeys(&finder);
     const bool hasActiveShiftKeys = (finder.shiftKey() != 0);
@@ -738,7 +747,7 @@ void MImAbstractKeyArea::touchPointReleased(const QTouchEvent::TouchPoint &tp)
     const QPoint lastPos = mapFromScene(tp.lastScenePos()).toPoint();
     const QPoint startPos = mapFromScene(tp.startScenePos()).toPoint();
 
-    const GravitationalLookupResult lookup = gravitationalKeyAt(pos, lastPos, startPos);
+    const GravitationalLookupResult lookup = gravitationalKeyAt(pos, lastPos);
     SpecialKeyFinder finder;
     MImAbstractKey::visitActiveKeys(&finder);
     const bool hasActiveShiftKeys = (finder.shiftKey() != 0);
@@ -791,8 +800,7 @@ QTouchEvent::TouchPoint MImAbstractKeyArea::createTouchPoint(int id,
 
 MImAbstractKeyArea::GravitationalLookupResult
 MImAbstractKeyArea::gravitationalKeyAt(const QPoint &pos,
-                                  const QPoint &lastPos,
-                                  const QPoint &startPos) const
+                                       const QPoint &lastPos) const
 {
     // TODO: Needs explicit test coverage, maybe.
     MImAbstractKey *key = 0;
@@ -801,11 +809,10 @@ MImAbstractKeyArea::gravitationalKeyAt(const QPoint &pos,
     const qreal hGravity = style()->touchpointHorizontalGravity();
     const qreal vGravity = style()->touchpointVerticalGravity();
 
-    key = keyAt(isInsideAreaOf(pos, startPos, hGravity, vGravity)
-                ? startPos : pos);
-
-    lastKey = keyAt(isInsideAreaOf(lastPos, startPos, hGravity, vGravity)
-                    ? startPos : lastPos);
+    key = keyAt(adjustedByGravity(MImAbstractKey::lastActiveKey(),
+                                  pos, hGravity, vGravity).toPoint());
+    lastKey = keyAt(adjustedByGravity(MImAbstractKey::lastActiveKey(),
+                                      lastPos, hGravity, vGravity).toPoint());
 
     // Check whether error correction needs updated position:
     if (key) {
