@@ -389,6 +389,20 @@ void Ut_MImKey::testKeyRects()
     QCOMPARE(key->buttonBoundingRect(), expectedBoundingRect);
 }
 
+void Ut_MImKey::testGravity()
+{
+    QVERIFY(!subject->isGravityActive());
+
+    subject->activateGravity();
+    QVERIFY(subject->isGravityActive());
+
+    subject->setDownState(true);
+    QVERIFY(subject->isGravityActive());
+
+    subject->setDownState(false);
+    QVERIFY(!subject->isGravityActive());
+}
+
 MImKey *Ut_MImKey::createKey(bool state)
 {
     MImKey *key = new MImKey(*dataKey, *style, *parent);

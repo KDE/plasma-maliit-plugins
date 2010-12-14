@@ -105,6 +105,12 @@ public:
     //! \brief Get current touchpoint count.
     virtual int touchPointCount() const = 0;
 
+    //! \brief Activate gravity. Will be reset on next key release.
+    virtual void activateGravity() = 0;
+
+    //! \brief Returns whether gravity is active.
+    virtual bool isGravityActive() const = 0;
+
     //! \brief Returns most recent key that became active, and wasn't released yet.
     //!        If no key is active, returns 0.
     static MImAbstractKey* lastActiveKey();

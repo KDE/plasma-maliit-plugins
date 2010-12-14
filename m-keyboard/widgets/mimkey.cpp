@@ -82,7 +82,8 @@ MImKey::MImKey(const MImKeyModel &newModel,
       selected(false),
       styleContainer(style),
       parentItem(parent),
-      currentTouchPointCount(0)
+      currentTouchPointCount(0),
+      hasGravity(false)
 {
     if (mModel.binding(false)) {
         loadIcon(false);
@@ -156,6 +157,7 @@ void MImKey::setDownState(bool down)
             activeKeys.append(this);
         } else { // currentState == Normal
             activeKeys.removeAll(this);
+            hasGravity = false;
         }
 
         update();
@@ -246,6 +248,16 @@ int MImKey::touchPointCount() const
 int MImKey::touchPointLimit()
 {
     return 20;
+}
+
+void MImKey::activateGravity()
+{
+    hasGravity = true;
+}
+
+bool MImKey::isGravityActive() const
+{
+    return hasGravity;
 }
 
 const QPixmap *MImKey::icon() const

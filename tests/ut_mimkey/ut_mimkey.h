@@ -97,6 +97,7 @@ private slots:
     void testVisitActiveKeys();
 
     void testKeyRects();
+    void testGravity();
 
 private:
     MImKey *createKey(bool state = false);

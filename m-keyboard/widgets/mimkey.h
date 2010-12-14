@@ -75,6 +75,8 @@ public:
     virtual bool decreaseTouchPointCount();
     virtual void resetTouchPointCount();
     virtual int touchPointCount() const;
+    virtual void activateGravity();
+    virtual bool isGravityActive() const;
     //! \reimp_end
 
     //! Return limit for active touchpoints
@@ -173,6 +175,8 @@ private:
     Geometry currentGeometry;
     QRectF cachedButtonRect;
     QRectF cachedButtonBoundingRect;
+
+    bool hasGravity;
 };
 
 #endif // SINGLEWIDGETBUTTON_H
