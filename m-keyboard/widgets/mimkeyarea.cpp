@@ -203,31 +203,28 @@ namespace {
         }
     };
 
+    //! Helper class responsible for key geometry aspect.
     class KeyGeometryUpdater
     {
     public:
         typedef QVector<QPair<qreal, qreal> > OffsetList;
 
         enum RowTypeFlags {
-            NormalRow = 0,
-            FirstRow = 1,
-            LastRow = 2
+            NormalRow = 0, //!< Neither first or last row, default value.
+            FirstRow = 1, //!< First row in a given layout.
+            LastRow = 2 //!< Last row in a given layout.
         };
 
     private:
-        const MImAbstractKeyAreaStyleContainer &style;
-        const qreal availableWidth;
+        const MImAbstractKeyAreaStyleContainer &style; //!< Reference to key area's style
+        const qreal availableWidth; //!< Available width, usually equals key area width.
 
         // key bounding rect related members:
-        QPoint currentPos;
-        OffsetList mRowOffsets;
-        OffsetList mKeyOffsets;
+        QPoint currentPos; //!< Current position, used to update a key's top left corner.
+        OffsetList mRowOffsets; //!< Collects (vertical) row offsets.
+        OffsetList mKeyOffsets; //!< Collects (horizontal) key offsets, reset for each new row.
 
-        // spacer related members:
-        QList<int> spacerIndices;
-        qreal spacerWidth;
-
-        const qreal mRelativeKeyWidth;
+        const qreal mRelativeKeyWidth; //!< Only relevant if use-fixed-key-width is false in CSS.
 
     public:
         explicit KeyGeometryUpdater(const MImAbstractKeyAreaStyleContainer &newStyle,
@@ -235,7 +232,6 @@ namespace {
                                     qreal maxNormalizedWidth)
             : style(newStyle)
             , availableWidth(newAvailableWidth)
-            , spacerWidth(0.0)
             , mRelativeKeyWidth(computeRelativeKeyWidth(maxNormalizedWidth))
         {}
 
@@ -254,28 +250,33 @@ namespace {
             return mRelativeKeyWidth;
         }
 
+        //! Process a row of keys. Updates geometry of each key (width, height, margins, position).
+        //! \param row the row to be processed
+        //! \param newKeyHeight the key height for keys in this row
+        //! \param spacerIndices where to place spacers
+        //! \param flags hints about the row's position in layout
         void processRow(const QList<MImKey *> &row,
-                        qreal newKeyHeight,
-                        const QList<int> &newSpacerIndices,
+                        qreal keyHeight,
+                        const QList<int> &spacerIndices,
                         int flags = NormalRow)
         {
 
             currentPos.rx() = 0;
-            spacerIndices = newSpacerIndices;
-            const QSizeF rowSize = updateGeometry(row, newKeyHeight, flags);
+            const QSizeF rowSize = updateGeometry(row, keyHeight, flags);
 
-            spacerWidth = qAbs((availableWidth - rowSize.width())
-                               / ((spacerIndices.count() ==  0) ? 1 : spacerIndices.count()));
+            const qreal spacerWidth = qAbs((availableWidth - rowSize.width())
+                                           / ((spacerIndices.count() ==  0) ? 1 : spacerIndices.count()));
 
             const qreal nextPosY = currentPos.y() + rowSize.height();
             mRowOffsets.append(QPair<qreal, qreal>(currentPos.y(), nextPosY));
             mKeyOffsets.clear();
 
-            updatePosition(row);
+            updatePosition(row, spacerIndices, spacerWidth);
             currentPos.ry() = nextPosY;
         }
 
     private:
+        //! Computes relative width based on row with max normalized width.
         qreal computeRelativeKeyWidth(qreal maxNormalizedWidth) const
         {
             const qreal widthConsumedByMargins = (style->keyMarginLeft() + style->keyMarginRight())
@@ -286,6 +287,10 @@ namespace {
             return ((availableWidth - widthConsumedByMargins) / qMax<qreal>(1.0, maxNormalizedWidth));
         }
 
+        //! Updates geometry of each key in a row.
+        //! \param row the row to be processed
+        //! \param keyHeight the key height for keys in this row
+        //! \param flags hints about the row's position in layout
         QSizeF updateGeometry(const QList<MImKey *> &row,
                               qreal keyHeight,
                               int flags) const
@@ -348,7 +353,13 @@ namespace {
             return result;
         }
 
-        void updatePosition(const QList<MImKey *> &row)
+        //! Updates position of each key in a row.
+        //! \param row the row to be processed
+        //! \param spacerIndices where to place spacers
+        //! \param spacerWidth the width of a spacer
+        void updatePosition(const QList<MImKey *> &row,
+                            const QList<int> &spacerIndices,
+                            qreal spacerWidth)
         {
             int index = 0;
             currentPos.rx() += spacerIndices.count(-1) * spacerWidth;
@@ -820,9 +831,8 @@ void MImKeyArea::updateKeyGeometries(const int newAvailableWidth)
     for (RowIterator rowIter = rowList.begin();
          rowIter != rowList.end();
          ++rowIter) {
-        const int rowIndex = std::distance(rowList.begin(), rowIter);
-
         int flags = KeyGeometryUpdater::NormalRow;
+        const int rowIndex = std::distance(rowList.begin(), rowIter);
 
         if (rowIter == rowList.begin()) {
             flags |= KeyGeometryUpdater::FirstRow;
