@@ -147,7 +147,6 @@ void MImCorrectionHost::prepareToOrientationChange()
 {
     if (isActive()) {
         rotationInProgress = true;
-        hideCorrectionWidget();
     }
 }
 

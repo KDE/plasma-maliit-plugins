@@ -167,7 +167,7 @@ MVirtualKeyboard::prepareToOrientationChange()
     if (activity != Active) {
         return;
     }
-    hideKeyboard(true, true);
+    activity = TemporarilyInactive;
 }
 
 

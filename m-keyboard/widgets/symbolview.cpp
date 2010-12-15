@@ -316,7 +316,7 @@ void SymbolView::prepareToOrientationChange()
     if (!isActive()) {
         return;
     }
-    hideSymbolView(TemporaryHideMode);
+    activity = TemporarilyInactive;
 }
 
 
@@ -347,7 +347,6 @@ SymbolView::showSymbolView(SymbolView::ShowMode mode)
     show();
     emit aboutToOpen();
     anim.playShowAnimation();
-
 }
 
 

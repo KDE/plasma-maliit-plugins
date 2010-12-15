@@ -1,6 +1,7 @@
 meego-keyboard (0.5.20~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#193290 - Rotation of VKB displayed twice
 
  -- huaming wang <huaming.wang@nokia.com>  Wed, 15 Dec 2010 11:33:50 +0200
 

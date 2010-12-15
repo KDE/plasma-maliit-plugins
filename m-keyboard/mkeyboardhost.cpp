@@ -296,22 +296,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
     // than the device (especially plain qt apps). See NB#185013 - Locking VKB orientation.
     MPlainWindow::instance()->lockOrientationAngle();
 
-    // Ideally we would adjust the hiding/showing animation of vkb according to
-    // animation of the application receiving input. For example, with 3-phase
-    // MBasicOrientationAnimation we would probably want to sync like this:
-    // 1) Navigation bar hiding (altough it's probably already hidden) -> vkb hiding
-    // 2) Rotation in progress -> vkb not visible
-    // 3) Navigation bar showing -> vkb showing
-    connect(MPlainWindow::instance()->sceneManager(),
-            SIGNAL(orientationAngleChanged(M::OrientationAngle)),
-            SLOT(prepareOrientationChange()));
-
-    // orientationChangeFinished is emitted on every angle change,
-    // not only orientation change.
-    connect(MPlainWindow::instance()->sceneManager(),
-            SIGNAL(orientationChangeFinished(M::Orientation)),
-            SLOT(finalizeOrientationChange()));
-
     symbolView = new SymbolView(LayoutsManager::instance(), vkbStyleContainer,
                                 vkbWidget->selectedLayout(), sceneWindow);
     connect(symbolView, SIGNAL(regionUpdated(const QRegion &)),
@@ -648,14 +632,22 @@ void MKeyboardHost::prepareOrientationChange()
     }
     rotationInProgress = true;
 
+    // Saves states then hide
     symbolView->prepareToOrientationChange();
     vkbWidget->prepareToOrientationChange();
     correctionHost->prepareToOrientationChange();
+    MPlainWindow::instance()->sceneManager()->disappearSceneWindowNow(sceneWindow);
+
+    // TODO: this is only a workaround for fixing the orientaton change bug.
+    // The correct fix need a notification from application, to tell keyboard
+    // when the orientation is finished for calling finalizeOrientationChange.
+    QTimer::singleShot(1000, this, SLOT(finalizeOrientationChange()));
 }
 
 void MKeyboardHost::finalizeOrientationChange()
 {
     angle = MPlainWindow::instance()->orientationAngle();
+    MPlainWindow::instance()->sceneManager()->appearSceneWindowNow(sceneWindow);
 
     if (imToolbar) {
         // load proper layout
@@ -689,7 +681,6 @@ void MKeyboardHost::finalizeOrientationChange()
     if (vkbWidget->isVisible()) {
         updateEngineKeyboardLayout();
     }
-
     rotationInProgress = false;
 }
 
@@ -784,8 +775,11 @@ void MKeyboardHost::handleVisualizationPriorityChange(bool priority)
 void MKeyboardHost::handleAppOrientationChange(int angle)
 {
     // The application receiving input has changed its orientation. Let's change ours.
-    MPlainWindow::instance()->setOrientationAngle(static_cast<M::OrientationAngle>(angle));
+    // Disable  the transition animation for rotation.
+    MPlainWindow::instance()->sceneManager()->setOrientationAngle(static_cast<M::OrientationAngle>(angle),
+                                                                  MSceneManager::ImmediateTransition);
     this->angle = static_cast<M::OrientationAngle>(angle);
+    prepareOrientationChange();
 }
 
 
