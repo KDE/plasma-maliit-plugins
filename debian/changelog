@@ -1,3 +1,9 @@
+meego-keyboard (0.5.20~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- huaming wang <huaming.wang@nokia.com>  Wed, 15 Dec 2010 11:33:50 +0200
+
 meego-keyboard (0.5.19-1) unstable; urgency=low
 
   * Fixes: NB#208276 - Excess communication between application and IM server delays key-presses
