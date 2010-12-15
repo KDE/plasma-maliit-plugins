@@ -1448,6 +1448,12 @@ void MKeyboardHost::setState(const QSet<MInputMethod::HandlerState> &state)
         }
     }
 
+    // Hide symbol view before changing the state.
+    // TODO: Wait until transition animation has been finished
+    // before changing state when re-enabling animation for
+    // symbolview hiding.
+    symbolView->hideSymbolView();
+
     symbolView->setKeyboardState(actualState);
     vkbWidget->setKeyboardState(actualState);
     updateCorrectionState();
