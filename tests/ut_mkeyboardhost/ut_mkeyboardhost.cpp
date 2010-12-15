@@ -352,6 +352,19 @@ void Ut_MKeyboardHost::testHandleClick()
     QCOMPARE(inputMethodHost->keyEvents[1]->type(), QEvent::KeyRelease);
     inputMethodHost->clear();
 
+    subject->handleKeyClick(KeyEvent("\r", QEvent::KeyRelease, Qt::Key_Return));
+    QVERIFY(subject->preedit.isEmpty());
+    QCOMPARE(inputMethodHost->sendCommitStringCalls, 0);
+    QCOMPARE(inputMethodHost->commit, QString(""));
+    QCOMPARE(inputMethodHost->keyEvents.count(), 2);
+    QCOMPARE(inputMethodHost->keyEvents[0]->text(), QString("\r"));
+    QCOMPARE(inputMethodHost->keyEvents[0]->key(), static_cast<int>(Qt::Key_Return));
+    QCOMPARE(inputMethodHost->keyEvents[0]->type(), QEvent::KeyPress);
+    QCOMPARE(inputMethodHost->keyEvents[1]->text(), QString("\r"));
+    QCOMPARE(inputMethodHost->keyEvents[1]->key(), static_cast<int>(Qt::Key_Return));
+    QCOMPARE(inputMethodHost->keyEvents[1]->type(), QEvent::KeyRelease);
+    inputMethodHost->clear();
+
     subject->handleKeyClick(KeyEvent("a"));
     subject->handleKeyPress(KeyEvent("\b", QEvent::KeyPress, Qt::Key_Backspace));
     subject->handleKeyRelease(KeyEvent("\b", QEvent::KeyRelease, Qt::Key_Backspace));
@@ -368,6 +381,19 @@ void Ut_MKeyboardHost::testHandleClick()
     subject->handleKeyClick(KeyEvent("\r", QEvent::KeyRelease, Qt::Key_Return));
     QVERIFY(subject->preedit.isEmpty());
     QCOMPARE(inputMethodHost->commit, QString("a"));
+    QCOMPARE(inputMethodHost->keyEvents.count(), 2);
+    QCOMPARE(inputMethodHost->keyEvents[0]->text(), QString("\r"));
+    QCOMPARE(inputMethodHost->keyEvents[0]->key(), static_cast<int>(Qt::Key_Return));
+    QCOMPARE(inputMethodHost->keyEvents[0]->type(), QEvent::KeyPress);
+    QCOMPARE(inputMethodHost->keyEvents[1]->text(), QString("\r"));
+    QCOMPARE(inputMethodHost->keyEvents[1]->key(), static_cast<int>(Qt::Key_Return));
+    QCOMPARE(inputMethodHost->keyEvents[1]->type(), QEvent::KeyRelease);
+    inputMethodHost->clear();
+
+    subject->handleKeyClick(KeyEvent("\r", QEvent::KeyRelease, Qt::Key_Return));
+    QVERIFY(subject->preedit.isEmpty());
+    QCOMPARE(inputMethodHost->sendCommitStringCalls, 0);
+    QCOMPARE(inputMethodHost->commit, QString(""));
     QCOMPARE(inputMethodHost->keyEvents.count(), 2);
     QCOMPARE(inputMethodHost->keyEvents[0]->text(), QString("\r"));
     QCOMPARE(inputMethodHost->keyEvents[0]->key(), static_cast<int>(Qt::Key_Return));

@@ -1119,7 +1119,9 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
                 return;
             }
         } else {
-            inputMethodHost()->sendCommitString(preedit);
+            if (!preedit.isEmpty()) {
+                inputMethodHost()->sendCommitString(preedit);
+            }
         }
 
         if (lastClickEvent.specialKey() != KeyEvent::CycleSet) {
