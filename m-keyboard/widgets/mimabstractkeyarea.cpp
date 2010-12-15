@@ -500,6 +500,10 @@ void MImAbstractKeyArea::ungrabMouseEvent(QEvent *)
         mPopup->cancel();
     }
 
+    if (MImAbstractKey *key = MImAbstractKey::lastActiveKey()) {
+        key->resetTouchPointCount();
+    }
+
     longPressTimer.stop();
 }
 
