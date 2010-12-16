@@ -71,11 +71,11 @@ private:
     //! This shows the widget by fading in.
     void fadeIn();
 
-    //! Recalculates geometry suitable for current text
-    void resetGeometry(const QRectF &area);
-
     //! Getter for style container
     const MVirtualKeyboardStyleContainer &style() const;
+
+    //! Break the message text into more lines if needed and set the geometry
+    void setMessageAndGeometry(const QString &msg, const QRectF &area);
 
 private:
     //! Timeline for animating fade in and out
@@ -84,7 +84,7 @@ private:
     //! Timer that determines the visibility time of notification excluding fade times.
     QTimer visibilityTimer;
 
-    //! Notification text to be displayed
+    //! Notification text with correct line breaks
     QString message;
 
     //! the font used

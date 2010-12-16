@@ -42,6 +42,7 @@ private slots:
     void cleanupTestCase();
 
     void testCreate();
+    void testSetMessageAndGeometry();
     void testFadeInFadeOut();
     void testCSS();
 };

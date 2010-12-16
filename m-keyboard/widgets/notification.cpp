@@ -77,18 +77,18 @@ Notification::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget
     painter->setRenderHint(QPainter::Antialiasing);
     painter->drawRoundedRect(rect(), 10, 10);
     painter->setPen(textColor);
+    // Draw the normalized message
     painter->drawText(rect(), Qt::AlignCenter, message);
 }
 
 
 void
-Notification::displayText(const QString &message, const QRectF &area)
+Notification::displayText(const QString &msg, const QRectF &area)
 {
-    if (this->message != message) {
-        this->message = message;
-    }
-    resetGeometry(area);
-
+    // Normalize the message. Use line breaks if the message
+    // does not fit into the screen and set the geometry
+    setMessageAndGeometry(msg, area);
+    // Start to fade in
     fadeIn();
 }
 
@@ -164,19 +164,54 @@ void Notification::fadeIn()
     }
 }
 
-void Notification::resetGeometry(const QRectF &area)
+const MVirtualKeyboardStyleContainer &Notification::style() const
+{
+    return *styleContainer;
+}
+
+void Notification::setMessageAndGeometry(const QString &msg, const QRectF &area)
 {
     const QFontMetrics fm(font);
-    const int width = fm.width(message) + Margin * 2;
-    const int height = fm.height() + Margin * 2;
+    QStringList words;
+    QString currentSection;
+    int maxSectionWidth = -1;
+    int sectionNum = 0;
+
+    // Empty the normalized content
+    message = "";
+    // Split the message into words
+    words = msg.split(' ');
+
+    // Build the normalized text message
+    currentSection = "";
+    while (!words.isEmpty()) {
+        currentSection += words.takeFirst()+' ';
+        // The current string part with an additional word would exceed
+        // the available width or there are no words left.
+        if ((!words.isEmpty()
+             && fm.width(currentSection+words[0]) + Margin * 2 >= area.width())
+             || words.isEmpty()) {
+            // Increase the section counter
+            sectionNum++;
+            // Remove the trailing space
+            currentSection.remove(currentSection.size()-1, 1);
+            // Find the maximum width of the sections
+            if (fm.width(currentSection) > maxSectionWidth)
+                maxSectionWidth = fm.width(currentSection);
+            // Add the section to the normalized message text
+            message += currentSection;
+            // Add line break after the section if it is not the last yet
+            if (!words.isEmpty())
+                message += "\n";
+            currentSection = "";
+        }
+    }
+
+    // Reset the geometry
+    const int width = maxSectionWidth + Margin * 2;
+    const int height = fm.height()*sectionNum + Margin * 2;
 
     setGeometry(area.width() / 2 - width / 2,
                 (area.height() - height) / 2,
                 width, height);
-}
-
-
-const MVirtualKeyboardStyleContainer &Notification::style() const
-{
-    return *styleContainer;
 }
