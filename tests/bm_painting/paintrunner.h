@@ -15,35 +15,17 @@
  */
 
 
+#ifndef PAINTRUNNER_H
+#define PAINTRUNNER_H
 
-#ifndef BM_LAYOUT_H
-#define BM_LAYOUT_H
+#include <QGraphicsItem>
 
-#include <QtTest/QtTest>
-#include <QObject>
-
-class MApplication;
-class MImAbstractKeyArea;
-class KeyboardData;
-
-class Bm_MImAbstractKeyArea : public QObject
+class PaintRunner : public QGraphicsItem
 {
-    Q_OBJECT
-private:
-    MApplication *app;
-    MImAbstractKeyArea *subject;
-    KeyboardData *keyboard;
-
-private slots:
-    void init();
-    void cleanup();
-    void initTestCase();
-    void cleanupTestCase();
-
-    void benchmarkPreDraw_data();
-    void benchmarkPreDraw();
-    void benchmarkLoadXML_data();
-    void benchmarkLoadXML();
+public:
+    PaintRunner();
+    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
+    virtual QRectF boundingRect() const;
 };
 
-#endif
+#endif // PAINTRUNNER_H

@@ -123,44 +123,4 @@ void Bm_MImAbstractKeyArea::benchmarkLoadXML()
     }
 }
 
-void Bm_MImAbstractKeyArea::benchmarkPaint_data()
-{
-    QDir dir("/usr/share/meegotouch/virtual-keyboard/layouts/");
-    QStringList filters;
-    QFileInfoList files;
-    QFileInfo info;
-
-    QTest::addColumn<QString>("filename");
-    filters << "??.xml";
-    files = dir.entryInfoList(filters);
-    for (int n = files.count() - 1; n >= 0; --n) {
-        info = files.at(n);
-        QTest::newRow(info.fileName().toLatin1().constData()) << info.fileName();
-    }
-    for (int n = files.count() - 1; n >= 0; --n) {
-        info = files.at(n);
-        QTest::newRow(info.fileName().toLatin1().constData()) << info.fileName();
-    }
-}
-
-void Bm_MImAbstractKeyArea::benchmarkPaint()
-{
-    QImage *image = new QImage(QSize(864, 480), QImage::Format_ARGB32_Premultiplied);
-    QPainter painter;
-
-    QFETCH(QString, filename);
-
-    QVERIFY(painter.begin(image) == true);
-    keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard(filename));
-    subject = new MImKeyArea(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection));
-
-    QBENCHMARK {
-        subject->paint(&painter, 0 , 0);
-    }
-
-    painter.end();
-    delete image;
-}
-
 QTEST_APPLESS_MAIN(Bm_MImAbstractKeyArea);

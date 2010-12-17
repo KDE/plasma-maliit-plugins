@@ -340,6 +340,7 @@ private:
     friend class Ut_SymbolView;
     friend class Ut_MVirtualKeyboard;
     friend class Bm_MImAbstractKeyArea; //benchmarks
+    friend class Bm_Painting;
 #endif
 };
 

@@ -130,6 +130,7 @@ private:
     friend class Ut_MImAbstractKeyArea;
     friend class Ut_KeyEventHandler;
     friend class Bm_MImAbstractKeyArea; //benchmarks
+    friend class Bm_Painting;
 #endif
 
     friend class FixtureVirtualKeyboard; //!< needed for testing

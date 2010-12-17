@@ -25,14 +25,21 @@
 class MApplication;
 class MImAbstractKeyArea;
 class KeyboardData;
+class MSceneWindow;
+class LoggingWindow;
+class MImAbstractKey;
+class QWidget;
 
-class Bm_MImAbstractKeyArea : public QObject
+class Bm_Painting : public QObject
 {
     Q_OBJECT
 private:
     MApplication *app;
     MImAbstractKeyArea *subject;
     KeyboardData *keyboard;
+    MSceneWindow *sceneWindow;
+    LoggingWindow *window;
+    QWidget *widget;
 
 private slots:
     void init();
@@ -40,10 +47,12 @@ private slots:
     void initTestCase();
     void cleanupTestCase();
 
-    void benchmarkPreDraw_data();
-    void benchmarkPreDraw();
-    void benchmarkLoadXML_data();
-    void benchmarkLoadXML();
+    void benchmarkPaint_data();
+    void benchmarkPaint();
+
+private:
+    QSize defaultLayoutSize();
+    MImAbstractKey *keyAt(unsigned int row, unsigned int column) const;
 };
 
 #endif

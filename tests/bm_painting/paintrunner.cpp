@@ -15,35 +15,19 @@
  */
 
 
+#include "paintrunner.h"
 
-#ifndef BM_LAYOUT_H
-#define BM_LAYOUT_H
-
-#include <QtTest/QtTest>
-#include <QObject>
-
-class MApplication;
-class MImAbstractKeyArea;
-class KeyboardData;
-
-class Bm_MImAbstractKeyArea : public QObject
+PaintRunner::PaintRunner()
 {
-    Q_OBJECT
-private:
-    MApplication *app;
-    MImAbstractKeyArea *subject;
-    KeyboardData *keyboard;
+}
 
-private slots:
-    void init();
-    void cleanup();
-    void initTestCase();
-    void cleanupTestCase();
+void PaintRunner::paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *)
+{
+    update();
+}
 
-    void benchmarkPreDraw_data();
-    void benchmarkPreDraw();
-    void benchmarkLoadXML_data();
-    void benchmarkLoadXML();
-};
+QRectF PaintRunner::boundingRect() const
+{
+    return QRectF(0, 0, 50, 50);
+}
 
-#endif
