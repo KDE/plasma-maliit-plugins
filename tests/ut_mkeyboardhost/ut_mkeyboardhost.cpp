@@ -881,6 +881,7 @@ void Ut_MKeyboardHost::testRegionSignals()
 
     inputMethodHost->clear();
 
+#if 0
     // Rotate three times repeatedly with long and short waits in between.  We
     // should end up with a region identical to that stored in region270.  The
     // wait times mimic user operations that have been found to cause a problem.
@@ -913,6 +914,7 @@ void Ut_MKeyboardHost::testRegionSignals()
     qDebug() << "Expected region:" << region270;
     // This fails at the moment. libmeegotouch/Qt bug suspected.
     //QCOMPARE(region(ScreenRegion, spy.count() - 1), region270);
+#endif
 }
 
 void Ut_MKeyboardHost::testSetState_data()
