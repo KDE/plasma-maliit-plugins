@@ -133,6 +133,8 @@ SymbolView::SymbolView(const LayoutsManager &layoutsManager, const MVirtualKeybo
       mainLayout(new QGraphicsLinearLayout(Qt::Vertical, this)),
       activeState(MInputMethod::OnScreen)
 {
+    setObjectName("SymbolView");
+
     connect(&eventHandler, SIGNAL(keyPressed(KeyEvent)),
             this,          SIGNAL(keyPressed(KeyEvent)));
     connect(&eventHandler, SIGNAL(keyReleased(KeyEvent)),

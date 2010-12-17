@@ -34,6 +34,8 @@ SharedHandleArea::SharedHandleArea(MImToolbar &toolbar, QGraphicsWidget *parent)
       toolbar(toolbar),
       inputMethodMode(M::InputMethodModeNormal)
 {
+    setObjectName("SharedHandleArea");
+
     zeroSizeInvisibleHandle.setObjectName("zeroSizeInvisibleHandle");
 
     mainLayout.setContentsMargins(0, 0, 0, 0);
