@@ -1567,6 +1567,10 @@ void Ut_MKeyboardHost::testUserHide()
     subject->show();
     QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
 
+    inputMethodHost->clear();
+    subject->preedit.clear();
+
+    // Hide without preedit
     QVERIFY(subject->vkbWidget->isFullyVisible());
     subject->userHide();
     QVERIFY(!subject->vkbWidget->isFullyVisible());
@@ -1575,6 +1579,20 @@ void Ut_MKeyboardHost::testUserHide()
 
     QVERIFY(inputMethodHost->setScreenRegionCalls > 0);
     QVERIFY(region(ScreenRegion, inputMethodHost->setScreenRegionCalls - 1).isEmpty());
+    QCOMPARE(inputMethodHost->sendCommitStringCalls, 0);
+    QCOMPARE(inputMethodHost->commit, QString(""));
+
+    subject->show();
+    QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
+
+    inputMethodHost->clear();
+    subject->preedit = "Bacon";
+
+    // Hide with preedit
+    subject->userHide();
+
+    QCOMPARE(inputMethodHost->sendCommitStringCalls, 1);
+    QCOMPARE(inputMethodHost->commit, QString("Bacon"));
 }
 
 void Ut_MKeyboardHost::testWYTIWYSErrorCorrection()
