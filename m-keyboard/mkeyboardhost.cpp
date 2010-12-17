@@ -188,6 +188,7 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
       imCorrectionEngine(0),
       inputMethodCorrectionSettings(new MGConfItem(CorrectionSetting)),
       inputMethodCorrectionEngine(new MGConfItem(InputMethodCorrectionEngine)),
+      rotationInProgress(false),
       correctionEnabled(false),
       autoCapsEnabled(true),
       autoCapsTriggered(false),
@@ -196,7 +197,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
       hasSelection(false),
       inputMethodMode(M::InputMethodModeNormal),
       backspaceTimer(),
-      rotationTimer(),
       shiftHeldDown(false),
       activeState(MInputMethod::OnScreen),
       modifierLockOnBanner(0),
@@ -361,9 +361,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
     backspaceTimer.setSingleShot(true);
     connect(&backspaceTimer, SIGNAL(timeout()), this, SLOT(autoBackspace()));
 
-    rotationTimer.setSingleShot(true);
-    connect(&rotationTimer, SIGNAL(timeout()), this, SLOT(finalizeOrientationChange()));
-
     fastTypingTimeout.setSingleShot(true);
     fastTypingTimeout.setInterval(FastTypingTimeout);
     connect(&fastTypingTimeout, SIGNAL(timeout()),
@@ -423,7 +420,6 @@ MKeyboardHost::~MKeyboardHost()
     }
     backspaceMode = NormalBackspaceMode;
     backspaceTimer.stop();
-    rotationTimer.stop();
     LayoutsManager::destroyInstance();
     RegionTracker::destroyInstance();
 }
@@ -788,23 +784,23 @@ void MKeyboardHost::resetInternalState()
 
 void MKeyboardHost::prepareOrientationChange()
 {
-    if (rotationTimer.isActive()) {
+    if (rotationInProgress) {
         return;
     }
+    rotationInProgress = true;
+
     // Saves states then hide
     symbolView->prepareToOrientationChange();
     vkbWidget->prepareToOrientationChange();
     correctionHost->prepareToOrientationChange();
     MPlainWindow::instance()->sceneManager()->disappearSceneWindowNow(sceneWindow);
-
-    // TODO: this is only a workaround for fixing the orientaton change bug.
-    // The correct fix need a notification from application, to tell keyboard
-    // when the orientation is finished for calling finalizeOrientationChange.
-    rotationTimer.start(1000);
 }
 
 void MKeyboardHost::finalizeOrientationChange()
 {
+    if (!rotationInProgress)
+        return;
+
     MPlainWindow::instance()->sceneManager()->appearSceneWindowNow(sceneWindow);
 
     if (imToolbar) {
@@ -841,7 +837,7 @@ void MKeyboardHost::finalizeOrientationChange()
     if (vkbWidget->isVisible()) {
         updateEngineKeyboardLayout();
     }
-    rotationTimer.stop();
+    rotationInProgress = false;
 }
 
 void MKeyboardHost::handleMouseClickOnPreedit(const QPoint &mousePos, const QRect &preeditRect)
@@ -877,19 +873,26 @@ void MKeyboardHost::handleVisualizationPriorityChange(bool priority)
     }
 }
 
-
-void MKeyboardHost::handleAppOrientationChange(int angle)
+void MKeyboardHost::handleAppOrientationAboutToChange(int angle)
 {
     if (MPlainWindow::instance()->sceneManager()->orientationAngle()== static_cast<M::OrientationAngle>(angle))
         return;
-    if (rotationTimer.isActive()) {
-        rotationTimer.stop();
-    }
+
     // The application receiving input has changed its orientation. Let's change ours.
     // Disable  the transition animation for rotation.
     MPlainWindow::instance()->sceneManager()->setOrientationAngle(static_cast<M::OrientationAngle>(angle),
                                                                   MSceneManager::ImmediateTransition);
     prepareOrientationChange();
+}
+
+void MKeyboardHost::handleAppOrientationChanged(int angle)
+{
+    const M::OrientationAngle orientationAngle = static_cast<M::OrientationAngle>(angle);
+    if (orientationAngle != MPlainWindow::instance()->orientationAngle()) {
+        handleAppOrientationAboutToChange(angle);
+    }
+
+    finalizeOrientationChange();
 }
 
 
@@ -1053,7 +1056,7 @@ void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
 
 void MKeyboardHost::updateReactionMaps()
 {
-    if (rotationTimer.isActive()) {
+    if (rotationInProgress) {
         return;
     }
 

@@ -628,7 +628,7 @@ void Ut_MKeyboardHost::testApplicationOrientationChanged()
 
     for (int i = 0; i < 5; ++i) {
         M::OrientationAngle currentAngle = angles[i % 4];
-        im->handleAppOrientationChange(static_cast<int>(currentAngle));
+        im->handleAppOrientationChanged(static_cast<int>(currentAngle));
         QTest::qWait(1500);
         QCOMPARE(currentAngle, MPlainWindow::instance()->orientationAngle());
     }
@@ -1425,7 +1425,7 @@ void Ut_MKeyboardHost::testShiftStateOnLayoutChanged()
 
 void Ut_MKeyboardHost::rotateToAngle(M::OrientationAngle angle)
 {
-    subject->handleAppOrientationChange(angle);
+    subject->handleAppOrientationChanged(angle);
     QTest::qWait(SceneRotationTime); // wait until rotation animation is finished
 }
 

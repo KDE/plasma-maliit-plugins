@@ -65,7 +65,8 @@ public:
     virtual void reset();
     virtual void handleMouseClickOnPreedit(const QPoint &mousePos, const QRect &preeditRect);
     virtual void handleVisualizationPriorityChange(bool priority);
-    virtual void handleAppOrientationChange(int angle);
+    virtual void handleAppOrientationAboutToChange(int angle);
+    virtual void handleAppOrientationChanged(int angle);
     virtual void setToolbar(QSharedPointer<const MToolbarData> toolbar);
     virtual void setState(const QSet<MInputMethod::HandlerState> &state);
     virtual void processKeyEvent(QEvent::Type keyType, Qt::Key keyCode,
@@ -338,6 +339,8 @@ private:
     int displayWidth;
     int displayHeight;
 
+    bool rotationInProgress;
+
     //! error correction flag
     bool correctionEnabled;
 
@@ -353,8 +356,6 @@ private:
     int inputMethodMode;
 
     QTimer backspaceTimer;
-
-    QTimer rotationTimer;
 
     KeyEvent lastClickEvent;
 
