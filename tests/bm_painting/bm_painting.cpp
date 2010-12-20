@@ -36,12 +36,14 @@
 #include <MSceneManager>
 
 #include <QDir>
+#include <QtGlobal>
 
 namespace {
     int gArgc = 2;
     char *gArgv[2] = { (char *) "bm_painting",
                        (char *) "-software" };
     const char *const MImUserDirectory = ".meego-im";
+    const int DefaultDelay = 1000; // milliseconds
 }
 
 void Bm_Painting::initTestCase()
@@ -79,38 +81,77 @@ void Bm_Painting::cleanup()
     app = 0;
 }
 
+/*
+ * COMPOSITE variable defines whether main window should be
+ * composited or not. Possible values (case sensitive):
+ *     * <unset> - perform tests for both opaque and tranclucent windows
+ *     * true - perform tests for tranclucent (composited) window
+ *     * any other - perform tests for opaque window
+ * HARDWARE variable defines whether hardware acceleration should be used or
+ * not. Possible values:
+ *     * <unset> - perform tests with and without hardware acceleration
+ *     * true - perform tests with hardware acceleration
+ *     * any other - perform tests without hardware acceleration
+ * DELAY defines duration of one step in test case. Default value is 750 
+ * milliseconds.
+ */
 void Bm_Painting::benchmarkPaint_data()
 {
     QDir dir("/usr/share/meegotouch/virtual-keyboard/layouts/");
     QStringList filters;
     QFileInfoList files;
     QFileInfo info;
-    QStringList resultFilenames;
+    QString resultFilenames[2][2];
     QString fileNameTemplate(QString("%1/%2/%3-%4").arg(QDir::homePath())
                                                    .arg(MImUserDirectory)
                                                    .arg(QCoreApplication::applicationPid()));
+    int hwMin = 0;
+    int hwMax = 1;
+    int compositeMin = 0;
+    int compositeMax = 1;
+    int delay = DefaultDelay;
+    QString env;
+
+    env = qgetenv("COMPOSITE");
+    if (!env.isEmpty()) {
+        compositeMin = compositeMax = ((env == "true") ? 1 : 0);
+    }
+
+    env = qgetenv("HARDWARE");
+    if (!env.isEmpty()) {
+        hwMin = hwMax = ((env == "true") ? 1 : 0);
+    }
+
+    env = qgetenv("DELAY");
+    if (!env.isEmpty()) {
+        delay = env.toInt();
+    }
 
     QTest::addColumn<QString>("filename");
     QTest::addColumn<bool>("hardwareRendering");
     QTest::addColumn<bool>("compositing");
     QTest::addColumn<QString>("resultFilename");
+    QTest::addColumn<int>("delay");
 
-    resultFilenames << fileNameTemplate.arg("sw_opaque.csv")
-                    << fileNameTemplate.arg("hw_opaque.csv")
-                    << fileNameTemplate.arg("sw_composite.csv")
-                    << fileNameTemplate.arg("hw_composite.csv");
+    resultFilenames[0][0] = fileNameTemplate.arg("sw_opaque.csv");
+    resultFilenames[1][0] = fileNameTemplate.arg("hw_opaque.csv");
+    resultFilenames[0][1] = fileNameTemplate.arg("sw_composite.csv");
+    resultFilenames[1][1] = fileNameTemplate.arg("hw_composite.csv");
 
     filters << "en_gb.xml";
     files = dir.entryInfoList(filters);
 
-    int x = 0;
-    for (int composite = 0; composite <= 1; ++composite) {
-        for (int hw = 0; hw <= 1; ++hw) {
+    for (int composite = compositeMin; composite <= compositeMax; ++composite) {
+        for (int hw = hwMin; hw <= hwMax; ++hw) {
             for (int n = files.count() - 1; n >= 0; --n) {
                 info = files.at(n);
-                QString caseName = QString("file=%1 composite=%2 hw=%3 results=%4").arg(info.fileName()).arg(composite).arg(hw).arg(resultFilenames.at(x));
-                QTest::newRow(caseName.toLatin1().constData()) << info.fileName() << bool(hw) << bool(composite) << resultFilenames.at(x);
-                ++x;
+                QString caseName = QString("file=%1 composite=%2 hw=%3 results=%4").arg(info.fileName()).arg(composite).arg(hw).
+                    arg(resultFilenames[hw][composite]);
+                QTest::newRow(caseName.toLatin1().constData()) << info.fileName()
+                                                               << bool(hw)
+                                                               << bool(composite)
+                                                               << resultFilenames[hw][composite]
+                                                               << delay;
             }
         }
     }
@@ -122,6 +163,7 @@ void Bm_Painting::benchmarkPaint()
     QFETCH(bool, hardwareRendering);
     QFETCH(bool, compositing);
     QFETCH(QString, resultFilename);
+    QFETCH(int, delay);
 
     gArgc = hardwareRendering ? 1 : 2;
 
@@ -235,7 +277,7 @@ void Bm_Painting::benchmarkPaint()
         }
         qDebug() << "***";
         window->logMark();
-        QTest::qWait(1000);
+        QTest::qWait(delay);
     }
     window->loggingEnabled = false;
 
