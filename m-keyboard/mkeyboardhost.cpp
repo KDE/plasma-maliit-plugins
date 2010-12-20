@@ -1024,8 +1024,8 @@ void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
         requestType = MInputMethod::EventRequestBoth;
         inputMethodHost()->sendKeyEvent(event.toQKeyEvent(), requestType);
 
-    } else if ((event.qtKey() == Qt::Key_Backspace)) {
-        if ( backspaceTimer.isActive()) {
+    } else if (event.qtKey() == Qt::Key_Backspace) {
+        if (backspaceTimer.isActive()) {
             backspaceTimer.stop();
             // If the backspace Mode is WordTrackerBackspaceMode, don't need to
             // do backspace.
@@ -1047,7 +1047,7 @@ void MKeyboardHost::updateReactionMaps()
     clearReactionMaps(MReactionMap::Transparent);
 
     QList<QGraphicsView *> views = MPlainWindow::instance()->scene()->views();
-    foreach(QGraphicsView *view, views) {
+    foreach (QGraphicsView *view, views) {
         MReactionMap *reactionMap = MReactionMap::instance(view);
 
         if (!reactionMap) {
