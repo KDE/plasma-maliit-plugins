@@ -1244,6 +1244,7 @@ void MKeyboardHost::userHide()
     }
     vkbWidget->hideKeyboard();
     inputMethodHost()->notifyImInitiatedHiding();
+    resetInternalState();
 }
 
 
