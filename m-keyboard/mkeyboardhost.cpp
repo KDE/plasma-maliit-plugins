@@ -838,9 +838,21 @@ void MKeyboardHost::doBackspace()
                 localSetPreedit(preedit.left(preedit.length() - 1), 0, 0, cursor);
             } else {
                 if (preeditCursorPos == 0) {
-                    inputMethodHost()->sendCommitString(preedit, 0, 0, 0);
-                    sendBackSpaceKeyEvent();
-                    resetInternalState();
+                    // If preedit cursor is at the beginning of preedit, and there is a
+                    // previous word before the space, then backspace will recompose the
+                    // preedit, mark the word arround cursor be preedit. Otherwise,
+                    // backspace just commit preedit and delete the space before the preedit.
+                    QString previousWord;
+                    if (needRecomposePreedit(previousWord)) {
+                        preedit = previousWord + preedit;
+                        preeditCursorPos = previousWord.length();
+                        localSetPreedit(preedit, -previousWord.length() - 1,
+                                        previousWord.length() + 1, preeditCursorPos);
+                    } else {
+                        inputMethodHost()->sendCommitString(preedit, 0, 0, 0);
+                        sendBackSpaceKeyEvent();
+                        resetInternalState();
+                    }
                 } else {
                     --preeditCursorPos;
                     localSetPreedit(preedit.remove(preeditCursorPos, 1), 0, 0, preeditCursorPos);
@@ -851,7 +863,22 @@ void MKeyboardHost::doBackspace()
             inputMethodHost()->sendCommitString("");
         }
     } else {
-        sendBackSpaceKeyEvent();
+        QString previousWord;
+        bool valid = false;
+        // If error correction is enabled and there is a word before cursor,
+        // backspace will recompose the preedit.
+        if (backspaceMode != AutoBackspaceMode
+            && correctionEnabled
+            && !inputMethodHost()->hasSelection(valid)
+            && valid
+            && needRecomposePreedit(previousWord)) {
+
+            preedit = previousWord;
+            preeditCursorPos = previousWord.length();
+            localSetPreedit(preedit, -previousWord.length() - 1, previousWord.length() + 1, preeditCursorPos);
+        } else {
+            sendBackSpaceKeyEvent();
+        }
     }
     // Backspace toggles shift off if it's latched except if:
     // - autoCaps is on and cursor is at 0 position
@@ -1846,4 +1873,26 @@ void MKeyboardHost::sendBackSpaceKeyEvent() const
                          ? Qt::ShiftModifier : Qt::NoModifier);
     inputMethodHost()->sendKeyEvent(event.toQKeyEvent(),
                                     MInputMethod::EventRequestEventOnly);
+}
+
+bool MKeyboardHost::needRecomposePreedit(QString &previousWord)
+{
+    // check whether there is a previous word + space before cursor.
+    bool needRecomposePreedit = false;
+    if (inputMethodHost()->surroundingText(surroundingText, cursorPos)
+        && !surroundingText.isEmpty()
+        && cursorPos > 0) {
+        previousWord = surroundingText.left(cursorPos - 1);
+        if (!previousWord.isEmpty()) {
+            // ignore space, punct and symbol.
+            const QChar lastChar = previousWord.at(previousWord.length() - 1);
+            if (!lastChar.isSpace() && !lastChar.isPunct() && !lastChar.isSymbol()) {
+                const int lastWordBreak = previousWord.lastIndexOf(QRegExp("\\s+"));
+                if (lastWordBreak > 0)
+                    previousWord = previousWord.right(previousWord.length() - lastWordBreak - 1);
+                needRecomposePreedit = true;
+            }
+        }
+    }
+    return needRecomposePreedit;
 }
