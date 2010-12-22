@@ -147,6 +147,10 @@ void Ut_FlickRecognizer::initTestCase()
     window = new MWindow(sceneMgr, 0);
     window->scene()->setSceneRect(QRect(QPoint(0, 0), sceneMgr->visibleSceneSize()));
 
+    // This test only works on landscape. Mouse positions sent to window are in scene coordinates.
+    window->setOrientationAngle(M::Angle0);
+    window->setOrientationLocked(true);
+
     target = new FlickTarget;
     QSignalSpy spy(target, SIGNAL(appeared()));
     target->appear(window);
