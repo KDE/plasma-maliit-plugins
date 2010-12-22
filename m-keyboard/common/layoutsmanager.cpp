@@ -23,7 +23,6 @@
 namespace
 {
     const QString InputMethodLayouts("/meegotouch/inputmethods/virtualkeyboard/layouts");
-    const QString NumberFormatSettingName("/meegotouch/inputmethods/numberformat");
     const QString InputMethodDefaultLayout("/meegotouch/inputmethods/virtualkeyboard/layouts/default");
     const QString XkbLayoutSettingName("/meegotouch/inputmethods/hwkeyboard/layout");
     const QString XkbVariantSettingName("/meegotouch/inputmethods/hwkeyboard/variant");
@@ -33,9 +32,9 @@ namespace
     const QString HardwareKeyboardAutoCapsDisabledLayouts("/meegotouch/inputmethods/hwkeyboard/autocapsdisabledlayouts");
     const QString DefaultHardwareKeyboardAutoCapsDisabledLayout("ara"); // Uses xkb layout name. Arabic is "ara".
     const QString SystemDisplayLanguage("/meegotouch/i18n/language");
-    const QString DefaultNumberFormat("latin");
     const QString FallbackLayout("en_gb.xml");
     const QString FallbackXkbLayout("us");
+    const QString NumberFormatSettingName("/meegotouch/i18n/lc_numeric");
     const QString NumberKeyboardFileArabic("number_ar.xml");
     const QString NumberKeyboardFileLatin("number.xml");
     const QString PhoneNumberKeyboardFileArabic("phonenumber_ar.xml");
@@ -54,7 +53,6 @@ LayoutsManager::LayoutsManager()
     : configLayouts(InputMethodLayouts),
       xkbModelSetting(XkbModelSettingName),
       numberFormatSetting(NumberFormatSettingName),
-      numberFormat(NumLatin),
       currentHwkbLayoutType(InvalidHardwareKeyboard)
 {
     // Read settings for the first time and load keyboard layouts.
@@ -66,10 +64,7 @@ LayoutsManager::LayoutsManager()
     // Synchronize with settings when someone changes them (e.g. via control panel).
     connect(&configLayouts, SIGNAL(valueChanged()), this, SLOT(syncLayouts()));
     connect(&configLayouts, SIGNAL(valueChanged()), this, SIGNAL(selectedLayoutsChanged()));
-
-    connect(&numberFormatSetting, SIGNAL(valueChanged()), this, SLOT(syncNumberKeyboards()));
-    connect(&locale, SIGNAL(settingsChanged()), SLOT(syncNumberKeyboards()));
-    locale.connectSettings();
+    connect(&numberFormatSetting, SIGNAL(valueChanged()), SLOT(syncNumberKeyboards()));
 }
 
 LayoutsManager::~LayoutsManager()
@@ -290,30 +285,25 @@ bool LayoutsManager::loadLayout(const QString &layout)
 
 void LayoutsManager::syncNumberKeyboards()
 {
-    const QString formatString(numberFormatSetting.value(DefaultNumberFormat).toString().toLower());
-    numberFormat = NumLatin;
-    if ("arabic" == formatString) {
-        numberFormat = NumArabic;
-    } else if ("latin" != formatString) {
-        qWarning("Invalid value (%s) for number format setting (%s), using Latin.",
-                 formatString.toAscii().constData(), NumberFormatSettingName.toAscii().constData());
-    }
+    QString numberFormat = numberFormatSetting.value().toString().section("_", 0, 0);
+    bool loaded = false;
 
-    bool loaded = numberKeyboard.loadNokiaKeyboard(
-                      numberFormat == NumLatin ? NumberKeyboardFileLatin : NumberKeyboardFileArabic);
-    // Fall back to Latin if Arabic not available
-    if (!loaded && (numberFormat == NumArabic)) {
-        numberFormat = NumLatin;
+    // Load the proper number layout
+    if (numberFormat == "ar") {
+        loaded = numberKeyboard.loadNokiaKeyboard(NumberKeyboardFileArabic);
+    }
+    // In other cases and fallback
+    if (!loaded)
+    {
         numberKeyboard.loadNokiaKeyboard(NumberKeyboardFileLatin);
     }
 
-    // Phone number keyboard
-
+    // Load the proper phone number layout
     loaded = false;
-
-    if (numberFormat == NumArabic) {
+    if (numberFormat == "ar") {
         loaded = phoneNumberKeyboard.loadNokiaKeyboard(PhoneNumberKeyboardFileArabic);
-    } else if (locale.categoryLanguage(MLocale::MLcMessages) == "ru") {
+    }
+    if (numberFormat == "ru") {
         loaded = phoneNumberKeyboard.loadNokiaKeyboard(PhoneNumberKeyboardFileRussian);
     }
 

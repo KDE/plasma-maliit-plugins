@@ -23,7 +23,7 @@
           <binding label="&#x0666;" secondary_label="&#x062C;&#x062D;&#x062E;"/>
         </key>
         <key>
-          <binding label="&#x0667;" secondary_label="&#x0646 U0647;&#x0648;&#x064A;"/>
+          <binding label="&#x0667;" secondary_label="&#x0646;&#x0647;&#x0648;&#x064A;"/>
         </key>
         <key>
           <binding label="&#x0668;" secondary_label="&#x0641;&#x0642;&#x0643;&#x0644;&#x0645;"/>
@@ -80,7 +80,7 @@
 
       <row> 
         <key>
-          <binding label="&#x0667;" secondary_label="&#x0646 U0647;&#x0648;&#x064A;"/>
+          <binding label="&#x0667;" secondary_label="&#x0646;&#x0647;&#x0648;&#x064A;"/>
         </key>
         <key>
           <binding label="&#x0668;" secondary_label="&#x0641;&#x0642;&#x0643;&#x0644;&#x0645;"/>

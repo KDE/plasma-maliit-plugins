@@ -23,7 +23,6 @@
 #include "layoutdata.h"
 
 #include <MGConfItem>
-#include <MLocale>
 #include <QMap>
 #include <QObject>
 #include <memory>
@@ -147,11 +146,6 @@ private slots:
     void syncNumberKeyboards();
 
 private:
-    //! Valid states of number format setting
-    enum NumberFormat {
-        NumArabic,
-        NumLatin
-    };
 
     //! MGConfItem for selected layouts available for vkb's use.
     //! The settings are set by control panel applet.
@@ -184,17 +178,10 @@ private:
     //! Current phone number keyboard
     KeyboardData phoneNumberKeyboard;
 
-    //! Setting that determines whether number format is Arabic or Latin
+    //! System number format in gconf
     MGConfItem numberFormatSetting;
 
-    //! Current state of number format setting (represented by \a numberFormatSetting)
-    NumberFormat numberFormat;
-
-    //! System locale
-    MLocale locale;
-
     HardwareKeyboardLayout currentHwkbLayoutType;
-
 
     //! Singleton instance
     static LayoutsManager *Instance;
