@@ -7,12 +7,9 @@ INSTALL_HEADERS += \
     $$COMMON_DIR/mkeyboardcommon.h \
 
 HEADERS += \
-    $$COMMON_DIR/mkeyboardcommon.h \
+    $$INSTALL_HEADERS \
     $$COMMON_DIR/keyboarddata.h \
-    $$COMMON_DIR/keyevent.h \
-    $$COMMON_DIR/layoutdata.h \
     $$COMMON_DIR/layoutsmanager.h \
-    $$COMMON_DIR/mimkeymodel.h \
     $$COMMON_DIR/mxkb.h \
     $$COMMON_DIR/mhardwarekeyboard.h \
     $$COMMON_DIR/hwkbcharloops.h \
@@ -21,7 +18,7 @@ HEADERS += \
     $$COMMON_DIR/keyeventhandler.h \
     $$COMMON_DIR/flickgesture.h \
     $$COMMON_DIR/flickgesturerecognizer.h \
-    $$COMMON_DIR/keyboardmapping.h
+    $$COMMON_DIR/keyboardmapping.h \
 
 SOURCES += \
     $$COMMON_DIR/keyboarddata.cpp\
@@ -37,7 +34,7 @@ SOURCES += \
     $$COMMON_DIR/keyeventhandler.cpp \
     $$COMMON_DIR/flickgesture.cpp \
     $$COMMON_DIR/flickgesturerecognizer.cpp \
-    $$COMMON_DIR/keyboardmapping.cpp
+    $$COMMON_DIR/keyboardmapping.cpp \
 
 INCLUDEPATH += $$COMMON_DIR
 DEPENDPATH += $$COMMON_DIR
