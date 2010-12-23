@@ -342,7 +342,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
     connect(&fastTypingTimeout, SIGNAL(timeout()),
             this, SLOT(turnOffFastTyping()));
 
-    hide();
     RegionTracker::instance().enableSignals(true, false);
 }
 
