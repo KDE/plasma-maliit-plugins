@@ -370,6 +370,7 @@ private:
     QString surroundingText;
     int cursorPos;
     int preeditCursorPos;
+    bool hasSelection;
 
     int inputMethodMode;
 

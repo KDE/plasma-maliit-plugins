@@ -497,6 +497,7 @@ void Ut_MKeyboardHost::testAutoCaps()
     inputMethodHost->autoCapitalizationEnabled_ = true;
     subject->correctionEnabled = true;
     inputMethodHost->contentType_ = M::FreeTextContentType;
+
     subject->show();
 
     inputMethodHost->cursorPos = 0;
@@ -538,10 +539,47 @@ void Ut_MKeyboardHost::testAutoCaps()
     inputMethodHost->cursorPos = 0;
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
-    // When autoCaps is on and shift is latched, any key input except shift and backspace (in an sepcial case)
-    // will turn off shift.
-    KeyEvent press("a", QEvent::KeyPress);
+
+    // If cursor is not at 0 position, space should unlatch shift.
+    KeyEvent press("", QEvent::KeyPress, Qt::Key_Space);
     KeyEvent release(press, QEvent::KeyRelease);
+    subject->handleKeyPress(press);
+    subject->handleKeyRelease(release);
+    subject->handleKeyClick(release);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
+
+    // If cursor is not at 0 position, space should not unlatch shift
+    // if next cursor position has autoCaps.
+    inputMethodHost->cursorPos = 31;
+    subject->update();
+    subject->vkbWidget->setShiftState(ModifierLatchedState);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
+    subject->handleKeyPress(press);
+    subject->handleKeyRelease(release);
+    subject->handleKeyClick(release);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
+
+    // Pressing Enter should not unlatch shift when autocaps
+    // is enabled.
+    press = KeyEvent("", QEvent::KeyPress, Qt::Key_Return);
+    release = KeyEvent(press, QEvent::KeyRelease);
+    inputMethodHost->cursorPos = 31;
+    subject->update();
+    subject->vkbWidget->setShiftState(ModifierLatchedState);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
+    subject->handleKeyPress(press);
+    subject->handleKeyRelease(release);
+    subject->handleKeyClick(release);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
+
+    inputMethodHost->cursorPos = 0;
+    subject->update();
+    subject->vkbWidget->setShiftState(ModifierLatchedState);
+
+    // When autoCaps is on and shift is latched, any key input except shift and
+    // in some special cases space and backspace will turn off shift.
+    press = KeyEvent("a", QEvent::KeyPress);
+    release = KeyEvent(press, QEvent::KeyRelease);
     subject->handleKeyPress(press);
     subject->handleKeyRelease(release);
     subject->handleKeyClick(release);
@@ -566,8 +604,9 @@ void Ut_MKeyboardHost::testAutoCaps()
     subject->handleKeyClick(release);
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
 
-    // If cursor is not at 0 position, backspace should also change the shift state.
-    inputMethodHost->cursorPos = 2;
+    // If cursor is not at 0 position, backspace should change the shift state
+    // if the previous cursor position doesn't trigger autoCaps.
+    inputMethodHost->cursorPos = 31;
     subject->update();
     subject->vkbWidget->setShiftState(ModifierLatchedState);
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
@@ -575,6 +614,31 @@ void Ut_MKeyboardHost::testAutoCaps()
     subject->handleKeyRelease(release);
     subject->handleKeyClick(release);
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
+
+    // If cursor is not at 0 position, backspace should not change the shift state
+    // if the previous cursor position does trigger autoCaps.
+    inputMethodHost->cursorPos = 32;
+    subject->update();
+    subject->vkbWidget->setShiftState(ModifierLatchedState);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
+    subject->handleKeyPress(press);
+    subject->handleKeyRelease(release);
+    subject->handleKeyClick(release);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
+
+    // If cursor is not at 0 position, backspace should not change the shift state
+    // if there is text selected since host doesn't know which text is selected.
+    // (Shift state will be updated in the widget initiated update() call later.)
+    inputMethodHost->cursorPos = 31;
+    inputMethodHost->textSelected = true;
+    subject->update();
+    subject->vkbWidget->setShiftState(ModifierLatchedState);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
+    subject->handleKeyPress(press);
+    subject->handleKeyRelease(release);
+    subject->handleKeyClick(release);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
+    inputMethodHost->textSelected = false;
 
     // Test holding backspace with preedit.
     press = KeyEvent("", QEvent::KeyPress, Qt::Key_Backspace);
@@ -647,7 +711,18 @@ void Ut_MKeyboardHost::testAutoCaps()
     subject->handleKeyClick(release);
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
 
-    // Test autocaps if autCaps flag is off from layout
+    // Pressing Enter should unlatch shift when autocaps is disabled.
+    inputMethodHost->cursorPos = 31;
+    subject->vkbWidget->setShiftState(ModifierLatchedState);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
+    press = KeyEvent("", QEvent::KeyPress, Qt::Key_Return);
+    release = KeyEvent(press, QEvent::KeyRelease);
+    subject->handleKeyPress(press);
+    subject->handleKeyRelease(release);
+    subject->handleKeyClick(release);
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
+
+    // Test autocaps if autoCaps flag is off from layout
     gAutoCapsEnabled = false;
     inputMethodHost->cursorPos = 0;
     subject->update();

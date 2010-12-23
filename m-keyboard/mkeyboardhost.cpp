@@ -62,7 +62,7 @@ namespace
     const QString InputMethodCorrectionSetting("/meegotouch/inputmethods/virtualkeyboard/correctionenabled");
     bool DefaultInputMethodCorrectionSettingOption = true;
     const QString InputMethodCorrectionEngine("/meegotouch/inputmethods/correctionengine");
-    const QString AutoCapsSentenceDelimiters(".?!¡¿"); // used as regexp character set content!
+    const QRegExp AutoCapsTrigger("[.?!¡¿] +$");
     const QString AutoPunctuationTriggers(".,?!");
     const int MaximumErrorCorrectionCandidate = 5;
     const int RotationDuration = 750; //! After vkb hidden, how long to wait until shown again
@@ -175,6 +175,7 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
       autoCapsTriggered(false),
       cursorPos(-1),
       preeditCursorPos(-1),
+      hasSelection(false),
       inputMethodMode(M::InputMethodModeNormal),
       backspaceTimer(),
       rotationTimer(),
@@ -517,7 +518,7 @@ void MKeyboardHost::update()
 {
     bool valid = false;
 
-    const bool hasSelection = inputMethodHost()->hasSelection(valid);
+    hasSelection = inputMethodHost()->hasSelection(valid);
     if (valid) {
         imToolbar->setSelectionStatus(hasSelection);
     }
@@ -582,12 +583,11 @@ void MKeyboardHost::updateAutoCapitalization()
     // Otherwise Auto Capitalization will turn on shift when (text entry capitalization option is ON):
     //   1. at the beginning of one paragraph
     //   2. after a sentence delimiter and one or more spaces
-    static const QRegExp autoCapsTrigger("[" + AutoCapsSentenceDelimiters + "] +$");
     autoCapsTriggered = ((preedit.length() == 0)
                          && ((cursorPos == 0)
                              || ((cursorPos > 0)
                                  && (cursorPos <= surroundingText.length())
-                                 && surroundingText.left(cursorPos).contains(autoCapsTrigger))));
+                                 && surroundingText.left(cursorPos).contains(AutoCapsTrigger))));
 
     if ((activeState == MInputMethod::OnScreen)
         && (vkbWidget->shiftStatus() != ModifierLockedState)) {
@@ -852,10 +852,19 @@ void MKeyboardHost::doBackspace()
     } else {
         sendBackSpaceKeyEvent();
     }
-    // Backspace toggles shift off if it's on (not locked)
-    // except if autoCaps is on and cursor is at 0 position.
+    // Backspace toggles shift off if it's latched except if:
+    // - autoCaps is on and cursor is at 0 position
+    // - text is selected (since we don't know what is
+    //   selected we can't predict the next state)
+    // - previous cursor position will have autoCaps
     if (vkbWidget->shiftStatus() == ModifierLatchedState
-        && (!autoCapsEnabled || cursorPos != 0)) {
+        && (!autoCapsEnabled || cursorPos != 0)
+        && !hasSelection
+        && (cursorPos == 0
+            || !autoCapsEnabled
+            || (cursorPos > 0
+                && cursorPos <= surroundingText.length()
+                && !surroundingText.left(cursorPos-1).contains(AutoCapsTrigger)))) {
         vkbWidget->setShiftState(ModifierClearState);
     }
 }
@@ -1034,6 +1043,27 @@ void MKeyboardHost::handleGeneralKeyClick(const KeyEvent &event)
             break;
         }
         autoCapsTriggered = false;
+    } else if (vkbWidget->shiftStatus() == ModifierLatchedState
+               && (event.qtKey() == Qt::Key_Return)
+               && (!shiftHeldDown || autoCapsTriggered)) {
+        // Enter will toggle latched shift off only when
+        // autoCaps is not enabled.
+        if (!autoCapsEnabled) {
+            vkbWidget->setShiftState(ModifierClearState);
+        }
+    } else if (vkbWidget->shiftStatus() == ModifierLatchedState
+               && (event.qtKey() == Qt::Key_Space)
+               && (!shiftHeldDown || autoCapsTriggered)) {
+        // Space will toggle latched shift off except if:
+        // - text is selected (since we don't know what is
+        //   selected we can't predict the next state)
+        // - next cursor position will have autoCaps
+        if (!autoCapsEnabled
+            || (!hasSelection
+                && cursorPos <= surroundingText.length()
+                && !surroundingText.left(cursorPos).contains(AutoCapsTrigger))) {
+            vkbWidget->setShiftState(ModifierClearState);
+        }
     } else if (vkbWidget->shiftStatus() == ModifierLatchedState
                && (event.qtKey() != Qt::Key_Backspace)
                && (event.specialKey() != KeyEvent::Sym)
