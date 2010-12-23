@@ -1188,16 +1188,14 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
                                                 vkbWidget->shiftStatus() != ModifierClearState, text.at(0));
             else
                 imCorrectionEngine->appendCharacter(text.at(0));
-
-            candidates = imCorrectionEngine->candidates();
-            correctionHost->setCandidates(candidates);
-
         } else {
             preedit.insert(preeditCursorPos, text);
             preeditCursorPos += text.length();
             imCorrectionEngine->clearEngineBuffer();
             imCorrectionEngine->reselectString(preedit);
         }
+        candidates = imCorrectionEngine->candidates();
+        correctionHost->setCandidates(candidates);
 
         // update preedit before showing word tracker
         updatePreedit(preedit, candidates.count(), 0, 0, preeditCursorPos);
