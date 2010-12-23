@@ -384,6 +384,10 @@ void MKeyboardHost::createCorrectionCandidateWidget()
 }
 
 
+// TODO: it would seem that application focus state is passed to all plugins by
+// MInputContextGlibDBusConnection::updateWidgetInformation, including nonactive ones.  If
+// that really is the case, then what we're doing here is wrong.  Yet another reason to have
+// plugin (de)activation methods?  Also see comments in MIMPluginManagerPrivate::replacePlugin.
 void MKeyboardHost::handleFocusChange(bool focusIn)
 {
     haveFocus = focusIn;
