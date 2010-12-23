@@ -1284,7 +1284,7 @@ void MKeyboardHost::userHide()
     if (!preedit.isEmpty()) {
         sendString(preedit);
     }
-    vkbWidget->hideKeyboard();
+    hide();
     inputMethodHost()->notifyImInitiatedHiding();
     resetInternalState();
 }

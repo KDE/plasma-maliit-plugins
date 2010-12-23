@@ -249,9 +249,6 @@ private slots:
     //! \brief Call organizeContent() and sendVKBRegion() if the vkb is visible
     void organizeContentAndSendRegion();
 
-    //! Handle flick down gesture signals from handle areas
-    void handleHandleFlickDown(const FlickGesture &gesture);
-
 signals:
     /*!
      * \brief Emitted when key is pressed

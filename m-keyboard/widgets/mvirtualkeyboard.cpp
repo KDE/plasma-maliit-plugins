@@ -146,14 +146,7 @@ void MVirtualKeyboard::connectHandle(const T &handle)
 {
     connect(&handle, SIGNAL(flickLeft(const FlickGesture &)), this, SLOT(flickLeftHandler()));
     connect(&handle, SIGNAL(flickRight(const FlickGesture &)), this, SLOT(flickRightHandler()));
-    connect(&handle, SIGNAL(flickDown(const FlickGesture &)), this, SLOT(handleHandleFlickDown(const FlickGesture &)));
-}
-
-
-void MVirtualKeyboard::handleHandleFlickDown(const FlickGesture &/* gesture */)
-{
-    hideKeyboard();
-    emit userInitiatedHide();
+    connect(&handle, SIGNAL(flickDown(const FlickGesture &)), this, SIGNAL(userInitiatedHide()));
 }
 
 
