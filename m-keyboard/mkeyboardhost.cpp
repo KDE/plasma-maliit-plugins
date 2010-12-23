@@ -290,6 +290,7 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
 
     symbolView = new SymbolView(LayoutsManager::instance(), vkbStyleContainer,
                                 vkbWidget->selectedLayout(), sceneWindow);
+    connect(symbolView, SIGNAL(visibleChanged()), this, SLOT(handleSymbolViewVisibleChanged()));
 
     connect(symbolView, SIGNAL(updateReactionMap()),
             this, SLOT(updateReactionMaps()));
@@ -337,10 +338,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
 
     rotationTimer.setSingleShot(true);
     connect(&rotationTimer, SIGNAL(timeout()), this, SLOT(finalizeOrientationChange()));
-
-    // hide main layout when symbol view is shown to improve performance
-    connect(symbolView, SIGNAL(opened()), vkbWidget, SLOT(hideMainArea()));
-    connect(symbolView, SIGNAL(aboutToHide()), vkbWidget, SLOT(showMainArea()));
 
     fastTypingTimeout.setSingleShot(true);
     fastTypingTimeout.setInterval(FastTypingTimeout);
@@ -466,6 +463,15 @@ void MKeyboardHost::hide()
     MPlainWindow::instance()->sceneManager()->disappearSceneWindowNow(sceneWindow);
 }
 
+
+void MKeyboardHost::handleSymbolViewVisibleChanged()
+{
+    if (symbolView->isVisible()) {
+        vkbWidget->hide();
+    } else if (!visualizationPriority && sipRequested && (activeState == MInputMethod::OnScreen)) {
+        vkbWidget->show();
+    }
+}
 
 void MKeyboardHost::setPreedit(const QString &preeditString, int cursor)
 {

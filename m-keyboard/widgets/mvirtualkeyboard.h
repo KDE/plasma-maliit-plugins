@@ -188,11 +188,6 @@ public slots:
 
     void setLayout(int layoutIndex);
 
-    //! Hide main keyboard layout
-    void hideMainArea();
-
-    //! Show main kayboard layout
-    void showMainArea();
 
 private slots:
     /*!

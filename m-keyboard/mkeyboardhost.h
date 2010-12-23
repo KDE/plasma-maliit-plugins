@@ -80,6 +80,9 @@ public:
     //! reimp_end
 
 private slots:
+    //! \brief Hide and show vkb based on symbol view visibility changes
+    void handleSymbolViewVisibleChanged();
+
     /*!
      * Handle key clicks from widgets
      * \param event internal key event

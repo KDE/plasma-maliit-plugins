@@ -363,7 +363,6 @@ SymbolView::hideSymbolView(SymbolView::HideMode mode)
         activity = Inactive;
     }
 
-    emit aboutToHide();
     anim.playHideAnimation();
 
 }
@@ -540,7 +539,6 @@ void SymbolView::switchToPrevPage()
 void SymbolView::onReady()
 {
     emit regionUpdated(interactiveRegion());
-    emit opened();
 }
 
 void SymbolView::onHidden()

@@ -876,24 +876,6 @@ void MVirtualKeyboard::switchLayout(MInputMethod::SwitchDirection direction, boo
 }
 
 
-void MVirtualKeyboard::hideMainArea()
-{
-    // TODO: do we need an activity check here (and in showMainArea)?
-    QGraphicsItem *item = dynamic_cast<QGraphicsItem*>(mainLayout->itemAt(KeyboardIndex));
-    if (item) {
-        item->hide();
-    }
-}
-
-
-void MVirtualKeyboard::showMainArea()
-{
-    QGraphicsItem *item = dynamic_cast<QGraphicsItem*>(mainLayout->itemAt(KeyboardIndex));
-    if (item) {
-        item->show();
-    }
-}
-
 void MVirtualKeyboard::setInputMethodMode(M::InputMethodMode mode)
 {
     MImAbstractKeyArea::setInputMethodMode(mode);
