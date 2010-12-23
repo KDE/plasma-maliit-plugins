@@ -33,24 +33,17 @@
 #include <mplainwindow.h>
 #include <mtoolbardata.h>
 #include <mgconfitem.h>
-#include <mtheme.h>
 
 #include <QDebug>
-#include <QCoreApplication>
 #include <QKeyEvent>
 #include <QFile>
 #include <QRegExp>
 
-#include <MApplication>
-#include <MComponentData>
-#include <MFeedbackPlayer>
 #include <mreactionmap.h>
 #include <MScene>
 #include <MSceneManager>
 #include <MSceneWindow>
 #include <MBanner>
-#include <MLocale>
-#include <MBreakIterator>
 #include <MLibrary>
 
 M_LIBRARY
@@ -173,7 +166,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
       inputMethodCorrectionEngine(new MGConfItem(InputMethodCorrectionEngine)),
       angle(M::Angle0),
       correctionEnabled(false),
-      feedbackPlayer(0),
       autoCapsEnabled(true),
       autoCapsTriggered(false),
       cursorPos(-1),
@@ -187,7 +179,7 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
       modifierLockOnBanner(0),
       haveFocus(false),
       sipRequested(false),
-      enableMultiTouch(false),
+      enableMultiTouch(MGConfItem(MultitouchSettings).value().toBool()),
       cycleKeyHandler(new CycleKeyHandler(*this)),
       currentIndicatorDeadKey(false),
       engineLayoutDirty(false),
@@ -198,8 +190,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
 {
     displayHeight = MPlainWindow::instance()->visibleSceneSize(M::Landscape).height();
     displayWidth  = MPlainWindow::instance()->visibleSceneSize(M::Landscape).width();
-
-    enableMultiTouch = MGConfItem(MultitouchSettings).value().toBool();
 
     sceneWindow = new MSceneWindow;
     sceneWindow->setManagedManually(true); // we want the scene window to remain in origin
@@ -352,8 +342,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
                      << inputMethodCorrectionEngine->value().toString();
         }
     }
-
-    feedbackPlayer = MComponentData::feedbackPlayer();
 
     backspaceTimer.setSingleShot(true);
     connect(&backspaceTimer, SIGNAL(timeout()), this, SLOT(autoBackspace()));

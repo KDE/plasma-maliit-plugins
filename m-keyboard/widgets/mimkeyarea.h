@@ -20,7 +20,6 @@
 #include "mimabstractkeyarea.h"
 #include "mimkey.h"
 
-#include <MScalableImage>
 #include <QTextLayout>
 #include <QPixmap>
 #include <QSize>

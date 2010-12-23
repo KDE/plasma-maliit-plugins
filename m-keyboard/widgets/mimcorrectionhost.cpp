@@ -19,20 +19,11 @@
 #include "mimwordtracker.h"
 #include "mimwordlist.h"
 
-#include <QGraphicsLinearLayout>
 #include <QDebug>
-#include <QString>
-
-#include <MSceneWindow>
-#include <MSceneManager>
-#include <mreactionmap.h>
-#include <mplainwindow.h>
-#include <MGConfItem>
 
 MImCorrectionHost::MImCorrectionHost(MSceneWindow *parentWindow)
     : QObject(parentWindow),
       rotationInProgress(false),
-      wordTrackerPosition(0, 0),
       currentMode(MImCorrectionHost::WordTrackerMode),
       pendingCandidatesUpdate(false),
       wordTracker(new MImWordTracker(parentWindow)),

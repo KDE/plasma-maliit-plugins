@@ -19,11 +19,9 @@
 #include "mimoverlay.h"
 
 #include <MSceneManager>
-#include <MScene>
 #include <MGConfItem>
 #include <mplainwindow.h>
 
-#include <QGraphicsSceneMouseEvent>
 #include <QString>
 #include <float.h>
 

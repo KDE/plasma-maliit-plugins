@@ -38,7 +38,6 @@ namespace
     const QString ObjectNameToolbarLeft("VirtualKeyboardToolbarLeft");
     const QString ObjectNameToolbarRight("VirtualKeyboardToolbarRight");
     const QString ObjectNameToolbarCenter("VirtualKeyboardToolbarCenter");
-    const QString NameToolbarCopyPasteButton("VirtualKeyboardCopyPasteButton");
 };
 
 MImToolbar::MImToolbar(QGraphicsWidget *parent)

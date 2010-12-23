@@ -16,22 +16,15 @@
 
 #include "flickgesture.h"
 #include "flickgesturerecognizer.h"
-#include "mvirtualkeyboardstyle.h"
 #include "mimabstractkeyarea.h"
 #include "popupbase.h"
 #include "popupfactory.h"
 
-#include <MApplication>
-#include <MComponentData>
 #include <MFeedback>
-#include <MSceneManager>
 #include <MGConfItem>
 #include <QDebug>
 #include <QEvent>
-#include <QGraphicsLinearLayout>
 #include <QGraphicsSceneMouseEvent>
-#include <QHash>
-#include <QKeyEvent>
 #include <QFile>
 #include <QTextStream>
 #include <QDir>
@@ -48,14 +41,6 @@
 
 namespace
 {
-    const qreal ZValueButtons = 0.0;
-
-    // Minimal distinguishable cursor/finger movement
-    const qreal MovementThreshold = 5.0;
-
-    // For gesture thresholds: How many pixels translate to one counted move event.
-    const qreal PixelsToMoveEventsFactor = 0.02;
-
     // This GConf item defines whether multitouch is enabled or disabled
     const char *const MultitouchSettings = "/meegotouch/inputmethods/multitouch/enabled";
 

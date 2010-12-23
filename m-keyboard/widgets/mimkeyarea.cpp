@@ -14,24 +14,18 @@
  * of this file.
  */
 
-#include "mvirtualkeyboardstyle.h"
 #include "mimkeyarea.h"
 
 #include <QDebug>
 #include <QEvent>
-#include <QGraphicsLinearLayout>
-#include <QGraphicsSceneMouseEvent>
 #include <QPainter>
 #include <QTextCharFormat>
 #include <QTextLine>
 #include <QList>
 
-#include <MApplication>
-#include <MComponentData>
-#include <MFeedbackPlayer>
+#include <MScalableImage>
 #include <mplainwindow.h>
 #include <mreactionmap.h>
-#include <MTheme>
 #include <MTimestamp>
 
 namespace {

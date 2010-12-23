@@ -20,14 +20,12 @@
 #include "mimcorrectioncandidateitem.h"
 
 #include <QGraphicsLinearLayout>
-#include <QGraphicsSceneMouseEvent>
 #include <QDebug>
 
 #include <mplainwindow.h>
 #include <mreactionmap.h>
 #include <MScalableImage>
 #include <MSceneManager>
-#include <MScene>
 #include <MSceneWindow>
 #include <MGConfItem>
 

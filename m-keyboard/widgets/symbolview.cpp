@@ -22,33 +22,24 @@
 #include "symbolview.h"
 #include "grip.h"
 #include "sharedhandlearea.h"
+#include "mimkeyarea.h"
 
 #include <MSceneManager>
 #include <MScalableImage>
 #include <mreactionmap.h>
-#include <mtheme.h>
 #include <mplainwindow.h>
 
-#include <QCoreApplication>
 #include <QDebug>
 #include <QGraphicsSceneResizeEvent>
-#include <QPainter>
+#include <QGraphicsLinearLayout>
 
 namespace
 {
     const int DefaultAnimationDuration = 1;
     const int DefaultAnimationFrameCount = 1;
 
-    const QString SymLabel("Sym");
-    const QString AceLabel(QString(0xE1) + QChar(0xE7) + QChar(0xE8)); // "áçè"
     const QString SymbolSectionPrefix = "symbols";
     const QString SymbolSectionSym = SymbolSectionPrefix + "0";
-
-    const QString ObjectNameTabs("VirtualKeyboardSymTabs");
-    const QString ObjectNameTabButton("VirtualKeyboardSymTabsButton");
-    const QString ObjectNameCloseButton("VirtualKeyboardCloseButton");
-
-    const QString SymCloseIcon("icon-m-input-methods-close");
 
     // This GConf item defines whether multitouch is enabled or disabled
     const char * const MultitouchSettings = "/meegotouch/inputmethods/multitouch/enabled";
@@ -257,8 +248,6 @@ void SymbolView::mousePressEvent(QGraphicsSceneMouseEvent *)
 
 bool SymbolView::sceneEventFilter(QGraphicsItem */*watched*/, QEvent *event)
 {
-    bool stopPropagation = false;
-
     if (pageSwitcher) {
         switch (event->type()) {
         case QEvent::GraphicsSceneMousePress: {
@@ -279,7 +268,7 @@ bool SymbolView::sceneEventFilter(QGraphicsItem */*watched*/, QEvent *event)
             break;
         }
     }
-    return stopPropagation;
+    return false;
 }
 
 void SymbolView::reposition(const int height)

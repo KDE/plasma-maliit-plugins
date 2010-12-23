@@ -27,7 +27,6 @@
 #include <QTimer>
 #include <QPointer>
 
-class MFeedbackPlayer;
 class MGConfItem;
 class MImCorrectionHost;
 class MSceneWindow;
@@ -363,9 +362,6 @@ private:
 
     //! error correction flag
     bool correctionEnabled;
-
-    //! Feedback player instance
-    MFeedbackPlayer *feedbackPlayer;
 
     //! FIXME: should we provide such a flag to on/off auto caps
     bool autoCapsEnabled;

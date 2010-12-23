@@ -17,29 +17,25 @@
 #ifndef SYMBOLVIEW_H
 #define SYMBOLVIEW_H
 
-#include "mimkeyarea.h"
 #include "keyeventhandler.h"
+#include "mkeyboardcommon.h"
+#include "layoutdata.h"
 
 #include <minputmethodnamespace.h>
-#include <MButton>
-#include <MButtonGroup>
 #include <MWidget>
 
 #include <QPointer>
-#include <QSharedPointer>
 #include <QTimeLine>
 #include <QGraphicsItemAnimation>
-#include <QGraphicsLinearLayout>
 
+class MReactionMap;
 class MSceneManager;
 class MVirtualKeyboardStyleContainer;
 class HorizontalSwitcher;
-class LayoutData;
 class LayoutsManager;
 class QGraphicsLinearLayout;
 class QGraphicsSceneMouseEvent;
 class KeyEvent;
-class LayoutSection;
 class Handle;
 class SharedHandleArea;
 

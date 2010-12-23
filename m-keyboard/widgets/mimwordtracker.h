@@ -23,7 +23,6 @@
 #include "mimwordtrackerstyle.h"
 
 #include <QTimeLine>
-#include <QPoint>
 
 class QGraphicsWidget;
 class QGraphicsLinearLayout;

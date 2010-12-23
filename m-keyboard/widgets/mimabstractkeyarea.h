@@ -17,17 +17,13 @@
 #ifndef MIMABSTRACTKEYAREA_H
 #define MIMABSTRACTKEYAREA_H
 
+#include "mkeyboardcommon.h"
 #include "mimabstractkey.h"
 #include "mimabstractkeyareastyle.h"
-#include "keyevent.h"
 #include "layoutdata.h"
-#include "mimkeymodel.h"
-#include "mkeyboardcommon.h"
 
 #include <MStylableWidget>
 #include <MFeedback>
-#include <QColor>
-#include <QHash>
 #include <QList>
 #include <QStringList>
 #include <QTouchEvent>
@@ -36,12 +32,6 @@
 
 class FlickGesture;
 class MReactionMap;
-class MScalableImage;
-class MVirtualKeyboardStyleContainer;
-class LayoutData;
-class QGraphicsLinearLayout;
-class QTextLayout;
-class PopupHost;
 class PopupBase;
 
 //! \brief MImAbstractKeyArea is a view for virtual keyboard layout represented by LayoutModel

@@ -14,23 +14,19 @@
  * of this file.
  */
 
-
-
 #ifndef MIMCORRECTIONHOST_H
 #define MIMCORRECTIONHOST_H
 
 #include <QObject>
-#include <QPoint>
 #include <QString>
 #include <QStringList>
-#include <QRect>
 #include <QRegion>
 
+class QRect;
 class MSceneWindow;
 class MReactionMap;
 class MImWordTracker;
 class MImWordList;
-class MReactionMap;
 class QGraphicsView;
 
 /*!
@@ -134,7 +130,6 @@ protected slots:
 
 private:
     bool rotationInProgress;
-    QPoint wordTrackerPosition;
     QStringList candidates;
     CandidateMode currentMode;
     QString suggestionString;

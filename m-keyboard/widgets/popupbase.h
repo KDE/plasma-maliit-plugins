@@ -22,7 +22,6 @@ class MImAbstractKeyArea;
 
 class QPointF;
 class QPoint;
-class QFont;
 class QSize;
 class QString;
 
