@@ -36,6 +36,7 @@ SharedHandleArea::SharedHandleArea(MImToolbar &toolbar, QGraphicsWidget *parent)
       inputMethodMode(M::InputMethodModeNormal)
 {
     setObjectName("SharedHandleArea");
+    hide();
     RegionTracker::instance().addRegion(*this);
     RegionTracker::instance().addInputMethodArea(*this);
 

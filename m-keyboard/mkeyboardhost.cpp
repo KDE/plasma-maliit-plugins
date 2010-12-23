@@ -272,10 +272,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
     Q_ASSERT(ok);
 
     sharedHandleArea = new SharedHandleArea(*imToolbar, sceneWindow);
-    sharedHandleArea->resize(MPlainWindow::instance()->visibleSceneSize().width(),
-                             sharedHandleArea->size().height());
-    sharedHandleArea->hide();
-    Q_ASSERT(ok);
     sharedHandleArea->setInputMethodMode(static_cast<M::InputMethodMode>(inputMethodMode));
 
     // Set z value below default level (0.0) so popup will be on top of shared handle area.
