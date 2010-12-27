@@ -164,7 +164,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
       inputMethodCorrectionSettings(new MGConfItem(InputMethodCorrectionSetting)),
       inputMethodCorrectionEngine(new MGConfItem(InputMethodCorrectionEngine)),
       angle(M::Angle0),
-      rotationInProgress(false),
       correctionEnabled(false),
       feedbackPlayer(0),
       autoCapsEnabled(true),
@@ -173,6 +172,7 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
       preeditCursorPos(-1),
       inputMethodMode(M::InputMethodModeNormal),
       backspaceTimer(),
+      rotationTimer(),
       shiftHeldDown(false),
       activeState(MInputMethod::OnScreen),
       modifierLockOnBanner(0),
@@ -354,6 +354,9 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
     backspaceTimer.setSingleShot(true);
     connect(&backspaceTimer, SIGNAL(timeout()), this, SLOT(autoBackspace()));
 
+    rotationTimer.setSingleShot(true);
+    connect(&rotationTimer, SIGNAL(timeout()), this, SLOT(finalizeOrientationChange()));
+
     // hide main layout when symbol view is shown to improve performance
     connect(symbolView, SIGNAL(opened()), vkbWidget, SLOT(hideMainArea()));
     connect(symbolView, SIGNAL(aboutToHide()), vkbWidget, SLOT(showMainArea()));
@@ -384,6 +387,7 @@ MKeyboardHost::~MKeyboardHost()
     }
     backspaceMode = NormalBackspaceMode;
     backspaceTimer.stop();
+    rotationTimer.stop();
     LayoutsManager::destroyInstance();
 }
 
@@ -641,11 +645,9 @@ void MKeyboardHost::resetInternalState()
 
 void MKeyboardHost::prepareOrientationChange()
 {
-    if (rotationInProgress) {
+    if (rotationTimer.isActive()) {
         return;
     }
-    rotationInProgress = true;
-
     // Saves states then hide
     symbolView->prepareToOrientationChange();
     vkbWidget->prepareToOrientationChange();
@@ -655,7 +657,7 @@ void MKeyboardHost::prepareOrientationChange()
     // TODO: this is only a workaround for fixing the orientaton change bug.
     // The correct fix need a notification from application, to tell keyboard
     // when the orientation is finished for calling finalizeOrientationChange.
-    QTimer::singleShot(1000, this, SLOT(finalizeOrientationChange()));
+    rotationTimer.start(1000);
 }
 
 void MKeyboardHost::finalizeOrientationChange()
@@ -695,7 +697,7 @@ void MKeyboardHost::finalizeOrientationChange()
     if (vkbWidget->isVisible()) {
         updateEngineKeyboardLayout();
     }
-    rotationInProgress = false;
+    rotationTimer.stop();
 }
 
 bool MKeyboardHost::rotatePoint(const QPoint &screen, QPoint &window)
@@ -788,6 +790,12 @@ void MKeyboardHost::handleVisualizationPriorityChange(bool priority)
 
 void MKeyboardHost::handleAppOrientationChange(int angle)
 {
+    if (MPlainWindow::instance()->sceneManager()->orientationAngle()== static_cast<M::OrientationAngle>(angle)
+        && this->angle == static_cast<M::OrientationAngle>(angle))
+        return;
+    if (rotationTimer.isActive()) {
+        rotationTimer.stop();
+    }
     // The application receiving input has changed its orientation. Let's change ours.
     // Disable  the transition animation for rotation.
     MPlainWindow::instance()->sceneManager()->setOrientationAngle(static_cast<M::OrientationAngle>(angle),
@@ -923,7 +931,7 @@ void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
 
 void MKeyboardHost::updateReactionMaps()
 {
-    if (rotationInProgress) {
+    if (rotationTimer.isActive()) {
         return;
     }
 

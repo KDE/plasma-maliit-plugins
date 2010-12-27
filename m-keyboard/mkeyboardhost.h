@@ -357,8 +357,6 @@ private:
     int displayWidth;
     int displayHeight;
 
-    bool rotationInProgress;
-
     //! error correction flag
     bool correctionEnabled;
 
@@ -376,6 +374,8 @@ private:
     int inputMethodMode;
 
     QTimer backspaceTimer;
+
+    QTimer rotationTimer;
 
     KeyEvent lastClickEvent;
 
