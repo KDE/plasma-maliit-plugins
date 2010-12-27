@@ -36,9 +36,7 @@ TESTSUITE_TEMPLATE="<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>
   <suite name=\"meego-keyboard-tests\"> 
     <set name=\"unit_tests\" description=\"Unit Tests\">
 
-      $UT_STARTUP
       $UT_TESTCASES
-      $UT_FINAL
 
       <environments>
         <scratchbox>false</scratchbox>
