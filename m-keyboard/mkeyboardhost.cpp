@@ -27,6 +27,7 @@
 #include "symbolview.h"
 #include "mimtoolbar.h"
 #include "sharedhandlearea.h"
+#include "regiontracker.h"
 
 #include <mimenginefactory.h>
 #include <mabstractinputmethodhost.h>
@@ -187,6 +188,15 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
       fastTypingKeyCount(0),
       fastTypingEnabled(false)
 {
+    RegionTracker::createInstance();
+    connect(&RegionTracker::instance(), SIGNAL(regionChanged(const QRegion &)),
+            imHost, SLOT(setScreenRegion(const QRegion &)));
+    connect(&RegionTracker::instance(), SIGNAL(inputMethodAreaChanged(const QRegion &)),
+            imHost, SLOT(setInputMethodArea(const QRegion &)));
+    connect(&RegionTracker::instance(), SIGNAL(reactionMapUpdateNeeded()),
+            this, SLOT(updateReactionMaps()));
+    RegionTracker::instance().enableSignals(false);
+
     displayHeight = MPlainWindow::instance()->visibleSceneSize(M::Landscape).height();
     displayWidth  = MPlainWindow::instance()->visibleSceneSize(M::Landscape).width();
 
@@ -226,11 +236,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
             this, SLOT(handleLongKeyPress(const KeyEvent &)));
     connect(vkbWidget, SIGNAL(showSymbolViewRequested()),
             this, SLOT(showSymbolView()));
-
-    connect(vkbWidget, SIGNAL(regionUpdated(const QRegion &)),
-            this, SLOT(handleRegionUpdate(const QRegion &)));
-    connect(vkbWidget, SIGNAL(inputMethodAreaUpdated(const QRegion &)),
-            this, SLOT(handleInputMethodAreaUpdate(const QRegion &)));
 
     connect(vkbWidget, SIGNAL(userInitiatedHide()),
             this, SLOT(userHide()));
@@ -273,14 +278,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
     Q_ASSERT(ok);
     sharedHandleArea->setInputMethodMode(static_cast<M::InputMethodMode>(inputMethodMode));
 
-    ok = connect(sharedHandleArea, SIGNAL(regionUpdated()),
-                 this, SLOT(handleRegionUpdate()));
-    Q_ASSERT(ok);
-
-    ok = connect(sharedHandleArea, SIGNAL(inputMethodAreaUpdated()),
-                 this, SLOT(handleInputMethodAreaUpdate()));
-    Q_ASSERT(ok);
-
     // Set z value below default level (0.0) so popup will be on top of shared handle area.
     sharedHandleArea->setZValue(-1.0);
 
@@ -296,10 +293,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
 
     symbolView = new SymbolView(LayoutsManager::instance(), vkbStyleContainer,
                                 vkbWidget->selectedLayout(), sceneWindow);
-    connect(symbolView, SIGNAL(regionUpdated(const QRegion &)),
-            this, SLOT(handleRegionUpdate(const QRegion &)));
-    connect(symbolView, SIGNAL(regionUpdated(const QRegion &)),
-            this, SLOT(handleInputMethodAreaUpdate(const QRegion &)));
 
     connect(symbolView, SIGNAL(updateReactionMap()),
             this, SLOT(updateReactionMaps()));
@@ -358,6 +351,7 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
             this, SLOT(turnOffFastTyping()));
 
     hide();
+    RegionTracker::instance().enableSignals(true, false);
 }
 
 MKeyboardHost::~MKeyboardHost()
@@ -385,6 +379,7 @@ MKeyboardHost::~MKeyboardHost()
     backspaceTimer.stop();
     rotationTimer.stop();
     LayoutsManager::destroyInstance();
+    RegionTracker::destroyInstance();
 }
 
 void MKeyboardHost::createCorrectionCandidateWidget()
@@ -392,9 +387,6 @@ void MKeyboardHost::createCorrectionCandidateWidget()
     // construct correction candidate widget
     correctionHost = new MImCorrectionHost(sceneWindow);
     correctionHost->hideCorrectionWidget();
-
-    connect(correctionHost, SIGNAL(regionUpdated(const QRegion &)),
-            this, SLOT(handleRegionUpdate(const QRegion &)));
     connect(correctionHost, SIGNAL(candidateClicked(const QString &)),
             this, SLOT(commitString(const QString &)));
 }
@@ -1320,83 +1312,6 @@ void MKeyboardHost::sendCopyPaste(CopyPasteState action)
 void MKeyboardHost::showLayoutMenu()
 {
     inputMethodHost()->showSettings();
-}
-
-void MKeyboardHost::setRegionInfo(RegionList &regionStore,
-                                  const QRegion &region,
-                                  const QPointer<QObject> &widget)
-{
-    bool found = false;
-
-    for (RegionList::iterator iterator = regionStore.begin();
-         iterator != regionStore.end();
-         ++iterator) {
-        if (iterator->first == widget) {
-            iterator->second = region;
-            found = true;
-            break;
-        }
-    }
-
-    if (!found) {
-        regionStore.append(ObjectRegionPair(widget, region));
-    }
-}
-
-QRegion MKeyboardHost::combineRegion()
-{
-    return combineRegionImpl(widgetRegions, true);
-}
-
-QRegion MKeyboardHost::combineInputMethodArea()
-{
-    return combineRegionImpl(inputMethodAreaWidgetRegions, false);
-}
-
-QRegion MKeyboardHost::combineRegionImpl(const RegionList &regionStore,
-                                         bool includeExtraInteractiveAreas)
-{
-    QRegion combinedRegion;
-
-    foreach (const ObjectRegionPair &pair, regionStore) {
-        if (pair.first) {
-            combinedRegion |= pair.second;
-        }
-    }
-
-    if (sharedHandleArea) {
-        //add region occupied by sharedHandleArea
-        combinedRegion = sharedHandleArea->addRegion(combinedRegion, includeExtraInteractiveAreas);
-    }
-
-    return combinedRegion;
-}
-
-void MKeyboardHost::handleRegionUpdate(const QRegion &region)
-{
-    QPointer<QObject> pointer(QObject::sender());
-
-    setRegionInfo(widgetRegions, region, pointer);
-    handleRegionUpdate();
-}
-
-void MKeyboardHost::handleRegionUpdate()
-{
-    inputMethodHost()->setScreenRegion(combineRegion());
-    updateReactionMaps();
-}
-
-void MKeyboardHost::handleInputMethodAreaUpdate(const QRegion &region)
-{
-    QPointer<QObject> pointer(QObject::sender());
-
-    setRegionInfo(inputMethodAreaWidgetRegions, region, pointer);
-    handleInputMethodAreaUpdate();
-}
-
-void MKeyboardHost::handleInputMethodAreaUpdate()
-{
-    inputMethodHost()->setInputMethodArea(combineInputMethodArea());
 }
 
 void MKeyboardHost::switchPlugin(MInputMethod::SwitchDirection direction)

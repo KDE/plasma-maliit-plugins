@@ -140,27 +140,6 @@ private slots:
      */
     virtual void sendCopyPaste(CopyPasteState action);
 
-    /*! Receive region updates from widgets, combine them and signal as input method's region
-     * using \a MAbstractInputMethod::regionUpdated.
-     *
-     * \param region updated region
-     */
-    void handleRegionUpdate(const QRegion &region);
-
-    //! This overloaded function handles region updates from sharedHandleArea.
-    void handleRegionUpdate();
-
-    /*!
-     * Receive region updates from widgets, combine them and signal as input
-     * method area using \a MAbstractInputMethod::inputMethodAreaUpdated.
-     *
-     * \param region updated region
-     */
-    void handleInputMethodAreaUpdate(const QRegion &region);
-
-    //! This overloaded function handles region updates from sharedHandleArea.
-    void handleInputMethodAreaUpdate();
-
     //! Changes plugin into given direction
     void switchPlugin(MInputMethod::SwitchDirection direction);
 
@@ -250,39 +229,6 @@ private:
      *  \param clearValue A MReactionMap color value such as MReactionMap::Inactive.
      */
     void clearReactionMaps(const QString &clearValue);
-
-    /*! Mapping from QObject to region.
-     */
-    typedef QPair<QPointer<QObject>, QRegion> ObjectRegionPair;
-
-    /*! Container of region mapping information.
-     */
-    typedef QList<ObjectRegionPair> RegionList;
-
-    /*!
-     * \brief Save \a region occupied by \a widget into \a regionStore.
-     */
-    void setRegionInfo(RegionList &regionStore,
-                       const QRegion &region,
-                       const QPointer<QObject> &widget);
-    /*!
-     * \brief Return union of all regions in \a regionStore after adding sharedHandleArea region.
-     */
-    QRegion combineRegion();
-
-    /*!
-     * \brief Return union of all regions in \a regionStore after adding sharedHandleArea region.
-     */
-    QRegion combineInputMethodArea();
-
-    /*!
-     * \brief Common implementation for combineRegion() and combineInputMethodArea().
-     * \param includeExtraInteractiveAreas Result includes extra interactive area
-     * if this parameter is true.
-     */
-    QRegion combineRegionImpl(const RegionList &regionStore,
-                              bool includeExtraInteractiveAreas);
-
 
     //! initialize input engine
     void initializeInputEngine();
@@ -378,12 +324,6 @@ private:
     bool shiftHeldDown;
 
     MSceneWindow *sceneWindow;
-
-    //! Regions of widgets created by MKeyboardHost
-    RegionList widgetRegions;
-
-    //! Regions of widgets that affect the input method area
-    RegionList inputMethodAreaWidgetRegions;
 
     //! current active state
     MInputMethod::HandlerState activeState;
