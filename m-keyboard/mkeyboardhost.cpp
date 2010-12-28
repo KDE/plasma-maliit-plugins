@@ -164,7 +164,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
       imCorrectionEngine(0),
       inputMethodCorrectionSettings(new MGConfItem(CorrectionSetting)),
       inputMethodCorrectionEngine(new MGConfItem(InputMethodCorrectionEngine)),
-      angle(M::Angle0),
       correctionEnabled(false),
       autoCapsEnabled(true),
       autoCapsTriggered(false),
@@ -670,7 +669,6 @@ void MKeyboardHost::prepareOrientationChange()
 
 void MKeyboardHost::finalizeOrientationChange()
 {
-    angle = MPlainWindow::instance()->orientationAngle();
     MPlainWindow::instance()->sceneManager()->appearSceneWindowNow(sceneWindow);
 
     if (imToolbar) {
@@ -691,9 +689,8 @@ void MKeyboardHost::finalizeOrientationChange()
     if (correctionHost->isActive()) {
         bool success = false;
         const QRect rect = inputMethodHost()->cursorRectangle(success);
-        QRect localRect;
-        if (success && !rect.isNull() && rotateRect(rect, localRect)) {
-            correctionHost->setPosition(localRect);
+        if (success && rect.isValid()) {
+            correctionHost->setPosition(sceneWindow->mapRectFromScene(rect).toRect());
             correctionHost->showCorrectionWidget(correctionHost->candidateMode());
         } else {
             correctionHost->hideCorrectionWidget();
@@ -707,74 +704,6 @@ void MKeyboardHost::finalizeOrientationChange()
     }
     rotationTimer.stop();
 }
-
-bool MKeyboardHost::rotatePoint(const QPoint &screen, QPoint &window)
-{
-    bool res = true;
-
-    switch (angle) {
-    case M::Angle90:
-        window.setX(screen.y());
-        window.setY(displayWidth - screen.x());
-        break;
-    case M::Angle270:
-        window.setX(displayHeight - screen.y());
-        window.setY(screen.x());
-        break;
-    case M::Angle180:
-        window.setX(displayWidth - screen.x());
-        window.setY(displayHeight - screen.y());
-        break;
-    case M::Angle0:
-        window.setX(screen.x());
-        window.setY(screen.y());
-        break;
-    default:
-        qCritical() << __FILE__ << __LINE__ << "Incorrect orientation" << angle;
-        res = false;
-        break;
-    }
-    return res;
-}
-
-
-bool MKeyboardHost::rotateRect(const QRect &screenRect, QRect &windowRect)
-{
-    bool res = true;
-
-    if (!screenRect.isValid()) {
-        windowRect = QRect();
-        return false;
-    }
-
-    switch (angle) {
-    case M::Angle90:
-        windowRect.setRect(screenRect.y(),
-                           displayWidth - screenRect.x() - screenRect.width(),
-                           screenRect.height(), screenRect.width());
-        break;
-    case M::Angle270:
-        windowRect.setRect(displayHeight - screenRect.y() - screenRect.height(),
-                           screenRect.x(),
-                           screenRect.height(), screenRect.width());
-        break;
-    case M::Angle180:
-        windowRect.setRect(displayWidth - screenRect.x() - screenRect.width(),
-                           displayHeight - screenRect.y() - screenRect.height(),
-                           screenRect.width(), screenRect.height());
-        break;
-    case M::Angle0:
-        windowRect = screenRect;
-        break;
-    default:
-        qCritical() << __FILE__ << __LINE__ << " Incorrect orientation " << angle;
-        windowRect = QRect();
-        res = false;
-        break;
-    }
-    return res;
-}
-
 
 void MKeyboardHost::handleMouseClickOnPreedit(const QPoint &mousePos, const QRect &preeditRect)
 {
@@ -798,8 +727,7 @@ void MKeyboardHost::handleVisualizationPriorityChange(bool priority)
 
 void MKeyboardHost::handleAppOrientationChange(int angle)
 {
-    if (MPlainWindow::instance()->sceneManager()->orientationAngle()== static_cast<M::OrientationAngle>(angle)
-        && this->angle == static_cast<M::OrientationAngle>(angle))
+    if (MPlainWindow::instance()->sceneManager()->orientationAngle()== static_cast<M::OrientationAngle>(angle))
         return;
     if (rotationTimer.isActive()) {
         rotationTimer.stop();
@@ -808,7 +736,6 @@ void MKeyboardHost::handleAppOrientationChange(int angle)
     // Disable  the transition animation for rotation.
     MPlainWindow::instance()->sceneManager()->setOrientationAngle(static_cast<M::OrientationAngle>(angle),
                                                                   MSceneManager::ImmediateTransition);
-    this->angle = static_cast<M::OrientationAngle>(angle);
     prepareOrientationChange();
 }
 
@@ -1280,9 +1207,8 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
                 && sourceDictionaryType == MImEngine::DictionaryTypeInvalid) {
                 bool success = false;
                 const QRect rect = inputMethodHost()->cursorRectangle(success);
-                QRect localRect;
-                if (success && !rect.isNull() && rotateRect(rect, localRect)) {
-                    correctionHost->setPosition(localRect);
+                if (success && rect.isValid()) {
+                    correctionHost->setPosition(sceneWindow->mapRectFromScene(rect).toRect());
                     correctionHost->showCorrectionWidget(MImCorrectionHost::WordTrackerMode);
                 }
             } else {
@@ -1864,9 +1790,8 @@ void MKeyboardHost::updateCorrectionWidgetPosition()
         && correctionHost->candidateMode() == MImCorrectionHost::WordTrackerMode) {
         bool success = false;
         const QRect rect = inputMethodHost()->cursorRectangle(success);
-        QRect localRect;
-        if (success && !rect.isNull() && rotateRect(rect, localRect)) {
-            correctionHost->setPosition(localRect);
+        if (success && rect.isValid()) {
+            correctionHost->setPosition(sceneWindow->mapRectFromScene(rect).toRect());
         }
     }
 }

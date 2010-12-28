@@ -22,7 +22,6 @@
 #include "mkeyboardcommon.h"
 #include "mabstractinputmethod.h"
 #include "keyevent.h"
-#include <MNamespace>
 #include <QStringList>
 #include <QTimer>
 #include <QPointer>
@@ -210,10 +209,6 @@ private:
 
     void createCorrectionCandidateWidget();
 
-    //! Rotates coodinates from screen to window
-    bool rotatePoint(const QPoint &screen, QPoint &window);
-    bool rotateRect(const QRect &screenRect, QRect &windowRect);
-
     //! Update error correction flag
     void updateCorrectionState();
 
@@ -356,7 +351,6 @@ private:
 
     QStringList candidates;
 
-    M::OrientationAngle angle;
     int displayWidth;
     int displayHeight;
 

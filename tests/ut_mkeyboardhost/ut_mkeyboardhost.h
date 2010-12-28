@@ -48,8 +48,6 @@ private slots:
 
     void testCreate();
     void testOrientationAngleLocked();
-    void testRotatePoint();
-    void testRotateRect();
     void testHandleClick();
     void testDirectMode();
     void testNotCrash();
