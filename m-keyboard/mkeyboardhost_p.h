@@ -28,8 +28,11 @@ public:
     explicit CycleKeyHandler(MKeyboardHost &parent);
     virtual ~CycleKeyHandler();
     bool handleTextInputKeyClick(const KeyEvent &event);
+    void reset();
+
 private slots:
     void commitCycleKey();
+
 private:
     MKeyboardHost &host;    // The MKeyboardHost to use
     QTimer timer;           // Timer to kick commit

@@ -144,6 +144,11 @@ bool MKeyboardHost::CycleKeyHandler::handleTextInputKeyClick(const KeyEvent &eve
     return true;
 }
 
+void MKeyboardHost::CycleKeyHandler::reset()
+{
+    timer.stop();
+}
+
 void MKeyboardHost::CycleKeyHandler::commitCycleKey()
 {
     if (cycleText.length() > 0) {
@@ -641,6 +646,7 @@ void MKeyboardHost::resetInternalState()
     correctionHost->reset();
     if (imCorrectionEngine)
         imCorrectionEngine->clearEngineBuffer();
+    cycleKeyHandler->reset();
 }
 
 void MKeyboardHost::prepareOrientationChange()
