@@ -125,6 +125,7 @@ private:
     bool cachedBackgroundDirty; //!< dirty background cache flag
     bool hasCachedBackground; //!< stores whether we already cached the background
     bool equalWidthKeys; //!< whether to assume equal width for all keys
+    int WidthCorrection; //!< width correction for Arabic layouts
 
 #ifdef UNIT_TEST
     friend class Ut_MImAbstractKeyArea;

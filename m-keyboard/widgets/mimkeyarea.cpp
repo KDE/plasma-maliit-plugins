@@ -389,7 +389,8 @@ MImKeyArea::MImKeyArea(const LayoutData::SharedLayoutSection &newSection,
       textDirty(false),
       cachedBackgroundDirty(true),
       hasCachedBackground(false),
-      equalWidthKeys(true)
+      equalWidthKeys(true),
+      WidthCorrection(0)
 {
     textLayout.setCacheEnabled(true);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
@@ -444,6 +445,21 @@ void MImKeyArea::loadKeys()
             // Parameters to fetch from base class.
             MImKeyModel *dataKey = sectionModel()->keyModel(row, col);
             MImKey *key = new MImKey(*dataKey, baseStyle(), *this);
+
+            // Temporary, dirty workaround-hack to detect Arabic layouts
+            // because the QTextLayout rendering is broken with Arabic characters and
+            // the width must be corrected. See NB#197937 and QTBUG-15511.
+            // TODO: Remove this when the above bugs are fixed.
+            if (WidthCorrection == 0)
+            {
+                QVector<uint> Ucs4Codes = key->label().toUcs4();
+                uint UnicodeCode = Ucs4Codes.size() > 0 ? Ucs4Codes[0] : 0;
+
+                // The character is in the Unicode range of the Arabic characters.
+                if (UnicodeCode >= 1536 && UnicodeCode <= 1791)
+                    WidthCorrection = -8;
+            }
+
 
             // TODO: Remove restriction to have only one shift key per layout?
             if (dataKey->binding()->action() == MImKeyBinding::ActionShift) {
@@ -692,7 +708,7 @@ void MImKeyArea::paint(QPainter *onScreenPainter,
 
     // Draw text next.
     onScreenPainter->setPen(style->fontColor());
-    textLayout.draw(onScreenPainter, QPoint());
+    textLayout.draw(onScreenPainter, QPoint(WidthCorrection, 0));
 
     cachedBackgroundDirty = false;
     mTimestamp("MImKeyArea", "end");
