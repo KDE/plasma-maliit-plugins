@@ -117,14 +117,8 @@ signals:
     //! Updates the preedit word
     void candidateClicked(const QString &);
 
-    //! Updates the screen region used by the widget
-    void regionUpdated(const QRegion &);
-
 protected slots:
-
     void handleCandidateClicked(const QString &candidate);
-
-    void sendRegion();
 
     void longTap();
 

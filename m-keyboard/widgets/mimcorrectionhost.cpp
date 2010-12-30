@@ -31,10 +31,8 @@ MImCorrectionHost::MImCorrectionHost(MSceneWindow *parentWindow)
 {
     connect(wordTracker, SIGNAL(candidateClicked(QString)), this, SLOT(handleCandidateClicked(QString)));
     connect(wordTracker, SIGNAL(longTapped()), this, SLOT(longTap()));
-    connect(wordTracker, SIGNAL(regionChanged()), this, SLOT(sendRegion()));
 
     connect(wordList, SIGNAL(candidateClicked(QString)), this, SLOT(handleCandidateClicked(QString)));
-    connect(wordList, SIGNAL(regionChanged()), this, SLOT(sendRegion()));
 }
 
 
@@ -160,19 +158,6 @@ void MImCorrectionHost::paintReactionMap(MReactionMap *reactionMap, QGraphicsVie
     if (wordList->isVisible()) {
         wordList->paintReactionMap(reactionMap, view);
     }
-}
-
-void MImCorrectionHost::sendRegion()
-{
-    QRegion region;
-    if (isActive()) {
-        if (currentMode == WordListMode) {
-            region = wordList->region();
-        } else {
-            region = wordTracker->region();
-        }
-    }
-    emit regionUpdated(region);
 }
 
 void MImCorrectionHost::handleCandidateClicked(const QString &candidate)

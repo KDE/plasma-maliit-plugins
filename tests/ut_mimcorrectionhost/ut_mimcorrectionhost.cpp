@@ -28,6 +28,7 @@
 #include <QSignalSpy>
 #include <MSceneManager>
 #include <MSceneWindow>
+#include <regiontracker.h>
 
 Q_DECLARE_METATYPE(MImCorrectionHost::CandidateMode)
 
@@ -38,6 +39,7 @@ void Ut_MImCorrectionHost::initTestCase()
                                   (char *) "-software" };
     disableQtPlugins();
     app = new MApplication(dummyArgc, dummyArgv);
+    RegionTracker::createInstance();
 
     // MImCorrectionHost uses this internally
     new MPlainWindow;
@@ -72,6 +74,7 @@ void Ut_MImCorrectionHost::cleanupTestCase()
 {
     delete parentWindow;
     delete MPlainWindow::instance();
+    RegionTracker::destroyInstance();
     delete app;
     app = 0;
 }
