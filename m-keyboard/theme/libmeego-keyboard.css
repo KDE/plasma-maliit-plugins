@@ -161,20 +161,20 @@ MImAbstractKeyAreaStyle.Portrait {
     key-height-xx-large: -1; /* unused */
 
     key-width-small-fixed: -1; /* unused */
-    key-width-medium-fixed: 40px;
-    key-width-large-fixed: 56px;
-    key-width-x-large-fixed: 88px;
-    key-width-xx-large-fixed: 136px;
+    key-width-medium-fixed: 46px;
+    key-width-large-fixed: 70px;
+    key-width-x-large-fixed: 94px;
+    key-width-xx-large-fixed: 142px;
     key-width-stretched-fixed: -1; /* unused */
    
-    key-margin-left: 4px;
+    key-margin-left: 1px;
     key-margin-top: 0px;
-    key-margin-right: 4px;
+    key-margin-right: 1px;
     key-margin-bottom: 16px;
 
-    padding-left: 4px;
+    padding-left: 1px;
     padding-top: 12px;
-    padding-right: 4px;
+    padding-right: 1px;
     padding-bottom: 12px;
 
     /*** Key Area Geometry ***/
@@ -250,16 +250,16 @@ MImAbstractKeyAreaStyle.Landscape:keys38 {
 MImAbstractKeyAreaStyle.Portrait:keys38 {
     use-fixed-key-width: true;
 
-    key-width-medium-fixed: 38px;
-    key-width-large-fixed: 60px;
-    key-width-x-large-fixed: 88px;
-    key-width-xx-large-fixed: 158px;
+    key-width-medium-fixed: 42px;
+    key-width-large-fixed: 66px;
+    key-width-x-large-fixed: 85px;
+    key-width-xx-large-fixed: 170px;
    
-    key-margin-left: 3px;
-    key-margin-right: 3px;
+    key-margin-left: 1px;
+    key-margin-right: 1px;
 
-    padding-left: 1px;
-    padding-right: 1px;
+    padding-left: 0px;
+    padding-right: 0px;
 }
 
 MImAbstractKeyAreaStyle.Landscape:keys39 {
@@ -280,15 +280,16 @@ MImAbstractKeyAreaStyle.Landscape:keys39 {
 MImAbstractKeyAreaStyle.Portrait:keys39 {
     use-fixed-key-width: true;
 
-    key-width-medium-fixed: 38px;
-    key-width-large-fixed: 60px;
-    key-width-xx-large-fixed: 170px;
+    key-width-medium-fixed: 42px;
+    key-width-large-fixed: 66px;
+    key-width-x-large-fixed: 85px;
+    key-width-xx-large-fixed: 174px;
    
-    key-margin-left: 3px;
-    key-margin-right: 3px;
+    key-margin-left: 1px;
+    key-margin-right: 1px;
 
-    padding-left: 1px;
-    padding-right: 1px;
+    padding-left: 0px;
+    padding-right: 0px;
 }
 
 MImAbstractKeyAreaStyle.Landscape:keys40 {
@@ -309,16 +310,16 @@ MImAbstractKeyAreaStyle.Landscape:keys40 {
 MImAbstractKeyAreaStyle.Portrait:keys40 {
     use-fixed-key-width: true;
 
-    key-width-medium-fixed: 38px;
-    key-width-large-fixed: 60px;
-    key-width-x-large-fixed: 80px;
+    key-width-medium-fixed: 42px;
+    key-width-large-fixed: 66px;
+    key-width-x-large-fixed: 85px;
     key-width-xx-large-fixed: 130px;
    
-    key-margin-left: 3px;
-    key-margin-right: 3px;
+    key-margin-left: 1px;
+    key-margin-right: 1px;
 
-    padding-left: 1px;
-    padding-right: 1px;
+    padding-left: 0px;
+    padding-right: 0px;
 }
 
 #InvisibleHandle.Portrait {
