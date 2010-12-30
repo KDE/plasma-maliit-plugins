@@ -27,6 +27,7 @@
 #include <QSignalSpy>
 #include <QGraphicsSceneMouseEvent>
 #include <MSceneManager>
+#include <regiontracker.h>
 
 void Ut_MImWordTracker::initTestCase()
 {
@@ -35,6 +36,7 @@ void Ut_MImWordTracker::initTestCase()
                                   (char *) "-software" };
     disableQtPlugins();
     app = new MApplication(dummyArgc, dummyArgv);
+    RegionTracker::createInstance();
 
     // MImWordTracker uses this internally
     new MPlainWindow;
@@ -69,6 +71,7 @@ void Ut_MImWordTracker::cleanupTestCase()
 {
     delete parentWindow;
     delete MPlainWindow::instance();
+    RegionTracker::destroyInstance();
     delete app;
     app = 0;
 }

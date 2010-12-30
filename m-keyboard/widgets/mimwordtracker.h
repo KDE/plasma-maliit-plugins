@@ -72,7 +72,7 @@ public:
      * \brief Appears word tracker widget with or without default animation.
      */
     void appear(bool withAnimation = false);
-    
+
     /*!
      * \brief Disappear word tracker widget with or without default animation.
      */
@@ -82,11 +82,6 @@ public:
      * \brief Sets the position for word tracker according cursor rectangle.
      */
     void setPosition(const QRect &cursorRect);
-
-    /*!
-     * \brief Returns the visible region of word tracker.
-     */
-    QRegion region() const;
 
     /*!
      * \brief Draw its reactive areas onto the reaction map
@@ -101,9 +96,6 @@ signals:
      * \brief The signal is emitted when the word tracker has been tapped and holded.
      */
     void longTapped();
-
-    //! Emitted when the occupied region of word tracker is changed.
-    void regionChanged();
 
 protected slots:
     void select();

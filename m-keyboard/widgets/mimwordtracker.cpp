@@ -16,6 +16,7 @@
 
 
 
+#include "regiontracker.h"
 #include "mimwordtracker.h"
 #include "mimcorrectioncandidateitem.h"
 
@@ -41,44 +42,6 @@ namespace
     const int DefaultShowHideFrames = 100;
     const int DefaultShowHideTime = 400;
     const int DefaultShowHideInterval = 30;
-
-    QRect mapToScreenRect(const QRect &widgetRect)
-    {
-        if (!widgetRect.isValid()) {
-            return QRect();
-        }
-
-        M::OrientationAngle angle  = MPlainWindow::instance()->orientationAngle();
-        int displayHeight = MPlainWindow::instance()->visibleSceneSize(M::Landscape).height();
-        int displayWidth  = MPlainWindow::instance()->visibleSceneSize(M::Landscape).width();
-
-        QRect rect;
-        switch (angle) {
-            case M::Angle90:
-                rect.setRect(displayWidth - widgetRect.y()- widgetRect.height(),
-                             widgetRect.x(),
-                             widgetRect.height(), widgetRect.width());
-                break;
-            case M::Angle270:
-                rect.setRect(widgetRect.y(),
-                             displayHeight - widgetRect.x() - widgetRect.width(),
-                             widgetRect.height(), widgetRect.width());
-                break;
-            case M::Angle180:
-                rect.setRect(displayWidth - widgetRect.x() - widgetRect.width(),
-                             displayHeight - widgetRect.y() - widgetRect.height(),
-                             widgetRect.width(), widgetRect.height());
-                break;
-            case M::Angle0:
-                rect = widgetRect;
-                break;
-            default:
-                qCritical() << __FILE__ << __LINE__ << " Incorrect orientation " << angle;
-                rect = QRect();
-                break;
-        }
-        return rect;
-    }
 };
 
 
@@ -88,6 +51,9 @@ MImWordTracker::MImWordTracker(MSceneWindow *parentWindow)
       mIdealWidth(0),
       candidateItem(new MImCorrectionCandidateItem("", this))
 {
+    RegionTracker::instance().addRegion(*containerWidget);
+    containerWidget->setObjectName("WordTrackerContainer");
+
     containerWidget->setParentItem(parentWindow);
     this->setParentItem(containerWidget);
 
@@ -134,7 +100,7 @@ void MImWordTracker::setCandidate(const QString &string)
     // not less than minimum width
     if (mIdealWidth < minimumSize().width())
         mIdealWidth = minimumSize().width();
-    
+
     mIdealWidth += style()->paddingLeft() + style()->paddingRight()
                    + style()->marginLeft() + style()->marginRight();
     setPreferredWidth(mIdealWidth);
@@ -224,7 +190,6 @@ void MImWordTracker::showHideFinished()
 
     if (hiding) {
         containerWidget->hide();
-        emit regionChanged();
     }
 }
 
@@ -242,7 +207,6 @@ void MImWordTracker::appear(bool withAnimation)
     } else {
         containerWidget->update();
     }
-    emit regionChanged();
 }
 
 void MImWordTracker::disappear(bool withAnimation)
@@ -255,10 +219,8 @@ void MImWordTracker::disappear(bool withAnimation)
         if (showHideTimeline.state() != QTimeLine::Running) {
             showHideTimeline.start();
         }
-        // will hide and emit regionChanged when timeline is finished
     } else {
         containerWidget->hide();
-        emit regionChanged();
     }
 }
 
@@ -298,17 +260,7 @@ void MImWordTracker::setPosition(const QRect &cursorRect)
 
     if (isVisible()) {
         containerWidget->update();
-        emit regionChanged();
     }
-}
-
-QRegion MImWordTracker::region() const
-{
-    QRegion ret;
-    if (isVisible()) {
-        ret = mapToScreenRect(containerWidget->geometry().toRect());
-    }
-    return ret;
 }
 
 void MImWordTracker::onThemeChangeCompleted()
