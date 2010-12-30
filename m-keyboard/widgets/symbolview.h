@@ -25,8 +25,6 @@
 #include <MWidget>
 
 #include <QPointer>
-#include <QTimeLine>
-#include <QGraphicsItemAnimation>
 
 class MReactionMap;
 class MSceneManager;
@@ -37,7 +35,6 @@ class QGraphicsLinearLayout;
 class QGraphicsSceneMouseEvent;
 class KeyEvent;
 class Handle;
-class SharedHandleArea;
 
 /*!
  * \brief SymbolView is used to show different layouts symbols/upper case/lower case
@@ -79,9 +76,6 @@ public:
     //! Returns current level.
     int currentLevel() const;
 
-    //! \brief Tells whether sym view is fully opened.
-    bool isFullyVisible() const;
-
     //! Return TRUE if widget is activated
     bool isActive() const;
 
@@ -95,9 +89,6 @@ public:
 
     //! Returns the index of current page.
     int currentPage() const;
-
-    //! Set pointer to handle area
-    void setSharedHandleArea(const QPointer<SharedHandleArea> &newSharedHandleArea);
 
     /*!
      * \brief If \a hidden is true, hides active symbol view. Otherwise, shows temporarily inactive symbol view.
@@ -169,36 +160,20 @@ signals:
      */
     void longKeyPressed(const KeyEvent &event);
 
-    //! Emitted when SymbolView has changed its interactive region.
-    void regionUpdated(const QRegion &);
-
-    //! Emitted when hiding finished.
-    void hidden();
-
-    //! SymbolView will start to show up
-    void aboutToOpen();
-
-    //! Requests to update the global reaction map.
-    void updateReactionMap();
-
 protected:
     /*! \reimp */
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *);
     virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
     virtual bool sceneEventFilter(QGraphicsItem *watched, QEvent *event);
-    virtual void resizeEvent(QGraphicsSceneResizeEvent *event);
     /*! \reimp_end */
 
 private slots:
-    void onReady();
-    void onHidden();
     void onSwitchStarting(QGraphicsWidget *current, QGraphicsWidget *next);
     void onSwitchDone();
 
     //! Handler for shift pressed state change (separate from shift state).
     void handleShiftPressed(bool shiftPressed);
-
 
     //! When hardware keyboard layout has changed, reload contents if currently in Hardware state.
     void handleHwLayoutChange();
@@ -220,9 +195,6 @@ private:
 
     //! Ensure that content, position and size are correct for the current orientation
     void organizeContent();
-
-    //! \brief Set symbol view's position, using \a height as the height of symbol view
-    void reposition(int height);
 
     //! \brief Creates necessary widget layouts where keys will be added.
     void setupLayout();
@@ -251,36 +223,6 @@ private:
 
     //! Current style being used.
     const MVirtualKeyboardStyleContainer *styleContainer;
-
-    //! Helper class for animations.
-    class AnimationGroup
-    {
-    public:
-        explicit AnimationGroup(SymbolView *view);
-        virtual ~AnimationGroup();
-
-        //! \brief Updates positions for up/down animation.
-        void updatePos(int top, int bottom);
-
-        void playShowAnimation();
-        void playHideAnimation();
-
-        bool hasOngoingAnimations() const;
-
-    private:
-        void takeOverFromTimeLine(QTimeLine *target,
-                                  QTimeLine *origin);
-
-        //! Animation related time lines.
-        QTimeLine showTimeLine;
-        QTimeLine hideTimeLine;
-
-        //! Manage animation
-        QGraphicsItemAnimation showAnimation;
-        QGraphicsItemAnimation hideAnimation;
-    };
-
-    AnimationGroup anim;
 
     //! scene manager
     const MSceneManager &sceneManager;
@@ -316,10 +258,6 @@ private:
 
     //! Contains true if multi-touch is enabled
     bool enableMultiTouch;
-
-    //! Shared handle area
-    //Symbol view is not owner of this object.
-    QPointer<SharedHandleArea> sharedHandleArea;
 
     MInputMethod::HandlerState activeState;
 

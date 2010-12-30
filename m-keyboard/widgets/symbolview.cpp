@@ -21,8 +21,8 @@
 #include "layoutsmanager.h"
 #include "symbolview.h"
 #include "grip.h"
-#include "sharedhandlearea.h"
 #include "mimkeyarea.h"
+#include "regiontracker.h"
 
 #include <MSceneManager>
 #include <MScalableImage>
@@ -35,9 +35,6 @@
 
 namespace
 {
-    const int DefaultAnimationDuration = 1;
-    const int DefaultAnimationFrameCount = 1;
-
     const QString SymbolSectionPrefix = "symbols";
     const QString SymbolSectionSym = SymbolSectionPrefix + "0";
 
@@ -45,82 +42,11 @@ namespace
     const char * const MultitouchSettings = "/meegotouch/inputmethods/multitouch/enabled";
 };
 
-SymbolView::AnimationGroup::AnimationGroup(SymbolView *view)
-    : showTimeLine(DefaultAnimationDuration)
-    , hideTimeLine(DefaultAnimationDuration)
-{
-    showTimeLine.setFrameRange(0, DefaultAnimationFrameCount);
-    hideTimeLine.setFrameRange(0, DefaultAnimationFrameCount);
-
-    showTimeLine.setCurveShape(QTimeLine::LinearCurve);
-    hideTimeLine.setCurveShape(QTimeLine::LinearCurve);
-
-    connect(&hideTimeLine, SIGNAL(finished()),
-            view,          SLOT(onHidden()));
-
-    connect(&showTimeLine, SIGNAL(finished()),
-            view,          SLOT(onReady()));
-
-
-    showAnimation.setItem(view);
-    showAnimation.setTimeLine(&showTimeLine);
-
-    hideAnimation.setItem(view);
-    hideAnimation.setTimeLine(&hideTimeLine);
-}
-
-SymbolView::AnimationGroup::~AnimationGroup()
-{}
-
-void SymbolView::AnimationGroup::updatePos(int top, int bottom)
-{
-    showAnimation.clear();
-    showAnimation.setPosAt(0.0, QPoint(0, bottom));
-    showAnimation.setPosAt(1.0, QPoint(0, top));
-
-    hideAnimation.clear();
-    hideAnimation.setPosAt(0.0, QPoint(0, top));
-    hideAnimation.setPosAt(1.0, QPoint(0, bottom));
-}
-
-void SymbolView::AnimationGroup::playShowAnimation()
-{
-    takeOverFromTimeLine(&showTimeLine, &hideTimeLine);
-}
-
-void SymbolView::AnimationGroup::playHideAnimation()
-{
-    takeOverFromTimeLine(&hideTimeLine, &showTimeLine);
-}
-
-bool SymbolView::AnimationGroup::hasOngoingAnimations() const
-{
-    return ((showTimeLine.state() == QTimeLine::Running) ||
-            (hideTimeLine.state() == QTimeLine::Running));
-}
-
-void SymbolView::AnimationGroup::takeOverFromTimeLine(QTimeLine *target,
-                                                      QTimeLine *origin)
-{
-    if (target->state() == QTimeLine::Running) {
-        return;
-    }
-
-    if (origin->state() == QTimeLine::Running) {
-        origin->stop();
-        target->setCurrentTime(DefaultAnimationDuration - origin->currentTime());
-        target->resume();
-    } else {
-        target->start();
-    }
-
-}
 
 SymbolView::SymbolView(const LayoutsManager &layoutsManager, const MVirtualKeyboardStyleContainer *style,
                        const QString &layout, QGraphicsWidget *parent)
     : MWidget(parent),
       styleContainer(style),
-      anim(this),
       sceneManager(*MPlainWindow::instance()->sceneManager()),
       activity(Inactive),
       activePage(0),
@@ -134,6 +60,8 @@ SymbolView::SymbolView(const LayoutsManager &layoutsManager, const MVirtualKeybo
       activeState(MInputMethod::OnScreen)
 {
     setObjectName("SymbolView");
+    RegionTracker::instance().addRegion(*this);
+    RegionTracker::instance().addInputMethodArea(*this);
 
     connect(&eventHandler, SIGNAL(keyPressed(KeyEvent)),
             this,          SIGNAL(keyPressed(KeyEvent)));
@@ -238,6 +166,8 @@ QVariant SymbolView::itemChange(GraphicsItemChange change, const QVariant &value
                 pageSwitcher->widget(i)->installSceneEventFilter(this);
             }
         }
+    } else if (change == QGraphicsItem::ItemVisibleChange && value.toBool()) {
+        organizeContent();
     }
     return QGraphicsItem::itemChange(change, value);
 }
@@ -273,32 +203,6 @@ bool SymbolView::sceneEventFilter(QGraphicsItem */*watched*/, QEvent *event)
     return false;
 }
 
-void SymbolView::reposition(const int height)
-{
-    int bottom = sceneManager.visibleSceneSize().height();
-    const int top = sceneManager.visibleSceneSize().height() - height;
-
-    if (sharedHandleArea) {
-        bottom += sharedHandleArea->size().height();
-    }
-
-    setPos(0, isVisible() ? top : bottom);
-
-    anim.updatePos(top, bottom);
-}
-
-void SymbolView::resizeEvent(QGraphicsSceneResizeEvent *event)
-{
-    MWidget::resizeEvent(event);
-
-    if (!qFuzzyCompare(event->oldSize().height(), event->newSize().height())) {
-        reposition(event->newSize().height());
-        if (isVisible()) {
-            emit regionUpdated(interactiveRegion());
-        }
-    }
-}
-
 void SymbolView::prepareToOrientationChange()
 {
     qDebug() << __PRETTY_FUNCTION__;
@@ -320,30 +224,20 @@ void SymbolView::finalizeOrientationChange()
     }
 }
 
-void
-SymbolView::showSymbolView(SymbolView::ShowMode mode)
+void SymbolView::showSymbolView(SymbolView::ShowMode mode)
 {
-    organizeContent();
-
-    if (isActive()) {
-        return;
-    }
-
     if (mode == FollowMouseShowMode) {
         activity = TemporarilyActive;
     } else {
         activity = Active;
     }
-
     show();
-    emit aboutToOpen();
-    anim.playShowAnimation();
 }
 
 
-void
-SymbolView::hideSymbolView(SymbolView::HideMode mode)
+void SymbolView::hideSymbolView(SymbolView::HideMode mode)
 {
+    hide();
     if (activity == TemporarilyInactive && mode == NormalHideMode) {
         activity = Inactive;
         return;
@@ -362,9 +256,6 @@ SymbolView::hideSymbolView(SymbolView::HideMode mode)
     } else {
         activity = Inactive;
     }
-
-    anim.playHideAnimation();
-
 }
 
 
@@ -472,8 +363,6 @@ void SymbolView::organizeContent()
         currentOrientation = orientation;
         reloadContent();
     }
-
-    reposition(size().toSize().height());
 }
 
 void SymbolView::setShiftState(ModifierState newShiftState)
@@ -536,18 +425,6 @@ void SymbolView::switchToPrevPage()
 }
 
 
-void SymbolView::onReady()
-{
-    emit regionUpdated(interactiveRegion());
-}
-
-void SymbolView::onHidden()
-{
-    hide();
-    emit regionUpdated(QRegion());
-    emit hidden();
-}
-
 void SymbolView::onSwitchStarting(QGraphicsWidget *current, QGraphicsWidget *next)
 {
     if (mouseDownKeyArea) {
@@ -570,7 +447,7 @@ void SymbolView::onSwitchDone()
     // after we've been hidden.
     if (isVisible()) {
         layout()->activate();
-        emit updateReactionMap();
+        emit RegionTracker::instance().requestReactionMapUpdate();
     }
     if (pageSwitcher) {
         activePage = pageSwitcher->current();
@@ -611,13 +488,6 @@ const MVirtualKeyboardStyleContainer &SymbolView::style() const
     return *styleContainer;
 }
 
-bool SymbolView::isFullyVisible() const
-{
-    return (isActive()
-            && isVisible()
-            && !anim.hasOngoingAnimations());
-}
-
 bool SymbolView::isActive() const
 {
     return ((activity == Active) || (activity == TemporarilyActive));
@@ -650,12 +520,6 @@ int SymbolView::pageCount() const
 int SymbolView::currentPage() const
 {
     return activePage;
-}
-
-void SymbolView::setSharedHandleArea(const QPointer<SharedHandleArea> &handleArea)
-{
-    sharedHandleArea = handleArea;
-    reposition(size().toSize().height());
 }
 
 void SymbolView::setTemporarilyHidden(bool hidden)

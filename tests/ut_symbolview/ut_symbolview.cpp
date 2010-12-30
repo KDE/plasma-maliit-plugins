@@ -165,8 +165,6 @@ void Ut_SymbolView::testReactiveButtonAreas()
     gMReactionMapStub->fillRectangle(0, 0, gMReactionMapStub->width(), gMReactionMapStub->height());
 
     subject->showSymbolView();
-    QTest::qWait(300);
-    QVERIFY(subject->isFullyVisible());
 
     subject->paintReactionMap(MReactionMap::instance(view), view);
 
@@ -227,8 +225,6 @@ void Ut_SymbolView::testReactiveWholeScreen()
     gMReactionMapStub->fillRectangle(0, 0, gMReactionMapStub->width(), gMReactionMapStub->height());
 
     subject->showSymbolView();
-    QTest::qWait(300);
-    QVERIFY(subject->isFullyVisible());
 
     subject->paintReactionMap(MReactionMap::instance(MPlainWindow::instance()), MPlainWindow::instance());
 
