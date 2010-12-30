@@ -23,6 +23,8 @@
 #include <QDebug>
 #include <QGraphicsLinearLayout>
 
+#include <limits>
+
 
 SharedHandleArea::SharedHandleArea(MImToolbar &toolbar, QGraphicsWidget *parent)
     : MWidget(parent),
@@ -143,15 +145,21 @@ void SharedHandleArea::updatePositionAndRegion(SignalsMode signalsMode)
 
 void SharedHandleArea::updatePosition()
 {
-    qreal bottom = MPlainWindow::instance()->visibleSceneSize().height();
+    qreal bottom(std::numeric_limits<qreal>::max());
+    bool widgetVisible(false);
 
     foreach (const QGraphicsWidget *widget, watchedWidgets) {
         if (widget && widget->isVisible()) {
             bottom = qMin(widget->pos().y(), bottom);
+            widgetVisible = true;
         }
     }
 
-    setPos(0, bottom - size().height());
+    const QPointF newPos(0, bottom - size().height());
+
+    if (widgetVisible && (newPos != pos())) {
+        setPos(newPos);
+    }
 }
 
 void SharedHandleArea::watchOnWidget(QGraphicsWidget *widget)
