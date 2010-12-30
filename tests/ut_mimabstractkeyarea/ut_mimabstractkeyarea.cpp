@@ -24,6 +24,7 @@
 #include "mplainwindow.h"
 #include "popupbase.h"
 #include "utils.h"
+#include <regiontracker.h>
 
 #include <MApplication>
 #include <MScene>
@@ -87,6 +88,7 @@ void Ut_MImAbstractKeyArea::initTestCase()
 
     disableQtPlugins();
     app = new MApplication(argc, app_name);
+    RegionTracker::createInstance();
 
     qRegisterMetaType<KeyEvent>();
     qRegisterMetaType<const MImAbstractKey*>();
@@ -108,6 +110,7 @@ void Ut_MImAbstractKeyArea::cleanupTestCase()
     FlickGestureRecognizer::unregisterSharedRecognizer();
     delete sceneWindow;
     delete MPlainWindow::instance();
+    RegionTracker::destroyInstance();
     delete app;
     app = 0;
 }

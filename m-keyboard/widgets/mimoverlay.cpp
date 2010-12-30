@@ -44,8 +44,6 @@ MImOverlay::MImOverlay()
 
     setGeometry(QRectF(QPointF(0, 0), MPlainWindow::instance()->sceneManager()->visibleSceneSize()));
 
-    connect(this, SIGNAL(visibleChanged()),
-            this, SLOT(handleVisibilityChanged()));
     connect(MPlainWindow::instance()->sceneManager(), SIGNAL(orientationChanged(M::Orientation)),
             this, SLOT(handleOrientationChanged()));
     hide();
@@ -70,20 +68,7 @@ bool MImOverlay::sceneEvent(QEvent *e)
     return e->isAccepted();
 }
 
-void MImOverlay::handleVisibilityChanged()
-{
-    if (!isVisible()) {
-        emit regionUpdated(QRegion());
-    } else {
-        // Extend overlay window to whole screen area.
-        emit regionUpdated(mapRectToScene(QRect(QPoint(0, 0), MPlainWindow::instance()->sceneManager()->visibleSceneSize())).toRect());
-    }
-}
-
 void MImOverlay::handleOrientationChanged()
 {
     setGeometry(QRectF(QPointF(0, 0), MPlainWindow::instance()->sceneManager()->visibleSceneSize()));
-    if (isVisible()) {
-        emit regionUpdated(mapRectToScene(QRect(QPoint(0, 0), MPlainWindow::instance()->sceneManager()->visibleSceneSize())).toRect());
-    }
 }

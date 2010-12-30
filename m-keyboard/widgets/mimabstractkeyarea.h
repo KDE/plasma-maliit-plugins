@@ -104,10 +104,6 @@ public slots:
     void hidePopup();
 
 signals:
-    //! \brief Emitted when the covered region changed
-    //! \param region The changed region
-    void regionUpdated(const QRegion &region);
-
     //! \brief Emitted when key is pressed
     //!
     //! Note that this happens also when user keeps finger down/mouse
