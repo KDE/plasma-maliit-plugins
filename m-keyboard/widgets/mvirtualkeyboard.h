@@ -181,6 +181,13 @@ public slots:
      */
     void showFinished();
 
+    /*!
+     * \brief Resets current active key area (release active keys in the main keyboard).
+     * \param resetCapsLock whether to reset shift key when in caps-lock mode.
+     *        By default, always resets shift key.
+     */
+    void resetCurrentKeyArea(bool resetCapsLock = false);
+
 private slots:
     /*!
      * \brief Handler for shift pressed state change (separate from shift state).

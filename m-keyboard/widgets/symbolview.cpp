@@ -549,3 +549,10 @@ void SymbolView::setTemporarilyHidden(bool hidden)
     }
 }
 
+void SymbolView::resetCurrentKeyArea(bool resetCapsLock)
+{
+    MImAbstractKeyArea *mainKba = static_cast<MImAbstractKeyArea *>(pageSwitcher->currentWidget());
+    if (mainKba) {
+        mainKba->reset(resetCapsLock);
+    }
+}

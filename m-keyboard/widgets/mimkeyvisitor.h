@@ -46,11 +46,11 @@ namespace MImKeyVisitor {
         FindMode mode;
     };
 
-    //! \brief Helper class for visiting and reseting active keys expect caplocked shift key.
-    class MainAreaReset : public MImAbstractKeyVisitor
+    //! \brief Helper class for visiting and reseting active keys whilst preserving caps-lock.
+    class KeyAreaReset : public MImAbstractKeyVisitor
     {
         public:
-            explicit MainAreaReset();
+            explicit KeyAreaReset();
 
             bool operator()(MImAbstractKey *key);
 

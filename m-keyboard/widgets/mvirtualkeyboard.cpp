@@ -767,3 +767,19 @@ QList<MImEngine::KeyboardLayoutKey> MVirtualKeyboard::mainLayoutKeys() const
     }
     return keys;
 }
+
+void MVirtualKeyboard::resetCurrentKeyArea(bool resetCapsLock)
+{
+    QGraphicsLayoutItem *item = mainLayout->itemAt(KeyboardIndex);
+
+    if (item) {
+        const bool useWidgetFromSwitcher = (item == mainKeyboardSwitcher
+                                            && mainKeyboardSwitcher->currentWidget());
+
+        MImAbstractKeyArea *kba
+            = static_cast<MImAbstractKeyArea *>(useWidgetFromSwitcher ? mainKeyboardSwitcher->currentWidget() : item);
+        if (kba) {
+            kba->reset(resetCapsLock);
+        }
+    }
+}

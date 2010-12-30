@@ -71,12 +71,12 @@ namespace MImKeyVisitor {
         return false;
     }
 
-    MainAreaReset::MainAreaReset()
+    KeyAreaReset::KeyAreaReset()
         : mHasCapsLocked(false)
         {
         }
 
-    bool MainAreaReset::operator()(MImAbstractKey *key)
+    bool KeyAreaReset::operator()(MImAbstractKey *key)
     {
         if (!key) {
             return false;
@@ -92,7 +92,7 @@ namespace MImKeyVisitor {
         return false;
     }
 
-    bool MainAreaReset::hasCapsLocked() const
+    bool KeyAreaReset::hasCapsLocked() const
     {
         return mHasCapsLocked;
     }

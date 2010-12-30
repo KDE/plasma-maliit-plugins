@@ -103,6 +103,13 @@ public slots:
     //! \brief Hide popup
     void hidePopup();
 
+    /*!
+     * \brief Resets keyboard and release active keys.
+     * \param resetCapsLock whether to reset shift key when in caps-lock mode.
+     *        By default, always resets shift key.
+     */
+    void reset(bool resetCapsLock = false);
+
 signals:
     //! \brief Emitted when key is pressed
     //!

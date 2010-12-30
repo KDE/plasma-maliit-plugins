@@ -1194,6 +1194,11 @@ void MKeyboardHost::handleLongKeyPress(const KeyEvent &event)
         && correctionHost->candidateMode() == MImCorrectionHost::WordTrackerMode
         && candidates.size() > 0) {
         // long tap space key when word tracker is visible will switch to word list.
+        if (symbolView->isActive()) {
+            symbolView->resetCurrentKeyArea();
+        } else {
+            vkbWidget->resetCurrentKeyArea();
+        }
         correctionHost->showCorrectionWidget(MImCorrectionHost::WordListMode);
     }
 }

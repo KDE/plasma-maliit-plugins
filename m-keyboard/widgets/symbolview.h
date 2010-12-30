@@ -135,6 +135,12 @@ public slots:
     //! \brief Paint symview's area to global reaction map.
     void paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view);
 
+    /*!
+     * \brief Resets current active key area (release active keys in the main keyboard).
+     * \param resetCapsLock whether to reset shift key when in caps-lock mode.
+     *        By default, always resets shift key.
+     */
+    void resetCurrentKeyArea(bool resetCapsLock = false);
 
 signals:
     //! Used to broadcast shift state to all pages/MImAbstractKeyAreas.

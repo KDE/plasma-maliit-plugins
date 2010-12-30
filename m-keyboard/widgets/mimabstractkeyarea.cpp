@@ -961,3 +961,29 @@ void MImAbstractKeyArea::switchStyleMode()
         break;
     }
 }
+
+void MImAbstractKeyArea::reset(bool resetCapsLock)
+{
+    if (scene()->mouseGrabberItem() == this) {
+        // Ungrab mouse explicitly since we probably used grabMouse() to get it.
+        ungrabMouse();
+    }
+
+    if (mPopup) {
+        mPopup->cancel();
+    }
+
+    if (resetCapsLock) {
+        MImKeyVisitor::SpecialKeyFinder finder(MImKeyVisitor::SpecialKeyFinder::FindShiftKey);
+        MImAbstractKey::visitActiveKeys(&finder);
+        bool hasCapsLocked =  finder.shiftKey() ? (finder.shiftKey()->state() == MImAbstractKey::Selected) : false;
+        MImAbstractKey::resetActiveKeys();
+        modifiersChanged(hasCapsLocked);
+    } else {
+        // release active keys (whilst preserving caps-lock)
+        MImKeyVisitor::KeyAreaReset reset;
+        MImAbstractKey::visitActiveKeys(&reset);
+        modifiersChanged(reset.hasCapsLocked());
+    }
+    update();
+}
