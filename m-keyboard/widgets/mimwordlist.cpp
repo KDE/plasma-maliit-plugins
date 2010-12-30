@@ -15,7 +15,7 @@
  */
 
 
-
+#include "regiontracker.h"
 #include "mimwordlist.h"
 #include "mimwordlistitem.h"
 #include <mplainwindow.h>
@@ -71,6 +71,7 @@ MImWordList::MImWordList()
     : MDialog(),
       parentWindow(new MIMWordListWindow(this))
 {
+   RegionTracker::instance().addRegion(*this);
     // for MATTI
     setObjectName(WordListObjectName);
 
@@ -89,8 +90,6 @@ MImWordList::MImWordList()
     setCentralWidget(contentWidget);
     hide();
 
-    connect(this, SIGNAL(visibleChanged()),
-            this, SLOT(handleVisibilityChanged()));
     connect(this, SIGNAL(appeared()),
             parentWindow, SLOT(handleListAppeared()));
     connect(this, SIGNAL(disappeared()),
@@ -149,21 +148,6 @@ void MImWordList::select()
         const QString candidate = item->title();
         emit candidateClicked(candidate);
     }
-}
-
-void MImWordList::handleVisibilityChanged()
-{
-    emit regionChanged();
-}
-
-QRegion MImWordList::region() const
-{
-    QRegion ret;
-    if (isVisible()) {
-        const QSize visibleSceneSize = MPlainWindow::instance()->visibleSceneSize(M::Landscape);
-        ret = QRegion(0, 0, visibleSceneSize.width(), visibleSceneSize.height());
-    }
-    return ret;
 }
 
 void MImWordList::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *)

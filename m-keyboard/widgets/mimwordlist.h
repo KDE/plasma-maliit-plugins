@@ -98,11 +98,6 @@ public:
     void setHighlightCandidate(const QString &);
 
     /*!
-     * \brief Returns the occupied region of word list widget.
-     */
-    QRegion region() const;
-
-    /*!
      * \brief Draw its reactive areas onto the reaction map
      */
     void paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view);
@@ -113,14 +108,9 @@ signals:
      */
     void candidateClicked(const QString &);
 
-    //! Emitted when the occupied region of word list is changed.
-    void regionChanged();
-
 private slots:
 
     void select();
-
-    void handleVisibilityChanged();
 
 private:
     QStringList mCandidates;

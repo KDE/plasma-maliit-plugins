@@ -28,6 +28,8 @@
 #include <QSignalSpy>
 #include <QGraphicsSceneMouseEvent>
 #include <MSceneManager>
+#include <regiontracker.h>
+
 
 void Ut_MImWordList::initTestCase()
 {
@@ -36,6 +38,7 @@ void Ut_MImWordList::initTestCase()
                                   (char *) "-software" };
     disableQtPlugins();
     app = new MApplication(dummyArgc, dummyArgv);
+    RegionTracker::createInstance();
 
     // MImWordList uses this internally
     new MPlainWindow;
@@ -65,6 +68,7 @@ void Ut_MImWordList::cleanup()
 void Ut_MImWordList::cleanupTestCase()
 {
     delete MPlainWindow::instance();
+    RegionTracker::destroyInstance();
     delete app;
     app = 0;
 }
