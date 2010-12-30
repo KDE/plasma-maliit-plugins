@@ -364,7 +364,8 @@ bool MReactionMapTester::testReactionMapGrid(const QGraphicsView *view,
 
                     const QObject *qobj = dynamic_cast<const QObject*>(item);
                     if (qobj) {
-                        qDebug() << " Item class name: " << qobj->metaObject()->className();
+                        qDebug() << " Item class name: " << qobj->metaObject()->className()
+                                 << " Item name:" << qobj->objectName();
                         if (dynamic_cast<const MButton*>(qobj)) {
                             qDebug() << " text: " << dynamic_cast<const MButton*>(qobj)->text();
                         }
