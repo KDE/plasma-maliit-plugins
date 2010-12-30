@@ -298,8 +298,12 @@ bool MReactionMapTester::testReactionMapGrid(const QGraphicsView *view,
             // We use QGraphicsScene::items() QRectF version because it respects IntersectsItemBoundingRect flag.
             // QPointF version of it will call QGraphicsItem::contains() which in turn uses QGraphicsItem::shape().
             // We want to use IntersectsItemBoundingRect because bounding rectangle contains reactive margins, shape may not.
-            const QList<QGraphicsItem *> items = view->scene()->items(QRectF(scenePoint, QSizeF(1, 1)), Qt::IntersectsItemBoundingRect, Qt::DescendingOrder);
-            const QGraphicsItem *item = items.isEmpty() ? 0 : items.first();
+            QList<QGraphicsItem *> items = view->scene()->items(QRectF(scenePoint, QSizeF(1, 1)), Qt::IntersectsItemBoundingRect, Qt::DescendingOrder);
+            const QGraphicsItem *item = items.isEmpty() ? 0 : items.takeFirst();
+
+            while (item && !((item == subject) || subject->isAncestorOf(item))) {
+                item = items.isEmpty() ? 0 : items.takeFirst();
+            }
 
             // Get color value of reaction map at viewPos.
             bool ambiguous;
@@ -311,8 +315,7 @@ bool MReactionMapTester::testReactionMapGrid(const QGraphicsView *view,
                 continue;
             }
 
-            if (item && !region.isEmpty() && !region.contains(scenePoint)
-                && !subject->isAncestorOf(item)) {
+            if (item && !region.isEmpty() && !region.contains(scenePoint)) {
                 // We are not interested in this scene item.
                 // It's probably the parent scene window.
                 if (const MButton *m = dynamic_cast<const MButton *>(item)) {
