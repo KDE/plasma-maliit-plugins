@@ -143,11 +143,6 @@ public:
     //! Returns whether autocaps is enabled.
     bool autoCapsEnabled() const;
 
-    /*!
-     * \brief If \a hidden is true, hides active keyboard. Otherwise, shows temporarily inactive keyboard.
-     */
-    void setTemporarilyHidden(bool hidden);
-
     //! Show notification informing about current language if keyboard is active, otherwise create
     //! pending request.
     void requestLanguageNotification();

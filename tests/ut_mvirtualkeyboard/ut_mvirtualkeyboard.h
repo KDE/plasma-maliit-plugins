@@ -97,7 +97,6 @@ private slots:
     void testReactionMaps();
     void flickUpHandlerTest_data();
     void flickUpHandlerTest();
-    void testSetTemporarilyHidden();
     void testLanguageNotification();
 
 signals:

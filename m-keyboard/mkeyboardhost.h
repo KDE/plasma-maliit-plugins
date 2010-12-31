@@ -338,6 +338,8 @@ private:
     //! requests.  We track the current shown/SIP requested state using this variable.
     bool sipRequested;
 
+    bool visualizationPriority;
+
     //! Contains true if multi-touch is enabled
     bool enableMultiTouch;
 

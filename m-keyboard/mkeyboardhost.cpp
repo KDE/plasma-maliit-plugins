@@ -179,6 +179,7 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
       modifierLockOnBanner(0),
       haveFocus(false),
       sipRequested(false),
+      visualizationPriority(false),
       enableMultiTouch(MGConfItem(MultitouchSettings).value().toBool()),
       cycleKeyHandler(new CycleKeyHandler(*this)),
       currentIndicatorDeadKey(false),
@@ -411,6 +412,9 @@ void MKeyboardHost::handleFocusChange(bool focusIn)
 void MKeyboardHost::show()
 {
     sipRequested = true;
+    if (visualizationPriority) {
+        return;
+    }
     // This will add scene window as child of MSceneManager's root element
     // which is the QGraphicsItem that is rotated when orientation changes.
     // It uses animation to carry out the orientation change transform
@@ -708,8 +712,22 @@ void MKeyboardHost::handleMouseClickOnPreedit(const QPoint &mousePos, const QRec
 
 void MKeyboardHost::handleVisualizationPriorityChange(bool priority)
 {
-    vkbWidget->setTemporarilyHidden(priority);
-    symbolView->setTemporarilyHidden(priority);
+    if (visualizationPriority == priority) {
+        return;
+    }
+
+    visualizationPriority = priority;
+
+    // TODO: hide/show by fading?
+    if (sipRequested) {
+        const bool wasEnabled(RegionTracker::instance().enableSignals(false));
+        if (priority) {
+            MPlainWindow::instance()->sceneManager()->disappearSceneWindowNow(sceneWindow);
+        } else {
+            MPlainWindow::instance()->sceneManager()->appearSceneWindowNow(sceneWindow);
+        }
+        RegionTracker::instance().enableSignals(wasEnabled);
+    }
 }
 
 

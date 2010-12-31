@@ -914,34 +914,6 @@ void Ut_MVirtualKeyboard::flickUpHandlerTest()
     QCOMPARE(spy.count(), expected);
 }
 
-void Ut_MVirtualKeyboard::testSetTemporarilyHidden()
-{
-    QCOMPARE(m_vkb->activity, MVirtualKeyboard::Inactive);
-
-    m_vkb->setTemporarilyHidden(true);
-    QCOMPARE(m_vkb->activity, MVirtualKeyboard::Inactive);
-
-    m_vkb->setTemporarilyHidden(false);
-    QCOMPARE(m_vkb->activity, MVirtualKeyboard::Inactive);
-
-    m_vkb->showKeyboard();
-
-    QTest::qWait(200);
-
-    QCOMPARE(m_vkb->activity, MVirtualKeyboard::Active);
-
-    m_vkb->setTemporarilyHidden(false);
-    QCOMPARE(m_vkb->activity, MVirtualKeyboard::Active);
-
-    m_vkb->setTemporarilyHidden(true);
-    QCOMPARE(m_vkb->activity, MVirtualKeyboard::TemporarilyInactive);
-
-    QTest::qWait(200);
-
-    m_vkb->setTemporarilyHidden(false);
-    QCOMPARE(m_vkb->activity, MVirtualKeyboard::Active);
-}
-
 void Ut_MVirtualKeyboard::testLanguageNotification()
 {
     gDisplayTextCalls = 0;
