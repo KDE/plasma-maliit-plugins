@@ -54,7 +54,7 @@ namespace
     const char * const XkbLayoutSettingName("/meegotouch/inputmethods/hwkeyboard/layout");
     const char * const XkbVariantSettingName("/meegotouch/inputmethods/hwkeyboard/variant");
 
-    const QString InputMethodCorrectionSetting("/meegotouch/inputmethods/virtualkeyboard/correctionenabled");
+    const QString CorrectionSetting("/meegotouch/inputmethods/virtualkeyboard/correctionenabled");
     const QString InputMethodCorrectionEngine("/meegotouch/inputmethods/correctionengine");
     int gSetKeyboardStateCallCount = 0;
     MInputMethod::HandlerState gSetKeyboardStateParam = MInputMethod::OnScreen;
@@ -184,7 +184,7 @@ void Ut_MKeyboardHost::init()
     // Uses dummy driver
     MGConfItem engineConfig(InputMethodCorrectionEngine);
     engineConfig.set(QVariant(QString("dummyimdriver")));
-    MGConfItem config(InputMethodCorrectionSetting);
+    MGConfItem config(CorrectionSetting);
     config.set(QVariant(false));
 
     subject = new MKeyboardHost(inputMethodHost, 0);
@@ -324,8 +324,10 @@ void Ut_MKeyboardHost::testRotateRect()
 
 void Ut_MKeyboardHost::testHandleClick()
 {
-    MGConfItem config(InputMethodCorrectionSetting);
-    config.set(QVariant(true));
+    MGConfItem configCorrection(CorrectionSetting);
+
+    // Enable the corrections
+    configCorrection.set(QVariant(true));
 
     QVERIFY(subject->preedit.isEmpty());
     inputMethodHost->clear();
@@ -373,10 +375,11 @@ void Ut_MKeyboardHost::testHandleClick()
     QVERIFY(subject->preedit.isEmpty());
     inputMethodHost->clear();
 
-    // turn off error correction
-    config.set(QVariant(false));
+    // Turn off error correction and word completion
+    configCorrection.set(QVariant(false));
     QTest::qWait(100);
     QCOMPARE(subject->imCorrectionEngine->correctionEnabled(), false);
+    QCOMPARE(subject->imCorrectionEngine->completionEnabled(), false);
     QCOMPARE(subject->correctionEnabled, false);
 
     subject->handleKeyClick(KeyEvent("a"));
@@ -410,10 +413,11 @@ void Ut_MKeyboardHost::testHandleClick()
     QCOMPARE(inputMethodHost->commit, QString("ma"));
     QVERIFY(subject->preedit.isEmpty());
 
-    // turn on error correction
-    config.set(QVariant(true));
+    // Turn on error correction and word completion
+    configCorrection.set(QVariant(true));
     QTest::qWait(100);
     QCOMPARE(subject->imCorrectionEngine->correctionEnabled(), true);
+    QCOMPARE(subject->imCorrectionEngine->completionEnabled(), true);
     QCOMPARE(subject->correctionEnabled, true);
 
     subject->handleKeyPress(KeyEvent("\b", QEvent::KeyPress, Qt::Key_Backspace));
@@ -467,27 +471,27 @@ void Ut_MKeyboardHost::testNotCrash()
     subject->handleMouseClickOnPreedit(QPoint(0, 0), QRect(0, 0, 1, 1));
 }
 
-void Ut_MKeyboardHost::testErrorCorrectionOption()
+void Ut_MKeyboardHost::testCorrectionOptions()
 {
     subject->show();
-    MGConfItem config(InputMethodCorrectionSetting);
-    config.set(QVariant(true));
+    MGConfItem configCorrection(CorrectionSetting);
 
     QVERIFY(subject->imCorrectionEngine != 0);
-    //default error correction option is true;
-    QVERIFY(subject->imCorrectionEngine->correctionEnabled() == true);
-    QVERIFY(subject->correctionEnabled == true);
 
-    bool originCorrection = false;
-    if (!config.value().isNull())
-        originCorrection = config.value().toBool();
-
-    config.set(QVariant(false));
+    // The corrections are enabled
+    configCorrection.set(QVariant(true));
     QTest::qWait(100);
-    QVERIFY(subject->imCorrectionEngine->correctionEnabled() == false);
-    QVERIFY(subject->correctionEnabled == false);
+    QCOMPARE(subject->imCorrectionEngine->correctionEnabled(), true);
+    QCOMPARE(subject->imCorrectionEngine->completionEnabled(), true);
+    QCOMPARE(subject->correctionEnabled, true);
 
-    config.set(QVariant(originCorrection));
+    // The corrections are disabled
+    configCorrection.set(QVariant(false));
+    QTest::qWait(100);
+    QCOMPARE(subject->imCorrectionEngine->correctionEnabled(), false);
+    QCOMPARE(subject->imCorrectionEngine->completionEnabled(), false);
+    QCOMPARE(subject->correctionEnabled, false);
+
     subject->hide();
 }
 
@@ -1678,7 +1682,7 @@ void Ut_MKeyboardHost::testWYTIWYSErrorCorrection()
     // Pre-edit must not be auto-corrected
 
     subject->show();
-    MGConfItem config(InputMethodCorrectionSetting);
+    MGConfItem config(CorrectionSetting);
     config.set(QVariant(true));
 
     if (subject->imCorrectionEngine) {
@@ -1799,7 +1803,7 @@ void Ut_MKeyboardHost::testAutoPunctuation()
     QFETCH(QChar, character);
     QFETCH(bool, autopunctuated);
 
-    MGConfItem config(InputMethodCorrectionSetting);
+    MGConfItem config(CorrectionSetting);
     config.set(QVariant(true));
 
     subject->show();

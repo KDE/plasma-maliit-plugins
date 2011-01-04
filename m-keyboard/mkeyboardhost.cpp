@@ -14,9 +14,10 @@
  * of this file.
  */
 
-#include "flickgesturerecognizer.h"
 #include "mkeyboardhost.h"
 #include "mkeyboardhost_p.h"
+
+#include "flickgesturerecognizer.h"
 #include "mvirtualkeyboardstyle.h"
 #include "mvirtualkeyboard.h"
 #include "mhardwarekeyboard.h"
@@ -59,8 +60,8 @@ namespace
     const QString InputMethodList("MInputMethodList");
     const QString DefaultInputLanguage("en_GB");
     // TODO: check that these paths still hold
-    const QString InputMethodCorrectionSetting("/meegotouch/inputmethods/virtualkeyboard/correctionenabled");
-    bool DefaultInputMethodCorrectionSettingOption = true;
+    const QString CorrectionSetting("/meegotouch/inputmethods/virtualkeyboard/correctionenabled");
+    const bool DefaultCorrectionSettingOption = true;
     const QString InputMethodCorrectionEngine("/meegotouch/inputmethods/correctionengine");
     const QRegExp AutoCapsTrigger("[.?!¡¿] +$");
     const QString AutoPunctuationTriggers(".,?!");
@@ -166,7 +167,7 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
       vkbWidget(0),
       symbolView(0),
       imCorrectionEngine(0),
-      inputMethodCorrectionSettings(new MGConfItem(InputMethodCorrectionSetting)),
+      inputMethodCorrectionSettings(new MGConfItem(CorrectionSetting)),
       inputMethodCorrectionEngine(new MGConfItem(InputMethodCorrectionEngine)),
       angle(M::Angle0),
       correctionEnabled(false),
@@ -1286,7 +1287,6 @@ void MKeyboardHost::initializeInputEngine()
         updateEngineKeyboardLayout();
         synchronizeCorrectionSetting();
         imCorrectionEngine->disablePrediction();
-        imCorrectionEngine->enableCompletion();
         imCorrectionEngine->setMaximumCandidates(MaximumErrorCorrectionCandidate);
         imCorrectionEngine->setExactWordPositionInList(MImEngine::ExactInListFirst);
     }
@@ -1294,12 +1294,14 @@ void MKeyboardHost::initializeInputEngine()
 
 void MKeyboardHost::synchronizeCorrectionSetting()
 {
-    bool correction = inputMethodCorrectionSettings->value(DefaultInputMethodCorrectionSettingOption).toBool();
+    bool correction = inputMethodCorrectionSettings->value(DefaultCorrectionSettingOption).toBool();
 
     if (!correction) {
         imCorrectionEngine->disableCorrection();
+        imCorrectionEngine->disableCompletion();
     } else {
         imCorrectionEngine->enableCorrection();
+        imCorrectionEngine->enableCompletion();
     }
 
     updateCorrectionState();
@@ -1320,9 +1322,11 @@ void MKeyboardHost::updateCorrectionState()
         bool val = false;
         bool enabled = inputMethodHost()->correctionEnabled(val);
         if (val)
-            correctionEnabled = enabled && imCorrectionEngine->correctionEnabled();
+            correctionEnabled = enabled && imCorrectionEngine->correctionEnabled()
+                                && imCorrectionEngine->completionEnabled();
         else
-            correctionEnabled = imCorrectionEngine->correctionEnabled();
+            correctionEnabled = imCorrectionEngine->correctionEnabled()
+                                && imCorrectionEngine->completionEnabled();
 
         // info context the global correction option
         // TODO: should not put setGlobalCorrectionEnabled here, it will send correction setting

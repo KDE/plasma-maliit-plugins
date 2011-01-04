@@ -53,7 +53,7 @@ private slots:
     void testHandleClick();
     void testDirectMode();
     void testNotCrash();
-    void testErrorCorrectionOption();
+    void testCorrectionOptions();
 
     void testAutoCaps();
     void testApplicationOrientationChanged();
