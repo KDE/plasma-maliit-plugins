@@ -33,13 +33,11 @@ public:
     //! Destructor.
     ~MXkb();
 
-    /*! \brief XkbLatchModifiers wrapper
+    /*! \brief XkbLockModifiers wrapper
      *
      * Set latch state of of modifiers indicated by \a affect mask to
      * what is indicated by \a values mask.
      */
-    void latchModifiers(unsigned int affect, unsigned int values);
-    //! \brief Just like \a latchModifiers but change the lock state.
     void lockModifiers(unsigned int affect, unsigned int values);
 
     /*!

@@ -46,9 +46,6 @@ private:
     //! Sets xmodifier flags according \a sym and \a mask
     void setMask(const KeySym &sym, unsigned int mask);
 
-    //! Tests whether xmodifier \a mod is latched.
-    bool testModifierLatchedState(int xModifier) const;
-
     Display *display;
     unsigned int deviceSpec;
     unsigned char qtAltMask;

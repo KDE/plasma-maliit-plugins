@@ -39,7 +39,6 @@ private slots:
     void init();
     void cleanup();
 
-    void testLatchModifiers();
     void testLockModifiers();
 
 private:

@@ -204,12 +204,8 @@ bool Ut_MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers
 
 bool Ut_MHardwareKeyboard::checkLatchedState(const unsigned int mask, const unsigned int value) const
 {
-    XkbStateRec xkbState;
-    XkbGetState(QX11Info::display(), XkbUseCoreKbd, &xkbState); // TODO: XkbUseCoreKbd
-    qDebug() << "Latched/Xkb:" << (xkbState.latched_mods & mask)
-             << "latched/hwkbd:" << (m_hkb->currentLatchedMods & mask);
-    return ((xkbState.latched_mods & mask) == value)
-        && ((m_hkb->currentLatchedMods & mask) == value);
+    qDebug() << "latched/hwkbd:" << (m_hkb->currentLatchedMods & mask);
+    return ((m_hkb->currentLatchedMods & mask) == value);
 }
 
 bool Ut_MHardwareKeyboard::checkLockedState(const unsigned int mask, const unsigned int value) const

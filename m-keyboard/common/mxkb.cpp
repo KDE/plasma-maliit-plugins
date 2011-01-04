@@ -58,12 +58,6 @@ void MXkb::lockModifiers(unsigned int affect, unsigned int values)
         qWarning() << __PRETTY_FUNCTION__ << " failed!";
 }
 
-void MXkb::latchModifiers(unsigned int affect, unsigned int values)
-{
-    if (!XkbLatchModifiers(QX11Info::display(), deviceSpec, affect, values))
-        qWarning() << __PRETTY_FUNCTION__ << " failed!";
-}
-
 bool MXkb::setXkbMap(const QString &modelName, const QString &layoutName, const QString &variantName)
 {
     qDebug() << __PRETTY_FUNCTION__;

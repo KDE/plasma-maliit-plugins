@@ -90,6 +90,7 @@ MHardwareKeyboard::MHardwareKeyboard(MAbstractInputMethodHost& imHost, QObject *
       inputMethodHost(imHost),
       lastEventType(QEvent::KeyRelease),
       currentLatchedMods(0),
+      scanCodeWithLatchedModifiers(0),
       currentLockedMods(0),
       characterLoopIndex(-1),
       stateTransitionsDisabled(false),
@@ -237,7 +238,7 @@ void MHardwareKeyboard::enable()
         // We reset state without using latch/lockModifiers in order to force notification
         // (to make sure whoever is listening is in sync with us).
         currentLatchedMods = 0;
-        mXkb.latchModifiers(LockMask | FnModifierMask, 0);
+        scanCodeWithLatchedModifiers = 0;
         switch (currentKeyboardType) {
         case M::NumberContentType:
         case M::PhoneNumberContentType:
@@ -355,7 +356,6 @@ void MHardwareKeyboard::notifyModifierChange(unsigned char previousModifiers,
 
 void MHardwareKeyboard::latchModifiers(unsigned int affect, unsigned int value)
 {
-    mXkb.latchModifiers(affect, value);
     const unsigned int savedLatchedMods = currentLatchedMods;
     currentLatchedMods = (currentLatchedMods & ~affect) | (value & affect);
     if (!(currentLatchedMods & LockMask)) {
@@ -530,6 +530,28 @@ void MHardwareKeyboard::filterMaybeIgnoreFn(Qt::Key &keyCode, QString &text,
     }
 }
 
+bool MHardwareKeyboard::handleLatching(Qt::Key &keyCode, QString &text, quint32 latchedModifiers,
+                                       quint32 nativeScanCode, quint32 &nativeModifiers) const
+{
+    if (latchedModifiers
+        && text.length() == 1
+        && text[0].isLetter()
+        && (nativeModifiers | latchedModifiers) != nativeModifiers) {
+        nativeModifiers |= latchedModifiers;
+
+        const unsigned int shiftAndLock(nativeModifiers & (ShiftMask | LockMask));
+        const unsigned int shiftLevelBase((nativeModifiers & FnModifierMask) ? 2 : 0);
+        const unsigned int shiftLevel(((shiftAndLock == ShiftMask) || (shiftAndLock == LockMask)
+                                       ? 1 : 0) + shiftLevelBase);
+
+        text = keycodeToString(nativeScanCode, shiftLevel);
+        keyCode = text.isEmpty() ? Qt::Key_unknown : static_cast<Qt::Key>(QKeySequence(text)[0]);
+
+        return true;
+    }
+
+    return false;
+}
 
 bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers modifiers,
                                        QString text, bool autoRepeat, int count,
@@ -547,6 +569,15 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
             eaten = true;
         }
         return eaten;
+    }
+
+    // Track modifier latching inside MHardwareKeyboard. Ignore latching for
+    // keys that are pressed while another key is being pressed at the same time.
+    // Also ignore latching for keys for which there is a known action on press event.
+    if (currentLatchedMods && !scanCodeWithLatchedModifiers && !actionOnPress(keyCode)) {
+        if (handleLatching(keyCode, text, currentLatchedMods, nativeScanCode, nativeModifiers)) {
+            scanCodeWithLatchedModifiers = nativeScanCode;
+        }
     }
 
     filterMaybeIgnoreFn(keyCode, text, nativeScanCode, nativeModifiers);
@@ -648,13 +679,6 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
                                 nativeModifiers);
     }
 
-    // Relatch modifiers, X unlatches them on press but we want to unlatch on release
-    // (and not even always on release, e.g. with Sym+aaab we unlatch only after the
-    // last "a").
-    if (currentLatchedMods) {
-        mXkb.latchModifiers(currentLatchedMods, currentLatchedMods);
-    }
-
     return eaten;
 }
 
@@ -673,6 +697,11 @@ bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers 
             eaten = handleReleaseWithSymModifier(keyCode);
         }
         return eaten;
+    }
+
+    if (nativeScanCode == scanCodeWithLatchedModifiers) {
+        handleLatching(keyCode, text, pressedKeys.value(nativeScanCode), nativeScanCode, nativeModifiers);
+        scanCodeWithLatchedModifiers = 0;
     }
 
     filterMaybeIgnoreFn(keyCode, text, nativeScanCode, nativeModifiers);

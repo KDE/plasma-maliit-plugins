@@ -282,6 +282,13 @@ private:
     void filterMaybeIgnoreFn(Qt::Key &keyCode, QString &text,
                              quint32 nativeScanCode, quint32 nativeModifiers) const;
 
+
+    //! Used to track latching inside MHardwareKeyboard instead of latching keys using X.
+    //! Changes \a keyCode, \a text and \a nativeModifiers accordingly. Returns true
+    //! if some of the above were changed, false otherwise.
+    bool handleLatching(Qt::Key &keyCode, QString &text, quint32 latchedModifiers,
+                        quint32 nativeScanCode, quint32 &nativeModifiers) const;
+
     //! \brief Toggle custom autorepeat if \a enable is true, disable it otherwise
     //!
     //! Custom autorepeat means that only backspace and arrow keys have autorepeat
@@ -316,10 +323,13 @@ private:
     typedef QHash<quint32, quint32> PressedKeyMap;
     PressedKeyMap pressedKeys;
 
-    //! X modifier mask of currently latched modifiers.  This approximates X modifier state and
-    //! is updated in reset and latchModifiers.  Note that if another application (un)latches
-    //! a modifier, we don't know about that and end up out of sync with X.
+    //! X modifier mask of currently latched modifiers. Unlike locked modifiers,
+    //! latched modifiers are tracked internally by MHardwareKeyboard.
     unsigned char currentLatchedMods;
+
+    //! Stores scan code of key for which there were latched modifier(s) on press.
+    quint32 scanCodeWithLatchedModifiers;
+
     //! X modifier mask of currently locked modifiers.  This approximates X modifier state and
     //! is updated in reset and lockModifiers.  Note that if another application (un)locks
     //! a modifier, we don't know about that and end up out of sync with X.
