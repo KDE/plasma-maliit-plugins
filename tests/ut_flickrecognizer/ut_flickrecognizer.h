@@ -35,10 +35,11 @@ private:
     QGraphicsScene *scene;
     FlickGestureRecognizer *subject;
     FlickTarget *target;
+    Qt::GestureType gtype;
 
     int gestureTimeout;
-    QPoint gestureFinishMovementThreshold;
-    QPoint gestureStartMovementThreshold;
+    QPointF gestureFinishMovementThreshold;
+    QPointF gestureStartMovementThreshold;
 
 private slots:
     void init();

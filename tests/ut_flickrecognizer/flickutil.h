@@ -17,23 +17,19 @@
 #ifndef FLICKUTIL_H
 #define FLICKUTIL_H
 
-#include <QPoint>
+#include <QPointF>
 #include <QList>
 
 class QGraphicsObject;
 
-void doMouseSwipe(QGraphicsObject *target, const QList<QPoint> &path, unsigned int duration);
+void doMouseSwipe(QGraphicsObject *target, const QList<QPointF> &path, unsigned int duration);
 
-void doMouseSwipe(QGraphicsObject *target, const QPoint &start, const QPoint &end,
+void doMouseSwipe(QGraphicsObject *target, const QPointF &start, const QPointF &end,
                   unsigned int duration, unsigned int intermediateSteps = 4,
                   bool lastMoveLandsOnEnd = false);
 
-void mousePress(QGraphicsObject *target, const QPoint &pos, int delayAfterPress = 0);
-void mouseMove(QGraphicsObject *target, const QPoint &pos, int delayAfterMove = 0);
-void mouseRelease(QGraphicsObject *target, const QPoint &pos, int delayAfterRelease = 0);
-
-QList<QPoint> makeSwipePointPath(const QPoint &start, const QPoint &end,
-                                 unsigned int intermediateSteps,
-                                 bool lastMoveLandsOnEnd = false);
+QList<QPointF> makeSwipePointPath(const QPointF &start, const QPointF &end,
+                                  unsigned int intermediateSteps,
+                                  bool lastMoveLandsOnEnd = false);
 
 #endif // FLICKUTIL_H

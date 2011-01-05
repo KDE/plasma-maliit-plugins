@@ -19,30 +19,70 @@
 #include <QGraphicsObject>
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
+#include <QGraphicsView>
 #include <QGraphicsWidget>
 #include <QTest>
 #include <QTime>
 #include <QCoreApplication>
 
-// QTest::qWait() is too unreliable, especially with mouse swipes
-// with multiple waits. Let's just have a busy-loop.
-void wait(int msecs, bool processEvents = false)
-{
-    static QTime time;
-    time.start();
-    int timeLeft = msecs;
+namespace {
 
-    while (time.elapsed() <= msecs) {
-        if (processEvents) {
-            QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents
-                                            | QEventLoop::ExcludeSocketNotifiers,
-                                            timeLeft);
+    QPoint globalPos(QGraphicsObject *target, const QPointF &pos)
+    {
+        QGraphicsView *view = target->scene()->views().at(0);
+        const QPointF scenePos(target->mapToScene(pos));
+        // By default QPointF -> QPoint is done with rounding to closest integer. However we need to
+        // use floor.
+        return view->mapToGlobal(view->mapFromScene(scenePos - QPointF(0.49999, 0.49999)));
+    }
+
+    // QTest::qWait() is too unreliable, especially with mouse swipes
+    // with multiple waits. Let's just have a busy-loop.
+    void wait(int msecs, bool processEvents = false)
+    {
+        static QTime time;
+        time.start();
+        int timeLeft = msecs;
+
+        while (time.elapsed() <= msecs) {
+            if (processEvents) {
+                QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents
+                                                | QEventLoop::ExcludeSocketNotifiers,
+                                                timeLeft);
+            }
+            timeLeft -= time.elapsed();
         }
-        timeLeft -= time.elapsed();
+    }
+
+    void mousePress(QGraphicsObject *target, const QPointF &pos, int delayAfterPress = 0)
+    {
+        QGraphicsSceneMouseEvent press(QEvent::GraphicsSceneMousePress);
+        press.setPos(pos);
+        press.setScreenPos(globalPos(target, pos));
+        target->scene()->sendEvent(target, &press);
+        wait(delayAfterPress);
+    }
+
+    void mouseMove(QGraphicsObject *target, const QPointF &pos, int delayAfterMove = 0)
+    {
+        QGraphicsSceneMouseEvent move(QEvent::GraphicsSceneMouseMove);
+        move.setPos(pos);
+        move.setScreenPos(globalPos(target, pos));
+        target->scene()->sendEvent(target, &move);
+        wait(delayAfterMove);
+    }
+
+    void mouseRelease(QGraphicsObject *target, const QPointF &pos, int delayAfterRelease = 0)
+    {
+        QGraphicsSceneMouseEvent release(QEvent::GraphicsSceneMouseRelease);
+        release.setPos(pos);
+        release.setScreenPos(globalPos(target, pos));
+        target->scene()->sendEvent(target, &release);
+        wait(delayAfterRelease);
     }
 }
 
-void doMouseSwipe(QGraphicsObject *target, const QList<QPoint> &path, unsigned int duration)
+void doMouseSwipe(QGraphicsObject *target, const QList<QPointF> &path, unsigned int duration)
 {
     int numberOfWaitsLeft = path.count() - 1;
     int moveDelay = duration / numberOfWaitsLeft;
@@ -70,46 +110,18 @@ void doMouseSwipe(QGraphicsObject *target, const QList<QPoint> &path, unsigned i
     }
 }
 
-void doMouseSwipe(QGraphicsObject *target, const QPoint &start, const QPoint &end,
+void doMouseSwipe(QGraphicsObject *target, const QPointF &start, const QPointF &end,
                   unsigned int duration, unsigned int intermediateSteps,
                   bool lastMoveLandsOnEnd)
 {
     doMouseSwipe(target, makeSwipePointPath(start, end, intermediateSteps, lastMoveLandsOnEnd), duration);
 }
 
-void mousePress(QGraphicsObject *target, const QPoint &pos, int delay)
+QList<QPointF> makeSwipePointPath(const QPointF &start, const QPointF &end,
+                                  unsigned int intermediateSteps,
+                                  bool lastMoveLandsOnEnd)
 {
-    QGraphicsSceneMouseEvent press(QEvent::GraphicsSceneMousePress);
-    press.setPos(pos);
-    // Not exactly the correct way to get screen pos but works for us.
-    press.setScreenPos(target->mapToScene(pos).toPoint());
-    target->scene()->sendEvent(target, &press);
-    wait(delay);
-}
-
-void mouseMove(QGraphicsObject *target, const QPoint &pos, int delay)
-{
-    QGraphicsSceneMouseEvent move(QEvent::GraphicsSceneMouseMove);
-    move.setPos(pos);
-    move.setScreenPos(target->mapToScene(pos).toPoint());
-    target->scene()->sendEvent(target, &move);
-    wait(delay);
-}
-
-void mouseRelease(QGraphicsObject *target, const QPoint &pos, int delay)
-{
-    QGraphicsSceneMouseEvent release(QEvent::GraphicsSceneMouseRelease);
-    release.setPos(pos);
-    release.setScreenPos(target->mapToScene(pos).toPoint());
-    target->scene()->sendEvent(target, &release);
-    wait(delay);
-}
-
-QList<QPoint> makeSwipePointPath(const QPoint &start, const QPoint &end,
-                                 unsigned int intermediateSteps,
-                                 bool lastMoveLandsOnEnd)
-{
-    QList<QPoint> path;
+    QList<QPointF> path;
     QPointF delta = (end - start);
 
     if (lastMoveLandsOnEnd && intermediateSteps < 1) {
@@ -124,7 +136,7 @@ QList<QPoint> makeSwipePointPath(const QPoint &start, const QPoint &end,
     QPointF pos = start;
     for (unsigned int i = 0; i < intermediateSteps; ++i) {
         pos += delta;
-        path << pos.toPoint();
+        path << pos;
     }
 
     if (lastMoveLandsOnEnd) {
