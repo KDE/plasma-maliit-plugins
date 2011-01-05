@@ -53,6 +53,8 @@ namespace
     const unsigned int KeycodeCharacter1(24); // keycode of "1" under xorg / Xephyr combination
     const unsigned int KeycodeCharacterP(33); // keycode of "p" under xorg / Xephyr combination
     const unsigned int KeycodeCharacter0(33); // keycode of "0" under xorg / Xephyr combination
+    const unsigned int KeycodeCharacterF(42); // stubbed keycodeToString will return strings 'f', 'F', '3' and '4' for shift levels 0 to 3
+    const unsigned int KeycodeCharacterG(43); // stubbed keycodeToString will return strings 'g', 'G', '1' and '2' for shift levels 0 to 3
     const unsigned int KeycodeNonCharacter(50);  // keycode of left shift under xorg / Xephyr combination
 
     const QString XkbLayoutSettingName("/meegotouch/inputmethods/hwkeyboard/layout");
@@ -109,6 +111,26 @@ QString MHardwareKeyboard::keycodeToString(unsigned int keycode, unsigned int sh
         return QString("p");
     } else if ((keycode == KeycodeCharacter0) && (shiftLevel == 2)) {
         return QString("0");
+    } else if ((keycode == KeycodeCharacterF)) {
+        if (shiftLevel == 0) {
+            return QString("f");
+        } else if (shiftLevel == 1) {
+            return QString("F");
+        } else if (shiftLevel == 2) {
+            return QString("1");
+        } else {
+            return QString("2");
+        }
+    } else if ((keycode == KeycodeCharacterG)) {
+        if (shiftLevel == 0) {
+            return QString("g");
+        } else if (shiftLevel == 1) {
+            return QString("G");
+        } else if (shiftLevel == 2) {
+            return QString("3");
+        } else {
+            return QString("4");
+        }
     } else if (keycode == KeycodeCharacterPeriod) {
         return QString(".");
     } else {
@@ -1325,6 +1347,117 @@ void Ut_MHardwareKeyboard::testPressTwoKeys()
     QVERIFY(filterKeyRelease(Qt::Key_P, Qt::GroupSwitchModifier, "p", KeycodeCharacterP, 0));
     QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
     QCOMPARE(inputMethodHost->lastCommitString(), QString("p"));
+}
+
+void Ut_MHardwareKeyboard::testPressTwoKeysWithLatch()
+{
+    // Latch Shift by pressing Shift once. Then press 'f' and 'g'.
+    // See that resulting string is "Fg".
+    QVERIFY(filterKeyPress(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, 0));
+    QVERIFY(filterKeyRelease(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, 0));
+
+    QVERIFY(filterKeyPress(Qt::Key_F, Qt::NoModifier, "f", KeycodeCharacterF, 0));
+    QVERIFY(filterKeyRelease(Qt::Key_F, Qt::NoModifier, "f", KeycodeCharacterF, 0));
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("F"));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("F"));
+    QVERIFY(filterKeyPress(Qt::Key_G, Qt::NoModifier, "g", KeycodeCharacterG, 0));
+    QVERIFY(filterKeyRelease(Qt::Key_G, Qt::NoModifier, "g", KeycodeCharacterG, 0));
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("g"));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("g"));
+
+    // Latch Shift by pressing Shift once. Then press and hold 'f' and press 'g'.
+    // See that resulting string is "Fg".
+    QVERIFY(filterKeyPress(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, 0));
+    QVERIFY(filterKeyRelease(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, 0));
+
+    QVERIFY(filterKeyPress(Qt::Key_F, Qt::NoModifier, "f", KeycodeCharacterF, 0));
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("F"));
+    QVERIFY(filterKeyPress(Qt::Key_G, Qt::NoModifier, "g", KeycodeCharacterG, 0));
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("g"));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("F"));
+    QVERIFY(filterKeyRelease(Qt::Key_F, Qt::NoModifier, "f", KeycodeCharacterF, 0));
+    QVERIFY(filterKeyRelease(Qt::Key_G, Qt::NoModifier, "g", KeycodeCharacterG, 0));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("g"));
+
+    // Latch Fn by pressing Fn once. Then press 'f' and 'g'.
+    // See that resulting string is "1g".
+    QVERIFY(filterKeyPress(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, 0));
+    QVERIFY(filterKeyRelease(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, 0));
+
+    QVERIFY(filterKeyPress(Qt::Key_F, Qt::NoModifier, "f", KeycodeCharacterF, 0));
+    QVERIFY(filterKeyRelease(Qt::Key_F, Qt::NoModifier, "f", KeycodeCharacterF, 0));
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("1"));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("1"));
+    QVERIFY(filterKeyPress(Qt::Key_G, Qt::NoModifier, "g", KeycodeCharacterG, 0));
+    QVERIFY(filterKeyRelease(Qt::Key_G, Qt::NoModifier, "g", KeycodeCharacterG, 0));
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("g"));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("g"));
+
+    // Latch Fn by pressing Fn once. Then press and hold 'f' and press 'g'.
+    // See that resulting string is "1g".
+    QVERIFY(filterKeyPress(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, 0));
+    QVERIFY(filterKeyRelease(FnLevelKey, Qt::NoModifier, "", KeycodeNonCharacter, 0));
+
+    QVERIFY(filterKeyPress(Qt::Key_F, Qt::NoModifier, "f", KeycodeCharacterF, 0));
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("1"));
+    QVERIFY(filterKeyPress(Qt::Key_G, Qt::NoModifier, "g", KeycodeCharacterG, 0));
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("g"));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("1"));
+    QVERIFY(filterKeyRelease(Qt::Key_F, Qt::NoModifier, "f", KeycodeCharacterF, 0));
+    QVERIFY(filterKeyRelease(Qt::Key_G, Qt::NoModifier, "g", KeycodeCharacterG, 0));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("g"));
+
+    // Latch Shift by pressing Shift once. Then press 'f' and 'g' with Fn modifier
+    // flag set. See that resulting string is "23".
+    QVERIFY(filterKeyPress(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, 0));
+    QVERIFY(filterKeyRelease(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, 0));
+
+    QVERIFY(filterKeyPress(Qt::Key_F, Qt::NoModifier, "f", KeycodeCharacterF, 0x80));
+    QVERIFY(filterKeyRelease(Qt::Key_F, Qt::NoModifier, "f", KeycodeCharacterF, 0x80));
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("2"));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("2"));
+    QVERIFY(filterKeyPress(Qt::Key_G, Qt::NoModifier, "3", KeycodeCharacterG, 0x80));
+    QVERIFY(filterKeyRelease(Qt::Key_G, Qt::NoModifier, "3", KeycodeCharacterG, 0x80));
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("3"));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("3"));
+
+    // Latch Fn by pressing Fn once. Then press 'g' and 'f' with Shift modifier
+    // flag set. See that resulting string is "41".
+    QVERIFY(filterKeyPress(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, 0));
+    QVERIFY(filterKeyRelease(Qt::Key_Shift, Qt::NoModifier, "", KeycodeNonCharacter, 0));
+
+    QVERIFY(filterKeyPress(Qt::Key_F, Qt::NoModifier, "g", KeycodeCharacterG, 0x80));
+    QVERIFY(filterKeyRelease(Qt::Key_F, Qt::NoModifier, "g", KeycodeCharacterG, 0x80));
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("4"));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("4"));
+    QVERIFY(filterKeyPress(Qt::Key_G, Qt::NoModifier, "1", KeycodeCharacterF, 0x1));
+    QVERIFY(filterKeyRelease(Qt::Key_G, Qt::NoModifier, "1", KeycodeCharacterF, 0x1));
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("1"));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("1"));
 }
 
 QTEST_APPLESS_MAIN(Ut_MHardwareKeyboard);
