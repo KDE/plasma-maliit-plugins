@@ -1,3 +1,9 @@
+meego-keyboard (0.5.24~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- huaming wang <huaming.wang@nokia.com>  Fri, 07 Jan 2011 13:07:55 +0200
+
 meego-keyboard (0.5.23-2) unstable; urgency=low
 
   * Fixes: NB#213337 - Enter key usage should be disabled in single linetextedit.
