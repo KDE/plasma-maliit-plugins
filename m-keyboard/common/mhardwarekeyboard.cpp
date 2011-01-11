@@ -75,12 +75,6 @@ namespace
         description->ctrls->per_key_repeat[keyCode >> KeyCodeShift] |=
             1 << (keyCode & KeyCodeMask);
     }
-
-    inline void clearKeyBit(XkbDescPtr description, KeyCode keyCode)
-    {
-        description->ctrls->per_key_repeat[keyCode >> KeyCodeShift] &=
-            ~(1 << (keyCode & KeyCodeMask));
-    }
 };
 
 MHardwareKeyboard::MHardwareKeyboard(MAbstractInputMethodHost& imHost, QObject *parent)
@@ -107,6 +101,7 @@ MHardwareKeyboard::MHardwareKeyboard(MAbstractInputMethodHost& imHost, QObject *
     connect(&longPressTimer, SIGNAL(timeout()), this, SLOT(handleLongPressTimeout()));
     connect(&deadKeyMapper, SIGNAL(stateChanged(const QChar &)),
             this, SIGNAL(deadKeyStateChanged(const QChar &)));
+    enableCustomAutoRepeat();
 }
 
 
@@ -145,7 +140,7 @@ M::TextContentType MHardwareKeyboard::keyboardType() const
 }
 
 
-void MHardwareKeyboard::toggleCustomAutoRepeat(const bool enable)
+void MHardwareKeyboard::enableCustomAutoRepeat()
 {
     XkbDescPtr description(XkbAllocKeyboard());
     if (!description) {
@@ -177,34 +172,16 @@ void MHardwareKeyboard::toggleCustomAutoRepeat(const bool enable)
     description->ctrls->repeat_interval = RepeatInterval;
 
     std::fill(description->ctrls->per_key_repeat,
-              description->ctrls->per_key_repeat + XkbPerKeyBitArraySize, enable ? 0 : 0xff);
+              description->ctrls->per_key_repeat + XkbPerKeyBitArraySize, 0);
 
-    if (enable) {
-        static const KeySym repeatableKeys[] = { XK_BackSpace, XK_Left, XK_Up, XK_Right, XK_Down };
+    static const KeySym repeatableKeys[] = { XK_BackSpace, XK_Left, XK_Up, XK_Right, XK_Down };
 
-        for (unsigned int i = 0; i < ELEMENTS(repeatableKeys); ++i) {
-            const KeyCode repeatableKeyCode(XKeysymToKeycode(QX11Info::display(), repeatableKeys[i]));
-            if (repeatableKeyCode) {
-                setKeyBit(description, repeatableKeyCode);
-            } else {
-                qWarning() << "Unable to make keysym" << repeatableKeys[i] << "repeatable: no keycode found.";
-            }
-        }
-    } else {
-        static const KeySym nonRepeatableKeys[] = {
-            XK_ISO_Level3_Shift, // Fn
-            XK_Multi_key, // Sym
-            XK_Shift_L,
-            XK_Control_R
-        };
-
-        for (unsigned int i = 0; i < ELEMENTS(nonRepeatableKeys); ++i) {
-            const KeyCode nonRepeatableKeyCode(XKeysymToKeycode(QX11Info::display(), nonRepeatableKeys[i]));
-            if (nonRepeatableKeyCode) {
-                clearKeyBit(description, nonRepeatableKeyCode);
-            } else {
-                qWarning() << "Unable to make keysym" << nonRepeatableKeys[i] << "non-repeatable: no keycode found.";
-            }
+    for (unsigned int i = 0; i < ELEMENTS(repeatableKeys); ++i) {
+        const KeyCode repeatableKeyCode(XKeysymToKeycode(QX11Info::display(), repeatableKeys[i]));
+        if (repeatableKeyCode) {
+            setKeyBit(description, repeatableKeyCode);
+        } else {
+            qWarning() << "Unable to make keysym" << repeatableKeys[i] << "repeatable: no keycode found.";
         }
     }
 
@@ -214,7 +191,7 @@ void MHardwareKeyboard::toggleCustomAutoRepeat(const bool enable)
 
     XkbFreeKeyboard(description, 0, True);
 
-    inputMethodHost.setDetectableAutoRepeat(enable);
+    inputMethodHost.setDetectableAutoRepeat(true);
 }
 
 void MHardwareKeyboard::enable()
@@ -223,7 +200,7 @@ void MHardwareKeyboard::enable()
 
     if (imMode != M::InputMethodModeDirect) {
         connect(QApplication::clipboard(), SIGNAL(dataChanged()), this, SLOT(handleClipboardDataChange()));
-        toggleCustomAutoRepeat(true);
+        enableCustomAutoRepeat();
 
         shiftShiftCapsLock = false;
         shiftsPressed = 0;
@@ -282,7 +259,6 @@ void MHardwareKeyboard::disable()
     lockModifiers(LockMask | FnModifierMask, 0);
     latchModifiers(LockMask | FnModifierMask, 0);
 
-    toggleCustomAutoRepeat(false);
 }
 
 

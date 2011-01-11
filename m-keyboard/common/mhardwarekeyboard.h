@@ -282,23 +282,18 @@ private:
     void filterMaybeIgnoreFn(Qt::Key &keyCode, QString &text,
                              quint32 nativeScanCode, quint32 nativeModifiers) const;
 
-
     //! Used to track latching inside MHardwareKeyboard instead of latching keys using X.
     //! Changes \a keyCode, \a text and \a nativeModifiers accordingly. Returns true
     //! if some of the above were changed, false otherwise.
     bool handleLatching(Qt::Key &keyCode, QString &text, quint32 latchedModifiers,
                         quint32 nativeScanCode, quint32 &nativeModifiers) const;
 
-    //! \brief Toggle custom autorepeat if \a enable is true, disable it otherwise
+    //! \brief Enable custom autorepeat
     //!
     //! Custom autorepeat means that only backspace and arrow keys have autorepeat
     //! functionality.  This also sets hardwired key repeat rate and delay and enables
     //! detectable autorepeat (see \a MAbstractInputMethodHost::setDetectableAutoRepeat).
-    //!
-    //! Note: this doesn't aim to save and restore autorepeat configuration.  With false
-    //! parameter autorepeat is simply enabled for all keys and detectable autorepeat is
-    //! disabled.
-    void toggleCustomAutoRepeat(bool enable);
+    void enableCustomAutoRepeat();
 
     //! \brief Switch hardware keyboard layout.
     //!
