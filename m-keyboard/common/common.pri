@@ -5,9 +5,11 @@ INSTALL_HEADERS += \
     $$COMMON_DIR/keyevent.h \
     $$COMMON_DIR/layoutdata.h \
     $$COMMON_DIR/mkeyboardcommon.h \
+    $$COMMON_DIR/regiontracker.h \
 
 HEADERS += \
     $$INSTALL_HEADERS \
+    $$COMMON_DIR/regiontracker_p.h \
     $$COMMON_DIR/keyboarddata.h \
     $$COMMON_DIR/layoutsmanager.h \
     $$COMMON_DIR/mxkb.h \
@@ -35,6 +37,7 @@ SOURCES += \
     $$COMMON_DIR/flickgesture.cpp \
     $$COMMON_DIR/flickgesturerecognizer.cpp \
     $$COMMON_DIR/keyboardmapping.cpp \
+    $$COMMON_DIR/regiontracker.cpp \
 
 INCLUDEPATH += $$COMMON_DIR
 DEPENDPATH += $$COMMON_DIR
