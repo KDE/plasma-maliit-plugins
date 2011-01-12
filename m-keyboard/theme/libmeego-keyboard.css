@@ -464,7 +464,7 @@ WidgetBarStyle {
 }
 
 MImWordTrackerStyle {
-    background-image: "meegotouch-wordtracker-background" 18px 18px 18px 18px;
+    background-image: "meegotouch-wordtracker-background" 15px 15px 15px 15px;
 
     wordtracker-pointer-image: "meegotouch-wordtracker-pointer" 0 0 0 0;
     wordtracker-pointer-size: 15 12;
