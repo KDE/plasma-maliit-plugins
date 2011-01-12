@@ -39,6 +39,7 @@
 #include <QKeyEvent>
 #include <QFile>
 #include <QRegExp>
+#include <QEasingCurve>
 
 #include <mreactionmap.h>
 #include <MScene>
@@ -72,6 +73,28 @@ namespace
     const int KeysRequiredForFastTypingMode = 3;
     const int FastTypingTimeout = 700; //! Milliseconds to idle before leaving fast typing mode.
 }
+
+
+MKeyboardHost::SlideUpAnimation::SlideUpAnimation(QObject *parent)
+    : QPropertyAnimation(parent)
+{
+    setPropertyName("pos");
+    setEndValue(QPointF(0, 0));
+}
+
+void MKeyboardHost::SlideUpAnimation::updateCurrentTime(int currentTime)
+{
+    QGraphicsWidget &widget(*dynamic_cast<QGraphicsWidget *>(targetObject()));
+    const qreal wantedEndY(MPlainWindow::instance()->visibleSceneSize().height()
+                           - widget.size().height());
+
+    if (endValue().toPointF().y() != wantedEndY) {
+        setEndValue(QPointF(0, wantedEndY));
+    }
+
+    QPropertyAnimation::updateCurrentTime(currentTime);
+}
+
 
 MKeyboardHost::CycleKeyHandler::CycleKeyHandler(MKeyboardHost &parent)
     : QObject(&parent),
@@ -187,7 +210,9 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
       backspaceMode(NormalBackspaceMode),
       wordTrackerSuggestionAcceptedWithSpace(false),
       fastTypingKeyCount(0),
-      fastTypingEnabled(false)
+      fastTypingEnabled(false),
+      vkbFadeInAnimation(*new QPropertyAnimation(this)),
+      toolbarFadeInAnimation(*new QPropertyAnimation(this))
 {
     RegionTracker::createInstance();
     connect(&RegionTracker::instance(), SIGNAL(regionChanged(const QRegion &)),
@@ -226,6 +251,9 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
 
     vkbWidget = new MVirtualKeyboard(LayoutsManager::instance(), vkbStyleContainer, sceneWindow);
     vkbWidget->setInputMethodMode(static_cast<M::InputMethodMode>(inputMethodMode));
+
+    connect(vkbWidget, SIGNAL(geometryChanged()),
+            this, SLOT(handleVirtualKeyboardGeometryChange()));
 
     connect(vkbWidget, SIGNAL(keyClicked(const KeyEvent &)),
             this, SLOT(handleKeyClick(const KeyEvent &)));
@@ -278,7 +306,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
     // Set z value below default level (0.0) so popup will be on top of shared handle area.
     sharedHandleArea->setZValue(-1.0);
 
-    vkbWidget->setSharedHandleArea(sharedHandleArea);
     sharedHandleArea->watchOnWidget(vkbWidget);
 
 
@@ -342,11 +369,39 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
     connect(&fastTypingTimeout, SIGNAL(timeout()),
             this, SLOT(turnOffFastTyping()));
 
+    // Set up animations
+    slideUpAnimation.setTargetObject(vkbWidget);
+    slideUpAnimation.setEasingCurve(QEasingCurve::InOutCubic);
+    slideUpAnimation.setDuration(OnScreenAnimationTime);
+
+    vkbFadeInAnimation.setTargetObject(vkbWidget);
+    vkbFadeInAnimation.setPropertyName("opacity");
+    vkbFadeInAnimation.setStartValue(0.0);
+    vkbFadeInAnimation.setEndValue(1.0);
+    vkbFadeInAnimation.setDuration(OnScreenAnimationTime);
+    vkbFadeInAnimation.setEasingCurve(QEasingCurve::InOutCubic);
+
+    toolbarFadeInAnimation.setTargetObject(sharedHandleArea);
+    toolbarFadeInAnimation.setPropertyName("opacity");
+    toolbarFadeInAnimation.setStartValue(0.0);
+    toolbarFadeInAnimation.setEndValue(1.0);
+    toolbarFadeInAnimation.setDuration(OnScreenAnimationTime);
+    toolbarFadeInAnimation.setEasingCurve(QEasingCurve::InOutCubic);
+
+    toolbarAndVkbFadeInAnimation.addAnimation(&vkbFadeInAnimation);
+    toolbarAndVkbFadeInAnimation.addAnimation(&toolbarFadeInAnimation);
+
+    connect(&slideUpAnimation, SIGNAL(finished()), this, SLOT(handleAnimationFinished()));
+    connect(&toolbarAndVkbFadeInAnimation, SIGNAL(finished()), this, SLOT(handleAnimationFinished()));
+
     RegionTracker::instance().enableSignals(true, false);
 }
 
 MKeyboardHost::~MKeyboardHost()
 {
+    toolbarAndVkbFadeInAnimation.stop();
+    slideUpAnimation.stop();
+
     hideLockOnInfoBanner();
     delete hardwareKeyboard;
     hardwareKeyboard = 0;
@@ -406,13 +461,46 @@ void MKeyboardHost::handleFocusChange(bool focusIn)
     }
 }
 
+void MKeyboardHost::sendRegionEstimate()
+{
+    // We need to send one initial region update to have passthruwindow make the
+    // window visible.  We also want the scene manager to move the underlying window
+    // so that the focused widget will be visible after the show animation and we want
+    // it to do that right away, so the region we send now is (usually) the final
+    // region (i.e. what it will be after animation is finished).  Region will be sent
+    // additionally after animation is finished just in case copy button appears or
+    // something else changes during the animation.  But normally the region should be
+    // the same as the one we send now.
+
+    QRectF vkbRect(vkbWidget->rect());
+    vkbRect.translate(0, -vkbRect.y()
+                      + MPlainWindow::instance()->visibleSceneSize().height()
+                      - vkbRect.height());
+    QRectF toolbarRect(sharedHandleArea->rect());
+    toolbarRect.translate(0, -toolbarRect.y() + vkbRect.y() - toolbarRect.height());
+
+    const QRegion region((sceneWindow->mapRectToScene(vkbRect) | sceneWindow->mapRectToScene(toolbarRect)).toRect());
+
+    RegionTracker::instance().sendInputMethodAreaEstimate(region);
+    RegionTracker::instance().sendRegionEstimate(region);
+}
 
 void MKeyboardHost::show()
 {
+    if (((activeState == MInputMethod::Hardware) && !hardwareKeyboard->symViewAvailable())
+        || ((activeState == MInputMethod::OnScreen) && !vkbWidget->symViewAvailable())) {
+        symbolView->hideSymbolView();
+    }
+
+    if (sipRequested && (slideUpAnimation.state() == QAbstractAnimation::Stopped)) {
+        return;
+    }
     sipRequested = true;
     if (visualizationPriority) {
         return;
     }
+    RegionTracker::instance().enableSignals(false);
+
     // This will add scene window as child of MSceneManager's root element
     // which is the QGraphicsItem that is rotated when orientation changes.
     // It uses animation to carry out the orientation change transform
@@ -420,48 +508,74 @@ void MKeyboardHost::show()
     // happens in the scene, not in the view (MWindow) anymore.
     MPlainWindow::instance()->sceneManager()->appearSceneWindowNow(sceneWindow);
 
-    if (activeState == MInputMethod::Hardware) {
-        sharedHandleArea->show();
-        if (!hardwareKeyboard->symViewAvailable())
-            symbolView->hideSymbolView();
-    } else {
-        // Prevent region updates from shared handle area, let MVirtualKeyboard trigger
-        // the update (just once)
-        const bool wasBlocked(sharedHandleArea->blockSignals(true));
-        sharedHandleArea->show();
-        sharedHandleArea->blockSignals(wasBlocked);
-        // Onscreen state
-        if (!vkbWidget->symViewAvailable())
-            symbolView->hideSymbolView();
-        vkbWidget->showKeyboard();
-    }
-
     // update input engine keyboard layout.
     updateEngineKeyboardLayout();
     updateCorrectionState();
+
+    sharedHandleArea->show();
+
+    if (activeState == MInputMethod::Hardware) {
+        slideUpAnimation.setDuration(HardwareAnimationTime);
+        vkbFadeInAnimation.setDuration(HardwareAnimationTime);
+        toolbarFadeInAnimation.setDuration(HardwareAnimationTime);
+
+        slideUpAnimation.setTargetObject(sharedHandleArea);
+        slideUpAnimation.setStartValue(QPointF(0, MPlainWindow::instance()->visibleSceneSize().height()));
+    } else {
+        slideUpAnimation.setDuration(OnScreenAnimationTime);
+        vkbFadeInAnimation.setDuration(OnScreenAnimationTime);
+        toolbarFadeInAnimation.setDuration(OnScreenAnimationTime);
+
+        slideUpAnimation.setTargetObject(vkbWidget);
+        slideUpAnimation.setStartValue(QPointF(0, MPlainWindow::instance()->visibleSceneSize().height()
+                                               + sharedHandleArea->size().height()));
+        vkbWidget->show();
+    }
+    sendRegionEstimate();
+    slideUpAnimation.setDirection(QAbstractAnimation::Forward);
+    slideUpAnimation.start();
 }
 
 
 void MKeyboardHost::hide()
 {
-    sipRequested = false;
-    if (activeState == MInputMethod::OnScreen) {
-        // Prevent region updates from shared handle area, let MVirtualKeyboard trigger
-        // the update (just once)
-        const bool wasBlocked(sharedHandleArea->blockSignals(true));
-        sharedHandleArea->hide();
-        sharedHandleArea->blockSignals(wasBlocked);
-    } else {
-        sharedHandleArea->hide();
-    }
-    correctionHost->hideCorrectionWidget();
-    symbolView->hideSymbolView();
-    vkbWidget->hideKeyboard();
+    RegionTracker::instance().enableSignals(false);
+    RegionTracker::instance().sendInputMethodAreaEstimate(QRegion());
 
-    // TODO: the following line which was added to improve plugin switching (see
-    // the commit comment) causes the animation started by the previous line to
-    // not be seen.
-    MPlainWindow::instance()->sceneManager()->disappearSceneWindowNow(sceneWindow);
+    correctionHost->hideCorrectionWidget();
+    symbolView->hideSymbolView(); // TODO: transition?
+
+    slideUpAnimation.setDirection(QAbstractAnimation::Backward);
+    slideUpAnimation.start();
+
+    sipRequested = false;
+}
+
+
+void MKeyboardHost::handleAnimationFinished()
+{
+    if (slideUpAnimation.direction() == QAbstractAnimation::Backward) {
+        sharedHandleArea->hide();
+        vkbWidget->hide();
+        // TODO: the following line which was added to improve plugin switching (see the
+        // commit comment) would cause animation not to be seen if it was in ::hide() but
+        // just having it here without any two-phase show/hide protocol that considers
+        // plugin switching might result to odd situations as well.
+        MPlainWindow::instance()->sceneManager()->disappearSceneWindowNow(sceneWindow);
+    } else {
+        vkbWidget->showFinished();
+    }
+
+    RegionTracker::instance().enableSignals(true);
+    updateReactionMaps();
+}
+
+
+void MKeyboardHost::handleVirtualKeyboardGeometryChange()
+{
+    if (slideUpAnimation.state() == QAbstractAnimation::Stopped) {
+        vkbWidget->setPos(0, MPlainWindow::instance()->visibleSceneSize().height() - vkbWidget->size().height());
+    }
 }
 
 
@@ -476,8 +590,13 @@ void MKeyboardHost::handleSymbolViewVisibleChanged()
 {
     if (symbolView->isVisible()) {
         vkbWidget->hide();
-    } else if (!visualizationPriority && sipRequested && (activeState == MInputMethod::OnScreen)) {
-        vkbWidget->show();
+    } else if (!visualizationPriority && sipRequested) {
+        if (activeState == MInputMethod::OnScreen) {
+            vkbWidget->show();
+        } else {
+            // SharedHandleArea no longer tracks anything, reposition it to the bottom of the screen
+            sharedHandleArea->setPos(0, MPlainWindow::instance()->visibleSceneSize().height() - sharedHandleArea->size().height());
+        }
     }
 }
 
@@ -947,7 +1066,7 @@ void MKeyboardHost::updateReactionMaps()
         // Paint either symview or vkb widget reactive areas.
         if (symbolView && symbolView->isVisible()) {
             symbolView->paintReactionMap(reactionMap, view);
-        } else if (vkbWidget && vkbWidget->isFullyVisible()) {
+        } else if (vkbWidget && vkbWidget->isVisible()) {
             vkbWidget->paintReactionMap(reactionMap, view);
         }
 
@@ -1394,7 +1513,9 @@ void MKeyboardHost::handleClientChange()
 {
     hardwareKeyboard->clientChanged();
     resetInternalState();
-    hide(); // could do some quick hide also
+    if (sipRequested) {
+        hide();
+    }
 }
 
 void MKeyboardHost::switchContext(MInputMethod::SwitchDirection direction, bool enableAnimation)
@@ -1437,7 +1558,9 @@ void MKeyboardHost::setState(const QSet<MInputMethod::HandlerState> &state)
             hardwareKeyboard->disable();
         }
         if (sipRequested) {
-            vkbWidget->showKeyboard();
+            slideUpAnimation.stop();
+            vkbWidget->show();
+            vkbWidget->setPos(0, MPlainWindow::instance()->visibleSceneSize().height() - vkbWidget->size().height());
         }
     } else {
         currentIndicatorDeadKey = false;
@@ -1450,7 +1573,11 @@ void MKeyboardHost::setState(const QSet<MInputMethod::HandlerState> &state)
         if (haveFocus) {
             hardwareKeyboard->enable();
         }
-        vkbWidget->hideKeyboard();
+        vkbWidget->hide();
+        if (sipRequested) {
+            slideUpAnimation.stop();
+            sharedHandleArea->setPos(0, MPlainWindow::instance()->visibleSceneSize().height() - sharedHandleArea->size().height());
+        }
     }
 
     // Hide symbol view before changing the state.

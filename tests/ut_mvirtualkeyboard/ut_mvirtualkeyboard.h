@@ -32,22 +32,6 @@ class QGraphicsScene;
 class LayoutSection;
 class MSceneWindow;
 
-// Helper class
-class ReactionMapPainter
-    : public QObject
-{
-    Q_OBJECT
-
-private:
-    MVirtualKeyboard *vkb;
-
-public:
-    explicit ReactionMapPainter(MVirtualKeyboard *vkb);
-    virtual ~ReactionMapPainter();
-
-public slots:
-    void paintReactionMap();
-};
 
 class Ut_MVirtualKeyboard : public QObject
 {
@@ -55,7 +39,6 @@ class Ut_MVirtualKeyboard : public QObject
 private:
     MApplication *app;
     MVirtualKeyboard *m_vkb;
-    ReactionMapPainter *m_reactionMapPainter;
     MSceneWindow *vkbParent;
     MVirtualKeyboardStyleContainer *vkbStyleContainer;
     const LayoutData::SharedLayoutSection functionkeySection;
@@ -73,13 +56,6 @@ private slots:
     void clickHyphenTest();
     void clickPunctQuesTest();
     void clickPunctDotTest();
-    void fadeTest();
-    void regionSuppressionTest();
-    // To avoid code duplication, more extensive region testing is at
-    // the moment done in Ut_MKeyboardHost::testRegionSignals, which
-    // should become a functional test at some point.
-    void showKeyboardTest();
-    void hideKeyboardTest();
     void testStateReset();
     void testShiftLevelChange_data();
     void testShiftLevelChange();

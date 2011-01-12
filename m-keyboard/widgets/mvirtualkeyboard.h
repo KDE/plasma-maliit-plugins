@@ -30,7 +30,6 @@
 #include <mimenginetypes.h>
 #include <QPixmap>
 #include <QSharedPointer>
-#include <QTimeLine>
 #include <QPointer>
 
 class QGraphicsGridLayout;
@@ -83,9 +82,6 @@ public:
     //! Destructor
     ~MVirtualKeyboard();
 
-    //! \brief Tells whether keyboard is opened and not in the middle of show or hide animation.
-    bool isFullyVisible() const;
-
     /*!
      * \brief Method to get the language for the currently displayed layout
      *
@@ -137,9 +133,6 @@ public:
     //! Set input method mode
     void setInputMethodMode(M::InputMethodMode mode);
 
-    //! Set pointer to shared handle area
-    void setSharedHandleArea(const QPointer<SharedHandleArea> &newSharedHandleArea);
-
     //! Returns whether autocaps is enabled.
     bool autoCapsEnabled() const;
 
@@ -151,6 +144,13 @@ public:
      * \brief Returns the keys in the main layout.
      */
     QList<MImEngine::KeyboardLayoutKey> mainLayoutKeys() const;
+
+    //! reimp
+    QVariant itemChange(GraphicsItemChange change, const QVariant &value);
+    //! reimp_end
+
+    //! \return region occupied by keyboard in scene coordinates
+    QRegion region() const;
 
 public slots:
     /*!
@@ -164,30 +164,22 @@ public slots:
      */
     void setShiftState(ModifierState level);
 
-    /*!
-     * Method to Show the keyboard
-     * \param fadeOnly just fade in if true, fade and slide otherwise
-     */
-    void showKeyboard(bool fadeOnly = false);
-
-    /*!
-     * Method to hide the keyboard
-     * \param fadeOnly just fade out if true, fade and slide otherwise
-     * \param temporary hide temporarily during screen rotation
-     */
-    void hideKeyboard(bool fadeOnly = false, bool temporary = false);
-
     //! Add vkb widget portions to the reaction map.
     void paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view);
 
     /*!
      * Method to change the orientation
      * \param orientation M::Orientation
+     * \param force reorganize even when not visible
      */
-    void organizeContent(M::Orientation orientation);
+    void organizeContent(M::Orientation orientation, bool force = false);
 
     void setLayout(int layoutIndex);
 
+    /*!
+     * This function gets called when the widget show animation is finished
+     */
+    void showFinished();
 
 private slots:
     /*!
@@ -211,16 +203,6 @@ private slots:
      */
     void flickUpHandler(const MImKeyBinding &binding);
 
-    /*!
-     * Method to fade the vkb during transition
-     */
-    void fade(int);
-
-    /*!
-     * This function gets called when fading is finished
-     */
-    void showHideFinished();
-
     void keyboardsReset();
 
     void numberKeyboardReset();
@@ -228,16 +210,6 @@ private slots:
     void onSectionSwitchStarting(int current, int next);
 
     void onSectionSwitched(QGraphicsWidget *previous, QGraphicsWidget *current);
-
-    /*!
-     * Send \a regionUpdated and \a inputMethodAreaUpdated signals with the
-     * current region of this widget and its children combined, unless \a
-     * suppressRegionUpdate has been used to suppress updates.
-     */
-    void sendVKBRegion(const QRegion &extraRegion = QRegion());
-
-    //! \brief Call organizeContent() and sendVKBRegion() if the vkb is visible
-    void organizeContentAndSendRegion();
 
 signals:
     /*!
@@ -267,12 +239,6 @@ signals:
      * \brief Emitted when key is long pressed
      */
     void longKeyPressed(const KeyEvent &event);
-
-    //! \see MAbstractInputMethod::regionUpdated()
-    void regionUpdated(const QRegion &);
-
-    //! \see MAbstractInputMethod::inputMethodAreaUpdated()
-    void inputMethodAreaUpdated(const QRegion &);
 
     //! This signal is emitted when input layout is changed
     //! \param layout this is always the layout from XML file in unmodified form
@@ -311,9 +277,6 @@ private:
     //! Getter for style container
     const MVirtualKeyboardStyleContainer &style() const;
 
-    //! \return region occupied by keyboard in scene coordinates
-    QRegion region() const;
-
     /*!
      * \brief Maps \a offset to scene coordinate.
      */
@@ -324,11 +287,6 @@ private:
     MImAbstractKeyArea *keyboardWidget(int layoutIndex = -1) const;
 
     /*!
-     * Method to setup timeline
-     */
-    void setupTimeLine();
-
-    /*!
      * Paint the reactive areas of the buttons
      *
      * This does not include the layout keys.
@@ -337,13 +295,6 @@ private:
      * the close/minimize/hide button.
      */
     void drawButtonsReactionMaps(MReactionMap *reactionMap, QGraphicsView *view);
-
-    /*! This can be set true if it is known that we're going
-     * to have multiple region updates simultaneously.
-     * It prevents vkb to send its update region. sendVKBRegion()
-     * is called automatically when updates are enabled again.
-     */
-    void suppressRegionUpdate(bool suppress);
 
     //! creates a switcher for qwerty layouts
     void createSwitcher();
@@ -388,25 +339,6 @@ private:
         KeyboardIndex
     };
 
-    //! Keyboard state wrt. \a showKeyboard / \a hideKeyboard calls.
-    enum Activity {
-        Active,                 // After showKeyboard call
-        Inactive,               // After hidekeyboard(..., false)
-        TemporarilyInactive     // After hideKeyboard(..., true)
-    };
-
-    //! Slow/hide animation constants
-    enum {
-        ShowHideFrames = 100,
-#ifdef SLOW_TRANSITIONS         // for easier debugging
-        ShowHideTime = 750,
-        ShowHideInterval = 50
-#else
-        ShowHideTime = 250,
-        ShowHideInterval = 20
-#endif
-    };
-
     //! Current Style being used
     const MVirtualKeyboardStyleContainer *styleContainer;
 
@@ -418,31 +350,17 @@ private:
     //! Max number of layout levels
     int numLevels;
 
-    //! \see Activity.  Note that e.g. call to hideKeyboard() marks keyboard
-    //! immediately Inactive but that doesn't mean the keyboard is immediately
-    //! hidden, so activity does not strictly match visibility.
-    Activity activity;
-
     //! Scene manager to get the device width and height
     MSceneManager *sceneManager;
 
     //! Shift key status
     ModifierState shiftState;
 
-    // Vkb show hide time line
-    QTimeLine showHideTimeline;
-
     LayoutData::LayoutType currentLayoutType;
 
     M::Orientation currentOrientation;
 
     QString currentLayout;
-
-    bool hideShowByFadingOnly;
-
-    //! Used by suppressRegionUpdate & sendVKBRegion
-    bool sendRegionUpdates;
-    bool regionUpdateRequested;
 
     const LayoutsManager &layoutsMgr;
 
@@ -466,6 +384,7 @@ private:
     QPointer<SharedHandleArea> sharedHandleArea;
 
     bool pendingNotificationRequest;
+    bool transitioning;
 };
 
 #endif

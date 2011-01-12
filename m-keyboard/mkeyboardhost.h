@@ -25,6 +25,9 @@
 #include <QStringList>
 #include <QTimer>
 #include <QPointer>
+#include <QPropertyAnimation>
+#include <QSequentialAnimationGroup>
+#include <QParallelAnimationGroup>
 
 class MGConfItem;
 class MImCorrectionHost;
@@ -85,6 +88,9 @@ private slots:
 
     //! \brief Adjust symbol view position when its size changed
     void handleSymbolViewGeometryChange();
+
+    //! \brief Adjust vkb position when its size changed.
+    void handleVirtualKeyboardGeometryChange();
 
     /*!
      * Handle key clicks from widgets
@@ -188,7 +194,11 @@ private slots:
 
     void turnOffFastTyping();
 
+    void handleAnimationFinished();
+
 private:
+    void sendRegionEstimate();
+
     //! \brief Reset internal state, used by reset() and others
     void resetInternalState();
 
@@ -285,6 +295,28 @@ private:
     void turnOnFastTyping();
 
 private:
+    //! \brief Slides full-width QGraphicsWidgets up from the bottom of the display,
+    //! aligning their bottom with the display bottom
+    //!
+    //! You only need to set the start value explicitly, end value is set automatically.
+    class SlideUpAnimation : public QPropertyAnimation
+    {
+    public:
+        explicit SlideUpAnimation(QObject *parent = 0);
+
+        //! reimp
+        void updateCurrentTime(int currentTime);
+        //! reimp_end
+
+    private:
+        Q_DISABLE_COPY(SlideUpAnimation)
+    };
+
+    enum {
+        OnScreenAnimationTime = 400, // in ms
+        HardwareAnimationTime = 100  // in ms
+    };
+
     class CycleKeyHandler; //! Reacts to cycle key press events.
     friend class CycleKeyHandler;
     QString preedit;
@@ -369,6 +401,11 @@ private:
     QTimer fastTypingTimeout;
     int fastTypingKeyCount;
     bool fastTypingEnabled;
+
+    SlideUpAnimation slideUpAnimation;
+    QPropertyAnimation& vkbFadeInAnimation;
+    QPropertyAnimation& toolbarFadeInAnimation;
+    QParallelAnimationGroup toolbarAndVkbFadeInAnimation;
 
 #ifdef UNIT_TEST
     friend class Ut_MKeyboardHost;

@@ -27,6 +27,7 @@
 #include <mtoolbardata.h>
 #include <mimtoolbar.h>
 #include <layoutsmanager.h>
+#include <regiontracker.h>
 
 #include "mgconfitem_stub.h"
 #include "minputmethodhoststub.h"
@@ -570,14 +571,14 @@ void Ut_MKeyboardHost::testAutoCaps()
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
 
     subject->hide();
-    QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
+    QTest::qWait(MKeyboardHost::OnScreenAnimationTime + 50);
 
     // Disable autoCaps
     inputMethodHost->autoCapitalizationEnabled_ = false;
     inputMethodHost->cursorPos = 0;
     subject->show();
     subject->update();
-    QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
+    QTest::qWait(MKeyboardHost::OnScreenAnimationTime + 50);
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
 
     // When shift is latched, any key input except shift will turn off shift.
@@ -729,16 +730,10 @@ void Ut_MKeyboardHost::testRegionSignals()
     QCOMPARE(region(ScreenRegion, c1 - 1), region(InputMethodArea, 0));
     QVERIFY(!region(ScreenRegion, c1 - 1).isEmpty());
 
-    // We must get another region when the vkb is fully visible
-    QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
-    ++c1;
-    ++c2;
-    QCOMPARE(inputMethodHost->setScreenRegionCalls, c1);
-    QCOMPARE(inputMethodHost->setInputMethodAreaCalls, c2);
+    qDebug() << "Passthrough region: " << region(ScreenRegion, c1 - 1);
+    qDebug() << "libmeegotouch region: " << region(InputMethodArea, c2 - 1);
 
-    qDebug() << "Passthrough region: " << region(ScreenRegion, 1);
-    qDebug() << "libmeegotouch region: " << region(InputMethodArea, 1);
-    QVERIFY((region(ScreenRegion, c1 - 1) - region(InputMethodArea, 1)).isEmpty());
+    QTest::qWait(MKeyboardHost::OnScreenAnimationTime + 50);
 
     // In normal input method mode there is no invisible handle with non-zero area
     const QRect zeroSizeInvisibleHandleRect(
@@ -794,20 +789,31 @@ void Ut_MKeyboardHost::testRegionSignals()
     QCOMPARE(region(ScreenRegion, c1 - 1), region(InputMethodArea, c2 - 1));
 #endif
 
-    // But symbol view also changes input method area
+    // Symbol view may change input method area if it is of different size than the vkb
     const int c1BeforeSymOpen = c1;
     subject->showSymbolView();
-    QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
+    QTest::qWait(MKeyboardHost::OnScreenAnimationTime + 50);
 
-    ++c1;
-    ++c2;
+    const bool noSymviewChange(subject->symbolView->geometry() == subject->vkbWidget->geometry());
+
+    if (!noSymviewChange) {
+        ++c1;
+        ++c2;
+    }
     QCOMPARE(inputMethodHost->setScreenRegionCalls, c1);
     QCOMPARE(inputMethodHost->setInputMethodAreaCalls, c2);
 
+    // TODO: make RegionTracker do this kind of optimization automatically
+    const bool wasEnabled(RegionTracker::instance().enableSignals(false));
     subject->symbolView->hideSymbolView();
-    QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
-    ++c1;
-    ++c2;
+    RegionTracker::instance().enableSignals(wasEnabled);
+
+    QTest::qWait(MKeyboardHost::OnScreenAnimationTime + 50);
+
+    if (!noSymviewChange) {
+        ++c1;
+        ++c2;
+    }
     QCOMPARE(inputMethodHost->setScreenRegionCalls, c1);
     QCOMPARE(inputMethodHost->setInputMethodAreaCalls, c2);
 
@@ -816,7 +822,7 @@ void Ut_MKeyboardHost::testRegionSignals()
 
     // Hide the keyboard -> empty region and input method area
     subject->hide();
-    QTest::qWait(MVirtualKeyboard::ShowHideTime + 50); // really hidden after animation is finished
+    QTest::qWait(MKeyboardHost::OnScreenAnimationTime + 50); // really hidden after animation is finished
     ++c1;
     ++c2;
     QCOMPARE(inputMethodHost->setScreenRegionCalls, c1);
@@ -831,21 +837,21 @@ void Ut_MKeyboardHost::testRegionSignals()
 
     rotateToAngle(M::Angle270);
     subject->show();
-    QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
+    QTest::qWait(MKeyboardHost::OnScreenAnimationTime + 50);
 
-    QCOMPARE(inputMethodHost->setScreenRegionCalls, 2);
-    QCOMPARE(inputMethodHost->setInputMethodAreaCalls, 2);
-    QCOMPARE(region(ScreenRegion, 1), region(InputMethodArea, 1));
+    QCOMPARE(inputMethodHost->setScreenRegionCalls, 1);
+    QCOMPARE(inputMethodHost->setInputMethodAreaCalls, 1);
+    QCOMPARE(region(ScreenRegion, 0), region(InputMethodArea, 0));
 
-    QRegion region270(region(ScreenRegion, 1));
+    QRegion region270(region(ScreenRegion, 0));
     subject->hide();
-    QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
+    QTest::qWait(MKeyboardHost::OnScreenAnimationTime + 50);
     rotateToAngle(M::Angle0);
 
     QSignalSpy orientationSpy(window, SIGNAL(orientationChangeFinished(M::Orientation)));
 
     subject->show();
-    QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
+    QTest::qWait(MKeyboardHost::OnScreenAnimationTime + 50);
 
     inputMethodHost->clear();
 
@@ -1491,16 +1497,17 @@ void Ut_MKeyboardHost::testHandleHwKeyboardStateChanged()
 void Ut_MKeyboardHost::testUserHide()
 {
     subject->show();
-    QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
+    QTest::qWait(MKeyboardHost::OnScreenAnimationTime + 50);
 
+    // Hide without preedit
     inputMethodHost->clear();
     subject->preedit.clear();
 
-    // Hide without preedit
-    QVERIFY(subject->vkbWidget->isFullyVisible());
+    // TODO: test that the animation has finished?  Really useful?
+    //QVERIFY(subject->vkbWidget->isFullyVisible());
     subject->userHide();
-    QVERIFY(!subject->vkbWidget->isFullyVisible());
-    QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
+    // TODO: QVERIFY(!subject->vkbWidget->isFullyVisible());
+    QTest::qWait(MKeyboardHost::OnScreenAnimationTime + 50);
     QVERIFY(!subject->vkbWidget->isVisible());
 
     QVERIFY(inputMethodHost->setScreenRegionCalls > 0);
@@ -1509,7 +1516,7 @@ void Ut_MKeyboardHost::testUserHide()
     QCOMPARE(inputMethodHost->commit, QString(""));
 
     subject->show();
-    QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
+    QTest::qWait(MKeyboardHost::OnScreenAnimationTime + 50);
 
     inputMethodHost->clear();
     subject->preedit = "Bacon";

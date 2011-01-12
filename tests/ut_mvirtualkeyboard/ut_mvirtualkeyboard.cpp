@@ -29,6 +29,7 @@
 #include "mimtoolbar.h"
 #include "mplainwindow.h"
 #include "utils.h"
+#include "regiontracker.h"
 
 #include <minputmethodnamespace.h>
 #include <MScene>
@@ -76,26 +77,6 @@ void Notification::displayText(const QString &message, const QRectF &area)
 }
 
 
-ReactionMapPainter::ReactionMapPainter(MVirtualKeyboard *newVkb)
-    : QObject(newVkb)
-    , vkb(newVkb)
-{}
-
-ReactionMapPainter::~ReactionMapPainter()
-{}
-
-void ReactionMapPainter::paintReactionMap()
-{
-    if (!vkb) {
-        qWarning() << __PRETTY_FUNCTION__
-                   << "no VKB specified";
-        return;
-    }
-
-    QGraphicsView *view = MPlainWindow::instance();
-    vkb->paintReactionMap(MReactionMap::instance(view), view);
-}
-
 void Ut_MVirtualKeyboard::initTestCase()
 {
     qRegisterMetaType<MInputMethod::SwitchDirection>("MInputMethod::SwitchDirection");
@@ -111,6 +92,7 @@ void Ut_MVirtualKeyboard::initTestCase()
     MGConfItem(TargetSettingsName).set(DefaultTargetName);
 
     app = new MApplication(argc, argv);
+    RegionTracker::createInstance();
 
     QString InputMethodSetting(InputMethodSettingName);
     MGConfItem item1(InputMethodSetting);
@@ -129,6 +111,7 @@ void Ut_MVirtualKeyboard::initTestCase()
 
     vkbParent = new MSceneWindow;
     vkbParent->setManagedManually(true); // we want the scene window to remain in origin
+    vkbParent->setObjectName("SceneWindow");
     // Adds scene window to scene.
     MPlainWindow::instance()->sceneManager()->appearSceneWindowNow(vkbParent);
 
@@ -147,15 +130,12 @@ void Ut_MVirtualKeyboard::cleanupTestCase()
     delete MPlainWindow::instance();
     delete app;
     app = 0;
+    RegionTracker::destroyInstance();
 }
 
 void Ut_MVirtualKeyboard::init()
 {
     m_vkb = new MVirtualKeyboard(LayoutsManager::instance(), vkbStyleContainer, vkbParent);
-    m_reactionMapPainter = new ReactionMapPainter(m_vkb);
-
-    connect(m_vkb, SIGNAL(regionUpdated(QRegion)),
-            m_reactionMapPainter, SLOT(paintReactionMap()));
 
     if (MPlainWindow::instance()->orientationAngle() != M::Angle0)
         rotateToAngle(M::Angle0);
@@ -311,92 +291,17 @@ void Ut_MVirtualKeyboard::clickPunctDotTest()
 }
 
 
-void Ut_MVirtualKeyboard::fadeTest()
-{
-    m_vkb->fade(100);
-    QCOMPARE(m_vkb->opacity(), 1.0);
-}
-
-void Ut_MVirtualKeyboard::regionSuppressionTest()
-{
-    qRegisterMetaType<QRegion>("QRegion");
-    QSignalSpy spy(m_vkb, SIGNAL(regionUpdated(QRegion)));
-    m_vkb->sendVKBRegion();
-    QCOMPARE(spy.count(), 1);
-    spy.clear();
-
-    // Need to get region signal in a delayed fashion after enabling updates
-    m_vkb->suppressRegionUpdate(true);
-    m_vkb->sendVKBRegion();
-    m_vkb->suppressRegionUpdate(false);
-    QCOMPARE(spy.count(), 1);
-    spy.clear();
-
-    // Just one signal even in the case of multiple send requests
-    m_vkb->suppressRegionUpdate(true);
-    m_vkb->sendVKBRegion();
-    m_vkb->sendVKBRegion();
-    m_vkb->suppressRegionUpdate(false);
-    QCOMPARE(spy.count(), 1);
-    spy.clear();
-
-    // No signal when no send requests
-    m_vkb->suppressRegionUpdate(true);
-    m_vkb->suppressRegionUpdate(false);
-    QCOMPARE(spy.count(), 0);
-}
-
-void Ut_MVirtualKeyboard::showKeyboardTest()
-{
-    QSignalSpy spy(m_vkb, SIGNAL(regionUpdated(QRegion)));
-    m_vkb->showKeyboard();
-    QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
-    QCOMPARE(spy.count(), 2);
-    QVERIFY(!spy.takeFirst().at(0).value<QRegion>().isEmpty());
-
-    //verify that VKB will pe redrawn only when needed
-    spy.clear();
-    m_vkb->showKeyboard();
-    QCOMPARE(spy.count(), 0);
-}
-
-void Ut_MVirtualKeyboard::hideKeyboardTest()
-{
-    // Note that signal is emitted only after hide animation is finished, so we
-    // need to wait after hide calls.
-
-    m_vkb->showKeyboard();  // Without this hiding won't send the signal
-    QSignalSpy spy(m_vkb, SIGNAL(regionUpdated(QRegion)));
-    m_vkb->hideKeyboard();
-    QCOMPARE(spy.count(), 0);
-
-    QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
-    QCOMPARE(spy.count(), 1);
-    QVERIFY(spy.takeFirst().at(0).value<QRegion>().isEmpty());
-    QVERIFY(m_vkb->region(true).isEmpty());
-
-    // verify that no signal is emitted if vkb is already hidden
-    spy.clear();
-    m_vkb->hideKeyboard();
-    QCOMPARE(spy.count(), 0);
-    QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
-    QCOMPARE(spy.count(), 0);
-}
-
 void Ut_MVirtualKeyboard::testStateReset()
 {
     // Open keyboard.
-    m_vkb->showKeyboard();
-    QCOMPARE(m_vkb->activity, MVirtualKeyboard::Active);
+    m_vkb->show();
 
     // Set states that should be changed next time opening vkb.
     m_vkb->setShiftState(ModifierLatchedState); // Shift on
 
     // Test after reopening the keyboard, rather than after closing.
-    m_vkb->hideKeyboard();
-    QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
-    m_vkb->showKeyboard();
-    QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
+    m_vkb->hide();
+    m_vkb->show();
 
     QCOMPARE(m_vkb->shiftStatus(), ModifierClearState); // Shift should be off
 }
@@ -853,9 +758,7 @@ void Ut_MVirtualKeyboard::testReactionMaps()
     m_vkb->setLayout(0);
 
     // Show keyboard
-    m_vkb->showKeyboard();
-    QTest::qWait(MVirtualKeyboard::ShowHideTime + 50);
-    QVERIFY(m_vkb->isFullyVisible());
+    m_vkb->show();
     QCOMPARE(MPlainWindow::instance()->scene(), m_vkb->scene());
 
     // Clear with transparent color
@@ -867,13 +770,13 @@ void Ut_MVirtualKeyboard::testReactionMaps()
     m_vkb->paintReactionMap(MReactionMap::instance(view), view);
 
     // Overall sanity test with grid points throughout the view.
-    QVERIFY(tester.testReactionMapGrid(view, 40, 50, m_vkb->region(true), m_vkb));
+    QVERIFY(tester.testReactionMapGrid(view, 40, 50, m_vkb->mapRectToScene(m_vkb->rect()).toRect(), m_vkb));
 
     // Check that all buttons are drawn with reactive color.
     QVERIFY(tester.testChildButtonReactiveAreas(view, m_vkb));
 
     // Switch layout, the chosen kb layouts are all different in terms of reaction maps they generate.
-    QSignalSpy updateSignal(m_vkb, SIGNAL(regionUpdated(QRegion)));
+    QSignalSpy updateSignal(&RegionTracker::instance(), SIGNAL(reactionMapUpdateNeeded()));
     m_vkb->setLayout(1);
     QTest::qWait(600);
 
@@ -882,7 +785,7 @@ void Ut_MVirtualKeyboard::testReactionMaps()
     QVERIFY(updateSignal.count() > 0);
     m_vkb->paintReactionMap(MReactionMap::instance(view), view);
 
-    QVERIFY(tester.testReactionMapGrid(view, 40, 50, m_vkb->region(true), m_vkb));
+    QVERIFY(tester.testReactionMapGrid(view, 40, 50, m_vkb->mapRectToScene(m_vkb->rect()).toRect(), m_vkb));
     QVERIFY(tester.testChildButtonReactiveAreas(view, m_vkb));
 }
 
@@ -922,16 +825,15 @@ void Ut_MVirtualKeyboard::testLanguageNotification()
     m_vkb->requestLanguageNotification();
     QVERIFY(m_vkb->pendingNotificationRequest);
 
-    m_vkb->showKeyboard();
+    m_vkb->show();
     QCOMPARE(gDisplayTextCalls, 0);
     QVERIFY(m_vkb->pendingNotificationRequest);
 
-    QTest::qWait(MVirtualKeyboard::ShowHideTime / 4);
     m_vkb->requestLanguageNotification();
     QCOMPARE(gDisplayTextCalls, 0);
     QVERIFY(m_vkb->pendingNotificationRequest);
 
-    QTest::qWait(MVirtualKeyboard::ShowHideTime);
+    m_vkb->showFinished();
     QCOMPARE(gDisplayTextCalls, 1);
     QVERIFY(!m_vkb->pendingNotificationRequest);
 
