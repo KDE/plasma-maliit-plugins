@@ -17,6 +17,7 @@
 #include "handle.h"
 #include "mimtoolbar.h"
 #include "sharedhandlearea.h"
+#include "regiontracker.h"
 
 #include <mplainwindow.h>
 
@@ -35,6 +36,8 @@ SharedHandleArea::SharedHandleArea(MImToolbar &toolbar, QGraphicsWidget *parent)
       inputMethodMode(M::InputMethodModeNormal)
 {
     setObjectName("SharedHandleArea");
+    RegionTracker::instance().addRegion(*this);
+    RegionTracker::instance().addInputMethodArea(*this);
 
     zeroSizeInvisibleHandle.setObjectName("zeroSizeInvisibleHandle");
 
@@ -51,8 +54,8 @@ SharedHandleArea::SharedHandleArea(MImToolbar &toolbar, QGraphicsWidget *parent)
     mainLayout.addItem(&toolbar);
     mainLayout.setAlignment(&toolbar, Qt::AlignCenter);
 
-    connect(&toolbar, SIGNAL(regionUpdated()), this, SLOT(updatePositionAndRegion()));
-    connect(this, SIGNAL(visibleChanged()), this, SLOT(updatePositionAndRegion()));
+    connect(&toolbar, SIGNAL(regionUpdated()), this, SLOT(updatePosition()));
+    connect(this, SIGNAL(visibleChanged()), this, SLOT(updatePosition()));
 }
 
 
@@ -91,7 +94,7 @@ void SharedHandleArea::updateInvisibleHandleVisibility()
     QGraphicsWidget &newItem(showInvisibleHandle ? invisibleHandle : zeroSizeInvisibleHandle);
     mainLayout.insertItem(InvisibleHandleIndex, &newItem);
     newItem.setVisible(showInvisibleHandle);
-    updatePositionAndRegion(SignalsEnforce);
+    updatePosition();
 #endif
 }
 
@@ -101,49 +104,6 @@ void SharedHandleArea::setInputMethodMode(const M::InputMethodMode mode)
     updateInvisibleHandleVisibility();
 }
 
-
-QRegion SharedHandleArea::addRegion(const QRegion &region,
-                                    bool includeExtraInteractiveAreas) const
-{
-    QRegion result = region;
-
-    result |= toolbar.region();
-    if (includeExtraInteractiveAreas) {
-        result |= QRegion(mapRectToScene(mainLayout.itemAt(InvisibleHandleIndex)->geometry()).toRect());
-    }
-
-    return result;
-}
-
-void SharedHandleArea::updatePositionAndRegion(SignalsMode signalsMode)
-{
-    QPointF position = pos();
-
-    layout()->invalidate();
-    layout()->activate();
-    resize(geometry().width(), layout()->preferredHeight());
-
-    updatePosition();
-
-    bool emitSignals = false;
-
-    switch (signalsMode) {
-    case SignalsBlock:
-        emitSignals = false;
-        break;
-    case SignalsEnforce:
-        emitSignals = true;
-        break;
-    case SignalsAuto:
-        emitSignals = (position != pos());
-        break;
-    }
-
-    if (emitSignals) {
-        emit regionUpdated();
-        emit inputMethodAreaUpdated();
-    }
-}
 
 void SharedHandleArea::updatePosition()
 {
@@ -173,7 +133,7 @@ void SharedHandleArea::watchOnWidget(QGraphicsWidget *widget)
     connect(widget, SIGNAL(yChanged()), this, SLOT(updatePosition()));
     connect(widget, SIGNAL(visibleChanged()), this, SLOT(updatePosition()));
     watchedWidgets.append(widget);
-    updatePositionAndRegion(SignalsAuto);
+    updatePosition();
 
     watchedWidgets.removeAll(QPointer<QGraphicsWidget>()); //remove all invalid pointers
 }
@@ -183,6 +143,6 @@ void SharedHandleArea::finalizeOrientationChange()
     //set proper width
     resize(MPlainWindow::instance()->visibleSceneSize().width(),
            size().height());
-    updatePositionAndRegion(SharedHandleArea::SignalsBlock);
+    updatePosition();
 }
 

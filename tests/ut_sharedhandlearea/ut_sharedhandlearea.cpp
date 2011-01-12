@@ -20,6 +20,7 @@
 #include <mgconfitem_stub.h>
 #include <mplainwindow.h>
 #include <MSceneWindow>
+#include <regiontracker.h>
 
 #include <MApplication>
 #include <MScene>
@@ -40,6 +41,7 @@ void Ut_SharedHandleArea::initTestCase()
 
     disableQtPlugins();
     app = new MApplication(dummyArgc, dummyArgv);
+    RegionTracker::createInstance();
 
     sceneWindow = createMSceneWindow(new MPlainWindow); // also create singleton
 
@@ -52,6 +54,7 @@ void Ut_SharedHandleArea::cleanupTestCase()
     delete parent;
     delete sceneWindow;
     delete MPlainWindow::instance();
+    RegionTracker::destroyInstance();
     delete app;
 }
 

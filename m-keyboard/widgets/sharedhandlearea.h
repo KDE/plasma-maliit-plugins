@@ -56,18 +56,6 @@ public:
     void setInputMethodMode(M::InputMethodMode mode);
 
     /*!
-     * \brief Returns region including this object.
-     * \param region Region occupied by other widgets.
-     * \param includeExtraInteractiveAreas Result includes transparent interactive area
-     * if this param is true.
-     *
-     * This method will return unchanged \a region is all watched widgets
-     * are invisible. See also watchOnWidget.
-     */
-    QRegion addRegion(const QRegion &region,
-                      bool includeExtraInteractiveAreas) const;
-
-    /*!
      * \brief Ask handle area to watch on position and visibility of given \a widget.
      */
     void watchOnWidget(QGraphicsWidget *widget);
@@ -81,20 +69,7 @@ signals:
     void flickLeft(const FlickGesture &gesture);
     void flickRight(const FlickGesture &gesture);
 
-    void regionUpdated();
-    void inputMethodAreaUpdated();
-
 private:
-    /*!
-     * This enumeration defines whether regionUpdated and inputMethodAreaUpdated
-     * should be emitted
-     */
-    enum SignalsMode {
-        SignalsAuto, //!< Signals are emitted when position is changed
-        SignalsEnforce, //!< Signals will be emitted.
-        SignalsBlock, //!< Signals are blocked.
-    };
-
     //! Connect signals from a \a handle widget
     void connectHandle(const Handle &handle);
 
@@ -102,16 +77,7 @@ private:
     void updateInvisibleHandleVisibility();
 
 private slots:
-    //! Update widget position and notify about region update.
-    //! \param sendSignals If this parameter contains true then signals regionUpdated and
-    //! inputMethodAreaUpdated will be emitted even if position was not changed
-    void updatePositionAndRegion(SignalsMode sendSignals = SignalsEnforce);
-
-    /*!
-     * \brief Move toolbar when other widgets are moved.
-     *
-     * This slot DOES NOT emit regionUpdated and inputMethodAreaUpdated.
-     */
+    //! \brief Move toolbar when other widgets are visible and they are moved.
     void updatePosition();
 
 private:
