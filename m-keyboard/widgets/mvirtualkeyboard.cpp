@@ -406,14 +406,13 @@ void MVirtualKeyboard::setLayout(int layoutIndex)
     if (nextLayout != currentLayout) {
         currentLayout = nextLayout;
 
-        emit layoutChanged(currentLayout);
-
         // Switcher has the layout loaded, just switchTo() it.
         // NOTE: Switcher already has correct index if layout change was
         // initiated by a flick gesture.
         if (mainKeyboardSwitcher->count() >= layoutIndex) {
             mainKeyboardSwitcher->setCurrent(layoutIndex);
         }
+        emit layoutChanged(currentLayout);
     }
 }
 
