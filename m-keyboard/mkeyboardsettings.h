@@ -63,13 +63,13 @@ public:
     bool errorCorrection() const;
 
     //! Sets error correction option.
-    void setErrorCorrection(bool);
+    void setErrorCorrection(bool enabled);
 
-    //! Returns the boolean value of word completion option.
-    bool wordCompletion() const;
+    //! Returns the boolean value of "Space selects the correction candidate" option.
+    bool correctionSpace() const;
 
-    //! Sets word completion option.
-    void setWordCompletion(bool);
+    //! Sets "Space selects the correction candidate" option.
+    void setCorrectionSpace(bool enabled);
 
 Q_SIGNALS:
     //! Emitted when selected keyboards are changed.
@@ -78,8 +78,8 @@ Q_SIGNALS:
     //! Emitted when error correction option is changed.
     void errorCorrectionChanged();
 
-    //! Emitted when word completion option is changed.
-    void wordCompletionChanged();
+    //! Emitted when "Space selects the correction candidate" option is changed.
+    void correctionSpaceChanged();
 
 private:
     QString keyboardTitle(const QString &layoutFile) const;
@@ -93,7 +93,7 @@ private:
     //! all available keyboards
     QList<KeyboardInfo> availableKeyboardInfos;
     MGConfItem keyboardErrorCorrectionConf;
-    MGConfItem keyboardWordCompletionConf;
+    MGConfItem keyboardCorrectionSpaceConf;
     MGConfItem selectedKeyboardsConf;
 };
 

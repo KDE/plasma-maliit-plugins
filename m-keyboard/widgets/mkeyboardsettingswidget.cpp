@@ -40,7 +40,7 @@ namespace
     //!object name for settings' widgets
     const QString ObjectNameSelectedKeyboardsItem("SelectedKeyboardsItem");
     const QString ObjectNameErrorCorrectionButton("KeyboardErrorCorrectionButton");
-    const QString ObjectNameWordCompletionButton("KeyboardWordCompletionButton");
+    const QString ObjectNameCorrectionSpaceButton("KeyboardCorrectionSpaceButton");
     const int MKeyboardLayoutRole = Qt::UserRole + 1;
 };
 
@@ -112,7 +112,7 @@ MKeyboardSettingsWidget::MKeyboardSettingsWidget(MKeyboardSettings *settings, QG
 
     buildUi();
     syncErrorCorrectionState();
-    syncWordCompletionState();
+    syncCorrectionSpaceState();
     retranslateUi();
     connectSlots();
 }
@@ -136,30 +136,30 @@ void MKeyboardSettingsWidget::buildUi()
     errorCorrectionSwitch->setObjectName(ObjectNameErrorCorrectionButton);
     errorCorrectionSwitch->setViewType(MButton::switchType);
     errorCorrectionSwitch->setCheckable(true);
-    errorCorrectionLabel = new MLabel(this);
+    errorCorrectionContentItem = new MContentItem(MContentItem::TwoTextLabels, this);
     //% "Error correction"
-    errorCorrectionLabel->setText(qtTrId("qtn_txts_error_correction"));
-    errorCorrectionLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    errorCorrectionContentItem->setTitle(qtTrId("qtn_txts_error_correction"));
+    errorCorrectionContentItem->setSubtitle(qtTrId("qtn_txts_error_correction_description"));
     QGraphicsLinearLayout *eCLayout = new QGraphicsLinearLayout(Qt::Horizontal);
-    eCLayout->addItem(errorCorrectionLabel);
+    eCLayout->addItem(errorCorrectionContentItem);
     eCLayout->addItem(errorCorrectionSwitch);
     eCLayout->setAlignment(errorCorrectionSwitch, Qt::AlignCenter);
     // Put to first row, second column on the grid
     addItem(eCLayout, 0, 1);
 
-    // Word completion settings
-    wordCompletionSwitch = new MButton(this);
-    wordCompletionSwitch->setObjectName(ObjectNameWordCompletionButton);
-    wordCompletionSwitch->setViewType(MButton::switchType);
-    wordCompletionSwitch->setCheckable(true);
-    wordCompletionLabel = new MLabel(this);
-    //% "Word completion"
-    wordCompletionLabel->setText(qtTrId("qtn_txts_word_completion"));
-    wordCompletionLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    // "Space selects the correction candidate" settings
+    correctionSpaceSwitch = new MButton(this);
+    correctionSpaceSwitch->setObjectName(ObjectNameCorrectionSpaceButton);
+    correctionSpaceSwitch->setViewType(MButton::switchType);
+    correctionSpaceSwitch->setCheckable(true);
+    correctionSpaceContentItem = new MContentItem(MContentItem::TwoTextLabels, this);
+    //% "Select with space"
+    correctionSpaceContentItem->setTitle(qtTrId("qtn_txts_select_with_space"));
+    correctionSpaceContentItem->setSubtitle(qtTrId("qtn_txts_error_select_with_space_description"));
     QGraphicsLinearLayout *wCLayout = new QGraphicsLinearLayout(Qt::Horizontal);
-    wCLayout->addItem(wordCompletionLabel);
-    wCLayout->addItem(wordCompletionSwitch);
-    wCLayout->setAlignment(wordCompletionSwitch, Qt::AlignCenter);
+    wCLayout->addItem(correctionSpaceContentItem);
+    wCLayout->addItem(correctionSpaceSwitch);
+    wCLayout->setAlignment(correctionSpaceSwitch, Qt::AlignCenter);
     // Put to second row, second column on the grid
     addItem(wCLayout, 1, 1);
 }
@@ -178,14 +178,16 @@ void MKeyboardSettingsWidget::retranslateUi()
 
 void MKeyboardSettingsWidget::updateTitle()
 {
-    if (!errorCorrectionLabel || !wordCompletionLabel
+    if (!errorCorrectionContentItem || !correctionSpaceContentItem
         || !settingsObject || !selectedKeyboardsItem)
         return;
 
     //% "Error correction"
-    errorCorrectionLabel->setText(qtTrId("qtn_txts_error_correction"));
-    //% "Word completion"
-    wordCompletionLabel->setText(qtTrId("qtn_txts_word_completion"));
+    errorCorrectionContentItem->setTitle(qtTrId("qtn_txts_error_correction"));
+    errorCorrectionContentItem->setSubtitle(qtTrId("qtn_txts_error_correction_description"));
+    //% "Select with space"
+    correctionSpaceContentItem->setTitle(qtTrId("qtn_txts_select_with_space"));
+    correctionSpaceContentItem->setSubtitle(qtTrId("qtn_txts_error_select_with_space_description"));
     QStringList keyboards = settingsObject->selectedKeyboards().values();
     //% "Installed keyboards (%1)"
     QString title = qtTrId("qtn_txts_installed_keyboards")
@@ -214,17 +216,17 @@ void MKeyboardSettingsWidget::connectSlots()
     connect(this, SIGNAL(visibleChanged()),
             this, SLOT(handleVisibilityChanged()));
 
-    if (!settingsObject || !errorCorrectionSwitch || !wordCompletionSwitch)
+    if (!settingsObject || !errorCorrectionSwitch || !correctionSpaceSwitch)
         return;
 
     connect(errorCorrectionSwitch, SIGNAL(toggled(bool)),
             this, SLOT(setErrorCorrectionState(bool)));
     connect(settingsObject, SIGNAL(errorCorrectionChanged()),
             this, SLOT(syncErrorCorrectionState()));
-    connect(wordCompletionSwitch, SIGNAL(toggled(bool)),
-            this, SLOT(setWordCompletionState(bool)));
-    connect(settingsObject, SIGNAL(wordCompletionChanged()),
-            this, SLOT(syncWordCompletionState()));
+    connect(correctionSpaceSwitch, SIGNAL(toggled(bool)),
+            this, SLOT(setCorrectionSpaceState(bool)));
+    connect(settingsObject, SIGNAL(correctionSpaceChanged()),
+            this, SLOT(syncCorrectionSpaceState()));
     connect(settingsObject, SIGNAL(selectedKeyboardsChanged()),
             this, SLOT(updateTitle()));
     connect(settingsObject, SIGNAL(selectedKeyboardsChanged()),
@@ -316,8 +318,17 @@ void MKeyboardSettingsWidget::setErrorCorrectionState(bool enabled)
     if (!settingsObject)
         return;
 
-    if (settingsObject->errorCorrection() != enabled)
+    if (settingsObject->errorCorrection() != enabled) {
         settingsObject->setErrorCorrection(enabled);
+        if (!enabled) {
+            // Disable the "Select with Space" option if the error correction is disabled
+            setCorrectionSpaceState(false);
+            correctionSpaceSwitch->setEnabled(false);
+        } else {
+            // Enable the "Select with Space" switch again
+            correctionSpaceSwitch->setEnabled(true);
+        }
+    }
 }
 
 void MKeyboardSettingsWidget::syncErrorCorrectionState()
@@ -329,27 +340,35 @@ void MKeyboardSettingsWidget::syncErrorCorrectionState()
     if (errorCorrectionSwitch
         && errorCorrectionSwitch->isChecked() != errorCorrectionState) {
         errorCorrectionSwitch->setChecked(errorCorrectionState);
+        if (!errorCorrectionState) {
+            // Disable the "Select with Space" option if the error correction is disabled
+            setCorrectionSpaceState(false);
+            correctionSpaceSwitch->setEnabled(false);
+        } else {
+            // Enable the "Select with Space" switch again
+            correctionSpaceSwitch->setEnabled(true);
+        }
     }
 }
 
-void MKeyboardSettingsWidget::setWordCompletionState(bool enabled)
+void MKeyboardSettingsWidget::setCorrectionSpaceState(bool enabled)
 {
     if (!settingsObject)
         return;
 
-    if (settingsObject->wordCompletion() != enabled)
-        settingsObject->setWordCompletion(enabled);
+    if (settingsObject->correctionSpace() != enabled)
+        settingsObject->setCorrectionSpace(enabled);
 }
 
-void MKeyboardSettingsWidget::syncWordCompletionState()
+void MKeyboardSettingsWidget::syncCorrectionSpaceState()
 {
     if (!settingsObject)
         return;
 
-    const bool wordCompletionState = settingsObject->wordCompletion();
-    if (wordCompletionSwitch
-        && wordCompletionSwitch->isChecked() != wordCompletionState) {
-        wordCompletionSwitch->setChecked(wordCompletionState);
+    const bool correctionSpaceState = settingsObject->correctionSpace();
+    if (correctionSpaceSwitch
+        && correctionSpaceSwitch->isChecked() != correctionSpaceState) {
+        correctionSpaceSwitch->setChecked(correctionSpaceState);
     }
 }
 

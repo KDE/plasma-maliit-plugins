@@ -25,7 +25,6 @@ class QGraphicsItem;
 class QGraphicsLayoutItem;
 class MContentItem;
 class MButton;
-class MLabel;
 class MDialog;
 class MList;
 class QModelIndex;
@@ -49,10 +48,10 @@ private slots:
     void updateTitle();
     void updateKeyboardSelectionModel();
     void updateSelectedKeyboards(const QModelIndex &);
-    void setErrorCorrectionState(bool toggled);
+    void setErrorCorrectionState(bool enabled);
     void syncErrorCorrectionState();
-    void setWordCompletionState(bool toggled);
-    void syncWordCompletionState();
+    void setCorrectionSpaceState(bool enabled);
+    void syncCorrectionSpaceState();
     void handleVisibilityChanged();
 
 private:
@@ -66,9 +65,9 @@ private:
     MGridLayoutPolicy *landscapePolicy;
     MLinearLayoutPolicy *portraitPolicy;
     MButton *errorCorrectionSwitch;
-    MLabel *errorCorrectionLabel;
-    MButton *wordCompletionSwitch;
-    MLabel *wordCompletionLabel;
+    MContentItem *errorCorrectionContentItem;
+    MButton *correctionSpaceSwitch;
+    MContentItem *correctionSpaceContentItem;
     MDialog *keyboardDialog;
     MList *keyboardList;
     MContentItem *selectedKeyboardsItem;

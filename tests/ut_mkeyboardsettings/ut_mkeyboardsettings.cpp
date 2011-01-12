@@ -25,7 +25,7 @@
 namespace
 {
     const QString SettingsImCorrection("/meegotouch/inputmethods/virtualkeyboard/correctionenabled");
-    const QString SettingsImWordCompletion("/meegotouch/inputmethods/virtualkeyboard/completionenabled");
+    const QString SettingsImCorrectionSpace("/meegotouch/inputmethods/virtualkeyboard/correctwithspace");
     const QString InputMethodLayouts("/meegotouch/inputmethods/virtualkeyboard/layouts");
 };
 
@@ -129,26 +129,27 @@ void Ut_MKeyboardSettings::testErrorCorrection()
     QCOMPARE(subject->errorCorrection(), errorCorrectionSetting.value().toBool());
 }
 
-void Ut_MKeyboardSettings::testWordCompletion()
+
+void Ut_MKeyboardSettings::testCorrectionSpace()
 {
-    MGConfItem wordCompletionSetting(SettingsImWordCompletion);
+    MGConfItem correctionSpaceSetting(SettingsImCorrectionSpace);
 
     std::auto_ptr<MKeyboardSettings> subject(new MKeyboardSettings);
 
-    wordCompletionSetting.set(QVariant(false));
-    QCOMPARE(subject->wordCompletion(), wordCompletionSetting.value().toBool());
+    correctionSpaceSetting.set(QVariant(false));
+    QCOMPARE(subject->correctionSpace(), correctionSpaceSetting.value().toBool());
 
-    wordCompletionSetting.set(QVariant(true));
-    QCOMPARE(subject->wordCompletion(), wordCompletionSetting.value().toBool());
+    correctionSpaceSetting.set(QVariant(true));
+    QCOMPARE(subject->correctionSpace(), correctionSpaceSetting.value().toBool());
 
 
-    subject->setWordCompletion(true);
-    QCOMPARE(wordCompletionSetting.value().toBool(), true);
-    QCOMPARE(subject->wordCompletion(), wordCompletionSetting.value().toBool());
+    subject->setCorrectionSpace(true);
+    QCOMPARE(correctionSpaceSetting.value().toBool(), true);
+    QCOMPARE(subject->correctionSpace(), correctionSpaceSetting.value().toBool());
 
-    subject->setWordCompletion(false);
-    QCOMPARE(wordCompletionSetting.value().toBool(), false);
-    QCOMPARE(subject->wordCompletion(), wordCompletionSetting.value().toBool());
+    subject->setCorrectionSpace(false);
+    QCOMPARE(correctionSpaceSetting.value().toBool(), false);
+    QCOMPARE(subject->correctionSpace(), correctionSpaceSetting.value().toBool());
 }
 
 QTEST_APPLESS_MAIN(Ut_MKeyboardSettings);

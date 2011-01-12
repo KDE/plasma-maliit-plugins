@@ -33,7 +33,7 @@
 
 namespace {
     const QString SettingsImCorrection("/meegotouch/inputmethods/virtualkeyboard/correctionenabled");
-    const QString SettingsImWordCompletion("/meegotouch/inputmethods/virtualkeyboard/completionenabled");
+    const QString SettingsImCorrectionSpace("/meegotouch/inputmethods/virtualkeyboard/correctwithspace");
 };
 
 // Stubbing..................................................................
@@ -65,7 +65,7 @@ void Ut_MKeyboardSettingsWidget::init()
     subject = new MKeyboardSettingsWidget(settingsObject);
     QVERIFY(subject->selectedKeyboardsItem);
     QVERIFY(subject->errorCorrectionSwitch);
-    QVERIFY(subject->wordCompletionSwitch);
+    QVERIFY(subject->correctionSpaceSwitch);
 }
 
 void Ut_MKeyboardSettingsWidget::cleanup()
@@ -113,50 +113,72 @@ void Ut_MKeyboardSettingsWidget::testShowKeyboardList()
     }
 }
 
-void Ut_MKeyboardSettingsWidget::testKeyboardErrorCorrection()
+void Ut_MKeyboardSettingsWidget::testKeyboardCorrectionSettings()
 {
     MGConfItem errorCorrectionSetting(SettingsImCorrection);
+    MGConfItem correctionSpaceSetting(SettingsImCorrectionSpace);
 
-    QVERIFY(subject->errorCorrectionSwitch);
+    // Check the error correction setting alone
     settingsObject->setErrorCorrection(true);
     QCOMPARE(subject->errorCorrectionSwitch->isChecked(), true);
     settingsObject->setErrorCorrection(false);
     QCOMPARE(subject->errorCorrectionSwitch->isChecked(), false);
 
-    QSignalSpy spy(subject->errorCorrectionSwitch, SIGNAL(toggled(bool)));
+    // Check the "select with space" setting alone
+    // Note: Error correction must be enabled
+    settingsObject->setErrorCorrection(true);
+    settingsObject->setCorrectionSpace(true);
+    QCOMPARE(subject->correctionSpaceSwitch->isChecked(), true);
+    settingsObject->setCorrectionSpace(false);
+    QCOMPARE(subject->correctionSpaceSwitch->isChecked(), false);
+    // Check if switching the error correction off disables the "select with space"
+    settingsObject->setErrorCorrection(true);
+    settingsObject->setCorrectionSpace(true);
+    QCOMPARE(subject->correctionSpaceSwitch->isChecked(), true);
+    settingsObject->setErrorCorrection(false);
+    QCOMPARE(subject->correctionSpaceSwitch->isEnabled(), false);
+    QCOMPARE(subject->correctionSpaceSwitch->isChecked(), false);
+
+    // Check the behaviour of the error correction toggle button alone
+    QSignalSpy spyErrorCorrection(subject->errorCorrectionSwitch, SIGNAL(toggled(bool)));
     subject->setErrorCorrectionState(true);
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.takeFirst().at(0).toBool(), true);
+    QCOMPARE(spyErrorCorrection.count(), 1);
+    QCOMPARE(spyErrorCorrection.takeFirst().at(0).toBool(), true);
     QCOMPARE(errorCorrectionSetting.value().toBool(), true);
 
-    spy.clear();
+    spyErrorCorrection.clear();
     subject->setErrorCorrectionState(false);
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.takeFirst().at(0).toBool(), false);
+    QCOMPARE(spyErrorCorrection.count(), 1);
+    QCOMPARE(spyErrorCorrection.takeFirst().at(0).toBool(), false);
     QCOMPARE(errorCorrectionSetting.value().toBool(), false);
-}
 
-void Ut_MKeyboardSettingsWidget::testKeyboardWordCompletion()
-{
-    MGConfItem wordCompletionSetting(SettingsImWordCompletion);
+    // Check the behaviour of the error correction toggle button alone
+    QSignalSpy spyCorrectionSpace(subject->correctionSpaceSwitch, SIGNAL(toggled(bool)));
+    subject->setCorrectionSpaceState(true);
+    QCOMPARE(spyCorrectionSpace.count(), 1);
+    QCOMPARE(spyCorrectionSpace.takeFirst().at(0).toBool(), true);
+    QCOMPARE(correctionSpaceSetting.value().toBool(), true);
 
-    QVERIFY(subject->wordCompletionSwitch);
-    settingsObject->setWordCompletion(true);
-    QCOMPARE(subject->wordCompletionSwitch->isChecked(), true);
-    settingsObject->setWordCompletion(false);
-    QCOMPARE(subject->wordCompletionSwitch->isChecked(), false);
+    spyCorrectionSpace.clear();
+    subject->setCorrectionSpaceState(false);
+    QCOMPARE(spyCorrectionSpace.count(), 1);
+    QCOMPARE(spyCorrectionSpace.takeFirst().at(0).toBool(), false);
+    QCOMPARE(correctionSpaceSetting.value().toBool(), false);
 
-    QSignalSpy spy(subject->wordCompletionSwitch, SIGNAL(toggled(bool)));
-    subject->setWordCompletionState(true);
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.takeFirst().at(0).toBool(), true);
-    QCOMPARE(wordCompletionSetting.value().toBool(), true);
-
-    spy.clear();
-    subject->setWordCompletionState(false);
-    QCOMPARE(spy.count(), 1);
-    QCOMPARE(spy.takeFirst().at(0).toBool(), false);
-    QCOMPARE(wordCompletionSetting.value().toBool(), false);
+    // Check if switching the error correction off disables the "select with space"
+    subject->setErrorCorrectionState(true);
+    subject->setCorrectionSpaceState(true);
+    spyErrorCorrection.clear();
+    spyCorrectionSpace.clear();
+    // Switch off the error correction
+    subject->setErrorCorrectionState(false);
+    QCOMPARE(spyErrorCorrection.count(), 1);
+    QCOMPARE(spyErrorCorrection.takeFirst().at(0).toBool(), false);
+    QCOMPARE(errorCorrectionSetting.value().toBool(), false);
+    // Check if the "select with space" setting has been disabled
+    QCOMPARE(spyCorrectionSpace.count(), 1);
+    QCOMPARE(spyCorrectionSpace.takeFirst().at(0).toBool(), false);
+    QCOMPARE(correctionSpaceSetting.value().toBool(), false);
 }
 
 void Ut_MKeyboardSettingsWidget::testHandleVisibilityChanged()

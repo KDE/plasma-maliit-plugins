@@ -26,7 +26,7 @@
 
 namespace {
     const QString SettingsImErrorCorrection("/meegotouch/inputmethods/virtualkeyboard/correctionenabled");
-    const QString SettingsImWordCompletion("/meegotouch/inputmethods/virtualkeyboard/completionenabled");
+    const QString SettingsImCorrectionSpace("/meegotouch/inputmethods/virtualkeyboard/correctwithspace");
     const QString InputMethodLayouts("/meegotouch/inputmethods/virtualkeyboard/layouts");
     const QString VKBConfigurationPath("/usr/share/meegotouch/virtual-keyboard/layouts/");
     const QString VKBLayoutsFilterRule("*.xml");
@@ -35,14 +35,14 @@ namespace {
 
 MKeyboardSettings::MKeyboardSettings()
     : keyboardErrorCorrectionConf(SettingsImErrorCorrection),
-      keyboardWordCompletionConf(SettingsImWordCompletion),
+      keyboardCorrectionSpaceConf(SettingsImCorrectionSpace),
       selectedKeyboardsConf(InputMethodLayouts)
 {
     readAvailableKeyboards();
     connect(&keyboardErrorCorrectionConf, SIGNAL(valueChanged()),
             this, SIGNAL(errorCorrectionChanged()));
-    connect(&keyboardWordCompletionConf, SIGNAL(valueChanged()),
-            this, SIGNAL(wordCompletionChanged()));
+    connect(&keyboardCorrectionSpaceConf, SIGNAL(valueChanged()),
+            this, SIGNAL(correctionSpaceChanged()));
     connect(&selectedKeyboardsConf, SIGNAL(valueChanged()),
             this, SIGNAL(selectedKeyboardsChanged()));
 }
@@ -151,22 +151,22 @@ QString MKeyboardSettings::keyboardLayoutFile(const QString &title) const
     return layoutFile;
 }
 
-bool  MKeyboardSettings::errorCorrection() const
+bool MKeyboardSettings::errorCorrection() const
 {
     return keyboardErrorCorrectionConf.value().toBool();
 }
 
-void  MKeyboardSettings::setErrorCorrection(bool enabled)
+void MKeyboardSettings::setErrorCorrection(bool enabled)
 {
     keyboardErrorCorrectionConf.set(enabled);
 }
 
-bool  MKeyboardSettings::wordCompletion() const
+bool MKeyboardSettings::correctionSpace() const
 {
-    return keyboardWordCompletionConf.value().toBool();
+    return keyboardCorrectionSpaceConf.value().toBool();
 }
 
-void  MKeyboardSettings::setWordCompletion(bool enabled)
+void MKeyboardSettings::setCorrectionSpace(bool enabled)
 {
-    keyboardWordCompletionConf.set(enabled);
+    keyboardCorrectionSpaceConf.set(enabled);
 }
