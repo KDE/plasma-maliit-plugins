@@ -1834,7 +1834,9 @@ void MKeyboardHost::updateEngineKeyboardLayout()
         return;
 
     if (activeState == MInputMethod::OnScreen) {
-        imCorrectionEngine->setKeyboardLayoutKeys(vkbWidget->mainLayoutKeys());
+        const bool status(imCorrectionEngine->setKeyboardLayoutKeys(vkbWidget->mainLayoutKeys()));
+        Q_UNUSED(status);
+        Q_ASSERT(status);
     }
     engineLayoutDirty = false;
 }
