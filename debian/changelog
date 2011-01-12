@@ -1,6 +1,7 @@
 meego-keyboard (0.5.24~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#210004 - Predictive text is not effective
 
  -- huaming wang <huaming.wang@nokia.com>  Fri, 07 Jan 2011 13:07:55 +0200
 
