@@ -303,7 +303,7 @@ void LayoutsManager::syncNumberKeyboards()
     if (numberFormat == "ar") {
         loaded = phoneNumberKeyboard.loadNokiaKeyboard(PhoneNumberKeyboardFileArabic);
     }
-    if (numberFormat == "ru") {
+    if (numberFormat == "ru" || numberFormat == "uk") {
         loaded = phoneNumberKeyboard.loadNokiaKeyboard(PhoneNumberKeyboardFileRussian);
     }
 
