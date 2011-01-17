@@ -1836,5 +1836,20 @@ void Ut_MKeyboardHost::testAutoPunctuation()
     }
 }
 
+void Ut_MKeyboardHost::testFastTypingState()
+{
+    // Set timeout to zero for easier testing.
+    subject->fastTypingTimeout.setInterval(0);
+
+    KeyEvent kevent;
+    subject->handleKeyPress(kevent);
+    subject->handleKeyPress(kevent);
+    QCOMPARE(inputMethodHost->orientationAngleLocked, false);
+    subject->handleKeyPress(kevent);
+    QCOMPARE(inputMethodHost->orientationAngleLocked, true);
+    QTest::qWait(1);
+    QCOMPARE(inputMethodHost->orientationAngleLocked, false);
+}
+
 QTEST_APPLESS_MAIN(Ut_MKeyboardHost);
 

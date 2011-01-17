@@ -203,6 +203,8 @@ private slots:
     //! Handle active layout is changed to \a layout for virtual keyboard.
     void handleVirtualKeyboardLayoutChanged(const QString &layout);
 
+    void turnOffFastTyping();
+
 private:
     //! \brief Reset internal state, used by reset() and others
     void resetInternalState();
@@ -334,6 +336,8 @@ private:
     //! Sends backspace key event to application.
     void sendBackSpaceKeyEvent() const;
 
+    void turnOnFastTyping();
+
 private:
     class CycleKeyHandler; //! Reacts to cycle key press events.
     friend class CycleKeyHandler;
@@ -419,6 +423,10 @@ private:
     BackspaceMode backspaceMode;
 
     bool wordTrackerSuggestionAcceptedWithSpace;
+
+    QTimer fastTypingTimeout;
+    int fastTypingKeyCount;
+    bool fastTypingEnabled;
 
 #ifdef UNIT_TEST
     friend class Ut_MKeyboardHost;

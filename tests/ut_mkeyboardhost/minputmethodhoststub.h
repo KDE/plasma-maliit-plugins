@@ -67,6 +67,7 @@ public:
     virtual void setInputMethodArea(const QRegion &region);
     virtual void showSettings();
     virtual void setSelection(int start, int length);
+    virtual void setOrientationAngleLocked(bool lock);
 
     QString preedit;
     QString commit;
@@ -105,6 +106,8 @@ public:
     MInputMethod::InputModeIndicator indicator;
     QRect preeditRectangleReturnValue;
     QRect cursorRectangleReturnValue;
+
+    bool orientationAngleLocked;
 };
 
 #endif

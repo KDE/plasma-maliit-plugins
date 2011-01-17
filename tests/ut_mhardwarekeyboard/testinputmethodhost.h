@@ -168,6 +168,10 @@ public:
     {
     }
 
+    virtual void setOrientationAngleLocked(bool /*lock*/)
+    {
+    }
+
 private:
     Q_DISABLE_COPY(TestInputMethodHost)
 

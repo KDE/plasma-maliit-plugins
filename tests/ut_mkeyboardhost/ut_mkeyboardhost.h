@@ -108,6 +108,8 @@ private slots:
     void testAutoPunctuation_data();
     void testAutoPunctuation();
 
+    void testFastTypingState();
+
 private:
     void rotateToAngle(M::OrientationAngle);
     void triggerAutoCaps();
