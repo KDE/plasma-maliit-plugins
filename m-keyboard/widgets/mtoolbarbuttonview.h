@@ -29,6 +29,8 @@ class MToolbarButtonView : public MButtonView
 
 public:
     explicit MToolbarButtonView(MToolbarButton *controller);
+
+    QSizeF optimalSize(const QSizeF& maxSize);
 };
 
 #endif

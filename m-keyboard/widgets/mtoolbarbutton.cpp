@@ -34,7 +34,9 @@ MToolbarButton::MToolbarButton(QSharedPointer<MToolbarItem> item,
       sizePercent(100),
       itemPtr(item)
 {
-    setView(new MToolbarButtonView(this));
+    MToolbarButtonView* view = new MToolbarButtonView(this);
+
+    setView(view);
 
     updateStyleName();
 
@@ -54,6 +56,9 @@ MToolbarButton::MToolbarButton(QSharedPointer<MToolbarItem> item,
     } else {
         setText(itemPtr->text());
     }
+    // Set the minimum size based on the text and icon size
+    setMinimumSize(view->optimalSize(maximumSize()));
+    setPreferredSize(view->optimalSize(maximumSize()));
     setCheckable(item->toggle());
     if (itemPtr->toggle()) {
         setChecked(itemPtr->pressed());

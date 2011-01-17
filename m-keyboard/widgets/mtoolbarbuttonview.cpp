@@ -22,3 +22,21 @@ MToolbarButtonView::MToolbarButtonView(MToolbarButton *controller)
 {
 }
 
+
+QSizeF MToolbarButtonView::optimalSize(const QSizeF& maxSize)
+{
+    // Let the MButtonView implementation to calculate the right minimum size
+    QSizeF preferredSize = sizeHint(Qt::PreferredSize);
+
+    // The calculation of the MButtonView::sizeHint() does not take into account
+    // the left and right margins (only left and right text margins are used). Let's
+    // add it here.
+    preferredSize.setWidth(preferredSize.width()+marginLeft()+marginRight());
+    // Use the height from the maximal size, because it is correct to get from the style
+    preferredSize.setHeight(maxSize.height());
+    // We can not be bigger than the maximum size
+    if (preferredSize.width() > maxSize.width()){
+        return maxSize;
+    }
+    return preferredSize;
+}
