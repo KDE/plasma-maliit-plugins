@@ -139,6 +139,7 @@ void MKeyboardSettingsWidget::buildUi()
     errorCorrectionContentItem = new MContentItem(MContentItem::TwoTextLabels, this);
     //% "Error correction"
     errorCorrectionContentItem->setTitle(qtTrId("qtn_txts_error_correction"));
+    //% "Error correction description"
     errorCorrectionContentItem->setSubtitle(qtTrId("qtn_txts_error_correction_description"));
     QGraphicsLinearLayout *eCLayout = new QGraphicsLinearLayout(Qt::Horizontal);
     eCLayout->addItem(errorCorrectionContentItem);
@@ -155,6 +156,7 @@ void MKeyboardSettingsWidget::buildUi()
     correctionSpaceContentItem = new MContentItem(MContentItem::TwoTextLabels, this);
     //% "Select with space"
     correctionSpaceContentItem->setTitle(qtTrId("qtn_txts_select_with_space"));
+    //% "Select with space description"
     correctionSpaceContentItem->setSubtitle(qtTrId("qtn_txts_error_select_with_space_description"));
     QGraphicsLinearLayout *wCLayout = new QGraphicsLinearLayout(Qt::Horizontal);
     wCLayout->addItem(correctionSpaceContentItem);
@@ -184,9 +186,11 @@ void MKeyboardSettingsWidget::updateTitle()
 
     //% "Error correction"
     errorCorrectionContentItem->setTitle(qtTrId("qtn_txts_error_correction"));
+    //% "Select with space description"
     errorCorrectionContentItem->setSubtitle(qtTrId("qtn_txts_error_correction_description"));
     //% "Select with space"
     correctionSpaceContentItem->setTitle(qtTrId("qtn_txts_select_with_space"));
+    //% "Select with space description"
     correctionSpaceContentItem->setSubtitle(qtTrId("qtn_txts_error_select_with_space_description"));
     QStringList keyboards = settingsObject->selectedKeyboards().values();
     //% "Installed keyboards (%1)"
