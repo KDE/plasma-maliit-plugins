@@ -39,6 +39,8 @@ MToolbarButton::MToolbarButton(QSharedPointer<MToolbarItem> item,
     setView(view);
 
     updateStyleName();
+    // Store the original minimum size coming from the style
+    originalMinSize = minimumSize();
 
     if (!item->name().isEmpty()) {
         setObjectName(item->name());
@@ -53,12 +55,10 @@ MToolbarButton::MToolbarButton(QSharedPointer<MToolbarItem> item,
 
     if (!item->textId().isEmpty()) {
         setText(qtTrId(itemPtr->textId().toUtf8().data()));
-    } else {
+    }
+    if (!itemPtr->text().isEmpty()) {
         setText(itemPtr->text());
     }
-    // Set the minimum size based on the text and icon size
-    setMinimumSize(view->optimalSize(maximumSize()));
-    setPreferredSize(view->optimalSize(maximumSize()));
     setCheckable(item->toggle());
     if (itemPtr->toggle()) {
         setChecked(itemPtr->pressed());
@@ -111,7 +111,7 @@ void MToolbarButton::setIconPercent(int percent)
 void MToolbarButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     // kludge controller shouldn't really do painting.
-    // but this is neccesary now to support drawing the custom icon on the button.
+    // but this is necessary now to support drawing the custom icon on the button.
     MButton::paint(painter, option, widget);
     if (iconID().isEmpty() && icon) {
         // TODO: to use style specified in css.
@@ -174,6 +174,24 @@ void MToolbarButton::updateData(const QString &attribute)
     }
 
     updateStyleName();
+}
+
+void MToolbarButton::setText(const QString &text)
+{
+    if (text.isEmpty())
+        return;
+    // Do what needs to be done in MButton
+    MButton::setText(text);
+    // Update the preferred size
+    setPreferredSize(((MToolbarButtonView*)view())->optimalSize(maximumSize()));
+    // If the preferred width is smaller than the minimal width than set the preferred
+    // size as minimal size. It is a useful tactics when the space is limited (e.g
+    // portrait mode), but the button does not need the original minimal size.
+    if (originalMinSize.width() > preferredSize().width())
+        setMinimumSize(preferredSize());
+    else
+        // Restore the original minimum size if needed
+        setMinimumSize(originalMinSize);
 }
 
 void MToolbarButton::onClick()

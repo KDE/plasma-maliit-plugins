@@ -25,7 +25,7 @@ MToolbarButtonView::MToolbarButtonView(MToolbarButton *controller)
 
 QSizeF MToolbarButtonView::optimalSize(const QSizeF& maxSize)
 {
-    // Let the MButtonView implementation to calculate the right minimum size
+    // Let the MButtonView implementation to calculate the right preferred size
     QSizeF preferredSize = sizeHint(Qt::PreferredSize);
 
     // The calculation of the MButtonView::sizeHint() does not take into account

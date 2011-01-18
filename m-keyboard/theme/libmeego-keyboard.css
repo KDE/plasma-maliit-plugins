@@ -412,6 +412,7 @@ MToolbarButtonStyle {
     margin-right: $MARGIN_SMALL;
     margin-top: 0;
     margin-bottom: 0;
+    minimum-size:   10% $HEIGHT_TOOLBARITEM;
     maximum-size:   40% $HEIGHT_TOOLBARITEM;
     /*below reactive margins should be fixed*/
 /*  reactive-margin-left: 2;

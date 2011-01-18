@@ -72,6 +72,9 @@ public:
     //! Select style name depending on item attributes.
     void updateStyleName();
 
+    //! Set the text of the button and updates the preferred size internally
+    void setText(const QString &text);
+
 signals:
     /*!
      * \brief Emitted when button is clicked.
@@ -98,6 +101,7 @@ private:
     QString iconFile;
     int sizePercent;
     QSharedPointer<MToolbarItem> itemPtr;
+    QSizeF originalMinSize;
 
     friend class Ut_MImToolbar;
 };
