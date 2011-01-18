@@ -18,7 +18,6 @@
 #include "mimkeyarea.h"
 #include "mimkey.h"
 #include "flickgesturerecognizer.h"
-#include "../ut_flickrecognizer/flickutil.h"
 #include "keyboarddata.h"
 #include "mimkeymodel.h"
 #include "mplainwindow.h"

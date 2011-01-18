@@ -172,7 +172,8 @@ FlickGestureRecognizer::recognizeUpdate(FlickGesture &gesture, const QPoint &pos
         }
         break;
     default:
-        qWarning() << "Flick gesture recognition is in corrupted state!";
+        qWarning() << "Flick gesture recognition is in corrupted state!\n"
+                      "Current gesture state: " << gesture.state();
         break;
     }
 

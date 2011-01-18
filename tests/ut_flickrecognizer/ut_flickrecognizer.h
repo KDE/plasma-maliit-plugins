@@ -20,26 +20,25 @@
 #include <QtTest/QtTest>
 #include <QObject>
 
+#include "flickgesture.h"
+
 class FlickGestureRecognizer;
-class FlickTarget;
-class MApplication;
-class MWindow;
-class QGraphicsScene;
+class QApplication;
 
 class Ut_FlickRecognizer : public QObject
 {
     Q_OBJECT
 private:
-    MApplication *app;
-    MWindow *window;
-    QGraphicsScene *scene;
+    QApplication *app;
     FlickGestureRecognizer *subject;
-    FlickTarget *target;
     Qt::GestureType gtype;
 
     int gestureTimeout;
     QPointF gestureFinishMovementThreshold;
     QPointF gestureStartMovementThreshold;
+
+    int flickTriggeredCountArray[4];
+    int flickFinishedCountArray[4];
 
 private slots:
     void init();
@@ -59,6 +58,35 @@ private slots:
     void testInvalidZigZag();
     void testInvalidTwoFinger();
     void testInvalidTwoFinger_data();
+
+private:
+    int numberOfFlicksFinished() const;
+    int numberOfFlicksTriggered() const;
+    int numberOfFlicksFinished(FlickGesture::Direction direction) const;
+    int numberOfFlicksTriggered(FlickGesture::Direction direction) const;
+    void resetFlickCounters();
+    void recognize(FlickGesture *gesture,
+                   QEvent *event);
+    void mousePress(FlickGesture *gesture,
+                    const QPointF &pos,
+                    int delayAfterPress = 0);
+    void mouseMove(FlickGesture *gesture,
+                   const QPointF &pos,
+                   int delayAfterMove = 0);
+    void mouseRelease(FlickGesture *gesture,
+                      const QPointF &pos,
+                      int delayAfterRelease = 0);
+    void doMouseSwipe(const QPointF &start,
+                      const QPointF &end,
+                      unsigned int duration = 0,
+                      unsigned int intermediateSteps = 4,
+                      bool lastMoveLandsOnEnd = false);
+    void doMouseSwipe(const QList<QPointF> &path,
+                      unsigned int duration);
+    QList<QPointF> makeSwipePointPath(const QPointF &start,
+                                      const QPointF &end,
+                                      unsigned int intermediateSteps,
+                                      bool lastMoveLandsOnEnd = false);
 };
 
 

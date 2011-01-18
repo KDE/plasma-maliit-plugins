@@ -15,125 +15,45 @@
  */
 
 #include "ut_flickrecognizer.h"
-#include "flickutil.h"
 #include "utils.h"
 
 #include "flickgesture.h"
 #include "flickgesturerecognizer.h"
 
-#include <MApplication>
-#include <MScene>
-#include <MSceneManager>
-#include <MWindow>
+#include <QApplication>
 #include <QGraphicsSceneMouseEvent>
-#include <MSceneWindow>
 
 Q_DECLARE_METATYPE(FlickGesture::Direction);
 Q_DECLARE_METATYPE(QList<QPointF>);
 
-class FlickTarget : public MSceneWindow
+namespace {
+    Qt::GestureState globalGestureState = Qt::NoGesture;
+
+    // QTest::qWait() is too unreliable, especially with mouse swipes
+    // with multiple waits. Let's just have a busy-loop.
+    void busyWait(int msecs, bool processEvents = false)
+    {
+        static QTime time;
+        time.start();
+        int timeLeft = msecs;
+
+        while (time.elapsed() <= msecs) {
+            if (processEvents) {
+                QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents
+                                                | QEventLoop::ExcludeSocketNotifiers,
+                                                timeLeft);
+            }
+            timeLeft -= time.elapsed();
+        }
+    }
+}
+
+// Only qt can set gesture state so we stub this method here.
+// This works because we only use one gesture at any given moment.
+Qt::GestureState QGesture::state() const
 {
-public:
-    FlickTarget(QGraphicsItem *parent = 0)
-        : MSceneWindow(parent)
-    {
-        resetFlickCounters();
-    }
-
-    int numberOfFlickGestures() const
-    {
-        int sum = 0;
-        for (int i = 0; i < 4; ++i) {
-            sum += flickCountArray[i];
-        }
-        return sum;
-    }
-
-    int numberOfFlickStarts() const
-    {
-        int sum = 0;
-        for (int i = 0; i < 4; ++i) {
-            sum += flickStartCountArray[i];
-        }
-        return sum;
-    }
-
-    int numberOfFlickGestures(FlickGesture::Direction direction) const
-    {
-        const int index = static_cast<int>(direction);
-        Q_ASSERT(index < 4);
-        return flickCountArray[index];
-    }
-
-    int numberOfFlickStarts(FlickGesture::Direction direction) const
-    {
-        const int index = static_cast<int>(direction);
-        Q_ASSERT(index < 4);
-        return flickStartCountArray[index];
-    }
-
-
-    void resetFlickCounters()
-    {
-        flickCountArray[0] = 0;
-        flickCountArray[1] = 0;
-        flickCountArray[2] = 0;
-        flickCountArray[3] = 0;
-        flickStartCountArray[0] = 0;
-        flickStartCountArray[1] = 0;
-        flickStartCountArray[2] = 0;
-        flickStartCountArray[3] = 0;
-    }
-
-protected:
-    virtual bool event(QEvent *event)
-    {
-        if (event->type() == QEvent::Gesture) {
-            QGestureEvent *ge = static_cast<QGestureEvent *>(event);
-            QGesture *gesture = ge->gesture(FlickGestureRecognizer::sharedGestureType());
-            if (gesture) {
-                FlickGesture *flickGesture = static_cast<FlickGesture *>(gesture);
-                handleFlickGesture(flickGesture);
-            } else {
-                qWarning() << "Test received an unkown gesture";
-            }
-            return true;
-        }
-        return QGraphicsWidget::event(event);
-    }
-
-    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event)
-    {
-        qDebug() << "Target Mouse Press" << event->pos() << ", " << event->screenPos();
-    }
-    virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-    {
-        qDebug() << "Target Mouse Move" << event->pos() << ", " << event->screenPos();
-    }
-    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
-    {
-        qDebug() << "Target Mouse Release" << event->pos() << ", " << event->screenPos();
-    }
-
-
-    void handleFlickGesture(FlickGesture *gesture)
-    {
-        if (gesture->state() == Qt::GestureFinished) {
-            FlickGesture::Direction dir = gesture->direction();
-            if (dir != FlickGesture::NoDirection) {
-                ++flickCountArray[static_cast<int>(dir)];
-            }
-        } else if (gesture->state() == Qt::GestureStarted) {
-            FlickGesture::Direction dir = gesture->direction();
-            if (dir != FlickGesture::NoDirection) {
-                ++flickStartCountArray[static_cast<int>(dir)];
-            }
-        }
-    }
-
-    int flickCountArray[4];
-    int flickStartCountArray[4];
-};
+    return globalGestureState;
+}
 
 void Ut_FlickRecognizer::initTestCase()
 {
@@ -145,25 +65,13 @@ void Ut_FlickRecognizer::initTestCase()
                                  (char *) "-software" };
 
     disableQtPlugins();
-    app = new MApplication(argc, app_args);
-
-    MSceneManager *sceneMgr = new MSceneManager;
-    window = new MWindow(sceneMgr, 0);
-    window->scene()->setSceneRect(QRectF(QPointF(0, 0), sceneMgr->visibleSceneSize()));
-
-    window->setOrientationAngleLocked(true);
+    app = new QApplication(argc, app_args);
 
     gestureTimeout = 300;
     gestureFinishMovementThreshold = QPointF(300, 200);
     gestureStartMovementThreshold = gestureFinishMovementThreshold * 0.5;
 
-    if (gestureTimeout <= 0
-        || gestureFinishMovementThreshold.x() > window->width()
-        || gestureFinishMovementThreshold.y() > window->height()) {
-        QSKIP("Flick gesture parameters prevent any flick ever being made. Skipping tests.",
-              SkipAll);
-    }
-
+    // Registering not really needed for this test but let's see if it crashes or something.
     FlickGestureRecognizer::registerSharedRecognizer();
     FlickGestureRecognizer::instance()->setFinishThreshold(gestureFinishMovementThreshold.x(),
                                                            gestureFinishMovementThreshold.y());
@@ -171,50 +79,30 @@ void Ut_FlickRecognizer::initTestCase()
                                                           gestureStartMovementThreshold.y());
     FlickGestureRecognizer::instance()->setTimeout(gestureTimeout);
 
+    // Save singleton as subject.
+    subject = FlickGestureRecognizer::instance();
+
+    // Confirm custom gesture flag.
     gtype = FlickGestureRecognizer::sharedGestureType();
     QVERIFY(gtype & Qt::CustomGesture);
-    window->viewport()->grabGesture(gtype);
-
-    setCustomCompositorRegion(window);
-
-    QApplication::setActiveWindow(window);
-    window->show();
-    QTest::qWaitForWindowShown(window);
-
-    // Used to have trouble with delayed show caused by remote theme. Let's still have the check.
-    QVERIFY(window->isVisible());
-    QVERIFY(window->testAttribute(Qt::WA_Mapped));
 }
 
 void Ut_FlickRecognizer::cleanupTestCase()
 {
-    window->close();
-
     FlickGestureRecognizer::unregisterSharedRecognizer();
 
-    delete window->scene();
-    delete window;
-    window = 0;
     delete app;
     app = 0;
 }
 
 void Ut_FlickRecognizer::init()
 {
-    window->sceneManager()->setOrientationAngle(M::Angle0, MSceneManager::ImmediateTransition);
-
-    target = new FlickTarget;
-    target->resize(window->sceneRect().size());
-    window->sceneManager()->appearSceneWindowNow(target);
-    target->grabGesture(gtype);
-    QCOMPARE(target->sceneWindowState(), MSceneWindow::Appeared);
+    resetFlickCounters();
+    globalGestureState = Qt::NoGesture;
 }
 
 void Ut_FlickRecognizer::cleanup()
 {
-    target->ungrabGesture(gtype);
-    delete target;
-    target = 0;
 }
 
 void Ut_FlickRecognizer::testDirections_data()
@@ -226,10 +114,7 @@ void Ut_FlickRecognizer::testDirections_data()
     const int xlength = gestureFinishMovementThreshold.x() + 1;
     const int ylength = gestureFinishMovementThreshold.y() + 1;
 
-    // Points where x or y is 0.0 cannot be used since they are not guaranteed to hit target.
-    // Even if they did in default orientation, they will not in another orientation, i.e.
-    // y=0.0 can become y=480.0 which will be out of target.
-    const QRectF area(0.1, 0.1, xlength, ylength);
+    const QRectF area(0, 0, xlength, ylength);
     QTest::newRow("->") << area.topLeft() << area.topRight() << FlickGesture::Right;
     QTest::newRow("<-") << area.topRight() << area.topLeft() << FlickGesture::Left;
     QTest::newRow("v") << area.topLeft() << area.bottomLeft() << FlickGesture::Down;
@@ -242,19 +127,10 @@ void Ut_FlickRecognizer::testDirections()
     QFETCH(QPointF, end);
     QFETCH(FlickGesture::Direction, direction);
 
-    QList<M::OrientationAngle> angles;
-    angles << M::Angle0 << M::Angle90 << M::Angle180 << M::Angle270;
+    doMouseSwipe(start, end, 0);
 
-    foreach (M::OrientationAngle angle, angles) {
-
-        window->sceneManager()->setOrientationAngle(angle, MSceneManager::ImmediateTransition);
-
-        doMouseSwipe(target, start, end, 0);
-
-        QCOMPARE(target->numberOfFlickGestures(), 1);
-        QCOMPARE(target->numberOfFlickGestures(direction), 1);
-        target->resetFlickCounters();
-    }
+    QCOMPARE(numberOfFlicksFinished(), 1);
+    QCOMPARE(numberOfFlicksFinished(direction), 1);
 }
 
 void Ut_FlickRecognizer::testTimeout_data()
@@ -274,12 +150,12 @@ void Ut_FlickRecognizer::testTimeout()
     const int expectedNumOfGestures = wasFlicked ? 1 : 0;
 
     // Constant start and end point for this test.
-    const QPointF start(0.1, 0.1);
+    const QPointF start(0, 0);
     const QPointF end(start + QPointF(gestureFinishMovementThreshold.x() + 2, 0));
 
-    doMouseSwipe(target, start, end, duration);
+    doMouseSwipe(start, end, duration);
 
-    QCOMPARE(target->numberOfFlickGestures(), expectedNumOfGestures);
+    QCOMPARE(numberOfFlicksFinished(), expectedNumOfGestures);
 }
 
 void Ut_FlickRecognizer::testMovementThreshold_data()
@@ -288,10 +164,10 @@ void Ut_FlickRecognizer::testMovementThreshold_data()
     QTest::addColumn<QPointF>("end");
     QTest::addColumn<bool>("wasFlicked");
 
-    QTest::newRow("valid horizontal") << QPointF(0.1, 0.1) << QPointF(gestureFinishMovementThreshold.x() + 10, 0.1) << true;
-    QTest::newRow("invalid horizontal") << QPointF(0.1, 0.1) << QPointF(qMax<qreal>(0.1, (gestureFinishMovementThreshold.x() - 10)), 0.1) << false;
-    QTest::newRow("valid vertical") << QPointF(0.1, 0.1) << QPointF(0.1, gestureFinishMovementThreshold.y() + 10) << true;
-    QTest::newRow("invalid vertical") << QPointF(0.1, 0.1) << QPointF(0.1, qMax<qreal>(0.1, (gestureFinishMovementThreshold.y() - 10))) << false;
+    QTest::newRow("valid horizontal") << QPointF() << QPointF(gestureFinishMovementThreshold.x() + 10, 0) << true;
+    QTest::newRow("invalid horizontal") << QPointF() << QPointF(qMax<qreal>(0, (gestureFinishMovementThreshold.x() - 10)), 0) << false;
+    QTest::newRow("valid vertical") << QPointF() << QPointF(0, gestureFinishMovementThreshold.y() + 10) << true;
+    QTest::newRow("invalid vertical") << QPointF() << QPointF(0, qMax<qreal>(0, (gestureFinishMovementThreshold.y() - 10))) << false;
 }
 
 void Ut_FlickRecognizer::testMovementThreshold()
@@ -302,9 +178,9 @@ void Ut_FlickRecognizer::testMovementThreshold()
 
     const int expectedNumOfGestures = wasFlicked ? 1 : 0;
 
-    doMouseSwipe(target, start, end, 0);
+    doMouseSwipe(start, end, 0);
 
-    QCOMPARE(target->numberOfFlickGestures(), expectedNumOfGestures);
+    QCOMPARE(numberOfFlicksFinished(), expectedNumOfGestures);
 }
 
 void Ut_FlickRecognizer::testStartThreshold_data()
@@ -321,10 +197,10 @@ void Ut_FlickRecognizer::testStartThreshold_data()
     QTest::addColumn<QPointF>("end");
     QTest::addColumn<bool>("wasStarted");
 
-    QTest::newRow("valid horizontal")   << QPointF(0.1, 0.1) << QPointF(xlength, 0.1)     << true;
-    QTest::newRow("invalid horizontal") << QPointF(0.1, 0.1) << QPointF(xlength - 1, 0.1) << false;
-    QTest::newRow("valid vertical")     << QPointF(0.1, 0.1) << QPointF(0.1, ylength)     << true;
-    QTest::newRow("invalid vertical")   << QPointF(0.1, 0.1) << QPointF(0.1, ylength - 1) << false;
+    QTest::newRow("valid horizontal")   << QPointF() << QPointF(xlength, 0)     << true;
+    QTest::newRow("invalid horizontal") << QPointF() << QPointF(xlength - 1, 0) << false;
+    QTest::newRow("valid vertical")     << QPointF() << QPointF(0, ylength)     << true;
+    QTest::newRow("invalid vertical")   << QPointF() << QPointF(0, ylength - 1) << false;
 }
 
 void Ut_FlickRecognizer::testStartThreshold()
@@ -340,10 +216,10 @@ void Ut_FlickRecognizer::testStartThreshold()
     const bool lastMoveLandsOnEnd = true;
     const int steps = 5;
 
-    doMouseSwipe(target, start, end, 0, steps, lastMoveLandsOnEnd);
+    doMouseSwipe(start, end, 0, steps, lastMoveLandsOnEnd);
 
-    QCOMPARE(target->numberOfFlickStarts(), expectedNumOfStarts);
-    QCOMPARE(target->numberOfFlickGestures(), 0);
+    QCOMPARE(numberOfFlicksTriggered(), expectedNumOfStarts);
+    QCOMPARE(numberOfFlicksFinished(), 0);
 }
 
 void Ut_FlickRecognizer::testInvalidZigZag_data()
@@ -352,8 +228,8 @@ void Ut_FlickRecognizer::testInvalidZigZag_data()
     QTest::addColumn<bool>("wasFlicked");
 
     const unsigned int intermediatePoints = 6;
-    QList<QPointF> path = makeSwipePointPath(QPointF(0.1, 0.1),
-                                             QPointF(gestureFinishMovementThreshold.x(), 0.1),
+    QList<QPointF> path = makeSwipePointPath(QPointF(0, 0),
+                                             QPointF(gestureFinishMovementThreshold.x(), 0),
                                              intermediatePoints);
     const QPointF point2 = path.at(2);
     const QPointF point3 = path.at(3);
@@ -380,9 +256,9 @@ void Ut_FlickRecognizer::testInvalidZigZag()
     QFETCH(QList<QPointF>, path);
     QFETCH(bool, wasFlicked);
 
-    doMouseSwipe(target, path, 0);
+    doMouseSwipe(path, 0);
 
-    QCOMPARE(target->numberOfFlickGestures(), (wasFlicked ? 1 : 0));
+    QCOMPARE(numberOfFlicksFinished(), (wasFlicked ? 1 : 0));
 }
 
 void Ut_FlickRecognizer::testInvalidTwoFinger_data()
@@ -392,17 +268,17 @@ void Ut_FlickRecognizer::testInvalidTwoFinger_data()
 
     // Simulate the common accidental flick-made-by-two-fingers gesture.
     QList<QPointF> path;
-    path << QPointF(0.1, 0.1)
-         << QPointF(1, 0.1)
-         << QPointF(2, 0.1)
-         << QPointF(gestureFinishMovementThreshold.x(), 0.1)
-         << QPointF(gestureFinishMovementThreshold.x() + 1, 0.1)
-         << QPointF(gestureFinishMovementThreshold.x() + 2, 0.1);
+    path << QPointF(0, 0)
+         << QPointF(1, 0)
+         << QPointF(2, 0)
+         << QPointF(gestureFinishMovementThreshold.x(), 0)
+         << QPointF(gestureFinishMovementThreshold.x() + 1, 0)
+         << QPointF(gestureFinishMovementThreshold.x() + 2, 0);
 
     QTest::newRow("too long jump") << path << false;
 
     // Make one stop in the middle.
-    path[3] = QPointF(gestureFinishMovementThreshold.x() / 2, 0.1);
+    path[3] = QPointF(gestureFinishMovementThreshold.x() / 2, 0);
     QTest::newRow("valid flick") << path << true;
 }
 
@@ -411,10 +287,216 @@ void Ut_FlickRecognizer::testInvalidTwoFinger()
     QFETCH(QList<QPointF>, path);
     QFETCH(bool, wasFlicked);
 
-    doMouseSwipe(target, path, 0);
+    doMouseSwipe(path, 0);
 
-    QCOMPARE(target->numberOfFlickGestures(), (wasFlicked ? 1 : 0));
+    QCOMPARE(numberOfFlicksFinished(), (wasFlicked ? 1 : 0));
 }
 
+
+// Flick gesture state counters
+
+int Ut_FlickRecognizer::numberOfFlicksFinished() const
+{
+    int sum = 0;
+    for (int i = 0; i < 4; ++i) {
+        sum += flickFinishedCountArray[i];
+    }
+    return sum;
+}
+
+int Ut_FlickRecognizer::numberOfFlicksTriggered() const
+{
+    int sum = 0;
+    for (int i = 0; i < 4; ++i) {
+        sum += flickTriggeredCountArray[i];
+    }
+    return sum;
+}
+
+int Ut_FlickRecognizer::numberOfFlicksFinished(FlickGesture::Direction direction) const
+{
+    const int index = static_cast<int>(direction);
+    Q_ASSERT(index < 4);
+    return flickFinishedCountArray[index];
+}
+
+int Ut_FlickRecognizer::numberOfFlicksTriggered(FlickGesture::Direction direction) const
+{
+    const int index = static_cast<int>(direction);
+    Q_ASSERT(index < 4);
+    return flickTriggeredCountArray[index];
+}
+
+void Ut_FlickRecognizer::resetFlickCounters()
+{
+    flickFinishedCountArray[0] = 0;
+    flickFinishedCountArray[1] = 0;
+    flickFinishedCountArray[2] = 0;
+    flickFinishedCountArray[3] = 0;
+    flickTriggeredCountArray[0] = 0;
+    flickTriggeredCountArray[1] = 0;
+    flickTriggeredCountArray[2] = 0;
+    flickTriggeredCountArray[3] = 0;
+}
+
+
+// The following are helper methods to use recognizer (almost) as Qt would.
+
+void Ut_FlickRecognizer::recognize(FlickGesture *gesture,
+                                   QEvent *event)
+{
+    if (globalGestureState == Qt::GestureFinished
+        || globalGestureState == Qt::GestureCanceled) {
+        return;
+    }
+
+    QGestureRecognizer::Result result = subject->recognize(gesture,
+                                                           0,
+                                                           event);
+    switch (result) {
+    case QGestureRecognizer::TriggerGesture:
+        {
+            FlickGesture::Direction dir = gesture->direction();
+            if (dir != FlickGesture::NoDirection) {
+                ++flickTriggeredCountArray[static_cast<int>(dir)];
+            }
+            if (globalGestureState == Qt::NoGesture) {
+                globalGestureState = Qt::GestureStarted;
+            } else {
+                globalGestureState = Qt::GestureUpdated;
+            }
+        }
+        break;
+    case QGestureRecognizer::FinishGesture:
+        {
+            FlickGesture::Direction dir = gesture->direction();
+            if (dir != FlickGesture::NoDirection) {
+                ++flickFinishedCountArray[static_cast<int>(dir)];
+            }
+            globalGestureState = Qt::GestureFinished;
+        }
+        break;
+    case QGestureRecognizer::CancelGesture:
+        {
+            if (globalGestureState != Qt::NoGesture) {
+                globalGestureState = Qt::GestureCanceled;
+            }
+        }
+        break;
+    case QGestureRecognizer::Ignore:
+    case QGestureRecognizer::MayBeGesture:
+        break;
+    default:
+        globalGestureState = Qt::NoGesture;
+        break;
+    }
+}
+
+void Ut_FlickRecognizer::mousePress(FlickGesture *gesture,
+                                    const QPointF &pos,
+                                    int delayAfterPress)
+{
+    QGraphicsSceneMouseEvent press(QEvent::GraphicsSceneMousePress);
+    press.setPos(pos);
+    recognize(gesture, &press);
+    busyWait(delayAfterPress);
+}
+
+void Ut_FlickRecognizer::mouseMove(FlickGesture *gesture,
+                                   const QPointF &pos,
+                                   int delayAfterMove)
+{
+    QGraphicsSceneMouseEvent move(QEvent::GraphicsSceneMouseMove);
+    move.setPos(pos);
+    recognize(gesture, &move);
+    busyWait(delayAfterMove);
+}
+
+void Ut_FlickRecognizer::mouseRelease(FlickGesture *gesture,
+                                      const QPointF &pos,
+                                      int delayAfterRelease)
+{
+    QGraphicsSceneMouseEvent release(QEvent::GraphicsSceneMouseRelease);
+    release.setPos(pos);
+    recognize(gesture, &release);
+    busyWait(delayAfterRelease);
+}
+
+void Ut_FlickRecognizer::doMouseSwipe(const QPointF &start,
+                                      const QPointF &end,
+                                      unsigned int duration,
+                                      unsigned int intermediateSteps,
+                                      bool lastMoveLandsOnEnd)
+{
+    doMouseSwipe(makeSwipePointPath(start, end,
+                                    intermediateSteps,
+                                    lastMoveLandsOnEnd),
+                 duration);
+}
+
+void Ut_FlickRecognizer::doMouseSwipe(const QList<QPointF> &path,
+                                      unsigned int duration)
+{
+    FlickGesture *gesture = static_cast<FlickGesture *>(subject->create(0));
+    Q_ASSERT(gesture);
+
+    int numberOfWaitsLeft = path.count() - 1;
+    int moveDelay = duration / numberOfWaitsLeft;
+    int timeLeft = (duration);
+    QTime time;
+    time.start();
+
+    for (int i = 0; i < path.count(); ++i) {
+        if (i == 0) {
+            // Simulate press
+            mousePress(gesture, path.front(), moveDelay);
+        } else if (i == (path.count() - 1)) {
+            // Simulate release
+            mouseRelease(gesture, path.back());
+        } else {
+            // Simulate move
+            mouseMove(gesture, path.at(i), moveDelay);
+        }
+
+        // Adjust moveDelay if we are behind target duration.
+        if (--numberOfWaitsLeft) {
+            timeLeft = qMax(0, static_cast<int>(duration) - time.elapsed());
+            moveDelay = timeLeft / numberOfWaitsLeft;
+        }
+    }
+    delete gesture;
+}
+
+QList<QPointF> Ut_FlickRecognizer::makeSwipePointPath(const QPointF &start,
+                                                      const QPointF &end,
+                                                      unsigned int intermediateSteps,
+                                                      bool lastMoveLandsOnEnd)
+{
+    QList<QPointF> path;
+    QPointF delta = (end - start);
+
+    if (lastMoveLandsOnEnd && intermediateSteps < 1) {
+        lastMoveLandsOnEnd = false;
+    }
+
+    delta.rx() /= static_cast<qreal>(intermediateSteps + (lastMoveLandsOnEnd ? 0 : 1));
+    delta.ry() /= static_cast<qreal>(intermediateSteps + (lastMoveLandsOnEnd ? 0 : 1));
+
+    path << start;
+
+    QPointF pos = start;
+    for (unsigned int i = 0; i < intermediateSteps; ++i) {
+        pos += delta;
+        path << pos;
+    }
+
+    if (lastMoveLandsOnEnd) {
+        path.back() = end;
+    }
+
+    path << end;
+
+    return path;
+}
 
 QTEST_APPLESS_MAIN(Ut_FlickRecognizer);
