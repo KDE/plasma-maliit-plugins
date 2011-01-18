@@ -57,7 +57,8 @@ SymbolView::SymbolView(const LayoutsManager &layoutsManager, const MVirtualKeybo
       currentLayout(layout),
       mouseDownKeyArea(false),
       mainLayout(new QGraphicsLinearLayout(Qt::Vertical, this)),
-      activeState(MInputMethod::OnScreen)
+      activeState(MInputMethod::OnScreen),
+      hideOnQuickPick(false)
 {
     setObjectName("SymbolView");
     RegionTracker::instance().addRegion(*this);
@@ -232,6 +233,7 @@ void SymbolView::showSymbolView(SymbolView::ShowMode mode)
         activity = Active;
     }
     show();
+    hideOnQuickPick = true;
 }
 
 
@@ -345,6 +347,9 @@ MImAbstractKeyArea *SymbolView::createMImAbstractKeyArea(const LayoutData::Share
         keysWidget = new MImKeyArea(section, enablePopup);
 
         eventHandler.addEventSource(keysWidget);
+
+        connect(keysWidget, SIGNAL(keyClicked(const MImAbstractKey *, QString, bool, QPoint)),
+                this, SLOT(handleKeyClicked(const MImAbstractKey *)));
     }
 
     return keysWidget;
@@ -464,6 +469,19 @@ void SymbolView::handleShiftPressed(bool shiftPressed)
             mainKba->switchLevel(level);
         }
     }
+}
+
+void SymbolView::handleKeyClicked(const MImAbstractKey *key)
+{
+    // KeyEventHandler forwards key clicks for normal text input etc.
+    // We handle here only special case of closing symbol view if quick pick
+    // key is clicked.
+    if (hideOnQuickPick
+        && key->isQuickPick()) {
+        hideSymbolView();
+    }
+    // After first click, we won't be tracking quick pick anymore.
+    hideOnQuickPick = false;
 }
 
 void SymbolView::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view)

@@ -89,6 +89,9 @@ public:
     //!        (e.g., q, w, e, r, t, y).
     virtual bool isNormalKey() const = 0;
 
+    //! \brief Tells whether emitter view should close after clicking this key.
+    virtual bool isQuickPick() const = 0;
+
     //! \brief Called when a new touchpoint was registered on this button.
     //! \returns true if the counter could be increased.
     //!          Cannot exceed total active touchpoint limit

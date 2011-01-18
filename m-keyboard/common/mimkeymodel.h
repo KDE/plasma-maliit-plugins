@@ -89,6 +89,10 @@ public:
     //! \return extra labels available for the key binding
     QString extendedLabels() const;
 
+    //! \return true if the key is a quick pick key, i.e. it should automatically
+    //! close the view it was "picked" from. Only symbol view currently supports this.
+    bool isQuickPick() const;
+
 private:
     //! Helper method for toKeyEvent methods
     KeyEvent toKeyEventImpl(QKeyEvent::Type eventType,
@@ -114,6 +118,8 @@ private:
     QString keyLabel;
     //! True if key is a dead key
     bool dead;
+    //! True if this is a quickpick key for symbol view page.
+    bool quickPick;
 
     friend class KeyboardData;
     friend class Ut_MImKeyModel;
@@ -134,9 +140,14 @@ inline QString MImKeyBinding::secondaryLabel() const
     return secondary_label;
 }
 
-inline  bool MImKeyBinding::isDead() const
+inline bool MImKeyBinding::isDead() const
 {
     return dead;
+}
+
+inline bool MImKeyBinding::isQuickPick() const
+{
+    return quickPick;
 }
 
 inline MImKeyBinding::KeyAction MImKeyBinding::action() const

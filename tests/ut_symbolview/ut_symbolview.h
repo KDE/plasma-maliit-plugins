@@ -25,6 +25,8 @@
 #include <MNamespace>
 
 class MApplication;
+class MImAbstractKey;
+class MImAbstractKeyArea;
 class MSceneWindow;
 class MVirtualKeyboard;
 class MVirtualKeyboardStyleContainer;
@@ -38,6 +40,7 @@ private:
     MVirtualKeyboardStyleContainer *style;
     SymbolView *subject;
     MSceneWindow *parent;
+    QString testLayoutFile;
 
 private slots:
     void init();
@@ -59,9 +62,14 @@ private slots:
     void testSetLayout();
     void testHardwareState();
     void testSetTemporarilyHidden();
+    void testQuickPick_data();
+    void testQuickPick();
 
 private:
     void rotateToAngle(M::OrientationAngle angle);
+    MImAbstractKey *keyAt(MImAbstractKeyArea *symPage,
+                          unsigned int row,
+                          unsigned int column) const;
 };
 
 #endif

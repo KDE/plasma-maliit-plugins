@@ -82,6 +82,7 @@ namespace
     const QString VKBTagKeyAction            = QString("action");
     const QString VKBTagCycleSet             = QString("cycleset");
     const QString VKBTagSecondaryLabel       = QString("secondary_label");
+    const QString VKBTagQuickPick            = QString("quickpick");
 
     const QString ActionStrInsert            = QString("insert");
     const QString ActionStrShift             = QString("shift");
@@ -510,6 +511,7 @@ void KeyboardData::parseTagBinding(const QDomElement &element, ParseParameters &
     }
     binding->secondary_label = element.attribute(VKBTagSecondaryLabel);
     binding->dead = toBoolean(element.attribute(VKBTagDead));
+    binding->quickPick = toBoolean(element.attribute(VKBTagQuickPick));
 
     binding->accents = element.attribute(VKBTagAccents);
     binding->accented_labels = element.attribute(VKBTagAccentedLabels);

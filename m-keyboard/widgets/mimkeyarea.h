@@ -129,6 +129,7 @@ private:
 #ifdef UNIT_TEST
     friend class Ut_MImAbstractKeyArea;
     friend class Ut_KeyEventHandler;
+    friend class Ut_SymbolView;
     friend class Bm_MImAbstractKeyArea; //benchmarks
     friend class Bm_Painting;
 #endif

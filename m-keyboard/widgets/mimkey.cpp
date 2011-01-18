@@ -206,6 +206,11 @@ bool MImKey::isNormalKey() const
             && !isDeadKey());
 }
 
+bool MImKey::isQuickPick() const
+{
+    return binding().isQuickPick();
+}
+
 bool MImKey::increaseTouchPointCount()
 {
     if (++currentTouchPointCount <= touchPointLimit()) {

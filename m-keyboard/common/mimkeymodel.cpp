@@ -26,14 +26,16 @@ MImKeyBinding::MImKeyBinding()
       accented_labels(""),
       secondary_label(""),
       keyLabel(""),
-      dead(false)
+      dead(false),
+      quickPick(false)
 {
 }
 
 MImKeyBinding::MImKeyBinding(const QString &label)
     : keyAction(ActionInsert),
       keyLabel(label),
-      dead(false)
+      dead(false),
+      quickPick(false)
 {
 }
 

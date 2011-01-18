@@ -175,6 +175,9 @@ private slots:
     //! Handler for shift pressed state change (separate from shift state).
     void handleShiftPressed(bool shiftPressed);
 
+    //! Special handling for clicked keys, not handled through KeyEventHandler.
+    void handleKeyClicked(const MImAbstractKey *);
+
     //! When hardware keyboard layout has changed, reload contents if currently in Hardware state.
     void handleHwLayoutChange();
 
@@ -260,6 +263,8 @@ private:
     bool enableMultiTouch;
 
     MInputMethod::HandlerState activeState;
+
+    bool hideOnQuickPick;
 
 #ifdef UNIT_TEST
     friend class Ut_SymbolView;

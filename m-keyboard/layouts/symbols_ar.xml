@@ -75,7 +75,7 @@
             </key>
 
             <key>
-              <binding label="&#x0040;"/>
+              <binding label="&#x0040;" quickpick="true"/>
             </key>
             <key>
               <binding label="&#x007E;"/>
@@ -87,7 +87,7 @@
               <binding label="&#x005C;"/>
             </key>
             <key>
-              <binding label="&#x0027;"/>
+              <binding label="&#x0027;" quickpick="true"/>
             </key>
             <key>
               <binding label="&#x0022;"/>

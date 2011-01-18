@@ -45,8 +45,8 @@
 namespace
 {
     const QString InputMethodSettingName("/meegotouch/inputmethods/virtualkeyboard/layouts");
-    const QString DefaultLayoutSettingName("/meegotouch/inputmethods/virtualkeyboard/layouts/default");
-    const QString DefaultLayout("en_us.xml");
+    const QString LocalTestLayout(TESTLAYOUTFILEPATH_LOCAL);
+    const QString InstalledTestLayout(TESTLAYOUTFILEPATH_INSTALLED);
 
     const QString TargetSettingsName("/meegotouch/target/name");
     const QString DefaultTargetName("Default");
@@ -63,6 +63,16 @@ void Ut_SymbolView::initTestCase()
     static char *app_name[2] = { (char *) "ut_symbolview",
                                  (char *) "-software" };
 
+    if (QFile::exists(LocalTestLayout)) {
+        testLayoutFile = LocalTestLayout;
+    } else if (QFile::exists(InstalledTestLayout)) {
+        testLayoutFile = InstalledTestLayout;
+    } else {
+        QFAIL("Test symbol layout does not exist.");
+    }
+
+    qDebug() << "Using test symbol layout from file: " << testLayoutFile;
+
     disableQtPlugins();
 
     MGConfItem target(TargetSettingsName);
@@ -75,7 +85,7 @@ void Ut_SymbolView::initTestCase()
     MGConfItem inputMethodSetting(InputMethodSettingName);
 
     QStringList langlist;
-    langlist << "en_us.xml";
+    langlist << testLayoutFile;
     inputMethodSetting.set(QVariant(langlist));
 
     LayoutsManager::createInstance();
@@ -99,7 +109,7 @@ void Ut_SymbolView::cleanupTestCase()
 
 void Ut_SymbolView::init()
 {
-    subject = new SymbolView(LayoutsManager::instance(), style, DefaultLayout);
+    subject = new SymbolView(LayoutsManager::instance(), style, testLayoutFile);
 
     // Add to scene so reaction maps are drawn.
     // SymView needs scene window as parent so positions itself correctly
@@ -176,11 +186,13 @@ void Ut_SymbolView::testReactiveButtonAreas()
     // Check locations that should be inactive. This test is really only for
     // testing that at least something is drawn inactive, and not only reactive
     // areas are drawn.
+    // Inactive areas should be drawn because second page in testsymbols.xml
+    // has second row with spacers at the beginning and at the end of the row.
     const QRectF br(subject->boundingRect());
     QList<QPoint> inactiveLocations;
     inactiveLocations
-            << QPoint(br.left(), br.center().y()) // Left margin
-            << QPoint(br.right()-1, br.center().y()); // Right margin
+            << QPoint(br.left(), br.bottom() - 1) // Left margin, second row
+            << QPoint(br.right() - 1, br.bottom() - 1); // Right margin, second row
 
     foreach(const QPointF & pos, inactiveLocations) {
         QCOMPARE(tester.colorAt(pos), MReactionMapTester::Inactive);
@@ -345,6 +357,47 @@ void Ut_SymbolView::testSetTemporarilyHidden()
     QCOMPARE(subject->activity, SymbolView::Active);
 }
 
+void Ut_SymbolView::testQuickPick_data()
+{
+    typedef QList<QPoint> KeyList;
+    QTest::addColumn<KeyList>("keyList");
+    QTest::addColumn<bool>("expectedIsActive");
+
+    const QPoint quickPickKey(0, 0); // '@'
+    const QPoint normalKey(1, 0);
+
+    QTest::newRow("Normal key click, symbol view stays open.")
+        << (KeyList() << normalKey) << true;
+
+    QTest::newRow("Quick key click, symbol view closes")
+        << (KeyList() << quickPickKey) << false;
+
+    // Symbol view doesn't close if quick pick key is not the first
+    // to be clicked.
+    QTest::newRow("Quick pick not first 1") << (KeyList() << normalKey << quickPickKey) << true;
+    QTest::newRow("Quick pick not first 2") << (KeyList() << normalKey << normalKey << quickPickKey) << true;
+}
+
+void Ut_SymbolView::testQuickPick()
+{
+    QFETCH(QList<QPoint>, keyList);
+    QFETCH(bool, expectedIsActive);
+
+    MImAbstractKeyArea *page = static_cast<MImAbstractKeyArea *>(subject->pageSwitcher->widget(0));
+
+    subject->showSymbolView();
+    QCOMPARE(subject->isActive(), true);
+
+    foreach (QPoint keyLocation, keyList) {
+        MImAbstractKey *key = keyAt(page, keyLocation.y(), keyLocation.x());
+        QVERIFY(key);
+
+        page->click(key);
+    }
+
+    QCOMPARE(subject->isActive(), expectedIsActive);
+}
+
 void Ut_SymbolView::rotateToAngle(M::OrientationAngle angle)
 {
     subject->prepareToOrientationChange();
@@ -352,5 +405,25 @@ void Ut_SymbolView::rotateToAngle(M::OrientationAngle angle)
     QTest::qWait(SceneRotationTime);// wait until MSceneManager::orientationAngle() is updated.
     subject->finalizeOrientationChange();
 }
+
+// Helper method to get key in certain row and column from current subject.
+MImAbstractKey *Ut_SymbolView::keyAt(MImAbstractKeyArea *symPage,
+                                     unsigned int row,
+                                     unsigned int column) const
+{
+    Q_ASSERT(symPage
+             && (row < static_cast<unsigned int>(symPage->rowCount()))
+             && (column < static_cast<unsigned int>(symPage->sectionModel()->columnsAt(row))));
+
+    MImAbstractKey *key = 0;
+
+    MImKeyArea *buttonArea = dynamic_cast<MImKeyArea *>(symPage);
+    if (buttonArea) {
+        key = buttonArea->rowList[row].keys[column];
+    }
+
+    return key;
+}
+
 
 QTEST_APPLESS_MAIN(Ut_SymbolView);

@@ -74,7 +74,7 @@
           <binding action="switch" label="1/2"/>
         </key>
         <key>
-          <binding label="@"/>
+          <binding label="@" quickpick="true"/>
         </key>
         <key>
           <binding label="~"/>
@@ -86,7 +86,7 @@
           <binding label="\"/>
         </key>
         <key>
-          <binding label="&#x0027;"/>
+          <binding label="&#x0027;" quickpick="true"/>
         </key>
         <key>
           <binding label="&#x0022;"/>

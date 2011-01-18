@@ -182,6 +182,9 @@ addition to other *_labels attributes.
 \li \c cycleset This is used together with the \c cycle \c action to provide
 multitap functionality for the key.  That is, repeated key clicks cycle
 through the characters in the \c cycleset string.
+\li \c quickpick Setting quickpick value to true will make the key close
+the current keyboard view. Currently only supported in symbol view. This
+only works if the key is pressed first after symbol view is opened.
 
 Actions:
 

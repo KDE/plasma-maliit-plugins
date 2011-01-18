@@ -71,6 +71,7 @@ public:
     virtual bool isDeadKey() const;
     virtual bool isShiftKey() const;
     virtual bool isNormalKey() const;
+    virtual bool isQuickPick() const;
     virtual bool increaseTouchPointCount();
     virtual bool decreaseTouchPointCount();
     virtual void resetTouchPointCount();
