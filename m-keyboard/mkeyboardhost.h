@@ -334,10 +334,6 @@ private:
     //! Sends backspace key event to application.
     void sendBackSpaceKeyEvent() const;
 
-    //! Check whether there is a previous word before cursor need to be recomposed
-    //! as preedit. This method is used for vkb backspace.
-    bool needRecomposePreedit(QString &previousWord);
-
 private:
     class CycleKeyHandler; //! Reacts to cycle key press events.
     friend class CycleKeyHandler;
