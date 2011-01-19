@@ -117,7 +117,6 @@ MHardwareKeyboard::~MHardwareKeyboard()
 
 void MHardwareKeyboard::setKeyboardType(M::TextContentType type)
 {
-    qDebug() << __PRETTY_FUNCTION__ << ":" << type;
     if (currentKeyboardType == type)
         return;
     currentKeyboardType = type;
