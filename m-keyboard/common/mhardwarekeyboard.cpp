@@ -312,6 +312,9 @@ void MHardwareKeyboard::handleClipboardDataChange()
     lastCtrlCTime = QTime();
 
     MBanner &textCopiedBanner(*new MBanner);
+    // It is needed to set the proper style name to have properly wrapped, multiple lines
+    // with too much content. The MBanner documentation also emphasises to specify the
+    // style name for the banners explicitly in the code.
     textCopiedBanner.setStyleName("InformationBanner");
     textCopiedBanner.setTitle(qtTrId("qtn_comm_text_copied"));
     textCopiedBanner.appear(MPlainWindow::instance(), MSceneWindow::DestroyWhenDone);

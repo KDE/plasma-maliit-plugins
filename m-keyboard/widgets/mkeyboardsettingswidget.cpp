@@ -374,6 +374,11 @@ void MKeyboardSettingsWidget::syncCorrectionSpaceState()
 void MKeyboardSettingsWidget::notifyNoKeyboards()
 {
     MBanner *noKeyboardsNotification = new MBanner;
+
+    // It is needed to set the proper style name to have properly wrapped, multiple lines
+    // with too much content. The MBanner documentation also emphasises to specify the
+    // style name for the banners explicitly in the code.
+    noKeyboardsNotification->setStyleName("InformationBanner");
     //% "Note: you have uninstalled all virtual keyboards"
     noKeyboardsNotification->setTitle(qtTrId("qtn_txts_no_keyboards_notification"));
     noKeyboardsNotification->appear(MSceneWindow::DestroyWhenDone);
