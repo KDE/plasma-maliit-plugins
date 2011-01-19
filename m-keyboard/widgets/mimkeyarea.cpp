@@ -420,7 +420,8 @@ void MImKeyArea::drawReactiveAreas(MReactionMap *reactionMap,
 
     foreach (const KeyRow &row, rowList) {
         foreach (const MImKey *const key, row.keys) {
-            reactionMap->fillRectangle(key->buttonBoundingRect());
+            const QRectF rect = correctedReactionRect(key->buttonBoundingRect());
+            reactionMap->fillRectangle(rect);
         }
     }
 }
@@ -740,27 +741,17 @@ void MImKeyArea::drawDebugReactiveAreas(QPainter *painter)
 {
     painter->save();
 
-    for (int rowIdx = 0; rowIdx < rowList.size(); ++rowIdx) {
-        QPair<qreal, qreal> rowPair = rowOffsets[rowIdx];
-        painter->setPen(Qt::darkMagenta);
-        painter->drawLine(QPointF(0, rowPair.first),
-                          QPointF(size().width(), rowPair.first));
+    foreach (const KeyRow &row, rowList) {
+        foreach (const MImKey *const key, row.keys) {
+            const QRectF rect = correctedReactionRect(key->buttonBoundingRect());
 
-        painter->setPen(Qt::magenta);
-        painter->drawLine(QPointF(0, rowPair.second),
-                          QPointF(size().width(), rowPair.second));
+            painter->setPen(Qt::magenta);
+            painter->drawLine(rect.topLeft(), rect.topRight());
+            painter->drawLine(rect.bottomLeft(), rect.bottomRight());
 
-        const QVector<QPair<qreal, qreal> > &keyOffsets = rowList[rowIdx].keyOffsets;
-
-        for(int colIdx = 0; colIdx < keyOffsets.size(); ++colIdx) {
-            QPair<qreal, qreal> colPair = keyOffsets[colIdx];
             painter->setPen(Qt::cyan);
-            painter->drawLine(QPointF(colPair.first, rowPair.first),
-                              QPointF(colPair.first, rowPair.second));
-
-            painter->setPen(Qt::darkCyan);
-            painter->drawLine(QPointF(colPair.second, rowPair.first),
-                              QPointF(colPair.second, rowPair.second));
+            painter->drawLine(rect.topLeft(), rect.bottomLeft());
+            painter->drawLine(rect.topRight(), rect.bottomRight());
         }
     }
 

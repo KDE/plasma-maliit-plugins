@@ -533,7 +533,7 @@ void MImAbstractKeyArea::touchPointPressed(const QTouchEvent::TouchPoint &tp)
         ungrabGesture(FlickGestureRecognizer::sharedGestureType());
     }
 
-    const QPoint pos = mapFromScene(tp.scenePos()).toPoint();
+    const QPoint pos = correctedTouchPoint(tp.scenePos());
     MImAbstractKey *key = keyAt(pos);
 
 
@@ -596,9 +596,8 @@ void MImAbstractKeyArea::touchPointMoved(const QTouchEvent::TouchPoint &tp)
 
     mTimestamp("MImAbstractKeyArea", "start");
 
-    const QPoint pos = mapFromScene(tp.scenePos()).toPoint();
-    const QPoint lastPos = mapFromScene(tp.lastScenePos()).toPoint();
-    const QPoint startPos = mapFromScene(tp.startScenePos()).toPoint();
+    const QPoint pos = correctedTouchPoint(tp.scenePos());
+    const QPoint lastPos = correctedTouchPoint(tp.lastScenePos());
 
     const GravitationalLookupResult lookup = gravitationalKeyAt(pos, lastPos);
     MImKeyVisitor::SpecialKeyFinder finder;
@@ -656,9 +655,8 @@ void MImAbstractKeyArea::touchPointReleased(const QTouchEvent::TouchPoint &tp)
 
     idleVkbTimer.start(style()->idleVkbTimeout());
 
-    const QPoint pos = mapFromScene(tp.scenePos()).toPoint();
-    const QPoint lastPos = mapFromScene(tp.lastScenePos()).toPoint();
-    const QPoint startPos = mapFromScene(tp.startScenePos()).toPoint();
+    const QPoint pos = correctedTouchPoint(tp.scenePos());
+    const QPoint lastPos = correctedTouchPoint(tp.lastScenePos());
 
     const GravitationalLookupResult lookup = gravitationalKeyAt(pos, lastPos);
     MImKeyVisitor::SpecialKeyFinder finder;
@@ -986,4 +984,28 @@ void MImAbstractKeyArea::reset(bool resetCapsLock)
         modifiersChanged(reset.hasCapsLocked());
     }
     update();
+}
+
+QPoint MImAbstractKeyArea::correctedTouchPoint(const QPointF &scenePos) const
+{
+    QPointF pos = mapFromScene(scenePos);
+
+    if (pos.y() >= baseStyle()->touchpointVerticalOffset()) {
+        pos.ry() -= baseStyle()->touchpointVerticalOffset();
+    }
+
+    return pos.toPoint();
+}
+
+QRectF MImAbstractKeyArea::correctedReactionRect(const QRectF &originalRect) const
+{
+    QRectF rect = originalRect;
+    float offset = baseStyle()->touchpointVerticalOffset();
+
+    if (rect.top() >= offset) {
+        rect.setTop(rect.top() + offset);
+    }
+    rect.setBottom(rect.bottom() + offset);
+
+    return rect;
 }

@@ -236,6 +236,16 @@ protected:
     qreal mRelativeKeyBaseWidth; //!< Relative key base width in currently active layout
     bool debugTouchPoints; //!< Whether touch point debugging is enabled
 
+    //! Correct the vertical offset of a touchpoint
+    //! \param scenePos Input position in scene coordinates.
+    //! \returns the corrected position in item coordinates.
+    QPoint correctedTouchPoint(const QPointF &scenePos) const;
+
+    //! Correct the reaction rects for the vertical offset of a touchpoint
+    //! \param originalRect Original rectangle in item coordinates.
+    //! \returns the corrected rectangle in item coordinates.
+    QRectF correctedReactionRect(const QRectF &originalRect) const;
+
 protected slots:
     //! Update background images, text layouts, etc. when the theme changed.
     virtual void onThemeChangeCompleted();

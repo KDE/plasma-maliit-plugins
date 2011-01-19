@@ -42,6 +42,7 @@ public:
     M_STYLE_ATTRIBUTE(qreal, flickGestureThresholdRatio, FlickGestureThresholdRatio)
     M_STYLE_ATTRIBUTE(qreal, touchpointHorizontalGravity, TouchpointHorizontalGravity)
     M_STYLE_ATTRIBUTE(qreal, touchpointVerticalGravity, TouchpointVerticalGravity)
+    M_STYLE_ATTRIBUTE(qreal, touchpointVerticalOffset, TouchpointVerticalOffset)
 
     M_STYLE_ATTRIBUTE(QSize, size, Size)
     M_STYLE_ATTRIBUTE(qreal, keyHeightSmall, KeyHeightSmall)

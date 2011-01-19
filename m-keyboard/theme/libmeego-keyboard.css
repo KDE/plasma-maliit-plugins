@@ -76,6 +76,8 @@ MImAbstractKeyAreaStyle {
     flick-gesture-timeout: 500;
     flick-gesture-threshold-ratio: 0.5;
 
+    touchpoint-vertical-offset: 0mm;
+
     /*** Key Geometry ***/
     use-fixed-key-width: false;
     key-width-small: 0.5;
@@ -152,6 +154,8 @@ MImAbstractKeyAreaStyle.Portrait {
     /*** Behaviour ***/
     touchpoint-horizontal-gravity: 17px;
     touchpoint-vertical-gravity: 26px;
+
+    touchpoint-vertical-offset: 1.7mm;
 
     /*** Key Geometry ***/
     key-height-small: -1; /* unused */
