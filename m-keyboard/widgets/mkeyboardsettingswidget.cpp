@@ -184,13 +184,9 @@ void MKeyboardSettingsWidget::updateTitle()
         || !settingsObject || !selectedKeyboardsItem)
         return;
 
-    //% "Error correction"
     errorCorrectionContentItem->setTitle(qtTrId("qtn_txts_error_correction"));
-    //% "Select with space description"
     errorCorrectionContentItem->setSubtitle(qtTrId("qtn_txts_error_correction_description"));
-    //% "Select with space"
     correctionSpaceContentItem->setTitle(qtTrId("qtn_txts_select_with_space"));
-    //% "Select with space description"
     correctionSpaceContentItem->setSubtitle(qtTrId("qtn_txts_error_select_with_space_description"));
     QStringList keyboards = settingsObject->selectedKeyboards().values();
     //% "Installed keyboards (%1)"
@@ -241,7 +237,6 @@ void MKeyboardSettingsWidget::showKeyboardList()
 {
     if (!settingsObject || !keyboardDialog) {
         QStringList keyboards = settingsObject->selectedKeyboards().values();
-        //% "Installed keyboards (%1)"
         QString keyboardTitle = qtTrId("qtn_txts_installed_keyboards")
                                        .arg(keyboards.count());
         keyboardDialog = new MDialog(keyboardTitle, M::NoStandardButton);
