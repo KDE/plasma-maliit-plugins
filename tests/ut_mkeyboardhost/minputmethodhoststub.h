@@ -57,6 +57,7 @@ public:
     virtual void paste();
 
     virtual bool surroundingText(QString &text, int &cursorPosition);
+    virtual int anchorPosition(bool &valid);
     virtual void setRedirectKeys(bool enabled);
     virtual void setDetectableAutoRepeat(bool enabled);
     virtual void setInputModeIndicator(MInputMethod::InputModeIndicator indicator);

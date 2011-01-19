@@ -133,6 +133,12 @@ bool MInputMethodHostStub::surroundingText(QString &text, int &cursorPosition)
     return true;
 }
 
+int MInputMethodHostStub::anchorPosition(bool &valid)
+{
+    valid = false;
+    return -1;
+}
+
 int MInputMethodHostStub::inputMethodMode(bool &valid)
 {
     valid = true;

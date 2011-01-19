@@ -46,6 +46,12 @@ public:
         return false;
     }
 
+    virtual int anchorPosition(bool &valid)
+    {
+        valid = false;
+        return -1;
+    }
+
     virtual bool hasSelection(bool &/* valid */)
     {
         return false;
