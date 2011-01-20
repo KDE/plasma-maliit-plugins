@@ -53,8 +53,6 @@ namespace
     const QString VKBTagWidth                = QString("width");
     const QString VKBTagHeight               = QString("height");
 
-    const QString VKBTagShift                = QString("shift");
-    const QString VKBTagLabel                = QString("label");
     const QString VKBTagTypeNonsloppy        = QString("non-sloppy");
     const QString VKBTagHorizontalAlignment  = QString("horizontal_alignment");
     const QString VKBTagVerticalAlignment    = QString("vertical_alignment");
@@ -71,17 +69,17 @@ namespace
 
     const QString VKBTagBinding              = QString("binding");
     const QString VKBTagKey                  = QString("key");
-    const QString VKBTagDead                 = QString("dead");
     const QString VKBTagSpacer               = QString("spacer");
 
+    const QString VKBTagKeyAction            = QString("action");
+    const QString VKBTagShift                = QString("shift");
+    const QString VKBTagLabel                = QString("label");
+    const QString VKBTagSecondaryLabel       = QString("secondary_label");
     const QString VKBTagAccents              = QString("accents");
     const QString VKBTagAccentedLabels       = QString("accented_labels");
-
     const QString VKBTagExtendedLabels       = QString("extended_labels");
-
-    const QString VKBTagKeyAction            = QString("action");
     const QString VKBTagCycleSet             = QString("cycleset");
-    const QString VKBTagSecondaryLabel       = QString("secondary_label");
+    const QString VKBTagDead                 = QString("dead");
     const QString VKBTagQuickPick            = QString("quickpick");
 
     const QString ActionStrInsert            = QString("insert");
