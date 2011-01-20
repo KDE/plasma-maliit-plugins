@@ -297,9 +297,9 @@ void SymbolView::loadSwitcherPages(const LayoutData *kbLayout, const unsigned in
         symbolSection = kbLayout->section(i);
 
         // Skip those that are not symbol sections.
-        if (symbolSection->name().startsWith(SymbolSectionPrefix) &&
-                // Skip also sym section because we added it already.
-                (symbolSection->name() != SymbolSectionSym)) {
+        if (symbolSection->name().startsWith(SymbolSectionPrefix)
+            // Skip also sym section because we added it already.
+            && (symbolSection->name() != SymbolSectionSym)) {
             addPage(symbolSection);
         }
     }
