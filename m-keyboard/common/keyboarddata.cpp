@@ -19,12 +19,14 @@
 #include "keyboarddata.h"
 
 #include <QDebug>
+#include <QDir>
 #include <QDomDocument>
 #include <QFile>
 
 
 namespace
 {
+    // TODO: Support Windows paths too.
     const QString VKBConfigurationPath = "/usr/share/meegotouch/virtual-keyboard/layouts/";
 
     const QString VKBTagKeyboard             = QString("keyboard");
@@ -279,7 +281,12 @@ bool KeyboardData::loadNokiaKeyboard(const QString &fileName)
 bool KeyboardData::loadNokiaKeyboardImpl(const QString &fileName, ParseParameters &params,
         bool importedLayout)
 {
-    const QString absoluteFileName = VKBConfigurationPath + fileName;
+    QString absoluteFileName;
+    if (QDir::isAbsolutePath(fileName)) {
+        absoluteFileName = fileName;
+    } else {
+        absoluteFileName = VKBConfigurationPath + fileName;
+    }
 
     params.fileName = &absoluteFileName;
     if (!QFile::exists(absoluteFileName)) {

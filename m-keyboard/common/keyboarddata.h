@@ -55,7 +55,7 @@ public:
     * The file is loaded from the path /usr/share/meegotouch/virtual-keyboard/layout/.
     * This method can be called multiple times to reload another keyboard file,
     * whether previous call failed or not.
-    * \param fileName XML file name without directory part
+    * \param fileName XML file name without directory part, or an absolute path
     * \return true if loading succeeded, false otherwise
     */
     bool loadNokiaKeyboard(const QString &fileName);
