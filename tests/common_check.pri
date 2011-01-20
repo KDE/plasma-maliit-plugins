@@ -19,11 +19,6 @@ DEFINES += UNIT_TEST
 
 QT += testlib
 
-MKEYBOARD_DIR = ../../m-keyboard
-WIDGETS_DIR = $$MKEYBOARD_DIR/widgets
-COMMON_DIR = $$MKEYBOARD_DIR/common
-UTILS_DIR = ../utils
-
 INCLUDEPATH += \
     $$WIDGETS_DIR \
     $$COMMON_DIR \
