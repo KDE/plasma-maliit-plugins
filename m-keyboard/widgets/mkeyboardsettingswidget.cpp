@@ -157,7 +157,7 @@ void MKeyboardSettingsWidget::buildUi()
     //% "Select with space"
     correctionSpaceContentItem->setTitle(qtTrId("qtn_txts_select_with_space"));
     //% "Select with space description"
-    correctionSpaceContentItem->setSubtitle(qtTrId("qtn_txts_error_select_with_space_description"));
+    correctionSpaceContentItem->setSubtitle(qtTrId("qtn_txts_select_with_space_description"));
     QGraphicsLinearLayout *wCLayout = new QGraphicsLinearLayout(Qt::Horizontal);
     wCLayout->addItem(correctionSpaceContentItem);
     wCLayout->addItem(correctionSpaceSwitch);
@@ -187,7 +187,7 @@ void MKeyboardSettingsWidget::updateTitle()
     errorCorrectionContentItem->setTitle(qtTrId("qtn_txts_error_correction"));
     errorCorrectionContentItem->setSubtitle(qtTrId("qtn_txts_error_correction_description"));
     correctionSpaceContentItem->setTitle(qtTrId("qtn_txts_select_with_space"));
-    correctionSpaceContentItem->setSubtitle(qtTrId("qtn_txts_error_select_with_space_description"));
+    correctionSpaceContentItem->setSubtitle(qtTrId("qtn_txts_select_with_space_description"));
     QStringList keyboards = settingsObject->selectedKeyboards().values();
     //% "Installed keyboards (%1)"
     QString title = qtTrId("qtn_txts_installed_keyboards")
