@@ -76,6 +76,8 @@ private slots:
     void testTouchPoints_data();
     void testTouchPoints();
 
+    void testReset();
+
 private:
     void changeOrientation(M::OrientationAngle angle);
     QSize defaultLayoutSize();
@@ -83,7 +85,8 @@ private:
     MImAbstractKey *keyAt(unsigned int row,
                       unsigned int column) const;
 
-    static MImAbstractKeyArea *createArea(const QString &labels,
+    static MImAbstractKeyArea *createArea(bool usePopup,
+                                          const QString &labels,
                                           const QSize &size,
                                           const QSize &fixedNormalKeySize = QSize(48, 48));
 
