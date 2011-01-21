@@ -447,7 +447,7 @@ void SymbolView::onSwitchDone()
     // after we've been hidden.
     if (isVisible()) {
         layout()->activate();
-        emit RegionTracker::instance().requestReactionMapUpdate();
+        RegionTracker::instance().requestReactionMapUpdate();
     }
     if (pageSwitcher) {
         activePage = pageSwitcher->current();
