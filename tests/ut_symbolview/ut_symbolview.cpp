@@ -25,6 +25,7 @@
 #include "keyevent.h"
 #include "mimabstractkeyarea.h"
 #include "layoutsmanager.h"
+#include "regiontracker.h"
 #include "symbolview.h"
 #include "ut_symbolview.h"
 #include "mplainwindow.h"
@@ -77,22 +78,17 @@ void Ut_SymbolView::initTestCase()
     langlist << "en_us.xml";
     inputMethodSetting.set(QVariant(langlist));
 
-    MGConfItem defaultLayoutSetting(DefaultLayoutSettingName);
-    defaultLayoutSetting.set(QVariant(DefaultLayout));
-
     LayoutsManager::createInstance();
 
     qRegisterMetaType<KeyEvent>("KeyEvent");
 
     new MPlainWindow;
-
-    if ((*style)->paddingTop() <= 0) {
-        QSKIP("This test is sipped due to incorrect value received from CSS", SkipAll);
-    }
+    RegionTracker::createInstance();
 }
 
 void Ut_SymbolView::cleanupTestCase()
 {
+    RegionTracker::destroyInstance();
     delete MPlainWindow::instance();
     LayoutsManager::destroyInstance();
     delete style;
@@ -129,28 +125,13 @@ void Ut_SymbolView::testReactiveButtonAreas_data()
 {
     QTest::addColumn<int>("orientationAngle");
 
-    // The following locations are supplementary to reactionmaptester's tests
-    // and only required to check special cases.
-    QTest::addColumn< QList<QPoint> >("transparentLocations");
-
-    QList<QPoint> transparentLocationsLandscape;
-    transparentLocationsLandscape
-        << QPoint(1, -10) // transparent above symbol view
-        << QPoint(600, -10); // transparent above symbol view
-
-    QList<QPoint> transparentLocationsPortrait;
-    transparentLocationsPortrait
-        << QPoint(1, -10) // transparent above symbol view
-        << QPoint(400, -10); // transparent above symbol view
-
-    QTest::newRow("Angle 0") << 0 << transparentLocationsLandscape;
-    QTest::newRow("Angle 90") << 90 << transparentLocationsPortrait;
+    QTest::newRow("Angle 0") << 0;
+    QTest::newRow("Angle 90") << 90;
 }
 
 void Ut_SymbolView::testReactiveButtonAreas()
 {
-    QFETCH(int, orientationAngle);
-    QFETCH(QList<QPoint>, transparentLocations);
+    QFETCH(int, orientationAngle);;
 
     rotateToAngle(static_cast<M::OrientationAngle>(orientationAngle));
 
@@ -172,20 +153,25 @@ void Ut_SymbolView::testReactiveButtonAreas()
     QVERIFY(tester.testChildButtonReactiveAreas(view, subject));
 
     // Test the next tab also.
+    QSignalSpy reactionMapUpdate(&RegionTracker::instance(),
+                                 SIGNAL(reactionMapUpdateNeeded()));
     subject->switchToNextPage();
     QTest::qWait(600);
     QVERIFY(!subject->pageSwitcher->isRunning());
     // After the switch the reactive areas should be updated.
+    QVERIFY(reactionMapUpdate.count() >= 1);
+
+    // However since we don't have MKeyboardHost here we call this directly again.
+    gMReactionMapStub->setTransparentDrawingValue();
+    gMReactionMapStub->setTransform(QTransform());
+    gMReactionMapStub->fillRectangle(0, 0, gMReactionMapStub->width(), gMReactionMapStub->height());
+    subject->paintReactionMap(MReactionMap::instance(view), view);
 
     // Check that all buttons are covered by reactive area
     QVERIFY(tester.testChildButtonReactiveAreas(view, subject));
 
     // Following coordinates will be given in subject coordinates.
     gMReactionMapStub->setTransform(subject, view);
-
-    foreach(const QPoint & pos, transparentLocations) {
-        QCOMPARE(tester.colorAt(pos), MReactionMapTester::Transparent);
-    }
 
     // Check locations that should be inactive. This test is really only for
     // testing that at least something is drawn inactive, and not only reactive
