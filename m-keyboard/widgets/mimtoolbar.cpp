@@ -205,7 +205,7 @@ void MImToolbar::loadCustomWidgets()
     }
 }
 
-void MImToolbar::createAndAppendWidget(QSharedPointer<MToolbarItem> item)
+void MImToolbar::createAndAppendWidget(const QSharedPointer<MToolbarItem> &item)
 {
     MWidget *widget = 0;
     WidgetBar *sidebar = 0;

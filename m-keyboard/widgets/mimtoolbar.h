@@ -165,7 +165,7 @@ private:
 
     Qt::KeyboardModifiers keyModifiers(int key) const;
 
-    void createAndAppendWidget(QSharedPointer<MToolbarItem> item);
+    void createAndAppendWidget(const QSharedPointer<MToolbarItem> &item);
 
     bool textSelected;
 
