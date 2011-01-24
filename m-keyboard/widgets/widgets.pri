@@ -6,6 +6,7 @@ PUBLIC_HEADERS += \
     $$WIDGETS_DIR/popupplugin.h \
     $$WIDGETS_DIR/mimoverlay.h \
     $$WIDGETS_DIR/mimabstractkeyarea.h \
+    $$WIDGETS_DIR/mimkeyvisitor.h \
     $$WIDGETS_DIR/mimkey.h \
     $$WIDGETS_DIR/mimkeyarea.h \
 
@@ -66,6 +67,7 @@ SOURCES += \
     $$WIDGETS_DIR/symbolview.cpp \
     $$WIDGETS_DIR/mimabstractkey.cpp \
     $$WIDGETS_DIR/mimabstractkeyarea.cpp \
+    $$WIDGETS_DIR/mimkeyvisitor.cpp \
     $$WIDGETS_DIR/mimkey.cpp \
     $$WIDGETS_DIR/mimkeyarea.cpp \
     $$WIDGETS_DIR/popupbase.cpp \

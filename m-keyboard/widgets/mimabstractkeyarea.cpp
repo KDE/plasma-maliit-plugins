@@ -17,6 +17,7 @@
 #include "flickgesture.h"
 #include "flickgesturerecognizer.h"
 #include "mimabstractkeyarea.h"
+#include "mimkeyvisitor.h"
 #include "popupbase.h"
 #include "popupfactory.h"
 
@@ -70,79 +71,6 @@ namespace
 
         return pos;
     }
-
-    //! \brief Helper class responsible for finding active special keys.
-    //!
-    //! Can be used as visitor.
-    class SpecialKeyFinder
-            : public MImAbstractKeyVisitor
-    {
-    public:
-        enum FindMode {
-            FindShiftKey,
-            FindDeadKey,
-            FindBoth
-        };
-
-    private:
-        MImAbstractKey *mShiftKey;
-        MImAbstractKey *mDeadKey;
-        FindMode mode;
-
-    public:
-        explicit SpecialKeyFinder(FindMode newMode = FindBoth)
-            : MImAbstractKeyVisitor()
-            , mShiftKey(0)
-            , mDeadKey(0)
-            , mode(newMode)
-        {}
-
-        MImAbstractKey *shiftKey() const
-        {
-            return mShiftKey;
-        }
-
-        MImAbstractKey *deadKey() const
-        {
-            return mDeadKey;
-        }
-
-        bool operator()(MImAbstractKey *key)
-        {
-            if (!key) {
-                return false;
-            }
-
-            if (key->isShiftKey()) {
-                mShiftKey = key;
-            } else if (key->isDeadKey()) {
-                mDeadKey = key;
-            }
-
-            switch (mode) {
-            case FindShiftKey:
-                if (mShiftKey) {
-                    return true;
-                }
-                break;
-
-            case FindDeadKey:
-                if (mDeadKey) {
-                    return true;
-                }
-                break;
-
-            case FindBoth:
-                if (mShiftKey && mDeadKey) {
-                    return true;
-                }
-                break;
-            }
-
-
-            return false;
-        }
-    };
 
     //! Handles destruction order of internal QFile and QTextStream correctly
     //! and extends lifetime of QFile to QTextStream.
@@ -303,7 +231,7 @@ void MImAbstractKeyArea::updatePopup(MImAbstractKey *key)
     // screen position, so we can use mapToScene to calculate screen position:
     const QPoint pos = mapToScene(buttonRect.topLeft()).toPoint();
 
-    SpecialKeyFinder finder(SpecialKeyFinder::FindDeadKey);
+    MImKeyVisitor::SpecialKeyFinder finder(MImKeyVisitor::SpecialKeyFinder::FindDeadKey);
     MImAbstractKey::visitActiveKeys(&finder);
 
     mPopup->updatePos(buttonRect.topLeft(), pos, buttonRect.toRect().size());
@@ -330,7 +258,7 @@ MImAbstractKeyArea::handleVisibilityChanged(bool visible)
     }
 
     if (!visible) {
-        SpecialKeyFinder finder(SpecialKeyFinder::FindDeadKey);
+        MImKeyVisitor::SpecialKeyFinder finder(MImKeyVisitor::SpecialKeyFinder::FindDeadKey);
         MImAbstractKey::visitActiveKeys(&finder);
 
         unlockDeadKeys(finder.deadKey());
@@ -344,7 +272,7 @@ MImAbstractKeyArea::switchLevel(int level)
         currentLevel = level;
 
         // Update uppercase / lowercase
-        SpecialKeyFinder finder(SpecialKeyFinder::FindDeadKey);
+        MImKeyVisitor::SpecialKeyFinder finder(MImKeyVisitor::SpecialKeyFinder::FindDeadKey);
         MImAbstractKey::visitActiveKeys(&finder);
 
         updateKeyModifiers(finder.deadKey() ? finder.deadKey()->label().at(0) : '\0');
@@ -423,7 +351,7 @@ void MImAbstractKeyArea::click(MImAbstractKey *key,
         return;
     }
 
-    SpecialKeyFinder finder;
+    MImKeyVisitor::SpecialKeyFinder finder;
     MImAbstractKey::visitActiveKeys(&finder);
     const bool hasActiveShiftKeys = (finder.shiftKey() != 0);
 
@@ -621,7 +549,7 @@ void MImAbstractKeyArea::touchPointPressed(const QTouchEvent::TouchPoint &tp)
 
     // Try to commit currently active key before activating new key:
     MImAbstractKey *const lastActiveKey = MImAbstractKey::lastActiveKey();
-    SpecialKeyFinder finder;
+    MImKeyVisitor::SpecialKeyFinder finder;
     MImAbstractKey::visitActiveKeys(&finder);
     const bool hasActiveShiftKeys = (finder.shiftKey() != 0);
 
@@ -673,7 +601,7 @@ void MImAbstractKeyArea::touchPointMoved(const QTouchEvent::TouchPoint &tp)
     const QPoint startPos = mapFromScene(tp.startScenePos()).toPoint();
 
     const GravitationalLookupResult lookup = gravitationalKeyAt(pos, lastPos);
-    SpecialKeyFinder finder;
+    MImKeyVisitor::SpecialKeyFinder finder;
     MImAbstractKey::visitActiveKeys(&finder);
     const bool hasActiveShiftKeys = (finder.shiftKey() != 0);
 
@@ -733,7 +661,7 @@ void MImAbstractKeyArea::touchPointReleased(const QTouchEvent::TouchPoint &tp)
     const QPoint startPos = mapFromScene(tp.startScenePos()).toPoint();
 
     const GravitationalLookupResult lookup = gravitationalKeyAt(pos, lastPos);
-    SpecialKeyFinder finder;
+    MImKeyVisitor::SpecialKeyFinder finder;
     MImAbstractKey::visitActiveKeys(&finder);
     const bool hasActiveShiftKeys = (finder.shiftKey() != 0);
 
@@ -929,7 +857,7 @@ void MImAbstractKeyArea::handleLongKeyPressed()
         return;
     }
 
-    SpecialKeyFinder finder(SpecialKeyFinder::FindDeadKey);
+    MImKeyVisitor::SpecialKeyFinder finder(MImKeyVisitor::SpecialKeyFinder::FindDeadKey);
     MImAbstractKey::visitActiveKeys(&finder);
 
     const QString accent = (finder.deadKey() ? finder.deadKey()->label()
