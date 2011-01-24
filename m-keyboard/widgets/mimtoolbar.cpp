@@ -193,12 +193,6 @@ void MImToolbar::loadCustomWidgets()
 
     const M::Orientation orientation = MPlainWindow::instance()->sceneManager()->orientation();
     QSharedPointer<const MToolbarLayout> layout = currentToolbar->layout(orientation);
-    QGraphicsLinearLayout *mainLayout = static_cast<QGraphicsLinearLayout*>(this->layout());
-
-    if (!mainLayout) {
-        qCritical() << __PRETTY_FUNCTION__ << "Layout does not exist";
-    }
-
 
     foreach (QSharedPointer<MToolbarItem> item, layout->items()) {
         createAndAppendWidget(item);
@@ -238,12 +232,6 @@ void MImToolbar::createAndAppendWidget(const QSharedPointer<MToolbarItem> &item)
 
 void MImToolbar::unloadCustomWidgets()
 {
-    QGraphicsLinearLayout *mainLayout = static_cast<QGraphicsLinearLayout*>(layout());
-
-    if (!mainLayout) {
-        qCritical() << __PRETTY_FUNCTION__ << "Layout does not exist";
-    }
-
     qDeleteAll(customWidgets);
     customWidgets.clear();
     leftBar.cleanup();
