@@ -194,6 +194,13 @@ void MImToolbar::loadCustomWidgets()
     const M::Orientation orientation = MPlainWindow::instance()->sceneManager()->orientation();
     QSharedPointer<const MToolbarLayout> layout = currentToolbar->layout(orientation);
 
+    if (layout.isNull()) {
+        qWarning() << __PRETTY_FUNCTION__
+                   << "Could not find layout in current toolbar. Orientation was:"
+                   << orientation;
+        return;
+    }
+
     foreach (QSharedPointer<MToolbarItem> item, layout->items()) {
         createAndAppendWidget(item);
     }
