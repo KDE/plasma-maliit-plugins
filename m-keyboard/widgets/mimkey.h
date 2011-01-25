@@ -21,18 +21,31 @@
 
 #include "mimabstractkey.h"
 #include <QPointF>
+#include <QGraphicsItem>
+#include <QRectF>
+#include <QFontMetrics>
+#include <QSharedPointer>
 
 class MImAbstractKeyAreaStyleContainer;
-class QGraphicsItem;
 class MImKeyArea;
+class MScalableImage;
 
 //! Represents a key model with the key's current binding state, and also contains its visible area.
 class MImKey
-    : public MImAbstractKey
+    : public QGraphicsItem,
+      public MImAbstractKey
 {
 public:
+    //! Contains cached font information for current style
+    struct StylingCache
+    {
+        QFontMetrics primary;
+        QFontMetrics secondary;
+
+        StylingCache();
+    };
+
     struct Geometry {
-        QPointF pos;
         qreal width;
         qreal height;
         qreal marginLeft;
@@ -41,8 +54,7 @@ public:
         qreal marginBottom;
 
         Geometry();
-        Geometry(const QPointF &newPos,
-                 qreal newWidth,
+        Geometry(qreal newWidth,
                  qreal newHeight,
                  qreal newMarginLeft,
                  qreal newMarginTop,
@@ -52,7 +64,8 @@ public:
 
     explicit MImKey(const MImKeyModel &mModel,
                     const MImAbstractKeyAreaStyleContainer &style,
-                    QGraphicsItem &parent);
+                    QGraphicsItem &parent,
+                    const QSharedPointer<StylingCache> &newStylingCache);
 
     virtual ~MImKey();
 
@@ -78,6 +91,9 @@ public:
     virtual int touchPointCount() const;
     virtual void activateGravity();
     virtual bool isGravityActive() const;
+    virtual const MScalableImage *backgroundImage() const;
+    virtual QRectF boundingRect() const;
+    virtual void paint(QPainter * painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
     //! \reimp_end
 
     //! Return limit for active touchpoints
@@ -92,7 +108,7 @@ public:
     //! \brief Draws the icon of this key, if available.
     virtual void drawIcon(QPainter *painter) const;
     //! \brief Calls parent item's QGraphicsItem::update() who actually draws the button.
-    void update();
+    void updateParent();
 
     //! Returns preferred fixed witdth
     int preferredFixedWidth() const;
@@ -110,10 +126,6 @@ public:
     //! \brief Set new geometry of the key.
     //! \param geometry the new geometry
     void setGeometry(const MImKey::Geometry &geometry);
-
-    //! \brief Set position (relative to parent item).
-    //! \param pos the new position
-    void setPos(const QPointF &pos);
 
     //! \brief Set the key width.
     //! \param width the new width
@@ -133,11 +145,30 @@ public:
                     qreal right,
                     qreal bottom);
 
+    //! \brief This parameter defines text alignment: we use primary label only if \a enable is false
+    //! and both primary and secondary labels if \a enable is false.
+    void setSecondaryLabelEnabled(bool enable);
+
+    //! \brief Return position of primary label
+    const QPointF & labelPos() const;
+
+    //! \brief Return position of secondary label.
+    const QPointF & secondaryLabelPos() const;
+
+    //! \brief Invalidates cached position, so next call to getter will calculate it again
+    void invalidateLabelPos() const;
+
+    //! \brief Updates cached geometry.
+    //! This method must be called when position or size of this key is changed.
+    void updateGeometryCache();
+
     //! The width for this button. Not managed by this class.
     //! It is used by MImKeyArea to store the correct button size.
     qreal width;
 
 private:
+    Q_DISABLE_COPY(MImKey);
+
     //! Contains information about icon
     struct IconInfo
     {
@@ -152,7 +183,8 @@ private:
 
     void loadIcon(bool shift);
     const IconInfo &iconInfo() const;
-    void updateButtonRects();
+    //! \brief Update cached label position.
+    void updateLabelPos() const;
 
     const MImKeyModel &mModel;
 
@@ -178,6 +210,16 @@ private:
     QRectF cachedButtonBoundingRect;
 
     bool hasGravity;
+
+    //! Some key in the same row has secondary label
+    bool rowHasSecondaryLabel;
+
+    //! Cached position of primary label
+    mutable QPointF labelPoint;
+    //! Cached position of secondaryLabel label
+    mutable QPointF secondaryLabelPoint;
+
+    const QSharedPointer<StylingCache> stylingCache;
 };
 
 #endif // MIMKEY_H

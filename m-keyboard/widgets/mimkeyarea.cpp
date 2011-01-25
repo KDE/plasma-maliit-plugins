@@ -27,6 +27,7 @@
 #include <mplainwindow.h>
 #include <mreactionmap.h>
 #include <MTimestamp>
+#include <MDebug> 
 
 namespace {
     template<class T>
@@ -63,7 +64,7 @@ namespace {
         //! PaintMode can be used to optimize drawing for HW acceleration
         enum PaintMode {
             PaintBackground, //!< Only draw background of given keys, fills up iconKeys
-            PaintBackgroundAndIcon  //!< Draw both, background and icon, in one go
+            PaintBackgroundAndIcon //!< Draw both, background and icon, in one go
         };
 
     private:
@@ -138,58 +139,7 @@ namespace {
                 return;
             }
 
-            const MScalableImage *background = 0;
-
-            switch (key->state()) {
-
-            case MImAbstractKey::Normal:
-                switch (key->model().style()) {
-                case MImKeyModel::SpecialStyle:
-                    background = keyArea->baseStyle()->keyBackgroundSpecial();
-                    break;
-                case MImKeyModel::DeadkeyStyle:
-                    background = keyArea->baseStyle()->keyBackgroundDeadkey();
-                    break;
-                case MImKeyModel::NormalStyle:
-                default:
-                    background = keyArea->baseStyle()->keyBackground();
-                    break;
-                }
-                break;
-
-            case MImAbstractKey::Pressed:
-                switch (key->model().style()) {
-                case MImKeyModel::SpecialStyle:
-                    background = keyArea->baseStyle()->keyBackgroundSpecialPressed();
-                    break;
-                case MImKeyModel::DeadkeyStyle:
-                    background = keyArea->baseStyle()->keyBackgroundDeadkeyPressed();
-                    break;
-                case MImKeyModel::NormalStyle:
-                default:
-                    background = keyArea->baseStyle()->keyBackgroundPressed();
-                    break;
-                }
-                break;
-
-            case MImAbstractKey::Selected:
-                switch (key->model().style()) {
-                case MImKeyModel::SpecialStyle:
-                    background = keyArea->baseStyle()->keyBackgroundSpecialSelected();
-                    break;
-                case MImKeyModel::DeadkeyStyle:
-                    background = keyArea->baseStyle()->keyBackgroundDeadkeySelected();
-                    break;
-                case MImKeyModel::NormalStyle:
-                default:
-                    background = keyArea->baseStyle()->keyBackgroundSelected();
-                    break;
-                }
-                break;
-
-            default:
-                break;
-            }
+            const MScalableImage *background = key->backgroundImage();
 
             if (background) {
                 background->draw(key->buttonRect().toRect(), painter);
@@ -360,6 +310,7 @@ namespace {
 
             foreach (MImKey *const key, row) {
                 key->setPos(currentPos);
+                key->updateGeometryCache();
 
                 const qreal nextPosX = currentPos.x() + key->buttonBoundingRect().width();
                 mKeyOffsets.append(QPair<qreal, qreal>(currentPos.x(), nextPosX));
@@ -384,7 +335,8 @@ MImKeyArea::MImKeyArea(const LayoutData::SharedLayoutSection &newSection,
       cachedBackgroundDirty(true),
       hasCachedBackground(false),
       equalWidthKeys(true),
-      WidthCorrection(0)
+      WidthCorrection(0),
+      stylingCache(new MImKey::StylingCache)
 {
     textLayout.setCacheEnabled(true);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
@@ -454,7 +406,7 @@ void MImKeyArea::loadKeys()
         for (int col = 0; col < numColumns; ++col) {
             // Parameters to fetch from base class.
             MImKeyModel *dataKey = sectionModel()->keyModel(row, col);
-            MImKey *key = new MImKey(*dataKey, baseStyle(), *this);
+            MImKey *key = new MImKey(*dataKey, baseStyle(), *this, stylingCache);
 
             // Temporary, dirty workaround-hack to detect Arabic layouts
             // because the QTextLayout rendering is broken with Arabic characters and
@@ -529,12 +481,6 @@ void MImKeyArea::buildTextLayout()
 
     QFontMetrics fm(baseStyle()->font());
     QFontMetrics secondaryFm(secondaryFormat.font());
-    const int labelHeight = fm.height();
-    const int secondaryLabelHeight = secondaryFm.height();
-    const int topMargin = baseStyle()->labelMarginTop();
-    const int labelLeftWithSecondary = baseStyle()->labelMarginLeftWithSecondary();
-    const int secondarySeparation = baseStyle()->secondaryLabelSeparation();
-    const bool landscape = (MPlainWindow::instance()->orientation() == M::Landscape);
 
     textLayout.setFont(baseStyle()->font());
     textLayout.setText(labelContent);
@@ -549,58 +495,29 @@ void MImKeyArea::buildTextLayout()
         foreach (const MImKey *key, row->keys) {
             if (!key->secondaryLabel().isEmpty()) {
                 rowHasSecondaryLabel = true;
+                break;
             }
         }
 
-        foreach (const MImKey *key, row->keys) {
+        foreach (MImKey *key, row->keys) {
             const QString &label(key->label());
             const QString &secondary(key->secondaryLabel());
-            QPoint labelPos;
-            QPoint secondaryLabelPos;
+            QPointF labelPos;
+            QPointF secondaryLabelPos;
+
+            key->setSecondaryLabelEnabled(rowHasSecondaryLabel);
 
             // We must not create a new QTextLine if there is no label.
             if (label.isEmpty()) {
                 continue;
             }
 
-            const QRectF &keyRect = key->buttonRect();
+            labelPos = mapFromItem(key, key->labelPos());
+            labelPos.ry() -= fm.ascent();
 
-            if (!rowHasSecondaryLabel) {
-                // All horizontally centered.
-                labelPos = fm.boundingRect(keyRect.x(),
-                                           keyRect.y(),
-                                           keyRect.width(),
-                                           keyRect.height(),
-                                           Qt::AlignCenter,
-                                           label).topLeft();
-            } else {
-                // Calculate position for both primary and secondary label.
-                // We only have secondary labels in phone number layouts (with sym being exception)
-                // so this follows their styling.
-
-                // In landscape the secondary labels are below the primary ones. In portrait,
-                // secondary labels are horizontally next to primary labels.
-                if (landscape) {
-                    // primary label: horizontally centered, top margin defines y
-                    // secondary: horizontally centered, primary bottom + separation margin defines y
-                    const int primaryY = keyRect.top() + topMargin;
-                    labelPos.setX(keyRect.center().x() - fm.width(label) / 2);
-                    labelPos.setY(primaryY);
-                    if (!secondary.isEmpty()) {
-                        secondaryLabelPos.setX(keyRect.center().x() - secondaryFm.width(secondary) / 2);
-                        secondaryLabelPos.setY(primaryY + labelHeight + secondarySeparation);
-                    }
-                } else {
-                    // primary label: horizontally according to left margin, vertically centered
-                    // secondary: horizontally on right of primary + separation margin, vertically centered
-                    const int primaryX = keyRect.left() + labelLeftWithSecondary;
-                    labelPos.setX(primaryX);
-                    labelPos.setY(keyRect.center().y() - labelHeight / 2);
-                    if (!secondary.isEmpty()) {
-                        secondaryLabelPos.setX(primaryX + fm.width(label) + secondarySeparation);
-                        secondaryLabelPos.setY(keyRect.center().y() - secondaryLabelHeight / 2);
-                    }
-                }
+            if (rowHasSecondaryLabel) {
+                secondaryLabelPos = mapFromItem(key, key->secondaryLabelPos());
+                secondaryLabelPos.ry() -= secondaryFm.ascent();
             }
 
             // We now have positions, let's create some QTextLines.
@@ -707,10 +624,6 @@ void MImKeyArea::paint(QPainter *onScreenPainter,
     if (hasCachedBackground) {
         onScreenPainter->drawPixmap(boundingRect().toRect(), *cachedBackground.get());
     }
-
-    KeyPainter kp(this, onScreenPainter, KeyPainter::PaintBackground);
-    MImAbstractKey::visitActiveKeys(&kp);
-    kp.drawIcons();
 
     if (textDirty) {
         buildTextLayout();
@@ -957,11 +870,28 @@ qreal MImKeyArea::normalizedKeyWidth(const MImKeyModel *model) const
 
 void MImKeyArea::onThemeChangeCompleted()
 {
+    mDebug("MImKeyArea") << __PRETTY_FUNCTION__;
     mMaxNormalizedWidth = computeMaxNormalizedWidth();
     cachedWidgetHeight = computeWidgetHeight();
+    stylingCache->primary   = QFontMetrics(baseStyle()->font());
+    stylingCache->secondary = QFontMetrics(baseStyle()->secondaryFont());
+
+    foreach (const MImAbstractKey *abstractKey, keys()) {
+        const MImKey *key = dynamic_cast<const MImKey*>(abstractKey);
+        if (key) {
+            key->invalidateLabelPos();
+        }
+    }
 
     MImAbstractKeyArea::onThemeChangeCompleted();
     buildTextLayout();
+}
+
+void MImKeyArea::applyStyle()
+{
+    mDebug("MImKeyArea") << __PRETTY_FUNCTION__;
+    stylingCache->primary   = QFontMetrics(baseStyle()->font());
+    stylingCache->secondary = QFontMetrics(baseStyle()->secondaryFont());
 }
 
 void MImKeyArea::handleVisibilityChanged(bool)

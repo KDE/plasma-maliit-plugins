@@ -25,6 +25,7 @@
 class QRect;
 class QPainter;
 class MImAbstractKey;
+class MScalableImage;
 
 //! Visitor interface that can be used for MImAbstractKey::visitActiveKeys
 class MImAbstractKeyVisitor
@@ -113,6 +114,9 @@ public:
 
     //! \brief Returns whether gravity is active.
     virtual bool isGravityActive() const = 0;
+
+    //! \brief Return background image according to current mode and style.
+    virtual const MScalableImage *backgroundImage() const = 0;
 
     //! \brief Returns most recent key that became active, and wasn't released yet.
     //!        If no key is active, returns 0.

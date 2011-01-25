@@ -21,8 +21,11 @@
 #include "mvirtualkeyboardstyle.h"
 #include "getcssproperty.h"
 
+#include <mplainwindow.h>
+
 #include <MTheme>
-#include <QGraphicsItem>
+#include <MScalableImage>
+
 #include <QPainter>
 
 namespace {
@@ -31,6 +34,12 @@ namespace {
         const qreal scaling = qMax<qreal>(0.0, newScaling);
         return ((scaling * unit) + (qMax<qreal>(0.0, scaling - 1) * spacing));
     }
+}
+
+MImKey::StylingCache::StylingCache()
+    : primary(QFont()),
+    secondary(QFont())
+{
 }
 
 MImKey::IconInfo::IconInfo()
@@ -46,8 +55,7 @@ MImKey::IconInfo::~IconInfo()
 }
 
 MImKey::Geometry::Geometry()
-    : pos()
-    , width(0.0)
+    : width(0.0)
     , height(0.0)
     , marginLeft(0.0)
     , marginTop(0.0)
@@ -55,15 +63,13 @@ MImKey::Geometry::Geometry()
     , marginBottom(0.0)
 {}
 
-MImKey::Geometry::Geometry(const QPointF &newPos,
-                           qreal newWidth,
+MImKey::Geometry::Geometry(qreal newWidth,
                            qreal newHeight,
                            qreal newMarginLeft,
                            qreal newMarginTop,
                            qreal newMarginRight,
                            qreal newMarginBottom)
-    : pos(newPos)
-    , width(newWidth)
+    : width(newWidth)
     , height(newHeight)
     , marginLeft(newMarginLeft)
     , marginTop(newMarginTop)
@@ -73,8 +79,10 @@ MImKey::Geometry::Geometry(const QPointF &newPos,
 
 MImKey::MImKey(const MImKeyModel &newModel,
                const MImAbstractKeyAreaStyleContainer &style,
-               QGraphicsItem &parent)
-    : width(0),
+               QGraphicsItem &parent,
+               const QSharedPointer<StylingCache> &newStylingCache)
+    : QGraphicsItem(&parent),
+      width(0),
       mModel(newModel),
       shift(false),
       currentLabel(mModel.binding(false)->label()),
@@ -83,7 +91,9 @@ MImKey::MImKey(const MImKeyModel &newModel,
       styleContainer(style),
       parentItem(parent),
       currentTouchPointCount(0),
-      hasGravity(false)
+      hasGravity(false),
+      rowHasSecondaryLabel(false),
+      stylingCache(newStylingCache)
 {
     if (mModel.binding(false)) {
         loadIcon(false);
@@ -91,6 +101,10 @@ MImKey::MImKey(const MImKeyModel &newModel,
     if (mModel.binding(true)) {
         loadIcon(true);
     }
+
+    hide();
+
+    //label position should be computed later, when geometry will be known
 }
 
 MImKey::~MImKey()
@@ -117,14 +131,64 @@ const QRectF &MImKey::buttonBoundingRect() const
     return cachedButtonBoundingRect;
 }
 
-void MImKey::updateButtonRects()
+void MImKey::updateGeometryCache()
 {
     const Geometry &g = currentGeometry;
-    cachedButtonBoundingRect = QRectF(g.pos.x(), g.pos.y(),
+    cachedButtonBoundingRect = QRectF(pos().x(), pos().y(),
                                       g.width + g.marginLeft + g.marginRight,
                                       g.height + g.marginTop + g.marginBottom);
     cachedButtonRect = cachedButtonBoundingRect.adjusted( g.marginLeft,   g.marginTop,
                                                          -g.marginRight, -g.marginBottom);
+}
+
+void MImKey::invalidateLabelPos() const
+{
+    labelPoint = QPointF();
+    secondaryLabelPoint = QPointF();
+}
+
+void MImKey::updateLabelPos() const
+{
+    const QRectF paintingArea(currentGeometry.marginLeft,
+                              currentGeometry.marginTop,
+                              currentGeometry.width,
+                              currentGeometry.height);
+
+    if (!rowHasSecondaryLabel) {
+        labelPoint = stylingCache->primary.boundingRect(paintingArea.toRect(), Qt::AlignCenter, label()).topLeft();
+        labelPoint.ry() += stylingCache->primary.ascent();
+    } else {
+        const int labelHeight = stylingCache->primary.height();
+        const int secondaryLabelHeight = stylingCache->secondary.height();
+        const int topMargin = styleContainer->labelMarginTop();
+        const int labelLeftWithSecondary = styleContainer->labelMarginLeftWithSecondary();
+        const int secondarySeparation = styleContainer->secondaryLabelSeparation();
+        const bool landscape = (MPlainWindow::instance()->orientation() == M::Landscape);
+
+        // In landscape the secondary labels are below the primary ones. In portrait,
+        // secondary labels are horizontally next to primary labels.
+        if (landscape) {
+            // primary label: horizontally centered, top margin defines y
+            // secondary: horizontally centered, primary bottom + separation margin defines y
+            const int primaryY = paintingArea.top() + topMargin;
+            labelPoint.setX(paintingArea.center().x() - stylingCache->primary.width(label()) / 2);
+            labelPoint.setY(primaryY + stylingCache->primary.ascent());
+            if (!secondaryLabel().isEmpty()) {
+                secondaryLabelPoint.setX(paintingArea.center().x() - stylingCache->secondary.width(secondaryLabel()) / 2);
+                secondaryLabelPoint.setY(primaryY + labelHeight + secondarySeparation + stylingCache->secondary.ascent());
+            }
+        } else {
+            // primary label: horizontally according to left margin, vertically centered
+            // secondary: horizontally on right of primary + separation margin, vertically centered
+            const int primaryX = paintingArea.left() + labelLeftWithSecondary;
+            labelPoint.setX(primaryX);
+            labelPoint.setY(paintingArea.center().y() - labelHeight / 2 + stylingCache->primary.ascent());
+            if (!secondaryLabel().isEmpty()) {
+                secondaryLabelPoint.setX(primaryX + stylingCache->primary.width(label()) + secondarySeparation);
+                secondaryLabelPoint.setY(paintingArea.center().y() - secondaryLabelHeight / 2 + stylingCache->secondary.ascent());
+            }
+        }
+    }
 }
 
 void MImKey::setModifiers(bool shift, QChar accent)
@@ -134,7 +198,8 @@ void MImKey::setModifiers(bool shift, QChar accent)
         this->accent = accent;
         currentLabel = binding().accented(accent);
 
-        update();
+        updateParent();
+        invalidateLabelPos();
     }
 }
 
@@ -160,7 +225,8 @@ void MImKey::setDownState(bool down)
             hasGravity = false;
         }
 
-        update();
+        setVisible(currentState != Normal);
+        updateParent();
     }
 }
 
@@ -265,6 +331,97 @@ bool MImKey::isGravityActive() const
     return hasGravity;
 }
 
+const MScalableImage * MImKey::backgroundImage() const
+{
+    const MScalableImage *background = 0;
+
+    switch (state()) {
+
+        case MImAbstractKey::Normal:
+            switch (model().style()) {
+                case MImKeyModel::SpecialStyle:
+                    background = styleContainer->keyBackgroundSpecial();
+                    break;
+                case MImKeyModel::DeadkeyStyle:
+                    background = styleContainer->keyBackgroundDeadkey();
+                    break;
+                case MImKeyModel::NormalStyle:
+                default:
+                    background = styleContainer->keyBackground();
+                    break;
+            }
+            break;
+
+        case MImAbstractKey::Pressed:
+            switch (model().style()) {
+                case MImKeyModel::SpecialStyle:
+                    background = styleContainer->keyBackgroundSpecialPressed();
+                    break;
+                case MImKeyModel::DeadkeyStyle:
+                    background = styleContainer->keyBackgroundDeadkeyPressed();
+                    break;
+                case MImKeyModel::NormalStyle:
+                default:
+                    background = styleContainer->keyBackgroundPressed();
+                    break;
+            }
+            break;
+
+        case MImAbstractKey::Selected:
+            switch (model().style()) {
+                case MImKeyModel::SpecialStyle:
+                    background = styleContainer->keyBackgroundSpecialSelected();
+                    break;
+                case MImKeyModel::DeadkeyStyle:
+                    background = styleContainer->keyBackgroundDeadkeySelected();
+                    break;
+                case MImKeyModel::NormalStyle:
+                default:
+                    background = styleContainer->keyBackgroundSelected();
+                    break;
+            }
+            break;
+
+        default:
+            break;
+    }
+
+    return background;
+}
+
+QRectF MImKey::boundingRect() const
+{
+    return QRectF(QPointF(), buttonBoundingRect().size());
+}
+
+void MImKey::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
+{
+    const MScalableImage *background = backgroundImage();
+    const QRectF paintingArea(currentGeometry.marginLeft,
+                              currentGeometry.marginTop,
+                              currentGeometry.width,
+                              currentGeometry.height);
+    const QPixmap *iconPixmap(icon());
+
+    if (background) {
+        background->draw(paintingArea, painter);
+    }
+
+    if (iconPixmap) {
+        QPointF iconPos(paintingArea.left() + (paintingArea.width() - iconPixmap->width()) / 2,
+                        paintingArea.top() + (paintingArea.height() - iconPixmap->height()) / 2);
+        painter->drawPixmap(iconPos, *iconPixmap);
+    } else {
+        painter->setFont(styleContainer->font());
+        painter->setPen(styleContainer->fontColor());
+        painter->drawText(labelPos(), label());
+        if (!secondaryLabel().isEmpty()) {
+            painter->setFont(styleContainer->secondaryFont());
+            painter->drawText(secondaryLabelPos(), secondaryLabel());
+        }
+    }
+}
+
 const QPixmap *MImKey::icon() const
 {
     return iconInfo().pixmap;
@@ -287,7 +444,7 @@ void MImKey::drawIcon(QPainter *painter) const
     }
 }
 
-void MImKey::update()
+void MImKey::updateParent()
 {
     // Invalidate this button's area.
     parentItem.update(buttonRect());
@@ -373,25 +530,20 @@ const MImKey::Geometry &MImKey::geometry() const
 void MImKey::setGeometry(const MImKey::Geometry &geometry)
 {
     currentGeometry = geometry;
-    updateButtonRects();
-}
-
-void MImKey::setPos(const QPointF &pos)
-{
-    currentGeometry.pos = pos;
-    updateButtonRects();
+    updateGeometryCache();
+    invalidateLabelPos();
 }
 
 void MImKey::setWidth(qreal width)
 {
     currentGeometry.width = width;
-    updateButtonRects();
+    updateGeometryCache();
 }
 
 void MImKey::setHeight(qreal height)
 {
     currentGeometry.height = height;
-    updateButtonRects();
+    updateGeometryCache();
 }
 
 void MImKey::setMargins(qreal left,
@@ -403,7 +555,31 @@ void MImKey::setMargins(qreal left,
     currentGeometry.marginTop = top;
     currentGeometry.marginRight = right;
     currentGeometry.marginBottom = bottom;
-    updateButtonRects();
+    updateGeometryCache();
+}
+
+void MImKey::setSecondaryLabelEnabled(bool enable)
+{
+    rowHasSecondaryLabel = enable;
+    invalidateLabelPos();
+}
+
+const QPointF & MImKey::labelPos() const
+{
+    if (labelPoint.isNull()) {
+        updateLabelPos();
+    }
+
+    return labelPoint;
+}
+
+const QPointF & MImKey::secondaryLabelPos() const
+{
+    if (labelPoint.isNull()) {
+        updateLabelPos();
+    }
+
+    return secondaryLabelPoint;
 }
 
 void MImKey::loadIcon(bool shift)

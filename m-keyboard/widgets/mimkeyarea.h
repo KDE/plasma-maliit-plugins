@@ -23,6 +23,8 @@
 #include <QTextLayout>
 #include <QPixmap>
 #include <QSize>
+#include <QFontMetrics>
+#include <QSharedPointer>
 #include <memory>
 
 //! \brief MImKeyArea reimplements MImAbstractKeyArea and is optimized for drawing.
@@ -60,6 +62,7 @@ protected:
     virtual void updateKeyGeometries(int availableWidth);
     virtual MImAbstractKey *keyAt(const QPoint &pos) const;
     virtual void onThemeChangeCompleted();
+    virtual void applyStyle();
     virtual void handleVisibilityChanged(bool visible);
     virtual void invalidateBackgroundCache();
     //! \reimp_end
@@ -125,6 +128,7 @@ private:
     bool hasCachedBackground; //!< stores whether we already cached the background
     bool equalWidthKeys; //!< whether to assume equal width for all keys
     int WidthCorrection; //!< width correction for Arabic layouts
+    QSharedPointer<MImKey::StylingCache> stylingCache; //!< Cached information about current styling
 
 #ifdef UNIT_TEST
     friend class Ut_MImAbstractKeyArea;
