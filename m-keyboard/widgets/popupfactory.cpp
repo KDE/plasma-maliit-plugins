@@ -28,15 +28,15 @@ namespace
 }
 
 // dummy popup to be used if no plugin is found
-class DummyPopup: public PopupBase
+class MockPopup: public PopupBase
 {
 public:
-    explicit DummyPopup(MImAbstractKeyArea *mainArea)
+    explicit MockPopup(MImAbstractKeyArea *mainArea)
         : PopupBase(mainArea),
           visible(false)
     {}
 
-    virtual ~DummyPopup()
+    virtual ~MockPopup()
     {}
 
     //! \reimp
@@ -86,8 +86,12 @@ PopupFactory *PopupFactory::instance()
 
 PopupBase *PopupFactory::createPopup(MImAbstractKeyArea *mainArea) const
 {
+#ifdef UNIT_TEST
+    return new MockPopup(mainArea);
+#else
     return (plugin ? plugin->createPopup(mainArea)
-                   : new DummyPopup(mainArea));
+                   : new MockPopup(mainArea));
+#endif
 }
 
 PopupFactory::PopupFactory()

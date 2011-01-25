@@ -77,6 +77,7 @@ namespace {
     {
         return new MImKeyArea(section, usePopup, parent);
     }
+
 }
 
 void Ut_MImAbstractKeyArea::initTestCase()
@@ -876,7 +877,7 @@ void Ut_MImAbstractKeyArea::testKeyLayout()
 {
     const int margin = 5;
     const QSize size(50, 50);
-    subject = Ut_MImAbstractKeyArea::createArea(false, "Q", size, QSize(size.width() - 2 * margin,
+    subject = Ut_MImAbstractKeyArea::createArea("Q", size, QSize(size.width() - 2 * margin,
                                                                  size.height() - 2 * margin));
 
     MImAbstractKeyAreaStyle *s = const_cast<MImAbstractKeyAreaStyle *>(subject->style().operator->());
@@ -1062,7 +1063,7 @@ void Ut_MImAbstractKeyArea::testTouchPoints()
     QFETCH(TpList, touchPoints);
     QFETCH(TpButtonStateMatrix, expectedStates);
 
-    subject = Ut_MImAbstractKeyArea::createArea(false, labels, kbaSize);
+    subject = Ut_MImAbstractKeyArea::createArea(labels, kbaSize);
     QSignalSpy spy(subject, SIGNAL(keyClicked(const MImAbstractKey*, QString, bool, QPoint)));
 
     ButtonList tracedButtons;
@@ -1103,8 +1104,9 @@ void Ut_MImAbstractKeyArea::testReset()
 {
     const int margin = 5;
     const QSize size(50, 50);
-    subject = Ut_MImAbstractKeyArea::createArea(true, "Q", size, QSize(size.width() - 2 * margin,
-                                                                 size.height() - 2 * margin));
+    subject = Ut_MImAbstractKeyArea::createArea("Q", size, QSize(size.width() - 2 * margin,
+                                                                 size.height() - 2 * margin),
+                                                true);
 
     TpCreator createTp = &MImAbstractKeyArea::createTouchPoint;
 
@@ -1126,11 +1128,6 @@ void Ut_MImAbstractKeyArea::testReset()
 
     subject->reset();
     QCOMPARE(key->touchPointCount(), 0);
-    // FIXME: the timeout for popup become invisible after cancel
-    // depends on popop implementation. And if we use dummpy popup,
-    // the popup will become invisible immediately. But here we don't
-    // know what the popup plugin is used.
-    QTest::qWait(200);
     QVERIFY(!subject->popup().isVisible());
 }
 
@@ -1169,10 +1166,10 @@ MImAbstractKey *Ut_MImAbstractKeyArea::keyAt(unsigned int row, unsigned int colu
     return key;
 }
 
-MImAbstractKeyArea *Ut_MImAbstractKeyArea::createArea(bool usePopup,
-                                                      const QString &labels,
+MImAbstractKeyArea *Ut_MImAbstractKeyArea::createArea(const QString &labels,
                                                       const QSize &size,
-                                                      const QSize &fixedNormalKeySize)
+                                                      const QSize &fixedNormalKeySize,
+                                                      bool usePopup)
 {
     LayoutData::SharedLayoutSection section;
     section = LayoutData::SharedLayoutSection(new LayoutSection(labels));

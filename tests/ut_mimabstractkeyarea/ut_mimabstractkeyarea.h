@@ -85,10 +85,10 @@ private:
     MImAbstractKey *keyAt(unsigned int row,
                       unsigned int column) const;
 
-    static MImAbstractKeyArea *createArea(bool usePopup,
-                                          const QString &labels,
+    static MImAbstractKeyArea *createArea(const QString &labels,
                                           const QSize &size,
-                                          const QSize &fixedNormalKeySize = QSize(48, 48));
+                                          const QSize &fixedNormalKeySize = QSize(48, 48),
+                                          bool usePopup = false);
 
 public:
     enum TestOperation {
