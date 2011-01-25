@@ -68,7 +68,8 @@ void Ut_SymbolView::initTestCase()
     } else if (QFile::exists(InstalledTestLayout)) {
         testLayoutFile = InstalledTestLayout;
     } else {
-        QFAIL("Test symbol layout does not exist.");
+        QFAIL(QString("Test symbol layout does not exist.\n"
+                      "Checked " + LocalTestLayout + " and " + InstalledTestLayout + ".").toAscii().data());
     }
 
     qDebug() << "Using test symbol layout from file: " << testLayoutFile;
