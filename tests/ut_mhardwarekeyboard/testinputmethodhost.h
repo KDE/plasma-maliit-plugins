@@ -178,6 +178,11 @@ public:
     {
     }
 
+    virtual QString selection(bool &/*valid*/)
+    {
+        return QString();
+    }
+
 private:
     Q_DISABLE_COPY(TestInputMethodHost)
 

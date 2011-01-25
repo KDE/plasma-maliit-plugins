@@ -69,6 +69,7 @@ public:
     virtual void showSettings();
     virtual void setSelection(int start, int length);
     virtual void setOrientationAngleLocked(bool lock);
+    virtual QString selection(bool &valid);
 
     QString preedit;
     QString commit;
@@ -109,6 +110,7 @@ public:
     QRect cursorRectangleReturnValue;
 
     bool orientationAngleLocked;
+    QString currentSelection;
 };
 
 #endif

@@ -67,6 +67,7 @@ void MInputMethodHostStub::clear()
     setInputMethodAreaCalls = 0;
     inputMethodAreas.clear();
     orientationAngleLocked = false;
+    currentSelection.clear();
 }
 
 void MInputMethodHostStub::sendPreeditString(const QString &string,
@@ -234,4 +235,10 @@ void MInputMethodHostStub::setSelection(int start, int length)
 void MInputMethodHostStub::setOrientationAngleLocked(bool lock)
 {
     orientationAngleLocked = lock;
+}
+
+QString MInputMethodHostStub::selection(bool &valid)
+{
+    valid = true;
+    return currentSelection;
 }
