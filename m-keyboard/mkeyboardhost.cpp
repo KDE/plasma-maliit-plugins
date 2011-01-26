@@ -472,14 +472,25 @@ void MKeyboardHost::sendRegionEstimate()
     // something else changes during the animation.  But normally the region should be
     // the same as the one we send now.
 
-    QRectF vkbRect(vkbWidget->rect());
-    vkbRect.translate(0, -vkbRect.y()
-                      + MPlainWindow::instance()->visibleSceneSize().height()
-                      - vkbRect.height());
-    QRectF toolbarRect(sharedHandleArea->rect());
-    toolbarRect.translate(0, -toolbarRect.y() + vkbRect.y() - toolbarRect.height());
+    // Region is calculated from widget geometries so this method assumes relevant layouts
+    // to have been activated beforehand. A QGraphicsItem::show() will do, for example.
 
-    const QRegion region((sceneWindow->mapRectToScene(vkbRect) | sceneWindow->mapRectToScene(toolbarRect)).toRect());
+    QRectF stackedRects(0.0f, MPlainWindow::instance()->visibleSceneSize().height(),
+                        0.0f, 0.0f);
+
+    // Add vkb rect if vkb is visible.
+    if (vkbWidget->isVisible()) {
+        QRectF vkbRect(vkbWidget->rect());
+        vkbRect.moveBottom(stackedRects.top());
+        stackedRects |= vkbRect;
+    }
+
+    // Add toolbar rect. We will always have this.
+    QRectF toolbarRect(sharedHandleArea->rect());
+    toolbarRect.moveBottom(stackedRects.top());
+    stackedRects |= toolbarRect;
+
+    const QRegion region(sceneWindow->mapRectToScene(stackedRects).toRect());
 
     RegionTracker::instance().sendInputMethodAreaEstimate(region);
     RegionTracker::instance().sendRegionEstimate(region);
