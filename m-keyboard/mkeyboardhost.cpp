@@ -1551,6 +1551,8 @@ void MKeyboardHost::setState(const QSet<MInputMethod::HandlerState> &state)
     if (activeState == actualState)
         return;
 
+    const bool wasRegionSignalsEnabled(RegionTracker::instance().enableSignals(false));
+
     if ((activeState == MInputMethod::OnScreen) && (preedit.length() > 0)) {
         inputMethodHost()->sendCommitString(preedit);
     }
@@ -1575,8 +1577,8 @@ void MKeyboardHost::setState(const QSet<MInputMethod::HandlerState> &state)
         }
         if (sipRequested) {
             slideUpAnimation.stop();
-            vkbWidget->show();
             vkbWidget->setPos(0, MPlainWindow::instance()->visibleSceneSize().height() - vkbWidget->size().height());
+            vkbWidget->show();
         }
     } else {
         currentIndicatorDeadKey = false;
@@ -1605,6 +1607,8 @@ void MKeyboardHost::setState(const QSet<MInputMethod::HandlerState> &state)
     symbolView->setKeyboardState(actualState);
     updateCorrectionState();
     updateAutoCapitalization();
+
+    RegionTracker::instance().enableSignals(wasRegionSignalsEnabled);
 }
 
 void MKeyboardHost::handleSymbolKeyClick()
