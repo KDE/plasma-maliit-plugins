@@ -329,9 +329,9 @@ MImAbstractKeyAreaStyle.Portrait:keys40 {
 }
 
 #InvisibleHandle.Landscape {
-    preferred-size: 864 2.5mm;
+    preferred-size: 854 2.5mm;
     minimum-size:   480 2.5mm;
-    maximum-size:   864 2.5mm;
+    maximum-size:   854 2.5mm;
 }
 
 #KeyboardToolbarHandle {
@@ -345,9 +345,9 @@ MImAbstractKeyAreaStyle.Portrait:keys40 {
 }
 
 #KeyboardToolbarHandle.Landscape {
-    preferred-size: 864 0.6mm;
+    preferred-size: 854 0.6mm;
     minimum-size: 480 0.6mm;
-    maximum-size: 864 0.6mm;
+    maximum-size: 854 0.6mm;
 }
 
 #KeyboardHandle {
@@ -355,9 +355,9 @@ MImAbstractKeyAreaStyle.Portrait:keys40 {
 }
 
 #KeyboardHandle.Landscape {
-    preferred-size: 864 0;
+    preferred-size: 854 0;
     minimum-size: 480 0;
-    maximum-size: 864 0;
+    maximum-size: 854 0;
 }
 
 #KeyboardHandle.Portrait {
