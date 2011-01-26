@@ -49,7 +49,7 @@ void RegionStore::maybeNotify()
 {
     if (enabled && dirty) {
         const QRegion newRegion(combineRegions());
-        if (newRegion != lastRegion) {
+        if (!(newRegion ^ lastRegion).isEmpty()) {
             lastRegion = newRegion;
             emit regionChanged(newRegion);
         }
