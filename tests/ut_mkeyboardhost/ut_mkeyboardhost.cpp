@@ -891,6 +891,107 @@ void Ut_MKeyboardHost::testRegionSignals()
 #endif
 }
 
+void Ut_MKeyboardHost::testOptimizedRegionCallCounts_data()
+{
+    QTest::addColumn<MInputMethod::HandlerState>("beforeShowState");
+    QTest::addColumn<MInputMethod::HandlerState>("afterShowState");
+
+    // Use -1 to not to care (yet to be optimized).
+    QTest::addColumn<int>("imAreaUpdatesAfterShow");
+    QTest::addColumn<int>("regionUpdatesAfterShow");
+    QTest::addColumn<int>("imAreaUpdatesAfterStateChange");
+    QTest::addColumn<int>("regionUpdatesAfterStateChange");
+
+    QTest::newRow("onscreen -> hardware produces only one update")
+            << MInputMethod::OnScreen
+            << MInputMethod::Hardware
+            << -1 << -1
+            << 1 << 1;
+
+    QTest::newRow("hardware -> onscreen produces only one update")
+            << MInputMethod::OnScreen
+            << MInputMethod::Hardware
+            << -1 << -1
+            << 1 << 1;
+
+    // This basically tests that the region estimate sent is correct and final.
+    QTest::newRow("onscreen state show produces only one update")
+            << MInputMethod::OnScreen
+            << MInputMethod::OnScreen
+            << 1 << 1
+            << -1 << -1;
+
+    QTest::newRow("hardware state show produces only one update")
+            << MInputMethod::Hardware
+            << MInputMethod::Hardware
+            << 1 << 1
+            << -1 << -1;
+}
+
+void Ut_MKeyboardHost::testOptimizedRegionCallCounts()
+{
+    QFETCH(MInputMethod::HandlerState, beforeShowState);
+    QFETCH(MInputMethod::HandlerState, afterShowState);
+    QFETCH(int, imAreaUpdatesAfterShow);
+    QFETCH(int, regionUpdatesAfterShow);
+    QFETCH(int, imAreaUpdatesAfterStateChange);
+    QFETCH(int, regionUpdatesAfterStateChange);
+
+    // This test does not test validity of regions. It tests only
+    // that unnecessary region or input method area updates are not
+    // triggered and forwarded to input method host.
+
+    // On state change we basically have two components affecting region,
+    // vkb widget and shared handle area.
+    // Set minimum height for both so they will affect region.
+    subject->sharedHandleArea->setMinimumHeight(10);
+    subject->vkbWidget->setMinimumHeight(10);
+
+    // Set to inital state.
+    QSet<MInputMethod::HandlerState> state;
+    state << beforeShowState;
+    subject->setState(state);
+
+    inputMethodHost->setInputMethodAreaCalls = 0;
+    inputMethodHost->setScreenRegionCalls = 0;
+
+    // Show plugin in OnScreen state.
+    // Skip animation and update positions directly.
+    subject->show();
+
+    // Speed things up.. animation has to be run because it updates widget positions.
+    subject->slideUpAnimation.pause();
+    subject->slideUpAnimation.setDuration(0);
+    subject->slideUpAnimation.resume();
+    QTest::qWait(100);
+    QVERIFY(subject->slideUpAnimation.state() == QAbstractAnimation::Stopped);
+
+    // Check call counts.
+    if (imAreaUpdatesAfterShow >= 0) {
+        QCOMPARE(inputMethodHost->setInputMethodAreaCalls, imAreaUpdatesAfterShow);
+    }
+    if (regionUpdatesAfterShow >= 0) {
+        QCOMPARE(inputMethodHost->setScreenRegionCalls, regionUpdatesAfterShow);
+    }
+
+    // Clear call counts.
+    inputMethodHost->setInputMethodAreaCalls = 0;
+    inputMethodHost->setScreenRegionCalls = 0;
+
+    // Switch to final state.
+    state.clear();
+    state << afterShowState;
+    subject->setState(state);
+
+    // Check call counts.
+    if (imAreaUpdatesAfterStateChange >= 0) {
+        QCOMPARE(inputMethodHost->setInputMethodAreaCalls, imAreaUpdatesAfterStateChange);
+    }
+    if (regionUpdatesAfterStateChange >= 0) {
+        QCOMPARE(inputMethodHost->setScreenRegionCalls, regionUpdatesAfterStateChange);
+    }
+}
+
 void Ut_MKeyboardHost::testSetState_data()
 {
     QSet<MInputMethod::HandlerState> state;

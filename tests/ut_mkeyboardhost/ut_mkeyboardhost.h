@@ -63,6 +63,8 @@ private slots:
     void testSendStringFromToolbar();
 
     void testRegionSignals();
+    void testOptimizedRegionCallCounts_data();
+    void testOptimizedRegionCallCounts();
 
     void testSetState_data();
     void testSetState();
