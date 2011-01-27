@@ -109,6 +109,8 @@ private slots:
 
     void testFastTypingState();
 
+    void testToolbarPosition();
+
 private:
     void rotateToAngle(M::OrientationAngle);
     void triggerAutoCaps();

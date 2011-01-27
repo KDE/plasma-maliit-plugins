@@ -816,6 +816,9 @@ void MKeyboardHost::finalizeOrientationChange()
     symbolView->finalizeOrientationChange();
     if (sharedHandleArea) {
         sharedHandleArea->finalizeOrientationChange();
+        if (activeState == MInputMethod::Hardware) {
+            sharedHandleArea->setPos(0, MPlainWindow::instance()->visibleSceneSize().height() - sharedHandleArea->size().height());
+        }
     }
 
     // Finalize candidate list after so its region will apply.

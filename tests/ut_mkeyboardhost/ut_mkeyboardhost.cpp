@@ -1803,5 +1803,21 @@ void Ut_MKeyboardHost::testFastTypingState()
     QCOMPARE(inputMethodHost->orientationAngleLocked, false);
 }
 
-QTEST_APPLESS_MAIN(Ut_MKeyboardHost);
+void Ut_MKeyboardHost::testToolbarPosition()
+{
+    // Position after portrait vkb -> hwkb (landscape) transition
 
+    rotateToAngle(M::Angle90);
+    subject->show();
+
+    QSet<MInputMethod::HandlerState> states;
+    states << MInputMethod::Hardware;
+    subject->setState(states);
+
+    rotateToAngle(M::Angle0);
+    QCOMPARE(subject->sharedHandleArea->pos(),
+             QPointF(0, (MPlainWindow::instance()->visibleSceneSize().height()
+                         - subject->sharedHandleArea->size().height())));
+}
+
+QTEST_APPLESS_MAIN(Ut_MKeyboardHost);
