@@ -5,7 +5,7 @@
     <section id="symbols0" type="non-sloppy">
       <row>
         <key>
-          <binding label="1" quickpick="true"/>
+          <binding label="1"/>
         </key>
         <key>
           <binding label="2"/>
