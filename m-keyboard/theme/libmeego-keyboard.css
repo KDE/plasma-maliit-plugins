@@ -338,22 +338,6 @@ MImAbstractKeyAreaStyle.Portrait:keys40 {
     maximum-size:   854 2.5mm;
 }
 
-#KeyboardToolbarHandle {
-    background-image: "meegotouch-keyboard-border-top";
-}
-
-#KeyboardToolbarHandle.Portrait {
-    preferred-size: 480 0.6mm;
-    minimum-size: 480 0.6mm;
-    maximum-size: 480 0.6mm;
-}
-
-#KeyboardToolbarHandle.Landscape {
-    preferred-size: 854 0.6mm;
-    minimum-size: 480 0.6mm;
-    maximum-size: 854 0.6mm;
-}
-
 #KeyboardHandle {
     background-image: "meegotouch-keyboard-handle-background";
 }
@@ -370,34 +354,6 @@ MImAbstractKeyAreaStyle.Portrait:keys40 {
     maximum-size: 480 0;
 }
 
-#MenuToggleButton {
-    background-image: "Toggle-btn-normal" 0 0 0 0;
-    background-opacity: 1.0;
-    background-color: #000000;
-    text-color: #FFFFFF;
-}
-
-
-#MenuToggleButton:pressed {
-    background-image: "Toggle-btn-selected" 0 0 0 0;
-    background-opacity: 1.0;
-    background-color: #F9A427;
-    text-color: #555555;    
-}
-
-
-#MenuLanguageList {
-    background-image: "Single-line-input-field" 0 0 0 0;
-    text-left-offset: 12;
-    text-right-offset: 12;
-
-    font: $FONT_SMALL_REGULAR;
-    text-color: $COLOR_FOREGROUND;
-
-    preferred-size: 414 56;
-    minimum-size: 414 56;
-    maximum-size: 414 56;
-}
 
 MToolbarLabelStyle {
     margin-left: 0;
