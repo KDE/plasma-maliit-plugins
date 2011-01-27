@@ -16,8 +16,8 @@
 
 
 
-#ifndef SINGLEWIDGETBUTTON_H
-#define SINGLEWIDGETBUTTON_H
+#ifndef MIMKEY_H
+#define MIMKEY_H
 
 #include "mimabstractkey.h"
 #include <QPointF>
@@ -180,5 +180,5 @@ private:
     bool hasGravity;
 };
 
-#endif // SINGLEWIDGETBUTTON_H
+#endif // MIMKEY_H
 
