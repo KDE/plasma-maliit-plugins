@@ -108,19 +108,19 @@ void SharedHandleArea::setInputMethodMode(const M::InputMethodMode mode)
 
 void SharedHandleArea::updatePosition()
 {
-    qreal bottom(std::numeric_limits<qreal>::max());
-    bool widgetVisible(false);
+    mainLayout.invalidate();
+    mainLayout.activate();
+    qreal bottom = MPlainWindow::instance()->visibleSceneSize().height();
 
     foreach (const QGraphicsWidget *widget, watchedWidgets) {
         if (widget && widget->isVisible()) {
             bottom = qMin(widget->pos().y(), bottom);
-            widgetVisible = true;
         }
     }
 
     const QPointF newPos(0, bottom - size().height());
 
-    if (widgetVisible && (newPos != pos())) {
+    if (newPos != pos()) {
         setPos(newPos);
     }
 }
