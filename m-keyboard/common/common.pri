@@ -21,6 +21,7 @@ HEADERS += \
     $$COMMON_DIR/flickgesture.h \
     $$COMMON_DIR/flickgesturerecognizer.h \
     $$COMMON_DIR/keyboardmapping.h \
+    $$COMMON_DIR/simplefilelog.h
 
 SOURCES += \
     $$COMMON_DIR/keyboarddata.cpp\
@@ -38,7 +39,7 @@ SOURCES += \
     $$COMMON_DIR/flickgesturerecognizer.cpp \
     $$COMMON_DIR/keyboardmapping.cpp \
     $$COMMON_DIR/regiontracker.cpp \
+    $$COMMON_DIR/simplefilelog.cpp
 
 INCLUDEPATH += $$COMMON_DIR
 DEPENDPATH += $$COMMON_DIR
-

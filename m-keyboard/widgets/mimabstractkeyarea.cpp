@@ -20,6 +20,7 @@
 #include "mimkeyvisitor.h"
 #include "popupbase.h"
 #include "popupfactory.h"
+#include "mkeyboardhost.h"
 
 #include <MFeedback>
 #include <MGConfItem>
@@ -45,9 +46,6 @@ namespace
     // This GConf item defines whether multitouch is enabled or disabled
     const char *const MultitouchSettings = "/meegotouch/inputmethods/multitouch/enabled";
 
-    const char *const MImUserDirectory = ".meego-im";
-    const char *const MImTouchPointsLogfile = "touchpoints.csv";
-
     // Minimal distance (in px) for touch point from key button edge.
     const int CorrectionDistanceThreshold = 2;
 
@@ -71,41 +69,6 @@ namespace
 
         return pos;
     }
-
-    //! Handles destruction order of internal QFile and QTextStream correctly
-    //! and extends lifetime of QFile to QTextStream.
-    class StreamHandle
-    {
-    public:
-        explicit StreamHandle(const QString &fileName)
-            : mFile(fileName)
-            , mStream(&mFile)
-        {
-            mStream.setCodec("utf-8");
-            lastAccess.start();
-        }
-
-        QFile &file()
-        {
-            return mFile;
-        }
-
-        QTextStream &stream()
-        {
-            // Just make sure we don't lose too much in case of a uiserver crash:
-            if (lastAccess.elapsed() > 10000) {
-                mStream.flush();
-                lastAccess.restart();
-            }
-
-            return mStream;
-        }
-
-    private:
-        QFile mFile;
-        QTextStream mStream;
-        QTime lastAccess;
-    };
 
     QString toString(const QPointF &p, const QString &separator = ", ")
     {
@@ -777,20 +740,10 @@ void MImAbstractKeyArea::logTouchPoint(const QTouchEvent::TouchPoint &tp,
                                        const MImAbstractKey *key,
                                        const MImAbstractKey *lastKey) const
 {
-    if (!QDir::home().exists(MImUserDirectory)) {
-        QDir::home().mkdir(MImUserDirectory);
-    }
+    static bool headerWritten = false;
+    QTextStream &out = MKeyboardHost::instance()->touchPointLog();
 
-    static StreamHandle handle(QString("%1/%2/%3-%4").arg(QDir::homePath())
-                                                     .arg(MImUserDirectory)
-                                                     .arg(QCoreApplication::applicationPid())
-                                                     .arg(MImTouchPointsLogfile));
-
-    QFile &file = handle.file();
-    QTextStream &out = handle.stream();
-
-    if (!file.isOpen()) {
-        file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
+    if (!headerWritten) {
         out << "time (sec.msec)\t"
             << "tp_id\t"
             << "tp_state\t"
@@ -802,6 +755,7 @@ void MImAbstractKeyArea::logTouchPoint(const QTouchEvent::TouchPoint &tp,
             << "label\t"
             << "label_last\t"
             << "br_x\t" << "br_y\t" << "br_w\t" << "br_h\n";
+        headerWritten = true;
     }
 
     out << timeStamp() << "\t"

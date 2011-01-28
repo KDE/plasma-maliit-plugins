@@ -28,6 +28,7 @@
 #include <QPropertyAnimation>
 #include <QSequentialAnimationGroup>
 #include <QParallelAnimationGroup>
+#include <QTextStream>
 
 class MGConfItem;
 class MImCorrectionHost;
@@ -42,7 +43,7 @@ class MBanner;
 class SharedHandleArea;
 class MImToolbar;
 class MAbstractInputMethodHost;
-
+class SimpleFileLog;
 
 //! Logic class for virtual keyboard
 class MKeyboardHost: public MAbstractInputMethod
@@ -55,6 +56,8 @@ public:
 
     //! \brief Return the current instance, or 0 if none.
     static MKeyboardHost* instance();
+    //! \brief Return the logger for touchpoints. Created if neccesary.
+    QTextStream &touchPointLog();
 
     //! reimp
     virtual void handleFocusChange(bool focusIn);
@@ -410,6 +413,8 @@ private:
     QPropertyAnimation& vkbFadeInAnimation;
     QPropertyAnimation& toolbarFadeInAnimation;
     QParallelAnimationGroup toolbarAndVkbFadeInAnimation;
+
+    SimpleFileLog *touchPointLogHandle;
 
 #ifdef UNIT_TEST
     friend class Ut_MKeyboardHost;

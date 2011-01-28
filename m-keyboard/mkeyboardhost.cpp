@@ -28,6 +28,7 @@
 #include "mimtoolbar.h"
 #include "sharedhandlearea.h"
 #include "regiontracker.h"
+#include "simplefilelog.h"
 
 #include <mimenginefactory.h>
 #include <mabstractinputmethodhost.h>
@@ -37,7 +38,6 @@
 
 #include <QDebug>
 #include <QKeyEvent>
-#include <QFile>
 #include <QRegExp>
 #include <QEasingCurve>
 
@@ -73,8 +73,8 @@ namespace
     const int KeysRequiredForFastTypingMode = 3;
     const int FastTypingTimeout = 700; //! Milliseconds to idle before leaving fast typing mode.
     MKeyboardHost *currentInstance = 0;
+    const char *const MImTouchPointsLogfile = "touchpoints.csv";
 }
-
 
 MKeyboardHost::SlideUpAnimation::SlideUpAnimation(QObject *parent)
     : QPropertyAnimation(parent)
@@ -213,7 +213,8 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
       fastTypingKeyCount(0),
       fastTypingEnabled(false),
       vkbFadeInAnimation(*new QPropertyAnimation(this)),
-      toolbarFadeInAnimation(*new QPropertyAnimation(this))
+      toolbarFadeInAnimation(*new QPropertyAnimation(this)),
+      touchPointLogHandle(0)
 {
     RegionTracker::createInstance();
     connect(&RegionTracker::instance(), SIGNAL(regionChanged(const QRegion &)),
@@ -418,6 +419,8 @@ MKeyboardHost::~MKeyboardHost()
     vkbStyleContainer = 0;
     delete inputMethodCorrectionSettings;
     inputMethodCorrectionSettings = 0;
+    delete touchPointLogHandle;
+    touchPointLogHandle = 0;
     if (imCorrectionEngine) {
         MImEngineFactory::instance()->deleteEngine(imCorrectionEngine);
         imCorrectionEngine = 0;
@@ -443,6 +446,13 @@ void MKeyboardHost::createCorrectionCandidateWidget()
             this, SLOT(commitString(const QString &)));
 }
 
+QTextStream &MKeyboardHost::touchPointLog()
+{
+    if (!touchPointLogHandle) {
+        touchPointLogHandle = new SimpleFileLog(MImTouchPointsLogfile);
+    }
+    return touchPointLogHandle->stream();
+}
 
 // TODO: it would seem that application focus state is passed to all plugins by
 // MInputContextGlibDBusConnection::updateWidgetInformation, including nonactive ones.  If
@@ -566,6 +576,10 @@ void MKeyboardHost::hide()
     slideUpAnimation.start();
 
     sipRequested = false;
+
+    if (touchPointLogHandle) {
+        touchPointLogHandle->flush();
+    }
 }
 
 
