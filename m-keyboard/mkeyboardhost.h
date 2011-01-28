@@ -53,6 +53,9 @@ public:
     MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent = 0);
     virtual ~MKeyboardHost();
 
+    //! \brief Return the current instance, or 0 if none.
+    static MKeyboardHost* instance();
+
     //! reimp
     virtual void handleFocusChange(bool focusIn);
     virtual void show();

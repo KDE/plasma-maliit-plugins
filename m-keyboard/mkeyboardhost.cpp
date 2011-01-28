@@ -72,6 +72,7 @@ namespace
     const char * const NotificationObjectName = "ModifierLockNotification";
     const int KeysRequiredForFastTypingMode = 3;
     const int FastTypingTimeout = 700; //! Milliseconds to idle before leaving fast typing mode.
+    MKeyboardHost *currentInstance = 0;
 }
 
 
@@ -392,6 +393,9 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
     connect(&toolbarAndVkbFadeInAnimation, SIGNAL(finished()), this, SLOT(handleAnimationFinished()));
 
     RegionTracker::instance().enableSignals(true, false);
+
+    Q_ASSERT(currentInstance == 0); // Several instances of this class is invalid.
+    currentInstance = this;
 }
 
 MKeyboardHost::~MKeyboardHost()
@@ -422,6 +426,12 @@ MKeyboardHost::~MKeyboardHost()
     backspaceTimer.stop();
     LayoutsManager::destroyInstance();
     RegionTracker::destroyInstance();
+    currentInstance = 0;
+}
+
+MKeyboardHost* MKeyboardHost::instance()
+{
+    return currentInstance;
 }
 
 void MKeyboardHost::createCorrectionCandidateWidget()
