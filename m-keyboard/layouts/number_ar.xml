@@ -91,10 +91,10 @@
 
       <row>
         <key>
-          <binding label="&#x0660;"/>
+          <binding label="&#x002B;&#x002F;&#x002D;" action="plus_minus_toggle"/>
         </key>
         <key>
-          <binding label="&#x002B;&#x002F;&#x002D;" action="plus_minus_toggle"/>
+          <binding label="&#x0660;"/>
         </key>
         <key>
           <binding action="decimal_separator"/>

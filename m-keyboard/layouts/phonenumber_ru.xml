@@ -92,10 +92,10 @@
 
       <row>
         <key>
-          <binding label="0"/>
+          <binding label="&#x002A;&#x002B;" cycleset="&#x002A;&#x002B;p" action="cycle"/>
         </key>
         <key>
-          <binding label="&#x002A;&#x002B;" cycleset="&#x002A;&#x002B;p" action="cycle"/>
+          <binding label="0"/>
         </key>
         <key>
           <binding label="&#x0023;"/>
