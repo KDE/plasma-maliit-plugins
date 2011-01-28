@@ -43,11 +43,12 @@ QStringList MKeyboardPlugin::languages() const
 
 
 MAbstractInputMethod *
-MKeyboardPlugin::createInputMethod(MAbstractInputMethodHost *host)
+MKeyboardPlugin::createInputMethod(MAbstractInputMethodHost *host,
+                                   QWidget *mainWindow)
 {
     loadTranslation();
     mTimestamp("MKeyboardPlugin", "start");
-    MAbstractInputMethod *inputMethod = new MKeyboardHost(host);
+    MAbstractInputMethod *inputMethod = new MKeyboardHost(host, mainWindow);
     mTimestamp("MKeyboardPlugin", "end");
     return inputMethod;
 }

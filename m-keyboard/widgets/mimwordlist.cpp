@@ -18,12 +18,11 @@
 #include "regiontracker.h"
 #include "mimwordlist.h"
 #include "mimwordlistitem.h"
+#include "reactionmapwrapper.h"
 
 #include <QGraphicsLinearLayout>
 #include <QDebug>
 #include <QString>
-
-#include <mreactionmap.h>
 
 #include <mwidgetcreator.h>
 M_REGISTER_WIDGET_NO_CREATE(MImWordList)
@@ -110,6 +109,10 @@ void MImWordList::select()
 
 void MImWordList::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *)
 {
+#ifndef HAVE_REACTIONMAP
+    Q_UNUSED(reactionMap);
+    return;
+#else
     if (!isVisible())
         return;
     // word list take whole screen. And inner contentitem will play their
@@ -117,4 +120,5 @@ void MImWordList::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *)
     reactionMap->setInactiveDrawingValue();
     reactionMap->setTransform(QTransform());
     reactionMap->fillRectangle(0, 0, reactionMap->width(), reactionMap->height());
+#endif // HAVE_REACTIONMAP
 }

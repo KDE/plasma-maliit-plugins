@@ -29,7 +29,7 @@ void disableQtPlugins();
 // Wait for signal or timeout; use SIGNAL macro for signal
 void waitForSignal(const QObject* object, const char* signal, int timeout = 500);
 
-#ifdef MEEGOTOUCH
+#ifdef HAVE_MEEGOTOUCH
 // Create a scene window, set it to manual managed, and appear it.
 MSceneWindow *createMSceneWindow(MWindow *w);
 #endif

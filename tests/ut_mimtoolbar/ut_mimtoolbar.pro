@@ -1,11 +1,16 @@
 include(../common_top.pri)
 
 TEMPLATE = app
-CONFIG += meegotouch meegoreactionmap
+
+contains(CONFIG, nomeegotouch) {
+} else {
+    DEFINES += HAVE_MEEGOTOUCH
+    CONFIG += meegotouch
+}
 
 DEPENDPATH += .
-INCLUDEPATH +=  . \
-		../stubs/
+INCLUDEPATH += . \
+               ../stubs/
 
 LIBS += -Wl,-rpath=/usr/lib/meego-im-plugins/ -lmeego-keyboard
 

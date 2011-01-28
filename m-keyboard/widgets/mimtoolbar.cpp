@@ -19,19 +19,19 @@
 #include "mimtoolbar.h"
 #include "mtoolbarbutton.h"
 #include "mtoolbarlabel.h"
-#include "mimreactionmap.h"
+#include "reactionmapwrapper.h"
+#include "mplainwindow.h"
 
 #include <mtoolbardata.h>
 #include <mtoolbaritem.h>
 #include <mtoolbarlayout.h>
+#include <minputmethodnamespace.h>
 
 #include <MNamespace>
 #include <QKeySequence>
 #include <QGraphicsLinearLayout>
 #include <QDebug>
 #include <MSceneManager>
-#include <mplainwindow.h>
-#include <mreactionmap.h>
 
 namespace
 {
@@ -197,7 +197,7 @@ void MImToolbar::loadCustomWidgets()
     }
 
     const M::Orientation orientation = MPlainWindow::instance()->sceneManager()->orientation();
-    QSharedPointer<const MToolbarLayout> layout = currentToolbar->layout(orientation);
+    QSharedPointer<const MToolbarLayout> layout = currentToolbar->layout(static_cast<MInputMethod::Orientation>(orientation));
 
     if (layout.isNull()) {
         qWarning() << __PRETTY_FUNCTION__
@@ -387,6 +387,11 @@ void MImToolbar::hideToolbarWidget()
 
 void MImToolbar::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view)
 {
+#ifndef HAVE_REACTIONMAP
+    Q_UNUSED(reactionMap);
+    Q_UNUSED(view);
+    return;
+#else
     if (!layout()) {
         qCritical() << __PRETTY_FUNCTION__ << "Layout does not exist";
     }
@@ -431,6 +436,7 @@ void MImToolbar::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view
             // Otherwise leave as inactive.
         }
     }
+#endif // HAVE_REACTIONMAP
 }
 
 void MImToolbar::finalizeOrientationChange()

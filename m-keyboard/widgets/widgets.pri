@@ -51,6 +51,7 @@ HEADERS += \
     $$WIDGETS_DIR/mkeyboardsettingswidget.h \
     $$WIDGETS_DIR/getcssproperty.h \
     $$WIDGETS_DIR/mtoolbarlabelview.h \
+    $$WIDGETS_DIR/mplainwindow.h \
 
 INSTALL_HEADERS += $$PUBLIC_HEADERS + $$PUBLIC_STYLE_HEADERS
 
@@ -71,6 +72,7 @@ SOURCES += \
     $$WIDGETS_DIR/mimkeyvisitor.cpp \
     $$WIDGETS_DIR/mimkey.cpp \
     $$WIDGETS_DIR/mimkeyarea.cpp \
+    $$WIDGETS_DIR/mplainwindow.cpp \
     $$WIDGETS_DIR/popupbase.cpp \
     $$WIDGETS_DIR/popupfactory.cpp \
     $$WIDGETS_DIR/mtoolbarbutton.cpp \

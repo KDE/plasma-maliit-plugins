@@ -4,7 +4,7 @@ include(../mconfig.pri)
 # It causes problem in the integration.
 QMAKE_LFLAGS_RELEASE-=-Wl,--as-needed
 
-TEMPLATE = lib 
+TEMPLATE = lib
 TARGET = $$qtLibraryTarget(meego-keyboard)
 
 OBJECTS_DIR = .obj
@@ -15,7 +15,7 @@ M_MGEN_OUTDIR = .gen
 QT += xml
 
 LIBS += -lmeegoimengine
-CONFIG += plugin meegotouch meegoimengine meegoimframework meegoreactionmap
+CONFIG += plugin meegotouch meegoimengine meegoimframework
 
 CONFIG += link_pkgconfig
 PKGCONFIG += gconf-2.0 xkbfile
@@ -28,6 +28,12 @@ for(OPTION,$$list($$lower($$COV_OPTION))){
         CONFIG -= release
         CONFIG += debug
     }
+}
+
+contains(CONFIG, noreactionmap) {
+} else {
+    DEFINES += HAVE_REACTIONMAP
+    CONFIG += meegoreactionmap
 }
 
 QMAKE_CLEAN += *.gcno *.gcda

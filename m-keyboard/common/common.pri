@@ -25,6 +25,7 @@ HEADERS += \
     $$COMMON_DIR/keyboardmapping.h \
     $$COMMON_DIR/simplefilelog.h \
     $$COMMON_DIR/mimreactionmap.h \
+    $$COMMON_DIR/reactionmapwrapper.h \
 
 SOURCES += \
     $$COMMON_DIR/keyboarddata.cpp\

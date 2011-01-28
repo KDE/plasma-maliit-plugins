@@ -28,6 +28,12 @@ SUBDIRS = \
           ut_sharedhandlearea \
           bm_painting \
 
+contains(CONFIG, nomeegotouch) {
+} else {
+    DEFINES += HAVE_MEEGOTOUCH
+    CONFIG += meegotouch
+}
+
 target.commands += $$system(touch tests.xml)
 target.path = /usr/share/meego-keyboard-tests
 target.files += qtestlib2junitxml.xsl runtests.sh tests.xml

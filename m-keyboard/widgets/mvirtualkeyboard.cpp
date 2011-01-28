@@ -30,6 +30,7 @@
 #include "grip.h"
 #include "reactionmappainter.h"
 #include "regiontracker.h"
+#include "reactionmapwrapper.h"
 
 #include <mtoolbardata.h>
 #include <mkeyoverride.h>
@@ -43,7 +44,6 @@
 #include <MButton>
 #include <MScalableImage>
 #include <MSceneManager>
-#include <mreactionmap.h>
 #include <mtimestamp.h>
 #include <mplainwindow.h>
 #include <MApplication>
@@ -343,6 +343,11 @@ QString MVirtualKeyboard::selectedLayout() const
 
 void MVirtualKeyboard::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view)
 {
+#ifndef HAVE_REACTIONMAP
+    Q_UNUSED(reactionMap);
+    Q_UNUSED(view);
+    return;
+#else
     if (!isVisible()) {
         return;
     }
@@ -354,6 +359,7 @@ void MVirtualKeyboard::paintReactionMap(MReactionMap *reactionMap, QGraphicsView
     reactionMap->fillRectangle(layout()->itemAt(KeyboardHandleIndex)->geometry());
 
     drawButtonsReactionMaps(reactionMap, view);
+#endif // HAVE_REACTIONMAP
 }
 
 

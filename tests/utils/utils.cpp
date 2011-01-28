@@ -17,7 +17,7 @@
 
 #include "utils.h"
 #include <stdlib.h>
-#ifdef MEEGOTOUCH
+#ifdef HAVE_MEEGOTOUCH
 #include <MApplication>
 #include <mplainwindow.h>
 #include <MSceneWindow>
@@ -44,7 +44,7 @@ void disableQtPlugins()
         qWarning("meego-im-uiserver: unable to unset QT_IM_MODULE.");
     }
 
-#ifdef MEEGOTOUCH
+#ifdef HAVE_MEEGOTOUCH
     MApplication::setLoadMInputContext(false);
 #endif
 
@@ -62,7 +62,7 @@ void waitForSignal(const QObject* object, const char* signal, int timeout)
 }
 
 // Create a scene window, set it to manual managed, and appear it.
-#ifdef MEEGOTOUCH
+#ifdef HAVE_MEEGOTOUCH
 MSceneWindow * createMSceneWindow(MWindow *w)
 {
     MSceneWindow *sceneWindow = new MSceneWindow;

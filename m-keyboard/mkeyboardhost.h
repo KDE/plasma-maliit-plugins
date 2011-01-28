@@ -22,6 +22,8 @@
 #include "mkeyboardcommon.h"
 #include "mabstractinputmethod.h"
 #include "keyevent.h"
+#include "mplainwindow.h"
+
 #include <QStringList>
 #include <QTimer>
 #include <QPointer>
@@ -29,6 +31,7 @@
 #include <QSequentialAnimationGroup>
 #include <QParallelAnimationGroup>
 #include <QTextStream>
+#include <QPixmap>
 
 class MGConfItem;
 class MImCorrectionHost;
@@ -51,7 +54,8 @@ class MKeyboardHost: public MAbstractInputMethod
     Q_OBJECT
 
 public:
-    MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent = 0);
+    MKeyboardHost(MAbstractInputMethodHost *host,
+                  QWidget *mainWindow);
     virtual ~MKeyboardHost();
 
     //! \brief Return the current instance, or 0 if none.
@@ -232,9 +236,6 @@ private:
 
     //! Actual backspace operation
     void doBackspace();
-
-    // shows the layout menu
-    void showLayoutMenu();
 
     /*! \brief Handle key click event that changes the state of the keyboard.
      *
@@ -419,6 +420,7 @@ private:
     QParallelAnimationGroup toolbarAndVkbFadeInAnimation;
 
     SimpleFileLog *touchPointLogHandle;
+    MPlainWindow *view;
 
 #ifdef UNIT_TEST
     friend class Ut_MKeyboardHost;

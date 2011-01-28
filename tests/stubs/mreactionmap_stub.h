@@ -18,7 +18,69 @@
 #ifndef MREACTIONMAP_STUB_H
 #define MREACTIONMAP_STUB_H
 
+#include <QtCore>
+#include <QtGui>
+
+#ifdef HAVE_REACTIONMAP
 #include <mreactionmap.h>
+#else
+class MReactionMapPrivate
+{};
+
+class MReactionMap
+    : public QObject
+{
+    Q_OBJECT
+
+private:
+    MReactionMapPrivate *d;
+
+public:
+    static const QString Press;
+    static const QString Release;
+    static const QString Cancel;
+    static const QString Transparent;
+    static const QString Inactive;
+
+    explicit MReactionMap(QWidget *topLevelWidget,
+                          const QString &appIdentifier = QString(),
+                          QObject *parent = 0);
+
+    ~MReactionMap();
+
+    static MReactionMap *instance(QWidget *anyWidget);
+    void setInactiveDrawingValue();
+    void setReactiveDrawingValue();
+    void setTransparentDrawingValue();
+    void setDrawingValue(const QString &pressFeedback,
+                         const QString &releaseFeedback);
+    QTransform transform() const;
+    void setTransform(QTransform transform);
+    void setTransform(QGraphicsItem *item,
+                      QGraphicsView *view);
+    void fillRectangle(int x,
+                       int y,
+                       int width,
+                       int height);
+    void fillRectangle(const QRect &rectangle);
+    void fillRectangle(const QRectF &rectangle);
+    void fillRectangle(const QRect &rectangle,
+                       const QString &pressFeedback,
+                       const QString &releaseFeedback);
+    void fillRectangle(const QRectF &rectangle,
+                       const QString &pressFeedback,
+                       const QString &releaseFeedback);
+    int width() const;
+    int height() const;
+    void clear();
+};
+
+const QString MReactionMap::Press = "press";
+const QString MReactionMap::Release = "release";
+const QString MReactionMap::Cancel = "cancel";
+const QString MReactionMap::Transparent = "transparent";
+const QString MReactionMap::Inactive = "";
+#endif
 
 /*!
  * \brief MReactionMap stub class.

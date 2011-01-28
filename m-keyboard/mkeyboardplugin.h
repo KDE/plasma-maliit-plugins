@@ -20,6 +20,7 @@
 #define MKEYBOARDPLUGIN_H
 
 #include <QObject>
+#include <QWidget>
 
 #include "minputmethodplugin.h"
 
@@ -40,7 +41,8 @@ public:
     //! \reimp
     virtual QString name() const;
     virtual QStringList languages() const;
-    virtual MAbstractInputMethod *createInputMethod(MAbstractInputMethodHost *host);
+    virtual MAbstractInputMethod *createInputMethod(MAbstractInputMethodHost *host,
+                                                    QWidget *mainWindow);
     virtual MAbstractInputMethodSettings *createInputMethodSettings();
     virtual QSet<MInputMethod::HandlerState> supportedStates() const;
     //! \reimp_end

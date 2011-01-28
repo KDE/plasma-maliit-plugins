@@ -30,6 +30,7 @@
 #include "reactionmappainter.h"
 #include "regiontracker.h"
 #include "simplefilelog.h"
+#include "reactionmapwrapper.h"
 
 #include <mimenginefactory.h>
 #include <mabstractinputmethodhost.h>
@@ -38,11 +39,14 @@
 #include <mkeyoverride.h>
 #include <mgconfitem.h>
 
+#include <QApplication>
 #include <QDebug>
 #include <QKeyEvent>
 #include <QRegExp>
 #include <QEasingCurve>
 
+#include <MComponentData>
+#include <MDeviceProfile>
 #include <MScene>
 #include <MSceneManager>
 #include <MSceneWindow>
@@ -79,6 +83,7 @@ namespace
     const char *const MImTouchPointsLogfile = "touchpoints.csv";
     const char PlusSign('+');
     const char MinusSign('-');
+    bool gOwnsComponentData = false;
 }
 
 MKeyboardHost::SlideUpAnimation::SlideUpAnimation(QObject *parent)
@@ -185,8 +190,9 @@ void MKeyboardHost::CycleKeyHandler::commitCycleKey()
     }
 }
 
-MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
-    : MAbstractInputMethod(imHost, parent),
+MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
+                             QWidget *mainWindow)
+    : MAbstractInputMethod(host, mainWindow),
       vkbStyleContainer(0),
       correctionHost(0),
       vkbWidget(0),
@@ -221,13 +227,39 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
       fastTypingEnabled(false),
       vkbFadeInAnimation(*new QPropertyAnimation(this)),
       toolbarFadeInAnimation(*new QPropertyAnimation(this)),
-      touchPointLogHandle(0)
+      touchPointLogHandle(0),
+      view(0)
 {
+    if (!MComponentData::instance()) {
+        static int argc = qApp->argc();
+        static char **argv = qApp->argv();
+        MComponentData::createInstance(argc, argv, qApp->applicationName());
+        gOwnsComponentData = true;
+    }
+
+    // Assumes that we start up in landscape mode:
+    const QSize sceneSize(MDeviceProfile::instance()->resolution());
+    mainWindow->resize(sceneSize);
+
+#ifdef HAVE_REACTIONMAP
+    if (not MReactionMap::instance(mainWindow)) {
+        new MReactionMap(mainWindow, qAppName(), this);
+    }
+#endif
+
+    view = new MPlainWindow(host, mainWindow);
+    int w = sceneSize.width();
+    int h = sceneSize.height();
+    view->setSceneRect(0, 0, w, h);
+    view->resize(sceneSize);
+    view->setMinimumSize(1, 1);
+    view->setMaximumSize(w, h);
+
     RegionTracker::createInstance();
     connect(&RegionTracker::instance(), SIGNAL(regionChanged(const QRegion &)),
-            imHost, SLOT(setScreenRegion(const QRegion &)));
+            host, SLOT(setScreenRegion(const QRegion &)));
     connect(&RegionTracker::instance(), SIGNAL(inputMethodAreaChanged(const QRegion &)),
-            imHost, SLOT(setInputMethodArea(const QRegion &)));
+            host, SLOT(setInputMethodArea(const QRegion &)));
 
     // Create the reaction map painter
     ReactionMapPainter::createInstance();
@@ -284,7 +316,7 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
             this, SLOT(switchPlugin(MInputMethod::SwitchDirection)));
 
     // construct hardware keyboard object
-    hardwareKeyboard = new MHardwareKeyboard(*imHost, this);
+    hardwareKeyboard = new MHardwareKeyboard(*host, this);
     connect(hardwareKeyboard, SIGNAL(symbolKeyClicked()),
             this, SLOT(handleSymbolKeyClick()));
     // Trigger a reaction map when the hardware keyboard is opened
@@ -445,6 +477,11 @@ MKeyboardHost::~MKeyboardHost()
     ReactionMapPainter::destroyInstance();
     RegionTracker::destroyInstance();
     currentInstance = 0;
+
+    if (gOwnsComponentData) {
+        delete MComponentData::instance();
+        gOwnsComponentData = false;
+    }
 }
 
 MKeyboardHost* MKeyboardHost::instance()
@@ -1189,7 +1226,8 @@ void MKeyboardHost::handleGeneralKeyClick(const KeyEvent &event)
     }
 
     if (event.specialKey() == KeyEvent::LayoutMenu) {
-        showLayoutMenu();
+        qWarning() << __PRETTY_FUNCTION__
+                   << "KeyEvent::LayoutMenu is unsupported";
     } else if (event.specialKey() == KeyEvent::Sym) {
         handleSymbolKeyClick();
     } else if (event.specialKey() == KeyEvent::Switch) {
@@ -1503,11 +1541,6 @@ void MKeyboardHost::sendCopyPaste(CopyPasteState action)
         qDebug() << __PRETTY_FUNCTION__ << "invalid action" << action;
         break;
     }
-}
-
-void MKeyboardHost::showLayoutMenu()
-{
-    inputMethodHost()->showSettings();
 }
 
 void MKeyboardHost::switchPlugin(MInputMethod::SwitchDirection direction)

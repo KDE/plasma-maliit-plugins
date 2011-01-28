@@ -23,15 +23,14 @@
 #include "grip.h"
 #include "mimkeyarea.h"
 #include "reactionmappainter.h"
-#include "mimreactionmap.h"
 #include "regiontracker.h"
+#include "reactionmapwrapper.h"
+#include "mplainwindow.h"
 
 #include <mkeyoverride.h>
 
 #include <MSceneManager>
 #include <MScalableImage>
-#include <mreactionmap.h>
-#include <mplainwindow.h>
 
 #include <QDebug>
 #include <QGraphicsSceneResizeEvent>
@@ -491,6 +490,11 @@ void SymbolView::handleKeyClicked(const MImAbstractKey *key)
 
 void SymbolView::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view)
 {
+#ifndef HAVE_REACTIONMAP
+    Q_UNUSED(reactionMap);
+    Q_UNUSED(view);
+    return;
+#else
     // Draw region area with inactive color to prevent any holes in reaction map.
     reactionMap->setInactiveDrawingValue();
     reactionMap->setTransform(this, view);
@@ -504,6 +508,7 @@ void SymbolView::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view
     if (pageSwitcher->currentWidget()) {
         static_cast<MImAbstractKeyArea *>(pageSwitcher->currentWidget())->drawReactiveAreas(reactionMap, view);
     }
+#endif // HAVE_REACTIONMAP
 }
 
 const MVirtualKeyboardStyleContainer &SymbolView::style() const

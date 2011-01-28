@@ -16,6 +16,8 @@
 
 #include "mimkeyarea.h"
 #include "mimkeyvisitor.h"
+#include "mplainwindow.h"
+#include "reactionmapwrapper.h"
 
 #include <QDebug>
 #include <QEvent>
@@ -27,11 +29,7 @@
 #include <mkeyoverride.h>
 
 #include <MScalableImage>
-#include <mplainwindow.h>
-#include <mreactionmap.h>
 #include <MTimestamp>
-
-#include "mimreactionmap.h"
 
 namespace {
     template<class T>
@@ -370,6 +368,11 @@ QSizeF MImKeyArea::sizeHint(Qt::SizeHint which,
 void MImKeyArea::drawReactiveAreas(MReactionMap *reactionMap,
                                    QGraphicsView *view)
 {
+#ifndef HAVE_REACTIONMAP
+    Q_UNUSED(reactionMap);
+    Q_UNUSED(view);
+    return;
+#else
     reactionMap->setTransform(this, view);
     reactionMap->setDrawingValue(MImReactionMap::Press, MImReactionMap::Release);
 
@@ -394,6 +397,7 @@ void MImKeyArea::drawReactiveAreas(MReactionMap *reactionMap,
 
         reactionMap->fillRectangle(area);
     }
+#endif
 }
 
 void MImKeyArea::loadKeys()

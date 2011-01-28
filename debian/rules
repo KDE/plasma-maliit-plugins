@@ -36,6 +36,10 @@ ifneq (,$(filter timestamps,$(TMP_BUILD_OPTS)))
     QMAKE_OPTIONS += DEFINES+=M_TIMESTAMP
 endif
 
+ifneq (,$(filter noreactionmap,$(TMP_BUILD_OPTS)))
+    QMAKE_OPTIONS += CONFIG+=noreactionmap
+endif
+
 
 # shared library versions, option 1
 version=0.1.0

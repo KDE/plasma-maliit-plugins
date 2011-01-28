@@ -1,10 +1,10 @@
 include(../common_top.pri)
 
 TEMPLATE = app
-CONFIG += QtTest meegotouch MImServer meegoimframework meegoreactionmap
+CONFIG += QtTest meegotouch MImServer meegoimframework
 DEPENDPATH += .
 INCLUDEPATH += . \
-		../stubs/
+               ../stubs/
 
 
 include(../common_check.pri)

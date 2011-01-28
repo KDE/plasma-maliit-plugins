@@ -1,9 +1,16 @@
 include(../common_top.pri)
 TEMPLATE = app
-CONFIG += QtTest meegotouch MImServer meegoimframework meegoreactionmap
+CONFIG += QtTest meegotouch MImServer meegoimframework
+
+contains(CONFIG, noreactionmap) {
+} else {
+    DEFINES += HAVE_REACTIONMAP
+    CONFIG  += meegoreactionmap
+}
+
 DEPENDPATH += .
 INCLUDEPATH += 	. \
-		../stubs/ \
+                ../stubs/ \
 
 LIBS += -L/usr/lib -Wl,-rpath=/usr/lib/meego-im-plugins/ -lmeego-keyboard
 # Input

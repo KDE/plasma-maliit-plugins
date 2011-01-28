@@ -13,6 +13,7 @@ STYLE_HEADERS += $$WIDGETS_DIR/mimabstractkeyareastyle.h
 HEADERS += ut_mimkey.h \
            $$WIDGETS_DIR/mimabstractkey.h \
            $$WIDGETS_DIR/mimkey.h \
+           $$WIDGETS_DIR/mplainwindow.h \
            $$COMMON_DIR/mimkeymodel.h \
            $$COMMON_DIR/keyevent.h \
            $$STYLE_HEADERS
@@ -20,6 +21,7 @@ HEADERS += ut_mimkey.h \
 SOURCES += ut_mimkey.cpp \
            $$WIDGETS_DIR/mimabstractkey.cpp \
            $$WIDGETS_DIR/mimkey.cpp \
+           $$WIDGETS_DIR/mplainwindow.cpp \
            $$COMMON_DIR/mimkeymodel.cpp \
            $$COMMON_DIR/keyevent.cpp
 
