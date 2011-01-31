@@ -64,13 +64,6 @@ void Ut_Notification::initTestCase()
     disableQtPlugins();
     app = new MApplication(argc, app_name);
 
-    QString cssFile("./test.css");
-    if (!QFile::exists(cssFile)) {
-        cssFile = "/usr/share/meego-keyboard-tests/ut_notification/test.css";
-        QVERIFY(QFile::exists(cssFile));
-    }
-    QVERIFY(MTheme::instance()->loadCSS(cssFile));
-
     style = new MVirtualKeyboardStyleContainer;
     style->initialize("MVirtualKeyboard", "MVirtualKeyboardView", 0);
 
@@ -144,16 +137,6 @@ void Ut_Notification::testFadeInFadeOut()
     // Fading outs
     QTest::qWait(FadeTime + 100);
     QVERIFY(!subject->isVisible());
-}
-
-//This test depends on values in test.css
-void Ut_Notification::testCSS()
-{
-    QCOMPARE(subject->background, QColor(Qt::red));
-    QCOMPARE(subject->border, QColor(Qt::green));
-    QCOMPARE(subject->textColor, QColor(Qt::blue));
-    QCOMPARE(subject->opacity, 1.0);
-    QCOMPARE(subject->font.pixelSize(), 42);
 }
 
 QTEST_APPLESS_MAIN(Ut_Notification);

@@ -44,7 +44,6 @@ private slots:
     void testCreate();
     void testSetMessageAndGeometry();
     void testFadeInFadeOut();
-    void testCSS();
 };
 
 #endif
