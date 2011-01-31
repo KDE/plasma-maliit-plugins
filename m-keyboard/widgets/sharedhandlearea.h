@@ -69,6 +69,11 @@ signals:
     void flickLeft(const FlickGesture &gesture);
     void flickRight(const FlickGesture &gesture);
 
+protected:
+    // \reimp
+    virtual bool event(QEvent *);
+    // \reimp_end
+
 private:
     //! Connect signals from a \a handle widget
     void connectHandle(const Handle &handle);

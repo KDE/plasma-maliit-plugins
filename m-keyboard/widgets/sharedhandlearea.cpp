@@ -55,7 +55,6 @@ SharedHandleArea::SharedHandleArea(MImToolbar &toolbar, QGraphicsWidget *parent)
     mainLayout.addItem(&toolbar);
     mainLayout.setAlignment(&toolbar, Qt::AlignCenter);
 
-    connect(&toolbar, SIGNAL(regionUpdated()), this, SLOT(updatePosition()));
     connect(this, SIGNAL(visibleChanged()), this, SLOT(updatePosition()));
 }
 
@@ -147,3 +146,12 @@ void SharedHandleArea::finalizeOrientationChange()
     updatePosition();
 }
 
+bool SharedHandleArea::event(QEvent *e)
+{
+    if (e->type() == QEvent::GraphicsSceneResize) {
+        // when share handler area is resized,need to call updatePosition
+        // to make sure the toolbar in the proper position.
+        updatePosition();
+    }
+    return MWidget::event(e);
+}

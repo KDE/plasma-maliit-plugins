@@ -458,3 +458,7 @@ bool MImToolbar::isPaintable() const
     return isVisible();
 }
 
+const MToolbarData *MImToolbar::currentToolbarData() const
+{
+    return currentToolbar.data();
+}

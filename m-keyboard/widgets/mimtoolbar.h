@@ -70,12 +70,17 @@ public:
     QRegion region() const;
 
     /*!
-     * \brief Shows a custom toolbar with unique \a id.
-     * Loads a custom toolbar according \a id, if successfuly loads,
+     * \brief Shows a custom toolbar with toolbar definition \a toolbar.
+     * Loads a custom toolbar according \a toolbar, if successfuly loads,
      * the toolbar will be visible when show().
-     * \param id      Unique identifier of the custom toolbar.
+     * \param toolbar      The pointer of toolbar definition.
      */
     void showToolbarWidget(QSharedPointer<const MToolbarData> toolbar);
+
+    /*!
+     * \brief Returns the pointer of current toolbar definition.
+     */
+    const MToolbarData *currentToolbarData() const;
 
     /*!
      * \brief Hides all custom toolbars, this also means they are removed from visible virtual keyboard.

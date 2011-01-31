@@ -513,10 +513,12 @@ void MKeyboardHost::sendRegionEstimate()
         stackedRects |= vkbRect;
     }
 
-    // Add toolbar rect. We will always have this.
-    QRectF toolbarRect(sharedHandleArea->rect());
-    toolbarRect.moveBottom(stackedRects.top());
-    stackedRects |= toolbarRect;
+    // Add toolbar rect if it is visible.
+    if (sharedHandleArea->isVisible()) {
+        QRectF toolbarRect(sharedHandleArea->rect());
+        toolbarRect.moveBottom(stackedRects.top());
+        stackedRects |= toolbarRect;
+    }
 
     const QRegion region(sceneWindow->mapRectToScene(stackedRects).toRect());
 
@@ -551,7 +553,8 @@ void MKeyboardHost::show()
     updateEngineKeyboardLayout();
     updateCorrectionState();
 
-    sharedHandleArea->show();
+    if (imToolbar->currentToolbarData())
+        sharedHandleArea->show();
 
     prepareHideShowAnimation();
     if (activeState == MInputMethod::OnScreen) {
@@ -1519,9 +1522,18 @@ void MKeyboardHost::sendStringFromToolbar(const QString &text)
 void MKeyboardHost::setToolbar(QSharedPointer<const MToolbarData> toolbar)
 {
     if (toolbar && toolbar->isVisible()) {
+        const MToolbarData *oldToolbar = imToolbar->currentToolbarData();
+        sharedHandleArea->show();
         imToolbar->showToolbarWidget(toolbar);
+        // if current is in Hardware state, and no toolbar being visible before,
+        // start animation to show new toolbar.
+        if (!oldToolbar && activeState == MInputMethod::Hardware) {
+            prepareHideShowAnimation();
+            slideUpAnimation.start();
+        }
     } else {
         imToolbar->hideToolbarWidget();
+        sharedHandleArea->hide();
     }
 }
 
