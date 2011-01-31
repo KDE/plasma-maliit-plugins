@@ -19,46 +19,10 @@
 #define MIMWORDLIST_H
 
 #include <MDialog>
-#include "mimoverlay.h" 
 
 class QGraphicsLinearLayout;
-class MContentItem;
 class MImWordListItem;
-class MImWordList;
 class MReactionMap;
-
-/*!
- * \brief MIMWordListWindow is used as the plain translucent parent window for word list dialog.
- *
-  * MIMWordListWindow prevents mouse and touch events from reaching the virtual keyboard or the application.
-  * \sa MImOverlay.
- */
-class MIMWordListWindow : public MImOverlay
-{
-    Q_OBJECT
-public:
-    //! Constructor
-    explicit MIMWordListWindow(MImWordList *widget);
-
-public slots:
-    /*
-     * \brief This slot is connected with word list widget's appeared() signal.
-     */
-    void handleListAppeared();
-
-    /*
-     * \brief This slot is connected with word list widget's disappeared() signal.
-     */
-    void handleListDisappeared();
-
-protected:
-    /*! \reimp */
-    virtual bool sceneEvent(QEvent *event);
-    /*! \reimp_end */
-
-private:
-    MImWordList *listWidget;
-};
 
 /*!
  * \brief MIMWordList is used for word list dialog.
@@ -116,7 +80,6 @@ private:
     QStringList mCandidates;
     QGraphicsLinearLayout *mainLayout;
     MImWordListItem *candidateItems[MaxCandidateCount];
-    MIMWordListWindow *parentWindow;
 };
 
 #endif

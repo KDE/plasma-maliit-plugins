@@ -18,17 +18,11 @@
 #include "regiontracker.h"
 #include "mimwordlist.h"
 #include "mimwordlistitem.h"
-#include <mplainwindow.h>
 
 #include <QGraphicsLinearLayout>
 #include <QDebug>
 #include <QString>
 
-#include <MSceneManager>
-#include <MScene>
-#include <MGConfItem>
-#include <MContentItem>
-#include <MTheme>
 #include <mreactionmap.h>
 
 #include <mwidgetcreator.h>
@@ -39,37 +33,9 @@ namespace
     const char * const WordListObjectName = "CorrectionWordList";
 };
 
-MIMWordListWindow::MIMWordListWindow(MImWordList *widget)
-    : MImOverlay(),
-      listWidget(widget)
-{
-    setVisible(false);
-}
-
-bool MIMWordListWindow::sceneEvent(QEvent *e)
-{
-    // TODO: below hiding list widget could be removed when meegotouch
-    // decide not hiding dialog when tap outside.
-    if (e->type() == QEvent::GraphicsSceneMouseRelease) {
-        listWidget->disappear();
-    }
-    return MImOverlay::sceneEvent(e);
-}
-
-void MIMWordListWindow::handleListAppeared()
-{
-    setVisible(true);
-    listWidget->setParentItem(this);
-}
-
-void MIMWordListWindow::handleListDisappeared()
-{
-    setVisible(false);
-}
 
 MImWordList::MImWordList()
-    : MDialog(),
-      parentWindow(new MIMWordListWindow(this))
+    : MDialog()
 {
     RegionTracker::instance().addRegion(*this);
     // for MATTI
@@ -89,18 +55,10 @@ MImWordList::MImWordList()
     }
     setCentralWidget(contentWidget);
     hide();
-
-    connect(this, SIGNAL(appeared()),
-            parentWindow, SLOT(handleListAppeared()));
-    connect(this, SIGNAL(disappeared()),
-            parentWindow, SLOT(handleListDisappeared()));
 }
 
 MImWordList::~MImWordList()
 {
-    setParentItem(0);
-    delete parentWindow;
-    parentWindow = 0;
 }
 
 void MImWordList::setCandidates(const QStringList &candidates)
