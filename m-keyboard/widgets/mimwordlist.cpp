@@ -71,7 +71,7 @@ MImWordList::MImWordList()
     : MDialog(),
       parentWindow(new MIMWordListWindow(this))
 {
-   RegionTracker::instance().addRegion(*this);
+    RegionTracker::instance().addRegion(*this);
     // for MATTI
     setObjectName(WordListObjectName);
 
