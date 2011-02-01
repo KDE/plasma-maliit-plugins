@@ -25,6 +25,7 @@
 
 #include <MTheme>
 #include <MScalableImage>
+#include <MTimestamp>
 
 #include <QPainter>
 
@@ -396,6 +397,7 @@ QRectF MImKey::boundingRect() const
 
 void MImKey::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
+    mTimestamp("MImKey", "start");
     const MScalableImage *background = backgroundImage();
     const QRectF paintingArea(currentGeometry.marginLeft,
                               currentGeometry.marginTop,
@@ -420,6 +422,7 @@ void MImKey::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget 
             painter->drawText(secondaryLabelPos(), secondaryLabel());
         }
     }
+    mTimestamp("MImKey", "end");
 }
 
 const QPixmap *MImKey::icon() const
