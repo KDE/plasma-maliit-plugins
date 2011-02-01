@@ -19,8 +19,10 @@
 #include "ut_mimcorrectionhost.h"
 #include "mimwordtracker.h"
 #include "mimwordlist.h"
-#include <mplainwindow.h>
+#include "reactionmappainter.h"
 #include "utils.h"
+
+#include <mplainwindow.h>
 #include <QtTest/QTest>
 #include <QObject>
 #include <QDebug>
@@ -40,6 +42,7 @@ void Ut_MImCorrectionHost::initTestCase()
     disableQtPlugins();
     app = new MApplication(dummyArgc, dummyArgv);
     RegionTracker::createInstance();
+    ReactionMapPainter::createInstance();
 
     // MImCorrectionHost uses this internally
     new MPlainWindow;
@@ -75,6 +78,7 @@ void Ut_MImCorrectionHost::cleanupTestCase()
     delete parentWindow;
     delete MPlainWindow::instance();
     RegionTracker::destroyInstance();
+    ReactionMapPainter::destroyInstance();
     delete app;
     app = 0;
 }

@@ -234,6 +234,7 @@ void MHardwareKeyboard::enable()
     }
 
     inputMethodHost.setRedirectKeys(true);
+    emit enabled();
 }
 
 

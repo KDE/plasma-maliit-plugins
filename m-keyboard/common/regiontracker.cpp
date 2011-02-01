@@ -156,8 +156,6 @@ RegionTracker::RegionTracker()
             this, SIGNAL(regionChanged(const QRegion &)));
     connect(&d->inputMethodAreaWidgetRegions, SIGNAL(regionChanged(const QRegion &)),
             this, SIGNAL(inputMethodAreaChanged(const QRegion &)));
-    connect(this, SIGNAL(regionChanged(const QRegion &)),
-            this, SIGNAL(reactionMapUpdateNeeded()));
 }
 
 RegionTracker::~RegionTracker()
@@ -204,11 +202,6 @@ bool RegionTracker::enableSignals(bool newEnabled, bool flush)
     d->widgetRegions.enable(newEnabled, flush);
     d->inputMethodAreaWidgetRegions.enable(newEnabled, flush);
     return wasEnabled;
-}
-
-void RegionTracker::requestReactionMapUpdate()
-{
-    emit reactionMapUpdateNeeded();
 }
 
 void RegionTracker::sendInputMethodAreaEstimate(const QRegion &region)

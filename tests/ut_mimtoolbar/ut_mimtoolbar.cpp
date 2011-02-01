@@ -25,6 +25,7 @@
 #include "layoutsmanager.h"
 #include "mreactionmaptester.h"
 #include "utils.h"
+#include "reactionmappainter.h"
 #include <mplainwindow.h>
 #include <mtoolbardata.h>
 #include <mtoolbarlayout.h>
@@ -78,6 +79,7 @@ void Ut_MImToolbar::initTestCase()
 
     disableQtPlugins();
     app = new MApplication(dummyArgc, dummyArgv);
+    ReactionMapPainter::createInstance();
 
     qRegisterMetaType<CopyPasteState>("CopyPasteState");
     LayoutsManager::createInstance();
@@ -113,6 +115,7 @@ void Ut_MImToolbar::cleanupTestCase()
 {
     toolbarData.clear();
     LayoutsManager::destroyInstance();
+    ReactionMapPainter::destroyInstance();
     delete sceneWindow;
     delete MPlainWindow::instance();
     delete app;

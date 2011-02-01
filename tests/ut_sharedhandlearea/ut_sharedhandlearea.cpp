@@ -15,6 +15,8 @@
  */
 
 #include "ut_sharedhandlearea.h"
+
+#include "reactionmappainter.h"
 #include <utils.h>
 #include <sharedhandlearea.h>
 #include <mgconfitem_stub.h>
@@ -42,6 +44,7 @@ void Ut_SharedHandleArea::initTestCase()
     disableQtPlugins();
     app = new MApplication(dummyArgc, dummyArgv);
     RegionTracker::createInstance();
+    ReactionMapPainter::createInstance();
 
     sceneWindow = createMSceneWindow(new MPlainWindow); // also create singleton
 
@@ -55,6 +58,7 @@ void Ut_SharedHandleArea::cleanupTestCase()
     delete sceneWindow;
     delete MPlainWindow::instance();
     RegionTracker::destroyInstance();
+    ReactionMapPainter::destroyInstance();
     delete app;
 }
 

@@ -23,6 +23,7 @@
 #include "widgetbar.h"
 #include "mkeyboardcommon.h"
 #include "mimtoolbarstyle.h"
+#include "reactionmappaintable.h"
 
 #include <QPointer>
 #include <QSharedPointer>
@@ -48,7 +49,7 @@ class MToolbarData;
   will be placed into left or right side WidgetBar widget. Toolbar
   takes all available space horizontally.
 */
-class MImToolbar : public MStylableWidget
+class MImToolbar : public MStylableWidget, public ReactionMapPaintable
 {
     Q_OBJECT
 
@@ -94,6 +95,7 @@ public:
 
     //! \reimp
     virtual QRectF boundingRect() const;
+    bool isPaintable() const;
     //! \reimp_end
 
 public slots:

@@ -23,6 +23,7 @@
 
 MImCorrectionHost::MImCorrectionHost(MSceneWindow *parentWindow)
     : QObject(parentWindow),
+      ReactionMapPaintable(),
       rotationInProgress(false),
       currentMode(MImCorrectionHost::WordTrackerMode),
       pendingCandidatesUpdate(false),
@@ -31,8 +32,17 @@ MImCorrectionHost::MImCorrectionHost(MSceneWindow *parentWindow)
 {
     connect(wordTracker, SIGNAL(candidateClicked(QString)), this, SLOT(handleCandidateClicked(QString)));
     connect(wordTracker, SIGNAL(longTapped()), this, SLOT(longTap()));
+    // The word tracker changed -> Repaint the reaction maps
+    // TODO: The reaction map repainting can be optimized here to clear/repaint only the
+    // reaction map of the word tracker.
+    connect(wordTracker, SIGNAL(geometryChanged()), &signalForwarder, SIGNAL(requestRepaint()));
+    connect(wordTracker, SIGNAL(displayExited()), &signalForwarder, SIGNAL(requestRepaint()));
 
     connect(wordList, SIGNAL(candidateClicked(QString)), this, SLOT(handleCandidateClicked(QString)));
+    // The word list goes on top -> Clear the reaction maps
+    connect(wordList, SIGNAL(displayEntered()), &signalForwarder, SIGNAL(requestClear()));
+    // The word list disappears -> Repaint the reaction maps
+    connect(wordList, SIGNAL(displayExited()), &signalForwarder, SIGNAL(requestRepaint()));
 }
 
 
@@ -174,6 +184,17 @@ void MImCorrectionHost::reset()
 {
     setCandidates(QStringList());
     hideCorrectionWidget();
+}
+
+bool MImCorrectionHost::isPaintable() const
+{
+    return isActive();
+}
+
+bool MImCorrectionHost::isFullScreen() const
+{
+    // Correction candidate widget occupies whole screen when it is WordListMode.
+    return candidateMode() == MImCorrectionHost::WordListMode;
 }
 
 void MImCorrectionHost::longTap()

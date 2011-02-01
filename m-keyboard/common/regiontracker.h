@@ -62,9 +62,6 @@ public:
     //! signaled if \a flush is true.
     bool enableSignals(bool newEnabled, bool flush = true);
 
-    //! \brief Request \a reactionMapUpdateNeeded to be emitted.
-    void requestReactionMapUpdate();
-
     //! \brief Request given \a region to be emitted via \a inputMethodAreaChanged
     //! regardless of signals being enabled or disabled
     void sendInputMethodAreaEstimate(const QRegion &region);
@@ -79,12 +76,6 @@ signals:
 
     //! \brief Screen area covered by widgets registered with \a addInputMethodArea was changed
     void inputMethodAreaChanged(const QRegion &region);
-
-    //! \brief Emitted whenever reaction map update is needed.
-    //!
-    //! \a regionChanged emission implies \a reactionMapUpdateNeeded emission, but not the
-    //! other way around.
-    void reactionMapUpdateNeeded();
 
 private:
     //! \brief Constructor.

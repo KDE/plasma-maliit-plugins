@@ -20,6 +20,7 @@
 #include "keyeventhandler.h"
 #include "mkeyboardcommon.h"
 #include "layoutdata.h"
+#include "reactionmappaintable.h"
 
 #include <minputmethodnamespace.h>
 #include <MWidget>
@@ -39,7 +40,7 @@ class Handle;
 /*!
  * \brief SymbolView is used to show different layouts symbols/upper case/lower case
  */
-class SymbolView : public MWidget
+class SymbolView : public MWidget, public ReactionMapPaintable
 {
     Q_OBJECT
 
@@ -94,6 +95,10 @@ public:
      * \brief If \a hidden is true, hides active symbol view. Otherwise, shows temporarily inactive symbol view.
      */
     void setTemporarilyHidden(bool hidden);
+
+    /*! \reimp */
+    bool isPaintable() const;
+    /*! \reimp_end */
 
 public slots:
     /*!

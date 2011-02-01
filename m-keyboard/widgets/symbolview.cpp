@@ -22,6 +22,7 @@
 #include "symbolview.h"
 #include "grip.h"
 #include "mimkeyarea.h"
+#include "reactionmappainter.h"
 #include "regiontracker.h"
 
 #include <MSceneManager>
@@ -46,6 +47,7 @@ namespace
 SymbolView::SymbolView(const LayoutsManager &layoutsManager, const MVirtualKeyboardStyleContainer *style,
                        const QString &layout, QGraphicsWidget *parent)
     : MWidget(parent),
+      ReactionMapPaintable(),
       styleContainer(style),
       sceneManager(*MPlainWindow::instance()->sceneManager()),
       activity(Inactive),
@@ -83,6 +85,9 @@ SymbolView::SymbolView(const LayoutsManager &layoutsManager, const MVirtualKeybo
     hide();
     setupLayout();
     reloadContent();
+
+    // Request a reaction map painting if it appears
+    connect(this, SIGNAL(displayEntered()), &signalForwarder, SIGNAL(requestRepaint()));
 }
 
 
@@ -449,7 +454,7 @@ void SymbolView::onSwitchDone()
     // after we've been hidden.
     if (isVisible()) {
         layout()->activate();
-        RegionTracker::instance().requestReactionMapUpdate();
+        signalForwarder.emitRequestRepaint();
     }
     if (pageSwitcher) {
         activePage = pageSwitcher->current();
@@ -544,6 +549,11 @@ void SymbolView::setTemporarilyHidden(bool hidden)
     } else if (!hidden && activity == TemporarilyInactive) {
         showSymbolView();
     }
+}
+
+bool SymbolView::isPaintable() const
+{
+    return isVisible();
 }
 
 void SymbolView::resetCurrentKeyArea(bool resetCapsLock)

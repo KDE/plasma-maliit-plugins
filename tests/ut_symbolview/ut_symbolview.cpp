@@ -26,6 +26,7 @@
 #include "mimabstractkeyarea.h"
 #include "layoutsmanager.h"
 #include "regiontracker.h"
+#include "reactionmappainter.h"
 #include "symbolview.h"
 #include "ut_symbolview.h"
 #include "mplainwindow.h"
@@ -83,6 +84,8 @@ void Ut_SymbolView::initTestCase()
     style = new MVirtualKeyboardStyleContainer;
     style->initialize("MVirtualKeyboard", "MVirtualKeyboardView", 0);
 
+    ReactionMapPainter::createInstance();
+
     MGConfItem inputMethodSetting(InputMethodSettingName);
 
     QStringList langlist;
@@ -100,6 +103,7 @@ void Ut_SymbolView::initTestCase()
 void Ut_SymbolView::cleanupTestCase()
 {
     RegionTracker::destroyInstance();
+    ReactionMapPainter::destroyInstance();
     delete MPlainWindow::instance();
     LayoutsManager::destroyInstance();
     delete style;
@@ -164,13 +168,9 @@ void Ut_SymbolView::testReactiveButtonAreas()
     QVERIFY(tester.testChildButtonReactiveAreas(view, subject));
 
     // Test the next tab also.
-    QSignalSpy reactionMapUpdate(&RegionTracker::instance(),
-                                 SIGNAL(reactionMapUpdateNeeded()));
     subject->switchToNextPage();
     QTest::qWait(600);
     QVERIFY(!subject->pageSwitcher->isRunning());
-    // After the switch the reactive areas should be updated.
-    QVERIFY(reactionMapUpdate.count() >= 1);
 
     // However since we don't have MKeyboardHost here we call this directly again.
     gMReactionMapStub->setTransparentDrawingValue();

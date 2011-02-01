@@ -23,6 +23,7 @@
 #include "mkeyboardcommon.h"
 #include "mimkeyarea.h"
 #include "layoutdata.h"
+#include "reactionmappaintable.h"
 
 #include <minputmethodnamespace.h>
 #include <MWidget>
@@ -61,7 +62,7 @@ class SharedHandleArea;
    It also provides interfaces to get keystatus
 
 */
-class MVirtualKeyboard : public MWidget
+class MVirtualKeyboard : public MWidget, public ReactionMapPaintable
 {
     Q_OBJECT
     Q_PROPERTY(QString layoutLanguage READ layoutLanguage)
@@ -147,6 +148,7 @@ public:
 
     //! reimp
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);
+    bool isPaintable() const;
     //! reimp_end
 
     //! \return region occupied by keyboard in scene coordinates

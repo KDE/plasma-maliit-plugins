@@ -17,6 +17,8 @@
 #ifndef MIMCORRECTIONHOST_H
 #define MIMCORRECTIONHOST_H
 
+#include "reactionmappaintable.h"
+
 #include <QObject>
 #include <QString>
 #include <QStringList>
@@ -34,7 +36,7 @@ class QGraphicsView;
   \brief The MImCorrectionHost class is used to show error correction
   candidate word tracker or word list.
 */
-class MImCorrectionHost : public QObject
+class MImCorrectionHost : public QObject, public ReactionMapPaintable
 {
     Q_OBJECT
 
@@ -113,6 +115,10 @@ public:
     //! Clear stored suggestion and hide candidate widget.
     void reset();
 
+    /*! \reimp */
+    bool isPaintable() const;
+    bool isFullScreen() const;
+    /*! \reimp_end */
 signals:
     //! Updates the preedit word
     void candidateClicked(const QString &);

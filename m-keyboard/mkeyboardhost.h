@@ -123,9 +123,6 @@ private slots:
      */
     void handleLongKeyPress(const KeyEvent &event);
 
-    //! \brief Draws reaction maps for the topmost widget.
-    void updateReactionMaps();
-
     /*!
      * \brief Commits \a string.
      *
@@ -250,11 +247,6 @@ private:
      *  \sa handleGeneralKeyClick
      */
     void handleTextInputKeyClick(const KeyEvent &event);
-
-    /*! \brief Clears reaction maps with given MReactionMap color value.
-     *  \param clearValue A MReactionMap color value such as MReactionMap::Inactive.
-     */
-    void clearReactionMaps(const QString &clearValue);
 
     //! initialize input engine
     void initializeInputEngine();

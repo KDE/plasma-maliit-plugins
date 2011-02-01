@@ -149,6 +149,9 @@ signals:
     //! \brief Emitted when the script is changed.
     void scriptChanged() const;
 
+    //! \brief Emitted when the hardware keyboard is enabled.
+    void enabled();
+
 private slots:
     //! Called when long press timer started on key press timeouts.
     void handleLongPressTimeout();

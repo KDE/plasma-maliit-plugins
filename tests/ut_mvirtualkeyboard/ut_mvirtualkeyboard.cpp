@@ -30,6 +30,7 @@
 #include "mplainwindow.h"
 #include "utils.h"
 #include "regiontracker.h"
+#include "reactionmappainter.h"
 
 #include <minputmethodnamespace.h>
 #include <MScene>
@@ -93,6 +94,7 @@ void Ut_MVirtualKeyboard::initTestCase()
 
     app = new MApplication(argc, argv);
     RegionTracker::createInstance();
+    ReactionMapPainter::createInstance();
 
     QString InputMethodSetting(InputMethodSettingName);
     MGConfItem item1(InputMethodSetting);
@@ -131,6 +133,7 @@ void Ut_MVirtualKeyboard::cleanupTestCase()
     delete app;
     app = 0;
     RegionTracker::destroyInstance();
+    ReactionMapPainter::destroyInstance();
 }
 
 void Ut_MVirtualKeyboard::init()
@@ -776,13 +779,13 @@ void Ut_MVirtualKeyboard::testReactionMaps()
     QVERIFY(tester.testChildButtonReactiveAreas(view, m_vkb));
 
     // Switch layout, the chosen kb layouts are all different in terms of reaction maps they generate.
-    QSignalSpy updateSignal(&RegionTracker::instance(), SIGNAL(reactionMapUpdateNeeded()));
+    QSignalSpy updateSignal(&m_vkb->signalForwarder, SIGNAL(requestRepaint()));
     m_vkb->setLayout(1);
     QTest::qWait(600);
 
     // Currently updating is done via kbhost when it receives region updates.
     // Kbhost is not present so we paint reaction map explicitly.
-    QVERIFY(updateSignal.count() > 0);
+    QVERIFY(updateSignal.count() == 1);
     m_vkb->paintReactionMap(MReactionMap::instance(view), view);
 
     QVERIFY(tester.testReactionMapGrid(view, 40, 50, m_vkb->mapRectToScene(m_vkb->rect()).toRect(), m_vkb));

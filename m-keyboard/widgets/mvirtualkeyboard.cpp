@@ -28,6 +28,7 @@
 #include "mimabstractkey.h"
 #include "keyevent.h"
 #include "grip.h"
+#include "reactionmappainter.h"
 #include "regiontracker.h"
 
 #include <mtoolbardata.h>
@@ -60,6 +61,7 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
                                    const MVirtualKeyboardStyleContainer *styleContainer,
                                    QGraphicsWidget *parent)
     : MWidget(parent),
+      ReactionMapPaintable(),
       styleContainer(styleContainer),
       mainLayout(new QGraphicsLinearLayout(Qt::Vertical, this)),
       currentLevel(0),
@@ -123,6 +125,9 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
     keyboardsReset(); // creates keyboard widgets
 
     organizeContent(currentOrientation);
+
+    // Request a reaction map painting if it appears
+    connect(this, SIGNAL(displayEntered()), &signalForwarder, SIGNAL(requestRepaint()));
 }
 
 
@@ -249,6 +254,10 @@ QVariant MVirtualKeyboard::itemChange(GraphicsItemChange change, const QVariant 
     return MWidget::itemChange(change, value);
 }
 
+bool MVirtualKeyboard::isPaintable() const
+{
+    return isVisible();
+}
 
 void MVirtualKeyboard::resetState()
 {
@@ -481,9 +490,6 @@ void MVirtualKeyboard::onSectionSwitchStarting(int current, int next)
 void MVirtualKeyboard::onSectionSwitched(QGraphicsWidget */*previous*/, QGraphicsWidget */*current*/)
 {
     organizeContent(currentOrientation);
-    // We (probably) need to redraw reaction map even if the region doesn't
-    // change, buttons may be positioned differently
-    RegionTracker::instance().requestReactionMapUpdate();
 }
 
 
@@ -501,6 +507,9 @@ void MVirtualKeyboard::createSwitcher()
             this, SLOT(onSectionSwitchStarting(int, int)));
     connect(mainKeyboardSwitcher, SIGNAL(switchDone(QGraphicsWidget *, QGraphicsWidget *)),
             this, SLOT(onSectionSwitched(QGraphicsWidget *, QGraphicsWidget *)));
+    // Repaint the reaction maps if the keyboard is changed
+    connect(mainKeyboardSwitcher, SIGNAL(switchDone(QGraphicsWidget *, QGraphicsWidget *)),
+            &signalForwarder, SIGNAL(requestRepaint()));
 }
 
 
@@ -725,6 +734,13 @@ void MVirtualKeyboard::updateMainLayoutAtKeyboardIndex()
 
     // resize and update keyboards if needed
     organizeContent(currentOrientation);
+
+    // Request a reaction map repainting when the first keyboard is loaded or
+    // the keyboard is changed between normal, phone and number layouts.
+    if (previousWidget != newWidget) {
+        signalForwarder.emitRequestRepaint();
+    }
+
 }
 
 QList<MImEngine::KeyboardLayoutKey> MVirtualKeyboard::mainLayoutKeys() const

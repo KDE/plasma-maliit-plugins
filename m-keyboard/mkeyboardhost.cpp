@@ -27,6 +27,7 @@
 #include "symbolview.h"
 #include "mimtoolbar.h"
 #include "sharedhandlearea.h"
+#include "reactionmappainter.h"
 #include "regiontracker.h"
 #include "simplefilelog.h"
 
@@ -41,7 +42,6 @@
 #include <QRegExp>
 #include <QEasingCurve>
 
-#include <mreactionmap.h>
 #include <MScene>
 #include <MSceneManager>
 #include <MSceneWindow>
@@ -221,8 +221,9 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
             imHost, SLOT(setScreenRegion(const QRegion &)));
     connect(&RegionTracker::instance(), SIGNAL(inputMethodAreaChanged(const QRegion &)),
             imHost, SLOT(setInputMethodArea(const QRegion &)));
-    connect(&RegionTracker::instance(), SIGNAL(reactionMapUpdateNeeded()),
-            this, SLOT(updateReactionMaps()));
+
+    // Create the reaction map painter
+    ReactionMapPainter::createInstance();
 
     displayHeight = MPlainWindow::instance()->visibleSceneSize(M::Landscape).height();
     displayWidth  = MPlainWindow::instance()->visibleSceneSize(M::Landscape).width();
@@ -279,6 +280,8 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
     hardwareKeyboard = new MHardwareKeyboard(*imHost, this);
     connect(hardwareKeyboard, SIGNAL(symbolKeyClicked()),
             this, SLOT(handleSymbolKeyClick()));
+    // Trigger a reaction map when the hardware keyboard is opened
+    connect(hardwareKeyboard, SIGNAL(enabled()), &ReactionMapPainter::instance(), SLOT(repaint()));
 
     bool ok = connect(vkbWidget, SIGNAL(copyPasteClicked(CopyPasteState)),
                       this, SLOT(sendCopyPaste(CopyPasteState)));
@@ -308,9 +311,7 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
 
     // Set z value below default level (0.0) so popup will be on top of shared handle area.
     sharedHandleArea->setZValue(-1.0);
-
     sharedHandleArea->watchOnWidget(vkbWidget);
-
 
     createCorrectionCandidateWidget();
 
@@ -393,6 +394,9 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
 
     connect(&slideUpAnimation, SIGNAL(finished()), this, SLOT(handleAnimationFinished()));
     connect(&toolbarAndVkbFadeInAnimation, SIGNAL(finished()), this, SLOT(handleAnimationFinished()));
+    // Trigger a reaction map update
+    connect(&slideUpAnimation, SIGNAL(finished()), &ReactionMapPainter::instance(), SLOT(repaint()));
+    connect(&toolbarAndVkbFadeInAnimation, SIGNAL(finished()), &ReactionMapPainter::instance(), SLOT(repaint()));
 
     Q_ASSERT(currentInstance == 0); // Several instances of this class is invalid.
     currentInstance = this;
@@ -427,6 +431,7 @@ MKeyboardHost::~MKeyboardHost()
     backspaceMode = NormalBackspaceMode;
     backspaceTimer.stop();
     LayoutsManager::destroyInstance();
+    ReactionMapPainter::destroyInstance();
     RegionTracker::destroyInstance();
     currentInstance = 0;
 }
@@ -606,7 +611,6 @@ void MKeyboardHost::handleAnimationFinished()
     }
 
     RegionTracker::instance().enableSignals(true);
-    updateReactionMaps();
 }
 
 
@@ -1082,62 +1086,6 @@ void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
                 doBackspace();
             }
             backspaceMode = NormalBackspaceMode;
-        }
-    }
-}
-
-void MKeyboardHost::updateReactionMaps()
-{
-    if (rotationInProgress) {
-        return;
-    }
-
-    // Start by making everything transparent
-    clearReactionMaps(MReactionMap::Transparent);
-
-    QList<QGraphicsView *> views = MPlainWindow::instance()->scene()->views();
-    foreach (QGraphicsView *view, views) {
-        MReactionMap *reactionMap = MReactionMap::instance(view);
-
-        if (!reactionMap) {
-            continue;
-        }
-
-        // Candidates widget
-        if (correctionHost && correctionHost->isActive()) {
-            correctionHost->paintReactionMap(reactionMap, view);
-
-            // Correction candidate widget occupies whole screen when it is WordListMode.
-            if (correctionHost->candidateMode() == MImCorrectionHost::WordListMode)
-                continue;
-        }
-
-        // Paint either symview or vkb widget reactive areas.
-        if (symbolView && symbolView->isVisible()) {
-            symbolView->paintReactionMap(reactionMap, view);
-        } else if (vkbWidget && vkbWidget->isVisible()) {
-            vkbWidget->paintReactionMap(reactionMap, view);
-        }
-
-        // Toolbar
-        if (imToolbar && imToolbar->isVisible()) {
-            imToolbar->paintReactionMap(reactionMap, view);
-        }
-    }
-}
-
-void MKeyboardHost::clearReactionMaps(const QString &clearValue)
-{
-    if (!MPlainWindow::instance()->scene()) {
-        return;
-    }
-
-    foreach (QGraphicsView *view, MPlainWindow::instance()->scene()->views()) {
-        MReactionMap *reactionMap = MReactionMap::instance(view);
-        if (reactionMap) {
-            reactionMap->setDrawingValue(clearValue, clearValue);
-            reactionMap->setTransform(QTransform()); // Identity
-            reactionMap->fillRectangle(0, 0, reactionMap->width(), reactionMap->height());
         }
     }
 }

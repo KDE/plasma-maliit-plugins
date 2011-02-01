@@ -42,6 +42,7 @@ namespace
 
 MImToolbar::MImToolbar(QGraphicsWidget *parent)
     : MStylableWidget(parent),
+      ReactionMapPaintable(),
       textSelected(false),
       leftBar(this),
       rightBar(this),
@@ -59,6 +60,9 @@ MImToolbar::MImToolbar(QGraphicsWidget *parent)
     connect(this, SIGNAL(visibleChanged()), this, SLOT(arrangeWidgets()));
     connect(MTheme::instance(), SIGNAL(themeChangeCompleted()),
             this, SLOT(updateFromStyle()));
+
+    // Request a reaction map painting if it appears
+    connect(this, SIGNAL(displayEntered()), &signalForwarder, SIGNAL(requestRepaint()));
 }
 
 MImToolbar::~MImToolbar()
@@ -230,6 +234,13 @@ void MImToolbar::createAndAppendWidget(const QSharedPointer<MToolbarItem> &item)
         widget = new MToolbarLabel(item, sidebar);
     }
     customWidgets.append(widget);
+    // We should update the reaction map if the custom toolbar elements are changing.
+    connect(widget, SIGNAL(geometryChanged()),
+            &signalForwarder, SIGNAL(requestRepaint()), Qt::UniqueConnection);
+    connect(widget, SIGNAL(displayEntered()),
+            &signalForwarder, SIGNAL(requestRepaint()), Qt::UniqueConnection);
+    connect(widget, SIGNAL(displayExited()),
+            &signalForwarder, SIGNAL(requestRepaint()), Qt::UniqueConnection);
     if (sidebar->count() == 0) {
         // must be done before appending so that isVisible() tells the truth
         sidebar->show();
@@ -358,8 +369,11 @@ void MImToolbar::showToolbarWidget(QSharedPointer<const MToolbarData> toolbar)
     currentToolbar = toolbar;
     loadCustomWidgets();
 
-    if (isVisible())
+    if (isVisible()) {
         updateVisibility();
+        // The content has been changed -> Repaint the reaction maps
+        signalForwarder.emitRequestRepaint();
+    }
     arrangeWidgets();
 }
 
@@ -436,5 +450,10 @@ QRectF MImToolbar::boundingRect() const
     return QRectF(-style()->marginLeft(), -style()->marginTop(),
                   size().width() + style()->marginLeft() + style()->marginRight(),
                   size().height() + style()->marginTop() + style()->marginBottom());
+}
+
+bool MImToolbar::isPaintable() const
+{
+    return isVisible();
 }
 

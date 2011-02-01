@@ -9,6 +9,7 @@ PUBLIC_HEADERS += \
     $$WIDGETS_DIR/mimkeyvisitor.h \
     $$WIDGETS_DIR/mimkey.h \
     $$WIDGETS_DIR/mimkeyarea.h \
+    $$WIDGETS_DIR/reactionmappaintable.h \
 
 PUBLIC_STYLE_HEADERS += \
     $$WIDGETS_DIR/mvirtualkeyboardstyle.h \
@@ -81,6 +82,7 @@ SOURCES += \
     $$WIDGETS_DIR/mkeyboardsettingswidget.cpp \
     $$WIDGETS_DIR/mimoverlay.cpp \
     $$WIDGETS_DIR/mtoolbarlabelview.cpp \
+    $$WIDGETS_DIR/reactionmappaintable.cpp \
 
 INCLUDEPATH += $$WIDGETS_DIR
 DEPENDPATH += $$WIDGETS_DIR
