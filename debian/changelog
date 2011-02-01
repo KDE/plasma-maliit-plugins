@@ -1,6 +1,7 @@
 meego-keyboard (0.5.26~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: unwanted long presses in case of delays in event delivery
 
  -- huaming wang <huaming.wang@nokia.com>  Wed, 26 Jan 2011 10:31:42 +0200
 
