@@ -106,6 +106,10 @@ private:
     //! \param size the new size
     void initCachedBackground(const QSize &size);
 
+    //! \brief Invalidates text layout and schedules painting.
+    //! That actions should be always performed together
+    void invalidateTextLayout();
+
     //! \brief Helper struct to store a row of keys.
     struct KeyRow {
         QList<MImKey*> keys; //!< keys in a row

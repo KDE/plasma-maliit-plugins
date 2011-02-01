@@ -199,8 +199,8 @@ void MImKey::setModifiers(bool shift, QChar accent)
         this->accent = accent;
         currentLabel = binding().accented(accent);
 
-        updateParent();
         invalidateLabelPos();
+        update();
     }
 }
 
@@ -227,7 +227,6 @@ void MImKey::setDownState(bool down)
         }
 
         setVisible(currentState != Normal);
-        updateParent();
     }
 }
 
@@ -445,12 +444,6 @@ void MImKey::drawIcon(QPainter *painter) const
                         rectangle.y() + (rectangle.height() - iconPixmap->height()) / 2);
         painter->drawPixmap(iconPos, *iconPixmap);
     }
-}
-
-void MImKey::updateParent()
-{
-    // Invalidate this button's area.
-    parentItem.update(buttonRect());
 }
 
 int MImKey::preferredFixedWidth() const

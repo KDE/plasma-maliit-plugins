@@ -107,8 +107,6 @@ public:
 
     //! \brief Draws the icon of this key, if available.
     virtual void drawIcon(QPainter *painter) const;
-    //! \brief Calls parent item's QGraphicsItem::update() who actually draws the button.
-    void updateParent();
 
     //! Returns preferred fixed witdth
     int preferredFixedWidth() const;

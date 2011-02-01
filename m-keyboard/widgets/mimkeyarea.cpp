@@ -697,6 +697,12 @@ void MImKeyArea::initCachedBackground(const QSize &newSize)
     hasCachedBackground = false;
 }
 
+void MImKeyArea::invalidateTextLayout()
+{
+    textDirty = true;
+    update();
+}
+
 MImAbstractKey *MImKeyArea::keyAt(const QPoint &pos) const
 {
     const int numRows = rowList.count();
@@ -742,7 +748,7 @@ void MImKeyArea::modifiersChanged(const bool shift,
         }
     }
 
-    textDirty = true;
+    invalidateTextLayout();
 }
 
 void MImKeyArea::updateKeyGeometries(const int newAvailableWidth)
@@ -787,7 +793,7 @@ void MImKeyArea::updateKeyGeometries(const int newAvailableWidth)
     mRelativeKeyBaseWidth = updater.relativeKeyWidth();
 
     // Positions may have changed, rebuild text layout.
-    textDirty = true;
+    invalidateTextLayout();
 }
 
 QRectF MImKeyArea::boundingRect() const
