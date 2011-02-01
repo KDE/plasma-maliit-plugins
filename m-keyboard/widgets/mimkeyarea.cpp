@@ -419,10 +419,25 @@ void MImKeyArea::drawReactiveAreas(MReactionMap *reactionMap,
     reactionMap->setReactiveDrawingValue();
 
     foreach (const KeyRow &row, rowList) {
+        // 'area' is used for key bounding rect coalescing, to improve
+        // downsampling to reaction map resolution (usually display_size / 4).
+        QRectF area;
+        qreal lastRightBorder = 0.0f;
+
         foreach (const MImKey *const key, row.keys) {
             const QRectF rect = correctedReactionRect(key->buttonBoundingRect());
-            reactionMap->fillRectangle(rect);
+
+            // Check for spacers. If found, we draw the accummulated area and start from scratch.
+            if (lastRightBorder < rect.left()) {
+                reactionMap->fillRectangle(area);
+                area = QRectF();
+            }
+
+            area |= rect;
+            lastRightBorder = rect.right();
         }
+
+        reactionMap->fillRectangle(area);
     }
 }
 
