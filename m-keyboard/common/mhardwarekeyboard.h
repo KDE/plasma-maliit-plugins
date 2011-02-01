@@ -115,7 +115,7 @@ public:
     bool filterKeyEvent(QEvent::Type eventType, Qt::Key keyCode,
                         Qt::KeyboardModifiers modifiers, const QString &text,
                         bool autoRepeat, int count, quint32 nativeScanCode,
-                        quint32 nativeModifiers);
+                        quint32 nativeModifiers, unsigned long time);
 
     //! \return whether the symbol view is available for the current layout.
     bool symViewAvailable() const;
@@ -264,12 +264,12 @@ private:
     //! Helper for filterKeyEvent, handles press events
     bool filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers modifiers,
                         QString text, bool autoRepeat, int count,
-                        quint32 nativeScanCode, quint32 nativeModifiers);
+                        quint32 nativeScanCode, quint32 nativeModifiers, unsigned long time);
 
     //! Helper for filterKeyEvent, handles release events
     bool filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers modifiers,
                           QString text,
-                          quint32 nativeScanCode, quint32 nativeModifiers);
+                          quint32 nativeScanCode, quint32 nativeModifiers, unsigned long time);
 
     //! Helper for filterKeyRelease and filterKeyPress, handle arrow keys with Fn
     bool filterArrowKeys(QEvent::Type eventType, Qt::Key keyCode,
@@ -357,6 +357,10 @@ private:
 
     //! What we've last sent as the preedit string
     QString preedit;
+    //! Preedit not touched by long press handling
+    QString preeditBeforeLongPress;
+    //! Time of press event that updated \a preedit (not changed by long press processing or similar)
+    unsigned long preeditTime;
     //! Native X keycode of the event that caused \a preedit to be set
     quint32 preeditScanCode;
 

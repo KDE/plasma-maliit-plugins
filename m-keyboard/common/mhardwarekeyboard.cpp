@@ -533,7 +533,7 @@ bool MHardwareKeyboard::handleLatching(Qt::Key &keyCode, QString &text, quint32 
 
 bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers modifiers,
                                        QString text, bool autoRepeat, int count,
-                                       quint32 nativeScanCode, quint32 nativeModifiers)
+                                       quint32 nativeScanCode, quint32 nativeModifiers, unsigned long time)
 {
     bool eaten = false;
 
@@ -620,6 +620,8 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
             preeditFormats << preeditFormat;
             inputMethodHost.sendPreeditString(text, preeditFormats);
             preedit = text;
+            preeditTime = time; // event time is needed by long press undo
+            preeditBeforeLongPress = preedit;
             preeditScanCode = nativeScanCode;
         } else if (!eaten) {
             if (longPressTimer.isActive()) {
@@ -662,7 +664,8 @@ bool MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers mo
 
 bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers modifiers,
                                          QString text,
-                                         quint32 nativeScanCode, quint32 nativeModifiers)
+                                         quint32 nativeScanCode, quint32 nativeModifiers,
+                                         unsigned long time)
 {
     bool eaten = false;
 
@@ -715,12 +718,34 @@ bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers 
         eaten = true;
     } else if (!eaten && !passKeyOnPress(keyCode, text, nativeScanCode, nativeModifiers)
                && !(pressNativeModifiers & ControlMask)) {
-        const bool deadKey(preedit == deadKeyMapper.currentDeadKey());
+        bool deadKey(preedit == deadKeyMapper.currentDeadKey());
+        if (keyWasPressed) {
+            // If there are delays in passing events to us, long press timer may hit even
+            // though the real time difference between press and release actions was
+            // smaller than the long press time.  We detect that case here and undo the
+            // long press effect.
+            const bool longPressUndo((preedit != preeditBeforeLongPress)
+                                     && ((preeditTime + longPressTime) > time)
+                                     // to make unit tests easier:
+                                     && !((preeditTime == 0) && (time == 0)));
+            if (longPressUndo) {
+                Q_ASSERT(!longPressTimer.isActive());
+                preedit = preeditBeforeLongPress;
+                (void)deadKeyMapper.filterKeyPress(preedit, true);
+                deadKey = preedit == deadKeyMapper.currentDeadKey();
+            }
 
-        if (keyWasPressed && !deadKey) {
-            inputMethodHost.sendCommitString(preedit);
-            preedit.clear();
+            if (!deadKey) {
+                inputMethodHost.sendCommitString(preedit);
+                preedit.clear();
+            } else if (longPressUndo) {
+                QList<MInputMethod::PreeditTextFormat> preeditFormats;
+                MInputMethod::PreeditTextFormat preeditFormat(0, preedit.length(), MInputMethod::PreeditKeyPress);
+                preeditFormats << preeditFormat;
+                inputMethodHost.sendPreeditString(text, preeditFormats);
+            }
         }
+
         eaten = true;
 
         if (!autoCaps && !deadKey && !(pressNativeModifiers & ShiftMask)) {
@@ -753,15 +778,16 @@ bool MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers 
 bool MHardwareKeyboard::filterKeyEvent(QEvent::Type eventType,
                                        Qt::Key keyCode, Qt::KeyboardModifiers modifiers,
                                        const QString &text, bool autoRepeat, int count,
-                                       quint32 nativeScanCode, quint32 nativeModifiers)
+                                       quint32 nativeScanCode, quint32 nativeModifiers,
+                                       unsigned long time)
 {
     bool eaten = false;
 
     if (eventType == QEvent::KeyPress) {
         eaten = filterKeyPress(keyCode, modifiers, text, autoRepeat, count,
-                               nativeScanCode, nativeModifiers);
+                               nativeScanCode, nativeModifiers, time);
     } else {
-        eaten = filterKeyRelease(keyCode, modifiers, text, nativeScanCode, nativeModifiers);
+        eaten = filterKeyRelease(keyCode, modifiers, text, nativeScanCode, nativeModifiers, time);
     }
 
     lastEventType = eventType;

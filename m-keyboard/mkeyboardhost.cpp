@@ -1120,9 +1120,9 @@ void MKeyboardHost::handleKeyClick(const KeyEvent &event)
         // modifiers may not be correct (depending on the current hwkbd modifier
         // state) but that doesn't matter.
         processKeyEvent(QEvent::KeyPress, event.qtKey(), event.modifiers(),
-                        event.text(), false, 1, 0, 0);
+                        event.text(), false, 1, 0, 0, 0);
         processKeyEvent(QEvent::KeyRelease, event.qtKey(), event.modifiers(),
-                        event.text(), false, 1, 0, 0);
+                        event.text(), false, 1, 0, 0, 0);
     } else if ((inputMethodMode != M::InputMethodModeDirect)) {
         handleTextInputKeyClick(event);
     }
@@ -1519,12 +1519,12 @@ void MKeyboardHost::setToolbar(QSharedPointer<const MToolbarData> toolbar)
 void MKeyboardHost::processKeyEvent(QEvent::Type keyType, Qt::Key keyCode,
                                     Qt::KeyboardModifiers modifiers, const QString &text,
                                     bool autoRepeat, int count, quint32 nativeScanCode,
-                                    quint32 nativeModifiers)
+                                    quint32 nativeModifiers, unsigned long time)
 {
     if ((activeState != MInputMethod::Hardware) ||
         !hardwareKeyboard->filterKeyEvent(keyType, keyCode, modifiers, text,
                                           autoRepeat, count, nativeScanCode,
-                                          nativeModifiers)) {
+                                          nativeModifiers, time)) {
         inputMethodHost()->sendKeyEvent(QKeyEvent(keyType, keyCode, modifiers, text,
                                                   autoRepeat, count),
                                         MInputMethod::EventRequestEventOnly);

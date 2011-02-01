@@ -1072,20 +1072,20 @@ void Ut_MKeyboardHost::testUpdateSymbolViewLevel()
     spy.clear();
     //! first shift key press+release will latch the shift modifier, and then switch the symbolview level to 1
     // Note that the native modifier parameters are not correct but that doesn't matter for this test.
-    subject->processKeyEvent(QEvent::KeyPress, Qt::Key_Shift, Qt::NoModifier, QString(""), false, 1, 0, 0);
-    subject->processKeyEvent(QEvent::KeyRelease, Qt::Key_Shift, Qt::ShiftModifier, QString(""), false, 1, 0, 0);
+    subject->processKeyEvent(QEvent::KeyPress, Qt::Key_Shift, Qt::NoModifier, QString(""), false, 1, 0, 0, 0);
+    subject->processKeyEvent(QEvent::KeyRelease, Qt::Key_Shift, Qt::ShiftModifier, QString(""), false, 1, 0, 0, 0);
     QCOMPARE(spy.count(), 1);
     QCOMPARE(subject->hardwareKeyboard->modifierState(Qt::ShiftModifier), ModifierLatchedState);
     QCOMPARE(subject->symbolView->currentLevel(), 1);
     // second shift key press+release will lock the shift modifier, shift state changes but symbolview level stays 1
-    subject->processKeyEvent(QEvent::KeyPress, Qt::Key_Shift, Qt::NoModifier, QString(""), false, 1, 0, 0);
-    subject->processKeyEvent(QEvent::KeyRelease, Qt::Key_Shift, Qt::ShiftModifier, QString(""), false, 1, 0, 0);
+    subject->processKeyEvent(QEvent::KeyPress, Qt::Key_Shift, Qt::NoModifier, QString(""), false, 1, 0, 0, 0);
+    subject->processKeyEvent(QEvent::KeyRelease, Qt::Key_Shift, Qt::ShiftModifier, QString(""), false, 1, 0, 0, 0);
     QCOMPARE(spy.count(), 3);
     QCOMPARE(subject->hardwareKeyboard->modifierState(Qt::ShiftModifier), ModifierLockedState);
     QCOMPARE(subject->symbolView->currentLevel(), 1);
     //! third shift key press+release will clear the shift modifier, and switch the symbolview level back to 0
-    subject->processKeyEvent(QEvent::KeyPress, Qt::Key_Shift, Qt::NoModifier, QString(""), false, 1, 0, 0);
-    subject->processKeyEvent(QEvent::KeyRelease, Qt::Key_Shift, Qt::ShiftModifier, QString(""), false, 1, 0, 0);
+    subject->processKeyEvent(QEvent::KeyPress, Qt::Key_Shift, Qt::NoModifier, QString(""), false, 1, 0, 0, 0);
+    subject->processKeyEvent(QEvent::KeyRelease, Qt::Key_Shift, Qt::ShiftModifier, QString(""), false, 1, 0, 0, 0);
     QCOMPARE(spy.count(), 4);
     QCOMPARE(subject->hardwareKeyboard->modifierState(Qt::ShiftModifier), ModifierClearState);
     QCOMPARE(subject->symbolView->currentLevel(), 0);
@@ -1560,13 +1560,13 @@ void Ut_MKeyboardHost::testHandleHwKeyboardStateChanged()
     gShowLockOnInfoBannerCallCount = 0;
 
     for (int i = 0; i < shiftClickedCount;  i++) {
-        subject->processKeyEvent(QEvent::KeyPress, Qt::Key_Shift, Qt::NoModifier, QString(""), false, 1, 0, 0);
-        subject->processKeyEvent(QEvent::KeyRelease, Qt::Key_Shift, Qt::ShiftModifier, QString(""), false, 1, 0, 0);
+        subject->processKeyEvent(QEvent::KeyPress, Qt::Key_Shift, Qt::NoModifier, QString(""), false, 1, 0, 0, 0);
+        subject->processKeyEvent(QEvent::KeyRelease, Qt::Key_Shift, Qt::ShiftModifier, QString(""), false, 1, 0, 0, 0);
     }
 
     for (int i = 0; i < fnClickedCount;  i++) {
-        subject->processKeyEvent(QEvent::KeyPress, FnLevelKey, Qt::NoModifier, QString(""), false, 1, 0, 0);
-        subject->processKeyEvent(QEvent::KeyRelease, FnLevelKey, FnLevelModifier, QString(""), false, 1, 0, 0);
+        subject->processKeyEvent(QEvent::KeyPress, FnLevelKey, Qt::NoModifier, QString(""), false, 1, 0, 0, 0);
+        subject->processKeyEvent(QEvent::KeyRelease, FnLevelKey, FnLevelModifier, QString(""), false, 1, 0, 0, 0);
     }
 
     if (deadKeyCharacterCode) {
@@ -1576,9 +1576,9 @@ void Ut_MKeyboardHost::testHandleHwKeyboardStateChanged()
         variantConfig.set(xkbVariant);
 
         subject->processKeyEvent(QEvent::KeyPress, Qt::Key_unknown, Qt::NoModifier,
-                                 QString(QChar(deadKeyCharacterCode)), false, 1, 0, 0);
+                                 QString(QChar(deadKeyCharacterCode)), false, 1, 0, 0, 0);
         subject->processKeyEvent(QEvent::KeyRelease, Qt::Key_unknown, Qt::NoModifier,
-                                 QString(QChar(deadKeyCharacterCode)), false, 1, 0, 0);
+                                 QString(QChar(deadKeyCharacterCode)), false, 1, 0, 0, 0);
     }
 
     QCOMPARE(inputMethodHost->indicator, expectIndicator);
@@ -1587,9 +1587,9 @@ void Ut_MKeyboardHost::testHandleHwKeyboardStateChanged()
     if (deadKeyCharacterCode) {
         // When state is changed from locked -> dead key -> locked, we don't want a notification
         subject->processKeyEvent(QEvent::KeyPress, Qt::Key_A, Qt::NoModifier,
-                                 QString("A"), false, 1, 0, 0);
+                                 QString("A"), false, 1, 0, 0, 0);
         subject->processKeyEvent(QEvent::KeyRelease, Qt::Key_A, Qt::NoModifier,
-                                 QString("A"), false, 1, 0, 0);
+                                 QString("A"), false, 1, 0, 0, 0);
         QCOMPARE(inputMethodHost->indicator, MInputMethod::LatinLockedIndicator);
         QCOMPARE(gShowLockOnInfoBannerCallCount, 1);
     }

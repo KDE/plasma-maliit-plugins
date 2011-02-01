@@ -80,6 +80,8 @@ private slots:
     void testPressTwoKeys();
     void testPressTwoKeysWithLatch();
 
+    void testLongPressUndo();
+
 private:
     bool checkLatchedState(unsigned int mask, unsigned int value) const;
     bool checkLockedState(unsigned int mask, unsigned int value) const;
@@ -87,9 +89,11 @@ private:
 
     // Wrappers for MHardwareKeyboard::filterKeyEvent() to make calls shorter
     bool filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers modifiers,
-                          const QString &text, quint32 nativeScanCode, quint32 nativeModifiers) const;
+                          const QString &text, quint32 nativeScanCode, quint32 nativeModifiers,
+                          unsigned long time = 0) const;
     bool filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers modifiers,
-                        const QString &text, quint32 nativeScanCode, quint32 nativeModifiers) const;
+                        const QString &text, quint32 nativeScanCode, quint32 nativeModifiers,
+                        unsigned long time = 0) const;
 };
 
 #endif

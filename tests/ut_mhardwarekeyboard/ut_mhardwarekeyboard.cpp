@@ -210,18 +210,20 @@ void Ut_MHardwareKeyboard::setState(const int state) const
 
 bool Ut_MHardwareKeyboard::filterKeyRelease(Qt::Key keyCode, Qt::KeyboardModifiers modifiers,
                                             const QString &text,
-                                            quint32 nativeScanCode, quint32 nativeModifiers) const
+                                            quint32 nativeScanCode, quint32 nativeModifiers,
+                                            unsigned long time) const
 {
     return m_hkb->filterKeyEvent(QEvent::KeyRelease, keyCode, modifiers, text, false, 1, nativeScanCode,
-                                 nativeModifiers);
+                                 nativeModifiers, time);
 }
 
 bool Ut_MHardwareKeyboard::filterKeyPress(Qt::Key keyCode, Qt::KeyboardModifiers modifiers,
                                           const QString &text,
-                                          quint32 nativeScanCode, quint32 nativeModifiers) const
+                                          quint32 nativeScanCode, quint32 nativeModifiers,
+                                          unsigned long time) const
 {
     return m_hkb->filterKeyEvent(QEvent::KeyPress, keyCode, modifiers, text, false, 1, nativeScanCode,
-                                 nativeModifiers);
+                                 nativeModifiers, time);
 }
 
 bool Ut_MHardwareKeyboard::checkLatchedState(const unsigned int mask, const unsigned int value) const
@@ -1045,6 +1047,7 @@ void Ut_MHardwareKeyboard::testCorrectToAcceptedCharacter()
     QCOMPARE(inputMethodHost->lastPreeditString(), QString("1"));
     QCOMPARE(inputMethodHost->lastCommitString().length(), 0);
     m_hkb->handleLongPressTimeout();
+    m_hkb->longPressTimer.stop();
     QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
     QCOMPARE(inputMethodHost->lastPreeditString(), QString("1"));
     QVERIFY(filterKeyRelease(Qt::Key_Q, Qt::GroupSwitchModifier, "1", KeycodeCharacter1, FnModifierMask));
@@ -1067,6 +1070,7 @@ void Ut_MHardwareKeyboard::testCorrectToAcceptedCharacter()
     QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
     QCOMPARE(inputMethodHost->lastPreeditString(), QString("1"));
     m_hkb->handleLongPressTimeout();
+    m_hkb->longPressTimer.stop();
     QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
     QCOMPARE(inputMethodHost->lastPreeditString(), QString("1"));
     QVERIFY(filterKeyRelease(Qt::Key_Q, Qt::GroupSwitchModifier, "1", KeycodeCharacter1, FnModifierMask));
@@ -1090,6 +1094,7 @@ void Ut_MHardwareKeyboard::testCorrectToAcceptedCharacter()
     QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
     QCOMPARE(inputMethodHost->lastPreeditString(), QString("0"));
     m_hkb->handleLongPressTimeout();
+    m_hkb->longPressTimer.stop();
     QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
     QCOMPARE(inputMethodHost->lastPreeditString(), QString("p"));
     QVERIFY(filterKeyRelease(Qt::Key_P, Qt::GroupSwitchModifier, "1", KeycodeCharacter0, FnModifierMask));
@@ -1458,6 +1463,25 @@ void Ut_MHardwareKeyboard::testPressTwoKeysWithLatch()
     QCOMPARE(inputMethodHost->lastPreeditString(), QString("1"));
     QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
     QCOMPARE(inputMethodHost->lastCommitString(), QString("1"));
+}
+
+
+void Ut_MHardwareKeyboard::testLongPressUndo()
+{
+    // Simulate press and release actions/events at times 0 and 100 (the last parameter),
+    // which implies a time difference less than the long press time (so the end result
+    // must be "f"), but with a delivery time difference of 1500ms, which is more than the
+    // long press time (so long press processing is done and we temporarily get "1" as the
+    // pre-edit).
+    QVERIFY(filterKeyPress(Qt::Key_F, Qt::NoModifier, "f", KeycodeCharacterF, 0, 0));
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("f"));
+    QTest::qWait(1500);         // more than long press time
+    QCOMPARE(inputMethodHost->lastPreeditString().length(), 1);
+    QCOMPARE(inputMethodHost->lastPreeditString(), QString("1"));
+    QVERIFY(filterKeyRelease(Qt::Key_F, Qt::NoModifier, "f", KeycodeCharacterF, 0, 100));
+    QCOMPARE(inputMethodHost->lastCommitString().length(), 1);
+    QCOMPARE(inputMethodHost->lastCommitString(), QString("f"));
 }
 
 QTEST_APPLESS_MAIN(Ut_MHardwareKeyboard);

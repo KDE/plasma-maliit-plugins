@@ -72,7 +72,7 @@ public:
     virtual void processKeyEvent(QEvent::Type keyType, Qt::Key keyCode,
                                  Qt::KeyboardModifiers modifiers,
                                  const QString &text, bool autoRepeat, int count,
-                                 quint32 nativeScanCode, quint32 nativeModifiers);
+                                 quint32 nativeScanCode, quint32 nativeModifiers, unsigned long time);
     virtual void handleClientChange();
     virtual void switchContext(MInputMethod::SwitchDirection direction, bool enableAnimation);
     virtual QList<MAbstractInputMethod::MInputMethodSubView> subViews(MInputMethod::HandlerState state
