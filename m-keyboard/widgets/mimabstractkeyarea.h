@@ -192,9 +192,6 @@ protected:
     //! \param visible the new visbility status
     virtual void handleVisibilityChanged(bool visible);
 
-    //! \brief Invalidates the current background cache.
-    virtual void invalidateBackgroundCache() = 0;
-
     //! Shows popup and updates its content and position.
     //! \param key current key
     void updatePopup(MImAbstractKey *key = 0);

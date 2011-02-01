@@ -332,8 +332,6 @@ MImKeyArea::MImKeyArea(const LayoutData::SharedLayoutSection &newSection,
       mMaxNormalizedWidth(computeMaxNormalizedWidth()),
       shiftKey(0),
       textDirty(false),
-      cachedBackgroundDirty(true),
-      hasCachedBackground(false),
       equalWidthKeys(true),
       WidthCorrection(0),
       stylingCache(new MImKey::StylingCache)
@@ -342,6 +340,8 @@ MImKeyArea::MImKeyArea(const LayoutData::SharedLayoutSection &newSection,
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
     loadKeys();
+
+    setCacheMode(QGraphicsItem::DeviceCoordinateCache);
 }
 
 MImKeyArea::~MImKeyArea()
@@ -565,64 +565,39 @@ qreal MImKeyArea::computeWidgetHeight() const
     return qMax<qreal>(0.0, height);
 }
 
-void MImKeyArea::paint(QPainter *onScreenPainter,
+void MImKeyArea::paint(QPainter *painter,
                        const QStyleOptionGraphicsItem *,
                        QWidget *)
 {
     mTimestamp("MImKeyArea", "start");
     const MImAbstractKeyAreaStyleContainer &style(baseStyle());
 
-    // Key areas are disabled during animations. Once we are animated, it
-    // makes no sense to maintain the offscreen cache (especially when
-    // HW-accelerated). Therefore, we draw directly to the screen.
-    // However, we need to remember whether we drew a current version of the
-    // key area to the offscreen cache at all (that's what hasCachedBackground
-    // is for).
-    QPainter *currentPainter = onScreenPainter;
-    if (cachedBackgroundDirty
-        || !isEnabled()
-        || !hasCachedBackground) {
+    const MScalableImage *background = style->backgroundImage();
 
-        // TODO: find out why size()'s height is incorrect for popup.
-        initCachedBackground(QSize(size().width(), cachedWidgetHeight));
-        QPainter offScreenPainter(cachedBackground.get());
+    if (background) {
+        background->draw(boundingRect().toRect(), painter);
+    }
 
-        if (isEnabled()) {
-            currentPainter = &offScreenPainter;
-            hasCachedBackground = true;
-        }
+    const bool drawButtonBoundingRects(style->drawButtonBoundingRects());
+    const bool drawButtonRects(style->drawButtonRects());
 
-        const MScalableImage *background = style->backgroundImage();
+    // In case of HW acceleration, we want to avoid switching between textures, if possible
+    // Draw backgrounds first, icons later:
+    const KeyPainter kp(this, painter, KeyPainter::PaintBackground);
 
-        if (background) {
-            background->draw(boundingRect().toRect(), currentPainter);
-        }
-
-        const bool drawButtonBoundingRects(style->drawButtonBoundingRects());
-        const bool drawButtonRects(style->drawButtonRects());
-
-        // In case of HW acceleration, we want to avoid switching between textures, if possible
-        // Draw backgrounds first, icons later:
-        const KeyPainter kp(this, currentPainter, KeyPainter::PaintBackground);
-
-        foreach (const KeyRow &row, rowList) {
-            foreach (const MImKey *key, row.keys) {
-                kp(key);
-                drawDebugRects(currentPainter, key,
-                               drawButtonBoundingRects,
-                               drawButtonRects);
-            }
-        }
-
-        kp.drawIcons();
-
-        if (style->drawReactiveAreas()) {
-            drawDebugReactiveAreas(currentPainter);
+    foreach (const KeyRow &row, rowList) {
+        foreach (const MImKey *key, row.keys) {
+            kp(key);
+            drawDebugRects(painter, key,
+                    drawButtonBoundingRects,
+                    drawButtonRects);
         }
     }
 
-    if (hasCachedBackground) {
-        onScreenPainter->drawPixmap(boundingRect().toRect(), *cachedBackground.get());
+    kp.drawIcons();
+
+    if (style->drawReactiveAreas()) {
+        drawDebugReactiveAreas(painter);
     }
 
     if (textDirty) {
@@ -630,10 +605,9 @@ void MImKeyArea::paint(QPainter *onScreenPainter,
     }
 
     // Draw text next.
-    onScreenPainter->setPen(style->fontColor());
-    textLayout.draw(onScreenPainter, QPoint(WidthCorrection, 0));
+    painter->setPen(style->fontColor());
+    textLayout.draw(painter, QPoint(WidthCorrection, 0));
 
-    cachedBackgroundDirty = false;
     mTimestamp("MImKeyArea", "end");
 }
 
@@ -684,17 +658,6 @@ void MImKeyArea::drawDebugReactiveAreas(QPainter *painter)
     }
 
     painter->restore();
-}
-
-void MImKeyArea::initCachedBackground(const QSize &newSize)
-{
-    if (cachedBackground.get() && newSize == cachedBackground->size()) {
-        return; // already initialized
-    }
-
-    cachedBackground.reset(new QPixmap(newSize));
-    cachedBackground->fill(Qt::transparent);
-    hasCachedBackground = false;
 }
 
 void MImKeyArea::invalidateTextLayout()
@@ -763,7 +726,6 @@ void MImKeyArea::updateKeyGeometries(const int newAvailableWidth)
                                                                       : newAvailableWidth);
 
     cachedWidgetHeight = computeWidgetHeight();
-    initCachedBackground(QSize(effectiveWidth, cachedWidgetHeight));
 
     KeyGeometryUpdater updater = KeyGeometryUpdater(baseStyle(), effectiveWidth,
                                                     computeMaxNormalizedWidth());
@@ -898,17 +860,6 @@ void MImKeyArea::applyStyle()
     mDebug("MImKeyArea") << __PRETTY_FUNCTION__;
     stylingCache->primary   = QFontMetrics(baseStyle()->font());
     stylingCache->secondary = QFontMetrics(baseStyle()->secondaryFont());
-}
-
-void MImKeyArea::handleVisibilityChanged(bool)
-{
-    invalidateBackgroundCache();
-}
-
-void MImKeyArea::invalidateBackgroundCache()
-{
-    cachedBackgroundDirty = true;
-    hasCachedBackground = false;
 }
 
 QList<const MImAbstractKey *> MImKeyArea::keys() const

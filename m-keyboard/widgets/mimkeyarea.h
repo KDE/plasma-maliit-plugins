@@ -21,11 +21,9 @@
 #include "mimkey.h"
 
 #include <QTextLayout>
-#include <QPixmap>
 #include <QSize>
 #include <QFontMetrics>
 #include <QSharedPointer>
-#include <memory>
 
 //! \brief MImKeyArea reimplements MImAbstractKeyArea and is optimized for drawing.
 class MImKeyArea
@@ -63,8 +61,6 @@ protected:
     virtual MImAbstractKey *keyAt(const QPoint &pos) const;
     virtual void onThemeChangeCompleted();
     virtual void applyStyle();
-    virtual void handleVisibilityChanged(bool visible);
-    virtual void invalidateBackgroundCache();
     //! \reimp_end
 
 private:
@@ -102,10 +98,6 @@ private:
     //! \param painter the painter to be used
     void drawDebugReactiveAreas(QPainter *painter);
 
-    //! \brief Initializes the pixmap used for background caching
-    //! \param size the new size
-    void initCachedBackground(const QSize &size);
-
     //! \brief Invalidates text layout and schedules painting.
     //! That actions should be always performed together
     void invalidateTextLayout();
@@ -127,9 +119,6 @@ private:
     MImKey *shiftKey; //!< stores shift key, if available in this key area
     QTextLayout textLayout; //!< used to draw key labels onto key area
     bool textDirty; //!< dirty text cache flag
-    std::auto_ptr<QPixmap> cachedBackground; //!< cached background, containing all keys in inactive state
-    bool cachedBackgroundDirty; //!< dirty background cache flag
-    bool hasCachedBackground; //!< stores whether we already cached the background
     bool equalWidthKeys; //!< whether to assume equal width for all keys
     int WidthCorrection; //!< width correction for Arabic layouts
     QSharedPointer<MImKey::StylingCache> stylingCache; //!< Cached information about current styling
