@@ -231,8 +231,7 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
     sceneWindow = new MSceneWindow;
     sceneWindow->setManagedManually(true); // we want the scene window to remain in origin
 
-    // Enforcing full viewport updates helps to paint correctly in software mode.
-    MPlainWindow::instance()->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
+    MPlainWindow::instance()->setViewportUpdateMode(QGraphicsView::MinimalViewportUpdate);
 
     // Because we set vkbWidget as a child of sceneWindow the vkb
     // will always be in correct orientation. However the animation will be
