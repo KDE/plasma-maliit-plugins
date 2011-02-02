@@ -382,6 +382,65 @@ void Ut_MKeyboardHost::testCorrectionOptions()
     subject->hide();
 }
 
+void Ut_MKeyboardHost::testCorrectionSettings_data()
+{
+    QTest::addColumn<bool>("correctionValid");
+    QTest::addColumn<bool>("correctionEnabled");
+    QTest::addColumn<bool>("predictionValid");
+    QTest::addColumn<bool>("predictionEnabled");
+    QTest::addColumn<bool>("result");
+
+    QTest::newRow("Correction and prediction invalid")
+            << false << false << false << false << true;
+    QTest::newRow("Correction invalid, prediction enabled")
+            << false << false << true << true << true;
+    QTest::newRow("Correction invalid, prediction disabled")
+            << false << false << true << false << false;
+    QTest::newRow("Correction enabled, prediction invalid")
+            << true << true << false << false << true;
+    QTest::newRow("Correction disabled, prediction invalid")
+            << true << false << false << false << false;
+    QTest::newRow("Correction disabled, prediction disabled")
+            << true << false << true << false << false;
+    QTest::newRow("Correction disabled, prediction enabled")
+            << true << false << true << true << false;
+    QTest::newRow("Correction enabled, prediction disabled")
+            << true << true << true << false << false;
+    QTest::newRow("Correction enabled, prediction enabled")
+            << true << true << true << true << true;
+}
+
+void Ut_MKeyboardHost::testCorrectionSettings()
+{
+    QFETCH(bool, correctionValid);
+    QFETCH(bool, correctionEnabled);
+    QFETCH(bool, predictionValid);
+    QFETCH(bool, predictionEnabled);
+    QFETCH(bool, result);
+
+    DummyDriverMkh *engine(new DummyDriverMkh);
+    subject->imCorrectionEngine = engine;
+    engine->enableCompletion();
+    engine->enableCorrection();
+
+    subject->show();
+
+    QVERIFY(subject->imCorrectionEngine != 0);
+
+    // Correction comes from MTextEdit inputMethodCorrectionEnabled property.
+    // Prediction comes from Qt::InputMethodHint: Qt::ImhNoPredictiveText.
+    inputMethodHost->correctionValid_ = correctionValid;
+    inputMethodHost->correctionEnabled_ = correctionEnabled;
+    inputMethodHost->predictionValid_ = predictionValid;
+    inputMethodHost->predictionEnabled_ = predictionEnabled;
+    subject->updateCorrectionState();
+    QCOMPARE(subject->correctionEnabled, result);
+
+    subject->hide();
+    delete engine;
+    subject->imCorrectionEngine = 0;
+}
+
 void Ut_MKeyboardHost::testAutoCaps()
 {
     inputMethodHost->surroundingString = "Test string. You can using it!    ";

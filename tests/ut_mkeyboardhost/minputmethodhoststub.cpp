@@ -22,7 +22,9 @@
 MInputMethodHostStub::MInputMethodHostStub()
 {
     clear();
+    predictionValid_ = true;
     predictionEnabled_ = true;
+    correctionValid_ = true;
     correctionEnabled_ = true;
     autoCapitalizationEnabled_ = true;
     contentType_ = 0;
@@ -117,13 +119,13 @@ int MInputMethodHostStub::contentType(bool &val)
 
 bool MInputMethodHostStub::correctionEnabled(bool &val)
 {
-    val = true;
+    val = correctionValid_;
     return correctionEnabled_;
 }
 
 bool MInputMethodHostStub::predictionEnabled(bool &val)
 {
-    val = true;
+    val = predictionValid_;
     return predictionEnabled_;
 }
 

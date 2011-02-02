@@ -94,7 +94,9 @@ public:
     int setInputMethodAreaCalls;
     QList<QRegion> inputMethodAreas;
 
+    bool predictionValid_;
     bool predictionEnabled_;
+    bool correctionValid_;
     bool correctionEnabled_;
     bool autoCapitalizationEnabled_;
     int contentType_;

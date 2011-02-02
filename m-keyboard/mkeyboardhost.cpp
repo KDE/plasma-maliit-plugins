@@ -1458,14 +1458,16 @@ void MKeyboardHost::updateCorrectionState()
             correctionEnabled = false;
             return;
         }
-        bool val = false;
-        bool enabled = inputMethodHost()->correctionEnabled(val);
-        if (val)
-            correctionEnabled = enabled && imCorrectionEngine->correctionEnabled()
-                                && imCorrectionEngine->completionEnabled();
-        else
-            correctionEnabled = imCorrectionEngine->correctionEnabled()
-                                && imCorrectionEngine->completionEnabled();
+        // Enable correction if correction is enabled from MTextEdit and prediction
+        // is not disabled (Qt::ImhNoPredictiveText hint not set). Ignore either
+        // value if value is not set.
+        bool ecValid = false, pValid = false;
+        bool ecEnabled = inputMethodHost()->correctionEnabled(ecValid);
+        bool pEnabled = inputMethodHost()->predictionEnabled(pValid);
+        correctionEnabled = (!ecValid || ecEnabled)
+                            && (!pValid || pEnabled)
+                            && imCorrectionEngine->correctionEnabled()
+                            && imCorrectionEngine->completionEnabled();
 
         // info context the global correction option
         // TODO: should not put setGlobalCorrectionEnabled here, it will send correction setting

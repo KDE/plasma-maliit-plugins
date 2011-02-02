@@ -52,6 +52,8 @@ private slots:
     void testDirectMode();
     void testNotCrash();
     void testCorrectionOptions();
+    void testCorrectionSettings_data();
+    void testCorrectionSettings();
 
     void testAutoCaps();
     void testApplicationOrientationChanged();
