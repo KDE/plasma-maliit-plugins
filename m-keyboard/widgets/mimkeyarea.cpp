@@ -27,7 +27,6 @@
 #include <mplainwindow.h>
 #include <mreactionmap.h>
 #include <MTimestamp>
-#include <MDebug> 
 
 namespace {
     template<class T>
@@ -331,12 +330,10 @@ MImKeyArea::MImKeyArea(const LayoutData::SharedLayoutSection &newSection,
       cachedWidgetHeight(computeWidgetHeight()),
       mMaxNormalizedWidth(computeMaxNormalizedWidth()),
       shiftKey(0),
-      textDirty(false),
       equalWidthKeys(true),
       WidthCorrection(0),
       stylingCache(new MImKey::StylingCache)
 {
-    textLayout.setCacheEnabled(true);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
     loadKeys();
@@ -435,118 +432,6 @@ void MImKeyArea::loadKeys()
     updateGeometry();
 }
 
-void MImKeyArea::buildTextLayout()
-{
-    textDirty = false;
-
-    textLayout.clearLayout();
-
-    QList<QTextLayout::FormatRange> formatList;
-    QTextCharFormat secondaryFormat;
-    secondaryFormat.setFont(baseStyle()->secondaryFont());
-
-    // QTextLayout requires text content to be set before creating QTextLines.
-    // While concatenating the text, also build 'additional formats' used for secondary
-    // labels. This must be done before QTextLayout::beginLayout().
-    QString labelContent;
-
-    foreach (const KeyRow &row, rowList) {
-        foreach (const MImKey *key, row.keys) {
-            // primary label
-            QString label = key->label();
-
-            if (!label.isEmpty()) {
-                // Add whitespace for QTextLine to be able to cut.
-                labelContent += label + " ";
-
-                // try secondary label
-                label = key->secondaryLabel();
-
-                if (!label.isEmpty()) {
-                    // Add formatting for this secondary label.
-                    QTextLayout::FormatRange formatRange = {labelContent.length(),
-                                                            label.length(),
-                                                            secondaryFormat};
-                    formatList.append(formatRange);
-                    labelContent += label + " ";
-                }
-            }
-        }
-    }
-
-    // Apply the formats
-    if (!formatList.isEmpty()) {
-        textLayout.setAdditionalFormats(formatList);
-    }
-
-    QFontMetrics fm(baseStyle()->font());
-    QFontMetrics secondaryFm(secondaryFormat.font());
-
-    textLayout.setFont(baseStyle()->font());
-    textLayout.setText(labelContent);
-
-    textLayout.beginLayout();
-
-    for (RowIterator row(rowList.begin()); row != rowList.end(); ++row) {
-        // rowHasSecondaryLabel is needed for the vertical alignment of
-        // secondary label purposes.
-        bool rowHasSecondaryLabel = false;
-
-        foreach (const MImKey *key, row->keys) {
-            if (!key->secondaryLabel().isEmpty()) {
-                rowHasSecondaryLabel = true;
-                break;
-            }
-        }
-
-        foreach (MImKey *key, row->keys) {
-            const QString &label(key->label());
-            const QString &secondary(key->secondaryLabel());
-            QPointF labelPos;
-            QPointF secondaryLabelPos;
-
-            key->setSecondaryLabelEnabled(rowHasSecondaryLabel);
-
-            // We must not create a new QTextLine if there is no label.
-            if (label.isEmpty()) {
-                continue;
-            }
-
-            labelPos = mapFromItem(key, key->labelPos());
-            labelPos.ry() -= fm.ascent();
-
-            if (rowHasSecondaryLabel) {
-                secondaryLabelPos = mapFromItem(key, key->secondaryLabelPos());
-                secondaryLabelPos.ry() -= secondaryFm.ascent();
-            }
-
-            // We now have positions, let's create some QTextLines.
-
-            // Create the primary label
-            QTextLine line = textLayout.createLine();
-            if (!line.isValid()) {
-                // We are getting out of sync anyway so no point in continuing.
-                goto endLayout;
-            }
-            line.setNumColumns(label.length()); // will be seeked forward until next whitespace
-            line.setPosition(labelPos);
-
-            // Same for secondary label
-            if (!secondary.isEmpty()) {
-                line = textLayout.createLine();
-                if (!line.isValid()) {
-                    goto endLayout;
-                }
-                line.setNumColumns(secondary.length());
-                line.setPosition(secondaryLabelPos);
-            }
-        }
-    }
-
-endLayout:
-    textLayout.endLayout();
-}
-
 qreal MImKeyArea::computeWidgetHeight() const
 {
     qreal height = baseStyle()->size().height();
@@ -600,13 +485,37 @@ void MImKeyArea::paint(QPainter *painter,
         drawDebugReactiveAreas(painter);
     }
 
-    if (textDirty) {
-        buildTextLayout();
-    }
-
     // Draw text next.
     painter->setPen(style->fontColor());
-    textLayout.draw(painter, QPoint(WidthCorrection, 0));
+    painter->setFont(style->font());
+    foreach (const KeyRow &row, rowList) {
+        // rowHasSecondaryLabel is needed for the vertical alignment of
+        // secondary label purposes.
+        bool rowHasSecondaryLabel = false;
+        foreach (const MImKey *key, row.keys) {
+            if (!key->secondaryLabel().isEmpty()) {
+                rowHasSecondaryLabel = true;
+                break;
+            }
+        }
+
+        foreach (MImKey *key, row.keys) {
+            key->setSecondaryLabelEnabled(rowHasSecondaryLabel);
+
+            QRectF rect = mapFromItem(key, key->labelRect()).boundingRect();
+            painter->drawText(rect, Qt::AlignCenter, key->label());
+        }
+    }
+
+    painter->setFont(style->secondaryFont());
+    foreach (const KeyRow &row, rowList) {
+        foreach (const MImKey *key, row.keys) {
+            if (!key->secondaryLabel().isEmpty()) {
+                QRectF rect = mapFromItem(key, key->secondaryLabelRect()).boundingRect();
+                painter->drawText(rect, Qt::AlignCenter, key->secondaryLabel());
+            }
+        }
+    }
 
     mTimestamp("MImKeyArea", "end");
 }
@@ -660,12 +569,6 @@ void MImKeyArea::drawDebugReactiveAreas(QPainter *painter)
     painter->restore();
 }
 
-void MImKeyArea::invalidateTextLayout()
-{
-    textDirty = true;
-    update();
-}
-
 MImAbstractKey *MImKeyArea::keyAt(const QPoint &pos) const
 {
     const int numRows = rowList.count();
@@ -711,7 +614,7 @@ void MImKeyArea::modifiersChanged(const bool shift,
         }
     }
 
-    invalidateTextLayout();
+    update();
 }
 
 void MImKeyArea::updateKeyGeometries(const int newAvailableWidth)
@@ -755,7 +658,7 @@ void MImKeyArea::updateKeyGeometries(const int newAvailableWidth)
     mRelativeKeyBaseWidth = updater.relativeKeyWidth();
 
     // Positions may have changed, rebuild text layout.
-    invalidateTextLayout();
+    update();
 }
 
 QRectF MImKeyArea::boundingRect() const
@@ -838,7 +741,6 @@ qreal MImKeyArea::normalizedKeyWidth(const MImKeyModel *model) const
 
 void MImKeyArea::onThemeChangeCompleted()
 {
-    mDebug("MImKeyArea") << __PRETTY_FUNCTION__;
     mMaxNormalizedWidth = computeMaxNormalizedWidth();
     cachedWidgetHeight = computeWidgetHeight();
     stylingCache->primary   = QFontMetrics(baseStyle()->font());
@@ -852,12 +754,11 @@ void MImKeyArea::onThemeChangeCompleted()
     }
 
     MImAbstractKeyArea::onThemeChangeCompleted();
-    buildTextLayout();
+    update();
 }
 
 void MImKeyArea::applyStyle()
 {
-    mDebug("MImKeyArea") << __PRETTY_FUNCTION__;
     stylingCache->primary   = QFontMetrics(baseStyle()->font());
     stylingCache->secondary = QFontMetrics(baseStyle()->secondaryFont());
 }

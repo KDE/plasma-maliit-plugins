@@ -20,7 +20,6 @@
 #include "mimabstractkeyarea.h"
 #include "mimkey.h"
 
-#include <QTextLayout>
 #include <QSize>
 #include <QFontMetrics>
 #include <QSharedPointer>
@@ -67,9 +66,6 @@ private:
     //! \brief Creates buttons for key data models.
     void loadKeys();
 
-    //! \brief Builds QTextLayout representation of current button labels for faster drawing.
-    void buildTextLayout();
-
     //! \brief Returns the new height of the key area.
     qreal computeWidgetHeight() const;
 
@@ -98,10 +94,6 @@ private:
     //! \param painter the painter to be used
     void drawDebugReactiveAreas(QPainter *painter);
 
-    //! \brief Invalidates text layout and schedules painting.
-    //! That actions should be always performed together
-    void invalidateTextLayout();
-
     //! \brief Helper struct to store a row of keys.
     struct KeyRow {
         QList<MImKey*> keys; //!< keys in a row
@@ -117,8 +109,6 @@ private:
     qreal mMaxNormalizedWidth; //!< maximal normalized width, for all rows
     QVector<QPair<qreal, qreal> > rowOffsets; //!< cached offsets for faster key lookups
     MImKey *shiftKey; //!< stores shift key, if available in this key area
-    QTextLayout textLayout; //!< used to draw key labels onto key area
-    bool textDirty; //!< dirty text cache flag
     bool equalWidthKeys; //!< whether to assume equal width for all keys
     int WidthCorrection; //!< width correction for Arabic layouts
     QSharedPointer<MImKey::StylingCache> stylingCache; //!< Cached information about current styling

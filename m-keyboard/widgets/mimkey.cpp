@@ -144,8 +144,8 @@ void MImKey::updateGeometryCache()
 
 void MImKey::invalidateLabelPos() const
 {
-    labelPoint = QPointF();
-    secondaryLabelPoint = QPointF();
+    labelArea = QRectF();
+    secondaryLabelArea = QRectF();
 }
 
 void MImKey::updateLabelPos() const
@@ -156,8 +156,7 @@ void MImKey::updateLabelPos() const
                               currentGeometry.height);
 
     if (!rowHasSecondaryLabel) {
-        labelPoint = stylingCache->primary.boundingRect(paintingArea.toRect(), Qt::AlignCenter, label()).topLeft();
-        labelPoint.ry() += stylingCache->primary.ascent();
+        labelArea = paintingArea;
     } else {
         const int labelHeight = stylingCache->primary.height();
         const int secondaryLabelHeight = stylingCache->secondary.height();
@@ -172,21 +171,29 @@ void MImKey::updateLabelPos() const
             // primary label: horizontally centered, top margin defines y
             // secondary: horizontally centered, primary bottom + separation margin defines y
             const int primaryY = paintingArea.top() + topMargin;
-            labelPoint.setX(paintingArea.center().x() - stylingCache->primary.width(label()) / 2);
-            labelPoint.setY(primaryY + stylingCache->primary.ascent());
+            labelArea = QRectF(paintingArea.left(),
+                               primaryY,
+                               paintingArea.width(),
+                               labelHeight);
             if (!secondaryLabel().isEmpty()) {
-                secondaryLabelPoint.setX(paintingArea.center().x() - stylingCache->secondary.width(secondaryLabel()) / 2);
-                secondaryLabelPoint.setY(primaryY + labelHeight + secondarySeparation + stylingCache->secondary.ascent());
+                secondaryLabelArea = QRectF(paintingArea.left(),
+                                            labelArea.bottom() + secondarySeparation,
+                                            paintingArea.width(),
+                                            secondaryLabelHeight);
             }
         } else {
             // primary label: horizontally according to left margin, vertically centered
             // secondary: horizontally on right of primary + separation margin, vertically centered
             const int primaryX = paintingArea.left() + labelLeftWithSecondary;
-            labelPoint.setX(primaryX);
-            labelPoint.setY(paintingArea.center().y() - labelHeight / 2 + stylingCache->primary.ascent());
+            labelArea = QRectF(primaryX,
+                               paintingArea.top(),
+                               stylingCache->primary.width(label()),
+                               paintingArea.height());
             if (!secondaryLabel().isEmpty()) {
-                secondaryLabelPoint.setX(primaryX + stylingCache->primary.width(label()) + secondarySeparation);
-                secondaryLabelPoint.setY(paintingArea.center().y() - secondaryLabelHeight / 2 + stylingCache->secondary.ascent());
+                secondaryLabelArea = QRectF(labelArea.right() + secondarySeparation,
+                                            paintingArea.top(),
+                                            stylingCache->secondary.width(secondaryLabel()),
+                                            paintingArea.height());
             }
         }
     }
@@ -415,10 +422,10 @@ void MImKey::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget 
     } else {
         painter->setFont(styleContainer->font());
         painter->setPen(styleContainer->fontColor());
-        painter->drawText(labelPos(), label());
+        painter->drawText(labelArea, Qt::AlignCenter, label());
         if (!secondaryLabel().isEmpty()) {
             painter->setFont(styleContainer->secondaryFont());
-            painter->drawText(secondaryLabelPos(), secondaryLabel());
+            painter->drawText(secondaryLabelArea, Qt::AlignCenter, secondaryLabel());
         }
     }
     mTimestamp("MImKey", "end");
@@ -560,22 +567,22 @@ void MImKey::setSecondaryLabelEnabled(bool enable)
     invalidateLabelPos();
 }
 
-const QPointF & MImKey::labelPos() const
+const QRectF & MImKey::labelRect() const
 {
-    if (labelPoint.isNull()) {
+    if (labelArea.isNull()) {
         updateLabelPos();
     }
 
-    return labelPoint;
+    return labelArea;
 }
 
-const QPointF & MImKey::secondaryLabelPos() const
+const QRectF & MImKey::secondaryLabelRect() const
 {
-    if (labelPoint.isNull()) {
+    if (labelArea.isNull()) {
         updateLabelPos();
     }
 
-    return secondaryLabelPoint;
+    return secondaryLabelArea;
 }
 
 void MImKey::loadIcon(bool shift)

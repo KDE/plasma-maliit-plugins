@@ -147,11 +147,11 @@ public:
     //! and both primary and secondary labels if \a enable is false.
     void setSecondaryLabelEnabled(bool enable);
 
-    //! \brief Return position of primary label
-    const QPointF & labelPos() const;
+    //! \brief Return rectangle where we should draw primary label
+    const QRectF & labelRect() const;
 
-    //! \brief Return position of secondary label.
-    const QPointF & secondaryLabelPos() const;
+    //! \brief Return rectangle where we should draw secondary label.
+    const QRectF & secondaryLabelRect() const;
 
     //! \brief Invalidates cached position, so next call to getter will calculate it again
     void invalidateLabelPos() const;
@@ -213,9 +213,9 @@ private:
     bool rowHasSecondaryLabel;
 
     //! Cached position of primary label
-    mutable QPointF labelPoint;
-    //! Cached position of secondaryLabel label
-    mutable QPointF secondaryLabelPoint;
+    mutable QRectF labelArea;
+    //! Cached position of secondary label
+    mutable QRectF secondaryLabelArea;
 
     const QSharedPointer<StylingCache> stylingCache;
 };
