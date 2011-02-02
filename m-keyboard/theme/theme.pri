@@ -1,3 +1,7 @@
+
+include(haptic-press/haptic-press.pri)
+include(haptic-release/haptic-release.pri)
+
 IMAGES_DATA = theme/meegotouch-keyboard.svg
 images_data.path = /usr/share/themes/base/meegotouch/svg
 images_data.files = $$IMAGES_DATA
@@ -9,4 +13,3 @@ css_data.files = $$CSS_DATA
 INSTALLS += \
     images_data \
     css_data \
-

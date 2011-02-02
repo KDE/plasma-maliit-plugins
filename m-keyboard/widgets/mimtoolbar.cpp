@@ -19,6 +19,7 @@
 #include "mimtoolbar.h"
 #include "mtoolbarbutton.h"
 #include "mtoolbarlabel.h"
+#include "mimreactionmap.h"
 
 #include <mtoolbardata.h>
 #include <mtoolbaritem.h>
@@ -397,7 +398,7 @@ void MImToolbar::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view
     reactionMap->fillRectangle(boundingRect());
 
     // Draw all widgets geometries.
-    reactionMap->setReactiveDrawingValue();
+    reactionMap->setDrawingValue(MImReactionMap::Press, MImReactionMap::Release);
 
     QGraphicsLinearLayout *mainLayout = static_cast<QGraphicsLinearLayout*>(layout());
 
@@ -416,7 +417,7 @@ void MImToolbar::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view
         // Buttons sometimes require this.
         sidebar->layout()->activate();
 
-        reactionMap->setReactiveDrawingValue();
+        reactionMap->setDrawingValue(MImReactionMap::Press, MImReactionMap::Release);
 
         for (int i = 0; i < sidebar->count(); ++i) {
             QGraphicsWidget *widget = sidebar->widgetAt(i);

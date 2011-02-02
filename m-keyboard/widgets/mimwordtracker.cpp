@@ -19,6 +19,7 @@
 #include "regiontracker.h"
 #include "mimwordtracker.h"
 #include "mimcorrectioncandidateitem.h"
+#include "mimreactionmap.h"
 
 #include <QGraphicsLinearLayout>
 #include <QDebug>
@@ -280,6 +281,6 @@ void MImWordTracker::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *
     reactionMap->fillRectangle(geometry());
 
     // Draw the actual word tracker area.
-    reactionMap->setReactiveDrawingValue();
+    reactionMap->setDrawingValue(MImReactionMap::Press, MImReactionMap::Release);
     reactionMap->fillRectangle(geometry());
 }

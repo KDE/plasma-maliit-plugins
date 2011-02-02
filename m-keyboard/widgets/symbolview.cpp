@@ -23,6 +23,7 @@
 #include "grip.h"
 #include "mimkeyarea.h"
 #include "reactionmappainter.h"
+#include "mimreactionmap.h"
 #include "regiontracker.h"
 
 #include <MSceneManager>
@@ -495,7 +496,7 @@ void SymbolView::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view
         reactionMap->fillRectangle(mapRectFromScene(rect));
     }
 
-    reactionMap->setReactiveDrawingValue();
+    reactionMap->setDrawingValue(MImReactionMap::Press, MImReactionMap::Release);
 
     // Draw current character view.
     if (pageSwitcher->currentWidget()) {

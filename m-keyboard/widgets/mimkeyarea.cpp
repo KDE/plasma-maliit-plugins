@@ -28,6 +28,8 @@
 #include <mreactionmap.h>
 #include <MTimestamp>
 
+#include "mimreactionmap.h"
+
 namespace {
     template<class T>
     int binaryRangeFind(T value,
@@ -366,7 +368,7 @@ void MImKeyArea::drawReactiveAreas(MReactionMap *reactionMap,
                                    QGraphicsView *view)
 {
     reactionMap->setTransform(this, view);
-    reactionMap->setReactiveDrawingValue();
+    reactionMap->setDrawingValue(MImReactionMap::Press, MImReactionMap::Release);
 
     foreach (const KeyRow &row, rowList) {
         // 'area' is used for key bounding rect coalescing, to improve

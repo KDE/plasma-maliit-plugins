@@ -18,6 +18,7 @@
 #include "flickgesturerecognizer.h"
 #include "mimabstractkeyarea.h"
 #include "mimkeyvisitor.h"
+#include "mimreactionmap.h"
 #include "popupbase.h"
 #include "popupfactory.h"
 #include "mkeyboardhost.h"
@@ -130,8 +131,7 @@ MImAbstractKeyArea::MImAbstractKeyArea(const LayoutData::SharedLayoutSection &ne
       mPopup(usePopup ? PopupFactory::instance()->createPopup(this) : 0),
       wasGestureTriggered(false),
       enableMultiTouch(MGConfItem(MultitouchSettings).value().toBool()),
-      feedbackPress(MFeedback::Press),
-      feedbackCancel(MFeedback::Cancel),
+      feedbackSliding(MImReactionMap::Release),
       section(newSection)
 {
     // By default multi-touch is disabled
@@ -578,7 +578,7 @@ void MImAbstractKeyArea::touchPointMoved(const QTouchEvent::TouchPoint &tp)
                 // Reaction map cannot discover when we move from one key
                 // (= reactive area) to another
                 // slot is called asynchronously to get screen update as fast as possible
-                QMetaObject::invokeMethod(&feedbackPress, "play", Qt::QueuedConnection);
+                QMetaObject::invokeMethod(&feedbackSliding, "play", Qt::QueuedConnection);
                 longPressTimer.start(style()->longPressTimeout());
                 emit keyPressed(lookup.key,
                                 (finder.deadKey() ? finder.deadKey()->label() : QString()),
@@ -589,10 +589,6 @@ void MImAbstractKeyArea::touchPointMoved(const QTouchEvent::TouchPoint &tp)
         if (lookup.lastKey
             && lookup.lastKey->decreaseTouchPointCount()
             && lookup.lastKey->touchPointCount() == 0) {
-            // Reaction map cannot discover when we move from one key
-            // (= reactive area) to another
-            // slot is called asynchronously to get screen update as fast as possible
-            QMetaObject::invokeMethod(&feedbackCancel, "play", Qt::QueuedConnection);
             emit keyReleased(lookup.lastKey,
                              (finder.deadKey() ? finder.deadKey()->label() : QString()),
                              hasActiveShiftKeys || level() % 2);
