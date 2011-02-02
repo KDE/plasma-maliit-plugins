@@ -216,11 +216,11 @@ int MImAbstractKeyArea::rowCount() const
 void
 MImAbstractKeyArea::handleVisibilityChanged(bool visible)
 {
-    if (mPopup) {
-        mPopup->setVisible(visible);
-    }
-
     if (!visible) {
+        if (mPopup) {
+            mPopup->setVisible(false);
+        }
+
         MImKeyVisitor::SpecialKeyFinder finder(MImKeyVisitor::SpecialKeyFinder::FindDeadKey);
         MImAbstractKey::visitActiveKeys(&finder);
 
