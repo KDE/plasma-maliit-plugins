@@ -20,6 +20,7 @@
 #define UT_MIMKEY_H
 
 #include <mimabstractkey.h>
+#include <mimkey.h>
 
 #include <QtTest/QTest>
 #include <QObject>
@@ -102,6 +103,7 @@ private slots:
 private:
     MImKey *createKey(bool state = false);
     MImKeyModel *createKeyModel();
+    QSharedPointer<MImKey::StylingCache> stylingCache;
 };
 
 Q_DECLARE_METATYPE(Ut_MImKey::DirectionPair)

@@ -30,6 +30,8 @@
 #include <QSignalSpy>
 #include <QDebug>
 
+#include <memory>
+
 Q_DECLARE_METATYPE(QList<Ut_MImKey::DirectionPair>)
 Q_DECLARE_METATYPE(Ut_MImKey::KeyList)
 Q_DECLARE_METATYPE(QList<Ut_MImKey::KeyTriple>)
@@ -83,6 +85,10 @@ void Ut_MImKey::initTestCase()
     style = new MImAbstractKeyAreaStyleContainer;
     style->initialize("", "", 0);
 
+    stylingCache = QSharedPointer<MImKey::StylingCache>(new MImKey::StylingCache);
+    stylingCache->primary   = QFontMetrics((*style)->font());
+    stylingCache->secondary = QFontMetrics((*style)->secondaryFont());
+
     parent = new QGraphicsWidget;
     dataKey = createKeyModel();
 }
@@ -98,7 +104,7 @@ void Ut_MImKey::cleanupTestCase()
 
 void Ut_MImKey::init()
 {
-    subject = new MImKey(*dataKey, *style, *parent);
+    subject = new MImKey(*dataKey, *style, *parent, stylingCache);
 }
 
 void Ut_MImKey::cleanup()
@@ -158,7 +164,7 @@ void Ut_MImKey::testIsDead()
     MImKeyBinding *binding = new MImKeyBinding;
     key->bindings[MImKeyModel::NoShift] = binding;
 
-    MImAbstractKey *subject = new MImKey(*key, *style, *parent);
+    MImAbstractKey *subject = new MImKey(*key, *style, *parent, stylingCache);
 
     for (int i = 0; i < 2; ++i) {
         bool isDead = (i != 0);
@@ -341,7 +347,7 @@ void Ut_MImKey::testVisitActiveKeys()
     b->keyAction = MImKeyBinding::ActionShift;
     MImKeyModel *model = new MImKeyModel;
     model->bindings[MImKeyModel::NoShift] = b;
-    MImKey *shift = new MImKey(*model, *style, *parent);
+    MImKey *shift = new MImKey(*model, *style, *parent, stylingCache);
     shift->setDownState(true);
     keys << shift;
 
@@ -359,6 +365,7 @@ void Ut_MImKey::testKeyRects()
 
     const QPointF topLeft(50, 50);
     key->setPos(topLeft);
+    key->updateGeometryCache();
     QCOMPARE(key->buttonRect().topLeft(), topLeft);
     QCOMPARE(key->buttonBoundingRect().topLeft(), topLeft);
 
@@ -384,7 +391,9 @@ void Ut_MImKey::testKeyRects()
     QCOMPARE(key->buttonBoundingRect(), expectedBoundingRect);
 
     key.reset(createKey());
-    key->setGeometry(MImKey::Geometry(topLeft, width, height, margin0, margin1, margin1, margin0));
+    key->setGeometry(MImKey::Geometry(width, height, margin0, margin1, margin1, margin0));
+    key->setPos(topLeft);
+    key->updateGeometryCache();
     QCOMPARE(key->buttonRect(), expectedRect);
     QCOMPARE(key->buttonBoundingRect(), expectedBoundingRect);
 }
@@ -405,7 +414,7 @@ void Ut_MImKey::testGravity()
 
 MImKey *Ut_MImKey::createKey(bool state)
 {
-    MImKey *key = new MImKey(*dataKey, *style, *parent);
+    MImKey *key = new MImKey(*dataKey, *style, *parent, stylingCache);
     key->setDownState(state);
     return key;
 }
