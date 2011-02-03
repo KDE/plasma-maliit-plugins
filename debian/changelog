@@ -1,3 +1,9 @@
+meego-keyboard (0.5.27~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- huaming wang <huaming.wang@nokia.com>  Thu, 03 Feb 2011 13:22:32 +0200
+
 meego-keyboard (0.5.26-1) unstable; urgency=low
 
   * Fixes: NB#218821 - With the VKB default language as English(UK), error correction and word completion are not working
