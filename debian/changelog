@@ -1,9 +1,10 @@
-meego-keyboard (0.5.26~1) unstable; urgency=low
+meego-keyboard (0.5.26-1) unstable; urgency=low
 
-  * [UNRELEASED]
+  * Fixes: NB#218821 - With the VKB default language as English(UK), error correction and word completion are not working
+  * Fixes: NB#222168 - libmeegotouch in can't uphold locked window orientation
   * Fixes: unwanted long presses in case of delays in event delivery
 
- -- huaming wang <huaming.wang@nokia.com>  Wed, 26 Jan 2011 10:31:42 +0200
+ -- huaming wang <huaming.wang@nokia.com>  Thu, 03 Feb 2011 13:18:26 +0200
 
 meego-keyboard (0.5.25-1) unstable; urgency=low
 
