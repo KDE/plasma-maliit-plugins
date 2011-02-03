@@ -1006,11 +1006,13 @@ void MKeyboardHost::turnOffFastTyping()
 
 void MKeyboardHost::handleKeyPress(const KeyEvent &event)
 {
+#if 0 // Disabled because of bug NB#223996.
     // update fast typing mode
     if (++fastTypingKeyCount >= KeysRequiredForFastTypingMode) {
         turnOnFastTyping();
     }
     fastTypingTimeout.start(); // restart
+#endif
 
     if (event.qtKey() == Qt::Key_Shift) {
         if (shiftHeldDown) {

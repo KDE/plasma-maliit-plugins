@@ -1790,6 +1790,9 @@ void Ut_MKeyboardHost::testAutoPunctuation()
 
 void Ut_MKeyboardHost::testFastTypingState()
 {
+    QSKIP("Skipping fast typing test because the feature is disabled",
+          SkipSingle);
+
     // Set timeout to zero for easier testing.
     subject->fastTypingTimeout.setInterval(0);
 
