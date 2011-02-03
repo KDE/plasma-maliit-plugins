@@ -32,6 +32,7 @@
 #include "regiontracker.h"
 
 #include <mtoolbardata.h>
+#include <mkeyoverride.h>
 
 #include <QDebug>
 #include <QPainter>
@@ -799,3 +800,9 @@ void MVirtualKeyboard::resetCurrentKeyArea(bool resetCapsLock)
         }
     }
 }
+
+void MVirtualKeyboard::setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides)
+{
+    mainKeyboardSwitcher->setKeyOverrides(overrides);
+}
+

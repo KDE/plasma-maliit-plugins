@@ -22,6 +22,9 @@
 #include <QGraphicsWidget>
 #include <QGraphicsItemAnimation>
 #include <QTimeLine>
+#include <QMap>
+
+class MKeyOverride;
 
 class HorizontalSwitcher : public QGraphicsWidget
 {
@@ -106,6 +109,11 @@ public:
      * \brief Enables or disables animation.
      */
     void setAnimationEnabled(bool enabled);
+
+    /*!
+     * \brief Uses custom key overrides which is defined by \a overrides.
+     */
+    void setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides);
 
 signals:
     /*! \brief Signals the beginning of a switch.

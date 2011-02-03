@@ -23,6 +23,8 @@
 #include <QTextLine>
 #include <QList>
 
+#include <mkeyoverride.h>
+
 #include <MScalableImage>
 #include <mplainwindow.h>
 #include <mreactionmap.h>
@@ -820,5 +822,35 @@ void MImKeyArea::registerKeyId(MImKey *key)
         }
     }
     idToKey.append(key);
+}
+
+void MImKeyArea::setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides)
+{
+    for (QList<MImKey *>::const_iterator iterator = idToKey.begin();
+         iterator != idToKey.end();
+         ++iterator) {
+        if (overrides.contains((*iterator)->model().id())) {
+            QSharedPointer<MKeyOverride> override = overrides[(*iterator)->model().id()];
+            // change the im key according incoming overrides.
+            (*iterator)->setKeyOverride(override);
+            connect(override.data(), SIGNAL(keyAttributesChanged(QString, MKeyOverride::KeyOverrideAttributes)),
+                    this,            SLOT(updateKeyAttributes(QString, MKeyOverride::KeyOverrideAttributes)));
+        } else {
+            if ((*iterator)->keyOverride()) {
+                disconnect((*iterator)->keyOverride().data(), 0,
+                            this,                             0);
+            }
+            (*iterator)->resetKeyOverride();
+        }
+    }
+}
+
+void MImKeyArea::updateKeyAttributes(const QString &keyId, MKeyOverride::KeyOverrideAttributes attributes)
+{
+    MImKey *key = static_cast<MImKey *>(findKey(keyId));
+
+    if (key) {
+        key->updateOverrideAttributes(attributes);
+    }
 }
 

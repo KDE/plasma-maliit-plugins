@@ -319,3 +319,14 @@ void HorizontalSwitcher::setAnimationEnabled(bool enabled)
         playAnimations = enabled;
     }
 }
+
+void HorizontalSwitcher::setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides)
+{
+    for (int i = 0; i < count(); ++i) {
+        MImAbstractKeyArea *mainKba = qobject_cast<MImAbstractKeyArea *>(widget(i));
+        if (mainKba) {
+            mainKba->setKeyOverrides(overrides);
+        }
+    }
+}
+

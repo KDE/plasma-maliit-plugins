@@ -53,6 +53,7 @@ class Handle;
 class Grip;
 class FlickGesture;
 class SharedHandleArea;
+class MKeyOverride;
 
 /*!
   \class MVirtualKeyboard
@@ -189,6 +190,11 @@ public slots:
      *        By default, always resets shift key.
      */
     void resetCurrentKeyArea(bool resetCapsLock = false);
+
+    /*!
+     * \brief Uses custom key overrides which is defined by \a overrides.
+     */
+    void setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides);
 
 private slots:
     /*!

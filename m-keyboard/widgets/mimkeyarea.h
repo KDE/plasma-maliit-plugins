@@ -28,6 +28,7 @@
 class MImKeyArea
     : public MImAbstractKeyArea
 {
+    Q_OBJECT
     Q_DISABLE_COPY(MImKeyArea)
 
 public:
@@ -49,7 +50,11 @@ public:
     virtual void setShiftState(ModifierState newShiftState);
     virtual QList<const MImAbstractKey *> keys() const;
     virtual MImAbstractKey * findKey(const QString &id);
+    virtual void setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides);
     //! \reimp_end
+
+private slots:
+    void updateKeyAttributes(const QString &, MKeyOverride::KeyOverrideAttributes);
 
 protected:
     //! \reimp

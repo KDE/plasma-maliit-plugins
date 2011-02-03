@@ -20,6 +20,7 @@
 #define MIMKEY_H
 
 #include "mimabstractkey.h"
+#include <QObject>
 #include <QPointF>
 #include <QGraphicsItem>
 #include <QRectF>
@@ -94,6 +95,10 @@ public:
     virtual const MScalableImage *backgroundImage() const;
     virtual QRectF boundingRect() const;
     virtual void paint(QPainter * painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
+    virtual void setKeyOverride(const QSharedPointer<MKeyOverride> &override);
+    virtual QSharedPointer<MKeyOverride> keyOverride() const;
+    virtual void resetKeyOverride();
+    virtual void updateOverrideAttributes(MKeyOverride::KeyOverrideAttributes changedAttributes);
     //! \reimp_end
 
     //! Return limit for active touchpoints
@@ -183,6 +188,9 @@ private:
     };
 
     void loadIcon(bool shift);
+
+    void loadOverrideIcon();
+
     const IconInfo &iconInfo() const;
     //! \brief Update cached label position.
     void updateLabelPos() const;
@@ -226,6 +234,10 @@ private:
     QFont labelFont;
 
     const QSharedPointer<StylingCache> stylingCache;
+
+    QSharedPointer<MKeyOverride> override;
+
+    QPixmap *overrideIcon;
 };
 
 #endif // MIMKEY_H

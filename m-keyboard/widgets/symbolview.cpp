@@ -26,6 +26,8 @@
 #include "mimreactionmap.h"
 #include "regiontracker.h"
 
+#include <mkeyoverride.h>
+
 #include <MSceneManager>
 #include <MScalableImage>
 #include <mreactionmap.h>
@@ -563,4 +565,9 @@ void SymbolView::resetCurrentKeyArea(bool resetCapsLock)
     if (mainKba) {
         mainKba->reset(resetCapsLock);
     }
+}
+
+void SymbolView::setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides)
+{
+    pageSwitcher->setKeyOverrides(overrides);
 }

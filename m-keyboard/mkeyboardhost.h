@@ -87,6 +87,7 @@ public:
                                   MInputMethod::HandlerState state = MInputMethod::OnScreen);
     virtual QString activeSubView(MInputMethod::HandlerState state = MInputMethod::OnScreen) const;
     virtual void showLanguageNotification();
+    virtual void setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides);
     //! reimp_end
 
 private slots:

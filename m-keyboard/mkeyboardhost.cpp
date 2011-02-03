@@ -35,6 +35,7 @@
 #include <mabstractinputmethodhost.h>
 #include <mplainwindow.h>
 #include <mtoolbardata.h>
+#include <mkeyoverride.h>
 #include <mgconfitem.h>
 
 #include <QDebug>
@@ -2001,4 +2002,10 @@ void MKeyboardHost::togglePlusMinus()
 
     // Update host
     inputMethodHost()->sendCommitString(replacedText, replacePos, replaceCount, newCursorPos);
+}
+
+void MKeyboardHost::setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides)
+{
+    vkbWidget->setKeyOverrides(overrides);
+    symbolView->setKeyOverrides(overrides);
 }

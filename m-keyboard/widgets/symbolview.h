@@ -36,6 +36,7 @@ class QGraphicsLinearLayout;
 class QGraphicsSceneMouseEvent;
 class KeyEvent;
 class Handle;
+class MKeyOverride;
 
 /*!
  * \brief SymbolView is used to show different layouts symbols/upper case/lower case
@@ -146,6 +147,11 @@ public slots:
      *        By default, always resets shift key.
      */
     void resetCurrentKeyArea(bool resetCapsLock = false);
+
+    /*!
+     * \brief Uses custom key overrides which is defined by \a overrides.
+     */
+    void setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides);
 
 signals:
     //! Used to broadcast shift state to all pages/MImAbstractKeyAreas.

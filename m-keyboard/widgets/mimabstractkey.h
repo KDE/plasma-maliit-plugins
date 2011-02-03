@@ -21,6 +21,8 @@
 
 #include "mimkeymodel.h"
 #include <QList>
+#include <QSharedPointer>
+#include <mkeyoverride.h>
 
 class QRect;
 class QPainter;
@@ -117,6 +119,18 @@ public:
 
     //! \brief Return background image according to current mode and style.
     virtual const MScalableImage *backgroundImage() const = 0;
+
+    //! \brief Set custom key override in order to change visual appearance, e.g. label, icon etc.
+    virtual void setKeyOverride(const QSharedPointer<MKeyOverride> &override) = 0;
+
+    //! \brief Return the attached custom key override.
+    virtual QSharedPointer<MKeyOverride> keyOverride() const = 0;
+
+    //! \brief Reset any custom key override.
+    virtual void resetKeyOverride() = 0;
+
+    //! \brief update custom key override attributes.
+    virtual void updateOverrideAttributes(MKeyOverride::KeyOverrideAttributes changedAttributes) = 0;
 
     //! \brief Returns most recent key that became active, and wasn't released yet.
     //!        If no key is active, returns 0.

@@ -33,6 +33,7 @@
 class FlickGesture;
 class MReactionMap;
 class PopupBase;
+class MKeyOverride;
 
 //! \brief MImAbstractKeyArea is a view for virtual keyboard layout represented by LayoutModel
 class MImAbstractKeyArea
@@ -112,6 +113,11 @@ public slots:
      *        By default, always resets shift key.
      */
     void reset(bool resetCapsLock = false);
+
+    /*!
+     * \brief Uses custom key overrides which is defined by \a overrides.
+     */
+    virtual void setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides) = 0;
 
 signals:
     //! \brief Emitted when key is pressed

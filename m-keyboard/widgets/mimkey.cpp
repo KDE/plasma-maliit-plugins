@@ -28,6 +28,7 @@
 #include <MTimestamp>
 
 #include <QPainter>
+#include <QFileInfo>
 
 namespace {
     qreal computeWidth(qreal unit, qreal spacing, const qreal newScaling)
@@ -128,7 +129,8 @@ MImKey::MImKey(const MImKeyModel &newModel,
       currentTouchPointCount(0),
       hasGravity(false),
       rowHasSecondaryLabel(false),
-      stylingCache(newStylingCache)
+      stylingCache(newStylingCache),
+      overrideIcon(0)
 {
     if (mModel.binding(false)) {
         loadIcon(false);
@@ -149,6 +151,9 @@ MImKey::~MImKey()
 
 const QString MImKey::label() const
 {
+    if (override && !override->label().isEmpty())
+        return override->label();
+
     return currentLabel;
 }
 
@@ -278,7 +283,7 @@ void MImKey::setDownState(bool down)
             hasGravity = false;
         }
 
-        setVisible(currentState != Normal);
+        setVisible((currentState != Normal) || override);
     }
 }
 
@@ -464,21 +469,84 @@ void MImKey::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget 
         background->draw(paintingArea, painter);
     }
 
-    if (iconPixmap) {
+    if (overrideIcon) {
+        QPointF iconPos(paintingArea.left() + (paintingArea.width() - overrideIcon->width()) / 2,
+                        paintingArea.top() + (paintingArea.height() - overrideIcon->height()) / 2);
+        painter->drawPixmap(iconPos, *overrideIcon);
+
+    } else if (iconPixmap) {
         QPointF iconPos(paintingArea.left() + (paintingArea.width() - iconPixmap->width()) / 2,
                         paintingArea.top() + (paintingArea.height() - iconPixmap->height()) / 2);
         painter->drawPixmap(iconPos, *iconPixmap);
+
     } else {
         painter->setFont(font());
         painter->setPen(styleContainer->fontColor());
-        painter->drawText(labelArea, Qt::AlignCenter, label());
+        painter->drawText(labelRect(), Qt::AlignCenter, label());
         if (!secondaryLabel().isEmpty()) {
             painter->setFont(styleContainer->secondaryFont());
             painter->drawText(secondaryLabelArea, Qt::AlignCenter, secondaryLabel());
         }
     }
     painter->restore();
+
     mTimestamp("MImKey", "end");
+}
+
+void MImKey::setKeyOverride(const QSharedPointer<MKeyOverride> &newOverride)
+{
+    if (newOverride == override)
+        return;
+
+    MKeyOverride::KeyOverrideAttributes changedAttributes;
+    QString label;
+    QString icon;
+    bool highlighted = false;
+    bool enabled = true;
+
+    if (override) {
+        label = override->label();
+        icon = override->icon();
+        highlighted = override->highlighted();
+        enabled = override->enabled();
+    }
+
+    // check label
+    if (label != newOverride->label()) {
+        changedAttributes |= MKeyOverride::Label;
+    }
+
+    // check icon.
+    if (icon != newOverride->icon()) {
+        changedAttributes |= MKeyOverride::Icon;
+    }
+
+    // check highlighted
+    if (highlighted != newOverride->highlighted()) {
+        changedAttributes |= MKeyOverride::Highlighted;
+    }
+
+    // check enabled
+    if (enabled != newOverride->enabled()) {
+        changedAttributes |= MKeyOverride::Enabled;
+    }
+
+    override = newOverride;
+
+    if (changedAttributes) {
+        updateOverrideAttributes(changedAttributes);
+    }
+}
+
+QSharedPointer<MKeyOverride> MImKey::keyOverride() const
+{
+    return override;
+}
+
+void MImKey::resetKeyOverride()
+{
+    override.clear();
+    //TODO: reset appearance.
 }
 
 const QPixmap *MImKey::icon() const
@@ -684,6 +752,18 @@ void MImKey::loadIcon(bool shift)
     }
 }
 
+void MImKey::loadOverrideIcon()
+{
+    delete overrideIcon;
+    overrideIcon = 0;
+    if (override) {
+        QFileInfo fileInfo(override->icon());
+        if (fileInfo.exists() && fileInfo.isAbsolute() && fileInfo.isFile()) {
+            overrideIcon = new QPixmap(override->icon());
+        }
+    }
+}
+
 const MImKey::IconInfo &MImKey::iconInfo() const
 {
     return (shift ? upperCaseIcon : lowerCaseIcon);
@@ -693,3 +773,33 @@ const QFont &MImKey::font() const
 {
     return labelFont;
 }
+
+void MImKey::updateOverrideAttributes(MKeyOverride::KeyOverrideAttributes changedAttributes)
+{
+    if (!override || !changedAttributes) {
+        return;
+    }
+
+    if (changedAttributes & MKeyOverride::Label) {
+        invalidateLabelPos();
+    }
+
+    if (changedAttributes & MKeyOverride::Icon) {
+        loadOverrideIcon();
+    }
+
+    if (changedAttributes & MKeyOverride::Highlighted) {
+        //TODO: update highlighted style
+    }
+
+    if (changedAttributes & MKeyOverride::Enabled) {
+        //TODO: update enabled style
+    }
+
+    if (isVisible()) {
+        update();
+    } else {
+        show();
+    }
+}
+
