@@ -1458,13 +1458,25 @@ void MKeyboardHost::updateCorrectionState()
             correctionEnabled = false;
             return;
         }
+
+        // Don't use correction for certain types.
+        bool enabledByContent = true, ctValid;
+        int contentType = inputMethodHost()->contentType(ctValid);
+        if (ctValid && (contentType == M::NumberContentType
+                        || contentType == M::PhoneNumberContentType
+                        || contentType == M::EmailContentType
+                        || contentType == M::UrlContentType)) {
+            enabledByContent = false;
+        }
+
         // Enable correction if correction is enabled from MTextEdit and prediction
         // is not disabled (Qt::ImhNoPredictiveText hint not set). Ignore either
         // value if value is not set.
         bool ecValid = false, pValid = false;
         bool ecEnabled = inputMethodHost()->correctionEnabled(ecValid);
         bool pEnabled = inputMethodHost()->predictionEnabled(pValid);
-        correctionEnabled = (!ecValid || ecEnabled)
+        correctionEnabled = enabledByContent
+                            && (!ecValid || ecEnabled)
                             && (!pValid || pEnabled)
                             && imCorrectionEngine->correctionEnabled()
                             && imCorrectionEngine->completionEnabled();

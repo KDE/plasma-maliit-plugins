@@ -54,6 +54,8 @@ private slots:
     void testCorrectionOptions();
     void testCorrectionSettings_data();
     void testCorrectionSettings();
+    void testCorrectionContentTypes_data();
+    void testCorrectionContentTypes();
 
     void testAutoCaps();
     void testApplicationOrientationChanged();

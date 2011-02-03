@@ -441,6 +441,49 @@ void Ut_MKeyboardHost::testCorrectionSettings()
     subject->imCorrectionEngine = 0;
 }
 
+void Ut_MKeyboardHost::testCorrectionContentTypes_data()
+{
+    QTest::addColumn<M::TextContentType>("contentType");
+    QTest::addColumn<bool>("result");
+
+    QTest::newRow("Number field")
+            << M::NumberContentType << false;
+    QTest::newRow("Phone number field")
+            << M::PhoneNumberContentType << false;
+    QTest::newRow("Email field")
+            << M::EmailContentType << false;
+    QTest::newRow("URL field")
+            << M::UrlContentType << false;
+    QTest::newRow("Free text field")
+            << M::FreeTextContentType << true;
+    QTest::newRow("Custom field")
+            << M::CustomContentType << true;
+
+}
+
+void Ut_MKeyboardHost::testCorrectionContentTypes()
+{
+    QFETCH(M::TextContentType, contentType);
+    QFETCH(bool, result);
+
+    DummyDriverMkh *engine(new DummyDriverMkh);
+    subject->imCorrectionEngine = engine;
+    engine->enableCompletion();
+    engine->enableCorrection();
+
+    subject->show();
+
+    QVERIFY(subject->imCorrectionEngine != 0);
+
+    inputMethodHost->contentType_ = contentType;
+    subject->updateCorrectionState();
+    QCOMPARE(subject->correctionEnabled, result);
+
+    subject->hide();
+    delete engine;
+    subject->imCorrectionEngine = 0;
+}
+
 void Ut_MKeyboardHost::testAutoCaps()
 {
     inputMethodHost->surroundingString = "Test string. You can using it!    ";
