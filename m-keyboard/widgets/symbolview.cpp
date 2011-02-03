@@ -358,11 +358,8 @@ MImAbstractKeyArea *SymbolView::createMImAbstractKeyArea(const LayoutData::Share
 void SymbolView::organizeContent()
 {
     const M::Orientation orientation(sceneManager.orientation());
-    const int sceneWidth = sceneManager.visibleSceneSize().width();
 
-    setPreferredWidth(sceneWidth);
-    setMaximumWidth(sceneWidth);
-    setMinimumWidth(sceneWidth);
+    resize(sceneManager.visibleSceneSize().width(), size().height());
 
     if (currentOrientation != orientation) {
         currentOrientation = orientation;
