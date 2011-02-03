@@ -204,6 +204,9 @@ private slots:
     void handleAnimationFinished();
 
 private:
+    //! Configures the parts that may change dynamically.
+    void prepareHideShowAnimation();
+
     void sendRegionEstimate();
 
     //! \brief Reset internal state, used by reset() and others

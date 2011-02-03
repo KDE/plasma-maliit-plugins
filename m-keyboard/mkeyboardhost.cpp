@@ -540,6 +540,18 @@ void MKeyboardHost::show()
 
     sharedHandleArea->show();
 
+    prepareHideShowAnimation();
+    if (activeState == MInputMethod::OnScreen) {
+        vkbWidget->show();
+    }
+    sendRegionEstimate();
+    slideUpAnimation.setDirection(QAbstractAnimation::Forward);
+    slideUpAnimation.start();
+}
+
+
+void MKeyboardHost::prepareHideShowAnimation()
+{
     if (activeState == MInputMethod::Hardware) {
         slideUpAnimation.setDuration(HardwareAnimationTime);
         vkbFadeInAnimation.setDuration(HardwareAnimationTime);
@@ -555,11 +567,7 @@ void MKeyboardHost::show()
         slideUpAnimation.setTargetObject(vkbWidget);
         slideUpAnimation.setStartValue(QPointF(0, MPlainWindow::instance()->visibleSceneSize().height()
                                                + sharedHandleArea->size().height()));
-        vkbWidget->show();
     }
-    sendRegionEstimate();
-    slideUpAnimation.setDirection(QAbstractAnimation::Forward);
-    slideUpAnimation.start();
 }
 
 
@@ -571,6 +579,7 @@ void MKeyboardHost::hide()
     correctionHost->hideCorrectionWidget();
     symbolView->hideSymbolView(); // TODO: transition?
 
+    prepareHideShowAnimation();
     slideUpAnimation.setDirection(QAbstractAnimation::Backward);
     slideUpAnimation.start();
 
