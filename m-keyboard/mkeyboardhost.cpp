@@ -233,6 +233,9 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
 
     MPlainWindow::instance()->setViewportUpdateMode(QGraphicsView::MinimalViewportUpdate);
 
+    // our paint methods are accurate enough, so we can disable painter saving
+    MPlainWindow::instance()->setOptimizationFlags(QGraphicsView::DontSavePainterState);
+
     // Because we set vkbWidget as a child of sceneWindow the vkb
     // will always be in correct orientation. However the animation will be
     // affected as well. If we want to keep the current hiding/showing animation
