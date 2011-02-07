@@ -153,7 +153,7 @@
               <binding label="."/>
               <binding shift="true" label=","/>
             </key>
-            <key>
+            <key id="actionKey">
               <binding action="return" label=""/>
             </key>
           </row>

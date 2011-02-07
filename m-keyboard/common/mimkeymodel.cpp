@@ -129,11 +129,16 @@ KeyEvent MImKeyBinding::toKeyEvent(QKeyEvent::Type eventType, QChar accent, Qt::
 }
 
 
-MImKeyModel::MImKeyModel(MImKeyModel::StyleType style, MImKeyModel::WidthType widthType, bool isFixed, bool isRtl)
+MImKeyModel::MImKeyModel(MImKeyModel::StyleType style,
+                         MImKeyModel::WidthType widthType,
+                         bool isFixed,
+                         bool isRtl,
+                         const QString &id)
     : mStyle(style),
       mWidthType(widthType),
       isFixed(isFixed),
-      isRtl(isRtl)
+      isRtl(isRtl),
+      keyId(id)
 {
     bindings[NoShift] = 0;
     bindings[Shift] = 0;
@@ -185,5 +190,10 @@ bool MImKeyModel::isFixedWidth() const
 bool MImKeyModel::rtl() const
 {
     return isRtl;
+}
+
+QString MImKeyModel::id() const
+{
+    return keyId;
 }
 

@@ -511,6 +511,21 @@ void Ut_MImAbstractKeyArea::testExtendedLabels()
     QCOMPARE(eKey->model().binding(true)->extendedLabels(), QString("%1%2").arg(QChar(0xca)).arg(QChar(0xc8)));
 }
 
+void Ut_MImAbstractKeyArea::testKeyId()
+{
+    keyboard = new KeyboardData;
+    QVERIFY(keyboard->loadNokiaKeyboard("test-layout.xml"));
+    subject = createKeyArea(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
+                                              false, 0);
+
+    const MImAbstractKey *enterKey(keyAt(3, 6));
+    QCOMPARE(enterKey->model().binding(false)->action(), MImKeyBinding::ActionReturn);
+    QCOMPARE(enterKey->model().id(), QString("actionKey"));
+
+    const MImAbstractKey *dotKey(keyAt(3, 5));
+    QCOMPARE(dotKey->model().id(), QString());
+}
+
 void Ut_MImAbstractKeyArea::testImportedLayouts_data()
 {
     QTest::addColumn<KBACreator>("createKba");

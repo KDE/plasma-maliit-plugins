@@ -194,7 +194,8 @@ public:
      * \param isRtl Contains true if button should use RTL icon.
      */
     explicit MImKeyModel(StyleType type = NormalStyle, WidthType widthType = Medium,
-                        bool isFixed = false, bool isRtl = false);
+                        bool isFixed = false, bool isRtl = false,
+                        const QString &id = QString());
 
     ~MImKeyModel();
 
@@ -231,6 +232,9 @@ public:
     //! Returns true if button uses RTL icon.
     bool rtl() const;
 
+    //! Returns key's identifier
+    QString id() const;
+
 private:
     enum  {
         NoShift = 0,
@@ -251,6 +255,9 @@ private:
 
     //! Contains true if button uses RTL icon.
     bool isRtl;
+
+    //! Contains key's identifier
+    QString keyId;
 
     friend class KeyboardData;
     friend class Ut_MImKeyModel;

@@ -110,7 +110,7 @@ namespace
     const QString FixedStringDefValue        = QString("false");
     const QString HeightTypeString           = QString("height");
     const QString HeightTypeStringDefValue   = QString("medium");
-
+    const char * const KeyIdString           = "id";
 }
 
 struct ParseParameters {
@@ -525,8 +525,9 @@ void KeyboardData::parseTagKey(const QDomElement &element, ParseParameters &para
     MImKeyModel::WidthType widthType = toWidthType(element.attribute(WidthTypeString, WidthTypeStringDefValue));
     const bool isRtl = toBoolean(element.attribute(RtlString, RtlStringDefValue));
     const bool isFixed = toBoolean(element.attribute(FixedString, FixedStringDefValue));
+    const QString keyId = element.attribute(KeyIdString);
 
-    MImKeyModel *key = new MImKeyModel(type, widthType, isFixed, isRtl);
+    MImKeyModel *key = new MImKeyModel(type, widthType, isFixed, isRtl, keyId);
     params.currentKey = key;
     params.currentRow->keys.append(key);
 
