@@ -119,16 +119,16 @@ Row element describes a row of keys on the keyboard.  It has no attributes,
 just keys and spacers.  A row may be empty.
 
 
-\subsection Key
-
-Key element describes a visible key on the keyboard.
-
 \subsection Spacer
 
 Spacers can be used for alignment purposes. They distribute all remaining space
 of a row among them, after the possible stretcher button has been dealt with.
 
 For instance, to get a center-aligned row, put spacer elements in the beginning and end of a row. Spacer elements are cumulative, i.e., <spacer/><spacer/> will get twice the space of a single spacer.
+
+\subsection Key
+
+Key element describes a visible key on the keyboard.
 
 Attributes:
 
@@ -139,6 +139,7 @@ keyboard's CSS file.
 \li \c fixed If false, this button uses a relative width. Otherwise uses fixed
 width.
 \li \c rtl If true, this button uses RTL version of icon.
+\li \c id Unique identifier of the key, optional. Needs to exist for keys that can be customized by the application.
 
 
 \subsection Binding

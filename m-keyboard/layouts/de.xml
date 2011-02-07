@@ -149,7 +149,7 @@
         <binding shift="true" label="Ö"/>
       </key>
 
-      <key style="special" width="x-large">
+      <key style="special" width="x-large" id="actionKey">
         <binding action="return" label=""/>
       </key>
       </row>

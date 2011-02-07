@@ -163,7 +163,7 @@
           <binding shift="true" label="Ъ"/>
         </key>
 
-        <key style="special" width="x-large">
+        <key style="special" width="x-large" id="actionKey">
           <binding action="return"/>
         </key>
       </row>

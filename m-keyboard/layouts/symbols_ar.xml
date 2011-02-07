@@ -126,7 +126,7 @@
               <binding label="&#x003A;"/>
             </key>
 
-            <key style="special" width="xx-large" rtl="false">
+            <key style="special" width="xx-large" rtl="false" id="actionKey">
               <binding action="return"/>
             </key>
           </row>
@@ -256,7 +256,7 @@
               <binding label="&#x00BB;"/>
             </key>
 
-            <key style="special" width="xx-large" rtl="false">
+            <key style="special" width="xx-large" rtl="false" id="actionKey">
               <binding action="return"/>
             </key>
           </row>

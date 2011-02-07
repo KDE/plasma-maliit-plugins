@@ -145,7 +145,7 @@
           <binding dead="true" label="ˇ"/>
         </key>
 
-        <key style="special" width="x-large">
+        <key style="special" width="x-large" id="actionKey">
           <binding action="return" label=""/>
         </key>
       </row>

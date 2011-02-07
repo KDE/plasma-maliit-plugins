@@ -131,7 +131,7 @@
         <key><binding label="."/></key>
         <key><binding label="ط"/></key>
 
-        <key style="special" width="x-large" rtl="false">
+        <key style="special" width="x-large" rtl="false" id="actionKey">
           <binding action="return"/>
         </key>
       </row>
