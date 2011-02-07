@@ -30,7 +30,7 @@ MVirtualKeyboardStyle.Landscape {
 MImAbstractKeyAreaStyle {
     /*** Font Settings ***/
     font: $FONT_KEYBOARD;
-    font-color: $COLOR_FOREGROUND;
+    font-color: $FONT_COLOR_KEYBOARD;
     secondary-font: $FONT_SMALL;
 
     /*** Graphical assets ***/
