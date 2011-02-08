@@ -881,11 +881,13 @@ void Ut_MKeyboardHost::testRegionSignals()
     subject->correctionHost->setCandidates((QStringList() << "abc" << "def"));
     subject->correctionHost->showCorrectionWidget();
     ++c1;
+    qApp->processEvents();
     QCOMPARE(inputMethodHost->setScreenRegionCalls, c1);
     QCOMPARE(inputMethodHost->setInputMethodAreaCalls, c2);
 
     subject->correctionHost->hideCorrectionWidget();
     ++c1;
+    qApp->processEvents();
     QCOMPARE(inputMethodHost->setScreenRegionCalls, c1);
     QCOMPARE(inputMethodHost->setInputMethodAreaCalls, c2);
     QCOMPARE(region(ScreenRegion, c1 - 1), region(InputMethodArea, c2 - 1));
@@ -1086,6 +1088,7 @@ void Ut_MKeyboardHost::testOptimizedRegionCallCounts()
     subject->setState(state);
 
     // Check call counts.
+    qApp->processEvents();
     if (imAreaUpdatesAfterStateChange >= 0) {
         QCOMPARE(inputMethodHost->setInputMethodAreaCalls, imAreaUpdatesAfterStateChange);
     }

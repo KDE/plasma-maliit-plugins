@@ -223,7 +223,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
             imHost, SLOT(setInputMethodArea(const QRegion &)));
     connect(&RegionTracker::instance(), SIGNAL(reactionMapUpdateNeeded()),
             this, SLOT(updateReactionMaps()));
-    RegionTracker::instance().enableSignals(false);
 
     displayHeight = MPlainWindow::instance()->visibleSceneSize(M::Landscape).height();
     displayWidth  = MPlainWindow::instance()->visibleSceneSize(M::Landscape).width();
@@ -394,8 +393,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
 
     connect(&slideUpAnimation, SIGNAL(finished()), this, SLOT(handleAnimationFinished()));
     connect(&toolbarAndVkbFadeInAnimation, SIGNAL(finished()), this, SLOT(handleAnimationFinished()));
-
-    RegionTracker::instance().enableSignals(true, false);
 
     Q_ASSERT(currentInstance == 0); // Several instances of this class is invalid.
     currentInstance = this;
@@ -889,13 +886,11 @@ void MKeyboardHost::handleVisualizationPriorityChange(bool priority)
 
     // TODO: hide/show by fading?
     if (sipRequested) {
-        const bool wasEnabled(RegionTracker::instance().enableSignals(false));
         if (priority) {
             MPlainWindow::instance()->sceneManager()->disappearSceneWindowNow(sceneWindow);
         } else {
             MPlainWindow::instance()->sceneManager()->appearSceneWindowNow(sceneWindow);
         }
-        RegionTracker::instance().enableSignals(wasEnabled);
     }
 }
 
@@ -1599,8 +1594,6 @@ void MKeyboardHost::setState(const QSet<MInputMethod::HandlerState> &state)
     if (activeState == actualState)
         return;
 
-    const bool wasRegionSignalsEnabled(RegionTracker::instance().enableSignals(false));
-
     if ((activeState == MInputMethod::OnScreen) && (preedit.length() > 0)) {
         inputMethodHost()->sendCommitString(preedit);
     }
@@ -1655,8 +1648,6 @@ void MKeyboardHost::setState(const QSet<MInputMethod::HandlerState> &state)
     symbolView->setKeyboardState(actualState);
     updateCorrectionState();
     updateAutoCapitalization();
-
-    RegionTracker::instance().enableSignals(wasRegionSignalsEnabled);
 }
 
 void MKeyboardHost::handleSymbolKeyClick()
@@ -1665,9 +1656,6 @@ void MKeyboardHost::handleSymbolKeyClick()
         || !vkbWidget->symViewAvailable()) {
         return;
     }
-
-    // TODO: make RegionTracker do this kind of optimization automatically
-    const bool wasEnabled(RegionTracker::instance().enableSignals(false));
 
     // Toggle SymbolView.
     if (!symbolView->isVisible()) {
@@ -1678,8 +1666,6 @@ void MKeyboardHost::handleSymbolKeyClick()
     } else {
         symbolView->hideSymbolView();
     }
-
-    RegionTracker::instance().enableSignals(wasEnabled);
 }
 
 void MKeyboardHost::updateSymbolViewLevel()
@@ -1698,13 +1684,10 @@ void MKeyboardHost::updateSymbolViewLevel()
 
 void MKeyboardHost::showSymbolView()
 {
-    // TODO: make RegionTracker do this kind of optimization automatically
-    const bool wasEnabled(RegionTracker::instance().enableSignals(false));
     symbolView->setPos(0, MPlainWindow::instance()->visibleSceneSize().height() - symbolView->size().height());
     symbolView->showSymbolView(SymbolView::FollowMouseShowMode);
     //give the symbolview right shift level(for hardware state)
     updateSymbolViewLevel();
-    RegionTracker::instance().enableSignals(wasEnabled);
 }
 
 MInputMethod::InputModeIndicator MKeyboardHost::deadKeyToIndicator(const QChar &key)

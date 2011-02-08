@@ -40,8 +40,10 @@ void RegionStore::handleGeometryChange(const QObject &widget, const QRegion &reg
     if (!regions.contains(&widget)) {
         return;
     }
-    regions[&widget] = region;
-    dirty = true;
+    if (!(regions[&widget] ^ region).isEmpty()) {
+        regions[&widget] = region;
+        dirty = true;
+    }
     maybeNotify();
 }
 
@@ -60,8 +62,13 @@ void RegionStore::maybeNotify()
 QRegion RegionStore::combineRegions() const
 {
     QRegion combinedRegion;
-    foreach (const QRegion &partialRegion, regions) {
-        combinedRegion |= partialRegion;
+
+    for (RegionMap::iterator i(regions.begin()); i != regions.end(); ++i) {
+        const QGraphicsWidget &widget(dynamic_cast<const QGraphicsWidget &>(*i.key()));
+        const QRegion region(widget.isVisible() ? widget.mapRectToScene(widget.rect()).toRect()
+                             : QRect());
+        combinedRegion |= region;
+        i.value() = region;
     }
 
     return combinedRegion;
@@ -94,17 +101,17 @@ void RegionTrackerPrivate::addWidgetCommon(const QGraphicsWidget &widget)
 {
     changeGeometry(widget);
     connect(&widget, SIGNAL(geometryChanged()),
-            this, SLOT(handleGeometryChange()), Qt::UniqueConnection);
+            this, SLOT(handleGeometryChange()), Qt::QueuedConnection);
     connect(&widget, SIGNAL(destroyed(QObject *)),
             this, SLOT(handleDestroy(QObject *)), Qt::UniqueConnection);
     connect(&widget, SIGNAL(visibleChanged()),
-            this, SLOT(handleVisibilityChange()), Qt::UniqueConnection);
+            this, SLOT(handleVisibilityChange()), Qt::QueuedConnection);
 }
 
 void RegionTrackerPrivate::handleGeometryChange()
 {
     const QGraphicsWidget *widget(dynamic_cast<const QGraphicsWidget *>(QObject::sender()));
-    if (!widget->isVisible()) {
+    if (!widget || !widget->isVisible()) {
         return;
     }
     changeGeometry(*widget);
@@ -128,6 +135,9 @@ void RegionTrackerPrivate::handleDestroy(QObject *widget)
 void RegionTrackerPrivate::handleVisibilityChange()
 {
     const QGraphicsWidget *widget(dynamic_cast<const QGraphicsWidget *>(QObject::sender()));
+    if (!widget) {
+        return;
+    }
     changeGeometry(*widget);
 }
 
