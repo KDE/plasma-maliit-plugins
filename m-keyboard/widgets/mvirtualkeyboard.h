@@ -376,8 +376,8 @@ private:
 
     Notification *notification;
 
-    QGraphicsWidget *numberKeyboard;
-    QGraphicsWidget *phoneNumberKeyboard;
+    MImAbstractKeyArea *numberKeyboard;
+    MImAbstractKeyArea *phoneNumberKeyboard;
 
     QSharedPointer<QPixmap> backgroundPixmap;
 
