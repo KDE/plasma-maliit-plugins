@@ -959,7 +959,10 @@ QRectF MImAbstractKeyArea::correctedReactionRect(const QRectF &originalRect) con
     if (rect.top() >= offset) {
         rect.setTop(rect.top() + offset);
     }
-    rect.setBottom(rect.bottom() + offset);
+    const qreal newBottom(rect.bottom() + offset);
+    if (newBottom <= size().height()) {
+        rect.setBottom(newBottom);
+    }
 
     return rect;
 }
