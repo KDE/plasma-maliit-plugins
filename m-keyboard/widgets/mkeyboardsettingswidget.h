@@ -48,6 +48,7 @@ private slots:
     void updateTitle();
     void updateKeyboardSelectionModel();
     void updateSelectedKeyboards(const QModelIndex &);
+    void selectKeyboards();
     void setErrorCorrectionState(bool enabled);
     void syncErrorCorrectionState();
     void setCorrectionSpaceState(bool enabled);

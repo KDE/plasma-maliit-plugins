@@ -228,18 +228,18 @@ void MKeyboardSettingsWidget::connectSlots()
     connect(settingsObject, SIGNAL(correctionSpaceChanged()),
             this, SLOT(syncCorrectionSpaceState()));
     connect(settingsObject, SIGNAL(selectedKeyboardsChanged()),
-            this, SLOT(updateTitle()));
-    connect(settingsObject, SIGNAL(selectedKeyboardsChanged()),
             this, SLOT(updateKeyboardSelectionModel()));
 }
 
 void MKeyboardSettingsWidget::showKeyboardList()
 {
-    if (!settingsObject || !keyboardDialog) {
-        QStringList keyboards = settingsObject->selectedKeyboards().values();
-        QString keyboardTitle = qtTrId("qtn_txts_installed_keyboards")
-                                       .arg(keyboards.count());
-        keyboardDialog = new MDialog(keyboardTitle, M::NoStandardButton);
+    if (!settingsObject)
+        return;
+
+    QStringList keyboards = settingsObject->selectedKeyboards().values();
+
+    if (!keyboardDialog) {
+        keyboardDialog = new MDialog();
 
         keyboardList = new MList(keyboardDialog);
         MKeyboardCellCreator *cellCreator = new MKeyboardCellCreator;
@@ -250,11 +250,19 @@ void MKeyboardSettingsWidget::showKeyboardList()
         keyboardList->setSelectionMode(MList::MultiSelection);
         keyboardList->setSelectionModel(new QItemSelectionModel(model, this));
         keyboardDialog->setCentralWidget(keyboardList);
+        keyboardDialog->addButton(M::DoneButton);
 
         connect(keyboardList, SIGNAL(itemClicked(const QModelIndex &)),
                 this, SLOT(updateSelectedKeyboards(const QModelIndex &)));
+        connect(keyboardDialog, SIGNAL(accepted()),
+                this, SLOT(selectKeyboards()));
     }
     updateKeyboardModel();
+    // We need to update the title every time because probably the dialog was
+    // cancelled/closed without tapping on the Done button.
+    QString keyboardTitle = qtTrId("qtn_txts_installed_keyboards")
+                                   .arg(keyboards.count());
+    keyboardDialog->setTitle(keyboardTitle);
     keyboardDialog->exec();
 }
 
@@ -296,18 +304,35 @@ void MKeyboardSettingsWidget::updateKeyboardSelectionModel()
 
 void MKeyboardSettingsWidget::updateSelectedKeyboards(const QModelIndex &index)
 {
-    if (!settingsObject || !index.isValid() || !keyboardList
+    if (!index.isValid() || !keyboardDialog || !keyboardList
         || !keyboardList->selectionModel())
         return;
 
+    QModelIndexList indexList = keyboardList->selectionModel()->selectedIndexes();
+
+    // Update the dialog title
+    QString title = qtTrId("qtn_txts_installed_keyboards")
+                            .arg(indexList.size());
+
+    keyboardDialog->setTitle(title);
+}
+
+void MKeyboardSettingsWidget::selectKeyboards()
+{
+    if (!settingsObject || !keyboardDialog)
+        return;
+
     QStringList updatedKeyboardLayouts;
-    foreach (const QModelIndex &i, keyboardList->selectionModel()->selectedIndexes()) {
+    QModelIndexList indexList = keyboardList->selectionModel()->selectedIndexes();
+
+    foreach (const QModelIndex &i, indexList) {
         updatedKeyboardLayouts << i.data(MKeyboardLayoutRole).toString();
     }
-    if (updatedKeyboardLayouts.isEmpty()) {
+    settingsObject->setSelectedKeyboards(updatedKeyboardLayouts);
+    // "No keyboard is selected" notification
+    if (indexList.isEmpty()) {
         notifyNoKeyboards();
     }
-    settingsObject->setSelectedKeyboards(updatedKeyboardLayouts);
     //update titles
     retranslateUi();
 }
