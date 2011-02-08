@@ -140,7 +140,7 @@ private:
      * \param parser2 compulsory with tag2, parser for the tag2
      */
     void parseChildren(const QDomElement &element, ParseParameters &params,
-                       const QString *tag1, TagParser parser1, const QString *tag2 = NULL,
+                       const char * const tag1, TagParser parser1, const char * const tag2 = NULL,
                        TagParser parser2 = NULL);
 
     //! Parse XML tag for import

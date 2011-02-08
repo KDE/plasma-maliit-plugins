@@ -27,90 +27,90 @@
 namespace
 {
     // TODO: Support Windows paths too.
-    const QString VKBConfigurationPath = "/usr/share/meegotouch/virtual-keyboard/layouts/";
+    const char * const VKBConfigurationPath = "/usr/share/meegotouch/virtual-keyboard/layouts/";
 
-    const QString VKBTagKeyboard             = QString("keyboard");
-    const QString VKBTagVersion              = QString("version");
-    const QString VKBTagCatalog              = QString("catalog");
-    const QString VKBTagAutoCapitalization   = QString("autocapitalization");
-    const QString VKBTagLayout               = QString("layout");
-    const QString VKBTagTitle                = QString("title");
-    const QString VKBTagLanguage             = QString("language");
-    const QString VKBTagBoolTrue             = QString("true");
-    const QString VKBTagBoolFalse            = QString("false");
-    const QString VKBTagType                 = QString("type");
-    const QString VKBTagTypeGeneral          = QString("general");
-    const QString VKBTagTypeUrl              = QString("url");
-    const QString VKBTagTypeEmail            = QString("email");
-    const QString VKBTagTypeNumber           = QString("number");
-    const QString VKBTagTypePhoneNumber      = QString("phonenumber");
-    const QString VKBTagTypeCommon           = QString("common");
-    const QString VKBTagOrientation          = QString("orientation");
-    const QString VKBTagOrientationLandscape = QString("landscape");
-    const QString VKBTagOrientationPortrait  = QString("portrait");
+    const char * const VKBTagKeyboard             = "keyboard";
+    const char * const VKBTagVersion              = "version";
+    const char * const VKBTagCatalog              = "catalog";
+    const char * const VKBTagAutoCapitalization   = "autocapitalization";
+    const char * const VKBTagLayout               = "layout";
+    const char * const VKBTagTitle                = "title";
+    const char * const VKBTagLanguage             = "language";
+    const char * const VKBTagBoolTrue             = "true";
+    const char * const VKBTagBoolFalse            = "false";
+    const char * const VKBTagType                 = "type";
+    const char * const VKBTagTypeGeneral          = "general";
+    const char * const VKBTagTypeUrl              = "url";
+    const char * const VKBTagTypeEmail            = "email";
+    const char * const VKBTagTypeNumber           = "number";
+    const char * const VKBTagTypePhoneNumber      = "phonenumber";
+    const char * const VKBTagTypeCommon           = "common";
+    const char * const VKBTagOrientation          = "orientation";
+    const char * const VKBTagOrientationLandscape = "landscape";
+    const char * const VKBTagOrientationPortrait  = "portrait";
 
-    const QString VKBTagID                   = QString("id");
-    const QString VKBTagWidth                = QString("width");
-    const QString VKBTagHeight               = QString("height");
+    const char * const VKBTagID                   = "id";
+    const char * const VKBTagWidth                = "width";
+    const char * const VKBTagHeight               = "height";
 
-    const QString VKBTagTypeNonsloppy        = QString("non-sloppy");
-    const QString VKBTagHorizontalAlignment  = QString("horizontal_alignment");
-    const QString VKBTagVerticalAlignment    = QString("vertical_alignment");
-    const QString VKBTagAlignFull            = QString("full");
-    const QString VKBTagAlignLeft            = QString("left");
-    const QString VKBTagAlignRight           = QString("right");
-    const QString VKBTagAlignBottom          = QString("bottom");
-    const QString VKBTagAlignTop             = QString("top");
-    const QString VKBTagAlignCenter          = QString("center");
+    const char * const VKBTagTypeNonsloppy        = "non-sloppy";
+    const char * const VKBTagHorizontalAlignment  = "horizontal_alignment";
+    const char * const VKBTagVerticalAlignment    = "vertical_alignment";
+    const char * const VKBTagAlignFull            = "full";
+    const char * const VKBTagAlignLeft            = "left";
+    const char * const VKBTagAlignRight           = "right";
+    const char * const VKBTagAlignBottom          = "bottom";
+    const char * const VKBTagAlignTop             = "top";
+    const char * const VKBTagAlignCenter          = "center";
 
-    const QString VKBTagRow                  = QString("row");
-    const QString VKBTagSection              = QString("section");
-    const QString VKBTagMovable              = QString("movable");
+    const char * const VKBTagRow                  = "row";
+    const char * const VKBTagSection              = "section";
+    const char * const VKBTagMovable              = "movable";
 
-    const QString VKBTagBinding              = QString("binding");
-    const QString VKBTagKey                  = QString("key");
-    const QString VKBTagSpacer               = QString("spacer");
+    const char * const VKBTagBinding              = "binding";
+    const char * const VKBTagKey                  = "key";
+    const char * const VKBTagSpacer               = "spacer";
 
-    const QString VKBTagKeyAction            = QString("action");
-    const QString VKBTagShift                = QString("shift");
-    const QString VKBTagLabel                = QString("label");
-    const QString VKBTagSecondaryLabel       = QString("secondary_label");
-    const QString VKBTagAccents              = QString("accents");
-    const QString VKBTagAccentedLabels       = QString("accented_labels");
-    const QString VKBTagExtendedLabels       = QString("extended_labels");
-    const QString VKBTagCycleSet             = QString("cycleset");
-    const QString VKBTagDead                 = QString("dead");
-    const QString VKBTagQuickPick            = QString("quickpick");
+    const char * const VKBTagKeyAction            = "action";
+    const char * const VKBTagShift                = "shift";
+    const char * const VKBTagLabel                = "label";
+    const char * const VKBTagSecondaryLabel       = "secondary_label";
+    const char * const VKBTagAccents              = "accents";
+    const char * const VKBTagAccentedLabels       = "accented_labels";
+    const char * const VKBTagExtendedLabels       = "extended_labels";
+    const char * const VKBTagCycleSet             = "cycleset";
+    const char * const VKBTagDead                 = "dead";
+    const char * const VKBTagQuickPick            = "quickpick";
 
-    const QString ActionStrInsert            = QString("insert");
-    const QString ActionStrShift             = QString("shift");
-    const QString ActionStrBackspace         = QString("backspace");
-    const QString ActionStrSpace             = QString("space");
-    const QString ActionStrCycle             = QString("cycle");
-    const QString ActionStrLayoutMenu        = QString("layout_menu");
-    const QString ActionStrSym               = QString("sym");
-    const QString ActionStrReturn            = QString("return");
-    const QString ActionStrDecimalSeparator  = QString("decimal_separator");
-    const QString ActionStrPlusMinusToggle   = QString("plus_minus_toggle");
-    const QString ActionStrTab               = QString("tab");
-    const QString ActionStrCommit            = QString("commit");
-    const QString ActionStrSwitch            = QString("switch");
+    const char * const ActionStrInsert            = "insert";
+    const char * const ActionStrShift             = "shift";
+    const char * const ActionStrBackspace         = "backspace";
+    const char * const ActionStrSpace             = "space";
+    const char * const ActionStrCycle             = "cycle";
+    const char * const ActionStrLayoutMenu        = "layout_menu";
+    const char * const ActionStrSym               = "sym";
+    const char * const ActionStrReturn            = "return";
+    const char * const ActionStrDecimalSeparator  = "decimal_separator";
+    const char * const ActionStrPlusMinusToggle   = "plus_minus_toggle";
+    const char * const ActionStrTab               = "tab";
+    const char * const ActionStrCommit            = "commit";
+    const char * const ActionStrSwitch            = "switch";
 
-    const QString VKBTagImport               = QString("import");
-    const QString VKBTagFile                 = QString("file");
+    const char * const VKBTagImport               = "import";
+    const char * const VKBTagFile                 = "file";
 
-    const QString RtlString                  = QString("rtl");
-    const QString RtlStringDefValue          = QString("false");
+    const char * const RtlString                  = "rtl";
+    const char * const RtlStringDefValue          = "false";
 
-    const QString StyleString                = QString("style");
-    const QString StyleStringDefValue        = QString("normal");
-    const QString WidthTypeString            = QString("width");
-    const QString WidthTypeStringDefValue    = QString("medium");
-    const QString FixedString                = QString("fixed");
-    const QString FixedStringDefValue        = QString("false");
-    const QString HeightTypeString           = QString("height");
-    const QString HeightTypeStringDefValue   = QString("medium");
-    const char * const KeyIdString           = "id";
+    const char * const StyleString                = "style";
+    const char * const StyleStringDefValue        = "normal";
+    const char * const WidthTypeString            = "width";
+    const char * const WidthTypeStringDefValue    = "medium";
+    const char * const FixedString                = "fixed";
+    const char * const FixedStringDefValue        = "false";
+    const char * const HeightTypeString           = "height";
+    const char * const HeightTypeStringDefValue   = "medium";
+    const char * const KeyIdString                = "id";
 }
 
 struct ParseParameters {
@@ -328,8 +328,8 @@ bool KeyboardData::loadNokiaKeyboardImpl(const QString &fileName, ParseParameter
             keyboardAutoCapsEnabled = toBoolean(root.attribute(VKBTagAutoCapitalization, "true"));
         }
 
-        parseChildren(root, params, &VKBTagImport, &KeyboardData::parseTagImport,
-                      &VKBTagLayout, &KeyboardData::parseTagLayout);
+        parseChildren(root, params, VKBTagImport, &KeyboardData::parseTagImport,
+                      VKBTagLayout, &KeyboardData::parseTagLayout);
         valid = params.validTag;
     }
 
@@ -342,7 +342,7 @@ bool KeyboardData::loadNokiaKeyboardImpl(const QString &fileName, ParseParameter
  * change this to accept an array of (tagname, parser) structures.
  */
 void KeyboardData::parseChildren(const QDomElement &element, ParseParameters &params,
-                                 const QString *tag1, TagParser parser1, const QString *tag2,
+                                 const char * const tag1, TagParser parser1, const char * const tag2,
                                  TagParser parser2)
 {
     Q_ASSERT(tag1);
@@ -352,9 +352,9 @@ void KeyboardData::parseChildren(const QDomElement &element, ParseParameters &pa
             child = child.nextSibling()) {
         if (child.isElement()) {
             const QDomElement childElement = child.toElement();
-            if (childElement.tagName() == *tag1) {
+            if (childElement.tagName() == tag1) {
                 (this->*parser1)(childElement, params);
-            } else if ((tag2 != NULL) && (childElement.tagName() == *tag2)) {
+            } else if ((tag2 != NULL) && (childElement.tagName() == tag2)) {
                 Q_ASSERT(parser2 != 0);
                 (this->*parser2)(childElement, params);
             } else {
@@ -362,9 +362,9 @@ void KeyboardData::parseChildren(const QDomElement &element, ParseParameters &pa
                            << childElement.lineNumber() << "column" << childElement.columnNumber()
                            << "in layout file" << *params.fileName;
                 if (tag2) {
-                    qWarning() << "Allowed tags are" << *tag1 << "and" << *tag2;
+                    qWarning() << "Allowed tags are" << tag1 << "and" << tag2;
                 } else {
-                    qWarning() << "The only allowed tag is" << *tag1;
+                    qWarning() << "The only allowed tag is" << tag1;
                 }
                 params.validTag = false;
             }
@@ -440,7 +440,7 @@ void KeyboardData::parseTagLayout(const QDomElement &element, ParseParameters &p
 
     currentLayout = layoutModel;
 
-    parseChildren(element, params, &VKBTagSection, &KeyboardData::parseTagSection);
+    parseChildren(element, params, VKBTagSection, &KeyboardData::parseTagSection);
 
     currentLayout->sections = currentLayout->sectionMap.values();
 }
@@ -471,7 +471,7 @@ void KeyboardData::parseTagSection(const QDomElement &element, ParseParameters &
     section->sectionType = (element.attribute(VKBTagType) == VKBTagTypeNonsloppy) ? LayoutSection::NonSloppy : LayoutSection::Sloppy;
     params.currentSection = section;
     currentLayout->sectionMap.insert(section->sectionName, section);
-    parseChildren(element, params, &VKBTagRow, &KeyboardData::parseTagRow);
+    parseChildren(element, params, VKBTagRow, &KeyboardData::parseTagRow);
 }
 
 void KeyboardData::parseTagRow(const QDomElement &element, ParseParameters &params)
@@ -482,8 +482,8 @@ void KeyboardData::parseTagRow(const QDomElement &element, ParseParameters &para
     params.currentRow = row;
 
     parseChildren(element, params,
-                  &VKBTagKey, &KeyboardData::parseTagKey,
-                  &VKBTagSpacer, &KeyboardData::parseTagSpacer);
+                  VKBTagKey, &KeyboardData::parseTagKey,
+                  VKBTagSpacer, &KeyboardData::parseTagSpacer);
 
     params.currentSection->mMaxColumns = qMax(params.currentSection->maxColumns(),
                                               row->keys.size());
@@ -531,7 +531,7 @@ void KeyboardData::parseTagKey(const QDomElement &element, ParseParameters &para
     params.currentKey = key;
     params.currentRow->keys.append(key);
 
-    parseChildren(element, params, &VKBTagBinding, &KeyboardData::parseTagBinding);
+    parseChildren(element, params, VKBTagBinding, &KeyboardData::parseTagBinding);
 
     if (key->bindings[1] == NULL) {
         key->bindings[1] = key->bindings[0];
