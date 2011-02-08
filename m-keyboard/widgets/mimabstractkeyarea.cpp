@@ -954,7 +954,7 @@ QPoint MImAbstractKeyArea::correctedTouchPoint(const QPointF &scenePos) const
 QRectF MImAbstractKeyArea::correctedReactionRect(const QRectF &originalRect) const
 {
     QRectF rect = originalRect;
-    float offset = baseStyle()->touchpointVerticalOffset();
+    const qreal offset = baseStyle()->touchpointVerticalOffset();
 
     if (rect.top() >= offset) {
         rect.setTop(rect.top() + offset);
