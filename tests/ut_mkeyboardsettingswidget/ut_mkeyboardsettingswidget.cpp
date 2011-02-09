@@ -106,6 +106,18 @@ void Ut_MKeyboardSettingsWidget::testShowKeyboardList()
     bool firstItemIsSelected = subject->keyboardList->selectionModel()->selectedRows().contains(subject->keyboardList->itemModel()->index(0,0));
     subject->keyboardList->selectItem(subject->keyboardList->itemModel()->index(0,0));
     QMap<QString, QString> newSelectedKeyboards = settingsObject->selectedKeyboards();
+    // The changes are not committed if the dialog is rejected
+    QCOMPARE(newSelectedKeyboards.count(), selectedKeyboards.count());
+    subject->keyboardDialog->reject();
+    newSelectedKeyboards = settingsObject->selectedKeyboards();
+    QCOMPARE(newSelectedKeyboards.count(), selectedKeyboards.count());
+    // Open the dialog again
+    subject->selectedKeyboardsItem->click();
+    // Select the item again
+    subject->keyboardList->selectItem(subject->keyboardList->itemModel()->index(0,0));
+    // Accept the dialog content
+    subject->keyboardDialog->accept();
+    newSelectedKeyboards = settingsObject->selectedKeyboards();
     if (firstItemIsSelected) {
         QCOMPARE(newSelectedKeyboards.count(), selectedKeyboards.count() - 1);
     } else {
