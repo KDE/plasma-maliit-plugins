@@ -22,6 +22,7 @@
 #include <QDir>
 #include <QDomDocument>
 #include <QFile>
+#include <QSet>
 
 
 namespace
@@ -124,6 +125,9 @@ struct ParseParameters {
 
     //! Contains true if current XML tag was successfully parsed
     bool validTag;
+
+    //! Contains key identifiers for current section
+    QSet<QString> keyIds;
 
     const QString *fileName;
 
@@ -470,6 +474,7 @@ void KeyboardData::parseTagSection(const QDomElement &element, ParseParameters &
     section->sectionName = element.attribute(VKBTagID);
     section->sectionType = (element.attribute(VKBTagType) == VKBTagTypeNonsloppy) ? LayoutSection::NonSloppy : LayoutSection::Sloppy;
     params.currentSection = section;
+    params.keyIds.clear();
     currentLayout->sectionMap.insert(section->sectionName, section);
     parseChildren(element, params, VKBTagRow, &KeyboardData::parseTagRow);
 }
@@ -526,6 +531,16 @@ void KeyboardData::parseTagKey(const QDomElement &element, ParseParameters &para
     const bool isRtl = toBoolean(element.attribute(RtlString, RtlStringDefValue));
     const bool isFixed = toBoolean(element.attribute(FixedString, FixedStringDefValue));
     const QString keyId = element.attribute(KeyIdString);
+
+    if (!keyId.isEmpty()) {
+        if (params.keyIds.contains(keyId)) {
+            qWarning() << "Invalid virtual keyboard layout file" << *params.fileName
+                       << "contains key id" << keyId
+                       << "more than one time. Only last key will be registered with this id.";
+        } else {
+            params.keyIds.insert(keyId);
+        }
+    }
 
     MImKeyModel *key = new MImKeyModel(type, widthType, isFixed, isRtl, keyId);
     params.currentKey = key;
