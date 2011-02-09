@@ -68,7 +68,6 @@ namespace
     const QRegExp AutoCapsTrigger("[.?!¡¿] +$");
     const QString AutoPunctuationTriggers(".,?!");
     const int MaximumErrorCorrectionCandidate = 5;
-    const int RotationDuration = 750; //! After vkb hidden, how long to wait until shown again
     const int AutoBackspaceDelay = 500;      // in ms
     const int LongPressTime = 600;           // in ms
     const int BackspaceRepeatInterval = 100; // in ms
@@ -201,7 +200,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
       inputMethodCorrectionSettings(new MGConfItem(CorrectionSetting)),
       inputMethodCorrectionSettingsSpace(new MGConfItem(CorrectionSettingWithSpace)),
       inputMethodCorrectionEngine(new MGConfItem(InputMethodCorrectionEngine)),
-      rotationInProgress(false),
       correctionEnabled(false),
       correctionAcceptedWithSpaceEnabled(false),
       autoCapsEnabled(true),
@@ -378,6 +376,9 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
             this, SLOT(handleLongKeyPress(const KeyEvent &)));
 
     sharedHandleArea->watchOnWidget(symbolView);
+
+    connect(MPlainWindow::instance()->sceneManager(), SIGNAL(orientationChangeFinished(M::Orientation)),
+            this, SLOT(orientationChangeFinished(M::Orientation)));
 
     connect(vkbWidget, SIGNAL(layoutChanged(const QString &)),
             this, SLOT(handleVirtualKeyboardLayoutChanged(const QString &)));
@@ -887,25 +888,20 @@ void MKeyboardHost::resetInternalState()
 
 void MKeyboardHost::prepareOrientationChange()
 {
-    if (rotationInProgress) {
-        return;
-    }
-    rotationInProgress = true;
+    // Suppress layout change noise during orientation change.
+    RegionTracker::instance().enableSignals(false);
 
-    // Saves states then hide
     symbolView->prepareToOrientationChange();
     vkbWidget->prepareToOrientationChange();
     correctionHost->prepareToOrientationChange();
-    MPlainWindow::instance()->sceneManager()->disappearSceneWindowNow(sceneWindow);
+}
+
+void MKeyboardHost::orientationChangeFinished(M::Orientation) {
+    finalizeOrientationChange();
 }
 
 void MKeyboardHost::finalizeOrientationChange()
 {
-    if (!rotationInProgress)
-        return;
-
-    MPlainWindow::instance()->sceneManager()->appearSceneWindowNow(sceneWindow);
-
     if (imToolbar) {
         // load proper layout
         imToolbar->finalizeOrientationChange();
@@ -940,7 +936,8 @@ void MKeyboardHost::finalizeOrientationChange()
     if (vkbWidget->isVisible()) {
         updateEngineKeyboardLayout();
     }
-    rotationInProgress = false;
+    // Reactivate tracker after rotation and layout has settled.
+    RegionTracker::instance().enableSignals(true);
 }
 
 void MKeyboardHost::handleMouseClickOnPreedit(const QPoint &mousePos, const QRect &preeditRect)
@@ -976,26 +973,30 @@ void MKeyboardHost::handleVisualizationPriorityChange(bool priority)
 
 void MKeyboardHost::handleAppOrientationAboutToChange(int angle)
 {
-    if (MPlainWindow::instance()->sceneManager()->orientationAngle()== static_cast<M::OrientationAngle>(angle))
+    if (MPlainWindow::instance()->sceneManager()->orientationAngle() == static_cast<M::OrientationAngle>(angle)) {
         return;
+    }
+
+    prepareOrientationChange();
 
     // The application receiving input has changed its orientation. Let's change ours.
-    // Disable  the transition animation for rotation.
+    // Disable the transition animation for rotation so that we can rotate fast and get
+    // the right snapshot for the rotation animation.
     MPlainWindow::instance()->sceneManager()->setOrientationAngle(static_cast<M::OrientationAngle>(angle),
                                                                   MSceneManager::ImmediateTransition);
-    prepareOrientationChange();
 }
 
 void MKeyboardHost::handleAppOrientationChanged(int angle)
 {
-    const M::OrientationAngle orientationAngle = static_cast<M::OrientationAngle>(angle);
-    if (orientationAngle != MPlainWindow::instance()->orientationAngle()) {
+    // We'll get this call on first display of the vkb without a previous
+    // handleAppOrientationAboutToChange. So, make sure our internal orientation is in sync
+    // with the application's by going through the rotation explicitly (without animation).
+
+    M::OrientationAngle newAngle = static_cast<M::OrientationAngle>(angle);
+    if (newAngle != MPlainWindow::instance()->sceneManager()->orientationAngle()) {
         handleAppOrientationAboutToChange(angle);
     }
-
-    finalizeOrientationChange();
 }
-
 
 void MKeyboardHost::commitString(const QString &updatedString)
 {

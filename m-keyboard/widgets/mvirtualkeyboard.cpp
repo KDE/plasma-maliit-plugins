@@ -164,6 +164,9 @@ MVirtualKeyboard::prepareToOrientationChange()
 void
 MVirtualKeyboard::finalizeOrientationChange()
 {
+    M::Orientation newOrientation = sceneManager->orientation();
+    organizeContent(newOrientation);
+    ReactionMapPainter::instance().repaint();
 }
 
 void
@@ -291,12 +294,19 @@ void MVirtualKeyboard::organizeContent(M::Orientation orientation, const bool fo
     }
     if (currentOrientation != orientation) {
         currentOrientation = orientation;
-
         // Reload for portrait/landscape
         int index = mainKeyboardSwitcher->current();
-        recreateKeyboards();
-        mainKeyboardSwitcher->setCurrent(index);
+        // RecreateKeyboards() will lead to all slides being removed from switcher and a call to updateGeometry().
+        // So we need to set the new preferredWidth first.
         mainKeyboardSwitcher->setPreferredWidth(MPlainWindow::instance()->visibleSceneSize().width());
+        recreateKeyboards();
+        // Since all keyboards were reset, we reactive the current keyboard and adjust its size.
+        mainKeyboardSwitcher->setCurrent(index);
+
+        // After orientation change, our size doesn't get updated properly
+        // this leads to only left part of the vkb to be displayed when rotating
+        // from portrait to landscape. Adjusting size here explicitly.
+        adjustSize();
     }
 }
 
