@@ -563,8 +563,10 @@ void MImKey::setMargins(qreal left,
 
 void MImKey::setSecondaryLabelEnabled(bool enable)
 {
-    rowHasSecondaryLabel = enable;
-    invalidateLabelPos();
+    if (rowHasSecondaryLabel != enable) {
+        rowHasSecondaryLabel = enable;
+        invalidateLabelPos();
+    }
 }
 
 const QRectF & MImKey::labelRect() const
