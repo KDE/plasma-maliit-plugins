@@ -48,6 +48,7 @@ public:
     virtual QRectF boundingRect() const;
     virtual void setShiftState(ModifierState newShiftState);
     virtual QList<const MImAbstractKey *> keys() const;
+    virtual MImKey * findKey(const QString &id);
     //! \reimp_end
 
 protected:
@@ -94,6 +95,13 @@ private:
     //! \param painter the painter to be used
     void drawDebugReactiveAreas(QPainter *painter);
 
+    //! \brief Clears all information about key identifiers
+    void clearKeyIds();
+
+    //! \brief Register new key having identifier
+    //! \param key Pointer to key which id should be registered
+    void registerKeyId(MImKey *key);
+
     //! \brief Helper struct to store a row of keys.
     struct KeyRow {
         QList<MImKey*> keys; //!< keys in a row
@@ -112,6 +120,7 @@ private:
     bool equalWidthKeys; //!< whether to assume equal width for all keys
     int WidthCorrection; //!< width correction for Arabic layouts
     QSharedPointer<MImKey::StylingCache> stylingCache; //!< Cached information about current styling
+    QList<MImKey *> idToKey; //!< Contains information about keys which have identifiers
 
 #ifdef UNIT_TEST
     friend class Ut_MImAbstractKeyArea;

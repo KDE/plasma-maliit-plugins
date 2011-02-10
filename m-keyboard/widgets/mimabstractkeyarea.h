@@ -72,6 +72,9 @@ public:
     //! \brief Returns all keys from this key area.
     virtual QList<const MImAbstractKey *> keys() const = 0;
 
+    //! \brief Returns key with given \a id
+    virtual MImAbstractKey * findKey(const QString &id) = 0;
+
     //! \brief Notification for derived classes about button modifier change.
     //!
     //! Derived classes should not change the level of selected dead keys. This is to

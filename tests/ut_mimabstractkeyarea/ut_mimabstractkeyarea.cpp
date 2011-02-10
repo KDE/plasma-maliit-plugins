@@ -524,6 +524,12 @@ void Ut_MImAbstractKeyArea::testKeyId()
 
     const MImAbstractKey *dotKey(keyAt(3, 5));
     QCOMPARE(dotKey->model().id(), QString());
+
+    MImAbstractKey *found = subject->findKey("invalid-id");
+    QVERIFY(found == 0);
+
+    found = subject->findKey("actionKey");
+    QVERIFY(found == enterKey);
 }
 
 void Ut_MImAbstractKeyArea::testImportedLayouts_data()

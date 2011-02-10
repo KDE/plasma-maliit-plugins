@@ -347,6 +347,7 @@ MImKeyArea::~MImKeyArea()
         qDeleteAll(rowIter->keys);
         rowIter->keys.clear();
     }
+    clearKeyIds();
 }
 
 QSizeF MImKeyArea::sizeHint(Qt::SizeHint which,
@@ -404,6 +405,10 @@ void MImKeyArea::loadKeys()
             // Parameters to fetch from base class.
             MImKeyModel *dataKey = sectionModel()->keyModel(row, col);
             MImKey *key = new MImKey(*dataKey, baseStyle(), *this, stylingCache);
+
+            if (!key->model().id().isEmpty()) {
+                registerKeyId(key);
+            }
 
             // Temporary, dirty workaround-hack to detect Arabic layouts
             // because the QTextLayout rendering is broken with Arabic characters and
@@ -775,3 +780,38 @@ QList<const MImAbstractKey *> MImKeyArea::keys() const
 
     return keyList;
 }
+
+MImKey * MImKeyArea::findKey(const QString &id)
+{
+    MImKey *key = 0;
+
+    for (QList<MImKey *>::const_iterator iterator = idToKey.begin();
+         iterator != idToKey.end();
+         ++iterator) {
+        if ((*iterator)->model().id() == id) {
+            key = *iterator;
+            break;
+        }
+    }
+
+    return key;
+}
+
+void MImKeyArea::clearKeyIds()
+{
+    idToKey.clear();
+}
+
+void MImKeyArea::registerKeyId(MImKey *key)
+{
+    for (QList<MImKey *>::iterator iterator = idToKey.begin();
+         iterator != idToKey.end();
+         ++iterator) {
+        if ((*iterator)->model().id() == key->model().id()) {
+            *iterator = key;
+            return;
+        }
+    }
+    idToKey.append(key);
+}
+

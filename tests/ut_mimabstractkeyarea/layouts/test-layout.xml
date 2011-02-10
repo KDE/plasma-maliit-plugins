@@ -42,7 +42,7 @@
               <binding accented_labels="óö" accents="´¨" label="o"/>
               <binding shift="true" accented_labels="ÓÖ" accents="´¨" label="O"/>
             </key>
-            <key>
+            <key id="actionKey">
               <binding label="p"/>
               <binding shift="true" label="P"/>
             </key>
