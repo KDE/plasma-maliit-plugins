@@ -493,8 +493,10 @@ void MImKeyArea::paint(QPainter *painter,
     }
 
     // Draw text next.
+    // We use QGraphicsView::DontSavePainterState, so save/restore state manually
+    // Not strictly needed at the moment, but prevents subtle breakage later
+    painter->save();
     painter->setPen(style->fontColor());
-    painter->setFont(style->font());
     foreach (const KeyRow &row, rowList) {
         // rowHasSecondaryLabel is needed for the vertical alignment of
         // secondary label purposes.
@@ -507,6 +509,7 @@ void MImKeyArea::paint(QPainter *painter,
         }
 
         foreach (MImKey *key, row.keys) {
+            painter->setFont(key->font());
             key->setSecondaryLabelEnabled(rowHasSecondaryLabel);
 
             QRectF rect = mapFromItem(key, key->labelRect()).boundingRect();
@@ -523,6 +526,7 @@ void MImKeyArea::paint(QPainter *painter,
             }
         }
     }
+    painter->restore();
 
     mTimestamp("MImKeyArea", "end");
 }
@@ -753,10 +757,11 @@ void MImKeyArea::onThemeChangeCompleted()
     stylingCache->primary   = QFontMetrics(baseStyle()->font());
     stylingCache->secondary = QFontMetrics(baseStyle()->secondaryFont());
 
-    foreach (const MImAbstractKey *abstractKey, keys()) {
-        const MImKey *key = dynamic_cast<const MImKey*>(abstractKey);
-        if (key) {
-            key->invalidateLabelPos();
+    foreach (const KeyRow &row, rowList) {
+        foreach (MImKey *key, row.keys) {
+            if (key) {
+                key->invalidateLabelPos();
+            }
         }
     }
 

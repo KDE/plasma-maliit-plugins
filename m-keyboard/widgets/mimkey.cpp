@@ -35,6 +35,40 @@ namespace {
         const qreal scaling = qMax<qreal>(0.0, newScaling);
         return ((scaling * unit) + (qMax<qreal>(0.0, scaling - 1) * spacing));
     }
+
+    // Modify font to make text fit into boundingRect
+    // TODO: Could be optimized to use a binary search.
+    void scaleDownFont(QFont *font, const QString& text, const QRect& boundingRect)
+    {
+        // Fonts can either be specified in points or pixels
+        int fontSize = font->pixelSize();
+        const bool usesPixelSize = (fontSize == -1) ? false : true;
+
+        if (!usesPixelSize) {
+            fontSize = font->pointSize();
+            Q_ASSERT(fontSize != -1);
+        }
+
+        // Minimum font size is 1
+        while (fontSize > 1) {
+            if (usesPixelSize) {
+                font->setPixelSize(fontSize);
+            }
+            else {
+                font->setPointSize(fontSize);
+            }
+
+            const QFontMetrics fontMetrics(*font);
+            const QRect textBounds = fontMetrics.boundingRect(text);
+
+            if (textBounds.width() <= boundingRect.width()
+                && textBounds.height() <= boundingRect.height()) {
+                break;
+            }
+            --fontSize;
+        }
+
+    }
 }
 
 MImKey::StylingCache::StylingCache()
@@ -103,6 +137,7 @@ MImKey::MImKey(const MImKeyModel &newModel,
         loadIcon(true);
     }
 
+    labelFont = style->font();
     hide();
 
     //label position should be computed later, when geometry will be known
@@ -142,10 +177,20 @@ void MImKey::updateGeometryCache()
                                                          -g.marginRight, -g.marginBottom);
 }
 
-void MImKey::invalidateLabelPos() const
+void MImKey::invalidateLabelPos()
 {
     labelArea = QRectF();
     secondaryLabelArea = QRectF();
+
+    updateLabelFont();
+}
+
+void MImKey::updateLabelFont()
+{
+    // Use a maximum label rectangle that is a bit smaller than the button
+    const QRect maximumLabelRect = buttonRect().adjusted(0, 0, -10, -5).toRect();
+    labelFont = styleContainer->font();
+    scaleDownFont(&labelFont, label(), maximumLabelRect);
 }
 
 void MImKey::updateLabelPos() const
@@ -404,6 +449,10 @@ QRectF MImKey::boundingRect() const
 void MImKey::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
     mTimestamp("MImKey", "start");
+
+    // We use QGraphicsView::DontSavePainterState, so save/restore state manually
+    // Not strictly needed at the moment, but prevents subtle breakage later
+    painter->save();
     const MScalableImage *background = backgroundImage();
     const QRectF paintingArea(currentGeometry.marginLeft,
                               currentGeometry.marginTop,
@@ -420,7 +469,7 @@ void MImKey::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget 
                         paintingArea.top() + (paintingArea.height() - iconPixmap->height()) / 2);
         painter->drawPixmap(iconPos, *iconPixmap);
     } else {
-        painter->setFont(styleContainer->font());
+        painter->setFont(font());
         painter->setPen(styleContainer->fontColor());
         painter->drawText(labelArea, Qt::AlignCenter, label());
         if (!secondaryLabel().isEmpty()) {
@@ -428,6 +477,7 @@ void MImKey::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget 
             painter->drawText(secondaryLabelArea, Qt::AlignCenter, secondaryLabel());
         }
     }
+    painter->restore();
     mTimestamp("MImKey", "end");
 }
 
@@ -639,3 +689,7 @@ const MImKey::IconInfo &MImKey::iconInfo() const
     return (shift ? upperCaseIcon : lowerCaseIcon);
 }
 
+const QFont &MImKey::font() const
+{
+    return labelFont;
+}

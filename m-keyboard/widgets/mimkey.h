@@ -154,11 +154,14 @@ public:
     const QRectF & secondaryLabelRect() const;
 
     //! \brief Invalidates cached position, so next call to getter will calculate it again
-    void invalidateLabelPos() const;
+    void invalidateLabelPos();
 
     //! \brief Updates cached geometry.
     //! This method must be called when position or size of this key is changed.
     void updateGeometryCache();
+
+    //! \brief Return the font of this key.
+    const QFont &font() const;
 
     //! The width for this button. Not managed by this class.
     //! It is used by MImKeyArea to store the correct button size.
@@ -183,6 +186,8 @@ private:
     const IconInfo &iconInfo() const;
     //! \brief Update cached label position.
     void updateLabelPos() const;
+    //! \brief Update label font.
+    void updateLabelFont();
 
     const MImKeyModel &mModel;
 
@@ -216,6 +221,9 @@ private:
     mutable QRectF labelArea;
     //! Cached position of secondary label
     mutable QRectF secondaryLabelArea;
+
+    //! Primary label font
+    QFont labelFont;
 
     const QSharedPointer<StylingCache> stylingCache;
 };
