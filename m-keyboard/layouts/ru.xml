@@ -21,8 +21,8 @@
           <binding shift="true" label="К"/>
         </key>
         <key>
-          <binding label="е" extended_labels="ë"/>
-          <binding shift="true" label="Е" extended_labels="Ë"/>
+          <binding label="е" extended_labels="&#x0451;"/>
+          <binding shift="true" label="Е" extended_labels="&#x0401;"/>
         </key>
         <key>
           <binding label="н"/>
