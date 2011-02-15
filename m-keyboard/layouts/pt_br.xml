@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
-<keyboard title="Português-Brazil" version="1.0" catalog="pt_br" language="pt_br">
+<keyboard title="Português- Brasil" version="1.0" catalog="pt_br" language="pt_br">
     <import file="pt.xml"/>
 </keyboard>
