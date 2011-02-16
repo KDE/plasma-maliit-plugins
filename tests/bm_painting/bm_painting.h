@@ -28,6 +28,7 @@ class KeyboardData;
 class MSceneWindow;
 class LoggingWindow;
 class MImAbstractKey;
+class MImKeyArea;
 class QWidget;
 
 class Bm_Painting : public QObject
@@ -35,8 +36,6 @@ class Bm_Painting : public QObject
     Q_OBJECT
 private:
     MApplication *app;
-    MImAbstractKeyArea *subject;
-    KeyboardData *keyboard;
     MSceneWindow *sceneWindow;
     LoggingWindow *window;
     QWidget *widget;
@@ -47,12 +46,17 @@ private slots:
     void initTestCase();
     void cleanupTestCase();
 
-    void benchmarkPaint_data();
-    void benchmarkPaint();
+    void benchmarkPaintDuringKeyPresses_data();
+    void benchmarkPaintDuringKeyPresses();
+
+    void benchmarkPaintDuringHorizontalLayoutChange_data();
+    void benchmarkPaintDuringHorizontalLayoutChange();
 
 private:
-    QSize defaultLayoutSize();
-    MImAbstractKey *keyAt(unsigned int row, unsigned int column) const;
+    void commonDataSetup(const QString& testcaseName);
+    void commonWindowSetup(bool hardwareRendering, bool compositing);
+    QSize defaultLayoutSize(MImKeyArea *keyArea);
+    MImAbstractKey *keyAt(MImKeyArea *keyArea, unsigned int row, unsigned int column) const;
 };
 
 #endif

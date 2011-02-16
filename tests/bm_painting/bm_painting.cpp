@@ -21,6 +21,7 @@
 #include "mimkeyarea.h"
 #include "keyboarddata.h"
 #include "utils.h"
+#include "horizontalswitcher.h"
 
 // this test could not be compiled for Windows
 #include <time.h>
@@ -60,17 +61,14 @@ void Bm_Painting::cleanupTestCase()
 
 void Bm_Painting::init()
 {
-    keyboard = 0;
-    subject = 0;
+    sceneWindow = 0;
+    window = 0;
+    widget = 0;
+    app = 0;
 }
 
 void Bm_Painting::cleanup()
 {
-    delete subject;
-    subject = 0;
-    delete keyboard;
-    keyboard = 0;
-
     delete sceneWindow;
     sceneWindow = 0;
     delete window;
@@ -92,19 +90,19 @@ void Bm_Painting::cleanup()
  *     * <unset> - perform tests with and without hardware acceleration
  *     * true - perform tests with hardware acceleration
  *     * any other - perform tests without hardware acceleration
- * DELAY defines duration of one step in test case. Default value is 750 
- * milliseconds.
+ * DELAY defines duration of one step in test case. Default value is DefaultDelay
  */
-void Bm_Painting::benchmarkPaint_data()
+void Bm_Painting::commonDataSetup(const QString& testcaseName)
 {
     QDir dir("/usr/share/meegotouch/virtual-keyboard/layouts/");
     QStringList filters;
     QFileInfoList files;
     QFileInfo info;
     QString resultFilenames[2][2];
-    QString fileNameTemplate(QString("%1/%2/%3-%4").arg(QDir::homePath())
+    QString fileNameTemplate(QString("%1/%2/%3-%4-%5").arg(QDir::homePath())
                                                    .arg(MImUserDirectory)
-                                                   .arg(QCoreApplication::applicationPid()));
+                                                   .arg(QCoreApplication::applicationPid())
+                                                   .arg(testcaseName));
     int hwMin = 0;
     int hwMax = 1;
     int compositeMin = 0;
@@ -145,8 +143,9 @@ void Bm_Painting::benchmarkPaint_data()
         for (int hw = hwMin; hw <= hwMax; ++hw) {
             for (int n = files.count() - 1; n >= 0; --n) {
                 info = files.at(n);
-                QString caseName = QString("file=%1 composite=%2 hw=%3 results=%4").arg(info.fileName()).arg(composite).arg(hw).
-                    arg(resultFilenames[hw][composite]);
+                QString caseName = QString("%1: file=%2 composite=%3 hw=%4 results=%5").arg(testcaseName).
+                                arg(info.fileName()).arg(composite).arg(hw).
+                                arg(resultFilenames[hw][composite]);
                 QTest::newRow(caseName.toLatin1().constData()) << info.fileName()
                                                                << bool(hw)
                                                                << bool(composite)
@@ -157,14 +156,10 @@ void Bm_Painting::benchmarkPaint_data()
     }
 }
 
-void Bm_Painting::benchmarkPaint()
+// Sets up widget, window, app, sceneWindow
+// Cleanup handled by ::cleanup()
+void Bm_Painting::commonWindowSetup(bool hardwareRendering, bool compositing)
 {
-    QFETCH(QString, filename);
-    QFETCH(bool, hardwareRendering);
-    QFETCH(bool, compositing);
-    QFETCH(QString, resultFilename);
-    QFETCH(int, delay);
-
     gArgc = hardwareRendering ? 1 : 2;
 
     app = new MApplication(gArgc, gArgv);
@@ -191,11 +186,29 @@ void Bm_Painting::benchmarkPaint()
     window->setSceneRect(0, 0, w, h);
 
     widget->resize(sceneSize);
-    keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard(filename));
-    subject = new MImKeyArea(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection));
+}
 
-    subject->resize(defaultLayoutSize());
+void Bm_Painting::benchmarkPaintDuringKeyPresses_data()
+{
+    commonDataSetup("benchmarkPaintDuringKeyPresses");
+}
+
+void Bm_Painting::benchmarkPaintDuringKeyPresses()
+{
+    QFETCH(QString, filename);
+    QFETCH(bool, hardwareRendering);
+    QFETCH(bool, compositing);
+    QFETCH(QString, resultFilename);
+    QFETCH(int, delay);
+
+    // Setup
+    commonWindowSetup(hardwareRendering, compositing);
+
+    KeyboardData *keyboard = new KeyboardData;
+    QVERIFY(keyboard->loadNokiaKeyboard(filename));
+    MImKeyArea *subject = new MImKeyArea(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection));
+
+    subject->resize(defaultLayoutSize(subject));
 
     PaintRunner runner;
     window->scene()->addItem(&runner);
@@ -203,12 +216,13 @@ void Bm_Painting::benchmarkPaint()
 
     subject->setParentItem(&runner);
 
-    MImKey *key0 = dynamic_cast<MImKey *>(keyAt(0, 0));
-    MImKey *key1 = dynamic_cast<MImKey *>(keyAt(1, 3));
-    MImKey *key2 = dynamic_cast<MImKey *>(keyAt(2, 6));
+    MImKey *key0 = dynamic_cast<MImKey *>(keyAt(subject, 0, 0));
+    MImKey *key1 = dynamic_cast<MImKey *>(keyAt(subject, 1, 3));
+    MImKey *key2 = dynamic_cast<MImKey *>(keyAt(subject, 2, 6));
 
     QVERIFY(key0);
     QVERIFY(key1);
+    QVERIFY(key2);
 
     const QPoint point0 = key0->buttonBoundingRect().center().toPoint();
     const QPoint point1 = key1->buttonBoundingRect().center().toPoint();
@@ -264,6 +278,7 @@ void Bm_Painting::benchmarkPaint()
     plannedEvents << eventList;
     eventList.clear();
 
+    // Execute test
     window->loggingEnabled = true;
     foreach (eventList, plannedEvents) {
         foreach (const QTouchEvent::TouchPoint &event, eventList) {
@@ -281,34 +296,88 @@ void Bm_Painting::benchmarkPaint()
     }
     window->loggingEnabled = false;
 
+    // Cleanup
     window->writeResults(resultFilename);
 
     subject->setParentItem(0);
+    delete subject;
+    delete keyboard;
 }
 
-QSize Bm_Painting::defaultLayoutSize()
+void Bm_Painting::benchmarkPaintDuringHorizontalLayoutChange_data()
+{
+    commonDataSetup("benchmarkPaintDuringHorizontalLayoutChange");
+}
+
+void Bm_Painting::benchmarkPaintDuringHorizontalLayoutChange()
+{
+    QFETCH(QString, filename);
+    QFETCH(bool, hardwareRendering);
+    QFETCH(bool, compositing);
+    QFETCH(QString, resultFilename);
+    QFETCH(int, delay);
+
+    HorizontalSwitcher::SwitchDirection direction = HorizontalSwitcher::Left;
+    int numberOfLayoutChanges = 5;
+
+    // Setup
+    commonWindowSetup(hardwareRendering, compositing);
+
+    KeyboardData *keyboardData = new KeyboardData;
+    QVERIFY(keyboardData->loadNokiaKeyboard(filename));
+    const LayoutData::SharedLayoutSection &section = keyboardData->
+            layout(LayoutData::General, M::Landscape)->
+            section(LayoutData::mainSection);
+
+    HorizontalSwitcher *subject = new HorizontalSwitcher();
+    MImKeyArea *keyArea = 0;
+    int numberOfKeyAreas = 5;
+    for(int i=0; i<numberOfKeyAreas; i++) {
+        keyArea = new MImKeyArea(section, false, subject); // FIXME: enable popup?
+        subject->addWidget(keyArea);
+    }
+    subject->setLooping(true);
+    subject->setCurrent(0);
+
+    subject->resize(defaultLayoutSize(keyArea));
+    PaintRunner runner;
+    window->scene()->addItem(&runner);
+    runner.update();
+    subject->setParentItem(&runner);
+
+    // Execute test
+    window->loggingEnabled = true;
+    for(int i=0; i<numberOfLayoutChanges; i++)
+    {
+        subject->switchTo(direction);
+        QTest::qWait(delay);
+    }
+    window->loggingEnabled = false;
+
+    // Cleanup
+    window->writeResults(resultFilename);
+
+    subject->setParentItem(0);
+    delete subject;
+    delete keyboardData;
+}
+
+QSize Bm_Painting::defaultLayoutSize(MImKeyArea *keyArea)
 {
     // Take visible scene size as layout size, but reduce keyboard's paddings first from its width.
     // The height value is ignored since MImAbstractKeyAreas determine their own height.
     return window->visibleSceneSize()
-            - QSize(subject->style()->paddingLeft() + subject->style()->paddingRight(), 0);
+            - QSize(keyArea->style()->paddingLeft() + keyArea->style()->paddingRight(), 0);
 }
 
-MImAbstractKey *Bm_Painting::keyAt(unsigned int row, unsigned int column) const
+MImAbstractKey *Bm_Painting::keyAt(MImKeyArea *keyArea, unsigned int row, unsigned int column) const
 {
     // If this fails there is something wrong with the test.
-    Q_ASSERT(subject
-             && (row < static_cast<unsigned int>(subject->rowCount()))
-             && (column < static_cast<unsigned int>(subject->sectionModel()->columnsAt(row))));
+    Q_ASSERT(keyArea
+             && (row < static_cast<unsigned int>(keyArea->rowCount()))
+             && (column < static_cast<unsigned int>(keyArea->sectionModel()->columnsAt(row))));
 
-    MImAbstractKey *key = 0;
-
-    MImKeyArea *buttonArea = dynamic_cast<MImKeyArea *>(subject);
-    if (buttonArea) {
-        key = buttonArea->rowList[row].keys[column];
-    }
-
-    return key;
+    return keyArea->rowList[row].keys[column];
 }
 
 QTEST_APPLESS_MAIN(Bm_Painting);
