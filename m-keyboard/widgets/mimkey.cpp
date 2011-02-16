@@ -70,7 +70,20 @@ namespace {
         }
 
     }
+
+    const char * const KeyBackground = "keyBackground";
+
+    const char * const SpecialStyleName = "Special";
+    const char * const DeadkeyStyleName = "Deadkey";
+    const char * const NormalStyleName = "";
+
+    const char * const NormalStateName = "";
+    const char * const PressedStateName = "Pressed";
+    const char * const SelectedStateName = "Selected";
+
+    const char * const HighlightedName = "Highlighted";
 }
+
 
 MImKey::StylingCache::StylingCache()
     : primary(QFont()),
@@ -391,58 +404,39 @@ bool MImKey::isGravityActive() const
 const MScalableImage * MImKey::backgroundImage() const
 {
     const MScalableImage *background = 0;
+    QString backgroundProperty(KeyBackground);
 
-    switch (state()) {
-
-        case MImAbstractKey::Normal:
-            switch (model().style()) {
-                case MImKeyModel::SpecialStyle:
-                    background = styleContainer->keyBackgroundSpecial();
-                    break;
-                case MImKeyModel::DeadkeyStyle:
-                    background = styleContainer->keyBackgroundDeadkey();
-                    break;
-                case MImKeyModel::NormalStyle:
-                default:
-                    background = styleContainer->keyBackground();
-                    break;
-            }
-            break;
-
-        case MImAbstractKey::Pressed:
-            switch (model().style()) {
-                case MImKeyModel::SpecialStyle:
-                    background = styleContainer->keyBackgroundSpecialPressed();
-                    break;
-                case MImKeyModel::DeadkeyStyle:
-                    background = styleContainer->keyBackgroundDeadkeyPressed();
-                    break;
-                case MImKeyModel::NormalStyle:
-                default:
-                    background = styleContainer->keyBackgroundPressed();
-                    break;
-            }
-            break;
-
-        case MImAbstractKey::Selected:
-            switch (model().style()) {
-                case MImKeyModel::SpecialStyle:
-                    background = styleContainer->keyBackgroundSpecialSelected();
-                    break;
-                case MImKeyModel::DeadkeyStyle:
-                    background = styleContainer->keyBackgroundDeadkeySelected();
-                    break;
-                case MImKeyModel::NormalStyle:
-                default:
-                    background = styleContainer->keyBackgroundSelected();
-                    break;
-            }
-            break;
-
-        default:
-            break;
+    switch (model().style()) {
+    case MImKeyModel::SpecialStyle:
+        backgroundProperty.append(SpecialStyleName);
+        break;
+    case MImKeyModel::DeadkeyStyle:
+        backgroundProperty.append(DeadkeyStyleName);
+        break;
+    case MImKeyModel::NormalStyle:
+    default:
+        backgroundProperty.append(NormalStateName);
+        break;
     }
 
+    switch (state()) {
+    case MImAbstractKey::Pressed:
+        backgroundProperty.append(PressedStateName);
+        break;
+    case MImAbstractKey::Selected:
+        backgroundProperty.append(SelectedStateName);
+        break;
+    case MImAbstractKey::Normal:
+    default:
+        backgroundProperty.append(NormalStateName);
+        break;
+    }
+
+    if (override && override->highlighted()) {
+        backgroundProperty.append(HighlightedName);
+    }
+
+    background = getCSSProperty<const MScalableImage *>(styleContainer, backgroundProperty, false);
     return background;
 }
 
@@ -788,9 +782,8 @@ void MImKey::updateOverrideAttributes(MKeyOverride::KeyOverrideAttributes change
         loadOverrideIcon();
     }
 
-    if (changedAttributes & MKeyOverride::Highlighted) {
-        //TODO: update highlighted style
-    }
+    // update() is enough for MKeyOverride::Highlighted
+    // and it will be called later in this method
 
     if (changedAttributes & MKeyOverride::Enabled) {
         //TODO: update enabled style

@@ -56,15 +56,30 @@ public:
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSelected, KeyBackgroundSelected)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundPressedSelected, KeyBackgroundPressedSelected)
 
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundHighlighted, KeyBackgroundHighlighted)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundPressedHighlighted, KeyBackgroundPressedHighlighted)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSelectedHighlighted, KeyBackgroundSelectedHighlighted)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundPressedSelectedHighlighted, KeyBackgroundPressedSelectedHighlighted)
+
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSpecial, KeyBackgroundSpecial)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSpecialPressed, KeyBackgroundSpecialPressed)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSpecialSelected, KeyBackgroundSpecialSelected)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSpecialPressedSelected, KeyBackgroundSpecialPressedSelected)
 
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSpecialHighlighted, KeyBackgroundSpecialHighlighted)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSpecialPressedHighlighted, KeyBackgroundSpecialPressedHighlighted)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSpecialSelectedHighlighted, KeyBackgroundSpecialSelectedHighlighted)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSpecialPressedSelectedHighlighted, KeyBackgroundSpecialPressedSelectedHighlighted)
+
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDeadkey, KeyBackgroundDeadkey)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDeadkeyPressed, KeyBackgroundDeadkeyPressed)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDeadkeySelected, KeyBackgroundDeadkeySelected)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDeadkeyPressedSelected, KeyBackgroundDeadkeyPressedSelected)
+
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDeadkeyHighlighted, KeyBackgroundDeadkeyHighlighted)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDeadkeyPressedHighlighted, KeyBackgroundDeadkeyPressedHighlighted)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDeadkeySelectedHighlighted, KeyBackgroundDeadkeySelectedHighlighted)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDeadkeyPressedSelectedHighlighted, KeyBackgroundDeadkeyPressedSelectedHighlighted)
 
     M_STYLE_ATTRIBUTE(bool, useFixedKeyWidth, UseFixedKeyWidth)
 

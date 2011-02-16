@@ -40,15 +40,30 @@ MImAbstractKeyAreaStyle {
     key-background-selected: "meegotouch-keyboard-key-selected" 15 15 15 15;
     key-background-pressed-selected: "meegotouch-keyboard-key-pressed-selected" 15 15 15 15;
 
+    key-background-highlighted: "meegotouch-keyboard-key-highlighted" 15 15 15 15;
+    key-background-pressed-highlighted: "meegotouch-keyboard-key-pressed-highlighted" 15 15 15 15;
+    key-background-selected-highlighted: "meegotouch-keyboard-key-selected-highlighted" 15 15 15 15;
+    key-background-pressed-selected-highlighted: "meegotouch-keyboard-key-pressed-selected-highlighted" 15 15 15 15;
+
     key-background-special: "meegotouch-keyboard-function-key" 15 15 15 15;
     key-background-special-pressed: "meegotouch-keyboard-function-key-pressed" 15 15 15 15;
     key-background-special-selected: "meegotouch-keyboard-function-key-selected" 15 15 15 15;
     key-background-special-pressed-selected: "meegotouch-keyboard-function-key-pressed-selected" 15 15 15 15;
 
+    key-background-special-highlighted: "meegotouch-keyboard-function-key-highlighted" 15 15 15 15;
+    key-background-special-pressed-highlighted: "meegotouch-keyboard-function-key-pressed-highlighted" 15 15 15 15;
+    key-background-special-selected-highlighted: "meegotouch-keyboard-function-key-selected-highlighted" 15 15 15 15;
+    key-background-special-pressed-selected-highlighted: "meegotouch-keyboard-function-key-pressed-selected-highlighted" 15 15 15 15;
+
     key-background-deadkey: "meegotouch-keyboard-key" 15 15 15 15;
     key-background-deadkey-pressed: "meegotouch-keyboard-key-pressed" 15 15 15 15;
     key-background-deadkey-selected: "meegotouch-keyboard-key-selected" 15 15 15 15;
     key-background-deadkey-pressed-selected: "meegotouch-keyboard-key-pressed-selected" 15 15 15 15;
+
+    key-background-deadkey-highlighted: "meegotouch-keyboard-key-highlighted" 15 15 15 15;
+    key-background-deadkey-pressed-highlighted: "meegotouch-keyboard-pressed-highlighted" 15 15 15 15;
+    key-background-deadkey-selected-highlighted: "meegotouch-keyboard-key-selected-highlighted" 15 15 15 15;
+    key-background-deadkey-pressed-selected-highlighted: "meegotouch-keyboard-key-pressed-selected-highlighted" 15 15 15 15;
 
     key-backspace-icon-id: "icon-m-input-methods-backspace";
     key-backspace-icon-size: 32 32;
