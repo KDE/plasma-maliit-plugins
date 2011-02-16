@@ -468,7 +468,7 @@ void MImKey::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget 
                         paintingArea.top() + (paintingArea.height() - overrideIcon->height()) / 2);
         painter->drawPixmap(iconPos, *overrideIcon);
 
-    } else if (iconPixmap) {
+    } else if (iconPixmap && (!override || override->label().isEmpty())) {
         QPointF iconPos(paintingArea.left() + (paintingArea.width() - iconPixmap->width()) / 2,
                         paintingArea.top() + (paintingArea.height() - iconPixmap->height()) / 2);
         painter->drawPixmap(iconPos, *iconPixmap);
