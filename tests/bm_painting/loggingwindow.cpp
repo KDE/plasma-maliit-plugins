@@ -49,7 +49,7 @@ inline bool operator!=(const timeval &x, const timeval &y)
 }
 
 LoggingWindow::LoggingWindow(QWidget *parent)
-    : MPlainWindow(parent),
+    : MWindow(parent),
       loggingEnabled(false)
 {
     log.reserve(10000);

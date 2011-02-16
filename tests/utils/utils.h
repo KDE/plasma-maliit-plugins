@@ -19,7 +19,7 @@
 
 #include "mimabstractkey.h"
 
-class MPlainWindow;
+class MWindow;
 class MSceneWindow;
 class QObject;
 
@@ -31,7 +31,7 @@ void waitForSignal(const QObject* object, const char* signal, int timeout = 500)
 
 #ifdef MEEGOTOUCH
 // Create a scene window, set it to manual managed, and appear it.
-MSceneWindow *createMSceneWindow(MPlainWindow *w);
+MSceneWindow *createMSceneWindow(MWindow *w);
 #endif
 
 // copy'n'paste from MImAbstractArea impl file, but counts visits, too:

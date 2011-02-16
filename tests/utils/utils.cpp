@@ -22,6 +22,7 @@
 #include <mplainwindow.h>
 #include <MSceneWindow>
 #include <MSceneManager>
+#include <MWindow>
 #endif
 #include <QObject>
 #include <QTimer>
@@ -62,7 +63,7 @@ void waitForSignal(const QObject* object, const char* signal, int timeout)
 
 // Create a scene window, set it to manual managed, and appear it.
 #ifdef MEEGOTOUCH
-MSceneWindow * createMSceneWindow(MPlainWindow *w)
+MSceneWindow * createMSceneWindow(MWindow *w)
 {
     MSceneWindow *sceneWindow = new MSceneWindow;
     sceneWindow->setManagedManually(true); // we want the scene window to remain in origin

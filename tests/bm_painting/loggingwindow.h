@@ -29,7 +29,7 @@
 #include <QVector>
 #include <QString>
 
-class LoggingWindow : public MPlainWindow
+class LoggingWindow : public MWindow
 {
 public:
     LoggingWindow(QWidget *parent);
