@@ -46,7 +46,7 @@ MImAbstractKeyAreaStyle {
     key-background-special-pressed-selected: "meegotouch-keyboard-function-key-pressed-selected" 15 15 15 15;
 
     key-background-deadkey: "meegotouch-keyboard-key" 15 15 15 15;
-    key-background-deadkey-pressed: "meegotouch-keyboard-pressed" 15 15 15 15;
+    key-background-deadkey-pressed: "meegotouch-keyboard-key-pressed" 15 15 15 15;
     key-background-deadkey-selected: "meegotouch-keyboard-key-selected" 15 15 15 15;
     key-background-deadkey-pressed-selected: "meegotouch-keyboard-key-pressed-selected" 15 15 15 15;
 
