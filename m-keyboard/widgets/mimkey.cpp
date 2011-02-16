@@ -80,6 +80,7 @@ namespace {
     const char * const NormalStateName = "";
     const char * const PressedStateName = "Pressed";
     const char * const SelectedStateName = "Selected";
+    const char * const DisabledStateName = "Disabled";
 
     const char * const HighlightedName = "Highlighted";
 }
@@ -278,6 +279,10 @@ void MImKey::setDownState(bool down)
 {
     ButtonState newState;
 
+    if (currentState == Disabled) {
+        return;
+    }
+
     if (down) {
         // Pressed state is the same for selectable and non-selectable.
         newState = Pressed;
@@ -302,7 +307,7 @@ void MImKey::setDownState(bool down)
 
 void MImKey::setSelected(bool select)
 {
-    if (selected != select) {
+    if (selected != select && currentState != Disabled) {
         selected = select;
 
         // refresh state
@@ -426,13 +431,16 @@ const MScalableImage * MImKey::backgroundImage() const
     case MImAbstractKey::Selected:
         backgroundProperty.append(SelectedStateName);
         break;
+    case MImAbstractKey::Disabled:
+        backgroundProperty.append(DisabledStateName);
+        break;
     case MImAbstractKey::Normal:
     default:
         backgroundProperty.append(NormalStateName);
         break;
     }
 
-    if (override && override->highlighted()) {
+    if (override && override->highlighted() && enabled()) {
         backgroundProperty.append(HighlightedName);
     }
 
@@ -539,9 +547,18 @@ QSharedPointer<MKeyOverride> MImKey::keyOverride() const
 
 void MImKey::resetKeyOverride()
 {
+    if (!override)
+        return;
+
+    invalidateLabelPos();
+    update();
     override.clear();
     delete overrideIcon;
     overrideIcon = 0;
+    if (currentState == Disabled) {
+        currentState = Normal;
+    }
+    setVisible(currentState != Normal);
 }
 
 const QPixmap *MImKey::icon() const
@@ -803,7 +820,12 @@ void MImKey::updateOverrideAttributes(MKeyOverride::KeyOverrideAttributes change
     // and it will be called later in this method
 
     if (changedAttributes & MKeyOverride::Enabled) {
-        //TODO: update enabled style
+        if (override->enabled()) {
+            currentState = Normal;
+        } else {
+            currentState = Disabled;
+            resetTouchPointCount();
+        }
     }
 
     if (isVisible()) {

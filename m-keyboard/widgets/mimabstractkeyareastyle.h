@@ -52,6 +52,7 @@ public:
     M_STYLE_ATTRIBUTE(qreal, keyHeightXxLarge, KeyHeightXxLarge)
 
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackground, KeyBackground)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDisabled, KeyBackgroundDisabled)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundPressed, KeyBackgroundPressed)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSelected, KeyBackgroundSelected)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundPressedSelected, KeyBackgroundPressedSelected)
@@ -62,6 +63,7 @@ public:
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundPressedSelectedHighlighted, KeyBackgroundPressedSelectedHighlighted)
 
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSpecial, KeyBackgroundSpecial)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSpecialDisabled, KeyBackgroundSpecialDisabled)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSpecialPressed, KeyBackgroundSpecialPressed)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSpecialSelected, KeyBackgroundSpecialSelected)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSpecialPressedSelected, KeyBackgroundSpecialPressedSelected)
@@ -72,6 +74,7 @@ public:
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSpecialPressedSelectedHighlighted, KeyBackgroundSpecialPressedSelectedHighlighted)
 
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDeadkey, KeyBackgroundDeadkey)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDeadkeyDisabled, KeyBackgroundDeadkeyDisabled)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDeadkeyPressed, KeyBackgroundDeadkeyPressed)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDeadkeySelected, KeyBackgroundDeadkeySelected)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDeadkeyPressedSelected, KeyBackgroundDeadkeyPressedSelected)

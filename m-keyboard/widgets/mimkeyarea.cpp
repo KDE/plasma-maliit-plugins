@@ -15,6 +15,7 @@
  */
 
 #include "mimkeyarea.h"
+#include "mimkeyvisitor.h"
 
 #include <QDebug>
 #include <QEvent>
@@ -829,18 +830,22 @@ void MImKeyArea::setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride
     for (QList<MImKey *>::const_iterator iterator = idToKey.begin();
          iterator != idToKey.end();
          ++iterator) {
-        if (overrides.contains((*iterator)->model().id())) {
-            QSharedPointer<MKeyOverride> override = overrides[(*iterator)->model().id()];
+        MImKey *key = *iterator;
+        if (overrides.contains(key->model().id())) {
+            QSharedPointer<MKeyOverride> override = overrides[key->model().id()];
             // change the im key according incoming overrides.
-            (*iterator)->setKeyOverride(override);
+            if (!override->enabled()) {
+                releaseKey(key);
+            }
+            key->setKeyOverride(override);
             connect(override.data(), SIGNAL(keyAttributesChanged(QString, MKeyOverride::KeyOverrideAttributes)),
                     this,            SLOT(updateKeyAttributes(QString, MKeyOverride::KeyOverrideAttributes)));
         } else {
-            if ((*iterator)->keyOverride()) {
+            if (key->keyOverride()) {
                 disconnect((*iterator)->keyOverride().data(), 0,
                             this,                             0);
             }
-            (*iterator)->resetKeyOverride();
+            key->resetKeyOverride();
         }
     }
 }
@@ -850,7 +855,28 @@ void MImKeyArea::updateKeyAttributes(const QString &keyId, MKeyOverride::KeyOver
     MImKey *key = static_cast<MImKey *>(findKey(keyId));
 
     if (key) {
+        if ((attributes & MKeyOverride::Enabled)) {
+            releaseKey(key);
+        }
+
         key->updateOverrideAttributes(attributes);
     }
+}
+
+void MImKeyArea::releaseKey(MImKey *key)
+{
+    qDebug() << __PRETTY_FUNCTION__ << key->touchPointCount() << key->enabled();
+    if (key->touchPointCount() <= 0 || key->enabled()) {
+        return;
+    }
+
+    MImKeyVisitor::SpecialKeyFinder finder;
+    MImAbstractKey::visitActiveKeys(&finder);
+    const bool hasActiveShiftKeys = (finder.shiftKey() != 0);
+
+    key->resetTouchPointCount();
+    emit keyReleased(key,
+                     (finder.deadKey() ? finder.deadKey()->label() : QString()),
+                     hasActiveShiftKeys || level() % 2);
 }
 

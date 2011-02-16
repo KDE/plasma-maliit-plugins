@@ -36,6 +36,7 @@ MImAbstractKeyAreaStyle {
     /*** Graphical assets ***/
     background-image: "meegotouch-keyboard-background" 15px 15px 15px 15px;
     key-background: "meegotouch-keyboard-key" 15 15 15 15;
+    key-background-disabled: "meegotouch-keyboard-key-disabled" 15 15 15 15;
     key-background-pressed: "meegotouch-keyboard-key-pressed" 15 15 15 15;
     key-background-selected: "meegotouch-keyboard-key-selected" 15 15 15 15;
     key-background-pressed-selected: "meegotouch-keyboard-key-pressed-selected" 15 15 15 15;
@@ -46,6 +47,7 @@ MImAbstractKeyAreaStyle {
     key-background-pressed-selected-highlighted: "meegotouch-keyboard-key-pressed-selected-highlighted" 15 15 15 15;
 
     key-background-special: "meegotouch-keyboard-function-key" 15 15 15 15;
+    key-background-special-disabled: "meegotouch-keyboard-function-key-disabled" 15 15 15 15;
     key-background-special-pressed: "meegotouch-keyboard-function-key-pressed" 15 15 15 15;
     key-background-special-selected: "meegotouch-keyboard-function-key-selected" 15 15 15 15;
     key-background-special-pressed-selected: "meegotouch-keyboard-function-key-pressed-selected" 15 15 15 15;
@@ -57,6 +59,7 @@ MImAbstractKeyAreaStyle {
 
     key-background-deadkey: "meegotouch-keyboard-key" 15 15 15 15;
     key-background-deadkey-pressed: "meegotouch-keyboard-key-pressed" 15 15 15 15;
+    key-background-deadkey-disabled: "meegotouch-keyboard-key-disabled" 15 15 15 15;
     key-background-deadkey-selected: "meegotouch-keyboard-key-selected" 15 15 15 15;
     key-background-deadkey-pressed-selected: "meegotouch-keyboard-key-pressed-selected" 15 15 15 15;
 

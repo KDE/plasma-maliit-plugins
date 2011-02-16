@@ -68,6 +68,9 @@ protected:
     virtual void applyStyle();
     //! \reimp_end
 
+    //! \brief Release given \a key if it is required by current attribure override
+    void releaseKey(MImKey *key);
+
 private:
     //! \brief Creates buttons for key data models.
     void loadKeys();

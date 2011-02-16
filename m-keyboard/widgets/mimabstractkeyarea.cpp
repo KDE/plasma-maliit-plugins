@@ -310,7 +310,7 @@ void MImAbstractKeyArea::mouseReleaseEvent(QGraphicsSceneMouseEvent *ev)
 void MImAbstractKeyArea::click(MImAbstractKey *key,
                                const QPoint &pos)
 {
-    if (!key) {
+    if (!key || !key->enabled()) {
         return;
     }
 
@@ -504,7 +504,7 @@ void MImAbstractKeyArea::touchPointPressed(const QTouchEvent::TouchPoint &tp)
         logTouchPoint(tp, key);
     }
 
-    if (!key) {
+    if (!key || !key->enabled()) {
         longPressTimer.stop();
         mTimestamp("MImAbstractKeyArea", "end");
         return;
@@ -517,6 +517,7 @@ void MImAbstractKeyArea::touchPointPressed(const QTouchEvent::TouchPoint &tp)
     const bool hasActiveShiftKeys = (finder.shiftKey() != 0);
 
     if (lastActiveKey
+        && lastActiveKey->enabled()
         && lastActiveKey->isNormalKey()
         && lastActiveKey->touchPointCount() > 0) {
         // TODO: play release sound? Potentially confusing to user, who
@@ -573,7 +574,8 @@ void MImAbstractKeyArea::touchPointMoved(const QTouchEvent::TouchPoint &tp)
         if (lookup.key) {
             updatePopup(lookup.key);
 
-            if (lookup.key->increaseTouchPointCount()
+            if (lookup.key->enabled()
+                && lookup.key->increaseTouchPointCount()
                 && lookup.key->touchPointCount() == 1) {
                 // Reaction map cannot discover when we move from one key
                 // (= reactive area) to another
@@ -587,6 +589,7 @@ void MImAbstractKeyArea::touchPointMoved(const QTouchEvent::TouchPoint &tp)
         }
 
         if (lookup.lastKey
+            && lookup.lastKey->enabled()
             && lookup.lastKey->decreaseTouchPointCount()
             && lookup.lastKey->touchPointCount() == 0) {
             emit keyReleased(lookup.lastKey,
@@ -595,7 +598,7 @@ void MImAbstractKeyArea::touchPointMoved(const QTouchEvent::TouchPoint &tp)
         }
     }
 
-    if (!lookup.key) {
+    if (!lookup.key || !lookup.key->enabled()) {
         longPressTimer.stop();
     }
 
@@ -623,6 +626,7 @@ void MImAbstractKeyArea::touchPointReleased(const QTouchEvent::TouchPoint &tp)
     const bool hasActiveShiftKeys = (finder.shiftKey() != 0);
 
     if (lookup.key
+        && lookup.key->enabled()
         && lookup.key->decreaseTouchPointCount()
         && lookup.key->touchPointCount() == 0) {
         longPressTimer.stop();
@@ -635,6 +639,7 @@ void MImAbstractKeyArea::touchPointReleased(const QTouchEvent::TouchPoint &tp)
 
     if (lookup.lastKey
         && lookup.lastKey != lookup.key
+        && lookup.lastKey->enabled()
         && lookup.lastKey->decreaseTouchPointCount()
         && lookup.lastKey->touchPointCount() == 0) {
         emit keyReleased(lookup.lastKey,

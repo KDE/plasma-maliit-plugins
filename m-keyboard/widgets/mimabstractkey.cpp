@@ -23,6 +23,18 @@ MImAbstractKey::~MImAbstractKey()
     activeKeys.removeAll(this);
 }
 
+bool MImAbstractKey::enabled() const
+{
+    bool result = true;
+    const QSharedPointer<MKeyOverride> override = keyOverride();
+
+    if (override) {
+        result = override->enabled();
+    }
+
+    return result;
+}
+
 MImAbstractKey* MImAbstractKey::lastActiveKey()
 {
     return (activeKeys.isEmpty() ? 0 : activeKeys.last());

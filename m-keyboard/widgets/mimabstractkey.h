@@ -46,7 +46,8 @@ public:
     enum ButtonState {
         Normal,  //! Normal is the "up" state for not selected buttons.
         Pressed, //! Button is Pressed when it's set down.
-        Selected //! Selected is the "up" state for selected buttons.
+        Selected, //! Selected is the "up" state for selected buttons.
+        Disabled, //! Button does not interact with user.
     };
 
     virtual ~MImAbstractKey();
@@ -128,6 +129,11 @@ public:
 
     //! \brief Reset any custom key override.
     virtual void resetKeyOverride() = 0;
+
+    //! \brief Return true if key should reach on touch events.
+    //! \sa setKeyOverride
+    //! \sa MKeyOverride
+    virtual bool enabled() const;
 
     //! \brief update custom key override attributes.
     virtual void updateOverrideAttributes(MKeyOverride::KeyOverrideAttributes changedAttributes) = 0;
