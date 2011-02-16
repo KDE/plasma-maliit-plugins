@@ -4,7 +4,7 @@ OBJECTS_DIR = .obj
 MOC_DIR = .moc
 TEMPLATE = lib
 TARGET = fixture_virtualkeyboard
-CONFIG += plugin meegotouch
+CONFIG += plugin meegotouch meegoimframework
 
 target.path = $$[QT_INSTALL_PLUGINS]/tasfixtures
 
