@@ -189,7 +189,7 @@ private:
 
     void loadIcon(bool shift);
 
-    void loadOverrideIcon();
+    void loadOverrideIcon(const QString &icon);
 
     const IconInfo &iconInfo() const;
     //! \brief Update cached label position.

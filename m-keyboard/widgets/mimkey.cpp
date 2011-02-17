@@ -540,7 +540,8 @@ QSharedPointer<MKeyOverride> MImKey::keyOverride() const
 void MImKey::resetKeyOverride()
 {
     override.clear();
-    //TODO: reset appearance.
+    delete overrideIcon;
+    overrideIcon = 0;
 }
 
 const QPixmap *MImKey::icon() const
@@ -647,6 +648,9 @@ void MImKey::setGeometry(const MImKey::Geometry &geometry)
     currentGeometry = geometry;
     updateGeometryCache();
     invalidateLabelPos();
+    if (override && !override->icon().isEmpty()) {
+        loadOverrideIcon(override->icon());
+    }
 }
 
 void MImKey::setWidth(qreal width)
@@ -746,14 +750,27 @@ void MImKey::loadIcon(bool shift)
     }
 }
 
-void MImKey::loadOverrideIcon()
+void MImKey::loadOverrideIcon(const QString& icon)
 {
+    const QSize paintingSize(currentGeometry.width, currentGeometry.height);
+
     delete overrideIcon;
     overrideIcon = 0;
-    if (override) {
-        QFileInfo fileInfo(override->icon());
-        if (fileInfo.exists() && fileInfo.isAbsolute() && fileInfo.isFile()) {
-            overrideIcon = new QPixmap(override->icon());
+
+    if (icon.isEmpty() || !paintingSize.width() || !paintingSize.height()) {
+        return;
+    }
+
+    QFileInfo fileInfo(icon);
+
+    if (fileInfo.exists() && fileInfo.isAbsolute() && fileInfo.isFile()) {
+
+        overrideIcon = new QPixmap(icon);
+        if (overrideIcon->width() > paintingSize.width()
+                || overrideIcon->height() > paintingSize.height()) {
+            QPixmap *scaled = new QPixmap(overrideIcon->scaled(paintingSize, Qt::KeepAspectRatio));
+            delete overrideIcon;
+            overrideIcon = scaled;
         }
     }
 }
@@ -779,7 +796,7 @@ void MImKey::updateOverrideAttributes(MKeyOverride::KeyOverrideAttributes change
     }
 
     if (changedAttributes & MKeyOverride::Icon) {
-        loadOverrideIcon();
+        loadOverrideIcon(override->icon());
     }
 
     // update() is enough for MKeyOverride::Highlighted
