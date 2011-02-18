@@ -788,7 +788,7 @@ QList<const MImAbstractKey *> MImKeyArea::keys() const
     return keyList;
 }
 
-MImKey * MImKeyArea::findKey(const QString &id)
+MImAbstractKey * MImKeyArea::findKey(const QString &id)
 {
     MImKey *key = 0;
 

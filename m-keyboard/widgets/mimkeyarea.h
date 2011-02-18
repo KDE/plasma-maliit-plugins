@@ -48,7 +48,7 @@ public:
     virtual QRectF boundingRect() const;
     virtual void setShiftState(ModifierState newShiftState);
     virtual QList<const MImAbstractKey *> keys() const;
-    virtual MImKey * findKey(const QString &id);
+    virtual MImAbstractKey * findKey(const QString &id);
     //! \reimp_end
 
 protected:
