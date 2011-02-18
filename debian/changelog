@@ -1,6 +1,7 @@
 meego-keyboard (0.5.27~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#208002 - Predicted word is accepted using space-button
 
  -- huaming wang <huaming.wang@nokia.com>  Thu, 03 Feb 2011 13:22:32 +0200
 
