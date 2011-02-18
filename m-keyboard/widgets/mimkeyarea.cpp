@@ -481,7 +481,8 @@ void MImKeyArea::paint(QPainter *painter,
     const KeyPainter kp(this, painter, KeyPainter::PaintBackground);
 
     foreach (const KeyRow &row, rowList) {
-        foreach (const MImKey *key, row.keys) {
+        foreach (MImKey *key, row.keys) {
+            key->setIgnoreOverriding(true);
             kp(key);
             drawDebugRects(painter, key,
                     drawButtonBoundingRects,
@@ -522,11 +523,12 @@ void MImKeyArea::paint(QPainter *painter,
 
     painter->setFont(style->secondaryFont());
     foreach (const KeyRow &row, rowList) {
-        foreach (const MImKey *key, row.keys) {
+        foreach (MImKey *key, row.keys) {
             if (!key->secondaryLabel().isEmpty()) {
                 QRectF rect = mapFromItem(key, key->secondaryLabelRect()).boundingRect();
                 painter->drawText(rect, Qt::AlignCenter, key->secondaryLabel());
             }
+            key->setIgnoreOverriding(false);
         }
     }
     painter->restore();

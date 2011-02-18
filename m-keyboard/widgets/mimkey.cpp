@@ -144,7 +144,8 @@ MImKey::MImKey(const MImKeyModel &newModel,
       hasGravity(false),
       rowHasSecondaryLabel(false),
       stylingCache(newStylingCache),
-      overrideIcon(0)
+      overrideIcon(0),
+      ignoreOverride(false)
 {
     if (mModel.binding(false)) {
         loadIcon(false);
@@ -165,7 +166,7 @@ MImKey::~MImKey()
 
 const QString MImKey::label() const
 {
-    if (override && !override->label().isEmpty())
+    if (override && !ignoreOverride && !override->label().isEmpty())
         return override->label();
 
     return currentLabel;
@@ -194,6 +195,17 @@ void MImKey::updateGeometryCache()
                                       g.height + g.marginTop + g.marginBottom);
     cachedButtonRect = cachedButtonBoundingRect.adjusted( g.marginLeft,   g.marginTop,
                                                          -g.marginRight, -g.marginBottom);
+}
+
+void MImKey::setIgnoreOverriding(bool ignore)
+{
+    ignoreOverride = ignore;
+
+    if (!override) {
+        return;
+    }
+
+    invalidateLabelPos();
 }
 
 void MImKey::invalidateLabelPos()
@@ -432,7 +444,7 @@ const MScalableImage * MImKey::backgroundImage() const
         backgroundProperty.append(SelectedStateName);
         break;
     case MImAbstractKey::Disabled:
-        backgroundProperty.append(DisabledStateName);
+        backgroundProperty.append(ignoreOverride ? NormalStateName : DisabledStateName );
         break;
     case MImAbstractKey::Normal:
     default:
@@ -440,7 +452,7 @@ const MScalableImage * MImKey::backgroundImage() const
         break;
     }
 
-    if (override && override->highlighted() && enabled()) {
+    if (!ignoreOverride && override && override->highlighted() && enabled()) {
         backgroundProperty.append(HighlightedName);
     }
 
