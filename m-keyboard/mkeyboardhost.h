@@ -145,6 +145,9 @@ private slots:
     //! Synchronize correction setting
     void synchronizeCorrectionSetting();
 
+    //! Synchronize the correction setting whether the correction suggestion should be accepted by space.
+    void synchronizeCorrectionSettingSpace();
+
     //! handles user initiated hiding of the keyboard
     void userHide();
 
@@ -333,6 +336,7 @@ private:
     MImEngineWordsInterface *imCorrectionEngine;
     //! default input method error correction setting
     MGConfItem *inputMethodCorrectionSettings;
+    MGConfItem *inputMethodCorrectionSettingsSpace;
     MGConfItem *inputMethodCorrectionEngine;
 
     QStringList candidates;
@@ -344,6 +348,7 @@ private:
 
     //! error correction flag
     bool correctionEnabled;
+    bool correctionAcceptedWithSpaceEnabled;
 
     //! FIXME: should we provide such a flag to on/off auto caps
     bool autoCapsEnabled;

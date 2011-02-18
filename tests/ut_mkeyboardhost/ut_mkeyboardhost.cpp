@@ -56,6 +56,7 @@ namespace
     const char * const XkbVariantSettingName("/meegotouch/inputmethods/hwkeyboard/variant");
 
     const QString CorrectionSetting("/meegotouch/inputmethods/virtualkeyboard/correctionenabled");
+    const QString CorrectionSettingWithSpace("/meegotouch/inputmethods/virtualkeyboard/correctwithspace");
     const QString InputMethodCorrectionEngine("/meegotouch/inputmethods/correctionengine");
     const int SceneRotationTime = 1400; // in ms
     bool gAutoCapsEnabled = true;
@@ -362,6 +363,7 @@ void Ut_MKeyboardHost::testCorrectionOptions()
 {
     subject->show();
     MGConfItem configCorrection(CorrectionSetting);
+    MGConfItem configCorrectionSpace(CorrectionSettingWithSpace);
 
     QVERIFY(subject->imCorrectionEngine != 0);
 
@@ -378,6 +380,14 @@ void Ut_MKeyboardHost::testCorrectionOptions()
     QCOMPARE(subject->imCorrectionEngine->correctionEnabled(), false);
     QCOMPARE(subject->imCorrectionEngine->completionEnabled(), false);
     QCOMPARE(subject->correctionEnabled, false);
+
+    // Test the correction accepted with space option
+    configCorrectionSpace.set(QVariant(true));
+    QTest::qWait(100);
+    QCOMPARE(subject->correctionAcceptedWithSpaceEnabled, true);
+    configCorrectionSpace.set(QVariant(false));
+    QTest::qWait(100);
+    QCOMPARE(subject->correctionAcceptedWithSpaceEnabled, false);
 
     subject->hide();
 }

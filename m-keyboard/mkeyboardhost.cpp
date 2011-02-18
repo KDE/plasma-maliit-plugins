@@ -56,7 +56,9 @@ namespace
     const QString DefaultInputLanguage("en_GB");
     // TODO: check that these paths still hold
     const QString CorrectionSetting("/meegotouch/inputmethods/virtualkeyboard/correctionenabled");
+    const QString CorrectionSettingWithSpace("/meegotouch/inputmethods/virtualkeyboard/correctwithspace");
     const bool DefaultCorrectionSettingOption = true;
+    const bool DefaultCorrectionSettingAcceptedWithSpaceOption = true;
     const QString InputMethodCorrectionEngine("/meegotouch/inputmethods/correctionengine");
     const QRegExp AutoCapsTrigger("[.?!¡¿] +$");
     const QString AutoPunctuationTriggers(".,?!");
@@ -188,9 +190,11 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
       symbolView(0),
       imCorrectionEngine(0),
       inputMethodCorrectionSettings(new MGConfItem(CorrectionSetting)),
+      inputMethodCorrectionSettingsSpace(new MGConfItem(CorrectionSettingWithSpace)),
       inputMethodCorrectionEngine(new MGConfItem(InputMethodCorrectionEngine)),
       rotationInProgress(false),
       correctionEnabled(false),
+      correctionAcceptedWithSpaceEnabled(false),
       autoCapsEnabled(true),
       autoCapsTriggered(false),
       cursorPos(-1),
@@ -356,6 +360,8 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *imHost, QObject *parent)
             initializeInputEngine();
             connect(inputMethodCorrectionSettings, SIGNAL(valueChanged()),
                     this, SLOT(synchronizeCorrectionSetting()));
+            connect(inputMethodCorrectionSettingsSpace, SIGNAL(valueChanged()),
+                    this, SLOT(synchronizeCorrectionSettingSpace()));
         } else {
             qDebug() << __PRETTY_FUNCTION__ << "Failed to load correction engine"
                      << inputMethodCorrectionEngine->value().toString();
@@ -420,6 +426,8 @@ MKeyboardHost::~MKeyboardHost()
     sceneWindow = 0;
     delete vkbStyleContainer;
     vkbStyleContainer = 0;
+    delete inputMethodCorrectionSettingsSpace;
+    inputMethodCorrectionSettingsSpace = 0;
     delete inputMethodCorrectionSettings;
     inputMethodCorrectionSettings = 0;
     delete touchPointLogHandle;
@@ -1266,7 +1274,8 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
         // or ignore it if correction widget is visible and with suggestionlist mode
         // otherwise commit preedit
         if (event.qtKey() == Qt::Key_Space
-            && correctionHost->isActive()) {
+            && correctionHost->isActive()
+            && correctionAcceptedWithSpaceEnabled) {
             if (correctionHost->candidateMode() == MImCorrectionHost::WordTrackerMode) {
                 wordTrackerSuggestionAcceptedWithSpace = true;
                 inputMethodHost()->sendCommitString(correctionHost->suggestion());
@@ -1379,6 +1388,7 @@ void MKeyboardHost::initializeInputEngine()
         engineLayoutDirty = true;
         updateEngineKeyboardLayout();
         synchronizeCorrectionSetting();
+        synchronizeCorrectionSettingSpace();
         imCorrectionEngine->disablePrediction();
         imCorrectionEngine->setMaximumCandidates(MaximumErrorCorrectionCandidate);
         imCorrectionEngine->setExactWordPositionInList(MImEngine::ExactInListFirst);
@@ -1400,6 +1410,11 @@ void MKeyboardHost::synchronizeCorrectionSetting()
     updateCorrectionState();
 }
 
+void MKeyboardHost::synchronizeCorrectionSettingSpace()
+{
+    correctionAcceptedWithSpaceEnabled
+        = inputMethodCorrectionSettingsSpace->value(DefaultCorrectionSettingAcceptedWithSpaceOption).toBool();
+}
 
 void MKeyboardHost::updateCorrectionState()
 {
