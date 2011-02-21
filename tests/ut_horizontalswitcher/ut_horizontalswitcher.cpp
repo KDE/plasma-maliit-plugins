@@ -20,10 +20,13 @@
 #include "horizontalswitcher.h"
 #include "mimabstractkeyarea.h"
 #include "utils.h"
+#include "mimtestkeyarea.h"
+#include "mimkeyarea.h"
+#include <mplainwindow.h>
 
+#include <MApplication>
 #include <QGraphicsView>
 #include <QGraphicsScene>
-#include <QApplication>
 #include <QPointer>
 
 Q_DECLARE_METATYPE(HorizontalSwitcher::SwitchDirection);
@@ -36,13 +39,16 @@ void Ut_HorizontalSwitcher::initTestCase()
                                  (char *) "-software"};
 
     disableQtPlugins();
-    app = new QApplication(argc, app_name);
+    app = new MApplication(argc, app_name);
+
+    new MPlainWindow; // create singleton
 
     qRegisterMetaType<QGraphicsWidget *>();
 }
 
 void Ut_HorizontalSwitcher::cleanupTestCase()
 {
+    delete MPlainWindow::instance();
     delete app;
     app = 0;
 }
@@ -316,6 +322,31 @@ void Ut_HorizontalSwitcher::testIsAtBoundary()
     subject->setCurrent(2);
     QVERIFY(subject->isAtBoundary(HorizontalSwitcher::Left) == false);
     QVERIFY(subject->isAtBoundary(HorizontalSwitcher::Right) == true);
+}
+
+void Ut_HorizontalSwitcher::testKeyOverrides()
+{
+    const int count = 5;
+    QMap<QString, QSharedPointer<MKeyOverride> > overrides;
+
+    LayoutData::SharedLayoutSection layouts[count];
+    QPointer<MImTestKeyArea> keyAreas[count];
+
+    for (int n = 0; n < count; ++n) {
+        layouts[n] = LayoutData::SharedLayoutSection(new LayoutSection("meego"));
+        keyAreas[n] = new MImTestKeyArea(layouts[n]); // will be deleted by HorizontalSwitcher
+        subject->addWidget(keyAreas[n]);
+    }
+
+    subject->setKeyOverrides(overrides);
+
+    for (int n = 0; n < count; ++n) {
+        MImTestKeyArea *kba = qobject_cast<MImTestKeyArea *>(subject->widget(n));
+        if (kba) {
+            QCOMPARE(kba->setKeyOverridesCalls, 1);
+            QCOMPARE(kba->setKeyOverridesParam, overrides);
+        }
+    }
 }
 
 QTEST_APPLESS_MAIN(Ut_HorizontalSwitcher);

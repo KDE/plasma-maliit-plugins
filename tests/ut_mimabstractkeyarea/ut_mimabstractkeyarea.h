@@ -68,7 +68,8 @@ private slots:
     void testInitialization_data();
     void testInitialization();
     void testShiftCapsLock();
-    void testMultiTouch();
+    void testOverridenKey_data();
+    void testOverridenKey();
     void testRtlKeys_data();
     void testRtlKeys();
     void testLongKeyPress();

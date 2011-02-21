@@ -64,6 +64,7 @@ Q_DECLARE_METATYPE(ButtonList);
 Q_DECLARE_METATYPE(ButtonStateList);
 Q_DECLARE_METATYPE(TpButtonStateMatrix);
 Q_DECLARE_METATYPE(QList<int>);
+Q_DECLARE_METATYPE(QList<bool>);
 
 Q_DECLARE_METATYPE(MImAbstractKey::ButtonState);
 Q_DECLARE_METATYPE(QList<MImKeyBinding::KeyAction>);
@@ -308,15 +309,22 @@ void Ut_MImAbstractKeyArea::testPaint()
 void Ut_MImAbstractKeyArea::testDeadkeys_data()
 {
     QTest::addColumn<KBACreator>("createKba");
-    QTest::newRow("SingleWidgetArea") << &createKeyArea;
+    QTest::addColumn<bool>("setOverride");
+    QTest::addColumn<bool>("enabled");
+
+    QTest::newRow("SingleWidgetArea") << &createKeyArea << false << true;
+    QTest::newRow("SingleWidgetArea enabled key")  << &createKeyArea << true << true;
+    QTest::newRow("SingleWidgetArea disabled key") << &createKeyArea << true << false;
 }
 
 void Ut_MImAbstractKeyArea::testDeadkeys()
 {
     QFETCH(KBACreator, createKba);
+    QFETCH(bool, setOverride);
+    QFETCH(bool, enabled);
 
     keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard("fr.xml"));
+    QVERIFY(keyboard->loadNokiaKeyboard("test-deadkey.xml"));
     subject = createKba(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                         false, 0);
     MPlainWindow::instance()->scene()->addItem(subject);
@@ -326,6 +334,13 @@ void Ut_MImAbstractKeyArea::testDeadkeys()
     QList<int> positions;
     int i;
     positions << 0 << 1 << 2 << 5 << 6;
+
+    QSharedPointer<MKeyOverride> override(new MKeyOverride("dead"));
+    override->setEnabled(enabled);
+    QMap<QString, QSharedPointer<MKeyOverride> > overrides;
+    overrides["dead"] = override;
+
+    QStringList *list = 0;
 
     QVERIFY(spy.isValid());
 
@@ -350,31 +365,43 @@ void Ut_MImAbstractKeyArea::testDeadkeys()
 
     key = keyAt(2, 8); // row 3, column 9
     QVERIFY(key != 0);
+    QVERIFY(key == subject->findKey("dead"));
     QVERIFY(key->isDeadKey());
     QString c = QChar(0x00B4);
     QCOMPARE(key->label(), c);
+    if (setOverride) {
+        subject->setKeyOverrides(overrides);
+    }
+
     subject->click(key);
     //click at deadkey for the first time, just lock the deadkey, won't emit cliked() signal
     QCOMPARE(spy.count(), 0);
 
+    list = enabled ? &lowerDKUnicodes : &lowerUnicodes;
     //check the alphas, should be with deadkey
     for (i = 0; i < positions.count(); i++) {
-        QCOMPARE(keyAt(0, positions[i])->label(), lowerDKUnicodes.at(i));
+        QCOMPARE(keyAt(0, positions[i])->label(), list->at(i));
     }
 
     //test for shift status
     subject->switchLevel(1);
+    list = enabled ? &upperDKUnicodes : &upperUnicodes;
     for (i = 0; i < positions.count(); i++) {
-        QCOMPARE(keyAt(0, positions[i])->label(), upperDKUnicodes.at(i));
+        QCOMPARE(keyAt(0, positions[i])->label(), list->at(i));
     }
 
     //after unlock the dead key, test the shift status
     SpecialKeyFinder finder(SpecialKeyFinder::FindDeadKey);
     MImAbstractKey::visitActiveKeys(&finder);
 
-    subject->unlockDeadKeys(finder.deadKey());
-    for (i = 0; i < positions.count(); i++) {
-        QCOMPARE(keyAt(0, positions[i])->label(), upperUnicodes.at(i));
+    if (enabled) {
+        QVERIFY(finder.deadKey());
+        subject->unlockDeadKeys(finder.deadKey());
+        for (i = 0; i < positions.count(); i++) {
+            QCOMPARE(keyAt(0, positions[i])->label(), upperUnicodes.at(i));
+        }
+    } else {
+        QVERIFY(!finder.deadKey());
     }
 
     //test for shift off status
@@ -385,8 +412,9 @@ void Ut_MImAbstractKeyArea::testDeadkeys()
 
     // Lock deadkey again.
     subject->click(key);
+    list = enabled ? &lowerDKUnicodes : &lowerUnicodes;
     for (i = 0; i < positions.count(); i++) {
-        QCOMPARE(keyAt(0, positions[i])->label(), lowerDKUnicodes.at(i));
+        QCOMPARE(keyAt(0, positions[i])->label(), list->at(i));
     }
 
     subject->click(keyAt(0, 0));
@@ -648,29 +676,102 @@ void Ut_MImAbstractKeyArea::testShiftCapsLock()
     QVERIFY(shiftButton->state() == MImAbstractKey::Normal);
 }
 
-void Ut_MImAbstractKeyArea::testMultiTouch()
+void Ut_MImAbstractKeyArea::testOverridenKey_data()
 {
-    QSKIP("Move signal tests into separate slot, and remove this one (overlapping tests)",
-          SkipAll);
+    QTest::addColumn<QStringList>("keyIds");
+    // this item defines whether we should set override or not.
+    // Other colums are ignored if this one contains false
+    QTest::addColumn<QList<bool> >("override");
+    QTest::addColumn<QList<bool> >("enable");
+    QTest::addColumn<QList<bool> >("highlight");
+
+    // there are no overriden attributes
+    QTest::newRow("no override") << (QStringList() << "key0" << "key1" << "key2")
+                                 << (QList<bool>() << false  << false  << false)
+                                 << (QList<bool>() << true   << true   << true)
+                                 << (QList<bool>() << false  << false  << false);
+
+    // key0 is highlighted, but key1 is not
+    QTest::newRow("highlight") << (QStringList() << "key0" << "key1" << "key2")
+                               << (QList<bool>() << true   << true  << false)
+                               << (QList<bool>() << true   << true   << true)
+                               << (QList<bool>() << true   << false  << false);
+
+    // key0 is disabled, but others are enabled
+    QTest::newRow("disable key0") << (QStringList() << "key0" << "key1" << "key2")
+                                  << (QList<bool>() << true   << true   << false)
+                                  << (QList<bool>() << false  << true   << true)
+                                  << (QList<bool>() << false  << false  << false);
+
+    // key2 is disabled, but others are enabled
+    QTest::newRow("disable key2") << (QStringList() << "key0" << "key1" << "key2")
+                                  << (QList<bool>() << false  << true   << true)
+                                  << (QList<bool>() << true   << true   << false)
+                                  << (QList<bool>() << false  << false  << false);
+
+    // key0 and key2 are disabled, but keyy1 is enabled
+    // key2 is highlighted
+    QTest::newRow("disable both") << (QStringList() << "key0" << "key1" << "key2")
+                                  << (QList<bool>() << true   << false  << true)
+                                  << (QList<bool>() << false  << true   << false)
+                                  << (QList<bool>() << false  << false  << true);
+}
+
+/*
+ * This test verifies whether we have proper signals when keys are clicked
+ */
+void Ut_MImAbstractKeyArea::testOverridenKey()
+{
+    QFETCH(QStringList, keyIds);
+    QFETCH(QList<bool>, override);
+    QFETCH(QList<bool>, enable);
+    QFETCH(QList<bool>, highlight);
 
     keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
+    QVERIFY(keyboard->loadNokiaKeyboard("test-normalkey.xml"));
     const LayoutData *layout = keyboard->layout(LayoutData::General, M::Landscape);
     QVERIFY(layout);
     const LayoutData::SharedLayoutSection section = layout->section(LayoutData::mainSection);
 
-    subject = createKeyArea(section,
-                                              false, 0);
+    subject = createKeyArea(section, false, 0);
     MPlainWindow::instance()->scene()->addItem(subject);
     subject->resize(defaultLayoutSize());
 
+    QMap<QString, QSharedPointer<MKeyOverride> > overrides;
+
+    for (int i = 0; i < keyIds.size(); ++i) {
+        if (override.at(i)) {
+            QSharedPointer<MKeyOverride> override(new MKeyOverride(keyIds.at(i)));
+            overrides[keyIds.at(i)] = override;
+        }
+    }
+
+    if (!overrides.isEmpty()) {
+        subject->setKeyOverrides(overrides);
+    }
+
+    // this loop invokes MImKeyArea::updateKeyAttributes() indirectly,
+    // so we should not merge it with previous one
+    for (int i = 0; i < keyIds.size(); ++i) {
+        if (override.at(i)) {
+            QSharedPointer<MKeyOverride> override(overrides[keyIds.at(i)]);
+            override->setEnabled(enable.at(i));
+            override->setHighlighted(highlight.at(i));
+        }
+    }
+
+
     const MImAbstractKey *key0 = keyAt(0, 0);
-    const MImAbstractKey *key1 = keyAt(1, 0);
-    const MImAbstractKey *key2 = keyAt(0, 1);
+    const MImAbstractKey *key1 = keyAt(0, 1);
+    const MImAbstractKey *key2 = keyAt(1, 1);
 
     QVERIFY(key0);
     QVERIFY(key1);
     QVERIFY(key2);
+
+    QVERIFY(key0 == subject->findKey("key0"));
+    QVERIFY(key1 == subject->findKey("key1"));
+    QVERIFY(key2 == subject->findKey("key2"));
 
     QSignalSpy pressed(subject, SIGNAL(keyPressed(const MImAbstractKey*, const QString&, bool)));
     QSignalSpy released(subject, SIGNAL(keyReleased(const MImAbstractKey*, const QString&, bool)));
@@ -680,72 +781,123 @@ void Ut_MImAbstractKeyArea::testMultiTouch()
     QVERIFY(released.isValid());
     QVERIFY(clicked.isValid());
 
+    int pressExpected = 0;
+    int clickExpected = 0;
+    int releaseExpected = 0;
+
     const QPoint pos0 = key0->buttonRect().center().toPoint();
-    QTouchEvent::TouchPoint tp0(0);
-    tp0.setScreenPos(pos0);
+    QTouchEvent::TouchPoint tp0 = MImAbstractKeyArea::createTouchPoint(0, Qt::TouchPointPressed, pos0, QPointF(-1, -1));
 
     const QPoint pos1 = key1->buttonRect().center().toPoint();
-    QTouchEvent::TouchPoint tp1(1);
-    tp1.setScreenPos(pos1);
+    QTouchEvent::TouchPoint tp1 = MImAbstractKeyArea::createTouchPoint(1, Qt::TouchPointPressed, pos1, QPointF(-1, -1));
 
     const QPoint pos2 = key2->buttonRect().center().toPoint();
-    QTouchEvent::TouchPoint tp2(2);
-    tp2.setScreenPos(pos2);
+    QTouchEvent::TouchPoint tp2 = MImAbstractKeyArea::createTouchPoint(0, Qt::TouchPointMoved, pos2, pos1);
+    QTouchEvent::TouchPoint tp3 = MImAbstractKeyArea::createTouchPoint(0, Qt::TouchPointReleased, pos2, pos2);
 
-    /*
-     * Verify following conditions:
-     * 1) signals are emitted in correct order
-     * 2) every signal corresponds to correct key
-     */
+    // click key0
     subject->touchPointPressed(tp0);
-    QCOMPARE(pressed.count(), 1);
-    QVERIFY(pressed.at(0).first().value<const MImAbstractKey*>() == key0);
-    QCOMPARE(released.count(), 0);
-    QCOMPARE(clicked.count(), 0);
-
-    subject->touchPointPressed(tp1);
-    QCOMPARE(pressed.count(), 2);
-    QVERIFY(pressed.at(1).first().value<const MImAbstractKey*>() == key1);
+    if (key0->enabled()) {
+        QCOMPARE(pressed.count(), 1);
+        QVERIFY(pressed.at(0).first().value<const MImAbstractKey*>() == key0);
+    } else {
+        QCOMPARE(pressed.count(), 0);
+    }
     QCOMPARE(released.count(), 0);
     QCOMPARE(clicked.count(), 0);
 
     subject->touchPointReleased(tp0);
-    subject->touchPointReleased(tp1);
-    QCOMPARE(pressed.count(), 2);
-    QCOMPARE(released.count(), 2);
-    QVERIFY(released.at(0).first().value<const MImAbstractKey*>() == key0);
-    QVERIFY(released.at(1).first().value<const MImAbstractKey*>() == key1);
-    QCOMPARE(clicked.count(), 2);
-    QVERIFY(clicked.at(0).first().value<const MImAbstractKey*>() == key0);
-    QVERIFY(clicked.at(1).first().value<const MImAbstractKey*>() == key1);
+    if (key0->enabled()) {
+        QCOMPARE(pressed.count(), 1);
+        QCOMPARE(released.count(), 1);
+        QVERIFY(released.at(0).first().value<const MImAbstractKey*>() == key0);
+        QCOMPARE(clicked.count(), 1);
+        QVERIFY(clicked.at(0).first().value<const MImAbstractKey*>() == key0);
+    } else {
+        QCOMPARE(pressed.count(), 0);
+        QCOMPARE(released.count(), 0);
+        QCOMPARE(clicked.count(), 0);
+    }
 
     pressed.clear();
     released.clear();
     clicked.clear();
+    pressExpected = 0;
+    clickExpected = 0;
+    releaseExpected = 0;
 
-    // Verify if could click on some keys while other key is pressed
+    // click key0 and key1
     subject->touchPointPressed(tp0);
+    if (key0->enabled()) {
+        ++pressExpected;
+        QCOMPARE(pressed.count(), pressExpected);
+        QVERIFY(pressed.last().first().value<const MImAbstractKey*>() == key0);
+    } else {
+        QCOMPARE(pressed.count(), pressExpected);
+    }
+    QCOMPARE(released.count(), 0);
+    QCOMPARE(clicked.count(), 0);
+
     subject->touchPointPressed(tp1);
+    ++pressExpected;
+    QCOMPARE(pressed.count(), pressExpected);
+    QVERIFY(pressed.last().first().value<const MImAbstractKey*>() == key1);
+    QCOMPARE(released.count(), 0);
+    if (key0->enabled()) {
+        ++clickExpected;
+        QCOMPARE(clicked.count(), clickExpected);
+        QVERIFY(clicked.last().first().value<const MImAbstractKey*>() == key0);
+    } else {
+        QCOMPARE(clicked.count(), clickExpected);
+    }
+
     subject->touchPointReleased(tp0);
-    subject->touchPointPressed(tp2);
-    subject->touchPointReleased(tp2);
     subject->touchPointReleased(tp1);
+    QCOMPARE(pressed.count(), pressExpected);
+    QCOMPARE(released.count(), 1);
+    QVERIFY(released.at(0).first().value<const MImAbstractKey*>() == key1);
+    ++clickExpected;
+    QCOMPARE(clicked.count(), clickExpected);
+    QVERIFY(clicked.last().first().value<const MImAbstractKey*>() == key1);
 
-    QCOMPARE(pressed.count(), 3);
-    QCOMPARE(released.count(), 3);
-    QCOMPARE(clicked.count(), 3);
+    pressed.clear();
+    released.clear();
+    clicked.clear();
+    pressExpected = 0;
+    clickExpected = 0;
+    releaseExpected = 0;
 
-    QVERIFY(pressed.at(0).first().value<const MImAbstractKey*>() == key0);
-    QVERIFY(pressed.at(1).first().value<const MImAbstractKey*>() == key1);
-    QVERIFY(pressed.at(2).first().value<const MImAbstractKey*>() == key2);
+    // press key0, move touch point to key2 and release it
+    subject->touchPointPressed(tp0);
+    if (key0->enabled()) {
+        ++pressExpected;
+        QCOMPARE(pressed.count(), pressExpected);
+        QVERIFY(pressed.last().first().value<const MImAbstractKey*>() == key0);
+    } else {
+        QCOMPARE(pressed.count(), pressExpected);
+    }
 
-    QVERIFY(released.at(0).first().value<const MImAbstractKey*>() == key0);
-    QVERIFY(released.at(1).first().value<const MImAbstractKey*>() == key2);
-    QVERIFY(released.at(2).first().value<const MImAbstractKey*>() == key1);
+    subject->touchPointMoved(tp2);
+    if (key2->enabled()) {
+        ++pressExpected;
+        QCOMPARE(pressed.count(), pressExpected);
+        QVERIFY(pressed.last().first().value<const MImAbstractKey*>() == key2);
+    } else {
+        QCOMPARE(pressed.count(), pressExpected);
+    }
 
-    QVERIFY(clicked.at(0).first().value<const MImAbstractKey*>() == key0);
-    QVERIFY(clicked.at(1).first().value<const MImAbstractKey*>() == key2);
-    QVERIFY(clicked.at(2).first().value<const MImAbstractKey*>() == key1);
+    subject->touchPointReleased(tp3);
+    if (key2->enabled()) {
+        ++releaseExpected;
+        QCOMPARE(released.count(), releaseExpected);
+        QVERIFY(released.last().first().value<const MImAbstractKey*>() == key2);
+        ++clickExpected;
+        QCOMPARE(clicked.count(), clickExpected);
+        QVERIFY(clicked.last().first().value<const MImAbstractKey*>() == key2);
+    } else {
+        QCOMPARE(released.count(), releaseExpected);
+        QCOMPARE(clicked.count(), clickExpected);
+    }
 }
 
 void Ut_MImAbstractKeyArea::testRtlKeys_data()

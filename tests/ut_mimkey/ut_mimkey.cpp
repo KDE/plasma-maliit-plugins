@@ -24,6 +24,8 @@
 #include "mimkeymodel.h"
 #include "utils.h"
 
+#include <mkeyoverride.h>
+
 #include <MApplication>
 #include <MTheme>
 
@@ -410,6 +412,76 @@ void Ut_MImKey::testGravity()
 
     subject->setDownState(false);
     QVERIFY(!subject->isGravityActive());
+}
+
+void Ut_MImKey::testLabelOverride()
+{
+    QSharedPointer<MKeyOverride> override(new MKeyOverride("keyId"));
+    const QString originalLabel = subject->label();
+    const QString newLabel("label");
+
+    QVERIFY(newLabel != originalLabel);
+
+    subject->setKeyOverride(override);
+    QCOMPARE(subject->label(), originalLabel);
+
+    override->setLabel(newLabel);
+    subject->updateOverrideAttributes(MKeyOverride::Label);
+    QCOMPARE(subject->label(), newLabel);
+
+    subject->setIgnoreOverriding(true);
+    QCOMPARE(subject->label(), originalLabel);
+
+    subject->setIgnoreOverriding(false);
+    QCOMPARE(subject->label(), newLabel);
+
+    subject->resetKeyOverride();
+    QCOMPARE(subject->label(), originalLabel);
+}
+
+void Ut_MImKey::testKeyDisabling()
+{
+    QSharedPointer<MKeyOverride> override(new MKeyOverride("keyId"));
+
+    QVERIFY(subject->enabled());
+
+    subject->setKeyOverride(override);
+    QVERIFY(subject->enabled());
+
+    subject->setDownState(true);
+    QCOMPARE(subject->state(), MImAbstractKey::Pressed);
+
+    subject->setDownState(false);
+    subject->setSelected(true);
+    QCOMPARE(subject->state(), MImAbstractKey::Selected);
+
+    subject->setSelected(false);
+    QCOMPARE(subject->state(), MImAbstractKey::Normal);
+
+    override->setEnabled(false);
+    subject->updateOverrideAttributes(MKeyOverride::Enabled);
+    QVERIFY(!subject->enabled());
+    QCOMPARE(subject->state(), MImAbstractKey::Disabled);
+
+    subject->setDownState(true);
+    QCOMPARE(subject->state(), MImAbstractKey::Disabled);
+
+    subject->setSelected(true);
+    QCOMPARE(subject->state(), MImAbstractKey::Disabled);
+
+    subject->resetKeyOverride();
+    QVERIFY(subject->enabled());
+    QCOMPARE(subject->state(), MImAbstractKey::Normal);
+
+    subject->setDownState(true);
+    QCOMPARE(subject->state(), MImAbstractKey::Pressed);
+
+    subject->setDownState(false);
+    subject->setSelected(true);
+    QCOMPARE(subject->state(), MImAbstractKey::Selected);
+
+    subject->setSelected(false);
+    QCOMPARE(subject->state(), MImAbstractKey::Normal);
 }
 
 MImKey *Ut_MImKey::createKey(bool state)

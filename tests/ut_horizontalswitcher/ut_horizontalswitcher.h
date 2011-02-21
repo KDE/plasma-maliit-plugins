@@ -20,14 +20,14 @@
 #include <QtTest/QtTest>
 #include <QObject>
 
-class QApplication;
+class MApplication;
 class HorizontalSwitcher;
 
 class Ut_HorizontalSwitcher : public QObject
 {
     Q_OBJECT
 private:
-    QApplication *app;
+    MApplication *app;
     HorizontalSwitcher *subject;
 
 private slots:
@@ -50,6 +50,7 @@ private slots:
 #endif
     void testInitialSwitchTo();
     void testIsAtBoundary();
+    void testKeyOverrides();
 };
 
 #endif // UT_HORIZONTALSWITCHER_H

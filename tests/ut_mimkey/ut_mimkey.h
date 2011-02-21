@@ -19,7 +19,6 @@
 #ifndef UT_MIMKEY_H
 #define UT_MIMKEY_H
 
-#include <mimabstractkey.h>
 #include <mimkey.h>
 
 #include <QtTest/QTest>
@@ -71,7 +70,7 @@ public:
 private:
 
     MApplication *app;
-    MImAbstractKey *subject;
+    MImKey *subject;
     QGraphicsItem *parent;
     MImKeyModel *dataKey;
     MImAbstractKeyAreaStyleContainer *style;
@@ -99,6 +98,9 @@ private slots:
 
     void testKeyRects();
     void testGravity();
+
+    void testLabelOverride();
+    void testKeyDisabling();
 
 private:
     MImKey *createKey(bool state = false);
