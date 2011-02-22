@@ -11,11 +11,15 @@ HEADERS += ut_symbolview.h \
            ../stubs/mgconfitem_stub.h \
            ../stubs/fakegconf.h \
            ../stubs/mreactionmaptester.h \
-           $$WIDGETS_DIR/symbolview.h
+           $$WIDGETS_DIR/popupfactory.h \
+           $$WIDGETS_DIR/symbolview.h \
 
+# PopupFactory needs to be compiled to have a mocked functionality
+# otherwise the unit test crashes
 SOURCES += ut_symbolview.cpp \
            ../stubs/fakegconf.cpp \
-           $$WIDGETS_DIR/symbolview.cpp
+           $$WIDGETS_DIR/popupfactory.cpp \
+           $$WIDGETS_DIR/symbolview.cpp \
 
 include(../common_check.pri)
 
