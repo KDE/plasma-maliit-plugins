@@ -133,26 +133,18 @@
       </row>
 
       <row>
-        <key style="special" width="x-large">
-          <binding action="sym" label="SYM"/>
+        <key style="special" width="large">
+          <binding action="sym" label="?123"/>
         </key>
-        <key>
-          <binding dead="true" label="´"/>
-        </key>
-        <key>
-          <binding dead="true" label="ˇ"/>
-        </key>
+        <key><binding label=","/></key>
+        <key><binding label="."/></key>
 
         <key width="xx-large">
           <binding action="space" label=""/>
         </key>
 
-        <key>
-          <binding label=","/>
-        </key>
-        <key>
-          <binding label="."/>
-        </key>
+        <key><binding dead="true" label="´"/></key>
+        <key><binding dead="true" label="ˇ"/></key>
 
         <key style="special" width="x-large" id="actionKey">
           <binding action="return"/>
@@ -161,5 +153,5 @@
     </section>
   </layout>
 
-  <import file="symbols.xml"/>
+  <import file="symbols-36.xml"/>
 </keyboard>

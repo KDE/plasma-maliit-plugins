@@ -148,17 +148,13 @@
       </row>
 
       <row>
-        <key style="special" width="x-large">
-          <binding action="sym" label="SYM"/>
+        <key style="special" width="large">
+          <binding action="sym" label="?123"/>
         </key>
 
-        <spacer/>
-
-        <key width="large"><binding label=","/></key>
+        <key><binding label=","/></key>
+        <key><binding label="."/></key>
         <key width="xx-large"><binding action="space" label=""/></key>
-        <key width="large"><binding label="."/></key>
-
-        <spacer/>
 
         <key style="special" width="x-large" id="actionKey">
           <binding action="return" label=""/>
@@ -168,5 +164,5 @@
     </section>
   </layout>
 
-  <import file="symbols.xml"/>
+  <import file="symbols-38.xml"/>
 </keyboard>

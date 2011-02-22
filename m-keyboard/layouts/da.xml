@@ -133,17 +133,17 @@
       </row>
 
       <row>
-      <key style="special" width="x-large">
-        <binding action="sym" label="SYM"/>
+      <key style="special" width="large">
+        <binding action="sym" label="?123"/>
       </key>
 
       <key><binding label=","/></key>
+      <key><binding label="."/></key>
 
       <key width="xx-large">
         <binding action="space" label=""/>
       </key>
 
-      <key><binding label="."/></key>
       <key>
         <binding label="ø" extended_labels="ö"/>
         <binding shift="true" label="Ø" extended_labels="Ö"/>
@@ -156,5 +156,5 @@
     </section>
   </layout>
 
-  <import file="symbols.xml"/>
+  <import file="symbols-36.xml"/>
 </keyboard>
