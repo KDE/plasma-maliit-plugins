@@ -580,7 +580,11 @@ void MKeyboardHost::prepareHideShowAnimation()
         vkbFadeInAnimation.setDuration(OnScreenAnimationTime);
         toolbarFadeInAnimation.setDuration(OnScreenAnimationTime);
 
-        slideUpAnimation.setTargetObject(vkbWidget);
+        if (symbolView->isActive()) {
+            slideUpAnimation.setTargetObject(symbolView);
+        } else {
+            slideUpAnimation.setTargetObject(vkbWidget);
+        }
         slideUpAnimation.setStartValue(QPointF(0, MPlainWindow::instance()->visibleSceneSize().height()
                                                + sharedHandleArea->size().height()));
     }
@@ -593,7 +597,6 @@ void MKeyboardHost::hide()
     RegionTracker::instance().sendInputMethodAreaEstimate(QRegion());
 
     correctionHost->hideCorrectionWidget();
-    symbolView->hideSymbolView(); // TODO: transition?
 
     prepareHideShowAnimation();
     slideUpAnimation.setDirection(QAbstractAnimation::Backward);
@@ -612,6 +615,7 @@ void MKeyboardHost::handleAnimationFinished()
     if (slideUpAnimation.direction() == QAbstractAnimation::Backward) {
         sharedHandleArea->hide();
         vkbWidget->hide();
+        symbolView->hideSymbolView();
         // TODO: the following line which was added to improve plugin switching (see the
         // commit comment) would cause animation not to be seen if it was in ::hide() but
         // just having it here without any two-phase show/hide protocol that considers
