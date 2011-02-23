@@ -1867,6 +1867,20 @@ void Ut_MKeyboardHost::testAutoPunctuation_data()
 
 void Ut_MKeyboardHost::testAutoPunctuation()
 {
+    MGConfItem configCorrection(CorrectionSetting);
+    MGConfItem configCorrectionSpace(CorrectionSettingWithSpace);
+
+    QVERIFY(subject->imCorrectionEngine != 0);
+
+    // We need to be sure that the correction is enabled before the test
+    configCorrection.set(QVariant(true));
+    configCorrectionSpace.set(QVariant(true));
+    QTest::qWait(100);
+    QVERIFY(subject->imCorrectionEngine->correctionEnabled());
+    QVERIFY(subject->imCorrectionEngine->completionEnabled());
+    QVERIFY(subject->correctionAcceptedWithSpaceEnabled);
+
+    // Real test case
     QFETCH(QChar, character);
     QFETCH(bool, autopunctuated);
 
