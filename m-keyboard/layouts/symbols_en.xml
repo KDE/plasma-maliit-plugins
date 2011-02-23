@@ -55,7 +55,7 @@
           <binding label="="/>
         </key>
         <key>
-          <binding label="(;"/>
+          <binding label="("/>
         </key>
         <key>
           <binding label=")"/>
@@ -196,7 +196,7 @@
       </row>
 
       <row>
-        <key style="special" width="medium">
+        <key style="special" width="large">
           <binding action="switch" label="2/2"/>
         </key>
 
@@ -226,13 +226,13 @@
 
         <spacer/>
 
-        <key style="special" width="medium">
+        <key style="special" width="large">
           <binding action="backspace"/>
         </key>
       </row>
 
       <row>
-        <key style="special" width="large">
+        <key style="special" width="x-large">
           <binding action="sym" label="ABC"/>
         </key>
 
