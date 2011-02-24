@@ -1295,10 +1295,7 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
                                                   && preeditCursorPos != preedit.length()
                                                   && inputMethodHost()->surroundingText(surroundingText, cursorPos)
                                                   && (cursorPos >= 0);
-                inputMethodHost()->sendCommitString(preedit);
-                if (needRepositionCursor) {
-                    inputMethodHost()->setSelection(cursorPos + preeditCursorPos, 0);
-                }
+                inputMethodHost()->sendCommitString(preedit, 0, 0, needRepositionCursor ? (cursorPos + preeditCursorPos) : -1);
             }
         }
 
