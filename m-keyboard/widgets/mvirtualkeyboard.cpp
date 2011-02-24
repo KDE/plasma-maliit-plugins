@@ -596,6 +596,7 @@ void MVirtualKeyboard::recreateKeyboards()
     reloadSwitcherContent(); // main keyboards
     recreateSpecialKeyboards(); // number and phone number keyboard
     switchLevel(); // update shift level in recreated keyboards
+    mainKeyboardSwitcher->setKeyOverrides(overrides);
 }
 
 
@@ -804,5 +805,6 @@ void MVirtualKeyboard::resetCurrentKeyArea(bool resetCapsLock)
 void MVirtualKeyboard::setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides)
 {
     mainKeyboardSwitcher->setKeyOverrides(overrides);
+    this->overrides = overrides;
 }
 

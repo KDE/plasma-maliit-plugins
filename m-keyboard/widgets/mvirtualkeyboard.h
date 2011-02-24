@@ -400,6 +400,9 @@ private:
 
     bool pendingNotificationRequest;
     bool transitioning;
+
+    //! Contains current keyboard overrides
+    QMap<QString, QSharedPointer<MKeyOverride> > overrides;
 };
 
 #endif
