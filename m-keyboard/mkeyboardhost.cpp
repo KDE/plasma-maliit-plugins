@@ -1131,7 +1131,8 @@ void MKeyboardHost::handleKeyPress(const KeyEvent &event)
 
     } else if (event.qtKey() == Qt::Key_Backspace) {
         if (correctionHost->isActive()
-            && correctionHost->candidateMode() == MImCorrectionHost::WordTrackerMode) {
+            && correctionHost->candidateMode() == MImCorrectionHost::WordTrackerMode
+            && correctionAcceptedWithSpaceEnabled) {
             // hide word tracker when backspace key press
             correctionHost->hideCorrectionWidget();
             // WordTrackerBackspaceMode mode: hide word tracker when backspace key press.
