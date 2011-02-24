@@ -43,7 +43,7 @@
       <applyto>/meegotouch/inputmethods/virtualkeyboard/correctwithspace</applyto>
       <owner>meegotouch</owner>
       <type>bool</type>
-      <default>true</default>
+      <default>false</default>
       <locale name="C">
         <short>Whether Space selects the suggested word</short>
         <long>Whether Space selects the suggested word for meegotouch virtual keyboard</long>

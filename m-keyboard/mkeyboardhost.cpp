@@ -58,7 +58,7 @@ namespace
     const QString CorrectionSetting("/meegotouch/inputmethods/virtualkeyboard/correctionenabled");
     const QString CorrectionSettingWithSpace("/meegotouch/inputmethods/virtualkeyboard/correctwithspace");
     const bool DefaultCorrectionSettingOption = true;
-    const bool DefaultCorrectionSettingAcceptedWithSpaceOption = true;
+    const bool DefaultCorrectionSettingAcceptedWithSpaceOption = false;
     const QString InputMethodCorrectionEngine("/meegotouch/inputmethods/correctionengine");
     const QRegExp AutoCapsTrigger("[.?!¡¿] +$");
     const QString AutoPunctuationTriggers(".,?!");
