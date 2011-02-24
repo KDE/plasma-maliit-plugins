@@ -156,6 +156,7 @@
           <binding action="space" label=""/>
         </key>
 
+        <key><binding label="-"/></key>
         <key>
           <binding label="ъ"/>
           <binding shift="true" label="Ъ"/>

@@ -83,9 +83,11 @@
           <binding extended_labels="ľĺł" label="l"/>
           <binding extended_labels="ĽĹŁ" shift="true" label="L"/>
         </key>
-		<key>
-            <binding dead="true" label="´"/>
-        </key>
+        <key>
+          <binding label="ů"/>
+          <binding shift="true" label="Ů"/>
+        </key>		
+
       </row>
 
       <row>
@@ -120,10 +122,9 @@
           <binding label="m"/>
           <binding shift="true" label="M"/>
         </key>
-        <key>
-          <binding label="ů"/>
-          <binding shift="true" label="Ů"/>
-        </key>		
+		<key>
+            <binding dead="true" label="´"/>
+        </key>
         <key style="special">
           <binding action="backspace" label=""/>
         </key>

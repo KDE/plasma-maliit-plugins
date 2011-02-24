@@ -62,10 +62,10 @@
           <binding label=")"/>
         </key>
         <key>
-          <binding label=";"/>
+          <binding label="&lt;"/>
         </key>
         <key>
-          <binding label=":"/>
+          <binding label="&gt;"/>
         </key>
       </row>
 

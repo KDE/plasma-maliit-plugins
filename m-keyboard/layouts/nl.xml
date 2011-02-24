@@ -133,9 +133,9 @@
 
         <spacer/>
 
-        <key width="large"><binding label=","/></key>
+        <key><binding label=","/></key>
         <key width="xx-large"><binding action="space"/></key>
-        <key width="large"><binding label="."/></key>
+        <key><binding label="."/></key>
 
         <spacer/>
 

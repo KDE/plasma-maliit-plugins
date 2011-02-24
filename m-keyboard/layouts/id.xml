@@ -134,14 +134,14 @@
 
       <row>
         <key style="special" width="x-large">
-          <binding action="sym" label="SYM"/>
+          <binding action="sym" label="?123"/>
         </key>
 
         <spacer/>
 
-        <key width="large"><binding label=","/></key>
+        <key><binding label=","/></key>
         <key width="xx-large"><binding action="space"/></key>
-        <key width="large"><binding label="."/></key>
+        <key><binding label="."/></key>
 
         <spacer/>
 
