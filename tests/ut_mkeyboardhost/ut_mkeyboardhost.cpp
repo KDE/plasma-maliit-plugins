@@ -1077,7 +1077,8 @@ void Ut_MKeyboardHost::testOptimizedRegionCallCounts()
     subject->slideUpAnimation.pause();
     subject->slideUpAnimation.setDuration(0);
     subject->slideUpAnimation.resume();
-    QTest::qWait(100);
+    // We need to wait here 200 ms otherwise the test case can fail in lower delays (e.g. 100 ms).
+    QTest::qWait(200);
     QVERIFY(subject->slideUpAnimation.state() == QAbstractAnimation::Stopped);
 
     // Check call counts.
