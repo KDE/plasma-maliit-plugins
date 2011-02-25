@@ -203,19 +203,18 @@ MImAbstractKeyAreaStyle.Portrait {
     size: 480 -1;
 }
 
-MImAbstractKeyAreaStyle.Landscape:keys13 {
+MImAbstractKeyAreaStyle.Landscape:keys14 {
     use-fixed-key-width: true;
 }
 
-MImAbstractKeyAreaStyle.Portrait:keys13 {
+MImAbstractKeyAreaStyle.Portrait:keys14 {
     use-fixed-key-width: true;
 
-    key-width-medium-fixed: 150px;
-    key-width-large-fixed: 150px;
-    key-width-x-large-fixed: 308px;
+    key-width-medium-fixed: 147px;
+    key-width-large-fixed: 302px;
    
-    padding-left: 7px;
-    padding-right: 7px;
+    padding-left: 11px;
+    padding-right: 12px;
 }
 
 MImAbstractKeyAreaStyle.Landscape:keys33 {

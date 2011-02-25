@@ -39,16 +39,19 @@
       <row>
         <spacer/>
 
-        <key width="x-large">
+        <key>
           <binding label="&#x002B;&#x002F;&#x002D;" action="plus_minus_toggle"/>
         </key>
-        <key width="x-large">
+        <key>
           <binding action="decimal_separator"/>
         </key>
-        <key style="special" width="x-large">
+        <key style="special">
           <binding label="" action="backspace"/>
         </key>
-      </row>
+        <key style="special" id="actionKey">
+          <binding action="return"/>
+        </key>
+       </row>
     </section>
   </layout>
 
@@ -103,10 +106,11 @@
       </row>
 
       <row>
-        <spacer/>
-
-        <key style="special" width="x-large">
+        <key style="special" width="large">
           <binding label="" action="backspace"/>
+        </key>
+        <key style="special" id="actionKey">
+          <binding action="return"/>
         </key>
       </row>
     </section>

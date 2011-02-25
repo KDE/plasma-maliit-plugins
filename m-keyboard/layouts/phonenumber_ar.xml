@@ -45,8 +45,11 @@
         <key>
           <binding label="&#x0023;"/>
         </key>
-        <key style="special" width="x-large">
+        <key style="special">
           <binding label="" action="backspace"/>
+        </key>
+        <key style="special" id="actionKey">
+          <binding action="return"/>
         </key>
       </row>
     </section>
@@ -102,14 +105,14 @@
         </key>
       </row>
 
-      <row> 
-        <spacer/>
-
-        <key style="special" width="x-large">
+      <row>
+        <key style="special" width="large">
           <binding label="" action="backspace"/>
+        </key>
+        <key style="special" id="actionKey">
+          <binding action="return"/>
         </key>
       </row>
     </section>
   </layout>
 </keyboard>
-
