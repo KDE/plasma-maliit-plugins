@@ -89,9 +89,11 @@ bool LoggingWindow::writeResults(const QString &fileName)
     while ((n < log.size() - 2) && (log[n].start == InvalidTime))
         ++n;
 
+    averageFPS = log.size() / diff(log[n].start, log[log.size() - 1].end);
+
     stream << diff(log[n].start, log[n].end) << "; "
            << diff(log[n].end, log[n + 1].start) << "; "
-           << log.size() / diff(log[n].start, log[log.size() - 1].end) << "\n";
+           << averageFPS << "\n";
 
     for (++n; n < log.size() - 2; ++n) {
         if (log[n].start != InvalidTime) {

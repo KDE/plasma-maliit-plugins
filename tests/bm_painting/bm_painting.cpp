@@ -45,6 +45,8 @@ namespace {
                        (char *) "-software" };
     const char *const MImUserDirectory = ".meego-im";
     const int DefaultDelay = 1000; // milliseconds
+    const int PerformanceTargetFPS = 50;
+    const float PerformanceAcceptanceFactor = 0.9;
 }
 
 void Bm_Painting::initTestCase()
@@ -205,7 +207,7 @@ void Bm_Painting::benchmarkPaintDuringKeyPresses()
     commonWindowSetup(hardwareRendering, compositing);
 
     KeyboardData *keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard(filename));
+    Q_ASSERT(keyboard->loadNokiaKeyboard(filename));
     MImKeyArea *subject = new MImKeyArea(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection));
 
     subject->resize(defaultLayoutSize(subject));
@@ -220,9 +222,9 @@ void Bm_Painting::benchmarkPaintDuringKeyPresses()
     MImKey *key1 = dynamic_cast<MImKey *>(keyAt(subject, 1, 3));
     MImKey *key2 = dynamic_cast<MImKey *>(keyAt(subject, 2, 6));
 
-    QVERIFY(key0);
-    QVERIFY(key1);
-    QVERIFY(key2);
+    Q_ASSERT(key0);
+    Q_ASSERT(key1);
+    Q_ASSERT(key2);
 
     const QPoint point0 = key0->buttonBoundingRect().center().toPoint();
     const QPoint point1 = key1->buttonBoundingRect().center().toPoint();
@@ -296,9 +298,13 @@ void Bm_Painting::benchmarkPaintDuringKeyPresses()
     }
     window->loggingEnabled = false;
 
-    // Cleanup
     window->writeResults(resultFilename);
+    const float actualFPS = window->averageFPS;
+    QTest::setBenchmarkResult(actualFPS, QTest::FramesPerSecond);
+    const float acceptedFPS = PerformanceTargetFPS * PerformanceAcceptanceFactor;
+    QVERIFY(actualFPS >= acceptedFPS);
 
+    // Cleanup
     subject->setParentItem(0);
     delete subject;
     delete keyboard;
@@ -324,7 +330,7 @@ void Bm_Painting::benchmarkPaintDuringHorizontalLayoutChange()
     commonWindowSetup(hardwareRendering, compositing);
 
     KeyboardData *keyboardData = new KeyboardData;
-    QVERIFY(keyboardData->loadNokiaKeyboard(filename));
+    Q_ASSERT(keyboardData->loadNokiaKeyboard(filename));
     const LayoutData::SharedLayoutSection &section = keyboardData->
             layout(LayoutData::General, M::Landscape)->
             section(LayoutData::mainSection);
@@ -354,9 +360,13 @@ void Bm_Painting::benchmarkPaintDuringHorizontalLayoutChange()
     }
     window->loggingEnabled = false;
 
-    // Cleanup
     window->writeResults(resultFilename);
+    const float actualFPS = window->averageFPS;
+    QTest::setBenchmarkResult(actualFPS, QTest::FramesPerSecond);
+    const float acceptedFPS = PerformanceTargetFPS * PerformanceAcceptanceFactor;
+    QVERIFY(actualFPS >= acceptedFPS);
 
+    // Cleanup
     subject->setParentItem(0);
     delete subject;
     delete keyboardData;

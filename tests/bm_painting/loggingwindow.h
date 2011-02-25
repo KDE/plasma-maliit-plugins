@@ -40,6 +40,8 @@ public:
 
     void logMark();
 
+    float averageFPS;
+
 protected:
     virtual bool viewportEvent(QEvent *event);
 
