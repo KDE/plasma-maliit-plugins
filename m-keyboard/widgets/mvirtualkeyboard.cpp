@@ -78,7 +78,8 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
       phoneNumberKeyboard(0),
       eventHandler(this),
       pendingNotificationRequest(false),
-      transitioning(false)
+      transitioning(false),
+      generalContentType(M::FreeTextContentType)
 {
     setFlag(QGraphicsItem::ItemHasNoContents);
     setObjectName("MVirtualKeyboard");
@@ -384,15 +385,15 @@ void MVirtualKeyboard::setKeyboardType(const int type)
         break;
     }
 
-    if (newLayoutType == currentLayoutType) {
-        return;
+    if (newLayoutType != currentLayoutType) {
+        currentLayoutType = newLayoutType;
+        updateMainLayoutAtKeyboardIndex();
+        if (mainKeyboardSwitcher->count() > 1 && (currentLayoutType == LayoutData::General)) {
+            requestLanguageNotification();
+        }
     }
 
-    currentLayoutType = newLayoutType;
-    updateMainLayoutAtKeyboardIndex();
-    if (mainKeyboardSwitcher->count() > 1 && (currentLayoutType == LayoutData::General)) {
-        requestLanguageNotification();
-    }
+    setContentType(static_cast<M::TextContentType>(type));
 }
 
 ModifierState MVirtualKeyboard::shiftStatus() const
@@ -814,3 +815,24 @@ void MVirtualKeyboard::setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOv
     this->overrides = overrides;
 }
 
+void MVirtualKeyboard::setContentType(M::TextContentType type)
+{
+    if( currentLayoutType != LayoutData::General
+        || generalContentType == type )
+    {
+        return;
+    }
+    generalContentType = type;
+    switch(type)
+    {
+    case M::UrlContentType:
+        qDebug() << "Switch to URL keys";
+        break;
+    case M::EmailContentType:
+        qDebug() << "Switch to Email keys";
+        break;
+    default:
+        qDebug() << "Switch to Default keys";
+        break;
+    }
+}

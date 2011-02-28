@@ -347,6 +347,9 @@ private:
     //! Show notification informing about current language
     void showLanguageNotification();
 
+    //! Sets the current content type (handles email/url overrides):
+    void setContentType(M::TextContentType type);
+
 private:
     //! Main layout indices
     enum LayoutIndex {
@@ -403,6 +406,9 @@ private:
 
     //! Contains current keyboard overrides
     QMap<QString, QSharedPointer<MKeyOverride> > overrides;
+
+    //! Currently active content type for general layout:
+    M::TextContentType generalContentType;
 };
 
 #endif
