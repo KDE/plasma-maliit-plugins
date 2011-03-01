@@ -1282,12 +1282,14 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
         // commit suggestion if correction candidate widget is visible and with popupMode
         // or ignore it if correction widget is visible and with suggestionlist mode
         // otherwise commit preedit
+        bool eventSent(false);
         if (event.qtKey() == Qt::Key_Space
             && correctionHost->isActive()
             && correctionAcceptedWithSpaceEnabled) {
             if (correctionHost->candidateMode() == MImCorrectionHost::WordTrackerMode) {
                 wordTrackerSuggestionAcceptedWithSpace = true;
-                inputMethodHost()->sendCommitString(correctionHost->suggestion());
+                inputMethodHost()->sendCommitString(correctionHost->suggestion() + " ");
+                eventSent = true;
             } else {
                 // ignore space click when word list is visible.
                 return;
@@ -1301,7 +1303,15 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
                                                   && preeditCursorPos != preedit.length()
                                                   && inputMethodHost()->surroundingText(surroundingText, cursorPos)
                                                   && (cursorPos >= 0);
-                inputMethodHost()->sendCommitString(preedit, 0, 0, needRepositionCursor ? (cursorPos + preeditCursorPos) : -1);
+                int eventCharactersInserted(0);
+                eventSent = event.qtKey() != Qt::Key_Return;
+                if (eventSent) {
+                    preedit.insert(needRepositionCursor ? preeditCursorPos : preedit.size(), event.text());
+                    eventCharactersInserted = 1;
+                }
+
+                inputMethodHost()->sendCommitString(
+                    preedit, 0, 0, needRepositionCursor ? (cursorPos + preeditCursorPos + eventCharactersInserted) : -1);
             }
         }
 
@@ -1311,7 +1321,9 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
             correctionHost->reset();
         }
         // Send trailing space.
-        sendCommitStringOrReturnEvent(event);
+        if (!eventSent) {
+            sendCommitStringOrReturnEvent(event); // it's always return here
+        }
 
         imCorrectionEngine->clearEngineBuffer();
         preedit.clear();
