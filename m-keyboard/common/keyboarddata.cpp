@@ -498,7 +498,7 @@ void KeyboardData::parseTagBinding(const QDomElement &element, ParseParameters &
 {
     const bool shift = toBoolean(element.attribute(VKBTagShift, "false"));
 
-    if (params.currentKey->bindings[shift ? MImKeyModel::Shift : MImKeyModel::NoShift]) {
+    if (params.currentKey->binding(shift)) {
         qWarning() << "Ignoring duplicate binding with same shift attribute on line"
                    << element.lineNumber() << "column" << element.columnNumber()
                    << "in layout file" << *params.fileName;
@@ -521,7 +521,7 @@ void KeyboardData::parseTagBinding(const QDomElement &element, ParseParameters &
 
     binding->extended_labels = element.attribute(VKBTagExtendedLabels);
 
-    params.currentKey->bindings[shift ? MImKeyModel::Shift : MImKeyModel::NoShift] = binding;
+    params.currentKey->setBinding(*binding, shift);
 }
 
 void KeyboardData::parseTagKey(const QDomElement &element, ParseParameters &params)
@@ -548,12 +548,12 @@ void KeyboardData::parseTagKey(const QDomElement &element, ParseParameters &para
 
     parseChildren(element, params, VKBTagBinding, &KeyboardData::parseTagBinding);
 
-    if (key->bindings[1] == NULL) {
-        key->bindings[1] = key->bindings[0];
+    if (key->binding(false) == NULL) {
+        key->setBinding(*(key->binding(true)), false);
     }
 
-    if (key->bindings[0] == NULL) {
-        key->bindings[0] = key->bindings[1];
+    if (key->binding(true) == NULL) {
+        key->setBinding(*(key->binding(false)), true);
     }
 }
 

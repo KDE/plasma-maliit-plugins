@@ -142,6 +142,8 @@ MImKeyModel::MImKeyModel(MImKeyModel::StyleType style,
 {
     bindings[NoShift] = 0;
     bindings[Shift] = 0;
+    activeBindings[NoShift] = 0;
+    activeBindings[Shift] = 0;
 }
 
 MImKeyModel::~MImKeyModel()
@@ -159,6 +161,7 @@ void MImKeyModel::setBinding(const MImKeyBinding &binding, bool shift)
         delete store;
     }
     store = &binding;
+    activeBindings[shift ? Shift : NoShift] = &binding;
 }
 
 KeyEvent MImKeyModel::toKeyEvent(QKeyEvent::Type eventType, bool shift) const
@@ -197,3 +200,11 @@ QString MImKeyModel::id() const
     return keyId;
 }
 
+void MImKeyModel::overrideBinding(const MImKeyBinding *binding, bool shift)
+{
+    if(binding == 0)
+    {
+        binding = bindings[shift ? Shift : NoShift]; // reset to default
+    }
+    activeBindings[shift ? Shift : NoShift] = binding;
+}

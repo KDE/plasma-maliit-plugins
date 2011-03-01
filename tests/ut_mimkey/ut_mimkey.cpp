@@ -164,7 +164,7 @@ void Ut_MImKey::testIsDead()
 {
     MImKeyModel *key = new MImKeyModel;
     MImKeyBinding *binding = new MImKeyBinding;
-    key->bindings[MImKeyModel::NoShift] = binding;
+    key->setBinding(*binding, false);
 
     MImAbstractKey *subject = new MImKey(*key, *style, *parent, stylingCache);
 
@@ -348,7 +348,7 @@ void Ut_MImKey::testVisitActiveKeys()
     MImKeyBinding *b = new MImKeyBinding;
     b->keyAction = MImKeyBinding::ActionShift;
     MImKeyModel *model = new MImKeyModel;
-    model->bindings[MImKeyModel::NoShift] = b;
+    model->setBinding(*b, false);
     MImKey *shift = new MImKey(*model, *style, *parent, stylingCache);
     shift->setDownState(true);
     keys << shift;
@@ -509,8 +509,8 @@ MImKeyModel *Ut_MImKey::createKeyModel()
     binding2->accented_labels = QString(L'À') + L'Á' + L'Â' + L'Ä';
     binding2->keyAction = MImKeyBinding::ActionInsert;
 
-    key->bindings[MImKeyModel::NoShift] = binding1;
-    key->bindings[MImKeyModel::Shift] = binding2;
+    key->setBinding(*binding1, false);
+    key->setBinding(*binding2, true);
 
     return key;
 }

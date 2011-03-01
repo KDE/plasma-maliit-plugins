@@ -83,7 +83,7 @@ void Ut_MImKeyModel::testAccent()
             << label[0];
 
     MImKeyBinding *noShiftBinding = new MImKeyBinding;
-    subject->bindings[MImKeyModel::NoShift] = noShiftBinding;
+    subject->setBinding(*noShiftBinding, false);
     noShiftBinding->keyLabel = label;
     noShiftBinding->accented_labels = QString(accentedChars,
                                      sizeof(accentedChars) / sizeof(accentedChars[0]));
@@ -116,7 +116,7 @@ void Ut_MImKeyModel::testKeyCode()
     QFETCH(Qt::Key, keyCode);
 
     MImKeyBinding *noShiftBinding = new MImKeyBinding;
-    subject->bindings[MImKeyModel::NoShift] = noShiftBinding;
+    subject->setBinding(*noShiftBinding, false);
     noShiftBinding->keyLabel = label;
 
     QCOMPARE(static_cast<Qt::Key>(subject->toKeyEvent(QEvent::KeyPress, false).toQKeyEvent().key()),

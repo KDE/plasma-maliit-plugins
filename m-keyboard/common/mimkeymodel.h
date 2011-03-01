@@ -235,6 +235,9 @@ public:
     //! Returns key's identifier
     QString id() const;
 
+    //! Set a temporary override for the binding
+    void overrideBinding(const MImKeyBinding *binding, bool shift);
+
 private:
     enum  {
         NoShift = 0,
@@ -245,6 +248,9 @@ private:
     // All indices always contain a binding object, though more than one index may contain
     // the same binding
     const MImKeyBinding *bindings[NumBindings];
+
+    // Active bindings (changeable by overrideBinding or setBinding ):
+    const MImKeyBinding *activeBindings[NumBindings];
 
     StyleType mStyle;
 
@@ -259,16 +265,12 @@ private:
     //! Contains key's identifier
     QString keyId;
 
-    friend class KeyboardData;
-    friend class Ut_MImKeyModel;
-    friend class Ut_MImKey;
 };
 
 
 inline const MImKeyBinding *MImKeyModel::binding(bool shift) const
 {
-    return bindings[shift ? Shift : NoShift];
+    return activeBindings[shift ? Shift : NoShift];
 }
-
 
 #endif
