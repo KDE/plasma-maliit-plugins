@@ -299,6 +299,9 @@ private:
 
     void turnOnFastTyping();
 
+    //! Changes +/- sign in front of text in number mode.
+    void togglePlusMinus();
+
 private:
     //! \brief Slides full-width QGraphicsWidgets up from the bottom of the display,
     //! aligning their bottom with the display bottom

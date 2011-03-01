@@ -96,7 +96,7 @@ KeyEvent MImKeyBinding::toKeyEventImpl(QKeyEvent::Type eventType,
         specialKey = KeyEvent::Sym;
         break;
     case ActionPlusMinusToggle:
-        key = Qt::Key_plusminus;
+        specialKey = KeyEvent::ChangeSign;
         break;
     case ActionDecimalSeparator:
     case ActionInsert:

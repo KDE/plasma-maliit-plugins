@@ -764,25 +764,6 @@ void Ut_MKeyboardHost::testCopyPaste()
     QVERIFY(inputMethodHost->pasteCalls == 1);
 }
 
-void Ut_MKeyboardHost::testPlusMinus()
-{
-    QString text = QChar(0xb1);
-    inputMethodHost->sendKeyEventCalls = 0;
-    KeyEvent press(text, QEvent::KeyPress, Qt::Key_plusminus, KeyEvent::NotSpecial);
-    KeyEvent release(press, QEvent::KeyRelease);
-
-    subject->update();
-    subject->handleKeyPress(press);
-    subject->handleKeyRelease(release);
-    subject->handleKeyClick(release); // Should be ignored.
-
-    QCOMPARE(inputMethodHost->sendKeyEventCalls, 2);
-    QCOMPARE(inputMethodHost->keyEvents.first()->text(), text);
-    QVERIFY(inputMethodHost->keyEvents.first()->key() == Qt::Key_plusminus);
-    QCOMPARE(inputMethodHost->keyEvents.first()->type(), QEvent::KeyPress);
-    QCOMPARE(inputMethodHost->keyEvents.at(1)->type(), QEvent::KeyRelease);
-}
-
 void Ut_MKeyboardHost::testSendString()
 {
     QString testString("bacon");
@@ -1264,6 +1245,7 @@ void Ut_MKeyboardHost::testKeyCycle()
     subject->update();
     inputMethodHost->preedit = "";
     inputMethodHost->commit = "";
+    inputMethodHost->cursorPos = 0;
 
     if (!preedit.isEmpty()) {
         subject->preedit = preedit;
@@ -1282,6 +1264,7 @@ void Ut_MKeyboardHost::testKeyCycle()
     QCOMPARE(inputMethodHost->preedit, QString(event2.text()[0]));
 
     inputMethodHost->commit = "";
+    inputMethodHost->cursorPos = 0;
 
     QTest::qWait(MultitapTime);
     subject->handleKeyClick(event2);
@@ -1290,6 +1273,7 @@ void Ut_MKeyboardHost::testKeyCycle()
 
     inputMethodHost->commit  = "";
     inputMethodHost->preedit = "";
+    inputMethodHost->cursorPos = 0;
 
     subject->handleKeyClick(space);
     QCOMPARE(inputMethodHost->preedit, QString(""));
@@ -1298,6 +1282,7 @@ void Ut_MKeyboardHost::testKeyCycle()
     // Test cycle key autocommit timeout:
     inputMethodHost->commit = "";
     inputMethodHost->preedit = "";
+    inputMethodHost->cursorPos = 0;
 
     subject->handleKeyClick(event1);
     subject->handleKeyClick(event1);
@@ -1305,6 +1290,7 @@ void Ut_MKeyboardHost::testKeyCycle()
     QCOMPARE(inputMethodHost->commit, QString(""));
     inputMethodHost->commit = "";
     inputMethodHost->preedit = "";
+    inputMethodHost->cursorPos = 0;
     QTest::qWait(MultitapTime);
     QCOMPARE(inputMethodHost->preedit, QString(""));
     QCOMPARE(inputMethodHost->commit, QString(event1.text()[1]));
@@ -1804,7 +1790,7 @@ void Ut_MKeyboardHost::testSignalsInNormalMode()
     // only few keys generate signals in normal mode
     const TestSignalEvent testEvents[] = {
         { "k", Qt::Key_K, 0, 0 },
-        { "+-", Qt::Key_plusminus, 1, 1 },
+        { "+-", Qt::Key_plusminus, 0, 0 },
         { " ", Qt::Key_Space, 0, 0 },
         { "s", Qt::Key_S, 0, 0 },
         { "\b", Qt::Key_Backspace, 1, 1 },
@@ -1905,6 +1891,7 @@ void Ut_MKeyboardHost::testAutoPunctuation()
     subject->handleKeyClick(KeyEvent(" ", QEvent::KeyRelease, Qt::Key_Space));
     inputMethodHost->commit.clear();
     inputMethodHost->preedit.clear();
+    inputMethodHost->cursorPos = 0;
     subject->handleKeyClick(KeyEvent(character, QEvent::KeyRelease));
 
     if (autopunctuated) {
@@ -1951,6 +1938,105 @@ void Ut_MKeyboardHost::testToolbarPosition()
     QCOMPARE(subject->sharedHandleArea->pos(),
              QPointF(0, (MPlainWindow::instance()->visibleSceneSize().height()
                          - subject->sharedHandleArea->size().height())));
+}
+
+const QChar CursorSign('|');
+
+void Ut_MKeyboardHost::testTogglePlusMinus_data()
+{
+    // Define what text should look before and after sign change.
+    // Sign '|' means cursor position in the text.
+    QTest::addColumn<QString>("before");
+    QTest::addColumn<QString>("after");
+
+    // Strict "only number" input field tests
+    QTest::newRow("Empty") << "|" << "-|";
+    QTest::newRow("Only sign 1") << "+|" << "-|";
+    QTest::newRow("Only sign 2") << "-|" << "+|";
+    QTest::newRow("Only sign 3") << "|+" << "|-";
+    QTest::newRow("Only sign 4") << "|-" << "|+";
+    QTest::newRow("At the end - no sign") << "523.90|" << "-523.90|";
+    QTest::newRow("At the end - plus sign") << "+523.90|" << "-523.90|";
+    QTest::newRow("At the end - minus sign") << "-523.90|" << "+523.90|";
+    QTest::newRow("In the middle - no sign") << "52|3.90" << "-52|3.90";
+    QTest::newRow("In the middle - plus sign") << "+52|3.90" << "-52|3.90";
+    QTest::newRow("In the middle - minus sign") << "-52|3.90" << "+52|3.90";
+    QTest::newRow("In the begin - no sign") << "|523.90" << "-|523.90";
+    QTest::newRow("In the begin - plus sign") << "|+523.90" << "|-523.90";
+    QTest::newRow("In the begin - minus sign") << "|-523.90" << "|+523.90";
+    QTest::newRow("Before sign - plus sign") << "+|523.90" << "-|523.90";
+    QTest::newRow("Before sign - minus sign") << "-|523.90" << "+|523.90";
+
+    // Loose (any content) input field tests
+    QTest::newRow("Space 1") << " |" << " -|";
+    QTest::newRow("Space 2") << "| " << "-| ";
+    QTest::newRow("Space 3") << " | " << " -| ";
+    QTest::newRow("Space + only sign 1") << " +|" << " -|";
+    QTest::newRow("Space + only sign 2") << " -|" << " +|";
+    QTest::newRow("Space + only sign 3") << "+| " << "-| ";
+    QTest::newRow("Space + only sign 4") << "-| " << "+| ";
+    QTest::newRow("Space + only sign 5") << " |+" << " |-";
+    QTest::newRow("Space + only sign 6") << " |-" << " |+";
+    QTest::newRow("Space + only sign 7") << "|+ " << "|- ";
+    QTest::newRow("Space + only sign 8") << "|- " << "|+ ";
+    QTest::newRow("Multiple numbers 1") << "|+1111.11 +222.22+333.33 + 444.44"
+                                        << "|-1111.11 +222.22+333.33 + 444.44";
+    QTest::newRow("Multiple numbers 2") << "+111|1.11 +222.22+333.33 + 444.44"
+                                        << "-111|1.11 +222.22+333.33 + 444.44";
+    QTest::newRow("Multiple numbers 3") << "+1111.11| +222.22+333.33 + 444.44"
+                                        << "-1111.11| +222.22+333.33 + 444.44";
+    QTest::newRow("Multiple numbers 4") << "+1111.11 |+222.22+333.33 + 444.44"
+                                        << "+1111.11 |-222.22+333.33 + 444.44";
+    QTest::newRow("Multiple numbers 5") << "+1111.11 +|222.22+333.33 + 444.44"
+                                        << "+1111.11 -|222.22+333.33 + 444.44";
+    QTest::newRow("Multiple numbers 6") << "+1111.11 +222|.22+333.33 + 444.44"
+                                        << "+1111.11 -222|.22+333.33 + 444.44";
+    QTest::newRow("Multiple numbers 7") << "+1111.11 +222.22|+333.33 + 444.44"
+                                        << "+1111.11 -222.22|+333.33 + 444.44";
+    QTest::newRow("Multiple numbers 8") << "+1111.11 +222.22+|333.33 + 444.44"
+                                        << "+1111.11 +222.22-|333.33 + 444.44";
+    QTest::newRow("Multiple numbers 9") << "+1111.11 +222.22+333|.33 + 444.44"
+                                        << "+1111.11 +222.22-333|.33 + 444.44";
+    QTest::newRow("Multiple numbers 10") << "+1111.11 +222.22+333.33| + 444.44"
+                                         << "+1111.11 +222.22-333.33| + 444.44";
+    QTest::newRow("Multiple numbers 11") << "+1111.11 +222.22+333.33 |+ 444.44"
+                                         << "+1111.11 +222.22+333.33 |- 444.44";
+    QTest::newRow("Multiple numbers 12") << "+1111.11 +222.22+333.33 +| 444.44"
+                                         << "+1111.11 +222.22+333.33 -| 444.44";
+    QTest::newRow("Multiple numbers 13") << "+1111.11 +222.22+333.33 + |444.44"
+                                         << "+1111.11 +222.22+333.33 + -|444.44";
+    QTest::newRow("Multiple numbers 13") << "+1111.11 +222.22+333.33 + 4|44.44"
+                                         << "+1111.11 +222.22+333.33 + -4|44.44";
+}
+
+void Ut_MKeyboardHost::testTogglePlusMinus()
+{
+    QFETCH(QString, before);
+    QFETCH(QString, after);
+
+    // Trim before
+    QVERIFY(before.count(CursorSign) == 1);
+    int beforeCursorPos = before.indexOf(CursorSign);
+    QVERIFY(beforeCursorPos >= 0);
+    before.remove(CursorSign);
+
+    // Trim after
+    QVERIFY(after.count(CursorSign) == 1);
+    int afterCursorPos = after.indexOf(CursorSign);
+    QVERIFY(afterCursorPos >= 0);
+    after.remove(CursorSign);
+
+    // Test
+    inputMethodHost->preedit = "";
+    inputMethodHost->commit = before;
+    inputMethodHost->surroundingString = before;
+    inputMethodHost->cursorPos = beforeCursorPos;
+
+    subject->togglePlusMinus();
+
+    //qDebug
+    QCOMPARE(inputMethodHost->commit, after);
+    QCOMPARE(inputMethodHost->cursorPos, afterCursorPos);
 }
 
 QTEST_APPLESS_MAIN(Ut_MKeyboardHost);

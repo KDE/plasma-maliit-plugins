@@ -61,7 +61,6 @@ private slots:
     void testApplicationOrientationChanged();
 
     void testCopyPaste();
-    void testPlusMinus();
 
     void testSendString();
     void testSendStringFromToolbar();
@@ -114,6 +113,9 @@ private slots:
     void testFastTypingState();
 
     void testToolbarPosition();
+
+    void testTogglePlusMinus_data();
+    void testTogglePlusMinus();
 
 private:
     void rotateToAngle(M::OrientationAngle);

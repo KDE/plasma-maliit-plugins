@@ -90,10 +90,27 @@ void MInputMethodHostStub::sendPreeditString(const QString &string,
 void MInputMethodHostStub::sendCommitString(const QString &string, int replaceStart,
                                             int replaceLength, int pos)
 {
-    Q_UNUSED(replaceStart);
-    Q_UNUSED(replaceLength);
-    Q_UNUSED(pos);
-    commit += string;
+    // Parameter replaceStart is relative to cursorPos -> change to absolute
+    replaceStart = cursorPos + replaceStart;
+
+    // Remove
+    if (replaceLength > 0 &&
+        replaceStart >= 0 &&
+        replaceStart < commit.length() &&
+        replaceStart + replaceLength <= commit.length())
+        commit.remove(replaceStart, replaceLength);
+
+    // Append
+    if (replaceStart >= 0 &&
+        replaceStart <= commit.length())
+        commit.insert(replaceStart, string);
+
+    // Set cursor pos
+    if (pos >= 0)
+      cursorPos = replaceStart + pos;
+    else if (pos < 0)
+      cursorPos = replaceStart + string.length();
+
     ++sendCommitStringCalls;
 }
 

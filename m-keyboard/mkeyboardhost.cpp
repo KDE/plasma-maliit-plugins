@@ -76,6 +76,8 @@ namespace
     const int FastTypingTimeout = 700; //! Milliseconds to idle before leaving fast typing mode.
     MKeyboardHost *currentInstance = 0;
     const char *const MImTouchPointsLogfile = "touchpoints.csv";
+    const char PlusSign('+');
+    const char MinusSign('-');
 }
 
 MKeyboardHost::SlideUpAnimation::SlideUpAnimation(QObject *parent)
@@ -1050,9 +1052,8 @@ void MKeyboardHost::handleKeyPress(const KeyEvent &event)
     }
 
     MInputMethod::EventRequestType requestType = MInputMethod::EventRequestSignalOnly;
-    if (((inputMethodMode == M::InputMethodModeDirect)
-         && (event.specialKey() == KeyEvent::NotSpecial))
-        || (event.qtKey() == Qt::Key_plusminus)) { // plusminus key makes an exception
+    if ((inputMethodMode == M::InputMethodModeDirect)
+         && (event.specialKey() == KeyEvent::NotSpecial)) {
 
         requestType = MInputMethod::EventRequestBoth;
         inputMethodHost()->sendKeyEvent(event.toQKeyEvent(), requestType);
@@ -1085,9 +1086,8 @@ void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
     }
 
     MInputMethod::EventRequestType requestType = MInputMethod::EventRequestSignalOnly;
-    if (((inputMethodMode == M::InputMethodModeDirect)
-         && (event.specialKey() == KeyEvent::NotSpecial))
-        || (event.qtKey() == Qt::Key_plusminus)) { // plusminus key makes an exception
+    if ((inputMethodMode == M::InputMethodModeDirect)
+         && (event.specialKey() == KeyEvent::NotSpecial)) {
 
         requestType = MInputMethod::EventRequestBoth;
         inputMethodHost()->sendKeyEvent(event.toQKeyEvent(), requestType);
@@ -1195,6 +1195,8 @@ void MKeyboardHost::handleGeneralKeyClick(const KeyEvent &event)
         if (symbolView->isActive()) {
             symbolView->switchToNextPage();
         }
+    } else if (event.specialKey() == KeyEvent::ChangeSign) {
+        togglePlusMinus();
     }
 }
 
@@ -1246,10 +1248,9 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
         || (!(event.specialKey() == KeyEvent::NotSpecial
               || event.specialKey() == KeyEvent::CycleSet))
 
-        // Finally, discard Qt backspace and plusminus key, which are handled in
+        // Finally, discard Qt backspace, which is handled in
         // handleKeyPress/Release.
         || (event.qtKey() == Qt::Key_Backspace)
-        || (event.qtKey() == Qt::Key_plusminus)
         || (event.qtKey() == Qt::Key_Shift)) {
 
         return;
@@ -1922,4 +1923,82 @@ void MKeyboardHost::sendBackSpaceKeyEvent() const
                          ? Qt::ShiftModifier : Qt::NoModifier);
     inputMethodHost()->sendKeyEvent(event.toQKeyEvent(),
                                     MInputMethod::EventRequestEventOnly);
+}
+
+void MKeyboardHost::togglePlusMinus()
+{
+    QString text;
+    int cursorPos;
+
+    // Get current text
+    if (!inputMethodHost()->surroundingText(text, cursorPos))
+        return;
+
+    // Sanity check for cursor pos
+    if (cursorPos > text.length())
+        return;
+
+    // Replacing data
+    QString replacedText;
+    int replaceCount = 0;
+    int replacePos = 0;
+    int newCursorPos = -1;
+
+    // Determine replaced part from the commit string
+    if (cursorPos == 0) { // Cursor in the begin of the text is special case
+
+        // Include plus/minus sign to be replaced
+        if (text.length() > 0 && (text[0] == PlusSign || text[0] == MinusSign))
+            replacedText = text[0];
+
+        // Determine positioning
+        replaceCount = replacedText.length();
+
+        // Keep cursor position if we already have sign
+        if (replacedText.length())
+            newCursorPos = 0;
+
+    } else if (cursorPos > 0
+               && cursorPos < text.length()
+               && text[cursorPos-1].isSpace()
+               && (text[cursorPos] == PlusSign || text[cursorPos] == MinusSign)) { // Cursor in between space and plus/minus sign is special case
+
+        // Determine positioning
+        replacedText = text[cursorPos];
+        replaceCount = 1;
+        newCursorPos = 0;
+
+    } else { // Cursor is some where else
+
+        // Find start of "number" under cursor & collect replaced text
+        for (int i = cursorPos-1; i >= 0; i--) {
+
+            // Space is a start of number
+            if (text[i].isSpace())
+                break;
+
+            // Preprend to commit replace
+            replacedText.prepend(text[i]);
+
+            // Plus & minus signs are a start of number
+            if (i < cursorPos && // If cursor is on plus/minus look for previous word
+                (text[i] == PlusSign || text[i] == MinusSign))
+                break;
+        }
+
+        // Determine positioning
+        replaceCount = replacedText.length();
+        replacePos = -replaceCount;
+    }
+
+    // Change/add sign
+    if (replacedText.length() > 0 && replacedText[0] == MinusSign) // Change minus to plus
+        replacedText[0] = PlusSign;
+    else if (replacedText.length() > 0 && replacedText[0] == PlusSign) // Change plus to minus
+        replacedText[0] = MinusSign;
+    else // Add minus
+        replacedText.prepend(MinusSign);
+
+    // Update host
+    inputMethodHost()->sendCommitString(replacedText, replacePos, replaceCount, newCursorPos);
 }
