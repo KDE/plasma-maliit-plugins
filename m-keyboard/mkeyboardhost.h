@@ -306,6 +306,10 @@ private:
     //! Changes +/- sign in front of text in number mode.
     void togglePlusMinus();
 
+    //! Check whether there is a previous word before cursor need to be recomposed
+    //! as preedit. This method is used for vkb backspace.
+    bool needRecomposePreedit(QString &previousWord);
+
 private:
     //! \brief Slides full-width QGraphicsWidgets up from the bottom of the display,
     //! aligning their bottom with the display bottom
