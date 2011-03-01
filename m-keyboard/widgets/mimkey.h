@@ -248,8 +248,6 @@ private:
 
     bool ignoreOverride;
 
-    const MImKeyBinding *bindOverride;
-
 };
 
 #endif // MIMKEY_H

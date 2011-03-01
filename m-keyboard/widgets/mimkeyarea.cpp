@@ -901,16 +901,14 @@ void MImKeyArea::setContentType(M::TextContentType type)
 
     switch(type) {
     case M::UrlContentType:
-        qDebug() << "Switch to URL keys";
         commaKey->overrideBinding(&bindSlash);
         break;
     case M::EmailContentType:
-        qDebug() << "Switch to Email keys";
         commaKey->overrideBinding(&bindAt);
         break;
     default:
-        qDebug() << "Switch to Default keys";
         commaKey->overrideBinding(0);
         break;
     }
+    update();
 }

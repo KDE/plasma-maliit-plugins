@@ -145,8 +145,7 @@ MImKey::MImKey(const MImKeyModel &newModel,
       rowHasSecondaryLabel(false),
       stylingCache(newStylingCache),
       overrideIcon(0),
-      ignoreOverride(false),
-      bindOverride(0)
+      ignoreOverride(false)
 {
     if (mModel.binding(false)) {
         loadIcon(false);
@@ -211,9 +210,9 @@ void MImKey::setIgnoreOverriding(bool ignore)
 
 void MImKey::overrideBinding(const MImKeyBinding *binding)
 {
-    bindOverride = binding;
-    setModifiers(shift,accent);
-    setVisible( bindOverride || (currentState != Normal) );
+    const_cast<MImKeyModel&>(mModel).overrideBinding(binding, false);
+    currentLabel = this->binding().accented(accent);
+    invalidateLabelPos();
 }
 
 void MImKey::invalidateLabelPos()
@@ -347,9 +346,6 @@ const MImKeyModel &MImKey::model() const
 
 const MImKeyBinding &MImKey::binding() const
 {
-    if (bindOverride) {
-        return *bindOverride;
-    }
     return *mModel.binding(shift);
 }
 
