@@ -7,7 +7,7 @@
       <owner>meegotouch</owner>
       <type>list</type>
       <list_type>string</list_type>
-      <default>[en_gb.xml,da.xml,de.xml,es.xml,fi.xml,fr.xml,it.xml,ru.xml,sv.xml]</default>
+      <default>[en_gb.xml]</default>
       <locale name="C">
         <short>Virtual keyboard layout list</short>
         <long>Meegotouch virtual keyboard layout list</long>
