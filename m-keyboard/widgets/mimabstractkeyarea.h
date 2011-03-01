@@ -119,6 +119,11 @@ public slots:
      */
     virtual void setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides) = 0;
 
+    /*!
+     * \brief Sets the current content type (handles email/url overrides).
+     */
+    virtual void setContentType(M::TextContentType type) = 0;
+
 signals:
     //! \brief Emitted when key is pressed
     //!

@@ -822,17 +822,6 @@ void MVirtualKeyboard::setContentType(M::TextContentType type)
     {
         return;
     }
+    mainKeyboardSwitcher->setContentType(type);
     generalContentType = type;
-    switch(type)
-    {
-    case M::UrlContentType:
-        qDebug() << "Switch to URL keys";
-        break;
-    case M::EmailContentType:
-        qDebug() << "Switch to Email keys";
-        break;
-    default:
-        qDebug() << "Switch to Default keys";
-        break;
-    }
 }

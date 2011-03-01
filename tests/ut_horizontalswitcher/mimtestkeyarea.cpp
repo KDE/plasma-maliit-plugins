@@ -48,6 +48,10 @@ void MImTestKeyArea::updateKeyGeometries(int)
 {
 }
 
+void MImTestKeyArea::setContentType(M::TextContentType)
+{
+}
+
 void MImTestKeyArea::setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides)
 {
     ++setKeyOverridesCalls;

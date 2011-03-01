@@ -335,7 +335,8 @@ MImKeyArea::MImKeyArea(const LayoutData::SharedLayoutSection &newSection,
       shiftKey(0),
       equalWidthKeys(true),
       WidthCorrection(0),
-      stylingCache(new MImKey::StylingCache)
+      stylingCache(new MImKey::StylingCache),
+      commaKey(0)
 {
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
@@ -437,6 +438,9 @@ void MImKeyArea::loadKeys()
             // TODO: Remove restriction to have only one shift key per layout?
             if (dataKey->binding()->action() == MImKeyBinding::ActionShift) {
                 shiftKey = key;
+            }
+            else if (dataKey->binding()->label() == ",") {
+                commaKey = key;
             }
 
             rowIter->keys.append(key);
@@ -886,3 +890,27 @@ void MImKeyArea::releaseKey(MImKey *key)
                      hasActiveShiftKeys || level() % 2);
 }
 
+void MImKeyArea::setContentType(M::TextContentType type)
+{
+    static const MImKeyBinding bindAt("@");
+    static const MImKeyBinding bindSlash("/");
+
+    if (!commaKey) {
+        return;
+    }
+
+    switch(type) {
+    case M::UrlContentType:
+        qDebug() << "Switch to URL keys";
+        commaKey->overrideBinding(&bindSlash);
+        break;
+    case M::EmailContentType:
+        qDebug() << "Switch to Email keys";
+        commaKey->overrideBinding(&bindAt);
+        break;
+    default:
+        qDebug() << "Switch to Default keys";
+        commaKey->overrideBinding(0);
+        break;
+    }
+}

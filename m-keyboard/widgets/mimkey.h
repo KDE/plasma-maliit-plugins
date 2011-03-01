@@ -172,6 +172,9 @@ public:
     //! \param ignore Set this parameter to true if you want to get original key's attributes.
     void setIgnoreOverriding(bool ignore);
 
+    //! \brief Override key's binding.
+    void overrideBinding(const MImKeyBinding* binding);
+
     //! The width for this button. Not managed by this class.
     //! It is used by MImKeyArea to store the correct button size.
     qreal width;
@@ -244,6 +247,9 @@ private:
     QPixmap *overrideIcon;
 
     bool ignoreOverride;
+
+    const MImKeyBinding *bindOverride;
+
 };
 
 #endif // MIMKEY_H

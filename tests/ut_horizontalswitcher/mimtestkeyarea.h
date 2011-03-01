@@ -47,6 +47,7 @@ public:
     virtual MImAbstractKey * findKey(const QString &);
     virtual MImAbstractKey *keyAt(const QPoint &) const;
     virtual void updateKeyGeometries(int);
+    virtual void setContentType(M::TextContentType);
     //! \reimp_end
 
 public slots:

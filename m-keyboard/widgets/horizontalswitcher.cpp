@@ -330,3 +330,12 @@ void HorizontalSwitcher::setKeyOverrides(const QMap<QString, QSharedPointer<MKey
     }
 }
 
+void HorizontalSwitcher::setContentType(M::TextContentType type)
+{
+    foreach(QGraphicsWidget *slide, slides) {
+        MImAbstractKeyArea *mainKba = qobject_cast<MImAbstractKeyArea *>(slide);
+        if (mainKba) {
+            mainKba->setContentType(type);
+        }
+    }
+}

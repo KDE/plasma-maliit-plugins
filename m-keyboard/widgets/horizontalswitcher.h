@@ -23,6 +23,7 @@
 #include <QGraphicsItemAnimation>
 #include <QTimeLine>
 #include <QMap>
+#include <MNamespace>
 
 class MKeyOverride;
 
@@ -114,6 +115,11 @@ public:
      * \brief Uses custom key overrides which is defined by \a overrides.
      */
     void setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides);
+
+     /*!
+     * \brief Sets the current content type (handles email/url overrides).
+     */
+    void setContentType(M::TextContentType type);
 
 signals:
     /*! \brief Signals the beginning of a switch.
