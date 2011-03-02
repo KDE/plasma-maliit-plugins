@@ -128,6 +128,8 @@ void MKeyboardSettingsWidget::buildUi()
     selectedKeyboardsItem = new MContentItem(MContentItem::TwoTextLabels, this);
     selectedKeyboardsItem->setObjectName(ObjectNameSelectedKeyboardsItem);
     connect(selectedKeyboardsItem, SIGNAL(clicked()), this, SLOT(showKeyboardList()));
+    selectedKeyboardsItem->setStyleName("CommonContentItemInverted");
+
     // Put to first row, first column on the grid
     addItem(selectedKeyboardsItem, 0, 0);
 
@@ -137,6 +139,7 @@ void MKeyboardSettingsWidget::buildUi()
     errorCorrectionSwitch->setViewType(MButton::switchType);
     errorCorrectionSwitch->setCheckable(true);
     errorCorrectionContentItem = new MContentItem(MContentItem::TwoTextLabels, this);
+    errorCorrectionContentItem->setStyleName("CommonContentItemInverted");
     //% "Error correction"
     errorCorrectionContentItem->setTitle(qtTrId("qtn_txts_error_correction"));
     //% "Error correction description"
@@ -154,6 +157,7 @@ void MKeyboardSettingsWidget::buildUi()
     correctionSpaceSwitch->setViewType(MButton::switchType);
     correctionSpaceSwitch->setCheckable(true);
     correctionSpaceContentItem = new MContentItem(MContentItem::TwoTextLabels, this);
+    correctionSpaceContentItem->setStyleName("CommonContentItemInverted");
     //% "Insert with space"
     correctionSpaceContentItem->setTitle(qtTrId("qtn_txts_insert_with_space"));
     //% "Insert with space description"
