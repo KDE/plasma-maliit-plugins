@@ -155,7 +155,8 @@ void Ut_MKeyboardHost::initTestCase()
 
     app = new MApplication(argc, app_name);
     inputMethodHost = new MInputMethodHostStub;
-    window = new MPlainWindow;
+    window = 0;
+    mainWindow = new QWidget;
 
     MGConfItem(MultitouchSettings).set(true);
 
@@ -165,8 +166,8 @@ void Ut_MKeyboardHost::initTestCase()
 
 void Ut_MKeyboardHost::cleanupTestCase()
 {
-    delete window;
-    window = 0;
+    delete mainWindow;
+    mainWindow = 0;
     delete inputMethodHost;
     inputMethodHost = 0;
     delete app;
@@ -181,10 +182,11 @@ void Ut_MKeyboardHost::init()
     MGConfItem config(CorrectionSetting);
     config.set(QVariant(false));
 
-    subject = new MKeyboardHost(inputMethodHost, 0);
+    subject = new MKeyboardHost(inputMethodHost, mainWindow);
     inputMethodHost->clear();
     gAutoCapsEnabled = true;
 
+    window = MPlainWindow::instance();
     window->hide();
     if (window->orientationAngle() != M::Angle0) {
         window->setOrientationAngle(M::Angle0);
@@ -197,6 +199,8 @@ void Ut_MKeyboardHost::cleanup()
 {
     delete subject;
     subject = 0;
+    delete window;
+    window = 0;
 }
 
 void Ut_MKeyboardHost::testCreate()

@@ -230,6 +230,9 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
       touchPointLogHandle(0),
       view(0)
 {
+    Q_ASSERT(host != 0);
+    Q_ASSERT(mainWindow != 0);
+
     if (!MComponentData::instance()) {
         static int argc = qApp->argc();
         static char **argv = qApp->argv();

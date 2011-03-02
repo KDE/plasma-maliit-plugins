@@ -22,6 +22,7 @@
 #include <QList>
 #include <QtTest/QtTest>
 #include <QObject>
+#include <QWidget>
 
 #include <mnamespace.h>
 
@@ -39,6 +40,7 @@ private:
     MKeyboardHost *subject;
     MInputMethodHostStub *inputMethodHost;
     MWindow *window;
+    QWidget *mainWindow;
 
 private slots:
     void init();
