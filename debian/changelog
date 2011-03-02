@@ -1,8 +1,8 @@
-meego-keyboard (0.5.29~1) unstable; urgency=low
+meego-keyboard (0.5.29-1) unstable; urgency=low
 
-  * [UNRELEASED]
+  * New release
 
- -- Pekka Vuorela <pekka.ta.vuorela@nokia.com>  Thu, 24 Feb 2011 13:35:46 +0200
+ -- Pekka Vuorela <pekka.ta.vuorela@nokia.com>  Wed, 02 Mar 2011 13:50:39 +0200
 
 meego-keyboard (0.5.28-1) unstable; urgency=low
 
