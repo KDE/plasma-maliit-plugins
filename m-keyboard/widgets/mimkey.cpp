@@ -211,6 +211,7 @@ void MImKey::setIgnoreOverriding(bool ignore)
 void MImKey::overrideBinding(const MImKeyBinding *binding)
 {
     const_cast<MImKeyModel&>(mModel).overrideBinding(binding, false);
+    const_cast<MImKeyModel&>(mModel).overrideBinding(binding, true);
     currentLabel = this->binding().accented(accent);
     invalidateLabelPos();
 }
