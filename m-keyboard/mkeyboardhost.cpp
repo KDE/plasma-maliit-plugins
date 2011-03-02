@@ -1311,7 +1311,7 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
                 }
 
                 inputMethodHost()->sendCommitString(
-                    preedit, 0, 0, needRepositionCursor ? (cursorPos + preeditCursorPos + eventCharactersInserted) : -1);
+                    preedit, 0, 0, needRepositionCursor ? (preeditCursorPos + eventCharactersInserted) : -1);
             }
         }
 
