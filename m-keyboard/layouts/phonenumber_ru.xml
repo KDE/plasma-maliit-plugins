@@ -39,16 +39,16 @@
       <row>
         <spacer/>
 
-        <key>
+        <key width="large">
           <binding label="&#x002A;&#x002B;" cycleset="&#x002A;&#x002B;p" action="cycle"/>
         </key>
-        <key>
+        <key width="large">
           <binding label="&#x0023;"/>
         </key>
-        <key style="special">
+        <key style="special" width="large">
           <binding label="" action="backspace"/>
         </key>
-        <key style="special" id="actionKey">
+        <key style="special" id="actionKey" width="large">
           <binding action="return"/>
         </key>
       </row>
@@ -109,6 +109,7 @@
         <key style="special" width="large">
           <binding label="" action="backspace"/>
         </key>
+        <spacer/>
         <key style="special" id="actionKey">
           <binding action="return"/>
         </key>

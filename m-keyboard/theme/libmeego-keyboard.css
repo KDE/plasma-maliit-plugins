@@ -205,6 +205,7 @@ MImAbstractKeyAreaStyle.Portrait {
 
 MImAbstractKeyAreaStyle.Landscape:keys14 {
     use-fixed-key-width: true;
+    key-width-large-fixed: 160px;
 }
 
 MImAbstractKeyAreaStyle.Portrait:keys14 {

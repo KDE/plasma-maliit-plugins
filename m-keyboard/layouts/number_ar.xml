@@ -38,16 +38,16 @@
       <row>
         <spacer/>
 
-        <key>
+        <key width="large">
           <binding label="&#x002B;&#x002F;&#x002D;" action="plus_minus_toggle"/>
         </key>
-        <key>
+        <key width="large">
           <binding action="decimal_separator"/>
         </key>
-        <key style="special" rtl="true">
+        <key style="special" rtl="true" width="large">
           <binding label="" action="backspace"/>
         </key>
-        <key style="special" id="actionKey">
+        <key style="special" id="actionKey" width="large">
           <binding action="return"/>
         </key>
       </row>
@@ -108,6 +108,7 @@
         <key style="special" width="large">
           <binding label="" action="backspace"/>
         </key>
+        <spacer/>
         <key style="special" id="actionKey">
           <binding action="return"/>
         </key>
