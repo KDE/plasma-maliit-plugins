@@ -1,3 +1,9 @@
+meego-keyboard (0.5.31~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Ning Chi <ext-chi.2.ning@nokia.com>  Thu, 03 Mar 2011 09:39:44 +0200
+
 meego-keyboard (0.5.30-1) unstable; urgency=low
 
   * Fixes: NB#223273 - ± sign in virtual keyboard appends ± character for number content (Qt bug or IM bug?)
