@@ -1,6 +1,7 @@
 meego-keyboard (0.5.31~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#218406, Cursor is moving to the end of the word when space bar is long pressed in a scenario.
 
  -- Ning Chi <ext-chi.2.ning@nokia.com>  Thu, 03 Mar 2011 09:39:44 +0200
 
