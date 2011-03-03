@@ -1,6 +1,8 @@
 meego-keyboard (0.5.30~1) unstable; urgency=low
 
-  * [UNRELEASED]
+  * Fixes: NB#223273 - ± sign in virtual keyboard appends ± character for number content (Qt bug or IM bug?)
+  * Fixes: NB#220954, With the vkb 'sym' view on the foreground,tapping on the 'done' button makes the layout to change before it gets closed.
+  * Fixes: NB#218406, Cursor is moving to the end of the word when space bar is long pressed in a scenario.
 
  -- Pekka Vuorela <pekka.ta.vuorela@nokia.com>  Wed, 02 Mar 2011 13:54:49 +0200
 
