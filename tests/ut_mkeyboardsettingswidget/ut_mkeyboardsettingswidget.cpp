@@ -23,7 +23,7 @@
 #include <MSceneManager>
 #include <MList>
 #include <MButton>
-#include <MContentItem>
+#include <MBasicListItem>
 #include <MDialog>
 #include <MLabel>
 

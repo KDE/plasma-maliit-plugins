@@ -23,7 +23,7 @@
 
 class QGraphicsItem;
 class QGraphicsLayoutItem;
-class MContentItem;
+class MBasicListItem;
 class MButton;
 class MDialog;
 class MList;
@@ -66,12 +66,12 @@ private:
     MGridLayoutPolicy *landscapePolicy;
     MLinearLayoutPolicy *portraitPolicy;
     MButton *errorCorrectionSwitch;
-    MContentItem *errorCorrectionContentItem;
+    MBasicListItem *errorCorrectionContentItem;
     MButton *correctionSpaceSwitch;
-    MContentItem *correctionSpaceContentItem;
+    MBasicListItem *correctionSpaceContentItem;
     MDialog *keyboardDialog;
     MList *keyboardList;
-    MContentItem *selectedKeyboardsItem;
+    MBasicListItem *selectedKeyboardsItem;
     friend class Ut_MKeyboardSettingsWidget;
 };
 

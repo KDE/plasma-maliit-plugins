@@ -27,6 +27,7 @@
 #include <MList>
 #include <MDialog>
 #include <MBanner>
+#include <MBasicListItem>
 
 #include <QObject>
 #include <QGraphicsLinearLayout>
@@ -125,10 +126,12 @@ MKeyboardSettingsWidget::~MKeyboardSettingsWidget()
 
 void MKeyboardSettingsWidget::buildUi()
 {
-    selectedKeyboardsItem = new MContentItem(MContentItem::TwoTextLabels, this);
+    // We are using MBasicListItem instead of MContentItem because
+    // the latter is not supported by theme
+    selectedKeyboardsItem = new MBasicListItem(MBasicListItem::TitleWithSubtitle, this);
     selectedKeyboardsItem->setObjectName(ObjectNameSelectedKeyboardsItem);
     connect(selectedKeyboardsItem, SIGNAL(clicked()), this, SLOT(showKeyboardList()));
-    selectedKeyboardsItem->setStyleName("CommonContentItemInverted");
+    selectedKeyboardsItem->setStyleName("CommonBasicListItemInverted");
 
     // Put to first row, first column on the grid
     addItem(selectedKeyboardsItem, 0, 0);
@@ -138,8 +141,8 @@ void MKeyboardSettingsWidget::buildUi()
     errorCorrectionSwitch->setObjectName(ObjectNameErrorCorrectionButton);
     errorCorrectionSwitch->setViewType(MButton::switchType);
     errorCorrectionSwitch->setCheckable(true);
-    errorCorrectionContentItem = new MContentItem(MContentItem::TwoTextLabels, this);
-    errorCorrectionContentItem->setStyleName("CommonContentItemInverted");
+    errorCorrectionContentItem = new MBasicListItem(MBasicListItem::TitleWithSubtitle, this);
+    errorCorrectionContentItem->setStyleName("CommonBasicListItemInverted");
     //% "Error correction"
     errorCorrectionContentItem->setTitle(qtTrId("qtn_txts_error_correction"));
     //% "Error correction description"
@@ -156,8 +159,8 @@ void MKeyboardSettingsWidget::buildUi()
     correctionSpaceSwitch->setObjectName(ObjectNameCorrectionSpaceButton);
     correctionSpaceSwitch->setViewType(MButton::switchType);
     correctionSpaceSwitch->setCheckable(true);
-    correctionSpaceContentItem = new MContentItem(MContentItem::TwoTextLabels, this);
-    correctionSpaceContentItem->setStyleName("CommonContentItemInverted");
+    correctionSpaceContentItem = new MBasicListItem(MBasicListItem::TitleWithSubtitle, this);
+    correctionSpaceContentItem->setStyleName("CommonBasicListItemInverted");
     //% "Insert with space"
     correctionSpaceContentItem->setTitle(qtTrId("qtn_txts_insert_with_space"));
     //% "Insert with space description"
