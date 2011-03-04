@@ -139,7 +139,12 @@ public:
 class M_EXPORT MImAbstractKeyAreaStyleContainer : public MWidgetStyleContainer
 {
     M_STYLE_CONTAINER(MImAbstractKeyAreaStyle)
+    M_STYLE_MODE(Keys10)
+    M_STYLE_MODE(Keys11)
+    M_STYLE_MODE(Keys12)
     M_STYLE_MODE(Keys13)
+    M_STYLE_MODE(Keys14)
+    M_STYLE_MODE(Keys15)
     M_STYLE_MODE(Keys30)
     M_STYLE_MODE(Keys31)
     M_STYLE_MODE(Keys32)

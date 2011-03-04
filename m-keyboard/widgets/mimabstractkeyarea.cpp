@@ -842,8 +842,28 @@ void MImAbstractKeyArea::switchStyleMode()
 
     switch(section->keyCount()) {
 
+    case 10:
+        style().setModeKeys10();
+        break;
+
+    case 11:
+        style().setModeKeys11();
+        break;
+
+    case 12:
+        style().setModeKeys12();
+        break;
+
     case 13:
         style().setModeKeys13();
+        break;
+
+    case 14:
+        style().setModeKeys14();
+        break;
+
+    case 15:
+        style().setModeKeys15();
         break;
 
     case 30:
