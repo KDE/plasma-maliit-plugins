@@ -1,9 +1,9 @@
-meego-keyboard (0.5.31~1) unstable; urgency=low
+meego-keyboard (0.5.31-1) unstable; urgency=low
 
-  * [UNRELEASED]
+  * Fixes: NB#231074, [FEA] Action key highlight in vkb (not for picker)
   * Fixes: NB#218406, Cursor is moving to the end of the word when space bar is long pressed in a scenario.
 
- -- Ning Chi <ext-chi.2.ning@nokia.com>  Thu, 03 Mar 2011 09:39:44 +0200
+ -- Kimmo Surakka <kimmo.surakka@nokia.com>  Fri, 04 Mar 2011 14:10:00 +0200
 
 meego-keyboard (0.5.30-1) unstable; urgency=low
 
