@@ -123,5 +123,25 @@ void Ut_MImKeyModel::testKeyCode()
              keyCode);
 }
 
+void Ut_MImKeyModel::testOverrideBinding()
+{
+    MImKeyBinding *defaultBinding = new MImKeyBinding("default");
+    subject->setBinding(*defaultBinding, false);
+    subject->setBinding(*defaultBinding, true);
+    QVERIFY(subject->binding(false)->keyLabel == "default");
+    QVERIFY(subject->binding(true)->keyLabel == "default");
+
+    // Set override and check
+    MImKeyBinding override("override");
+    subject->overrideBinding(&override, false);
+    QVERIFY(subject->binding(false)->keyLabel == "override");
+    QVERIFY(subject->binding(true)->keyLabel == "default");
+
+    // remove override and check
+    subject->overrideBinding(0, false);
+    QVERIFY(subject->binding(false)->keyLabel == "default");
+    QVERIFY(subject->binding(true)->keyLabel == "default");
+}
+
 QTEST_APPLESS_MAIN(Ut_MImKeyModel);
 

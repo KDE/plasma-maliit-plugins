@@ -42,6 +42,7 @@ private slots:
     void testAccent();
     void testKeyCode_data();
     void testKeyCode();
+    void testOverrideBinding();
 };
 
 #endif

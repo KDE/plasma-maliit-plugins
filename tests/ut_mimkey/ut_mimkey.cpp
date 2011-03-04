@@ -484,6 +484,38 @@ void Ut_MImKey::testKeyDisabling()
     QCOMPARE(subject->state(), MImAbstractKey::Normal);
 }
 
+void Ut_MImKey::testOverrideBinding()
+{
+    // Make sure default bindings are there.
+    bool shift = false;
+    subject->setModifiers(shift);
+    QCOMPARE(&subject->binding(), dataKey->binding(shift));
+
+    shift = true;
+    subject->setModifiers(shift);
+    QCOMPARE(&subject->binding(), dataKey->binding(shift));
+
+    // Override bindigs and verify the result:
+    MImKeyBinding override("override");
+    subject->overrideBinding(&override);
+
+    shift = false;
+    subject->setModifiers(shift);
+    QCOMPARE(&subject->binding(), &override);
+    shift = true;
+    subject->setModifiers(shift);
+    QCOMPARE(&subject->binding(), &override);
+
+    // Clear the override:
+    subject->overrideBinding(0);
+    shift = false;
+    subject->setModifiers(shift);
+    QCOMPARE(&subject->binding(), dataKey->binding(shift));
+    shift = true;
+    subject->setModifiers(shift);
+    QCOMPARE(&subject->binding(), dataKey->binding(shift));
+}
+
 MImKey *Ut_MImKey::createKey(bool state)
 {
     MImKey *key = new MImKey(*dataKey, *style, *parent, stylingCache);

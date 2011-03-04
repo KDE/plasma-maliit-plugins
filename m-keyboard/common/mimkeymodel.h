@@ -249,7 +249,9 @@ private:
     // the same binding
     const MImKeyBinding *bindings[NumBindings];
 
-    // Active bindings (changeable by overrideBinding or setBinding ):
+    // Active bindings (changeable by overrideBinding or setBinding):
+    // NOTE: this are only aliases, they are not owned. No need to
+    // delete them!
     const MImKeyBinding *activeBindings[NumBindings];
 
     StyleType mStyle;

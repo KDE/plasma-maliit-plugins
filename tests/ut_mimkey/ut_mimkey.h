@@ -102,6 +102,8 @@ private slots:
     void testLabelOverride();
     void testKeyDisabling();
 
+    void testOverrideBinding();
+
 private:
     MImKey *createKey(bool state = false);
     MImKeyModel *createKeyModel();

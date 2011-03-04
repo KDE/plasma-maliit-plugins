@@ -152,6 +152,8 @@ MImKeyModel::~MImKeyModel()
         delete bindings[NoShift];
     }
     delete bindings[Shift];
+
+    // No need to delete activeBindings; they're only aliases
 }
 
 void MImKeyModel::setBinding(const MImKeyBinding &binding, bool shift)
