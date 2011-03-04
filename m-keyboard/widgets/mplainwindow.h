@@ -33,11 +33,6 @@ public:
     virtual ~MPlainWindow();
     static MPlainWindow *instance();
 
-public slots:
-#if defined(M_IM_DISABLE_TRANSLUCENCY) && !defined(M_IM_USE_SHAPE_WINDOW)
-    void updatePosition(const QRegion &region);
-#endif
-
 protected:
     //! \reimp
     virtual bool viewportEvent(QEvent *event);

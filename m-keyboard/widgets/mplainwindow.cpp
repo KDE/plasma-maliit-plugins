@@ -75,50 +75,6 @@ MPlainWindow::~MPlainWindow()
     delete sceneManager();
 }
 
-#if defined(M_IM_DISABLE_TRANSLUCENCY) && !defined(M_IM_USE_SHAPE_WINDOW)
-void MPlainWindow::updatePosition(const QRegion &region)
-{
-    //update view's parameters to compensate movement of MPasstroughWindow
-    //this update allows plugin to use screen coordinates
-    const QRect rect = region.boundingRect();
-    const QSize sceneSize = visibleSceneSize();
-    const int size = region.rects().size();
-
-    if (!size) {
-        setSceneRect(0, 0, sceneSize.width(), sceneSize.height());
-        resize(sceneSize);
-        move(0, 0);
-        return;
-    }
-
-    switch (orientationAngle())
-    {
-    case M::Angle0:
-        setSceneRect(0, sceneSize.height() - rect.height(),
-                     sceneSize.width(), rect.height());
-        resize(rect.width(), rect.height());
-        move(0, 0);
-        break;
-    case M::Angle90:
-        setSceneRect(0, 0, rect.width(), rect.height());
-        resize(rect.width(), rect.height());
-        move(sceneSize.height() - rect.width(), 0);
-        break;
-    case M::Angle180:
-        setSceneRect(0, 0, rect.width(), sceneSize.height());
-        resize(rect.width(), rect.height());
-        move(0, sceneSize.height() - rect.height());
-        break;
-    case M::Angle270:
-        setSceneRect(sceneSize.height() - rect.width(), rect.top(),
-                     rect.width(), sceneSize.width());
-        resize(rect.width(), rect.height());
-        move(0, 0);
-        break;
-    }
-}
-#endif
-
 bool MPlainWindow::viewportEvent(QEvent *event)
 {
 #ifdef M_TIMESTAMP
