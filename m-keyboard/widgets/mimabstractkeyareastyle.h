@@ -139,6 +139,11 @@ public:
 class M_EXPORT MImAbstractKeyAreaStyleContainer : public MWidgetStyleContainer
 {
     M_STYLE_CONTAINER(MImAbstractKeyAreaStyle)
+
+    //! \brief Extra style modes for MImAbstractKeyArea
+    //!
+    //! Based on amount of keys in a given layout. Switches to style mode when
+    //! loading layout (i.e., during construction of MImAbstractKeyArea).
     M_STYLE_MODE(Keys10)
     M_STYLE_MODE(Keys11)
     M_STYLE_MODE(Keys12)
