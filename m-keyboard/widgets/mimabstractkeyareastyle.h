@@ -166,6 +166,10 @@ class M_EXPORT MImAbstractKeyAreaStyleContainer : public MWidgetStyleContainer
     M_STYLE_MODE(Keys43)
     M_STYLE_MODE(Keys44)
     M_STYLE_MODE(Keys45)
+
+#ifdef UNIT_TEST
+    friend class Ut_MImAbstractKeyArea;
+#endif
 };
 
 

@@ -80,6 +80,9 @@ private slots:
 
     void testReset();
 
+    void testStyleModesFromKeyCount_data();
+    void testStyleModesFromKeyCount();
+
 private:
     void changeOrientation(M::OrientationAngle angle);
     QSize defaultLayoutSize();

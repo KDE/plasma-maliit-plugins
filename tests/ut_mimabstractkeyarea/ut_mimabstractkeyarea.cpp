@@ -1304,6 +1304,38 @@ void Ut_MImAbstractKeyArea::testReset()
     QVERIFY(!subject->popup().isVisible());
 }
 
+void Ut_MImAbstractKeyArea::testStyleModesFromKeyCount_data()
+{
+    const char *const keys30 = "qwertyuiopqwertyuiopqwertyuiop";
+
+    QTest::addColumn<QString>("keys");
+    QTest::addColumn<QString>("expectedStyleMode");
+
+    QTest::newRow("no keys") << QString() << QString();
+    QTest::newRow("10 keys") << QString("qwertyuiop") << QString("keys10");
+    QTest::newRow("11 keys") << QString("qwertyuiopa") << QString("keys11");
+    QTest::newRow("12 keys") << QString("qwertyuiopas") << QString("keys12");
+    QTest::newRow("13 keys") << QString("qwertyuiopasd") << QString("keys13");
+    QTest::newRow("14 keys") << QString("qwertyuiopasdf") << QString("keys14");
+    QTest::newRow("15 keys") << QString("qwertyuiopasdfg") << QString("keys15");
+
+    QTest::newRow("20 keys") << QString("qwertyuiopasdfghjklö") << QString("");
+    QTest::newRow("30 keys") << QString(keys30) << QString("keys30");
+    QTest::newRow("35 keys") << QString("%1qwert").arg(keys30) << QString("keys35");
+    QTest::newRow("40 keys") << QString("%1qwertyuiop").arg(keys30) << QString("keys40");
+    QTest::newRow("45 keys") << QString("%1qwertyuiopasdfg").arg(keys30) << QString("keys45");
+    QTest::newRow("50 keys") << QString("%1qwertyuiopasdfghjklö").arg(keys30) << QString("");
+}
+
+void Ut_MImAbstractKeyArea::testStyleModesFromKeyCount()
+{
+    QFETCH(QString, keys);
+    QFETCH(QString, expectedStyleMode);
+
+    subject = createArea(keys, QSize(50, 50));
+    QCOMPARE(subject->baseStyle().currentMode(), expectedStyleMode);
+}
+
 void Ut_MImAbstractKeyArea::changeOrientation(M::OrientationAngle angle)
 {
     if (MPlainWindow::instance()->orientationAngle() != angle) {
