@@ -1,6 +1,5 @@
 
-include(haptic-press/haptic-press.pri)
-include(haptic-release/haptic-release.pri)
+include(priority2_vkb_sliding_press/priority2_vkb_sliding_press.pri)
 
 IMAGES_DATA = theme/meegotouch-keyboard.svg
 images_data.path = /usr/share/themes/base/meegotouch/svg

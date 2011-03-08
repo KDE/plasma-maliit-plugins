@@ -21,8 +21,9 @@
 
 namespace MImReactionMap
 {
-const static QString Press = "vkb-press";
-const static QString Release = "vkb-release";
+const static QString Press = "priority2_static_press";
+const static QString Release = "priority2_static_release";
+const static QString Sliding = "priority2_vkb_sliding_press";
 };
 
 #endif

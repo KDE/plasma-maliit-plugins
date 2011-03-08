@@ -131,7 +131,7 @@ MImAbstractKeyArea::MImAbstractKeyArea(const LayoutData::SharedLayoutSection &ne
       mPopup(usePopup ? PopupFactory::instance()->createPopup(this) : 0),
       wasGestureTriggered(false),
       enableMultiTouch(MGConfItem(MultitouchSettings).value().toBool()),
-      feedbackSliding(MImReactionMap::Release),
+      feedbackSliding(MImReactionMap::Sliding),
       section(newSection)
 {
     // By default multi-touch is disabled
