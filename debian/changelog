@@ -1,3 +1,9 @@
+meego-keyboard (0.5.33~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Rakesh Cherian <ext-rakesh.cherian@nokia.com>  Tue, 08 Mar 2011 15:23:00 +0200
+
 meego-keyboard (0.5.32-1) unstable; urgency=low
 
   * Fixes: NB#233350, [TASK] E-mail/url specific virtual keyboard layouts
