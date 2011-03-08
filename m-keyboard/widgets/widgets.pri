@@ -40,7 +40,6 @@ HEADERS += \
     $$WIDGETS_DIR/notification.h \
     $$WIDGETS_DIR/symbolview.h \
     $$WIDGETS_DIR/mimkey.h \
-    $$WIDGETS_DIR/mimkeyarea.h \
     $$WIDGETS_DIR/popupfactory.h \
     $$WIDGETS_DIR/mtoolbarbutton.h \
     $$WIDGETS_DIR/mtoolbarbuttonview.h \
