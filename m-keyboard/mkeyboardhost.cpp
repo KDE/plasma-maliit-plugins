@@ -754,6 +754,8 @@ void MKeyboardHost::update()
     if (valid) {
         hardwareKeyboard->setKeyboardType(static_cast<M::TextContentType>(type));
         vkbWidget->setKeyboardType(type);
+        // update correction option when content type is changed.
+        updateCorrectionState();
     }
 
     updateAutoCapitalization();

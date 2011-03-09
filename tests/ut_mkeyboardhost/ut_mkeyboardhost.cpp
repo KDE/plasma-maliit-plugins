@@ -393,6 +393,21 @@ void Ut_MKeyboardHost::testCorrectionOptions()
     QTest::qWait(100);
     QCOMPARE(subject->correctionAcceptedWithSpaceEnabled, false);
 
+    // check when content type is changed
+    configCorrection.set(QVariant(true));
+    QTest::qWait(100);
+    inputMethodHost->contentType_ = M::FreeTextContentType;
+    subject->update();
+    QCOMPARE(subject->correctionEnabled, true);
+
+    inputMethodHost->contentType_ = M::NumberContentType;
+    subject->update();
+    QCOMPARE(subject->correctionEnabled, false);
+
+    inputMethodHost->contentType_ = M::PhoneNumberContentType;
+    subject->update();
+    QCOMPARE(subject->correctionEnabled, false);
+
     subject->hide();
 }
 
