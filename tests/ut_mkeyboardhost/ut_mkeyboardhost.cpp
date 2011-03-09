@@ -1589,17 +1589,21 @@ void Ut_MKeyboardHost::testToolbar()
     QCOMPARE(gHideToolbarWidgetCalls, 0);
 
     subject->setToolbar(toolbar1);
-    // verify if hideToolbarWidget was called
+    // since in this test there is no focus, hideToolbarWidget is not called but
+    // toolbarHidePending is set to true
     QCOMPARE(gShowToolbarWidgetCalls, 1);
-    QCOMPARE(gHideToolbarWidgetCalls, 1);
+    QCOMPARE(gHideToolbarWidgetCalls, 0);
+    QVERIFY(subject->toolbarHidePending);
 
     subject->setToolbar(toolbar2);
     gShowToolbarWidgetCalls = 0;
     gHideToolbarWidgetCalls = 0;
+    QVERIFY(!subject->toolbarHidePending);
 
     subject->setToolbar(nothing);
     QCOMPARE(gShowToolbarWidgetCalls, 0);
-    QCOMPARE(gHideToolbarWidgetCalls, 1);
+    QCOMPARE(gHideToolbarWidgetCalls, 0);
+    QVERIFY(subject->toolbarHidePending);
 }
 
 void Ut_MKeyboardHost::testHandleHwKeyboardStateChanged_data()
