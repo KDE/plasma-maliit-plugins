@@ -2,6 +2,7 @@ meego-keyboard (0.5.33~1) unstable; urgency=low
 
   * [UNRELEASED]
   * Fixes: NB#234589 - Word tracker shows up on phone number text edit
+  * Fixes: NB#234432 - [TASK] Unify virtual keyboard + virtual keyboard toolbar closing behaviour
 
  -- Rakesh Cherian <ext-rakesh.cherian@nokia.com>  Tue, 08 Mar 2011 15:23:00 +0200
 
