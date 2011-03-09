@@ -25,6 +25,7 @@
 #include <QTextCharFormat>
 #include <QTextLine>
 #include <QList>
+#include <QVector>
 
 #include <mkeyoverride.h>
 
@@ -308,9 +309,36 @@ namespace {
                             qreal spacerWidth)
         {
             int index = 0;
-            currentPos.rx() += spacerIndices.count(-1) * spacerWidth;
+            currentPos.rx() = 0;
 
+            // Normalizing spacerIndices into real spacers first.
+            // There are n - 1 possible spacers between n keys, and there can
+            // be two more to each end of a row, so it's n + 1 spaces:
+            QVector<int> spacers(row.size() + 1);
+            for (int index = 0; index < row.size() + 1; ++index) {
+                // If key is at pos(i) in row, then i - 1 describes spacers
+                // before the key, whereas i describes spacers after the key.
+                // This mapping is preserved while normalizing spacerIndices
+                // into spacers:
+                spacers[index] = spacerIndices.count(index - 1) * spacerWidth;
+            }
+
+            // Updating margins of keys to include surrounding spacers as
+            // well as assiging their final position. Space between keys is
+            // distributed equally to both keys:
             foreach (MImKey *const key, row) {
+                // For first key, assign all empty space on left:
+                const qreal spaceBefore(spacers.at(index)
+                                        * (index == 0 ? 1 : 0.5));
+
+                // For last key, assign all empty space on right:
+                const qreal spaceAfter(spacers.at(index + 1)
+                                       * (index == row.size() - 1 ? 1 : 0.5));
+
+                MImKey::Geometry g(key->geometry());
+                g.marginLeft += spaceBefore;
+                g.marginRight += spaceAfter;
+                key->setGeometry(g);
                 key->setPos(currentPos);
                 key->updateGeometryCache();
 
@@ -318,7 +346,6 @@ namespace {
                 mKeyOffsets.append(QPair<qreal, qreal>(currentPos.x(), nextPosX));
 
                 currentPos.rx() = nextPosX;
-                currentPos.rx() += spacerIndices.count(index) * spacerWidth;
                 ++index;
             }
         }
