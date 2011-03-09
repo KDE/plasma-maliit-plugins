@@ -593,10 +593,6 @@ void MKeyboardHost::show()
     // happens in the scene, not in the view (MWindow) anymore.
     MPlainWindow::instance()->sceneManager()->appearSceneWindowNow(sceneWindow);
 
-    // update input engine keyboard layout.
-    updateEngineKeyboardLayout();
-    updateCorrectionState();
-
     if (imToolbar->currentToolbarData())
         sharedHandleArea->show();
 
@@ -604,6 +600,12 @@ void MKeyboardHost::show()
     if (activeState == MInputMethod::OnScreen) {
         vkbWidget->show();
     }
+
+    // Update input engine keyboard layout.
+    if (vkbWidget->isVisible())
+        updateEngineKeyboardLayout();
+    updateCorrectionState();
+
     sendRegionEstimate();
     slideUpAnimation.setDirection(QAbstractAnimation::Forward);
     slideUpAnimation.start();
@@ -1452,7 +1454,8 @@ void MKeyboardHost::initializeInputEngine()
         // be always in accurate mode, for example
         imCorrectionEngine->setLanguage(language, MImEngine::LanguagePriorityPrimary);
         engineLayoutDirty = true;
-        updateEngineKeyboardLayout();
+        if (vkbWidget->isVisible())
+            updateEngineKeyboardLayout();
         synchronizeCorrectionSetting();
         synchronizeCorrectionSettingSpace();
         imCorrectionEngine->disablePrediction();
@@ -1927,6 +1930,12 @@ void MKeyboardHost::handleVirtualKeyboardLayoutChanged(const QString &layout)
 
 void MKeyboardHost::updateEngineKeyboardLayout()
 {
+    // NOTE: This method should not be called before vkbWidget is visible, i.e.
+    //       show() has been called to it. This is because vkbWidget->show(),
+    //       recreates the keyboard widgets for the current setup and therefore
+    //       correct keyboard layout cannot be retreived before that.
+    Q_ASSERT(vkbWidget->isVisible());
+
     if (!imCorrectionEngine || !engineLayoutDirty)
         return;
 
