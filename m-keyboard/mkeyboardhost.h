@@ -422,6 +422,7 @@ private:
     SimpleFileLog *touchPointLogHandle;
     MPlainWindow *view;
 
+    bool toolbarHidePending;
 #ifdef UNIT_TEST
     friend class Ut_MKeyboardHost;
 #endif

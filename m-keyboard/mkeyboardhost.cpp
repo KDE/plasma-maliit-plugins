@@ -228,7 +228,8 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
       vkbFadeInAnimation(*new QPropertyAnimation(this)),
       toolbarFadeInAnimation(*new QPropertyAnimation(this)),
       touchPointLogHandle(0),
-      view(0)
+      view(0),
+      toolbarHidePending(false)
 {
     Q_ASSERT(host != 0);
     Q_ASSERT(mainWindow != 0);
@@ -656,6 +657,10 @@ void MKeyboardHost::hide()
 void MKeyboardHost::handleAnimationFinished()
 {
     if (slideUpAnimation.direction() == QAbstractAnimation::Backward) {
+        if (toolbarHidePending) {
+            imToolbar->hideToolbarWidget();
+            toolbarHidePending = false;
+        }
         sharedHandleArea->hide();
         vkbWidget->hide();
         symbolView->hideSymbolView();
@@ -1574,6 +1579,8 @@ void MKeyboardHost::sendStringFromToolbar(const QString &text)
 
 void MKeyboardHost::setToolbar(QSharedPointer<const MToolbarData> toolbar)
 {
+    toolbarHidePending = false;
+
     if (toolbar && toolbar->isVisible()) {
         const MToolbarData *oldToolbar = imToolbar->currentToolbarData();
         sharedHandleArea->show();
@@ -1584,9 +1591,11 @@ void MKeyboardHost::setToolbar(QSharedPointer<const MToolbarData> toolbar)
             prepareHideShowAnimation();
             slideUpAnimation.start();
         }
-    } else {
+    } else if (haveFocus) {
         imToolbar->hideToolbarWidget();
         sharedHandleArea->hide();
+    } else {
+        toolbarHidePending = true;
     }
 }
 
