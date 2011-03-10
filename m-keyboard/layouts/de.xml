@@ -13,8 +13,8 @@
         <binding shift="true" label="W"/>
       </key>
       <key>
-        <binding label="e" extended_labels="èéëê"/>
-        <binding shift="true" label="E" extended_labels="ÈÉËÊ"/>
+        <binding label="e" extended_labels="èéëê€"/>
+        <binding shift="true" label="E" extended_labels="ÈÉËÊ€"/>
       </key>
       <key>
         <binding label="r"/>
@@ -52,8 +52,8 @@
         <binding shift="true" label="A" extended_labels="ÄÀÁÃÂÅÆ"/>
       </key>
       <key>
-        <binding label="s" extended_labels="ßş"/>
-        <binding shift="true" label="S" extended_labels="Ş"/>
+        <binding label="s" extended_labels="ßş$"/>
+        <binding shift="true" label="S" extended_labels="Ş$"/>
       </key>
       <key>
         <binding label="d"/>
@@ -95,8 +95,8 @@
       </key>
 
       <key>
-        <binding label="y"/>
-        <binding shift="true" label="Y"/>
+        <binding label="y" extended_labels="¥"/>
+        <binding shift="true" label="Y" extended_labels="¥"/>
       </key>
       <key>
         <binding label="x"/>

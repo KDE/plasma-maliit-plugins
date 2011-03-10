@@ -13,8 +13,8 @@
           <binding shift="true" label="W"/>
         </key>
         <key>
-          <binding label="e"/>
-          <binding shift="true" label="E"/>
+          <binding label="e" extended_labels="€"/>
+          <binding shift="true" label="E" extended_labels="€"/>
         </key>
         <key>
           <binding label="r"/>
@@ -25,8 +25,8 @@
           <binding shift="true" label="T"/>
         </key>
         <key>
-          <binding label="y"/>
-          <binding shift="true" label="Y"/>
+          <binding label="y" extended_labels="¥"/>
+          <binding shift="true" label="Y" extended_labels="¥"/>
         </key>
         <key>
           <binding label="u"/>
@@ -56,8 +56,8 @@
           <binding shift="true" label="A"/>
         </key>
         <key>
-          <binding label="s"/>
-          <binding shift="true" label="S"/>
+          <binding label="s" extended_labels="$"/>
+          <binding shift="true" label="S" extended_labels="$"/>
         </key>
         <key>
           <binding label="d"/>
