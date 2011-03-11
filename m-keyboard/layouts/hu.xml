@@ -136,7 +136,7 @@
         <binding action="sym" label="?123"/>
        </key>
 
-       <key><binding label=","/></key>
+       <key id="emailUrlKey"><binding label=","/></key>
        <key><binding label="."/></key>
 
        <key width="xx-large">
