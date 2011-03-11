@@ -61,6 +61,8 @@ private slots:
     void testTwoDeadInOne();
     void testExtendedLabels();
     void testKeyId();
+    void testContentType_data();
+    void testContentType();
     void testImportedLayouts_data();
     void testImportedLayouts();
     void testPopup_data();

@@ -90,7 +90,7 @@
             </key>
           </row>
           <row>
-            <key>
+            <key id="emailUrlKey">
               <binding label="z"/>
               <binding shift="true" label="Z"/>
             </key>

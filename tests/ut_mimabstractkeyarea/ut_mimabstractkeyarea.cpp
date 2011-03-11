@@ -69,6 +69,7 @@ Q_DECLARE_METATYPE(QList<bool>);
 Q_DECLARE_METATYPE(MImAbstractKey::ButtonState);
 Q_DECLARE_METATYPE(QList<MImKeyBinding::KeyAction>);
 Q_DECLARE_METATYPE(Ut_MImAbstractKeyArea::TestOpList);
+Q_DECLARE_METATYPE(QSharedPointer<KeyboardData>);
 
 namespace {
 
@@ -558,6 +559,38 @@ void Ut_MImAbstractKeyArea::testKeyId()
 
     found = subject->findKey("actionKey");
     QVERIFY(found == enterKey);
+}
+
+void Ut_MImAbstractKeyArea::testContentType_data()
+{
+    QTest::addColumn<QSharedPointer<KeyboardData> >("keyboardData");
+
+    QSharedPointer<KeyboardData> keyboardData(new KeyboardData);
+    QVERIFY(keyboardData->loadNokiaKeyboard("test-layout.xml"));
+
+    QTest::newRow("first pass") << keyboardData;
+    QTest::newRow("second pass") << keyboardData;
+}
+
+void Ut_MImAbstractKeyArea::testContentType()
+{
+    QFETCH(QSharedPointer<KeyboardData>, keyboardData);
+    subject = createKeyArea(keyboardData->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
+                            false, 0);
+
+    const MImAbstractKey *key = subject->findKey("emailUrlKey");
+    QVERIFY(key);
+    subject->setContentType(M::FreeTextContentType);
+    QCOMPARE(key->model().binding(false)->label(), QString("z"));
+    QCOMPARE(key->model().binding(true)->label(),  QString("Z"));
+
+    subject->setContentType(M::EmailContentType);
+    QCOMPARE(key->model().binding(false)->label(), QString("@"));
+    QCOMPARE(key->model().binding(true)->label(),  QString("@"));
+
+    subject->setContentType(M::UrlContentType);
+    QCOMPARE(key->model().binding(false)->label(), QString("/"));
+    QCOMPARE(key->model().binding(true)->label(),  QString("/"));
 }
 
 void Ut_MImAbstractKeyArea::testImportedLayouts_data()
