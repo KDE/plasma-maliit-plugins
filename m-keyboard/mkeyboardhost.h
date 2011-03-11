@@ -425,6 +425,7 @@ private:
     MPlainWindow *view;
 
     bool toolbarHidePending;
+    bool keyOverrideClearPending;
 #ifdef UNIT_TEST
     friend class Ut_MKeyboardHost;
 #endif

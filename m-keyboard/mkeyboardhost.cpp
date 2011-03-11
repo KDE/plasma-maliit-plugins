@@ -227,7 +227,8 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
       toolbarFadeInAnimation(*new QPropertyAnimation(this)),
       touchPointLogHandle(0),
       view(0),
-      toolbarHidePending(false)
+      toolbarHidePending(false),
+      keyOverrideClearPending(false)
 {
     Q_ASSERT(host != 0);
     Q_ASSERT(mainWindow != 0);
@@ -664,6 +665,14 @@ void MKeyboardHost::handleAnimationFinished()
             imToolbar->hideToolbarWidget();
             toolbarHidePending = false;
         }
+
+        if (keyOverrideClearPending) {
+            QMap<QString, QSharedPointer<MKeyOverride> > emptyOverrides;
+            vkbWidget->setKeyOverrides(emptyOverrides);
+            symbolView->setKeyOverrides(emptyOverrides);
+            keyOverrideClearPending = false;
+        }
+
         sharedHandleArea->hide();
         vkbWidget->hide();
         symbolView->hideSymbolView();
@@ -2083,6 +2092,11 @@ void MKeyboardHost::togglePlusMinus()
 
 void MKeyboardHost::setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides)
 {
-    vkbWidget->setKeyOverrides(overrides);
-    symbolView->setKeyOverrides(overrides);
+    if (!haveFocus && overrides.size() == 0) {
+        keyOverrideClearPending = true; // not changing overrides while hiding
+    } else {
+        keyOverrideClearPending = false;
+        vkbWidget->setKeyOverrides(overrides);
+        symbolView->setKeyOverrides(overrides);
+    }
 }
