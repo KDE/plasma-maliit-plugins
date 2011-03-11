@@ -451,6 +451,7 @@ void Ut_MKeyboardHost::testCorrectionSettings()
     subject->imCorrectionEngine = engine;
     engine->enableCompletion();
     engine->enableCorrection();
+    inputMethodHost->contentType_ = M::FreeTextContentType;
 
     subject->show();
 
