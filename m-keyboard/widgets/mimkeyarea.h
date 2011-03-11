@@ -130,7 +130,6 @@ private:
     int WidthCorrection; //!< width correction for Arabic layouts
     QSharedPointer<MImKey::StylingCache> stylingCache; //!< Cached information about current styling
     QList<MImKey *> idToKey; //!< Contains information about keys which have identifiers
-    MImKey *commaKey; //!< store comma key in order to override it later
 
 #ifdef UNIT_TEST
     friend class Ut_MImAbstractKeyArea;

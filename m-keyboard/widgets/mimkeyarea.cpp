@@ -323,6 +323,8 @@ namespace {
             }
         }
     };
+
+    const char * const emailUrlKey = "emailUrlKey"; //!< Identifies key which should be customized for email and URL content type
 }
 
 MImKeyArea::MImKeyArea(const LayoutData::SharedLayoutSection &newSection,
@@ -335,8 +337,7 @@ MImKeyArea::MImKeyArea(const LayoutData::SharedLayoutSection &newSection,
       shiftKey(0),
       equalWidthKeys(true),
       WidthCorrection(0),
-      stylingCache(new MImKey::StylingCache),
-      commaKey(0)
+      stylingCache(new MImKey::StylingCache)
 {
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
@@ -438,9 +439,6 @@ void MImKeyArea::loadKeys()
             // TODO: Remove restriction to have only one shift key per layout?
             if (dataKey->binding()->action() == MImKeyBinding::ActionShift) {
                 shiftKey = key;
-            }
-            else if (dataKey->binding()->label() == ",") {
-                commaKey = key;
             }
 
             rowIter->keys.append(key);
@@ -895,19 +893,21 @@ void MImKeyArea::setContentType(M::TextContentType type)
     static const MImKeyBinding bindAt("@");
     static const MImKeyBinding bindSlash("/");
 
-    if (!commaKey) {
+    MImKey *key = static_cast<MImKey *>(findKey(emailUrlKey));
+
+    if (!key) {
         return;
     }
 
     switch(type) {
     case M::UrlContentType:
-        commaKey->overrideBinding(&bindSlash);
+        key->overrideBinding(&bindSlash);
         break;
     case M::EmailContentType:
-        commaKey->overrideBinding(&bindAt);
+        key->overrideBinding(&bindAt);
         break;
     default:
-        commaKey->overrideBinding(0);
+        key->overrideBinding(0);
         break;
     }
     update();

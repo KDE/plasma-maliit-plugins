@@ -1,6 +1,7 @@
 meego-keyboard (0.5.34~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#235444 - E-mail/URL VKB layout gets stuck when adding another layout in settings
 
  -- Rakesh Cherian <ext-rakesh.cherian@nokia.com>  Fri, 11 Mar 2011 11:38:00 +0200
 

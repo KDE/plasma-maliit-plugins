@@ -614,6 +614,7 @@ void MVirtualKeyboard::recreateKeyboards()
     recreateSpecialKeyboards(); // number and phone number keyboard
     switchLevel(); // update shift level in recreated keyboards
     mainKeyboardSwitcher->setKeyOverrides(overrides);
+    mainKeyboardSwitcher->setContentType(generalContentType);
 }
 
 
