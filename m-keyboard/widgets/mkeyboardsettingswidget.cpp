@@ -245,13 +245,6 @@ void MKeyboardSettingsWidget::showKeyboardList()
 
     QStringList keyboards = settingsObject->selectedKeyboards().values();
 
-    // This is the ugly hack to avoid the crash of the VKB settings since the
-    // toolkit fixes and releases NB#230358.
-    // The basic problem is that the model selection update crashes second time
-    // when we try to reuse the same keyboard list to show the dialog again.
-    delete keyboardDialog;
-    keyboardDialog = 0;
-
     if (!keyboardDialog) {
         keyboardDialog = new MDialog();
 
