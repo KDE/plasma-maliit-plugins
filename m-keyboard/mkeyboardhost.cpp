@@ -815,16 +815,24 @@ void MKeyboardHost::updateAutoCapitalization()
     if (!autoCapsEnabled)
         return;
 
+    const bool hasSelection = (inputMethodHost()->hasSelection(valid) && valid);
+    int anchorPosition = inputMethodHost()->anchorPosition(valid);
+    if (!valid) {
+        anchorPosition = cursorPos;
+    }
+
+    const int inputPosition = hasSelection ? qMin(anchorPosition, cursorPos) : cursorPos;
+
     // Capitalization is determined by preedit and Auto Capitalization.
     // If there are some preedit, it should be lower case.
     // Otherwise Auto Capitalization will turn on shift when (text entry capitalization option is ON):
     //   1. at the beginning of one paragraph
     //   2. after a sentence delimiter and one or more spaces
     autoCapsTriggered = ((preedit.length() == 0)
-                         && ((cursorPos == 0)
-                             || ((cursorPos > 0)
-                                 && (cursorPos <= surroundingText.length())
-                                 && surroundingText.left(cursorPos).contains(AutoCapsTrigger))));
+                         && ((inputPosition == 0)
+                             || ((inputPosition > 0)
+                                 && (inputPosition <= surroundingText.length())
+                                 && surroundingText.left(inputPosition).contains(AutoCapsTrigger))));
 
     if ((activeState == MInputMethod::OnScreen)
         && (vkbWidget->shiftStatus() != ModifierLockedState)) {
