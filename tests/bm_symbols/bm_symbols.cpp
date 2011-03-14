@@ -65,12 +65,14 @@ void Bm_Symbols::benchmarkDraw_data()
     QFileInfo info;
 
     QTest::addColumn<QString>("filename");
-    filters << "symbols.xml";
+    filters << "symbols*.xml";
     files = dir.entryInfoList(filters);
     for (int n = files.count() - 1; n >= 0; --n) {
         info = files.at(n);
         QTest::newRow(info.fileName().toLatin1().constData()) << info.fileName();
     }
+
+    QVERIFY(!files.isEmpty());
 }
 
 void Bm_Symbols::benchmarkDraw()
@@ -102,7 +104,7 @@ void Bm_Symbols::benchmarkLoadXML_data()
     QFileInfo info;
 
     QTest::addColumn<QString>("filename");
-    filters << "symbols.xml";
+    filters << "symbols*.xml";
     files = dir.entryInfoList(filters);
     for (int n = files.count() - 1; n >= 0; --n) {
         info = files.at(n);
