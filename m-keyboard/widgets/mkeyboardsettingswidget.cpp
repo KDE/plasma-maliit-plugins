@@ -163,7 +163,7 @@ void MKeyboardSettingsWidget::buildUi()
     correctionSpaceContentItem->setStyleName("CommonBasicListItemInverted");
     //% "Insert with space"
     correctionSpaceContentItem->setTitle(qtTrId("qtn_txts_insert_with_space"));
-    //% "Insert with space description"
+    //% "Space key inserts the suggested word"
     correctionSpaceContentItem->setSubtitle(qtTrId("qtn_txts_insert_with_space_description"));
     QGraphicsLinearLayout *wCLayout = new QGraphicsLinearLayout(Qt::Horizontal);
     wCLayout->addItem(correctionSpaceContentItem);
