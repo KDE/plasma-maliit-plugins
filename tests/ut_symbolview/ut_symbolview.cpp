@@ -25,6 +25,7 @@
 #include "keyevent.h"
 #include "mimabstractkeyarea.h"
 #include "mimabstractkeyarea_p.h"
+#include "mimkeyarea_p.h"
 #include "layoutsmanager.h"
 #include "regiontracker.h"
 #include "reactionmappainter.h"
@@ -420,7 +421,7 @@ MImAbstractKey *Ut_SymbolView::keyAt(MImAbstractKeyArea *symPage,
 
     MImKeyArea *buttonArea = dynamic_cast<MImKeyArea *>(symPage);
     if (buttonArea) {
-        key = buttonArea->rowList[row].keys[column];
+        key = buttonArea->d_ptr->rowList[row].keys[column];
     }
 
     return key;

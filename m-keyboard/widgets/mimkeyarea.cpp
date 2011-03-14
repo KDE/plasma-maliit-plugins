@@ -15,6 +15,7 @@
  */
 
 #include "mimkeyarea.h"
+#include "mimkeyarea_p.h"
 #include "mimkeyvisitor.h"
 #include "mplainwindow.h"
 #include "reactionmapwrapper.h"
@@ -354,10 +355,9 @@ namespace {
     const char * const emailUrlKey = "emailUrlKey"; //!< Identifies key which should be customized for email and URL content type
 }
 
-MImKeyArea::MImKeyArea(const LayoutData::SharedLayoutSection &newSection,
-                       bool usePopup,
-                       QGraphicsWidget *parent)
-    : MImAbstractKeyArea(newSection, usePopup, parent),
+MImKeyAreaPrivate::MImKeyAreaPrivate(const LayoutData::SharedLayoutSection &newSection,
+                                     MImKeyArea *owner)
+    : q_ptr(owner),
       rowList(newSection->rowCount()),
       cachedWidgetHeight(computeWidgetHeight()),
       mMaxNormalizedWidth(computeMaxNormalizedWidth()),
@@ -366,14 +366,9 @@ MImKeyArea::MImKeyArea(const LayoutData::SharedLayoutSection &newSection,
       WidthCorrection(0),
       stylingCache(new MImKey::StylingCache)
 {
-    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-
-    loadKeys();
-
-    setCacheMode(QGraphicsItem::DeviceCoordinateCache);
 }
 
-MImKeyArea::~MImKeyArea()
+MImKeyAreaPrivate::~MImKeyAreaPrivate()
 {
     for (RowIterator rowIter(rowList.begin()); rowIter != rowList.end(); ++rowIter) {
         qDeleteAll(rowIter->keys);
@@ -382,67 +377,21 @@ MImKeyArea::~MImKeyArea()
     clearKeyIds();
 }
 
-QSizeF MImKeyArea::sizeHint(Qt::SizeHint which,
-                            const QSizeF &) const
+void MImKeyAreaPrivate::loadKeys()
 {
-    int width = 0;
-    if (which == Qt::MaximumSize) {
-        // We're willing to grow as much as we can. Some parent widget
-        // will apply a constraint for this.
-        width = QWIDGETSIZE_MAX;
-    }
-    return QSizeF(width, cachedWidgetHeight);
-}
-
-void MImKeyArea::drawReactiveAreas(MReactionMap *reactionMap,
-                                   QGraphicsView *view)
-{
-#ifndef HAVE_REACTIONMAP
-    Q_UNUSED(reactionMap);
-    Q_UNUSED(view);
-    return;
-#else
-    reactionMap->setTransform(this, view);
-    reactionMap->setDrawingValue(MImReactionMap::Press, MImReactionMap::Release);
-
-    foreach (const KeyRow &row, rowList) {
-        // 'area' is used for key bounding rect coalescing, to improve
-        // downsampling to reaction map resolution (usually display_size / 4).
-        QRectF area;
-        qreal lastRightBorder = 0.0f;
-
-        foreach (const MImKey *const key, row.keys) {
-            const QRectF rect = correctedReactionRect(key->buttonBoundingRect());
-
-            // Check for spacers. If found, we draw the accummulated area and start from scratch.
-            if (lastRightBorder < rect.left()) {
-                reactionMap->fillRectangle(area);
-                area = QRectF();
-            }
-
-            area |= rect;
-            lastRightBorder = rect.right();
-        }
-
-        reactionMap->fillRectangle(area);
-    }
-#endif
-}
-
-void MImKeyArea::loadKeys()
-{
-    const int numRows = rowCount();
+    Q_Q(MImKeyArea);
+    const int numRows = q->rowCount();
 
     RowIterator rowIter(rowList.begin());
 
     for (int row = 0; row != numRows; ++row, ++rowIter) {
-        const int numColumns = sectionModel()->columnsAt(row);
+        const int numColumns = q->sectionModel()->columnsAt(row);
 
         // Add keys
         for (int col = 0; col < numColumns; ++col) {
             // Parameters to fetch from base class.
-            MImKeyModel *dataKey = sectionModel()->keyModel(row, col);
-            MImKey *key = new MImKey(*dataKey, baseStyle(), *this, stylingCache);
+            MImKeyModel *dataKey = q->sectionModel()->keyModel(row, col);
+            MImKey *key = new MImKey(*dataKey, q->baseStyle(), *q, stylingCache);
 
             if (!key->model().id().isEmpty()) {
                 registerKeyId(key);
@@ -472,104 +421,29 @@ void MImKeyArea::loadKeys()
         }
     }
 
-    updateGeometry();
+    q->updateGeometry();
 }
 
-qreal MImKeyArea::computeWidgetHeight() const
+qreal MImKeyAreaPrivate::computeWidgetHeight() const
 {
-    qreal height = baseStyle()->size().height();
+    Q_Q(const MImKeyArea);
+    qreal height = q->baseStyle()->size().height();
 
     if (height < 0) {
         for (int index = 0; index < rowList.count(); ++index) {
             height += preferredKeyHeight(index);
 
-            height += (index == 0 ? baseStyle()->paddingTop()
-                                  : baseStyle()->keyMarginTop());
-            height += (index == rowList.count() - 1 ? baseStyle()->paddingBottom()
-                                                    : baseStyle()->keyMarginBottom());
+            height += (index == 0 ? q->baseStyle()->paddingTop()
+                                  : q->baseStyle()->keyMarginTop());
+            height += (index == rowList.count() - 1 ? q->baseStyle()->paddingBottom()
+                                                    : q->baseStyle()->keyMarginBottom());
         }
     }
 
     return qMax<qreal>(0.0, height);
 }
 
-void MImKeyArea::paint(QPainter *painter,
-                       const QStyleOptionGraphicsItem *,
-                       QWidget *)
-{
-    mTimestamp("MImKeyArea", "start");
-    const MImAbstractKeyAreaStyleContainer &style(baseStyle());
-
-    const MScalableImage *background = style->backgroundImage();
-
-    if (background) {
-        background->draw(boundingRect().toRect(), painter);
-    }
-
-    const bool drawButtonBoundingRects(style->drawButtonBoundingRects());
-    const bool drawButtonRects(style->drawButtonRects());
-
-    // In case of HW acceleration, we want to avoid switching between textures, if possible
-    // Draw backgrounds first, icons later:
-    const KeyPainter kp(this, painter, KeyPainter::PaintBackground);
-
-    foreach (const KeyRow &row, rowList) {
-        foreach (MImKey *key, row.keys) {
-            key->setIgnoreOverriding(true);
-            kp(key);
-            drawDebugRects(painter, key,
-                    drawButtonBoundingRects,
-                    drawButtonRects);
-        }
-    }
-
-    kp.drawIcons();
-
-    if (style->drawReactiveAreas()) {
-        drawDebugReactiveAreas(painter);
-    }
-
-    // Draw text next.
-    // We use QGraphicsView::DontSavePainterState, so save/restore state manually
-    // Not strictly needed at the moment, but prevents subtle breakage later
-    painter->save();
-    painter->setPen(style->fontColor());
-    foreach (const KeyRow &row, rowList) {
-        // rowHasSecondaryLabel is needed for the vertical alignment of
-        // secondary label purposes.
-        bool rowHasSecondaryLabel = false;
-        foreach (const MImKey *key, row.keys) {
-            if (!key->secondaryLabel().isEmpty()) {
-                rowHasSecondaryLabel = true;
-                break;
-            }
-        }
-
-        foreach (MImKey *key, row.keys) {
-            painter->setFont(key->font());
-            key->setSecondaryLabelEnabled(rowHasSecondaryLabel);
-
-            QRectF rect = mapFromItem(key, key->labelRect()).boundingRect();
-            painter->drawText(rect, Qt::AlignCenter, key->label());
-        }
-    }
-
-    painter->setFont(style->secondaryFont());
-    foreach (const KeyRow &row, rowList) {
-        foreach (MImKey *key, row.keys) {
-            if (!key->secondaryLabel().isEmpty()) {
-                QRectF rect = mapFromItem(key, key->secondaryLabelRect()).boundingRect();
-                painter->drawText(rect, Qt::AlignCenter, key->secondaryLabel());
-            }
-            key->setIgnoreOverriding(false);
-        }
-    }
-    painter->restore();
-
-    mTimestamp("MImKeyArea", "end");
-}
-
-void MImKeyArea::drawDebugRects(QPainter *painter,
+void MImKeyAreaPrivate::drawDebugRects(QPainter *painter,
                                 const MImAbstractKey *key,
                                 bool drawBoundingRects,
                                 bool drawRects) const
@@ -597,13 +471,14 @@ void MImKeyArea::drawDebugRects(QPainter *painter,
     }
 }
 
-void MImKeyArea::drawDebugReactiveAreas(QPainter *painter)
+void MImKeyAreaPrivate::drawDebugReactiveAreas(QPainter *painter)
 {
+    Q_Q(MImKeyArea);
     painter->save();
 
     foreach (const KeyRow &row, rowList) {
         foreach (const MImKey *const key, row.keys) {
-            const QRectF rect = correctedReactionRect(key->buttonBoundingRect());
+            const QRectF rect = q->correctedReactionRect(key->buttonBoundingRect());
 
             painter->setPen(Qt::magenta);
             painter->drawLine(rect.topLeft(), rect.topRight());
@@ -618,21 +493,267 @@ void MImKeyArea::drawDebugReactiveAreas(QPainter *painter)
     painter->restore();
 }
 
+qreal MImKeyAreaPrivate::preferredKeyHeight(int row) const
+{
+    Q_Q(const MImKeyArea);
+
+    switch (q->sectionModel()->rowHeightType(row)) {
+
+    default:
+    case LayoutSection::Medium:
+        return q->baseStyle()->keyHeightMedium();
+        break;
+
+    case LayoutSection::Small:
+        return q->baseStyle()->keyHeightSmall();
+        break;
+
+    case LayoutSection::Large:
+        return q->baseStyle()->keyHeightLarge();
+        break;
+
+    case LayoutSection::XLarge:
+        return q->baseStyle()->keyHeightXLarge();
+        break;
+
+    case LayoutSection::XxLarge:
+        return q->baseStyle()->keyHeightXxLarge();
+        break;
+    }
+
+    return 0.0;
+}
+
+qreal MImKeyAreaPrivate::computeMaxNormalizedWidth() const
+{
+    Q_Q(const MImKeyArea);
+
+    qreal maxRowWidth = 0.0;
+
+    for (int j = 0; j < q->sectionModel()->rowCount(); ++j) {
+        qreal rowWidth = 0.0;
+
+        for (int i = 0; i < q->sectionModel()->columnsAt(j); ++i) {
+            const MImKeyModel *key = q->sectionModel()->keyModel(j, i);
+            rowWidth += normalizedKeyWidth(key);
+        }
+
+        maxRowWidth = qMax(maxRowWidth, rowWidth);
+    }
+
+    return maxRowWidth;
+}
+
+qreal MImKeyAreaPrivate::normalizedKeyWidth(const MImKeyModel *model) const
+{
+    Q_Q(const MImKeyArea);
+
+    switch(model->width()) {
+
+    case MImKeyModel::Small:
+        return q->baseStyle()->keyWidthSmall();
+
+    case MImKeyModel::Medium:
+    case MImKeyModel::Stretched:
+        return q->baseStyle()->keyWidthMedium();
+
+    case MImKeyModel::Large:
+        return q->baseStyle()->keyWidthLarge();
+
+    case MImKeyModel::XLarge:
+        return q->baseStyle()->keyWidthXLarge();
+
+    case MImKeyModel::XxLarge:
+        return q->baseStyle()->keyWidthXxLarge();
+    }
+
+    qWarning() << __PRETTY_FUNCTION__
+               << "Could not compute normalized width from style";
+    return 0.0;
+}
+
+void MImKeyAreaPrivate::clearKeyIds()
+{
+    idToKey.clear();
+}
+
+void MImKeyAreaPrivate::registerKeyId(MImKey *key)
+{
+    for (QList<MImKey *>::iterator iterator = idToKey.begin();
+         iterator != idToKey.end();
+         ++iterator) {
+        if ((*iterator)->model().id() == key->model().id()) {
+            *iterator = key;
+            return;
+        }
+    }
+    idToKey.append(key);
+}
+
+// actual class implementation
+MImKeyArea::MImKeyArea(const LayoutData::SharedLayoutSection &newSection,
+                       bool usePopup,
+                       QGraphicsWidget *parent)
+    : MImAbstractKeyArea(newSection, usePopup, parent),
+      d_ptr(new MImKeyAreaPrivate(newSection, this))
+{
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+
+    d_ptr->loadKeys();
+
+    setCacheMode(QGraphicsItem::DeviceCoordinateCache);
+}
+
+MImKeyArea::~MImKeyArea()
+{
+    delete d_ptr;
+}
+
+QSizeF MImKeyArea::sizeHint(Qt::SizeHint which,
+                            const QSizeF &) const
+{
+    Q_D(const MImKeyArea);
+
+    int width = 0;
+    if (which == Qt::MaximumSize) {
+        // We're willing to grow as much as we can. Some parent widget
+        // will apply a constraint for this.
+        width = QWIDGETSIZE_MAX;
+    }
+
+    return QSizeF(width, d->cachedWidgetHeight);
+}
+
+void MImKeyArea::drawReactiveAreas(MReactionMap *reactionMap,
+                                   QGraphicsView *view)
+{
+#ifndef HAVE_REACTIONMAP
+    Q_UNUSED(reactionMap);
+    Q_UNUSED(view);
+    return;
+#else
+    Q_D(MImKeyArea);
+
+    reactionMap->setTransform(this, view);
+    reactionMap->setDrawingValue(MImReactionMap::Press, MImReactionMap::Release);
+
+    foreach (const MImKeyAreaPrivate::KeyRow &row, d->rowList) {
+        // 'area' is used for key bounding rect coalescing, to improve
+        // downsampling to reaction map resolution (usually display_size / 4).
+        QRectF area;
+        qreal lastRightBorder = 0.0f;
+
+        foreach (const MImKey *const key, row.keys) {
+            const QRectF rect = correctedReactionRect(key->buttonBoundingRect());
+
+            // Check for spacers. If found, we draw the accummulated area and start from scratch.
+            if (lastRightBorder < rect.left()) {
+                reactionMap->fillRectangle(area);
+                area = QRectF();
+            }
+
+            area |= rect;
+            lastRightBorder = rect.right();
+        }
+
+        reactionMap->fillRectangle(area);
+    }
+#endif
+}
+
+void MImKeyArea::paint(QPainter *painter,
+                       const QStyleOptionGraphicsItem *,
+                       QWidget *)
+{
+    Q_D(MImKeyArea);
+    mTimestamp("MImKeyArea", "start");
+    const MImAbstractKeyAreaStyleContainer &style(baseStyle());
+
+    const MScalableImage *background = style->backgroundImage();
+
+    if (background) {
+        background->draw(boundingRect().toRect(), painter);
+    }
+
+    const bool drawButtonBoundingRects(style->drawButtonBoundingRects());
+    const bool drawButtonRects(style->drawButtonRects());
+
+    // In case of HW acceleration, we want to avoid switching between textures, if possible
+    // Draw backgrounds first, icons later:
+    const KeyPainter kp(this, painter, KeyPainter::PaintBackground);
+
+    foreach (const MImKeyAreaPrivate::KeyRow &row, d->rowList) {
+        foreach (MImKey *key, row.keys) {
+            key->setIgnoreOverriding(true);
+            kp(key);
+            d->drawDebugRects(painter, key,
+                              drawButtonBoundingRects,
+                              drawButtonRects);
+        }
+    }
+
+    kp.drawIcons();
+
+    if (style->drawReactiveAreas()) {
+        d->drawDebugReactiveAreas(painter);
+    }
+
+    // Draw text next.
+    // We use QGraphicsView::DontSavePainterState, so save/restore state manually
+    // Not strictly needed at the moment, but prevents subtle breakage later
+    painter->save();
+    painter->setPen(style->fontColor());
+    foreach (const MImKeyAreaPrivate::KeyRow &row, d->rowList) {
+        // rowHasSecondaryLabel is needed for the vertical alignment of
+        // secondary label purposes.
+        bool rowHasSecondaryLabel = false;
+        foreach (const MImKey *key, row.keys) {
+            if (!key->secondaryLabel().isEmpty()) {
+                rowHasSecondaryLabel = true;
+                break;
+            }
+        }
+
+        foreach (MImKey *key, row.keys) {
+            painter->setFont(key->font());
+            key->setSecondaryLabelEnabled(rowHasSecondaryLabel);
+
+            QRectF rect = mapFromItem(key, key->labelRect()).boundingRect();
+            painter->drawText(rect, Qt::AlignCenter, key->label());
+        }
+    }
+
+    painter->setFont(style->secondaryFont());
+    foreach (const MImKeyAreaPrivate::KeyRow &row, d->rowList) {
+        foreach (MImKey *key, row.keys) {
+            if (!key->secondaryLabel().isEmpty()) {
+                QRectF rect = mapFromItem(key, key->secondaryLabelRect()).boundingRect();
+                painter->drawText(rect, Qt::AlignCenter, key->secondaryLabel());
+            }
+            key->setIgnoreOverriding(false);
+        }
+    }
+    painter->restore();
+
+    mTimestamp("MImKeyArea", "end");
+}
+
 MImAbstractKey *MImKeyArea::keyAt(const QPoint &pos) const
 {
-    const int numRows = rowList.count();
+    Q_D(const MImKeyArea);
+    const int numRows = d->rowList.count();
 
     if (numRows == 0) {
         return 0;
     }
 
-    const int rowIndex = binaryRangeFind<qreal>(pos.y(), rowOffsets);
+    const int rowIndex = binaryRangeFind<qreal>(pos.y(), d->rowOffsets);
 
     if (rowIndex == -1) {
         return 0;
     }
 
-    const KeyRow &currentRow = rowList.at(rowIndex);
+    const MImKeyAreaPrivate::KeyRow &currentRow = d->rowList.at(rowIndex);
     const int keyIndex = binaryRangeFind<qreal>(pos.x(), currentRow.keyOffsets);
 
     if (keyIndex == -1) {
@@ -644,19 +765,23 @@ MImAbstractKey *MImKeyArea::keyAt(const QPoint &pos) const
 
 void MImKeyArea::setShiftState(ModifierState newShiftState)
 {
-    if (shiftKey) {
-        shiftKey->setModifiers(newShiftState != ModifierClearState);
-        shiftKey->setSelected(newShiftState == ModifierLockedState);
+    Q_D(MImKeyArea);
+
+    if (d->shiftKey) {
+        d->shiftKey->setModifiers(newShiftState != ModifierClearState);
+        d->shiftKey->setSelected(newShiftState == ModifierLockedState);
     }
 }
 
 void MImKeyArea::modifiersChanged(const bool shift,
                                   const QChar &accent)
 {
-    for (RowIterator row(rowList.begin()); row != rowList.end(); ++row) {
+    Q_D(MImKeyArea);
+
+    for (MImKeyAreaPrivate::RowIterator row(d->rowList.begin()); row != d->rowList.end(); ++row) {
         foreach (MImKey *key, row->keys) {
             // Shift key and selected keys are detached from the normal level changing.
-            if (key != this->shiftKey
+            if (key != d->shiftKey
                 && key->state() != MImAbstractKey::Selected) {
                 key->setModifiers(shift, accent);
             }
@@ -673,37 +798,39 @@ void MImKeyArea::updateKeyGeometries(const int newAvailableWidth)
     }
 
     // Size specified in CSS can override width, for fixed key width layouts:
+    Q_D(MImKeyArea);
+
     const int effectiveWidth = (baseStyle()->useFixedKeyWidth()
                                 && (baseStyle()->size().width() > -1) ? baseStyle()->size().width()
                                                                       : newAvailableWidth);
 
-    cachedWidgetHeight = computeWidgetHeight();
+    d->cachedWidgetHeight = d->computeWidgetHeight();
 
     KeyGeometryUpdater updater = KeyGeometryUpdater(baseStyle(), effectiveWidth,
-                                                    computeMaxNormalizedWidth());
+                                                    d->computeMaxNormalizedWidth());
 
-    for (RowIterator rowIter = rowList.begin();
-         rowIter != rowList.end();
+    for (MImKeyAreaPrivate::RowIterator rowIter = d->rowList.begin();
+         rowIter != d->rowList.end();
          ++rowIter) {
         int flags = KeyGeometryUpdater::NormalRow;
-        const int rowIndex = std::distance(rowList.begin(), rowIter);
+        const int rowIndex = std::distance(d->rowList.begin(), rowIter);
 
-        if (rowIter == rowList.begin()) {
+        if (rowIter == d->rowList.begin()) {
             flags |= KeyGeometryUpdater::FirstRow;
         }
 
-        if (rowIter == rowList.end() - 1) {
+        if (rowIter == d->rowList.end() - 1) {
             flags |= KeyGeometryUpdater::LastRow;
         }
 
         updater.processRow(rowIter->keys,
-                           preferredKeyHeight(rowIndex),
+                           d->preferredKeyHeight(rowIndex),
                            sectionModel()->spacerIndices(rowIndex),
                            flags);
         rowIter->keyOffsets = updater.keyOffsets();
     }
 
-    rowOffsets = updater.rowOffsets();
+    d->rowOffsets = updater.rowOffsets();
     mRelativeKeyBaseWidth = updater.relativeKeyWidth();
 
     // Positions may have changed, rebuild text layout.
@@ -712,90 +839,21 @@ void MImKeyArea::updateKeyGeometries(const int newAvailableWidth)
 
 QRectF MImKeyArea::boundingRect() const
 {
-    return QRectF(0, 0, size().width(), cachedWidgetHeight);
-}
+    Q_D(const MImKeyArea);
 
-qreal MImKeyArea::preferredKeyHeight(int row) const
-{
-    switch (sectionModel()->rowHeightType(row)) {
-
-    default:
-    case LayoutSection::Medium:
-        return baseStyle()->keyHeightMedium();
-        break;
-
-    case LayoutSection::Small:
-        return baseStyle()->keyHeightSmall();
-        break;
-
-    case LayoutSection::Large:
-        return baseStyle()->keyHeightLarge();
-        break;
-
-    case LayoutSection::XLarge:
-        return baseStyle()->keyHeightXLarge();
-        break;
-
-    case LayoutSection::XxLarge:
-        return baseStyle()->keyHeightXxLarge();
-        break;
-    }
-
-    return 0.0;
-}
-
-qreal MImKeyArea::computeMaxNormalizedWidth() const
-{
-    qreal maxRowWidth = 0.0;
-
-    for (int j = 0; j < sectionModel()->rowCount(); ++j) {
-        qreal rowWidth = 0.0;
-
-        for (int i = 0; i < sectionModel()->columnsAt(j); ++i) {
-            const MImKeyModel *key = sectionModel()->keyModel(j, i);
-            rowWidth += normalizedKeyWidth(key);
-        }
-
-        maxRowWidth = qMax(maxRowWidth, rowWidth);
-    }
-
-    return maxRowWidth;
-}
-
-qreal MImKeyArea::normalizedKeyWidth(const MImKeyModel *model) const
-{
-    switch(model->width()) {
-
-    case MImKeyModel::Small:
-        return baseStyle()->keyWidthSmall();
-
-    case MImKeyModel::Medium:
-    case MImKeyModel::Stretched:
-        return baseStyle()->keyWidthMedium();
-
-    case MImKeyModel::Large:
-        return baseStyle()->keyWidthLarge();
-
-    case MImKeyModel::XLarge:
-        return baseStyle()->keyWidthXLarge();
-
-    case MImKeyModel::XxLarge:
-        return baseStyle()->keyWidthXxLarge();
-    }
-
-    qWarning() << __PRETTY_FUNCTION__
-               << "Could not compute normalized width from style";
-    return 0.0;
+    return QRectF(0, 0, size().width(), d->cachedWidgetHeight);
 }
 
 void MImKeyArea::onThemeChangeCompleted()
 {
-    mMaxNormalizedWidth = computeMaxNormalizedWidth();
-    cachedWidgetHeight = computeWidgetHeight();
-    stylingCache->primary   = QFontMetrics(baseStyle()->font());
-    stylingCache->secondary = QFontMetrics(baseStyle()->secondaryFont());
+    Q_D(MImKeyArea);
 
-    foreach (const KeyRow &row, rowList) {
+    d->mMaxNormalizedWidth = d->computeMaxNormalizedWidth();
+    d->cachedWidgetHeight = d->computeWidgetHeight();
+    d->stylingCache->primary   = QFontMetrics(baseStyle()->font());
+    d->stylingCache->secondary = QFontMetrics(baseStyle()->secondaryFont());
+
+    foreach (const MImKeyAreaPrivate::KeyRow &row, d->rowList) {
         foreach (MImKey *key, row.keys) {
             if (key) {
                 key->invalidateLabelPos();
@@ -809,15 +867,18 @@ void MImKeyArea::onThemeChangeCompleted()
 
 void MImKeyArea::applyStyle()
 {
-    stylingCache->primary   = QFontMetrics(baseStyle()->font());
-    stylingCache->secondary = QFontMetrics(baseStyle()->secondaryFont());
+    Q_D(MImKeyArea);
+
+    d->stylingCache->primary   = QFontMetrics(baseStyle()->font());
+    d->stylingCache->secondary = QFontMetrics(baseStyle()->secondaryFont());
 }
 
 QList<const MImAbstractKey *> MImKeyArea::keys() const
 {
+    Q_D(const MImKeyArea);
     QList<const MImAbstractKey *> keyList;
 
-    foreach (const KeyRow &row, rowList) {
+    foreach (const MImKeyAreaPrivate::KeyRow &row, d->rowList) {
         foreach (const MImKey *key, row.keys) {
             keyList.append(key);
         }
@@ -828,10 +889,11 @@ QList<const MImAbstractKey *> MImKeyArea::keys() const
 
 MImAbstractKey * MImKeyArea::findKey(const QString &id)
 {
+    Q_D(MImKeyArea);
     MImKey *key = 0;
 
-    for (QList<MImKey *>::const_iterator iterator = idToKey.begin();
-         iterator != idToKey.end();
+    for (QList<MImKey *>::const_iterator iterator = d->idToKey.begin();
+         iterator != d->idToKey.end();
          ++iterator) {
         if ((*iterator)->model().id() == id) {
             key = *iterator;
@@ -842,28 +904,12 @@ MImAbstractKey * MImKeyArea::findKey(const QString &id)
     return key;
 }
 
-void MImKeyArea::clearKeyIds()
-{
-    idToKey.clear();
-}
-
-void MImKeyArea::registerKeyId(MImKey *key)
-{
-    for (QList<MImKey *>::iterator iterator = idToKey.begin();
-         iterator != idToKey.end();
-         ++iterator) {
-        if ((*iterator)->model().id() == key->model().id()) {
-            *iterator = key;
-            return;
-        }
-    }
-    idToKey.append(key);
-}
-
 void MImKeyArea::setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides)
 {
-    for (QList<MImKey *>::const_iterator iterator = idToKey.begin();
-         iterator != idToKey.end();
+    Q_D(MImKeyArea);
+
+    for (QList<MImKey *>::const_iterator iterator = d->idToKey.begin();
+         iterator != d->idToKey.end();
          ++iterator) {
         MImKey *key = *iterator;
         if (overrides.contains(key->model().id())) {

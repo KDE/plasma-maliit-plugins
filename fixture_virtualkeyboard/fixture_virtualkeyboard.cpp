@@ -20,6 +20,7 @@
 #include "mimkeyarea.h"
 #include "mimkey.h"
 #include "mimabstractkey.h"
+#include "mimkeyarea_p.h"
 
 #include <QDebug>
 #include <QString>
@@ -126,7 +127,7 @@ const MImAbstractKey * FixtureVirtualKeyboard::getKey(const MImKeyArea * const w
 {
     Q_ASSERT(widget);
 
-    foreach (const MImKeyArea::KeyRow &row, widget->rowList) {
+    foreach (const MImKeyAreaPrivate::KeyRow &row, widget->d_ptr->rowList) {
         foreach (const MImKey *key, row.keys) {
             if (key->label() == label) {
                 return key;
@@ -142,7 +143,7 @@ const MImAbstractKey * FixtureVirtualKeyboard::getKey(const MImKeyArea * const w
 {
     Q_ASSERT(widget);
 
-    foreach (const MImKeyArea::KeyRow &row, widget->rowList) {
+    foreach (const MImKeyAreaPrivate::KeyRow &row, widget->d_ptr->rowList) {
         foreach (const MImKey *key, row.keys) {
             if (key->binding().action() == action) {
                 return key;
@@ -160,7 +161,7 @@ QString FixtureVirtualKeyboard::getAttribute(const MImKeyArea * const widget,
     Q_ASSERT(widget);
     QString output;
 
-    foreach (const MImKeyArea::KeyRow &row, widget->rowList) {
+    foreach (const MImKeyAreaPrivate::KeyRow &row, widget->d_ptr->rowList) {
         foreach (const MImKey *key, row.keys) {
             if (key->binding().action() == action) {
                 if ( attribute == "label" ){
@@ -181,7 +182,7 @@ QString FixtureVirtualKeyboard::getAttribute(const MImKeyArea * const widget,
     Q_ASSERT(widget);
     QString output;
 
-    foreach (const MImKeyArea::KeyRow &row, widget->rowList) {
+    foreach (const MImKeyAreaPrivate::KeyRow &row, widget->d_ptr->rowList) {
         foreach (const MImKey *key, row.keys) {
             if (key->label() == label) {
                 if ( attribute == "label" ){

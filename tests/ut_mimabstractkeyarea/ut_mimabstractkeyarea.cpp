@@ -17,6 +17,7 @@
 #include "ut_mimabstractkeyarea.h"
 #include "mimabstractkeyarea_p.h"
 #include "mimkeyarea.h"
+#include "mimkeyarea_p.h"
 #include "mimkey.h"
 #include "flickgesturerecognizer.h"
 #include "keyboarddata.h"
@@ -699,7 +700,7 @@ void Ut_MImAbstractKeyArea::testShiftCapsLock()
     subject = createKeyArea(section,
                                               false, 0);
 
-    MImKey *shiftButton = static_cast<MImKeyArea *>(subject)->shiftKey;
+    MImKey *shiftButton = static_cast<MImKeyArea *>(subject)->d_ptr->shiftKey;
     QVERIFY(shiftButton);
     QVERIFY(shiftButton->state() == MImAbstractKey::Normal);
 
@@ -990,7 +991,7 @@ void Ut_MImAbstractKeyArea::testRtlKeys()
     QVERIFY2(keyArea != 0, "Unknown type of button area");
     for (int row = 0; row < keyArea->rowCount(); ++row) {
         for (int column = 0; column < keyArea->sectionModel()->columnsAt(row); ++column) {
-            MImKey *key = keyArea->rowList[row].keys[column];
+            MImKey *key = keyArea->d_ptr->rowList[row].keys[column];
             QVERIFY(key != 0);
             if (expectedRtlKeys.contains(key->model().binding()->action())) {
                 QVERIFY(key->model().rtl());
@@ -1399,7 +1400,7 @@ MImAbstractKey *Ut_MImAbstractKeyArea::keyAt(unsigned int row, unsigned int colu
 
     MImKeyArea *buttonArea = dynamic_cast<MImKeyArea *>(subject);
     if (buttonArea) {
-        key = buttonArea->rowList[row].keys[column];
+        key = buttonArea->d_ptr->rowList[row].keys[column];
     }
 
     return key;

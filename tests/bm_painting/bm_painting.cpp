@@ -20,6 +20,7 @@
 #include "loggingwindow.h"
 #include "mimkeyarea.h"
 #include "mimabstractkeyarea_p.h"
+#include "mimkeyarea_p.h"
 
 #include "keyboarddata.h"
 #include "utils.h"
@@ -211,6 +212,7 @@ void Bm_Painting::benchmarkPaintDuringKeyPresses()
     KeyboardData *keyboard = new KeyboardData;
     Q_ASSERT(keyboard->loadNokiaKeyboard(filename));
     MImKeyArea *subject = new MImKeyArea(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection));
+    MImAbstractKeyArea *abstract = subject;
 
     subject->resize(defaultLayoutSize(subject));
 
@@ -287,14 +289,11 @@ void Bm_Painting::benchmarkPaintDuringKeyPresses()
     foreach (eventList, plannedEvents) {
         foreach (const QTouchEvent::TouchPoint &event, eventList) {
             if (event.state() == Qt::TouchPointPressed) {
-                qDebug() << "press " << event.scenePos();
-                subject->d_ptr->touchPointPressed(event);
+                abstract->d_ptr->touchPointPressed(event);
             } else if (event.state() == Qt::TouchPointReleased) {
-                qDebug() << "release " << event.scenePos();
-                subject->d_ptr->touchPointReleased(event);
+                abstract->d_ptr->touchPointReleased(event);
             }
         }
-        qDebug() << "***";
         window->logMark();
         QTest::qWait(delay);
     }
@@ -389,7 +388,7 @@ MImAbstractKey *Bm_Painting::keyAt(MImKeyArea *keyArea, unsigned int row, unsign
              && (row < static_cast<unsigned int>(keyArea->rowCount()))
              && (column < static_cast<unsigned int>(keyArea->sectionModel()->columnsAt(row))));
 
-    return keyArea->rowList[row].keys[column];
+    return keyArea->d_ptr->rowList[row].keys[column];
 }
 
 QTEST_APPLESS_MAIN(Bm_Painting);
