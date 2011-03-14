@@ -165,7 +165,11 @@ void
 MVirtualKeyboard::finalizeOrientationChange()
 {
     M::Orientation newOrientation = sceneManager->orientation();
-    organizeContent(newOrientation);
+    // Force-mode required to update orientation even when we're not shown
+    // and e.g. symbol view is active.
+    // This makes sure keyboard is correctly layed out after rotation and
+    // avoids any flicker when shown first time after orientation was changed.
+    organizeContent(newOrientation, true);
     ReactionMapPainter::instance().repaint();
 }
 
@@ -249,7 +253,6 @@ QVariant MVirtualKeyboard::itemChange(GraphicsItemChange change, const QVariant 
 {
     if (change == QGraphicsItem::ItemVisibleChange) {
         if (value.toBool()) {
-            organizeContent(sceneManager->orientation(), true);
             transitioning = true;
         } else {
             resetState();

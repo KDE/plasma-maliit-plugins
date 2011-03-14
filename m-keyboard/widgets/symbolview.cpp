@@ -214,22 +214,12 @@ bool SymbolView::sceneEventFilter(QGraphicsItem */*watched*/, QEvent *event)
 void SymbolView::prepareToOrientationChange()
 {
     qDebug() << __PRETTY_FUNCTION__;
-
-    // if inactive, just ignore
-    if (!isActive()) {
-        return;
-    }
-    activity = TemporarilyInactive;
 }
 
 
 void SymbolView::finalizeOrientationChange()
 {
     organizeContent();
-    if (activity == TemporarilyInactive) {
-        //reshow the page
-        showSymbolView(NormalShowMode);
-    }
 }
 
 void SymbolView::showSymbolView(SymbolView::ShowMode mode)
@@ -270,19 +260,17 @@ void SymbolView::hideSymbolView(SymbolView::HideMode mode)
 
 void SymbolView::loadSwitcherPages(const LayoutData *kbLayout, const unsigned int selectPage)
 {
-    layout()->invalidate();
-
-    if (pageSwitcher) {
-        mainLayout->removeItem(pageSwitcher);
-        delete pageSwitcher;
-        pageSwitcher = 0;
-    }
-
     if (!kbLayout) {
         return;
     }
 
-    pageSwitcher = new HorizontalSwitcher(this);
+    bool hadPageSwitcher = true;
+    if(!pageSwitcher) {
+        hadPageSwitcher = false;
+        pageSwitcher = new HorizontalSwitcher(this);
+    }
+
+    pageSwitcher->deleteAll();
     pageSwitcher->setLooping(true);
     pageSwitcher->setAnimationEnabled(false);
 
@@ -317,7 +305,9 @@ void SymbolView::loadSwitcherPages(const LayoutData *kbLayout, const unsigned in
     }
 
     pageSwitcher->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
-    mainLayout->insertItem(KeyboardIndex, pageSwitcher);
+    if (!hadPageSwitcher) {
+        mainLayout->insertItem(KeyboardIndex, pageSwitcher);
+    }
 }
 
 
