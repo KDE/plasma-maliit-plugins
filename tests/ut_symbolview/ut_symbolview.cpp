@@ -24,6 +24,7 @@
 #include "horizontalswitcher.h"
 #include "keyevent.h"
 #include "mimabstractkeyarea.h"
+#include "mimabstractkeyarea_p.h"
 #include "layoutsmanager.h"
 #include "regiontracker.h"
 #include "reactionmappainter.h"
@@ -392,7 +393,7 @@ void Ut_SymbolView::testAutomaticCloseOnKeyClick()
         MImAbstractKey *key = keyAt(page, keyLocation.y(), keyLocation.x());
         QVERIFY(key);
 
-        page->click(key);
+        page->d_ptr->click(key);
     }
 
     QCOMPARE(subject->isActive(), expectedIsActive);

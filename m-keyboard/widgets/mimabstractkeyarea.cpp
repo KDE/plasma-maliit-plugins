@@ -17,6 +17,7 @@
 #include "flickgesture.h"
 #include "flickgesturerecognizer.h"
 #include "mimabstractkeyarea.h"
+#include "mimabstractkeyarea_p.h"
 #include "mimkeyvisitor.h"
 #include "mimreactionmap.h"
 #include "popupbase.h"
@@ -119,197 +120,31 @@ namespace
     }
 }
 
-M::InputMethodMode MImAbstractKeyArea::InputMethodMode;
+M::InputMethodMode MImAbstractKeyAreaPrivate::InputMethodMode;
 
-MImAbstractKeyArea::MImAbstractKeyArea(const LayoutData::SharedLayoutSection &newSection,
-                                       bool usePopup,
-                                       QGraphicsWidget *parent)
-    : MStylableWidget(parent),
-      mRelativeKeyBaseWidth(0),
-      debugTouchPoints(style()->debugTouchPoints()),
+MImAbstractKeyAreaPrivate::MImAbstractKeyAreaPrivate(const LayoutData::SharedLayoutSection &newSection,
+                                                     bool usePopup,
+                                                     MImAbstractKeyArea *owner)
+    : q_ptr(owner),
       currentLevel(0),
-      mPopup(usePopup ? PopupFactory::instance()->createPopup(this) : 0),
+      mPopup(usePopup ? PopupFactory::instance()->createPopup(owner) : 0),
       wasGestureTriggered(false),
       enableMultiTouch(MGConfItem(MultitouchSettings).value().toBool()),
       feedbackSliding(MImReactionMap::Sliding),
       section(newSection)
 {
-    // By default multi-touch is disabled
-    if (enableMultiTouch) {
-        setAcceptTouchEvents(true);
-    }
-
-    lastTouchPointPressEvent.restart();
-    grabGesture(FlickGestureRecognizer::sharedGestureType());
-
-    longPressTimer.setSingleShot(true);
-    idleVkbTimer.setSingleShot(true);
-
-    connect(&longPressTimer, SIGNAL(timeout()),
-            this, SLOT(handleLongKeyPressed()));
-
-    connect(&idleVkbTimer, SIGNAL(timeout()),
-            this, SLOT(handleIdleVkb()));
-
-    connect(MTheme::instance(), SIGNAL(themeChangeCompleted()),
-            this, SLOT(onThemeChangeCompleted()),
-            Qt::UniqueConnection);
-
-    switchStyleMode();
 }
 
-MImAbstractKeyArea::~MImAbstractKeyArea()
+MImAbstractKeyAreaPrivate::~MImAbstractKeyAreaPrivate()
 {
     delete mPopup;
 }
 
-void MImAbstractKeyArea::setInputMethodMode(M::InputMethodMode inputMethodMode)
+void MImAbstractKeyAreaPrivate::click(MImAbstractKey *key,
+                                      const QPoint &pos)
 {
-    InputMethodMode = inputMethodMode;
-}
+    Q_Q(MImAbstractKeyArea);
 
-qreal MImAbstractKeyArea::relativeKeyBaseWidth() const
-{
-    return mRelativeKeyBaseWidth;
-}
-
-const LayoutData::SharedLayoutSection &MImAbstractKeyArea::sectionModel() const
-{
-    return section;
-}
-
-void MImAbstractKeyArea::updatePopup(MImAbstractKey *key)
-{
-    if (!mPopup) {
-        return;
-    }
-
-    if (!key) {
-        mPopup->cancel();
-        return;
-    }
-
-    const QRectF &buttonRect = key->buttonRect();
-    // IM FW guarantees that a scene position matches with
-    // screen position, so we can use mapToScene to calculate screen position:
-    const QPoint pos = mapToScene(buttonRect.topLeft()).toPoint();
-
-    MImKeyVisitor::SpecialKeyFinder finder(MImKeyVisitor::SpecialKeyFinder::FindDeadKey);
-    MImAbstractKey::visitActiveKeys(&finder);
-
-    mPopup->updatePos(buttonRect.topLeft(), pos, buttonRect.toRect().size());
-    mPopup->handleKeyPressedOnMainArea(key,
-                                       (finder.deadKey() ? finder.deadKey()->label() : QString()),
-                                       level() % 2);
-}
-
-int MImAbstractKeyArea::maxColumns() const
-{
-    return section->maxColumns();
-}
-
-int MImAbstractKeyArea::rowCount() const
-{
-    return section->rowCount();
-}
-
-void
-MImAbstractKeyArea::handleVisibilityChanged(bool visible)
-{
-    if (!visible) {
-        if (mPopup) {
-            mPopup->setVisible(false);
-        }
-
-        MImKeyVisitor::SpecialKeyFinder finder(MImKeyVisitor::SpecialKeyFinder::FindDeadKey);
-        MImAbstractKey::visitActiveKeys(&finder);
-
-        unlockDeadKeys(finder.deadKey());
-    }
-}
-
-void
-MImAbstractKeyArea::switchLevel(int level)
-{
-    if (level != currentLevel) {
-        currentLevel = level;
-
-        // Update uppercase / lowercase
-        MImKeyVisitor::SpecialKeyFinder finder(MImKeyVisitor::SpecialKeyFinder::FindDeadKey);
-        MImAbstractKey::visitActiveKeys(&finder);
-
-        updateKeyModifiers(finder.deadKey() ? finder.deadKey()->label().at(0) : '\0');
-
-        update();
-    }
-}
-
-int MImAbstractKeyArea::level() const
-{
-    return currentLevel;
-}
-
-void MImAbstractKeyArea::setShiftState(ModifierState /*newShiftState*/)
-{
-    // Empty default implementation
-}
-
-void MImAbstractKeyArea::resizeEvent(QGraphicsSceneResizeEvent *event)
-{
-    const int newWidth = static_cast<int>(event->newSize().width());
-
-    if (newWidth != static_cast<int>(event->oldSize().width())) {
-        updateKeyGeometries(newWidth);
-    }
-}
-
-void MImAbstractKeyArea::mousePressEvent(QGraphicsSceneMouseEvent *ev)
-{
-    if (enableMultiTouch) {
-        return;
-    }
-
-    touchPointPressed(createTouchPoint(0, Qt::TouchPointPressed,
-                                       mapToScene(ev->pos()),
-                                       mapToScene(gLastMousePos)));
-
-    gLastMousePos = ev->pos();
-}
-
-void MImAbstractKeyArea::mouseMoveEvent(QGraphicsSceneMouseEvent *ev)
-{
-    if (enableMultiTouch) {
-        return;
-    }
-
-    touchPointMoved(createTouchPoint(0, Qt::TouchPointMoved,
-                                     mapToScene(ev->pos()),
-                                     mapToScene(gLastMousePos)));
-
-    gLastMousePos = ev->pos();
-}
-
-void MImAbstractKeyArea::mouseReleaseEvent(QGraphicsSceneMouseEvent *ev)
-{
-    if (scene()->mouseGrabberItem() == this) {
-        // Ungrab mouse explicitly since we probably used grabMouse() to get it.
-        ungrabMouse();
-    }
-
-    if (enableMultiTouch) {
-        return;
-    }
-
-    touchPointReleased(createTouchPoint(0, Qt::TouchPointReleased,
-                                        mapToScene(ev->pos()),
-                                        mapToScene(gLastMousePos)));
-
-    gLastMousePos = ev->pos();
-}
-
-void MImAbstractKeyArea::click(MImAbstractKey *key,
-                               const QPoint &pos)
-{
     if (!key || !key->enabled()) {
         return;
     }
@@ -320,13 +155,13 @@ void MImAbstractKeyArea::click(MImAbstractKey *key,
 
     if (!key->isDeadKey()) {
         const QString accent = (finder.deadKey() ? finder.deadKey()->label() : QString());
-        emit keyClicked(key, accent, hasActiveShiftKeys || level() % 2, pos);
+        emit q->keyClicked(key, accent, hasActiveShiftKeys || q->level() % 2, pos);
 
         if (!key->isShiftKey()) {
-            unlockDeadKeys(finder.deadKey());
+            q->unlockDeadKeys(finder.deadKey());
         }
     } else if (key == finder.deadKey()) {
-        unlockDeadKeys(finder.deadKey());
+        q->unlockDeadKeys(finder.deadKey());
     } else {
         // Deselect previous dead key, if any:
         if (finder.deadKey()) {
@@ -335,107 +170,14 @@ void MImAbstractKeyArea::click(MImAbstractKey *key,
 
         // key is the new deadkey:
         key->setSelected(true);
-        updateKeyModifiers(key->label().at(0));
+        q->updateKeyModifiers(key->label().at(0));
     }
 }
 
-QVariant MImAbstractKeyArea::itemChange(GraphicsItemChange change, const QVariant &value)
+void MImAbstractKeyAreaPrivate::handleFlickGesture(FlickGesture *gesture)
 {
-    switch (change) {
-    case QGraphicsItem::ItemVisibleChange:
-        handleVisibilityChanged(value.toBool());
-        break;
+    Q_Q(MImAbstractKeyArea);
 
-    default:
-        break;
-    }
-
-    return QGraphicsItem::itemChange(change, value);
-}
-
-void MImAbstractKeyArea::grabMouseEvent(QEvent */*event*/)
-{
-    // If mimabstractkeyarea is hidden without mouseReleaseEvent
-    // the enabled <flicked> would stay true if mouse
-    // grab is obtained again without mousePressEvent.
-    // This would ignore mouseReleaseEvent and would not cause keyClicked.
-    wasGestureTriggered = false;
-
-    const qreal ScalingFactor = style()->flickGestureThresholdRatio();
-    const int HorizontalThreshold = static_cast<int>(boundingRect().width() * ScalingFactor);
-    const int VerticalThreshold = static_cast<int>(boundingRect().height() * ScalingFactor);
-    const int Timeout = style()->flickGestureTimeout();
-
-    FlickGestureRecognizer::instance()->setFinishThreshold(HorizontalThreshold, VerticalThreshold);
-    FlickGestureRecognizer::instance()->setStartThreshold(HorizontalThreshold / 2, VerticalThreshold / 2);
-    FlickGestureRecognizer::instance()->setTimeout(Timeout);
-}
-
-void MImAbstractKeyArea::ungrabMouseEvent(QEvent *)
-{
-    // Make sure popup can respond to mouse grab removal:
-    if (mPopup) {
-        mPopup->cancel();
-    }
-
-    if (enableMultiTouch && MImAbstractKey::lastActiveKey()) {
-        MImAbstractKey::lastActiveKey()->resetTouchPointCount();
-    }
-
-    longPressTimer.stop();
-}
-
-bool MImAbstractKeyArea::event(QEvent *ev)
-{
-    bool eaten = false;
-    QString start, end;
-    start = QString("%1|start").arg(ev->type());
-    end = QString("%1|end").arg(ev->type());
-    mTimestamp("MImAbstractKeyArea", start);
-
-    if (ev->type() == QEvent::Gesture) {
-        const Qt::GestureType flickGestureType = FlickGestureRecognizer::sharedGestureType();
-        FlickGesture *flickGesture = static_cast<FlickGesture *>(static_cast<QGestureEvent *>(ev)->gesture(flickGestureType));
-
-        if (flickGesture) {
-            handleFlickGesture(flickGesture);
-            eaten = true;
-        }
-    } else if (ev->type() == QEvent::TouchBegin
-               || ev->type() == QEvent::TouchUpdate
-               || ev->type() == QEvent::TouchEnd) {
-        QTouchEvent *touch = static_cast<QTouchEvent*>(ev);
-
-        foreach (const QTouchEvent::TouchPoint &tp, touch->touchPoints()) {
-
-            switch (tp.state()) {
-            case Qt::TouchPointPressed:
-                touchPointPressed(tp);
-                break;
-
-            case Qt::TouchPointMoved:
-                touchPointMoved(tp);
-                break;
-
-            case Qt::TouchPointReleased:
-                touchPointReleased(tp);
-                break;
-            default:
-                break;
-            }
-        }
-
-        eaten = true;
-    }
-
-    const bool result = eaten || MWidget::event(ev);
-
-    mTimestamp("MImAbstractKeyArea", end);
-    return result;
-}
-
-void MImAbstractKeyArea::handleFlickGesture(FlickGesture *gesture)
-{
     if (InputMethodMode == M::InputMethodModeDirect) {
         return;
     }
@@ -458,21 +200,21 @@ void MImAbstractKeyArea::handleFlickGesture(FlickGesture *gesture)
 
         switch (gesture->direction()) {
         case FlickGesture::Left:
-            emit flickLeft();
+            emit q->flickLeft();
             break;
 
         case FlickGesture::Right:
-            emit flickRight();
+            emit q->flickRight();
             break;
 
         case FlickGesture::Down:
-            emit flickDown();
+            emit q->flickDown();
             break;
 
         case FlickGesture::Up: {
-                const MImAbstractKey *flickedKey = keyAt(gesture->startPosition());
+                const MImAbstractKey *flickedKey = q->keyAt(gesture->startPosition());
                 if (flickedKey) {
-                    emit flickUp(flickedKey->binding());
+                    emit q->flickUp(flickedKey->binding());
                 }
                 break;
             }
@@ -483,8 +225,10 @@ void MImAbstractKeyArea::handleFlickGesture(FlickGesture *gesture)
     }
 }
 
-void MImAbstractKeyArea::touchPointPressed(const QTouchEvent::TouchPoint &tp)
+void MImAbstractKeyAreaPrivate::touchPointPressed(const QTouchEvent::TouchPoint &tp)
 {
+    Q_Q(MImAbstractKeyArea);
+
     mTimestamp("MImAbstractKeyArea", "start");
     wasGestureTriggered = false;
 
@@ -492,15 +236,15 @@ void MImAbstractKeyArea::touchPointPressed(const QTouchEvent::TouchPoint &tp)
     if (isInSpeedTypingMode(true)) {
         idleVkbTimer.stop();
         // TODO: check how expensive gesture (un)grabbing is:
-        ungrabGesture(FlickGestureRecognizer::sharedGestureType());
+        q->ungrabGesture(FlickGestureRecognizer::sharedGestureType());
     }
 
-    const QPoint pos = correctedTouchPoint(tp.scenePos());
-    MImAbstractKey *key = keyAt(pos);
+    const QPoint pos = q->correctedTouchPoint(tp.scenePos());
+    MImAbstractKey *key = q->keyAt(pos);
 
 
-    if (debugTouchPoints) {
-        logTouchPoint(tp, key);
+    if (q->debugTouchPoints) {
+        q->logTouchPoint(tp, key);
     }
 
     if (!key || !key->enabled()) {
@@ -521,17 +265,17 @@ void MImAbstractKeyArea::touchPointPressed(const QTouchEvent::TouchPoint &tp)
         && lastActiveKey->touchPointCount() > 0) {
         // TODO: play release sound? Potentially confusing to user, who
         // might still press this key.
-        emit keyClicked(lastActiveKey, QString(),
-                        hasActiveShiftKeys || level() % 2,
-                        gAdjustedPositionForCorrection);
+        emit q->keyClicked(lastActiveKey, QString(),
+                           hasActiveShiftKeys || q->level() % 2,
+                           gAdjustedPositionForCorrection);
 
         lastActiveKey->resetTouchPointCount();
     }
 
     if (key->increaseTouchPointCount()
         && key->touchPointCount() == 1) {
-        updatePopup(key);
-        longPressTimer.start(style()->longPressTimeout());
+        q->updatePopup(key);
+        longPressTimer.start(q->style()->longPressTimeout());
 
         // We activate the key's gravity here because a key cannot
         // differentiate between initially-pressed-key or
@@ -540,14 +284,16 @@ void MImAbstractKeyArea::touchPointPressed(const QTouchEvent::TouchPoint &tp)
         // (touchpoint count goes from 1 to 0).
         key->activateGravity();
 
-        emit keyPressed(key, (finder.deadKey() ? finder.deadKey()->label() : QString()),
-                        hasActiveShiftKeys || level() % 2);
+        emit q->keyPressed(key, (finder.deadKey() ? finder.deadKey()->label() : QString()),
+                           hasActiveShiftKeys || q->level() % 2);
     }
     mTimestamp("MImAbstractKeyArea", "end");
 }
 
-void MImAbstractKeyArea::touchPointMoved(const QTouchEvent::TouchPoint &tp)
+void MImAbstractKeyAreaPrivate::touchPointMoved(const QTouchEvent::TouchPoint &tp)
 {
+    Q_Q(MImAbstractKeyArea);
+
     if (wasGestureTriggered) {
         longPressTimer.stop();
         return;
@@ -559,8 +305,8 @@ void MImAbstractKeyArea::touchPointMoved(const QTouchEvent::TouchPoint &tp)
 
     mTimestamp("MImAbstractKeyArea", "start");
 
-    const QPoint pos = correctedTouchPoint(tp.scenePos());
-    const QPoint lastPos = correctedTouchPoint(tp.lastScenePos());
+    const QPoint pos = q->correctedTouchPoint(tp.scenePos());
+    const QPoint lastPos = q->correctedTouchPoint(tp.lastScenePos());
 
     const GravitationalLookupResult lookup = gravitationalKeyAt(pos, lastPos);
     MImKeyVisitor::SpecialKeyFinder finder;
@@ -571,7 +317,7 @@ void MImAbstractKeyArea::touchPointMoved(const QTouchEvent::TouchPoint &tp)
     if (lookup.key != lookup.lastKey) {
 
         if (lookup.key) {
-            updatePopup(lookup.key);
+            q->updatePopup(lookup.key);
 
             if (lookup.key->enabled()
                 && lookup.key->increaseTouchPointCount()
@@ -580,10 +326,10 @@ void MImAbstractKeyArea::touchPointMoved(const QTouchEvent::TouchPoint &tp)
                 // (= reactive area) to another
                 // slot is called asynchronously to get screen update as fast as possible
                 QMetaObject::invokeMethod(&feedbackSliding, "play", Qt::QueuedConnection);
-                longPressTimer.start(style()->longPressTimeout());
-                emit keyPressed(lookup.key,
-                                (finder.deadKey() ? finder.deadKey()->label() : QString()),
-                                hasActiveShiftKeys || level() % 2);
+                longPressTimer.start(q->style()->longPressTimeout());
+                emit q->keyPressed(lookup.key,
+                                   (finder.deadKey() ? finder.deadKey()->label() : QString()),
+                                   hasActiveShiftKeys || q->level() % 2);
             }
         }
 
@@ -591,9 +337,9 @@ void MImAbstractKeyArea::touchPointMoved(const QTouchEvent::TouchPoint &tp)
             && lookup.lastKey->enabled()
             && lookup.lastKey->decreaseTouchPointCount()
             && lookup.lastKey->touchPointCount() == 0) {
-            emit keyReleased(lookup.lastKey,
-                             (finder.deadKey() ? finder.deadKey()->label() : QString()),
-                             hasActiveShiftKeys || level() % 2);
+            emit q->keyReleased(lookup.lastKey,
+                                (finder.deadKey() ? finder.deadKey()->label() : QString()),
+                                hasActiveShiftKeys || q->level() % 2);
         }
     }
 
@@ -601,23 +347,25 @@ void MImAbstractKeyArea::touchPointMoved(const QTouchEvent::TouchPoint &tp)
         longPressTimer.stop();
     }
 
-    if (debugTouchPoints) {
-        logTouchPoint(tp, lookup.key, lookup.lastKey);
+    if (q->debugTouchPoints) {
+        q->logTouchPoint(tp, lookup.key, lookup.lastKey);
     }
     mTimestamp("MImAbstractKeyArea", "end");
 }
 
-void MImAbstractKeyArea::touchPointReleased(const QTouchEvent::TouchPoint &tp)
+void MImAbstractKeyAreaPrivate::touchPointReleased(const QTouchEvent::TouchPoint &tp)
 {
+    Q_Q(MImAbstractKeyArea);
+
     if (wasGestureTriggered) {
         return;
     }
     mTimestamp("MImAbstractKeyArea", "start");
 
-    idleVkbTimer.start(style()->idleVkbTimeout());
+    idleVkbTimer.start(q->style()->idleVkbTimeout());
 
-    const QPoint pos = correctedTouchPoint(tp.scenePos());
-    const QPoint lastPos = correctedTouchPoint(tp.lastScenePos());
+    const QPoint pos = q->correctedTouchPoint(tp.scenePos());
+    const QPoint lastPos = q->correctedTouchPoint(tp.lastScenePos());
 
     const GravitationalLookupResult lookup = gravitationalKeyAt(pos, lastPos);
     MImKeyVisitor::SpecialKeyFinder finder;
@@ -629,9 +377,9 @@ void MImAbstractKeyArea::touchPointReleased(const QTouchEvent::TouchPoint &tp)
         && lookup.key->decreaseTouchPointCount()
         && lookup.key->touchPointCount() == 0) {
         longPressTimer.stop();
-        emit keyReleased(lookup.key,
-                         (finder.deadKey() ? finder.deadKey()->label() : QString()),
-                         hasActiveShiftKeys || level() % 2);
+        emit q->keyReleased(lookup.key,
+                            (finder.deadKey() ? finder.deadKey()->label() : QString()),
+                            hasActiveShiftKeys || q->level() % 2);
 
         click(lookup.key, gAdjustedPositionForCorrection);
     }
@@ -641,9 +389,9 @@ void MImAbstractKeyArea::touchPointReleased(const QTouchEvent::TouchPoint &tp)
         && lookup.lastKey->enabled()
         && lookup.lastKey->decreaseTouchPointCount()
         && lookup.lastKey->touchPointCount() == 0) {
-        emit keyReleased(lookup.lastKey,
-                         (finder.deadKey() ? finder.deadKey()->label() : QString()),
-                         hasActiveShiftKeys || level() % 2);
+        emit q->keyReleased(lookup.lastKey,
+                            (finder.deadKey() ? finder.deadKey()->label() : QString()),
+                            hasActiveShiftKeys || q->level() % 2);
     }
 
     // We're finished with this touch point, inform popup:
@@ -653,16 +401,17 @@ void MImAbstractKeyArea::touchPointReleased(const QTouchEvent::TouchPoint &tp)
 
     longPressTimer.stop();
 
-    if (debugTouchPoints) {
-        logTouchPoint(tp, lookup.key, lookup.lastKey);
+    if (q->debugTouchPoints) {
+        q->logTouchPoint(tp, lookup.key, lookup.lastKey);
     }
     mTimestamp("MImAbstractKeyArea", "end");
 }
 
-QTouchEvent::TouchPoint MImAbstractKeyArea::createTouchPoint(int id,
-                                                             Qt::TouchPointState state,
-                                                             const QPointF &pos,
-                                                             const QPointF &lastPos)
+QTouchEvent::TouchPoint
+MImAbstractKeyAreaPrivate::createTouchPoint(int id,
+                                            Qt::TouchPointState state,
+                                            const QPointF &pos,
+                                            const QPointF &lastPos)
 {
     QTouchEvent::TouchPoint tp(id);
     tp.setState(state);
@@ -672,21 +421,23 @@ QTouchEvent::TouchPoint MImAbstractKeyArea::createTouchPoint(int id,
     return tp;
 }
 
-MImAbstractKeyArea::GravitationalLookupResult
-MImAbstractKeyArea::gravitationalKeyAt(const QPoint &pos,
-                                       const QPoint &lastPos) const
+MImAbstractKeyAreaPrivate::GravitationalLookupResult
+MImAbstractKeyAreaPrivate::gravitationalKeyAt(const QPoint &pos,
+                                              const QPoint &lastPos) const
 {
+    Q_Q(const MImAbstractKeyArea);
+
     // TODO: Needs explicit test coverage, maybe.
     MImAbstractKey *key = 0;
     MImAbstractKey *lastKey = 0;
 
-    const qreal hGravity = style()->touchpointHorizontalGravity();
-    const qreal vGravity = style()->touchpointVerticalGravity();
+    const qreal hGravity = q->style()->touchpointHorizontalGravity();
+    const qreal vGravity = q->style()->touchpointVerticalGravity();
 
-    key = keyAt(adjustedByGravity(MImAbstractKey::lastActiveKey(),
-                                  pos, hGravity, vGravity).toPoint());
-    lastKey = keyAt(adjustedByGravity(MImAbstractKey::lastActiveKey(),
-                                      lastPos, hGravity, vGravity).toPoint());
+    key = q->keyAt(adjustedByGravity(MImAbstractKey::lastActiveKey(),
+                                     pos, hGravity, vGravity).toPoint());
+    lastKey = q->keyAt(adjustedByGravity(MImAbstractKey::lastActiveKey(),
+                                         lastPos, hGravity, vGravity).toPoint());
 
     // Check whether error correction needs updated position:
     if (key) {
@@ -705,6 +456,422 @@ MImAbstractKeyArea::gravitationalKeyAt(const QPoint &pos,
     return GravitationalLookupResult(key, lastKey);
 }
 
+bool MImAbstractKeyAreaPrivate::isInSpeedTypingMode(bool restartTimers)
+{
+    Q_Q(MImAbstractKeyArea);
+
+    return ((restartTimers ? lastTouchPointPressEvent.restart()
+                           : lastTouchPointPressEvent.elapsed()) < q->style()->idleVkbTimeout());
+}
+
+void MImAbstractKeyAreaPrivate::switchStyleMode()
+{
+    Q_Q(MImAbstractKeyArea);
+
+    if (!q->style()->syncStyleModeWithKeyCount()) {
+        return;
+    }
+
+    switch(section->keyCount()) {
+
+    case 10:
+        q->style().setModeKeys10();
+        break;
+
+    case 11:
+        q->style().setModeKeys11();
+        break;
+
+    case 12:
+        q->style().setModeKeys12();
+        break;
+
+    case 13:
+        q->style().setModeKeys13();
+        break;
+
+    case 14:
+        q->style().setModeKeys14();
+        break;
+
+    case 15:
+        q->style().setModeKeys15();
+        break;
+
+    case 30:
+        q->style().setModeKeys30();
+        break;
+
+    case 31:
+        q->style().setModeKeys31();
+        break;
+
+    case 32:
+        q->style().setModeKeys32();
+        break;
+
+    case 33:
+        q->style().setModeKeys33();
+        break;
+
+    case 34:
+        q->style().setModeKeys34();
+        break;
+
+    case 35:
+        q->style().setModeKeys35();
+        break;
+
+    case 36:
+        q->style().setModeKeys36();
+        break;
+
+    case 37:
+        q->style().setModeKeys37();
+        break;
+
+    case 38:
+        q->style().setModeKeys38();
+        break;
+
+    case 39:
+        q->style().setModeKeys39();
+        break;
+
+    case 40:
+        q->style().setModeKeys40();
+        break;
+
+    case 41:
+        q->style().setModeKeys41();
+        break;
+
+    case 42:
+        q->style().setModeKeys42();
+        break;
+
+    case 43:
+        q->style().setModeKeys43();
+        break;
+
+    case 44:
+        q->style().setModeKeys44();
+        break;
+
+    case 45:
+        q->style().setModeKeys45();
+        break;
+
+    default:
+        break;
+    }
+}
+
+// actual class implementation
+MImAbstractKeyArea::MImAbstractKeyArea(const LayoutData::SharedLayoutSection &newSection,
+                                       bool usePopup,
+                                       QGraphicsWidget *parent)
+    : MStylableWidget(parent),
+      mRelativeKeyBaseWidth(0),
+      debugTouchPoints(style()->debugTouchPoints()),
+      d_ptr(new MImAbstractKeyAreaPrivate(newSection, usePopup, this))
+{
+    Q_D(MImAbstractKeyArea);
+
+    // By default multi-touch is disabled
+    if (d->enableMultiTouch) {
+        setAcceptTouchEvents(true);
+    }
+
+    d->lastTouchPointPressEvent.restart();
+    grabGesture(FlickGestureRecognizer::sharedGestureType());
+
+    d->longPressTimer.setSingleShot(true);
+    d->idleVkbTimer.setSingleShot(true);
+
+    connect(&d->longPressTimer, SIGNAL(timeout()),
+            this, SLOT(handleLongKeyPressed()));
+
+    connect(&d->idleVkbTimer, SIGNAL(timeout()),
+            this, SLOT(handleIdleVkb()));
+
+    connect(MTheme::instance(), SIGNAL(themeChangeCompleted()),
+            this, SLOT(onThemeChangeCompleted()),
+            Qt::UniqueConnection);
+
+    d->switchStyleMode();
+}
+
+MImAbstractKeyArea::~MImAbstractKeyArea()
+{
+    delete d_ptr;
+}
+
+void MImAbstractKeyArea::setInputMethodMode(M::InputMethodMode inputMethodMode)
+{
+    MImAbstractKeyAreaPrivate::InputMethodMode = inputMethodMode;
+}
+
+qreal MImAbstractKeyArea::relativeKeyBaseWidth() const
+{
+    return mRelativeKeyBaseWidth;
+}
+
+const LayoutData::SharedLayoutSection &MImAbstractKeyArea::sectionModel() const
+{
+    Q_D(const MImAbstractKeyArea);
+
+    return d->section;
+}
+
+void MImAbstractKeyArea::updatePopup(MImAbstractKey *key)
+{
+    Q_D(MImAbstractKeyArea);
+
+    if (!d->mPopup) {
+        return;
+    }
+
+    if (!key) {
+        d->mPopup->cancel();
+        return;
+    }
+
+    const QRectF &buttonRect = key->buttonRect();
+    // IM FW guarantees that a scene position matches with
+    // screen position, so we can use mapToScene to calculate screen position:
+    const QPoint pos = mapToScene(buttonRect.topLeft()).toPoint();
+
+    MImKeyVisitor::SpecialKeyFinder finder(MImKeyVisitor::SpecialKeyFinder::FindDeadKey);
+    MImAbstractKey::visitActiveKeys(&finder);
+
+    d->mPopup->updatePos(buttonRect.topLeft(), pos, buttonRect.toRect().size());
+    d->mPopup->handleKeyPressedOnMainArea(key,
+                                          (finder.deadKey() ? finder.deadKey()->label() : QString()),
+                                          level() % 2);
+}
+
+int MImAbstractKeyArea::maxColumns() const
+{
+    Q_D(const MImAbstractKeyArea);
+
+    return d->section->maxColumns();
+}
+
+int MImAbstractKeyArea::rowCount() const
+{
+    Q_D(const MImAbstractKeyArea);
+
+    return d->section->rowCount();
+}
+
+void
+MImAbstractKeyArea::handleVisibilityChanged(bool visible)
+{
+    Q_D(MImAbstractKeyArea);
+
+    if (!visible) {
+        if (d->mPopup) {
+            d->mPopup->setVisible(false);
+        }
+
+        MImKeyVisitor::SpecialKeyFinder finder(MImKeyVisitor::SpecialKeyFinder::FindDeadKey);
+        MImAbstractKey::visitActiveKeys(&finder);
+
+        unlockDeadKeys(finder.deadKey());
+    }
+}
+
+void
+MImAbstractKeyArea::switchLevel(int level)
+{
+    Q_D(MImAbstractKeyArea);
+
+    if (level != d->currentLevel) {
+        d->currentLevel = level;
+
+        // Update uppercase / lowercase
+        MImKeyVisitor::SpecialKeyFinder finder(MImKeyVisitor::SpecialKeyFinder::FindDeadKey);
+        MImAbstractKey::visitActiveKeys(&finder);
+
+        updateKeyModifiers(finder.deadKey() ? finder.deadKey()->label().at(0) : '\0');
+
+        update();
+    }
+}
+
+int MImAbstractKeyArea::level() const
+{
+    Q_D(const MImAbstractKeyArea);
+
+    return d->currentLevel;
+}
+
+void MImAbstractKeyArea::setShiftState(ModifierState /*newShiftState*/)
+{
+    // Empty default implementation
+}
+
+void MImAbstractKeyArea::resizeEvent(QGraphicsSceneResizeEvent *event)
+{
+    const int newWidth = static_cast<int>(event->newSize().width());
+
+    if (newWidth != static_cast<int>(event->oldSize().width())) {
+        updateKeyGeometries(newWidth);
+    }
+}
+
+void MImAbstractKeyArea::mousePressEvent(QGraphicsSceneMouseEvent *ev)
+{
+    Q_D(MImAbstractKeyArea);
+
+    if (d->enableMultiTouch) {
+        return;
+    }
+
+    d->touchPointPressed(d->createTouchPoint(0, Qt::TouchPointPressed,
+                                             mapToScene(ev->pos()),
+                                             mapToScene(gLastMousePos)));
+
+    gLastMousePos = ev->pos();
+}
+
+void MImAbstractKeyArea::mouseMoveEvent(QGraphicsSceneMouseEvent *ev)
+{
+    Q_D(MImAbstractKeyArea);
+
+    if (d->enableMultiTouch) {
+        return;
+    }
+
+    d->touchPointMoved(d->createTouchPoint(0, Qt::TouchPointMoved,
+                                           mapToScene(ev->pos()),
+                                           mapToScene(gLastMousePos)));
+
+    gLastMousePos = ev->pos();
+}
+
+void MImAbstractKeyArea::mouseReleaseEvent(QGraphicsSceneMouseEvent *ev)
+{
+    Q_D(MImAbstractKeyArea);
+
+    if (scene()->mouseGrabberItem() == this) {
+        // Ungrab mouse explicitly since we probably used grabMouse() to get it.
+        ungrabMouse();
+    }
+
+    if (d->enableMultiTouch) {
+        return;
+    }
+
+    d->touchPointReleased(d->createTouchPoint(0, Qt::TouchPointReleased,
+                                              mapToScene(ev->pos()),
+                                              mapToScene(gLastMousePos)));
+
+    gLastMousePos = ev->pos();
+}
+
+QVariant MImAbstractKeyArea::itemChange(GraphicsItemChange change, const QVariant &value)
+{
+    switch (change) {
+    case QGraphicsItem::ItemVisibleChange:
+        handleVisibilityChanged(value.toBool());
+        break;
+
+    default:
+        break;
+    }
+
+    return QGraphicsItem::itemChange(change, value);
+}
+
+void MImAbstractKeyArea::grabMouseEvent(QEvent */*event*/)
+{
+    Q_D(MImAbstractKeyArea);
+
+    // If mimabstractkeyarea is hidden without mouseReleaseEvent
+    // the enabled <flicked> would stay true if mouse
+    // grab is obtained again without mousePressEvent.
+    // This would ignore mouseReleaseEvent and would not cause keyClicked.
+    d->wasGestureTriggered = false;
+
+    const qreal ScalingFactor = style()->flickGestureThresholdRatio();
+    const int HorizontalThreshold = static_cast<int>(boundingRect().width() * ScalingFactor);
+    const int VerticalThreshold = static_cast<int>(boundingRect().height() * ScalingFactor);
+    const int Timeout = style()->flickGestureTimeout();
+
+    FlickGestureRecognizer::instance()->setFinishThreshold(HorizontalThreshold, VerticalThreshold);
+    FlickGestureRecognizer::instance()->setStartThreshold(HorizontalThreshold / 2, VerticalThreshold / 2);
+    FlickGestureRecognizer::instance()->setTimeout(Timeout);
+}
+
+void MImAbstractKeyArea::ungrabMouseEvent(QEvent *)
+{
+    Q_D(MImAbstractKeyArea);
+
+    // Make sure popup can respond to mouse grab removal:
+    if (d->mPopup) {
+        d->mPopup->cancel();
+    }
+
+    if (d->enableMultiTouch && MImAbstractKey::lastActiveKey()) {
+        MImAbstractKey::lastActiveKey()->resetTouchPointCount();
+    }
+
+    d->longPressTimer.stop();
+}
+
+bool MImAbstractKeyArea::event(QEvent *ev)
+{
+    Q_D(MImAbstractKeyArea);
+
+    bool eaten = false;
+    QString start, end;
+    start = QString("%1|start").arg(ev->type());
+    end = QString("%1|end").arg(ev->type());
+    mTimestamp("MImAbstractKeyArea", start);
+
+    if (ev->type() == QEvent::Gesture) {
+        const Qt::GestureType flickGestureType = FlickGestureRecognizer::sharedGestureType();
+        FlickGesture *flickGesture = static_cast<FlickGesture *>(static_cast<QGestureEvent *>(ev)->gesture(flickGestureType));
+
+        if (flickGesture) {
+            d->handleFlickGesture(flickGesture);
+            eaten = true;
+        }
+    } else if (ev->type() == QEvent::TouchBegin
+               || ev->type() == QEvent::TouchUpdate
+               || ev->type() == QEvent::TouchEnd) {
+        QTouchEvent *touch = static_cast<QTouchEvent*>(ev);
+
+        foreach (const QTouchEvent::TouchPoint &tp, touch->touchPoints()) {
+
+            switch (tp.state()) {
+            case Qt::TouchPointPressed:
+                d->touchPointPressed(tp);
+                break;
+
+            case Qt::TouchPointMoved:
+                d->touchPointMoved(tp);
+                break;
+
+            case Qt::TouchPointReleased:
+                d->touchPointReleased(tp);
+                break;
+            default:
+                break;
+            }
+        }
+
+        eaten = true;
+    }
+
+    const bool result = eaten || MWidget::event(ev);
+
+    mTimestamp("MImAbstractKeyArea", end);
+    return result;
+}
+
 void MImAbstractKeyArea::unlockDeadKeys(MImAbstractKey *deadKey)
 {
     if (!deadKey || !deadKey->isDeadKey()) {
@@ -718,11 +885,13 @@ void MImAbstractKeyArea::unlockDeadKeys(MImAbstractKey *deadKey)
 
 void MImAbstractKeyArea::hidePopup()
 {
-    if (!mPopup) {
+    Q_D(MImAbstractKeyArea);
+
+    if (!d->mPopup) {
         return;
     }
 
-    mPopup->setVisible(false);
+    d->mPopup->setVisible(false);
 }
 
 void MImAbstractKeyArea::drawReactiveAreas(MReactionMap *,
@@ -733,7 +902,9 @@ void MImAbstractKeyArea::drawReactiveAreas(MReactionMap *,
 
 const PopupBase &MImAbstractKeyArea::popup() const
 {
-    return *mPopup;
+    Q_D(const MImAbstractKeyArea);
+
+    return *d->mPopup;
 }
 
 void MImAbstractKeyArea::logTouchPoint(const QTouchEvent::TouchPoint &tp,
@@ -776,10 +947,12 @@ void MImAbstractKeyArea::logTouchPoint(const QTouchEvent::TouchPoint &tp,
 
 void MImAbstractKeyArea::updateKeyModifiers(const QChar &accent)
 {
+    Q_D(MImAbstractKeyArea);
+
     // We currently don't allow active dead key level changing. If we did,
     // we should update activeDeadKey level before delivering its accent to
     // other keys.
-    bool shift = (currentLevel == 1);
+    bool shift = (d->currentLevel == 1);
     modifiersChanged(shift, accent);
 }
 
@@ -791,8 +964,10 @@ void MImAbstractKeyArea::modifiersChanged(bool,
 
 void MImAbstractKeyArea::onThemeChangeCompleted()
 {
+    Q_D(MImAbstractKeyArea);
+
     // TODO: update all other CSS attributes that are mapped to members.
-    switchStyleMode();
+    d->switchStyleMode();
     updateKeyGeometries(size().width());
 }
 
@@ -803,6 +978,7 @@ const MImAbstractKeyAreaStyleContainer &MImAbstractKeyArea::baseStyle() const
 
 void MImAbstractKeyArea::handleLongKeyPressed()
 {
+    Q_D(MImAbstractKeyArea);
     MImAbstractKey *const lastActiveKey = MImAbstractKey::lastActiveKey();
 
     if (!lastActiveKey) {
@@ -815,8 +991,8 @@ void MImAbstractKeyArea::handleLongKeyPressed()
     const QString accent = (finder.deadKey() ? finder.deadKey()->label()
                                            : QString());
 
-    if (mPopup) {
-        mPopup->handleLongKeyPressedOnMainArea(lastActiveKey, accent, level() % 2);
+    if (d->mPopup) {
+        d->mPopup->handleLongKeyPressedOnMainArea(lastActiveKey, accent, level() % 2);
     }
 
     emit longKeyPressed(lastActiveKey, accent, level() % 2);
@@ -827,122 +1003,17 @@ void MImAbstractKeyArea::handleIdleVkb()
     grabGesture(FlickGestureRecognizer::sharedGestureType());
 }
 
-bool MImAbstractKeyArea::isInSpeedTypingMode(bool restartTimers)
-{
-    return ((restartTimers ? lastTouchPointPressEvent.restart()
-                           : lastTouchPointPressEvent.elapsed()) < style()->idleVkbTimeout());
-}
-
-void MImAbstractKeyArea::switchStyleMode()
-{
-    if (!style()->syncStyleModeWithKeyCount()) {
-        return;
-    }
-
-    switch(section->keyCount()) {
-
-    case 10:
-        style().setModeKeys10();
-        break;
-
-    case 11:
-        style().setModeKeys11();
-        break;
-
-    case 12:
-        style().setModeKeys12();
-        break;
-
-    case 13:
-        style().setModeKeys13();
-        break;
-
-    case 14:
-        style().setModeKeys14();
-        break;
-
-    case 15:
-        style().setModeKeys15();
-        break;
-
-    case 30:
-        style().setModeKeys30();
-        break;
-
-    case 31:
-        style().setModeKeys31();
-        break;
-
-    case 32:
-        style().setModeKeys32();
-        break;
-
-    case 33:
-        style().setModeKeys33();
-        break;
-
-    case 34:
-        style().setModeKeys34();
-        break;
-
-    case 35:
-        style().setModeKeys35();
-        break;
-
-    case 36:
-        style().setModeKeys36();
-        break;
-
-    case 37:
-        style().setModeKeys37();
-        break;
-
-    case 38:
-        style().setModeKeys38();
-        break;
-
-    case 39:
-        style().setModeKeys39();
-        break;
-
-    case 40:
-        style().setModeKeys40();
-        break;
-
-    case 41:
-        style().setModeKeys41();
-        break;
-
-    case 42:
-        style().setModeKeys42();
-        break;
-
-    case 43:
-        style().setModeKeys43();
-        break;
-
-    case 44:
-        style().setModeKeys44();
-        break;
-
-    case 45:
-        style().setModeKeys45();
-        break;
-
-    default:
-        break;
-    }
-}
-
 void MImAbstractKeyArea::reset(bool resetCapsLock)
 {
+    Q_D(MImAbstractKeyArea);
+
     if (scene()->mouseGrabberItem() == this) {
         // Ungrab mouse explicitly since we probably used grabMouse() to get it.
         ungrabMouse();
     }
 
-    if (mPopup) {
-        mPopup->cancel();
+    if (d->mPopup) {
+        d->mPopup->cancel();
     }
 
     if (resetCapsLock) {

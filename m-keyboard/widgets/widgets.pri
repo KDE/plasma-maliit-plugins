@@ -51,6 +51,7 @@ HEADERS += \
     $$WIDGETS_DIR/getcssproperty.h \
     $$WIDGETS_DIR/mtoolbarlabelview.h \
     $$WIDGETS_DIR/mplainwindow.h \
+    $$WIDGETS_DIR/mimabstractkeyarea_p.h \
 
 INSTALL_HEADERS += $$PUBLIC_HEADERS + $$PUBLIC_STYLE_HEADERS
 

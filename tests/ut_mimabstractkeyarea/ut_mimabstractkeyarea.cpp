@@ -15,6 +15,7 @@
  */
 
 #include "ut_mimabstractkeyarea.h"
+#include "mimabstractkeyarea_p.h"
 #include "mimkeyarea.h"
 #include "mimkey.h"
 #include "flickgesturerecognizer.h"
@@ -374,7 +375,7 @@ void Ut_MImAbstractKeyArea::testDeadkeys()
         subject->setKeyOverrides(overrides);
     }
 
-    subject->click(key);
+    subject->d_ptr->click(key);
     //click at deadkey for the first time, just lock the deadkey, won't emit cliked() signal
     QCOMPARE(spy.count(), 0);
 
@@ -412,13 +413,13 @@ void Ut_MImAbstractKeyArea::testDeadkeys()
     }
 
     // Lock deadkey again.
-    subject->click(key);
+    subject->d_ptr->click(key);
     list = enabled ? &lowerDKUnicodes : &lowerUnicodes;
     for (i = 0; i < positions.count(); i++) {
         QCOMPARE(keyAt(0, positions[i])->label(), list->at(i));
     }
 
-    subject->click(keyAt(0, 0));
+    subject->d_ptr->click(keyAt(0, 0));
     //key release on not deadkey, will emit clicked() signal
     QCOMPARE(spy.count(), 1);
     //any keypress, the deadkey should be unlocked
@@ -449,27 +450,27 @@ void Ut_MImAbstractKeyArea::testSelectedDeadkeys()
     QCOMPARE(regularKey->state(), MImAbstractKey::Normal);
 
     // Press dead key down
-    subject->click(deadkey1);
+    subject->d_ptr->click(deadkey1);
     QCOMPARE(deadkey1->state(), MImAbstractKey::Selected);
 
     // Release it by clicking regular key
-    subject->click(regularKey);
+    subject->d_ptr->click(regularKey);
     QCOMPARE(deadkey1->state(), MImAbstractKey::Normal);
 
     // Down again
-    subject->click(deadkey1);
+    subject->d_ptr->click(deadkey1);
     QCOMPARE(deadkey1->state(), MImAbstractKey::Selected);
 
     // Release it by clicking itself again.
-    subject->click(deadkey1);
+    subject->d_ptr->click(deadkey1);
     QCOMPARE(deadkey1->state(), MImAbstractKey::Normal);
 
     // Down again
-    subject->click(deadkey1);
+    subject->d_ptr->click(deadkey1);
     QCOMPARE(deadkey1->state(), MImAbstractKey::Selected);
 
     // Release it by clicking the other dead key.
-    subject->click(deadkey2);
+    subject->d_ptr->click(deadkey2);
     QCOMPARE(deadkey1->state(), MImAbstractKey::Normal);
     QCOMPARE(deadkey2->state(), MImAbstractKey::Selected);
 }
@@ -511,7 +512,7 @@ void Ut_MImAbstractKeyArea::testTwoDeadInOne()
     foreach (TestOperation op, operations) {
         switch (op) {
         case TestOpClickDeadKey:
-            subject->click(deadkey);
+            subject->d_ptr->click(deadkey);
             break;
         case TestOpSetShiftOn:
             subject->switchLevel(1);
@@ -644,7 +645,7 @@ void Ut_MImAbstractKeyArea::testPopup_data()
 
 void Ut_MImAbstractKeyArea::testPopup()
 {
-    TpCreator createTp = &MImAbstractKeyArea::createTouchPoint;
+    TpCreator createTp = &MImAbstractKeyAreaPrivate::createTouchPoint;
     QFETCH(KBACreator, createKba);
 
     keyboard = new KeyboardData;
@@ -659,14 +660,14 @@ void Ut_MImAbstractKeyArea::testPopup()
 
     QTouchEvent::TouchPoint tp(0);
     tp.setScreenPos(mousePos);
-    subject->touchPointPressed(createTp(0, Qt::TouchPointPressed,
-                                        subject->mapToScene(mousePos),
-                                        QPointF()));
+    subject->d_ptr->touchPointPressed(createTp(0, Qt::TouchPointPressed,
+                                               subject->mapToScene(mousePos),
+                                               QPointF()));
 
     QVERIFY(subject->popup().isVisible());
-    subject->touchPointReleased(createTp(0, Qt::TouchPointReleased,
-                                         subject->mapToScene(mousePos),
-                                         subject->mapToScene(mousePos)));
+    subject->d_ptr->touchPointReleased(createTp(0, Qt::TouchPointReleased,
+                                                subject->mapToScene(mousePos),
+                                                subject->mapToScene(mousePos)));
 }
 
 void Ut_MImAbstractKeyArea::testInitialization_data()
@@ -819,17 +820,17 @@ void Ut_MImAbstractKeyArea::testOverridenKey()
     int releaseExpected = 0;
 
     const QPoint pos0 = key0->buttonRect().center().toPoint();
-    QTouchEvent::TouchPoint tp0 = MImAbstractKeyArea::createTouchPoint(0, Qt::TouchPointPressed, pos0, QPointF(-1, -1));
+    QTouchEvent::TouchPoint tp0 = MImAbstractKeyAreaPrivate::createTouchPoint(0, Qt::TouchPointPressed, pos0, QPointF(-1, -1));
 
     const QPoint pos1 = key1->buttonRect().center().toPoint();
-    QTouchEvent::TouchPoint tp1 = MImAbstractKeyArea::createTouchPoint(1, Qt::TouchPointPressed, pos1, QPointF(-1, -1));
+    QTouchEvent::TouchPoint tp1 = MImAbstractKeyAreaPrivate::createTouchPoint(1, Qt::TouchPointPressed, pos1, QPointF(-1, -1));
 
     const QPoint pos2 = key2->buttonRect().center().toPoint();
-    QTouchEvent::TouchPoint tp2 = MImAbstractKeyArea::createTouchPoint(0, Qt::TouchPointMoved, pos2, pos1);
-    QTouchEvent::TouchPoint tp3 = MImAbstractKeyArea::createTouchPoint(0, Qt::TouchPointReleased, pos2, pos2);
+    QTouchEvent::TouchPoint tp2 = MImAbstractKeyAreaPrivate::createTouchPoint(0, Qt::TouchPointMoved, pos2, pos1);
+    QTouchEvent::TouchPoint tp3 = MImAbstractKeyAreaPrivate::createTouchPoint(0, Qt::TouchPointReleased, pos2, pos2);
 
     // click key0
-    subject->touchPointPressed(tp0);
+    subject->d_ptr->touchPointPressed(tp0);
     if (key0->enabled()) {
         QCOMPARE(pressed.count(), 1);
         QVERIFY(pressed.at(0).first().value<const MImAbstractKey*>() == key0);
@@ -839,7 +840,7 @@ void Ut_MImAbstractKeyArea::testOverridenKey()
     QCOMPARE(released.count(), 0);
     QCOMPARE(clicked.count(), 0);
 
-    subject->touchPointReleased(tp0);
+    subject->d_ptr->touchPointReleased(tp0);
     if (key0->enabled()) {
         QCOMPARE(pressed.count(), 1);
         QCOMPARE(released.count(), 1);
@@ -860,7 +861,7 @@ void Ut_MImAbstractKeyArea::testOverridenKey()
     releaseExpected = 0;
 
     // click key0 and key1
-    subject->touchPointPressed(tp0);
+    subject->d_ptr->touchPointPressed(tp0);
     if (key0->enabled()) {
         ++pressExpected;
         QCOMPARE(pressed.count(), pressExpected);
@@ -871,7 +872,7 @@ void Ut_MImAbstractKeyArea::testOverridenKey()
     QCOMPARE(released.count(), 0);
     QCOMPARE(clicked.count(), 0);
 
-    subject->touchPointPressed(tp1);
+    subject->d_ptr->touchPointPressed(tp1);
     ++pressExpected;
     QCOMPARE(pressed.count(), pressExpected);
     QVERIFY(pressed.last().first().value<const MImAbstractKey*>() == key1);
@@ -884,8 +885,8 @@ void Ut_MImAbstractKeyArea::testOverridenKey()
         QCOMPARE(clicked.count(), clickExpected);
     }
 
-    subject->touchPointReleased(tp0);
-    subject->touchPointReleased(tp1);
+    subject->d_ptr->touchPointReleased(tp0);
+    subject->d_ptr->touchPointReleased(tp1);
     QCOMPARE(pressed.count(), pressExpected);
     QCOMPARE(released.count(), 1);
     QVERIFY(released.at(0).first().value<const MImAbstractKey*>() == key1);
@@ -901,7 +902,7 @@ void Ut_MImAbstractKeyArea::testOverridenKey()
     releaseExpected = 0;
 
     // press key0, move touch point to key2 and release it
-    subject->touchPointPressed(tp0);
+    subject->d_ptr->touchPointPressed(tp0);
     if (key0->enabled()) {
         ++pressExpected;
         QCOMPARE(pressed.count(), pressExpected);
@@ -910,7 +911,7 @@ void Ut_MImAbstractKeyArea::testOverridenKey()
         QCOMPARE(pressed.count(), pressExpected);
     }
 
-    subject->touchPointMoved(tp2);
+    subject->d_ptr->touchPointMoved(tp2);
     if (key2->enabled()) {
         ++pressExpected;
         QCOMPARE(pressed.count(), pressExpected);
@@ -919,7 +920,7 @@ void Ut_MImAbstractKeyArea::testOverridenKey()
         QCOMPARE(pressed.count(), pressExpected);
     }
 
-    subject->touchPointReleased(tp3);
+    subject->d_ptr->touchPointReleased(tp3);
     if (key2->enabled()) {
         ++releaseExpected;
         QCOMPARE(released.count(), releaseExpected);
@@ -1004,7 +1005,7 @@ void Ut_MImAbstractKeyArea::testRtlKeys()
 
 void Ut_MImAbstractKeyArea::testLongKeyPress()
 {
-    TpCreator createTp = &MImAbstractKeyArea::createTouchPoint;
+    TpCreator createTp = &MImAbstractKeyAreaPrivate::createTouchPoint;
     const int LongPressTimeOut = 1500; //this value depends on timeout of long press
 
     keyboard = new KeyboardData;
@@ -1037,43 +1038,43 @@ void Ut_MImAbstractKeyArea::testLongKeyPress()
     QVERIFY(spy.isValid());
 
     // click is not long press
-    subject->touchPointPressed(tp0);
-    subject->touchPointReleased(tp1);
+    subject->d_ptr->touchPointPressed(tp0);
+    subject->d_ptr->touchPointReleased(tp1);
     QVERIFY(spy.isEmpty());
     QTest::qWait(LongPressTimeOut);
     QVERIFY(spy.isEmpty());
 
     // long press on the key
-    subject->touchPointPressed(tp0);
+    subject->d_ptr->touchPointPressed(tp0);
     QTest::qWait(LongPressTimeOut);
     QCOMPARE(spy.count(), 1);
     QVERIFY(spy.first().count() > 0);
     QCOMPARE(spy.first().first().value<const MImAbstractKey *>(), key0);
     spy.clear();
-    subject->touchPointReleased(tp0);
+    subject->d_ptr->touchPointReleased(tp0);
 
     // long press with multitouch
-    subject->touchPointPressed(tp0);
-    subject->touchPointPressed(tp1);
+    subject->d_ptr->touchPointPressed(tp0);
+    subject->d_ptr->touchPointPressed(tp1);
     QTest::qWait(LongPressTimeOut);
     QCOMPARE(spy.count(), 1);
     QVERIFY(spy.first().count() > 0);
     QCOMPARE(spy.first().first().value<const MImAbstractKey *>(), key1);
     spy.clear();
-    subject->touchPointReleased(tp0);
-    subject->touchPointReleased(tp1);
+    subject->d_ptr->touchPointReleased(tp0);
+    subject->d_ptr->touchPointReleased(tp1);
     QVERIFY(spy.isEmpty());
 
     // long press after movement
-    subject->touchPointPressed(tp0);
+    subject->d_ptr->touchPointPressed(tp0);
     tp0.setStartScenePos(QPointF(52, 37));
-    subject->touchPointMoved(tp0);
+    subject->d_ptr->touchPointMoved(tp0);
     QTest::qWait(LongPressTimeOut);
     QCOMPARE(spy.count(), 1);
     QVERIFY(spy.first().count() > 0);
     QCOMPARE(spy.first().first().value<const MImAbstractKey *>(), key0);
     spy.clear();
-    subject->touchPointReleased(tp0);
+    subject->d_ptr->touchPointReleased(tp0);
     QVERIFY(spy.isEmpty());
 
     // TODO? long press should be detected if last pressed key is not released
@@ -1103,7 +1104,7 @@ void Ut_MImAbstractKeyArea::testKeyLayout()
 
 void Ut_MImAbstractKeyArea::testTouchPoints_data()
 {
-    TpCreator createTp = &MImAbstractKeyArea::createTouchPoint;
+    TpCreator createTp = &MImAbstractKeyAreaPrivate::createTouchPoint;
 
     QTest::addColumn<int>("expectedClickedSignals");
     QTest::addColumn<QString>("labels");
@@ -1282,15 +1283,15 @@ void Ut_MImAbstractKeyArea::testTouchPoints()
 
         switch (tp.state()) {
         case Qt::TouchPointPressed:
-            subject->touchPointPressed(tp);
+            subject->d_ptr->touchPointPressed(tp);
             break;
 
         case Qt::TouchPointMoved:
-            subject->touchPointMoved(tp);
+            subject->d_ptr->touchPointMoved(tp);
             break;
 
         case Qt::TouchPointReleased:
-            subject->touchPointReleased(tp);
+            subject->d_ptr->touchPointReleased(tp);
             break;
 
         default:
@@ -1314,7 +1315,7 @@ void Ut_MImAbstractKeyArea::testReset()
                                                                  size.height() - 2 * margin),
                                                 true);
 
-    TpCreator createTp = &MImAbstractKeyArea::createTouchPoint;
+    TpCreator createTp = &MImAbstractKeyAreaPrivate::createTouchPoint;
 
     MPlainWindow::instance()->scene()->addItem(subject);
 
@@ -1323,7 +1324,7 @@ void Ut_MImAbstractKeyArea::testReset()
 
     QTouchEvent::TouchPoint tp(0);
     tp.setScreenPos(mousePos);
-    subject->touchPointPressed(createTp(0, Qt::TouchPointPressed,
+    subject->d_ptr->touchPointPressed(createTp(0, Qt::TouchPointPressed,
                                         subject->mapToScene(mousePos),
                                         QPointF()));
 
