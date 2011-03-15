@@ -322,6 +322,7 @@ void MImKey::setDownState(bool down)
         }
 
         setVisible((currentState != Normal) || override);
+        update();
     }
 }
 
