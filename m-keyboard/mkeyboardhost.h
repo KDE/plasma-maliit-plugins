@@ -369,6 +369,8 @@ private:
     int cursorPos;
     int preeditCursorPos;
     bool hasSelection;
+    //! True if preedit has been edited by user since last setPreedit or resetInternalState
+    bool preeditHasBeenEdited;
 
     int inputMethodMode;
 
@@ -414,7 +416,8 @@ private:
 
     BackspaceMode backspaceMode;
 
-    bool wordTrackerSuggestionAcceptedWithSpace;
+    //! Indicates whether space was automatically inserted after previous commit string
+    bool spaceInsertedAfterCommitString;
 
     QTimer fastTypingTimeout;
     int fastTypingKeyCount;

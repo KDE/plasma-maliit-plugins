@@ -217,6 +217,7 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
       cursorPos(-1),
       preeditCursorPos(-1),
       hasSelection(false),
+      preeditHasBeenEdited(false),
       inputMethodMode(M::InputMethodModeNormal),
       backspaceTimer(),
       shiftHeldDown(false),
@@ -230,7 +231,7 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
       currentIndicatorDeadKey(false),
       engineLayoutDirty(false),
       backspaceMode(NormalBackspaceMode),
-      wordTrackerSuggestionAcceptedWithSpace(false),
+      spaceInsertedAfterCommitString(false),
       fastTypingKeyCount(0),
       fastTypingEnabled(false),
       touchPointLogHandle(0),
@@ -736,6 +737,7 @@ void MKeyboardHost::setPreedit(const QString &preeditString, int cursor)
                        ? cursor : preeditLength;
 
     preedit = preeditString;
+    preeditHasBeenEdited = false;
     candidates.clear();
     if (imCorrectionEngine) {
         imCorrectionEngine->clearEngineBuffer();
@@ -755,6 +757,7 @@ void MKeyboardHost::localSetPreedit(const QString &preeditString, int replaceSta
 {
     preedit = preeditString;
     preeditCursorPos = cursor;
+    preeditHasBeenEdited = true;
     candidates.clear();
     if (imCorrectionEngine) {
         imCorrectionEngine->clearEngineBuffer();
@@ -898,11 +901,12 @@ void MKeyboardHost::reset()
 
 void MKeyboardHost::resetInternalState()
 {
-    wordTrackerSuggestionAcceptedWithSpace = false;
+    spaceInsertedAfterCommitString = false;
     backspaceMode = NormalBackspaceMode;
     backspaceTimer.stop();
     preedit.clear();
     preeditCursorPos = -1;
+    preeditHasBeenEdited = false;
     candidates.clear();
     correctionHost->reset();
     if (imCorrectionEngine)
@@ -1033,8 +1037,22 @@ void MKeyboardHost::commitString(const QString &updatedString)
         }
         imCorrectionEngine->saveAndClearEngineBuffer();
     }
-    inputMethodHost()->sendCommitString(updatedString);
-    resetInternalState();
+
+    // Add space after preedit if word tracker was clicked OR
+    // if word was selected from word list when preedit was edited AND
+    // cursor was at the end of preedit.
+    if (correctionHost->candidateMode() == MImCorrectionHost::WordTrackerMode
+        || (correctionHost->candidateMode() == MImCorrectionHost::WordListMode
+            && preeditHasBeenEdited
+            && (preedit.size() == preeditCursorPos
+                || preeditCursorPos == -1))) {
+        inputMethodHost()->sendCommitString(updatedString + " ");
+        resetInternalState();
+        spaceInsertedAfterCommitString = true;
+    } else {
+        inputMethodHost()->sendCommitString(updatedString);
+        resetInternalState();
+    }
 }
 
 
@@ -1340,12 +1358,12 @@ void MKeyboardHost::sendCommitStringOrReturnEvent(const KeyEvent &event) const
 
 void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
 {
-    const bool wordTrackerSuggestionAcceptedWithSpacePrev(wordTrackerSuggestionAcceptedWithSpace);
+    const bool spaceInsertedAfterCommitStringPrev(spaceInsertedAfterCommitString);
     if (!((event.specialKey() == KeyEvent::Sym)
           || (event.specialKey() == KeyEvent::Switch)
           || (event.specialKey() == KeyEvent::Sym)
           || (event.qtKey() == Qt::Key_Shift))) {
-        wordTrackerSuggestionAcceptedWithSpace = false;
+        spaceInsertedAfterCommitString = false;
     }
 
     // Discard KeyPress & Drop type of events.
@@ -1394,7 +1412,7 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
             && correctionHost->isActive()
             && correctionAcceptedWithSpaceEnabled) {
             if (correctionHost->candidateMode() == MImCorrectionHost::WordTrackerMode) {
-                wordTrackerSuggestionAcceptedWithSpace = true;
+                spaceInsertedAfterCommitString = true;
                 inputMethodHost()->sendCommitString(correctionHost->suggestion() + " ");
                 eventSent = true;
             } else {
@@ -1435,7 +1453,7 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
         imCorrectionEngine->clearEngineBuffer();
         preedit.clear();
         preeditCursorPos = -1;
-    } else if (wordTrackerSuggestionAcceptedWithSpacePrev && (text.length() == 1)
+    } else if (spaceInsertedAfterCommitStringPrev && (text.length() == 1)
                && AutoPunctuationTriggers.contains(text[0])) {
         sendBackSpaceKeyEvent();
         resetInternalState();
@@ -1469,6 +1487,7 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
         }
         candidates = imCorrectionEngine->candidates();
         correctionHost->setCandidates(candidates);
+        preeditHasBeenEdited = true;
 
         // update preedit before showing word tracker
         updatePreedit(preedit, candidates.count(), 0, 0, preeditCursorPos);
