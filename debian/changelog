@@ -1,10 +1,10 @@
-meego-keyboard (0.5.34~1) unstable; urgency=low
+meego-keyboard (0.5.34-1) unstable; urgency=low
 
-  * [UNRELEASED]
+  * Fixes: NB#232103 - Caps mode to be ON in VKB while renaming a video
   * Fixes: NB#235444 - E-mail/URL VKB layout gets stuck when adding another layout in settings
   * Fixes: NB#235743 - VKB is disappearing for 1-2secs when its view changed from sym view to main view after device rotation.
 
- -- Rakesh Cherian <ext-rakesh.cherian@nokia.com>  Fri, 11 Mar 2011 11:38:00 +0200
+ -- Ning Chi <ext-chi.2.ning@nokia.com>  Wed, 16 Mar 2011 15:48:28 +0200
 
 meego-keyboard (0.5.33-1) unstable; urgency=low
 
