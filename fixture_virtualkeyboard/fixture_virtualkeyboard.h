@@ -44,7 +44,6 @@ public:
     /*!
      *  \brief Get the IkeyButton (button details) by providing the  label of the keyboard button
      *  \param widget the button area widget that is queried for the button of a given label.
-     *  \param label  button label of the virtualkeyboard
      */
     virtual const MImAbstractKey *getKey(const MImKeyArea * const widget,
                                          const QString &label) const;
@@ -55,6 +54,27 @@ public:
      */
     virtual const MImAbstractKey *getKey(const MImKeyArea * widget,
                                          const MImKeyBinding::KeyAction action) const;
+
+    /*!
+     *  \brief Get the value associated with the Attribute key of a keyboard button by providing the  action associated  by  the button
+     *  \param widget the button area widget that is queried for the keyboard button of a given label
+     *  \param label  button label of the virtualkeyboard
+     *  \param attribute Attribute Key of the keyboard button which is queuried for
+     *  \return QString  Value of Attribute of the keyboard button with the associated action
+     */
+    virtual QString getAttribute(const MImKeyArea * const widget,
+                                 const QString &label,
+                                 const QString &attribute);
+    /*!
+     *  \brief Get the value associated with the Attribute key of a keyboard button by providing the  action associated  by  the button
+     *  \param widget the button area widget that is queried for the keyboard button of a given label
+     *  \param action  Action associated with a keyboard button
+     *  \param attribute Attribute Key of the keyboard button which is queuried for
+     *  \return QString  Value of Attribute of the keyboard button with the associated action
+     */
+    virtual QString getAttribute(const MImKeyArea * const widget,
+                                 const MImKeyBinding::KeyAction action,
+                                 const QString &attribute);
 };
 
 #endif

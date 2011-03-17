@@ -58,47 +58,66 @@ bool FixtureVirtualKeyboard::execute(void *objectInstance,
         return false;
     }
 
-    if (actionName == "getPosition") {
-        if (!parameters.contains("key") || parameters.value("key").isEmpty()) {
-            stdOut = "action can be called only with valid argument: key ";
-            return false;
-        }
+    if (!parameters.contains("key") || parameters.value("key").isEmpty()) {
+        stdOut = "action can be called only with valid argument: key ";
+        return false;
     }
 
     const MImAbstractKey *button = 0;
     const QString key = QString(parameters.value("key"));
 
+    MImKeyBinding::KeyAction action;
+    bool keyAction = true;
     if (key == "Backspace") {
-        button = getKey(widget, MImKeyBinding::ActionBackspace);
+        action = MImKeyBinding::ActionBackspace;
     } else if (key == "Shift") {
-        button = getKey(widget, MImKeyBinding::ActionShift);
+        action = MImKeyBinding::ActionShift;
     } else if (key == "Sym") {
-        button = getKey(widget, MImKeyBinding::ActionSym);
+        action = MImKeyBinding::ActionSym;
     } else if (key == "+/-") {
-        button = getKey(widget, MImKeyBinding::ActionPlusMinusToggle);
+        action = MImKeyBinding::ActionPlusMinusToggle;
     } else if (key == "*+") {
-        button = getKey(widget, MImKeyBinding::ActionCycle);
+        action = MImKeyBinding::ActionCycle;
     } else if (key == "Space") {
-        button = getKey(widget, MImKeyBinding::ActionSpace);
+        action = MImKeyBinding::ActionSpace;
     } else if (key == "Enter") {
-        button = getKey(widget, MImKeyBinding::ActionReturn);
+        action = MImKeyBinding::ActionReturn;
     } else if (key == "AccentKeys") {
-        button = getKey(widget, MImKeyBinding::ActionSwitch);
+        action = MImKeyBinding::ActionSwitch;
     } else {
-        button = getKey(widget, key);
+        keyAction = false;
     }
 
-    if (button) {
-        const QRect rect = button->buttonRect().toRect();
-        stdOut = QString("x=%1,y=%2,width=%3,height=%4")
-            .arg(rect.center().x())
-            .arg(rect.center().y())
-            .arg(rect.width())
-            .arg(rect.height());
+    if (actionName == "getPosition") {
+            if (!keyAction){
+                button = getKey(widget, key);
+            } else {
+                button = getKey(widget, action);
+            }
+            if (button) {
+                const QRect rect = button->buttonRect().toRect();
+                stdOut = QString("x=%1,y=%2,width=%3,height=%4")
+                    .arg(rect.center().x())
+                    .arg(rect.center().y())
+                    .arg(rect.width())
+                    .arg(rect.height());
+                return true;
+            }
+    } else if (actionName == "getAttribute") {
+        if (!parameters.contains("attribute") || parameters.value("attribute").isEmpty()) {
+            stdOut = "attribute can be called only with valid argument: attribute ";
+            return false;
+        }
+        const QString attribute = QString(parameters.value("attribute"));
+        if (!keyAction){
+            stdOut = getAttribute(widget, key, attribute);
+        } else {
+            stdOut = getAttribute(widget, action, attribute);
+        }
         return true;
     }
 
-    stdOut = "Could not get a proper button ";
+    stdOut = "Could not get a proper button " + key;
     return false;
 }
 
@@ -133,3 +152,46 @@ const MImAbstractKey * FixtureVirtualKeyboard::getKey(const MImKeyArea * const w
 
     return 0;
 }
+
+QString FixtureVirtualKeyboard::getAttribute(const MImKeyArea * const widget,
+                                             MImKeyBinding::KeyAction action,
+                                             const QString &attribute)
+{
+    Q_ASSERT(widget);
+    QString output;
+
+    foreach (const MImKeyArea::KeyRow &row, widget->rowList) {
+        foreach (const MImKey *key, row.keys) {
+            if (key->binding().action() == action) {
+                if ( attribute == "label" ){
+                    output = key->label();
+                }
+                break;
+            }
+        }
+    }
+
+    return output;
+}
+
+QString FixtureVirtualKeyboard::getAttribute(const MImKeyArea * const widget,
+                                             const QString &label,
+                                             const QString &attribute)
+{
+    Q_ASSERT(widget);
+    QString output;
+
+    foreach (const MImKeyArea::KeyRow &row, widget->rowList) {
+        foreach (const MImKey *key, row.keys) {
+            if (key->label() == label) {
+                if ( attribute == "label" ){
+                    output = key->label();
+                }
+                break;
+            }
+        }
+    }
+
+    return output;
+}
+
