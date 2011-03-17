@@ -477,7 +477,8 @@ MImWordTrackerStyle {
 
 MImWordList MContentItemStyle {
     title-object-name: "MImWordListLabel";
-    background-image : meegotouch-list-fullwidth-background $CORNER_MARGINS;
+    background-image : ;
+    background-color : ;
 }
 
 MImWordList MContentItemStyle:pressed {
@@ -486,7 +487,8 @@ MImWordList MContentItemStyle:pressed {
 
 MImWordList MContentItemStyle:selected {
     title-object-name: "MImWordListLabelSelected";
-    background-image : meegotouch-list-fullwidth-background $CORNER_MARGINS;
+    background-image : ;
+    background-color : ;
 }
 
 MImWordListItem MLabelStyle#MImWordListLabel {
