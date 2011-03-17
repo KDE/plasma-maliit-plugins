@@ -1,6 +1,7 @@
 meego-keyboard (0.5.35~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#237202 - Completely transparent assets are referenced
 
  -- Ning Chi <ext-chi.2.ning@nokia.com>  Wed, 16 Mar 2011 16:21:39 +0200
 
