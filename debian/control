@@ -21,7 +21,7 @@ Description: MeegoTouch Input Method Keyboard debug files
 Package: meego-keyboard-dev
 Section: devel
 Architecture: all
-Depends:  meego-keyboard (= ${binary:Version}), libqt4-dev (>= 4.6), libmeegotouch-dev, libmeegofeedback-dev
+Depends:  meego-keyboard (= ${binary:Version}), libqt4-dev (>= 4.6), libmeegotouch-dev, libmeegoimframework-dev (>= 0.20.0~1), libmeegofeedback-dev
 Description: MeegoTouch Input Method Keyboard header files 
  MeegoTouch Keyboard header files.
 
