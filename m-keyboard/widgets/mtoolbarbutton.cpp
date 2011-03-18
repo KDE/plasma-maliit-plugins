@@ -23,8 +23,9 @@
 #include <QDebug>
 
 namespace {
-    const char * const  IconButtonStyleName = "MToolbarIconButton";
-    const char * const  TextButtonStyleName = "MToolbarTextButton";
+    const char * const IconButtonStyleName  = "MToolbarIconButton";
+    const char * const TextButtonStyleName  = "MToolbarTextButton";
+    const char * const HighlightedStyleNamePostfix = "Highlighted";
 }
 
 MToolbarButton::MToolbarButton(QSharedPointer<MToolbarItem> item,
@@ -139,15 +140,23 @@ void MToolbarButton::updateStyleName()
         return;
     }
 
-    // for the standard item and top left or top right item,
-    // use default style. Otherwise use icon style for icon item,
+    // Use default style for the standard item.
+    // Otherwise use icon style for icon item,
     // text style for text item.
-    if (!item()->isCustom() || item()->alignment() != Qt::AlignCenter) {
+    if (!item()->isCustom()) {
         setStyleName(QString());
-    } else if (item()->text().isEmpty() && item()->textId().isEmpty()) {
-        setStyleName(IconButtonStyleName);
     } else {
-        setStyleName(TextButtonStyleName);
+        QString styleName;
+
+        if (item()->text().isEmpty() && item()->textId().isEmpty()) {
+            styleName = IconButtonStyleName;
+        } else {
+            styleName = TextButtonStyleName;
+        }
+        if (item()->highlighted()) {
+            styleName.append(HighlightedStyleNamePostfix);
+        }
+        setStyleName(styleName);
     }
 }
 
@@ -172,7 +181,7 @@ void MToolbarButton::updateData(const QString &attribute)
         sizePercent = itemPtr->size();
         update();
     }
-
+    // highlighting is handled by styling
     updateStyleName();
 }
 

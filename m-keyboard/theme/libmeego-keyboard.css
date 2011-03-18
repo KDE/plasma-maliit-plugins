@@ -405,6 +405,10 @@ MToolbarButtonStyle {
     release-feedback: ;
 }
 
+MToolbarButtonStyle:disabled {
+    background-image: "meegotouch-keyboard-toolbar-button-disabled"  15px 15px 15px 15px;
+}
+
 #MToolbarIconButton {
     minimum-size:   10% $HEIGHT_TOOLBARITEM;
     preferred-size: 10% $HEIGHT_TOOLBARITEM;
@@ -418,6 +422,53 @@ MToolbarButtonStyle {
 }
 
 #MToolbarTextButton.Portrait {
+    minimum-size:   10% $HEIGHT_TOOLBARITEM;
+    preferred-size: 20% $HEIGHT_TOOLBARITEM;
+    maximum-size:   20% $HEIGHT_TOOLBARITEM;
+}
+
+#MToolbarIconButtonHighlighted {
+    background-image: "meegotouch-keyboard-toolbar-button-highlighted"  15px 15px 15px 15px;
+    minimum-size:   10% $HEIGHT_TOOLBARITEM;
+    preferred-size: 10% $HEIGHT_TOOLBARITEM;
+    maximum-size:   10% $HEIGHT_TOOLBARITEM;
+}
+
+#MToolbarIconButtonHighlighted:pressed {
+    background-image: "meegotouch-keyboard-toolbar-button-highlighted-pressed"  15px 15px 15px 15px;
+}
+
+#MToolbarIconButtonHighlighted:selected {
+    background-image: "meegotouch-keyboard-toolbar-button-selected"  15px 15px 15px 15px;
+}
+
+#MToolbarIconButtonHighlighted:disabled {
+    background-image: "meegotouch-keyboard-toolbar-button-disabled"  15px 15px 15px 15px;
+}
+
+#MToolbarTextButtonHighlighted {
+    background-image: "meegotouch-keyboard-toolbar-button-highlighted"  15px 15px 15px 15px;
+}
+
+#MToolbarTextButtonHighlighted:pressed {
+    background-image: "meegotouch-keyboard-toolbar-button-highlighted-pressed"  15px 15px 15px 15px;
+}
+
+#MToolbarTextButtonHighlighted:selected {
+    background-image: "meegotouch-keyboard-toolbar-button-selected"  15px 15px 15px 15px;
+}
+
+#MToolbarTextButtonHighlighted:disabled {
+    background-image: "meegotouch-keyboard-toolbar-button-disabled"  15px 15px 15px 15px;
+}
+
+#MToolbarTextButtonHighlighted.Landscape {
+    minimum-size:   10% $HEIGHT_TOOLBARITEM;
+    preferred-size: 10% $HEIGHT_TOOLBARITEM;
+    maximum-size:   10% $HEIGHT_TOOLBARITEM;
+}
+
+#MToolbarTextButtonHighlighted.Portrait {
     minimum-size:   10% $HEIGHT_TOOLBARITEM;
     preferred-size: 20% $HEIGHT_TOOLBARITEM;
     maximum-size:   20% $HEIGHT_TOOLBARITEM;
