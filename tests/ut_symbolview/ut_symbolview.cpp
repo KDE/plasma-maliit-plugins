@@ -167,6 +167,13 @@ void Ut_SymbolView::testReactiveButtonAreas()
     // Check that all buttons are covered by reactive area
     QVERIFY(tester.testChildButtonReactiveAreas(view, subject));
 
+    // Check if the symbol view is aware about the right orientation
+    if ((orientationAngle == M::Angle0
+        && subject->boundingRect().width() != view->width())
+        || (orientationAngle == M::Angle90
+            && subject->boundingRect().width() != view->height())) {
+        QSKIP("The orientation of the symbol view is wrong (MWindow is broken)", SkipSingle);
+    }
     // Test the next tab also.
     subject->switchToNextPage();
     QTest::qWait(600);
