@@ -1131,14 +1131,18 @@ void MKeyboardHost::handleKeyPress(const KeyEvent &event)
 
     } else if (event.qtKey() == Qt::Key_Backspace) {
         if (correctionHost->isActive()
-            && correctionHost->candidateMode() == MImCorrectionHost::WordTrackerMode
-            && correctionAcceptedWithSpaceEnabled) {
+            && correctionHost->candidateMode() == MImCorrectionHost::WordTrackerMode) {
             // hide word tracker when backspace key press
             correctionHost->hideCorrectionWidget();
-            // WordTrackerBackspaceMode mode: hide word tracker when backspace key press.
-            // And remove preedit if holding backspace long enough. But does nothing
-            // for backspace key release.
-            startBackspace(WordTrackerBackspaceMode);
+
+            // Start backspace - WordTrackerBackspaceMode only when accept-with-space enabled
+            if (correctionAcceptedWithSpaceEnabled)
+                // WordTrackerBackspaceMode mode: hide word tracker when backspace key press.
+                // And remove preedit if holding backspace long enough. But does nothing
+                // for backspace key release.
+                startBackspace(WordTrackerBackspaceMode);
+            else
+                startBackspace(NormalBackspaceMode);
         } else {
             startBackspace(NormalBackspaceMode);
         }
