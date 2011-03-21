@@ -18,7 +18,9 @@
 #include "reactionmappainter_p.h"
 
 #include <mplainwindow.h>
+#ifdef HAVE_REACTIONMAP
 #include <mreactionmap.h>
+#endif
 #include <mscene.h>
 
 #include "reactionmappaintable.h"
@@ -51,6 +53,9 @@ void ReactionMapPainterPrivate::removeWidget(const ReactionMapPaintable &widget)
 
 void ReactionMapPainterPrivate::clear()
 {
+#ifndef HAVE_REACTIONMAP
+    return;
+#else
     const QList<QGraphicsView *> views = MPlainWindow::instance()->scene()->views();
 
     // Draw invisible color to all reaction maps
@@ -63,6 +68,7 @@ void ReactionMapPainterPrivate::clear()
             reactionMap->fillRectangle(0, 0, reactionMap->width(), reactionMap->height());
         }
     }
+#endif
 }
 
 
@@ -79,6 +85,9 @@ void ReactionMapPainterPrivate::requestRepaint()
 
 void ReactionMapPainterPrivate::repaint()
 {
+#ifndef HAVE_REACTIONMAP
+    return;
+#else
     const QList<QGraphicsView *> views = MPlainWindow::instance()->scene()->views();
 
     clear();
@@ -114,6 +123,7 @@ void ReactionMapPainterPrivate::repaint()
             }
         }
     }
+#endif
 }
 
 
