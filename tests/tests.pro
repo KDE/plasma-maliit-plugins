@@ -27,6 +27,7 @@ SUBDIRS = \
           ft_mxkb \
           ut_sharedhandlearea \
           bm_painting \
+          ut_mtoolbarbutton \
 
 contains(CONFIG, nomeegotouch) {
 } else {
