@@ -799,34 +799,6 @@ void Ut_MVirtualKeyboard::testReactionMaps()
     QVERIFY(tester.testChildButtonReactiveAreas(view, m_vkb));
 }
 
-void Ut_MVirtualKeyboard::flickUpHandlerTest_data()
-{
-    QTest::addColumn<MImKeyBinding::KeyAction>("action");
-    QTest::addColumn<int>("expected");
-
-    for (int n = 0; n < MImKeyBinding::NumActions; ++n) {
-        QTest::newRow("") << MImKeyBinding::KeyAction(n)
-            << (n == MImKeyBinding::ActionSym ? 1 : 0);
-    }
-}
-void Ut_MVirtualKeyboard::flickUpHandlerTest()
-{
-    QFETCH(MImKeyBinding::KeyAction, action);
-    QFETCH(int, expected);
-    MImKeyBinding binding;
-
-    binding.keyAction = action;
-
-    QSignalSpy spy(m_vkb, SIGNAL(showSymbolViewRequested()));
-    QVERIFY(spy.isValid());
-
-    m_vkb->flickUpHandler(MImKeyBinding());
-    QCOMPARE(spy.count(), 0);
-
-    m_vkb->flickUpHandler(binding);
-    QCOMPARE(spy.count(), expected);
-}
-
 // End of test functions!
 
 void Ut_MVirtualKeyboard::rotateToAngle(M::OrientationAngle angle)

@@ -206,10 +206,6 @@ signals:
     //! \brief Emitted when key area is flicked down.
     void flickDown();
 
-    //! \brief Emitted when key area is flicked up.
-    //! \param binding Information about the key where mouse button was pressed
-    void flickUp(const MImKeyBinding &binding);
-
     //! \brief Emitted if button width has changed
     //! \param baseWidth base width used for relative button widths
     void relativeKeyBaseWidthChanged(qreal baseWidth);

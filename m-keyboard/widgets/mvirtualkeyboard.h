@@ -243,12 +243,6 @@ private slots:
      */
     void flickLeftHandler();
 
-    /*!
-     * \brief Handler for upward flick operation
-     * \param binding Key binding
-     */
-    void flickUpHandler(const MImKeyBinding &binding);
-
     void keyboardsReset();
 
     void numberKeyboardReset();
@@ -303,9 +297,6 @@ signals:
 
     //! Emitted when shift state is changed
     void shiftLevelChanged();
-
-    //! Emitted when symbol view should be shown
-    void showSymbolViewRequested();
 
     /*!
      * Inform that plugin should be switched in according to \a direction.

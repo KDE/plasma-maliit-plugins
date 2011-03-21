@@ -332,8 +332,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
             this, SLOT(handleKeyRelease(const KeyEvent &)));
     connect(vkbWidget, SIGNAL(longKeyPressed(const KeyEvent &)),
             this, SLOT(handleLongKeyPress(const KeyEvent &)));
-    connect(vkbWidget, SIGNAL(showSymbolViewRequested()),
-            this, SLOT(showSymbolView()));
 
     connect(vkbWidget, SIGNAL(userInitiatedHide()),
             this, SLOT(userHide()));

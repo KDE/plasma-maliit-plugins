@@ -198,8 +198,10 @@ void MImAbstractKeyAreaPrivate::handleFlickGesture(FlickGesture *gesture)
         }
     }
 
-    // Any flick gesture, complete or not, resets active keys etc.
-    if (!wasGestureTriggered && (gesture->state() != Qt::NoGesture)) {
+    // Any non-upward flick gesture, complete or not, resets active keys etc.
+    if (!wasGestureTriggered
+        && (gesture->state() != Qt::NoGesture)
+        && gesture->direction() != FlickGesture::Up) {
 
         if (mPopup) {
             mPopup->cancel();
@@ -227,13 +229,9 @@ void MImAbstractKeyAreaPrivate::handleFlickGesture(FlickGesture *gesture)
             emit q->flickDown();
             break;
 
-        case FlickGesture::Up: {
-                const MImAbstractKey *flickedKey = q->keyAt(gesture->startPosition());
-                if (flickedKey) {
-                    emit q->flickUp(flickedKey->binding());
-                }
-                break;
-            }
+        case FlickGesture::Up:
+            // Flick up not used.
+            break;
 
         default:
             return;

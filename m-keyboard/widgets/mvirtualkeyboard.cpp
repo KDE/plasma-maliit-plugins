@@ -256,15 +256,6 @@ MVirtualKeyboard::flickLeftHandler()
 
 
 void
-MVirtualKeyboard::flickUpHandler(const MImKeyBinding &binding)
-{
-    if (binding.action() == MImKeyBinding::ActionSym) {
-        emit showSymbolViewRequested();
-    }
-}
-
-
-void
 MVirtualKeyboard::flickRightHandler()
 {
     if (!mainKeyboardSwitcher->isRunning()) {
@@ -614,8 +605,6 @@ MImAbstractKeyArea * MVirtualKeyboard::createSectionView(const QString &layout,
     eventHandler.addEventSource(view);
 
     connect(view, SIGNAL(flickDown()), this, SIGNAL(userInitiatedHide()));
-    connect(view, SIGNAL(flickUp(MImKeyBinding)),
-            this, SLOT(flickUpHandler(MImKeyBinding)));
 
     return view;
 }

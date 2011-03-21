@@ -86,8 +86,6 @@ private slots:
     void interceptPress();
     void bug_137295();
     void testReactionMaps();
-    void flickUpHandlerTest_data();
-    void flickUpHandlerTest();
 
 signals:
     void fade(int);
