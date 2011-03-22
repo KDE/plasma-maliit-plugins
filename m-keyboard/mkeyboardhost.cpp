@@ -40,6 +40,7 @@
 #include <mgconfitem.h>
 
 #include <QApplication>
+#include <QDesktopWidget>
 #include <QDebug>
 #include <QKeyEvent>
 #include <QRegExp>
@@ -83,6 +84,15 @@ namespace
     const char PlusSign('+');
     const char MinusSign('-');
     bool gOwnsComponentData = false;
+
+    QSize defaultScreenSize(QWidget *w)
+    {
+        if (not QApplication::desktop() || not w) {
+            return QSize();
+        }
+
+        return QApplication::desktop()->screenGeometry(w).size();
+    }
 }
 
 MKeyboardHost::SlideUpAnimation::SlideUpAnimation(QObject *parent)
@@ -240,9 +250,19 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
         gOwnsComponentData = true;
     }
 
-    // Assumes that we start up in landscape mode:
-    const QSize sceneSize(MDeviceProfile::instance()->resolution());
-    mainWindow->resize(sceneSize);
+    view = new MPlainWindow(host, mainWindow);
+    // MSceneManager's of MWindow's are lazy-initialized. However, their
+    //implict creation does resize the scene rect of our view, so we trigger
+    // the lazy-initialization right here, to stay in control of things:
+    (void *) view->sceneManager();
+
+    // Once MComponentData is alive, it keeps resizing our QWidgets to wrong
+    // dimensions, so we fix it right back here:
+    const QSize screenSize(defaultScreenSize(view));
+    view->resize(screenSize);
+    view->setMinimumSize(1, 1);
+    view->setMaximumSize(screenSize);
+    view->setSceneRect(QRect(QPoint(), screenSize));
 
 #ifdef HAVE_REACTIONMAP
     // FIXME: The checks and QWidget::window() are only workarounds. Cleaner
@@ -252,14 +272,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
         new MReactionMap(mainWindow->window(), qAppName(), this);
     }
 #endif
-
-    view = new MPlainWindow(host, mainWindow);
-    int w = sceneSize.width();
-    int h = sceneSize.height();
-    view->setSceneRect(0, 0, w, h);
-    view->resize(sceneSize);
-    view->setMinimumSize(1, 1);
-    view->setMaximumSize(w, h);
 
     RegionTracker::createInstance();
     connect(&RegionTracker::instance(), SIGNAL(regionChanged(const QRegion &)),
@@ -557,8 +569,9 @@ void MKeyboardHost::sendRegionEstimate()
 
     // Add vkb rect if vkb is visible.
     if (vkbWidget->isVisible()) {
-        QRectF vkbRect(vkbWidget->rect());
+        QRectF vkbRect(vkbWidget->mapRectToScene(vkbWidget->rect()));
         vkbRect.moveBottom(stackedRects.top());
+        vkbRect.moveLeft(stackedRects.left());
         stackedRects |= vkbRect;
     }
 
@@ -610,6 +623,20 @@ void MKeyboardHost::show()
     if (vkbWidget->isVisible())
         updateEngineKeyboardLayout();
     updateCorrectionState();
+
+    // If view's scene rect is larger than scene window, and fully contains it,
+    // then dock scene window (and therefore, VKB) to the bottom center of scene:
+    if (not view->sceneRect().intersected(sceneWindow->mapRectToScene(sceneWindow->rect())).contains(view->rect())) {
+        QSizeF sceneSize(view->sceneRect().size());
+        if (view->orientation() == M::Portrait) {
+            sceneSize = QSizeF(sceneSize.height(), sceneSize.width());
+        }
+
+        sceneWindow->setPos(sceneSize.width() * 0.5 - sceneWindow->size().width() * 0.5,
+                            sceneSize.height() - (view->visibleSceneSize().height()));
+    } else {
+        sceneWindow->setPos(0, 0);
+    }
 
     sendRegionEstimate();
     slideUpAnimation.setDirection(QAbstractAnimation::Forward);
