@@ -45,11 +45,13 @@ class MImAbstractKeyArea
 
 public:
     //! \brief Constructor
-    //! \param section section that is shown by this key area
-    //! \param usePopup whether popup should be used
-    //! \param parent key area's parent
-    explicit MImAbstractKeyArea(const LayoutData::SharedLayoutSection &section,
-                                bool usePopup = false,
+    //! \brief privateData Pointer to private class.
+    //! MImAbstractKeyArea takes ownership on private data class, so derived classes
+    //! should NOT delete private objects.
+    //! \param usePopup Whether popup should be used
+    //! \param parent Key area's parent.
+    explicit MImAbstractKeyArea(MImAbstractKeyAreaPrivate *privateData,
+                                bool usePopup = true,
                                 QGraphicsWidget *parent = 0);
 
     //! \brief Destructor
@@ -268,10 +270,11 @@ protected slots:
     //! Handle idle VKB
     virtual void handleIdleVkb();
 
-private:
+protected:
     Q_DECLARE_PRIVATE(MImAbstractKeyArea);
     MImAbstractKeyAreaPrivate * const d_ptr;
 
+private:
     M_STYLABLE_WIDGET(MImAbstractKeyAreaStyle)
 
 #ifdef UNIT_TEST

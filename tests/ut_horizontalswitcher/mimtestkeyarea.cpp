@@ -17,11 +17,12 @@
 
 
 #include "mimtestkeyarea.h"
+#include "mimabstractkeyarea_p.h"
 
 MImTestKeyArea::MImTestKeyArea(const LayoutData::SharedLayoutSection &section,
                bool usePopup,
                QGraphicsWidget *parent)
-    : MImAbstractKeyArea(section, usePopup, parent),
+    : MImAbstractKeyArea(new MImAbstractKeyAreaPrivate(section, this), usePopup, parent),
       setKeyOverridesCalls(0)
 {
 }

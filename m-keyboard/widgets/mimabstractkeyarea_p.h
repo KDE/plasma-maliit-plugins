@@ -29,6 +29,7 @@ class MImAbstractKey;
 class FlickGesture;
 class PopupBase;
 
+//! \internal
 class MImAbstractKeyAreaPrivate
 {
 public:
@@ -36,10 +37,8 @@ public:
 
     //! \brief Constructor
     //! \param newSection Section that is shown by this key area
-    //! \param usePopup Whether popup should be used
     //! \param owner Pointer to key area which owns this object
     MImAbstractKeyAreaPrivate(const LayoutData::SharedLayoutSection &newSection,
-                              bool usePopup,
                               MImAbstractKeyArea *owner);
 
     //! \brief Destructor
@@ -106,6 +105,18 @@ public:
     //! Switch style mode.
     void switchStyleMode();
 
+    //! \brief Returns true if key area shows capitalazed charactes.
+    bool isUpperCase() const
+    {
+        return (currentLevel % 2);
+    }
+
+    //! \brief Get number of rows in this key area.
+    int rowCount() const
+    {
+        return section->rowCount();
+    }
+
     MImAbstractKeyArea * const q_ptr;
 
     int currentLevel; //!< current level
@@ -121,6 +132,7 @@ public:
     QTimer idleVkbTimer;  //!< Whenever this key area of the VKB idles, gestures are activated.
     QTime lastTouchPointPressEvent; //!< measures elapsed time between two touchpoint press events
 };
+//! \internal_end
 
 #endif
 

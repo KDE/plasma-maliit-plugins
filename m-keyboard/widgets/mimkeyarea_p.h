@@ -18,6 +18,7 @@
 #define MIMKEYAREA_P_H
 
 #include "mimabstractkeyarea.h"
+#include "mimabstractkeyarea_p.h"
 #include "mimkey.h"
 
 #include <QSize>
@@ -30,12 +31,14 @@ class MImKey;
 
 class QPainter;
 
-class MImKeyAreaPrivate
+//! \internal
+class MImKeyAreaPrivate : public MImAbstractKeyAreaPrivate
 {
 public:
     Q_DECLARE_PUBLIC(MImKeyArea)
 
     //! \brief Constructor
+    //! \param newSection Section that is shown by this key area
     //! \param owner Pointer to key area which owns this object
     MImKeyAreaPrivate(const LayoutData::SharedLayoutSection &newSection,
                       MImKeyArea *owner);
@@ -103,6 +106,7 @@ public:
     QSharedPointer<MImKey::StylingCache> stylingCache; //!< Cached information about current styling
     QList<MImKey *> idToKey; //!< Contains information about keys which have identifiers
 };
+//! \internal_end
 
 #endif
 

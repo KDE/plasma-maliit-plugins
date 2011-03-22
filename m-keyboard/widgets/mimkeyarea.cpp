@@ -357,10 +357,9 @@ namespace {
 
 MImKeyAreaPrivate::MImKeyAreaPrivate(const LayoutData::SharedLayoutSection &newSection,
                                      MImKeyArea *owner)
-    : q_ptr(owner),
+    : MImAbstractKeyAreaPrivate(newSection, owner),
+      q_ptr(owner),
       rowList(newSection->rowCount()),
-      cachedWidgetHeight(computeWidgetHeight()),
-      mMaxNormalizedWidth(computeMaxNormalizedWidth()),
       shiftKey(0),
       equalWidthKeys(true),
       WidthCorrection(0),
@@ -380,17 +379,17 @@ MImKeyAreaPrivate::~MImKeyAreaPrivate()
 void MImKeyAreaPrivate::loadKeys()
 {
     Q_Q(MImKeyArea);
-    const int numRows = q->rowCount();
+    const int numRows = rowCount();
 
     RowIterator rowIter(rowList.begin());
 
     for (int row = 0; row != numRows; ++row, ++rowIter) {
-        const int numColumns = q->sectionModel()->columnsAt(row);
+        const int numColumns = section->columnsAt(row);
 
         // Add keys
         for (int col = 0; col < numColumns; ++col) {
             // Parameters to fetch from base class.
-            MImKeyModel *dataKey = q->sectionModel()->keyModel(row, col);
+            MImKeyModel *dataKey = section->keyModel(row, col);
             MImKey *key = new MImKey(*dataKey, q->baseStyle(), *q, stylingCache);
 
             if (!key->model().id().isEmpty()) {
@@ -497,7 +496,7 @@ qreal MImKeyAreaPrivate::preferredKeyHeight(int row) const
 {
     Q_Q(const MImKeyArea);
 
-    switch (q->sectionModel()->rowHeightType(row)) {
+    switch (section->rowHeightType(row)) {
 
     default:
     case LayoutSection::Medium:
@@ -526,15 +525,13 @@ qreal MImKeyAreaPrivate::preferredKeyHeight(int row) const
 
 qreal MImKeyAreaPrivate::computeMaxNormalizedWidth() const
 {
-    Q_Q(const MImKeyArea);
-
     qreal maxRowWidth = 0.0;
 
-    for (int j = 0; j < q->sectionModel()->rowCount(); ++j) {
+    for (int j = 0; j < section->rowCount(); ++j) {
         qreal rowWidth = 0.0;
 
-        for (int i = 0; i < q->sectionModel()->columnsAt(j); ++i) {
-            const MImKeyModel *key = q->sectionModel()->keyModel(j, i);
+        for (int i = 0; i < section->columnsAt(j); ++i) {
+            const MImKeyModel *key = section->keyModel(j, i);
             rowWidth += normalizedKeyWidth(key);
         }
 
@@ -594,9 +591,12 @@ void MImKeyAreaPrivate::registerKeyId(MImKey *key)
 MImKeyArea::MImKeyArea(const LayoutData::SharedLayoutSection &newSection,
                        bool usePopup,
                        QGraphicsWidget *parent)
-    : MImAbstractKeyArea(newSection, usePopup, parent),
-      d_ptr(new MImKeyAreaPrivate(newSection, this))
+    : MImAbstractKeyArea(new MImKeyAreaPrivate(newSection, this), usePopup, parent),
+      d_ptr(static_cast<MImKeyAreaPrivate *>(MImAbstractKeyArea::d_ptr))
 {
+    d_ptr->cachedWidgetHeight = d_ptr->computeWidgetHeight();
+    d_ptr->mMaxNormalizedWidth = d_ptr->computeMaxNormalizedWidth();
+
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
     d_ptr->loadKeys();
@@ -606,7 +606,6 @@ MImKeyArea::MImKeyArea(const LayoutData::SharedLayoutSection &newSection,
 
 MImKeyArea::~MImKeyArea()
 {
-    delete d_ptr;
 }
 
 QSizeF MImKeyArea::sizeHint(Qt::SizeHint which,
@@ -946,11 +945,11 @@ void MImKeyArea::updateKeyAttributes(const QString &keyId, MKeyOverride::KeyOver
 
 void MImKeyArea::releaseKey(MImKey *key)
 {
-    qDebug() << __PRETTY_FUNCTION__ << key->touchPointCount() << key->enabled();
     if (key->touchPointCount() <= 0 || !key->enabled()) {
         return;
     }
 
+    Q_D(MImKeyArea);
     MImKeyVisitor::SpecialKeyFinder finder;
     MImAbstractKey::visitActiveKeys(&finder);
     const bool hasActiveShiftKeys = (finder.shiftKey() != 0);
@@ -958,7 +957,7 @@ void MImKeyArea::releaseKey(MImKey *key)
     key->resetTouchPointCount();
     emit keyReleased(key,
                      (finder.deadKey() ? finder.deadKey()->label() : QString()),
-                     hasActiveShiftKeys || level() % 2);
+                     hasActiveShiftKeys || d->isUpperCase());
 }
 
 void MImKeyArea::setContentType(M::TextContentType type)

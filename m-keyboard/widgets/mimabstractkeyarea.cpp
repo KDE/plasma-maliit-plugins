@@ -123,11 +123,9 @@ namespace
 M::InputMethodMode MImAbstractKeyAreaPrivate::InputMethodMode;
 
 MImAbstractKeyAreaPrivate::MImAbstractKeyAreaPrivate(const LayoutData::SharedLayoutSection &newSection,
-                                                     bool usePopup,
                                                      MImAbstractKeyArea *owner)
     : q_ptr(owner),
       currentLevel(0),
-      mPopup(usePopup ? PopupFactory::instance()->createPopup(owner) : 0),
       wasGestureTriggered(false),
       enableMultiTouch(MGConfItem(MultitouchSettings).value().toBool()),
       feedbackSliding(MImReactionMap::Sliding),
@@ -155,7 +153,7 @@ void MImAbstractKeyAreaPrivate::click(MImAbstractKey *key,
 
     if (!key->isDeadKey()) {
         const QString accent = (finder.deadKey() ? finder.deadKey()->label() : QString());
-        emit q->keyClicked(key, accent, hasActiveShiftKeys || q->level() % 2, pos);
+        emit q->keyClicked(key, accent, hasActiveShiftKeys || isUpperCase(), pos);
 
         if (!key->isShiftKey()) {
             q->unlockDeadKeys(finder.deadKey());
@@ -266,7 +264,7 @@ void MImAbstractKeyAreaPrivate::touchPointPressed(const QTouchEvent::TouchPoint 
         // TODO: play release sound? Potentially confusing to user, who
         // might still press this key.
         emit q->keyClicked(lastActiveKey, QString(),
-                           hasActiveShiftKeys || q->level() % 2,
+                           hasActiveShiftKeys || isUpperCase(),
                            gAdjustedPositionForCorrection);
 
         lastActiveKey->resetTouchPointCount();
@@ -285,7 +283,7 @@ void MImAbstractKeyAreaPrivate::touchPointPressed(const QTouchEvent::TouchPoint 
         key->activateGravity();
 
         emit q->keyPressed(key, (finder.deadKey() ? finder.deadKey()->label() : QString()),
-                           hasActiveShiftKeys || q->level() % 2);
+                           hasActiveShiftKeys || isUpperCase());
     }
     mTimestamp("MImAbstractKeyArea", "end");
 }
@@ -329,7 +327,7 @@ void MImAbstractKeyAreaPrivate::touchPointMoved(const QTouchEvent::TouchPoint &t
                 longPressTimer.start(q->style()->longPressTimeout());
                 emit q->keyPressed(lookup.key,
                                    (finder.deadKey() ? finder.deadKey()->label() : QString()),
-                                   hasActiveShiftKeys || q->level() % 2);
+                                   hasActiveShiftKeys || isUpperCase());
             }
         }
 
@@ -339,7 +337,7 @@ void MImAbstractKeyAreaPrivate::touchPointMoved(const QTouchEvent::TouchPoint &t
             && lookup.lastKey->touchPointCount() == 0) {
             emit q->keyReleased(lookup.lastKey,
                                 (finder.deadKey() ? finder.deadKey()->label() : QString()),
-                                hasActiveShiftKeys || q->level() % 2);
+                                hasActiveShiftKeys || isUpperCase());
         }
     }
 
@@ -379,7 +377,7 @@ void MImAbstractKeyAreaPrivate::touchPointReleased(const QTouchEvent::TouchPoint
         longPressTimer.stop();
         emit q->keyReleased(lookup.key,
                             (finder.deadKey() ? finder.deadKey()->label() : QString()),
-                            hasActiveShiftKeys || q->level() % 2);
+                            hasActiveShiftKeys || isUpperCase());
 
         click(lookup.key, gAdjustedPositionForCorrection);
     }
@@ -391,7 +389,7 @@ void MImAbstractKeyAreaPrivate::touchPointReleased(const QTouchEvent::TouchPoint
         && lookup.lastKey->touchPointCount() == 0) {
         emit q->keyReleased(lookup.lastKey,
                             (finder.deadKey() ? finder.deadKey()->label() : QString()),
-                            hasActiveShiftKeys || q->level() % 2);
+                            hasActiveShiftKeys || isUpperCase());
     }
 
     // We're finished with this touch point, inform popup:
@@ -568,15 +566,17 @@ void MImAbstractKeyAreaPrivate::switchStyleMode()
 }
 
 // actual class implementation
-MImAbstractKeyArea::MImAbstractKeyArea(const LayoutData::SharedLayoutSection &newSection,
+MImAbstractKeyArea::MImAbstractKeyArea(MImAbstractKeyAreaPrivate *privateData,
                                        bool usePopup,
                                        QGraphicsWidget *parent)
     : MStylableWidget(parent),
       mRelativeKeyBaseWidth(0),
       debugTouchPoints(style()->debugTouchPoints()),
-      d_ptr(new MImAbstractKeyAreaPrivate(newSection, usePopup, this))
+      d_ptr(privateData)
 {
     Q_D(MImAbstractKeyArea);
+
+    d->mPopup = (usePopup ? PopupFactory::instance()->createPopup(this) : 0);
 
     // By default multi-touch is disabled
     if (d->enableMultiTouch) {
@@ -648,7 +648,7 @@ void MImAbstractKeyArea::updatePopup(MImAbstractKey *key)
     d->mPopup->updatePos(buttonRect.topLeft(), pos, buttonRect.toRect().size());
     d->mPopup->handleKeyPressedOnMainArea(key,
                                           (finder.deadKey() ? finder.deadKey()->label() : QString()),
-                                          level() % 2);
+                                          d->isUpperCase());
 }
 
 int MImAbstractKeyArea::maxColumns() const
@@ -662,7 +662,7 @@ int MImAbstractKeyArea::rowCount() const
 {
     Q_D(const MImAbstractKeyArea);
 
-    return d->section->rowCount();
+    return d->rowCount();
 }
 
 void
@@ -992,10 +992,10 @@ void MImAbstractKeyArea::handleLongKeyPressed()
                                            : QString());
 
     if (d->mPopup) {
-        d->mPopup->handleLongKeyPressedOnMainArea(lastActiveKey, accent, level() % 2);
+        d->mPopup->handleLongKeyPressedOnMainArea(lastActiveKey, accent, d->isUpperCase());
     }
 
-    emit longKeyPressed(lastActiveKey, accent, level() % 2);
+    emit longKeyPressed(lastActiveKey, accent, d->isUpperCase());
 }
 
 void MImAbstractKeyArea::handleIdleVkb()
