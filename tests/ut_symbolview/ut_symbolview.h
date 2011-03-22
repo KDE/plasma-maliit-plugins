@@ -62,8 +62,8 @@ private slots:
     void testSetLayout();
     void testHardwareState();
     void testSetTemporarilyHidden();
-    void testQuickPick_data();
-    void testQuickPick();
+    void testAutomaticCloseOnKeyClick_data();
+    void testAutomaticCloseOnKeyClick();
 
 private:
     void rotateToAngle(M::OrientationAngle angle);

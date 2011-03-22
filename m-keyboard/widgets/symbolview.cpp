@@ -62,7 +62,8 @@ SymbolView::SymbolView(const LayoutsManager &layoutsManager, const MVirtualKeybo
       mouseDownKeyArea(false),
       mainLayout(new QGraphicsLinearLayout(Qt::Vertical, this)),
       activeState(MInputMethod::OnScreen),
-      hideOnQuickPick(false)
+      hideOnQuickPick(false),
+      previousKeyWasNumeric(false)
 {
     setObjectName("SymbolView");
     RegionTracker::instance().addRegion(*this);
@@ -231,6 +232,7 @@ void SymbolView::showSymbolView(SymbolView::ShowMode mode)
     }
     show();
     hideOnQuickPick = true;
+    previousKeyWasNumeric = false;
 }
 
 
@@ -468,14 +470,20 @@ void SymbolView::handleShiftPressed(bool shiftPressed)
 void SymbolView::handleKeyClicked(const MImAbstractKey *key)
 {
     // KeyEventHandler forwards key clicks for normal text input etc.
-    // We handle here only special case of closing symbol view if quick pick
-    // key is clicked.
-    if (hideOnQuickPick
-        && key->isQuickPick()) {
+    // We handle here only special case of closing symbol view if certain
+    // criteria is met:
+    // 1) space is clicked and previously clicked key was not numeric
+    if ((key->binding().action() == MImKeyBinding::ActionSpace
+         && !previousKeyWasNumeric)
+
+        // 2) quick pick key is clicked as first after opening symbol view
+        || (key->isQuickPick()&& hideOnQuickPick)) {
         hideSymbolView();
     }
     // After first click, we won't be tracking quick pick anymore.
     hideOnQuickPick = false;
+
+    (void)key->label().toInt(&previousKeyWasNumeric);
 }
 
 void SymbolView::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view)

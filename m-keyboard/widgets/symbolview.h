@@ -282,6 +282,7 @@ private:
     MInputMethod::HandlerState activeState;
 
     bool hideOnQuickPick;
+    bool previousKeyWasNumeric;
 
 #ifdef UNIT_TEST
     friend class Ut_SymbolView;

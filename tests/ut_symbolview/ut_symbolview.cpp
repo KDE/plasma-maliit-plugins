@@ -365,18 +365,19 @@ void Ut_SymbolView::testSetTemporarilyHidden()
     QCOMPARE(subject->activity, SymbolView::Active);
 }
 
-void Ut_SymbolView::testQuickPick_data()
+void Ut_SymbolView::testAutomaticCloseOnKeyClick_data()
 {
     typedef QList<QPoint> KeyList;
     QTest::addColumn<KeyList>("keyList");
     QTest::addColumn<bool>("expectedIsActive");
 
     const QPoint quickPickKey(0, 0); // '@'
-    const QPoint normalKey(1, 0);
+    const QPoint normalKey(1, 0); // excluding numerics
+    const QPoint spaceKey(0, 1);
+    const QPoint numberKey(5, 0);
 
     QTest::newRow("Normal key click, symbol view stays open.")
         << (KeyList() << normalKey) << true;
-
     QTest::newRow("Quick key click, symbol view closes")
         << (KeyList() << quickPickKey) << false;
 
@@ -384,9 +385,18 @@ void Ut_SymbolView::testQuickPick_data()
     // to be clicked.
     QTest::newRow("Quick pick not first 1") << (KeyList() << normalKey << quickPickKey) << true;
     QTest::newRow("Quick pick not first 2") << (KeyList() << normalKey << normalKey << quickPickKey) << true;
+
+    QTest::newRow("close by hitting space key")
+        << (KeyList() << spaceKey) << false;
+    QTest::newRow("close by hitting space key after some other keys")
+        << (KeyList() << normalKey << normalKey << spaceKey) << false;
+    QTest::newRow("space after number doesn't close symbol view")
+        << (KeyList() << numberKey << spaceKey) << true;
+    QTest::newRow("number must be last one for space to close symbol view")
+        << (KeyList() << numberKey << normalKey << spaceKey) << false;
 }
 
-void Ut_SymbolView::testQuickPick()
+void Ut_SymbolView::testAutomaticCloseOnKeyClick()
 {
     QFETCH(QList<QPoint>, keyList);
     QFETCH(bool, expectedIsActive);

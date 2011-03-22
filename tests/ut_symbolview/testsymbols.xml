@@ -20,7 +20,13 @@
         <key>
           <binding label="&#x003A;"/>
         </key>
+        <key>
+          <binding label="3"/>
+        </key>
         <spacer/>
+      </row>
+      <row>
+        <key><binding action="space"/></key>
       </row>
     </section>
 
