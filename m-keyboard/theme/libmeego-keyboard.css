@@ -1,4 +1,5 @@
 @const HEIGHT_CANDIDATEITEM:  3.4mm;
+
 @const HEIGHT_TOOLBARITEM: 4mm;
 
 MVirtualKeyboardStyle {
@@ -172,8 +173,6 @@ MImAbstractKeyAreaStyle.Portrait {
     /*** Behaviour ***/
     touchpoint-horizontal-gravity: 17px;
     touchpoint-vertical-gravity: 26px;
-
-    touchpoint-vertical-offset: 1.7mm;
 
     /*** Key Geometry ***/
     key-height-small: -1; /* unused */
