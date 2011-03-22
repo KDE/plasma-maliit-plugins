@@ -59,7 +59,7 @@ void Ut_MImCorrectionHost::initTestCase()
 
 void Ut_MImCorrectionHost::init()
 {
-    m_subject = new MImCorrectionHost(parentWindow);
+    m_subject = new MImCorrectionHost(0, parentWindow);
 
     if (MPlainWindow::instance()->orientationAngle() != M::Angle0) {
         MPlainWindow::instance()->setOrientationAngle(M::Angle0);

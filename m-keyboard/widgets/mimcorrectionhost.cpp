@@ -19,16 +19,20 @@
 #include "mimwordtracker.h"
 #include "mimwordlist.h"
 
+#include <mimenginetypes.h>
+#include <mimenginefactory.h>
+
 #include <QDebug>
 
-MImCorrectionHost::MImCorrectionHost(MSceneWindow *parentWindow)
+MImCorrectionHost::MImCorrectionHost(MImEngineWordsInterface *imCorrectionEngine, MSceneWindow *parentWindow)
     : QObject(parentWindow),
       ReactionMapPaintable(),
       rotationInProgress(false),
       currentMode(MImCorrectionHost::WordTrackerMode),
       pendingCandidatesUpdate(false),
       wordTracker(new MImWordTracker(parentWindow)),
-      wordList(new MImWordList())
+      wordList(new MImWordList()),
+      correctionEngine(imCorrectionEngine)
 {
     connect(wordTracker, SIGNAL(candidateClicked(QString)), this, SLOT(handleCandidateClicked(QString)));
     connect(wordTracker, SIGNAL(longTapped()), this, SLOT(longTap()));
@@ -57,6 +61,15 @@ bool MImCorrectionHost::isActive() const
     return (wordTracker->isVisible() || wordList->isVisible());
 }
 
+bool MImCorrectionHost::typedWordIsInDictionary()
+{
+    if (!correctionEngine) {
+        return false;
+    }
+
+    return correctionEngine->candidateSource(0) != MImEngine::DictionaryTypeInvalid;
+}
+
 void MImCorrectionHost::setCandidates(const QStringList list)
 {
     candidates = list;
@@ -64,6 +77,7 @@ void MImCorrectionHost::setCandidates(const QStringList list)
     if (candidates.isEmpty()) {
         return;
     }
+
     // The first candidate is always the original input word.
     // So if there are more than one suggestions, the second one is
     // the suggestion word.
@@ -76,7 +90,7 @@ void MImCorrectionHost::setCandidates(const QStringList list)
         if (currentMode == WordTrackerMode) {
             wordTracker->setCandidate(suggestionString);
         } else {
-            wordList->setCandidates(candidates);
+            wordList->setCandidates(candidates, typedWordIsInDictionary());
         }
     } else {
         pendingCandidatesUpdate = true;
@@ -105,7 +119,7 @@ void MImCorrectionHost::showCorrectionWidget(MImCorrectionHost::CandidateMode mo
         if (currentMode == WordTrackerMode) {
             wordTracker->setCandidate(suggestionString);
         } else {
-            wordList->setCandidates(candidates);
+            wordList->setCandidates(candidates, typedWordIsInDictionary());
         }
         pendingCandidatesUpdate = false;
     }
@@ -118,9 +132,6 @@ void MImCorrectionHost::showCorrectionWidget(MImCorrectionHost::CandidateMode mo
             wordTracker->appear(false);
         }
     } else {
-        // Always highlight the first item in the candidate list
-        // which is the origin input word
-        wordList->setHighlightCandidate(candidates.at(0));
         wordTracker->disappear(false);
         wordList->appear();
     }

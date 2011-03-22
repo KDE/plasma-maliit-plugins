@@ -25,11 +25,27 @@
 #include <QString>
 
 #include <mwidgetcreator.h>
+#include <MSeparator>
 M_REGISTER_WIDGET_NO_CREATE(MImWordList)
 
 namespace
 {
     const char * const WordListObjectName = "CorrectionWordList";
+
+    void addItem(QGraphicsLinearLayout *layout, MWidgetController *item, int position)
+    {
+        item->setSelected(false);
+        layout->insertItem(position, item);
+        item->setVisible(true);
+        item->setEnabled(true);
+        item->setLayoutPosition(M::VerticalCenterPosition);
+    }
+
+    void removeItem(QGraphicsLinearLayout *layout, MWidgetController *item)
+    {
+        layout->removeItem(item);
+        item->setVisible(false);
+    }
 };
 
 
@@ -46,6 +62,18 @@ MImWordList::MImWordList()
     mainLayout->setContentsMargins(0, 0, 0, 0);
     contentWidget->setLayout(mainLayout);
 
+    addToDictionaryItem = new MImWordListItem(contentWidget);
+    //% "Add to dictionary"
+    addToDictionaryItem->setTitle(qtTrId("qtn_vkb_dictionary_add"));
+    addToDictionaryItem->setVisible(false);
+    connect(addToDictionaryItem, SIGNAL(clicked()), this, SLOT(select()));
+    mainLayout->addItem(addToDictionaryItem);
+
+    addToDictionarySeparator = new MSeparator(contentWidget);
+    addToDictionarySeparator->setStyleName("CommonItemDivider");
+    addToDictionarySeparator->setVisible(false);
+    mainLayout->addItem(addToDictionarySeparator);
+
     for (int i = 0; i < MaxCandidateCount; i++) {
         candidateItems[i] = new MImWordListItem(contentWidget);
         candidateItems[i]->setVisible(false);
@@ -60,21 +88,35 @@ MImWordList::~MImWordList()
 {
 }
 
-void MImWordList::setCandidates(const QStringList &candidates)
+void MImWordList::setCandidates(const QStringList &candidates, bool typedWordIsInDictionary)
 {
-    mCandidates = candidates.mid(0, MaxCandidateCount);
+    if (candidates.isEmpty()) {
+        qWarning() << __PRETTY_FUNCTION__ << "empty candidates list";
+    } else {
+        // First candidate, the originally typed word, is show in the dialog header
+        setTitle(candidates[0]);
+    }
+
+    int candidateItemsStartIndex = 0;
+    if (typedWordIsInDictionary) {
+        mCandidates = candidates.mid(1, MaxCandidateCount);
+
+        removeItem(mainLayout, addToDictionaryItem);
+        removeItem(mainLayout, addToDictionarySeparator);
+    } else {
+        mCandidates = candidates.mid(0, MaxCandidateCount);
+        candidateItemsStartIndex = 1;
+
+        addItem(mainLayout, addToDictionaryItem, 0);
+        addItem(mainLayout, addToDictionarySeparator, 1);
+    }
 
     for (int i = 0; i < MaxCandidateCount; i++) {
-        if (i < candidates.count()) {
-            candidateItems[i]->setSelected(false);
-            mainLayout->addItem(candidateItems[i]);
-            candidateItems[i]->setTitle(candidates.at(i));
-            candidateItems[i]->setVisible(true);
-            candidateItems[i]->setEnabled(true);
-            candidateItems[i]->setLayoutPosition(M::VerticalCenterPosition);
+        if (i < mCandidates.count() && i >= candidateItemsStartIndex) {
+            candidateItems[i]->setTitle(mCandidates.at(i));
+            addItem(mainLayout, candidateItems[i], -1);
         } else {
-            mainLayout->removeItem(candidateItems[i]);
-            candidateItems[i]->setVisible(false);
+            removeItem(mainLayout, candidateItems[i]);
         }
     }
     mainLayout->invalidate();
@@ -83,14 +125,6 @@ void MImWordList::setCandidates(const QStringList &candidates)
 QStringList MImWordList::candidates() const
 {
     return mCandidates;
-}
-
-void MImWordList::setHighlightCandidate(const QString &candidate)
-{
-    int index = mCandidates.indexOf(candidate);
-    if (index >= 0) {
-        candidateItems[index]->setSelected(true);
-    }
 }
 
 void MImWordList::select()
@@ -102,7 +136,7 @@ void MImWordList::select()
     }
     MImWordListItem *item = qobject_cast<MImWordListItem *> (sender());
     if (item) {
-        const QString candidate = item->title();
+        const QString candidate = (item == addToDictionaryItem) ? title() : item->title();
         emit candidateClicked(candidate);
     }
 }

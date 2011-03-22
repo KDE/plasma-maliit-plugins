@@ -30,6 +30,7 @@ class MReactionMap;
 class MImWordTracker;
 class MImWordList;
 class QGraphicsView;
+class MImEngineWordsInterface;
 
 /*!
   \class MImCorrectionHost
@@ -52,7 +53,7 @@ public:
     /*! Constructor
      *
      */
-    explicit MImCorrectionHost(MSceneWindow *parentWindow);
+    explicit MImCorrectionHost(MImEngineWordsInterface *imCorrectionEngine, MSceneWindow *parentWindow);
 
     /*! Destructor
      *
@@ -63,6 +64,11 @@ public:
      * \brief Returns true if tracker or word list is active.
      */
     bool isActive() const;
+
+    /*!
+     * \brief Returns true if candidate zero, the originally typed word, is in the dictionary.
+     */
+    bool typedWordIsInDictionary();
 
     /*! Set the candidate list
      *
@@ -137,6 +143,7 @@ private:
 
     MImWordTracker *wordTracker;
     MImWordList *wordList;
+    MImEngineWordsInterface *correctionEngine;
 
     Q_DISABLE_COPY(MImCorrectionHost)
 };

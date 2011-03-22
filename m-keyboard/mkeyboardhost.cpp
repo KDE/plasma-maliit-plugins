@@ -366,8 +366,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
     sharedHandleArea->setZValue(-1.0);
     sharedHandleArea->watchOnWidget(vkbWidget);
 
-    createCorrectionCandidateWidget();
-
     // Don't listen to device orientation.  Applications can be in different orientation
     // than the device (especially plain qt apps). See NB#185013 - Locking VKB orientation.
     MPlainWindow::instance()->lockOrientationAngle();
@@ -419,6 +417,8 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
                      << inputMethodCorrectionEngine->value().toString();
         }
     }
+
+    createCorrectionCandidateWidget();
 
     backspaceTimer.setSingleShot(true);
     connect(&backspaceTimer, SIGNAL(timeout()), this, SLOT(autoBackspace()));
@@ -484,7 +484,7 @@ MKeyboardHost* MKeyboardHost::instance()
 void MKeyboardHost::createCorrectionCandidateWidget()
 {
     // construct correction candidate widget
-    correctionHost = new MImCorrectionHost(sceneWindow);
+    correctionHost = new MImCorrectionHost(imCorrectionEngine, sceneWindow);
     correctionHost->hideCorrectionWidget();
     connect(correctionHost, SIGNAL(candidateClicked(const QString &)),
             this, SLOT(commitString(const QString &)));

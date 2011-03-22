@@ -84,14 +84,14 @@ void Ut_MImWordList::testCandidates_data()
 void Ut_MImWordList::testCandidates()
 {
     QFETCH(QStringList, candidates);
-    m_subject->setCandidates(candidates);
+    m_subject->setCandidates(candidates, false);
     QCOMPARE(m_subject->candidates(), candidates);
 }
 
 void Ut_MImWordList::testSelect()
 {
     QStringList candidates = (QStringList() << "abc" << "def" << "ghi" << "jfk" << "lmn");
-    m_subject->setCandidates(candidates);
+    m_subject->setCandidates(candidates, false);
     m_subject->appear();
     QTest::qWait(600);
     QVERIFY(m_subject->isVisible());

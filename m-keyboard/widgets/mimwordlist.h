@@ -21,6 +21,7 @@
 #include <MDialog>
 
 class QGraphicsLinearLayout;
+class MSeparator;
 class MImWordListItem;
 class MReactionMap;
 
@@ -48,18 +49,18 @@ public:
 
     /*!
      * \brief Sets suggestion candidates.
+     *
+     * The first candidate in the list must be the word the user typed in.
+     * typedWordIsInDictionary indicates if this word is already present in a dictionary.
      */
-    void setCandidates(const QStringList &candidates);
+    void setCandidates(const QStringList &candidates, bool typedWordIsInDictionary);
 
     /*!
-     * \brief Returns the suggestion candidates.
+     * \brief Returns the suggestion candidates shown in the widget.
+     *
+     * The list is limited to MaxCandidateCount items.
      */
     QStringList candidates() const;
-
-    /*!
-     * \brief Sets the highlight suggestion candidate.
-     */
-    void setHighlightCandidate(const QString &);
 
     /*!
      * \brief Draw its reactive areas onto the reaction map
@@ -80,6 +81,8 @@ private:
     QStringList mCandidates;
     QGraphicsLinearLayout *mainLayout;
     MImWordListItem *candidateItems[MaxCandidateCount];
+    MImWordListItem *addToDictionaryItem;
+    MSeparator *addToDictionarySeparator;
 };
 
 #endif
