@@ -251,11 +251,8 @@ void MKeyboardSettingsWidget::showKeyboardList()
         keyboardList = new MList(keyboardDialog);
         MKeyboardCellCreator *cellCreator = new MKeyboardCellCreator;
         keyboardList->setCellCreator(cellCreator);
-        QStandardItemModel *model = new QStandardItemModel;
-        model->sort(0);
-        keyboardList->setItemModel(model);
         keyboardList->setSelectionMode(MList::MultiSelection);
-        keyboardList->setSelectionModel(new QItemSelectionModel(model, this));
+        createKeyboardModel();
         keyboardDialog->setCentralWidget(keyboardList);
         keyboardDialog->addButton(M::DoneButton);
 
@@ -264,7 +261,6 @@ void MKeyboardSettingsWidget::showKeyboardList()
         connect(keyboardDialog, SIGNAL(accepted()),
                 this, SLOT(selectKeyboards()));
     }
-    updateKeyboardModel();
     // We need to update the title every time because probably the dialog was
     // cancelled/closed without tapping on the Done button.
     QString keyboardTitle = qtTrId("qtn_txts_installed_keyboards")
@@ -273,25 +269,26 @@ void MKeyboardSettingsWidget::showKeyboardList()
     keyboardDialog->exec();
 }
 
-void MKeyboardSettingsWidget::updateKeyboardModel()
+void MKeyboardSettingsWidget::createKeyboardModel()
 {
     if (!settingsObject || !keyboardList)
         return;
 
-    //always reload available layouts in case user install/remove some layouts
-    settingsObject->readAvailableKeyboards();
-    QStandardItemModel *model = static_cast<QStandardItemModel*> (keyboardList->itemModel());
-    model->clear();
-
     QMap<QString, QString> availableKeyboards = settingsObject->availableKeyboards();
+
+    QStandardItemModel *model = new QStandardItemModel(availableKeyboards.size(), 1, keyboardList);
     QMap<QString, QString>::const_iterator i = availableKeyboards.constBegin();
-    while (i != availableKeyboards.constEnd()) {
+    for (int j = 0; i != availableKeyboards.constEnd(); ++i, ++j) {
         QStandardItem *item = new QStandardItem(i.value());
         item->setData(i.value(), Qt::DisplayRole);
         item->setData(i.key(), MKeyboardLayoutRole);
-        model->appendRow(item);
-        ++i;
+        model->setItem(j, item);
     }
+    model->sort(0);
+
+    keyboardList->setItemModel(model);
+    keyboardList->setSelectionModel(new QItemSelectionModel(model, keyboardList));
+
     updateKeyboardSelectionModel();
 }
 
