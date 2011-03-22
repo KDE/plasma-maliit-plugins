@@ -308,7 +308,10 @@ void MVirtualKeyboard::organizeContent(M::Orientation orientation, const bool fo
 
         // After orientation change, our size doesn't get updated properly
         // this leads to only left part of the vkb to be displayed when rotating
-        // from portrait to landscape. Adjusting size here explicitly.
+        // from portrait to landscape. Adjusting size here explicitly, after setting
+        // preferredWidth. If preferredWidth is not set, adjustSize() leads to
+        // mainKeyboardSwitcher becoming as wide as landscape on first start in portrait.
+        setPreferredWidth(MPlainWindow::instance()->visibleSceneSize().width());
         adjustSize();
     }
 }
