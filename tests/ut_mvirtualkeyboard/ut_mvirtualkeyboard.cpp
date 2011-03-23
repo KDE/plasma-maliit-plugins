@@ -777,7 +777,7 @@ void Ut_MVirtualKeyboard::testReactionMaps()
     gMReactionMapStub->fillRectangle(0, 0, gMReactionMapStub->width(), gMReactionMapStub->height());
 
     QGraphicsView *view(MPlainWindow::instance());
-    m_vkb->paintReactionMap(MReactionMap::instance(view), view);
+    m_vkb->paintReactionMap(MReactionMap::instance(*view), view);
 
     // Overall sanity test with grid points throughout the view.
     QVERIFY(tester.testReactionMapGrid(view, 40, 50, m_vkb->mapRectToScene(m_vkb->rect()).toRect(), m_vkb));
@@ -793,7 +793,7 @@ void Ut_MVirtualKeyboard::testReactionMaps()
     // Currently updating is done via kbhost when it receives region updates.
     // Kbhost is not present so we paint reaction map explicitly.
     QVERIFY(updateSignal.count() == 1);
-    m_vkb->paintReactionMap(MReactionMap::instance(view), view);
+    m_vkb->paintReactionMap(MReactionMap::instance(*view), view);
 
     QVERIFY(tester.testReactionMapGrid(view, 40, 50, m_vkb->mapRectToScene(m_vkb->rect()).toRect(), m_vkb));
     QVERIFY(tester.testChildButtonReactiveAreas(view, m_vkb));

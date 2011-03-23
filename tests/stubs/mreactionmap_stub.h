@@ -55,13 +55,17 @@ public:
     static const QString Transparent;
     static const QString Inactive;
 
-    explicit MReactionMap(QWidget *topLevelWidget,
+protected:
+    explicit MReactionMap(QWidget &topLevelWidget,
                           const QString &appIdentifier = QString(),
                           QObject *parent = 0);
+public:
 
     ~MReactionMap();
 
-    static MReactionMap *instance(QWidget *anyWidget);
+    static MReactionMap *instance(QWidget &anyWidget);
+    static MReactionMap *createInstance(QWidget &anyWidget, const QString &appIdentifier = QString(),
+                                        QObject *parent = 0);
     void setInactiveDrawingValue();
     void setReactiveDrawingValue();
     void setTransparentDrawingValue();
@@ -109,10 +113,12 @@ public:
     MReactionMapStub();
     virtual ~MReactionMapStub();
 
-    virtual void mreactionMapConstructor(QWidget *topLevelWidget, const QString &appIdentifier, QObject *parent);
+    virtual void mreactionMapConstructor(QWidget &topLevelWidget, const QString &appIdentifier, QObject *parent);
     virtual void mreactionMapDestructor();
 
-    virtual MReactionMap *instance(QWidget *anyWidget);
+    virtual MReactionMap *instance(QWidget &anyWidget);
+    virtual MReactionMap *createInstance(QWidget &anyWidget, const QString &appIdentifier = QString(),
+                                         QObject *parent = 0);
     virtual void setInactiveDrawingValue();
     virtual void setReactiveDrawingValue();
     virtual void setTransparentDrawingValue();
@@ -138,7 +144,7 @@ MReactionMapStub::~MReactionMapStub()
 {
 }
 
-void MReactionMapStub::mreactionMapConstructor(QWidget */*topLevelWidget*/, const QString &/*appIdentifier*/, QObject */*parent*/)
+void MReactionMapStub::mreactionMapConstructor(QWidget &/*topLevelWidget*/, const QString &/*appIdentifier*/, QObject */*parent*/)
 {
 }
 
@@ -146,7 +152,13 @@ void MReactionMapStub::mreactionMapDestructor()
 {
 }
 
-MReactionMap *MReactionMapStub::instance(QWidget */*anyWidget*/)
+MReactionMap *MReactionMapStub::instance(QWidget &/*anyWidget*/)
+{
+    return 0;
+}
+
+MReactionMap *MReactionMapStub::createInstance(QWidget &/*anyWidget*/, const QString &/*appIdentifier*/,
+                                               QObject */*parent*/)
 {
     return 0;
 }
@@ -228,7 +240,7 @@ MReactionMapStub *gMReactionMapStub = &gDefaultMReactionMapStub;
  * call the stub object methods of the gMReactionMapStub.
  */
 
-MReactionMap::MReactionMap(QWidget *topLevelWidget, const QString &appIdentifier, QObject *parent)
+MReactionMap::MReactionMap(QWidget &topLevelWidget, const QString &appIdentifier, QObject *parent)
     : d(0)
 {
     gMReactionMapStub->mreactionMapConstructor(topLevelWidget, appIdentifier, parent);
@@ -239,9 +251,15 @@ MReactionMap::~MReactionMap()
     gMReactionMapStub->mreactionMapDestructor();
 }
 
-MReactionMap *MReactionMap::instance(QWidget *anyWidget)
+MReactionMap *MReactionMap::instance(QWidget &anyWidget)
 {
     return gMReactionMapStub->instance(anyWidget);
+}
+
+MReactionMap *MReactionMap::createInstance(QWidget &anyWidget, const QString &appIdentifier,
+                                           QObject *parent)
+{
+    return gMReactionMapStub->createInstance(anyWidget, appIdentifier, parent);
 }
 
 void MReactionMap::setInactiveDrawingValue()

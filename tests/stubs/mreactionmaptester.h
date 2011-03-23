@@ -69,10 +69,10 @@ public:
     virtual ~MReactionMapTester();
 
     //! \reimp
-    virtual void mReactionMapConstructor(QWidget *topLevelWidget, const QString &appIdentifier, QObject *parent);
+    virtual void mReactionMapConstructor(QWidget &topLevelWidget, const QString &appIdentifier, QObject *parent);
     virtual void mReactionMapDestructor();
 
-    virtual MReactionMap *instance(QWidget *anyWidget);
+    virtual MReactionMap *instance(QWidget &anyWidget);
     virtual void setInactiveDrawingValue();
     virtual void setReactiveDrawingValue();
     virtual void setTransparentDrawingValue();
@@ -149,7 +149,7 @@ MReactionMapTester::~MReactionMapTester()
     globalReactionMap = 0;
 }
 
-void MReactionMapTester::mReactionMapConstructor(QWidget */*topLevelWidget*/, const QString& /*appIdentifier*/, QObject */*parent*/)
+void MReactionMapTester::mReactionMapConstructor(QWidget &/*topLevelWidget*/, const QString& /*appIdentifier*/, QObject */*parent*/)
 {
     // Multiple instances not supported by stub, at least yet.
     Q_ASSERT(!globalReactionMap);
@@ -159,10 +159,12 @@ void MReactionMapTester::mReactionMapDestructor()
 {
 }
 
-MReactionMap *MReactionMapTester::instance(QWidget */*anyWidget*/)
+MReactionMap *MReactionMapTester::instance(QWidget &/*anyWidget*/)
 {
     if (!globalReactionMap) {
-        globalReactionMap = new MReactionMap(0);
+        QWidget* fakeWidget = new QWidget();
+        globalReactionMap = MReactionMap::createInstance(*fakeWidget);
+        delete fakeWidget;
     }
 
     return globalReactionMap;

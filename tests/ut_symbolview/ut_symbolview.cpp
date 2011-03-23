@@ -179,7 +179,7 @@ void Ut_SymbolView::testReactiveButtonAreas()
 
     subject->showSymbolView();
 
-    subject->paintReactionMap(MReactionMap::instance(view), view);
+    subject->paintReactionMap(MReactionMap::instance(*view), view);
 
     // Check that all buttons are covered by reactive area
     QVERIFY(tester.testChildButtonReactiveAreas(view, subject));
@@ -200,7 +200,7 @@ void Ut_SymbolView::testReactiveButtonAreas()
     gMReactionMapStub->setTransparentDrawingValue();
     gMReactionMapStub->setTransform(QTransform());
     gMReactionMapStub->fillRectangle(0, 0, gMReactionMapStub->width(), gMReactionMapStub->height());
-    subject->paintReactionMap(MReactionMap::instance(view), view);
+    subject->paintReactionMap(MReactionMap::instance(*view), view);
 
     // Check that all buttons are covered by reactive area
     QVERIFY(tester.testChildButtonReactiveAreas(view, subject));
@@ -231,7 +231,7 @@ void Ut_SymbolView::testReactiveWholeScreen()
 
     subject->showSymbolView();
 
-    subject->paintReactionMap(MReactionMap::instance(MPlainWindow::instance()), MPlainWindow::instance());
+    subject->paintReactionMap(MReactionMap::instance(*MPlainWindow::instance()), MPlainWindow::instance());
 
     const bool gridpass = tester.testReactionMapGrid(
                               MPlainWindow::instance(),

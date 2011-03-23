@@ -75,7 +75,7 @@ void ReactionMapPainterPrivate::clear()
 
     // Draw invisible color to all reaction maps
     foreach (QGraphicsView *view, views) {
-        MReactionMap *reactionMap = MReactionMap::instance(view);
+        MReactionMap *reactionMap = MReactionMap::instance(*view);
 
         if (reactionMap) {
             reactionMap->setDrawingValue(MReactionMap::Transparent, MReactionMap::Transparent);
@@ -108,7 +108,7 @@ void ReactionMapPainterPrivate::repaint()
     clear();
     // Draw all reaction maps
     foreach (QGraphicsView *view, views) {
-        MReactionMap *reactionMap = MReactionMap::instance(view);
+        MReactionMap *reactionMap = MReactionMap::instance(*view);
 
         if (!reactionMap) {
             continue;

@@ -268,12 +268,7 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
     view->setSceneRect(QRect(QPoint(), screenSize));
 
 #ifdef HAVE_REACTIONMAP
-    // FIXME: The checks and QWidget::window() are only workarounds. Cleaner
-    // fix available once NB#236808 - "MReactionMap c'tor has to find top level
-    // widget itself"  is fixed.
-    if (not MReactionMap::instance(mainWindow)) {
-        new MReactionMap(mainWindow->window(), qAppName(), this);
-    }
+    MReactionMap::createInstance(*mainWindow, qAppName(), this);
 #endif
 
     RegionTracker::createInstance();

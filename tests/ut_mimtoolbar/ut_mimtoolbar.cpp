@@ -329,7 +329,7 @@ void Ut_MImToolbar::testReactionMaps()
 
     QGraphicsView *view = MPlainWindow::instance();
 
-    m_subject->paintReactionMap(MReactionMap::instance(view), view);
+    m_subject->paintReactionMap(MReactionMap::instance(*view), view);
 
     // Overall sanity test with grid points throughout the view.
     QVERIFY(tester.testReactionMapGrid(view, 40, 50, m_subject->region(), m_subject));
