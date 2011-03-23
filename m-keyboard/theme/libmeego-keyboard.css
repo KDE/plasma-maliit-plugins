@@ -30,8 +30,8 @@ MVirtualKeyboardStyle.Landscape {
 
 MImAbstractKeyAreaStyle {
     /*** Font Settings ***/
-    font: $FONT_KEYBOARD;
-    font-color: $FONT_COLOR_KEYBOARD;
+    font: $FONT_FAMILY bold 36;
+    font-color: #222222;
     secondary-font: $FONT_SMALL;
 
     /*** Graphical assets ***/
@@ -53,8 +53,8 @@ MImAbstractKeyAreaStyle {
     key-background-special-selected: "meegotouch-keyboard-function-key-selected" 15 15 15 15;
     key-background-special-pressed-selected: "meegotouch-keyboard-function-key-pressed-selected" 15 15 15 15;
 
-    key-background-special-highlighted: "meegotouch-keyboard-function-key-highlighted" 15 15 15 15;
-    key-background-special-pressed-highlighted: "meegotouch-keyboard-function-key-highlighted-pressed" 15 15 15 15;
+    key-background-special-highlighted: "meegotouch-keyboard-function-key-selected" 15 15 15 15;
+    key-background-special-pressed-highlighted: "meegotouch-keyboard-function-key-pressed-selected" 15 15 15 15;
     key-background-special-selected-highlighted: "meegotouch-keyboard-function-key-selected-highlighted" 15 15 15 15;
     key-background-special-pressed-selected-highlighted: "meegotouch-keyboard-function-key-pressed-selected-highlighted" 15 15 15 15;
 
