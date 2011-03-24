@@ -417,9 +417,6 @@ private:
     bool fastTypingEnabled;
 
     SlideUpAnimation slideUpAnimation;
-    QPropertyAnimation& vkbFadeInAnimation;
-    QPropertyAnimation& toolbarFadeInAnimation;
-    QParallelAnimationGroup toolbarAndVkbFadeInAnimation;
 
     SimpleFileLog *touchPointLogHandle;
     MPlainWindow *view;

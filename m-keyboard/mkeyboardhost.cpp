@@ -233,8 +233,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
       wordTrackerSuggestionAcceptedWithSpace(false),
       fastTypingKeyCount(0),
       fastTypingEnabled(false),
-      vkbFadeInAnimation(*new QPropertyAnimation(this)),
-      toolbarFadeInAnimation(*new QPropertyAnimation(this)),
       touchPointLogHandle(0),
       view(0),
       toolbarHidePending(false),
@@ -438,28 +436,9 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
     slideUpAnimation.setEasingCurve(QEasingCurve::InOutCubic);
     slideUpAnimation.setDuration(OnScreenAnimationTime);
 
-    vkbFadeInAnimation.setTargetObject(vkbWidget);
-    vkbFadeInAnimation.setPropertyName("opacity");
-    vkbFadeInAnimation.setStartValue(0.0);
-    vkbFadeInAnimation.setEndValue(1.0);
-    vkbFadeInAnimation.setDuration(OnScreenAnimationTime);
-    vkbFadeInAnimation.setEasingCurve(QEasingCurve::InOutCubic);
-
-    toolbarFadeInAnimation.setTargetObject(sharedHandleArea);
-    toolbarFadeInAnimation.setPropertyName("opacity");
-    toolbarFadeInAnimation.setStartValue(0.0);
-    toolbarFadeInAnimation.setEndValue(1.0);
-    toolbarFadeInAnimation.setDuration(OnScreenAnimationTime);
-    toolbarFadeInAnimation.setEasingCurve(QEasingCurve::InOutCubic);
-
-    toolbarAndVkbFadeInAnimation.addAnimation(&vkbFadeInAnimation);
-    toolbarAndVkbFadeInAnimation.addAnimation(&toolbarFadeInAnimation);
-
     connect(&slideUpAnimation, SIGNAL(finished()), this, SLOT(handleAnimationFinished()));
-    connect(&toolbarAndVkbFadeInAnimation, SIGNAL(finished()), this, SLOT(handleAnimationFinished()));
     // Trigger a reaction map update
     connect(&slideUpAnimation, SIGNAL(finished()), &ReactionMapPainter::instance(), SLOT(repaint()));
-    connect(&toolbarAndVkbFadeInAnimation, SIGNAL(finished()), &ReactionMapPainter::instance(), SLOT(repaint()));
 
     Q_ASSERT(currentInstance == 0); // Several instances of this class is invalid.
     currentInstance = this;
@@ -467,7 +446,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
 
 MKeyboardHost::~MKeyboardHost()
 {
-    toolbarAndVkbFadeInAnimation.stop();
     slideUpAnimation.stop();
 
     hideLockOnInfoBanner();
@@ -649,15 +627,10 @@ void MKeyboardHost::prepareHideShowAnimation()
 {
     if (activeState == MInputMethod::Hardware) {
         slideUpAnimation.setDuration(HardwareAnimationTime);
-        vkbFadeInAnimation.setDuration(HardwareAnimationTime);
-        toolbarFadeInAnimation.setDuration(HardwareAnimationTime);
-
         slideUpAnimation.setTargetObject(sharedHandleArea);
         slideUpAnimation.setStartValue(QPointF(0, MPlainWindow::instance()->visibleSceneSize().height()));
     } else {
         slideUpAnimation.setDuration(OnScreenAnimationTime);
-        vkbFadeInAnimation.setDuration(OnScreenAnimationTime);
-        toolbarFadeInAnimation.setDuration(OnScreenAnimationTime);
 
         if (symbolView->isActive()) {
             slideUpAnimation.setTargetObject(symbolView);
