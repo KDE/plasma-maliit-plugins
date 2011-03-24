@@ -901,7 +901,7 @@ void MImKeyArea::updateKeyAttributes(const QString &keyId, MKeyOverride::KeyOver
 void MImKeyArea::releaseKey(MImKey *key)
 {
     qDebug() << __PRETTY_FUNCTION__ << key->touchPointCount() << key->enabled();
-    if (key->touchPointCount() <= 0 || key->enabled()) {
+    if (key->touchPointCount() <= 0 || !key->enabled()) {
         return;
     }
 
