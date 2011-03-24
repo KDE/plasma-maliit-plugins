@@ -1,3 +1,9 @@
+meego-keyboard (0.5.36~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Rakesh Cherian <ext-rakesh.cherian@nokia.com>  Thu, 24 Mar 2011 13:35:39 +0200
+
 meego-keyboard (0.5.35-1) unstable; urgency=low
 
   * Fixes: NB#237202 - Completely transparent assets are referenced
