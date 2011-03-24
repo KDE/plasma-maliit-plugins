@@ -261,6 +261,8 @@ void MKeyboardSettingsWidget::showKeyboardList()
         connect(keyboardDialog, SIGNAL(accepted()),
                 this, SLOT(selectKeyboards()));
     }
+    updateKeyboardSelectionModel();
+
     // We need to update the title every time because probably the dialog was
     // cancelled/closed without tapping on the Done button.
     QString keyboardTitle = qtTrId("qtn_txts_installed_keyboards")
@@ -297,6 +299,10 @@ void MKeyboardSettingsWidget::updateKeyboardSelectionModel()
     if (!settingsObject || !keyboardList)
         return;
 
+    // First clear current selection
+    keyboardList->selectionModel()->clearSelection();
+
+    // Select all selected keyboards
     QStandardItemModel *model = static_cast<QStandardItemModel*> (keyboardList->itemModel());
     foreach (const QString &keyboard, settingsObject->selectedKeyboards().values()) {
         QList<QStandardItem *> items = model->findItems(keyboard);
