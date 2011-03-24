@@ -1,3 +1,11 @@
+meego-keyboard (0.5.35-1) unstable; urgency=low
+
+  * Fixes: NB#237202 - Completely transparent assets are referenced
+  * Fixes: NB#238301 - Half English Title showing when switch from Chinese Keyboard to Western Keyboard
+  * Fixes: NB#236919 - [TASK] Messaging UI Send button doesn't contain blue background
+
+ -- Rakesh Cherian <ext-rakesh.cherian@nokia.com>  Thu, 24 Mar 2011 13:35:39 +0200
+
 meego-keyboard (0.5.35~1) unstable; urgency=low
 
   * [UNRELEASED]
