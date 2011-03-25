@@ -155,6 +155,9 @@ public:
     //! \return region occupied by keyboard in scene coordinates
     QRegion region() const;
 
+    //! \brief Resets different components of vkb to their initial states.
+    void resetState();
+
 public slots:
     /*!
      * Method to switch level. Changes into next possible level.
@@ -336,9 +339,6 @@ private:
 
     // makes new keybutton areas for number and phone number
     void recreateSpecialKeyboards();
-
-    //! \brief Resets different components of vkb to their initial states.
-    void resetState();
 
     //! Connect signals from a \a handle widget or whatever provides identical flick signals
     template <class T>

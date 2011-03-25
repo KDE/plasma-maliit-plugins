@@ -1147,6 +1147,9 @@ void Ut_MKeyboardHost::testSymbolKeyClick()
 {
     QVERIFY(subject->symbolView);
 
+    // make sure this gets set
+    subject->vkbWidget->setShiftState(ModifierLatchedState);
+
     // Symbol view is toggled by clicking the Sym button.
 
     // Initially symbol view is closed.
@@ -1161,6 +1164,8 @@ void Ut_MKeyboardHost::testSymbolKeyClick()
 
         QCOMPARE(symOpen, symOpenExpected);
     }
+    // Sym button shouldn't have affected shift status
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
 }
 
 void Ut_MKeyboardHost::testUpdateSymbolViewLevel()

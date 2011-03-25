@@ -705,6 +705,7 @@ void MKeyboardHost::handleAnimationFinished()
 
         sharedHandleArea->hide();
         vkbWidget->hide();
+        vkbWidget->resetState();
         symbolView->hideSymbolView();
         // TODO: the following line which was added to improve plugin switching (see the
         // commit comment) would cause animation not to be seen if it was in ::hide() but
@@ -1735,6 +1736,7 @@ void MKeyboardHost::setState(const QSet<MInputMethod::HandlerState> &state)
             hardwareKeyboard->enable();
         }
         vkbWidget->hide();
+        vkbWidget->resetState();
         if (sipRequested) {
             slideUpAnimation.stop();
             sharedHandleArea->setPos(0, MPlainWindow::instance()->visibleSceneSize().height() - sharedHandleArea->size().height());

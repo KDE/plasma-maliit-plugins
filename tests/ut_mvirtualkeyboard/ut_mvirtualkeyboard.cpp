@@ -293,19 +293,11 @@ void Ut_MVirtualKeyboard::clickPunctDotTest()
 #endif
 }
 
-
 void Ut_MVirtualKeyboard::testStateReset()
 {
-    // Open keyboard.
-    m_vkb->show();
-
     // Set states that should be changed next time opening vkb.
     m_vkb->setShiftState(ModifierLatchedState); // Shift on
-
-    // Test after reopening the keyboard, rather than after closing.
-    m_vkb->hide();
-    m_vkb->show();
-
+    m_vkb->resetState();
     QCOMPARE(m_vkb->shiftStatus(), ModifierClearState); // Shift should be off
 }
 

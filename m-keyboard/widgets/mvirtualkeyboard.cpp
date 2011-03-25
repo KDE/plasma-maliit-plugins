@@ -254,8 +254,6 @@ QVariant MVirtualKeyboard::itemChange(GraphicsItemChange change, const QVariant 
     if (change == QGraphicsItem::ItemVisibleChange) {
         if (value.toBool()) {
             transitioning = true;
-        } else {
-            resetState();
         }
     }
 
