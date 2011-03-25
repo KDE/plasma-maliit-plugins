@@ -147,9 +147,6 @@ public:
     bool isPaintable() const;
     //! reimp_end
 
-    //! \return region occupied by keyboard in scene coordinates
-    QRegion region() const;
-
     //! \brief Resets different components of vkb to their initial states.
     void resetState();
 
