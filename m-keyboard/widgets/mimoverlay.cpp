@@ -35,17 +35,20 @@ MImOverlay::MImOverlay()
     : MSceneWindow()
 {
     setManagedManually(true);
-    MPlainWindow::instance()->sceneManager()->appearSceneWindowNow(this);
+    if (MPlainWindow::instance()) {
+        MPlainWindow::instance()->sceneManager()->appearSceneWindowNow(this);
+    }
     // The z-value should always be more than vkb and text widget's z-value
     setZValue(FLT_MAX);
 
     // By default multi-touch is disabled
     setAcceptTouchEvents(MGConfItem(MultitouchSetting).value().toBool());
 
-    setGeometry(QRectF(QPointF(0, 0), MPlainWindow::instance()->sceneManager()->visibleSceneSize()));
-
-    connect(MPlainWindow::instance()->sceneManager(), SIGNAL(orientationChanged(M::Orientation)),
-            this, SLOT(handleOrientationChanged()));
+    if (MPlainWindow::instance()) {
+        setGeometry(QRectF(QPointF(0, 0), MPlainWindow::instance()->sceneManager()->visibleSceneSize()));
+        connect(MPlainWindow::instance()->sceneManager(), SIGNAL(orientationChanged(M::Orientation)),
+                this, SLOT(handleOrientationChanged()));
+    }
     hide();
 }
 
@@ -70,5 +73,7 @@ bool MImOverlay::sceneEvent(QEvent *e)
 
 void MImOverlay::handleOrientationChanged()
 {
-    setGeometry(QRectF(QPointF(0, 0), MPlainWindow::instance()->sceneManager()->visibleSceneSize()));
+    if (MPlainWindow::instance()) {
+        setGeometry(QRectF(QPointF(0, 0), MPlainWindow::instance()->sceneManager()->visibleSceneSize()));
+    }
 }
