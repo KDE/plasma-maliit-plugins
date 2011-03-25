@@ -54,6 +54,7 @@
 #include <QTouchEvent>
 
 #include <algorithm>
+#include <memory>
 
 Q_DECLARE_METATYPE(KeyEvent);
 Q_DECLARE_METATYPE(MImAbstractKey*);
@@ -1348,13 +1349,28 @@ void Ut_MImAbstractKeyArea::testReset()
                                         QPointF()));
 
     QVERIFY(subject->popup().isVisible());
-    MImAbstractKey *key = MImAbstractKey::lastActiveKey();
+    const MImKey *key = dynamic_cast<const MImKey *>(MImAbstractKey::lastActiveKey());
     QVERIFY(key);
+    QVERIFY(key->belongsTo(subject));
     QCOMPARE(key->touchPointCount(), 1);
+
+
+    std::auto_ptr<MImAbstractKeyArea> otherArea(Ut_MImAbstractKeyArea::createEmptyArea());
+    MImKeyModel otherKeyModel;
+    QSharedPointer<MImKey::StylingCache> otherKeyCache;
+    MImKey otherKey(otherKeyModel, subject->baseStyle(), *otherArea, otherKeyCache);
+    QVERIFY(not otherKey.belongsTo(subject));
+
+    otherKey.increaseTouchPointCount();
+    QCOMPARE(otherKey.touchPointCount(), 1);
+    QCOMPARE(&otherKey, MImAbstractKey::lastActiveKey());
 
     subject->reset();
     QCOMPARE(key->touchPointCount(), 0);
     QVERIFY(!subject->popup().isVisible());
+    // reset should only affect keys in subject:
+    QCOMPARE(otherKey.touchPointCount(), 1);
+    QCOMPARE(&otherKey, MImAbstractKey::lastActiveKey());
 }
 
 void Ut_MImAbstractKeyArea::testStyleModesFromKeyCount_data()
@@ -1500,6 +1516,11 @@ MImAbstractKey *Ut_MImAbstractKeyArea::keyAt(unsigned int row, unsigned int colu
     }
 
     return key;
+}
+
+MImAbstractKeyArea *Ut_MImAbstractKeyArea::createEmptyArea()
+{
+    return Ut_MImAbstractKeyArea::createArea(QString(), QSize());
 }
 
 MImAbstractKeyArea *Ut_MImAbstractKeyArea::createArea(const QString &labels,
