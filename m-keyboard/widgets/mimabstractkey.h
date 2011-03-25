@@ -83,9 +83,6 @@ public:
     virtual void setModifiers(bool shift,
                               QChar accent = QChar()) = 0;
 
-    //! \brief Sets the button's state to pressed. Selectable has this too.
-    virtual void setDownState(bool down) = 0;
-
     //! \brief Selected button
     virtual void setSelected(bool selected) = 0;
 

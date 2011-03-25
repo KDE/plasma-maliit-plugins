@@ -80,7 +80,7 @@ public:
     };
 
     typedef QPair<Direction, bool> DirectionPair;
-    typedef QList<MImAbstractKey *> KeyList;
+    typedef QList<MImKey *> KeyList;
     typedef QList<MImKeyModel *> ModelList;
 
 private:

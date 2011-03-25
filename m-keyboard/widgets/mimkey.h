@@ -92,7 +92,6 @@ public:
     virtual const QRectF &buttonBoundingRect() const;
     virtual void setModifiers(bool shift,
                               QChar accent = QChar());
-    virtual void setDownState(bool down);
     virtual void setSelected(bool select);
     virtual void setComposing(bool composing);
     virtual ButtonState state() const;
@@ -226,6 +225,9 @@ private:
     void updateLabelPos() const;
     //! \brief Update label font.
     void updateLabelFont();
+
+    //! \brief Sets the button's state to pressed. Selectable has this too.
+    void setDownState(bool down);
 
     const MImKeyModel &mModel;
 

@@ -348,10 +348,10 @@ void Ut_MImKey::testActiveKeys()
     QFETCH(QList<int>, expectedActiveKeys);
     QFETCH(ModelList, keyModels);
     QFETCH(bool, switchingOrder);
-    const MImAbstractKey *const noKey = 0;
+    const MImKey *const noKey = 0;
 
     foreach (const KeyTriple &triple, keyControlSequence) {
-        MImAbstractKey *key = availableKeys.at(triple.index);
+        MImKey *key = availableKeys.at(triple.index);
 
         switch (triple.state) {
         case MImAbstractKey::Normal:
