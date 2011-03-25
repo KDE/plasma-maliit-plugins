@@ -66,6 +66,7 @@ public:
 
     typedef QPair<Direction, bool> DirectionPair;
     typedef QList<MImAbstractKey *> KeyList;
+    typedef QList<MImKeyModel *> ModelList;
 
 private:
 
@@ -107,6 +108,8 @@ private slots:
 private:
     MImKey *createKey(bool state = false);
     MImKeyModel *createKeyModel();
+    MImKey *createDeadKey(MImKeyModel *model, bool state = false);
+    MImKeyModel *createDeadKeyModel(const QString &label);
     QSharedPointer<MImKey::StylingCache> stylingCache;
 };
 

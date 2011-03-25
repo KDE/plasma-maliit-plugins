@@ -38,6 +38,7 @@ Q_DECLARE_METATYPE(QList<Ut_MImKey::DirectionPair>)
 Q_DECLARE_METATYPE(Ut_MImKey::KeyList)
 Q_DECLARE_METATYPE(QList<Ut_MImKey::KeyTriple>)
 Q_DECLARE_METATYPE(QList<int>)
+Q_DECLARE_METATYPE(Ut_MImKey::ModelList)
 
 namespace {
 
@@ -263,31 +264,66 @@ void Ut_MImKey::testResetTouchPointCount()
 void Ut_MImKey::testActiveKeys_data()
 {
     QTest::addColumn<KeyList>("availableKeys");
-    QTest::addColumn< QList<KeyTriple> >("keyControlSequence");
-    QTest::addColumn< QList<int> >("expectedActiveKeys");
+    QTest::addColumn<QList<KeyTriple> >("keyControlSequence");
+    QTest::addColumn<QList<int> >("expectedActiveKeys");
+    QTest::addColumn<ModelList>("keyModels");
+    QTest::addColumn<bool>("switchingOrder");
 
     QTest::newRow("single key")
         << (KeyList() << createKey())
         << (QList<KeyTriple>() << KeyTriple(0, MImAbstractKey::Pressed, 0))
-        << (QList<int>() << 0);
+        << (QList<int>() << 0)
+        << (ModelList())
+        << true;
 
     QTest::newRow("two keys")
         << (KeyList() << createKey() << createKey())
         << (QList<KeyTriple>() << KeyTriple(0, MImAbstractKey::Pressed, 0)
-                               << KeyTriple(1, MImAbstractKey::Selected, 1)
+                               << KeyTriple(1, MImAbstractKey::Selected, 0)
                                << KeyTriple(0, MImAbstractKey::Normal, 1))
-        << (QList<int>() << 1);
+        << (QList<int>() << 1)
+        << (ModelList())
+        << true;
 
     QTest::newRow("last active key")
         << (KeyList() << createKey() << createKey() << createKey())
         << (QList<KeyTriple>() << KeyTriple(0, MImAbstractKey::Pressed, 0)
+                               << KeyTriple(1, MImAbstractKey::Pressed, 1)
+                               << KeyTriple(1, MImAbstractKey::Selected, 0)
+                               << KeyTriple(2, MImAbstractKey::Normal, 0)
+                               << KeyTriple(1, MImAbstractKey::Normal, 0)
+                               << KeyTriple(2, MImAbstractKey::Pressed, 2)
+                               << KeyTriple(0, MImAbstractKey::Normal, 2)
+                               << KeyTriple(2, MImAbstractKey::Normal, -1))
+        << (QList<int>())
+        << (ModelList())
+        << true;
+
+    QTest::newRow("last active key2")
+        << (KeyList() << createKey() << createKey() << createKey())
+        << (QList<KeyTriple>() << KeyTriple(0, MImAbstractKey::Pressed, 0)
+                               << KeyTriple(1, MImAbstractKey::Pressed, 1)
                                << KeyTriple(1, MImAbstractKey::Selected, 1)
                                << KeyTriple(2, MImAbstractKey::Normal, 1)
                                << KeyTriple(1, MImAbstractKey::Normal, 0)
                                << KeyTriple(2, MImAbstractKey::Pressed, 2)
                                << KeyTriple(0, MImAbstractKey::Normal, 2)
                                << KeyTriple(2, MImAbstractKey::Normal, -1))
-        << (QList<int>());
+        << (QList<int>())
+        << (ModelList())
+        << false;
+
+    MImKeyModel *model = createDeadKeyModel("^");
+
+    QTest::newRow("normal+dead key")
+        << (KeyList() << createKey() << createDeadKey(model))
+        << (QList<KeyTriple>() << KeyTriple(1, MImAbstractKey::Selected, 1)
+                               << KeyTriple(0, MImAbstractKey::Pressed, 0)
+                               << KeyTriple(1, MImAbstractKey::Pressed, 1)
+                               << KeyTriple(1, MImAbstractKey::Normal, 0))
+        << (QList<int>() << 0)
+        << (ModelList() << model)
+        << true;
 }
 
 void Ut_MImKey::testActiveKeys()
@@ -295,10 +331,35 @@ void Ut_MImKey::testActiveKeys()
     QFETCH(KeyList, availableKeys);
     QFETCH(QList<KeyTriple>, keyControlSequence);
     QFETCH(QList<int>, expectedActiveKeys);
+    QFETCH(ModelList, keyModels);
+    QFETCH(bool, switchingOrder);
     const MImAbstractKey *const noKey = 0;
 
     foreach (const KeyTriple &triple, keyControlSequence) {
-        availableKeys.at(triple.index)->setDownState(isActiveKeyState(triple.state));
+        MImAbstractKey *key = availableKeys.at(triple.index);
+
+        switch (triple.state) {
+        case MImAbstractKey::Normal:
+            key->setSelected(false);
+            key->setDownState(false);
+            break;
+        case MImAbstractKey::Pressed:
+            key->setSelected(false);
+            key->setDownState(true);
+            break;
+        case MImAbstractKey::Selected:
+            if (switchingOrder) {
+                key->setDownState(false);
+                key->setSelected(true);
+            } else {
+                key->setSelected(true);
+                key->setDownState(false);
+            }
+            break;
+        default:
+            break;
+        }
+
         if (triple.lastActiveIndex > -1) {
             QCOMPARE(MImAbstractKey::lastActiveKey(),
                      availableKeys.at(triple.lastActiveIndex));
@@ -324,6 +385,9 @@ void Ut_MImKey::testActiveKeys()
             QVERIFY(not finder.found);
         }
     }
+
+    qDeleteAll(availableKeys);
+    qDeleteAll(keyModels);
 }
 
 void Ut_MImKey::testResetActiveKeys()
@@ -543,6 +607,26 @@ MImKeyModel *Ut_MImKey::createKeyModel()
 
     key->setBinding(*binding1, false);
     key->setBinding(*binding2, true);
+
+    return key;
+}
+
+MImKey *Ut_MImKey::createDeadKey(MImKeyModel *model, bool state)
+{
+    MImKey *key = new MImKey(*model, *style, *parent, stylingCache);
+    key->setDownState(state);
+    return key;
+}
+
+MImKeyModel *Ut_MImKey::createDeadKeyModel(const QString &label)
+{
+    MImKeyModel *key = new MImKeyModel;
+
+    MImKeyBinding *binding1 = new MImKeyBinding(label);
+    binding1->dead = true;
+
+    key->setBinding(*binding1, false);
+    key->setBinding(*binding1, true);
 
     return key;
 }
