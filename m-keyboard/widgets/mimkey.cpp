@@ -311,16 +311,34 @@ void MImKey::setDownState(bool down)
     }
 
     if (newState != currentState) {
-        currentState = newState;
-
-        if ((currentState == Pressed || currentState == Selected)
-            && (not activeKeys.contains(this))) {
+        switch (newState) {
+        case Pressed:
+            // pressed key becomes lastActiveKey regardless to previous state
+            activeKeys.removeAll(this);
             activeKeys.append(this);
-        } else { // currentState == Normal
+            break;
+        case Normal:
+            // inactive key should be removed from list of active keys
             activeKeys.removeAll(this);
             hasGravity = false;
+            break;
+        case Selected:
+            if (currentState == Normal) {
+                // selected key is marked as active one,
+                // but we should try to keep lastActiveKey unchanged,
+                // because key selection happens before next key is pressed
+                // but our implementation could trigger this change later
+                activeKeys.prepend(this);
+            }
+            // we have nothing to do if key changes state from Pressed to Selected,
+            // because it is already in the list of active keys
+            break;
+        case Disabled:
+            // should never happen
+            break;
         }
 
+        currentState = newState;
         setVisible((currentState != Normal) || override);
         update();
     }

@@ -447,9 +447,8 @@ void MImAbstractKeyArea::handleFlickGesture(FlickGesture *gesture)
             mPopup->cancel();
         }
 
-        if (MImAbstractKey *key = MImAbstractKey::lastActiveKey()) {
-            key->resetTouchPointCount();
-        }
+        MImKeyVisitor::KeyAreaReset reset;
+        MImAbstractKey::visitActiveKeys(&reset);
 
         longPressTimer.stop();
         wasGestureTriggered = true;
