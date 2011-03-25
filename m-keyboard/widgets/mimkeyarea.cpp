@@ -430,7 +430,7 @@ void MImKeyAreaPrivate::loadKeys()
 
 
             // TODO: Remove restriction to have only one shift key per layout?
-            if (dataKey->binding()->action() == MImKeyBinding::ActionShift) {
+            if (key->binding().action() == MImKeyBinding::ActionShift) {
                 shiftKey = key;
             } else if (dataKey->binding()->action() == MImKeyBinding::ActionOnOffToggle) {
                 // FIXME: Only has one toggle key?

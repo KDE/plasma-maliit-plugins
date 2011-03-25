@@ -167,7 +167,7 @@ MImKey::MImKey(const MImKeyModel &newModel,
       width(0),
       mModel(newModel),
       shift(false),
-      currentLabel(mModel.binding(false)->label()),
+      currentLabel(mModel.binding(false) ? mModel.binding(false)->label() : ""),
       currentState(Normal),
       selected(false),
       styleContainer(style),
@@ -424,7 +424,15 @@ const MImKeyModel &MImKey::model() const
 
 const MImKeyBinding &MImKey::binding() const
 {
-    return *mModel.binding(shift);
+    if (const MImKeyBinding *b = mModel.binding(shift)) {
+        return *b;
+    } else {
+        qWarning() << __PRETTY_FUNCTION__
+                   << "Requested key binding not found!";
+
+        static MImKeyBinding noSuchBinding;
+        return noSuchBinding;
+    }
 }
 
 bool MImKey::isDeadKey() const
