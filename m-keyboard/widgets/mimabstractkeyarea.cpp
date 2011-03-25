@@ -665,7 +665,7 @@ void MImAbstractKeyArea::updatePopup(MImAbstractKey *key)
     // screen position, so we can use mapToScene to calculate screen position:
     const QPoint pos = mapToScene(buttonRect.topLeft()).toPoint();
 
-    MImKeyVisitor::SpecialKeyFinder finder(MImKeyVisitor::SpecialKeyFinder::FindDeadKey);
+    MImKeyVisitor::SpecialKeyFinder finder(MImKeyVisitor::FindDeadKey);
     MImAbstractKey::visitActiveKeys(&finder);
 
     d->mPopup->updatePos(buttonRect.topLeft(), pos, buttonRect.toRect().size());
@@ -698,7 +698,7 @@ MImAbstractKeyArea::handleVisibilityChanged(bool visible)
             d->mPopup->setVisible(false);
         }
 
-        MImKeyVisitor::SpecialKeyFinder finder(MImKeyVisitor::SpecialKeyFinder::FindDeadKey);
+        MImKeyVisitor::SpecialKeyFinder finder(MImKeyVisitor::FindDeadKey);
         MImAbstractKey::visitActiveKeys(&finder);
 
         unlockDeadKeys(finder.deadKey());
@@ -714,7 +714,7 @@ MImAbstractKeyArea::switchLevel(int level)
         d->currentLevel = level;
 
         // Update uppercase / lowercase
-        MImKeyVisitor::SpecialKeyFinder finder(MImKeyVisitor::SpecialKeyFinder::FindDeadKey);
+        MImKeyVisitor::SpecialKeyFinder finder(MImKeyVisitor::FindDeadKey);
         MImAbstractKey::visitActiveKeys(&finder);
 
         updateKeyModifiers(finder.deadKey() ? finder.deadKey()->label().at(0) : '\0');
@@ -1015,7 +1015,7 @@ void MImAbstractKeyArea::handleLongKeyPressed()
         return;
     }
 
-    MImKeyVisitor::SpecialKeyFinder finder(MImKeyVisitor::SpecialKeyFinder::FindDeadKey);
+    MImKeyVisitor::SpecialKeyFinder finder(MImKeyVisitor::FindDeadKey);
     MImAbstractKey::visitActiveKeys(&finder);
 
     const QString accent = (finder.deadKey() ? finder.deadKey()->label()

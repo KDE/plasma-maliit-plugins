@@ -34,25 +34,30 @@
 
 #include "mimabstractkey.h"
 
-namespace MImKeyVisitor {
-    
+#include <QGraphicsItem>
+
+namespace MImKeyVisitor
+{
+    enum FindMode {
+        FindShiftKey,
+        FindDeadKey,
+        FindBoth
+    };
+
+    enum ResetMode {
+        ResetAll,
+        ResetPreservesCapsLock
+    };
+
+
     //! \brief Helper class responsible for finding active shift and dead keys.
-    class SpecialKeyFinder : public MImAbstractKeyVisitor
+    class SpecialKeyFinder
+        : public MImAbstractKeyVisitor
     {
     public:
-        enum FindMode {
-            FindShiftKey,
-            FindDeadKey,
-            FindBoth
-        };
-
-    public:
         explicit SpecialKeyFinder(FindMode newMode = FindBoth);
-
         MImAbstractKey *shiftKey() const;
-
         MImAbstractKey *deadKey() const;
-
         bool operator()(MImAbstractKey *key);
 
     private:

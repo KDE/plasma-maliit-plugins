@@ -31,15 +31,16 @@
 
 #include "mimkeyvisitor.h"
 #include "mimabstractkeyarea.h"
+#include "mimkey.h"
 
-namespace MImKeyVisitor {
+namespace MImKeyVisitor
+{
     SpecialKeyFinder::SpecialKeyFinder(FindMode newMode)
         : MImAbstractKeyVisitor()
         , mShiftKey(0)
         , mDeadKey(0)
         , mode(newMode)
-        {
-        }
+    {}
 
     MImAbstractKey *SpecialKeyFinder::shiftKey() const
     {
