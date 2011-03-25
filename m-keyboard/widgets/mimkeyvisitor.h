@@ -66,19 +66,21 @@ namespace MImKeyVisitor
         FindMode mode;
     };
 
-    //! \brief Helper class for visiting and reseting active keys whilst preserving caps-lock.
-    class KeyAreaReset : public MImAbstractKeyVisitor
+    //! \brief Helper class for visiting and reseting active keys whilst
+    //!        optionally preserving caps-lock.
+    class KeyAreaReset
+        : public MImAbstractKeyVisitor
     {
-        public:
-            explicit KeyAreaReset();
+    public:
+        explicit KeyAreaReset(ResetMode newMode = ResetPreservesCapsLock);
+        void setKeyParentItem(QGraphicsItem *newParent);
+        bool operator()(MImAbstractKey *key);
+        bool hasCapsLocked() const;
 
-            bool operator()(MImAbstractKey *key);
-
-            bool hasCapsLocked() const;
-
-        private:
-            bool mHasCapsLocked;
+    private:
+        bool mHasCapsLocked;
+        QGraphicsItem *parent; //!< Can be invalid, only used for comparision
+        ResetMode mode;
     };
 }
-
 #endif

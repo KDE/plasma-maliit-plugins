@@ -1046,18 +1046,11 @@ void MImAbstractKeyArea::reset(bool resetCapsLock)
         d->mPopup->cancel();
     }
 
-    if (resetCapsLock) {
-        MImKeyVisitor::SpecialKeyFinder finder(MImKeyVisitor::SpecialKeyFinder::FindShiftKey);
-        MImAbstractKey::visitActiveKeys(&finder);
-        bool hasCapsLocked =  finder.shiftKey() ? (finder.shiftKey()->state() == MImAbstractKey::Selected) : false;
-        MImAbstractKey::resetActiveKeys();
-        modifiersChanged(hasCapsLocked);
-    } else {
-        // release active keys (whilst preserving caps-lock)
-        MImKeyVisitor::KeyAreaReset reset;
-        MImAbstractKey::visitActiveKeys(&reset);
-        modifiersChanged(reset.hasCapsLocked());
-    }
+    MImKeyVisitor::KeyAreaReset keyAreaReset(resetCapsLock ? MImKeyVisitor::ResetAll
+                                                           : MImKeyVisitor::ResetPreservesCapsLock);
+    keyAreaReset.setKeyParentItem(this);
+    MImAbstractKey::visitActiveKeys(&keyAreaReset);
+    modifiersChanged(keyAreaReset.hasCapsLocked());
     update();
 }
 

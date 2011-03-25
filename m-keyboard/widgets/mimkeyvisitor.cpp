@@ -87,21 +87,38 @@ namespace MImKeyVisitor
         return false;
     }
 
-    KeyAreaReset::KeyAreaReset()
+    KeyAreaReset::KeyAreaReset(ResetMode newMode)
         : mHasCapsLocked(false)
-        {
-        }
+        , parent(0)
+        , mode(newMode)
+    {}
+
+    void KeyAreaReset::setKeyParentItem(QGraphicsItem *newParent)
+    {
+        parent = newParent;
+    }
 
     bool KeyAreaReset::operator()(MImAbstractKey *key)
     {
-        if (!key) {
+        if (not key) {
             return false;
         }
-        if (key->isShiftKey()
-                && (key->state() == MImAbstractKey::Selected)) {
+
+        // When used with a parent item, check whether key belongs to that.
+        // Otherwise, don't reset key.
+        if (parent) {
+            const MImKey *belongsTo = dynamic_cast<const MImKey *>(key);
+            if (belongsTo && not belongsTo->belongsTo(parent)) {
+                return false;
+            }
+        }
+
+        if ((mode == ResetPreservesCapsLock)
+            && key->isShiftKey()
+            && (key->state() == MImAbstractKey::Selected)) {
             // OK, in caps-locked mode. But don't reset shift key:
             mHasCapsLocked = true;
-        } else {
+        } else { // mode == ResetAll
             key->resetTouchPointCount();
         }
 
