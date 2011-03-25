@@ -238,7 +238,8 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
       touchPointLogHandle(0),
       view(0),
       toolbarHidePending(false),
-      keyOverrideClearPending(false)
+      keyOverrideClearPending(false),
+      pendingLanguageNotificationRequest(false)
 {
     Q_ASSERT(host != 0);
     Q_ASSERT(mainWindow != 0);
@@ -713,7 +714,10 @@ void MKeyboardHost::handleAnimationFinished()
         // plugin switching might result to odd situations as well.
         MPlainWindow::instance()->sceneManager()->disappearSceneWindowNow(sceneWindow);
     } else {
-        vkbWidget->showFinished();
+        if (pendingLanguageNotificationRequest || (vkbWidget->mainKeyboardCount() > 1)) {
+            vkbWidget->showLanguageNotification();
+            pendingLanguageNotificationRequest = false;
+        }
     }
 
     RegionTracker::instance().enableSignals(true);
@@ -1966,7 +1970,11 @@ QString MKeyboardHost::activeSubView(MInputMethod::HandlerState state) const
 void MKeyboardHost::showLanguageNotification()
 {
     if (activeState == MInputMethod::OnScreen && vkbWidget) {
-        vkbWidget->requestLanguageNotification();
+        if (slideUpAnimation.state() == QAbstractAnimation::Stopped) {
+            vkbWidget->showLanguageNotification();
+        } else {
+            pendingLanguageNotificationRequest = true;
+        }
     }
 }
 

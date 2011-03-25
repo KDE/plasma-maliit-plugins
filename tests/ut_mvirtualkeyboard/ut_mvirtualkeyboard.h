@@ -73,7 +73,6 @@ private slots:
     void testReactionMaps();
     void flickUpHandlerTest_data();
     void flickUpHandlerTest();
-    void testLanguageNotification();
 
 signals:
     void fade(int);

@@ -138,17 +138,12 @@ public:
     //! Returns whether autocaps is enabled.
     bool autoCapsEnabled() const;
 
-    //! Show notification informing about current language if keyboard is active, otherwise create
-    //! pending request.
-    void requestLanguageNotification();
-
     /*!
      * \brief Returns the keys in the main layout.
      */
     QList<MImEngine::KeyboardLayoutKey> mainLayoutKeys() const;
 
     //! reimp
-    QVariant itemChange(GraphicsItemChange change, const QVariant &value);
     bool isPaintable() const;
     //! reimp_end
 
@@ -157,6 +152,12 @@ public:
 
     //! \brief Resets different components of vkb to their initial states.
     void resetState();
+
+    //! \brief Returns the amount of main keyboard layouts in use.
+    int mainKeyboardCount() const;
+
+    //! Show notification informing about current language
+    void showLanguageNotification();
 
 public slots:
     /*!
@@ -181,11 +182,6 @@ public slots:
     void organizeContent(M::Orientation orientation, bool force = false);
 
     void setLayout(int layoutIndex);
-
-    /*!
-     * This function gets called when the widget show animation is finished
-     */
-    void showFinished();
 
     /*!
      * \brief Resets current active key area (release active keys in the main keyboard).
@@ -344,9 +340,6 @@ private:
     template <class T>
     void connectHandle(const T &handleLike);
 
-    //! Show notification informing about current language
-    void showLanguageNotification();
-
     //! Sets the current content type (handles email/url overrides):
     void setContentType(M::TextContentType type);
 
@@ -400,9 +393,6 @@ private:
     //! Handle area containing toolbar widget.
     // MVirtualKeyboard is not owner of this object.
     QPointer<SharedHandleArea> sharedHandleArea;
-
-    bool pendingNotificationRequest;
-    bool transitioning;
 
     //! Contains current keyboard overrides
     QMap<QString, QSharedPointer<MKeyOverride> > overrides;

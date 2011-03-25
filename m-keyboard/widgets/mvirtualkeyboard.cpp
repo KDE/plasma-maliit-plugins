@@ -77,8 +77,6 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
       numberKeyboard(0),
       phoneNumberKeyboard(0),
       eventHandler(this),
-      pendingNotificationRequest(false),
-      transitioning(false),
       generalContentType(M::FreeTextContentType)
 {
     setFlag(QGraphicsItem::ItemHasNoContents);
@@ -248,21 +246,14 @@ MVirtualKeyboard::flickRightHandler()
     }
 }
 
-
-QVariant MVirtualKeyboard::itemChange(GraphicsItemChange change, const QVariant &value)
-{
-    if (change == QGraphicsItem::ItemVisibleChange) {
-        if (value.toBool()) {
-            transitioning = true;
-        }
-    }
-
-    return MWidget::itemChange(change, value);
-}
-
 bool MVirtualKeyboard::isPaintable() const
 {
     return isVisible();
+}
+
+int MVirtualKeyboard::mainKeyboardCount() const
+{
+    return mainKeyboardSwitcher->count();
 }
 
 void MVirtualKeyboard::resetState()
@@ -277,7 +268,6 @@ void MVirtualKeyboard::resetState()
 
 void MVirtualKeyboard::showLanguageNotification()
 {
-    pendingNotificationRequest = false;
     if ((mainKeyboardSwitcher->current() != -1) && (currentLayoutType == LayoutData::General)) {
         const QGraphicsWidget *const widget = mainKeyboardSwitcher->currentWidget();
         const QRectF br = widget ? mainKeyboardSwitcher->mapRectToItem(this, widget->boundingRect())
@@ -313,15 +303,6 @@ void MVirtualKeyboard::organizeContent(M::Orientation orientation, const bool fo
         adjustSize();
     }
 }
-
-void MVirtualKeyboard::showFinished()
-{
-    transitioning = false;
-    if (pendingNotificationRequest || (mainKeyboardSwitcher->count() > 1)) {
-        showLanguageNotification();
-    }
-}
-
 
 void MVirtualKeyboard::drawButtonsReactionMaps(MReactionMap *reactionMap, QGraphicsView *view)
 {
@@ -403,7 +384,7 @@ void MVirtualKeyboard::setKeyboardType(const int type)
         currentLayoutType = newLayoutType;
         updateMainLayoutAtKeyboardIndex();
         if (mainKeyboardSwitcher->count() > 1 && (currentLayoutType == LayoutData::General)) {
-            requestLanguageNotification();
+            showLanguageNotification();
         }
     }
 
@@ -708,16 +689,6 @@ void MVirtualKeyboard::setInputMethodMode(M::InputMethodMode mode)
 bool MVirtualKeyboard::autoCapsEnabled() const
 {
     return layoutsMgr.autoCapsEnabled(currentLayout);
-}
-
-void MVirtualKeyboard::requestLanguageNotification()
-{
-    if (!isVisible() || transitioning) {
-        pendingNotificationRequest = true;
-        return;
-    }
-
-    showLanguageNotification();
 }
 
 void MVirtualKeyboard::updateMainLayoutAtKeyboardIndex()

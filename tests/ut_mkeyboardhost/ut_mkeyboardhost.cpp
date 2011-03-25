@@ -72,7 +72,7 @@ namespace
 
     int gShowLockOnInfoBannerCallCount = 0;
     int gHideLockOnInfoBannerCallCount = 0;
-    int gRequestLanguageNotificationCallCount = 0;
+    int gShowLanguageNotificationCallCount = 0;
 
     const char * const TargetSettingsName("/meegotouch/target/name");
     const char * const DefaultTargetName("Default");
@@ -110,9 +110,9 @@ bool MVirtualKeyboard::autoCapsEnabled() const
     return gAutoCapsEnabled;
 }
 
-void MVirtualKeyboard::requestLanguageNotification()
+void MVirtualKeyboard::showLanguageNotification()
 {
-    ++gRequestLanguageNotificationCallCount;
+    ++gShowLanguageNotificationCallCount;
 }
 
 bool MHardwareKeyboard::autoCapsEnabled() const
@@ -1861,11 +1861,11 @@ void Ut_MKeyboardHost::testShowLanguageNotification()
 
     states << state;
 
-    gRequestLanguageNotificationCallCount = 0;
+    gShowLanguageNotificationCallCount = 0;
     subject->update();
     subject->setState(states);
     subject->showLanguageNotification();
-    QCOMPARE(gRequestLanguageNotificationCallCount, expectedCallCount);
+    QCOMPARE(gShowLanguageNotificationCallCount, expectedCallCount);
 }
 
 

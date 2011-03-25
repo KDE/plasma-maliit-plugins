@@ -812,31 +812,6 @@ void Ut_MVirtualKeyboard::flickUpHandlerTest()
     QCOMPARE(spy.count(), expected);
 }
 
-void Ut_MVirtualKeyboard::testLanguageNotification()
-{
-    gDisplayTextCalls = 0;
-    QVERIFY(!m_vkb->pendingNotificationRequest);
-
-    m_vkb->requestLanguageNotification();
-    QVERIFY(m_vkb->pendingNotificationRequest);
-
-    m_vkb->show();
-    QCOMPARE(gDisplayTextCalls, 0);
-    QVERIFY(m_vkb->pendingNotificationRequest);
-
-    m_vkb->requestLanguageNotification();
-    QCOMPARE(gDisplayTextCalls, 0);
-    QVERIFY(m_vkb->pendingNotificationRequest);
-
-    m_vkb->showFinished();
-    QCOMPARE(gDisplayTextCalls, 1);
-    QVERIFY(!m_vkb->pendingNotificationRequest);
-
-    m_vkb->requestLanguageNotification();
-    QVERIFY(!m_vkb->pendingNotificationRequest);
-    QCOMPARE(gDisplayTextCalls, 2);
-}
-
 // End of test functions!
 
 void Ut_MVirtualKeyboard::rotateToAngle(M::OrientationAngle angle)

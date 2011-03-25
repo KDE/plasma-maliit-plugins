@@ -426,6 +426,8 @@ private:
 
     bool toolbarHidePending;
     bool keyOverrideClearPending;
+    bool pendingLanguageNotificationRequest;
+
 #ifdef UNIT_TEST
     friend class Ut_MKeyboardHost;
 #endif
