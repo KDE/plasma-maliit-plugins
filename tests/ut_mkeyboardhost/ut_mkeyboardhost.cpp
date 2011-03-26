@@ -187,12 +187,10 @@ void Ut_MKeyboardHost::init()
     gAutoCapsEnabled = true;
 
     window = MPlainWindow::instance();
-    window->hide();
-    if (window->orientationAngle() != M::Angle0) {
-        window->setOrientationAngle(M::Angle0);
-        QCOMPARE(window->orientationAngle(), M::Angle0);
-        // Rotation is immediate if window is hidden.
-    }
+    QVERIFY(window);
+    window->show();
+    window->sceneManager()->setOrientationAngle(M::Angle0, MSceneManager::ImmediateTransition);
+    QCOMPARE(window->orientationAngle(), M::Angle0);
 }
 
 void Ut_MKeyboardHost::cleanup()
