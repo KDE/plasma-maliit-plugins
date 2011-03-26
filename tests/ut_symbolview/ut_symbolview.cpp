@@ -187,24 +187,6 @@ void Ut_SymbolView::testReactiveButtonAreas()
 
     // Check that all buttons are covered by reactive area
     QVERIFY(tester.testChildButtonReactiveAreas(view, subject));
-
-    // Following coordinates will be given in subject coordinates.
-    gMReactionMapStub->setTransform(subject, view);
-
-    // Check locations that should be inactive. This test is really only for
-    // testing that at least something is drawn inactive, and not only reactive
-    // areas are drawn.
-    // Inactive areas should be drawn because second page in testsymbols.xml
-    // has second row with spacers at the beginning and at the end of the row.
-    const QRectF br(subject->boundingRect());
-    QList<QPoint> inactiveLocations;
-    inactiveLocations
-            << QPoint(br.left(), br.bottom() - 1) // Left margin, second row
-            << QPoint(br.right() - 1, br.bottom() - 1); // Right margin, second row
-
-    foreach(const QPointF & pos, inactiveLocations) {
-        QCOMPARE(tester.colorAt(pos), MReactionMapTester::Inactive);
-    }
 }
 
 void Ut_SymbolView::testReactiveWholeScreen_data()
