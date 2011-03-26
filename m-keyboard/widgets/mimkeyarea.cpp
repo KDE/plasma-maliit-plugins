@@ -313,7 +313,7 @@ namespace {
 
             // Normalizing spacerIndices into real spacers first.
             // There are n - 1 possible spacers between n keys, and there can
-            // be two more to each end of a row, so it's n + 1 spaces:
+            // be one more to each end of a row, so it's n + 1 spaces:
             QVector<int> spacers(row.size() + 1);
             for (int index = 0; index < row.size() + 1; ++index) {
                 // If key is at pos(i) in row, then i - 1 describes spacers
