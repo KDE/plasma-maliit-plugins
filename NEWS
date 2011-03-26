@@ -1,3 +1,9 @@
+0.5.36
+======
+
+* Spacer elements are no longer inactive. Instead, they count as reactive area
+  for neighbouring keys.
+
 0.5.20
 ======
 

@@ -1,6 +1,7 @@
 meego-keyboard (0.5.36~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#233383 - [TASK] Utilize the empty space next to the right/left side of the VKB efficiently (POT)
   * Fixes: NB#210004 - Predictive text is not effective
 
  -- Rakesh Cherian <ext-rakesh.cherian@nokia.com>  Thu, 24 Mar 2011 13:35:39 +0200
