@@ -548,9 +548,8 @@ void MKeyboardHost::sendRegionEstimate()
 
     // Add vkb rect if vkb is visible.
     if (vkbWidget->isVisible()) {
-        QRectF vkbRect(vkbWidget->mapRectToScene(vkbWidget->rect()));
+        QRectF vkbRect(vkbWidget->rect());
         vkbRect.moveBottom(stackedRects.top());
-        vkbRect.moveLeft(stackedRects.left());
         stackedRects |= vkbRect;
     }
 
