@@ -18,6 +18,7 @@
 
 #include <mnamespace.h>
 #include <QKeyEvent>
+#include <QDebug>
 
 MInputMethodHostStub::MInputMethodHostStub()
 {
@@ -231,12 +232,14 @@ void MInputMethodHostStub::switchPlugin(const QString &pluginName)
 
 void MInputMethodHostStub::setScreenRegion(const QRegion &region)
 {
+    qDebug() << __PRETTY_FUNCTION__ << region;
     setScreenRegionCalls++;
     screenRegions << region;
 }
 
 void MInputMethodHostStub::setInputMethodArea(const QRegion &region)
 {
+    qDebug() << __PRETTY_FUNCTION__ << region;
     setInputMethodAreaCalls++;
     inputMethodAreas << region;
 }
