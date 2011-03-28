@@ -750,6 +750,15 @@ void MKeyboardHost::setPreedit(const QString &preeditString, int cursor)
     // application is calling this setPreedit by sending an asynchronized
     // event. Maybe we need to find out the other way to update the preedit style.
     updatePreedit(preedit, candidates.count(), 0, 0, preeditCursorPos);
+
+    // If the above updatePreedit does not actually cause any change (typically format and
+    // cursor position change) on the application side, there is no reason for update() to
+    // be called and therefore shift state might stay latched unless we explicitly clear
+    // the state here.
+    if ((activeState == MInputMethod::OnScreen)
+        && (vkbWidget->shiftStatus() != ModifierLockedState)) {
+        vkbWidget->setShiftState(ModifierClearState);
+    }
 }
 
 void MKeyboardHost::localSetPreedit(const QString &preeditString, int replaceStart,
