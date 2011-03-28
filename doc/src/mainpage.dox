@@ -2,6 +2,7 @@
 
 \section general General documentation
 - <a href="layoutxml.html">Keyboard Layout XML Specification</a>
+- <a href="styling.html">Styling the keyboard with CSS</a>
 
 \section api API reference
 <a href="classes.html">All Classes</a>
