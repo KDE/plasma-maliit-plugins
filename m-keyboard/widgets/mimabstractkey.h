@@ -121,6 +121,10 @@ public:
     //! \brief Return background image according to current mode and style.
     virtual const MScalableImage *backgroundImage() const = 0;
 
+    //! \brief Return background image corresponding to normal mode and current style.
+    //! Note: this method also ignores key overrides.
+    virtual const MScalableImage *normalBackgroundImage() const = 0;
+
     //! \brief Set custom key override in order to change visual appearance, e.g. label, icon etc.
     virtual void setKeyOverride(const QSharedPointer<MKeyOverride> &override) = 0;
 

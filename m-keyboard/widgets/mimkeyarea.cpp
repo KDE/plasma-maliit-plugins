@@ -142,7 +142,7 @@ namespace {
                 return;
             }
 
-            const MScalableImage *background = key->backgroundImage();
+            const MScalableImage *background = key->normalBackgroundImage();
 
             if (background) {
                 background->draw(key->buttonRect().toRect(), painter);

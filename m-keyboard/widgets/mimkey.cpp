@@ -83,6 +83,23 @@ namespace {
     const char * const DisabledStateName = "Disabled";
 
     const char * const HighlightedName = "Highlighted";
+
+    // Return style name by it's type
+    QString style2name(MImKeyModel::StyleType styleType)
+    {
+        switch (styleType) {
+        case MImKeyModel::SpecialStyle:
+            return SpecialStyleName;
+        case MImKeyModel::DeadkeyStyle:
+            return DeadkeyStyleName;
+            break;
+        case MImKeyModel::NormalStyle:
+            return NormalStateName;
+            break;
+        }
+
+        return QString();
+    }
 }
 
 
@@ -450,18 +467,7 @@ const MScalableImage * MImKey::backgroundImage() const
     const MScalableImage *background = 0;
     QString backgroundProperty(KeyBackground);
 
-    switch (model().style()) {
-    case MImKeyModel::SpecialStyle:
-        backgroundProperty.append(SpecialStyleName);
-        break;
-    case MImKeyModel::DeadkeyStyle:
-        backgroundProperty.append(DeadkeyStyleName);
-        break;
-    case MImKeyModel::NormalStyle:
-    default:
-        backgroundProperty.append(NormalStateName);
-        break;
-    }
+    backgroundProperty.append(style2name(model().style()));
 
     switch (state()) {
     case MImAbstractKey::Pressed:
@@ -482,6 +488,21 @@ const MScalableImage * MImKey::backgroundImage() const
     if (!ignoreOverride && override && override->highlighted() && enabled()) {
         backgroundProperty.append(HighlightedName);
     }
+
+    background = getCSSProperty<const MScalableImage *>(styleContainer, backgroundProperty, false);
+    return background;
+}
+
+const MScalableImage *MImKey::normalBackgroundImage() const
+{
+    const MScalableImage *background = 0;
+    QString backgroundProperty(KeyBackground);
+
+    backgroundProperty.append(style2name(model().style()));
+
+    backgroundProperty.append(NormalStateName);
+
+    // this method ignores overriden attributes
 
     background = getCSSProperty<const MScalableImage *>(styleContainer, backgroundProperty, false);
     return background;

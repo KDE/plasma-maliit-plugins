@@ -93,6 +93,7 @@ public:
     virtual void activateGravity();
     virtual bool isGravityActive() const;
     virtual const MScalableImage *backgroundImage() const;
+    virtual const MScalableImage *normalBackgroundImage() const;
     virtual QRectF boundingRect() const;
     virtual void paint(QPainter * painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
     virtual void setKeyOverride(const QSharedPointer<MKeyOverride> &override);
