@@ -88,6 +88,9 @@ public:
     void paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view);
 
 signals:
+    //! Emitted when word tracker needs reaction map update
+    void makeReactionMapDirty();
+
     //! Emitted when word tracker is clicked.
     void candidateClicked(const QString &);
 
@@ -119,6 +122,7 @@ protected slots:
 protected:
     /*! \reimp */
     virtual void drawBackground(QPainter *painter, const QStyleOptionGraphicsItem *option) const;
+    QVariant itemChange(GraphicsItemChange change, const QVariant &value);
     /*! \reimp_end */
 
 private:

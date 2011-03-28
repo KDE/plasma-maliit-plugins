@@ -39,8 +39,7 @@ MImCorrectionHost::MImCorrectionHost(MWidget *window, QObject *parent)
     // The word tracker changed -> Repaint the reaction maps
     // TODO: The reaction map repainting can be optimized here to clear/repaint only the
     // reaction map of the word tracker.
-    connect(wordTracker, SIGNAL(geometryChanged()), &signalForwarder, SIGNAL(requestRepaint()));
-    connect(wordTracker, SIGNAL(displayExited()), &signalForwarder, SIGNAL(requestRepaint()));
+    connect(wordTracker, SIGNAL(makeReactionMapDirty()), &signalForwarder, SIGNAL(requestRepaint()));
 
     connect(wordList, SIGNAL(candidateClicked(QString)), this, SLOT(handleCandidateClicked(QString)));
     // The word list goes on top -> Clear the reaction maps

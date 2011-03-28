@@ -58,6 +58,9 @@ MImWordTracker::MImWordTracker(MWidget *parentWindow)
 
     // By default multi-touch is disabled
     setAcceptTouchEvents(MGConfItem(MultitouchSetting).value().toBool());
+    // Listen for visibility and position changes
+    setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
+    setFlag(QGraphicsItem::ItemSendsScenePositionChanges, true);
 
     setObjectName(WordTrackerObjectName);
 
@@ -132,6 +135,16 @@ void MImWordTracker::drawBackground(QPainter *painter, const QStyleOptionGraphic
                             pointerSize.height());
          style()->wordtrackerPointerImage()->draw(rect, painter);
     }
+}
+
+QVariant MImWordTracker::itemChange(GraphicsItemChange change, const QVariant &value)
+{
+    // When the widget appears it generates visibility and position change event,
+    // therefore the visibility event is ignored in this case.
+    if ((change == QGraphicsItem::ItemVisibleChange && isVisible())
+        || (change == QGraphicsItem::ItemScenePositionHasChanged))
+        emit makeReactionMapDirty();
+    return MWidgetController::itemChange(change, value);
 }
 
 void MImWordTracker::select()
