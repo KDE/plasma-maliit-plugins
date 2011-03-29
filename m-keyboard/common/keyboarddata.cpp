@@ -28,7 +28,9 @@
 namespace
 {
     // TODO: Support Windows paths too.
-    const char * const VKBConfigurationPath = "/usr/share/meegotouch/virtual-keyboard/layouts/";
+    const char * const VKBConfigurationPath       = "/usr/share/meegotouch/virtual-keyboard/layouts/";
+    // VKBUserLayoutPath is relative to home dir:
+    const char * const VKBUserLayoutPath          = ".config/meego-keyboard/layouts/";
 
     const char * const VKBTagKeyboard             = "keyboard";
     const char * const VKBTagVersion              = "version";
@@ -286,15 +288,11 @@ bool KeyboardData::loadNokiaKeyboard(const QString &fileName)
 bool KeyboardData::loadNokiaKeyboardImpl(const QString &fileName, ParseParameters &params,
         bool importedLayout)
 {
-    QString absoluteFileName;
-    if (QDir::isAbsolutePath(fileName)) {
-        absoluteFileName = fileName;
-    } else {
-        absoluteFileName = VKBConfigurationPath + fileName;
-    }
-
+    QString absoluteFileName(fileName);
+    bool fileFound = findLayoutFile(absoluteFileName);
     params.fileName = &absoluteFileName;
-    if (!QFile::exists(absoluteFileName)) {
+
+    if (!fileFound) {
         qWarning() << "Virtual keyboard layout file" << absoluteFileName << "does not exist.";
         return false;
     }
@@ -340,6 +338,31 @@ bool KeyboardData::loadNokiaKeyboardImpl(const QString &fileName, ParseParameter
     }
 
     return valid;
+}
+
+bool KeyboardData::findLayoutFile(QString &foundAbsoluteFilename) const
+{
+    QFileInfo fileInfo(foundAbsoluteFilename);
+    bool found = false;
+
+    if (fileInfo.isAbsolute()) {
+        found = fileInfo.exists();
+    } else {
+        fileInfo.setFile(QDir(VKBConfigurationPath), foundAbsoluteFilename);
+        if(fileInfo.exists()) {
+            found = true;
+        } else {
+            QFileInfo userLayoutsDir(QDir::home(), VKBUserLayoutPath);
+            fileInfo.setFile(userLayoutsDir.absolutePath(), foundAbsoluteFilename);
+            found = fileInfo.exists();
+        }
+    }
+
+    if (found) {
+        foundAbsoluteFilename = fileInfo.absoluteFilePath();
+    }
+
+    return found;
 }
 
 /*

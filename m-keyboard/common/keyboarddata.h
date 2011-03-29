@@ -92,6 +92,8 @@ private:
     bool loadNokiaKeyboardImpl(const QString &fileName, ParseParameters &params,
                                bool importedLayout = false);
 
+    bool findLayoutFile(QString &foundAbsoluteFilename) const;
+
     //! \brief Get layout model by type and orientation
     LayoutData *layoutPrivate(LayoutData::LayoutType type, M::Orientation orientation,
                               bool portraitFallback = true) const;

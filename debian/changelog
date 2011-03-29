@@ -2,6 +2,7 @@ meego-keyboard (0.5.38~1) unstable; urgency=low
 
   * [UNRELEASED]
   * Fixes: NB#237330
+  * Changes: NB#239442 - [TASK] Load VKB layouts dynamically from user folder
 
  -- Pekka Vuorela <pekka.ta.vuorela@nokia.com>  Wed, 30 Mar 2011 17:34:47 +0300
 
