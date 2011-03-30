@@ -206,8 +206,6 @@ private slots:
     //! Handle active layout is changed to \a layout for virtual keyboard.
     void handleVirtualKeyboardLayoutChanged(const QString &layout);
 
-    void turnOffFastTyping();
-
     void handleAnimationFinished();
 
 private:
@@ -300,8 +298,6 @@ private:
 
     //! Sends backspace key event to application.
     void sendBackSpaceKeyEvent() const;
-
-    void turnOnFastTyping();
 
     //! Changes +/- sign in front of text in number mode.
     void togglePlusMinus();
@@ -418,10 +414,6 @@ private:
 
     //! Indicates whether space was automatically inserted after previous commit string
     bool spaceInsertedAfterCommitString;
-
-    QTimer fastTypingTimeout;
-    int fastTypingKeyCount;
-    bool fastTypingEnabled;
 
     SlideUpAnimation slideUpAnimation;
 

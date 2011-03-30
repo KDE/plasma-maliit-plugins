@@ -77,8 +77,6 @@ namespace
     // This GConf item defines whether multitouch is enabled or disabled
     const char * const MultitouchSettings = "/meegotouch/inputmethods/multitouch/enabled";
     const char * const NotificationObjectName = "ModifierLockNotification";
-    const int KeysRequiredForFastTypingMode = 3;
-    const int FastTypingTimeout = 700; //! Milliseconds to idle before leaving fast typing mode.
     MKeyboardHost *currentInstance = 0;
     const char *const MImTouchPointsLogfile = "touchpoints.csv";
     const char PlusSign('+');
@@ -232,8 +230,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
       engineLayoutDirty(false),
       backspaceMode(NormalBackspaceMode),
       spaceInsertedAfterCommitString(false),
-      fastTypingKeyCount(0),
-      fastTypingEnabled(false),
       touchPointLogHandle(0),
       view(0),
       toolbarHidePending(false),
@@ -426,11 +422,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
 
     backspaceTimer.setSingleShot(true);
     connect(&backspaceTimer, SIGNAL(timeout()), this, SLOT(autoBackspace()));
-
-    fastTypingTimeout.setSingleShot(true);
-    fastTypingTimeout.setInterval(FastTypingTimeout);
-    connect(&fastTypingTimeout, SIGNAL(timeout()),
-            this, SLOT(turnOffFastTyping()));
 
     // Set up animations
     slideUpAnimation.setTargetObject(vkbWidget);
@@ -1141,35 +1132,8 @@ void MKeyboardHost::autoBackspace()
     doBackspace();
 }
 
-void MKeyboardHost::turnOnFastTyping()
-{
-    if (fastTypingEnabled) {
-        return;
-    }
-    fastTypingEnabled = true;
-    inputMethodHost()->setOrientationAngleLocked(true);
-}
-
-void MKeyboardHost::turnOffFastTyping()
-{
-    if (!fastTypingEnabled) {
-        return;
-    }
-    fastTypingEnabled = false;
-    inputMethodHost()->setOrientationAngleLocked(false);
-    fastTypingKeyCount = 0;
-}
-
 void MKeyboardHost::handleKeyPress(const KeyEvent &event)
 {
-#if 0 // Disabled because of bug NB#223996.
-    // update fast typing mode
-    if (++fastTypingKeyCount >= KeysRequiredForFastTypingMode) {
-        turnOnFastTyping();
-    }
-    fastTypingTimeout.start(); // restart
-#endif
-
     if (event.qtKey() == Qt::Key_Shift) {
         if (shiftHeldDown) {
             return; //ignore duplicated event
