@@ -112,8 +112,6 @@ private slots:
     void testAutoPunctuation_data();
     void testAutoPunctuation();
 
-    void testFastTypingState();
-
     void testToolbarPosition();
 
     void testTogglePlusMinus_data();
