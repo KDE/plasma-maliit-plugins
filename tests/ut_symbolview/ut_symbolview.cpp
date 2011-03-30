@@ -368,8 +368,8 @@ void Ut_SymbolView::testAutomaticCloseOnKeyClick_data()
     QTest::newRow("Quick pick not first 1") << (KeyList() << normalKey << quickPickKey) << true;
     QTest::newRow("Quick pick not first 2") << (KeyList() << normalKey << normalKey << quickPickKey) << true;
 
-    QTest::newRow("close by hitting space key")
-        << (KeyList() << spaceKey) << false;
+    QTest::newRow("Just space")
+        << (KeyList() << spaceKey) << true;
     QTest::newRow("close by hitting space key after some other keys")
         << (KeyList() << normalKey << normalKey << spaceKey) << false;
     QTest::newRow("space after number doesn't close symbol view")
