@@ -388,6 +388,7 @@ MToolbarLabelStyle {
 }
 
 MToolbarButtonStyle {
+    text-color: $COLOR_INVERTED_FOREGROUND;
     background-image: "meegotouch-keyboard-toolbar-button" 15px 15px 15px 15px;
     margin-left: $MARGIN_SMALL;
     margin-right: $MARGIN_SMALL;
@@ -410,28 +411,41 @@ MToolbarButtonStyle:disabled {
 }
 
 #MToolbarIconButton {
-    minimum-size:   10% $HEIGHT_TOOLBARITEM;
-    preferred-size: 10% $HEIGHT_TOOLBARITEM;
-    maximum-size:   10% $HEIGHT_TOOLBARITEM;
+    margin-left: $MARGIN_SMALL;
+    margin-right: $MARGIN_LARGE;
+    minimum-size:   42 $HEIGHT_TOOLBARITEM;
+    preferred-size: 42 $HEIGHT_TOOLBARITEM;
+    maximum-size:   42 $HEIGHT_TOOLBARITEM;
+}
+
+#MToolbarTextButton {
+    /* TODO: change background image*/
+    text-color: $COLOR_INVERTED_FOREGROUND;
+    background-image: "meegotouch-keyboard-toolbar-action-key" 15px 15px 15px 15px;
+}
+
+#MToolbarTextButton:disabled {
+    background-image: "meegotouch-keyboard-toolbar-action-key-disabled" 15px 15px 15px 15px;
 }
 
 #MToolbarTextButton.Landscape {
-    minimum-size:   10% $HEIGHT_TOOLBARITEM;
-    preferred-size: 10% $HEIGHT_TOOLBARITEM;
-    maximum-size:   10% $HEIGHT_TOOLBARITEM;
+    minimum-size:   150 $HEIGHT_TOOLBARITEM;
+    preferred-size: 150 $HEIGHT_TOOLBARITEM;
+    maximum-size:   150 $HEIGHT_TOOLBARITEM;
 }
 
 #MToolbarTextButton.Portrait {
-    minimum-size:   10% $HEIGHT_TOOLBARITEM;
-    preferred-size: 20% $HEIGHT_TOOLBARITEM;
-    maximum-size:   20% $HEIGHT_TOOLBARITEM;
+    minimum-size:   120 $HEIGHT_TOOLBARITEM;
+    preferred-size: 120 $HEIGHT_TOOLBARITEM;
+    maximum-size:   120 $HEIGHT_TOOLBARITEM;
 }
 
 #MToolbarIconButtonHighlighted {
+    text-color: $COLOR_INVERTED_FOREGROUND;
     background-image: "meegotouch-keyboard-toolbar-button-highlighted"  15px 15px 15px 15px;
-    minimum-size:   10% $HEIGHT_TOOLBARITEM;
-    preferred-size: 10% $HEIGHT_TOOLBARITEM;
-    maximum-size:   10% $HEIGHT_TOOLBARITEM;
+    minimum-size:   42 $HEIGHT_TOOLBARITEM;
+    preferred-size: 42 $HEIGHT_TOOLBARITEM;
+    maximum-size:   42 $HEIGHT_TOOLBARITEM;
 }
 
 #MToolbarIconButtonHighlighted:pressed {
@@ -447,31 +461,31 @@ MToolbarButtonStyle:disabled {
 }
 
 #MToolbarTextButtonHighlighted {
-    background-image: "meegotouch-keyboard-toolbar-button-highlighted"  15px 15px 15px 15px;
+    background-image: "meegotouch-keyboard-toolbar-action-key"  15px 15px 15px 15px;
 }
 
 #MToolbarTextButtonHighlighted:pressed {
-    background-image: "meegotouch-keyboard-toolbar-button-highlighted-pressed"  15px 15px 15px 15px;
+    background-image: "meegotouch-keyboard-toolbar-action-key-pressed"  15px 15px 15px 15px;
 }
 
 #MToolbarTextButtonHighlighted:selected {
-    background-image: "meegotouch-keyboard-toolbar-button-selected"  15px 15px 15px 15px;
+    background-image: "meegotouch-keyboard-toolbar-action-key-selected-pressed"  15px 15px 15px 15px;
 }
 
 #MToolbarTextButtonHighlighted:disabled {
-    background-image: "meegotouch-keyboard-toolbar-button-disabled"  15px 15px 15px 15px;
+    background-image: "meegotouch-keyboard-toolbar-action-key-disabled"  15px 15px 15px 15px;
 }
 
 #MToolbarTextButtonHighlighted.Landscape {
-    minimum-size:   10% $HEIGHT_TOOLBARITEM;
-    preferred-size: 10% $HEIGHT_TOOLBARITEM;
-    maximum-size:   10% $HEIGHT_TOOLBARITEM;
+    minimum-size:   150 $HEIGHT_TOOLBARITEM;
+    preferred-size: 150 $HEIGHT_TOOLBARITEM;
+    maximum-size:   150 $HEIGHT_TOOLBARITEM;
 }
 
 #MToolbarTextButtonHighlighted.Portrait {
-    minimum-size:   10% $HEIGHT_TOOLBARITEM;
-    preferred-size: 20% $HEIGHT_TOOLBARITEM;
-    maximum-size:   20% $HEIGHT_TOOLBARITEM;
+    minimum-size:   120 $HEIGHT_TOOLBARITEM;
+    preferred-size: 120 $HEIGHT_TOOLBARITEM;
+    maximum-size:   120 $HEIGHT_TOOLBARITEM;
 }
 
 MToolbarButtonStyle:pressed {
@@ -488,8 +502,8 @@ WidgetBarStyle {
     margin-right: 0;
     margin-bottom: 0;
 
-    padding-top: 9;
-    padding-bottom: 10;
+    padding-top: 11;
+    padding-bottom: 8;
     padding-left: 11;
     padding-right: 11;
 }
