@@ -1,3 +1,9 @@
+meego-keyboard (0.5.38~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Pekka Vuorela <pekka.ta.vuorela@nokia.com>  Wed, 30 Mar 2011 17:34:47 +0300
+
 meego-keyboard (0.5.37-1) unstable; urgency=low
 
   * Fixes: NB#236919 - [TASK] Messaging UI Send button doesn't contain blue background
