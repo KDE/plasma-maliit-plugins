@@ -107,8 +107,8 @@ namespace MImKeyVisitor
         // When used with a parent item, check whether key belongs to that.
         // Otherwise, don't reset key.
         if (parent) {
-            const MImKey *belongsTo = dynamic_cast<const MImKey *>(key);
-            if (belongsTo && not belongsTo->belongsTo(parent)) {
+            const MImKey *item = dynamic_cast<const MImKey *>(key);
+            if (item && (item->parentItem() != parent)) {
                 return false;
             }
         }

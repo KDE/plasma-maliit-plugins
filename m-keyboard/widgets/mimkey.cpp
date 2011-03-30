@@ -171,7 +171,6 @@ MImKey::MImKey(const MImKeyModel &newModel,
       currentState(Normal),
       selected(false),
       styleContainer(style),
-      parentItem(parent),
       currentTouchPointCount(0),
       hasGravity(false),
       rowHasSecondaryLabel(false),
@@ -765,11 +764,6 @@ qreal MImKey::preferredWidth(qreal pixelPerSizeUnit, qreal spacing) const
     qWarning() << __PRETTY_FUNCTION__
                << "Could not find preferred width in style";
     return -1;
-}
-
-bool MImKey::belongsTo(const QGraphicsItem *item) const
-{
-    return (item && (&parentItem == item));
 }
 
 const MImKey::Geometry &MImKey::geometry() const

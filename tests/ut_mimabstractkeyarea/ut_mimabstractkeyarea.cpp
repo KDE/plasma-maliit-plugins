@@ -1351,7 +1351,7 @@ void Ut_MImAbstractKeyArea::testReset()
     QVERIFY(subject->popup().isVisible());
     const MImKey *key = dynamic_cast<const MImKey *>(MImAbstractKey::lastActiveKey());
     QVERIFY(key);
-    QVERIFY(key->belongsTo(subject));
+    QCOMPARE(key->parentItem(), subject);
     QCOMPARE(key->touchPointCount(), 1);
 
 
@@ -1359,7 +1359,7 @@ void Ut_MImAbstractKeyArea::testReset()
     MImKeyModel otherKeyModel;
     QSharedPointer<MImKey::StylingCache> otherKeyCache;
     MImKey otherKey(otherKeyModel, subject->baseStyle(), *otherArea, otherKeyCache);
-    QVERIFY(not otherKey.belongsTo(subject));
+    QVERIFY(otherKey.parentItem() != subject);
 
     otherKey.increaseTouchPointCount();
     QCOMPARE(otherKey.touchPointCount(), 1);

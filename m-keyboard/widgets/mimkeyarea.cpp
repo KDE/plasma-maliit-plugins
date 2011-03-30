@@ -116,7 +116,7 @@ namespace {
         //! \param key the given key
         bool operator()(const MImKey *key) const
         {
-            if (key && key->belongsTo(keyArea)) {
+            if (key && (key->parentItem() == keyArea)) {
                 switch (mode) {
 
                 case PaintBackground:

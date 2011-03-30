@@ -137,10 +137,6 @@ public:
     //! Returns preferred dynamic width
     qreal preferredWidth(qreal pixelPerSizeUnit, qreal spacing) const;
 
-    //! \brief Whether a key belongs to a given graphics item.
-    //! \param item the graphics item that logically contains this key
-    virtual bool belongsTo(const QGraphicsItem *item) const;
-
     //! \brief Returns the geometry of the key, used for drawing.
     const MImKey::Geometry &geometry() const;
 
@@ -245,8 +241,6 @@ private:
     IconInfo upperCaseCompactIcon;
 
     const MImAbstractKeyAreaStyleContainer &styleContainer;
-
-    QGraphicsItem &parentItem;
 
     //! Touchpoint count
     int currentTouchPointCount;
