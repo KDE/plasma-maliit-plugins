@@ -1,3 +1,9 @@
+meego-keyboard (0.5.37~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- huaming wang <huaming.wang@nokia.com>  Wed, 30 Mar 2011 10:31:15 +0300
+
 meego-keyboard (0.5.36-1) unstable; urgency=low
 
   * Fixes: NB#233383 - [TASK] Utilize the empty space next to the right/left side of the VKB efficiently (POT)
