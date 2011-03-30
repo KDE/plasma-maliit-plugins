@@ -139,6 +139,7 @@ void MKeyboardSettingsWidget::buildUi()
     // Error correction settings
     errorCorrectionSwitch = new MButton(this);
     errorCorrectionSwitch->setObjectName(ObjectNameErrorCorrectionButton);
+    errorCorrectionSwitch->setStyleName("CommonRightSwitchInverted");
     errorCorrectionSwitch->setViewType(MButton::switchType);
     errorCorrectionSwitch->setCheckable(true);
     errorCorrectionContentItem = new MBasicListItem(MBasicListItem::TitleWithSubtitle, this);
@@ -159,6 +160,7 @@ void MKeyboardSettingsWidget::buildUi()
     correctionSpaceSwitch->setObjectName(ObjectNameCorrectionSpaceButton);
     correctionSpaceSwitch->setViewType(MButton::switchType);
     correctionSpaceSwitch->setCheckable(true);
+    correctionSpaceSwitch->setStyleName("CommonRightSwitchInverted");
     correctionSpaceContentItem = new MBasicListItem(MBasicListItem::TitleWithSubtitle, this);
     correctionSpaceContentItem->setStyleName("CommonBasicListItemInverted");
     //% "Insert with space"
