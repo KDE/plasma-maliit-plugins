@@ -91,6 +91,9 @@ public:
     //! \brief Resets active keys belongs to this key area to normal state.
     virtual void resetActiveKeys() = 0;
 
+    //! \brief Enable or disable horizontal gesture recognition.
+    virtual void enableHorizontalFlick(bool enable);
+
 public slots:
     //! \brief Tell key area to switch levels for all keys.
     //! \param level the new level

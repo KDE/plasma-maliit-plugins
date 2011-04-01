@@ -27,6 +27,16 @@ namespace
 {
     const int SwitchDuration = 500;
     const int SwitchFrames = 300;
+
+
+    void setHorizontalFlickRecognition(QGraphicsWidget *widget, bool recognition)
+    {
+        MImAbstractKeyArea * const keyArea = qobject_cast<MImAbstractKeyArea *>(widget);
+
+        if (keyArea) {
+            keyArea->enableHorizontalFlick(recognition);
+        }
+    }
 }
 
 HorizontalSwitcher::HorizontalSwitcher(QGraphicsItem *parent) :
@@ -34,7 +44,8 @@ HorizontalSwitcher::HorizontalSwitcher(QGraphicsItem *parent) :
     currentIndex(-1),
     animTimeLine(SwitchDuration),
     loopingEnabled(false),
-    playAnimations(true)
+    playAnimations(true),
+    m_enableSinglePageFlick(true)
 {
     setFlag(QGraphicsItem::ItemHasNoContents); // doesn't paint itself anything
     setObjectName("HorizontalSwitcher");
@@ -232,6 +243,19 @@ void HorizontalSwitcher::addWidget(QGraphicsWidget *widget)
     if (slides.size() == 1) {
         setCurrent(0);
     }
+
+    switch(count()) {
+    case 1:
+        setHorizontalFlickRecognition(widget, m_enableSinglePageFlick);
+        break;
+    case 2:
+        setHorizontalFlickRecognition(slides.at(0), true);
+        setHorizontalFlickRecognition(slides.at(1), true);
+        break;
+    default:
+        setHorizontalFlickRecognition(widget, true);
+        break;
+    }
 }
 
 void HorizontalSwitcher::removeAll()
@@ -361,3 +385,26 @@ void HorizontalSwitcher::paint(QPainter *painter, const QStyleOptionGraphicsItem
     // Make the background black during playing animations.
     painter->fillRect(rect(), Qt::black);
 }
+
+void HorizontalSwitcher::enableSinglePageHorizontalFlick(bool enable)
+{
+    if (m_enableSinglePageFlick == enable) {
+        return;
+    }
+
+    m_enableSinglePageFlick = enable;
+    updateHorizontalFlickRecognition();
+}
+
+void HorizontalSwitcher::updateHorizontalFlickRecognition()
+{
+    const bool enable = (m_enableSinglePageFlick || (count() > 1));
+
+    foreach(QGraphicsWidget *slide, slides) {
+        MImAbstractKeyArea *keyArea = qobject_cast<MImAbstractKeyArea *>(slide);
+        if (keyArea) {
+            keyArea->enableHorizontalFlick(enable);
+        }
+    }
+}
+

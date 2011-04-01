@@ -131,6 +131,7 @@ public:
     QTimer longPressTimer; //!< used to recognize long press
     QTimer idleVkbTimer;  //!< Whenever this key area of the VKB idles, gestures are activated.
     QTime lastTouchPointPressEvent; //!< measures elapsed time between two touchpoint press events
+    bool allowedHorizontalFlick; //!< Contains true if horizontal gestures should be allowed.
 };
 //! \internal_end
 

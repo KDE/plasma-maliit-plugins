@@ -162,6 +162,10 @@ public:
     //! Indicates whether an animation is playing.
     bool isPlayingAnimation();
 
+    //! \brief Enable or disable horizontal gesture recognition.
+    //! \sa HorizontalSwitcher::enableSinglePageHorizontalFlick(bool)
+    void enableSinglePageHorizontalFlick(bool enable);
+
 public slots:
     /*!
      * Method to switch level. Changes into next possible level.

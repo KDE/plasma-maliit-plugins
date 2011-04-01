@@ -349,4 +349,61 @@ void Ut_HorizontalSwitcher::testKeyOverrides()
     }
 }
 
+void Ut_HorizontalSwitcher::testEnableHorizontalFlick_data()
+{
+    QTest::addColumn<bool>("enableSinglePageFlick");
+    QTest::addColumn<int>("count");
+
+    QTest::newRow("true 1")  << true  << 1;
+    QTest::newRow("false 1") << false << 1;
+
+    QTest::newRow("true 2")  << true  << 2;
+    QTest::newRow("false 2") << false << 2;
+
+    QTest::newRow("true 5")  << true  << 5;
+    QTest::newRow("false 5") << false << 5;
+}
+
+void Ut_HorizontalSwitcher::testEnableHorizontalFlick()
+{
+    QFETCH(bool, enableSinglePageFlick);
+    QFETCH(int, count);
+
+    QMap<QString, QSharedPointer<MKeyOverride> > overrides;
+
+    LayoutData::SharedLayoutSection layouts[count];
+    QPointer<MImTestKeyArea> keyAreas[count];
+
+    subject->enableSinglePageHorizontalFlick(enableSinglePageFlick);
+
+    for (int n = 0; n < count; ++n) {
+        layouts[n] = LayoutData::SharedLayoutSection(new LayoutSection("meego"));
+        keyAreas[n] = new MImTestKeyArea(layouts[n]);
+        subject->addWidget(keyAreas[n]);
+
+        checkHorizontalFlickMode(enableSinglePageFlick);
+    }
+
+    subject->enableSinglePageHorizontalFlick(!enableSinglePageFlick);
+    checkHorizontalFlickMode(!enableSinglePageFlick);
+
+    subject->deleteAll();
+    checkHorizontalFlickMode(!enableSinglePageFlick);
+
+    subject->enableSinglePageHorizontalFlick(enableSinglePageFlick);
+    checkHorizontalFlickMode(enableSinglePageFlick);
+}
+
+void Ut_HorizontalSwitcher::checkHorizontalFlickMode(bool expected)
+{
+    QCOMPARE(subject->m_enableSinglePageFlick, expected);
+
+    for (int n = 0; n < subject->count(); ++n) {
+        MImTestKeyArea *kba = qobject_cast<MImTestKeyArea *>(subject->widget(n));
+        if (kba) {
+            QCOMPARE(kba->allowedHorizontalFlick(), (expected || subject->count() > 1));
+        }
+    }
+}
+
 QTEST_APPLESS_MAIN(Ut_HorizontalSwitcher);

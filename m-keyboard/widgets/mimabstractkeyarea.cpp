@@ -129,7 +129,8 @@ MImAbstractKeyAreaPrivate::MImAbstractKeyAreaPrivate(const LayoutData::SharedLay
       wasGestureTriggered(false),
       enableMultiTouch(MGConfItem(MultitouchSettings).value().toBool()),
       feedbackSliding(MImReactionMap::Sliding),
-      section(newSection)
+      section(newSection),
+      allowedHorizontalFlick(true)
 {
 }
 
@@ -178,6 +179,13 @@ void MImAbstractKeyAreaPrivate::handleFlickGesture(FlickGesture *gesture)
 
     if (InputMethodMode == M::InputMethodModeDirect) {
         return;
+    }
+
+    if (!allowedHorizontalFlick) {
+        if ((gesture->direction() == FlickGesture::Left)
+            || (gesture->direction() == FlickGesture::Right)) {
+            return;
+        }
     }
 
     // Any flick gesture, complete or not, resets active keys etc.
@@ -960,6 +968,13 @@ void MImAbstractKeyArea::modifiersChanged(bool,
                                           const QChar &)
 {
     // Empty default implementation
+}
+
+void MImAbstractKeyArea::enableHorizontalFlick(bool enable)
+{
+    Q_D(MImAbstractKeyArea);
+
+    d->allowedHorizontalFlick = enable;
 }
 
 void MImAbstractKeyArea::onThemeChangeCompleted()

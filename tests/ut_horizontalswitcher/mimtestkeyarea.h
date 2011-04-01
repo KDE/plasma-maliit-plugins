@@ -53,6 +53,9 @@ public:
     virtual void resetActiveKeys();
     //! \reimp_end
 
+    //! Return true if horizontal flick could be used.
+    bool allowedHorizontalFlick() const;
+
 public slots:
     //! \reimp
     virtual void setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides);

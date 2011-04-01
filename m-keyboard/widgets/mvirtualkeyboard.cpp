@@ -298,6 +298,11 @@ void MVirtualKeyboard::showLanguageNotification()
     }
 }
 
+void MVirtualKeyboard::enableSinglePageHorizontalFlick(bool enable)
+{
+    mainKeyboardSwitcher->enableSinglePageHorizontalFlick(enable);
+}
+
 void MVirtualKeyboard::organizeContent(M::Orientation orientation, const bool force)
 {
     if (!isVisible() && !force) {

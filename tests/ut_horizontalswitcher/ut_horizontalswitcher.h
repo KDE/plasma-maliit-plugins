@@ -51,6 +51,12 @@ private slots:
     void testInitialSwitchTo();
     void testIsAtBoundary();
     void testKeyOverrides();
+    void testEnableHorizontalFlick_data();
+    void testEnableHorizontalFlick();
+
+private:
+    void checkHorizontalFlickMode(bool expected);
 };
 
 #endif // UT_HORIZONTALSWITCHER_H
+

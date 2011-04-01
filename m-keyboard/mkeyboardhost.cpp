@@ -39,6 +39,7 @@
 #include <mtoolbardata.h>
 #include <mkeyoverride.h>
 #include <mgconfitem.h>
+#include <mimplugindescription.h>
 
 #include <QApplication>
 #include <QDesktopWidget>
@@ -295,6 +296,11 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
 
     vkbWidget = new MVirtualKeyboard(LayoutsManager::instance(), vkbStyleContainer, sceneWindow);
     vkbWidget->setInputMethodMode(static_cast<M::InputMethodMode>(inputMethodMode));
+
+    // TODO: we should call vkbWidget->enableSinglePageHorizontalFlick() again when
+    // other plugin is loaded or unloaded
+    const bool enableGesture = (inputMethodHost()->pluginDescriptions(MInputMethod::OnScreen).count() > 1);
+    vkbWidget->enableSinglePageHorizontalFlick(enableGesture);
 
     connect(vkbWidget, SIGNAL(geometryChanged()),
             this, SLOT(handleVirtualKeyboardGeometryChange()));

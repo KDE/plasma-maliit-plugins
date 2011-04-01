@@ -121,6 +121,10 @@ public:
      */
     void setContentType(M::TextContentType type);
 
+    //! \brief Enable or disable gesture recognitions during horizontal movement.
+    //! Gestures are always enabled if we have more than one widget in switcher.
+    void enableSinglePageHorizontalFlick(bool enable);
+
 signals:
     /*! \brief Signals the beginning of a switch.
      *         This is emitted even if there is no animation.
@@ -154,6 +158,9 @@ private slots:
 private:
     bool isValidIndex(int index) const;
 
+    //! Inform key areas whether they should recognize horizontal gestures or not.
+    void updateHorizontalFlickRecognition();
+
     int currentIndex;
     QList<QGraphicsWidget *> slides;
     QGraphicsItemAnimation enterAnim;
@@ -161,6 +168,9 @@ private:
     QTimeLine animTimeLine;
     bool loopingEnabled;
     bool playAnimations;
+    bool m_enableSinglePageFlick;
+
+    friend class Ut_HorizontalSwitcher;
 };
 
 #endif

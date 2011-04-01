@@ -40,6 +40,7 @@ MImAbstractKey * MImTestKeyArea::findKey(const QString &)
 {
     return 0;
 }
+
 MImAbstractKey * MImTestKeyArea::keyAt(const QPoint &) const
 {
     return 0;
@@ -51,6 +52,11 @@ void MImTestKeyArea::updateKeyGeometries(int)
 
 void MImTestKeyArea::setContentType(M::TextContentType)
 {
+}
+
+bool MImTestKeyArea::allowedHorizontalFlick() const
+{
+    return d_ptr->allowedHorizontalFlick;
 }
 
 void MImTestKeyArea::setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides)
