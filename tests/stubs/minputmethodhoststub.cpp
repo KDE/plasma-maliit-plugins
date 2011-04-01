@@ -17,6 +17,7 @@
 #include "minputmethodhoststub.h"
 
 #include <mnamespace.h>
+#include <mimplugindescription.h>
 #include <QKeyEvent>
 #include <QDebug>
 
@@ -264,3 +265,9 @@ QString MInputMethodHostStub::selection(bool &valid)
     valid = true;
     return currentSelection;
 }
+
+QList<MImPluginDescription> MInputMethodHostStub::pluginDescriptions(MInputMethod::HandlerState) const
+{
+    return QList<MImPluginDescription>();
+}
+

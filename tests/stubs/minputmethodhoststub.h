@@ -70,6 +70,7 @@ public:
     virtual void setSelection(int start, int length);
     virtual void setOrientationAngleLocked(bool lock);
     virtual QString selection(bool &valid);
+    virtual QList<MImPluginDescription> pluginDescriptions(MInputMethod::HandlerState state) const;
 
     QString preedit;
     QString commit;

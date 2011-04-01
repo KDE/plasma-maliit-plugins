@@ -2,6 +2,7 @@
 #define TESTINPUTMETHODHOST_H
 
 #include <mabstractinputmethodhost.h>
+#include <mimplugindescription.h>
 #include <QString>
 #include <QKeyEvent>
 
@@ -181,6 +182,11 @@ public:
     virtual QString selection(bool &/*valid*/)
     {
         return QString();
+    }
+
+    virtual QList<MImPluginDescription> pluginDescriptions(MInputMethod::HandlerState /*state*/) const
+    {
+        return QList<MImPluginDescription>();
     }
 
 private:
