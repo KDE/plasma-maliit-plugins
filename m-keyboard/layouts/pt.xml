@@ -92,11 +92,6 @@
           <binding label="ç"/>
           <binding shift="true" label="Ç"/>
         </key>
-
-        <key>
-          <binding dead="true" label="~"/>
-          <binding shift="true" dead="true" label="~"/>
-        </key>
       </row>
 
       <row>
@@ -133,15 +128,6 @@
           <binding shift="true" label="M"/>
         </key>
 
-        <key>
-          <binding dead="true" label="´"/>
-          <binding shift="true" dead="true" label="´"/>
-        </key>
-        <key>
-          <binding dead="true" label="`"/>
-          <binding shift="true" dead="true" label="`"/>
-        </key>
-
         <key style="special">
           <binding action="backspace"/>
         </key>
@@ -155,6 +141,7 @@
         <key id="emailUrlKey"><binding label=","/></key>
         <key><binding label="."/></key>
         <key width="xx-large"><binding action="space" label=""/></key>
+        <key><binding label="-"/></key>
 
         <key style="special" width="x-large" id="actionKey">
           <binding action="return"/>
@@ -163,5 +150,5 @@
     </section>
   </layout>
 
-  <import file="symbols-38.xml"/>
+  <import file="symbols-35.xml"/>
 </keyboard>

@@ -83,8 +83,8 @@
           <binding shift="true" label="L"/>
         </key>
         <key>
-          <binding label="é"/>
-          <binding shift="true" label="É"/>
+          <binding dead="true" label="`"/>
+          <binding shift="true" dead="true" label="`"/>
         </key>
       </row>
 
@@ -122,11 +122,6 @@
           <binding shift="true" label="M"/>
         </key>
 
-        <key>
-          <binding dead="true" label="`"/>
-          <binding shift="true" dead="true" label="`"/>
-        </key>
-
         <key style="special">
           <binding action="backspace"/>
         </key>
@@ -149,5 +144,5 @@
     </section>
   </layout>
 
-  <import file="symbols-36.xml"/>
+  <import file="symbols-35.xml"/>
 </keyboard>

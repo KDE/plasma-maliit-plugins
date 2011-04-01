@@ -34,9 +34,6 @@
         <key>
           <binding label="0"/>
         </key>
-        <key>
-          <binding label="%"/>
-        </key>
       </row>
 
       <row>
@@ -57,9 +54,6 @@
         </key>
         <key>
           <binding label="="/>
-        </key>
-        <key>
-          <binding label="&#x0026;"/>
         </key>
         <key>
           <binding label="("/>
@@ -98,12 +92,6 @@
           <binding label="&#x0022;"/>
         </key>
         <key>
-          <binding label="&#x00B0;"/>
-        </key>
-        <key>
-          <binding label="?"/>
-        </key>
-        <key>
           <binding label="!"/>
         </key>
         <key style="special">
@@ -122,6 +110,8 @@
         <key width="xx-large">
           <binding action="space"/>
         </key>
+        
+        <key><binding label="?"/></key>
         
         <key style="special" width="x-large" id="actionKey">
           <binding action="return"/>
@@ -162,9 +152,6 @@
         <key>
           <binding label="0"/>
         </key>
-        <key>
-          <binding label="&#x2030;"/>
-        </key>
       </row>
 
       <row>
@@ -181,13 +168,10 @@
           <binding label="&#x00A5;"/>
         </key>
         <key>
-          <binding label="&#x00A7;"/>
+          <binding label="&#x0026;"/>
         </key>
         <key>
-          <binding label="&#x007B;"/>
-        </key>
-        <key>
-          <binding label="&#x007D;"/>
+          <binding label="&#x0025;"/>
         </key>
         <key>
           <binding label="&#x005B;"/>
@@ -226,12 +210,6 @@
           <binding label="&#x201E;"/>
         </key>
         <key>
-          <binding label="&#x00A9;"/>
-        </key>
-        <key>
-          <binding label="&#x00BF;"/>
-        </key>
-        <key>
           <binding label="&#x00A1;"/>
         </key>
         <key style="special">
@@ -250,6 +228,8 @@
         <key width="xx-large">
           <binding action="space"/>
         </key>
+        
+        <key><binding label="&#x00BF;"/></key>
         
         <key style="special" width="x-large" id="actionKey">
           <binding action="return"/>

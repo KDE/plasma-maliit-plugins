@@ -62,10 +62,10 @@
           <binding label=")"/>
         </key>
         <key>
-          <binding label="&lt;"/>
+          <binding label=";"/>
         </key>
         <key>
-          <binding label="&gt;"/>
+          <binding label=":"/>
         </key>
       </row>
 
@@ -228,8 +228,8 @@
           <binding action="sym" label="ABC"/>
         </key>
         
-        <key><binding label="&#x003B;"/></key>
-        <key><binding label="&#x003A;"/></key>
+        <key><binding label="&#x003C;"/></key>
+        <key><binding label="&#x003E;"/></key>
         
         <key width="xx-large">
           <binding action="space"/>

@@ -122,14 +122,11 @@
         <binding label="m"/>
         <binding shift="true" label="M"/>
       </key>
-      <key>
-        <binding label="ç"/>
-        <binding shift="true" label="Ç"/>
-      </key>
-
+      
       <key style="special">
         <binding action="backspace" label=""/>
       </key>
+      
       </row>
 
       <row>
@@ -156,5 +153,5 @@
     </section>
   </layout>
   
-  <import file="symbols-36.xml"/>
+  <import file="symbols-35.xml"/>
 </keyboard>

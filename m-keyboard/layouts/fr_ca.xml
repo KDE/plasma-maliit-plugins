@@ -44,14 +44,11 @@
           <binding label="p"/>
           <binding shift="true" label="P"/>
         </key>
-
-        <key>
-          <binding dead="true" label="¨"/>
-          <binding shift="true" dead="true" label="¨"/>
-        </key>
       </row>
 
       <row>
+        <spacer/>
+
         <key>
           <binding accented_labels="àáâä" accents="`´^¨" label="a" extended_labels="àâæáãä"/>
           <binding shift="true" accented_labels="ÀÁÂÄ" accents="`´^¨" label="A" extended_labels="ÀÂÆÁÃÄ"/>
@@ -88,21 +85,16 @@
           <binding label="l"/>
           <binding shift="true" label="L"/>
         </key>
-
-        <key>
-          <binding dead="true" label="´"/>
-          <binding shift="true" dead="true" label="´"/>
-        </key>
-        <key>
-          <binding dead="true" label="`"/>
-          <binding shift="true" dead="true" label="`"/>
-        </key>
+        
+        <spacer/>
       </row>
 
       <row>
-        <key style="special">
+        <key style="special" width="large">
           <binding action="shift" label=""/>
         </key>
+
+        <spacer/>
 
         <key>
           <binding label="z"/>
@@ -132,29 +124,26 @@
           <binding label="m"/>
           <binding shift="true" label="M"/>
         </key>
-        <key>
-          <binding label="ç"/>
-          <binding shift="true" label="Ç"/>
-        </key>
 
-        <key>
-          <binding dead="true" label="^"/>
-          <binding shift="true" dead="true" label="^"/>
-        </key>
+        <spacer/>
 
-        <key style="special">
+        <key style="special" width="large">
           <binding action="backspace" label=""/>
         </key>
       </row>
 
       <row>
-        <key style="special" width="large">
+        <key style="special" width="x-large">
           <binding action="sym" label="?123"/>
         </key>
 
+        <spacer/>
+
         <key id="emailUrlKey"><binding label=","/></key>
-        <key><binding label="."/></key>
         <key width="xx-large"><binding action="space" label=""/></key>
+        <key><binding label="."/></key>
+
+        <spacer/>
 
         <key style="special" width="x-large" id="actionKey">
           <binding action="return" label=""/>
@@ -164,5 +153,5 @@
     </section>
   </layout>
 
-  <import file="symbols-38.xml"/>
+  <import file="symbols_en.xml"/>
 </keyboard>

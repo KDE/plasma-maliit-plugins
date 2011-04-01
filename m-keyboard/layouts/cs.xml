@@ -83,11 +83,9 @@
           <binding extended_labels="ľĺł" label="l"/>
           <binding extended_labels="ĽĹŁ" shift="true" label="L"/>
         </key>
-        <key>
-          <binding label="ů"/>
-          <binding shift="true" label="Ů"/>
-        </key>		
-
+		<key>
+            <binding dead="true" label="´"/>
+        </key>
       </row>
 
       <row>
@@ -122,9 +120,6 @@
           <binding label="m"/>
           <binding shift="true" label="M"/>
         </key>
-		<key>
-            <binding dead="true" label="´"/>
-        </key>
         <key style="special">
           <binding action="backspace" label=""/>
         </key>
@@ -154,5 +149,5 @@
     </section>
   </layout>
 
-  <import file="symbols-36.xml"/>
+  <import file="symbols-35.xml"/>
 </keyboard>

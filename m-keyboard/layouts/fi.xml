@@ -84,9 +84,10 @@
         <binding shift="true" label="L"/>
       </key>
       <key>
-        <binding label="ä" extended_labels="æ"/>
-        <binding shift="true" label="Ä" extended_labels="Æ"/>
+        <binding label="ö" extended_labels="ø"/>
+        <binding shift="true" label="Ö" extended_labels="Ø"/>
       </key>
+
       </row>
 
       <row>
@@ -122,10 +123,6 @@
         <binding label="m"/>
         <binding shift="true" label="M"/>
       </key>
-      <key>
-        <binding label="ö" extended_labels="ø"/>
-        <binding shift="true" label="Ö" extended_labels="Ø"/>
-      </key>
       <key style="special">
         <binding action="backspace" label=""/>
       </key>
@@ -144,8 +141,8 @@
       </key>
 
       <key>
-        <binding label="å"/>
-        <binding shift="true" label="Å"/>
+        <binding label="ä" extended_labels="æ"/>
+        <binding shift="true" label="Ä" extended_labels="Æ"/>
       </key>
 
       <key style="special" width="x-large" id="actionKey">
@@ -155,5 +152,5 @@
     </section>
   </layout>
 
-  <import file="symbols-36.xml"/>
+  <import file="symbols-35.xml"/>
 </keyboard>
