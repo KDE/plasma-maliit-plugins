@@ -679,8 +679,6 @@ void Ut_MImAbstractKeyArea::testPopup()
     const QPoint mousePos(subject->style()->paddingTop() + 1, subject->style()->paddingLeft() + 1); // approximately the top left key on layout
     QVERIFY(&subject->popup());
 
-    QTouchEvent::TouchPoint tp(0);
-    tp.setScreenPos(mousePos);
     subject->d_ptr->touchPointPressed(createTp(0, Qt::TouchPointPressed,
                                                subject->mapToScene(mousePos),
                                                QPointF()));
