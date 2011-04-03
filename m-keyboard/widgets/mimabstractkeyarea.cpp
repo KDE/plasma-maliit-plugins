@@ -69,9 +69,6 @@ namespace
     // Used for error correction:
     QPoint gAdjustedPositionForCorrection = QPoint();
 
-    // Used for touchpoint conversion from mouse events:
-    QPointF gLastMousePos = QPointF();
-
     QPointF adjustedByGravity(const MImAbstractKey *const key,
                               const QPoint &pos,
                               int horizontalGravity,
@@ -443,15 +440,32 @@ void MImAbstractKeyAreaPrivate::touchPointReleased(const QTouchEvent::TouchPoint
 }
 
 QTouchEvent::TouchPoint
-MImAbstractKeyAreaPrivate::createTouchPoint(int id,
-                                            Qt::TouchPointState state,
-                                            const QPointF &pos,
-                                            const QPointF &lastPos)
+MImAbstractKeyAreaPrivate::mouseEventToTouchPoint(const QGraphicsSceneMouseEvent *event)
 {
-    QTouchEvent::TouchPoint tp(id);
-    tp.setState(state);
-    tp.setScenePos(pos);
-    tp.setLastScenePos(lastPos);
+    Qt::TouchPointState state;
+    switch (event->type()) {
+    case QEvent::GraphicsSceneMousePress:
+    case QEvent::GraphicsSceneMouseDoubleClick: // arrives on press
+        state = Qt::TouchPointPressed;
+        break;
+    case QEvent::GraphicsSceneMouseMove:
+        state = Qt::TouchPointMoved;
+        break;
+    case QEvent::GraphicsSceneMouseRelease:
+        state = Qt::TouchPointReleased;
+        break;
+    default:
+        qWarning("Trying to convert mouse event of invalid type to a touch point.");
+        state = Qt::TouchPointStationary;
+        break;
+    }
+
+    QTouchEvent::TouchPoint tp(0);
+    tp.setState(state | Qt::TouchPointPrimary);
+    tp.setPos(event->pos());
+    tp.setLastPos(event->lastPos());
+    tp.setScenePos(event->scenePos());
+    tp.setLastScenePos(event->lastScenePos());
 
     return tp;
 }
@@ -778,11 +792,7 @@ void MImAbstractKeyArea::mousePressEvent(QGraphicsSceneMouseEvent *ev)
         return;
     }
 
-    d->touchPointPressed(d->createTouchPoint(0, Qt::TouchPointPressed,
-                                             mapToScene(ev->pos()),
-                                             mapToScene(gLastMousePos)));
-
-    gLastMousePos = ev->pos();
+    d->touchPointPressed(d->mouseEventToTouchPoint(ev));
 }
 
 void MImAbstractKeyArea::mouseMoveEvent(QGraphicsSceneMouseEvent *ev)
@@ -793,11 +803,7 @@ void MImAbstractKeyArea::mouseMoveEvent(QGraphicsSceneMouseEvent *ev)
         return;
     }
 
-    d->touchPointMoved(d->createTouchPoint(0, Qt::TouchPointMoved,
-                                           mapToScene(ev->pos()),
-                                           mapToScene(gLastMousePos)));
-
-    gLastMousePos = ev->pos();
+    d->touchPointMoved(d->mouseEventToTouchPoint(ev));
 }
 
 void MImAbstractKeyArea::mouseReleaseEvent(QGraphicsSceneMouseEvent *ev)
@@ -813,11 +819,7 @@ void MImAbstractKeyArea::mouseReleaseEvent(QGraphicsSceneMouseEvent *ev)
         return;
     }
 
-    d->touchPointReleased(d->createTouchPoint(0, Qt::TouchPointReleased,
-                                              mapToScene(ev->pos()),
-                                              mapToScene(gLastMousePos)));
-
-    gLastMousePos = ev->pos();
+    d->touchPointReleased(d->mouseEventToTouchPoint(ev));
 }
 
 QVariant MImAbstractKeyArea::itemChange(GraphicsItemChange change, const QVariant &value)

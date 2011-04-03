@@ -44,6 +44,7 @@ struct KeyContext;
 class MImAbstractKey;
 class FlickGesture;
 class PopupBase;
+class QGraphicsSceneMouseEvent;
 
 //! \internal
 class MImAbstractKeyAreaPrivate
@@ -77,14 +78,8 @@ public:
     void touchPointReleased(const QTouchEvent::TouchPoint &tp);
 
     //! \brief Helper method to create touch points
-    //! \param id touch point id
-    //! \param state touch point state
-    //! \param pos touch point scene position
-    //! \param lastPos last touch point scene position
-    static QTouchEvent::TouchPoint createTouchPoint(int id,
-                                                    Qt::TouchPointState state,
-                                                    const QPointF &pos,
-                                                    const QPointF &lastPos);
+    //! \param event Mouse event to create touch point from.
+    static QTouchEvent::TouchPoint mouseEventToTouchPoint(const QGraphicsSceneMouseEvent *event);
 
     //! \brief Caching GConf value for multitouch setting.
     static bool multiTouchEnabled();

@@ -49,6 +49,10 @@ void waitForSignal(const QObject* object, const char* signal, int timeout = 500)
 MSceneWindow *createMSceneWindow(MWindow *w);
 #endif
 
+QTouchEvent::TouchPoint createTouchPoint(int id, Qt::TouchPointState,
+                                         const QPointF &scenePos,
+                                         const QPointF &lastScenePos);
+
 // copy'n'paste from MImAbstractArea impl file, but counts visits, too:
 class SpecialKeyFinder
     : public MImAbstractKeyVisitor

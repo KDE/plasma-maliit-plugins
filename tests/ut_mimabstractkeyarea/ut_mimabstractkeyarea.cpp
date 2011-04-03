@@ -69,8 +69,8 @@ typedef MImAbstractKeyArea *(*KBACreator)(const LayoutData::SharedLayoutSection 
 
 typedef QTouchEvent::TouchPoint (*TpCreator)(int id,
                                              Qt::TouchPointState state,
-                                             const QPointF &pos,
-                                             const QPointF &lastPos);
+                                             const QPointF &scenePos,
+                                             const QPointF &lastScenePos);
 
 typedef QList<QTouchEvent::TouchPoint> TpList;
 typedef QList<MImAbstractKey *> ButtonList;
@@ -666,7 +666,7 @@ void Ut_MImAbstractKeyArea::testPopup_data()
 
 void Ut_MImAbstractKeyArea::testPopup()
 {
-    TpCreator createTp = &MImAbstractKeyAreaPrivate::createTouchPoint;
+    TpCreator createTp = &createTouchPoint;
     QFETCH(KBACreator, createKba);
 
     keyboard = new KeyboardData;
@@ -841,14 +841,14 @@ void Ut_MImAbstractKeyArea::testOverridenKey()
     int releaseExpected = 0;
 
     const QPoint pos0 = key0->buttonRect().center().toPoint();
-    QTouchEvent::TouchPoint tp0 = MImAbstractKeyAreaPrivate::createTouchPoint(0, Qt::TouchPointPressed, pos0, QPointF(-1, -1));
+    QTouchEvent::TouchPoint tp0 = createTouchPoint(0, Qt::TouchPointPressed, pos0, QPointF(-1, -1));
 
     const QPoint pos1 = key1->buttonRect().center().toPoint();
-    QTouchEvent::TouchPoint tp1 = MImAbstractKeyAreaPrivate::createTouchPoint(1, Qt::TouchPointPressed, pos1, QPointF(-1, -1));
+    QTouchEvent::TouchPoint tp1 = createTouchPoint(1, Qt::TouchPointPressed, pos1, QPointF(-1, -1));
 
     const QPoint pos2 = key2->buttonRect().center().toPoint();
-    QTouchEvent::TouchPoint tp2 = MImAbstractKeyAreaPrivate::createTouchPoint(0, Qt::TouchPointMoved, pos2, pos1);
-    QTouchEvent::TouchPoint tp3 = MImAbstractKeyAreaPrivate::createTouchPoint(0, Qt::TouchPointReleased, pos2, pos2);
+    QTouchEvent::TouchPoint tp2 = createTouchPoint(0, Qt::TouchPointMoved, pos2, pos1);
+    QTouchEvent::TouchPoint tp3 = createTouchPoint(0, Qt::TouchPointReleased, pos2, pos2);
 
     // click key0
     subject->d_ptr->touchPointPressed(tp0);
@@ -1026,7 +1026,7 @@ void Ut_MImAbstractKeyArea::testRtlKeys()
 
 void Ut_MImAbstractKeyArea::testLongKeyPress()
 {
-    TpCreator createTp = &MImAbstractKeyAreaPrivate::createTouchPoint;
+    TpCreator createTp = &createTouchPoint;
     const int LongPressTimeOut = 1500; //this value depends on timeout of long press
 
     keyboard = new KeyboardData;
@@ -1125,7 +1125,7 @@ void Ut_MImAbstractKeyArea::testKeyLayout()
 
 void Ut_MImAbstractKeyArea::testTouchPoints_data()
 {
-    TpCreator createTp = &MImAbstractKeyAreaPrivate::createTouchPoint;
+    TpCreator createTp = &createTouchPoint;
 
     QTest::addColumn<int>("expectedClickedSignals");
     QTest::addColumn<QString>("labels");
@@ -1335,8 +1335,7 @@ void Ut_MImAbstractKeyArea::testReset()
     subject = Ut_MImAbstractKeyArea::createArea("Q", size, QSize(size.width() - 2 * margin,
                                                                  size.height() - 2 * margin),
                                                 true);
-
-    TpCreator createTp = &MImAbstractKeyAreaPrivate::createTouchPoint;
+    TpCreator createTp = &createTouchPoint;
 
     MPlainWindow::instance()->scene()->addItem(subject);
 

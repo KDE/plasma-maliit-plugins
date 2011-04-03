@@ -88,3 +88,15 @@ MSceneWindow * createMSceneWindow(MWindow *w)
 }
 #endif
 
+QTouchEvent::TouchPoint createTouchPoint(int id,
+                                         Qt::TouchPointState state,
+                                         const QPointF &scenePos,
+                                         const QPointF &lastScenePos)
+{
+    QTouchEvent::TouchPoint tp(id);
+    tp.setState(state);
+    tp.setScenePos(scenePos);
+    tp.setLastScenePos(lastScenePos);
+    return tp;
+}
+

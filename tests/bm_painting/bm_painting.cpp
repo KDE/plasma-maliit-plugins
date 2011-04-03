@@ -253,26 +253,26 @@ void Bm_Painting::benchmarkPaintDuringKeyPresses()
     const QPoint point1 = key1->buttonBoundingRect().center().toPoint();
     const QPoint point2 = key2->buttonBoundingRect().center().toPoint();
 
-    QTouchEvent::TouchPoint press0(MImAbstractKeyAreaPrivate::createTouchPoint(0, Qt::TouchPointPressed,
-                                                                               subject->mapToScene(point0),
-                                                                               QPointF()));
-    QTouchEvent::TouchPoint release0(MImAbstractKeyAreaPrivate::createTouchPoint(0, Qt::TouchPointReleased,
-                                                                                 subject->mapToScene(point0),
-                                                                                 QPointF()));
+    QTouchEvent::TouchPoint press0(createTouchPoint(0, Qt::TouchPointPressed,
+                                                    subject->mapToScene(point0),
+                                                    QPointF()));
+    QTouchEvent::TouchPoint release0(createTouchPoint(0, Qt::TouchPointReleased,
+                                                      subject->mapToScene(point0),
+                                                      QPointF()));
 
-    QTouchEvent::TouchPoint press1(MImAbstractKeyAreaPrivate::createTouchPoint(1, Qt::TouchPointPressed,
-                                                                               subject->mapToScene(point1),
-                                                                               QPointF()));
-    QTouchEvent::TouchPoint release1(MImAbstractKeyAreaPrivate::createTouchPoint(1, Qt::TouchPointReleased,
-                                                                                 subject->mapToScene(point1),
-                                                                                 QPointF()));
+    QTouchEvent::TouchPoint press1(createTouchPoint(1, Qt::TouchPointPressed,
+                                                    subject->mapToScene(point1),
+                                                    QPointF()));
+    QTouchEvent::TouchPoint release1(createTouchPoint(1, Qt::TouchPointReleased,
+                                                      subject->mapToScene(point1),
+                                                      QPointF()));
 
-    QTouchEvent::TouchPoint press2(MImAbstractKeyAreaPrivate::createTouchPoint(2, Qt::TouchPointPressed,
-                                                                               subject->mapToScene(point2),
-                                                                               QPointF()));
-    QTouchEvent::TouchPoint release2(MImAbstractKeyAreaPrivate::createTouchPoint(2, Qt::TouchPointReleased,
-                                                                                 subject->mapToScene(point2),
-                                                                                 QPointF()));
+    QTouchEvent::TouchPoint press2(createTouchPoint(2, Qt::TouchPointPressed,
+                                                    subject->mapToScene(point2),
+                                                    QPointF()));
+    QTouchEvent::TouchPoint release2(createTouchPoint(2, Qt::TouchPointReleased,
+                                                      subject->mapToScene(point2),
+                                                      QPointF()));
 
     QList< QList<QTouchEvent::TouchPoint> > plannedEvents;
     QList<QTouchEvent::TouchPoint> eventList;
