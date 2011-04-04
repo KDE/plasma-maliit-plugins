@@ -40,6 +40,7 @@
 #include <QGraphicsLinearLayout>
 #include <QStyleOptionGraphicsItem>
 #include <QGraphicsWidget>
+#include <QPropertyAnimation>
 
 #include <MButton>
 #include <MScalableImage>
@@ -53,6 +54,7 @@ namespace
 {
     // This GConf item defines whether multitouch is enabled or disabled
     const char * const MultitouchSettings = "/meegotouch/inputmethods/multitouch/enabled";
+    const int VerticalAnimatinDuration = 250;
 }
 
 const QString MVirtualKeyboard::WordSeparators("-.,!? \n");
@@ -79,7 +81,9 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
       eventHandler(this),
       generalContentType(M::FreeTextContentType),
       toggleKeyState(false),
-      composeKeyState(false)
+      composeKeyState(false),
+      verticalAnimation(NULL),
+      switchStarted(false)
 {
     setFlag(QGraphicsItem::ItemHasNoContents);
     setObjectName("MVirtualKeyboard");
@@ -130,6 +134,11 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
 
     // Request a reaction map painting if it appears
     connect(this, SIGNAL(displayEntered()), &signalForwarder, SIGNAL(requestRepaint()));
+
+    // Initialize the vertical animation.
+    verticalAnimation = new QPropertyAnimation(this, "pos");
+    verticalAnimation->setDuration(VerticalAnimatinDuration);
+    connect(verticalAnimation, SIGNAL(finished()), this, SLOT(onVerticalAnimationFinished()));
 }
 
 
@@ -143,6 +152,9 @@ MVirtualKeyboard::~MVirtualKeyboard()
 
     delete phoneNumberKeyboard;
     delete numberKeyboard;
+
+    delete verticalAnimation;
+    verticalAnimation = NULL;
 }
 
 
@@ -297,6 +309,7 @@ void MVirtualKeyboard::organizeContent(M::Orientation orientation, const bool fo
         int index = mainKeyboardSwitcher->current();
         // RecreateKeyboards() will lead to all slides being removed from switcher and a call to updateGeometry().
         // So we need to set the new preferredWidth first.
+        setPreferredWidth(MPlainWindow::instance()->visibleSceneSize().width());
         mainKeyboardSwitcher->setPreferredWidth(MPlainWindow::instance()->visibleSceneSize().width());
         recreateKeyboards();
         // Since all keyboards were reset, we reactive the current keyboard and adjust its size.
@@ -479,6 +492,8 @@ void MVirtualKeyboard::numberKeyboardReset()
 
 void MVirtualKeyboard::onSectionSwitchStarting(int current, int next)
 {
+    switchStarted = true;
+
     if (mainKeyboardSwitcher->currentWidget()) {
         // Current widget is animated off the screen but if mouse is not moved
         // relative to screen it appears to MImAbstractKeyArea as if mouse was held
@@ -498,8 +513,16 @@ void MVirtualKeyboard::onSectionSwitchStarting(int current, int next)
 }
 
 
-void MVirtualKeyboard::onSectionSwitched(QGraphicsWidget */*previous*/, QGraphicsWidget */*current*/)
+void MVirtualKeyboard::onSectionSwitched(QGraphicsWidget *previous, QGraphicsWidget *current)
 {
+    // Play the vertical animation if necessary.
+    if (switchStarted) {
+        int heightDelta = ((previous == NULL) || (current == NULL))
+                          ? 0 : (previous->size().height() - current->size().height());
+        playVerticalAnimation(heightDelta);
+    }
+
+    switchStarted = false;
     organizeContent(currentOrientation);
 }
 
@@ -842,4 +865,50 @@ void MVirtualKeyboard::setComposeKeyState(bool isComposing)
     if (mainKb) {
         mainKb->setComposeKeyState(isComposing);
     }
+}
+
+void MVirtualKeyboard::playVerticalAnimation(int animLine)
+{
+    if (animLine == 0)
+        return;
+
+    // Calculate the backgroud area for the vertical animation,
+    // and this area would be painted in BLACK to hide views which just underlie VKB.
+    animHiddingArea.setTopLeft(QPointF(0.0, 0.0));
+    animHiddingArea.setSize(QSize(size().width(), size().height() + animLine));
+
+    // Disable VKB temporarily during playing the animation.
+    setEnabled(false);
+    // Enable painting background in black during playing the animation.
+    setFlag(QGraphicsItem::ItemHasNoContents, false);
+
+    // Start the vertical animation.
+    QPointF startPos(pos());
+    QPointF endPos(pos().x(), pos().y() + animLine);
+    verticalAnimation->setStartValue(startPos);
+    verticalAnimation->setEndValue(endPos);
+    verticalAnimation->start();
+}
+
+bool MVirtualKeyboard::isPlayingAnimation()
+{
+    return (verticalAnimation->state() == QPropertyAnimation::Running);
+}
+
+void MVirtualKeyboard::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    Q_UNUSED(option);
+    Q_UNUSED(widget);
+    // Make VKB background black during playing the vertical animation.
+    painter->fillRect(animHiddingArea, Qt::black);
+}
+
+void MVirtualKeyboard::onVerticalAnimationFinished()
+{
+    // Recover original painting flag.
+    setFlag(QGraphicsItem::ItemHasNoContents);
+    // Enable VKB.
+    setEnabled(true);
+    // Repaint the reaction map.
+    signalForwarder.emitRequestRepaint();
 }

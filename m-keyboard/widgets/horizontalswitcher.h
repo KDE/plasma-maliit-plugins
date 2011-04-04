@@ -145,6 +145,7 @@ protected:
     //! \reimp
     virtual void resizeEvent(QGraphicsSceneResizeEvent *event);
     virtual QSizeF sizeHint(Qt::SizeHint which, const QSizeF &constraint = QSizeF()) const;
+    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
     //! \reimp_end
 
 private slots:

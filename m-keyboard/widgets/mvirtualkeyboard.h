@@ -36,6 +36,8 @@
 class QGraphicsGridLayout;
 class QGraphicsLinearLayout;
 class QGraphicsWidget;
+class QPropertyAnimation;
+class QRectF;
 class MButton;
 class MScalableImage;
 class MSceneManager;
@@ -145,6 +147,7 @@ public:
 
     //! reimp
     bool isPaintable() const;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
     //! reimp_end
 
     //! \brief Resets different components of vkb to their initial states.
@@ -155,6 +158,9 @@ public:
 
     //! Show notification informing about current language
     void showLanguageNotification();
+
+    //! Indicates whether an animation is playing.
+    bool isPlayingAnimation();
 
 public slots:
     /*!
@@ -231,6 +237,8 @@ private slots:
     void onSectionSwitchStarting(int current, int next);
 
     void onSectionSwitched(QGraphicsWidget *previous, QGraphicsWidget *current);
+
+    void onVerticalAnimationFinished();
 
 signals:
     /*!
@@ -350,6 +358,9 @@ private:
     //! Sets the current content type (handles email/url overrides):
     void setContentType(M::TextContentType type);
 
+    //! Play the vertical animation when VKB height is changed.
+    void playVerticalAnimation(int animLine);
+
 private:
     //! Main layout indices
     enum LayoutIndex {
@@ -409,6 +420,11 @@ private:
 
     bool toggleKeyState;
     bool composeKeyState;
+
+    //! A vertical animation played only when switching to another VKB layout with different height.
+    QPropertyAnimation *verticalAnimation;
+    QRectF animHiddingArea;
+    bool switchStarted;
 };
 
 #endif

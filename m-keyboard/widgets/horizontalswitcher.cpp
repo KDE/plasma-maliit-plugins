@@ -117,6 +117,9 @@ void HorizontalSwitcher::switchTo(SwitchDirection direction)
         leaveAnim.setPosAt(1.0, QPointF((direction == Right ? -(currentWidget->size().width())
                                                             : size().width()), 0.0));
 
+        // Enable painting background in black during playing animations.
+        setFlag(QGraphicsItem::ItemHasNoContents, false);
+
         nextWidget->show();
         animTimeLine.start();
     }
@@ -297,6 +300,8 @@ void HorizontalSwitcher::finishAnimation()
     enterAnim.clear();
 
     animTimeLine.stop();
+    // Restore original painting flag.
+    setFlag(QGraphicsItem::ItemHasNoContents);
 
     // Discard cached sizehint info before telling that the switch is done.
     updateGeometry();
@@ -347,4 +352,12 @@ void HorizontalSwitcher::setContentType(M::TextContentType type)
             mainKba->setContentType(type);
         }
     }
+}
+
+void HorizontalSwitcher::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    Q_UNUSED(option);
+    Q_UNUSED(widget);
+    // Make the background black during playing animations.
+    painter->fillRect(rect(), Qt::black);
 }

@@ -653,7 +653,8 @@ void MKeyboardHost::handleAnimationFinished()
 
 void MKeyboardHost::handleVirtualKeyboardGeometryChange()
 {
-    if (slideUpAnimation.state() == QAbstractAnimation::Stopped) {
+    if (slideUpAnimation.state() == QAbstractAnimation::Stopped
+         && !vkbWidget->isPlayingAnimation()) {
         vkbWidget->setPos(0, MPlainWindow::instance()->visibleSceneSize().height() - vkbWidget->size().height());
     }
 }
