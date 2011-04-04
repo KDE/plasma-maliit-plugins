@@ -83,6 +83,8 @@ bool FixtureVirtualKeyboard::execute(void *objectInstance,
         action = MImKeyBinding::ActionSpace;
     } else if (key == "Enter") {
         action = MImKeyBinding::ActionReturn;
+    } else if (key == "Compose") {
+        action = MImKeyBinding::ActionCompose;
     } else if (key == "AccentKeys") {
         action = MImKeyBinding::ActionSwitch;
     } else {
