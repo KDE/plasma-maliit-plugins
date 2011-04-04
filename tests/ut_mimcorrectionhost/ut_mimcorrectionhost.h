@@ -25,6 +25,8 @@
 #include <QObject>
 
 class MSceneWindow;
+class MKeyboardHost;
+class MInputMethodHostStub;
 
 class Ut_MImCorrectionHost : public QObject
 {
@@ -34,6 +36,10 @@ private:
     MApplication *app;
     MImCorrectionHost *m_subject;
     MSceneWindow *parentWindow;
+
+    MInputMethodHostStub *inputMethodHost;
+    QWidget *mainWindow;
+    MKeyboardHost *keyboardHost;
 
 private slots:
     //! initialize application and class

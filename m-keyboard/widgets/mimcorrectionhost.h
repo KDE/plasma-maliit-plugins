@@ -17,6 +17,7 @@
 #ifndef MIMCORRECTIONHOST_H
 #define MIMCORRECTIONHOST_H
 
+#include "abstractenginewidgethost.h"
 #include "reactionmappaintable.h"
 
 #include <QObject>
@@ -37,23 +38,17 @@ class MImEngineWordsInterface;
   \brief The MImCorrectionHost class is used to show error correction
   candidate word tracker or word list.
 */
-class MImCorrectionHost : public QObject, public ReactionMapPaintable
+class MImCorrectionHost : public AbstractEngineWidgetHost, public ReactionMapPaintable
 {
     Q_OBJECT
 
     friend class Ut_MImCorrectionHost;
 
 public:
-    //! CandidateMode is used by showCorrectionWidget.
-    enum CandidateMode {
-        WordTrackerMode,  //!< word tracker
-        WordListMode      //!< word suggestion list
-    };
-
     /*! Constructor
      *
      */
-    explicit MImCorrectionHost(MImEngineWordsInterface *imCorrectionEngine, MSceneWindow *parentWindow);
+    explicit MImCorrectionHost(MWidget *window, QObject *parent = 0);
 
     /*! Destructor
      *
@@ -61,73 +56,40 @@ public:
     ~MImCorrectionHost();
 
     /*!
-     * \brief Returns true if tracker or word list is active.
-     */
-    bool isActive() const;
-
-    /*!
      * \brief Returns true if candidate zero, the originally typed word, is in the dictionary.
      */
     bool typedWordIsInDictionary();
 
-    /*! Set the candidate list
-     *
-     */
-    void setCandidates(QStringList candidate);
-
-    /*!
-     * \brief Shows candidate widget with different \a mode.
-     *
-     * \sa CandidateMode.
-     */
-    virtual void showCorrectionWidget(CandidateMode mode = WordTrackerMode);
-
-    /*!
-     * \brief Hides candidate widget.
-     */
-    virtual void hideCorrectionWidget();
-
-    /*!
-     * \brief Returns current used mode for the candidate widget.
-     *
-     * \sa CandidateMode.
-     */
-    CandidateMode candidateMode() const;
-
-    /*!
-     * \brief Sets the position of word tracker based on cursor rectangle.
-     */
-    void setPosition(const QRect &cursorRect);
-
-    /*!
-     * \brief Returns the suggested word.
-     *
-     * The suggestion is the word present on word tracker or the one clicked by user in
-     * the word list.
-     */
-    QString suggestion() const;
+    //! reimp
+    virtual QGraphicsWidget *engineWidget() const;
+    virtual QGraphicsWidget *inlineWidget() const;
+    virtual bool isActive() const;
+    virtual void setTitle(QString &title);
+    virtual void setCandidates(const QStringList &candidates);
+    virtual void appendCandidates(int startPos, const QStringList &candidate);
+    virtual QStringList candidates() const;
+    virtual void showEngineWidget(DisplayMode mode = FloatingMode);
+    virtual void hideEngineWidget();
+    virtual DisplayMode displayMode() const;
+    virtual void watchOnWidget(QGraphicsWidget *widget);
+    virtual void setPosition(const QRect &cursorRect);
+    virtual void handleNavigationKey(NaviKey key);
+    virtual int suggestedWordIndex() const;
+    virtual void prepareToOrientationChange();
+    virtual void finalizeOrientationChange();
+    virtual void reset();
+    virtual void setPageIndex(int index = 0);
+    //! reimp_end
 
     /*!
      * \brief Draw its reactive areas onto the reaction map
      */
     void paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view);
 
-    //! Prepare virtual keyboard for orientation change
-    void prepareToOrientationChange();
-
-    //! Finalize orientation change
-    void finalizeOrientationChange();
-
-    //! Clear stored suggestion and hide candidate widget.
-    void reset();
-
     /*! \reimp */
     bool isPaintable() const;
     bool isFullScreen() const;
     /*! \reimp_end */
-signals:
-    //! Updates the preedit word
-    void candidateClicked(const QString &);
 
 protected slots:
     void handleCandidateClicked(const QString &candidate);
@@ -136,8 +98,8 @@ protected slots:
 
 private:
     bool rotationInProgress;
-    QStringList candidates;
-    CandidateMode currentMode;
+    QStringList mCandidates;
+    DisplayMode currentMode;
     QString suggestionString;
     bool pendingCandidatesUpdate;
 

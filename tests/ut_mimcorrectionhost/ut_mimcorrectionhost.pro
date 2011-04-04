@@ -11,6 +11,8 @@ include(../common_check.pri)
 LIBS += -Wl,-rpath=/usr/lib/meego-im-plugins/ -lmeego-keyboard
 
 HEADERS += ut_mimcorrectionhost.h \
+           ../stubs/minputmethodhoststub.h \
 
 SOURCES += ut_mimcorrectionhost.cpp \
+           ../stubs/minputmethodhoststub.cpp \
 

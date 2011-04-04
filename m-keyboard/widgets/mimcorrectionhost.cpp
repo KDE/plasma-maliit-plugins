@@ -18,21 +18,21 @@
 #include "mimcorrectionhost.h"
 #include "mimwordtracker.h"
 #include "mimwordlist.h"
+#include "enginemanager.h"
 
 #include <mimenginetypes.h>
 #include <mimenginefactory.h>
-
+#include <QGraphicsWidget>
 #include <QDebug>
 
-MImCorrectionHost::MImCorrectionHost(MImEngineWordsInterface *imCorrectionEngine, MSceneWindow *parentWindow)
-    : QObject(parentWindow),
+MImCorrectionHost::MImCorrectionHost(MWidget *window, QObject *parent)
+    : AbstractEngineWidgetHost(window, parent),
       ReactionMapPaintable(),
       rotationInProgress(false),
-      currentMode(MImCorrectionHost::WordTrackerMode),
+      currentMode(AbstractEngineWidgetHost::FloatingMode),
       pendingCandidatesUpdate(false),
-      wordTracker(new MImWordTracker(parentWindow)),
-      wordList(new MImWordList()),
-      correctionEngine(imCorrectionEngine)
+      wordTracker(new MImWordTracker(window)),
+      wordList(new MImWordList())
 {
     connect(wordTracker, SIGNAL(candidateClicked(QString)), this, SLOT(handleCandidateClicked(QString)));
     connect(wordTracker, SIGNAL(longTapped()), this, SLOT(longTap()));
@@ -56,6 +56,22 @@ MImCorrectionHost::~MImCorrectionHost()
     delete wordList;
 }
 
+QGraphicsWidget *MImCorrectionHost::engineWidget() const
+{
+    QGraphicsWidget *widget = 0;
+
+    if (isActive()) {
+        widget = wordTracker->isVisible() ? qobject_cast<QGraphicsWidget *>(wordTracker)
+                 : qobject_cast<QGraphicsWidget *>(wordList);
+    }
+    return widget;
+}
+
+QGraphicsWidget *MImCorrectionHost::inlineWidget() const
+{
+    return qobject_cast<QGraphicsWidget *>(wordTracker);
+}
+
 bool MImCorrectionHost::isActive() const
 {
     return (wordTracker->isVisible() || wordList->isVisible());
@@ -63,68 +79,70 @@ bool MImCorrectionHost::isActive() const
 
 bool MImCorrectionHost::typedWordIsInDictionary()
 {
-    if (!correctionEngine) {
+    if (!EngineManager::instance().engine()) {
         return false;
     }
 
-    return correctionEngine->candidateSource(0) != MImEngine::DictionaryTypeInvalid;
+    return EngineManager::instance().engine()->candidateSource(0) != MImEngine::DictionaryTypeInvalid;
 }
 
-void MImCorrectionHost::setCandidates(const QStringList list)
+void MImCorrectionHost::setCandidates(const QStringList &list)
 {
-    candidates = list;
+    mCandidates = list;
     suggestionString.clear();
-    if (candidates.isEmpty()) {
+    if (mCandidates.isEmpty()) {
         return;
     }
 
     // The first candidate is always the original input word.
     // So if there are more than one suggestions, the second one is
     // the suggestion word.
-    suggestionString = candidates.at(0);
-    if (candidates.count() > 1) {
-        suggestionString = candidates.at(1);
+    suggestionString = mCandidates.at(0);
+    if (mCandidates.count() > 1) {
+        suggestionString = mCandidates.at(1);
     }
 
     if (isActive()) {
-        if (currentMode == WordTrackerMode) {
+        if (currentMode == AbstractEngineWidgetHost::FloatingMode) {
             wordTracker->setCandidate(suggestionString);
         } else {
-            wordList->setCandidates(candidates, typedWordIsInDictionary());
+            wordList->setCandidates(mCandidates, typedWordIsInDictionary());
         }
     } else {
         pendingCandidatesUpdate = true;
     }
 }
 
-void MImCorrectionHost::setPosition(const QRect &cursorRect)
+void MImCorrectionHost::appendCandidates(int startPos, const QStringList &candidateList)
 {
-    if (cursorRect.isNull() || !cursorRect.isValid()) {
-        return;
-    }
-
-    wordTracker->setPosition(cursorRect);
+    Q_UNUSED(startPos);
+    Q_UNUSED(candidateList);
 }
 
-void MImCorrectionHost::showCorrectionWidget(MImCorrectionHost::CandidateMode mode)
+QStringList MImCorrectionHost::candidates() const
+{
+    return mCandidates;
+}
+
+void MImCorrectionHost::showEngineWidget(AbstractEngineWidgetHost::DisplayMode mode)
 {
     bool modeChanged = (currentMode != mode);
     currentMode = mode;
 
-    if (candidates.isEmpty()) {
-        hideCorrectionWidget();
+    if (mCandidates.isEmpty()) {
+        hideEngineWidget();
         return;
     }
     if (pendingCandidatesUpdate || modeChanged) {
-        if (currentMode == WordTrackerMode) {
+        if (currentMode == AbstractEngineWidgetHost::FloatingMode) {
             wordTracker->setCandidate(suggestionString);
         } else {
-            wordList->setCandidates(candidates, typedWordIsInDictionary());
+            wordList->setCandidates(mCandidates, typedWordIsInDictionary());
         }
         pendingCandidatesUpdate = false;
     }
 
-    if (currentMode == WordTrackerMode) {
+    if (currentMode == AbstractEngineWidgetHost::FloatingMode) {
         suggestionString = wordTracker->candidate();
 
         if (!wordTracker->isVisible()) {
@@ -137,20 +155,39 @@ void MImCorrectionHost::showCorrectionWidget(MImCorrectionHost::CandidateMode mo
     }
 }
 
-void MImCorrectionHost::hideCorrectionWidget()
+void MImCorrectionHost::hideEngineWidget()
 {
     wordTracker->disappear(false);
     wordList->disappear();
 }
 
-MImCorrectionHost::CandidateMode MImCorrectionHost::candidateMode() const
+AbstractEngineWidgetHost::DisplayMode MImCorrectionHost::displayMode() const
 {
     return currentMode;
 }
 
-QString MImCorrectionHost::suggestion() const
+void MImCorrectionHost::watchOnWidget(QGraphicsWidget *widget)
 {
-    return suggestionString;
+    Q_UNUSED(widget);
+}
+
+void MImCorrectionHost::setPosition(const QRect &cursorRect)
+{
+    if (cursorRect.isNull() || !cursorRect.isValid()) {
+        return;
+    }
+
+    wordTracker->setPosition(cursorRect);
+}
+
+void MImCorrectionHost::handleNavigationKey(AbstractEngineWidgetHost::NaviKey key)
+{
+    Q_UNUSED(key);
+}
+
+int MImCorrectionHost::suggestedWordIndex() const
+{
+    return mCandidates.indexOf(suggestionString);
 }
 
 void MImCorrectionHost::prepareToOrientationChange()
@@ -163,9 +200,20 @@ void MImCorrectionHost::prepareToOrientationChange()
 void MImCorrectionHost::finalizeOrientationChange()
 {
     if (rotationInProgress) {
-        showCorrectionWidget(currentMode);
+        showEngineWidget(currentMode);
         rotationInProgress = false;
     }
+}
+
+void MImCorrectionHost::reset()
+{
+    setCandidates(QStringList());
+    hideEngineWidget();
+}
+
+void MImCorrectionHost::setPageIndex(int index)
+{
+    Q_UNUSED(index);
 }
 
 void MImCorrectionHost::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view)
@@ -185,16 +233,10 @@ void MImCorrectionHost::handleCandidateClicked(const QString &candidate)
 {
     if (!candidate.isEmpty() && isActive()) {
         suggestionString = candidate;
-        emit candidateClicked(candidate);
+        emit candidateClicked(candidate, mCandidates.indexOf(suggestionString));
     }
 
-    hideCorrectionWidget();
-}
-
-void MImCorrectionHost::reset()
-{
-    setCandidates(QStringList());
-    hideCorrectionWidget();
+    hideEngineWidget();
 }
 
 bool MImCorrectionHost::isPaintable() const
@@ -204,8 +246,8 @@ bool MImCorrectionHost::isPaintable() const
 
 bool MImCorrectionHost::isFullScreen() const
 {
-    // Correction candidate widget occupies whole screen when it is WordListMode.
-    return candidateMode() == MImCorrectionHost::WordListMode;
+    // Correction candidate widget occupies whole screen when it is AbstractEngineWidgetHost::DialogMode.
+    return displayMode() == AbstractEngineWidgetHost::DialogMode;
 }
 
 void MImCorrectionHost::longTap()
@@ -214,5 +256,10 @@ void MImCorrectionHost::longTap()
     if (!isActive())
         return;
 
-    showCorrectionWidget(WordListMode);
+    showEngineWidget(AbstractEngineWidgetHost::DialogMode);
+}
+
+void MImCorrectionHost::setTitle(QString &title)
+{
+    Q_UNUSED(title);
 }

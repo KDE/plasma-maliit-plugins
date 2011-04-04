@@ -13,18 +13,18 @@ PKGCONFIG += gconf-2.0
 
 # Input
 HEADERS += ut_mkeyboardhost.h \
-           minputmethodhoststub.h \
+           $$STUBS_DIR/minputmethodhoststub.h \
            dummydriver_mkh.h \
-           ../stubs/mgconfitem_stub.h \
-           ../stubs/fakegconf.h \
+           $$STUBS_DIR/mgconfitem_stub.h \
+           $$STUBS_DIR/fakegconf.h \
            $$WIDGETS_DIR/popupfactory.h \
 
 # PopupFactory needs to be compiled to have a mocked functionality
 # otherwise the unit test crashes
 SOURCES += ut_mkeyboardhost.cpp \
-           minputmethodhoststub.cpp \
+           $$STUBS_DIR/minputmethodhoststub.cpp \
            dummydriver_mkh.cpp \
-           ../stubs/fakegconf.cpp \
+           $$STUBS_DIR/fakegconf.cpp \
            $$WIDGETS_DIR/popupfactory.cpp \
 
 target.files += $$TARGET \

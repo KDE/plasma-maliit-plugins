@@ -17,10 +17,14 @@
 
 
 #include "ut_mimcorrectionhost.h"
+#include "abstractenginewidgethost.h"
+#include "mkeyboardhost.h"
+#include "enginemanager.h"
 #include "mimwordtracker.h"
 #include "mimwordlist.h"
 #include "reactionmappainter.h"
 #include "utils.h"
+#include "minputmethodhoststub.h"
 
 #include <mplainwindow.h>
 #include <QtTest/QTest>
@@ -30,9 +34,8 @@
 #include <QSignalSpy>
 #include <MSceneManager>
 #include <MSceneWindow>
-#include <regiontracker.h>
 
-Q_DECLARE_METATYPE(MImCorrectionHost::CandidateMode)
+Q_DECLARE_METATYPE(AbstractEngineWidgetHost::DisplayMode)
 
 void Ut_MImCorrectionHost::initTestCase()
 {
@@ -41,11 +44,12 @@ void Ut_MImCorrectionHost::initTestCase()
                                   (char *) "-software" };
     disableQtPlugins();
     app = new MApplication(dummyArgc, dummyArgv);
-    RegionTracker::createInstance();
-    ReactionMapPainter::createInstance();
+
+    inputMethodHost = new MInputMethodHostStub;
+    mainWindow = new QWidget;
+    keyboardHost = new MKeyboardHost(inputMethodHost, mainWindow);
 
     // MImCorrectionHost uses this internally
-    new MPlainWindow;
     if (MPlainWindow::instance()->orientationAngle() != M::Angle0) {
         MPlainWindow::instance()->setOrientationAngle(M::Angle0);
         QTest::qWait(1000);
@@ -77,8 +81,9 @@ void Ut_MImCorrectionHost::cleanupTestCase()
 {
     delete parentWindow;
     delete MPlainWindow::instance();
-    RegionTracker::destroyInstance();
-    ReactionMapPainter::destroyInstance();
+    delete keyboardHost;
+    delete mainWindow;
+    delete inputMethodHost;
     delete app;
     app = 0;
 }
@@ -89,10 +94,10 @@ void Ut_MImCorrectionHost::checkShowWidget()
     candidates << "1" << "2" << "3" << "4" << "5";
     m_subject->setCandidates(candidates);
     // At least, no crash for show and hide
-    m_subject->showCorrectionWidget(MImCorrectionHost::WordTrackerMode);
-    m_subject->hideCorrectionWidget();
-    m_subject->showCorrectionWidget(MImCorrectionHost::WordListMode);
-    m_subject->hideCorrectionWidget();
+    m_subject->showEngineWidget(AbstractEngineWidgetHost::FloatingMode);
+    m_subject->hideEngineWidget();
+    m_subject->showEngineWidget(AbstractEngineWidgetHost::DialogMode);
+    m_subject->hideEngineWidget();
 }
 
 void Ut_MImCorrectionHost::checkModes()
@@ -100,10 +105,10 @@ void Ut_MImCorrectionHost::checkModes()
     QStringList candidates;
     candidates << "1" << "2" << "3" << "4" << "5";
     m_subject->setCandidates(candidates);
-    m_subject->showCorrectionWidget(MImCorrectionHost::WordTrackerMode);
-    QCOMPARE(m_subject->candidateMode(),  MImCorrectionHost::WordTrackerMode);
-    m_subject->showCorrectionWidget(MImCorrectionHost::WordListMode);
-    QCOMPARE(m_subject->candidateMode(), MImCorrectionHost::WordListMode);
+    m_subject->showEngineWidget(AbstractEngineWidgetHost::FloatingMode);
+    QCOMPARE(m_subject->displayMode(),  AbstractEngineWidgetHost::FloatingMode);
+    m_subject->showEngineWidget(AbstractEngineWidgetHost::DialogMode);
+    QCOMPARE(m_subject->displayMode(), AbstractEngineWidgetHost::DialogMode);
 }
 
 void Ut_MImCorrectionHost::checkCandidatesAndPreedit_data()
@@ -119,44 +124,45 @@ void Ut_MImCorrectionHost::checkCandidatesAndPreedit()
     QFETCH(QStringList, candidates);
 
     m_subject->setCandidates(candidates);
-    QCOMPARE(candidates, m_subject->candidates);
+    QCOMPARE(candidates, m_subject->candidates());
 }
 
 void Ut_MImCorrectionHost::checkSuggestion_data()
 {
     QTest::addColumn<QStringList>("candidates");
-    QTest::addColumn<MImCorrectionHost::CandidateMode>("candidateMode");
+    QTest::addColumn<AbstractEngineWidgetHost::DisplayMode>("displayMode");
     QTest::addColumn<QString>("clickedCandidate");
 
     QTest::newRow("testWordTrackerMode") << (QStringList() << "1" << "2" << "3" << "4" << "5")
-                            << MImCorrectionHost::WordTrackerMode
+                            << AbstractEngineWidgetHost::FloatingMode
                             << "3";
     QTest::newRow("testWordListMode") << (QStringList() << "ab" << "cd" << "ef" << "fg" << "gh")
-                            << MImCorrectionHost::WordListMode
+                            << AbstractEngineWidgetHost::DialogMode
                             << "gh";
 }
 
 void Ut_MImCorrectionHost::checkSuggestion()
 {
     QFETCH(QStringList, candidates);
-    QFETCH(MImCorrectionHost::CandidateMode, candidateMode);
+    QFETCH(AbstractEngineWidgetHost::DisplayMode, displayMode);
     QFETCH(QString, clickedCandidate);
 
-    QSignalSpy spy(m_subject, SIGNAL(candidateClicked(const QString &)));
+    QSignalSpy spy(m_subject, SIGNAL(candidateClicked(const QString &, int)));
 
     m_subject->setCandidates(candidates);
-    m_subject->showCorrectionWidget(candidateMode);
-    if (candidateMode == MImCorrectionHost::WordListMode) {
+    m_subject->showEngineWidget(displayMode);
+    if (displayMode == AbstractEngineWidgetHost::DialogMode) {
         QTest::qWait(600);
     }
+    QCOMPARE(m_subject->candidates(), candidates);
     // default suggestion is the first one in candidate list which is
     // different with preedit
-    QCOMPARE(m_subject->suggestion(), candidates.at(1));
+    QCOMPARE(m_subject->suggestedWordIndex(), 1);
 
     m_subject->handleCandidateClicked(clickedCandidate);
 
     // suggestion is the clciked word
-    QCOMPARE(m_subject->suggestion(), clickedCandidate);
+    QCOMPARE(m_subject->suggestedWordIndex(), candidates.indexOf(clickedCandidate));
     QCOMPARE(spy.count(), 1);
     QCOMPARE(spy.first().first().toString(), clickedCandidate);
 }
@@ -164,21 +170,21 @@ void Ut_MImCorrectionHost::checkSuggestion()
 void Ut_MImCorrectionHost::checkpendingCandidatesUpdate_data()
 {
     QTest::addColumn<QStringList>("candidates");
-    QTest::addColumn<MImCorrectionHost::CandidateMode>("candidateMode");
+    QTest::addColumn<AbstractEngineWidgetHost::DisplayMode>("displayMode");
     QTest::addColumn<QStringList>("updatedCandidates");
 
     QTest::newRow("testWordTrackerMode") << (QStringList() << "1" << "2" << "3" << "4" << "5")
-                            << MImCorrectionHost::WordTrackerMode
+                            << AbstractEngineWidgetHost::FloatingMode
                             << (QStringList() << "ab" << "cd" << "ef" << "fg" << "gh");
     QTest::newRow("testWordListMode") << (QStringList() << "ab" << "cd" << "ef" << "fg" << "gh")
-                            << MImCorrectionHost::WordListMode
+                            << AbstractEngineWidgetHost::DialogMode
                             << (QStringList() << "1" << "2" << "3" << "4" << "5");
 }
 
 void Ut_MImCorrectionHost::checkpendingCandidatesUpdate()
 {
     QFETCH(QStringList, candidates);
-    QFETCH(MImCorrectionHost::CandidateMode, candidateMode);
+    QFETCH(AbstractEngineWidgetHost::DisplayMode, displayMode);
     QFETCH(QStringList, updatedCandidates);
 
     QCOMPARE(m_subject->isActive(), false);
@@ -186,31 +192,26 @@ void Ut_MImCorrectionHost::checkpendingCandidatesUpdate()
     m_subject->setCandidates(candidates);
     QCOMPARE(m_subject->pendingCandidatesUpdate, true);
 
-    QVERIFY(m_subject->suggestion() != m_subject->wordTracker->candidate());
-    QVERIFY(m_subject->candidates != m_subject->wordList->candidates());
+    QVERIFY(m_subject->candidates() != m_subject->wordList->candidates());
 
-    m_subject->showCorrectionWidget(candidateMode);
+    m_subject->showEngineWidget(displayMode);
     QTest::qWait(600);
 
     QCOMPARE(m_subject->pendingCandidatesUpdate, false);
     // only update the wordtracker or wordlist according current mode
-    if (candidateMode == MImCorrectionHost::WordTrackerMode) {
-        QVERIFY(m_subject->suggestion() == m_subject->wordTracker->candidate());
-        QVERIFY(m_subject->candidates != m_subject->wordList->candidates());
+    if (displayMode == AbstractEngineWidgetHost::FloatingMode) {
+        QVERIFY(m_subject->candidates() != m_subject->wordList->candidates());
     } else {
-        QVERIFY(m_subject->suggestion() != m_subject->wordTracker->candidate());
-        QVERIFY(m_subject->candidates == m_subject->wordList->candidates());
+        QVERIFY(m_subject->candidates() == m_subject->wordList->candidates());
     }
 
     m_subject->setCandidates(updatedCandidates);
     QCOMPARE(m_subject->pendingCandidatesUpdate, false);
 
-    if (candidateMode == MImCorrectionHost::WordTrackerMode) {
-        QVERIFY(m_subject->suggestion() == m_subject->wordTracker->candidate());
-        QVERIFY(m_subject->candidates != m_subject->wordList->candidates());
+    if (displayMode == AbstractEngineWidgetHost::FloatingMode) {
+        QVERIFY(m_subject->candidates() != m_subject->wordList->candidates());
     } else {
-        QVERIFY(m_subject->suggestion() != m_subject->wordTracker->candidate());
-        QVERIFY(m_subject->candidates == m_subject->wordList->candidates());
+        QVERIFY(m_subject->candidates() == m_subject->wordList->candidates());
     }
 }
 

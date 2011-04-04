@@ -16,7 +16,6 @@
 
 
 
-#include <mimcorrectionhost.h>
 #include <mvirtualkeyboard.h>
 #include <mhardwarekeyboard.h>
 #include <mkeyboardhost.h>
@@ -28,6 +27,8 @@
 #include <mimtoolbar.h>
 #include <layoutsmanager.h>
 #include <regiontracker.h>
+#include <enginemanager.h>
+#include <abstractenginewidgethost.h>
 
 #include "mgconfitem_stub.h"
 #include "minputmethodhoststub.h"
@@ -76,6 +77,8 @@ namespace
 
     const char * const TargetSettingsName("/meegotouch/target/name");
     const char * const DefaultTargetName("Default");
+
+    DummyDriverMkh stubEngine;
 }
 
 namespace QTest
@@ -140,6 +143,11 @@ void MKeyboardHost::hideLockOnInfoBanner()
     gHideLockOnInfoBannerCallCount++;
 }
 
+MImEngineWordsInterface *EngineManager::engine() const
+{
+    return &stubEngine;
+}
+
 // Actual test...............................................................
 
 void Ut_MKeyboardHost::initTestCase()
@@ -177,6 +185,8 @@ void Ut_MKeyboardHost::cleanupTestCase()
 void Ut_MKeyboardHost::init()
 {
     // Uses dummy driver
+    stubEngine.enableCompletion();
+    stubEngine.enableCorrection();
     MGConfItem engineConfig(InputMethodCorrectionEngine);
     engineConfig.set(QVariant(QString("dummyimdriver")));
     MGConfItem config(CorrectionSetting);
@@ -217,8 +227,6 @@ void Ut_MKeyboardHost::testHandleClick()
     MGConfItem configCorrection(CorrectionSetting);
 
     // Enable the corrections
-    configCorrection.set(QVariant(true));
-
     QVERIFY(subject->preedit.isEmpty());
     inputMethodHost->clear();
     subject->update();
@@ -266,10 +274,11 @@ void Ut_MKeyboardHost::testHandleClick()
     inputMethodHost->clear();
 
     // Turn off error correction and word completion
-    configCorrection.set(QVariant(false));
-    QTest::qWait(100);
-    QCOMPARE(subject->imCorrectionEngine->correctionEnabled(), false);
-    QCOMPARE(subject->imCorrectionEngine->completionEnabled(), false);
+    stubEngine.disableCorrection();
+    stubEngine.disableCompletion();
+    subject->updateCorrectionState();
+    QCOMPARE(EngineManager::instance().engine()->correctionEnabled(), false);
+    QCOMPARE(EngineManager::instance().engine()->completionEnabled(), false);
     QCOMPARE(subject->correctionEnabled, false);
 
     subject->handleKeyClick(KeyEvent("a"));
@@ -304,10 +313,11 @@ void Ut_MKeyboardHost::testHandleClick()
     QVERIFY(subject->preedit.isEmpty());
 
     // Turn on error correction and word completion
-    configCorrection.set(QVariant(true));
-    QTest::qWait(100);
-    QCOMPARE(subject->imCorrectionEngine->correctionEnabled(), true);
-    QCOMPARE(subject->imCorrectionEngine->completionEnabled(), true);
+    stubEngine.enableCorrection();
+    stubEngine.enableCompletion();
+    subject->updateCorrectionState();
+    QCOMPARE(EngineManager::instance().engine()->correctionEnabled(), true);
+    QCOMPARE(EngineManager::instance().engine()->completionEnabled(), true);
     QCOMPARE(subject->correctionEnabled, true);
 
     subject->handleKeyPress(KeyEvent("\b", QEvent::KeyPress, Qt::Key_Backspace));
@@ -357,43 +367,32 @@ void Ut_MKeyboardHost::testNotCrash()
     subject->hide();
     subject->reset();
     subject->setPreedit("string", -1);
-    subject->initializeInputEngine();
     subject->handleMouseClickOnPreedit(QPoint(0, 0), QRect(0, 0, 1, 1));
 }
 
 void Ut_MKeyboardHost::testCorrectionOptions()
 {
+    stubEngine.enableCompletion();
+    stubEngine.enableCorrection();
+    QCOMPARE(EngineManager::instance().engine()->correctionEnabled(), true);
+    QCOMPARE(EngineManager::instance().engine()->completionEnabled(), true);
     subject->show();
-    MGConfItem configCorrection(CorrectionSetting);
-    MGConfItem configCorrectionSpace(CorrectionSettingWithSpace);
 
-    QVERIFY(subject->imCorrectionEngine != 0);
+    QVERIFY(EngineManager::instance().engine() != 0);
 
     // The corrections are enabled
-    configCorrection.set(QVariant(true));
-    QTest::qWait(100);
-    QCOMPARE(subject->imCorrectionEngine->correctionEnabled(), true);
-    QCOMPARE(subject->imCorrectionEngine->completionEnabled(), true);
     QCOMPARE(subject->correctionEnabled, true);
 
     // The corrections are disabled
-    configCorrection.set(QVariant(false));
-    QTest::qWait(100);
-    QCOMPARE(subject->imCorrectionEngine->correctionEnabled(), false);
-    QCOMPARE(subject->imCorrectionEngine->completionEnabled(), false);
+    stubEngine.disableCorrection();
+    // change gconf can't triger the EngineManager::instance() emit signal now.
+    // need to call updateCorrectionState() manually.
+    subject->updateCorrectionState();
     QCOMPARE(subject->correctionEnabled, false);
 
-    // Test the correction accepted with space option
-    configCorrectionSpace.set(QVariant(true));
-    QTest::qWait(100);
-    QCOMPARE(subject->correctionAcceptedWithSpaceEnabled, true);
-    configCorrectionSpace.set(QVariant(false));
-    QTest::qWait(100);
-    QCOMPARE(subject->correctionAcceptedWithSpaceEnabled, false);
-
     // check when content type is changed
-    configCorrection.set(QVariant(true));
-    QTest::qWait(100);
+    stubEngine.enableCorrection();
+    subject->updateCorrectionState();
     inputMethodHost->contentType_ = M::FreeTextContentType;
     subject->update();
     QCOMPARE(subject->correctionEnabled, true);
@@ -445,15 +444,13 @@ void Ut_MKeyboardHost::testCorrectionSettings()
     QFETCH(bool, predictionEnabled);
     QFETCH(bool, result);
 
-    DummyDriverMkh *engine(new DummyDriverMkh);
-    subject->imCorrectionEngine = engine;
-    engine->enableCompletion();
-    engine->enableCorrection();
+    stubEngine.enableCompletion();
+    stubEngine.enableCorrection();
     inputMethodHost->contentType_ = M::FreeTextContentType;
 
     subject->show();
 
-    QVERIFY(subject->imCorrectionEngine != 0);
+    QVERIFY(EngineManager::instance().engine() != 0);
 
     // Correction comes from MTextEdit inputMethodCorrectionEnabled property.
     // Prediction comes from Qt::InputMethodHint: Qt::ImhNoPredictiveText.
@@ -465,8 +462,6 @@ void Ut_MKeyboardHost::testCorrectionSettings()
     QCOMPARE(subject->correctionEnabled, result);
 
     subject->hide();
-    delete engine;
-    subject->imCorrectionEngine = 0;
 }
 
 void Ut_MKeyboardHost::testCorrectionContentTypes_data()
@@ -494,22 +489,18 @@ void Ut_MKeyboardHost::testCorrectionContentTypes()
     QFETCH(M::TextContentType, contentType);
     QFETCH(bool, result);
 
-    DummyDriverMkh *engine(new DummyDriverMkh);
-    subject->imCorrectionEngine = engine;
-    engine->enableCompletion();
-    engine->enableCorrection();
+    stubEngine.enableCompletion();
+    stubEngine.enableCorrection();
 
     subject->show();
 
-    QVERIFY(subject->imCorrectionEngine != 0);
+    QVERIFY(EngineManager::instance().engine() != 0);
 
     inputMethodHost->contentType_ = contentType;
     subject->updateCorrectionState();
     QCOMPARE(subject->correctionEnabled, result);
 
     subject->hide();
-    delete engine;
-    subject->imCorrectionEngine = 0;
 }
 
 void Ut_MKeyboardHost::testAutoCaps()
@@ -886,15 +877,18 @@ void Ut_MKeyboardHost::testRegionSignals()
 
     // In opaque mode, candidate widget has its own window, so no regions are sent to kbhost.
 #ifndef DUI_IM_DISABLE_TRANSLUCENCY
-    // Ditto for correction candidate widget
-    subject->correctionHost->setCandidates((QStringList() << "abc" << "def"));
-    subject->correctionHost->showCorrectionWidget();
+    // Ditto for engine correction widget
+    AbstractEngineWidgetHost *engineWidgetHost =
+        EngineManager::instance().handler()->engineWidgetHost();
+    QVERIFY(engineWidgetHost);
+    engineWidgetHost->setCandidates((QStringList() << "abc" << "def"));
+    engineWidgetHost->showEngineWidget(AbstractEngineWidgetHost::FloatingMode);
     ++c1;
     qApp->processEvents();
     QCOMPARE(inputMethodHost->setScreenRegionCalls, c1);
     QCOMPARE(inputMethodHost->setInputMethodAreaCalls, c2);
 
-    subject->correctionHost->hideCorrectionWidget();
+    engineWidgetHost->hideEngineWidget();
     ++c1;
     qApp->processEvents();
     QCOMPARE(inputMethodHost->setScreenRegionCalls, c1);
@@ -1766,23 +1760,15 @@ void Ut_MKeyboardHost::testWYTIWYSErrorCorrection()
     MGConfItem config(CorrectionSetting);
     config.set(QVariant(true));
 
-    if (subject->imCorrectionEngine) {
-        MImEngineFactory::instance()->deleteEngine(subject->imCorrectionEngine);
-    }
-
-    DummyDriverMkh *engine(new DummyDriverMkh);
-    subject->imCorrectionEngine = engine;
     QStringList candidates;
     candidates << "a" << "c" << "d";
-    engine->setCandidates(candidates);
-    engine->setSuggestedCandidateIndexReturnValue(1);
+    stubEngine.setCandidates(candidates);
+    stubEngine.setSuggestedCandidateIndexReturnValue(1);
 
     subject->handleKeyClick(KeyEvent("d"));
     QCOMPARE(inputMethodHost->preedit, QString("d"));
 
     subject->hide();
-    delete engine;
-    subject->imCorrectionEngine = 0;
 }
 
 struct TestSignalEvent {
@@ -1884,15 +1870,14 @@ void Ut_MKeyboardHost::testAutoPunctuation()
     MGConfItem configCorrection(CorrectionSetting);
     MGConfItem configCorrectionSpace(CorrectionSettingWithSpace);
 
-    QVERIFY(subject->imCorrectionEngine != 0);
+    QVERIFY(EngineManager::instance().engine() != 0);
 
     // We need to be sure that the correction is enabled before the test
     configCorrection.set(QVariant(true));
     configCorrectionSpace.set(QVariant(true));
     QTest::qWait(100);
-    QVERIFY(subject->imCorrectionEngine->correctionEnabled());
-    QVERIFY(subject->imCorrectionEngine->completionEnabled());
-    QVERIFY(subject->correctionAcceptedWithSpaceEnabled);
+    QVERIFY(EngineManager::instance().engine()->correctionEnabled());
+    QVERIFY(EngineManager::instance().engine()->completionEnabled());
 
     // Real test case
     QFETCH(QChar, character);
@@ -1902,17 +1887,12 @@ void Ut_MKeyboardHost::testAutoPunctuation()
     config.set(QVariant(true));
 
     subject->show();
-    if (subject->imCorrectionEngine) {
-        MImEngineFactory::instance()->deleteEngine(subject->imCorrectionEngine);
-    }
 
-    DummyDriverMkh *engine(new DummyDriverMkh);
-    subject->imCorrectionEngine = engine;
     QStringList candidates;
     candidates << "foo" << "foobar";
     subject->setPreedit("fo", -1);
-    engine->setCandidates(candidates);
-    engine->setSuggestedCandidateIndexReturnValue(0);
+    stubEngine.setCandidates(candidates);
+    stubEngine.setSuggestedCandidateIndexReturnValue(0);
     inputMethodHost->cursorRectangleReturnValue = QRect(0, 0, 100, 100);
     subject->handleKeyClick(KeyEvent("o"));
     subject->handleKeyClick(KeyEvent(" ", QEvent::KeyRelease, Qt::Key_Space));

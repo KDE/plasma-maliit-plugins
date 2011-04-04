@@ -47,7 +47,7 @@ public:
     EngineHandlerDefault(MKeyboardHost &keyboardHost)
         : EngineHandler(keyboardHost),
           mKeyboardHost(keyboardHost),
-          mEngineWidgetHost(0)
+          mEngineWidgetHost(new MImCorrectionHost(keyboardHost.sceneWindow, 0))
     {
     }
 
@@ -63,10 +63,18 @@ public:
     //! \reimp
     virtual void activate()
     {
+        connect(mEngineWidgetHost,
+                SIGNAL(candidateClicked(const QString &, int)),
+                &mKeyboardHost,
+                SLOT(handleCandidateClicked(const QString &, int)),
+                Qt::UniqueConnection);
+        mEngineWidgetHost->finalizeOrientationChange();
     }
 
     virtual void deactivate()
     {
+        disconnect(mEngineWidgetHost, 0,
+                   &mKeyboardHost,    0);
     }
 
     virtual AbstractEngineWidgetHost *engineWidgetHost()

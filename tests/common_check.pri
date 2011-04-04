@@ -24,6 +24,7 @@ INCLUDEPATH += \
     $$COMMON_DIR \
     $$MKEYBOARD_DIR \
     $$UTILS_DIR \
+    $$STUBS_DIR \
 
 HEADERS += \
     $$UTILS_DIR/utils.h \

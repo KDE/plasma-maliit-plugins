@@ -27,7 +27,6 @@
 class QGraphicsWidget;
 class QGraphicsLinearLayout;
 class MImCorrectionCandidateItem;
-class MSceneWindow;
 class MReactionMap;
 
 /*!
@@ -41,7 +40,7 @@ class MImWordTracker : public MStylableWidget
 
 public:
     //! Constructor
-    explicit MImWordTracker(MSceneWindow *parentWindow);
+    explicit MImWordTracker(MWidget *parentWindow);
 
     //! Destructor
     ~MImWordTracker();

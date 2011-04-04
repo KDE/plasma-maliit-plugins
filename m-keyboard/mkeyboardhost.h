@@ -94,6 +94,16 @@ public:
     virtual void setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides);
     //! reimp_end
 
+public slots:
+    //! Toggle key state is changed to \a onOff.
+    void handleToggleKeyStateChanged(bool onOff);
+
+    //! Handle one of the candidate in engine widget is clicked.
+    void handleCandidateClicked(const QString &, int);
+
+    //! Compose key state is changed to \a composing.
+    void handleComposeKeyStateChanged(bool composing);
+
 private slots:
     //! \brief Hide and show vkb based on symbol view visibility changes
     void handleSymbolViewVisibleChanged();
@@ -149,12 +159,6 @@ private slots:
      */
     void finalizeOrientationChange();
 
-    //! Synchronize correction setting
-    void synchronizeCorrectionSetting();
-
-    //! Synchronize the correction setting whether the correction suggestion should be accepted by space.
-    void synchronizeCorrectionSettingSpace();
-
     //! handles user initiated hiding of the keyboard
     void userHide();
 
@@ -208,6 +212,9 @@ private slots:
 
     void handleAnimationFinished();
 
+    //! Update error correction flag
+    void updateCorrectionState();
+
 private:
     //! Configures the parts that may change dynamically.
     void prepareHideShowAnimation();
@@ -216,11 +223,6 @@ private:
 
     //! \brief Reset internal state, used by reset() and others
     void resetInternalState();
-
-    void createCorrectionCandidateWidget();
-
-    //! Update error correction flag
-    void updateCorrectionState();
 
     //! update autocapitalization state
     void updateAutoCapitalization();
@@ -252,9 +254,6 @@ private:
      *  \sa handleGeneralKeyClick
      */
     void handleTextInputKeyClick(const KeyEvent &event);
-
-    //! initialize input engine
-    void initializeInputEngine();
 
     //! \return input mode indicator corresponding to a dead \a key character or
     //! MInputMethod::NoIndicator if not a (supported) dead key character
@@ -335,18 +334,9 @@ private:
 
     MVirtualKeyboardStyleContainer *vkbStyleContainer;
 
-    MImCorrectionHost *correctionHost;
     MVirtualKeyboard *vkbWidget;
     MHardwareKeyboard *hardwareKeyboard;
     SymbolView *symbolView;
-
-    MImEngineWordsInterface *imCorrectionEngine;
-    //! default input method error correction setting
-    MGConfItem *inputMethodCorrectionSettings;
-    MGConfItem *inputMethodCorrectionSettingsSpace;
-    MGConfItem *inputMethodCorrectionEngine;
-
-    QStringList candidates;
 
     int displayWidth;
     int displayHeight;
@@ -355,7 +345,6 @@ private:
 
     //! error correction flag
     bool correctionEnabled;
-    bool correctionAcceptedWithSpaceEnabled;
 
     //! FIXME: should we provide such a flag to on/off auto caps
     bool autoCapsEnabled;

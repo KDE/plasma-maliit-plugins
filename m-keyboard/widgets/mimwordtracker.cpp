@@ -27,7 +27,6 @@
 
 #include <MScalableImage>
 #include <MSceneManager>
-#include <MSceneWindow>
 #include <MGConfItem>
 
 #include <mwidgetcreator.h>
@@ -45,7 +44,7 @@ namespace
 };
 
 
-MImWordTracker::MImWordTracker(MSceneWindow *parentWindow)
+MImWordTracker::MImWordTracker(MWidget *parentWindow)
     : MStylableWidget(),
       containerWidget(new QGraphicsWidget()),
       mIdealWidth(0),
