@@ -77,7 +77,9 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
       numberKeyboard(0),
       phoneNumberKeyboard(0),
       eventHandler(this),
-      generalContentType(M::FreeTextContentType)
+      generalContentType(M::FreeTextContentType),
+      toggleKeyState(false),
+      composeKeyState(false)
 {
     setFlag(QGraphicsItem::ItemHasNoContents);
     setObjectName("MVirtualKeyboard");
@@ -169,6 +171,9 @@ MVirtualKeyboard::finalizeOrientationChange()
     // avoids any flicker when shown first time after orientation was changed.
     organizeContent(newOrientation, true);
     ReactionMapPainter::instance().repaint();
+    // restore toggle, compose key state
+    setToggleKeyState(toggleKeyState);
+    setComposeKeyState(composeKeyState);
 }
 
 void
@@ -260,6 +265,9 @@ void MVirtualKeyboard::resetState()
 {
     // Default state for shift is ShiftOff.
     setShiftState(ModifierClearState);
+
+    setToggleKeyState(false);
+    setComposeKeyState(false);
 
     // Dead keys are unlocked in MImAbstractKeyArea::onHide().
     // As long as this method is private, and only called from
@@ -814,4 +822,24 @@ void MVirtualKeyboard::setContentType(M::TextContentType type)
     }
     mainKeyboardSwitcher->setContentType(type);
     generalContentType = type;
+}
+
+void MVirtualKeyboard::setToggleKeyState(bool onOff)
+{
+    toggleKeyState = onOff;
+    // toggle key only stays on main keybard.
+    MImAbstractKeyArea *mainKb = keyboardWidget();
+    if (mainKb) {
+        mainKb->setToggleKeyState(onOff);
+    }
+}
+
+void MVirtualKeyboard::setComposeKeyState(bool isComposing)
+{
+    composeKeyState = isComposing;
+    // compose key only stays on main keybard.
+    MImAbstractKeyArea *mainKb = keyboardWidget();
+    if (mainKb) {
+        mainKb->setComposeKeyState(isComposing);
+    }
 }

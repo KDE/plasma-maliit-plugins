@@ -79,13 +79,16 @@ public:
                               QChar accent = QChar());
     virtual void setDownState(bool down);
     virtual void setSelected(bool select);
+    virtual void setComposing(bool composing);
     virtual ButtonState state() const;
+    virtual bool isComposing() const;
     virtual const MImKeyModel &model() const;
     virtual const MImKeyBinding &binding() const;
     virtual bool isDeadKey() const;
     virtual bool isShiftKey() const;
     virtual bool isNormalKey() const;
     virtual bool isQuickPick() const;
+    virtual bool isComposeKey() const;
     virtual bool increaseTouchPointCount();
     virtual bool decreaseTouchPointCount();
     virtual void resetTouchPointCount();
@@ -249,6 +252,7 @@ private:
 
     bool ignoreOverride;
 
+    bool composing;
 };
 
 #endif // MIMKEY_H

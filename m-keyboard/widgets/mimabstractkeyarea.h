@@ -88,6 +88,9 @@ public:
     virtual void modifiersChanged(bool shift,
                                   const QChar &accent = QChar());
 
+    //! \brief Resets active keys belongs to this key area to normal state.
+    virtual void resetActiveKeys() = 0;
+
 public slots:
     //! \brief Tell key area to switch levels for all keys.
     //! \param level the new level
@@ -126,6 +129,16 @@ public slots:
      * \brief Sets the current content type (handles email/url overrides).
      */
     virtual void setContentType(M::TextContentType type) = 0;
+
+    /*!
+     * \brief Sets the state of on off toggle key.
+     */
+    virtual void setToggleKeyState(bool on) = 0;
+
+    /*!
+     * \brief Sets the state of compose key.
+     */
+    virtual void setComposeKeyState(bool isComposing) = 0;
 
 signals:
     //! \brief Emitted when key is pressed

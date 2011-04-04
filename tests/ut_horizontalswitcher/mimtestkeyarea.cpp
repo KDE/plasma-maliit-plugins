@@ -59,3 +59,14 @@ void MImTestKeyArea::setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOver
     setKeyOverridesParam = overrides;
 }
 
+void MImTestKeyArea::setToggleKeyState(bool)
+{
+}
+
+void MImTestKeyArea::setComposeKeyState(bool)
+{
+}
+
+void MImTestKeyArea::resetActiveKeys()
+{
+}

@@ -102,7 +102,9 @@ KeyEvent KeyEventHandler::keyToKeyEvent(const MImAbstractKey &key, QKeyEvent::Ty
     // Send always upper case letter if shift held down.
     upperCase |= shiftHeldDown;
 
-    if (accent.isEmpty()) {
+    if (key.isComposeKey()) {
+        event = key.model().toKeyEvent(eventType, upperCase, key.isComposing());
+    } else if (accent.isEmpty()) {
         event = key.model().toKeyEvent(eventType, upperCase);
     } else {
         event = key.model().toKeyEvent(eventType, accent.at(0), upperCase);

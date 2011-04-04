@@ -48,6 +48,9 @@ public:
     virtual MImAbstractKey *keyAt(const QPoint &) const;
     virtual void updateKeyGeometries(int);
     virtual void setContentType(M::TextContentType);
+    virtual void setToggleKeyState(bool on);
+    virtual void setComposeKeyState(bool isComposing);
+    virtual void resetActiveKeys();
     //! \reimp_end
 
 public slots:

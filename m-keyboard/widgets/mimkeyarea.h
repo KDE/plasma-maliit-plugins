@@ -54,6 +54,9 @@ public:
     virtual MImAbstractKey * findKey(const QString &id);
     virtual void setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides);
     virtual void setContentType(M::TextContentType type);
+    virtual void setToggleKeyState(bool on);
+    virtual void setComposeKeyState(bool isComposing);
+    virtual void resetActiveKeys();
     //! \reimp_end
 
 private slots:

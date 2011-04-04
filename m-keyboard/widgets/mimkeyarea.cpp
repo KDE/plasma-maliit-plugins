@@ -363,7 +363,9 @@ MImKeyAreaPrivate::MImKeyAreaPrivate(const LayoutData::SharedLayoutSection &newS
       shiftKey(0),
       equalWidthKeys(true),
       WidthCorrection(0),
-      stylingCache(new MImKey::StylingCache)
+      stylingCache(new MImKey::StylingCache),
+      toggleKey(0),
+      composeKey(0)
 {
 }
 
@@ -414,6 +416,12 @@ void MImKeyAreaPrivate::loadKeys()
             // TODO: Remove restriction to have only one shift key per layout?
             if (dataKey->binding()->action() == MImKeyBinding::ActionShift) {
                 shiftKey = key;
+            } else if (dataKey->binding()->action() == MImKeyBinding::ActionOnOffToggle) {
+                // FIXME: Only has one toggle key?
+                toggleKey = key;
+            } else if (dataKey->binding()->action() == MImKeyBinding::ActionCompose) {
+                // FIXME: Only has one compose key?
+                composeKey = key;
             }
 
             rowIter->keys.append(key);
@@ -781,6 +789,8 @@ void MImKeyArea::modifiersChanged(const bool shift,
         foreach (MImKey *key, row->keys) {
             // Shift key and selected keys are detached from the normal level changing.
             if (key != d->shiftKey
+                && key != d->toggleKey
+                && key != d->composeKey
                 && key->state() != MImAbstractKey::Selected) {
                 key->setModifiers(shift, accent);
             }
@@ -983,4 +993,34 @@ void MImKeyArea::setContentType(M::TextContentType type)
         break;
     }
     update();
+}
+
+void MImKeyArea::setToggleKeyState(bool on)
+{
+    Q_D(MImKeyArea);
+    if (d->toggleKey) {
+        d->toggleKey->setSelected(on);
+        update();
+    }
+}
+
+void MImKeyArea::setComposeKeyState(bool isComposing)
+{
+    Q_D(MImKeyArea);
+    if (d->composeKey) {
+        d->composeKey->setComposing(isComposing);
+        update();
+    }
+}
+
+void MImKeyArea::resetActiveKeys()
+{
+    Q_D(MImKeyArea);
+    foreach (const MImKeyAreaPrivate::KeyRow &row, d->rowList) {
+        foreach (MImKey *key, row.keys) {
+            key->setSelected(false);
+            key->resetTouchPointCount();
+        }
+    }
+    setComposeKeyState(false);
 }

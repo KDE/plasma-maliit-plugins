@@ -105,6 +105,8 @@ public:
     int WidthCorrection; //!< width correction for Arabic layouts
     QSharedPointer<MImKey::StylingCache> stylingCache; //!< Cached information about current styling
     QList<MImKey *> idToKey; //!< Contains information about keys which have identifiers
+    MImKey *toggleKey; //!< stores toggle key, if available in this key area
+    MImKey *composeKey; //!< stores compose key, if available in this key area
 };
 //! \internal_end
 

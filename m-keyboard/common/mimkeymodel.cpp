@@ -27,7 +27,8 @@ MImKeyBinding::MImKeyBinding()
       secondary_label(""),
       keyLabel(""),
       dead(false),
-      quickPick(false)
+      quickPick(false),
+      compose(false)
 {
 }
 
@@ -35,7 +36,8 @@ MImKeyBinding::MImKeyBinding(const QString &label)
     : keyAction(ActionInsert),
       keyLabel(label),
       dead(false),
-      quickPick(false)
+      quickPick(false),
+      compose(false)
 {
 }
 
@@ -59,7 +61,8 @@ QString MImKeyBinding::accentedLabels() const
 
 KeyEvent MImKeyBinding::toKeyEventImpl(QKeyEvent::Type eventType,
                                     Qt::KeyboardModifiers modifiers,
-                                    const QString &labelText) const
+                                    const QString &labelText,
+                                    bool isComposing) const
 {
     Qt::Key key = Qt::Key_unknown;
     KeyEvent::SpecialKey specialKey = KeyEvent::NotSpecial;
@@ -111,6 +114,18 @@ KeyEvent MImKeyBinding::toKeyEventImpl(QKeyEvent::Type eventType,
     case ActionSwitch:
         specialKey = KeyEvent::Switch;
         break;
+    case ActionOnOffToggle:
+        specialKey = KeyEvent::OnOffToggle;
+        break;
+    case ActionCompose:
+        if (isComposing) {
+            specialKey = KeyEvent::Commit;
+        } else {
+            // compose key default acts as return key.
+            key = Qt::Key_Return;
+            text = "\r";
+        }
+        break;
     case NumActions:
         Q_ASSERT(false);
     }
@@ -128,6 +143,10 @@ KeyEvent MImKeyBinding::toKeyEvent(QKeyEvent::Type eventType, QChar accent, Qt::
     return toKeyEventImpl(eventType, modifiers, accented(accent));
 }
 
+KeyEvent MImKeyBinding::toKeyEvent(QKeyEvent::Type eventType, bool isComposing, Qt::KeyboardModifiers modifiers) const
+{
+    return toKeyEventImpl(eventType, modifiers, label(), isComposing);
+}
 
 MImKeyModel::MImKeyModel(MImKeyModel::StyleType style,
                          MImKeyModel::WidthType widthType,
@@ -176,6 +195,13 @@ KeyEvent MImKeyModel::toKeyEvent(QKeyEvent::Type eventType, QChar accent, bool s
 {
     return binding(shift)->toKeyEvent(eventType, accent, shift ? Qt::ShiftModifier : Qt::NoModifier);
 }
+
+KeyEvent MImKeyModel::toKeyEvent(QKeyEvent::Type eventType, bool shift, bool isComposing) const
+{
+    Qt::KeyboardModifiers modifiers(shift ? Qt::ShiftModifier : Qt::NoModifier);
+    return binding(shift)->toKeyEvent(eventType, isComposing, modifiers);
+}
+
 
 MImKeyModel::StyleType MImKeyModel::style() const
 {

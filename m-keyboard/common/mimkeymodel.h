@@ -45,6 +45,8 @@ public:
         ActionTab,
         ActionCommit,
         ActionSwitch,
+        ActionOnOffToggle,
+        ActionCompose,
         NumActions
     };
 
@@ -67,6 +69,14 @@ public:
      * \param modifiers currently active modifiers
      */
     KeyEvent toKeyEvent(QKeyEvent::Type eventType, QChar accent, Qt::KeyboardModifiers modifiers = Qt::NoModifier) const;
+
+    /*!
+     * Convert into a KeyEvent
+     * \param eventType must be QEvent::KeyPress or QEvent::KeyRelease
+     * \param isComposing currently active state is composing
+     * \param modifiers currently active modifiers
+     */
+    KeyEvent toKeyEvent(QKeyEvent::Type eventType, bool isComposing, Qt::KeyboardModifiers modifiers = Qt::NoModifier) const;
 
     //! \return label in normal case (not accented)
     QString label() const;
@@ -97,7 +107,8 @@ private:
     //! Helper method for toKeyEvent methods
     KeyEvent toKeyEventImpl(QKeyEvent::Type eventType,
                             Qt::KeyboardModifiers modifiers,
-                            const QString &labelText) const;
+                            const QString &labelText,
+                            bool isComposing = false) const;
 
     //! What will happen when the key is pressed?
     KeyAction keyAction;
@@ -120,6 +131,8 @@ private:
     bool dead;
     //! True if this is a quickpick key for symbol view page.
     bool quickPick;
+    //! True if this is a compose key.
+    bool compose;
 
     friend class KeyboardData;
     friend class Ut_MImKeyModel;
@@ -219,6 +232,14 @@ public:
      * \param shift whether shift modifier is on
      */
     KeyEvent toKeyEvent(QKeyEvent::Type eventType, QChar accent, bool shift = false) const;
+
+    /*!
+     * Convert into a KeyEvent
+     * \param eventType must be QEvent::KeyPress or QEvent::KeyRelease
+     * \param isComposing currently active state is composing
+     * \param shift whether shift modifier is on
+     */
+    KeyEvent toKeyEvent(QKeyEvent::Type eventType, bool shift, bool isComposing) const;
 
     //! Returns the style type.
     StyleType style() const;

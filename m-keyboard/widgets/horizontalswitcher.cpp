@@ -85,8 +85,17 @@ void HorizontalSwitcher::switchTo(SwitchDirection direction)
     // New item is about to enter
     enterAnim.setItem(nextWidget);
     nextWidget->setEnabled(false);
-    MImAbstractKey::resetActiveKeys();
 
+    // reset current and next key area
+    MImAbstractKeyArea *const currentKeyArea = dynamic_cast<MImAbstractKeyArea *>(currentWidget);
+    if (currentKeyArea) {
+        currentKeyArea->resetActiveKeys();
+    }
+
+    MImAbstractKeyArea *const nextKeyArea = dynamic_cast<MImAbstractKeyArea *>(nextWidget);
+    if (nextKeyArea) {
+        nextKeyArea->resetActiveKeys();
+    }
 
     // Try to fit current size.
     nextWidget->resize(size());
@@ -153,7 +162,6 @@ void HorizontalSwitcher::setCurrent(int index)
         emit switchDone(old, widget);
 
         updateGeometry();
-        MImAbstractKey::resetActiveKeys();
 
         if (old) {
             old->hide();
@@ -161,6 +169,7 @@ void HorizontalSwitcher::setCurrent(int index)
             MImAbstractKeyArea *const keyArea = dynamic_cast<MImAbstractKeyArea *>(old);
             if (keyArea) {
                 keyArea->modifiersChanged(false);
+                keyArea->resetActiveKeys();
             }
         }
     }

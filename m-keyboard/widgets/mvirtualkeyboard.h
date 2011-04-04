@@ -192,6 +192,16 @@ public slots:
      */
     void setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides);
 
+    /*!
+     * \brief Sets the state of on off toggle key.
+     */
+    void setToggleKeyState(bool onOff);
+
+    /*!
+     * \brief Sets the state of compose key.
+     */
+    void setComposeKeyState(bool isComposing);
+
 private slots:
     /*!
      * \brief Handler for shift pressed state change (separate from shift state).
@@ -396,6 +406,9 @@ private:
 
     //! Currently active content type for general layout:
     M::TextContentType generalContentType;
+
+    bool toggleKeyState;
+    bool composeKeyState;
 };
 
 #endif

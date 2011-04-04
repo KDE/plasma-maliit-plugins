@@ -162,7 +162,8 @@ MImKey::MImKey(const MImKeyModel &newModel,
       rowHasSecondaryLabel(false),
       stylingCache(newStylingCache),
       overrideIcon(0),
-      ignoreOverride(false)
+      ignoreOverride(false),
+      composing(false)
 {
     if (mModel.binding(false)) {
         loadIcon(false);
@@ -185,6 +186,9 @@ const QString MImKey::label() const
 {
     if (override && !ignoreOverride && !override->label().isEmpty())
         return override->label();
+
+    if (isComposeKey() && !isComposing())
+        return QString();
 
     return currentLabel;
 }
@@ -371,9 +375,24 @@ void MImKey::setSelected(bool select)
     }
 }
 
+void MImKey::setComposing(bool compose)
+{
+    if (!isComposeKey())
+        return;
+    bool changed = (composing != compose);
+    composing = compose;
+    if (changed)
+        update();
+}
+
 MImKey::ButtonState MImKey::state() const
 {
     return currentState;
+}
+
+bool MImKey::isComposing() const
+{
+    return composing;
 }
 
 const MImKeyModel &MImKey::model() const
@@ -406,6 +425,12 @@ bool MImKey::isNormalKey() const
 bool MImKey::isQuickPick() const
 {
     return binding().isQuickPick();
+}
+
+bool MImKey::isComposeKey() const
+{
+    const MImKeyBinding::KeyAction action(mModel.binding(shift)->action());
+    return (action == MImKeyBinding::ActionCompose);
 }
 
 bool MImKey::increaseTouchPointCount()
@@ -633,6 +658,8 @@ QString MImKey::iconId() const
 
 void MImKey::drawIcon(QPainter *painter) const
 {
+    if(isComposeKey() && isComposing())
+        return;
     const QPixmap *iconPixmap(icon());
     const QRect rectangle(buttonRect().toRect());
 
@@ -815,6 +842,10 @@ void MImKey::loadIcon(bool shift)
                 iconProperty = "keyTabIconId";
                 size = styleContainer->keyTabIconSize();
             }
+            break;
+        case MImKeyBinding::ActionCompose:
+            iconProperty = "keyEnterIconId";
+            size = styleContainer->keyEnterIconSize();
             break;
         default:
             break;

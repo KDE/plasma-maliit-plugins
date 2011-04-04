@@ -74,8 +74,16 @@ public:
     //! \brief Selected button
     virtual void setSelected(bool selected) = 0;
 
+    //! \brief Sets button to be composing.
+    //! \note Only for \a isComposeKey() key.
+    virtual void setComposing(bool composing) = 0;
+
     //! \brief Returns the pressed state of the button.
     virtual ButtonState state() const = 0;
+
+    //! \brief Returns whether the key is during composing state.
+    //! \note Only for \a isComposeKey() key.
+    virtual bool isComposing() const = 0;
 
     //! \return the key this button represents
     virtual const MImKeyModel &model() const = 0;
@@ -95,6 +103,9 @@ public:
 
     //! \brief Tells whether emitter view should close after clicking this key.
     virtual bool isQuickPick() const = 0;
+
+    //! \brief Tells whether the key is a compose key.
+    virtual bool isComposeKey() const = 0;
 
     //! \brief Called when a new touchpoint was registered on this button.
     //! \returns true if the counter could be increased.

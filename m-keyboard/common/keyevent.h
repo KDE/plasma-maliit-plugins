@@ -37,6 +37,7 @@ public:
         Sym,
         Commit,
         Switch,
+        OnOffToggle,
         ChangeSign,
         NumSpecialKeys
     };
