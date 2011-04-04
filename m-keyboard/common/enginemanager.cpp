@@ -33,9 +33,12 @@
 #include "enginemanager.h"
 #include "abstractengine.h"
 #include "enginedefault.h"
+#include "enginecjk.h"
 #include "abstractenginewidgethost.h"
 #include "mimcorrectionhost.h"
 #include "sharedhandlearea.h"
+#include "wordribbonhost.h"
+#include "cjklogicstatemachine.h"
 #include "mvirtualkeyboard.h"
 #include "symbolview.h"
 #include "keyevent.h"
@@ -208,6 +211,161 @@ private:
     AbstractEngineWidgetHost *mEngineWidgetHost;
 };
 
+class EngineHandlerCJK : public EngineHandler
+{
+public:
+    EngineHandlerCJK(MKeyboardHost &keyboardHost)
+        : EngineHandler(keyboardHost),
+          mKeyboardHost(keyboardHost),
+          mEngineWidgetHost(new WordRibbonHost(keyboardHost.sceneWindow, 0)),
+          stateMachine(new CJKLogicStateMachine(*mEngineWidgetHost,
+                                                      *(keyboardHost.inputMethodHost()),
+                                                      *(EngineManager::instance().engine())))
+    {
+        stateMachine->setSyllableDivideEnabled(false);
+        mEngineWidgetHost->watchOnWidget(keyboardHost.vkbWidget);
+        mEngineWidgetHost->watchOnWidget(keyboardHost.symbolView);
+        keyboardHost.sharedHandleArea->watchOnWidget(mEngineWidgetHost->inlineWidget());
+    }
+
+    virtual ~EngineHandlerCJK()
+    {
+        delete mEngineWidgetHost;
+        mEngineWidgetHost = 0;
+    }
+
+    static QStringList supportedLanguages()
+    {
+        QStringList languages;
+        languages << "zh" << "jp" << "ko";
+        return languages;
+    }
+
+    //! \reimp
+    virtual void activate()
+    {
+        connect(mEngineWidgetHost,
+                SIGNAL(candidateClicked(const QString &, int)),
+                &mKeyboardHost,
+                SLOT(handleCandidateClicked(const QString &, int)),
+                Qt::UniqueConnection);
+        mEngineWidgetHost->finalizeOrientationChange();
+
+        connect(stateMachine,   SIGNAL(toggleKeyStateChanged(bool)),
+                &mKeyboardHost, SLOT(handleToggleKeyStateChanged(bool)),
+                Qt::UniqueConnection);
+
+        connect(stateMachine,   SIGNAL(composeStateChanged(bool)),
+                &mKeyboardHost, SLOT(handleComposeKeyStateChanged(bool)),
+                Qt::UniqueConnection);
+    }
+
+    virtual void deactivate()
+    {
+        disconnect(mEngineWidgetHost, 0,
+                   &mKeyboardHost,    0);
+
+        disconnect(stateMachine,  0,
+                  &mKeyboardHost, 0);
+    }
+
+    virtual AbstractEngineWidgetHost *engineWidgetHost()
+    {
+        return mEngineWidgetHost;
+    }
+
+    virtual bool cursorCanMoveInsidePreedit() const
+    {
+        return false;
+    }
+
+    virtual bool hasHwKeyboardIndicator() const
+    {
+        return true;
+    }
+
+    virtual bool hasErrorCorrection() const
+    {
+        return true;
+    }
+
+    virtual bool acceptPreeditInjection() const
+    {
+        return false;
+    }
+
+    virtual bool hasAutoCaps() const
+    {
+        return false;
+    }
+
+    virtual bool hasContext() const
+    {
+        return false;
+    }
+
+    virtual bool keepPreeditWhenReset() const
+    {
+        return true;
+    }
+
+    bool correctionAcceptedWithSpaceEnabled() const
+    {
+        return false;
+    }
+
+    virtual bool isComposingInputMethod() const
+    {
+        return true;
+    }
+
+    virtual bool supportTouchPointAccuracy() const
+    {
+        return false;
+    }
+
+    virtual bool commitWhenCandidateClicked() const
+    {
+        return false;
+    }
+
+    virtual void resetPreeditWithoutCommit()
+    {
+        stateMachine->resetWithoutCommitStringToApp();
+    }
+
+    virtual void resetPreeditWithCommit()
+    {
+        stateMachine->resetWithCommitStringToApp();
+    }
+
+    virtual void preparePluginSwitching()
+    {
+        stateMachine->resetWithCommitStringToApp();
+    }
+
+    virtual bool handleKeyPress(const KeyEvent &event)
+    {
+        return stateMachine->handleKeyPress(event);
+    }
+
+    virtual bool handleKeyRelease(const KeyEvent &event)
+    {
+        return stateMachine->handleKeyRelease(event);
+    }
+
+    virtual bool handleKeyClick(const KeyEvent &event)
+    {
+        return stateMachine->handleKeyClick(event);
+    }
+    //! \reimp_end
+
+private:
+    MKeyboardHost &mKeyboardHost;
+    AbstractEngineWidgetHost *mEngineWidgetHost;
+    CJKLogicStateMachine *stateMachine;
+};
+
 EngineManager *EngineManager::Instance = 0;
 
 EngineManager::EngineManager(MKeyboardHost &keyboardHost)
@@ -343,6 +501,12 @@ EngineHandler *EngineManager::findOrCreateEngineHandler(const QString &language)
         // already in the map
         matchedEngineHandler = matchedIt.value().data();
 
+    } else if (EngineHandlerCJK::supportedLanguages().contains(language)){
+        // create CJK language properties
+        matchedEngineHandler = QPointer<EngineHandlerCJK>(new EngineHandlerCJK(mKeyboardHost));
+        foreach (const QString &lang, EngineHandlerCJK::supportedLanguages())
+            handlerMap.insert(lang, matchedEngineHandler);
+
     } else {
         // use default language properties
         matchedEngineHandler = handlerMap.value(DefaultInputLanguage).data();
@@ -361,6 +525,14 @@ AbstractEngine *EngineManager::findOrCreateEngine(const QString &language,
     if (matchedIt != engineMap.end()) {
         // the engine for language is already in the map
         matchedEngine = matchedIt.value().data();
+
+    } else if (EngineCJK::supportedLanguages().contains(language)){
+        // create CJK engine
+        matchedEngine = QPointer<EngineCJK>(
+                new EngineCJK(*(mKeyboardHost.inputMethodHost()), engineName));
+
+        foreach (const QString &lang, EngineCJK::supportedLanguages())
+            engineMap.insert(lang, matchedEngine);
 
     } else {
         // use default engine

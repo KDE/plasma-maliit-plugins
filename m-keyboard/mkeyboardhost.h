@@ -426,6 +426,7 @@ private:
     M::OrientationAngle appOrientationAngle;
 
     friend class EngineHandlerDefault;
+    friend class EngineHandlerCJK;
 #ifdef UNIT_TEST
     friend class Ut_MKeyboardHost;
 #endif

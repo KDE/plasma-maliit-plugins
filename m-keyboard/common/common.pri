@@ -30,6 +30,8 @@ HEADERS += \
     $$COMMON_DIR/enginedefault.h \
     $$COMMON_DIR/enginemanager.h \
     $$COMMON_DIR/enginehandler.h \
+    $$COMMON_DIR/cjklogicstatemachine.h \
+    $$COMMON_DIR/enginecjk.h \
 
 SOURCES += \
     $$COMMON_DIR/keyboarddata.cpp\
@@ -51,6 +53,8 @@ SOURCES += \
     $$COMMON_DIR/simplefilelog.cpp \
     $$COMMON_DIR/enginedefault.cpp \
     $$COMMON_DIR/enginemanager.cpp \
+    $$COMMON_DIR/cjklogicstatemachine.cpp \
+    $$COMMON_DIR/enginecjk.cpp \
 
 INCLUDEPATH += $$COMMON_DIR
 DEPENDPATH += $$COMMON_DIR
