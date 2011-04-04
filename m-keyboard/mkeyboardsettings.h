@@ -86,6 +86,24 @@ public:
     //! Sets "Space selects the correction candidate" option.
     void setCorrectionSpace(bool enabled);
 
+    //! Returns fuzzy option of Chinese keyboard.
+    bool fuzzyPinyin() const;
+
+    //! Sets fuzzy option of Chinese keyboard.
+    void setFuzzyPinyin(bool enabled);
+
+    //! Returns word prediction option of Chinese keyboard.
+    bool wordPrediction() const;
+
+    //! Sets word prediction option of Chinese keyboard.
+    void setWordPrediction(bool enabled);
+
+    //! Returns simplify or traditional candidate first option of Chinese keyboard.
+    bool scriptPriority() const;
+
+    //! Sets simplify or traditional candidate first option of Chinese keyboard.
+    void setScriptPriority(bool value);
+
 Q_SIGNALS:
     //! Emitted when selected keyboards are changed.
     void selectedKeyboardsChanged();
@@ -95,6 +113,15 @@ Q_SIGNALS:
 
     //! Emitted when "Space selects the correction candidate" option is changed.
     void correctionSpaceChanged();
+
+    //! Emitted when Chinese fuzzy pinyin is changed.
+    void fuzzyChanged();
+
+    //! Emitted when Chinese word prediction is changed.
+    void wordPredictionChanged();
+
+    //! Emitted when Chinese simplify or traditional candidate first is changed.
+    void scriptPriorityChanged();
 
 private:
     QString keyboardTitle(const QString &layoutFile) const;
@@ -110,6 +137,10 @@ private:
     MGConfItem keyboardErrorCorrectionConf;
     MGConfItem keyboardCorrectionSpaceConf;
     MGConfItem selectedKeyboardsConf;
+
+    MGConfItem chineseKeyboardFuzzyConf;
+    MGConfItem chineseKeyboardWordPredictionConf;
+    MGConfItem chineseKeyboardScriptPriorityConf;
 };
 
 #endif

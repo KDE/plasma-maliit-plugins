@@ -46,13 +46,18 @@ namespace {
     const QString VKBConfigurationPath("/usr/share/meegotouch/virtual-keyboard/layouts/");
     const QString VKBLayoutsFilterRule("*.xml");
     const QString VKBLayoutsIgnoreRules("number|test|customer|default"); // use as regexp to ignore number, test, customer and default layouts
-    const QString ChineseVKBConfigurationPath("/usr/share/meegotouch/virtual-keyboard/layouts/chinese");
+    const QString SettingsFuzzy("/meegotouch/inputmethods/virtualkeyboard/fuzzyselected");
+    const QString SettingsWordPrediction("/meegotouch/inputmethods/virtualkeyboard/wordpredictionenabled");
+    const QString SettingsScriptPriority("/meegotouch/inputmethods/virtualkeyboard/scriptpriority");
 };
 
 MKeyboardSettings::MKeyboardSettings()
     : keyboardErrorCorrectionConf(SettingsImErrorCorrection),
       keyboardCorrectionSpaceConf(SettingsImCorrectionSpace),
-      selectedKeyboardsConf(InputMethodLayouts)
+      selectedKeyboardsConf(InputMethodLayouts),
+      chineseKeyboardFuzzyConf(SettingsFuzzy),
+      chineseKeyboardWordPredictionConf(SettingsWordPrediction),
+      chineseKeyboardScriptPriorityConf(SettingsScriptPriority)
 {
     readAvailableKeyboards();
     connect(&keyboardErrorCorrectionConf, SIGNAL(valueChanged()),
@@ -61,6 +66,13 @@ MKeyboardSettings::MKeyboardSettings()
             this, SIGNAL(correctionSpaceChanged()));
     connect(&selectedKeyboardsConf, SIGNAL(valueChanged()),
             this, SIGNAL(selectedKeyboardsChanged()));
+
+    connect(&chineseKeyboardFuzzyConf, SIGNAL(valueChanged()),
+            this, SIGNAL(fuzzyChanged()));
+    connect(&chineseKeyboardWordPredictionConf, SIGNAL(valueChanged()),
+            this, SIGNAL(wordPredictionChanged()));
+    connect(&chineseKeyboardScriptPriorityConf, SIGNAL(valueChanged()),
+            this, SIGNAL(simpTradPriorityChanged()));
 }
 
 MKeyboardSettings::~MKeyboardSettings()
@@ -90,10 +102,6 @@ void MKeyboardSettings::readAvailableKeyboards()
     availableKeyboardInfos.clear();
     QList<QDir> dirs;
     dirs << QDir(VKBConfigurationPath, VKBLayoutsFilterRule);
-    // TO BE REMOVED
-    // Add Chinese input method layout directories here to allow our setting
-    // could manage Chinese IM layouts. This is a workaround, will be removed later.
-    dirs << QDir(ChineseVKBConfigurationPath, VKBLayoutsFilterRule);
     QRegExp ignoreExp(VKBLayoutsIgnoreRules, Qt::CaseInsensitive);
 
     foreach (const QDir &dir, dirs) {
@@ -193,4 +201,37 @@ bool MKeyboardSettings::correctionSpace() const
 void MKeyboardSettings::setCorrectionSpace(bool enabled)
 {
     keyboardCorrectionSpaceConf.set(enabled);
+}
+
+bool MKeyboardSettings::fuzzyPinyin() const
+{
+    return chineseKeyboardFuzzyConf.value().toBool();
+}
+
+void MKeyboardSettings::setFuzzyPinyin(bool enabled)
+{
+    if (chineseKeyboardFuzzyConf.value().toBool() != enabled)
+         chineseKeyboardFuzzyConf.set(enabled);
+}
+
+bool MKeyboardSettings::wordPrediction() const
+{
+    return chineseKeyboardWordPredictionConf.value().toBool();
+}
+
+void MKeyboardSettings::setWordPrediction(bool enabled)
+{
+    if (chineseKeyboardWordPredictionConf.value().toBool() != enabled)
+         chineseKeyboardWordPredictionConf.set(enabled);
+}
+
+bool MKeyboardSettings::scriptPriority() const
+{
+    return chineseKeyboardScriptPriorityConf.value().toBool();
+}
+
+void MKeyboardSettings::setScriptPriority(bool value)
+{
+    if (chineseKeyboardScriptPriorityConf.value().toBool() != value)
+         chineseKeyboardScriptPriorityConf.set(value);
 }

@@ -70,6 +70,13 @@ private slots:
     void syncCorrectionSpaceState();
     void handleVisibilityChanged();
 
+    void setFuzzyState(bool enabled);
+    void syncFuzzyState();
+    void setWordPredictionState(bool enabled);
+    void syncWordPredictionState();
+    void setScriptPriorityState(bool enabled);
+    void syncScriptPriorityState();
+
 private:
     void buildUi();
     void addItem(QGraphicsLayoutItem *item, int row, int column);
@@ -87,6 +94,13 @@ private:
     MDialog *keyboardDialog;
     MList *keyboardList;
     MBasicListItem *selectedKeyboardsItem;
+
+    MButton *fuzzySwitch;
+    MBasicListItem *fuzzyItem;
+    MButton *wordPredictionSwitch;
+    MBasicListItem *wordPredictionItem;
+    MButton *scriptPrioritySwitch;
+    MBasicListItem *scriptPriorityItem;
     friend class Ut_MKeyboardSettingsWidget;
 };
 

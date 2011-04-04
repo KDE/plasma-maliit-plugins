@@ -57,6 +57,9 @@ namespace
     const QString ObjectNameSelectedKeyboardsItem("SelectedKeyboardsItem");
     const QString ObjectNameErrorCorrectionButton("KeyboardErrorCorrectionButton");
     const QString ObjectNameCorrectionSpaceButton("KeyboardCorrectionSpaceButton");
+    const QString ObjectNameFuzzyPinyinButton("KeyboardFuzzyPinyinButton");
+    const QString ObjectNameWordPredictionButton("KeyboardWordPredictionButton");
+    const QString ObjectNameScriptPriorityButton("KeyboardScriptPriorityButton");
     const int MKeyboardLayoutRole = Qt::UserRole + 1;
 };
 
@@ -129,6 +132,9 @@ MKeyboardSettingsWidget::MKeyboardSettingsWidget(MKeyboardSettings *settings, QG
     buildUi();
     syncErrorCorrectionState();
     syncCorrectionSpaceState();
+    syncFuzzyState();
+    syncWordPredictionState();
+    syncScriptPriorityState();
     retranslateUi();
     connectSlots();
 }
@@ -188,6 +194,63 @@ void MKeyboardSettingsWidget::buildUi()
     wCLayout->setAlignment(correctionSpaceSwitch, Qt::AlignCenter);
     // Put to second row, second column on the grid
     addItem(wCLayout, 1, 1);
+
+    // Chinese setting widgets
+
+    // Error correction setting
+    fuzzySwitch = new MButton(this);
+    fuzzySwitch->setObjectName(ObjectNameFuzzyPinyinButton);
+    fuzzySwitch->setViewType(MButton::switchType);
+    fuzzySwitch->setCheckable(true);
+
+    fuzzyItem = new MBasicListItem(MBasicListItem::TitleWithSubtitle, this);
+//    //% "Fuzzy pinyin"
+    fuzzyItem->setTitle("Fuzzy pinyin");
+    fuzzyItem->setSubtitle("Fuzzy pinyin description");
+    fuzzyItem->setStyleName("CommonBasicListItemInverted");
+
+    QGraphicsLinearLayout *fuzzyLayout = new QGraphicsLinearLayout(Qt::Horizontal);
+    fuzzyLayout->addItem(fuzzyItem);
+    fuzzyLayout->addItem(fuzzySwitch);
+    fuzzyLayout->setAlignment(fuzzySwitch, Qt::AlignCenter);
+    // Put to third row, first column on the grid
+    addItem(fuzzyLayout, 2, 0);
+
+    // Word prediction setting
+    wordPredictionSwitch = new MButton(this);
+    wordPredictionSwitch->setObjectName(ObjectNameWordPredictionButton);
+    wordPredictionSwitch->setViewType(MButton::switchType);
+    wordPredictionSwitch->setCheckable(true);
+
+    wordPredictionItem = new MBasicListItem(MBasicListItem::TitleWithSubtitle, this);
+    wordPredictionItem->setTitle("Word prediction");
+    wordPredictionItem->setSubtitle("Word prediction description");
+    wordPredictionItem->setStyleName("CommonBasicListItemInverted");
+
+    QGraphicsLinearLayout *wordPredictionLayout = new QGraphicsLinearLayout(Qt::Horizontal);
+    wordPredictionLayout->addItem(wordPredictionItem);
+    wordPredictionLayout->addItem(wordPredictionSwitch);
+    wordPredictionLayout->setAlignment(wordPredictionSwitch, Qt::AlignCenter);
+    // Put to fourth row, first column on the grid
+    addItem(wordPredictionLayout, 3, 0);
+
+    // Simplified or Traditional priority setting
+    scriptPrioritySwitch = new MButton(this);
+    scriptPrioritySwitch->setObjectName(ObjectNameScriptPriorityButton);
+    scriptPrioritySwitch->setViewType(MButton::switchType);
+    scriptPrioritySwitch->setCheckable(true);
+
+    scriptPriorityItem = new MBasicListItem(MBasicListItem::TitleWithSubtitle, this);
+    scriptPriorityItem->setTitle("SimpOrTrad");
+    scriptPriorityItem->setSubtitle("Simplified pinyin words frist");
+    scriptPriorityItem->setStyleName("CommonBasicListItemInverted");
+
+    QGraphicsLinearLayout *scriptPriorityLayout = new QGraphicsLinearLayout(Qt::Horizontal);
+    scriptPriorityLayout->addItem(scriptPriorityItem);
+    scriptPriorityLayout->addItem(scriptPrioritySwitch);
+    scriptPriorityLayout->setAlignment(scriptPrioritySwitch, Qt::AlignCenter);
+    // Put to fifth row, first column on the grid
+    addItem(scriptPriorityLayout, 4, 0);
 }
 
 void MKeyboardSettingsWidget::addItem(QGraphicsLayoutItem *item, int row, int column)
@@ -212,6 +275,19 @@ void MKeyboardSettingsWidget::updateTitle()
     errorCorrectionContentItem->setSubtitle(qtTrId("qtn_txts_error_correction_description"));
     correctionSpaceContentItem->setTitle(qtTrId("qtn_txts_insert_with_space"));
     correctionSpaceContentItem->setSubtitle(qtTrId("qtn_txts_insert_with_space_description"));
+
+    fuzzyItem->setTitle("Fuzzy pinyin");
+    fuzzyItem->setSubtitle("Fuzzy pinyin description");
+
+    wordPredictionItem->setTitle("Word prediction");
+    wordPredictionItem->setSubtitle("Word prediction description");
+
+    scriptPriorityItem->setTitle("SimpOrTrad");
+    if (scriptPrioritySwitch->isChecked() == false)
+        scriptPriorityItem->setSubtitle("Simplified pinyin words frist");
+    else if (scriptPrioritySwitch->isChecked() == true)
+        scriptPriorityItem->setSubtitle("Traditional pinyin words frist");
+
     QStringList keyboards = settingsObject->selectedKeyboards().values();
     //% "Installed keyboards (%1)"
     QString title = qtTrId("qtn_txts_installed_keyboards")
@@ -253,6 +329,21 @@ void MKeyboardSettingsWidget::connectSlots()
             this, SLOT(syncCorrectionSpaceState()));
     connect(settingsObject, SIGNAL(selectedKeyboardsChanged()),
             this, SLOT(updateKeyboardSelectionModel()));
+
+    connect(fuzzySwitch, SIGNAL(toggled(bool)),
+            this, SLOT(setFuzzyState(bool)));
+    connect(settingsObject, SIGNAL(fuzzyStateChanged()),
+            this, SLOT(syncFuzzyState()));
+
+    connect(wordPredictionSwitch, SIGNAL(toggled(bool)),
+            this, SLOT(setWordPredictionState(bool)));
+    connect(settingsObject, SIGNAL(wordPredictionStateChanged()),
+            this, SLOT(syncWordPredictionState()));
+
+    connect(scriptPrioritySwitch, SIGNAL(toggled(bool)),
+            this, SLOT(setScriptPriorityState(bool)));
+    connect(settingsObject, SIGNAL(scriptPriorityStateChanged()),
+            this, SLOT(syncScriptPriorityState()));
 }
 
 void MKeyboardSettingsWidget::showKeyboardList()
@@ -444,5 +535,67 @@ void MKeyboardSettingsWidget::handleVisibilityChanged()
         // reject settings dialog if the visibility of settings widget
         // is changed from shown to hidden.
         keyboardDialog->reject();
+    }
+}
+
+void MKeyboardSettingsWidget::setFuzzyState(bool enabled)
+{
+    if (!settingsObject)
+          return;
+    settingsObject->setFuzzyPinyin(enabled) ;
+}
+
+void MKeyboardSettingsWidget::syncFuzzyState()
+{
+    if (!settingsObject)
+        return;
+
+    const bool fuzzyState = settingsObject->fuzzyPinyin();
+    if (fuzzySwitch &&
+        (fuzzySwitch->isChecked() != fuzzyState)) {
+        fuzzySwitch->setChecked(fuzzyState);
+    }
+}
+
+void MKeyboardSettingsWidget::setWordPredictionState(bool enabled)
+{
+    if (!settingsObject)
+          return;
+    settingsObject->setWordPrediction(enabled);
+}
+
+void MKeyboardSettingsWidget::syncWordPredictionState()
+{
+    if (!settingsObject)
+        return;
+
+    const bool wordPredictionState = settingsObject->wordPrediction();
+    if (wordPredictionSwitch &&
+        (wordPredictionSwitch->isChecked() != wordPredictionState)) {
+        wordPredictionSwitch->setChecked(wordPredictionState);
+    }
+}
+
+void MKeyboardSettingsWidget::setScriptPriorityState(bool enabled)
+{
+    if (!settingsObject)
+          return;
+    settingsObject->setScriptPriority(enabled);
+
+    if (enabled == false)
+        scriptPriorityItem->setSubtitle("Simplified pinyin words frist");
+    else
+        scriptPriorityItem->setSubtitle("Traditional pinyin words frist");
+}
+
+void MKeyboardSettingsWidget::syncScriptPriorityState()
+{
+    if (!settingsObject)
+        return;
+
+    const bool priorityState = settingsObject->scriptPriority();
+    if (scriptPrioritySwitch &&
+        (scriptPrioritySwitch->isChecked() != priorityState)) {
+        scriptPrioritySwitch->setChecked(priorityState);
     }
 }
