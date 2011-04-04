@@ -24,6 +24,9 @@ STYLE_HEADERS += \
     $$WIDGETS_DIR/mimwordtrackerstyle.h \
     $$WIDGETS_DIR/mimcorrectioncandidateitemstyle.h \
     $$WIDGETS_DIR/mtoolbarlabelstyle.h \
+    $$WIDGETS_DIR/wordribbonitemstyle.h \
+    $$WIDGETS_DIR/wordribbonstyle.h \
+    $$WIDGETS_DIR/wordribbondialogstyle.h \
 
 HEADERS += \
     $$PUBLIC_HEADERS \
@@ -53,6 +56,13 @@ HEADERS += \
     $$WIDGETS_DIR/mplainwindow.h \
     $$WIDGETS_DIR/mimabstractkeyarea_p.h \
     $$WIDGETS_DIR/mimkeyarea_p.h \
+    $$WIDGETS_DIR/abstractenginewidgethost.h \
+    $$WIDGETS_DIR/wordribbonitem.h \
+    $$WIDGETS_DIR/wordribbonhost.h \
+    $$WIDGETS_DIR/wordribbon.h \
+    $$WIDGETS_DIR/wordribbondialog.h \
+    $$WIDGETS_DIR/wordribbondialogmodel.h \
+    $$WIDGETS_DIR/wordribbondialogview.h \
     $$WIDGETS_DIR/abstractenginewidgethost.h \
 
 INSTALL_HEADERS += $$PUBLIC_HEADERS + $$PUBLIC_STYLE_HEADERS
@@ -87,6 +97,12 @@ SOURCES += \
     $$WIDGETS_DIR/mimoverlay.cpp \
     $$WIDGETS_DIR/mtoolbarlabelview.cpp \
     $$WIDGETS_DIR/reactionmappaintable.cpp \
+    $$WIDGETS_DIR/wordribbonitem.cpp \
+    $$WIDGETS_DIR/wordribbonhost.cpp \
+    $$WIDGETS_DIR/wordribbon.cpp \
+    $$WIDGETS_DIR/wordribbondialog.cpp \
+    $$WIDGETS_DIR/wordribbondialogmodel.cpp \
+    $$WIDGETS_DIR/wordribbondialogview.cpp \
 
 INCLUDEPATH += $$WIDGETS_DIR
 DEPENDPATH += $$WIDGETS_DIR
