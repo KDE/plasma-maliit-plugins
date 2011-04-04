@@ -28,6 +28,10 @@ SUBDIRS = \
           ut_sharedhandlearea \
           bm_painting \
           ut_mtoolbarbutton \
+          ut_wordribbonitem \
+          ut_wordribbonhost \
+          ut_wordribbondialog \
+          ut_wordribbondialogmodel \
 
 contains(CONFIG, nomeegotouch) {
 } else {
