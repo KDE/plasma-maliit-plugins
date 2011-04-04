@@ -424,6 +424,7 @@ private:
     bool keyOverrideClearPending;
     bool pendingLanguageNotificationRequest;
 
+    friend class EngineHandlerDefault;
 #ifdef UNIT_TEST
     friend class Ut_MKeyboardHost;
 #endif

@@ -53,6 +53,7 @@ HEADERS += \
     $$WIDGETS_DIR/mplainwindow.h \
     $$WIDGETS_DIR/mimabstractkeyarea_p.h \
     $$WIDGETS_DIR/mimkeyarea_p.h \
+    $$WIDGETS_DIR/abstractenginewidgethost.h \
 
 INSTALL_HEADERS += $$PUBLIC_HEADERS + $$PUBLIC_STYLE_HEADERS
 

@@ -26,6 +26,10 @@ HEADERS += \
     $$COMMON_DIR/simplefilelog.h \
     $$COMMON_DIR/mimreactionmap.h \
     $$COMMON_DIR/reactionmapwrapper.h \
+    $$COMMON_DIR/abstractengine.h \
+    $$COMMON_DIR/enginedefault.h \
+    $$COMMON_DIR/enginemanager.h \
+    $$COMMON_DIR/enginehandler.h \
 
 SOURCES += \
     $$COMMON_DIR/keyboarddata.cpp\
@@ -45,6 +49,8 @@ SOURCES += \
     $$COMMON_DIR/reactionmappainter.cpp \
     $$COMMON_DIR/regiontracker.cpp \
     $$COMMON_DIR/simplefilelog.cpp \
+    $$COMMON_DIR/enginedefault.cpp \
+    $$COMMON_DIR/enginemanager.cpp \
 
 INCLUDEPATH += $$COMMON_DIR
 DEPENDPATH += $$COMMON_DIR
