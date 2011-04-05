@@ -50,5 +50,40 @@
       </locale>
     </schema>
 
+    <schema>
+        <key>/schemas/meegotouch/inputmethods/virtualkeyboard/fuzzyselected</key>
+        <applyto>/meegotouch/inputmethods/virtualkeyboard/fuzzyselected</applyto>
+        <owner>meegotouch</owner>
+        <type>bool</type>
+        <default>false</default>
+        <locale name="C">
+        <short>Whether fuzzy enabled</short>
+        <long>Whether fuzzy is enabled</long>
+        </locale>
+    </schema>
+
+    <schema>
+        <key>/schemas/meegotouch/inputmethods/virtualkeyboard/wordpredictionenabled</key>
+        <applyto>/meegotouch/inputmethods/virtualkeyboard/wordpredictionenabled</applyto>
+        <owner>meegotouch</owner>
+        <type>bool</type>
+        <default>true</default>
+        <locale name="C">
+        <short>Whether next word prediction is enabled</short>
+        <long>Whether next word prediction is enabled</long>
+        </locale>
+    </schema>
+
+    <schema>
+        <key>/schemas/meegotouch/inputmethods/virtualkeyboard/scriptpriority/zh</key>
+        <applyto>/meegotouch/inputmethods/virtualkeyboard/scriptpriority/zh</applyto>
+        <owner>meegotouch</owner>
+        <type>bool</type>
+        <default>false</default>
+        <locale name="C">
+        <short>Whether simplify Chinese words prior to traditional Chinese words or not in pinyin</short>
+        <long>Whether simplify Chinese words prior to traditional Chinese words or not in pinyin</long>
+        </locale>
+    </schema>
   </schemalist>
 </gconfschemafile>
