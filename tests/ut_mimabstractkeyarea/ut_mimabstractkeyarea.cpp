@@ -44,6 +44,9 @@ Q_DECLARE_METATYPE(KeyEvent);
 Q_DECLARE_METATYPE(MImAbstractKey*);
 Q_DECLARE_METATYPE(const MImAbstractKey*);
 
+typedef QList<QPointF> PointList;
+Q_DECLARE_METATYPE(PointList);
+
 typedef MImAbstractKeyArea *(*KBACreator)(const LayoutData::SharedLayoutSection &section,
                                      bool usePopup,
                                      QGraphicsWidget *parent);
@@ -1369,6 +1372,84 @@ void Ut_MImAbstractKeyArea::testStyleModesFromKeyCount()
 
     subject = createArea(keys, QSize(50, 50));
     QCOMPARE(subject->baseStyle().currentMode(), expectedStyleMode);
+}
+
+void Ut_MImAbstractKeyArea::testOverlayMode_data()
+{
+    const QRectF area(0, 0, 100, 100);
+    const QSize keyAreaSize(area.width() * 0.5, area.height() * 0.5);
+    const QRectF outside(area.adjusted(20, 20, -20, -20));
+    const QRectF inside(area.adjusted(40, 40, -40, -40));
+
+    QTest::addColumn<bool>("overlayMode");
+    QTest::addColumn<bool>("hit");
+    QTest::addColumn<QRectF>("area");
+    QTest::addColumn<QSize>("keyAreaSize");
+    QTest::addColumn<PointList>("hitPoints");
+
+    // Expected hit area in overlay mode, shown as '+':
+    // .----+++++++----.
+    // |    +++++++    |
+    // |   .+++++++.   |
+    // |   |+++Q+++| <==== key area (centered)
+    // |   `+++++++´   |
+    // |    +++++++    |
+    // `----+++++++----´
+
+    QTest::newRow("no hits")
+        << false << false << area << keyAreaSize
+        << (PointList() << outside.topLeft() << outside.topRight()
+                        << outside.bottomLeft() << outside.bottomRight());
+
+    QTest::newRow("bullseye")
+        << false << true << area << keyAreaSize
+        << (PointList() << inside.topLeft() << inside.topRight()
+                        << inside.bottomLeft() << inside.bottomRight());
+
+    QTest::newRow("overlayed but no hits")
+        << true << false << area << keyAreaSize
+        << (PointList() << outside.topLeft() << outside.topRight()
+                        << outside.bottomLeft() << outside.bottomRight());
+
+    QTest::newRow("overlayed bullseye")
+        << true << true << area << keyAreaSize
+        << (PointList() << inside.topLeft() << inside.topRight()
+                        << inside.bottomLeft() << inside.bottomRight()
+                        << QPointF(area.center().x(), area.top())
+                        << QPointF(area.center().x(), area.bottom()));
+}
+
+void Ut_MImAbstractKeyArea::testOverlayMode()
+{
+    QFETCH(bool, overlayMode);
+    QFETCH(bool, hit);
+    QFETCH(QRectF, area);
+    QFETCH(QSize, keyAreaSize);
+    QFETCH(PointList, hitPoints);
+
+    QGraphicsScene sc;
+    sc.setSceneRect(area);
+    // scene takes ownership:
+    sc.addItem(subject = createArea("Q", keyAreaSize));
+    // center it:
+    subject->setPos((area.width() - keyAreaSize.width()) * 0.5,
+                    (area.height() - keyAreaSize.height()) * 0.5);
+
+    MImAbstractKeyAreaStyle *s = const_cast<MImAbstractKeyAreaStyle *>(subject->baseStyle().operator->());
+    s->setEnableOverlayMode(overlayMode);
+
+    const MImAbstractKey *const None = 0;
+    const MImAbstractKey *const LetterQ = keyAt(0, 0);
+    QVERIFY(LetterQ);
+
+    foreach (const QPointF &hp, hitPoints) {
+        // TODO: test crashes on failure (because of scene cleanup)
+        // Is it better to just leak a scene instance instead?
+        const MImAbstractKey *const Found = subject->keyAt(subject->mapFromScene(hp).toPoint());
+        QCOMPARE(Found, (hit ? LetterQ : None));
+    }
+
+    subject = 0;
 }
 
 void Ut_MImAbstractKeyArea::changeOrientation(M::OrientationAngle angle)
