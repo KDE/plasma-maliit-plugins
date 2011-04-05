@@ -134,6 +134,7 @@ public:
     M_STYLE_ATTRIBUTE(qreal, keyMarginBottom, KeyMarginBottom)
 
     M_STYLE_ATTRIBUTE(bool, syncStyleModeWithKeyCount, SyncStyleModeWithKeyCount)
+    M_STYLE_ATTRIBUTE(bool, enableOverlayMode, EnableOverlayMode)
 };
 
 class M_EXPORT MImAbstractKeyAreaStyleContainer : public MWidgetStyleContainer

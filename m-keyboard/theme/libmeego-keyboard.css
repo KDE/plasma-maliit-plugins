@@ -96,6 +96,7 @@ MImAbstractKeyAreaStyle {
     flick-gesture-threshold-ratio: 0.5;
 
     touchpoint-vertical-offset: 0mm;
+    enable-overlay-mode: false;
 
     /*** Key Geometry ***/
     use-fixed-key-width: false;
