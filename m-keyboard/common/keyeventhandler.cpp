@@ -134,6 +134,7 @@ KeyEvent KeyEventHandler::keyToKeyEvent(const MImAbstractKey &key,
     }
     event.setCorrectionPosition(context.errorCorrectionPos);
     event.setScenePosition(context.scenePos);
+    event.setIsFromPrimaryTouchPoint(context.isFromPrimaryTouchPoint);
 
     return event;
 }

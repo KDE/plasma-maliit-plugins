@@ -42,6 +42,7 @@ KeyEvent::KeyEvent(const QString &text, QKeyEvent::Type type, Qt::Key qtKey, Spe
       m_specialKey(specialKey),
       m_text(text),
       m_modifiers(modifiers),
+      m_isFromPrimaryTouchPoint(false),
       m_correctionPos(correctionPos),
       m_scenePos(scenePos)
 {
@@ -53,6 +54,7 @@ KeyEvent::KeyEvent(const KeyEvent &other, QKeyEvent::Type type)
       m_specialKey(other.m_specialKey),
       m_text(other.m_text),
       m_modifiers(other.m_modifiers),
+      m_isFromPrimaryTouchPoint(other.m_isFromPrimaryTouchPoint),
       m_correctionPos(other.m_correctionPos),
       m_scenePos(other.m_scenePos)
 {
@@ -95,6 +97,16 @@ bool KeyEvent::operator==(const KeyEvent &other) const
            && (m_modifiers == other.m_modifiers)
            && (m_type == other.m_type)
            && (m_text == other.m_text);
+}
+
+bool KeyEvent::isFromPrimaryTouchPoint() const
+{
+    return m_isFromPrimaryTouchPoint;
+}
+
+void KeyEvent::setIsFromPrimaryTouchPoint(bool primary)
+{
+    m_isFromPrimaryTouchPoint = primary;
 }
 
 void KeyEvent::setCorrectionPosition(const QPoint &point)

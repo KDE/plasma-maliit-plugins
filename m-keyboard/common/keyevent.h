@@ -99,6 +99,12 @@ public:
 
     bool operator==(const KeyEvent &other) const;
 
+    //! \brief Tells whether this event originated from primary touch point
+    bool isFromPrimaryTouchPoint() const;
+
+    //! \brief Sets whether this event originated from primary touch point
+    void setIsFromPrimaryTouchPoint(bool primary);
+
     /*!
      * \brief Sets the event's layout position that is delivered to error correction engine.
      *
@@ -127,6 +133,7 @@ protected:
     SpecialKey m_specialKey;
     QString m_text;
     Qt::KeyboardModifiers m_modifiers;
+    bool m_isFromPrimaryTouchPoint;
     QPoint m_correctionPos;
     QPointF m_scenePos;
 };

@@ -305,7 +305,7 @@ void MImAbstractKeyAreaPrivate::touchPointPressed(const QTouchEvent::TouchPoint 
         emit q->keyPressed(key,
                            KeyContext(hasActiveShiftKeys || isUpperCase(),
                                       finder.deadKey() ? finder.deadKey()->label() : QString(),
-                                      tp.scenePos()));
+                                      tp.scenePos(), QPoint(), tp.isPrimary()));
     }
     mTimestamp("MImAbstractKeyArea", "end");
 }
@@ -351,7 +351,7 @@ void MImAbstractKeyAreaPrivate::touchPointMoved(const QTouchEvent::TouchPoint &t
                 emit q->keyPressed(lookup.key,
                                    KeyContext(hasActiveShiftKeys || isUpperCase(),
                                               finder.deadKey() ? finder.deadKey()->label() : QString(),
-                                              tp.scenePos()));
+                                              tp.scenePos(), QPoint(), tp.isPrimary()));
             }
         }
 
