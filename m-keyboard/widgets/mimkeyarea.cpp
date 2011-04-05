@@ -32,6 +32,7 @@
 
 #include <MScalableImage>
 #include <MTimestamp>
+#include <float.h>
 
 namespace {
     template<class T>
@@ -595,6 +596,23 @@ void MImKeyAreaPrivate::registerKeyId(MImKey *key)
     idToKey.append(key);
 }
 
+void MImKeyAreaPrivate::applyOverlayMode(QVector<QPair<qreal, qreal> > *offsets)
+{
+    if (not offsets || offsets->isEmpty()) {
+        return;
+    }
+
+    Q_Q(const MImKeyArea);
+
+    if (q->baseStyle()->enableOverlayMode()) {
+        const QPair<qreal, qreal> firstRow(-FLT_MAX, offsets->first().second);
+        offsets->replace(0, firstRow);
+
+        const QPair<qreal, qreal> lastRow(offsets->last().first, FLT_MAX);
+        offsets->replace(offsets->size() - 1, lastRow);
+    }
+}
+
 // actual class implementation
 MImKeyArea::MImKeyArea(const LayoutData::SharedLayoutSection &newSection,
                        bool usePopup,
@@ -840,6 +858,7 @@ void MImKeyArea::updateKeyGeometries(const int newAvailableWidth)
     }
 
     d->rowOffsets = updater.rowOffsets();
+    d->applyOverlayMode(&d->rowOffsets);
     mRelativeKeyBaseWidth = updater.relativeKeyWidth();
 
     // Positions may have changed, rebuild text layout.

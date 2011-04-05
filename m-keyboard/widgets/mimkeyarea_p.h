@@ -84,6 +84,11 @@ public:
     //! \param key Pointer to key which id should be registered
     void registerKeyId(MImKey *key);
 
+    //! \brief In overlay mode, reactive area of first/last row spawns to
+    //!        top/bottom of display. Does not effect key geometry.
+    //! \param offsets The offsets that need to be modified
+    void applyOverlayMode(QVector<QPair<qreal, qreal> > *offsets);
+
     //! \brief Helper struct to store a row of keys.
     struct KeyRow {
         QList<MImKey*> keys; //!< keys in a row
