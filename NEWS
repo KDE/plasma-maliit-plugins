@@ -1,3 +1,10 @@
+0.5.38
+======
+
+* New CSS attributes for MImAbstractKeyAreaStyle:
+  - enable-overlay-mode: In overlay mode, reactive area of first/last row
+    spawns to top/bottom of display. Does not effect key geometry.
+
 0.5.36
 ======
 
