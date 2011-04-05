@@ -26,7 +26,7 @@ namespace
     const QString DefaultInputLanguage("zh@pinyin");
     const QString InputMethodFuzzySetting("/meegotouch/inputmethods/virtualkeyboard/fuzzyselected");
     const QString InputMethodWordPredictionSetting("/meegotouch/inputmethods/virtualkeyboard/wordpredictionenabled");
-    const QString InputMethodScriptPrioritySetting("/meegotouch/inputmethods/virtualkeyboard/scriptpriority");
+    const QString InputMethodScriptPrioritySetting("/meegotouch/inputmethods/virtualkeyboard/scriptpriority/zh");
 };
 
 EngineCJK::EngineCJK(MAbstractInputMethodHost &imHost, const QString &engineName)
