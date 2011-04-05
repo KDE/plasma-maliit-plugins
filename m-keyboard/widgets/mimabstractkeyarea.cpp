@@ -41,7 +41,6 @@
 
 #include <MFeedback>
 #include <MGConfItem>
-#include <QDebug>
 #include <QEvent>
 #include <QGraphicsSceneMouseEvent>
 #include <QFile>
@@ -141,6 +140,8 @@ MImAbstractKeyAreaPrivate::MImAbstractKeyAreaPrivate(const LayoutData::SharedLay
       wasGestureTriggered(false),
       feedbackSliding(MImReactionMap::Sliding),
       section(newSection),
+      primaryPressArrived(false),
+      primaryReleaseArrived(false),
       allowedHorizontalFlick(true)
 {
 }
@@ -236,6 +237,85 @@ void MImAbstractKeyAreaPrivate::handleFlickGesture(FlickGesture *gesture)
         default:
             return;
         }
+    }
+}
+
+
+void MImAbstractKeyAreaPrivate::handleTouchEvent(QTouchEvent *event)
+{
+    Q_Q(MImAbstractKeyArea);
+
+    if (!q->isVisible()) {
+        return;
+    }
+
+    foreach (const QTouchEvent::TouchPoint &tp, event->touchPoints()) {
+
+        switch (tp.state()) {
+        case Qt::TouchPointPressed:
+            if (tp.isPrimary()) {
+                primaryTouchPointPressed(tp);
+            } else {
+                touchPointPressed(tp);
+            }
+            break;
+
+        case Qt::TouchPointMoved:
+            // Primary touch point moves are always generated
+            // from mouseMoveEvent() handler.
+            if (!tp.isPrimary()) {
+                touchPointMoved(tp);
+            }
+            break;
+
+        case Qt::TouchPointReleased:
+            if (tp.isPrimary()) {
+                primaryTouchPointReleased(tp);
+            } else {
+                touchPointReleased(tp);
+            }
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+void MImAbstractKeyAreaPrivate::primaryTouchPointPressed(const QTouchEvent::TouchPoint &tp)
+{
+    if (!primaryPressArrived) {
+        primaryPressArrived = true;
+        primaryReleaseArrived = false;
+        touchPointPressed(tp);
+    }
+}
+
+void MImAbstractKeyAreaPrivate::primaryTouchPointMoved(const QTouchEvent::TouchPoint &tp)
+{
+    // The check for both press and release serve the role of a sanity check,
+    // and in addition the release is checked for the purpose of discarding
+    // further mouse move events after primary touch point is lifted.
+    // This is because mouse move events will continue to be delivered for
+    // another, non-primary, touch point.
+    if (!primaryPressArrived || primaryReleaseArrived) {
+        return;
+    }
+
+    touchPointMoved(tp);
+}
+
+void MImAbstractKeyAreaPrivate::primaryTouchPointReleased(const QTouchEvent::TouchPoint &tp)
+{
+    // Just return in case press has not arrived. This can also be due to mouse being
+    // grabbed to somewhere else.
+    if (!primaryPressArrived) {
+        return;
+    }
+
+    if (!primaryReleaseArrived) {
+        touchPointReleased(tp);
+        primaryReleaseArrived = true;
+        primaryPressArrived = false;
     }
 }
 
@@ -787,39 +867,24 @@ void MImAbstractKeyArea::resizeEvent(QGraphicsSceneResizeEvent *event)
 void MImAbstractKeyArea::mousePressEvent(QGraphicsSceneMouseEvent *ev)
 {
     Q_D(MImAbstractKeyArea);
-
-    if (d->multiTouchEnabled()) {
-        return;
-    }
-
-    d->touchPointPressed(d->mouseEventToTouchPoint(ev));
+    d->primaryTouchPointPressed(d->mouseEventToTouchPoint(ev));
 }
 
 void MImAbstractKeyArea::mouseMoveEvent(QGraphicsSceneMouseEvent *ev)
 {
     Q_D(MImAbstractKeyArea);
-
-    if (d->multiTouchEnabled()) {
-        return;
-    }
-
-    d->touchPointMoved(d->mouseEventToTouchPoint(ev));
+    d->primaryTouchPointMoved(d->mouseEventToTouchPoint(ev));
 }
 
 void MImAbstractKeyArea::mouseReleaseEvent(QGraphicsSceneMouseEvent *ev)
 {
     Q_D(MImAbstractKeyArea);
+    d->primaryTouchPointReleased(d->mouseEventToTouchPoint(ev));
 
+    // We may have an explicit grab which needs to be explicitly ungrabbed.
     if (scene()->mouseGrabberItem() == this) {
-        // Ungrab mouse explicitly since we probably used grabMouse() to get it.
         ungrabMouse();
     }
-
-    if (d->multiTouchEnabled()) {
-        return;
-    }
-
-    d->touchPointReleased(d->mouseEventToTouchPoint(ev));
 }
 
 QVariant MImAbstractKeyArea::itemChange(GraphicsItemChange change, const QVariant &value)
@@ -865,6 +930,9 @@ void MImAbstractKeyArea::ungrabMouseEvent(QEvent *)
         d->mPopup->cancel();
     }
 
+    d->primaryPressArrived = false;
+    d->primaryReleaseArrived = false;
+
     if (d->multiTouchEnabled() && MImAbstractKey::lastActiveKey()) {
         MImAbstractKey::lastActiveKey()->resetTouchPointCount();
     }
@@ -893,27 +961,7 @@ bool MImAbstractKeyArea::event(QEvent *ev)
     } else if (ev->type() == QEvent::TouchBegin
                || ev->type() == QEvent::TouchUpdate
                || ev->type() == QEvent::TouchEnd) {
-        QTouchEvent *touch = static_cast<QTouchEvent*>(ev);
-
-        foreach (const QTouchEvent::TouchPoint &tp, touch->touchPoints()) {
-
-            switch (tp.state()) {
-            case Qt::TouchPointPressed:
-                d->touchPointPressed(tp);
-                break;
-
-            case Qt::TouchPointMoved:
-                d->touchPointMoved(tp);
-                break;
-
-            case Qt::TouchPointReleased:
-                d->touchPointReleased(tp);
-                break;
-            default:
-                break;
-            }
-        }
-
+        d->handleTouchEvent(static_cast<QTouchEvent*>(ev));
         eaten = true;
     }
 
