@@ -48,7 +48,7 @@ namespace {
     const QString VKBLayoutsIgnoreRules("number|test|customer|default"); // use as regexp to ignore number, test, customer and default layouts
     const QString SettingsFuzzy("/meegotouch/inputmethods/virtualkeyboard/fuzzyselected");
     const QString SettingsWordPrediction("/meegotouch/inputmethods/virtualkeyboard/wordpredictionenabled");
-    const QString SettingsScriptPriority("/meegotouch/inputmethods/virtualkeyboard/scriptpriority");
+    const QString SettingsScriptPriorityZh("/meegotouch/inputmethods/virtualkeyboard/scriptpriority/zh");
 };
 
 MKeyboardSettings::MKeyboardSettings()
@@ -57,7 +57,7 @@ MKeyboardSettings::MKeyboardSettings()
       selectedKeyboardsConf(InputMethodLayouts),
       chineseKeyboardFuzzyConf(SettingsFuzzy),
       chineseKeyboardWordPredictionConf(SettingsWordPrediction),
-      chineseKeyboardScriptPriorityConf(SettingsScriptPriority)
+      chineseKeyboardScriptPriorityConf(SettingsScriptPriorityZh)
 {
     readAvailableKeyboards();
     connect(&keyboardErrorCorrectionConf, SIGNAL(valueChanged()),

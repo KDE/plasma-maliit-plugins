@@ -242,7 +242,7 @@ void MKeyboardSettingsWidget::buildUi()
 
     scriptPriorityItem = new MBasicListItem(MBasicListItem::TitleWithSubtitle, this);
     scriptPriorityItem->setTitle("SimpOrTrad");
-    scriptPriorityItem->setSubtitle("Simplified pinyin words frist");
+    scriptPriorityItem->setSubtitle("Simplified pinyin words first");
     scriptPriorityItem->setStyleName("CommonBasicListItemInverted");
 
     QGraphicsLinearLayout *scriptPriorityLayout = new QGraphicsLinearLayout(Qt::Horizontal);
@@ -284,9 +284,9 @@ void MKeyboardSettingsWidget::updateTitle()
 
     scriptPriorityItem->setTitle("SimpOrTrad");
     if (scriptPrioritySwitch->isChecked() == false)
-        scriptPriorityItem->setSubtitle("Simplified pinyin words frist");
+        scriptPriorityItem->setSubtitle("Simplified pinyin words first");
     else if (scriptPrioritySwitch->isChecked() == true)
-        scriptPriorityItem->setSubtitle("Traditional pinyin words frist");
+        scriptPriorityItem->setSubtitle("Traditional pinyin words first");
 
     QStringList keyboards = settingsObject->selectedKeyboards().values();
     //% "Installed keyboards (%1)"
@@ -583,9 +583,9 @@ void MKeyboardSettingsWidget::setScriptPriorityState(bool enabled)
     settingsObject->setScriptPriority(enabled);
 
     if (enabled == false)
-        scriptPriorityItem->setSubtitle("Simplified pinyin words frist");
+        scriptPriorityItem->setSubtitle("Simplified pinyin words first");
     else
-        scriptPriorityItem->setSubtitle("Traditional pinyin words frist");
+        scriptPriorityItem->setSubtitle("Traditional pinyin words first");
 }
 
 void MKeyboardSettingsWidget::syncScriptPriorityState()
