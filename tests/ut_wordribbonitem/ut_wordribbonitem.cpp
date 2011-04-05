@@ -196,10 +196,6 @@ void Ut_WordRibbonItem::checkSize_data()
     QTest::newRow("OneWordCondition")
             <<QString("a") << QRect(0, 0, 46, 48) <<QRect(8, 5, 30, 38)
             <<QSize(46, 48) <<QSize(46, 48);
-
-    QTest::newRow("TwoWordCondition")
-            <<QString("ab") << QRect(0, 0, 48, 48) <<QRect(8, 5, 32, 38)
-            <<QSize(48, 48) <<QSize(48, 48);
 }
 
 void Ut_WordRibbonItem::checkSize()
