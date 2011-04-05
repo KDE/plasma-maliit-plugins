@@ -157,8 +157,10 @@ void WordRibbonHost::showEngineWidget(DisplayMode mode)
     }
 
     wordRibbon->show();
-
     updatePosition();
+
+    // Request reaction map repaint.
+    signalForwarder.emitRequestRepaint();
 }
 
 void WordRibbonHost::hideEngineWidget()

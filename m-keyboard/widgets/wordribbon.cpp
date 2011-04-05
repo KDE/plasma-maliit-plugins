@@ -18,6 +18,7 @@
 #include "wordribbon.h"
 #include "wordribbonitem.h"
 #include "wordribbonhost.h"
+#include "mimreactionmap.h"
 #include <QtGui>
 #include <QtCore>
 
@@ -290,8 +291,14 @@ void WordRibbon::clearAllFlags()
 
 void WordRibbon::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view)
 {
+    if (!isVisible())
+        return;
+
     reactionMap->setTransform(this, view);
-    reactionMap->setReactiveDrawingValue();
+    reactionMap->setInactiveDrawingValue();
+    reactionMap->fillRectangle(boundingRect());
+
+    reactionMap->setDrawingValue(MImReactionMap::Press, MImReactionMap::Release);
 
     QRectF rect;
     for (int i = 0; i < numCreatedItems; ++i) {
