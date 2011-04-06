@@ -136,10 +136,36 @@ public:
      */
     virtual void preparePluginSwitching() = 0;
 
+    /*!
+     * \brief Handle a key press event.
+     * \param event, the key press event to be processed.
+     * \return "true" if the engine handler consumes the key event;
+     *         Otherwise return "false".
+     */
     virtual bool handleKeyPress(const KeyEvent &event) = 0;
 
+    /*!
+     * \brief Handle a key release event.
+     * \param event, the key release event to be processed.
+     * \return "true" if the engine handler consumes the key event;
+     *         Otherwise return "false".
+     */
     virtual bool handleKeyRelease(const KeyEvent &event) = 0;
 
+    /*!
+     * \brief Handle a key click event.
+     * Notes:
+     * -# Generally, if the key click event represents a text input event, an engine handler will consume
+     * it and will not broadcast it to other components. In this case, this method will return "true".
+     * -# If the key click event represents a special function (for example, a "Sym" key), an engine handler
+     * can not process it and will return "false".
+     * -# An engine handler will update internal candidates after processing the key click event. However,
+     * it can not complete refreshing other UI parts (for example, update Caps Lock state). So the remained
+     * UI update should be done by the caller after this method returns.
+     * \param event, the key click event to be processed.
+     * \return "true" if the engine handler consumes the key event;
+     *         Otherwise return "false".
+     */
     virtual bool handleKeyClick(const KeyEvent &event) = 0;
 };
 

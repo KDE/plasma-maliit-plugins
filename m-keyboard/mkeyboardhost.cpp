@@ -1217,6 +1217,12 @@ void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
 void MKeyboardHost::handleKeyClick(const KeyEvent &event)
 {
     if (EngineManager::instance().handler()->handleKeyClick(event)) {
+        // After the key event is consumed by the proper engine handler, the "shift" state
+        // should be updated accordingly right here because the engine handler can not
+        // do it.
+        if ((vkbWidget->shiftStatus() == ModifierLatchedState)
+             && (!shiftHeldDown))
+            vkbWidget->setShiftState(ModifierClearState);
         return;
     }
 
