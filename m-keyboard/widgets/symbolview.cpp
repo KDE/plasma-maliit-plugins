@@ -267,19 +267,20 @@ void SymbolView::loadSwitcherPages(const LayoutData *kbLayout, const unsigned in
     }
 
     bool hadPageSwitcher = true;
-    if(!pageSwitcher) {
+    if (!pageSwitcher) {
         hadPageSwitcher = false;
         pageSwitcher = new HorizontalSwitcher(this);
+
+        pageSwitcher->setLooping(true);
+        pageSwitcher->setAnimationEnabled(false);
+
+        connect(pageSwitcher, SIGNAL(switchStarting(QGraphicsWidget *, QGraphicsWidget *)),
+                this,         SLOT(onSwitchStarting(QGraphicsWidget *, QGraphicsWidget *)));
+        connect(pageSwitcher, SIGNAL(switchDone(QGraphicsWidget *, QGraphicsWidget *)),
+                this,         SLOT(onSwitchDone()));
     }
 
     pageSwitcher->deleteAll();
-    pageSwitcher->setLooping(true);
-    pageSwitcher->setAnimationEnabled(false);
-
-    connect(pageSwitcher, SIGNAL(switchStarting(QGraphicsWidget *, QGraphicsWidget *)),
-            this,         SLOT(onSwitchStarting(QGraphicsWidget *, QGraphicsWidget *)));
-    connect(pageSwitcher, SIGNAL(switchDone(QGraphicsWidget *, QGraphicsWidget *)),
-            this,         SLOT(onSwitchDone()));
 
     LayoutData::SharedLayoutSection symbolSection;
 
