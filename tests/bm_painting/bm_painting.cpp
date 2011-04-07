@@ -200,6 +200,10 @@ void Bm_Painting::benchmarkPaintDuringKeyPresses_data()
 
 void Bm_Painting::benchmarkPaintDuringKeyPresses()
 {
+#if defined(__i386__)
+    QSKIP("This test is known to be broken with Scratchbox", SkipAll);
+#endif
+
     QFETCH(QString, filename);
     QFETCH(bool, hardwareRendering);
     QFETCH(bool, compositing);
@@ -318,6 +322,9 @@ void Bm_Painting::benchmarkPaintDuringHorizontalLayoutChange_data()
 
 void Bm_Painting::benchmarkPaintDuringHorizontalLayoutChange()
 {
+#if defined(__i386__)
+    QSKIP("This test is known to be broken with Scratchbox", SkipAll);
+#endif
     QFETCH(QString, filename);
     QFETCH(bool, hardwareRendering);
     QFETCH(bool, compositing);
