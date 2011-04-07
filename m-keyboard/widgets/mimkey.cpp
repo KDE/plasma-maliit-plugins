@@ -178,7 +178,8 @@ MImKey::MImKey(const MImKeyModel &newModel,
       stylingCache(newStylingCache),
       overrideIcon(0),
       ignoreOverride(false),
-      composing(false)
+      composing(false),
+      needsCompactIcon(false)
 {
     if (mModel.binding(false)) {
         loadIcon(false);
@@ -242,6 +243,12 @@ void MImKey::setIgnoreOverriding(bool ignore)
     }
 
     invalidateLabelPos();
+}
+
+void MImKey::handleThemeChange()
+{
+    invalidateLabelPos();
+    updateNeedsCompactIcon();
 }
 
 void MImKey::overrideBinding(const MImKeyBinding *binding)
@@ -767,6 +774,7 @@ void MImKey::setGeometry(const MImKey::Geometry &geometry)
     currentGeometry = geometry;
     updateGeometryCache();
     invalidateLabelPos();
+    updateNeedsCompactIcon();
     if (override && !override->icon().isEmpty()) {
         loadOverrideIcon(override->icon());
     }
@@ -824,15 +832,18 @@ const QRectF & MImKey::secondaryLabelRect() const
 
 void MImKey::loadIcon(bool shift)
 {
-    IconInfo &iconInfo(shift ? upperCaseIcon : lowerCaseIcon);
+    IconInfo &normalIconInfo(shift ? upperCaseIcon : lowerCaseIcon);
+    IconInfo &compactIconInfo(shift ? upperCaseCompactIcon : lowerCaseCompactIcon);
     const MImKeyBinding::KeyAction action(mModel.binding(shift)->action());
     QSize size;
     QString iconProperty;
+    QSize compactIconSize;
 
     switch(action) {
         case MImKeyBinding::ActionBackspace:
             iconProperty = "keyBackspaceIconId";
             size = styleContainer->keyBackspaceIconSize();
+            compactIconSize = styleContainer->keyBackspaceCompactIconSize();
             break;
         case MImKeyBinding::ActionShift:
             if (shift) {
@@ -840,36 +851,48 @@ void MImKey::loadIcon(bool shift)
             } else {
                 iconProperty = "keyShiftIconId";
             }
+            compactIconSize = styleContainer->keyShiftCompactIconSize();
             size = styleContainer->keyShiftIconSize();
             break;
         case MImKeyBinding::ActionReturn:
             if (mModel.binding(shift)->label().isEmpty()) {
                 iconProperty = "keyEnterIconId";
                 size = styleContainer->keyEnterIconSize();
+                compactIconSize = styleContainer->keyEnterCompactIconSize();
             }
             break;
         case MImKeyBinding::ActionLayoutMenu:
             iconProperty = "keyMenuIconId";
             size = styleContainer->keyMenuIconSize();
+            compactIconSize = styleContainer->keyMenuCompactIconSize();
             break;
         case MImKeyBinding::ActionTab:
             if (mModel.binding(shift)->label().isEmpty()) {
                 iconProperty = "keyTabIconId";
                 size = styleContainer->keyTabIconSize();
+                compactIconSize = styleContainer->keyTabCompactIconSize();
             }
             break;
         case MImKeyBinding::ActionCompose:
             iconProperty = "keyEnterIconId";
             size = styleContainer->keyEnterIconSize();
+            compactIconSize = styleContainer->keyEnterCompactIconSize();
             break;
         default:
             break;
     }
 
-    iconInfo.id = getCSSProperty<QString>(styleContainer, iconProperty, mModel.rtl());
+    normalIconInfo.id = getCSSProperty<QString>(styleContainer, iconProperty, mModel.rtl());
 
-    if (!iconInfo.id.isEmpty()) {
-        iconInfo.pixmap = MTheme::pixmap(iconInfo.id, size);
+    if (!normalIconInfo.id.isEmpty()) {
+        normalIconInfo.pixmap = MTheme::pixmap(normalIconInfo.id, size);
+    }
+
+    const QString compactIconProperty = iconProperty.replace("IconId", "CompactIconId");
+    compactIconInfo.id = getCSSProperty<QString>(styleContainer, compactIconProperty, mModel.rtl());
+
+    if (!compactIconInfo.id.isEmpty()) {
+        compactIconInfo.pixmap = MTheme::pixmap(compactIconInfo.id, compactIconSize);
     }
 }
 
@@ -898,9 +921,30 @@ void MImKey::loadOverrideIcon(const QString& icon)
     }
 }
 
+
+void MImKey::updateNeedsCompactIcon()
+{
+    const IconInfo &normalIcon = (shift ? upperCaseIcon : lowerCaseIcon);
+
+    if (!normalIcon.pixmap) {
+        needsCompactIcon = true;
+        return;
+    }
+
+    const QSize &iconSize = normalIcon.pixmap->size();
+    const QSize &margins = styleContainer->requiredKeyIconMargins();
+
+    // Need to use compact icon if the normal icon does not fit in the key
+    needsCompactIcon = buttonRect().width() - iconSize.width() < margins.width()
+                       || buttonRect().height() - iconSize.height() < margins.height();
+}
+
 const MImKey::IconInfo &MImKey::iconInfo() const
 {
-    return (shift ? upperCaseIcon : lowerCaseIcon);
+    const IconInfo &normalIcon = (shift ? upperCaseIcon : lowerCaseIcon);
+    const IconInfo &compactIcon = (shift ? upperCaseCompactIcon : lowerCaseCompactIcon);
+
+    return (compactIcon.pixmap && needsCompactIcon) ? compactIcon : normalIcon;
 }
 
 const QFont &MImKey::font() const

@@ -177,9 +177,6 @@ public:
     //! \brief Return rectangle where we should draw secondary label.
     const QRectF & secondaryLabelRect() const;
 
-    //! \brief Invalidates cached position, so next call to getter will calculate it again
-    void invalidateLabelPos();
-
     //! \brief Updates cached geometry.
     //! This method must be called when position or size of this key is changed.
     void updateGeometryCache();
@@ -193,6 +190,8 @@ public:
 
     //! \brief Override key's binding.
     void overrideBinding(const MImKeyBinding* binding);
+
+    void handleThemeChange();
 
     //! The width for this button. Not managed by this class.
     //! It is used by MImKeyArea to store the correct button size.
@@ -213,6 +212,13 @@ private:
         ~IconInfo();
     };
 
+    //! \brief Invalidates cached position, so next call to getter will calculate it again
+    void invalidateLabelPos();
+
+    //! \brief Recalculate needsCompactIcon
+    void updateNeedsCompactIcon();
+
+    //! Load the icons for a given shift state
     void loadIcon(bool shift);
 
     void loadOverrideIcon(const QString &icon);
@@ -234,6 +240,9 @@ private:
 
     IconInfo lowerCaseIcon;
     IconInfo upperCaseIcon;
+
+    IconInfo lowerCaseCompactIcon;
+    IconInfo upperCaseCompactIcon;
 
     const MImAbstractKeyAreaStyleContainer &styleContainer;
 
@@ -268,6 +277,10 @@ private:
     bool ignoreOverride;
 
     bool composing;
+
+    //! true if the compact icon should be used instead of the normal one.
+    //! Value is maintained by updateNeedsCompactIcon.
+    bool needsCompactIcon;
 };
 
 #endif // MIMKEY_H

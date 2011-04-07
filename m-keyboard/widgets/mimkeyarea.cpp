@@ -899,7 +899,7 @@ void MImKeyArea::onThemeChangeCompleted()
     foreach (const MImKeyAreaPrivate::KeyRow &row, d->rowList) {
         foreach (MImKey *key, row.keys) {
             if (key) {
-                key->invalidateLabelPos();
+                key->handleThemeChange();
             }
         }
     }

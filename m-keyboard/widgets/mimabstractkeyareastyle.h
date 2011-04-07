@@ -99,7 +99,7 @@ public:
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDeadkeySelectedHighlighted, KeyBackgroundDeadkeySelectedHighlighted)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDeadkeyPressedSelectedHighlighted, KeyBackgroundDeadkeyPressedSelectedHighlighted)
 
-    M_STYLE_ATTRIBUTE(QSize, requiredKeyIconMargins, requiredKeyIconMargins)
+    M_STYLE_ATTRIBUTE(QSize, requiredKeyIconMargins, RequiredKeyIconMargins)
 
     M_STYLE_ATTRIBUTE(bool, useFixedKeyWidth, UseFixedKeyWidth)
 
@@ -122,13 +122,13 @@ public:
     M_STYLE_ATTRIBUTE(qreal,  keyWidthStretchedFixed, KeyWidthStretchedFixed)
 
     // Backspace key icon
-    M_STYLE_ATTRIBUTE(QSize,   keyBackspaceIconSize,    KeyBackspaceIconSize)
-    M_STYLE_ATTRIBUTE(QString, keyBackspaceIconId,      KeyBackspaceIconId)
-    M_STYLE_ATTRIBUTE(QString, keyBackspaceIconIdRtl,   KeyBackspaceIconIdRtl)
+    M_STYLE_ATTRIBUTE(QSize,   keyBackspaceIconSize, KeyBackspaceIconSize)
+    M_STYLE_ATTRIBUTE(QString, keyBackspaceIconId, KeyBackspaceIconId)
+    M_STYLE_ATTRIBUTE(QString, keyBackspaceIconIdRtl, KeyBackspaceIconIdRtl)
 
-    M_STYLE_ATTRIBUTE(QSize,   keyBackspaceCompactIconSize,    KeyBackspaceCompactIconSize)
-    M_STYLE_ATTRIBUTE(QString, keyBackspaceCompactIconId,      KeyBackspaceCompactIconId)
-    M_STYLE_ATTRIBUTE(QString, keyBackspaceCompactIconIdRtl,      KeyBackspaceCompactIconIdRtl)
+    M_STYLE_ATTRIBUTE(QSize,   keyBackspaceCompactIconSize, KeyBackspaceCompactIconSize)
+    M_STYLE_ATTRIBUTE(QString, keyBackspaceCompactIconId, KeyBackspaceCompactIconId)
+    M_STYLE_ATTRIBUTE(QString, keyBackspaceCompactIconIdRtl, KeyBackspaceCompactIconIdRtl)
 
     // Menu key icon
     M_STYLE_ATTRIBUTE(QSize, keyMenuIconSize, KeyMenuIconSize)
