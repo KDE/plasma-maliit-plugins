@@ -225,18 +225,18 @@ void WordRibbonItem::recalculateItemSize()
     marginBottom = style()->marginBottom();
 
     minimumSize = style()->minimumSize();
-
     drawFont = style()->font();
-    if (label.length() < 2) {
+
+    if (label.length() == 0) {
         preferredSize = minimumSize;
     } else {
-        // If there are two or more character, then the width of this widget
-        // need to be change.
+        // If label has characters, then the size of this widget
+        // need to be update by calculating padding and margin.
         QFontMetrics fm(drawFont);
         QSize textSize = fm.size(Qt::TextSingleLine, label);
 
         if (mode == WordRibbon::DialogStyleMode) {
-            // in WordRibbon::DialogStyleMode, reduce font size for long label
+            // In WordRibbon::DialogStyleMode, reduce font size for long label
             // to fit the item width
             int maxWidth = forceMaxWidth > 0 ?
                            forceMaxWidth :
@@ -258,8 +258,8 @@ void WordRibbonItem::recalculateItemSize()
                                marginLeft + marginRight +
                                paddingLeft + paddingRight;
             }
-
         }
+
         preferredSize.setWidth(textSize.width() +
                                marginLeft + marginRight +
                                paddingLeft + paddingRight);

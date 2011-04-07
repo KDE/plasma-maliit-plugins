@@ -672,15 +672,15 @@ MImToolbarStyle.Portrait {
 
 WordRibbonStyle {
     background-image: "meegotouch-vkb-chinese-word-predicting-toolbar-background-landscape";
-	space-between: 8;
+    space-between: 8;
 
-	margin-left: 0;
-   	margin-top: 0;
+    margin-left: 0;
+    margin-top: 0;
     margin-right: 0;
     margin-bottom: 0;
 
-    padding-top: 4;
-    padding-bottom: 4;
+    padding-top: 8;
+    padding-bottom: 8;
     padding-left: 11;
     padding-right: 11;
 }
@@ -696,55 +696,55 @@ WordRibbonStyle.Portrait {
 
 WordRibbonStyle:dialogmode {
     background-image: "meegotouch-keyboard-background" 15px 15px 15px 15px;
-	space-between: 0;
+    space-between: 0;
 }
 
 WordRibbonStyle.Portrait {
-    minimum-size: 480 56;
+    minimum-size: 480 64;
 }
 
 WordRibbonStyle.Landscape {
-    minimum-size: 854 56;
+    minimum-size: 854 64;
 }
 
 
 WordRibbonItemStyle{
-	background-image: "meegotouch-vkb-chinese-candidate-button" 12px 12px 12px 12px;
-	minimum-size: 46 48;
-	font: normal 30;
-	font-color: white;
+    background-image: "meegotouch-vkb-chinese-candidate-button" 12px 12px 12px 12px;
+    minimum-size: 46 48;
+    font: $FONT_FAMILY normal 30;
+    font-color: white;
 
-    	margin-left: 0;
-    	margin-top: 0;
-    	margin-right: 0;
-    	margin-bottom: 0;
+    margin-left: 0;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
 
-    	padding-top: 5;
-    	padding-bottom: 5;
-    	padding-left: 8;
-    	padding-right: 8;
+    padding-top: 8;
+    padding-bottom: 9;
+    padding-left: 8;
+    padding-right: 8;
 }
 
 WordRibbonItemStyle:selected {
-	background-image: "meegotouch-vkb-chinese-default-candidate-button" 12px 12px 12px 12px;
+    background-image: "meegotouch-vkb-chinese-default-candidate-button" 12px 12px 12px 12px;
 }
 
 WordRibbonItemStyle:pressed {
-	background-image: "meegotouch-vkb-chinese-default-candidate-button-pressed" 12px 12px 12px 12px;
+    background-image: "meegotouch-vkb-chinese-default-candidate-button-pressed" 12px 12px 12px 12px;
 }
 
 WordRibbon MButtonStyle#MoreButton {
-	background-image: "meegotouch-vkb-chinese-more-button" 12px 12px 12px 12px;
-	minimum-size: 76 48;
-	preferred-size: 76 48;	
+    background-image: "meegotouch-vkb-chinese-more-button" 12px 12px 12px 12px;
+    minimum-size: 76 48;
+    preferred-size: 76 48;	
 
-	icon-id: "icon-m-textinput-combobox-arrow";                   
+    icon-id: "icon-m-textinput-combobox-arrow";                   
     icon-size: 32 32;
     icon-align: center;
 }
 
 WordRibbon MButtonStyle#MoreButton:pressed {
-	background-image: "meegotouch-vkb-chinese-candidate-more-pressed" 12px 12px 12px 12px;
+    background-image: "meegotouch-vkb-chinese-candidate-more-pressed" 12px 12px 12px 12px;
 }
 
 WordRibbonItemStyle:onecharacter {
