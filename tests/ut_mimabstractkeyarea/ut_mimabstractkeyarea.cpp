@@ -118,6 +118,7 @@ void Ut_MImAbstractKeyArea::initTestCase()
     qRegisterMetaType<MImAbstractKey*>();
     qRegisterMetaType<MImAbstractKey::ButtonState>();
     qRegisterMetaType<TestOpList>("TestOpList");
+    qRegisterMetaType<KeyContext>("KeyContext");
 
     sceneWindow = createMSceneWindow(new MPlainWindow); // also create singleton
 
@@ -269,8 +270,8 @@ void Ut_MImAbstractKeyArea::testSceneEvent()
     QGraphicsSceneMouseEvent *press = new QGraphicsSceneMouseEvent(QEvent::GraphicsSceneMousePress);
     QGraphicsSceneMouseEvent *release = new QGraphicsSceneMouseEvent(QEvent::GraphicsSceneMouseRelease);
     QGraphicsSceneMouseEvent *move = new QGraphicsSceneMouseEvent(QEvent::GraphicsSceneMouseMove);
-    QSignalSpy spy(subject, SIGNAL(keyClicked(const MImAbstractKey*, const QString&, bool, const QPoint&)));
-    QSignalSpy spyPressed(subject, SIGNAL(keyPressed(const MImAbstractKey*, const QString&, bool)));
+    QSignalSpy spy(subject, SIGNAL(keyClicked(const MImAbstractKey*, const KeyContext &)));
+    QSignalSpy spyPressed(subject, SIGNAL(keyPressed(const MImAbstractKey*, const KeyContext &)));
 
     QVERIFY(spy.isValid());
     QVERIFY(spyPressed.isValid());
@@ -351,7 +352,7 @@ void Ut_MImAbstractKeyArea::testDeadkeys()
                         false, 0);
     MPlainWindow::instance()->scene()->addItem(subject);
     subject->resize(defaultLayoutSize());
-    QSignalSpy spy(subject, SIGNAL(keyClicked(const MImAbstractKey*, const QString&, bool, const QPoint&)));
+    QSignalSpy spy(subject, SIGNAL(keyClicked(const MImAbstractKey*, const KeyContext &)));
     MImAbstractKey *key = 0;
     QList<int> positions;
     int i;
@@ -395,8 +396,8 @@ void Ut_MImAbstractKeyArea::testDeadkeys()
         subject->setKeyOverrides(overrides);
     }
 
-    subject->d_ptr->click(key);
     //click at deadkey for the first time, just lock the deadkey, won't emit cliked() signal
+    clickKey(key);
     QCOMPARE(spy.count(), 0);
 
     list = enabled ? &lowerDKUnicodes : &lowerUnicodes;
@@ -433,13 +434,13 @@ void Ut_MImAbstractKeyArea::testDeadkeys()
     }
 
     // Lock deadkey again.
-    subject->d_ptr->click(key);
+    clickKey(key);
     list = enabled ? &lowerDKUnicodes : &lowerUnicodes;
     for (i = 0; i < positions.count(); i++) {
         QCOMPARE(keyAt(0, positions[i])->label(), list->at(i));
     }
 
-    subject->d_ptr->click(keyAt(0, 0));
+    clickKey(keyAt(0, 0));
     //key release on not deadkey, will emit clicked() signal
     QCOMPARE(spy.count(), 1);
     //any keypress, the deadkey should be unlocked
@@ -470,27 +471,27 @@ void Ut_MImAbstractKeyArea::testSelectedDeadkeys()
     QCOMPARE(regularKey->state(), MImAbstractKey::Normal);
 
     // Press dead key down
-    subject->d_ptr->click(deadkey1);
+    clickKey(deadkey1);
     QCOMPARE(deadkey1->state(), MImAbstractKey::Selected);
 
     // Release it by clicking regular key
-    subject->d_ptr->click(regularKey);
+    clickKey(regularKey);
     QCOMPARE(deadkey1->state(), MImAbstractKey::Normal);
 
     // Down again
-    subject->d_ptr->click(deadkey1);
+    clickKey(deadkey1);
     QCOMPARE(deadkey1->state(), MImAbstractKey::Selected);
 
     // Release it by clicking itself again.
-    subject->d_ptr->click(deadkey1);
+    clickKey(deadkey1);
     QCOMPARE(deadkey1->state(), MImAbstractKey::Normal);
 
     // Down again
-    subject->d_ptr->click(deadkey1);
+    clickKey(deadkey1);
     QCOMPARE(deadkey1->state(), MImAbstractKey::Selected);
 
     // Release it by clicking the other dead key.
-    subject->d_ptr->click(deadkey2);
+    clickKey(deadkey2);
     QCOMPARE(deadkey1->state(), MImAbstractKey::Normal);
     QCOMPARE(deadkey2->state(), MImAbstractKey::Selected);
 }
@@ -532,7 +533,7 @@ void Ut_MImAbstractKeyArea::testTwoDeadInOne()
     foreach (TestOperation op, operations) {
         switch (op) {
         case TestOpClickDeadKey:
-            subject->d_ptr->click(deadkey);
+            clickKey(deadkey);
             break;
         case TestOpSetShiftOn:
             subject->switchLevel(1);
@@ -827,9 +828,9 @@ void Ut_MImAbstractKeyArea::testOverridenKey()
     QVERIFY(key1 == subject->findKey("key1"));
     QVERIFY(key2 == subject->findKey("key2"));
 
-    QSignalSpy pressed(subject, SIGNAL(keyPressed(const MImAbstractKey*, const QString&, bool)));
-    QSignalSpy released(subject, SIGNAL(keyReleased(const MImAbstractKey*, const QString&, bool)));
-    QSignalSpy clicked(subject, SIGNAL(keyClicked(const MImAbstractKey*, const QString&, bool, const QPoint&)));
+    QSignalSpy pressed(subject, SIGNAL(keyPressed(const MImAbstractKey*, const KeyContext &)));
+    QSignalSpy released(subject, SIGNAL(keyReleased(const MImAbstractKey*, const KeyContext &)));
+    QSignalSpy clicked(subject, SIGNAL(keyClicked(const MImAbstractKey*, const KeyContext &)));
 
     QVERIFY(pressed.isValid());
     QVERIFY(released.isValid());
@@ -1053,7 +1054,7 @@ void Ut_MImAbstractKeyArea::testLongKeyPress()
                                          subject->mapToScene(point1),
                                          QPointF()));
 
-    QSignalSpy spy(subject, SIGNAL(longKeyPressed(const MImAbstractKey*, const QString &, bool)));
+    QSignalSpy spy(subject, SIGNAL(longKeyPressed(const MImAbstractKey*, const KeyContext &)));
 
     QVERIFY(spy.isValid());
 
@@ -1291,7 +1292,7 @@ void Ut_MImAbstractKeyArea::testTouchPoints()
     QFETCH(TpButtonStateMatrix, expectedStates);
 
     subject = Ut_MImAbstractKeyArea::createArea(labels, kbaSize);
-    QSignalSpy spy(subject, SIGNAL(keyClicked(const MImAbstractKey*, QString, bool, QPoint)));
+    QSignalSpy spy(subject, SIGNAL(keyClicked(const MImAbstractKey*, const KeyContext &)));
 
     ButtonList tracedButtons;
     for (int i = 0; i < labels.count(); ++i) {
@@ -1516,6 +1517,11 @@ MImAbstractKey *Ut_MImAbstractKeyArea::keyAt(unsigned int row, unsigned int colu
     }
 
     return key;
+}
+
+void Ut_MImAbstractKeyArea::clickKey(MImAbstractKey *key)
+{
+    subject->d_func()->click(key, KeyContext());
 }
 
 MImAbstractKeyArea *Ut_MImAbstractKeyArea::createEmptyArea()

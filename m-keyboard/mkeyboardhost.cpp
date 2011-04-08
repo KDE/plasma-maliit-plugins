@@ -251,6 +251,8 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
         gOwnsComponentData = true;
     }
 
+    qRegisterMetaType<KeyContext>("KeyContext");
+
     view = new MPlainWindow(host, mainWindow);
     // MSceneManager's of MWindow's are lazy-initialized. However, their
     //implict creation does resize the scene rect of our view, so we trigger

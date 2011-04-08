@@ -40,6 +40,7 @@
 #include <QTimer>
 #include <QTime>
 
+struct KeyContext;
 class MImAbstractKey;
 class FlickGesture;
 class PopupBase;
@@ -112,9 +113,8 @@ public:
 
     //! \brief Trigger a keyClicked signal, and update key area state.
     //! \param key the clicked key
-    //! \param pos where the key was clicked
-    void click(MImAbstractKey *key,
-               const QPoint &pos = QPoint());
+    //! \param keyContext Context information for clicked key
+    void click(MImAbstractKey *key, const KeyContext &keyContext);
 
     //! \brief Checks for speed typing mode
     //! \warning Not side-effect free when \a restartTimers is actively used.

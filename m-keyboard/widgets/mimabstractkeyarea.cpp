@@ -153,8 +153,7 @@ MImAbstractKeyAreaPrivate::~MImAbstractKeyAreaPrivate()
     delete mPopup;
 }
 
-void MImAbstractKeyAreaPrivate::click(MImAbstractKey *key,
-                                      const QPoint &pos)
+void MImAbstractKeyAreaPrivate::click(MImAbstractKey *key, const KeyContext &keyContext)
 {
     Q_Q(MImAbstractKeyArea);
 
@@ -162,23 +161,21 @@ void MImAbstractKeyAreaPrivate::click(MImAbstractKey *key,
         return;
     }
 
-    MImKeyVisitor::SpecialKeyFinder finder;
-    MImAbstractKey::visitActiveKeys(&finder);
-    const bool hasActiveShiftKeys = (finder.shiftKey() != 0);
+    MImKeyVisitor::SpecialKeyFinder deadFinder(MImKeyVisitor::FindDeadKey);
+    MImAbstractKey::visitActiveKeys(&deadFinder);
+    MImAbstractKey *deadKey = deadFinder.deadKey();
 
     if (!key->isDeadKey()) {
-        const QString accent = (finder.deadKey() ? finder.deadKey()->label() : QString());
-        emit q->keyClicked(key, accent, hasActiveShiftKeys || isUpperCase(), pos);
-
+        emit q->keyClicked(key, keyContext);
         if (!key->isShiftKey()) {
-            q->unlockDeadKeys(finder.deadKey());
+            q->unlockDeadKeys(deadKey);
         }
-    } else if (key == finder.deadKey()) {
-        q->unlockDeadKeys(finder.deadKey());
+    } else if (key == deadKey) {
+        q->unlockDeadKeys(deadKey);
     } else {
         // Deselect previous dead key, if any:
-        if (finder.deadKey()) {
-            finder.deadKey()->setSelected(false);
+        if (deadKey) {
+            deadKey->setSelected(false);
         }
 
         // key is the new deadkey:
@@ -273,6 +270,7 @@ void MImAbstractKeyAreaPrivate::touchPointPressed(const QTouchEvent::TouchPoint 
         return;
     }
 
+
     // Try to commit currently active key before activating new key:
     MImAbstractKey *const lastActiveKey = MImAbstractKey::lastActiveKey();
     MImKeyVisitor::SpecialKeyFinder finder;
@@ -285,9 +283,11 @@ void MImAbstractKeyAreaPrivate::touchPointPressed(const QTouchEvent::TouchPoint 
         && lastActiveKey->touchPointCount() > 0) {
         // TODO: play release sound? Potentially confusing to user, who
         // might still press this key.
-        emit q->keyClicked(lastActiveKey, QString(),
-                           hasActiveShiftKeys || isUpperCase(),
-                           gAdjustedPositionForCorrection);
+
+        emit q->keyClicked(lastActiveKey,
+                           KeyContext(hasActiveShiftKeys || isUpperCase(),
+                                      QString(),
+                                      gAdjustedPositionForCorrection));
 
         lastActiveKey->resetTouchPointCount();
     }
@@ -304,8 +304,9 @@ void MImAbstractKeyAreaPrivate::touchPointPressed(const QTouchEvent::TouchPoint 
         // (touchpoint count goes from 1 to 0).
         key->activateGravity();
 
-        emit q->keyPressed(key, (finder.deadKey() ? finder.deadKey()->label() : QString()),
-                           hasActiveShiftKeys || isUpperCase());
+        emit q->keyPressed(key,
+                           KeyContext(hasActiveShiftKeys || isUpperCase(),
+                                      finder.deadKey() ? finder.deadKey()->label() : QString()));
     }
     mTimestamp("MImAbstractKeyArea", "end");
 }
@@ -346,10 +347,12 @@ void MImAbstractKeyAreaPrivate::touchPointMoved(const QTouchEvent::TouchPoint &t
                 // (= reactive area) to another
                 // slot is called asynchronously to get screen update as fast as possible
                 QMetaObject::invokeMethod(&feedbackSliding, "play", Qt::QueuedConnection);
+
                 longPressTimer.start(q->style()->longPressTimeout());
                 emit q->keyPressed(lookup.key,
-                                   (finder.deadKey() ? finder.deadKey()->label() : QString()),
-                                   hasActiveShiftKeys || isUpperCase());
+                                   KeyContext(hasActiveShiftKeys || isUpperCase(),
+                                              finder.deadKey() ? finder.deadKey()->label() : QString()));
+
             }
         }
 
@@ -358,8 +361,8 @@ void MImAbstractKeyAreaPrivate::touchPointMoved(const QTouchEvent::TouchPoint &t
             && lookup.lastKey->decreaseTouchPointCount()
             && lookup.lastKey->touchPointCount() == 0) {
             emit q->keyReleased(lookup.lastKey,
-                                (finder.deadKey() ? finder.deadKey()->label() : QString()),
-                                hasActiveShiftKeys || isUpperCase());
+                                KeyContext(hasActiveShiftKeys || isUpperCase(),
+                                           finder.deadKey() ? finder.deadKey()->label() : QString()));
         }
     }
 
@@ -388,20 +391,30 @@ void MImAbstractKeyAreaPrivate::touchPointReleased(const QTouchEvent::TouchPoint
     const QPoint lastPos = q->correctedTouchPoint(tp.lastScenePos());
 
     const GravitationalLookupResult lookup = gravitationalKeyAt(pos, lastPos);
+
     MImKeyVisitor::SpecialKeyFinder finder;
     MImAbstractKey::visitActiveKeys(&finder);
-    const bool hasActiveShiftKeys = (finder.shiftKey() != 0);
+
+    // Key context before release
+    KeyContext keyContext((finder.shiftKey() != 0) || isUpperCase(),
+                          finder.deadKey() ? finder.deadKey()->label() : QString(),
+                          gAdjustedPositionForCorrection);
 
     if (lookup.key
         && lookup.key->enabled()
         && lookup.key->decreaseTouchPointCount()
         && lookup.key->touchPointCount() == 0) {
         longPressTimer.stop();
-        emit q->keyReleased(lookup.key,
-                            (finder.deadKey() ? finder.deadKey()->label() : QString()),
-                            hasActiveShiftKeys || isUpperCase());
 
-        click(lookup.key, gAdjustedPositionForCorrection);
+        emit q->keyReleased(lookup.key, keyContext);
+
+        // Update key context after release.
+        MImAbstractKey::visitActiveKeys(&finder);
+        KeyContext clickContext = keyContext;
+        clickContext.upperCase = (finder.shiftKey() != 0) || isUpperCase();
+        clickContext.accent = finder.deadKey() ? finder.deadKey()->label() : QString();
+
+        click(lookup.key, clickContext);
     }
 
     if (lookup.lastKey
@@ -409,9 +422,8 @@ void MImAbstractKeyAreaPrivate::touchPointReleased(const QTouchEvent::TouchPoint
         && lookup.lastKey->enabled()
         && lookup.lastKey->decreaseTouchPointCount()
         && lookup.lastKey->touchPointCount() == 0) {
-        emit q->keyReleased(lookup.lastKey,
-                            (finder.deadKey() ? finder.deadKey()->label() : QString()),
-                            hasActiveShiftKeys || isUpperCase());
+        // Use the same key context as before release.
+        emit q->keyReleased(lookup.lastKey, keyContext);
     }
 
     // We're finished with this touch point, inform popup:
@@ -1036,7 +1048,8 @@ void MImAbstractKeyArea::handleLongKeyPressed()
         d->mPopup->handleLongKeyPressedOnMainArea(lastActiveKey, accent, d->isUpperCase());
     }
 
-    emit longKeyPressed(lastActiveKey, accent, d->isUpperCase());
+    emit longKeyPressed(lastActiveKey,
+                        KeyContext(d->isUpperCase(), accent));
 }
 
 void MImAbstractKeyArea::handleIdleVkb()

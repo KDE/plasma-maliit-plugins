@@ -992,8 +992,8 @@ void MImKeyArea::releaseKey(MImKey *key)
 
     key->resetTouchPointCount();
     emit keyReleased(key,
-                     (finder.deadKey() ? finder.deadKey()->label() : QString()),
-                     hasActiveShiftKeys || d->isUpperCase());
+                     KeyContext(hasActiveShiftKeys || d->isUpperCase(),
+                                finder.deadKey() ? finder.deadKey()->label() : QString()));
 }
 
 void MImKeyArea::setContentType(M::TextContentType type)

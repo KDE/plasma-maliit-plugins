@@ -48,26 +48,27 @@ void KeyEventHandler::addEventSource(MImAbstractKeyArea *eventSource)
 {
     bool ok = false;
 
-    ok = connect(eventSource, SIGNAL(keyPressed(const MImAbstractKey *, const QString &, bool)),
-                 this, SLOT(handleKeyPress(const MImAbstractKey *, const QString &, bool)));
+    ok = connect(eventSource, SIGNAL(keyPressed(const MImAbstractKey *, const KeyContext &)),
+                 this, SLOT(handleKeyPress(const MImAbstractKey *, const KeyContext &)));
     Q_ASSERT(ok);
 
-    ok = connect(eventSource, SIGNAL(keyReleased(const MImAbstractKey *, const QString &, bool)),
-                 this, SLOT(handleKeyRelease(const MImAbstractKey *, const QString &, bool)));
+    ok = connect(eventSource, SIGNAL(keyReleased(const MImAbstractKey *, const KeyContext &)),
+                 this, SLOT(handleKeyRelease(const MImAbstractKey *, const KeyContext &)));
     Q_ASSERT(ok);
 
-    ok = connect(eventSource, SIGNAL(keyClicked(const MImAbstractKey *, const QString &, bool, const QPoint &)),
-                 this, SLOT(handleKeyClick(const MImAbstractKey *, const QString &, bool, const QPoint &)));
+    ok = connect(eventSource, SIGNAL(keyClicked(const MImAbstractKey *, const KeyContext &)),
+                 this, SLOT(handleKeyClick(const MImAbstractKey *, const KeyContext &)));
     Q_ASSERT(ok);
 
-    ok = connect(eventSource, SIGNAL(longKeyPressed(const MImAbstractKey *, const QString &, bool)),
-                 this, SLOT(handleLongKeyPress(const MImAbstractKey *, const QString &, bool)));
+    ok = connect(eventSource, SIGNAL(longKeyPressed(const MImAbstractKey *, const KeyContext &)),
+                 this, SLOT(handleLongKeyPress(const MImAbstractKey *, const KeyContext &)));
     Q_ASSERT(ok);
 }
 
-void KeyEventHandler::handleKeyPress(const MImAbstractKey *key, const QString &accent, bool upperCase)
+void KeyEventHandler::handleKeyPress(const MImAbstractKey *key,
+                                     const KeyContext &context)
 {
-    const KeyEvent event = keyToKeyEvent(*key, QEvent::KeyPress, accent, upperCase);
+    const KeyEvent event = keyToKeyEvent(*key, QEvent::KeyPress, context);
     emit keyPressed(event);
 
     if (event.qtKey() == Qt::Key_Shift) {
@@ -78,9 +79,10 @@ void KeyEventHandler::handleKeyPress(const MImAbstractKey *key, const QString &a
     }
 }
 
-void KeyEventHandler::handleKeyRelease(const MImAbstractKey *key, const QString &accent, bool upperCase)
+void KeyEventHandler::handleKeyRelease(const MImAbstractKey *key,
+                                       const KeyContext &context)
 {
-    const KeyEvent event = keyToKeyEvent(*key, QEvent::KeyRelease, accent, upperCase);
+    const KeyEvent event = keyToKeyEvent(*key, QEvent::KeyRelease, context);
 
     emit keyReleased(event);
 
@@ -90,10 +92,10 @@ void KeyEventHandler::handleKeyRelease(const MImAbstractKey *key, const QString 
     }
 }
 
-void KeyEventHandler::handleKeyClick(const MImAbstractKey *key, const QString &accent, bool upperCase,
-                                     const QPoint &point)
+void KeyEventHandler::handleKeyClick(const MImAbstractKey *key,
+                                     const KeyContext &context)
 {
-    const KeyEvent event = keyToKeyEvent(*key, QEvent::KeyRelease, accent, upperCase, point);
+    const KeyEvent event = keyToKeyEvent(*key, QEvent::KeyRelease, context);
 
     if (event.qtKey() == Qt::Key_Shift && ignoreShiftClick) {
         ignoreShiftClick = false; // ignore this event
@@ -102,29 +104,35 @@ void KeyEventHandler::handleKeyClick(const MImAbstractKey *key, const QString &a
     }
 }
 
-void KeyEventHandler::handleLongKeyPress(const MImAbstractKey *key, const QString &accent, bool upperCase)
+void KeyEventHandler::handleLongKeyPress(const MImAbstractKey *key, const KeyContext &context)
 {
-    const KeyEvent event = keyToKeyEvent(*key, QEvent::KeyPress, accent, upperCase);
+    const KeyEvent event = keyToKeyEvent(*key, QEvent::KeyPress, context);
 
     emit longKeyPressed(event);
 }
 
-KeyEvent KeyEventHandler::keyToKeyEvent(const MImAbstractKey &key, QKeyEvent::Type eventType,
-                                         const QString &accent, bool upperCase, const QPoint &point) const
+KeyEvent KeyEventHandler::keyToKeyEvent(const MImAbstractKey &key,
+                                        QKeyEvent::Type eventType,
+                                        const KeyContext &context) const
 {
     KeyEvent event;
 
     // Send always upper case letter if shift held down.
-    upperCase |= shiftHeldDown;
+    bool upperCase = context.upperCase || shiftHeldDown;
 
     if (key.isComposeKey()) {
-        event = key.model().toKeyEvent(eventType, upperCase, key.isComposing());
-    } else if (accent.isEmpty()) {
-        event = key.model().toKeyEvent(eventType, upperCase);
+        event = key.model().toKeyEvent(eventType,
+                                       upperCase,
+                                       key.isComposing());
+    } else if (context.accent.isEmpty()) {
+        event = key.model().toKeyEvent(eventType,
+                                       upperCase);
     } else {
-        event = key.model().toKeyEvent(eventType, accent.at(0), upperCase);
+        event = key.model().toKeyEvent(eventType,
+                                       context.accent.at(0),
+                                       upperCase);
     }
-    event.setCorrectionPosition(point);
+    event.setCorrectionPosition(context.errorCorrectionPos);
 
     return event;
 }

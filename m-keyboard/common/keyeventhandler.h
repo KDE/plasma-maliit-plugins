@@ -37,6 +37,7 @@
 #include <QKeyEvent>
 #include <QPoint>
 
+struct KeyContext;
 class MImAbstractKeyArea;
 class KeyEvent;
 class MImAbstractKey;
@@ -102,27 +103,28 @@ private slots:
     /*!
      * \brief Generates KeyEvent for given \a key and emits keyPressed
      */
-    void handleKeyPress(const MImAbstractKey *key, const QString &accent, bool upperCase);
+    void handleKeyPress(const MImAbstractKey *key, const KeyContext &context);
 
     /*!
      * \brief Generates KeyEvent for given \a key and emits keyReleased
      */
-    void handleKeyRelease(const MImAbstractKey *key, const QString &accent, bool upperCase);
+    void handleKeyRelease(const MImAbstractKey *key, const KeyContext &context);
 
     /*!
      * \brief Generates KeyEvent for given \a key and emits keyClicked
      */
-    void handleKeyClick(const MImAbstractKey *key, const QString &accent, bool upperCase, const QPoint &point);
+    void handleKeyClick(const MImAbstractKey *key, const KeyContext &context);
 
     /*!
      * \brief Generates KeyEvent for given \a key and emits longKeyPress
      */
-    void handleLongKeyPress(const MImAbstractKey *key, const QString &accent, bool upperCase);
+    void handleLongKeyPress(const MImAbstractKey *key, const KeyContext &context);
 
 private:
-    //! Turn key button into a KeyEvent, considering current accent and modifier state
-    KeyEvent keyToKeyEvent(const MImAbstractKey &key, QKeyEvent::Type eventType,
-                           const QString &accent, bool upperCase, const QPoint &point = QPoint()) const;
+    //! Turn key button into a KeyEvent, considering event type and context of the invoked key.
+    KeyEvent keyToKeyEvent(const MImAbstractKey &key,
+                           QKeyEvent::Type eventType,
+                           const KeyContext &keyContext) const;
 
 private:
     //! Keeps track of shift up/down status.

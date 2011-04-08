@@ -365,7 +365,7 @@ MImAbstractKeyArea *SymbolView::createMImAbstractKeyArea(const LayoutData::Share
 
         eventHandler.addEventSource(keysWidget);
 
-        connect(keysWidget, SIGNAL(keyClicked(const MImAbstractKey *, QString, bool, QPoint)),
+        connect(keysWidget, SIGNAL(keyClicked(const MImAbstractKey *, const KeyContext &)),
                 this, SLOT(handleKeyClicked(const MImAbstractKey *)));
     }
 

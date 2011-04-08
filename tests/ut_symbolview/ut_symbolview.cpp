@@ -409,7 +409,7 @@ void Ut_SymbolView::testAutomaticCloseOnKeyClick()
         MImAbstractKey *key = keyAt(page, keyLocation.y(), keyLocation.x());
         QVERIFY(key);
 
-        page->d_ptr->click(key);
+        page->d_func()->click(key, KeyContext());
     }
 
     QCOMPARE(subject->isActive(), expectedIsActive);

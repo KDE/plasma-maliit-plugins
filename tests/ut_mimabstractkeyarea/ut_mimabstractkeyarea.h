@@ -110,7 +110,10 @@ private:
     MImAbstractKey *keyAt(unsigned int row,
                       unsigned int column) const;
 
+    void clickKey(MImAbstractKey *key);
+
     static MImAbstractKeyArea *createEmptyArea();
+
     static MImAbstractKeyArea *createArea(const QString &labels,
                                           const QSize &size,
                                           const QSize &fixedNormalKeySize = QSize(48, 48),

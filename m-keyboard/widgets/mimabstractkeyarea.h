@@ -45,6 +45,7 @@
 #include <QTimer>
 #include <QTime>
 
+struct KeyContext;
 class FlickGesture;
 class MReactionMap;
 class PopupBase;
@@ -164,33 +165,26 @@ signals:
     //! Note that this happens also when user keeps finger down/mouse
     //! button pressed and moves over another key (event is about the new key)
     //! \param key describes pressed button
-    //! \param accent label of pressed dead key if any
-    //! \param upperCase contains true if key is in uppercase state
+    //! \param keyContext Context information at the time key was pressed
     void keyPressed(const MImAbstractKey *key,
-                    const QString &accent,
-                    bool upperCase);
+                    const KeyContext &keyContext);
 
     //! \brief Emitted when key is released.
     //!
     //! Note that this happens also when user keeps finger down/mouse
     //! button pressed and moves over another key (event is about the old key)
     //! \param key describes released button
-    //! \param accent label of pressed dead key if any
-    //! \param upperCase contains true if key is in uppercase state
+    //! \param keyContext Context information at the time key was released
     void keyReleased(const MImAbstractKey *key,
-                     const QString &accent,
-                     bool upperCase);
+                     const KeyContext &keyContext);
 
     //! \brief Emitted when user releases mouse button/lifts finger.
     //!
     //! Except when done on a dead key
     //! \param key describes clicked button
-    //! \param accent label of pressed dead key if any
-    //! \param upperCase contains true if key is in uppercase state
-    //! \param touchPoint the touch point for the key
+    //! \param keyContext Context information at the time key was clicked
     void keyClicked(const MImAbstractKey *key,
-                    const QString &accent, bool upperCase,
-                    const QPoint &touchPoint);
+                    const KeyContext &keyContext);
 
     //! \brief Emitted when long press is detected.
     //!
@@ -199,11 +193,9 @@ signals:
     //! - restarted when finger is moved to other key;
     //! - restarted when new touch point is recognized by MImAbstractKeyArea.
     //! \param key describes pressed button
-    //! \param accent active accent in MImAbstractKeyArea at the time of long press occured
-    //! \param upperCase upper case state in MImAbstractKeyArea at the time of long press occured
+    //! \param keyContext Context information at the time key was longpressed
     void longKeyPressed(const MImAbstractKey *key,
-                        const QString &accent,
-                        bool upperCase);
+                        const KeyContext &keyContext);
 
     //! \brief Emitted when key area is flicked right.
     void flickRight();
@@ -317,5 +309,31 @@ private:
     friend class Bm_Painting;
 #endif
 };
+
+/*! \brief This structure packs contextual information about
+ *         a key that was pressed/released/clicked.
+ */
+struct KeyContext
+{
+    KeyContext()
+        : upperCase(false)
+    {
+    }
+
+    KeyContext(bool upperCase, const QString &accent = QString(),
+               const QPoint correctionPos = QPoint())
+       : upperCase(upperCase),
+         accent(accent),
+         errorCorrectionPos(correctionPos)
+    {
+    }
+
+    bool upperCase;            //!< Whether key area was considered to be in upper case level.
+    QString accent;            //!< Active accent, if any.
+    QPoint errorCorrectionPos; //!< Hit point of the key in layout coordinates,
+                               //!  tweaked suitable for error correction engine.
+};
+
+Q_DECLARE_METATYPE(KeyContext)
 
 #endif
