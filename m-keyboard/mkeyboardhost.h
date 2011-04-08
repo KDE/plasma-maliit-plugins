@@ -14,8 +14,6 @@
  * of this file.
  */
 
-
-
 #ifndef MKEYBOARDHOST_H
 #define MKEYBOARDHOST_H
 
@@ -24,29 +22,24 @@
 #include "keyevent.h"
 #include "mplainwindow.h"
 
-#include <QStringList>
 #include <QTimer>
 #include <QPointer>
 #include <QPropertyAnimation>
-#include <QSequentialAnimationGroup>
-#include <QParallelAnimationGroup>
 #include <QTextStream>
 #include <QPixmap>
 
-class MGConfItem;
-class MImCorrectionHost;
+class QWidget;
 class MSceneWindow;
+class MBanner;
+class MAbstractInputMethodHost;
 class MVirtualKeyboard;
 class MVirtualKeyboardStyleContainer;
 class MHardwareKeyboard;
 class SymbolView;
-class MImEngineWordsInterface;
-class QWidget;
-class MBanner;
 class SharedHandleArea;
 class MImToolbar;
-class MAbstractInputMethodHost;
 class SimpleFileLog;
+
 
 //! Logic class for virtual keyboard
 class MKeyboardHost: public MAbstractInputMethod
