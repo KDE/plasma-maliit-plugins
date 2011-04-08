@@ -102,6 +102,8 @@ public:
     virtual void setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides);
     //! reimp_end
 
+    int keyboardHeight() const;
+
 public slots:
     //! Toggle key state is changed to \a onOff.
     void handleToggleKeyStateChanged(bool onOff);

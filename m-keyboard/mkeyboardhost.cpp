@@ -2232,3 +2232,18 @@ void MKeyboardHost::handleComposeKeyStateChanged(bool composing)
 {
     this->vkbWidget->setComposeKeyState(composing);
 }
+
+int MKeyboardHost::keyboardHeight() const
+{
+    int height = 0;
+    if (symbolView->isActive()) {
+        height = symbolView->size().height();
+    } else if (vkbWidget->isVisible()) {
+        height = vkbWidget->size().height();
+    }
+
+    if (sharedHandleArea->isVisible()) {
+        height += sharedHandleArea->size().height();
+    }
+    return height;
+}

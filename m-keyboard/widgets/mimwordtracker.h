@@ -150,6 +150,7 @@ private:
     MImCorrectionCandidateItem *candidateItem;
     QTimeLine showHideTimeline;
     qreal pointerXOffset;
+    bool pointerDown;
 
     M_STYLABLE_WIDGET(MImWordTrackerStyle)
 };
