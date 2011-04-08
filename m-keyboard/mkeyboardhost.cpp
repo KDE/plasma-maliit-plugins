@@ -396,7 +396,7 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
     sharedHandleArea->watchOnWidget(symbolView);
 
     connect(MPlainWindow::instance()->sceneManager(), SIGNAL(orientationChangeFinished(M::Orientation)),
-            this, SLOT(orientationChangeFinished(M::Orientation)));
+            this, SLOT(finalizeOrientationChange()));
 
     connect(vkbWidget, SIGNAL(layoutChanged(const QString &)),
             this, SLOT(handleVirtualKeyboardLayoutChanged(const QString &)));
@@ -933,11 +933,6 @@ void MKeyboardHost::prepareOrientationChange()
     if (EngineManager::instance().handler() && EngineManager::instance().handler()->engineWidgetHost()) {
         EngineManager::instance().handler()->engineWidgetHost()->prepareToOrientationChange();
     }
-}
-
-void MKeyboardHost::orientationChangeFinished(M::Orientation)
-{
-    finalizeOrientationChange();
 }
 
 void MKeyboardHost::finalizeOrientationChange()

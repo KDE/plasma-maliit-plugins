@@ -124,8 +124,6 @@ private slots:
     //! \brief Adjust vkb position when its size changed.
     void handleVirtualKeyboardGeometryChange();
 
-    void orientationChangeFinished(M::Orientation);
-
     /*!
      * Handle key clicks from widgets
      * \param event internal key event
