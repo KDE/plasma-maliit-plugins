@@ -287,6 +287,7 @@ void MImAbstractKeyAreaPrivate::touchPointPressed(const QTouchEvent::TouchPoint 
         emit q->keyClicked(lastActiveKey,
                            KeyContext(hasActiveShiftKeys || isUpperCase(),
                                       QString(),
+                                      tp.scenePos(),
                                       gAdjustedPositionForCorrection));
 
         lastActiveKey->resetTouchPointCount();
@@ -306,7 +307,8 @@ void MImAbstractKeyAreaPrivate::touchPointPressed(const QTouchEvent::TouchPoint 
 
         emit q->keyPressed(key,
                            KeyContext(hasActiveShiftKeys || isUpperCase(),
-                                      finder.deadKey() ? finder.deadKey()->label() : QString()));
+                                      finder.deadKey() ? finder.deadKey()->label() : QString(),
+                                      tp.scenePos()));
     }
     mTimestamp("MImAbstractKeyArea", "end");
 }
@@ -351,8 +353,8 @@ void MImAbstractKeyAreaPrivate::touchPointMoved(const QTouchEvent::TouchPoint &t
                 longPressTimer.start(q->style()->longPressTimeout());
                 emit q->keyPressed(lookup.key,
                                    KeyContext(hasActiveShiftKeys || isUpperCase(),
-                                              finder.deadKey() ? finder.deadKey()->label() : QString()));
-
+                                              finder.deadKey() ? finder.deadKey()->label() : QString(),
+                                              tp.scenePos()));
             }
         }
 
@@ -398,6 +400,7 @@ void MImAbstractKeyAreaPrivate::touchPointReleased(const QTouchEvent::TouchPoint
     // Key context before release
     KeyContext keyContext((finder.shiftKey() != 0) || isUpperCase(),
                           finder.deadKey() ? finder.deadKey()->label() : QString(),
+                          tp.scenePos(),
                           gAdjustedPositionForCorrection);
 
     if (lookup.key

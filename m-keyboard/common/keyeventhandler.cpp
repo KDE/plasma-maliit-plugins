@@ -133,6 +133,7 @@ KeyEvent KeyEventHandler::keyToKeyEvent(const MImAbstractKey &key,
                                        upperCase);
     }
     event.setCorrectionPosition(context.errorCorrectionPos);
+    event.setScenePosition(context.scenePos);
 
     return event;
 }

@@ -63,7 +63,8 @@ public:
              Qt::Key qtKey = Qt::Key_unknown,
              SpecialKey specialKey = NotSpecial,
              Qt::KeyboardModifiers modifiers = Qt::NoModifier,
-             const QPoint &correctionPos = QPoint());
+             const QPoint &correctionPos = QPoint(),
+             const QPointF &scenePos = QPointF());
 
     //! Constructor that copies another event, except for type
     KeyEvent(const KeyEvent &other, QKeyEvent::Type type);
@@ -114,6 +115,12 @@ public:
      */
     QPoint correctionPosition() const;
 
+    //! \brief Sets scene position where the event originated.
+    void setScenePosition(const QPointF &point);
+
+    //! \brief Returns scene position where the event originated.
+    QPointF scenePosition() const;
+
 protected:
     QKeyEvent::Type m_type;
     Qt::Key m_qtKey;
@@ -121,6 +128,7 @@ protected:
     QString m_text;
     Qt::KeyboardModifiers m_modifiers;
     QPoint m_correctionPos;
+    QPointF m_scenePos;
 };
 
 #endif

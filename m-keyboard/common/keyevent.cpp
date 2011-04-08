@@ -35,13 +35,15 @@
 
 KeyEvent::KeyEvent(const QString &text, QKeyEvent::Type type, Qt::Key qtKey, SpecialKey specialKey,
                    Qt::KeyboardModifiers modifiers,
-                   const QPoint &correctionPos)
+                   const QPoint &correctionPos,
+                   const QPointF &scenePos)
     : m_type(type),
       m_qtKey(qtKey),
       m_specialKey(specialKey),
       m_text(text),
       m_modifiers(modifiers),
-      m_correctionPos(correctionPos)
+      m_correctionPos(correctionPos),
+      m_scenePos(scenePos)
 {
 }
 
@@ -51,7 +53,8 @@ KeyEvent::KeyEvent(const KeyEvent &other, QKeyEvent::Type type)
       m_specialKey(other.m_specialKey),
       m_text(other.m_text),
       m_modifiers(other.m_modifiers),
-      m_correctionPos(other.m_correctionPos)
+      m_correctionPos(other.m_correctionPos),
+      m_scenePos(other.m_scenePos)
 {
 }
 
@@ -102,4 +105,14 @@ void KeyEvent::setCorrectionPosition(const QPoint &point)
 QPoint KeyEvent::correctionPosition() const
 {
     return m_correctionPos;
+}
+
+void KeyEvent::setScenePosition(const QPointF &point)
+{
+    m_scenePos = point;
+}
+
+QPointF KeyEvent::scenePosition() const
+{
+    return m_scenePos;
 }

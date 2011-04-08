@@ -321,15 +321,18 @@ struct KeyContext
     }
 
     KeyContext(bool upperCase, const QString &accent = QString(),
+               const QPointF &scenePos = QPointF(),
                const QPoint correctionPos = QPoint())
        : upperCase(upperCase),
          accent(accent),
+         scenePos(scenePos),
          errorCorrectionPos(correctionPos)
     {
     }
 
     bool upperCase;            //!< Whether key area was considered to be in upper case level.
     QString accent;            //!< Active accent, if any.
+    QPointF scenePos;          //!< Accurate scene position of the key's hit point.
     QPoint errorCorrectionPos; //!< Hit point of the key in layout coordinates,
                                //!  tweaked suitable for error correction engine.
 };
