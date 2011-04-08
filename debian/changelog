@@ -2,6 +2,7 @@ meego-keyboard (0.5.39~1) unstable; urgency=low
 
   * [UNRELEASED]
   * Fixes: NB#244127 - Parallel connections created on orientation change
+  * Fixes: NB#235142 - [TASK] Disable left-right gesture recognition on VKB when only one plugin active
 
  -- Ning Chi <ext-chi.2.ning@nokia.com>  Wed, 06 Apr 2011 16:35:14 +0300
 
