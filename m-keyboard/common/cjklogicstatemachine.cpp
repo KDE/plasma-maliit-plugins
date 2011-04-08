@@ -43,6 +43,8 @@ namespace {
     const QString StandByStateString("standby_state");
     const QString MatchStateString("match_state");
     const QString PredictionStateString("prediction_state");
+
+    const QChar ZhuYinTone5(ushort(0x02D9)); // ZhuYin tone 5 mark.
 }
 
 CJKLogicStateMachine::CJKLogicStateMachine(AbstractEngineWidgetHost &widgetHost,
@@ -148,9 +150,7 @@ bool CJKLogicStateMachine::handleKeyEvent(const KeyEvent &event)
         if (tmpChar.isDigit()) {
             handleDigitKey(event);
             val = true;
-        } else if (tmpChar.isPrint()
-                 && (!tmpChar.isPunct())
-                 && (!tmpChar.isSymbol())) {
+        } else if (isValidInputLetter(tmpChar)) {
             handleLetterKey(event);
             val = true;
         } else if (tmpChar == '\'') {
@@ -466,6 +466,28 @@ void CJKLogicStateMachine::changeState(const QString &state)
     if(currentState != NULL)
         currentState->initState();
     return ;
+}
+
+bool CJKLogicStateMachine::isValidInputLetter(QChar ch)
+{
+    if (ch.isPrint()
+        && (!ch.isPunct())
+        && (!ch.isSymbol())) {
+        // Here means that ch is a letter.
+        return true;
+    } else {
+        if ((ch == ZhuYinTone5)
+            && (inputMethodEngine.language() == ZhuyinLang)) {
+            // Here means that ch is a special ZhuYin tone mark and it should be
+            // processed with other input letters together according to ZhuYin rules.
+            // So it should be looked as a valid input letter here.
+            return true;
+        }
+
+        // Here means that ch is not a valid input letter.
+        // It might be a punctuation mark, or a number, or something else.
+        return false;
+    }
 }
 
 

@@ -106,6 +106,7 @@ private slots:
 private:
     void emitLayoutMenuKeyClickSignal();
     void changeState(const QString &state);
+    bool isValidInputLetter(QChar ch);
 
 
     InputStateAbstract *currentState;
