@@ -758,6 +758,11 @@ void MKeyboardHost::localSetPreedit(const QString &preeditString, int replaceSta
         }
     }
     updatePreedit(preedit, candidates.count(), replaceStart, replaceLength, cursor);
+
+    if (preedit.isEmpty() && engineWidgetHost && engineWidgetHost->isActive()
+        && engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode) {
+        EngineManager::instance().handler()->engineWidgetHost()->hideEngineWidget();
+    }
 }
 
 void MKeyboardHost::update()
@@ -1192,14 +1197,17 @@ void MKeyboardHost::handleKeyPress(const KeyEvent &event)
             EngineManager::instance().handler()->engineWidgetHost();
         if ( engineWidgetHost
             && engineWidgetHost->isActive()
-            && engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode
-            && EngineManager::instance().handler()->correctionAcceptedWithSpaceEnabled()) {
+            && engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode) {
             // hide word tracker when backspace key press
-            engineWidgetHost->hideEngineWidget();
-            // WordTrackerBackspaceMode mode: hide word tracker when backspace key press.
-            // And remove preedit if holding backspace long enough. But does nothing
-            // for backspace key release.
-            startBackspace(WordTrackerBackspaceMode);
+            if (EngineManager::instance().handler()->correctionAcceptedWithSpaceEnabled()) {
+                // WordTrackerBackspaceMode mode: hide word tracker when backspace key press.
+                // And remove preedit if holding backspace long enough. But does nothing
+                // for backspace key release.
+                engineWidgetHost->hideEngineWidget();
+                startBackspace(WordTrackerBackspaceMode);
+            } else {
+                startBackspace(NormalBackspaceMode);
+            }
         } else {
             startBackspace(NormalBackspaceMode);
         }
