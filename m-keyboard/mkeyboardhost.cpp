@@ -621,7 +621,7 @@ void MKeyboardHost::hide()
     RegionTracker::instance().enableSignals(false);
     RegionTracker::instance().sendInputMethodAreaEstimate(QRegion());
 
-    if(EngineManager::instance().handler()->engineWidgetHost()) {
+    if (EngineManager::instance().handler() && EngineManager::instance().handler()->engineWidgetHost()) {
         EngineManager::instance().handler()->engineWidgetHost()->hideEngineWidget();
     }
 
@@ -720,7 +720,8 @@ void MKeyboardHost::setPreedit(const QString &preeditString, int cursor)
             EngineManager::instance().engine()->clearEngineBuffer();
             EngineManager::instance().engine()->reselectString(preeditString);
             candidates = EngineManager::instance().engine()->candidates();
-            EngineManager::instance().handler()->engineWidgetHost()->setCandidates(candidates);
+            if (EngineManager::instance().handler() && EngineManager::instance().handler()->engineWidgetHost())
+                EngineManager::instance().handler()->engineWidgetHost()->setCandidates(candidates);
         }
         // updatePreedit() will send back the preedit with updated preedit style.
         // TODO: But this sending back preedit could cause problem. Because the
@@ -746,12 +747,14 @@ void MKeyboardHost::localSetPreedit(const QString &preeditString, int replaceSta
     preeditCursorPos = cursor;
     preeditHasBeenEdited = true;
     QStringList candidates;
+    AbstractEngineWidgetHost *engineWidgetHost = EngineManager::instance().handler() ?
+        EngineManager::instance().handler()->engineWidgetHost() : 0;
     if (EngineManager::instance().engine()) {
         EngineManager::instance().engine()->clearEngineBuffer();
         EngineManager::instance().engine()->reselectString(preeditString);
         candidates = EngineManager::instance().engine()->candidates();
-        if(EngineManager::instance().handler()->engineWidgetHost()) {
-            EngineManager::instance().handler()->engineWidgetHost()->setCandidates(candidates);
+        if (engineWidgetHost) {
+            engineWidgetHost->setCandidates(candidates);
         }
     }
     updatePreedit(preedit, candidates.count(), replaceStart, replaceLength, cursor);
@@ -906,7 +909,7 @@ void MKeyboardHost::resetInternalState()
     preedit.clear();
     preeditCursorPos = -1;
     preeditHasBeenEdited = false;
-    if(EngineManager::instance().handler()->engineWidgetHost()) {
+    if (EngineManager::instance().handler() && EngineManager::instance().handler()->engineWidgetHost()) {
         EngineManager::instance().handler()->engineWidgetHost()->reset();
         EngineManager::instance().handler()->engineWidgetHost()->hideEngineWidget();
     }
@@ -922,7 +925,7 @@ void MKeyboardHost::prepareOrientationChange()
 
     symbolView->prepareToOrientationChange();
     vkbWidget->prepareToOrientationChange();
-    if(EngineManager::instance().handler()->engineWidgetHost()) {
+    if (EngineManager::instance().handler() && EngineManager::instance().handler()->engineWidgetHost()) {
         EngineManager::instance().handler()->engineWidgetHost()->prepareToOrientationChange();
     }
 }
@@ -948,8 +951,8 @@ void MKeyboardHost::finalizeOrientationChange()
         }
     }
 
-    AbstractEngineWidgetHost *engineWidgetHost =
-        EngineManager::instance().handler()->engineWidgetHost();
+    AbstractEngineWidgetHost *engineWidgetHost = EngineManager::instance().handler() ?
+        EngineManager::instance().handler()->engineWidgetHost() : 0;
     // Finalize candidate list after so its region will apply.
     if (engineWidgetHost)
         engineWidgetHost->finalizeOrientationChange();
@@ -980,6 +983,9 @@ void MKeyboardHost::handleMouseClickOnPreedit(const QPoint &mousePos, const QRec
 {
     Q_UNUSED(mousePos);
     Q_UNUSED(preeditRect);
+    if (!EngineManager::instance().handler())
+        return;
+
     AbstractEngineWidgetHost *engineWidgetHost =
         EngineManager::instance().handler()->engineWidgetHost();
     // Shows suggestion list when there are some candidates.
@@ -1049,8 +1055,8 @@ void MKeyboardHost::handleCandidateClicked(const QString &clickedCandidate, int 
 
 void MKeyboardHost::commitString(const QString &updatedString)
 {    
-    AbstractEngineWidgetHost *engineWidgetHost =
-        EngineManager::instance().handler()->engineWidgetHost();
+    AbstractEngineWidgetHost *engineWidgetHost = EngineManager::instance().handler() ?
+        EngineManager::instance().handler()->engineWidgetHost() : 0;
 
     if (EngineManager::instance().engine() && engineWidgetHost) {
         if (engineWidgetHost->candidates().count() > 1) {
@@ -1065,11 +1071,11 @@ void MKeyboardHost::commitString(const QString &updatedString)
     // Add space after preedit if word tracker was clicked OR
     // if word was selected from word list when preedit was edited AND
     // cursor was at the end of preedit.
-    if (engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode
-        || (engineWidgetHost->displayMode() == AbstractEngineWidgetHost::DialogMode
-            && preeditHasBeenEdited
-            && (preedit.size() == preeditCursorPos
-                || preeditCursorPos == -1))) {
+    if (engineWidgetHost
+        && (engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode
+            || (engineWidgetHost->displayMode() == AbstractEngineWidgetHost::DialogMode
+                && preeditHasBeenEdited
+                && (preedit.size() == preeditCursorPos || preeditCursorPos == -1)))) {
         inputMethodHost()->sendCommitString(updatedString + " ");
         resetInternalState();
         spaceInsertedAfterCommitString = true;
@@ -1343,8 +1349,8 @@ void MKeyboardHost::handleGeneralKeyClick(const KeyEvent &event)
 
 void MKeyboardHost::handleLongKeyPress(const KeyEvent &event)
 {
-    AbstractEngineWidgetHost *engineWidgetHost =
-        EngineManager::instance().handler()->engineWidgetHost();
+    AbstractEngineWidgetHost *engineWidgetHost = EngineManager::instance().handler() ?
+        EngineManager::instance().handler()->engineWidgetHost() : 0;
     if (event.qtKey() == Qt::Key_Space
         && correctionEnabled
         && engineWidgetHost
@@ -1426,8 +1432,8 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
         // or ignore it if correction widget is visible and with suggestionlist mode
         // otherwise commit preedit
         bool eventSent(false);
-        AbstractEngineWidgetHost *engineWidgetHost =
-            EngineManager::instance().handler()->engineWidgetHost();
+        AbstractEngineWidgetHost *engineWidgetHost = EngineManager::instance().handler() ?
+            EngineManager::instance().handler()->engineWidgetHost() : 0;
         if (event.qtKey() == Qt::Key_Space
             && engineWidgetHost
             && engineWidgetHost->isActive()
@@ -1464,8 +1470,8 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
 
 
         if (lastClickEvent.specialKey() != KeyEvent::CycleSet) {
-            if (EngineManager::instance().handler()->engineWidgetHost()) {
-                EngineManager::instance().handler()->engineWidgetHost()->reset();
+            if (engineWidgetHost) {
+                engineWidgetHost->reset();
             }
         }
         // Send trailing space.
@@ -1517,8 +1523,8 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
         if (EngineManager::instance().engine())
             candidates = EngineManager::instance().engine()->candidates();
 
-        AbstractEngineWidgetHost *engineWidgetHost =
-            EngineManager::instance().handler()->engineWidgetHost();
+        AbstractEngineWidgetHost *engineWidgetHost = EngineManager::instance().handler() ?
+            EngineManager::instance().handler()->engineWidgetHost() : 0;
         if (engineWidgetHost) {
             engineWidgetHost->setCandidates(candidates);
         }
@@ -1724,17 +1730,15 @@ void MKeyboardHost::setState(const QSet<MInputMethod::HandlerState> &state)
     resetInternalState();
     activeState = actualState;
 
-    //XXX update engine language if hardwarekeyboard supports
+    //TODO: update engine language if hardwarekeyboard supports
     // error correction/prediction
 
-    AbstractEngineWidgetHost *engineWidgetHost =
-        EngineManager::instance().handler()->engineWidgetHost();
+    AbstractEngineWidgetHost *engineWidgetHost = EngineManager::instance().handler() ?
+        EngineManager::instance().handler()->engineWidgetHost() : 0;
     if ( engineWidgetHost
          && engineWidgetHost->isActive()
          && engineWidgetHost->displayMode() == AbstractEngineWidgetHost::DockedMode) {
-        //XXX
-        EngineManager::instance().handler()
-                ->engineWidgetHost()->setPageIndex(0);
+        engineWidgetHost->setPageIndex(0);
     }
 
     // Keeps separate states for symbol view in OnScreen state and Hardware state
@@ -2078,8 +2082,8 @@ void MKeyboardHost::startBackspace(MKeyboardHost::BackspaceMode mode)
 
 void MKeyboardHost::updateCorrectionWidgetPosition()
 {
-    AbstractEngineWidgetHost *engineWidgetHost =
-        EngineManager::instance().handler()->engineWidgetHost();
+    AbstractEngineWidgetHost *engineWidgetHost = EngineManager::instance().handler() ?
+        EngineManager::instance().handler()->engineWidgetHost() : 0;
     if (correctionEnabled && engineWidgetHost && engineWidgetHost->isActive()
         && engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode) {
         bool success = false;
