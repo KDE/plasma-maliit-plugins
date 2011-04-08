@@ -32,6 +32,7 @@ namespace {
     const QString VKBLayoutsFilterRule("*.xml");
     const QString VKBLayoutsIgnoreRules("number|test|customer|default"); // use as regexp to ignore number, test, customer and default layouts
     const QString ChineseVKBConfigurationPath("/usr/share/meegotouch/virtual-keyboard/layouts/chinese");
+    const QString VKBUserLayoutPath(".config/meego-keyboard/layouts/"); // relative to home dir
 };
 
 MKeyboardSettings::MKeyboardSettings()
@@ -79,6 +80,8 @@ void MKeyboardSettings::readAvailableKeyboards()
     // Add Chinese input method layout directories here to allow our setting
     // could manage Chinese IM layouts. This is a workaround, will be removed later.
     dirs << QDir(ChineseVKBConfigurationPath, VKBLayoutsFilterRule);
+    dirs << QDir(QDir::homePath() + QDir::separator() + VKBUserLayoutPath, VKBLayoutsFilterRule);
+
     QRegExp ignoreExp(VKBLayoutsIgnoreRules, Qt::CaseInsensitive);
 
     foreach (const QDir &dir, dirs) {
