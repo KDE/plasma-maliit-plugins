@@ -420,6 +420,7 @@ private:
     bool toolbarHidePending;
     bool keyOverrideClearPending;
     bool pendingLanguageNotificationRequest;
+    bool regionUpdatesEnabledBeforeOrientationChange;
 
     friend class EngineHandlerDefault;
 #ifdef UNIT_TEST

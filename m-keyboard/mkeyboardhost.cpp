@@ -237,7 +237,8 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
       view(0),
       toolbarHidePending(false),
       keyOverrideClearPending(false),
-      pendingLanguageNotificationRequest(false)
+      pendingLanguageNotificationRequest(false),
+      regionUpdatesEnabledBeforeOrientationChange(true)
 {
     Q_ASSERT(host != 0);
     Q_ASSERT(mainWindow != 0);
@@ -926,7 +927,7 @@ void MKeyboardHost::resetInternalState()
 void MKeyboardHost::prepareOrientationChange()
 {
     // Suppress layout change noise during orientation change.
-    RegionTracker::instance().enableSignals(false);
+    regionUpdatesEnabledBeforeOrientationChange = RegionTracker::instance().enableSignals(false);
 
     symbolView->prepareToOrientationChange();
     vkbWidget->prepareToOrientationChange();
@@ -976,7 +977,8 @@ void MKeyboardHost::finalizeOrientationChange()
         updateEngineKeyboardLayout();
     }
     // Reactivate tracker after rotation and layout has settled.
-    RegionTracker::instance().enableSignals(true);
+    RegionTracker::instance().enableSignals(regionUpdatesEnabledBeforeOrientationChange, sipRequested);
+    regionUpdatesEnabledBeforeOrientationChange = true;
 }
 
 void MKeyboardHost::handleMouseClickOnPreedit(const QPoint &mousePos, const QRect &preeditRect)
