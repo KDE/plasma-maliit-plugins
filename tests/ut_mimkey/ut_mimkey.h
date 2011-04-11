@@ -120,6 +120,9 @@ private slots:
 
     void testOverrideBinding();
 
+    void testIconInfo_data();
+    void testIconInfo();
+
 private:
     MImKey *createKey(bool state = false);
     MImKeyModel *createKeyModel();

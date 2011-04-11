@@ -281,6 +281,10 @@ private:
     //! true if the compact icon should be used instead of the normal one.
     //! Value is maintained by updateNeedsCompactIcon.
     bool needsCompactIcon;
+
+#ifdef UNIT_TEST
+    friend class Ut_MImKey;
+#endif
 };
 
 #endif // MIMKEY_H
