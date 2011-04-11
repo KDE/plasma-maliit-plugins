@@ -37,6 +37,8 @@
 #include "keyevent.h"
 #include "mplainwindow.h"
 
+#include <MNamespace>
+
 #include <QTimer>
 #include <QPointer>
 #include <QPropertyAnimation>
@@ -421,6 +423,7 @@ private:
     bool keyOverrideClearPending;
     bool pendingLanguageNotificationRequest;
     bool regionUpdatesEnabledBeforeOrientationChange;
+    M::OrientationAngle appOrientationAngle;
 
     friend class EngineHandlerDefault;
 #ifdef UNIT_TEST

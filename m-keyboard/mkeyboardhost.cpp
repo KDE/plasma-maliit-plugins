@@ -238,7 +238,8 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
       toolbarHidePending(false),
       keyOverrideClearPending(false),
       pendingLanguageNotificationRequest(false),
-      regionUpdatesEnabledBeforeOrientationChange(true)
+      regionUpdatesEnabledBeforeOrientationChange(true),
+      appOrientationAngle(M::Angle90) // shouldn't matter, see handleAppOrientationChanged comment
 {
     Q_ASSERT(host != 0);
     Q_ASSERT(mainWindow != 0);
@@ -555,6 +556,8 @@ void MKeyboardHost::show()
         return;
     }
     RegionTracker::instance().enableSignals(false);
+
+    handleAppOrientationChanged(appOrientationAngle);
 
     // This will add scene window as child of MSceneManager's root element
     // which is the QGraphicsItem that is rotated when orientation changes.
@@ -1014,6 +1017,7 @@ void MKeyboardHost::handleVisualizationPriorityChange(bool priority)
         if (priority) {
             MPlainWindow::instance()->sceneManager()->disappearSceneWindowNow(sceneWindow);
         } else {
+            handleAppOrientationAboutToChange(appOrientationAngle);
             MPlainWindow::instance()->sceneManager()->appearSceneWindowNow(sceneWindow);
         }
     }
@@ -1021,7 +1025,9 @@ void MKeyboardHost::handleVisualizationPriorityChange(bool priority)
 
 void MKeyboardHost::handleAppOrientationAboutToChange(int angle)
 {
-    if (MPlainWindow::instance()->sceneManager()->orientationAngle() == static_cast<M::OrientationAngle>(angle)) {
+    appOrientationAngle = static_cast<M::OrientationAngle>(angle);
+    if ((MPlainWindow::instance()->sceneManager()->orientationAngle() == appOrientationAngle)
+        || !sipRequested || visualizationPriority) {
         return;
     }
 
@@ -1030,7 +1036,7 @@ void MKeyboardHost::handleAppOrientationAboutToChange(int angle)
     // The application receiving input has changed its orientation. Let's change ours.
     // Disable the transition animation for rotation so that we can rotate fast and get
     // the right snapshot for the rotation animation.
-    MPlainWindow::instance()->sceneManager()->setOrientationAngle(static_cast<M::OrientationAngle>(angle),
+    MPlainWindow::instance()->sceneManager()->setOrientationAngle(appOrientationAngle,
                                                                   MSceneManager::ImmediateTransition);
 }
 
