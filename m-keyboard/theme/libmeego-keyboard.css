@@ -687,26 +687,21 @@ WordRibbonStyle {
 
 WordRibbonStyle.Landscape {
     background-image: "meegotouch-vkb-chinese-word-predicting-toolbar-background-landscape";
+    minimum-size: 854 64;
 }
 
 WordRibbonStyle.Portrait {
     background-image: "meegotouch-vkb-chinese-word-predicting-toolbar-background-portrait";
-}
+    minimum-size: 480 64;
 
+    padding-left: 4;
+    padding-right: 4;
+}
 
 WordRibbonStyle:dialogmode {
     background-image: "meegotouch-keyboard-background" 15px 15px 15px 15px;
     space-between: 0;
 }
-
-WordRibbonStyle.Portrait {
-    minimum-size: 480 64;
-}
-
-WordRibbonStyle.Landscape {
-    minimum-size: 854 64;
-}
-
 
 WordRibbonItemStyle{
     background-image: "meegotouch-vkb-chinese-candidate-button" 12px 12px 12px 12px;
@@ -748,69 +743,24 @@ WordRibbon MButtonStyle#MoreButton:pressed {
 }
 
 WordRibbonItemStyle:onecharacter {
+    background-image: ;
     minimum-size: 100 64;
     maximum-size: 854 480;
-    background-image: ;
 
     margin-left: 0;
     margin-right: 0;
     margin-top: 0;
     margin-bottom: 0;
-    padding-left: 28;
-    padding-right: 28;
-    padding-top: 10;
-    padding-bottom: 10;
+    padding-left: 30;
+    padding-right: 30;
+    padding-top: 8;
+    padding-bottom: 9;
 }
 
 WordRibbonItemStyle:twocharacter {
+    background-image: ;
     minimum-size: 100 64;
     maximum-size: 854 480;
-    background-image: ;
-
-    margin-left: 0;
-    margin-right: 0;
-    margin-top: 0;
-    margin-bottom: 0;
-    padding-left: 10;
-    padding-right: 10;
-    padding-top: 10;
-    padding-bottom: 10;
-}
-
-WordRibbonItemStyle:morecharacter {
-    minimum-size: 100 64;
-    maximum-size: 854 480;
-    background-image: ;
-
-    margin-left: 0;
-    margin-right: 0;
-    margin-top: 0;
-    margin-bottom: 0;
-    padding-left: 15;
-    padding-right: 15;
-    padding-top: 10;
-    padding-bottom: 10;
-}
-
-WordRibbonItemStyle.Portrait:onecharacter {
-    minimum-size: 120 64;
-    maximum-size: 480 854;
-    background-image: ;
-
-    margin-left: 0;
-    margin-right: 0;
-    margin-top: 0;
-    margin-bottom: 0;
-    padding-left: 38;
-    padding-right: 38;
-    padding-top: 8;
-    padding-bottom: 8;
-}
-
-WordRibbonItemStyle.Portrait:twocharacter {
-    minimum-size: 120 64;
-    maximum-size: 480 854;
-    background-image: ;
 
     margin-left: 0;
     margin-right: 0;
@@ -818,49 +768,94 @@ WordRibbonItemStyle.Portrait:twocharacter {
     margin-bottom: 0;
     padding-left: 20;
     padding-right: 20;
-    padding-top: 10;
-    padding-bottom: 10;
+    padding-top: 8;
+    padding-bottom: 9;
+}
+
+WordRibbonItemStyle:morecharacter {
+    background-image: ;
+    minimum-size: 100 64;
+    maximum-size: 854 480;
+
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 15;
+    padding-right: 15;
+    padding-top: 8;
+    padding-bottom: 9;
+}
+
+WordRibbonItemStyle.Portrait:onecharacter {
+    background-image: ;
+    minimum-size: 120 64;
+    maximum-size: 480 854;
+
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 45;
+    padding-right: 45;
+    padding-top: 8;
+    padding-bottom: 9;
+}
+
+WordRibbonItemStyle.Portrait:twocharacter {
+    background-image: ;
+    minimum-size: 120 64;
+    maximum-size: 480 854;
+
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 30;
+    padding-right: 30;
+    padding-top: 8;
+    padding-bottom: 9;
 }
 
 WordRibbonItemStyle.Portrait:morecharacter {
+    background-image: ;
     minimum-size: 120 64;
     maximum-size: 480 854;
-    background-image: ;
 
-    margin-left: 20;
-    margin-right: 20;
+    margin-left: 0;
+    margin-right: 0;
     margin-top: 0;
     margin-bottom: 0;
-    padding-left: 25;
-    padding-right: 25;
-    padding-top: 10;
-    padding-bottom: 10;
+    padding-left: 15;
+    padding-right: 15;
+    padding-top: 8;
+    padding-bottom: 9;
 }
 
 
 CandidateToolButtonStyle#fullDialogButtonLandscape{
-	background-image: "meegotouch-candidatelist-background" 10 10 10 10;
-	minimum-size: 80 64;
-	preferred-size: 80 64;
-	maximum-size: 80 64;
+    background-image: "meegotouch-candidatelist-background" 10 10 10 10;
+    minimum-size: 80 64;
+    preferred-size: 80 64;
+    maximum-size: 80 64;
 }
 CandidateToolButtonStyle#fullDialogButtonLandscape:pressed{
-	background-image: "meegotouch-keyboard-toolbar-button-pressed-selected" 10 10 10 10;
+    background-image: "meegotouch-keyboard-toolbar-button-pressed-selected" 10 10 10 10;
 }
 CandidateToolButtonStyle#fullDialogButtonPortrait{
-	background-image: "meegotouch-candidatelist-background" 10 10 10 10;
-	minimum-size: 118 64;
-	preferred-size: 118 64;
-	maximum-size: 118 64;
+    background-image: "meegotouch-candidatelist-background" 10 10 10 10;
+    minimum-size: 118 64;
+    preferred-size: 118 64;
+    maximum-size: 118 64;
 }
 CandidateToolButtonStyle#fullDialogButtonPortrait:pressed{
-	background-image: "meegotouch-keyboard-toolbar-button-pressed-selected" 10 10 10 10;
+    background-image: "meegotouch-keyboard-toolbar-button-pressed-selected" 10 10 10 10;
 }
 CandidateToolButtonStyle#switchButtonLandscape{
-	background-image: "meegotouch-candidatelist-background" 10 10 10 10;
-	minimum-size: 80 64;
-	preferred-size: 80 64;
-	maximum-size: 80 64;
+    background-image: "meegotouch-candidatelist-background" 10 10 10 10;
+    minimum-size: 80 64;
+    preferred-size: 80 64;
+    maximum-size: 80 64;
 }
 CandidateToolButtonStyle#switchButtonLandscape:pressed{
 	background-image: "meegotouch-keyboard-toolbar-button-pressed-selected" 10 10 10 10;

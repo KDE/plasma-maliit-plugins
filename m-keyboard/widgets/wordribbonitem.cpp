@@ -39,7 +39,6 @@ void WordRibbonItem::drawContents(QPainter *painter, const QStyleOptionGraphicsI
         return ;
     }
 
-
     painter->setFont(drawFont);
     painter->setPen(textPen);
     painter->drawText(contentRect, Qt::AlignCenter, label);
@@ -50,7 +49,6 @@ QSizeF WordRibbonItem::sizeHint(Qt::SizeHint which, const QSizeF & constraint) c
     Q_UNUSED(constraint);
 
     QSizeF size ;
-
 
     switch (which) {
     case Qt::MinimumSize:
@@ -119,7 +117,6 @@ void WordRibbonItem::cancelEvent(MCancelEvent *event)
     highlight();
 }
 
-
 void WordRibbonItem::setText(const QString& str)
 {
     label = str;
@@ -186,7 +183,6 @@ int WordRibbonItem::positionIndex() const
 {
     return mPositionIndex;
 }
-
 
 void WordRibbonItem::applyStyle()
 {
@@ -275,7 +271,7 @@ void WordRibbonItem::recalculateItemSize()
     setPreferredSize(preferredSize);
 
     QSizeF tmpSize = preferredSize - QSizeF(marginLeft + marginRight,
-                                                         marginTop + marginBottom);
+                                            marginTop + marginBottom);
 
     paddingRect = QRect(marginLeft, marginTop,
                         tmpSize.width(), tmpSize.height());
@@ -283,15 +279,14 @@ void WordRibbonItem::recalculateItemSize()
     tmpSize = tmpSize - QSizeF(paddingLeft + paddingRight,
                                paddingTop + paddingBottom);
 
-    contentRect = QRect(marginLeft + paddingLeft,
-                        marginTop + paddingTop,
+    // ContentRect represents the drawing text area used in drawContents() function.
+    // Don't need to calculate margin area.
+    // Becuase in MWidgetView::paint(), it will call:
+    // painter->translate(horizontalMargin, d->margins.top());
+    contentRect = QRect(paddingLeft,
+                        paddingTop,
                         tmpSize.width(),
                         tmpSize.height());
-
-    setContentsMargins(marginLeft + paddingLeft,
-                       marginTop + paddingTop,
-                       marginRight + marginRight,
-                       marginBottom + paddingBottom);
 
     resize(preferredSize);
 }
@@ -327,4 +322,3 @@ void WordRibbonItem::setMaxWidth(int width)
 
     forceMaxWidth = width;
 }
-
