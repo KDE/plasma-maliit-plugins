@@ -1039,11 +1039,7 @@ void MKeyboardHost::handleAppOrientationChanged(int angle)
     // We'll get this call on first display of the vkb without a previous
     // handleAppOrientationAboutToChange. So, make sure our internal orientation is in sync
     // with the application's by going through the rotation explicitly (without animation).
-
-    M::OrientationAngle newAngle = static_cast<M::OrientationAngle>(angle);
-    if (newAngle != MPlainWindow::instance()->sceneManager()->orientationAngle()) {
-        handleAppOrientationAboutToChange(angle);
-    }
+    handleAppOrientationAboutToChange(angle);
 }
 
 void MKeyboardHost::handleCandidateClicked(const QString &clickedCandidate, int index)
