@@ -242,6 +242,20 @@ MImAbstractKeyAreaStyle.Portrait:keys33 {
     use-fixed-key-width: true;
 }
 
+MImAbstractKeyAreaStyle.Landscape:keys35 {
+    use-fixed-key-width: true;
+    
+    key-width-x-large-fixed: 118px;
+    key-width-xx-large-fixed: 160px;
+}
+
+MImAbstractKeyAreaStyle.Portrait:keys35 {
+    use-fixed-key-width: true;
+
+    key-width-x-large-fixed: 64px;
+    key-width-xx-large-fixed: 112px;
+}
+
 MImAbstractKeyAreaStyle.Landscape:keys36 {
     use-fixed-key-width: true;
     
