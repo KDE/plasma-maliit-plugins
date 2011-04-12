@@ -74,7 +74,6 @@ SymbolView::SymbolView(const LayoutsManager &layoutsManager, const MVirtualKeybo
       pageSwitcher(0),
       currentOrientation(sceneManager.orientation()),
       currentLayout(layout),
-      mouseDownKeyArea(false),
       mainLayout(new QGraphicsLinearLayout(Qt::Vertical, this)),
       activeState(MInputMethod::OnScreen),
       hideOnQuickPick(false),
@@ -181,18 +180,7 @@ void SymbolView::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWid
 
 QVariant SymbolView::itemChange(GraphicsItemChange change, const QVariant &value)
 {
-    if (change == QGraphicsItem::ItemSceneHasChanged) {
-        QGraphicsScene *newScene = value.value<QGraphicsScene *>();
-        if (newScene != 0 && pageSwitcher) {
-            // Usually this happens only once when symbolView is first put into a scene.
-
-            // Reinstall scene event filter.
-            for (int i = 0; i < pageSwitcher->count(); ++i) {
-                pageSwitcher->widget(i)->removeSceneEventFilter(this);
-                pageSwitcher->widget(i)->installSceneEventFilter(this);
-            }
-        }
-    } else if (change == QGraphicsItem::ItemVisibleChange && value.toBool()) {
+    if (change == QGraphicsItem::ItemVisibleChange && value.toBool()) {
         organizeContent();
     }
     return QGraphicsItem::itemChange(change, value);
@@ -201,32 +189,6 @@ QVariant SymbolView::itemChange(GraphicsItemChange change, const QVariant &value
 void SymbolView::mousePressEvent(QGraphicsSceneMouseEvent *)
 {
     // Nothing, just stop the event from propagating
-}
-
-
-bool SymbolView::sceneEventFilter(QGraphicsItem */*watched*/, QEvent *event)
-{
-    if (pageSwitcher) {
-        switch (event->type()) {
-        case QEvent::GraphicsSceneMousePress: {
-            mouseDownKeyArea = true;
-        } break;
-        case QEvent::GraphicsSceneMouseRelease: {
-            // Even though at this point ungrabbing the child widget would allow release
-            // event to reach it the order is wrong. We now cope with the situation because
-            // we know MImAbstractKeyAreas will ungrab even an implicit grab on release event.
-            mouseDownKeyArea = false;
-
-            // Hide SymbolView if temporary mode was on.
-            if (activity == TemporarilyActive) {
-                hideSymbolView();
-            }
-        } break;
-        default:
-            break;
-        }
-    }
-    return false;
 }
 
 void SymbolView::prepareToOrientationChange()
@@ -291,8 +253,6 @@ void SymbolView::loadSwitcherPages(const LayoutData *kbLayout, const unsigned in
         pageSwitcher->setLooping(true);
         pageSwitcher->setAnimationEnabled(false);
 
-        connect(pageSwitcher, SIGNAL(switchStarting(QGraphicsWidget *, QGraphicsWidget *)),
-                this,         SLOT(onSwitchStarting(QGraphicsWidget *, QGraphicsWidget *)));
         connect(pageSwitcher, SIGNAL(switchDone(QGraphicsWidget *, QGraphicsWidget *)),
                 this,         SLOT(onSwitchDone()));
     }
@@ -345,13 +305,6 @@ void SymbolView::addPage(const LayoutData::SharedLayoutSection &symbolSection)
         connect(page, SIGNAL(flickDown()), SLOT(hideSymbolView()));
 
         pageSwitcher->addWidget(page);
-
-        // Track children's mouse events.
-        // If we don't yet have a scene, the filter won't be installed. Then we do this
-        // later in SymbolView::itemChange().
-        if (scene()) {
-            page->installSceneEventFilter(this);
-        }
     }
 }
 
@@ -441,23 +394,6 @@ void SymbolView::switchToPrevPage()
 {
     pageSwitcher->switchTo((pageCount() == 2 && pageSwitcher->current() == 0)
                            ? HorizontalSwitcher::Right : HorizontalSwitcher::Left);
-}
-
-
-void SymbolView::onSwitchStarting(QGraphicsWidget *current, QGraphicsWidget *next)
-{
-    if (mouseDownKeyArea) {
-        if (current) {
-            // This is required because, for some reason, Qt
-            // does not allow mouse grab for item that was hidden
-            // when it had the grab. Even though hiding an item
-            // should release the grab. So this call does not affect
-            // the following grabMouse() but it affects the behaviour
-            // if we get back to this page during the same mouse move.
-            current->ungrabMouse();
-        }
-        next->grabMouse();
-    }
 }
 
 void SymbolView::onSwitchDone()

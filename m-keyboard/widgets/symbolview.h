@@ -197,11 +197,9 @@ protected:
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *);
     virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
-    virtual bool sceneEventFilter(QGraphicsItem *watched, QEvent *event);
     /*! \reimp_end */
 
 private slots:
-    void onSwitchStarting(QGraphicsWidget *current, QGraphicsWidget *next);
     void onSwitchDone();
 
     //! Handler for shift pressed state change (separate from shift state).
@@ -278,12 +276,6 @@ private:
     M::Orientation currentOrientation;
 
     QString currentLayout;
-
-    /*! This is true when one of the pages has received mouse
-     *  down event. It is used to check whether on page switch
-     *  we need to reassign mouse grab.
-     */
-    bool mouseDownKeyArea;
 
     //! The main layout holds toolbar, handles and key button areas.
     QGraphicsLinearLayout *mainLayout;
