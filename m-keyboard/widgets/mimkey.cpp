@@ -52,9 +52,28 @@ namespace {
         return ((scaling * unit) + (qMax<qreal>(0.0, scaling - 1) * spacing));
     }
 
+    // Check whenever a text with a specified font and font size is not bigger than a rectangle area
+    // Returns true if the content fits into the rectangle area, otherwise false.
+    bool checkFontSize(QFont *font, int size, bool pixelSize, const QString &text, const QRect &boundingRect)
+    {
+        if (pixelSize) {
+            font->setPixelSize(size);
+        } else {
+            font->setPointSize(size);
+        }
+
+        const QFontMetrics fontMetrics(*font);
+        const QRect textBounds = fontMetrics.boundingRect(text);
+
+        if (textBounds.width() <= boundingRect.width()
+            && textBounds.height() <= boundingRect.height()) {
+            return true;
+        }
+        return false;
+    }
+
     // Modify font to make text fit into boundingRect
-    // TODO: Could be optimized to use a binary search.
-    void scaleDownFont(QFont *font, const QString& text, const QRect& boundingRect)
+    void scaleDownFont(QFont *font, const QString &text, const QRect &boundingRect)
     {
         // Fonts can either be specified in points or pixels
         int fontSize = font->pixelSize();
@@ -65,25 +84,22 @@ namespace {
             Q_ASSERT(fontSize != -1);
         }
 
+        int first = 1;
+        int last = fontSize;
+
+        if (checkFontSize(font, last, usesPixelSize, text, boundingRect))
+            return;
+
         // Minimum font size is 1
-        while (fontSize > 1) {
-            if (usesPixelSize) {
-                font->setPixelSize(fontSize);
-            }
-            else {
-                font->setPointSize(fontSize);
-            }
+        while (first <= last) {
+            int middle = (first+last) / 2;
+            bool result = checkFontSize(font, middle, usesPixelSize, text, boundingRect);
 
-            const QFontMetrics fontMetrics(*font);
-            const QRect textBounds = fontMetrics.boundingRect(text);
-
-            if (textBounds.width() <= boundingRect.width()
-                && textBounds.height() <= boundingRect.height()) {
-                break;
-            }
-            --fontSize;
+            if (result)
+                first = middle+1;
+            else
+                last = middle-1;
         }
-
     }
 
     const char * const KeyBackground = "keyBackground";
@@ -271,7 +287,9 @@ void MImKey::updateLabelFont()
     // Use a maximum label rectangle that is a bit smaller than the button
     const QRect maximumLabelRect = buttonRect().adjusted(0, 0, -10, -5).toRect();
     labelFont = styleContainer->font();
-    scaleDownFont(&labelFont, label(), maximumLabelRect);
+    // Skip a non-sense case without real dimensions
+    if (buttonRect().width() != 0 && buttonRect().height() != 0)
+        scaleDownFont(&labelFont, label(), maximumLabelRect);
 }
 
 void MImKey::updateLabelPos() const
