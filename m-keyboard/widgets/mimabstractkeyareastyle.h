@@ -99,6 +99,8 @@ public:
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDeadkeySelectedHighlighted, KeyBackgroundDeadkeySelectedHighlighted)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundDeadkeyPressedSelectedHighlighted, KeyBackgroundDeadkeyPressedSelectedHighlighted)
 
+    M_STYLE_ATTRIBUTE(QSize, requiredKeyIconMargins, requiredKeyIconMargins)
+
     M_STYLE_ATTRIBUTE(bool, useFixedKeyWidth, UseFixedKeyWidth)
 
     M_STYLE_ATTRIBUTE(qreal, keyWidthSmall, KeyWidthSmall)
@@ -119,24 +121,49 @@ public:
     M_STYLE_ATTRIBUTE(qreal, keyWidthStretched, KeyWidthStretched)
     M_STYLE_ATTRIBUTE(qreal,  keyWidthStretchedFixed, KeyWidthStretchedFixed)
 
+    // Backspace key icon
     M_STYLE_ATTRIBUTE(QSize,   keyBackspaceIconSize,    KeyBackspaceIconSize)
     M_STYLE_ATTRIBUTE(QString, keyBackspaceIconId,      KeyBackspaceIconId)
     M_STYLE_ATTRIBUTE(QString, keyBackspaceIconIdRtl,   KeyBackspaceIconIdRtl)
 
+    M_STYLE_ATTRIBUTE(QSize,   keyBackspaceCompactIconSize,    KeyBackspaceCompactIconSize)
+    M_STYLE_ATTRIBUTE(QString, keyBackspaceCompactIconId,      KeyBackspaceCompactIconId)
+    M_STYLE_ATTRIBUTE(QString, keyBackspaceCompactIconIdRtl,      KeyBackspaceCompactIconIdRtl)
+
+    // Menu key icon
     M_STYLE_ATTRIBUTE(QSize, keyMenuIconSize, KeyMenuIconSize)
     M_STYLE_ATTRIBUTE(QString, keyMenuIconId, KeyMenuIconId)
     M_STYLE_ATTRIBUTE(QString, keyMenuIconIdRtl, KeyMenuIconIdRtl)
 
+    M_STYLE_ATTRIBUTE(QSize,   keyMenuCompactIconSize, KeyMenuCompactIconSize)
+    M_STYLE_ATTRIBUTE(QString, keyMenuCompactIconId, KeyMenuCompactIconId)
+    M_STYLE_ATTRIBUTE(QString, keyMenuCompactIconIdRtl, KeyMenuCompactIconIdRtl)
+
+    // Enter key icon
     M_STYLE_ATTRIBUTE(QSize, keyEnterIconSize, KeyEnterIconSize)
     M_STYLE_ATTRIBUTE(QString, keyEnterIconId, KeyEnterIconId)
     M_STYLE_ATTRIBUTE(QString, keyEnterIconIdRtl, KeyEnterIconIdRtl)
 
+    M_STYLE_ATTRIBUTE(QSize,   keyEnterCompactIconSize, KeyEnterCompactIconSize)
+    M_STYLE_ATTRIBUTE(QString, keyEnterCompactIconId, KeyEnterCompactIconId)
+    M_STYLE_ATTRIBUTE(QString, keyEnterCompactIconIdRtl, KeyEnterCompactIconIdRtl)
+
+    // Tab icon
     M_STYLE_ATTRIBUTE(QSize, keyTabIconSize, KeyTabIconSize)
     M_STYLE_ATTRIBUTE(QString, keyTabIconId, KeyTabIconId)
 
+    M_STYLE_ATTRIBUTE(QSize,   keyTabCompactIconSize, KeyTabCompactIconSize)
+    M_STYLE_ATTRIBUTE(QString, keyTabCompactIconId, KeyTabCompactIconId)
+
+    // Shift / capslock icon
     M_STYLE_ATTRIBUTE(QSize, keyShiftIconSize, KeyShiftIconSize)
     M_STYLE_ATTRIBUTE(QString, keyShiftIconId, KeyShiftIconId)
     M_STYLE_ATTRIBUTE(QString, keyShiftUppercaseIconId, KeyShiftUppercaseIconId)
+
+    M_STYLE_ATTRIBUTE(QSize, keyShiftCompactIconSize, KeyShiftCompactIconSize)
+    M_STYLE_ATTRIBUTE(QString, keyShiftCompactIconId, KeyShiftCompactIconId)
+    M_STYLE_ATTRIBUTE(QString, keyShiftUppercaseCompactIconId, KeyShiftUppercaseCompactIconId)
+
 
     M_STYLE_ATTRIBUTE(bool, drawButtonBoundingRects, DrawButtonBoundingRects)
     M_STYLE_ATTRIBUTE(bool, drawButtonRects, DrawButtonRects)

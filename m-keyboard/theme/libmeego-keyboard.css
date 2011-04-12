@@ -70,23 +70,38 @@ MImAbstractKeyAreaStyle {
     key-background-deadkey-pressed-selected-highlighted: "meegotouch-keyboard-key-pressed-selected-highlighted" 15 15 15 15;
 
     key-backspace-icon-id: "icon-m-input-methods-backspace";
-    key-backspace-icon-size: 32 32;
+    key-backspace-icon-size: 38 38;
     key-backspace-icon-id-rtl: "icon-m-rtl-input-methods-backspace";
+    key-backspace-compact-icon-id: "icon-m-input-methods-backspace-compact";
+    key-backspace-compact-icon-size: 30 30;
+    /*** FIXME: no rtl icon available ***/
+    key-backspace-compact-icon-id-rtl: "icon-m-input-methods-backspace-compact";
 
     key-menu-icon-size: 48 48;
     key-menu-icon-id: "icon-m-input-methods-menu";
     key-menu-icon-id-rtl: "icon-m-rtl-input-methods-menu";
+    key-menu-compact-icon-id: ;
+    key-menu-compact-icon-size: 0 0;
+    key-menu-compact-icon-id-rtl: ;
 
     key-enter-icon-size: 38 38;
     key-enter-icon-id: "icon-m-input-methods-enter";
     key-enter-icon-id-rtl: "icon-m-rtl-input-methods-enter";
+    key-enter-compact-icon-id: ;
+    key-enter-compact-icon-size: 0 0;
+    key-enter-compact-icon-id-rtl: ;
 
     key-shift-icon-size: 38 38;
     key-shift-icon-id: "icon-m-input-methods-shift";
     key-shift-uppercase-icon-id: "icon-m-input-methods-capslock";
+    key-shift-compact-icon-size: 30 30;
+    key-shift-compact-icon-id: "icon-m-input-methods-shift-compact";
+    key-shift-uppercase-compact-icon-id: "icon-m-input-methods-capslock-compact";
 
     key-tab-icon-size: 0 0;
     key-tab-icon-id: ; /* non-existant currently */
+    key-tab-compact-icon-id: ;
+    key-tab-compact-icon-size: 0 0;
 
     /*** Behaviour ***/
     long-press-timeout: 700;
@@ -99,6 +114,7 @@ MImAbstractKeyAreaStyle {
     enable-overlay-mode: false;
 
     /*** Key Geometry ***/
+    required-key-icon-margins: 5 5;
     use-fixed-key-width: false;
     key-width-small: 0.5;
     key-width-medium: 1.0;

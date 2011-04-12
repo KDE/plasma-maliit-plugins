@@ -60,6 +60,9 @@ attribute in the XML layout files.</li>
  <li>key-{backspace, menu, enter, shift, tab}-icon-id-rtl: Specifies right-to-left icon variant for backspace, menu, enter, shift or tab key.</li>
  <li>key-{backspace, menu, enter, shift, tab}-icon-size: Specifies the icon size for backspace, menu, enter, shift or tab key.</li>
  <li>key-shift-uppercase-icon-id: Uppercase variant for shift key.</li>
+ <li>key-{backspace, menu, enter, shift, shift-uppercase, tab}-compact-icon-size: Size of compact icon.</li>
+ <li>key-{backspace, menu, enter, shift, shift-uppercase, tab}-compact-icon-id: Id of compact icon. See required-key-icon-margins for details.</li>
+ <li>key-{backspace, menu, enter, shift, shift-uppercase, tab}-compact-icon-id-rtl: Id of compact icon version (rtl).</li>
 </ul>
 
 \subsection sub2 Behaviour
@@ -89,6 +92,10 @@ Each key has an area - specified by width and row height (all keys in one row sh
 
 The other key geometry attributes are as follows:
 <ul>
+ <li>required-key-icon-margins: The required (total) horizontal and vertical margins available around the icon of a key.
+If the actual margins available in a key is less than this, the compact icon is used instead of the normal one.
+This allows two set of graphical assets to be used for icons to better fit varying key sizes. There is no
+further fallback or scaling if the compact icon also turns out to be too big.</li>
  <li>use-fixed-key-width: Can be true or false and determines whether keys are
 auto-sized regarding their relative key width in order to consume the full row
 width. If true, no auto-sizing takes place and the key-width-{small, medium,
