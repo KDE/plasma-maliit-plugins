@@ -128,7 +128,7 @@ public:
         return true;
     }
 
-    virtual bool keepPreeditWhenReset() const
+    virtual bool commitPreeditWhenInterrupted()
     {
         return true;
     }
@@ -153,20 +153,30 @@ public:
         return true;
     }
 
-    virtual void resetPreeditWithoutCommit()
+    virtual void clearPreedit(bool commit)
     {
         if (!mKeyboardHost.preedit.isEmpty()) {
-            mKeyboardHost.inputMethodHost()->sendCommitString("");
+            if (commit) {
+                // Commit current preedit
+                mKeyboardHost.inputMethodHost()->sendCommitString(mKeyboardHost.preedit);
+            } else {
+                // Clear current preedit
+                QList<MInputMethod::PreeditTextFormat> preeditFormats;
+                MInputMethod::PreeditTextFormat preeditFormat(0, 0, MInputMethod::PreeditKeyPress);
+                preeditFormats << preeditFormat;
+                mKeyboardHost.inputMethodHost()->sendPreeditString("", preeditFormats);
+            }
             mKeyboardHost.preedit.clear();
         }
     }
 
-    virtual void resetPreeditWithCommit()
+    virtual void editingInterrupted()
     {
-        if (!mKeyboardHost.preedit.isEmpty()) {
-            mKeyboardHost.inputMethodHost()->sendCommitString(mKeyboardHost.preedit);
-            mKeyboardHost.preedit.clear();
-        }
+        clearPreedit(commitPreeditWhenInterrupted());
+    }
+
+    virtual void resetHandler()
+    {
     }
 
     virtual void preparePluginSwitching()
@@ -190,6 +200,7 @@ public:
         Q_UNUSED(event);
         return false;
     }
+
     //! \reimp_end
 
 private:
@@ -299,10 +310,7 @@ void EngineManager::updateLanguage(const QString &lang)
         if (currentEngineHandler->engineWidgetHost())
             currentEngineHandler->engineWidgetHost()->reset();
 
-        if (currentEngineHandler->keepPreeditWhenReset())
-            currentEngineHandler->resetPreeditWithCommit();
-        else
-            currentEngineHandler->resetPreeditWithoutCommit();
+        currentEngineHandler->editingInterrupted();
     }
 
     currentEngine = matchedEngine;

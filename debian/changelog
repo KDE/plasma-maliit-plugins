@@ -1,6 +1,8 @@
 meego-keyboard (0.5.39~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#244719 - Backspace key introduces preedit text to end of text
+  * Fixes: NB#238257 - VKB; Input Latin letters are gone after switching VKB to Zhuyin and enter.
   * Fixes: NB#244198 - [VKB] VKB Enter key changes label in specific scenario (Landscape->Portrait)
   * Fixes: NB#244127 - Parallel connections created on orientation change
   * Fixes: NB#235142 - [TASK] Disable left-right gesture recognition on VKB when only one plugin active

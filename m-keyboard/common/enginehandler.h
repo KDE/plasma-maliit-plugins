@@ -112,9 +112,12 @@ public:
     virtual bool hasContext() const = 0;
 
     /*!
-     * \brief Returns true if this language keeps preedit when reseting.
+     * \brief Returns true if language would like to commit preedit when editing is interrupted.
+     *
+     * Typical case for interruption is for example when changing to other language or to other input method
+     * plugin.
      */
-    virtual bool keepPreeditWhenReset() const = 0;
+    virtual bool commitPreeditWhenInterrupted() { return true; }
 
     /*!
      * \brief Returns true if this language accepts correction suggestion with space key.
@@ -137,14 +140,26 @@ public:
     virtual bool commitWhenCandidateClicked() const = 0;
 
     /*!
-     * \brief This method will be called when keyboard host reset and keepPreeditWhenReset returns false.
+     * \brief Clears preedit from keyboard host and input method host.
+     *
+     * \param commit, indicates whether the preedit should be commited before clearing or not
      */
-    virtual void resetPreeditWithoutCommit() = 0;
+    virtual void clearPreedit(bool commit) { Q_UNUSED(commit); }
 
     /*!
-     * \brief This method will be called when keyboard host reset and keepPreeditWhenReset returns true.
+     * \brief Called when editing has been interrupted.
+     *
+     * At this point engine handler should perform needed actions, for example commit and clear preedit.
      */
-    virtual void resetPreeditWithCommit() = 0;
+    virtual void editingInterrupted() {}
+
+    /*!
+     * \brief Called when keyboard host is reset.
+     *
+     * This reset is intended for reseting the handler only. Do not send anything to keyboard host or
+     * input method host from this method.
+     */
+    virtual void resetHandler() {}
 
     /*!
      * \brief Prepare the plugin switching.

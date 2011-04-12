@@ -895,10 +895,7 @@ void MKeyboardHost::reset()
     qDebug() << __PRETTY_FUNCTION__;
     switch (activeState) {
     case MInputMethod::OnScreen:
-        if (EngineManager::instance().handler()->keepPreeditWhenReset())
-            EngineManager::instance().handler()->resetPreeditWithCommit();
-        else
-            EngineManager::instance().handler()->resetPreeditWithoutCommit();
+        EngineManager::instance().handler()->resetHandler();
         resetInternalState();
         break;
     case MInputMethod::Hardware:
@@ -1641,6 +1638,7 @@ void MKeyboardHost::sendCopyPaste(CopyPasteState action)
 
 void MKeyboardHost::switchPlugin(MInputMethod::SwitchDirection direction)
 {
+    EngineManager::instance().handler()->editingInterrupted();
     EngineManager::instance().handler()->preparePluginSwitching();
     inputMethodHost()->switchPlugin(direction);
 }
@@ -1657,6 +1655,7 @@ void MKeyboardHost::sendString(const QString &text)
 
 void MKeyboardHost::sendStringFromToolbar(const QString &text)
 {
+    EngineManager::instance().handler()->clearPreedit(true);
     reset();
     sendString(text);
 }
@@ -1726,12 +1725,8 @@ void MKeyboardHost::setState(const QSet<MInputMethod::HandlerState> &state)
     if (activeState == actualState)
         return;
 
-    if ((activeState == MInputMethod::OnScreen) && (preedit.length() > 0)) {
-        if (EngineManager::instance().handler()->keepPreeditWhenReset())
-            EngineManager::instance().handler()->resetPreeditWithCommit();
-        else
-            EngineManager::instance().handler()->resetPreeditWithoutCommit();
-    }
+    if (activeState == MInputMethod::OnScreen)
+        EngineManager::instance().handler()->editingInterrupted();
 
     // Resets before changing the activeState to make sure clear.
     resetInternalState();
