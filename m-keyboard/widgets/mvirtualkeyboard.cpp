@@ -501,6 +501,14 @@ void MVirtualKeyboard::numberKeyboardReset()
     recreateSpecialKeyboards(); // number and phone number keyboard
 }
 
+void MVirtualKeyboard::cancelEvent(MCancelEvent *event)
+{
+    MImAbstractKeyArea *keyArea = static_cast<MImAbstractKeyArea *>(mainKeyboardSwitcher->currentWidget());
+    if (keyArea) {
+        scene()->sendEvent(keyArea, event);
+    }
+}
+
 void MVirtualKeyboard::onSectionSwitchStarting(int current, int next)
 {
     switchStarted = true;

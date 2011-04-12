@@ -104,7 +104,7 @@ public:
     virtual void modifiersChanged(bool shift,
                                   const QChar &accent = QChar());
 
-    //! \brief Resets active keys belongs to this key area to normal state.
+    //! \brief Resets active keys belonging to this key area to normal state.
     virtual void resetActiveKeys() = 0;
 
     //! \brief Enable or disable horizontal gesture recognition.

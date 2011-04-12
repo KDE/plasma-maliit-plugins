@@ -36,6 +36,7 @@
 #include "mabstractinputmethod.h"
 #include "keyevent.h"
 #include "mplainwindow.h"
+#include "symbolview.h"
 
 #include <MNamespace>
 
@@ -198,8 +199,11 @@ private slots:
     //! Updates the shift level for Symbol view.
     void updateSymbolViewLevel();
 
-    //! Shows symbol view
-    void showSymbolView();
+    //! Shows symbol view with given \a showMode
+    //! \param showMode Mode passed to \a SymbolView::showSymbolView().
+    //! \param initialScenePress Scene position of initial press passed to \a SymbolView::showSymbolView().
+    void showSymbolView(SymbolView::ShowMode showMode = SymbolView::NormalShowMode,
+                        const QPointF &initialPressLocation = QPointF());
 
     /*!
      * Receives modifier state changed signal or script changed signal  from hardware

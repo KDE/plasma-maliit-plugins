@@ -40,6 +40,7 @@
 #include "layoutdata.h"
 #include "reactionmappaintable.h"
 
+#include <MCancelEvent>
 #include <minputmethodnamespace.h>
 #include <MWidget>
 #include <MNamespace>
@@ -309,6 +310,8 @@ signals:
      */
     void pluginSwitchRequired(const QString &pluginName);
 
+protected:
+    virtual void cancelEvent(MCancelEvent *event);
 
 private:
     void updateMainLayoutAtKeyboardIndex();

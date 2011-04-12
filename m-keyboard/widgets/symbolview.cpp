@@ -41,6 +41,7 @@
 #include "regiontracker.h"
 #include "reactionmapwrapper.h"
 #include "mplainwindow.h"
+#include "flickgesturerecognizer.h"
 
 #include <mkeyoverride.h>
 
@@ -78,6 +79,7 @@ SymbolView::SymbolView(const LayoutsManager &layoutsManager, const MVirtualKeybo
       activeState(MInputMethod::OnScreen),
       hideOnQuickPick(false),
       hideOnSpaceKey(false),
+      symKeyHeldDown(false),
       overrides()
 {
     setObjectName("SymbolView");
@@ -202,16 +204,38 @@ void SymbolView::finalizeOrientationChange()
     organizeContent();
 }
 
-void SymbolView::showSymbolView(SymbolView::ShowMode mode)
+void SymbolView::showSymbolView(ShowMode mode,
+                                const QPointF &initialScenePress)
 {
-    if (mode == FollowMouseShowMode) {
-        activity = TemporarilyActive;
-    } else {
-        activity = Active;
-    }
     show();
+
     hideOnQuickPick = true;
     hideOnSpaceKey = false;
+
+    if (mode == FollowMouseShowMode) {
+        setActivity(TemporarilyActive);
+        grabAndPressActiveKeyArea(initialScenePress);
+    } else {
+        setActivity(Active);
+    }
+}
+
+void SymbolView::grabAndPressActiveKeyArea(const QPointF &initialScenePress)
+{
+    MImAbstractKeyArea *keyArea = static_cast<MImAbstractKeyArea *>(pageSwitcher->currentWidget());
+    if (keyArea) {
+
+        // Grab and send press. We use regular scene mouse event because we happen
+        // to know that MImAbstractKeyArea actually uses mouse events for primary touch point.
+        keyArea->grabMouse();
+
+        QGraphicsSceneMouseEvent press(QEvent::GraphicsSceneMousePress);
+        press.setPos(keyArea->mapFromScene(initialScenePress));
+        press.setScenePos(initialScenePress);
+        press.setLastPos(press.pos());
+        press.setLastScenePos(press.scenePos());
+        scene()->sendEvent(keyArea, &press);
+    }
 }
 
 
@@ -219,7 +243,7 @@ void SymbolView::hideSymbolView(SymbolView::HideMode mode)
 {
     hide();
     if (activity == TemporarilyInactive && mode == NormalHideMode) {
-        activity = Inactive;
+        setActivity(Inactive);
         return;
     }
 
@@ -228,14 +252,40 @@ void SymbolView::hideSymbolView(SymbolView::HideMode mode)
     }
 
     if (mode == NormalHideMode) {
+        // In case we had symbol view temporarily open, reset
+        // user input source to default for current key area.
+        if (activity == TemporarilyActive
+            && pageSwitcher->currentWidget()) {
+            //MImAbstractKeyArea *keyArea = static_cast<MImAbstractKeyArea *>(pageSwitcher->currentWidget());
+            //keyArea->setDefaultUserInputSource();
+            // TODO: ungrab? keyarea will do so currently on release.
+        }
+
         pageSwitcher->setCurrent(0);
     }
 
     if (mode == TemporaryHideMode) {
-        activity = TemporarilyInactive;
+        setActivity(TemporarilyInactive);
     } else {
-        activity = Inactive;
+        setActivity(Inactive);
     }
+}
+
+void SymbolView::setActivity(Activity newActivity)
+{
+    if (newActivity == activity) {
+        return;
+    }
+
+    if (pageSwitcher->currentWidget()) {
+        if (newActivity == TemporarilyActive) {
+            pageSwitcher->currentWidget()->ungrabGesture(FlickGestureRecognizer::sharedGestureType());
+        } else if (activity == TemporarilyActive) {
+            pageSwitcher->currentWidget()->grabGesture(FlickGestureRecognizer::sharedGestureType());
+        }
+    }
+
+    activity = newActivity;
 }
 
 
@@ -320,6 +370,10 @@ MImAbstractKeyArea *SymbolView::createMImAbstractKeyArea(const LayoutData::Share
 
         connect(keysWidget, SIGNAL(keyClicked(const MImAbstractKey *, const KeyContext &)),
                 this, SLOT(handleKeyClicked(const MImAbstractKey *)));
+        connect(keysWidget, SIGNAL(keyPressed(const MImAbstractKey*, const KeyContext &)),
+                this, SLOT(handleKeyPressed(const MImAbstractKey *)));
+        connect(keysWidget, SIGNAL(keyReleased(const MImAbstractKey *, const KeyContext &)),
+                this, SLOT(handleKeyReleased(const MImAbstractKey *)));
     }
 
     return keysWidget;
@@ -421,6 +475,20 @@ void SymbolView::handleShiftPressed(bool shiftPressed)
     }
 }
 
+void SymbolView::handleKeyPressed(const MImAbstractKey *key)
+{
+    if (key->binding().action() == MImKeyBinding::ActionSym) {
+        symKeyHeldDown = true;
+    }
+}
+
+void SymbolView::handleKeyReleased(const MImAbstractKey *key)
+{
+    if (key->binding().action() == MImKeyBinding::ActionSym) {
+        symKeyHeldDown = false;
+    }
+}
+
 void SymbolView::handleKeyClicked(const MImAbstractKey *key)
 {
     const MImKeyBinding::KeyAction keyAction = key->binding().action();
@@ -428,16 +496,25 @@ void SymbolView::handleKeyClicked(const MImAbstractKey *key)
     // KeyEventHandler forwards key clicks for normal text input etc.
     // We handle here only special case of closing symbol view if certain
     // criteria is met:
-    // 1) space is clicked and we were waiting for it to close symbol view.
-    if ((keyAction == MImKeyBinding::ActionSpace
-         && hideOnSpaceKey)
+    if (!symKeyHeldDown // never hide if sym key is held down
+        // 1) symbol view was opened in temporary mode
+        && ((activity == TemporarilyActive
+             && key->binding().action() != MImKeyBinding::ActionSwitch
+             && key->binding().action() != MImKeyBinding::ActionSym)
 
-        // 2) quick pick key is clicked as first after opening symbol view
-        || (key->isQuickPick()&& hideOnQuickPick)) {
+             // 2) space is clicked and we were waiting for it to close symbol view.
+             || (keyAction == MImKeyBinding::ActionSpace
+                 && hideOnSpaceKey)
+
+             // 3) quick pick key is clicked as first after opening symbol view
+             || (key->isQuickPick() && hideOnQuickPick))) {
         hideSymbolView();
     }
-    // After first click, we won't be tracking quick pick anymore.
-    hideOnQuickPick = false;
+
+    // After first non-symkey click, we won't be tracking quick pick anymore.
+    if (keyAction != MImKeyBinding::ActionSym) {
+        hideOnQuickPick = false;
+    }
 
     // Set hideOnSpaceKey to true if user clicked a non-numeric symbol character.
     hideOnSpaceKey = false;
@@ -447,6 +524,18 @@ void SymbolView::handleKeyClicked(const MImAbstractKey *key)
         if (!isNumeric) {
             hideOnSpaceKey = true;
         }
+    }
+
+    // Don't retain temporary mode after click.
+    if (activity == TemporarilyActive) {
+        setActivity(Active);
+    }
+
+    // Release explicit mouse grab since we have it in temporary mode.
+    if (!MImAbstractKey::lastActiveKey() // No keys must be active, otherwise ungrab would release them.
+        && pageSwitcher->currentWidget()
+        && pageSwitcher->currentWidget() == scene()->mouseGrabberItem()) {
+        pageSwitcher->currentWidget()->ungrabMouse();
     }
 }
 
@@ -481,6 +570,11 @@ const MVirtualKeyboardStyleContainer &SymbolView::style() const
 bool SymbolView::isActive() const
 {
     return ((activity == Active) || (activity == TemporarilyActive));
+}
+
+bool SymbolView::isTemporarilyActive() const
+{
+    return activity == TemporarilyActive;
 }
 
 QString SymbolView::pageTitle(const int pageIndex) const

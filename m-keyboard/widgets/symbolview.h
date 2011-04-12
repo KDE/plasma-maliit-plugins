@@ -63,7 +63,7 @@ class SymbolView : public MWidget, public ReactionMapPaintable
 public:
     enum ShowMode {
         NormalShowMode,         // Shows page normally
-        FollowMouseShowMode     // Shows page temporarily and grabs the mouse
+        FollowMouseShowMode     // Shows page temporarily, grabs the mouse, and generates mouse press
     };
 
     enum HideMode {
@@ -96,6 +96,10 @@ public:
     //! Return TRUE if widget is activated
     bool isActive() const;
 
+    //! Tells whether symbol view is currently only temporarily opened,
+    //! i.e. will close automatically on key release.
+    bool isTemporarilyActive() const;
+
     /*! Returns interactive region currently occupied by SymbolView,
      *  in scene coordinates.
      */
@@ -121,8 +125,12 @@ public slots:
      * Handler to show the page.
      * If the page is already visible, then just return.
      * \param mode Value is NormalShowMode or FollowMouseShowMode. Default is NormalShowMode. \sa ShowMode.
+     * \param initialScenePress Position in scene coordinates where mouse should initially get pressed.
+     *        If mode is NormalShowMode this parameter is ignored. The location should be location of primary
+     *        touch point because that's the point symbol view will follow.
      */
-    void showSymbolView(ShowMode mode = NormalShowMode);
+    void showSymbolView(ShowMode mode = NormalShowMode,
+                        const QPointF &initialScenePress = QPointF());
 
     /*!
      * Handler to hide the page
@@ -205,6 +213,12 @@ private slots:
     //! Handler for shift pressed state change (separate from shift state).
     void handleShiftPressed(bool shiftPressed);
 
+    //! Special handling for pressed keys, not handled through KeyEventHandler.
+    void handleKeyPressed(const MImAbstractKey *key);
+
+    //! Special handling for released keys, not handled through KeyEventHandler.
+    void handleKeyReleased(const MImAbstractKey *key);
+
     //! Special handling for clicked keys, not handled through KeyEventHandler.
     void handleKeyClicked(const MImAbstractKey *);
 
@@ -254,6 +268,10 @@ private:
     //! Connect signals from a \a handle widget
     void connectHandle(Handle *handle);
 
+    void setActivity(Activity newActivity);
+
+    void grabAndPressActiveKeyArea(const QPointF &initialPressLocation);
+
     //! Current style being used.
     const MVirtualKeyboardStyleContainer *styleContainer;
 
@@ -290,6 +308,7 @@ private:
 
     bool hideOnQuickPick;
     bool hideOnSpaceKey;
+    bool symKeyHeldDown;
 
     //! Contains current keyboard overrides
     QMap<QString, QSharedPointer<MKeyOverride> > overrides;

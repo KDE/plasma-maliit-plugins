@@ -28,7 +28,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  */
-
 #include "flickgesture.h"
 #include "flickgesturerecognizer.h"
 #include "mimabstractkeyarea.h"
@@ -39,6 +38,7 @@
 #include "popupfactory.h"
 #include "mkeyboardhost.h"
 
+#include <MCancelEvent>
 #include <MFeedback>
 #include <MGConfItem>
 #include <QEvent>
@@ -238,7 +238,6 @@ void MImAbstractKeyAreaPrivate::handleFlickGesture(FlickGesture *gesture)
         }
     }
 }
-
 
 void MImAbstractKeyAreaPrivate::handleTouchEvent(QTouchEvent *event)
 {

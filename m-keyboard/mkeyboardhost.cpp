@@ -38,7 +38,6 @@
 #include "mhardwarekeyboard.h"
 #include "keyboarddata.h"
 #include "layoutsmanager.h"
-#include "symbolview.h"
 #include "mimtoolbar.h"
 #include "sharedhandlearea.h"
 #include "reactionmappainter.h"
@@ -63,6 +62,7 @@
 #include <QRegExp>
 #include <QEasingCurve>
 
+#include <MCancelEvent>
 #include <MComponentData>
 #include <MDeviceProfile>
 #include <MScene>
@@ -1179,6 +1179,22 @@ void MKeyboardHost::handleKeyPress(const KeyEvent &event)
         if (activeState == MInputMethod::OnScreen && enableMultiTouch) {
             shiftHeldDown = true;
         }
+    } else if (event.specialKey() == KeyEvent::Sym) {
+
+        if (activeState == MInputMethod::OnScreen
+            && event.isFromPrimaryTouchPoint()
+            && vkbWidget == static_cast<MVirtualKeyboard *>(sender())) {
+
+            // This press event is done. Current touch events are still being
+            // delivered to vkbWidget (actually, to one of its children) so
+            // we send cancel event to it.
+            MCancelEvent cancel;
+            vkbWidget->scene()->sendEvent(vkbWidget, &cancel);
+
+            showSymbolView(SymbolView::FollowMouseShowMode,
+                           event.scenePosition());
+            return;
+        }
     }
 
     MInputMethod::EventRequestType requestType = MInputMethod::EventRequestSignalOnly;
@@ -1796,17 +1812,16 @@ void MKeyboardHost::setState(const QSet<MInputMethod::HandlerState> &state)
 
 void MKeyboardHost::handleSymbolKeyClick()
 {
-    if (((activeState == MInputMethod::Hardware) && !hardwareKeyboard->symViewAvailable())
-        || !vkbWidget->symViewAvailable()) {
+    if (!vkbWidget->symViewAvailable()
+        || symbolView->isTemporarilyActive()
+        || ((activeState == MInputMethod::Hardware)
+            && !hardwareKeyboard->symViewAvailable())) {
         return;
     }
 
     // Toggle SymbolView.
     if (!symbolView->isVisible()) {
-        symbolView->setPos(0, MPlainWindow::instance()->visibleSceneSize().height() - symbolView->size().height());
-        symbolView->showSymbolView();
-        //give the symbolview right shift level(for hardware state)
-        updateSymbolViewLevel();
+        showSymbolView(SymbolView::NormalShowMode);
     } else {
         symbolView->hideSymbolView();
     }
@@ -1826,10 +1841,11 @@ void MKeyboardHost::updateSymbolViewLevel()
     symbolView->setShiftState(shiftState);
 }
 
-void MKeyboardHost::showSymbolView()
+void MKeyboardHost::showSymbolView(SymbolView::ShowMode showMode,
+                                   const QPointF &initialScenePress)
 {
     symbolView->setPos(0, MPlainWindow::instance()->visibleSceneSize().height() - symbolView->size().height());
-    symbolView->showSymbolView(SymbolView::FollowMouseShowMode);
+    symbolView->showSymbolView(showMode, initialScenePress);
     //give the symbolview right shift level(for hardware state)
     updateSymbolViewLevel();
 }
