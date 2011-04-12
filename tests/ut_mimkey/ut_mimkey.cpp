@@ -446,7 +446,7 @@ void Ut_MImKey::testKeyRects()
 
     const QPointF topLeft(50, 50);
     key->setPos(topLeft);
-    key->updateGeometryCache();
+    key->handleGeometryChange();
     QCOMPARE(key->buttonRect().topLeft(), topLeft);
     QCOMPARE(key->buttonBoundingRect().topLeft(), topLeft);
 
@@ -474,7 +474,7 @@ void Ut_MImKey::testKeyRects()
     key.reset(createKey());
     key->setGeometry(MImKey::Geometry(width, height, margin0, margin1, margin1, margin0));
     key->setPos(topLeft);
-    key->updateGeometryCache();
+    key->handleGeometryChange();
     QCOMPARE(key->buttonRect(), expectedRect);
     QCOMPARE(key->buttonBoundingRect(), expectedBoundingRect);
 }

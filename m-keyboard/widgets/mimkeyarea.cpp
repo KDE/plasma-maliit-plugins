@@ -357,7 +357,7 @@ namespace {
                 g.marginRight += spaceAfter;
                 key->setGeometry(g);
                 key->setPos(currentPos);
-                key->updateGeometryCache();
+                key->handleGeometryChange();
 
                 const qreal nextPosX = currentPos.x() + key->buttonBoundingRect().width();
                 mKeyOffsets.append(QPair<qreal, qreal>(currentPos.x(), nextPosX));

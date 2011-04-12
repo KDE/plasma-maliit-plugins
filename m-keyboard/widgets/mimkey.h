@@ -177,9 +177,9 @@ public:
     //! \brief Return rectangle where we should draw secondary label.
     const QRectF & secondaryLabelRect() const;
 
-    //! \brief Updates cached geometry.
-    //! This method must be called when position or size of this key is changed.
-    void updateGeometryCache();
+    //! \brief Updates cached geometry, and state that depends on the geometry of the key.
+    //! This method must be called when position, size or margins of this key is changed.
+    void handleGeometryChange();
 
     //! \brief Return the font of this key.
     const QFont &font() const;

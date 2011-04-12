@@ -224,7 +224,7 @@ const QRectF &MImKey::buttonBoundingRect() const
     return cachedButtonBoundingRect;
 }
 
-void MImKey::updateGeometryCache()
+void MImKey::handleGeometryChange()
 {
     const Geometry &g = currentGeometry;
     cachedButtonBoundingRect = QRectF(pos().x(), pos().y(),
@@ -232,6 +232,12 @@ void MImKey::updateGeometryCache()
                                       g.height + g.marginTop + g.marginBottom);
     cachedButtonRect = cachedButtonBoundingRect.adjusted( g.marginLeft,   g.marginTop,
                                                          -g.marginRight, -g.marginBottom);
+
+    invalidateLabelPos();
+    updateNeedsCompactIcon();
+    if (override && !override->icon().isEmpty()) {
+        loadOverrideIcon(override->icon());
+    }
 }
 
 void MImKey::setIgnoreOverriding(bool ignore)
@@ -772,24 +778,19 @@ const MImKey::Geometry &MImKey::geometry() const
 void MImKey::setGeometry(const MImKey::Geometry &geometry)
 {
     currentGeometry = geometry;
-    updateGeometryCache();
-    invalidateLabelPos();
-    updateNeedsCompactIcon();
-    if (override && !override->icon().isEmpty()) {
-        loadOverrideIcon(override->icon());
-    }
+    handleGeometryChange();
 }
 
 void MImKey::setWidth(qreal width)
 {
     currentGeometry.width = width;
-    updateGeometryCache();
+    handleGeometryChange();
 }
 
 void MImKey::setHeight(qreal height)
 {
     currentGeometry.height = height;
-    updateGeometryCache();
+    handleGeometryChange();
 }
 
 void MImKey::setMargins(qreal left,
@@ -801,7 +802,7 @@ void MImKey::setMargins(qreal left,
     currentGeometry.marginTop = top;
     currentGeometry.marginRight = right;
     currentGeometry.marginBottom = bottom;
-    updateGeometryCache();
+    handleGeometryChange();
 }
 
 void MImKey::setSecondaryLabelEnabled(bool enable)
