@@ -318,13 +318,9 @@ public:
     virtual void handleToggleKeyClicked();
 
 private:
-    QList<int> pinyin_MatchedStepHistory;
-    QList<int> matchString_MatchedStepHistory;
-    QList<QString> userChoosePhaseStepHistory;
-
-    QString matchString;
-    int pinyinMatchedLength;
-    int matchString_startMatchPos;
+    // Record string list history for learning new words.
+    QStringList matchedPreeditHistory;
+    QStringList selectedCandidatesHistory;
 
 protected:
     MatchState * matchStateMachine;

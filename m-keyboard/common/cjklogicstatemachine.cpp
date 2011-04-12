@@ -363,7 +363,17 @@ void CJKLogicStateMachine::sendPreedit(const QString &matchedPart, const QString
 
     QString curLanguage = inputMethodEngine.language();
     //Add the unmatched part.
-    if (curLanguage == CangjieLang || curLanguage == ZhuyinLang) {
+    if (curLanguage == CangjieLang) {
+        showingPreedit.append(unmatchedPart);
+        QStringList engineCandidates = inputMethodEngine.candidates(0, InitialCandidateCount);
+        if (engineCandidates.isEmpty()) {
+            recognizedLength = 0;
+            unRecognizedLength = showingPreedit.length();
+        } else {
+            recognizedLength = showingPreedit.length();
+            unRecognizedLength = 0;
+        }
+    } else if (curLanguage == ZhuyinLang) {
         showingPreedit.append(unmatchedPart);
         recognizedLength = showingPreedit.length();
         unRecognizedLength = 0;
@@ -413,10 +423,6 @@ void CJKLogicStateMachine::sendPreedit(const QString &matchedPart, const QString
         qDebug() <<"Warning: Current Chinese engine language can't be recognized in state machine.";
         return ;
     }
-
-
-    qDebug() << "CJKLogicStateMachine::sendPreedit unRecognizedLength = "
-            << unRecognizedLength;
 
     MInputMethod::PreeditFace face = MInputMethod::PreeditDefault;
     QList<MInputMethod::PreeditTextFormat> preeditFormats;
@@ -866,18 +872,13 @@ void MatchNotStartedState::handleLayoutMenuKey(const KeyEvent &event)
 void MatchNotStartedState::handleSymbolKey(const KeyEvent &event)
 {
     Q_UNUSED(event);
+    if (stateMachine->inputMethodEngine.language() == CangjieLang ||
+        stateMachine->inputMethodEngine.language() == ZhuyinLang)
+        stateMachine->inputMethodHost.sendCommitString("");
+    else
+        stateMachine->inputMethodHost.sendCommitString(matchStateMachine->inputPreedit);
 
-    if (!matchStateMachine->matchIsTerminated) {
-        matchStateMachine->changeMatchState("match_start_state");
-        matchStateMachine->handleSymbolKey(event);
-    } else {
-        if (stateMachine->inputMethodEngine.language() == CangjieLang)
-            stateMachine->inputMethodHost.sendCommitString("");
-        else
-            stateMachine->inputMethodHost.sendCommitString(matchStateMachine->inputPreedit);
-
-        stateMachine->changeState(StandByStateString);
-    }
+    stateMachine->changeState(StandByStateString);
     return ;
 }
 
@@ -1001,21 +1002,15 @@ void MatchNotStartedState::handleOtherKey(const KeyEvent &event)
 {
     //handle punctuation key begin ...
     if (!event.toQKeyEvent().text().isEmpty()) {
-        qDebug() << Q_FUNC_INFO << "text != Empty";
         QChar tmpChar = event.text().at(0);
         if (tmpChar.isPrint()) {
-            qDebug() << Q_FUNC_INFO << "text is Print";
-            if (!matchStateMachine->matchIsTerminated) {
-                matchStateMachine->changeMatchState("match_start_state");
-                matchStateMachine->handleOtherKey(event);
-            } else {
-                if (stateMachine->inputMethodEngine.language() == CangjieLang)
-                    stateMachine->inputMethodHost.sendCommitString("");
-                else
-                    stateMachine->inputMethodHost.sendCommitString(matchStateMachine->inputPreedit);
-                stateMachine->inputMethodHost.sendCommitString(tmpChar);
-                stateMachine->changeState(StandByStateString);
-            }
+            if (stateMachine->inputMethodEngine.language() == CangjieLang ||
+                stateMachine->inputMethodEngine.language() == ZhuyinLang)
+                stateMachine->inputMethodHost.sendCommitString("");
+            else
+                stateMachine->inputMethodHost.sendCommitString(matchStateMachine->inputPreedit);
+            stateMachine->inputMethodHost.sendCommitString(tmpChar);
+            stateMachine->changeState(StandByStateString);
             return;
         }
     }
@@ -1055,8 +1050,6 @@ void MatchNotStartedState::handleToggleKeyClicked()
 
 MatchStartedState::MatchStartedState(MatchState * matchMachine, CJKLogicStateMachine * machine)
     : InputStateAbstract(machine),
-      pinyinMatchedLength(0),
-      matchString_startMatchPos(0),
       matchStateMachine(matchMachine)
 {
 }
@@ -1067,37 +1060,23 @@ MatchStartedState::~MatchStartedState()
 
 void MatchStartedState::initState()
 {
-    matchString = matchStateMachine->inputPreedit;
-    return ;
 }
 
 void MatchStartedState::clearState()
 {
-    pinyin_MatchedStepHistory.clear();
-    matchString_MatchedStepHistory.clear();
-    userChoosePhaseStepHistory.clear();
-
-    pinyinMatchedLength = 0;
-    matchString.clear();
-    matchString_startMatchPos = 0;
-
+    matchedPreeditHistory.clear();
+    selectedCandidatesHistory.clear();
     return ;
 }
 
 void MatchStartedState::shutDown(bool needCommitString)
 {
-    if (needCommitString && matchString != 0) {
+    if (needCommitString && matchStateMachine->inputPreedit != 0) {
         stateMachine->inputMethodHost.sendCommitString("");
     }
 
-    pinyin_MatchedStepHistory.clear();
-    matchString_MatchedStepHistory.clear();
-    userChoosePhaseStepHistory.clear();
-
-    pinyinMatchedLength = 0;
-    matchString.clear();
-    matchString_startMatchPos = 0;
-
+    matchedPreeditHistory.clear();
+    selectedCandidatesHistory.clear();
     return ;
 }
 
@@ -1116,36 +1095,29 @@ void MatchStartedState::handleCandidateClicked(const QString &candStr, int wordI
         stateMachine->userChoseCandidateString = "";
         return ;
     }
+
     stateMachine->userChoseCandidateString = candStr;
-    userChoosePhaseStepHistory.append(stateMachine->userChoseCandidateString);
+    stateMachine->inputMethodHost.sendCommitString(candStr);
+
     stateMachine->inputMethodEngine.setSuggestedCandidateIndex(wordIndex);
+    int mLength = stateMachine->inputMethodEngine.matchedLength();
 
-    int matchLengthFromEngine = stateMachine->inputMethodEngine.matchedLength();
-    pinyinMatchedLength += matchLengthFromEngine;
-    qDebug() <<"Already matched pinyin letter: " <<pinyinMatchedLength;
+    // Record selected candidate for learning words later.
+    selectedCandidatesHistory.append(candStr);
+    // Record matched preedit for learning words later.
+    matchedPreeditHistory.append(matchStateMachine->inputPreedit.left(mLength));
 
-    if (pinyinMatchedLength < matchStateMachine->inputPreedit.length()) {
-        //Change matchedString according to user choose candidate.
-        matchString.remove(matchString_startMatchPos, matchLengthFromEngine);
-        matchString.insert(matchString_startMatchPos, stateMachine->userChoseCandidateString);
-        matchString_startMatchPos += stateMachine->userChoseCandidateString.length();
-
-        //Record pinyin match length and Chinese word length for backspace key later.
-        pinyin_MatchedStepHistory.append(matchLengthFromEngine);
-        matchString_MatchedStepHistory.append(stateMachine->userChoseCandidateString.length());
-
-        QString queryPinyinStr = matchStateMachine->inputPreedit.mid(pinyinMatchedLength);
-
+    if (mLength < matchStateMachine->inputPreedit.length()) {
+        matchStateMachine->inputPreedit.remove(0, mLength);
         stateMachine->inputMethodEngine.clearEngineBuffer();
-        stateMachine->inputMethodEngine.appendString(queryPinyinStr);
-        stateMachine->sendPreedit(matchString.left(matchString_startMatchPos),
-                                  queryPinyinStr);
+        stateMachine->inputMethodEngine.appendString(matchStateMachine->inputPreedit);
+        stateMachine->sendPreedit("", matchStateMachine->inputPreedit);
 
         QStringList tempCandidateWords = stateMachine->inputMethodEngine.candidates(0, InitialCandidateCount);
         if (tempCandidateWords.count() > 0) {
             matchStateMachine->matchIsTerminated = false;
             stateMachine->engineWidgetHost.setCandidates(tempCandidateWords);
-            stateMachine->engineWidgetHost.setTitle(queryPinyinStr);
+            stateMachine->engineWidgetHost.setTitle(matchStateMachine->inputPreedit);
             stateMachine->engineWidgetHost.showEngineWidget(AbstractEngineWidgetHost::DockedMode);
             return;
         } else {
@@ -1153,52 +1125,37 @@ void MatchStartedState::handleCandidateClicked(const QString &candStr, int wordI
             stateMachine->engineWidgetHost.reset();
             stateMachine->engineWidgetHost.hideEngineWidget();
         }
-    } else if(pinyinMatchedLength == matchStateMachine->inputPreedit.length()) {
-        qDebug() <<"pinyinMatchedLength == matchStateMachine->preedit.length()";
-        matchString.remove(matchString_startMatchPos, matchLengthFromEngine);
-        matchString.insert(matchString_startMatchPos, stateMachine->userChoseCandidateString);
-        matchString_startMatchPos += stateMachine->userChoseCandidateString.length();
-
-        stateMachine->inputMethodHost.sendCommitString(matchString);
-
-        qDebug() <<"----------Time to learn a new phase";
-        //Time to learn a new phase
-        QString learnPhasePinyinString = matchStateMachine->inputPreedit;
-        int insertPosition = 0;
-        for(int i = 0; i < pinyin_MatchedStepHistory.size(); ++i) {
-            insertPosition += pinyin_MatchedStepHistory.at(i);
-            learnPhasePinyinString.insert(insertPosition, QString("@"));
-            insertPosition += 1;
+    } else {
+        // Time to learn a new word or phase.
+        QString learnPhaseBaseString;
+        for(int i = 0; i < matchedPreeditHistory.size(); ++i) {
+            learnPhaseBaseString.append(matchedPreeditHistory.at(i));
+            if (i != matchedPreeditHistory.size() - 1)
+                learnPhaseBaseString.append(QString("@"));
         }
 
-        QString learnPhaseChineseString;
-        for(int i = 0; i < userChoosePhaseStepHistory.size(); ++i) {
-            learnPhaseChineseString.append(userChoosePhaseStepHistory.at(i));
-            if (i != userChoosePhaseStepHistory.size() - 1)
-                learnPhaseChineseString.append(QString("@"));
+        QString learnPhaseTranslatedString;
+        for(int i = 0; i < selectedCandidatesHistory.size(); ++i) {
+            learnPhaseTranslatedString.append(selectedCandidatesHistory.at(i));
+            if (i != selectedCandidatesHistory.size() - 1)
+                learnPhaseTranslatedString.append(QString("@"));
         }
 
-        qDebug() <<"-------------Learn new phase"
-                 <<"learnPhasePinyinString = " <<learnPhasePinyinString
-                 <<"learnPhaseChineseString length = " <<learnPhaseChineseString.length();
-
-        QString learnPhase = learnPhasePinyinString + "|" + learnPhaseChineseString;
-        bool results = stateMachine->inputMethodEngine.addDictionaryWord(learnPhase, MImEngine::DictionaryTypeLanguage);
-        qDebug() <<"----------Time to learn a new phase results = " <<results;
+        QString learnPhase = learnPhaseBaseString + "|" + learnPhaseTranslatedString;
+        bool result = stateMachine->inputMethodEngine.addDictionaryWord(learnPhase, MImEngine::DictionaryTypeLanguage);
+        qDebug() <<"Learn a new phase result = " <<result;
 
         if (stateMachine->inputMethodEngine.predictionEnabled())
             stateMachine->changeState(PredictionStateString);
         else
             stateMachine->changeState(StandByStateString);
-
     }
-    return ;
 }
 
 void MatchStartedState::handleLayoutMenuKey(const KeyEvent &event)
 {
     Q_UNUSED(event);
-    stateMachine->inputMethodHost.sendCommitString(matchString);
+    stateMachine->inputMethodHost.sendCommitString(matchStateMachine->inputPreedit);
     stateMachine->emitLayoutMenuKeyClickSignal();
     return ;
 }
@@ -1206,12 +1163,11 @@ void MatchStartedState::handleLayoutMenuKey(const KeyEvent &event)
 void MatchStartedState::handleSymbolKey(const KeyEvent &event)
 {
     Q_UNUSED(event);
-    stateMachine->engineWidgetHost.handleNavigationKey(AbstractEngineWidgetHost::NaviKeyOk);
-
-    if(!this->matchString.isEmpty()) {
-        qDebug() << Q_FUNC_INFO << "sendCommitString = " << this->matchString;
-        stateMachine->inputMethodHost.sendCommitString(this->matchString);
-    }
+    if (stateMachine->inputMethodEngine.language() == CangjieLang ||
+        stateMachine->inputMethodEngine.language() == ZhuyinLang)
+        stateMachine->inputMethodHost.sendCommitString("");
+    else
+        stateMachine->inputMethodHost.sendCommitString(matchStateMachine->inputPreedit);
 
     stateMachine->changeState(StandByStateString);
     return ;
@@ -1220,7 +1176,7 @@ void MatchStartedState::handleSymbolKey(const KeyEvent &event)
 void MatchStartedState::handleDigitKey(const KeyEvent &event)
 {
     Q_UNUSED(event);
-    stateMachine->inputMethodHost.sendCommitString(matchString);
+    stateMachine->inputMethodHost.sendCommitString(matchStateMachine->inputPreedit);
     if (event.type() == QEvent::KeyRelease) {
         stateMachine->inputMethodHost.sendKeyEvent(
                 QKeyEvent(QEvent::KeyPress, event.qtKey(), event.modifiers(), event.text(),
@@ -1237,32 +1193,24 @@ void MatchStartedState::handleLetterKey(const KeyEvent &event)
 {
     Q_UNUSED(event);
 
-    if (pinyinMatchedLength != 0) {
-        matchStateMachine->inputPreedit += event.toQKeyEvent().text();
-        matchString += event.toQKeyEvent().text();
+    matchStateMachine->inputPreedit += event.toQKeyEvent().text();
 
-        QString queryPinyinStr = matchStateMachine->inputPreedit.mid(pinyinMatchedLength);
+    stateMachine->inputMethodEngine.clearEngineBuffer();
+    stateMachine->inputMethodEngine.appendString(matchStateMachine->inputPreedit);
+    stateMachine->sendPreedit("", matchStateMachine->inputPreedit);
 
-        stateMachine->inputMethodEngine.clearEngineBuffer();
-        stateMachine->inputMethodEngine.appendString(queryPinyinStr);
-        stateMachine->sendPreedit(matchString.left(matchString_startMatchPos),
-                                  queryPinyinStr);
-
-        mTimestamp("handleLetterKey get candidates", "start");
-        QStringList tempCandidateWords = stateMachine->inputMethodEngine.candidates(0, InitialCandidateCount);
-        mTimestamp("handleLetterKey get candidates", "end");
-        if (tempCandidateWords.count() > 0) {
-            matchStateMachine->matchIsTerminated = false;
-            stateMachine->engineWidgetHost.setCandidates(tempCandidateWords);
-            stateMachine->engineWidgetHost.setTitle(queryPinyinStr);
-            stateMachine->engineWidgetHost.showEngineWidget(AbstractEngineWidgetHost::DockedMode);
-            return ;
-        } else {
-            matchStateMachine->matchIsTerminated = true;
-            stateMachine->engineWidgetHost.reset();
-            stateMachine->engineWidgetHost.hideEngineWidget();
-            return ;
-        }
+    QStringList tempCandidateWords = stateMachine->inputMethodEngine.candidates(0, InitialCandidateCount);
+    if (tempCandidateWords.count() > 0) {
+        matchStateMachine->matchIsTerminated = false;
+        stateMachine->engineWidgetHost.setCandidates(tempCandidateWords);
+        stateMachine->engineWidgetHost.setTitle(matchStateMachine->inputPreedit);
+        stateMachine->engineWidgetHost.showEngineWidget(AbstractEngineWidgetHost::DockedMode);
+        return ;
+    } else {
+        matchStateMachine->matchIsTerminated = true;
+        stateMachine->engineWidgetHost.reset();
+        stateMachine->engineWidgetHost.hideEngineWidget();
+        return ;
     }
     return ;
 }
@@ -1276,7 +1224,7 @@ void MatchStartedState::handleSpaceKey(const KeyEvent &event)
 {
     Q_UNUSED(event);
     if (matchStateMachine->matchIsTerminated) {
-        stateMachine->inputMethodHost.sendCommitString(matchString);
+        stateMachine->inputMethodHost.sendCommitString(matchStateMachine->inputPreedit);
         stateMachine->changeState(StandByStateString);
         return ;
     }
@@ -1290,40 +1238,25 @@ void MatchStartedState::handleBackspaceKey(const KeyEvent &event)
 {
     Q_UNUSED(event);
 
-    int pinyinBackStep = pinyin_MatchedStepHistory.last();
-    pinyin_MatchedStepHistory.pop_back();
+    matchStateMachine->inputPreedit.chop(1);
 
-    int matchStringBackStep = matchString_MatchedStepHistory.last();
-    matchString_MatchedStepHistory.pop_back();
-
-    pinyinMatchedLength -= pinyinBackStep;
-    QString pinyinPart = matchStateMachine->inputPreedit.mid(pinyinMatchedLength, pinyinBackStep);
-
-    matchString_startMatchPos -= matchStringBackStep;
-    matchString.remove(matchString_startMatchPos, matchStringBackStep);
-    matchString.insert(matchString_startMatchPos, pinyinPart);
-
-    matchStateMachine->matchIsTerminated = false;
-
-    QString queryPinyinStr = matchStateMachine->inputPreedit.mid(pinyinMatchedLength);
-
-    stateMachine->inputMethodEngine.clearEngineBuffer();
-    stateMachine->inputMethodEngine.appendString(queryPinyinStr);
-    stateMachine->sendPreedit(matchString.left(matchString_startMatchPos),
-                              queryPinyinStr);
-
-    QStringList tempCandidateWords = stateMachine->inputMethodEngine.candidates(0, InitialCandidateCount);
-    if (tempCandidateWords.count() > 0) {
-        stateMachine->engineWidgetHost.setCandidates(tempCandidateWords);
-        stateMachine->engineWidgetHost.setTitle(queryPinyinStr);
-        stateMachine->engineWidgetHost.showEngineWidget(AbstractEngineWidgetHost::DockedMode);
-    } else {
-        qDebug() <<"Warning: MatchStartedState::handleBackspaceKey";
+    if (matchStateMachine->inputPreedit.isEmpty()) {
+        stateMachine->inputMethodHost.sendCommitString("");
         stateMachine->changeState(StandByStateString);
-    }
+    } else {
+        stateMachine->inputMethodEngine.clearEngineBuffer();
+        stateMachine->inputMethodEngine.appendString(matchStateMachine->inputPreedit);
+        stateMachine->sendPreedit("", matchStateMachine->inputPreedit);
 
-    if (pinyinMatchedLength == 0) {
-        matchStateMachine->changeMatchState("match_not_start_state");
+        QStringList tempCandidateWords = stateMachine->inputMethodEngine.candidates(0, InitialCandidateCount);
+        if (tempCandidateWords.count() > 0) {
+            matchStateMachine->matchIsTerminated = false;
+            stateMachine->engineWidgetHost.setCandidates(tempCandidateWords);
+            stateMachine->engineWidgetHost.setTitle(matchStateMachine->inputPreedit);
+            stateMachine->engineWidgetHost.showEngineWidget(AbstractEngineWidgetHost::DockedMode);
+        } else {
+            matchStateMachine->matchIsTerminated = true;
+        }
     }
 
     return ;
@@ -1343,7 +1276,7 @@ void MatchStartedState::handleLongPressBackspaceKey()
 void MatchStartedState::handleEnterKey(const KeyEvent &event)
 {
     Q_UNUSED(event);
-    stateMachine->inputMethodHost.sendCommitString(matchString);
+    stateMachine->inputMethodHost.sendCommitString(matchStateMachine->inputPreedit);
     stateMachine->changeState(StandByStateString);
     return ;
 }
@@ -1352,17 +1285,16 @@ void MatchStartedState::handleOtherKey(const KeyEvent &event)
 {
     //handle punctuation key begin ...
     if (!event.toQKeyEvent().text().isEmpty()) {
-        qDebug() << Q_FUNC_INFO << "text != Empty";
         QChar tmpChar = event.text().at(0);
         if (tmpChar.isPrint()) {
-            qDebug() << Q_FUNC_INFO << "text isPrint";
-            if (!matchStateMachine->matchIsTerminated) {
-                stateMachine->engineWidgetHost.handleNavigationKey(AbstractEngineWidgetHost::NaviKeyOk);
-            }
-            stateMachine->inputMethodHost.sendCommitString(this->matchString);
+            if (stateMachine->inputMethodEngine.language() == CangjieLang ||
+                stateMachine->inputMethodEngine.language() == ZhuyinLang)
+                stateMachine->inputMethodHost.sendCommitString("");
+            else
+                stateMachine->inputMethodHost.sendCommitString(matchStateMachine->inputPreedit);
             stateMachine->inputMethodHost.sendCommitString(tmpChar);
             stateMachine->changeState(StandByStateString);
-            return ;
+            return;
         }
     }
     //handle punctuation key end ...
