@@ -896,14 +896,6 @@ void MImKeyArea::onThemeChangeCompleted()
     d->stylingCache->primary   = QFontMetrics(baseStyle()->font());
     d->stylingCache->secondary = QFontMetrics(baseStyle()->secondaryFont());
 
-    foreach (const MImKeyAreaPrivate::KeyRow &row, d->rowList) {
-        foreach (MImKey *key, row.keys) {
-            if (key) {
-                key->handleThemeChange();
-            }
-        }
-    }
-
     MImAbstractKeyArea::onThemeChangeCompleted();
     update();
 }

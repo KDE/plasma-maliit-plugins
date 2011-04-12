@@ -191,8 +191,6 @@ public:
     //! \brief Override key's binding.
     void overrideBinding(const MImKeyBinding* binding);
 
-    void handleThemeChange();
-
     //! The width for this button. Not managed by this class.
     //! It is used by MImKeyArea to store the correct button size.
     qreal width;

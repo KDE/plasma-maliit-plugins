@@ -251,12 +251,6 @@ void MImKey::setIgnoreOverriding(bool ignore)
     invalidateLabelPos();
 }
 
-void MImKey::handleThemeChange()
-{
-    invalidateLabelPos();
-    updateNeedsCompactIcon();
-}
-
 void MImKey::overrideBinding(const MImKeyBinding *binding)
 {
     const_cast<MImKeyModel&>(mModel).overrideBinding(binding, false);
