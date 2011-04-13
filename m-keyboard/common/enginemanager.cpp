@@ -218,11 +218,17 @@ public:
         : EngineHandler(keyboardHost),
           mKeyboardHost(keyboardHost),
           mEngineWidgetHost(new WordRibbonHost(keyboardHost.sceneWindow, 0)),
-          stateMachine(new CJKLogicStateMachine(*mEngineWidgetHost,
-                                                      *(keyboardHost.inputMethodHost()),
-                                                      *(EngineManager::instance().engine())))
+          stateMachine(NULL)
     {
-        stateMachine->setSyllableDivideEnabled(false);
+        // Create CJK logic state machine only when the engine is ready.
+        if ((keyboardHost.inputMethodHost() != NULL)
+            && (EngineManager::instance().engine() != NULL)) {
+            stateMachine = new CJKLogicStateMachine(*mEngineWidgetHost,
+                                                    *(keyboardHost.inputMethodHost()),
+                                                    *(EngineManager::instance().engine()));
+            stateMachine->setSyllableDivideEnabled(false);
+        }
+
         mEngineWidgetHost->watchOnWidget(keyboardHost.vkbWidget);
         mEngineWidgetHost->watchOnWidget(keyboardHost.symbolView);
         keyboardHost.sharedHandleArea->watchOnWidget(mEngineWidgetHost->inlineWidget());
@@ -232,6 +238,12 @@ public:
     {
         delete mEngineWidgetHost;
         mEngineWidgetHost = 0;
+
+        // Don't forget to destroy CJK logic state machine here.
+        if (stateMachine != NULL) {
+            delete stateMachine;
+            stateMachine = NULL;
+        }
     }
 
     static QStringList supportedLanguages()
@@ -251,13 +263,15 @@ public:
                 Qt::UniqueConnection);
         mEngineWidgetHost->finalizeOrientationChange();
 
-        connect(stateMachine,   SIGNAL(toggleKeyStateChanged(bool)),
-                &mKeyboardHost, SLOT(handleToggleKeyStateChanged(bool)),
-                Qt::UniqueConnection);
+        if (stateMachine != NULL) {
+            connect(stateMachine,   SIGNAL(toggleKeyStateChanged(bool)),
+                    &mKeyboardHost, SLOT(handleToggleKeyStateChanged(bool)),
+                    Qt::UniqueConnection);
 
-        connect(stateMachine,   SIGNAL(composeStateChanged(bool)),
-                &mKeyboardHost, SLOT(handleComposeKeyStateChanged(bool)),
-                Qt::UniqueConnection);
+            connect(stateMachine,   SIGNAL(composeStateChanged(bool)),
+                    &mKeyboardHost, SLOT(handleComposeKeyStateChanged(bool)),
+                    Qt::UniqueConnection);
+        }
     }
 
     virtual void deactivate()
@@ -265,8 +279,9 @@ public:
         disconnect(mEngineWidgetHost, 0,
                    &mKeyboardHost,    0);
 
-        disconnect(stateMachine,  0,
-                  &mKeyboardHost, 0);
+        if (stateMachine != NULL)
+            disconnect(stateMachine,  0,
+                       &mKeyboardHost, 0);
     }
 
     virtual AbstractEngineWidgetHost *engineWidgetHost()
@@ -331,32 +346,44 @@ public:
 
     virtual void resetPreeditWithoutCommit()
     {
-        stateMachine->resetWithoutCommitStringToApp();
+        if (stateMachine != NULL)
+            stateMachine->resetWithoutCommitStringToApp();
     }
 
     virtual void resetPreeditWithCommit()
     {
-        stateMachine->resetWithCommitStringToApp();
+        if (stateMachine != NULL)
+            stateMachine->resetWithCommitStringToApp();
     }
 
     virtual void preparePluginSwitching()
     {
-        stateMachine->resetWithCommitStringToApp();
+        if (stateMachine != NULL)
+            stateMachine->resetWithCommitStringToApp();
     }
 
     virtual bool handleKeyPress(const KeyEvent &event)
     {
-        return stateMachine->handleKeyPress(event);
+        if (stateMachine != NULL)
+            return stateMachine->handleKeyPress(event);
+        else
+            return false;
     }
 
     virtual bool handleKeyRelease(const KeyEvent &event)
     {
-        return stateMachine->handleKeyRelease(event);
+        if (stateMachine != NULL)
+            return stateMachine->handleKeyRelease(event);
+        else
+            return false;
     }
 
     virtual bool handleKeyClick(const KeyEvent &event)
     {
-        return stateMachine->handleKeyClick(event);
+        if (stateMachine != NULL)
+            return stateMachine->handleKeyClick(event);
+        else
+            return false;
     }
     //! \reimp_end
 
