@@ -89,9 +89,11 @@
       </row>
 
       <row>
-        <key style="special">
+        <key style="special" width="large">
           <binding action="shift"/>
         </key>
+
+        <spacer/>
 
         <key>
           <binding label="z"/>
@@ -122,22 +124,24 @@
           <binding shift="true" label="M"/>
         </key>
 
-        <key style="special">
+        <spacer/>
+
+        <key style="special" width="large">
           <binding action="backspace"/>
         </key>
       </row>
 
       <row>
-        <key style="special" width="large">
+        <key style="special" width="x-large">
           <binding action="sym" label="?123"/>
         </key>
 
         <key id="emailUrlKey"><binding label=","/></key>
         <key><binding label="."/></key>
-        <key width="xx-large"><binding action="space"/></key>
+        <key width="stretched"><binding action="space"/></key>
         <key><binding label="&#x0027;"/></key>
 
-        <key style="special" width="x-large" id="actionKey">
+        <key style="special" width="xx-large" id="actionKey">
           <binding action="return"/>
         </key>
       </row>
