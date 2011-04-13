@@ -373,52 +373,50 @@ void CJKLogicStateMachine::sendPreedit(const QString &matchedPart, const QString
             recognizedLength = showingPreedit.length();
             unRecognizedLength = 0;
         }
-    } else if (curLanguage == ZhuyinLang) {
-        showingPreedit.append(unmatchedPart);
-        recognizedLength = showingPreedit.length();
-        unRecognizedLength = 0;
-    } else if (curLanguage == PinyinLang && !syllableDivideIsEnabled) {
-        showingPreedit.append(unmatchedPart);
+    } else if ((curLanguage == PinyinLang) || (curLanguage == ZhuyinLang)) {
+        if (!syllableDivideIsEnabled) {
+            showingPreedit.append(unmatchedPart);
 
-        QStringList matchedList = inputMethodEngine.matchedSyllables();
-        for (int i = 0; i < matchedList.count(); ++i) {
-            QString temp = matchedList.at(i);
-            recognizedLength += temp.length();
-        }
-        unRecognizedLength = showingPreedit.length() - recognizedLength;
-    } else if (curLanguage == PinyinLang && syllableDivideIsEnabled) {
-        //The different between recognizedInputStringLength and recognizedLength is that:
-        //recognizedInputStringLength records the recognized length of the pure input preedit.
-        //recognizedLength records the recognized length of the showing preedit.
-        int recognizedInputStringLength = 0;
-        QStringList matchedList = inputMethodEngine.matchedSyllables();
-
-        for (int i = 0; i < matchedList.count(); ++i) {
-            QString temp = matchedList.at(i);
-            recognizedInputStringLength += temp.length();
-
-            if (temp != "\'") {
-                showingPreedit += temp;
-                recognizedLength += temp.length();
-
-                if (i + 1 < matchedList.count() && (matchedList.at(i + 1) != "\'")) {
-                    showingPreedit += "\'";
-                    recognizedLength += 1;
-                }
-            } else {
-                showingPreedit += temp;
+            QStringList matchedList = inputMethodEngine.matchedSyllables();
+            for (int i = 0; i < matchedList.count(); ++i) {
+                QString temp = matchedList.at(i);
                 recognizedLength += temp.length();
             }
-        }
+            unRecognizedLength = showingPreedit.length() - recognizedLength;
+        } else {
+            //The different between recognizedInputStringLength and recognizedLength is that:
+            //recognizedInputStringLength records the recognized length of the pure input preedit.
+            //recognizedLength records the recognized length of the showing preedit.
+            int recognizedInputStringLength = 0;
+            QStringList matchedList = inputMethodEngine.matchedSyllables();
 
-        //Find the obsolete string and append to the showing preedit.
-        int obsoleteLength = unmatchedPart.length() - recognizedInputStringLength;
-        if (obsoleteLength != 0) {
-            QString obsoleteString = unmatchedPart.right(obsoleteLength);
-            showingPreedit.append(obsoleteString);
-        }
+            for (int i = 0; i < matchedList.count(); ++i) {
+                QString temp = matchedList.at(i);
+                recognizedInputStringLength += temp.length();
 
-        unRecognizedLength = obsoleteLength;
+                if (temp != "\'") {
+                    showingPreedit += temp;
+                    recognizedLength += temp.length();
+
+                    if (i + 1 < matchedList.count() && (matchedList.at(i + 1) != "\'")) {
+                        showingPreedit += "\'";
+                        recognizedLength += 1;
+                    }
+                } else {
+                    showingPreedit += temp;
+                    recognizedLength += temp.length();
+                }
+            }
+
+            //Find the obsolete string and append to the showing preedit.
+            int obsoleteLength = unmatchedPart.length() - recognizedInputStringLength;
+            if (obsoleteLength != 0) {
+                QString obsoleteString = unmatchedPart.right(obsoleteLength);
+                showingPreedit.append(obsoleteString);
+            }
+
+            unRecognizedLength = obsoleteLength;
+        }
     } else {
         qDebug() <<"Warning: Current Chinese engine language can't be recognized in state machine.";
         return ;
