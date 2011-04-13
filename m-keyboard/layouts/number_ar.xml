@@ -2,7 +2,7 @@
 <!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
 <keyboard version="1.0" title="Number" language="number" catalog="number">
   <layout type="number" orientation="landscape">
-    <section id="main" movable="false" horizontal_alignment="center" vertical_alignment="center">
+    <section id="main" movable="false">
       <row>
         <key>
           <binding label="&#x0661;"/>
@@ -55,7 +55,7 @@
   </layout>
 
   <layout type="number" orientation="portrait">
-    <section id="main" movable="false" horizontal_alignment="center" vertical_alignment="center">
+    <section id="main" movable="false">
       <row>
         <key>
           <binding label="&#x0661;"/>
