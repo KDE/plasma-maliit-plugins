@@ -78,7 +78,8 @@ SymbolView::SymbolView(const LayoutsManager &layoutsManager, const MVirtualKeybo
       mainLayout(new QGraphicsLinearLayout(Qt::Vertical, this)),
       activeState(MInputMethod::OnScreen),
       hideOnQuickPick(false),
-      hideOnSpaceKey(false)
+      hideOnSpaceKey(false),
+      overrides()
 {
     setObjectName("SymbolView");
     RegionTracker::instance().addRegion(*this);
@@ -165,6 +166,7 @@ void SymbolView::reloadContent()
         setShiftState(shiftState); // Sets level for sym pages.
     }
     layout()->invalidate();
+    pageSwitcher->setKeyOverrides(overrides);
 }
 
 void SymbolView::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
@@ -599,4 +601,5 @@ void SymbolView::resetCurrentKeyArea(bool resetCapsLock)
 void SymbolView::setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides)
 {
     pageSwitcher->setKeyOverrides(overrides);
+    this->overrides = overrides;
 }

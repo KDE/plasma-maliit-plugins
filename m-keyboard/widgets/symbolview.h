@@ -299,6 +299,9 @@ private:
     bool hideOnQuickPick;
     bool hideOnSpaceKey;
 
+    //! Contains current keyboard overrides
+    QMap<QString, QSharedPointer<MKeyOverride> > overrides;
+
 #ifdef UNIT_TEST
     friend class Ut_SymbolView;
 #endif
