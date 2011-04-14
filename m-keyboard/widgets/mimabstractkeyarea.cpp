@@ -142,7 +142,6 @@ MImAbstractKeyAreaPrivate::MImAbstractKeyAreaPrivate(const LayoutData::SharedLay
     : q_ptr(owner),
       currentLevel(0),
       wasGestureTriggered(false),
-      enableMultiTouch(MGConfItem(MultitouchSettings).value().toBool()),
       feedbackSliding(MImReactionMap::Sliding),
       section(newSection),
       allowedHorizontalFlick(true)
@@ -442,6 +441,18 @@ MImAbstractKeyAreaPrivate::createTouchPoint(int id,
     return tp;
 }
 
+bool
+MImAbstractKeyAreaPrivate::multiTouchEnabled()
+{
+    static bool gConfRead = false;
+    static bool touchEventsAccepted = false;
+    if (!gConfRead) {
+        touchEventsAccepted = MGConfItem(MultitouchSettings).value().toBool();
+        gConfRead = true;
+    }
+    return touchEventsAccepted;
+}
+
 MImAbstractKeyAreaPrivate::GravitationalLookupResult
 MImAbstractKeyAreaPrivate::gravitationalKeyAt(const QPoint &pos,
                                               const QPoint &lastPos) const
@@ -602,7 +613,7 @@ MImAbstractKeyArea::MImAbstractKeyArea(MImAbstractKeyAreaPrivate *privateData,
     d->mPopup = (usePopup ? PopupFactory::instance()->createPopup(this) : 0);
 
     // By default multi-touch is disabled
-    if (d->enableMultiTouch) {
+    if (d->multiTouchEnabled()) {
         setAcceptTouchEvents(true);
     }
 
@@ -748,7 +759,7 @@ void MImAbstractKeyArea::mousePressEvent(QGraphicsSceneMouseEvent *ev)
 {
     Q_D(MImAbstractKeyArea);
 
-    if (d->enableMultiTouch) {
+    if (d->multiTouchEnabled()) {
         return;
     }
 
@@ -763,7 +774,7 @@ void MImAbstractKeyArea::mouseMoveEvent(QGraphicsSceneMouseEvent *ev)
 {
     Q_D(MImAbstractKeyArea);
 
-    if (d->enableMultiTouch) {
+    if (d->multiTouchEnabled()) {
         return;
     }
 
@@ -783,7 +794,7 @@ void MImAbstractKeyArea::mouseReleaseEvent(QGraphicsSceneMouseEvent *ev)
         ungrabMouse();
     }
 
-    if (d->enableMultiTouch) {
+    if (d->multiTouchEnabled()) {
         return;
     }
 
@@ -837,7 +848,7 @@ void MImAbstractKeyArea::ungrabMouseEvent(QEvent *)
         d->mPopup->cancel();
     }
 
-    if (d->enableMultiTouch && MImAbstractKey::lastActiveKey()) {
+    if (d->multiTouchEnabled() && MImAbstractKey::lastActiveKey()) {
         MImAbstractKey::lastActiveKey()->resetTouchPointCount();
     }
 

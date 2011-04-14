@@ -63,6 +63,10 @@ protected:
 
 private:
     Q_DISABLE_COPY(MImOverlay)
+
+    // Caching the GConf setting in order to avoid expensive GConf
+    // reads during creation of this overlay widget.
+    static bool acceptTouchEventsSetting();
 };
 
 #endif

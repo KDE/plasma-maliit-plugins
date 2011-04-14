@@ -85,6 +85,9 @@ public:
                                                     const QPointF &pos,
                                                     const QPointF &lastPos);
 
+    //! \brief Caching GConf value for multitouch setting.
+    static bool multiTouchEnabled();
+
     //! \brief Helper struct to store results of \a gravitationalKeyAt
     struct GravitationalLookupResult
     {
@@ -139,7 +142,6 @@ public:
     QList<QStringList> punctuationsLabels; //!< list of punctuation labels
     QList<QStringList> accentLabels; //!< list of accent labels
     bool wasGestureTriggered; //!< whether a gesture was already triggered for any active touch point
-    bool enableMultiTouch; //!< whether this key area operates in multitouch mode
     MFeedback feedbackSliding; //!< Sliding feedback
     const LayoutData::SharedLayoutSection section; //!< layout section shown by this key area
     static M::InputMethodMode InputMethodMode; //!< used input method mode (same for all key areas)

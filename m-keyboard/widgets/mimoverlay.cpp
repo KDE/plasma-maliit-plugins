@@ -57,7 +57,7 @@ MImOverlay::MImOverlay()
     setZValue(FLT_MAX);
 
     // By default multi-touch is disabled
-    setAcceptTouchEvents(MGConfItem(MultitouchSetting).value().toBool());
+    setAcceptTouchEvents(acceptTouchEventsSetting());
 
     if (MPlainWindow::instance()) {
         setGeometry(QRectF(QPointF(0, 0), MPlainWindow::instance()->sceneManager()->visibleSceneSize()));
@@ -91,4 +91,15 @@ void MImOverlay::handleOrientationChanged()
     if (MPlainWindow::instance()) {
         setGeometry(QRectF(QPointF(0, 0), MPlainWindow::instance()->sceneManager()->visibleSceneSize()));
     }
+}
+
+bool MImOverlay::acceptTouchEventsSetting()
+{
+    static bool gConfRead = false;
+    static bool touchEventsAccepted = false;
+    if (!gConfRead) {
+        touchEventsAccepted = MGConfItem(MultitouchSetting).value().toBool();
+        gConfRead = true;
+    }
+    return touchEventsAccepted;
 }
