@@ -73,16 +73,13 @@ MImOverlay::~MImOverlay()
 
 bool MImOverlay::sceneEvent(QEvent *e)
 {
-    MWidget::sceneEvent(e);
+    MSceneWindow::sceneEvent(e);
 
-    // eat all the touch and mouse press/release  events to avoid these events
+    // eat all touch and mouse events to avoid these events
     // go to the background virtual keyboard.
     e->setAccepted(e->isAccepted()
                    || e->type() == QEvent::TouchBegin
-                   || e->type() == QEvent::TouchUpdate
-                   || e->type() == QEvent::TouchEnd
-                   || e->type() == QEvent::GraphicsSceneMousePress
-                   || e->type() == QEvent::GraphicsSceneMouseRelease);
+                   || e->type() == QEvent::GraphicsSceneMousePress);
     return e->isAccepted();
 }
 
