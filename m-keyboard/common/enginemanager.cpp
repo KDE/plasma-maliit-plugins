@@ -490,7 +490,7 @@ void EngineManager::updateLanguage(const QString &lang)
         && currentEngineHandler->engineWidgetHost()) {
         currentEngineHandler->engineWidgetHost()->hideEngineWidget();
     }
-         
+
     if (currentEngineHandler) {
         if (currentEngineHandler->engineWidgetHost())
             currentEngineHandler->engineWidgetHost()->reset();
@@ -560,11 +560,9 @@ AbstractEngine *EngineManager::findOrCreateEngine(const QString &language,
 
         foreach (const QString &lang, EngineCJK::supportedLanguages())
             engineMap.insert(lang, matchedEngine);
-
     } else {
         // use default engine
         matchedEngine = engineMap.value(DefaultInputLanguage).data();
-
     }
 
     return matchedEngine;

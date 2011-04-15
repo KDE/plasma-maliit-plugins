@@ -138,7 +138,7 @@ void WordRibbonDialog::setCandidates(QStringList candidates, QString titleStr)
 
     dataModel->setCandidates(candidates, globalCanBarWidth);
 
-    if(this->candidatesList != candidates){
+    if (this->candidatesList != candidates) {
         this->candidatesList = candidates;
         this->listWidget->scrollTo(dataModel->index(0));
     }

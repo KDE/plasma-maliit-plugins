@@ -31,14 +31,17 @@
 
 
 #include "wordribbon.h"
+#include "wordribbonstyle.h"
 #include "wordribbonitem.h"
 #include "wordribbonhost.h"
 #include "mimreactionmap.h"
+#include "mplainwindow.h"
 #include <QtGui>
 #include <QtCore>
 
 #include <mreactionmap.h>
 #include <MButton>
+#include <MSceneManager>
 
 namespace {
     static const int CacheSize = 10;
@@ -46,13 +49,17 @@ namespace {
 
 WordRibbon::WordRibbon(ItemStyleMode mode, MWidget* parent):
         MStylableWidget(parent),
-        numCreatedItems(0),
+        numVisibleItems(0),
         moreButton(0),
         highlightItemIndex(-1),
         mode(mode)
 {
     setObjectName("WordRibbonObj");
     initializeSubWidgets();
+
+    if (mode == DialogStyleMode) {
+        style().setModeDialogmode();
+    }
 }
 
 WordRibbon::~WordRibbon()
@@ -71,19 +78,17 @@ WordRibbon::~WordRibbon()
 void WordRibbon::repopulate(const QStringList &candidateList)
 {
     if (candidateList.count() == 0) {
-        removeAllItems();
+        clearAllItems();
         return ;
     }
 
-    clearAllFlags();
-
-    updatePrepareShowingWidget();
+    clearAllItems();
     int totalSpace = contentRect.width();
     int spaceBetweenItems = style()->spaceBetween();
 
     WordRibbonItem* item = 0;
     QString itemText;
-    QPoint itemPoint = QPoint(contentRect.x(), contentRect.y());
+    QPoint itemPoint = contentRect.topLeft().toPoint();
     int index = 0;
     QList<int> itemRightHandSpaceList;
 
@@ -92,26 +97,24 @@ void WordRibbon::repopulate(const QStringList &candidateList)
 
         if (index > itemList.count() - 1) {
             int count = 0;
-            int i = 0;
 
             // Create approximate number of new candidate items.
             while (true) {
                 item = new WordRibbonItem(mode, this);
                 //Set the object name for TDriver test.
-                item->setObjectName(QString("WordRibbonItemObj%1").arg(i + itemList.count()));
+                item->setObjectName(QString("WordRibbonItemObj-%1").arg(itemList.count()));
                 item->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
                 connect(item, SIGNAL(mousePressed()), this, SLOT(handleItemPressed()));
                 connect(item, SIGNAL(mouseReleased()), this, SLOT(handleItemClicked()));
                 item->setVisible(false);
                 itemList.append(item);
                 count += item->sizeHint(Qt::PreferredSize).width();
-                i ++;
                 if (count > totalSpace) {
                     break;
                 }
             }
-
         }
+
         item = itemList.at(index);
         item->setText(itemText);
         item->setPositionIndex(index);
@@ -120,14 +123,11 @@ void WordRibbon::repopulate(const QStringList &candidateList)
 
         if (totalSpace >= 0) {
             item->setVisible(true);
-            if (index == 0) {
-                itemPoint.setX(contentRect.x());
-            }
             item->setPos(itemPoint);
             itemRightHandSpaceList.append(totalSpace);
             itemPoint.setX(itemPoint.x() + itemWidth + spaceBetweenItems);
             totalSpace -= spaceBetweenItems;
-            ++numCreatedItems;
+            ++numVisibleItems;
         } else {
             break;
         }
@@ -135,15 +135,15 @@ void WordRibbon::repopulate(const QStringList &candidateList)
     }
 
     if (mode == RibbonStyleMode) {
-        if (numCreatedItems < candidateList.count()) {
+        if (numVisibleItems < candidateList.count()) {
             int dialogButtonWidth = moreButton->size().width();
-            int lastItemIndex = numCreatedItems - 1;
+            int lastItemIndex = numVisibleItems - 1;
 
             while(lastItemIndex >=0 && itemRightHandSpaceList.at(lastItemIndex) < dialogButtonWidth) {
                 WordRibbonItem *item = itemList.at(lastItemIndex);
                 item->setVisible(false);
                 --lastItemIndex;
-                --numCreatedItems;
+                --numVisibleItems;
             }
 
             moreButton->setX(contentRect.x() + contentRect.width() 
@@ -156,23 +156,23 @@ void WordRibbon::repopulate(const QStringList &candidateList)
     }
 
     itemRightHandSpaceList.clear();
+    setHighlightedItem(0);
 
     update();
-
-    emit sizeChanged(size().toSize());
 }
 
-void WordRibbon::removeAllItems()
+void WordRibbon::clearAllItems()
 {
-    for (int i = CacheSize;i < itemList.count(); i ++) {
+    for (int i = 0; i < itemList.count(); ++i) {
         WordRibbonItem *item = itemList.at(i);
-        delete item;
-        itemList.removeAt(i);
+        item->setVisible(false);
     }
 
-    clearAllFlags();
+    if (mode == RibbonStyleMode)
+        moreButton->setVisible(false);
 
-    updatePrepareShowingWidget();
+    numVisibleItems = 0;
+    clearHighlightedItem();
 }
 
 bool WordRibbon::isEmpty() const
@@ -206,6 +206,7 @@ void WordRibbon::clearHighlightedItem()
 
 void WordRibbon::handleNavigationKey(WordRibbonHost::NaviKey key)
 {
+    qDebug() <<Q_FUNC_INFO;
     if (mode == DialogStyleMode)
         return;
 
@@ -241,7 +242,8 @@ void WordRibbon::handleItemPressed()
 
     if (sendItem != 0) {
         QString emitObjectName = sendItem->objectName();
-        highlightItemIndex = sendItem->positionIndex();
+        QStringList splitName = emitObjectName.split("-");
+        highlightItemIndex = splitName.last().toInt();
     }
 }
 
@@ -265,7 +267,7 @@ void WordRibbon::initializeSubWidgets()
     for (int i = 0; i < CacheSize; ++i) {
         WordRibbonItem *item = new WordRibbonItem(mode, this);
         //Set the object name for TDriver test.
-        item->setObjectName(QString("WordRibbonItemObj%1").arg(i));
+        item->setObjectName(QString("WordRibbonItemObj-%1").arg(i));
         item->setPositionIndex(i);
         connect(item, SIGNAL(mousePressed()), this, SLOT(handleItemPressed()));
         connect(item, SIGNAL(mouseReleased()), this, SLOT(handleItemClicked()));
@@ -280,28 +282,16 @@ void WordRibbon::initializeSubWidgets()
         moreButton->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
         connect(moreButton, SIGNAL(clicked()), this, SIGNAL(moreCandidatesRequested()));
     }
+}
 
-}    
-
-void WordRibbon::updatePrepareShowingWidget()
+void WordRibbon::resizeEvent(QGraphicsSceneResizeEvent * event)
 {
-    finalizeOrientationChange(); // FIXME
-    setHighlightedItem(0);
+    reCalculateContentRect(event->newSize());
 
+    // Need to reset style mode when mode is DialogStyleMode.
     if (mode == DialogStyleMode) {
         style().setModeDialogmode();
     }
-}
-
-void WordRibbon::clearAllFlags()
-{
-    for (int i = 0; i < itemList.count(); ++i) {
-        WordRibbonItem *item = itemList.at(i);
-        item->setVisible(false); 
-    }
-
-    numCreatedItems = 0;
-    clearHighlightedItem();
 }
 
 void WordRibbon::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view)
@@ -316,7 +306,7 @@ void WordRibbon::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view
     reactionMap->setDrawingValue(MImReactionMap::Press, MImReactionMap::Release);
 
     QRectF rect;
-    for (int i = 0; i < numCreatedItems; ++i) {
+    for (int i = 0; i < numVisibleItems; ++i) {
         rect = itemList.at(i)->boundingRect();
         WordRibbonItem *item = itemList.at(i);
         rect.moveTopLeft(item->pos());
@@ -330,10 +320,22 @@ void WordRibbon::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view
     }
 }
 
-void WordRibbon::finalizeOrientationChange() {
-    resize(style()->minimumSize());
-    QSizeF contentSize = size() - QSizeF(style()->marginLeft() + style()->marginRight(),
-                                         style()->marginTop() + style()->marginBottom());
+void WordRibbon::finalizeOrientationChange()
+{
+    // Force the style orientation mode to be right.
+    const M::Orientation orientation = MPlainWindow::instance()->sceneManager()->orientation();
+    if (orientation == M::Landscape)
+        style().setModeLandscape();
+    else
+        style().setModePortrait();
+
+    reCalculateContentRect(style()->minimumSize());
+}
+
+void WordRibbon::reCalculateContentRect(const QSizeF &size)
+{
+    QSizeF contentSize = size - QSizeF(style()->marginLeft() + style()->marginRight(),
+                                       style()->marginTop() + style()->marginBottom());
 
     contentSize -= QSizeF(style()->paddingLeft() + style()->paddingRight(),
                           style()->paddingTop() + style()->paddingBottom());
@@ -341,9 +343,7 @@ void WordRibbon::finalizeOrientationChange() {
     contentRect = QRectF(QPointF(style()->marginLeft() + style()->paddingLeft(),
                                  style()->marginTop() + style()->paddingTop()),
                          contentSize);
-
 }
-
 
 int WordRibbon::capacity(int width, QStringList candidateList, int startPos)
 {

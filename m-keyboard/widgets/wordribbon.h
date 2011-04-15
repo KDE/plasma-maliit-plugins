@@ -62,9 +62,10 @@ public:
 
     WordRibbon(ItemStyleMode mode, MWidget* parent = 0);
     virtual ~WordRibbon();
-    //! reimp
+
+    virtual void resizeEvent(QGraphicsSceneResizeEvent * event);
+
     virtual void paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view);
-    //! reimp_end
 
     /*!
      * \brief Repopulates the item list
@@ -72,9 +73,9 @@ public:
     void repopulate(const QStringList &newWordRibbon);
 
     /*!
-     * \brief Removes all the items from the list
+     * \brief Clear and invisible all items
      */
-    void removeAllItems();
+    void clearAllItems();
 
     /*!
      * \brief Returns whether the list is empty or not
@@ -120,24 +121,18 @@ signals:
      */
     void moreCandidatesRequested();
 
-    /*!
-     * \brief Emitted when the size of the ribbon is changed
-     */
-    void sizeChanged(QSize);
-
 private slots:
     void handleItemPressed();
     void handleItemClicked();
 
 private:
     void initializeSubWidgets();
-    void updatePrepareShowingWidget();
-    void clearAllFlags();
+    void reCalculateContentRect(const QSizeF &size);
 
 private:
-    // Sub widget and their own position
+    // Sub widgets
     QList<WordRibbonItem* > itemList;
-    int numCreatedItems;
+    int numVisibleItems;
 
     QRectF contentRect;
 

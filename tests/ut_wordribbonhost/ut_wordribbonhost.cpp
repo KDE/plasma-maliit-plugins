@@ -168,6 +168,7 @@ void Ut_WordRibbonHost::testHandleNavigationKey()
 
     QStringList candidates;
     candidates << "中华" << "芬兰" << "啊";
+    subject->finalizeOrientationChange();
     subject->setCandidates(candidates);
     subject->handleNavigationKey(AbstractEngineWidgetHost::NaviKeyOk);
     QCOMPARE(spyClick.count(), 1);

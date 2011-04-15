@@ -74,7 +74,6 @@ public:
     virtual void highlight();
 
     /*!
-
      * \brief Clears the highlight
      */
     virtual void clearHighlight();

@@ -133,6 +133,7 @@ void WordRibbonHost::prepareToOrientationChange()
 
 void WordRibbonHost::finalizeOrientationChange()
 {
+    qDebug() <<Q_FUNC_INFO;
     QStringList tmpList;
     for (int i = 0; i < InitialCandidateCount && i < candidatesCache.count(); ++i) {
         tmpList << this->candidatesCache.at(i);
@@ -172,8 +173,9 @@ void WordRibbonHost::hideEngineWidget()
 
 void WordRibbonHost::clearCandidate()
 {
+    qDebug() <<Q_FUNC_INFO;
     candidatesCache.clear();
-    wordRibbon->removeAllItems();
+    wordRibbon->clearAllItems();
     ribbonDialog->accept();
 }
 
