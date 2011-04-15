@@ -1,2 +1,8 @@
 usr/share/meego-keyboard-tests/
 usr/lib/meego-keyboard-tests/
+usr/share/meegotouch/virtual-keyboard/layouts/test-importer.xml
+usr/share/meegotouch/virtual-keyboard/layouts/test-normalkey.xml
+usr/share/meegotouch/virtual-keyboard/layouts/test-layout.xml
+usr/share/meegotouch/virtual-keyboard/layouts/test-deadkey.xml
+usr/share/meegotouch/virtual-keyboard/layouts/test-import1.xml
+usr/share/meegotouch/virtual-keyboard/layouts/test-import2.xml

@@ -8,34 +8,40 @@ Standards-Version: 3.7.2
 Package: meego-keyboard
 Architecture: any
 Depends:  ${misc:Depends}, ${shlibs:Depends}, meego-im-uiserver
-Description: MeegoTouch Input Method Keyboard 
+Description: MeeGo Input Method Keyboard 
  Meego Keyboard 
 
 Package: meego-keyboard-dbg
 Section: devel
 Architecture: any
 Depends:  meego-keyboard (= ${binary:Version}) 
-Description: MeegoTouch Input Method Keyboard debug files 
- MeegoTouch Keyboard debug files.
+Description: MeeGo Input Method Keyboard debug files 
+ MeeGo Keyboard debug files.
 
 Package: meego-keyboard-dev
 Section: devel
 Architecture: all
 Depends:  meego-keyboard (= ${binary:Version}), libqt4-dev (>= 4.6), libmeegotouch-dev, libmeegoimframework-dev (>= 0.20)
-Description: MeegoTouch Input Method Keyboard header files 
- MeegoTouch Keyboard header files.
+Description: MeeGo Input Method Keyboard header files 
+ MeeGo Keyboard header files.
+
+Package: meego-keyboard-zh-layouts
+Architecture: any
+Depends:  ${misc:Depends}, ${shlibs:Depends}, meego-keyboard (>= ${binary:Version})
+Description: MeeGo Input Method Keyboard 
+ Meego Keyboard 
 
 Package: meego-keyboard-tests
 Architecture: any
 Depends:  testrunner-lite, libmeegoimengine-dummydriver, meego-keyboard (= ${binary:Version}), ${misc:Depends}, ${shlibs:Depends}
 XB-Maemo-CI-Packages: meego-keyboard 
 XB-Maemo-CI-Stage: fast, staging
-Description: MeegoTouch Input Method Keyboard unit test suite 
- MeegoTouch Keyboard unit test suite.
+Description: MeeGo Input Method Keyboard unit test suite 
+ MeeGo Keyboard unit test suite.
 
 Package: meego-keyboard-fixtures
 Architecture: any
 Depends:  meego-keyboard (= ${binary:Version}), ${misc:Depends}, ${shlibs:Depends}
 XB-Maemo-CI-Packages: meego-keyboard
 XB-Maemo-CI-Stage: fast, staging
-Description: MeegoTouch Input Method Keyboard Fixtures used by matti
+Description: MeeGo Input Method Keyboard Fixtures used by matti
