@@ -880,11 +880,6 @@ void MImAbstractKeyArea::mouseReleaseEvent(QGraphicsSceneMouseEvent *ev)
 {
     Q_D(MImAbstractKeyArea);
     d->primaryTouchPointReleased(d->mouseEventToTouchPoint(ev));
-
-    // We may have an explicit grab which needs to be explicitly ungrabbed.
-    if (scene()->mouseGrabberItem() == this) {
-        ungrabMouse();
-    }
 }
 
 QVariant MImAbstractKeyArea::itemChange(GraphicsItemChange change, const QVariant &value)
