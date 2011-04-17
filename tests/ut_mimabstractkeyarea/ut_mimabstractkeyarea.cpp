@@ -1488,9 +1488,9 @@ QSize Ut_MImAbstractKeyArea::defaultLayoutSize()
 MImAbstractKey *Ut_MImAbstractKeyArea::keyAt(unsigned int row, unsigned int column) const
 {
     // If this fails there is something wrong with the test.
-    Q_ASSERT(subject
-             && (row < static_cast<unsigned int>(subject->rowCount()))
-             && (column < static_cast<unsigned int>(subject->sectionModel()->columnsAt(row))));
+    Q_ASSERT(subject);
+    Q_ASSERT(row < static_cast<unsigned int>(subject->rowCount()));
+    Q_ASSERT(column < static_cast<unsigned int>(subject->sectionModel()->columnsAt(row)));
 
     MImAbstractKey *key = 0;
 
