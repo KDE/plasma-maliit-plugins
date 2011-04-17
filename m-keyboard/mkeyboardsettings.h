@@ -62,17 +62,8 @@ public:
     virtual QGraphicsWidget *createContentWidget(QGraphicsWidget *parent = 0);
     //! \reimp_end
 
-    //! Reads all available keyboards
-    void readAvailableKeyboards();
-
-    //! Returns a map with layouts and titles for all available keyboards.
-    QMap<QString, QString> availableKeyboards() const;
-
     //! Returns a map with layouts and titles for all selected keyboards.
-    QMap<QString, QString> selectedKeyboards() const;
-
-    //! Sets selected keyboards with \a keyboardLayouts.
-    void setSelectedKeyboards(const QStringList &keyboardLayouts);
+    QStringList selectedKeyboards() const;
 
     //! Returns the boolean value of error correction option.
     bool errorCorrection() const;
@@ -100,7 +91,7 @@ public:
 
 Q_SIGNALS:
     //! Emitted when selected keyboards are changed.
-    void selectedKeyboardsChanged();
+    void enabledKeyboardsChanged();
 
     //! Emitted when error correction option is changed.
     void errorCorrectionChanged();
@@ -127,7 +118,7 @@ private:
     QList<KeyboardInfo> availableKeyboardInfos;
     MGConfItem keyboardErrorCorrectionConf;
     MGConfItem keyboardCorrectionSpaceConf;
-    MGConfItem selectedKeyboardsConf;
+    MGConfItem enabledKeyboardsConf;
 
     MGConfItem chineseKeyboardFuzzyConf;
     MGConfItem chineseKeyboardWordPredictionConf;

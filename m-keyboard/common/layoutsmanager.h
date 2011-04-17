@@ -118,7 +118,7 @@ public:
     /*!
      *\brief Returns the layout file names and their titles for selected keyboards.
      */
-    QMap<QString, QString> selectedLayouts() const;
+    QMap<QString, QString> availableLayouts() const;
 
 signals:
     //! Signals that layouts have been reset and keyboard data can
@@ -197,6 +197,9 @@ private:
     MGConfItem numberFormatSetting;
 
     HardwareKeyboardLayout currentHwkbLayoutType;
+
+    //! All available layouts as (filename, title)
+    mutable QMap<QString, QString> mAvailableLayouts;
 
     //! Singleton instance
     static LayoutsManager *Instance;

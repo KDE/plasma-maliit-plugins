@@ -48,9 +48,6 @@ private slots:
     void cleanup();
 
     void testNoCrash();
-    void testAvailableKeyboards();
-    void testSelectedKeyboards();
-    void testSetSelectedKeyboards();
     void testErrorCorrection();
     void testCorrectionSpace();
 };

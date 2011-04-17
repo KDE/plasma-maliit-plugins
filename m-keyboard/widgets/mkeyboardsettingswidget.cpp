@@ -66,55 +66,9 @@ namespace
     const QString ChineseInputLanguage("zh_cn_*.xml");
 };
 
-class MKeyboardCellCreator: public MAbstractCellCreator<MContentItem>
-{
-public:
-    /*! \reimp */
-    virtual MWidget *createCell (const QModelIndex &index,
-                                 MWidgetRecycler &recycler) const;
-    virtual void updateCell(const QModelIndex &index, MWidget *cell) const;
-    /*! \reimp_end */
-private:
-    void updateContentItemMode(const QModelIndex &index, MContentItem *contentItem) const;
-};
-
-MWidget *MKeyboardCellCreator::createCell (const QModelIndex &index,
-                                           MWidgetRecycler &recycler) const
-{
-    MContentItem *cell = qobject_cast<MContentItem *>(recycler.take("MContentItem"));
-    if (!cell) {
-        cell = new MContentItem(MContentItem::SingleTextLabel);
-    }
-    updateCell(index, cell);
-    return cell;
-}
-
-void MKeyboardCellCreator::updateCell(const QModelIndex &index, MWidget *cell) const
-{
-    MContentItem *contentItem = qobject_cast<MContentItem *>(cell);
-
-    QString layoutTile = index.data(Qt::DisplayRole).toString();
-    contentItem->setTitle(layoutTile);
-}
-
-void MKeyboardCellCreator::updateContentItemMode(const QModelIndex &index,
-                                                 MContentItem *contentItem) const
-{
-    const int row = index.row();
-    bool thereIsNextRow = index.sibling(row + 1, 0).isValid();
-    if (row == 0) {
-        contentItem->setItemMode(MContentItem::SingleColumnTop);
-    } else if (thereIsNextRow) {
-        contentItem->setItemMode(MContentItem::SingleColumnCenter);
-    } else {
-        contentItem->setItemMode(MContentItem::SingleColumnBottom);
-    }
-}
-
 MKeyboardSettingsWidget::MKeyboardSettingsWidget(MKeyboardSettings *settings, QGraphicsItem *parent)
     : MWidget(parent),
-      settingsObject(settings),
-      keyboardList(0)
+      settingsObject(settings)
 {
     MLayout *layout = new MLayout(this);
 
@@ -143,22 +97,10 @@ MKeyboardSettingsWidget::MKeyboardSettingsWidget(MKeyboardSettings *settings, QG
 
 MKeyboardSettingsWidget::~MKeyboardSettingsWidget()
 {
-    if (!keyboardDialog.isNull())
-        delete keyboardDialog.data();
 }
 
 void MKeyboardSettingsWidget::buildUi()
 {
-    // We are using MBasicListItem instead of MContentItem because
-    // the latter is not supported by theme
-    selectedKeyboardsItem = new MBasicListItem(MBasicListItem::TitleWithSubtitle, this);
-    selectedKeyboardsItem->setObjectName(ObjectNameSelectedKeyboardsItem);
-    connect(selectedKeyboardsItem, SIGNAL(clicked()), this, SLOT(showKeyboardList()));
-    selectedKeyboardsItem->setStyleName("CommonBasicListItemInverted");
-
-    // Put to first row, first column on the grid
-    addItem(selectedKeyboardsItem, 0, 0);
-
     // Error correction settings
     errorCorrectionSwitch = new MButton(this);
     errorCorrectionSwitch->setObjectName(ObjectNameErrorCorrectionButton);
@@ -266,7 +208,7 @@ void MKeyboardSettingsWidget::retranslateUi()
 void MKeyboardSettingsWidget::updateTitle()
 {
     if (!errorCorrectionContentItem || !correctionSpaceContentItem
-        || !settingsObject || !selectedKeyboardsItem)
+        || !settingsObject)
         return;
 
     errorCorrectionContentItem->setTitle(qtTrId("qtn_txts_error_correction"));
@@ -277,35 +219,10 @@ void MKeyboardSettingsWidget::updateTitle()
     chineseSettingHeader->setText(qtTrId("qtn_ckb_chinese_keyboards"));
     fuzzyItem->setTitle(qtTrId("qtn_ckb_fuzzy_pinyin"));
     wordPredictionItem->setTitle(qtTrId("qtn_ckb_next_prediction"));
-
-    QStringList keyboards = settingsObject->selectedKeyboards().values();
-    //% "Installed keyboards (%1)"
-    QString title = qtTrId("qtn_txts_installed_keyboards")
-                            .arg(keyboards.count());
-    selectedKeyboardsItem->setTitle(title);
-    QString brief;
-    if (keyboards.count() > 0) {
-        foreach(const QString &keyboard, keyboards) {
-            if (!brief.isEmpty())
-                brief += QString(", ");
-            brief += keyboard;
-        }
-    } else {
-        //% "No keyboards installed"
-        brief = qtTrId("qtn_txts_no_keyboards");
-    }
-    selectedKeyboardsItem->setSubtitle(brief);
-
-    if (!keyboardDialog.isNull()) {
-        keyboardDialog.data()->setTitle(title);
-    }
 }
 
 void MKeyboardSettingsWidget::connectSlots()
 {
-    connect(this, SIGNAL(visibleChanged()),
-            this, SLOT(handleVisibilityChanged()));
-
     if (!settingsObject || !errorCorrectionSwitch || !correctionSpaceSwitch)
         return;
 
@@ -317,8 +234,8 @@ void MKeyboardSettingsWidget::connectSlots()
             this, SLOT(setCorrectionSpaceState(bool)));
     connect(settingsObject, SIGNAL(correctionSpaceChanged()),
             this, SLOT(syncCorrectionSpaceState()));
-    connect(settingsObject, SIGNAL(selectedKeyboardsChanged()),
-            this, SLOT(updateKeyboardSelectionModel()));
+    connect(settingsObject, SIGNAL(enabledKeyboardsChanged()),
+            this, SLOT(updateChineseSettingPanel()));
 
     connect(fuzzySwitch, SIGNAL(toggled(bool)),
             this, SLOT(setFuzzyState(bool)));
@@ -333,7 +250,7 @@ void MKeyboardSettingsWidget::connectSlots()
 
 void MKeyboardSettingsWidget::updateChineseSettingPanel()
 {
-    QStringList allKeyboardLayoutFiles = settingsObject->selectedKeyboards().keys();
+    QStringList allKeyboardLayoutFiles = settingsObject->selectedKeyboards();
 
     QRegExp chineseLayoutExp(ChineseInputLanguage, Qt::CaseInsensitive);
     chineseLayoutExp.setPatternSyntax(QRegExp::Wildcard);
@@ -351,116 +268,6 @@ void MKeyboardSettingsWidget::updateChineseSettingPanel()
             chineseContainer->setVisible(false);
         }
     }
-}
-
-void MKeyboardSettingsWidget::showKeyboardList()
-{
-    if (!settingsObject)
-        return;
-
-    QStringList keyboards = settingsObject->selectedKeyboards().values();
-
-    if (keyboardDialog.isNull()) {
-        keyboardDialog = new MDialog();
-
-        keyboardList = new MList(keyboardDialog.data());
-        MKeyboardCellCreator *cellCreator = new MKeyboardCellCreator;
-        keyboardList->setCellCreator(cellCreator);
-        keyboardList->setSelectionMode(MList::MultiSelection);
-        createKeyboardModel();
-        keyboardDialog.data()->setCentralWidget(keyboardList);
-        keyboardDialog.data()->addButton(M::DoneButton);
-
-        connect(keyboardList, SIGNAL(itemClicked(const QModelIndex &)),
-                this, SLOT(updateSelectedKeyboards(const QModelIndex &)));
-        connect(keyboardDialog.data(), SIGNAL(accepted()),
-                this, SLOT(selectKeyboards()));
-    }
-    updateKeyboardSelectionModel();
-
-    // We need to update the title every time because probably the dialog was
-    // cancelled/closed without tapping on the Done button.
-    QString keyboardTitle = qtTrId("qtn_txts_installed_keyboards")
-                                   .arg(keyboards.count());
-    keyboardDialog.data()->setTitle(keyboardTitle);
-    keyboardDialog.data()->appear(MSceneWindow::DestroyWhenDone);
-}
-
-void MKeyboardSettingsWidget::createKeyboardModel()
-{
-    if (!settingsObject || !keyboardList)
-        return;
-
-    QMap<QString, QString> availableKeyboards = settingsObject->availableKeyboards();
-
-    QStandardItemModel *model = new QStandardItemModel(availableKeyboards.size(), 1, keyboardList);
-    QMap<QString, QString>::const_iterator i = availableKeyboards.constBegin();
-    for (int j = 0; i != availableKeyboards.constEnd(); ++i, ++j) {
-        QStandardItem *item = new QStandardItem(i.value());
-        item->setData(i.value(), Qt::DisplayRole);
-        item->setData(i.key(), MKeyboardLayoutRole);
-        model->setItem(j, item);
-    }
-    model->sort(0);
-
-    keyboardList->setItemModel(model);
-    keyboardList->setSelectionModel(new QItemSelectionModel(model, keyboardList));
-
-    updateKeyboardSelectionModel();
-}
-
-void MKeyboardSettingsWidget::updateKeyboardSelectionModel()
-{
-    if (!settingsObject || !keyboardList)
-        return;
-
-    // First clear current selection
-    keyboardList->selectionModel()->clearSelection();
-
-    // Select all selected keyboards
-    QStandardItemModel *model = static_cast<QStandardItemModel*> (keyboardList->itemModel());
-    foreach (const QString &keyboard, settingsObject->selectedKeyboards().values()) {
-        QList<QStandardItem *> items = model->findItems(keyboard);
-        foreach (const QStandardItem *item, items) {
-            keyboardList->selectionModel()->select(item->index(), QItemSelectionModel::Select);
-        }
-    }
-}
-
-void MKeyboardSettingsWidget::updateSelectedKeyboards(const QModelIndex &index)
-{
-    if (!index.isValid() || keyboardDialog.isNull() || !keyboardList
-        || !keyboardList->selectionModel())
-        return;
-
-    QModelIndexList indexList = keyboardList->selectionModel()->selectedIndexes();
-
-    // Update the dialog title
-    QString title = qtTrId("qtn_txts_installed_keyboards")
-                            .arg(indexList.size());
-
-    keyboardDialog.data()->setTitle(title);
-}
-
-void MKeyboardSettingsWidget::selectKeyboards()
-{
-    if (!settingsObject || keyboardDialog.isNull())
-        return;
-
-    QStringList updatedKeyboardLayouts;
-    QModelIndexList indexList = keyboardList->selectionModel()->selectedIndexes();
-
-    foreach (const QModelIndex &i, indexList) {
-        updatedKeyboardLayouts << i.data(MKeyboardLayoutRole).toString();
-    }
-    settingsObject->setSelectedKeyboards(updatedKeyboardLayouts);
-    // "No keyboard is selected" notification
-    if (indexList.isEmpty()) {
-        notifyNoKeyboards();
-    }
-    //update titles
-    retranslateUi();
-    updateChineseSettingPanel();
 }
 
 void MKeyboardSettingsWidget::setErrorCorrectionState(bool enabled)
@@ -519,30 +326,6 @@ void MKeyboardSettingsWidget::syncCorrectionSpaceState()
     if (correctionSpaceSwitch
         && correctionSpaceSwitch->isChecked() != correctionSpaceState) {
         correctionSpaceSwitch->setChecked(correctionSpaceState);
-    }
-}
-
-void MKeyboardSettingsWidget::notifyNoKeyboards()
-{
-    MBanner *noKeyboardsNotification = new MBanner;
-
-    // It is needed to set the proper style name to have properly wrapped, multiple lines
-    // with too much content. The MBanner documentation also emphasises to specify the
-    // style name for the banners explicitly in the code.
-    noKeyboardsNotification->setStyleName("InformationBanner");
-    //% "Note: you have uninstalled all virtual keyboards"
-    noKeyboardsNotification->setTitle(qtTrId("qtn_txts_no_keyboards_notification"));
-    noKeyboardsNotification->appear(MSceneWindow::DestroyWhenDone);
-}
-
-void MKeyboardSettingsWidget::handleVisibilityChanged()
-{
-    // This is a workaround to hide settings dialog when keyboard is hidden.
-    // And it could be removed when NB#177922 is fixed.
-    if (!isVisible() && !keyboardDialog.isNull()) {
-        // reject settings dialog if the visibility of settings widget
-        // is changed from shown to hidden.
-        keyboardDialog.data()->reject();
     }
 }
 

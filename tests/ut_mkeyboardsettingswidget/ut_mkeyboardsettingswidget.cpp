@@ -78,7 +78,6 @@ void Ut_MKeyboardSettingsWidget::cleanupTestCase()
 void Ut_MKeyboardSettingsWidget::init()
 {
     subject = new MKeyboardSettingsWidget(settingsObject);
-    QVERIFY(subject->selectedKeyboardsItem);
     QVERIFY(subject->errorCorrectionSwitch);
     QVERIFY(subject->correctionSpaceSwitch);
 }
@@ -87,57 +86,6 @@ void Ut_MKeyboardSettingsWidget::cleanup()
 {
     delete subject;
     subject = 0;
-}
-
-void Ut_MKeyboardSettingsWidget::testShowKeyboardList()
-{
-    subject->selectedKeyboardsItem->click();
-    QVERIFY(subject->keyboardDialog);
-    QVERIFY(subject->keyboardDialog.data()->isVisible());
-    QVERIFY(subject->keyboardList);
-
-    QVERIFY(subject->keyboardList->itemModel());
-    // available keyboard list should display all available keyboards.
-    QMap<QString, QString> availableKeyboards = settingsObject->availableKeyboards();
-    QCOMPARE(subject->keyboardList->itemModel()->rowCount(), availableKeyboards.count());
-    QStringList availableKeyboardTitles = availableKeyboards.values();
-    for (int column = 0; column < subject->keyboardList->itemModel()->columnCount(); column++) {
-        for (int row = 0; row < subject->keyboardList->itemModel()->rowCount(); row++) {
-            const QModelIndex mIndex = subject->keyboardList->itemModel()->index(row, column);
-            QVERIFY(availableKeyboardTitles.contains(subject->keyboardList->itemModel()->data(mIndex).toString()));
-        }
-    }
-
-    QVERIFY(subject->keyboardList->selectionModel());
-    // selected keyboards should be the same as keyboards.
-    QMap<QString, QString> selectedKeyboards = settingsObject->selectedKeyboards();
-    QCOMPARE(subject->keyboardList->selectionModel()->selectedRows().count(),
-             selectedKeyboards.count() );
-    QStringList selectedKeyboardTitles = selectedKeyboards.values();
-    foreach (const QModelIndex &mIndex, subject->keyboardList->selectionModel()->selectedRows()) {
-        QVERIFY(selectedKeyboardTitles.contains(subject->keyboardList->itemModel()->data(mIndex).toString()));
-    }
-
-    bool firstItemIsSelected = subject->keyboardList->selectionModel()->selectedRows().contains(subject->keyboardList->itemModel()->index(0,0));
-    subject->keyboardList->selectItem(subject->keyboardList->itemModel()->index(0,0));
-    QMap<QString, QString> newSelectedKeyboards = settingsObject->selectedKeyboards();
-    // The changes are not committed if the dialog is rejected
-    QCOMPARE(newSelectedKeyboards.count(), selectedKeyboards.count());
-    subject->keyboardDialog.data()->reject();
-    newSelectedKeyboards = settingsObject->selectedKeyboards();
-    QCOMPARE(newSelectedKeyboards.count(), selectedKeyboards.count());
-    // Open the dialog again
-    subject->selectedKeyboardsItem->click();
-    // Select the item again
-    subject->keyboardList->selectItem(subject->keyboardList->itemModel()->index(0,0));
-    // Accept the dialog content
-    subject->keyboardDialog.data()->accept();
-    newSelectedKeyboards = settingsObject->selectedKeyboards();
-    if (firstItemIsSelected) {
-        QCOMPARE(newSelectedKeyboards.count(), selectedKeyboards.count() - 1);
-    } else {
-        QCOMPARE(newSelectedKeyboards.count(), selectedKeyboards.count() + 1);
-    }
 }
 
 void Ut_MKeyboardSettingsWidget::testKeyboardCorrectionSettings()
@@ -206,18 +154,6 @@ void Ut_MKeyboardSettingsWidget::testKeyboardCorrectionSettings()
     QCOMPARE(spyCorrectionSpace.count(), 1);
     QCOMPARE(spyCorrectionSpace.takeFirst().at(0).toBool(), false);
     QCOMPARE(correctionSpaceSetting.value().toBool(), false);
-}
-
-void Ut_MKeyboardSettingsWidget::testHandleVisibilityChanged()
-{
-    subject->setVisible(true);
-    subject->showKeyboardList();
-    QVERIFY(subject->keyboardDialog);
-    QCOMPARE(subject->keyboardDialog.data()->isVisible(), true);
-
-    QSignalSpy spy(subject->keyboardDialog.data(), SIGNAL(rejected()));
-    subject->setVisible(false);
-    QCOMPARE(spy.count(), 1);
 }
 
 QTEST_APPLESS_MAIN(Ut_MKeyboardSettingsWidget);

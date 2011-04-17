@@ -62,30 +62,23 @@ protected:
     //! reimp_end
 
 private slots:
-    void showKeyboardList();
     void updateTitle();
-    void updateKeyboardSelectionModel();
-    void updateSelectedKeyboards(const QModelIndex &);
-    void selectKeyboards();
     void setErrorCorrectionState(bool enabled);
     void syncErrorCorrectionState();
     void setCorrectionSpaceState(bool enabled);
     void syncCorrectionSpaceState();
-    void handleVisibilityChanged();
 
     void setFuzzyState(bool enabled);
     void syncFuzzyState();
     void setWordPredictionState(bool enabled);
     void syncWordPredictionState();
+    void updateChineseSettingPanel();
 
 private:
     void buildUi();
     void addItem(QGraphicsLayoutItem *item, int row, int column);
     void removeItem(QGraphicsLayoutItem *item);
-    void createKeyboardModel();
-    void notifyNoKeyboards();
     void connectSlots();
-    void updateChineseSettingPanel();
 
     MKeyboardSettings *settingsObject;
     MGridLayoutPolicy *landscapePolicy;
@@ -94,9 +87,6 @@ private:
     MBasicListItem *errorCorrectionContentItem;
     MButton *correctionSpaceSwitch;
     MBasicListItem *correctionSpaceContentItem;
-    QWeakPointer<MDialog> keyboardDialog;
-    MList *keyboardList;
-    MBasicListItem *selectedKeyboardsItem;
 
     QGraphicsWidget *chineseContainer;
     MLabel *chineseSettingHeader;

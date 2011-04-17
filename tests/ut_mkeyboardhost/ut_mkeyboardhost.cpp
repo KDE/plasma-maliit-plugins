@@ -828,6 +828,7 @@ QRegion Ut_MKeyboardHost::region(RegionType type, int index)
         return inputMethodHost->screenRegions.at(index);
         break;
 
+    default:
     case InputMethodArea:
         return inputMethodHost->inputMethodAreas.at(index);
         break;

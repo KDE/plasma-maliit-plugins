@@ -42,7 +42,7 @@
 
 namespace
 {
-    const QString LayoutListSettingName("/meegotouch/inputmethods/virtualkeyboard/layouts");
+    const QString LayoutListSettingName("/meegotouch/inputmethods/onscreen/enabled");
     //const QString NumberFormatSettingName("/meegotouch/inputmethods/numberformat");
     const QString NumberFormatSettingName("/meegotouch/i18n/lc_numeric");
     const QString LatinNumberFormat("latin");
@@ -110,7 +110,9 @@ void Ut_LayoutsManager::init()
     LoadableKeyboards << "fi.xml" << "ru.xml" << "ar.xml";
     MGConfItem layoutListSetting(LayoutListSettingName);
     QStringList layoutList;
-    layoutList << "fi.xml" << "ru.xml" << "ar.xml";
+    layoutList << "libmeego-keyboard.so" << "fi.xml"
+               << "libmeego-keyboard.so" << "ru.xml"
+               << "libmeego-keyboard.so" << "ar.xml";
     layoutListSetting.set(QVariant(layoutList));
 }
 
@@ -127,11 +129,14 @@ void Ut_LayoutsManager::testLayouts()
     LoadableKeyboards << "fi.xml" << "ru.xml" << "ar.xml" << "en_gb.xml";
     MGConfItem layoutListSetting(LayoutListSettingName);
     QStringList layoutList;
-    layoutList << "fi.xml" << "ru.xml" << "ar.xml" << "en_gb.xml";
+    layoutList << "libmeego-keyboard.so" << "fi.xml"
+               << "libmeego-keyboard.so" << "ru.xml"
+               << "libmeego-keyboard.so" << "ar.xml"
+               << "libmeego-keyboard.so" << "en_gb.xml";
     layoutListSetting.set(QVariant(layoutList));
     std::auto_ptr<LayoutsManager> subject(new LayoutsManager);
     foreach (const QString &layout, layoutList) {
-        QVERIFY(subject->layoutFileList().contains(layout));
+        QVERIFY(layout == "libmeego-keyboard.so" || subject->layoutFileList().contains(layout));
     }
 }
 

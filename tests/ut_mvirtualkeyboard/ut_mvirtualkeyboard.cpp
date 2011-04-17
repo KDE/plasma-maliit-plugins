@@ -64,7 +64,7 @@
 
 namespace
 {
-    const QString InputMethodSettingName("/meegotouch/inputmethods/virtualkeyboard/layouts");
+    const QString InputMethodSettingName("/meegotouch/inputmethods/onscreen/enabled");
     const QString DefaultLayoutSettingName("/meegotouch/inputmethods/virtualkeyboard/layouts/default");
     const int SceneRotationTime = 1400; // in ms
     const QString TargetSettingsName("/meegotouch/target/name");
@@ -115,7 +115,9 @@ void Ut_MVirtualKeyboard::initTestCase()
     MGConfItem item1(InputMethodSetting);
 
     QStringList layoutlist;
-    layoutlist << "en_gb.xml" << "fi.xml" << "ar.xml";
+    layoutlist << "libmeego-keyboard.so" << "en_gb.xml"
+               << "libmeego-keyboard.so" << "fi.xml"
+               << "libmeego-keyboard.so" << "ar.xml";
     item1.set(QVariant(layoutlist));
 
     QString DefaultLayoutSetting(DefaultLayoutSettingName);
@@ -364,6 +366,7 @@ void Ut_MVirtualKeyboard::testShiftLevelChange()
 void Ut_MVirtualKeyboard::flickRightHandlerTest()
 {
     QStringList layoutList = MGConfItem(InputMethodSettingName).value().toStringList();
+    layoutList.removeAll("libmeego-keyboard.so");
     layoutList.sort();
     qDebug() << layoutList;
 
@@ -420,6 +423,7 @@ void Ut_MVirtualKeyboard::flickRightHandlerTest()
 void Ut_MVirtualKeyboard::flickLeftHandlerTest()
 {
     QStringList layoutList = MGConfItem(InputMethodSettingName).value().toStringList();
+    layoutList.removeAll("libmeego-keyboard.so");
     layoutList.sort();
 
     // Vkb has just been created and is running an animation.

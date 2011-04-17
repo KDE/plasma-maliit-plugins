@@ -2,6 +2,7 @@ meego-keyboard (0.6.3~1) unstable; urgency=low
 
   * [UNRELEASED]
   * Fixes: NB#251341 - Switching to plugin does not happen if there is one language set in MeegoKeyboard.
+  * Fixes: NB#250363 - A selection for available Input methods needed in Text input Setting
 
  -- Viacheslav Sobolev <ext-viacheslav.sobolev@nokia.com>  Thu, 12 May 2011 10:23:02 +0300
 

@@ -48,9 +48,7 @@ private slots:
     void init();
     void cleanup();
 
-    void testShowKeyboardList();
     void testKeyboardCorrectionSettings();
-    void testHandleVisibilityChanged();
 
 private:
     MApplication *app;

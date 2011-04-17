@@ -48,11 +48,13 @@ HEADERS += \
     mkeyboardsettings.h \
     mkeyboardplugin.h \
     mkeyboardhost_p.h \
+    mimlayouttitleparser.h
 
 SOURCES += \
     mkeyboardhost.cpp \
     mkeyboardsettings.cpp \
     mkeyboardplugin.cpp \
+    mimlayouttitleparser.cpp
 
 target.path += /usr/lib/meego-im-plugins
 
@@ -71,4 +73,3 @@ check-xml.commands = $$system(true)
 QMAKE_EXTRA_TARGETS += check
 check.depends = lib$${TARGET}.so
 check.commands = $$system(true)
-

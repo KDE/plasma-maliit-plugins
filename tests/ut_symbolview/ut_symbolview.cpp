@@ -62,7 +62,7 @@
 
 namespace
 {
-    const QString InputMethodSettingName("/meegotouch/inputmethods/virtualkeyboard/layouts");
+    const QString InputMethodSettingName("/meegotouch/inputmethods/onscreen/enabled");
     const QString LocalTestLayout(TESTLAYOUTFILEPATH_LOCAL);
     const QString InstalledTestLayout(TESTLAYOUTFILEPATH_INSTALLED);
 
@@ -106,7 +106,7 @@ void Ut_SymbolView::initTestCase()
     MGConfItem inputMethodSetting(InputMethodSettingName);
 
     QStringList langlist;
-    langlist << testLayoutFile;
+    langlist << "libmeego-keyboard.so" << testLayoutFile;
     inputMethodSetting.set(QVariant(langlist));
 
     LayoutsManager::createInstance();

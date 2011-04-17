@@ -31,7 +31,7 @@
 
 #include "mkeyboardsettings.h"
 #include "mkeyboardsettingswidget.h"
-#include "keyboarddata.h"
+#include "mimlayouttitleparser.h"
 
 #include <QObject>
 #include <QGraphicsWidget>
@@ -42,29 +42,45 @@
 namespace {
     const QString SettingsImErrorCorrection("/meegotouch/inputmethods/virtualkeyboard/correctionenabled");
     const QString SettingsImCorrectionSpace("/meegotouch/inputmethods/virtualkeyboard/correctwithspace");
-    const QString InputMethodLayouts("/meegotouch/inputmethods/virtualkeyboard/layouts");
+    const QString EnabledSubViewsKey("/meegotouch/inputmethods/onscreen/enabled");
     const QString VKBConfigurationPath("/usr/share/meegotouch/virtual-keyboard/layouts/");
     const QString VKBLayoutsFilterRule("*.xml");
     const QString VKBLayoutsIgnoreRules("number|test|customer|default"); // use as regexp to ignore number, test, customer and default layouts
     const QString SettingsFuzzy("/meegotouch/inputmethods/virtualkeyboard/fuzzyselected");
     const QString SettingsWordPrediction("/meegotouch/inputmethods/virtualkeyboard/wordpredictionenabled");
-    const QString VKBUserLayoutPath(".config/meego-keyboard/layouts/"); // relative to home dir
+    const QLatin1String KeyboardId("libmeego-keyboard.so");
+
+    QStringList fromEnabledLayoutsSettings(const QStringList& list)
+    {
+        QStringList layouts;
+
+        QString first;
+        unsigned int i = 0;
+        foreach (const QString &value, list) {
+            if (i % 2 == 0)
+                first = value;
+            else if (first == KeyboardId)
+                layouts.push_back(value);
+            i++;
+        }
+
+        return layouts;
+    }
 };
 
 MKeyboardSettings::MKeyboardSettings()
     : keyboardErrorCorrectionConf(SettingsImErrorCorrection),
       keyboardCorrectionSpaceConf(SettingsImCorrectionSpace),
-      selectedKeyboardsConf(InputMethodLayouts),
+      enabledKeyboardsConf(EnabledSubViewsKey),
       chineseKeyboardFuzzyConf(SettingsFuzzy),
       chineseKeyboardWordPredictionConf(SettingsWordPrediction)
 {
-    readAvailableKeyboards();
     connect(&keyboardErrorCorrectionConf, SIGNAL(valueChanged()),
             this, SIGNAL(errorCorrectionChanged()));
     connect(&keyboardCorrectionSpaceConf, SIGNAL(valueChanged()),
             this, SIGNAL(correctionSpaceChanged()));
-    connect(&selectedKeyboardsConf, SIGNAL(valueChanged()),
-            this, SIGNAL(selectedKeyboardsChanged()));
+    connect(&enabledKeyboardsConf, SIGNAL(valueChanged()),
+            this, SIGNAL(enabledKeyboardsChanged()));
 
     connect(&chineseKeyboardFuzzyConf, SIGNAL(valueChanged()),
             this, SIGNAL(fuzzyChanged()));
@@ -94,68 +110,9 @@ QString MKeyboardSettings::icon()
     return "";
 }
 
-void MKeyboardSettings::readAvailableKeyboards()
+QStringList MKeyboardSettings::selectedKeyboards() const
 {
-    availableKeyboardInfos.clear();
-    QList<QDir> dirs;
-    dirs << QDir(VKBConfigurationPath, VKBLayoutsFilterRule);
-    dirs << QDir(QDir::homePath() + QDir::separator() + VKBUserLayoutPath, VKBLayoutsFilterRule);
-
-    QRegExp ignoreExp(VKBLayoutsIgnoreRules, Qt::CaseInsensitive);
-
-    foreach (const QDir &dir, dirs) {
-        // available keyboard layouts are determined by xml layouts that can be found
-        foreach (const QFileInfo &keyboardFileInfo, dir.entryInfoList()) {
-            if (keyboardFileInfo.fileName().contains(ignoreExp))
-                continue;
-            KeyboardData keyboard;
-            if (keyboard.loadNokiaKeyboard(keyboardFileInfo.filePath())) {
-                if (keyboard.layoutFile().isEmpty()
-                    || keyboard.language().isEmpty()
-                    || keyboard.title().isEmpty())
-                    continue;
-                bool duplicated = false;
-                foreach (const KeyboardInfo &info, availableKeyboardInfos) {
-                    if (info.layoutFile == keyboard.layoutFile()
-                        || info.title == keyboard.title()) {
-                        // strip duplicated layout which has the same layout/title
-                        duplicated = true;
-                        break;
-                    }
-                }
-                if (!duplicated) {
-                    KeyboardInfo keyboardInfo;
-                    // strip the path, only save the layout file name.
-                    keyboardInfo.layoutFile = QFileInfo(keyboard.layoutFile()).fileName();
-                    keyboardInfo.title = keyboard.title();
-                    availableKeyboardInfos.append(keyboardInfo);
-                }
-            }
-        }
-    }
-}
-
-QMap<QString, QString> MKeyboardSettings::availableKeyboards() const
-{
-    QMap<QString, QString> keyboards;
-    foreach (const KeyboardInfo &keyboardInfo, availableKeyboardInfos) {
-        keyboards.insert(keyboardInfo.layoutFile, keyboardInfo.title);
-    }
-    return keyboards;
-}
-
-QMap<QString, QString> MKeyboardSettings::selectedKeyboards() const
-{
-    QMap<QString, QString> keyboards;
-    foreach (const QString layoutFile, selectedKeyboardsConf.value().toStringList()) {
-        keyboards.insert(layoutFile, keyboardTitle(layoutFile));
-    }
-    return keyboards;
-}
-
-void MKeyboardSettings::setSelectedKeyboards(const QStringList &keyboardLayouts)
-{
-    selectedKeyboardsConf.set(keyboardLayouts);
+    return fromEnabledLayoutsSettings(enabledKeyboardsConf.value().toStringList());
 }
 
 QString MKeyboardSettings::keyboardTitle(const QString &layoutFile) const

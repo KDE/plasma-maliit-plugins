@@ -34,10 +34,13 @@
 #include "layoutsmanager.h"
 #include <algorithm>
 #include <QDebug>
+#include <QDir>
+#include <QFileInfo>
+#include "mimlayouttitleparser.h"
 
 namespace
 {
-    const QString InputMethodLayouts("/meegotouch/inputmethods/virtualkeyboard/layouts");
+    const QString EnabledLayouts("/meegotouch/inputmethods/onscreen/enabled");
     const QString InputMethodDefaultLayout("/meegotouch/inputmethods/virtualkeyboard/layouts/default");
     const QString XkbLayoutSettingName("/meegotouch/inputmethods/hwkeyboard/layout");
     const QString XkbVariantSettingName("/meegotouch/inputmethods/hwkeyboard/variant");
@@ -58,6 +61,27 @@ namespace
     const QString SymbolKeyboardFileCommon("hwsymbols_common.xml");
     const QString SymbolKeyboardFileChinese("hwsymbols_chinese.xml");
     const QString FallbackXkbModel("evdev");
+    const QString VKBConfigurationPath("/usr/share/meegotouch/virtual-keyboard/layouts/");
+    const QString VKBLayoutsFilterRule("*.xml");
+    const QString VKBLayoutsIgnoreRules("number|test|customer|default"); // use as regexp to ignore number, test, customer and default layouts
+    const QLatin1String KeyboardId("libmeego-keyboard.so");
+
+    QStringList fromEnabledLayoutsSettings(const QStringList& list)
+    {
+        QStringList layouts;
+
+        QString first;
+        unsigned int i = 0;
+        foreach (const QString &value, list) {
+            if (i % 2 == 0)
+                first = value;
+            else if (first == KeyboardId)
+                layouts.push_back(value);
+            i++;
+        }
+
+        return layouts;
+    }
 }
 
 LayoutsManager *LayoutsManager::Instance = 0;
@@ -65,10 +89,11 @@ LayoutsManager *LayoutsManager::Instance = 0;
 
 // FIXME: Style of MImAbstractKeyAreas should not be needed in classes that deal with data models.
 LayoutsManager::LayoutsManager()
-    : configLayouts(InputMethodLayouts),
+    : configLayouts(EnabledLayouts),
       xkbModelSetting(XkbModelSettingName),
       numberFormatSetting(NumberFormatSettingName),
-      currentHwkbLayoutType(InvalidHardwareKeyboard)
+      currentHwkbLayoutType(InvalidHardwareKeyboard),
+      mAvailableLayouts()
 {
     // Read settings for the first time and load keyboard layouts.
     syncLayouts();
@@ -336,7 +361,7 @@ void LayoutsManager::syncLayouts()
 
     // Add new ones
     if (!configLayouts.value().isNull()) {
-        newLayouts = configLayouts.value().toStringList();
+        newLayouts = fromEnabledLayoutsSettings(configLayouts.value().toStringList());
 
         foreach(QString layoutFile, newLayouts) {
             // Existing layouts are not reloaded.
@@ -416,11 +441,38 @@ QString LayoutsManager::symbolVariantFileName(HardwareSymbolVariant symVariant)
     return symFileName;
 }
 
-QMap<QString, QString> LayoutsManager::selectedLayouts() const
+QMap<QString, QString> LayoutsManager::availableLayouts() const
 {
-    QMap<QString, QString> layouts;
-    foreach (const QString layout, layoutFileList()) {
-        layouts.insert(layout, keyboardTitle(layout));
+    if (mAvailableLayouts.empty()) {
+        QList<QDir> dirs;
+        dirs << QDir(VKBConfigurationPath, VKBLayoutsFilterRule);
+        QRegExp ignoreExp(VKBLayoutsIgnoreRules, Qt::CaseInsensitive);
+
+        foreach (const QDir &dir, dirs) {
+            // available keyboard layouts are determined by xml layouts that can be found
+            foreach (const QFileInfo &keyboardFileInfo, dir.entryInfoList()) {
+                if (keyboardFileInfo.fileName().contains(ignoreExp))
+                    continue;
+
+                QFile layoutFile(keyboardFileInfo.absoluteFilePath());
+                if (!layoutFile.open(QIODevice::ReadOnly | QIODevice::Text))
+                    continue;
+                MImLayoutTitleParser titleParser(&layoutFile);
+                if (!titleParser.parse()) {
+                    qDebug() << "Error parsing file: " << layoutFile.fileName() << "Error: " << titleParser.errorString();
+                    continue;
+                }
+
+                if (titleParser.keyboardTitle().isEmpty())
+                    continue;
+
+                if (mAvailableLayouts.contains(keyboardFileInfo.fileName())) {
+                    continue;
+                }
+
+                mAvailableLayouts.insert(keyboardFileInfo.fileName(), titleParser.keyboardTitle());
+            }
+        }
     }
-    return layouts;
+    return mAvailableLayouts;
 }

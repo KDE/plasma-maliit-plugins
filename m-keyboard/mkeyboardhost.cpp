@@ -2028,9 +2028,9 @@ MKeyboardHost::subViews(MInputMethod::HandlerState state) const
 {
     QList<MAbstractInputMethod::MInputMethodSubView> sViews;
     if (state == MInputMethod::OnScreen) {
-        QMap<QString, QString> selectedLayouts = LayoutsManager::instance().selectedLayouts();
-        QMap<QString, QString>::const_iterator i = selectedLayouts.constBegin();
-        while (i != selectedLayouts.constEnd()) {
+        QMap<QString, QString> availableLayouts = LayoutsManager::instance().availableLayouts();
+        QMap<QString, QString>::const_iterator i = availableLayouts.constBegin();
+        while (i != availableLayouts.constEnd()) {
             MAbstractInputMethod::MInputMethodSubView subView;
             subView.subViewId = i.key();
             subView.subViewTitle = i.value();
