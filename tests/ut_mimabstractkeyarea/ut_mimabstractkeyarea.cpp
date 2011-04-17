@@ -450,14 +450,14 @@ void Ut_MImAbstractKeyArea::testDeadkeys()
 void Ut_MImAbstractKeyArea::testSelectedDeadkeys()
 {
     keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard("fr.xml"));
+    QVERIFY(keyboard->loadNokiaKeyboard("test-deadkey.xml"));
     subject = createKeyArea(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                                               false, 0);
     MPlainWindow::instance()->scene()->addItem(subject);
 
     // Pick two deadkeys to play around with.
-    MImAbstractKey *deadkey1 = keyAt(2, 8); // row 3, column 7
-    MImAbstractKey *deadkey2 = keyAt(2, 9); // row 3, column 8
+    MImAbstractKey *deadkey1 = keyAt(0, 10); // row 1, column 11
+    MImAbstractKey *deadkey2 = keyAt(1, 10); // row 2, column 11
     MImAbstractKey *regularKey = keyAt(0, 0); // first key, top left
 
     QVERIFY(deadkey1 && deadkey1->isDeadKey());
