@@ -44,11 +44,6 @@
           <binding label="p"/>
           <binding shift="true" label="P"/>
         </key>
-
-        <key>
-          <binding dead="true" label="^"/>
-          <binding shift="true" dead="true" label="^"/>
-        </key>
       </row>
 
       <row>
