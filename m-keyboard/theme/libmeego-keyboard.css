@@ -441,6 +441,14 @@ MToolbarButtonStyle:disabled {
     background-image: "meegotouch-keyboard-toolbar-button-disabled"  15px 15px 15px 15px;
 }
 
+MToolbarButtonStyle:pressed {
+    background-image: "meegotouch-keyboard-toolbar-button-pressed" 15px 15px 15px 15px;
+}
+
+MToolbarButtonStyle:selected {
+    background-image: "meegotouch-keyboard-toolbar-button-selected" 15px 15px 15px 15px;
+}
+
 #MToolbarIconButton {
     margin-left: $MARGIN_SMALL;
     margin-right: $MARGIN_LARGE;
@@ -450,13 +458,22 @@ MToolbarButtonStyle:disabled {
 }
 
 #MToolbarTextButton {
-    /* TODO: change background image*/
-    text-color: $COLOR_INVERTED_FOREGROUND;
-    background-image: "meegotouch-keyboard-toolbar-action-key" 15px 15px 15px 15px;
+    text-color: $COLOR_FOREGROUND;
+    background-image: "meegotouch-keyboard-toolbar-button" 15px 15px 15px 15px;
+}
+
+#MToolbarTextButton:pressed {
+    text-color: $COLOR_FOREGROUND;
+    background-image: "meegotouch-keyboard-toolbar-button-pressed" 15px 15px 15px 15px;
 }
 
 #MToolbarTextButton:disabled {
-    background-image: "meegotouch-keyboard-toolbar-action-key-disabled" 15px 15px 15px 15px;
+    background-image: "meegotouch-keyboard-toolbar-button-disabled" 15px 15px 15px 15px;
+}
+
+#MToolbarTextButton:selected {
+    text-color: $COLOR_INVERTED_FOREGROUND;
+    background-image: "meegotouch-keyboard-toolbar-button-selected" 15px 15px 15px 15px;
 }
 
 #MToolbarTextButton.Landscape {
@@ -473,22 +490,22 @@ MToolbarButtonStyle:disabled {
 
 #MToolbarIconButtonHighlighted {
     text-color: $COLOR_INVERTED_FOREGROUND;
-    background-image: "meegotouch-keyboard-toolbar-button-highlighted"  15px 15px 15px 15px;
+    background-image: "meegotouch-keyboard-toolbar-action-key"  15px 15px 15px 15px;
     minimum-size:   42 $HEIGHT_TOOLBARITEM;
     preferred-size: 42 $HEIGHT_TOOLBARITEM;
     maximum-size:   42 $HEIGHT_TOOLBARITEM;
 }
 
 #MToolbarIconButtonHighlighted:pressed {
-    background-image: "meegotouch-keyboard-toolbar-button-highlighted-pressed"  15px 15px 15px 15px;
+    background-image: "meegotouch-keyboard-toolbar-action-key-pressed"  15px 15px 15px 15px;
 }
 
 #MToolbarIconButtonHighlighted:selected {
-    background-image: "meegotouch-keyboard-toolbar-button-selected"  15px 15px 15px 15px;
+    background-image: "meegotouch-keyboard-toolbar-action-key-selected"  15px 15px 15px 15px;
 }
 
 #MToolbarIconButtonHighlighted:disabled {
-    background-image: "meegotouch-keyboard-toolbar-button-disabled"  15px 15px 15px 15px;
+    background-image: "meegotouch-keyboard-toolbar-action-key-disabled"  15px 15px 15px 15px;
 }
 
 #MToolbarTextButtonHighlighted {
@@ -517,14 +534,6 @@ MToolbarButtonStyle:disabled {
     minimum-size:   120 $HEIGHT_TOOLBARITEM;
     preferred-size: 120 $HEIGHT_TOOLBARITEM;
     maximum-size:   120 $HEIGHT_TOOLBARITEM;
-}
-
-MToolbarButtonStyle:pressed {
-    background-image: "meegotouch-keyboard-toolbar-button-pressed" 15px 15px 15px 15px;
-}
-
-MToolbarButtonStyle:selected {
-    background-image: "meegotouch-keyboard-toolbar-button-selected" 15px 15px 15px 15px;
 }
 
 WidgetBarStyle {

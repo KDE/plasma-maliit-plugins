@@ -11,6 +11,7 @@ meego-keyboard (0.5.39~1) unstable; urgency=low
   * Fixes: NB#237208 - Show word suggestion on top of text field if not enough space below
   * Fixes: NB#244195 - Application with keyboard open in landscape mode can be iconified but immediately comes back
   * Fixes: Avoid expensive GConf settings reading in MImOverlay and MImAbstractKeyArea.
+  * Fixes: NB#242084 - Bold,underline buttons are highlighted even they are deselected.
 
  -- Ning Chi <ext-chi.2.ning@nokia.com>  Wed, 06 Apr 2011 16:35:14 +0300
 
