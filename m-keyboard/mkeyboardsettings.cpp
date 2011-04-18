@@ -48,7 +48,6 @@ namespace {
     const QString VKBLayoutsIgnoreRules("number|test|customer|default"); // use as regexp to ignore number, test, customer and default layouts
     const QString SettingsFuzzy("/meegotouch/inputmethods/virtualkeyboard/fuzzyselected");
     const QString SettingsWordPrediction("/meegotouch/inputmethods/virtualkeyboard/wordpredictionenabled");
-    const QString SettingsScriptPriorityZh("/meegotouch/inputmethods/virtualkeyboard/scriptpriority/zh");
 };
 
 MKeyboardSettings::MKeyboardSettings()
@@ -56,8 +55,7 @@ MKeyboardSettings::MKeyboardSettings()
       keyboardCorrectionSpaceConf(SettingsImCorrectionSpace),
       selectedKeyboardsConf(InputMethodLayouts),
       chineseKeyboardFuzzyConf(SettingsFuzzy),
-      chineseKeyboardWordPredictionConf(SettingsWordPrediction),
-      chineseKeyboardScriptPriorityConf(SettingsScriptPriorityZh)
+      chineseKeyboardWordPredictionConf(SettingsWordPrediction)
 {
     readAvailableKeyboards();
     connect(&keyboardErrorCorrectionConf, SIGNAL(valueChanged()),
@@ -71,8 +69,6 @@ MKeyboardSettings::MKeyboardSettings()
             this, SIGNAL(fuzzyChanged()));
     connect(&chineseKeyboardWordPredictionConf, SIGNAL(valueChanged()),
             this, SIGNAL(wordPredictionChanged()));
-    connect(&chineseKeyboardScriptPriorityConf, SIGNAL(valueChanged()),
-            this, SIGNAL(simpTradPriorityChanged()));
 }
 
 MKeyboardSettings::~MKeyboardSettings()
@@ -223,15 +219,4 @@ void MKeyboardSettings::setWordPrediction(bool enabled)
 {
     if (chineseKeyboardWordPredictionConf.value().toBool() != enabled)
          chineseKeyboardWordPredictionConf.set(enabled);
-}
-
-bool MKeyboardSettings::scriptPriority() const
-{
-    return chineseKeyboardScriptPriorityConf.value().toBool();
-}
-
-void MKeyboardSettings::setScriptPriority(bool value)
-{
-    if (chineseKeyboardScriptPriorityConf.value().toBool() != value)
-         chineseKeyboardScriptPriorityConf.set(value);
 }

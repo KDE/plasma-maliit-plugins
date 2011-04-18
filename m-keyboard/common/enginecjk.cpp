@@ -41,7 +41,6 @@ namespace
     const QString DefaultInputLanguage("zh@pinyin");
     const QString InputMethodFuzzySetting("/meegotouch/inputmethods/virtualkeyboard/fuzzyselected");
     const QString InputMethodWordPredictionSetting("/meegotouch/inputmethods/virtualkeyboard/wordpredictionenabled");
-    const QString InputMethodScriptPrioritySetting("/meegotouch/inputmethods/virtualkeyboard/scriptpriority/zh");
 };
 
 EngineCJK::EngineCJK(MAbstractInputMethodHost &imHost, const QString &engineName)
@@ -49,8 +48,7 @@ EngineCJK::EngineCJK(MAbstractInputMethodHost &imHost, const QString &engineName
       inputMethodHost(imHost),
       mEngine(MImEngineFactory::instance()->createEngineWords(engineName)),
       settingFuzzy(new MGConfItem(InputMethodFuzzySetting)),
-      settingWordPrediction(new MGConfItem(InputMethodWordPredictionSetting)),
-      settingScriptPriority(new MGConfItem(InputMethodScriptPrioritySetting))
+      settingWordPrediction(new MGConfItem(InputMethodWordPredictionSetting))
 {
     if (mEngine) {
         initializeEngine();
@@ -95,9 +93,6 @@ void EngineCJK::initializeEngine()
 
     connect(settingWordPrediction, SIGNAL(valueChanged()),
             this,         SLOT(synchronizeWordPrediction()));
-
-    connect(settingScriptPriority, SIGNAL(valueChanged()),
-            this,                    SLOT(synchronizeScriptPriority()));
 }
 
 void EngineCJK::updateEngineLanguage(const QString &language)
@@ -114,7 +109,6 @@ void EngineCJK::updateEngineLanguage(const QString &language)
         mEngine->setLanguage(variant, MImEngine::LanguagePriorityPrimary);
         synchronizeFuzzy();
         synchronizeWordPrediction();
-        synchronizeScriptPriority();
     }
 }
 
@@ -132,14 +126,4 @@ void EngineCJK::synchronizeWordPrediction()
         mEngine->enablePrediction();
     else
         mEngine->disablePrediction();
-}
-
-void EngineCJK::synchronizeScriptPriority()
-{
-     // The value is string. E.g, if current language is Chinese, the value is either
-     // "Hans" (simplified Chinese words first) or "Hant" (traditional Chinese words first)
-    if (!settingScriptPriority->value().toBool())
-        mEngine->setScript("Hans");
-    else
-        mEngine->setScript("Hant");
 }

@@ -74,8 +74,6 @@ protected slots:
 
     void synchronizeWordPrediction();
 
-    void synchronizeScriptPriority();
-
 private:
     void initializeEngine();
 
@@ -85,7 +83,6 @@ private:
 
     MGConfItem *settingFuzzy;
     MGConfItem *settingWordPrediction;
-    MGConfItem *settingScriptPriority;
 
     friend class Ut_MKeyboarEngineManager;
 };

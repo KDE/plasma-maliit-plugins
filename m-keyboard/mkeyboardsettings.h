@@ -98,12 +98,6 @@ public:
     //! Sets word prediction option of Chinese keyboard.
     void setWordPrediction(bool enabled);
 
-    //! Returns simplify or traditional candidate first option of Chinese keyboard.
-    bool scriptPriority() const;
-
-    //! Sets simplify or traditional candidate first option of Chinese keyboard.
-    void setScriptPriority(bool value);
-
 Q_SIGNALS:
     //! Emitted when selected keyboards are changed.
     void selectedKeyboardsChanged();
@@ -119,9 +113,6 @@ Q_SIGNALS:
 
     //! Emitted when Chinese word prediction is changed.
     void wordPredictionChanged();
-
-    //! Emitted when Chinese simplify or traditional candidate first is changed.
-    void scriptPriorityChanged();
 
 private:
     QString keyboardTitle(const QString &layoutFile) const;
@@ -140,7 +131,6 @@ private:
 
     MGConfItem chineseKeyboardFuzzyConf;
     MGConfItem chineseKeyboardWordPredictionConf;
-    MGConfItem chineseKeyboardScriptPriorityConf;
 };
 
 #endif

@@ -45,6 +45,8 @@ class MList;
 class QModelIndex;
 class MGridLayoutPolicy;
 class MLinearLayoutPolicy;
+class MLabel;
+class MContainer;
 
 class MKeyboardSettingsWidget : public MWidget
 {
@@ -74,15 +76,15 @@ private slots:
     void syncFuzzyState();
     void setWordPredictionState(bool enabled);
     void syncWordPredictionState();
-    void setScriptPriorityState(bool enabled);
-    void syncScriptPriorityState();
 
 private:
     void buildUi();
     void addItem(QGraphicsLayoutItem *item, int row, int column);
+    void removeItem(QGraphicsLayoutItem *item);
     void createKeyboardModel();
     void notifyNoKeyboards();
     void connectSlots();
+    void updateChineseSettingPanel();
 
     MKeyboardSettings *settingsObject;
     MGridLayoutPolicy *landscapePolicy;
@@ -95,12 +97,13 @@ private:
     MList *keyboardList;
     MBasicListItem *selectedKeyboardsItem;
 
+    MContainer *chineseContainer;
+    MLabel *chineseSettingHeader;
     MButton *fuzzySwitch;
     MBasicListItem *fuzzyItem;
     MButton *wordPredictionSwitch;
     MBasicListItem *wordPredictionItem;
-    MButton *scriptPrioritySwitch;
-    MBasicListItem *scriptPriorityItem;
+
     friend class Ut_MKeyboardSettingsWidget;
 };
 

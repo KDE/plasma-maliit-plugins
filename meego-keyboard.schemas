@@ -73,17 +73,5 @@
         <long>Whether next word prediction is enabled</long>
         </locale>
     </schema>
-
-    <schema>
-        <key>/schemas/meegotouch/inputmethods/virtualkeyboard/scriptpriority/zh</key>
-        <applyto>/meegotouch/inputmethods/virtualkeyboard/scriptpriority/zh</applyto>
-        <owner>meegotouch</owner>
-        <type>bool</type>
-        <default>false</default>
-        <locale name="C">
-        <short>Whether simplify Chinese words prior to traditional Chinese words or not in pinyin</short>
-        <long>Whether simplify Chinese words prior to traditional Chinese words or not in pinyin</long>
-        </locale>
-    </schema>
   </schemalist>
 </gconfschemafile>
