@@ -225,6 +225,7 @@ protected:
 
     virtual void grabMouseEvent(QEvent *event);
     virtual void ungrabMouseEvent(QEvent *event);
+    virtual void cancelEvent(MCancelEvent *);
     virtual bool event(QEvent *event);
     //! \reimp_end
 

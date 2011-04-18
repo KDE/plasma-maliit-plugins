@@ -142,7 +142,8 @@ MImAbstractKeyAreaPrivate::MImAbstractKeyAreaPrivate(const LayoutData::SharedLay
       section(newSection),
       primaryPressArrived(false),
       primaryReleaseArrived(false),
-      allowedHorizontalFlick(true)
+      allowedHorizontalFlick(true),
+      ignoreTouchEventsUntilNewBegin(false)
 {
 }
 
@@ -245,7 +246,12 @@ void MImAbstractKeyAreaPrivate::handleTouchEvent(QTouchEvent *event)
 {
     Q_Q(MImAbstractKeyArea);
 
-    if (!q->isVisible()) {
+    if (event->type() == QEvent::TouchBegin) {
+        ignoreTouchEventsUntilNewBegin = false;
+    }
+
+    if (!q->isVisible() ||
+        ignoreTouchEventsUntilNewBegin) {
         return;
     }
 
@@ -933,6 +939,16 @@ void MImAbstractKeyArea::ungrabMouseEvent(QEvent *)
     }
 
     d->longPressTimer.stop();
+}
+
+void MImAbstractKeyArea::cancelEvent(MCancelEvent *)
+{
+    Q_D(MImAbstractKeyArea);
+    reset();
+
+    // Workaround for NB#248227. This is not proper way to handle cancel event
+    // but popup interaction requires it at the moment.
+    d->ignoreTouchEventsUntilNewBegin = true;
 }
 
 bool MImAbstractKeyArea::event(QEvent *ev)
