@@ -331,6 +331,7 @@ void MImAbstractKeyAreaPrivate::touchPointPressed(const QTouchEvent::TouchPoint 
 
     mTimestamp("MImAbstractKeyArea", "start");
     wasGestureTriggered = false;
+    mostRecentTouchPosition = tp.pos();
 
     // Gestures only slow down in speed typing mode:
     if (isInSpeedTypingMode(true)) {
@@ -400,6 +401,8 @@ void MImAbstractKeyAreaPrivate::touchPointMoved(const QTouchEvent::TouchPoint &t
 {
     Q_Q(MImAbstractKeyArea);
 
+    mostRecentTouchPosition = tp.pos();
+
     if (wasGestureTriggered) {
         longPressTimer.stop();
         return;
@@ -464,6 +467,8 @@ void MImAbstractKeyAreaPrivate::touchPointMoved(const QTouchEvent::TouchPoint &t
 void MImAbstractKeyAreaPrivate::touchPointReleased(const QTouchEvent::TouchPoint &tp)
 {
     Q_Q(MImAbstractKeyArea);
+
+    mostRecentTouchPosition = tp.pos();
 
     if (wasGestureTriggered) {
         return;
@@ -796,8 +801,8 @@ void MImAbstractKeyArea::updatePopup(MImAbstractKey *key)
 
     d->mPopup->updatePos(buttonRect.topLeft(), pos, buttonRect.toRect().size());
     d->mPopup->handleKeyPressedOnMainArea(key,
-                                          (finder.deadKey() ? finder.deadKey()->label() : QString()),
-                                          d->isUpperCase());
+                                          KeyContext(d->isUpperCase(),
+                                                     finder.deadKey() ? finder.deadKey()->label() : QString()));
 }
 
 int MImAbstractKeyArea::maxColumns() const
@@ -1108,12 +1113,15 @@ void MImAbstractKeyArea::handleLongKeyPressed()
     const QString accent = (finder.deadKey() ? finder.deadKey()->label()
                                            : QString());
 
+    KeyContext keyContext(d->isUpperCase(), accent,
+                          mapToScene(d->mostRecentTouchPosition));
+
     if (d->mPopup) {
-        d->mPopup->handleLongKeyPressedOnMainArea(lastActiveKey, accent, d->isUpperCase());
+        d->mPopup->handleLongKeyPressedOnMainArea(lastActiveKey,
+                                                  keyContext);
     }
 
-    emit longKeyPressed(lastActiveKey,
-                        KeyContext(d->isUpperCase(), accent));
+    emit longKeyPressed(lastActiveKey, keyContext);
 }
 
 void MImAbstractKeyArea::handleIdleVkb()

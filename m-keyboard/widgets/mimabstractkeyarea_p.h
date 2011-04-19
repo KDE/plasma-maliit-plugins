@@ -187,6 +187,7 @@ public:
     bool primaryReleaseArrived; //!< Has primary release arrived, either from touch or mouse events
     bool allowedHorizontalFlick; //!< Contains true if horizontal gestures should be allowed.
     bool ignoreTouchEventsUntilNewBegin; //!< Workaround for NB#248227.
+    QPointF mostRecentTouchPosition; //!< Save last touched position.
 };
 //! \internal_end
 

@@ -66,15 +66,13 @@ public:
     }
 
     virtual void handleKeyPressedOnMainArea(MImAbstractKey *,
-                                            const QString &,
-                                            bool)
+                                            const KeyContext &)
     {
         visible = true;
     }
 
     virtual void handleLongKeyPressedOnMainArea(MImAbstractKey *,
-                                                const QString &,
-                                                bool)
+                                                const KeyContext &)
     {
         visible = true;
     }

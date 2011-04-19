@@ -32,6 +32,7 @@
 #ifndef POPUPBASE_H
 #define POPUPBASE_H
 
+class KeyContext;
 class MImAbstractKey;
 class MImAbstractKeyArea;
 
@@ -65,19 +66,15 @@ public:
 
     //! \brief Allows PopupBase to act upon key-pressed on the main area
     //! \param keyPos key's position
-    //! \param screenPos key's position on the screen
-    //! \param keySize  key's size
+    //! \param keyContext Context information at the moment key was pressed
     virtual void handleKeyPressedOnMainArea(MImAbstractKey *key,
-                                            const QString &accent,
-                                            bool upperCase) = 0;
+                                            const KeyContext &keyContext) = 0;
 
     //! \brief Allows PopupBase to act upon long key-pressed on the main area
     //! \param keyPos key's position
-    //! \param screenPos key's position on the screen
-    //! \param keySize  key's size
+    //! \param keyContext Context information at the moment key was long-pressed
     virtual void handleLongKeyPressedOnMainArea(MImAbstractKey *key,
-                                                const QString &accent,
-                                                bool upperCase) = 0;
+                                                const KeyContext &keyContext) = 0;
 
     //! Returns whether PopupBase has any visible components
     virtual bool isVisible() const = 0;
