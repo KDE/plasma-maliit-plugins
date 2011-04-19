@@ -1,6 +1,5 @@
-meego-keyboard (0.5.39~1) unstable; urgency=low
+meego-keyboard (0.5.39-1) unstable; urgency=low
 
-  * [UNRELEASED]
   * Fixes: NB#239493 - keyboard excessively loads fonts when starting
   * Fixes: NB#244719 - Backspace key introduces preedit text to end of text
   * Fixes: NB#238257 - VKB; Input Latin letters are gone after switching VKB to Zhuyin and enter.
@@ -13,7 +12,7 @@ meego-keyboard (0.5.39~1) unstable; urgency=low
   * Fixes: Avoid expensive GConf settings reading in MImOverlay and MImAbstractKeyArea.
   * Fixes: NB#242084 - Bold,underline buttons are highlighted even they are deselected.
 
- -- Ning Chi <ext-chi.2.ning@nokia.com>  Wed, 06 Apr 2011 16:35:14 +0300
+ -- Pekka Vuorela <pekka.ta.vuorela@nokia.com>  Tue, 19 Apr 2011 16:42:19 +0300
 
 meego-keyboard (0.5.38-1) unstable; urgency=low
 
