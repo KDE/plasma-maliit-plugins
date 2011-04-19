@@ -34,13 +34,14 @@
 #include "keyevent.h"
 
 KeyEvent::KeyEvent(const QString &text, QKeyEvent::Type type, Qt::Key qtKey, SpecialKey specialKey,
-                   Qt::KeyboardModifiers modifiers, const QPoint &point)
+                   Qt::KeyboardModifiers modifiers,
+                   const QPoint &correctionPos)
     : m_type(type),
       m_qtKey(qtKey),
       m_specialKey(specialKey),
       m_text(text),
       m_modifiers(modifiers),
-      m_pos(point)
+      m_correctionPos(correctionPos)
 {
 }
 
@@ -50,7 +51,7 @@ KeyEvent::KeyEvent(const KeyEvent &other, QKeyEvent::Type type)
       m_specialKey(other.m_specialKey),
       m_text(other.m_text),
       m_modifiers(other.m_modifiers),
-      m_pos(other.m_pos)
+      m_correctionPos(other.m_correctionPos)
 {
 }
 
@@ -93,12 +94,12 @@ bool KeyEvent::operator==(const KeyEvent &other) const
            && (m_text == other.m_text);
 }
 
-void KeyEvent::setPos(const QPoint &point)
+void KeyEvent::setCorrectionPosition(const QPoint &point)
 {
-    m_pos = point;
+    m_correctionPos = point;
 }
 
-QPoint KeyEvent::pos() const
+QPoint KeyEvent::correctionPosition() const
 {
-    return m_pos;
+    return m_correctionPos;
 }

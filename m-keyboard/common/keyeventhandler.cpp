@@ -124,7 +124,7 @@ KeyEvent KeyEventHandler::keyToKeyEvent(const MImAbstractKey &key, QKeyEvent::Ty
     } else {
         event = key.model().toKeyEvent(eventType, accent.at(0), upperCase);
     }
-    event.setPos(point);
+    event.setCorrectionPosition(point);
 
     return event;
 }

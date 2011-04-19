@@ -63,7 +63,7 @@ public:
              Qt::Key qtKey = Qt::Key_unknown,
              SpecialKey specialKey = NotSpecial,
              Qt::KeyboardModifiers modifiers = Qt::NoModifier,
-             const QPoint &point = QPoint());
+             const QPoint &correctionPos = QPoint());
 
     //! Constructor that copies another event, except for type
     KeyEvent(const KeyEvent &other, QKeyEvent::Type type);
@@ -99,17 +99,20 @@ public:
     bool operator==(const KeyEvent &other) const;
 
     /*!
-     * \brief Sets the position of the event to \a point.
-     * \sa pos()
-     */
-    void setPos(const QPoint &point);
-
-    /*!
-     * \brief Returns position of event.
+     * \brief Sets the event's layout position that is delivered to error correction engine.
      *
      * The position is relative to the emitting widget.
+     * \sa correctionPosition
      */
-    QPoint pos() const;
+    void setCorrectionPosition(const QPoint &point);
+
+    /*!
+     * \brief Returns event's layout position given to error correction engine.
+     *
+     * The position is relative to the emitting widget.
+     * \sa setCorrectionPosition
+     */
+    QPoint correctionPosition() const;
 
 protected:
     QKeyEvent::Type m_type;
@@ -117,7 +120,7 @@ protected:
     SpecialKey m_specialKey;
     QString m_text;
     Qt::KeyboardModifiers m_modifiers;
-    QPoint m_pos;
+    QPoint m_correctionPos;
 };
 
 #endif

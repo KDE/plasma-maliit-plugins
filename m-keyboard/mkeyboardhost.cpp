@@ -1509,7 +1509,7 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
             // otherwise send character to engine.
             if (EngineManager::instance().engine()) {
                 if (!symbolView->isActive())
-                    EngineManager::instance().engine()->tapKeyboard(event.pos(),
+                    EngineManager::instance().engine()->tapKeyboard(event.correctionPosition(),
                             vkbWidget->shiftStatus() != ModifierClearState, text.at(0));
                 else
                     EngineManager::instance().engine()->appendCharacter(text.at(0));
