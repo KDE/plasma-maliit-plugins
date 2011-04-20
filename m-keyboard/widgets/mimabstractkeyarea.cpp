@@ -1133,6 +1133,9 @@ void MImAbstractKeyArea::reset(bool resetCapsLock)
 {
     Q_D(MImAbstractKeyArea);
 
+    d->primaryPressArrived = false;
+    d->primaryReleaseArrived = false;
+
     if (scene()->mouseGrabberItem() == this) {
         // Ungrab mouse explicitly since we probably used grabMouse() to get it.
         ungrabMouse();
