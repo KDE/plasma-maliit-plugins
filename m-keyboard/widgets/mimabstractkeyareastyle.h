@@ -177,6 +177,7 @@ public:
 
     M_STYLE_ATTRIBUTE(bool, syncStyleModeWithKeyCount, SyncStyleModeWithKeyCount)
     M_STYLE_ATTRIBUTE(bool, enableOverlayMode, EnableOverlayMode)
+    M_STYLE_ATTRIBUTE(bool, commitPreviousKeyOnPress, CommitPreviousKeyOnPress)
 };
 
 class M_EXPORT MImAbstractKeyAreaStyleContainer : public MWidgetStyleContainer

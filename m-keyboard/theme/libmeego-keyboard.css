@@ -114,6 +114,7 @@ MImAbstractKeyAreaStyle {
 
     touchpoint-vertical-offset: 0mm;
     enable-overlay-mode: false;
+    commit-previous-key-on-press: true;
 
     /*** Key Geometry ***/
     required-key-icon-margins: 5 5;

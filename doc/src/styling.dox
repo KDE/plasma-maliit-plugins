@@ -79,6 +79,7 @@ idle state.</li>
 gesture.</li>
  <li>touchpoint-vertical-offset: Subtracted from y coordinate of a touchpoint, to be adjusted depending on display accuracy (there is usually a human bias to hit lower than what is assumed, due to the aiming with finger tips).</li>
  <li>enable-overlay-mode: In overlay mode, reactive area of first/last row spawns to top/bottom of display. Does not affect key geometry.</li>
+ <li>commit-previous-key-on-press: Controls whether a new key press commits (and releases) a previous held down key. For best usability, this should be enabled for all basic key areas.</li>
 </ul>
 
 \subsection sub3 Key geometry

@@ -361,7 +361,8 @@ void MImAbstractKeyAreaPrivate::touchPointPressed(const QTouchEvent::TouchPoint 
     MImAbstractKey::visitActiveKeys(&finder);
     const bool hasActiveShiftKeys = (finder.shiftKey() != 0);
 
-    if (lastActiveKey
+    if (q->style()->commitPreviousKeyOnPress()
+        && lastActiveKey
         && lastActiveKey->enabled()
         && lastActiveKey->isNormalKey()
         && lastActiveKey->touchPointCount() > 0) {
