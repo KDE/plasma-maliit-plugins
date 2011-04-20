@@ -32,6 +32,7 @@ SUBDIRS = \
           ut_wordribbonhost \
           ut_wordribbondialog \
           ut_wordribbondialogmodel \
+          ut_mimfontpool \
 
 contains(CONFIG, nomeegotouch) {
 } else {

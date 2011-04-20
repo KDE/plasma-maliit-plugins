@@ -19,12 +19,15 @@
 
 <!ATTLIST layout
   type (general | url | email | number | phonenumber | common) "general"
-  orientation (landscape | portrait) "landscape">
+  orientation (landscape | portrait) "landscape"
+  uniform-font-size (true | false) "false"
+>
 
 <!ATTLIST section
   id CDATA #REQUIRED
   movable (true | false) "true"
-  type (sloppy | non-sloppy) "sloppy">
+  type (sloppy | non-sloppy) "sloppy"
+>
 
 <!ATTLIST row
   height (small | medium | large | x-large | xx-large) "medium"

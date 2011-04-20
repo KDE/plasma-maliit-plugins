@@ -186,6 +186,11 @@ LayoutSection::RowHeightType LayoutSection::rowHeightType(int row) const
                               : rows[row]->heightType);
 }
 
+bool LayoutSection::uniformFontSize() const
+{
+    return isUniformFontSize;
+}
+
 bool LayoutSection::isInvalidRow(int row) const
 {
     return ((row < 0) || (row >= rows.count()));

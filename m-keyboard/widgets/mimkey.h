@@ -35,6 +35,7 @@
 #define MIMKEY_H
 
 #include "mimabstractkey.h"
+#include "mimfontpool.h"
 #include <QObject>
 #include <QPointF>
 #include <QGraphicsItem>
@@ -81,7 +82,8 @@ public:
     explicit MImKey(const MImKeyModel &mModel,
                     const MImAbstractKeyAreaStyleContainer &style,
                     QGraphicsItem &parent,
-                    const QSharedPointer<StylingCache> &newStylingCache);
+                    const QSharedPointer<StylingCache> &newStylingCache,
+                    MImFontPool &pool);
 
     virtual ~MImKey();
 
@@ -260,7 +262,7 @@ private:
     mutable QRectF secondaryLabelArea;
 
     //! Primary label font
-    QFont labelFont;
+    MImSharedKeyFontData keyFontData;
 
     const QSharedPointer<StylingCache> stylingCache;
 
@@ -275,6 +277,8 @@ private:
     //! true if the compact icon should be used instead of the normal one.
     //! Value is maintained by updateNeedsCompactIcon.
     bool needsCompactIcon;
+
+    MImFontPool &fontPool;
 
 #ifdef UNIT_TEST
     friend class Ut_MImKey;

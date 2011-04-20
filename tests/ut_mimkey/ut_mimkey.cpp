@@ -37,6 +37,7 @@
 #include "mimkey.h"
 #include "mimkeyarea.h"
 #include "mimkeymodel.h"
+#include "mimfontpool.h"
 #include "utils.h"
 
 #include <mkeyoverride.h>
@@ -107,12 +108,16 @@ void Ut_MImKey::initTestCase()
     stylingCache->primary   = QFontMetrics((*style)->font());
     stylingCache->secondary = QFontMetrics((*style)->secondaryFont());
 
+    fontPool = new MImFontPool(true);
+    fontPool->setDefaultFont((*style)->font());
+
     parent = new QGraphicsWidget;
     dataKey = createKeyModel();
 }
 
 void Ut_MImKey::cleanupTestCase()
 {
+    delete fontPool;
     delete style;
     delete dataKey;
     delete app;
@@ -122,7 +127,7 @@ void Ut_MImKey::cleanupTestCase()
 
 void Ut_MImKey::init()
 {
-    subject = new MImKey(*dataKey, *style, *parent, stylingCache);
+    subject = new MImKey(*dataKey, *style, *parent, stylingCache, *fontPool);
 }
 
 void Ut_MImKey::cleanup()
@@ -182,7 +187,7 @@ void Ut_MImKey::testIsDead()
     MImKeyBinding *binding = new MImKeyBinding;
     key->setBinding(*binding, false);
 
-    MImAbstractKey *subject = new MImKey(*key, *style, *parent, stylingCache);
+    MImAbstractKey *subject = new MImKey(*key, *style, *parent, stylingCache, *fontPool);
 
     for (int i = 0; i < 2; ++i) {
         bool isDead = (i != 0);
@@ -428,7 +433,7 @@ void Ut_MImKey::testVisitActiveKeys()
     b->keyAction = MImKeyBinding::ActionShift;
     MImKeyModel *model = new MImKeyModel;
     model->setBinding(*b, false);
-    MImKey *shift = new MImKey(*model, *style, *parent, stylingCache);
+    MImKey *shift = new MImKey(*model, *style, *parent, stylingCache, *fontPool);
     shift->setDownState(true);
     keys << shift;
 
@@ -661,7 +666,7 @@ void Ut_MImKey::testIconInfo()
     MImAbstractKeyAreaStyle *s = const_cast<MImAbstractKeyAreaStyle *>(style->operator->());
     s->setRequiredKeyIconMargins(testKeyMargins);
 
-    subject = new MImKey(*dataKey, *style, *parent, stylingCache);
+    subject = new MImKey(*dataKey, *style, *parent, stylingCache, *fontPool);
 
     subject->lowerCaseIcon.pixmap = hasNormalIcon ? &normalIconPixmap : 0;
     subject->lowerCaseCompactIcon.pixmap = hasCompactIcon ? &compactIconPixmap : 0;
@@ -692,7 +697,7 @@ void Ut_MImKey::testIconInfo()
 
 MImKey *Ut_MImKey::createKey(bool state)
 {
-    MImKey *key = new MImKey(*dataKey, *style, *parent, stylingCache);
+    MImKey *key = new MImKey(*dataKey, *style, *parent, stylingCache, *fontPool);
     key->setDownState(state);
     return key;
 }
@@ -723,7 +728,7 @@ MImKeyModel *Ut_MImKey::createKeyModel()
 
 MImKey *Ut_MImKey::createDeadKey(MImKeyModel *model, bool state)
 {
-    MImKey *key = new MImKey(*model, *style, *parent, stylingCache);
+    MImKey *key = new MImKey(*model, *style, *parent, stylingCache, *fontPool);
     key->setDownState(state);
     return key;
 }

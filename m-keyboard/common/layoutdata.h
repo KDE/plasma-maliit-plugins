@@ -120,6 +120,9 @@ public:
     //! \brief Return the row height class for given row.
     RowHeightType rowHeightType(int row) const;
 
+    //! \brief Return true if keys are allowed to use same font size.
+    bool uniformFontSize() const;
+
 private:
     bool isInvalidRow(int row) const;
     bool isInvalidCell(int row, int column) const;
@@ -145,6 +148,7 @@ private:
     // TODO: remove? we only have one section type now
     Type sectionType;
     QList<Row *> rows;
+    bool isUniformFontSize;
 
     friend class KeyboardData;
     friend class LayoutModel;
@@ -208,6 +212,7 @@ protected:
     QList<SharedLayoutSection> sections;
     //! we keep sections also in a hash table for fast name based lookup
     QHash<QString, SharedLayoutSection> sectionMap;
+    bool isUniformFontSize;
 
     friend class KeyboardData;
 };

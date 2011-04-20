@@ -1,6 +1,7 @@
 meego-keyboard (0.5.42~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#245545 - The characters in the buttons are shown with different font size
 
  -- huaming wang <huaming.wang@nokia.com>  Thu, 28 Apr 2011 14:14:05 +0300
 

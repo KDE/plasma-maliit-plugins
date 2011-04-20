@@ -7,6 +7,7 @@ INSTALL_HEADERS += \
     $$COMMON_DIR/mkeyboardcommon.h \
     $$COMMON_DIR/reactionmappainter.h \
     $$COMMON_DIR/regiontracker.h \
+    $$COMMON_DIR/mimfontpool.h \
 
 HEADERS += \
     $$INSTALL_HEADERS \
@@ -34,11 +35,11 @@ HEADERS += \
     $$COMMON_DIR/enginecjk.h \
 
 SOURCES += \
-    $$COMMON_DIR/keyboarddata.cpp\
-    $$COMMON_DIR/keyevent.cpp\
-    $$COMMON_DIR/layoutdata.cpp\
-    $$COMMON_DIR/layoutsmanager.cpp\
-    $$COMMON_DIR/mimkeymodel.cpp\
+    $$COMMON_DIR/keyboarddata.cpp \
+    $$COMMON_DIR/keyevent.cpp \
+    $$COMMON_DIR/layoutdata.cpp \
+    $$COMMON_DIR/layoutsmanager.cpp \
+    $$COMMON_DIR/mimkeymodel.cpp \
     $$COMMON_DIR/mxkb.cpp \
     $$COMMON_DIR/mhardwarekeyboard.cpp \
     $$COMMON_DIR/hwkbcharloops.cpp \
@@ -55,6 +56,7 @@ SOURCES += \
     $$COMMON_DIR/enginemanager.cpp \
     $$COMMON_DIR/cjklogicstatemachine.cpp \
     $$COMMON_DIR/enginecjk.cpp \
+    $$COMMON_DIR/mimfontpool.cpp \
 
 INCLUDEPATH += $$COMMON_DIR
 DEPENDPATH += $$COMMON_DIR

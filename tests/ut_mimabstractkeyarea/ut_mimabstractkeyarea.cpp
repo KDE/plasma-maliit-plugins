@@ -1357,7 +1357,9 @@ void Ut_MImAbstractKeyArea::testReset()
     std::auto_ptr<MImAbstractKeyArea> otherArea(Ut_MImAbstractKeyArea::createEmptyArea());
     MImKeyModel otherKeyModel;
     QSharedPointer<MImKey::StylingCache> otherKeyCache;
-    MImKey otherKey(otherKeyModel, subject->baseStyle(), *otherArea, otherKeyCache);
+    MImFontPool fontPool(true);
+    fontPool.setDefaultFont(otherArea->baseStyle()->font());
+    MImKey otherKey(otherKeyModel, subject->baseStyle(), *otherArea, otherKeyCache, fontPool);
     QVERIFY(otherKey.parentItem() != subject);
 
     otherKey.increaseTouchPointCount();

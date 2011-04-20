@@ -35,6 +35,7 @@
 #include "mimabstractkeyarea.h"
 #include "mimabstractkeyarea_p.h"
 #include "mimkey.h"
+#include "mimfontpool.h"
 
 #include <QSize>
 #include <QFontMetrics>
@@ -127,6 +128,7 @@ public:
     QList<MImKey *> idToKey; //!< Contains information about keys which have identifiers
     MImKey *toggleKey; //!< stores toggle key, if available in this key area
     MImKey *composeKey; //!< stores compose key, if available in this key area
+    MImFontPool fontPool; //!< decides which keys should share the same font object
 };
 //! \internal_end
 

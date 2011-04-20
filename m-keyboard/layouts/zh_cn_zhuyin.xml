@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
 <keyboard title="&#x7E41;&#x9AD4; &#x6CE8;&#x97F3;" version="1.0" catalog="zh_TW" language="zh@zhuyin">
-   <layout type="general" orientation="landscape">
+   <layout type="general" orientation="landscape" uniform-font-size="true">
       <section id="main">
         <row>
           <key><binding label="&#x3105;"/></key>
@@ -112,7 +112,7 @@
       </section>
    </layout>
 
-   <layout type="general" orientation="portrait">
+   <layout type="general" orientation="portrait" uniform-font-size="true">
       <section id="main">
         <row>
           <key><binding label="&#x3105;"/></key>

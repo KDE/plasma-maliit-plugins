@@ -178,7 +178,8 @@ MImKey::Geometry::Geometry(qreal newWidth,
 MImKey::MImKey(const MImKeyModel &newModel,
                const MImAbstractKeyAreaStyleContainer &style,
                QGraphicsItem &parent,
-               const QSharedPointer<StylingCache> &newStylingCache)
+               const QSharedPointer<StylingCache> &newStylingCache,
+               MImFontPool &pool)
     : QGraphicsItem(&parent),
       width(0),
       mModel(newModel),
@@ -194,7 +195,8 @@ MImKey::MImKey(const MImKeyModel &newModel,
       overrideIcon(0),
       ignoreOverride(false),
       composing(false),
-      needsCompactIcon(false)
+      needsCompactIcon(false),
+      fontPool(pool)
 {
     if (mModel.binding(false)) {
         loadIcon(false);
@@ -203,7 +205,6 @@ MImKey::MImKey(const MImKeyModel &newModel,
         loadIcon(true);
     }
 
-    labelFont = style->font();
     hide();
 
     //label position should be computed later, when geometry will be known
@@ -271,6 +272,9 @@ void MImKey::overrideBinding(const MImKeyBinding *binding)
     const_cast<MImKeyModel&>(mModel).overrideBinding(binding, false);
     const_cast<MImKeyModel&>(mModel).overrideBinding(binding, true);
     currentLabel = this->binding().accented(accent);
+    // TODO: new binding could require font change,
+    // but we do not have such use case now,
+    // so leave it for future
     invalidateLabelPos();
 }
 
@@ -284,12 +288,20 @@ void MImKey::invalidateLabelPos()
 
 void MImKey::updateLabelFont()
 {
+    // this method does not update stylingCache,
+    // because it can not increase font size,
+    // so new font will always fit into area prepared
+    // for font defined by styling
+
     // Use a maximum label rectangle that is a bit smaller than the button
     const QRect maximumLabelRect = buttonRect().adjusted(0, 0, -10, -5).toRect();
-    labelFont = styleContainer->font();
+    const bool shareFont = (model().width() == MImKeyModel::Medium
+                           && !keyOverride());
+    keyFontData = fontPool.font(shareFont);
     // Skip a non-sense case without real dimensions
-    if (buttonRect().width() != 0 && buttonRect().height() != 0)
-        scaleDownFont(&labelFont, label(), maximumLabelRect);
+    if (buttonRect().width() != 0 && buttonRect().height() != 0) {
+        scaleDownFont(keyFontData->font(), label(), maximumLabelRect);
+    }
 }
 
 void MImKey::updateLabelPos() const
@@ -964,7 +976,7 @@ const MImKey::IconInfo &MImKey::iconInfo() const
 
 const QFont &MImKey::font() const
 {
-    return labelFont;
+    return *keyFontData->font();
 }
 
 void MImKey::updateOverrideAttributes(MKeyOverride::KeyOverrideAttributes changedAttributes)

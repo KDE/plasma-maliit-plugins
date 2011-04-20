@@ -381,7 +381,8 @@ MImKeyAreaPrivate::MImKeyAreaPrivate(const LayoutData::SharedLayoutSection &newS
       WidthCorrection(0),
       stylingCache(new MImKey::StylingCache),
       toggleKey(0),
-      composeKey(0)
+      composeKey(0),
+      fontPool(newSection->uniformFontSize())
 {
 }
 
@@ -408,7 +409,7 @@ void MImKeyAreaPrivate::loadKeys()
         for (int col = 0; col < numColumns; ++col) {
             // Parameters to fetch from base class.
             MImKeyModel *dataKey = section->keyModel(row, col);
-            MImKey *key = new MImKey(*dataKey, q->baseStyle(), *q, stylingCache);
+            MImKey *key = new MImKey(*dataKey, q->baseStyle(), *q, stylingCache, fontPool);
 
             if (!key->model().id().isEmpty()) {
                 registerKeyId(key);
@@ -658,6 +659,7 @@ void MImKeyArea::init()
 
     d->cachedWidgetHeight = d->computeWidgetHeight();
     d->mMaxNormalizedWidth = d->computeMaxNormalizedWidth();
+    d->fontPool.setDefaultFont(baseStyle()->font());
 
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
@@ -835,6 +837,7 @@ void MImKeyArea::modifiersChanged(const bool shift,
 {
     Q_D(MImKeyArea);
 
+    d->fontPool.reset();
     for (MImKeyAreaPrivate::RowIterator row(d->rowList.begin()); row != d->rowList.end(); ++row) {
         foreach (MImKey *key, row->keys) {
             // Shift key and selected keys are detached from the normal level changing.
@@ -864,6 +867,7 @@ void MImKeyArea::updateKeyGeometries(const int newAvailableWidth)
                                                                       : newAvailableWidth);
 
     d->cachedWidgetHeight = d->computeWidgetHeight();
+    d->fontPool.reset();
 
     KeyGeometryUpdater updater = KeyGeometryUpdater(baseStyle(), effectiveWidth,
                                                     d->computeMaxNormalizedWidth());
@@ -912,6 +916,7 @@ void MImKeyArea::onThemeChangeCompleted()
     d->cachedWidgetHeight = d->computeWidgetHeight();
     d->stylingCache->primary   = QFontMetrics(baseStyle()->font());
     d->stylingCache->secondary = QFontMetrics(baseStyle()->secondaryFont());
+    d_ptr->fontPool.setDefaultFont(baseStyle()->font());
 
     MImAbstractKeyArea::onThemeChangeCompleted();
     update();
@@ -923,6 +928,7 @@ void MImKeyArea::applyStyle()
 
     d->stylingCache->primary   = QFontMetrics(baseStyle()->font());
     d->stylingCache->secondary = QFontMetrics(baseStyle()->secondaryFont());
+    d_ptr->fontPool.setDefaultFont(baseStyle()->font());
 }
 
 QList<const MImAbstractKey *> MImKeyArea::keys() const

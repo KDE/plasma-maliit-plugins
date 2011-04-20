@@ -46,6 +46,7 @@ class MImKey;
 class MImAbstractKeyAreaStyleContainer;
 class QGraphicsItem;
 class KeyboardData;
+class MImFontPool;
 
 class Ut_MImKey: public QObject
 {
@@ -90,6 +91,7 @@ private:
     QGraphicsItem *parent;
     MImKeyModel *dataKey;
     MImAbstractKeyAreaStyleContainer *style;
+    MImFontPool *fontPool;
 
 private slots:
     void init();

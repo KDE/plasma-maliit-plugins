@@ -52,6 +52,8 @@ namespace
     const char * const VKBTagCatalog              = "catalog";
     const char * const VKBTagAutoCapitalization   = "autocapitalization";
     const char * const VKBTagLayout               = "layout";
+    const char * const VKBTagUniformFontSize      = "uniform-font-size";
+    const char * const UniformFontSizeDefValue    = "false";
     const char * const VKBTagTitle                = "title";
     const char * const VKBTagLanguage             = "language";
     const char * const VKBTagBoolTrue             = "true";
@@ -444,6 +446,7 @@ void KeyboardData::parseTagLayout(const QDomElement &element, ParseParameters &p
 {
     const QString typeString = element.attribute(VKBTagType);
     LayoutData::LayoutType type = LayoutData::General;
+    const bool uniformFontSize = toBoolean(element.attribute(VKBTagUniformFontSize, UniformFontSizeDefValue));
 
     // Convert type string to internal representation
     if (layoutTypeMap.contains(typeString)) {
@@ -483,6 +486,7 @@ void KeyboardData::parseTagLayout(const QDomElement &element, ParseParameters &p
     }
 
     currentLayout = layoutModel;
+    currentLayout->isUniformFontSize = uniformFontSize;
 
     parseChildren(element, params, VKBTagSection, &KeyboardData::parseTagSection);
 
@@ -513,6 +517,7 @@ void KeyboardData::parseTagSection(const QDomElement &element, ParseParameters &
     section->movable = toBoolean(element.attribute(VKBTagMovable));
     section->sectionName = element.attribute(VKBTagID);
     section->sectionType = (element.attribute(VKBTagType) == VKBTagTypeNonsloppy) ? LayoutSection::NonSloppy : LayoutSection::Sloppy;
+    section->isUniformFontSize= currentLayout->isUniformFontSize;
     params.currentSection = section;
     params.keyIds.clear();
     currentLayout->sectionMap.insert(section->sectionName, section);

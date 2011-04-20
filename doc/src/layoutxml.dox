@@ -90,6 +90,7 @@ Attributes:
 \li \c type The input context in which this layout should be used.  Not all
 types are necessarily supported by the software using the layout.
 \li \c orientation Device orientation in which this layout should be used.
+\li \c uniform-font-size If false, all keys within this layout will calculate font size independently. Otherwise all normal and dead keys will have the same font size.
 
 
 \subsection Section
