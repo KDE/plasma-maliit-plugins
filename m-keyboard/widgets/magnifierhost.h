@@ -32,7 +32,7 @@
 #ifndef MAGNIFIERHOST_H
 #define MAGNIFIERHOST_H
 
-#include "popupbase.h"
+#include "mimabstractpopup.h"
 #include "mkeyboardmagnifierstyle.h"
 #include "mimoverlay.h"
 #include "magnifier.h"
@@ -48,7 +48,7 @@
 #include <MTheme>
 
 class MagnifierHost
-    : public QObject, public PopupBase
+    : public QObject, public MImAbstractPopup
 {
     Q_OBJECT
 

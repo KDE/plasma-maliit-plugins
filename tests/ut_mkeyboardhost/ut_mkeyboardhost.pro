@@ -17,7 +17,6 @@ HEADERS += ut_mkeyboardhost.h \
            dummydriver_mkh.h \
            $$STUBS_DIR/mgconfitem_stub.h \
            $$STUBS_DIR/fakegconf.h \
-           $$WIDGETS_DIR/popupfactory.h \
 
 # PopupFactory needs to be compiled to have a mocked functionality
 # otherwise the unit test crashes
@@ -25,7 +24,6 @@ SOURCES += ut_mkeyboardhost.cpp \
            $$STUBS_DIR/minputmethodhoststub.cpp \
            dummydriver_mkh.cpp \
            $$STUBS_DIR/fakegconf.cpp \
-           $$WIDGETS_DIR/popupfactory.cpp \
 
 target.files += $$TARGET \
                 toolbar1.xml \

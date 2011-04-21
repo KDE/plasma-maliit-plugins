@@ -48,7 +48,7 @@
 struct KeyContext;
 class FlickGesture;
 class MReactionMap;
-class PopupBase;
+class MImAbstractPopup;
 class MKeyOverride;
 class MImAbstractKeyAreaPrivate;
 
@@ -262,7 +262,7 @@ protected:
     virtual void updateKeyGeometries(int availableWidth) = 0;
 
     //! \brief Returns popup
-    const PopupBase &popup() const;
+    const MImAbstractPopup &popup() const;
 
     //! \brief Log touch point information to
     //!        $HOME/.meego-im/vkb-touchpoints.log, for debugging purposes.

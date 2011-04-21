@@ -119,7 +119,7 @@ void MagnifierHost::applyConstrainedPosition(QGraphicsItem *target,
 
 MagnifierHost::MagnifierHost(MImAbstractKeyArea *mainArea)
     : QObject(0)
-    , PopupBase(mainArea)
+    , MImAbstractPopup(mainArea)
     , magnifier(new Magnifier(this, mainArea))
     , extKeys(new ExtendedKeys(this, mainArea))
 {

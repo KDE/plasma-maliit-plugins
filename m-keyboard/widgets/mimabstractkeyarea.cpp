@@ -1018,7 +1018,7 @@ void MImAbstractKeyArea::drawReactiveAreas(MReactionMap *,
     // Empty default implementation. Geometries of buttons are known by derived classes.
 }
 
-const PopupBase &MImAbstractKeyArea::popup() const
+const MImAbstractPopup &MImAbstractKeyArea::popup() const
 {
     Q_D(const MImAbstractKeyArea);
 

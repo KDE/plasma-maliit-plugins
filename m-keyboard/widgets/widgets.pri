@@ -2,8 +2,7 @@ WIDGETS_DIR = ./widgets
 
 PUBLIC_HEADERS += \
     $$WIDGETS_DIR/mimabstractkey.h \
-    $$WIDGETS_DIR/popupbase.h \
-    $$WIDGETS_DIR/popupplugin.h \
+    $$WIDGETS_DIR/mimabstractpopup.h \
     $$WIDGETS_DIR/mimoverlay.h \
     $$WIDGETS_DIR/mimabstractkeyarea.h \
     $$WIDGETS_DIR/mimkeyvisitor.h \
@@ -45,7 +44,6 @@ HEADERS += \
     $$WIDGETS_DIR/notification.h \
     $$WIDGETS_DIR/symbolview.h \
     $$WIDGETS_DIR/mimkey.h \
-    $$WIDGETS_DIR/popupfactory.h \
     $$WIDGETS_DIR/mtoolbarbutton.h \
     $$WIDGETS_DIR/mtoolbarbuttonview.h \
     $$WIDGETS_DIR/mtoolbarlabel.h \
@@ -90,8 +88,7 @@ SOURCES += \
     $$WIDGETS_DIR/mimkey.cpp \
     $$WIDGETS_DIR/mimkeyarea.cpp \
     $$WIDGETS_DIR/mplainwindow.cpp \
-    $$WIDGETS_DIR/popupbase.cpp \
-    $$WIDGETS_DIR/popupfactory.cpp \
+    $$WIDGETS_DIR/mimabstractpopup.cpp \
     $$WIDGETS_DIR/mtoolbarbutton.cpp \
     $$WIDGETS_DIR/mtoolbarbuttonview.cpp \
     $$WIDGETS_DIR/mtoolbarlabel.cpp \

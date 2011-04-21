@@ -38,7 +38,7 @@
 #include "keyboarddata.h"
 #include "mimkeymodel.h"
 #include "mplainwindow.h"
-#include "popupbase.h"
+#include "mimabstractpopup.h"
 #include "utils.h"
 #include <regiontracker.h>
 

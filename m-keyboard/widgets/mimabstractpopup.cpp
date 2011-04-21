@@ -28,10 +28,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  */
-#include "popupbase.h"
+#include "mimabstractpopup.h"
 
-PopupBase::PopupBase(const MImAbstractKeyArea *)
+MImAbstractPopup::MImAbstractPopup(const MImAbstractKeyArea *)
 {}
 
-PopupBase::~PopupBase()
+MImAbstractPopup::~MImAbstractPopup()
 {}

@@ -29,8 +29,8 @@
 
  */
 
-#ifndef POPUPBASE_H
-#define POPUPBASE_H
+#ifndef MIMABSTRACTPOPUP_H
+#define MIMABSTRACTPOPUP_H
 
 class KeyContext;
 class MImAbstractKey;
@@ -43,15 +43,16 @@ class QString;
 
 
 //! \brief Base class for popup implementation
-class PopupBase
+class MImAbstractPopup
 {
 public:
     //! Constructor
-    //! \param mainArea Allows PopupBase to forward requests to the main area
-    explicit PopupBase(const MImAbstractKeyArea  *mainArea);
+    //! \param mainArea Allows MImAbstractPopup to forward requests to the
+    //! main area, which must take ownership over the popup instance.
+    explicit MImAbstractPopup(const MImAbstractKeyArea  *mainArea);
 
     //! \brief Destructor
-    virtual ~PopupBase();
+    virtual ~MImAbstractPopup();
 
     //! \brief Sets popup position at specified key in according to current orientation
     //! \param keyPos key's position
@@ -61,27 +62,26 @@ public:
                            const QPoint &screenPos,
                            const QSize &keySize) = 0;
 
-    //! \brief Cancel PopupBase actions
+    //! \brief Cancel MImAbstractPopup actions
     virtual void cancel() = 0;
 
-    //! \brief Allows PopupBase to act upon key-pressed on the main area
+    //! \brief Allows MImAbstractPopup to act upon key-pressed on the main area
     //! \param keyPos key's position
     //! \param keyContext Context information at the moment key was pressed
     virtual void handleKeyPressedOnMainArea(MImAbstractKey *key,
                                             const KeyContext &keyContext) = 0;
 
-    //! \brief Allows PopupBase to act upon long key-pressed on the main area
+    //! \brief Allows MImAbstractPopup to act upon long key-pressed on the main area
     //! \param keyPos key's position
     //! \param keyContext Context information at the moment key was long-pressed
     virtual void handleLongKeyPressedOnMainArea(MImAbstractKey *key,
                                                 const KeyContext &keyContext) = 0;
 
-    //! Returns whether PopupBase has any visible components
+    //! Returns whether MImAbstractPopup has any visible components
     virtual bool isVisible() const = 0;
 
-    //! Toggles visibility of PopupBase
+    //! Toggles visibility of MImAbstractPopup
     virtual void setVisible(bool visible) = 0;
 };
 
-#endif
-
+#endif // MIMABSTRACTPOPUP_H
