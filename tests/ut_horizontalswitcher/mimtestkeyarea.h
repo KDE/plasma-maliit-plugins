@@ -48,11 +48,9 @@ class MImTestKeyArea
 public:
     //! \brief Constructor
     //! \param section section that is shown by this key area
-    //! \param usePopup whether popup should be used
     //! \param parent key area's parent
     explicit MImTestKeyArea(const LayoutData::SharedLayoutSection &section,
-                                bool usePopup = false,
-                                QGraphicsWidget *parent = 0);
+                            QGraphicsWidget *parent = 0);
 
     //! \brief Destructor
     virtual ~MImTestKeyArea();

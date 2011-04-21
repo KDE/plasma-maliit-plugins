@@ -34,8 +34,8 @@
 #include "mimabstractkeyarea_p.h"
 #include "mimkeyvisitor.h"
 #include "mimreactionmap.h"
-#include "magnifierhost.h"
 #include "mkeyboardhost.h"
+#include "mimabstractpopup.h"
 
 #include <MCancelEvent>
 #include <MFeedback>
@@ -136,6 +136,7 @@ MImAbstractKeyAreaPrivate::MImAbstractKeyAreaPrivate(const LayoutData::SharedLay
                                                      MImAbstractKeyArea *owner)
     : q_ptr(owner),
       currentLevel(0),
+      popup(0),
       wasGestureTriggered(false),
       feedbackSliding(MImReactionMap::Sliding),
       section(newSection),
@@ -148,7 +149,6 @@ MImAbstractKeyAreaPrivate::MImAbstractKeyAreaPrivate(const LayoutData::SharedLay
 
 MImAbstractKeyAreaPrivate::~MImAbstractKeyAreaPrivate()
 {
-    delete mPopup;
 }
 
 void MImAbstractKeyAreaPrivate::click(MImAbstractKey *key, const KeyContext &keyContext)
@@ -202,8 +202,8 @@ void MImAbstractKeyAreaPrivate::handleFlickGesture(FlickGesture *gesture)
         && (gesture->state() != Qt::NoGesture)
         && gesture->direction() != FlickGesture::Up) {
 
-        if (mPopup) {
-            mPopup->cancel();
+        if (popup) {
+            popup->cancel();
         }
 
         MImKeyVisitor::KeyAreaReset reset;
@@ -515,8 +515,8 @@ void MImAbstractKeyAreaPrivate::touchPointReleased(const QTouchEvent::TouchPoint
     }
 
     // We're finished with this touch point, inform popup:
-    if (mPopup) {
-        mPopup->cancel();
+    if (popup) {
+        popup->cancel();
     }
 
     longPressTimer.stop();
@@ -718,7 +718,6 @@ void MImAbstractKeyAreaPrivate::switchStyleMode()
 
 // actual class implementation
 MImAbstractKeyArea::MImAbstractKeyArea(MImAbstractKeyAreaPrivate *privateData,
-                                       bool usePopup,
                                        QGraphicsWidget *parent)
     : MStylableWidget(parent),
       mRelativeKeyBaseWidth(0),
@@ -726,8 +725,6 @@ MImAbstractKeyArea::MImAbstractKeyArea(MImAbstractKeyAreaPrivate *privateData,
       d_ptr(privateData)
 {
     Q_D(MImAbstractKeyArea);
-
-    d->mPopup = usePopup ? new MagnifierHost(this) : 0;
 
     // By default multi-touch is disabled
     if (d->multiTouchEnabled()) {
@@ -785,12 +782,12 @@ void MImAbstractKeyArea::updatePopup(MImAbstractKey *key)
 {
     Q_D(MImAbstractKeyArea);
 
-    if (!d->mPopup) {
+    if (!d->popup) {
         return;
     }
 
     if (!key) {
-        d->mPopup->cancel();
+        d->popup->cancel();
         return;
     }
 
@@ -802,8 +799,8 @@ void MImAbstractKeyArea::updatePopup(MImAbstractKey *key)
     MImKeyVisitor::SpecialKeyFinder finder(MImKeyVisitor::FindDeadKey);
     MImAbstractKey::visitActiveKeys(&finder);
 
-    d->mPopup->updatePos(buttonRect.topLeft(), pos, buttonRect.toRect().size());
-    d->mPopup->handleKeyPressedOnMainArea(key,
+    d->popup->updatePos(buttonRect.topLeft(), pos, buttonRect.toRect().size());
+    d->popup->handleKeyPressedOnMainArea(key,
                                           KeyContext(d->isUpperCase(),
                                                      finder.deadKey() ? finder.deadKey()->label() : QString()));
 }
@@ -828,8 +825,8 @@ MImAbstractKeyArea::handleVisibilityChanged(bool visible)
     Q_D(MImAbstractKeyArea);
 
     if (!visible) {
-        if (d->mPopup) {
-            d->mPopup->setVisible(false);
+        if (d->popup) {
+            d->popup->setVisible(false);
         }
 
         MImKeyVisitor::SpecialKeyFinder finder(MImKeyVisitor::FindDeadKey);
@@ -935,8 +932,8 @@ void MImAbstractKeyArea::ungrabMouseEvent(QEvent *)
     Q_D(MImAbstractKeyArea);
 
     // Make sure popup can respond to mouse grab removal:
-    if (d->mPopup) {
-        d->mPopup->cancel();
+    if (d->popup) {
+        d->popup->cancel();
     }
 
     d->primaryPressArrived = false;
@@ -1005,11 +1002,11 @@ void MImAbstractKeyArea::hidePopup()
 {
     Q_D(MImAbstractKeyArea);
 
-    if (!d->mPopup) {
+    if (!d->popup) {
         return;
     }
 
-    d->mPopup->setVisible(false);
+    d->popup->setVisible(false);
 }
 
 void MImAbstractKeyArea::drawReactiveAreas(MReactionMap *,
@@ -1018,11 +1015,21 @@ void MImAbstractKeyArea::drawReactiveAreas(MReactionMap *,
     // Empty default implementation. Geometries of buttons are known by derived classes.
 }
 
-const MImAbstractPopup &MImAbstractKeyArea::popup() const
+void MImAbstractKeyArea::setPopup(MImAbstractPopup *popup)
+{
+    Q_D(MImAbstractKeyArea);
+
+    if (popup != d->popup) {
+        delete d->popup;
+        d->popup = popup;
+    }
+}
+
+const MImAbstractPopup *MImAbstractKeyArea::popup() const
 {
     Q_D(const MImAbstractKeyArea);
 
-    return *d->mPopup;
+    return d->popup;
 }
 
 void MImAbstractKeyArea::logTouchPoint(const QTouchEvent::TouchPoint &tp,
@@ -1119,8 +1126,8 @@ void MImAbstractKeyArea::handleLongKeyPressed()
     KeyContext keyContext(d->isUpperCase(), accent,
                           mapToScene(d->mostRecentTouchPosition));
 
-    if (d->mPopup) {
-        d->mPopup->handleLongKeyPressedOnMainArea(lastActiveKey,
+    if (d->popup) {
+        d->popup->handleLongKeyPressedOnMainArea(lastActiveKey,
                                                   keyContext);
     }
 
@@ -1144,8 +1151,8 @@ void MImAbstractKeyArea::reset(bool resetCapsLock)
         ungrabMouse();
     }
 
-    if (d->mPopup) {
-        d->mPopup->cancel();
+    if (d->popup) {
+        d->popup->cancel();
     }
 
     MImKeyVisitor::KeyAreaReset keyAreaReset(resetCapsLock ? MImKeyVisitor::ResetAll

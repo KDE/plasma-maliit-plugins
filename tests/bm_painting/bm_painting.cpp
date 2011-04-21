@@ -362,7 +362,7 @@ void Bm_Painting::benchmarkPaintDuringHorizontalLayoutChange()
     MImKeyArea *keyArea = 0;
     int numberOfKeyAreas = 5;
     for(int i=0; i<numberOfKeyAreas; i++) {
-        keyArea = MImKeyArea::create(section, false, subject); // FIXME: enable popup?
+        keyArea = MImKeyArea::create(section, subject); // FIXME: enable popup?
         subject->addWidget(keyArea);
     }
     subject->setLooping(true);

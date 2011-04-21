@@ -92,17 +92,69 @@ Q_DECLARE_METATYPE(QList<MImKeyBinding::KeyAction>);
 Q_DECLARE_METATYPE(Ut_MImAbstractKeyArea::TestOpList);
 Q_DECLARE_METATYPE(QSharedPointer<KeyboardData>);
 
-namespace {
+class TestPopup
+    : public MImAbstractPopup
+{
+private:
+    bool mVisible;
 
+public:
+    explicit TestPopup(const MImAbstractKeyArea *mainArea)
+        : MImAbstractPopup(mainArea)
+        , mVisible(false)
+    {}
+
+    //! \reimp
+    void updatePos(const QPointF &,
+                   const QPoint &,
+                   const QSize &)
+    {}
+
+    void cancel()
+    {
+        mVisible = false;
+    }
+
+    void handleKeyPressedOnMainArea(MImAbstractKey *,
+                                    const KeyContext &)
+    {
+        mVisible = true;
+    }
+
+    void handleLongKeyPressedOnMainArea(MImAbstractKey *,
+                                        const KeyContext &)
+    {
+        mVisible = true;
+    }
+
+    bool isVisible() const
+    {
+        return mVisible;
+    }
+
+    void setVisible(bool visible)
+    {
+        mVisible = visible;
+    }
+    //! \reimp_end
+};
+
+namespace {
     MImAbstractKeyArea *createKeyArea(const LayoutData::SharedLayoutSection &section,
                                       bool usePopup = false,
                                       QGraphicsWidget *parent = 0)
     {
-        MImAbstractKeyArea *keyArea(MImKeyArea::create(section, usePopup, parent));
+        MImAbstractKeyArea *keyArea(MImKeyArea::create(section, parent));
+
+        if (usePopup) {
+            keyArea->setPopup(new TestPopup(keyArea));
+        }
+
         return keyArea;
     }
 
 }
+
 
 void Ut_MImAbstractKeyArea::initTestCase()
 {
@@ -678,13 +730,13 @@ void Ut_MImAbstractKeyArea::testPopup()
     subject->resize(defaultLayoutSize());
 
     const QPoint mousePos(subject->style()->paddingTop() + 1, subject->style()->paddingLeft() + 1); // approximately the top left key on layout
-    QVERIFY(&subject->popup());
+    QVERIFY(subject->popup());
 
     subject->d_ptr->touchPointPressed(createTp(0, Qt::TouchPointPressed,
                                                subject->mapToScene(mousePos),
                                                QPointF()));
 
-    QVERIFY(subject->popup().isVisible());
+    QVERIFY(subject->popup()->isVisible());
     subject->d_ptr->touchPointReleased(createTp(0, Qt::TouchPointReleased,
                                                 subject->mapToScene(mousePos),
                                                 subject->mapToScene(mousePos)));
@@ -1339,7 +1391,7 @@ void Ut_MImAbstractKeyArea::testReset()
     MPlainWindow::instance()->scene()->addItem(subject);
 
     const QPoint mousePos(20, 20);
-    QVERIFY(&subject->popup());
+    QVERIFY(subject->popup());
 
     QTouchEvent::TouchPoint tp(0);
     tp.setScreenPos(mousePos);
@@ -1347,7 +1399,7 @@ void Ut_MImAbstractKeyArea::testReset()
                                         subject->mapToScene(mousePos),
                                         QPointF()));
 
-    QVERIFY(subject->popup().isVisible());
+    QVERIFY(subject->popup()->isVisible());
     const MImKey *key = dynamic_cast<const MImKey *>(MImAbstractKey::lastActiveKey());
     QVERIFY(key);
     QCOMPARE(key->parentItem(), subject);
@@ -1368,7 +1420,7 @@ void Ut_MImAbstractKeyArea::testReset()
 
     subject->reset();
     QCOMPARE(key->touchPointCount(), 0);
-    QVERIFY(!subject->popup().isVisible());
+    QVERIFY(!subject->popup()->isVisible());
     // reset should only affect keys in subject:
     QCOMPARE(otherKey.touchPointCount(), 1);
     QCOMPARE(&otherKey, MImAbstractKey::lastActiveKey());
@@ -1536,10 +1588,14 @@ MImAbstractKeyArea *Ut_MImAbstractKeyArea::createArea(const QString &labels,
 {
     LayoutData::SharedLayoutSection section;
     section = LayoutData::SharedLayoutSection(new LayoutSection(labels));
-    MImKeyArea *swba = MImKeyArea::create(LayoutData::SharedLayoutSection(section), usePopup);
+    MImKeyArea *keyArea = MImKeyArea::create(LayoutData::SharedLayoutSection(section));
+
+    if (usePopup) {
+        keyArea->setPopup(new TestPopup(keyArea));
+    }
 
     // Reset the style:
-    MImAbstractKeyAreaStyle *s = const_cast<MImAbstractKeyAreaStyle *>(swba->style().operator->());
+    MImAbstractKeyAreaStyle *s = const_cast<MImAbstractKeyAreaStyle *>(keyArea->style().operator->());
 
     // Margins:
     s->setMarginLeft(0);
@@ -1562,9 +1618,9 @@ MImAbstractKeyArea *Ut_MImAbstractKeyArea::createArea(const QString &labels,
     s->setTouchpointHorizontalGravity(0);
     s->setTouchpointVerticalGravity(0);
 
-    swba->resize(size);
+    keyArea->resize(size);
 
-    return swba;
+    return keyArea;
 }
 
 

@@ -40,6 +40,7 @@
 #include <QSharedPointer>
 
 class MImKeyAreaPrivate;
+class MImAbstractPopup;
 
 //! \brief MImKeyArea reimplements MImAbstractKeyArea and is optimized for drawing.
 class MImKeyArea
@@ -50,8 +51,7 @@ class MImKeyArea
 
 public:
     //! \brief Constructor, see \a MImAbstractKeyArea
-    static MImKeyArea *create(const LayoutData::SharedLayoutSection &section,
-                              bool usePopup = false,
+    static MImKeyArea *create(const LayoutData::SharedLayoutSection &newSection,
                               QGraphicsWidget *parent = 0);
 
     //! \brief Destructor
@@ -80,7 +80,6 @@ private slots:
 protected:
     //! \brief Constructor, see \a MImAbstractKeyArea
     explicit MImKeyArea(const LayoutData::SharedLayoutSection &section,
-                        bool usePopup = false,
                         QGraphicsWidget *parent = 0);
 
     //! \reimp

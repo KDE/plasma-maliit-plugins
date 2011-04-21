@@ -42,6 +42,7 @@
 #include "reactionmapwrapper.h"
 #include "mplainwindow.h"
 #include "flickgesturerecognizer.h"
+#include "magnifierhost.h"
 
 #include <mkeyoverride.h>
 
@@ -361,22 +362,26 @@ void SymbolView::addPage(const LayoutData::SharedLayoutSection &symbolSection)
 MImAbstractKeyArea *SymbolView::createMImAbstractKeyArea(const LayoutData::SharedLayoutSection &section,
                                                bool enablePopup)
 {
-    MImAbstractKeyArea *keysWidget = 0;
+    MImAbstractKeyArea *keyArea = 0;
 
     if (!section.isNull()) {
-        keysWidget = MImKeyArea::create(section, enablePopup);
+        keyArea = MImKeyArea::create(section);
 
-        eventHandler.addEventSource(keysWidget);
+        if (enablePopup) {
+            keyArea->setPopup(new MagnifierHost(keyArea));
+        }
 
-        connect(keysWidget, SIGNAL(keyClicked(const MImAbstractKey *, const KeyContext &)),
+        eventHandler.addEventSource(keyArea);
+
+        connect(keyArea, SIGNAL(keyClicked(const MImAbstractKey *, const KeyContext &)),
                 this, SLOT(handleKeyClicked(const MImAbstractKey *)));
-        connect(keysWidget, SIGNAL(keyPressed(const MImAbstractKey*, const KeyContext &)),
+        connect(keyArea, SIGNAL(keyPressed(const MImAbstractKey*, const KeyContext &)),
                 this, SLOT(handleKeyPressed(const MImAbstractKey *)));
-        connect(keysWidget, SIGNAL(keyReleased(const MImAbstractKey *, const KeyContext &)),
+        connect(keyArea, SIGNAL(keyReleased(const MImAbstractKey *, const KeyContext &)),
                 this, SLOT(handleKeyReleased(const MImAbstractKey *)));
     }
 
-    return keysWidget;
+    return keyArea;
 }
 
 void SymbolView::organizeContent()

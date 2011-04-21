@@ -630,10 +630,9 @@ void MImKeyAreaPrivate::applyOverlayMode(QVector<QPair<qreal, qreal> > *offsets)
 }
 
 // actual class implementation
-MImKeyArea::MImKeyArea(const LayoutData::SharedLayoutSection &newSection,
-                       bool usePopup,
+MImKeyArea::MImKeyArea(const LayoutData::SharedLayoutSection &section,
                        QGraphicsWidget *parent)
-    : MImAbstractKeyArea(new MImKeyAreaPrivate(newSection, this), usePopup, parent),
+    : MImAbstractKeyArea(new MImKeyAreaPrivate(section, this), parent),
       d_ptr(static_cast<MImKeyAreaPrivate *>(MImAbstractKeyArea::d_ptr))
 {
 }
@@ -643,10 +642,9 @@ MImKeyArea::~MImKeyArea()
 }
 
 MImKeyArea *MImKeyArea::create(const LayoutData::SharedLayoutSection &newSection,
-                               bool usePopup,
                                QGraphicsWidget *parent)
 {
-    MImKeyArea *keyArea(new MImKeyArea(newSection, usePopup, parent));
+    MImKeyArea *keyArea(new MImKeyArea(newSection, parent));
     keyArea->init();
     return keyArea;
 }

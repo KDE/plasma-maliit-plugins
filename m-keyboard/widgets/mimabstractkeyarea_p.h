@@ -173,7 +173,7 @@ public:
     MImAbstractKeyArea * const q_ptr;
 
     int currentLevel; //!< current level
-    MImAbstractPopup *mPopup; //!< popup to show additional information for a button
+    MImAbstractPopup *popup; //!< popup to show additional information for a button
     QList<QStringList> punctuationsLabels; //!< list of punctuation labels
     QList<QStringList> accentLabels; //!< list of accent labels
     bool wasGestureTriggered; //!< whether a gesture was already triggered for any active touch point

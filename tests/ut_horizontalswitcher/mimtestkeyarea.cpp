@@ -35,9 +35,8 @@
 #include "mimabstractkeyarea_p.h"
 
 MImTestKeyArea::MImTestKeyArea(const LayoutData::SharedLayoutSection &section,
-               bool usePopup,
-               QGraphicsWidget *parent)
-    : MImAbstractKeyArea(new MImAbstractKeyAreaPrivate(section, this), usePopup, parent),
+                               QGraphicsWidget *parent)
+    : MImAbstractKeyArea(new MImAbstractKeyAreaPrivate(section, this), parent),
       setKeyOverridesCalls(0)
 {
 }

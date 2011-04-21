@@ -56,7 +56,7 @@ class ExtendedKeysArea
 public:
     explicit ExtendedKeysArea(const LayoutData::SharedLayoutSection &section,
                               QGraphicsWidget *parent)
-        : MImKeyArea(section, false, parent)
+        : MImKeyArea(section, parent)
     {
         // Used by MATTI:
         setObjectName("VirtualKeyboardExtendedArea");

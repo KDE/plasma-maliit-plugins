@@ -149,6 +149,12 @@ public slots:
      */
     virtual void setComposeKeyState(bool isComposing) = 0;
 
+    //! \brief Sets popup
+    void setPopup(MImAbstractPopup *popup);
+
+    //! \brief Returns popup
+    const MImAbstractPopup *popup() const;
+
 signals:
     //! \brief Emitted when key is pressed
     //!
@@ -208,10 +214,8 @@ protected:
     //! \param privateData Pointer to private class.
     //! MImAbstractKeyArea takes ownership on private data class, so derived classes
     //! should NOT delete private objects.
-    //! \param usePopup Whether popup should be used
     //! \param parent Key area's parent.
     explicit MImAbstractKeyArea(MImAbstractKeyAreaPrivate *privateData,
-                                bool usePopup = true,
                                 QGraphicsWidget *parent = 0);
 
     //! \brief Completes initialization.
@@ -260,9 +264,6 @@ protected:
     //! \brief Updates key (and row) geometry based on given \a availableWidth.
     //! \param availableWidth with of the key area
     virtual void updateKeyGeometries(int availableWidth) = 0;
-
-    //! \brief Returns popup
-    const MImAbstractPopup &popup() const;
 
     //! \brief Log touch point information to
     //!        $HOME/.meego-im/vkb-touchpoints.log, for debugging purposes.
