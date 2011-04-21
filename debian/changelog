@@ -1,3 +1,9 @@
+meego-keyboard (0.5.40~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Pekka Vuorela <pekka.ta.vuorela@nokia.com>  Thu, 21 Apr 2011 15:57:57 +0300
+
 meego-keyboard (0.5.39-1) unstable; urgency=low
 
   * Fixes: NB#239493 - keyboard excessively loads fonts when starting
