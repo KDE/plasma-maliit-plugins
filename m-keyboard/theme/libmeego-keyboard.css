@@ -921,4 +921,36 @@ CandidateToolButtonStyle#switchButtonPortrait:pressed{
 	background-image: "meegotouch-keyboard-toolbar-button-pressed-selected" 10 10 10 10;
 }
 
+MKeyboardMagnifierStyle {
+    magnifier-image: "meegotouch-keyboard-magnifier-background" 2px 2px 2px 2px;
+    magnifier-size: 64 96;
+    magnifier-button-overlap: 0mm;
+    magnifier-font: $FONT_KEYBOARD; 
+    magnifier-font-size: 64;
+    magnifier-text-color: #505050;
+    magnifier-text-margin-top: 0mm;
+    magnifier-text-margin-bottom: 0mm;
+    magnifier-delay-closing-interval: 70;
+
+    extended-keys-offset: 85;
+}
+
+#ExtendedKeys {
+   background-image: "meegotouch-keyboard-accent-magnifier-background" 25 25 25 25;
+   key-background: "meegotouch-keyboard-accent-magnifier-key" $ROUNDED_CORNERS;
+
+   key-height: 60;
+   key-width-medium-fixed: 82;
+   padding-left: 16;
+   padding-right: 16;
+   padding-top: 16;
+   padding-bottom: 16;
+
+   enable-overlay-mode: true;
+}
+
+#ExtendedKeys.Portrait {
+   key-height: 84;
+   key-width-medium-fixed: 42;
+}
 
