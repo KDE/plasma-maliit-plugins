@@ -79,11 +79,15 @@ QRegion RegionStore::combineRegions() const
     QRegion combinedRegion;
 
     for (RegionMap::iterator i(regions.begin()); i != regions.end(); ++i) {
-        const QGraphicsWidget &widget(dynamic_cast<const QGraphicsWidget &>(*i.key()));
-        const QRegion region(widget.isVisible() ? widget.mapRectToScene(widget.rect()).toRect()
-                             : QRect());
-        combinedRegion |= region;
-        i.value() = region;
+        if (const QGraphicsWidget *widget = dynamic_cast<const QGraphicsWidget *>(i.key())) {
+            const QRegion region(widget->isVisible() ? widget->mapRectToScene(widget->rect()).toRect()
+                                                     : QRect());
+            combinedRegion |= region;
+            i.value() = region;
+        } else {
+            qWarning() << __PRETTY_FUNCTION__ << "Could not remove widget from region store.";
+        }
+
     }
 
     return combinedRegion;
