@@ -34,8 +34,7 @@
 #include "mimabstractkeyarea_p.h"
 #include "mimkeyvisitor.h"
 #include "mimreactionmap.h"
-#include "popupbase.h"
-#include "popupfactory.h"
+#include "magnifierhost.h"
 #include "mkeyboardhost.h"
 
 #include <MCancelEvent>
@@ -728,7 +727,7 @@ MImAbstractKeyArea::MImAbstractKeyArea(MImAbstractKeyAreaPrivate *privateData,
 {
     Q_D(MImAbstractKeyArea);
 
-    d->mPopup = (usePopup ? PopupFactory::instance()->createPopup(this) : 0);
+    d->mPopup = usePopup ? new MagnifierHost(this) : 0;
 
     // By default multi-touch is disabled
     if (d->multiTouchEnabled()) {
