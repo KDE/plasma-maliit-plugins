@@ -27,6 +27,8 @@ STYLE_HEADERS += \
     $$WIDGETS_DIR/wordribbonitemstyle.h \
     $$WIDGETS_DIR/wordribbonstyle.h \
     $$WIDGETS_DIR/wordribbondialogstyle.h \
+    $$WIDGETS_DIR/wordribbondialogstyle.h \
+    $$WIDGETS_DIR/mkeyboardmagnifierstyle.h \
 
 HEADERS += \
     $$PUBLIC_HEADERS \
@@ -64,6 +66,9 @@ HEADERS += \
     $$WIDGETS_DIR/wordribbondialogmodel.h \
     $$WIDGETS_DIR/wordribbondialogview.h \
     $$WIDGETS_DIR/abstractenginewidgethost.h \
+    $$WIDGETS_DIR/magnifierhost.h \
+    $$WIDGETS_DIR/magnifier.h \
+    $$WIDGETS_DIR/extendedkeys.h \
 
 INSTALL_HEADERS += $$PUBLIC_HEADERS + $$PUBLIC_STYLE_HEADERS
 
@@ -103,6 +108,9 @@ SOURCES += \
     $$WIDGETS_DIR/wordribbondialog.cpp \
     $$WIDGETS_DIR/wordribbondialogmodel.cpp \
     $$WIDGETS_DIR/wordribbondialogview.cpp \
+    $$WIDGETS_DIR/magnifierhost.cpp \
+    $$WIDGETS_DIR/magnifier.cpp \
+    $$WIDGETS_DIR/extendedkeys.cpp \
 
 INCLUDEPATH += $$WIDGETS_DIR
 DEPENDPATH += $$WIDGETS_DIR
