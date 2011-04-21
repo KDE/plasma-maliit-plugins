@@ -268,8 +268,14 @@ void WordRibbonHost::fetchMoreCandidates()
     int requestStartPos = candidatesCache.lastIndex() + 1;
 
     QStringList candidatesFromEngine;
-    candidatesFromEngine = EngineManager::instance().engine()->candidates(requestStartPos, requestLength);
-    appendCandidates(requestStartPos, candidatesFromEngine);
+
+    EngineManager *em = &EngineManager::instance();
+    if (em && em->engine()) {
+        candidatesFromEngine = EngineManager::instance().engine()->candidates(requestStartPos, requestLength);
+        appendCandidates(requestStartPos, candidatesFromEngine);
+    } else {
+        qWarning() << __PRETTY_FUNCTION__ << "No engine found, cannot fetch candidates!";
+    }
 }
 
 void WordRibbonHost::setPageIndex(int index)
