@@ -32,12 +32,13 @@
 #include "wordribbondialog.h"
 #include "wordribbondialogmodel.h"
 #include "regiontracker.h"
+#include "reactionmapwrapper.h"
+
 #include <QtGui>
 #include <QtCore>
 #include <mdialog.h>
 #include <mlayout.h>
 #include <mlinearlayoutpolicy.h>
-#include <mreactionmap.h>
 
 #include "wordribbondialogview.h"
 

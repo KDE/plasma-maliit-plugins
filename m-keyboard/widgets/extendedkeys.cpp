@@ -32,10 +32,10 @@
 #include "extendedkeys.h"
 #include "magnifierhost.h"
 #include "mkeyboardmagnifierstyle.h"
+#include "reactionmapwrapper.h"
 
 #include <reactionmappainter.h>
 #include <regiontracker.h>
-#include <mreactionmap.h>
 #include <layoutdata.h>
 #include <MScene>
 #include <QPainter>

@@ -45,8 +45,6 @@ class MReactionMapPrivate
 class MReactionMap
     : public QObject
 {
-    Q_OBJECT
-
 private:
     MReactionMapPrivate *d;
 

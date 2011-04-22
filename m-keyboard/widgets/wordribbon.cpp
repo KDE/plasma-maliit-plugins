@@ -36,10 +36,10 @@
 #include "wordribbonhost.h"
 #include "mimreactionmap.h"
 #include "mplainwindow.h"
+#include "reactionmapwrapper.h"
+
 #include <QtGui>
 #include <QtCore>
-
-#include <mreactionmap.h>
 #include <MButton>
 #include <MSceneManager>
 
@@ -307,6 +307,11 @@ void WordRibbon::resizeEvent(QGraphicsSceneResizeEvent * event)
 
 void WordRibbon::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view)
 {
+#ifndef HAVE_REACTIONMAP
+    Q_UNUSED(reactionMap);
+    Q_UNUSED(view);
+    return;
+#else
     if (!isVisible())
         return;
 
@@ -329,6 +334,7 @@ void WordRibbon::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view
         rect.moveTopLeft(QPointF(moreButton->pos()));
         reactionMap->fillRectangle(rect);
     }
+#endif
 }
 
 void WordRibbon::finalizeOrientationChange()

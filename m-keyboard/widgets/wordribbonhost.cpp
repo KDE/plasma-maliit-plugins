@@ -34,9 +34,9 @@
 #include "wordribbondialog.h"
 #include "regiontracker.h"
 #include "enginemanager.h"
+#include "reactionmapwrapper.h"
 
 #include <mimenginewordsinterface.h>
-#include <mreactionmap.h>
 #include <MSceneManager>
 #include <mplainwindow.h>
 #include <MStylableWidget>
