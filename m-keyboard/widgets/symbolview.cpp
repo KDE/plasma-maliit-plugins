@@ -364,7 +364,7 @@ MImAbstractKeyArea *SymbolView::createMImAbstractKeyArea(const LayoutData::Share
     MImAbstractKeyArea *keysWidget = 0;
 
     if (!section.isNull()) {
-        keysWidget = new MImKeyArea(section, enablePopup);
+        keysWidget = MImKeyArea::create(section, enablePopup);
 
         eventHandler.addEventSource(keysWidget);
 

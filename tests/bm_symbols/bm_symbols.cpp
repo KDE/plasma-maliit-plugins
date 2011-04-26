@@ -103,7 +103,7 @@ void Bm_Symbols::benchmarkDraw()
     const LayoutData::SharedLayoutSection section = keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::symbolsSymSection);
     QVERIFY(!section.isNull());
 
-    subject = new MImKeyArea(section);
+    subject = MImKeyArea::create(section);
 
     QBENCHMARK {
         subject->paint(&painter, 0, 0);

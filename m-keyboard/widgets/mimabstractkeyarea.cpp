@@ -723,7 +723,7 @@ MImAbstractKeyArea::MImAbstractKeyArea(MImAbstractKeyAreaPrivate *privateData,
                                        QGraphicsWidget *parent)
     : MStylableWidget(parent),
       mRelativeKeyBaseWidth(0),
-      debugTouchPoints(style()->debugTouchPoints()),
+      debugTouchPoints(false),
       d_ptr(privateData)
 {
     Q_D(MImAbstractKeyArea);
@@ -750,13 +750,19 @@ MImAbstractKeyArea::MImAbstractKeyArea(MImAbstractKeyAreaPrivate *privateData,
     connect(MTheme::instance(), SIGNAL(themeChangeCompleted()),
             this, SLOT(onThemeChangeCompleted()),
             Qt::UniqueConnection);
-
-    d->switchStyleMode();
 }
 
 MImAbstractKeyArea::~MImAbstractKeyArea()
 {
     delete d_ptr;
+}
+
+void MImAbstractKeyArea::init()
+{
+    Q_D(MImAbstractKeyArea);
+
+    d->switchStyleMode();
+    debugTouchPoints = style()->debugTouchPoints();
 }
 
 void MImAbstractKeyArea::setInputMethodMode(M::InputMethodMode inputMethodMode)

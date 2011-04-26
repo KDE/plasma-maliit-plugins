@@ -60,16 +60,6 @@ class MImAbstractKeyArea
     Q_DISABLE_COPY(MImAbstractKeyArea)
 
 public:
-    //! \brief Constructor
-    //! \brief privateData Pointer to private class.
-    //! MImAbstractKeyArea takes ownership on private data class, so derived classes
-    //! should NOT delete private objects.
-    //! \param usePopup Whether popup should be used
-    //! \param parent Key area's parent.
-    explicit MImAbstractKeyArea(MImAbstractKeyAreaPrivate *privateData,
-                                bool usePopup = true,
-                                QGraphicsWidget *parent = 0);
-
     //! \brief Destructor
     virtual ~MImAbstractKeyArea();
 
@@ -211,6 +201,22 @@ signals:
     void relativeKeyBaseWidthChanged(qreal baseWidth);
 
 protected:
+    //! \brief Constructor
+    //! \post Object is not fully initialized.  \a init must be called to finalize initialization.
+    //! \a init must not be called in the constructor of a derived class but by the eventual
+    //! instantiator of the derived class.
+    //! \param privateData Pointer to private class.
+    //! MImAbstractKeyArea takes ownership on private data class, so derived classes
+    //! should NOT delete private objects.
+    //! \param usePopup Whether popup should be used
+    //! \param parent Key area's parent.
+    explicit MImAbstractKeyArea(MImAbstractKeyAreaPrivate *privateData,
+                                bool usePopup = true,
+                                QGraphicsWidget *parent = 0);
+
+    //! \brief Completes initialization.
+    virtual void init();
+
     //! \reimp
     virtual void resizeEvent(QGraphicsSceneResizeEvent *event);
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);

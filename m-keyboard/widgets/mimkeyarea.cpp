@@ -635,18 +635,35 @@ MImKeyArea::MImKeyArea(const LayoutData::SharedLayoutSection &newSection,
     : MImAbstractKeyArea(new MImKeyAreaPrivate(newSection, this), usePopup, parent),
       d_ptr(static_cast<MImKeyAreaPrivate *>(MImAbstractKeyArea::d_ptr))
 {
-    d_ptr->cachedWidgetHeight = d_ptr->computeWidgetHeight();
-    d_ptr->mMaxNormalizedWidth = d_ptr->computeMaxNormalizedWidth();
-
-    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-
-    d_ptr->loadKeys();
-
-    setCacheMode(QGraphicsItem::DeviceCoordinateCache);
 }
 
 MImKeyArea::~MImKeyArea()
 {
+}
+
+MImKeyArea *MImKeyArea::create(const LayoutData::SharedLayoutSection &newSection,
+                               bool usePopup,
+                               QGraphicsWidget *parent)
+{
+    MImKeyArea *keyArea(new MImKeyArea(newSection, usePopup, parent));
+    keyArea->init();
+    return keyArea;
+}
+
+void MImKeyArea::init()
+{
+    Q_D(MImKeyArea);
+
+    MImAbstractKeyArea::init();
+
+    d->cachedWidgetHeight = d->computeWidgetHeight();
+    d->mMaxNormalizedWidth = d->computeMaxNormalizedWidth();
+
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+
+    d->loadKeys();
+
+    setCacheMode(QGraphicsItem::DeviceCoordinateCache);
 }
 
 QSizeF MImKeyArea::sizeHint(Qt::SizeHint which,

@@ -91,9 +91,9 @@ void Ut_KeyEventHandler::init()
 {
     keyboard = new KeyboardData;
     QVERIFY(keyboard->loadNokiaKeyboard("en.xml"));
-    keyArea = new MImKeyArea(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::functionkeySection),
-                        MImAbstractKeyArea::ButtonSizeEqualExpanding,
-                        false, 0);
+    keyArea = MImKeyArea::create(style, keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::functionkeySection),
+                                 MImAbstractKeyArea::ButtonSizeEqualExpanding,
+                                 false, 0);
     MPlainWindow::instance()->scene()->addItem(keyArea);
 
     keyArea->resize(defaultLayoutSize());

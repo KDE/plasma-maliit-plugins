@@ -98,7 +98,8 @@ namespace {
                                       bool usePopup = false,
                                       QGraphicsWidget *parent = 0)
     {
-        return new MImKeyArea(section, usePopup, parent);
+        MImAbstractKeyArea *keyArea(MImKeyArea::create(section, usePopup, parent));
+        return keyArea;
     }
 
 }
@@ -1533,7 +1534,7 @@ MImAbstractKeyArea *Ut_MImAbstractKeyArea::createArea(const QString &labels,
 {
     LayoutData::SharedLayoutSection section;
     section = LayoutData::SharedLayoutSection(new LayoutSection(labels));
-    MImKeyArea *swba = new MImKeyArea(LayoutData::SharedLayoutSection(section), usePopup);
+    MImKeyArea *swba = MImKeyArea::create(LayoutData::SharedLayoutSection(section), usePopup);
 
     // Reset the style:
     MImAbstractKeyAreaStyle *s = const_cast<MImAbstractKeyAreaStyle *>(swba->style().operator->());

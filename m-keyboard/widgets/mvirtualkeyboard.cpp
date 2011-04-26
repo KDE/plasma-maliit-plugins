@@ -607,9 +607,8 @@ MImAbstractKeyArea * MVirtualKeyboard::createSectionView(const QString &layout,
                                                          QGraphicsWidget *parent)
 {
     const LayoutData *model = layoutsMgr.layout(layout, layoutType, orientation);
-    MImAbstractKeyArea *view = new MImKeyArea(model->section(section),
-                                              usePopup, parent);
-
+    MImAbstractKeyArea *view = MImKeyArea::create(model->section(section),
+                                                  usePopup, parent);
     eventHandler.addEventSource(view);
 
     connect(view, SIGNAL(flickDown()), this, SIGNAL(userInitiatedHide()));

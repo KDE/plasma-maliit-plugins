@@ -49,10 +49,10 @@ class MImKeyArea
     Q_DISABLE_COPY(MImKeyArea)
 
 public:
-    //! \brief Contructor, see \a MImAbstractKeyArea
-    explicit MImKeyArea(const LayoutData::SharedLayoutSection &section,
-                        bool usePopup = false,
-                        QGraphicsWidget *parent = 0);
+    //! \brief Constructor, see \a MImAbstractKeyArea
+    static MImKeyArea *create(const LayoutData::SharedLayoutSection &section,
+                              bool usePopup = false,
+                              QGraphicsWidget *parent = 0);
 
     //! \brief Destructor
     virtual ~MImKeyArea();
@@ -78,7 +78,13 @@ private slots:
     void updateKeyAttributes(const QString &, MKeyOverride::KeyOverrideAttributes);
 
 protected:
+    //! \brief Constructor, see \a MImAbstractKeyArea
+    explicit MImKeyArea(const LayoutData::SharedLayoutSection &section,
+                        bool usePopup = false,
+                        QGraphicsWidget *parent = 0);
+
     //! \reimp
+    virtual void init();
     virtual QSizeF sizeHint(Qt::SizeHint which,
                             const QSizeF &constraint) const;
     virtual void drawReactiveAreas(MReactionMap *reactionMap,
