@@ -26,6 +26,7 @@ public:
     virtual ~WordRibbonItem();
 
     //! reimp
+    virtual void drawBackground(QPainter *painter, const QStyleOptionGraphicsItem *option) const;
     virtual void drawContents(QPainter *painter, const QStyleOptionGraphicsItem *option) const;
     virtual QSizeF sizeHint(Qt::SizeHint which, const QSizeF & constraint = QSizeF()) const;
 

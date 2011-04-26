@@ -130,6 +130,7 @@ private:
     void reCalculateContentRect(const QSizeF &size);
 
 private:
+    QStringList cachedStringList;
     // Sub widgets
     QList<WordRibbonItem* > itemList;
     int numVisibleItems;

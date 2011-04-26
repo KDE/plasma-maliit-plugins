@@ -43,17 +43,22 @@ class WordRibbonItemStyle: public MWidgetStyle
 public:
     M_STYLE_ATTRIBUTE(QFont,  font, Font)
     M_STYLE_ATTRIBUTE(QColor, fontColor, FontColor)
+
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, backgroundImagePressed, BackgroundImagePressed)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, backgroundImageSelected, BackgroundImageSelected)
 };
 
 class WordRibbonItemStyleContainer : public MWidgetStyleContainer
 {
     M_STYLE_CONTAINER(WordRibbonItemStyle)
 
-    M_STYLE_MODE(Pressed)
-    M_STYLE_MODE(Selected)
-    M_STYLE_MODE(Onecharacter)
-    M_STYLE_MODE(Twocharacter)
-    M_STYLE_MODE(Morecharacter)
+    M_STYLE_MODE(Dialogstyleoneword)
+    M_STYLE_MODE(Dialogstyletwoword)
+    M_STYLE_MODE(Dialogstylethreeword)
+    M_STYLE_MODE(Dialogstyleseveralword)
+
+    M_STYLE_MODE(Ribbonstyleoneword)
+    M_STYLE_MODE(Ribbonstyleseveralword)
 
     friend class WordRibbonItem;
 };

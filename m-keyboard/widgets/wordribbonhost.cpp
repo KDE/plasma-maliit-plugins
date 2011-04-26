@@ -46,7 +46,7 @@
 #include <QtCore>
 
 namespace {
-    const int MaximumWordRibbonDialogCount = 500;
+    const int MaximumWordRibbonDialogCount = 100;
     const int InitialCandidateCount = 20;
 }
 
@@ -128,7 +128,6 @@ void WordRibbonHost::watchOnWidget(QGraphicsWidget *widget)
 
 void WordRibbonHost::prepareToOrientationChange()
 {
-
 }
 
 void WordRibbonHost::finalizeOrientationChange()
@@ -140,7 +139,6 @@ void WordRibbonHost::finalizeOrientationChange()
     }
     wordRibbon->finalizeOrientationChange();
     wordRibbon->repopulate(tmpList);
-
 
     if (ribbonDialog->isVisible()){
         ribbonDialog->finalizeOrientationChange();
@@ -185,12 +183,12 @@ void WordRibbonHost::openWordRibbonDialog()
     fetchMoreCandidates();
 
     QStringList list;
-    ribbonDialog->appear(MPlainWindow::instance());
     for (int i = candidatesCache.firstIndex();
         i <= candidatesCache.lastIndex(); ++i) {
         list << candidatesCache.at(i);
     }
     ribbonDialog->setCandidates(list, dialogTitle);
+    ribbonDialog->appear(MPlainWindow::instance());
 }
 
 void WordRibbonHost::handleDialogClosed()

@@ -73,16 +73,21 @@ WordRibbon::~WordRibbon()
     if (moreButton) {
         delete moreButton;
     }
+    cachedStringList.clear();
 }
 
 void WordRibbon::repopulate(const QStringList &candidateList)
 {
     if (candidateList.count() == 0) {
+        cachedStringList.clear();
         clearAllItems();
         return ;
     }
 
     clearAllItems();
+    if (cachedStringList != candidateList)
+        cachedStringList = candidateList;
+
     int totalSpace = contentRect.width();
     int spaceBetweenItems = style()->spaceBetween();
 
@@ -286,12 +291,12 @@ void WordRibbon::initializeSubWidgets()
 
 void WordRibbon::resizeEvent(QGraphicsSceneResizeEvent * event)
 {
-    reCalculateContentRect(event->newSize());
-
     // Need to reset style mode when mode is DialogStyleMode.
     if (mode == DialogStyleMode) {
         style().setModeDialogmode();
     }
+    reCalculateContentRect(event->newSize());
+    repopulate(cachedStringList);
 }
 
 void WordRibbon::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view)

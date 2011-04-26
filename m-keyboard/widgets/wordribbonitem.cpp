@@ -31,6 +31,39 @@ WordRibbonItem::~WordRibbonItem()
 {
 }
 
+void WordRibbonItem::drawBackground(QPainter *painter, const QStyleOptionGraphicsItem *option) const
+{
+    Q_UNUSED(option);
+
+    const WordRibbonItemStyle *s = static_cast<const WordRibbonItemStyle *>(style().operator ->());
+
+    if (!s->backgroundImage() && !s->backgroundImagePressed() && !s->backgroundImageSelected())
+        return ;
+
+    qreal oldOpacity = painter->opacity();
+    painter->setOpacity(s->backgroundOpacity() * effectiveOpacity());
+
+    QSizeF currentSize = size() - QSizeF(s->marginLeft() + s->marginRight(), s->marginTop() + s->marginBottom());
+
+    switch (state) {
+    case NormalState:
+        if (s->backgroundImage())
+            s->backgroundImage()->draw(0.0, 0.0, currentSize.width(), currentSize.height(), painter);
+        break;
+    case SelectedState:
+        if (s->backgroundImageSelected())
+            s->backgroundImageSelected()->draw(0.0, 0.0, currentSize.width(), currentSize.height(), painter);
+        break;
+    case PressState:
+        if (s->backgroundImagePressed())
+            s->backgroundImagePressed()->draw(0.0, 0.0, currentSize.width(), currentSize.height(), painter);
+        break;
+    default:
+        break;
+    }
+    painter->setOpacity(oldOpacity);
+}
+
 void WordRibbonItem::drawContents(QPainter *painter, const QStyleOptionGraphicsItem *option) const
 {
     if (label.length() == 0) {
@@ -41,7 +74,11 @@ void WordRibbonItem::drawContents(QPainter *painter, const QStyleOptionGraphicsI
 
     painter->setFont(drawFont);
     painter->setPen(textPen);
-    painter->drawText(contentRect, Qt::AlignCenter, label);
+
+    if (mode == WordRibbon::RibbonStyleMode)
+        painter->drawText(contentRect, Qt::AlignCenter, label);
+    else
+        painter->drawText(contentRect, Qt::AlignLeft, label);
 }
 
 QSizeF WordRibbonItem::sizeHint(Qt::SizeHint which, const QSizeF & constraint) const
@@ -190,18 +227,29 @@ void WordRibbonItem::applyStyle()
         // In WordRibbon::DialogStyleMode the margins and paddings are depending
         // on the length of the label
         switch (label.length()) {
-        case 3:
-        default:
-           style().setModeMorecharacter();
-           break;
-
-        case 2:
-           style().setModeTwocharacter();
-           break;
-
         case 1:
-           style().setModeOnecharacter();
-           break;
+            style().setModeDialogstyleoneword();
+            break;
+        case 2:
+            style().setModeDialogstyletwoword();
+            break;
+        case 3:
+            style().setModeDialogstylethreeword();
+            break;
+        default:
+            style().setModeDialogstyleseveralword();
+            break;
+        }
+    } else {
+        // In WordRibbon::RibbonStyleMode the margins and paddings are depending
+        // on the length of the label
+        switch (label.length()) {
+        case 1:
+            style().setModeRibbonstyleoneword();
+            break;
+        default:
+            style().setModeRibbonstyleseveralword();
+            break;
         }
     }
 }
@@ -297,21 +345,6 @@ void WordRibbonItem::updateStyleState(ItemState newState)
         return;
 
     state = newState; 
-
-    switch(state) {
-    case NormalState:
-        style().setModeDefault();
-        break;
-    case SelectedState:
-        style().setModeSelected();
-        break;
-    case PressState:
-        style().setModePressed();
-        break;
-    default:
-        break;
-    }
-
     update();
 }
 

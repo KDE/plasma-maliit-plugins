@@ -679,157 +679,208 @@ WordRibbonStyle {
     margin-right: 0;
     margin-bottom: 0;
 
-    padding-top: 8;
-    padding-bottom: 8;
+    padding-top: 4;
+    padding-bottom: 4;
     padding-left: 11;
     padding-right: 11;
 }
 
 WordRibbonStyle.Landscape {
     background-image: "meegotouch-vkb-chinese-word-predicting-toolbar-background-landscape";
-    minimum-size: 854 64;
+    minimum-size: 854 65;
 }
 
 WordRibbonStyle.Portrait {
     background-image: "meegotouch-vkb-chinese-word-predicting-toolbar-background-portrait";
-    minimum-size: 480 64;
+    minimum-size: 480 65;
 
     padding-left: 4;
     padding-right: 4;
 }
 
 WordRibbonStyle:dialogmode {
-    background-image: "meegotouch-keyboard-background" 15px 15px 15px 15px;
+    background-image: ;
     space-between: 0;
+
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
 }
 
 WordRibbonItemStyle{
     background-image: "meegotouch-vkb-chinese-candidate-button" 12px 12px 12px 12px;
-    minimum-size: 46 48;
-    font: $FONT_FAMILY normal 30;
+    background-image-pressed: "meegotouch-vkb-chinese-default-candidate-button-pressed" 12px 12px 12px 12px;
+    background-image-selected: "meegotouch-vkb-chinese-default-candidate-button" 12px 12px 12px 12px;
+
+    minimum-size: 76 57;
+    font: $FONT_FAMILY normal 40;
     font-color: white;
 
     margin-left: 0;
-    margin-top: 0;
     margin-right: 0;
+    margin-top: 0;
     margin-bottom: 0;
 
-    padding-top: 8;
-    padding-bottom: 9;
     padding-left: 8;
     padding-right: 8;
+    padding-top: 8;
+    padding-bottom: 9;
 }
 
-WordRibbonItemStyle:selected {
-    background-image: "meegotouch-vkb-chinese-default-candidate-button" 12px 12px 12px 12px;
+WordRibbonItemStyle:ribbonstyleoneword {
+    minimum-size: 76 57;
+
+    padding-left: 18;
+    padding-right: 18;
+    padding-top: 8;
+    padding-bottom: 8;
 }
 
-WordRibbonItemStyle:pressed {
-    background-image: "meegotouch-vkb-chinese-default-candidate-button-pressed" 12px 12px 12px 12px;
+WordRibbonItemStyle:ribbonstyleseveralword {
+    minimum-size: 96 57;
+
+    padding-left: 8;
+    padding-right: 8;
+    padding-top: 8;
+    padding-bottom: 8;
+}
+
+WordRibbonItemStyle.Portrait:ribbonstyleoneword {
+    minimum-size: 72 57;
+
+    padding-left: 16;
+    padding-right: 16;
+    padding-top: 8;
+    padding-bottom: 8;
+}
+
+WordRibbonItemStyle.Portrait:ribbonstyleseveralword {
+    minimum-size: 88 57;
+
+    padding-left: 4;
+    padding-right: 4;
+    padding-top: 8;
+    padding-bottom: 8;
+}
+
+WordRibbonItemStyle:dialogstyleoneword {
+    background-image: "meegotouch-list-fullwidth-inverted-background";
+    background-image-pressed: "meegotouch-list-fullwidth-inverted-background-pressed";
+    font: $FONT_FAMILY normal 34;
+    minimum-size: 136 65;
+    maximum-size: 854 480;
+
+    padding-left: 16;
+    padding-right: 86;
+    padding-top: 15;
+    padding-bottom: 15;
+}
+
+WordRibbonItemStyle:dialogstyletwoword {
+    background-image: "meegotouch-list-fullwidth-inverted-background";
+    background-image-pressed: "meegotouch-list-fullwidth-inverted-background-pressed";
+    font: $FONT_FAMILY normal 34;
+    minimum-size: 136 65;
+    maximum-size: 854 480;
+
+    padding-left: 16;
+    padding-right: 52;
+    padding-top: 15;
+    padding-bottom: 15;
+}
+
+WordRibbonItemStyle:dialogstylethreeword {
+    background-image: "meegotouch-list-fullwidth-inverted-background";
+    background-image-pressed: "meegotouch-list-fullwidth-inverted-background-pressed";
+    font: $FONT_FAMILY normal 34;
+    minimum-size: 136 65;
+    maximum-size: 854 480;
+
+    padding-left: 16;
+    padding-right: 18;
+    padding-top: 15;
+    padding-bottom: 15;
+}
+
+WordRibbonItemStyle:dialogstyleseveralword {
+    background-image: "meegotouch-list-fullwidth-inverted-background";
+    background-image-pressed: "meegotouch-list-fullwidth-inverted-background-pressed";
+    font: $FONT_FAMILY normal 34;
+    minimum-size: 136 65;
+    maximum-size: 854 480;
+
+    padding-left: 16;
+    padding-right: 16;
+    padding-top: 15;
+    padding-bottom: 15;
+}
+
+WordRibbonItemStyle.Portrait:dialogstyleoneword {
+    background-image: "meegotouch-list-fullwidth-inverted-background";
+    background-image-pressed: "meegotouch-list-fullwidth-inverted-background-pressed";
+    font: $FONT_FAMILY normal 30;
+    minimum-size: 112 65;
+    maximum-size: 480 854;
+
+    padding-left: 12;
+    padding-right: 70;
+    padding-top: 16;
+    padding-bottom: 16;
+}
+
+WordRibbonItemStyle.Portrait:dialogstyletwoword {
+    background-image: "meegotouch-list-fullwidth-inverted-background";
+    background-image-pressed: "meegotouch-list-fullwidth-inverted-background-pressed";
+    font: $FONT_FAMILY normal 30;
+    minimum-size: 112 65;
+    maximum-size: 480 854;
+
+    padding-left: 12;
+    padding-right: 40;
+    padding-top: 16;
+    padding-bottom: 16;
+}
+
+WordRibbonItemStyle.Portrait:dialogstylethreeword {
+    background-image: "meegotouch-list-fullwidth-inverted-background";
+    background-image-pressed: "meegotouch-list-fullwidth-inverted-background-pressed";
+    font: $FONT_FAMILY normal 30;
+    minimum-size: 112 65;
+    maximum-size: 480 854;
+
+    padding-left: 12;
+    padding-right: 10;
+    padding-top: 16;
+    padding-bottom: 16;
+}
+
+WordRibbonItemStyle.Portrait:dialogstyleseveralword {
+    background-image: "meegotouch-list-fullwidth-inverted-background";
+    background-image-pressed: "meegotouch-list-fullwidth-inverted-background-pressed";
+    font: $FONT_FAMILY normal 30;
+    minimum-size: 112 65;
+    maximum-size: 480 854;
+
+    padding-left: 12;
+    padding-right: 12;
+    padding-top: 16;
+    padding-bottom: 16;
 }
 
 WordRibbon MButtonStyle#MoreButton {
     background-image: "meegotouch-vkb-chinese-more-button" 12px 12px 12px 12px;
-    minimum-size: 76 48;
-    preferred-size: 76 48;	
+    minimum-size: 76 57;
+    preferred-size: 76 57;
 
-    icon-id: "icon-m-textinput-combobox-arrow";                   
-    icon-size: 32 32;
+    icon-id: "icon-m-textinput-combobox-arrow";
+    icon-size: 40 41;
     icon-align: center;
 }
 
-WordRibbon MButtonStyle#MoreButton:pressed {
-    background-image: "meegotouch-vkb-chinese-candidate-more-pressed" 12px 12px 12px 12px;
-}
-
-WordRibbonItemStyle:onecharacter {
-    background-image: ;
-    minimum-size: 100 64;
-    maximum-size: 854 480;
-
-    margin-left: 0;
-    margin-right: 0;
-    margin-top: 0;
-    margin-bottom: 0;
-    padding-left: 30;
-    padding-right: 30;
-    padding-top: 8;
-    padding-bottom: 9;
-}
-
-WordRibbonItemStyle:twocharacter {
-    background-image: ;
-    minimum-size: 100 64;
-    maximum-size: 854 480;
-
-    margin-left: 0;
-    margin-right: 0;
-    margin-top: 0;
-    margin-bottom: 0;
-    padding-left: 20;
-    padding-right: 20;
-    padding-top: 8;
-    padding-bottom: 9;
-}
-
-WordRibbonItemStyle:morecharacter {
-    background-image: ;
-    minimum-size: 100 64;
-    maximum-size: 854 480;
-
-    margin-left: 0;
-    margin-right: 0;
-    margin-top: 0;
-    margin-bottom: 0;
-    padding-left: 15;
-    padding-right: 15;
-    padding-top: 8;
-    padding-bottom: 9;
-}
-
-WordRibbonItemStyle.Portrait:onecharacter {
-    background-image: ;
-    minimum-size: 120 64;
-    maximum-size: 480 854;
-
-    margin-left: 0;
-    margin-right: 0;
-    margin-top: 0;
-    margin-bottom: 0;
-    padding-left: 45;
-    padding-right: 45;
-    padding-top: 8;
-    padding-bottom: 9;
-}
-
-WordRibbonItemStyle.Portrait:twocharacter {
-    background-image: ;
-    minimum-size: 120 64;
-    maximum-size: 480 854;
-
-    margin-left: 0;
-    margin-right: 0;
-    margin-top: 0;
-    margin-bottom: 0;
-    padding-left: 30;
-    padding-right: 30;
-    padding-top: 8;
-    padding-bottom: 9;
-}
-
-WordRibbonItemStyle.Portrait:morecharacter {
-    background-image: ;
-    minimum-size: 120 64;
-    maximum-size: 480 854;
-
-    margin-left: 0;
-    margin-right: 0;
-    margin-top: 0;
-    margin-bottom: 0;
-    padding-left: 15;
-    padding-right: 15;
-    padding-top: 8;
-    padding-bottom: 9;
+WordRibbon MButtonStyle.Portrait#MoreButton {
+    minimum-size: 72 57;
+    preferred-size: 72 57;
 }
 
 
