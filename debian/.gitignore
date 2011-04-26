@@ -4,6 +4,7 @@ meego-keyboard-tests
 meego-keyboard
 meego-keyboard-dev
 meego-keyboard-fixtures
+meego-keyboard-zh-layouts
 files
 tmp
 *.debhelper*
