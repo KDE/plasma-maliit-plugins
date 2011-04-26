@@ -97,7 +97,7 @@ private:
     MList *keyboardList;
     MBasicListItem *selectedKeyboardsItem;
 
-    MContainer *chineseContainer;
+    QGraphicsWidget *chineseContainer;
     MLabel *chineseSettingHeader;
     MButton *fuzzySwitch;
     MBasicListItem *fuzzyItem;

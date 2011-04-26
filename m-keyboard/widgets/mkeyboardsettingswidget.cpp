@@ -202,10 +202,10 @@ void MKeyboardSettingsWidget::buildUi()
 
     // Chinese setting panel container
     QGraphicsLinearLayout *containerLayout = new QGraphicsLinearLayout(Qt::Vertical);
-    chineseContainer = new MContainer(this);
-    chineseContainer->setStyleName("CommonLargePanel");
-    chineseContainer->setHeaderVisible(false);
-    chineseContainer->centralWidget()->setLayout(containerLayout);
+    // Ensure that there is no offset compared to widgets in layout above
+    containerLayout->setContentsMargins(0.0, 0.0, 0.0, 0.0);
+    chineseContainer = new QGraphicsWidget(this); // Used to be able to show/hide all children
+    chineseContainer->setLayout(containerLayout);
     //% "Chinese virtual keyboards"
     chineseSettingHeader = new MLabel(qtTrId("qtn_ckb_chinese_keyboards"), this);
     chineseSettingHeader->setStyleName("CommonGroupHeaderInverted");
