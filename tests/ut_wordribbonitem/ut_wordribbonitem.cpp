@@ -206,109 +206,143 @@ void Ut_WordRibbonItem::checkSize_data()
     QTest::addColumn<QRect>("itemContentRect");
 
     // Load WordRibbonItemStyle information from .css file.
-    const MStyle * style = MTheme::style("WordRibbonItemStyle", QString("utWordRibbonItem"));
+    {
+        const MStyle *style = MTheme::style("WordRibbonItemStyle", QString("utWordRibbonItem"));
 
-    const WordRibbonItemStyle * wordRibbonItemstyle =
-            qobject_cast<const WordRibbonItemStyle *> (style);
+        const WordRibbonItemStyle *wordRibbonItemstyle
+            = qobject_cast<const WordRibbonItemStyle *>(style);
 
-    int cssPaddingLeft = wordRibbonItemstyle->paddingLeft();
-    int cssPaddingRight = wordRibbonItemstyle->paddingRight();
-    int cssPaddingTop = wordRibbonItemstyle->paddingTop();
-    int cssPaddingBottom = wordRibbonItemstyle->paddingBottom();
-    int cssMarginLeft = wordRibbonItemstyle->marginLeft();
-    int cssMarginRight = wordRibbonItemstyle->marginRight();
-    int cssMarginTop = wordRibbonItemstyle->marginTop();
-    int cssMarginBottom = wordRibbonItemstyle->marginBottom();
-    QSize cssMinimumSize = wordRibbonItemstyle->minimumSize();
+        const int cssPaddingLeft = wordRibbonItemstyle->paddingLeft();
+        const int cssPaddingRight = wordRibbonItemstyle->paddingRight();
+        const int cssPaddingTop = wordRibbonItemstyle->paddingTop();
+        const int cssPaddingBottom = wordRibbonItemstyle->paddingBottom();
+        const int cssMarginLeft = wordRibbonItemstyle->marginLeft();
+        const int cssMarginRight = wordRibbonItemstyle->marginRight();
+        const int cssMarginTop = wordRibbonItemstyle->marginTop();
+        const int cssMarginBottom = wordRibbonItemstyle->marginBottom();
+        const QSize cssMinimumSize = wordRibbonItemstyle->minimumSize();
 
 
-    // Calculate size and rect for WordRibbonItem with empty string.
-    QSize emptyConditionMinimumSize = cssMinimumSize;
-    QSize emptyConditionPreferredSize = emptyConditionMinimumSize;
+        // Calculate size and rect for WordRibbonItem with empty string.
+        const QSize emptyConditionMinimumSize = cssMinimumSize;
+        const QSize emptyConditionPreferredSize = emptyConditionMinimumSize;
 
-    QSizeF tmpSize = emptyConditionPreferredSize - QSize(cssMarginLeft + cssMarginRight,
-                                                         cssMarginTop + cssMarginBottom);
+        QSizeF tmpSize = emptyConditionPreferredSize - QSize(cssMarginLeft + cssMarginRight,
+                                                             cssMarginTop + cssMarginBottom);
 
-    QRect emptyConditionPaddingRect = QRect(cssMarginLeft, cssMarginTop,
-                                            tmpSize.width(), tmpSize.height());
+        const QRect emptyConditionPaddingRect = QRect(cssMarginLeft, cssMarginTop,
+                                                      tmpSize.width(), tmpSize.height());
 
-    tmpSize -= QSizeF(cssPaddingLeft + cssPaddingRight,
-                      cssPaddingTop + cssPaddingBottom);
+        tmpSize -= QSizeF(cssPaddingLeft + cssPaddingRight,
+                          cssPaddingTop + cssPaddingBottom);
 
-    QRect emptyConditionContentRect = QRect(cssMarginLeft + cssPaddingLeft,
-                                            cssMarginTop + cssPaddingTop,
-                                            tmpSize.width(),
-                                            tmpSize.height());
+        const QRect emptyConditionContentRect = QRect(cssMarginLeft + cssPaddingLeft,
+                                                      cssMarginTop + cssPaddingTop,
+                                                      tmpSize.width(),
+                                                      tmpSize.height());
 
-    QTest::newRow("EmptyCondition")
-            <<QString("")
-            <<emptyConditionMinimumSize <<emptyConditionPreferredSize
-            <<emptyConditionPaddingRect <<emptyConditionContentRect;
-
+        QTest::newRow("EmptyCondition")
+            << QString("")
+            << emptyConditionMinimumSize << emptyConditionPreferredSize
+            << emptyConditionPaddingRect << emptyConditionContentRect;
+        MTheme::releaseStyle(style);
+    }
 
     // Calculate size and rect for WordRibbonItem with one Character.
-    QFontMetrics fm(wordRibbonItemstyle->font());
-    QSize textSize = fm.size(Qt::TextSingleLine, QString::fromUtf8("我"));
+    {
+        const MStyle *style = MTheme::style("WordRibbonItemStyle", QString("utWordRibbonItem"),
+                                            "ribbonstyleoneword", "", M::Landscape);
+        const WordRibbonItemStyle *wordRibbonItemstyle
+            = qobject_cast<const WordRibbonItemStyle *>(style);
 
-    QSize oneCharacterMinimumSize = QSize(textSize.width() +
-                                          cssPaddingLeft + cssPaddingRight +
-                                          cssMarginLeft + cssMarginRight,
-                                          textSize.height() +
-                                          cssPaddingTop + cssPaddingBottom +
-                                          cssMarginTop + cssMarginBottom);
-    QSize oneCharacterPreferredSize = oneCharacterMinimumSize;
+        const int cssPaddingLeft = wordRibbonItemstyle->paddingLeft();
+        const int cssPaddingRight = wordRibbonItemstyle->paddingRight();
+        const int cssPaddingTop = wordRibbonItemstyle->paddingTop();
+        const int cssPaddingBottom = wordRibbonItemstyle->paddingBottom();
+        const int cssMarginLeft = wordRibbonItemstyle->marginLeft();
+        const int cssMarginRight = wordRibbonItemstyle->marginRight();
+        const int cssMarginTop = wordRibbonItemstyle->marginTop();
+        const int cssMarginBottom = wordRibbonItemstyle->marginBottom();
 
-    tmpSize = oneCharacterPreferredSize - QSize(cssMarginLeft + cssMarginRight,
-                                                cssMarginTop + cssMarginBottom);
+        const QFontMetrics fm(wordRibbonItemstyle->font());
+        const QSize textSize = fm.size(Qt::TextSingleLine, QString::fromUtf8("我"));
 
-    QRect oneCharacterPaddingRect = QRect(cssMarginLeft, cssMarginTop,
-                                          tmpSize.width(), tmpSize.height());
+        const QSize oneCharacterMinimumSize = QSize(textSize.width() +
+                                                    cssPaddingLeft + cssPaddingRight +
+                                                    cssMarginLeft + cssMarginRight,
+                                                    textSize.height() +
+                                                    cssPaddingTop + cssPaddingBottom +
+                                                    cssMarginTop + cssMarginBottom);
+        const QSize oneCharacterPreferredSize = oneCharacterMinimumSize;
 
-    tmpSize -= QSizeF(cssPaddingLeft + cssPaddingRight,
-                      cssPaddingTop + cssPaddingBottom);
+        QSizeF tmpSize = oneCharacterPreferredSize - QSize(cssMarginLeft + cssMarginRight,
+                                                           cssMarginTop + cssMarginBottom);
 
-    QRect oneCharacterContentRect = QRect(cssMarginLeft + cssPaddingLeft,
-                                          cssMarginTop + cssPaddingTop,
-                                          tmpSize.width(),
-                                          tmpSize.height());
+        const QRect oneCharacterPaddingRect = QRect(cssMarginLeft, cssMarginTop,
+                                                    tmpSize.width(), tmpSize.height());
 
-    QTest::newRow("OneWordCondition")
-            <<QString::fromUtf8("我")
-            <<oneCharacterMinimumSize <<oneCharacterPreferredSize
-            <<oneCharacterPaddingRect <<oneCharacterContentRect;
+        tmpSize -= QSizeF(cssPaddingLeft + cssPaddingRight,
+                          cssPaddingTop + cssPaddingBottom);
 
+        const QRect oneCharacterContentRect = QRect(cssMarginLeft + cssPaddingLeft,
+                                                    cssMarginTop + cssPaddingTop,
+                                                    tmpSize.width(),
+                                                    tmpSize.height());
+
+        QTest::newRow("OneWordCondition")
+            << QString::fromUtf8("我")
+            << oneCharacterMinimumSize << oneCharacterPreferredSize
+            << oneCharacterPaddingRect << oneCharacterContentRect;
+        MTheme::releaseStyle(style);
+    }
 
     // Calculate size and rect for WordRibbonItem with two Characters.
-    textSize = fm.size(Qt::TextSingleLine, QString::fromUtf8("我我"));
+    {
+        const MStyle *style = MTheme::style("WordRibbonItemStyle", QString("utWordRibbonItem"),
+                                            "ribbonstyleseveralword", "", M::Landscape);
+        const WordRibbonItemStyle *wordRibbonItemstyle
+            = qobject_cast<const WordRibbonItemStyle *>(style);
 
-    QSize twoCharacterMinimumSize = QSize(textSize.width() +
-                                          cssPaddingLeft + cssPaddingRight +
-                                          cssMarginLeft + cssMarginRight,
-                                          textSize.height() +
-                                          cssPaddingTop + cssPaddingBottom +
-                                          cssMarginTop + cssMarginBottom);
-    QSize twoCharacterPreferredSize = twoCharacterMinimumSize;
+        const int cssPaddingLeft = wordRibbonItemstyle->paddingLeft();
+        const int cssPaddingRight = wordRibbonItemstyle->paddingRight();
+        const int cssPaddingTop = wordRibbonItemstyle->paddingTop();
+        const int cssPaddingBottom = wordRibbonItemstyle->paddingBottom();
+        const int cssMarginLeft = wordRibbonItemstyle->marginLeft();
+        const int cssMarginRight = wordRibbonItemstyle->marginRight();
+        const int cssMarginTop = wordRibbonItemstyle->marginTop();
+        const int cssMarginBottom = wordRibbonItemstyle->marginBottom();
 
-    tmpSize = twoCharacterPreferredSize - QSize(cssMarginLeft + cssMarginRight,
-                                                cssMarginTop + cssMarginBottom);
+        const QFontMetrics fm(wordRibbonItemstyle->font());
+        const QSize textSize = fm.size(Qt::TextSingleLine, QString::fromUtf8("我我"));
 
-    QRect twoCharacterPaddingRect = QRect(cssMarginLeft, cssMarginTop,
-                                          tmpSize.width(), tmpSize.height());
+        const QSize twoCharacterMinimumSize = QSize(textSize.width() +
+                                                    cssPaddingLeft + cssPaddingRight +
+                                                    cssMarginLeft + cssMarginRight,
+                                                    textSize.height() +
+                                                    cssPaddingTop + cssPaddingBottom +
+                                                    cssMarginTop + cssMarginBottom);
+        const QSize twoCharacterPreferredSize = twoCharacterMinimumSize;
 
-    tmpSize -= QSizeF(cssPaddingLeft + cssPaddingRight,
-                      cssPaddingTop + cssPaddingBottom);
+        QSizeF tmpSize = twoCharacterPreferredSize - QSize(cssMarginLeft + cssMarginRight,
+                                                           cssMarginTop + cssMarginBottom);
 
-    QRect twoCharacterContentRect = QRect(cssMarginLeft + cssPaddingLeft,
-                                          cssMarginTop + cssPaddingTop,
-                                          tmpSize.width(),
-                                          tmpSize.height());
+        const QRect twoCharacterPaddingRect = QRect(cssMarginLeft, cssMarginTop,
+                                                    tmpSize.width(), tmpSize.height());
 
-    QTest::newRow("TwoWordCondition")
-            <<QString::fromUtf8("我我")
-            <<twoCharacterMinimumSize <<twoCharacterPreferredSize
-            <<twoCharacterPaddingRect <<twoCharacterContentRect;
+        tmpSize -= QSizeF(cssPaddingLeft + cssPaddingRight,
+                          cssPaddingTop + cssPaddingBottom);
 
-    MTheme::releaseStyle(style);
+        const QRect twoCharacterContentRect = QRect(cssMarginLeft + cssPaddingLeft,
+                                                    cssMarginTop + cssPaddingTop,
+                                                    tmpSize.width(),
+                                                    tmpSize.height());
+
+        QTest::newRow("TwoWordCondition")
+            << QString::fromUtf8("我我")
+            << twoCharacterMinimumSize << twoCharacterPreferredSize
+            << twoCharacterPaddingRect << twoCharacterContentRect;
+        MTheme::releaseStyle(style);
+    }
 }
 
 void Ut_WordRibbonItem::checkSize()

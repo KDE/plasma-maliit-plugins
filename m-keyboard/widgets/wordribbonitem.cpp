@@ -244,6 +244,9 @@ void WordRibbonItem::applyStyle()
         // In WordRibbon::RibbonStyleMode the margins and paddings are depending
         // on the length of the label
         switch (label.length()) {
+        case 0:
+            style().setModeDefault();
+            break;
         case 1:
             style().setModeRibbonstyleoneword();
             break;
