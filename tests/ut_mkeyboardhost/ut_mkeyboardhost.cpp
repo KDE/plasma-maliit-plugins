@@ -115,6 +115,8 @@ Q_DECLARE_METATYPE(MInputMethod::HandlerState)
 Q_DECLARE_METATYPE(ModifierState)
 Q_DECLARE_METATYPE(Ut_MKeyboardHost::TestOpList)
 Q_DECLARE_METATYPE(MInputMethod::InputModeIndicator)
+Q_DECLARE_METATYPE(QList<MImEngine::DictionaryType>)
+Q_DECLARE_METATYPE(MInputMethod::PreeditFace)
 
 // Stubbing..................................................................
 
@@ -2044,6 +2046,98 @@ void Ut_MKeyboardHost::testTogglePlusMinus()
     //qDebug
     QCOMPARE(inputMethodHost->commit, after);
     QCOMPARE(inputMethodHost->cursorPos, afterCursorPos);
+}
+
+void Ut_MKeyboardHost::testPreeditFormat_data()
+{
+    QTest::addColumn<QString>("preedit");
+    QTest::addColumn<QStringList>("candidates");
+    QTest::addColumn<QList<MImEngine::DictionaryType> >("candidateSource");
+    QTest::addColumn<MInputMethod::PreeditFace>("preeditFormatFace");
+
+    QTest::newRow("Many candidates and preedit in dictionary")
+        << "hello"
+        << (QStringList()
+            << "hello"
+            << "yellow"
+            << "fellow")
+        << (QList<MImEngine::DictionaryType>()
+            << MImEngine::DictionaryTypeLanguage
+            << MImEngine::DictionaryTypeLanguage
+            << MImEngine::DictionaryTypeLanguage)
+        << MInputMethod::PreeditDefault;
+
+    QTest::newRow("Many candidates but preedit not in dictionary")
+        << "gello"
+        << (QStringList()
+            << "gello"
+            << "yellow"
+            << "fellow")
+        << (QList<MImEngine::DictionaryType>()
+            << MImEngine::DictionaryTypeInvalid
+            << MImEngine::DictionaryTypeLanguage
+            << MImEngine::DictionaryTypeLanguage)
+        << MInputMethod::PreeditDefault;
+
+    QTest::newRow("One candidate and preedit in dictionary")
+        << "hello"
+        << (QStringList()
+            << "hello"
+            << "fellow")
+        << (QList<MImEngine::DictionaryType>()
+            << MImEngine::DictionaryTypeLanguage
+            << MImEngine::DictionaryTypeLanguage)
+        << MInputMethod::PreeditDefault;
+
+    QTest::newRow("One candidate but preedit not in dictionary")
+        << "gello"
+        << (QStringList()
+            << "gello"
+            << "fellow")
+        << (QList<MImEngine::DictionaryType>()
+            << MImEngine::DictionaryTypeInvalid
+            << MImEngine::DictionaryTypeLanguage)
+        << MInputMethod::PreeditDefault;
+
+    QTest::newRow("No candidates but preedit in dictionary")
+        << "hello"
+        << (QStringList()
+            << "hello")
+        << (QList<MImEngine::DictionaryType>()
+            << MImEngine::DictionaryTypeLanguage)
+        << MInputMethod::PreeditDefault;
+
+    QTest::newRow("No candidates and preedit not in dictionary")
+        << "hello"
+        << (QStringList()
+            << "hello")
+        << (QList<MImEngine::DictionaryType>()
+            << MImEngine::DictionaryTypeInvalid)
+        << MInputMethod::PreeditNoCandidates;
+}
+
+void Ut_MKeyboardHost::testPreeditFormat()
+{
+    QFETCH(QString, preedit);
+    QFETCH(QStringList, candidates);
+    QFETCH(QList<MImEngine::DictionaryType>, candidateSource);
+    QFETCH(MInputMethod::PreeditFace, preeditFormatFace);
+
+    // Fill engine
+    stubEngine.setCandidates(candidates);
+    stubEngine.setCandidateSources(candidateSource);
+
+    // Reset host
+    inputMethodHost->clear();
+
+    // Set preedit
+    subject->setPreedit(preedit, -1);
+
+    // Check results
+    QCOMPARE(inputMethodHost->sendPreeditCalls, 1);
+    QCOMPARE(inputMethodHost->preedit, preedit);
+    QVERIFY(inputMethodHost->preeditFormats_.size() > 0);
+    QCOMPARE(inputMethodHost->preeditFormats_[0].preeditFace, preeditFormatFace);
 }
 
 QTEST_APPLESS_MAIN(Ut_MKeyboardHost);

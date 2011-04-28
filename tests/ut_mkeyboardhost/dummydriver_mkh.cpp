@@ -192,7 +192,9 @@ void DummyDriverMkh::setExactWordPositionInList(MImEngine::ExactInListType setti
 
 MImEngine::DictionaryType DummyDriverMkh::candidateSource(int index)
 {
-    Q_UNUSED(index);
+    if (index >= 0 && index < candidateSources.size())
+        return candidateSources[index];
+
     return MImEngine::DictionaryTypeInvalid;
 }
 
@@ -295,6 +297,11 @@ QString DummyDriverMkh::error()
 void DummyDriverMkh::setCandidates(const QStringList &candidates)
 {
     candidateList = candidates;
+}
+
+void DummyDriverMkh::setCandidateSources(const QList<MImEngine::DictionaryType> &candidateSource)
+{
+    candidateSources = candidateSource;
 }
 
 void DummyDriverMkh::setSuggestedCandidateIndexReturnValue(int index)

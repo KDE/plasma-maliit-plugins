@@ -91,6 +91,7 @@ public:
     QString commit;
     QList<QKeyEvent *> keyEvents;
     bool globalCorrectionEnabled;
+    QList<MInputMethod::PreeditTextFormat> preeditFormats_;
 
     int sendPreeditCalls;
     int sendCommitStringCalls;

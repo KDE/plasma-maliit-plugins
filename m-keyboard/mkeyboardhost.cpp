@@ -715,18 +715,21 @@ void MKeyboardHost::setPreedit(const QString &preeditString, int cursor)
         preedit = preeditString;
         preeditHasBeenEdited = false;
         QStringList candidates;
+        bool preeditInDict = false;
         if (EngineManager::instance().engine()) {
             EngineManager::instance().engine()->clearEngineBuffer();
             EngineManager::instance().engine()->reselectString(preeditString);
             candidates = EngineManager::instance().engine()->candidates();
+            preeditInDict = (EngineManager::instance().engine()->candidateSource(0) != MImEngine::DictionaryTypeInvalid);
             if (EngineManager::instance().handler() && EngineManager::instance().handler()->engineWidgetHost())
                 EngineManager::instance().handler()->engineWidgetHost()->setCandidates(candidates);
         }
+
         // updatePreedit() will send back the preedit with updated preedit style.
         // TODO: But this sending back preedit could cause problem. Because the
         // application is calling this setPreedit by sending an asynchronized
         // event. Maybe we need to find out the other way to update the preedit style.
-        updatePreedit(preedit, candidates.count(), 0, 0, preeditCursorPos);
+        updatePreedit(preedit, candidates.count(), preeditInDict, 0, 0, preeditCursorPos);
 
         // If the above updatePreedit does not actually cause any change (typically format and
         // cursor position change) on the application side, there is no reason for update() to
@@ -740,23 +743,28 @@ void MKeyboardHost::setPreedit(const QString &preeditString, int cursor)
 }
 
 void MKeyboardHost::localSetPreedit(const QString &preeditString, int replaceStart,
-                                    int replaceLength, int cursor)
+                                    int replaceLength, int cursor, bool preeditWordEdited)
 {
     preedit = preeditString;
     preeditCursorPos = cursor;
-    preeditHasBeenEdited = true;
+    preeditHasBeenEdited = preeditWordEdited;
     QStringList candidates;
+    bool preeditInDict = false;
     AbstractEngineWidgetHost *engineWidgetHost = EngineManager::instance().handler() ?
         EngineManager::instance().handler()->engineWidgetHost() : 0;
     if (EngineManager::instance().engine()) {
         EngineManager::instance().engine()->clearEngineBuffer();
-        EngineManager::instance().engine()->reselectString(preeditString);
+        if (preeditWordEdited)
+            EngineManager::instance().engine()->appendString(preeditString);
+        else
+            EngineManager::instance().engine()->reselectString(preeditString);
         candidates = EngineManager::instance().engine()->candidates();
+        preeditInDict = (EngineManager::instance().engine()->candidateSource(0) != MImEngine::DictionaryTypeInvalid);
         if (engineWidgetHost) {
             engineWidgetHost->setCandidates(candidates);
         }
     }
-    updatePreedit(preedit, candidates.count(), replaceStart, replaceLength, cursor);
+    updatePreedit(preedit, candidates.count(), preeditInDict, replaceStart, replaceLength, cursor);
 
     if (preedit.isEmpty() && engineWidgetHost && engineWidgetHost->isActive()
         && engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode) {
@@ -1090,7 +1098,7 @@ void MKeyboardHost::doBackspace()
         if (backspaceMode != AutoBackspaceMode) {
             if ((preeditCursorPos < 0) || (preeditCursorPos == preedit.length())) {
                 const int cursor = (preeditCursorPos > 0) ? (preeditCursorPos - 1) : preeditCursorPos;
-                localSetPreedit(preedit.left(preedit.length() - 1), 0, 0, cursor);
+                localSetPreedit(preedit.left(preedit.length() - 1), 0, 0, cursor, true);
             } else {
                 if (preeditCursorPos == 0) {
                     // If preedit cursor is at the beginning of preedit, and there is a
@@ -1102,7 +1110,7 @@ void MKeyboardHost::doBackspace()
                         preedit = previousWord + preedit;
                         preeditCursorPos = previousWord.length();
                         localSetPreedit(preedit, -previousWord.length() - 1,
-                                        previousWord.length() + 1, preeditCursorPos);
+                                        previousWord.length() + 1, preeditCursorPos, true);
                     } else {
                         inputMethodHost()->sendCommitString(preedit, 0, 0, 0);
                         sendBackSpaceKeyEvent();
@@ -1110,7 +1118,7 @@ void MKeyboardHost::doBackspace()
                     }
                 } else {
                     --preeditCursorPos;
-                    localSetPreedit(preedit.remove(preeditCursorPos, 1), 0, 0, preeditCursorPos);
+                    localSetPreedit(preedit.remove(preeditCursorPos, 1), 0, 0, preeditCursorPos, true);
                 }
             }
         } else {
@@ -1119,6 +1127,7 @@ void MKeyboardHost::doBackspace()
         }
     } else {
         QString previousWord;
+        QChar removedSymbol;
         bool valid = false;
         // If error correction is enabled and there is a word before cursor,
         // backspace will recompose the preedit.
@@ -1126,11 +1135,15 @@ void MKeyboardHost::doBackspace()
             && correctionEnabled
             && !inputMethodHost()->hasSelection(valid)
             && valid
-            && needRecomposePreedit(previousWord)) {
+            && needRecomposePreedit(previousWord, &removedSymbol)) {
 
+            // If removed symbol is a letter then it was removed from the preedit word
+            // and thus preedit was edited.
+            const bool preeditWordEdited = removedSymbol.isLetter();
             preedit = previousWord;
             preeditCursorPos = previousWord.length();
-            localSetPreedit(preedit, -previousWord.length() - 1, previousWord.length() + 1, preeditCursorPos);
+            localSetPreedit(preedit, -previousWord.length() - 1, previousWord.length() + 1,
+                            preeditCursorPos, preeditWordEdited);
         } else {
             sendBackSpaceKeyEvent();
         }
@@ -1538,13 +1551,16 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
             preeditCursorPos += text.length();
             if (EngineManager::instance().engine()) {
                 EngineManager::instance().engine()->clearEngineBuffer();
-                EngineManager::instance().engine()->reselectString(preedit);
+                EngineManager::instance().engine()->appendString(preedit);
             }
         }
 
         QStringList candidates;
-        if (EngineManager::instance().engine())
+        bool preeditInDict = false;
+        if (EngineManager::instance().engine()) {
             candidates = EngineManager::instance().engine()->candidates();
+            preeditInDict = (EngineManager::instance().engine()->candidateSource(0) != MImEngine::DictionaryTypeInvalid);
+        }
 
         AbstractEngineWidgetHost *engineWidgetHost = EngineManager::instance().handler() ?
             EngineManager::instance().handler()->engineWidgetHost() : 0;
@@ -1554,7 +1570,7 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
         preeditHasBeenEdited = true;
 
         // update preedit before showing word tracker
-        updatePreedit(preedit, candidates.count(), 0, 0, preeditCursorPos);
+        updatePreedit(preedit, candidates.count(), preeditInDict, 0, 0, preeditCursorPos);
 
         if ((preeditCursorPos < 0 || preeditCursorPos == preedit.length())
              && EngineManager::instance().engine()
@@ -2083,16 +2099,14 @@ void MKeyboardHost::updateEngineKeyboardLayout()
     engineLayoutDirty = false;
 }
 
-void MKeyboardHost::updatePreedit(const QString &string, int candidateCount, int replaceStart,
-                                  int replaceLength, int cursor)
+void MKeyboardHost::updatePreedit(const QString &string, int candidateCount, bool preeditInDictionary,
+                                  int replaceStart, int replaceLength, int cursor)
 {
-    // preedit style type depends on candidateCount and cursor.
-    // candidateCount     styleType             cursor
-    //  0 or 1            PreeditNoCandidates   at tail or < 0
-    //  >1                PreeditDefault        at tail or < 0
-    //  any               PreeditDefault        in the middle of preedit
+    // Preedit style is MInputMethod::PreeditNoCandidates only if there are no
+    // other candidate suggestions from engine AND preedit cannot be found
+    // from dictionary.
     MInputMethod::PreeditFace face = MInputMethod::PreeditDefault;
-    if (candidateCount <= 1) {
+    if (candidateCount <= 1 && !preeditInDictionary) {
         face = MInputMethod::PreeditNoCandidates;
     }
 
@@ -2221,7 +2235,7 @@ void MKeyboardHost::setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverr
     }
 }
 
-bool MKeyboardHost::needRecomposePreedit(QString &previousWord)
+bool MKeyboardHost::needRecomposePreedit(QString &previousWord, QChar *removedSymbol)
 {
     // check whether there is a previous word + space before cursor.
     bool needRecomposePreedit = false;
@@ -2229,6 +2243,8 @@ bool MKeyboardHost::needRecomposePreedit(QString &previousWord)
         && !surroundingText.isEmpty()
         && cursorPos > 0) {
         previousWord = surroundingText.left(cursorPos - 1);
+        if (removedSymbol)
+            *removedSymbol = surroundingText[cursorPos-1];
         if (!previousWord.isEmpty()) {
             // ignore space, punct and symbol.
             const QChar lastChar = previousWord.at(previousWord.length() - 1);

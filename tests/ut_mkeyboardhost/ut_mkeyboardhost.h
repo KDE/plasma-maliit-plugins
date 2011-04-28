@@ -132,6 +132,9 @@ private slots:
     void testTogglePlusMinus_data();
     void testTogglePlusMinus();
 
+    void testPreeditFormat_data();
+    void testPreeditFormat();
+
 private:
     void rotateToAngle(M::OrientationAngle);
     void triggerAutoCaps();

@@ -61,6 +61,7 @@ void MInputMethodHostStub::clear()
     preeditRectangleReturnValue = QRect();
     cursorRectangleReturnValue = QRect();
     preedit.clear();
+    preeditFormats_.clear();
     commit.clear();
     qDeleteAll(keyEvents);
     keyEvents.clear();
@@ -95,12 +96,12 @@ void MInputMethodHostStub::sendPreeditString(const QString &string,
                                              int replaceLength,
                                              int pos)
 {
-    Q_UNUSED(preeditFormats);
     Q_UNUSED(replaceStart);
     Q_UNUSED(replaceLength);
     Q_UNUSED(pos);
 
     preedit = string;
+    preeditFormats_ = preeditFormats;
     ++sendPreeditCalls;
 }
 

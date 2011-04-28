@@ -161,6 +161,7 @@ public:
     // Special setters for ut_mkeyboardhost..................................
 
     void setCandidates(const QStringList &candidates);
+    void setCandidateSources(const QList<MImEngine::DictionaryType> &candidateSource);
     //! \brief Note that this is different from setSuggestedCandidateIndex
     void setSuggestedCandidateIndexReturnValue(int index);
 
@@ -176,6 +177,7 @@ private:
     int maximumCandidatesCount;
 
     QStringList candidateList;
+    QList<MImEngine::DictionaryType> candidateSources;
     int suggestedCandidateIndexValue;
 };
 

@@ -282,19 +282,30 @@ private:
     //! update input engine keyboard layout according keyboard layout.
     void updateEngineKeyboardLayout();
 
-    //! set preedit string and cursor position.
+    /*!
+     * \brief set preedit string and cursor position.
+     *
+     * \param preeditString The preedit string
+     * \param replaceStart The position at which characters are to be replaced relative from the start of the preedit string.
+     * \param replaceLength The number of characters to be replaced in the preedit string.
+     * \param cursorPosition The cursor position inside preedit. Default value -1 indicates to hide the cursor.
+     * \param preeditWordEdited True if setting preedit alters the previously set preedit. I.e. false when new word is set.
+     */
     void localSetPreedit(const QString &preeditString, int replaceStart, int replaceLength,
-                         int cursorPosition);
+                         int cursorPosition, bool preeditWordEdited);
 
     /*!
      * \brief send preedit string and cursor to application and its style depends on \a candidateCount.
      *
      * \param string The preedit string
      * \param candidateCount The count of candidates suggested by input engine.
+     * \param preeditInDictionary True if preedit is known word in the input engines dictionary.
+     * \param replaceStart The position at which characters are to be replaced relative from the start of the preedit string.
+     * \param replaceLength The number of characters to be replaced in the preedit string.
      * \param cursorPosition The cursor position inside preedit. Default value -1 indicates to hide the cursor.
      */
-    void updatePreedit(const QString &string, int candidateCount, int replaceStart = 0,
-                       int replaceLength = 0, int cursorPosition = -1);
+    void updatePreedit(const QString &string, int candidateCount, bool preeditInDictionary,
+                       int replaceStart = 0, int replaceLength = 0, int cursorPosition = -1);
 
     /*!
      * \brief This enum defines different mode for backspace clicking.
@@ -323,7 +334,7 @@ private:
 
     //! Check whether there is a previous word before cursor need to be recomposed
     //! as preedit. This method is used for vkb backspace.
-    bool needRecomposePreedit(QString &previousWord);
+    bool needRecomposePreedit(QString &previousWord, QChar *removedSymbol = 0);
 
 private:
     //! \brief Slides full-width QGraphicsWidgets up from the bottom of the display,
