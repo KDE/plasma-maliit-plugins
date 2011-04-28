@@ -33,6 +33,7 @@
 #define MKEYBOARDSETTINGSWIDGET_H
 
 #include <QObject>
+#include <QWeakPointer>
 #include <MWidget>
 #include "mkeyboardsettings.h"
 
@@ -93,7 +94,7 @@ private:
     MBasicListItem *errorCorrectionContentItem;
     MButton *correctionSpaceSwitch;
     MBasicListItem *correctionSpaceContentItem;
-    MDialog *keyboardDialog;
+    QWeakPointer<MDialog> keyboardDialog;
     MList *keyboardList;
     MBasicListItem *selectedKeyboardsItem;
 

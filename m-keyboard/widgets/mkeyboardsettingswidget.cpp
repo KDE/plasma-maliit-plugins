@@ -114,7 +114,6 @@ void MKeyboardCellCreator::updateContentItemMode(const QModelIndex &index,
 MKeyboardSettingsWidget::MKeyboardSettingsWidget(MKeyboardSettings *settings, QGraphicsItem *parent)
     : MWidget(parent),
       settingsObject(settings),
-      keyboardDialog(0),
       keyboardList(0)
 {
     MLayout *layout = new MLayout(this);
@@ -144,8 +143,8 @@ MKeyboardSettingsWidget::MKeyboardSettingsWidget(MKeyboardSettings *settings, QG
 
 MKeyboardSettingsWidget::~MKeyboardSettingsWidget()
 {
-    delete keyboardDialog;
-    keyboardDialog = 0;
+    if (!keyboardDialog.isNull())
+        delete keyboardDialog.data();
 }
 
 void MKeyboardSettingsWidget::buildUi()
@@ -297,8 +296,8 @@ void MKeyboardSettingsWidget::updateTitle()
     }
     selectedKeyboardsItem->setSubtitle(brief);
 
-    if (keyboardDialog) {
-        keyboardDialog->setTitle(title);
+    if (!keyboardDialog.isNull()) {
+        keyboardDialog.data()->setTitle(title);
     }
 }
 
@@ -361,20 +360,20 @@ void MKeyboardSettingsWidget::showKeyboardList()
 
     QStringList keyboards = settingsObject->selectedKeyboards().values();
 
-    if (!keyboardDialog) {
+    if (keyboardDialog.isNull()) {
         keyboardDialog = new MDialog();
 
-        keyboardList = new MList(keyboardDialog);
+        keyboardList = new MList(keyboardDialog.data());
         MKeyboardCellCreator *cellCreator = new MKeyboardCellCreator;
         keyboardList->setCellCreator(cellCreator);
         keyboardList->setSelectionMode(MList::MultiSelection);
         createKeyboardModel();
-        keyboardDialog->setCentralWidget(keyboardList);
-        keyboardDialog->addButton(M::DoneButton);
+        keyboardDialog.data()->setCentralWidget(keyboardList);
+        keyboardDialog.data()->addButton(M::DoneButton);
 
         connect(keyboardList, SIGNAL(itemClicked(const QModelIndex &)),
                 this, SLOT(updateSelectedKeyboards(const QModelIndex &)));
-        connect(keyboardDialog, SIGNAL(accepted()),
+        connect(keyboardDialog.data(), SIGNAL(accepted()),
                 this, SLOT(selectKeyboards()));
     }
     updateKeyboardSelectionModel();
@@ -383,8 +382,8 @@ void MKeyboardSettingsWidget::showKeyboardList()
     // cancelled/closed without tapping on the Done button.
     QString keyboardTitle = qtTrId("qtn_txts_installed_keyboards")
                                    .arg(keyboards.count());
-    keyboardDialog->setTitle(keyboardTitle);
-    keyboardDialog->exec();
+    keyboardDialog.data()->setTitle(keyboardTitle);
+    keyboardDialog.data()->appear(MSceneWindow::DestroyWhenDone);
 }
 
 void MKeyboardSettingsWidget::createKeyboardModel()
@@ -430,7 +429,7 @@ void MKeyboardSettingsWidget::updateKeyboardSelectionModel()
 
 void MKeyboardSettingsWidget::updateSelectedKeyboards(const QModelIndex &index)
 {
-    if (!index.isValid() || !keyboardDialog || !keyboardList
+    if (!index.isValid() || keyboardDialog.isNull() || !keyboardList
         || !keyboardList->selectionModel())
         return;
 
@@ -440,12 +439,12 @@ void MKeyboardSettingsWidget::updateSelectedKeyboards(const QModelIndex &index)
     QString title = qtTrId("qtn_txts_installed_keyboards")
                             .arg(indexList.size());
 
-    keyboardDialog->setTitle(title);
+    keyboardDialog.data()->setTitle(title);
 }
 
 void MKeyboardSettingsWidget::selectKeyboards()
 {
-    if (!settingsObject || !keyboardDialog)
+    if (!settingsObject || keyboardDialog.isNull())
         return;
 
     QStringList updatedKeyboardLayouts;
@@ -540,10 +539,10 @@ void MKeyboardSettingsWidget::handleVisibilityChanged()
 {
     // This is a workaround to hide settings dialog when keyboard is hidden.
     // And it could be removed when NB#177922 is fixed.
-    if (!isVisible() && keyboardDialog) {
+    if (!isVisible() && !keyboardDialog.isNull()) {
         // reject settings dialog if the visibility of settings widget
         // is changed from shown to hidden.
-        keyboardDialog->reject();
+        keyboardDialog.data()->reject();
     }
 }
 
