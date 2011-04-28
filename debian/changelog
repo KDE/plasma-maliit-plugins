@@ -1,3 +1,9 @@
+meego-keyboard (0.5.42~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- huaming wang <huaming.wang@nokia.com>  Thu, 28 Apr 2011 14:14:05 +0300
+
 meego-keyboard (0.5.41-1) unstable; urgency=low
 
   * New release
