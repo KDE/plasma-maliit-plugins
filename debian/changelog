@@ -1,10 +1,9 @@
-meego-keyboard (0.5.42~1) unstable; urgency=low
+meego-keyboard (0.5.42-1) unstable; urgency=low
 
-  * [UNRELEASED]
   * Fixes: NB#245545 - The characters in the buttons are shown with different font size
   * Fixes: NB#249527 - Cannot enter character at the place of cursor while adding Skype Account
 
- -- huaming wang <huaming.wang@nokia.com>  Thu, 28 Apr 2011 14:14:05 +0300
+ -- Michael Hasselmann <michaelh@openismus.com>  Fri, 29 Apr 2011 14:21:36 +0200
 
 meego-keyboard (0.5.41-1) unstable; urgency=low
 
