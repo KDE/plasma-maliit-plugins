@@ -693,6 +693,11 @@ void Ut_MImKey::testIconInfo()
     } else {
         Q_ASSERT(false); // Should never happen
     }
+
+    subject->lowerCaseIcon.pixmap = 0;
+    subject->lowerCaseCompactIcon.pixmap = 0;
+    subject->upperCaseIcon.pixmap = 0;
+    subject->upperCaseCompactIcon.pixmap = 0;
 }
 
 MImKey *Ut_MImKey::createKey(bool state)
