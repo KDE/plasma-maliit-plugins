@@ -144,11 +144,17 @@ void WordRibbon::repopulate(const QStringList &candidateList)
             int dialogButtonWidth = moreButton->size().width();
             int lastItemIndex = numVisibleItems - 1;
 
-            while(lastItemIndex >=0 && itemRightHandSpaceList.at(lastItemIndex) < dialogButtonWidth) {
-                WordRibbonItem *item = itemList.at(lastItemIndex);
-                item->setVisible(false);
-                --lastItemIndex;
-                --numVisibleItems;
+            if (lastItemIndex >= itemRightHandSpaceList.size()) {
+                qWarning() << __PRETTY_FUNCTION__
+                           << "Got more candidates than what's available in itemRightHandSpaceList";
+            } else {
+                while(lastItemIndex >=0
+                      && itemRightHandSpaceList.at(lastItemIndex) < dialogButtonWidth) {
+                    WordRibbonItem *item = itemList.at(lastItemIndex);
+                    item->setVisible(false);
+                    --lastItemIndex;
+                    --numVisibleItems;
+                }
             }
 
             moreButton->setX(contentRect.x() + contentRect.width() 
