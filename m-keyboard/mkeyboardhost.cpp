@@ -1438,7 +1438,7 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
     if (!correctionEnabled) {
         if (preedit.length() > 0) {
             // we just entered accurate mode. send the previous preedit stuff.
-            inputMethodHost()->sendCommitString(preedit);
+            inputMethodHost()->sendCommitString(preedit, 0, 0, preeditCursorPos);
             if (EngineManager::instance().engine())
                 EngineManager::instance().engine()->clearEngineBuffer();
             preedit.clear();
