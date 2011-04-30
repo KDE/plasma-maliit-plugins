@@ -140,7 +140,7 @@ void ExtendedKeys::showExtendedArea(const QPointF &origin,
     // Custom haptic feedback for this popup being appeared
     MFeedback::play("priority2_vkb_popup_press");
     // TODO: disable swipe gestures from extended keys area
-    extKeysArea.reset(new ExtendedKeysArea(section, this));
+    extKeysArea.reset(ExtendedKeysArea::create(section, this));
     extKeysArea->setStyleName("ExtendedKeys");
 
     // Send clicked signal as if it was from mainArea.

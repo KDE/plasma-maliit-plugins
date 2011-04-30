@@ -54,6 +54,24 @@ class ExtendedKeysArea
     : public MImKeyArea
 {
 public:
+    static ExtendedKeysArea *create(const LayoutData::SharedLayoutSection &section,
+                                    QGraphicsWidget *parent)
+    {
+        ExtendedKeysArea *keyArea(new ExtendedKeysArea(section, parent));
+        keyArea->init();
+        return keyArea;
+    }
+
+    virtual ~ExtendedKeysArea()
+    {}
+
+    // Used for event forwarding, to simulate "touch event grabbing"
+    virtual bool event(QEvent *ev)
+    {
+        return MImKeyArea::event(ev);
+    }
+
+protected:
     explicit ExtendedKeysArea(const LayoutData::SharedLayoutSection &section,
                               QGraphicsWidget *parent)
         : MImKeyArea(section, parent)
@@ -62,15 +80,6 @@ public:
         setObjectName("VirtualKeyboardExtendedArea");
     }
 
-    virtual ~ExtendedKeysArea()
-    {}
-
-
-    // Used for event forwarding, to simulate "touch event grabbing"
-    virtual bool event(QEvent *ev)
-    {
-        return MImKeyArea::event(ev);
-    }
 };
 //! \internal_end
 
