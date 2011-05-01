@@ -33,6 +33,7 @@ SUBDIRS = \
           ut_wordribbondialog \
           ut_wordribbondialogmodel \
           ut_mimfontpool \
+          ut_magnifier \
 
 contains(CONFIG, nomeegotouch) {
 } else {
