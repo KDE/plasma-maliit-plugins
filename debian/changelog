@@ -1,3 +1,9 @@
+meego-keyboard (0.6.0~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Michael Hasselmann <michaelh@openismus.com>  Sun, 01 May 2011 22:21:28 +0200
+
 meego-keyboard (0.5.42-1) unstable; urgency=low
 
   * Fixes: NB#245545 - The characters in the buttons are shown with different font size
