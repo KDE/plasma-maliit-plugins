@@ -149,7 +149,9 @@ public slots:
      */
     virtual void setComposeKeyState(bool isComposing) = 0;
 
-    //! \brief Sets popup
+    //! \brief Sets popup.
+    //! \param popup the popup instance. MImAbstractKeyArea takes ownership.
+    //! \sa MImAbstractPopup::setMainArea
     void setPopup(MImAbstractPopup *popup);
 
     //! \brief Returns popup

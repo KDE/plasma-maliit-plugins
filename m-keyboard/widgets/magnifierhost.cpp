@@ -117,21 +117,9 @@ void MagnifierHost::applyConstrainedPosition(QGraphicsItem *target,
     }
 }
 
-MagnifierHost::MagnifierHost(MImAbstractKeyArea *mainArea)
-    : QObject(mainArea)
-    , MImAbstractPopup(mainArea)
-    , magnifier(new Magnifier(this, mainArea))
-    , extKeys(new ExtendedKeys(this, mainArea))
+MagnifierHost::MagnifierHost()
 {
-    Q_ASSERT_X(mainArea != 0,
-               __PRETTY_FUNCTION__,
-               "Need valid main area from VKB.");
-
     styleContainer.initialize(QString(), QString(), 0);
-    magnifier->setup();
-    magnifier->setSafetyMargins(QMargins(mainArea->baseStyle()->paddingLeft(), -1,
-                                         mainArea->baseStyle()->paddingRight(), -1));
-
     hideDelayTimer.setSingleShot(true);
     hideDelayTimer.setInterval(styleContainer->magnifierHideDelay());
 
@@ -142,13 +130,24 @@ MagnifierHost::MagnifierHost(MImAbstractKeyArea *mainArea)
 
 MagnifierHost::~MagnifierHost()
 {
-    if (magnifier && !magnifier->scene()) {
-        delete magnifier;
+    reset();
+}
+
+void MagnifierHost::setMainArea(MImAbstractKeyArea *mainArea)
+{
+    reset();
+
+    if (not mainArea) {
+        return;
     }
 
-    if (extKeys && !extKeys->scene()) {
-        delete extKeys;
-    }
+    setParent(mainArea);
+    magnifier = QPointer<Magnifier>(new Magnifier(this, mainArea));
+    magnifier->setup();
+    magnifier->setSafetyMargins(QMargins(mainArea->baseStyle()->paddingLeft(), -1,
+                                         mainArea->baseStyle()->paddingRight(), -1));
+
+    extKeys = QPointer<ExtendedKeys>(new ExtendedKeys(this, mainArea));
 }
 
 const MKeyboardMagnifierStyleContainer &MagnifierHost::style() const
@@ -226,4 +225,12 @@ void MagnifierHost::setVisible(bool visible)
 void MagnifierHost::hide()
 {
     setVisible(false);
+}
+
+void MagnifierHost::reset()
+{
+    delete magnifier;
+    delete extKeys;
+
+    hideDelayTimer.stop();
 }

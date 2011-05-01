@@ -41,7 +41,7 @@
 #include <mimabstractkeyarea.h>
 
 #include <QObject>
-#include <QPointer>
+#include <QWeakPointer>
 #include <QMargins>
 #include <QGraphicsItem>
 #include <QPointF>
@@ -72,7 +72,7 @@ public:
         UseMImKeyAreaOrigins        //!< pos() == boundingRect().topLeft()
     };
 
-    explicit MagnifierHost(MImAbstractKeyArea *mainArea);
+    explicit MagnifierHost();
     virtual ~MagnifierHost();
 
     //! Moves target item to new position, respecting the parent's bounding
@@ -91,6 +91,7 @@ public:
     const MKeyboardMagnifierStyleContainer &style() const;
 
     //! \reimp
+    virtual void setMainArea(MImAbstractKeyArea *mainArea);
     virtual void updatePos(const QPointF &keyPos,
                            const QPoint &screenPos,
                            const QSize &keySize);
@@ -113,6 +114,10 @@ public slots:
     //! 1. touch press, 2. hide, 3. mouse press can happen.
     //! \sa QTimer::singleShot, Qt::QueuedConnection
     void hide();
+
+private:
+    //! Resets instance. Need to use setMainArea before it becomes usable again.
+    void reset();
 };
 
 #endif // MagnifierHost_H

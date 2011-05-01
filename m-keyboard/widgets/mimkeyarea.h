@@ -52,7 +52,8 @@ class MImKeyArea
 public:
     //! \brief Constructor, see \a MImAbstractKeyArea
     static MImKeyArea *create(const LayoutData::SharedLayoutSection &newSection,
-                              QGraphicsWidget *parent = 0);
+                              bool usePopup,
+                              QGraphicsWidget *parent);
 
     //! \brief Destructor
     virtual ~MImKeyArea();

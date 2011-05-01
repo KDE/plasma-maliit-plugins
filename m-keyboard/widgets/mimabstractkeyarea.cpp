@@ -1022,6 +1022,10 @@ void MImAbstractKeyArea::setPopup(MImAbstractPopup *popup)
     if (popup != d->popup) {
         delete d->popup;
         d->popup = popup;
+
+        if (d->popup) {
+            d->popup->setMainArea(this);
+        }
     }
 }
 

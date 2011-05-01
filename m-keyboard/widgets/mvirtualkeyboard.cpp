@@ -46,7 +46,6 @@
 #include "reactionmappainter.h"
 #include "regiontracker.h"
 #include "reactionmapwrapper.h"
-#include "magnifierhost.h"
 
 #include <mtoolbardata.h>
 #include <mkeyoverride.h>
@@ -608,11 +607,7 @@ MImAbstractKeyArea * MVirtualKeyboard::createSectionView(const QString &layout,
                                                          QGraphicsWidget *parent)
 {
     const LayoutData *model = layoutsMgr.layout(layout, layoutType, orientation);
-    MImAbstractKeyArea *view = MImKeyArea::create(model->section(section), parent);
-
-    if (usePopup) {
-        view->setPopup(new MagnifierHost(view));
-    }
+    MImAbstractKeyArea *view = MImKeyArea::create(model->section(section), usePopup, parent);
 
     eventHandler.addEventSource(view);
     connect(view, SIGNAL(flickDown()), this, SIGNAL(userInitiatedHide()));

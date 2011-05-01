@@ -34,6 +34,7 @@
 #include "mimkeyvisitor.h"
 #include "mplainwindow.h"
 #include "reactionmapwrapper.h"
+#include "magnifierhost.h"
 
 #include <QDebug>
 #include <QEvent>
@@ -642,10 +643,15 @@ MImKeyArea::~MImKeyArea()
 }
 
 MImKeyArea *MImKeyArea::create(const LayoutData::SharedLayoutSection &newSection,
+                               bool usePopup,
                                QGraphicsWidget *parent)
 {
     MImKeyArea *keyArea(new MImKeyArea(newSection, parent));
     keyArea->init();
+
+    if (usePopup) {
+        keyArea->setPopup(new MagnifierHost);
+    }
     return keyArea;
 }
 

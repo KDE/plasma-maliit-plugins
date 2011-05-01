@@ -257,7 +257,7 @@ private:
 
     //! \brief Creates MImAbstractKeyArea from given section model and connects appropriate signals.
     MImAbstractKeyArea *createMImAbstractKeyArea(const LayoutData::SharedLayoutSection &section,
-                                       bool enablePopup = true);
+                                                 bool enablePopup = true);
 
     //! Getter for style container
     const MVirtualKeyboardStyleContainer &style() const;

@@ -61,13 +61,8 @@ private slots:
     void initTestCase();
     void cleanupTestCase();
 
-    void testLandscapeBoxSize_data();
     void testLandscapeBoxSize();
-    void testPortraitBoxSize_data();
     void testPortraitBoxSize();
-    void testSceneEvent_data();
-    void testSceneEvent();
-    void testPaint_data();
     void testPaint();
     void testDeadkeys_data();
     void testDeadkeys();
@@ -78,11 +73,9 @@ private slots:
     void testKeyId();
     void testContentType_data();
     void testContentType();
-    void testImportedLayouts_data();
     void testImportedLayouts();
-    void testPopup_data();
     void testPopup();
-    void testInitialization_data();
+    void testPopupOwnership();
     void testInitialization();
     void testShiftCapsLock();
     void testOverridenKey_data();

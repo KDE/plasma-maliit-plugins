@@ -88,7 +88,6 @@ SOURCES += \
     $$WIDGETS_DIR/mimkey.cpp \
     $$WIDGETS_DIR/mimkeyarea.cpp \
     $$WIDGETS_DIR/mplainwindow.cpp \
-    $$WIDGETS_DIR/mimabstractpopup.cpp \
     $$WIDGETS_DIR/mtoolbarbutton.cpp \
     $$WIDGETS_DIR/mtoolbarbuttonview.cpp \
     $$WIDGETS_DIR/mtoolbarlabel.cpp \

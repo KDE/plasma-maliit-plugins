@@ -360,17 +360,12 @@ void SymbolView::addPage(const LayoutData::SharedLayoutSection &symbolSection)
 }
 
 MImAbstractKeyArea *SymbolView::createMImAbstractKeyArea(const LayoutData::SharedLayoutSection &section,
-                                               bool enablePopup)
+                                                         bool usePopup)
 {
     MImAbstractKeyArea *keyArea = 0;
 
     if (!section.isNull()) {
-        keyArea = MImKeyArea::create(section);
-
-        if (enablePopup) {
-            keyArea->setPopup(new MagnifierHost(keyArea));
-        }
-
+        keyArea = MImKeyArea::create(section, usePopup, 0);
         eventHandler.addEventSource(keyArea);
 
         connect(keyArea, SIGNAL(keyClicked(const MImAbstractKey *, const KeyContext &)),

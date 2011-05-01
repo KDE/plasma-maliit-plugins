@@ -46,13 +46,13 @@ class QString;
 class MImAbstractPopup
 {
 public:
-    //! Constructor
-    //! \param mainArea Allows MImAbstractPopup to forward requests to the
-    //! main area, which must take ownership over the popup instance.
-    explicit MImAbstractPopup(const MImAbstractKeyArea  *mainArea);
+    virtual ~MImAbstractPopup() = 0;
 
-    //! \brief Destructor
-    virtual ~MImAbstractPopup();
+    //! \brief Set main area
+    //!
+    //! \param mainArea Allows MImAbstractPopup to forward requests to the
+    //! main area. Must assign popup instance ownership to mainArea.
+    virtual void setMainArea(MImAbstractKeyArea *mainArea) = 0;
 
     //! \brief Sets popup position at specified key in according to current orientation
     //! \param keyPos key's position
@@ -83,5 +83,8 @@ public:
     //! Toggles visibility of MImAbstractPopup
     virtual void setVisible(bool visible) = 0;
 };
+
+inline MImAbstractPopup::~MImAbstractPopup()
+{}
 
 #endif // MIMABSTRACTPOPUP_H
