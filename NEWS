@@ -1,3 +1,11 @@
+0.6.0
+=====
+
+* New features:
+  - Virtual keyboard magnifier shows the currently touched letter.
+  - Extended keys popup on long-press, for keys with the extended_labels
+    attribute in the layout files.
+
 0.5.38
 ======
 
