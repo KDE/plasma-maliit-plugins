@@ -99,7 +99,7 @@
       </row>
 
       <row>
-        <key style="special">
+        <key style="special" width="large">
           <binding action="shift"/>
         </key>
 
@@ -136,26 +136,26 @@
           <binding shift="true" label="Ą"/>
         </key>
 
-        <key style="special">
+        <key style="special" width="large">
           <binding action="backspace"/>
         </key>
       </row>
 
       <row>
-        <key style="special" width="large">
+        <key style="special" width="x-large">
           <binding action="sym" label="?123"/>
         </key>
 
         <key id="emailUrlKey"><binding label=","/></key>
         <key><binding label="."/></key>
-        <key width="xx-large"><binding action="space"/></key>
+        <key width="stretched"><binding action="space"/></key>
 
         <key>
           <binding label="ę"/>
           <binding shift="true" label="Ę"/>
         </key>
 
-        <key style="special" width="x-large" id="actionKey">
+        <key style="special" width="xx-large" id="actionKey">
           <binding action="return"/>
         </key>
       </row>

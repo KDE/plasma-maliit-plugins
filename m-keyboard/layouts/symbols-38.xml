@@ -76,7 +76,7 @@
       </row>
 
       <row>
-        <key style="special">
+        <key style="special" width="large">
           <binding action="switch" label="1/2"/>
         </key>
         <key>
@@ -101,29 +101,30 @@
           <binding label="&#x00B0;"/>
         </key>
         <key>
-          <binding label="?"/>
-        </key>
-        <key>
           <binding label="!"/>
         </key>
-        <key style="special">
+        <key style="special" width="large">
           <binding action="backspace"/>
         </key>
       </row>
 
       <row>
-        <key style="special" width="large">
+        <key style="special" width="x-large">
           <binding action="sym" label="ABC"/>
         </key>
         
         <key><binding label=","/></key>
         <key><binding label="."/></key>
         
-        <key width="xx-large">
+        <key width="stretched">
           <binding action="space"/>
         </key>
         
-        <key style="special" width="x-large" id="actionKey">
+        <key>
+          <binding label="?"/>
+        </key>
+
+        <key style="special" width="xx-large" id="actionKey">
           <binding action="return"/>
         </key>
 
@@ -204,7 +205,7 @@
       </row>
 
       <row>
-        <key style="special">
+        <key style="special" width="large">
           <binding action="switch" label="2/2"/>
         </key>
         <key>
@@ -229,29 +230,30 @@
           <binding label="&#x00A9;"/>
         </key>
         <key>
-          <binding label="&#x00BF;"/>
-        </key>
-        <key>
           <binding label="&#x00A1;"/>
         </key>
-        <key style="special">
+        <key style="special" width="large">
           <binding action="backspace"/>
         </key>
       </row>
 
       <row>
-        <key style="special" width="large">
+        <key style="special" width="x-large">
           <binding action="sym" label="ABC"/>
         </key>
         
         <key><binding label="&#x003C;"/></key>
         <key><binding label="&#x003E;"/></key>
         
-        <key width="xx-large">
+        <key width="stretched">
           <binding action="space"/>
         </key>
         
-        <key style="special" width="x-large" id="actionKey">
+        <key>
+          <binding label="&#x00BF;"/>
+        </key>
+
+        <key style="special" width="xx-large" id="actionKey">
           <binding action="return"/>
         </key>
       </row>
