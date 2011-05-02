@@ -381,6 +381,18 @@ MImAbstractKeyAreaStyle.Portrait:keys40 {
     padding-right: 1px;
 }
 
+#KeyboardShadow {
+    background-image: "meegotouch-keyboard-border-top";
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    margin-right: 0;
+
+    preferred-size: 100% 13px;
+    minimum-size: 100% 13px;
+    maximum-size: 100% 13px;
+}
+
 #InvisibleHandle.Portrait {
     preferred-size: 480 2.5mm;
     minimum-size:   480 2.5mm;

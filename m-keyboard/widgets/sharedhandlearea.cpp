@@ -35,6 +35,7 @@
 #include "regiontracker.h"
 
 #include <mplainwindow.h>
+#include <MStylableWidget>
 
 #include <QDebug>
 #include <QGraphicsLinearLayout>
@@ -46,14 +47,13 @@ SharedHandleArea::SharedHandleArea(MImToolbar &toolbar, QGraphicsWidget *parent)
     : MWidget(parent),
       mainLayout(*new QGraphicsLinearLayout(Qt::Vertical, this)),
       invisibleHandle(*new Handle(this)),
+      keyboardShadow(*new MStylableWidget(this)),
       zeroSizeInvisibleHandle(*new QGraphicsWidget(this)),
       toolbar(toolbar),
       inputMethodMode(M::InputMethodModeNormal)
 {
     setObjectName("SharedHandleArea");
     hide();
-    RegionTracker::instance().addRegion(*this);
-    RegionTracker::instance().addInputMethodArea(*this);
 
     zeroSizeInvisibleHandle.setObjectName("zeroSizeInvisibleHandle");
 
@@ -67,8 +67,17 @@ SharedHandleArea::SharedHandleArea(MImToolbar &toolbar, QGraphicsWidget *parent)
     mainLayout.addItem(&zeroSizeInvisibleHandle);
     connectHandle(invisibleHandle);
 
+    keyboardShadow.setObjectName("KeyboardShadow");
+    keyboardShadow.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+    keyboardShadow.show();
+    mainLayout.addItem(&keyboardShadow);
+
     mainLayout.addItem(&toolbar);
     mainLayout.setAlignment(&toolbar, Qt::AlignCenter);
+
+    RegionTracker::instance().addRegion(toolbar);
+    RegionTracker::instance().addInputMethodArea(toolbar);
+    RegionTracker::instance().setGeometryProxy(toolbar, *this);
 
     connect(this, SIGNAL(visibleChanged()), this, SLOT(updatePosition()));
 }

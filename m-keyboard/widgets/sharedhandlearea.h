@@ -103,6 +103,7 @@ private slots:
 private:
     enum LayoutIndex {
         InvisibleHandleIndex,
+        KeyboardShadowIndex,
         ToolbarIndex,
     };
 
@@ -110,6 +111,9 @@ private:
 
     //! Invisible gesture handle used only in direct mode
     Handle &invisibleHandle;
+
+    //! Drop shadow on top of everything
+    MWidget &keyboardShadow;
 
     //! Dummy widget we use in place of the invisible gesture handle when it's
     //! not ... err, visible (in its usual invisible way)

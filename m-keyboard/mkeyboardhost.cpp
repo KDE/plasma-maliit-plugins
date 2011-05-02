@@ -526,12 +526,10 @@ void MKeyboardHost::sendRegionEstimate()
         stackedRects |= vkbRect;
     }
 
-    // Add toolbar rect if it is visible.
-    if (sharedHandleArea->isVisible()) {
-        QRectF toolbarRect(sharedHandleArea->rect());
-        toolbarRect.moveBottom(stackedRects.top());
-        stackedRects |= toolbarRect;
-    }
+    // Add toolbar rect (toolbar is always visible, even when it is empty)
+    QRectF toolbarRect(imToolbar->rect());
+    toolbarRect.moveBottom(stackedRects.top());
+    stackedRects |= toolbarRect;
 
     const QRegion region(sceneWindow->mapRectToScene(stackedRects).toRect());
 
@@ -564,8 +562,7 @@ void MKeyboardHost::show()
     // happens in the scene, not in the view (MWindow) anymore.
     MPlainWindow::instance()->sceneManager()->appearSceneWindowNow(sceneWindow);
 
-    if (imToolbar->currentToolbarData())
-        sharedHandleArea->show();
+    sharedHandleArea->show();
 
     prepareHideShowAnimation();
     if (activeState == MInputMethod::OnScreen) {
@@ -1688,7 +1685,6 @@ void MKeyboardHost::setToolbar(QSharedPointer<const MToolbarData> toolbar)
 
     if (toolbar && toolbar->isVisible()) {
         const MToolbarData *oldToolbar = imToolbar->currentToolbarData();
-        sharedHandleArea->show();
         imToolbar->showToolbarWidget(toolbar);
         // if current is in Hardware state, and no toolbar being visible before,
         // start animation to show new toolbar.
@@ -1698,7 +1694,6 @@ void MKeyboardHost::setToolbar(QSharedPointer<const MToolbarData> toolbar)
         }
     } else if (haveFocus) {
         imToolbar->hideToolbarWidget();
-        sharedHandleArea->hide();
     } else {
         toolbarHidePending = true;
     }
