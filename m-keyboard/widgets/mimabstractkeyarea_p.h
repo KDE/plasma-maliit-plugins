@@ -62,8 +62,10 @@ public:
     virtual ~MImAbstractKeyAreaPrivate();
 
     //! \brief Handler for flick gestures from Qt gesture framework.
-    //! \param gesture the flick gesture
-    void handleFlickGesture(FlickGesture *gesture);
+    //! \param direction Gesture direction. Should have one of FlickGesture::Direction members as value.
+    //! \param state gesture state
+    void handleFlickGesture(int direction,
+                            Qt::GestureState state);
 
     //! \brief Handler for touch events
     void handleTouchEvent(QTouchEvent *event);

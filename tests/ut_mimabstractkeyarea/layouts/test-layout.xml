@@ -126,7 +126,7 @@
               <binding dead="true" label="´"/>
               <binding shift="true" dead="true" label="¨"/>
             </key>
-            <key>
+            <key id="backspace">
               <binding action="backspace" label=""/>
             </key>
           </row>

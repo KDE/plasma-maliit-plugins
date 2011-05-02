@@ -182,7 +182,8 @@ void MImAbstractKeyAreaPrivate::click(MImAbstractKey *key, const KeyContext &key
     }
 }
 
-void MImAbstractKeyAreaPrivate::handleFlickGesture(FlickGesture *gesture)
+void MImAbstractKeyAreaPrivate::handleFlickGesture(int direction,
+                                                   Qt::GestureState state)
 {
     Q_Q(MImAbstractKeyArea);
 
@@ -191,16 +192,16 @@ void MImAbstractKeyAreaPrivate::handleFlickGesture(FlickGesture *gesture)
     }
 
     if (!allowedHorizontalFlick) {
-        if ((gesture->direction() == FlickGesture::Left)
-            || (gesture->direction() == FlickGesture::Right)) {
+        if ((direction == FlickGesture::Left)
+            || (direction == FlickGesture::Right)) {
             return;
         }
     }
 
     // Any non-upward flick gesture, complete or not, resets active keys etc.
     if (!wasGestureTriggered
-        && (gesture->state() != Qt::NoGesture)
-        && gesture->direction() != FlickGesture::Up) {
+        && (state != Qt::NoGesture)
+        && direction != FlickGesture::Up) {
 
         if (popup) {
             popup->cancel();
@@ -222,9 +223,9 @@ void MImAbstractKeyAreaPrivate::handleFlickGesture(FlickGesture *gesture)
         wasGestureTriggered = true;
     }
 
-    if (gesture->state() == Qt::GestureFinished) {
+    if (state == Qt::GestureFinished) {
 
-        switch (gesture->direction()) {
+        switch (direction) {
         case FlickGesture::Left:
             emit q->flickLeft();
             break;
@@ -980,7 +981,7 @@ bool MImAbstractKeyArea::event(QEvent *ev)
         FlickGesture *flickGesture = static_cast<FlickGesture *>(static_cast<QGestureEvent *>(ev)->gesture(flickGestureType));
 
         if (flickGesture) {
-            d->handleFlickGesture(flickGesture);
+            d->handleFlickGesture(flickGesture->direction(), flickGesture->state());
             eaten = true;
         }
     } else if (ev->type() == QEvent::TouchBegin

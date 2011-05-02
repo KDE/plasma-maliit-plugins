@@ -96,6 +96,9 @@ private slots:
     void testOverlayMode_data();
     void testOverlayMode();
 
+    void testFlickEvent_data();
+    void testFlickEvent();
+
 private:
     void changeOrientation(M::OrientationAngle angle);
     QSize defaultLayoutSize();
