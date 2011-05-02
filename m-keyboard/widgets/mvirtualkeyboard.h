@@ -283,6 +283,16 @@ signals:
      */
     void longKeyPressed(const KeyEvent &event);
 
+    /*!
+     * \brief Emitted when key is released due to internal event,
+     * but not user activity.
+     *
+     * \param event key event
+     *
+     * \sa keyReleased
+     */
+
+    void keyCancelled(const KeyEvent &event);
     //! This signal is emitted when input layout is changed
     //! \param layout this is always the layout from XML file in unmodified form
     void layoutChanged(const QString &layout);

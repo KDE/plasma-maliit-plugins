@@ -152,6 +152,12 @@ private slots:
     void handleLongKeyPress(const KeyEvent &event);
 
     /*!
+     * Handle key event cacellation.
+     * \param event internal key event
+     */
+    void handleKeyCancel(const KeyEvent &);
+
+    /*!
      * \brief Commits \a string.
      *
      * If there exists preedit, the preedit will be replaced.

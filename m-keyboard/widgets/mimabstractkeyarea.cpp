@@ -206,6 +206,15 @@ void MImAbstractKeyAreaPrivate::handleFlickGesture(FlickGesture *gesture)
             popup->cancel();
         }
 
+        MImAbstractKey *const lastActiveKey = MImAbstractKey::lastActiveKey();
+        if (lastActiveKey && lastActiveKey->state() == MImAbstractKey::Pressed) {
+            MImKeyVisitor::SpecialKeyFinder finder;
+            MImAbstractKey::visitActiveKeys(&finder);
+            const bool hasActiveShiftKeys = (finder.shiftKey() != 0);
+            const KeyContext context(hasActiveShiftKeys || isUpperCase());
+            emit q->keyCancelled(lastActiveKey, context);
+        }
+
         MImKeyVisitor::KeyAreaReset reset;
         MImAbstractKey::visitActiveKeys(&reset);
 

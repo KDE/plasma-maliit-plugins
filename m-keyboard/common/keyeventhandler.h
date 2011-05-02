@@ -99,6 +99,16 @@ signals:
      */
     void shiftPressed(bool state);
 
+    /*!
+     * \brief Emitted when key is released due to internal event,
+     * but not user activity.
+     *
+     * \param event key event
+     *
+     * \sa keyReleased
+     */
+    void keyCancelled(const KeyEvent &event);
+
 private slots:
     /*!
      * \brief Generates KeyEvent for given \a key and emits keyPressed
@@ -119,6 +129,11 @@ private slots:
      * \brief Generates KeyEvent for given \a key and emits longKeyPress
      */
     void handleLongKeyPress(const MImAbstractKey *key, const KeyContext &context);
+
+    /*!
+     * \brief Generates KeyEvent for given \a key and emits keyCancelled
+     */
+    void handleKeyCancel(const MImAbstractKey *key, const KeyContext &context);
 
 private:
     //! Turn key button into a KeyEvent, considering event type and context of the invoked key.

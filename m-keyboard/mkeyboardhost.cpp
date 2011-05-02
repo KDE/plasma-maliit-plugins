@@ -332,6 +332,9 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
             this, SLOT(handleKeyRelease(const KeyEvent &)));
     connect(vkbWidget, SIGNAL(longKeyPressed(const KeyEvent &)),
             this, SLOT(handleLongKeyPress(const KeyEvent &)));
+    connect(vkbWidget, SIGNAL(keyCancelled(const KeyEvent &)),
+            this, SLOT(handleKeyCancel(const KeyEvent &)));
+
 
     connect(vkbWidget, SIGNAL(userInitiatedHide()),
             this, SLOT(userHide()));
@@ -1384,6 +1387,14 @@ void MKeyboardHost::handleLongKeyPress(const KeyEvent &event)
             vkbWidget->resetCurrentKeyArea();
         }
         engineWidgetHost->showEngineWidget(AbstractEngineWidgetHost::DialogMode);
+    }
+}
+
+void MKeyboardHost::handleKeyCancel(const KeyEvent &event)
+{
+    if (event.qtKey() == Qt::Key_Backspace) {
+        backspaceMode = NormalBackspaceMode;
+        backspaceTimer.stop();
     }
 }
 

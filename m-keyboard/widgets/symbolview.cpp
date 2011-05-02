@@ -97,6 +97,8 @@ SymbolView::SymbolView(const LayoutsManager &layoutsManager, const MVirtualKeybo
             this,          SIGNAL(longKeyPressed(const KeyEvent &)));
     connect(&eventHandler, SIGNAL(shiftPressed(bool)),
             this,          SLOT(handleShiftPressed(bool)));
+    connect(&eventHandler, SIGNAL(keyCancelled(const KeyEvent &)),
+            this,          SIGNAL(keyCancelled(const KeyEvent &)));
 
     connect(&layoutsManager, SIGNAL(hardwareLayoutChanged()),
             this, SLOT(handleHwLayoutChange()));

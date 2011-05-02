@@ -63,6 +63,10 @@ void KeyEventHandler::addEventSource(MImAbstractKeyArea *eventSource)
     ok = connect(eventSource, SIGNAL(longKeyPressed(const MImAbstractKey *, const KeyContext &)),
                  this, SLOT(handleLongKeyPress(const MImAbstractKey *, const KeyContext &)));
     Q_ASSERT(ok);
+
+    ok = connect(eventSource, SIGNAL(keyCancelled(const MImAbstractKey *, const KeyContext &)),
+                 this, SLOT(handleKeyCancel(const MImAbstractKey*,KeyContext)));
+    Q_ASSERT(ok);
 }
 
 void KeyEventHandler::handleKeyPress(const MImAbstractKey *key,
@@ -109,6 +113,13 @@ void KeyEventHandler::handleLongKeyPress(const MImAbstractKey *key, const KeyCon
     const KeyEvent event = keyToKeyEvent(*key, QEvent::KeyPress, context);
 
     emit longKeyPressed(event);
+}
+
+void KeyEventHandler::handleKeyCancel(const MImAbstractKey *key, const KeyContext &context)
+{
+    const KeyEvent event = keyToKeyEvent(*key, QEvent::KeyRelease, context);
+
+    emit keyCancelled(event);
 }
 
 KeyEvent KeyEventHandler::keyToKeyEvent(const MImAbstractKey &key,

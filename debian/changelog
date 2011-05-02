@@ -1,6 +1,7 @@
 meego-keyboard (0.6.1~1) unstable; urgency=low
 
   * [UNRELEASED] 
+  * Fixes: NB#245999 - backspace gets stuck after certain gesture in VKB
 
  -- Michael Hasselmann <michaelh@openismus.com>  Mon, 02 May 2011 15:48:19 +0200
 

@@ -195,6 +195,17 @@ signals:
     void longKeyPressed(const MImAbstractKey *key,
                         const KeyContext &keyContext);
 
+    //!
+    //! \brief Emitted when key is released due to internal event,
+    //! but not user activity.
+    //!
+    //! \param key describes cancelled button
+    //! \param keyContext Context information at the time key was cancelled
+    //!
+    //! \sa keyReleased
+    void keyCancelled(const MImAbstractKey *key,
+                      const KeyContext &keyContext);
+
     //! \brief Emitted when key area is flicked right.
     void flickRight();
 

@@ -119,6 +119,8 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
             this, SIGNAL(longKeyPressed(const KeyEvent &)));
     connect(&eventHandler, SIGNAL(shiftPressed(bool)),
             this, SLOT(handleShiftPressed(bool)));
+    connect(&eventHandler, SIGNAL(keyCancelled(const KeyEvent &)),
+            this, SIGNAL(keyCancelled(const KeyEvent &)));
 
     enableMultiTouch = MGConfItem(MultitouchSettings).value().toBool();
 

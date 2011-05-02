@@ -200,6 +200,16 @@ signals:
      */
     void longKeyPressed(const KeyEvent &event);
 
+    /*!
+     * \brief Emitted when key is released due to internal event,
+     * but not user activity.
+     *
+     * \param event key event
+     *
+     * \sa keyReleased
+     */
+    void keyCancelled(const KeyEvent &event);
+
 protected:
     /*! \reimp */
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *);
