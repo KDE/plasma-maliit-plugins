@@ -79,8 +79,8 @@ MImWordTracker::MImWordTracker(MWidget *parentWindow)
       candidateItem(new MImCorrectionCandidateItem("", this)),
       pointerDown(false)
 {
-    RegionTracker::instance().addRegion(*containerWidget);
     containerWidget->setObjectName("WordTrackerContainer");
+    RegionTracker::instance().addRegion(*containerWidget);
 
     containerWidget->setParentItem(parentWindow);
     this->setParentItem(containerWidget);
