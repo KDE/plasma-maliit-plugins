@@ -1,8 +1,8 @@
-meego-keyboard (0.6.0~1) unstable; urgency=low
+meego-keyboard (0.6.0-1) unstable; urgency=low
 
-  * [UNRELEASED]
+  * Fixes: 251599 - Polish virtual keyboard and the related symbol layout are wrong
 
- -- Michael Hasselmann <michaelh@openismus.com>  Sun, 01 May 2011 22:21:28 +0200
+ -- Michael Hasselmann <michaelh@openismus.com>  Mon, 02 May 2011 15:39:08 +0200
 
 meego-keyboard (0.5.42-1) unstable; urgency=low
 
