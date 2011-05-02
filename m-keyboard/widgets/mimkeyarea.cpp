@@ -327,7 +327,9 @@ namespace {
                             qreal spacerWidth)
         {
             int index = 0;
-            currentPos.rx() = 0;
+            currentPos.rx() = (style->autoPadding() ? (MPlainWindow::instance()->visibleSceneSize().width() 
+                                                       - availableWidth) / 2
+                                                    : 0);
 
             // Normalizing spacerIndices into real spacers first.
             // There are n - 1 possible spacers between n keys, and there can

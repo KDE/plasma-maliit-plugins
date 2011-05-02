@@ -187,6 +187,7 @@ public:
     M_STYLE_ATTRIBUTE(bool, syncStyleModeWithKeyCount, SyncStyleModeWithKeyCount)
     M_STYLE_ATTRIBUTE(bool, enableOverlayMode, EnableOverlayMode)
     M_STYLE_ATTRIBUTE(bool, commitPreviousKeyOnPress, CommitPreviousKeyOnPress)
+    M_STYLE_ATTRIBUTE(bool, autoPadding, AutoPadding)
 
     // Key font colors
     M_STYLE_ATTRIBUTE(QColor, keyPressedFontColor, KeyPressedFontColor)

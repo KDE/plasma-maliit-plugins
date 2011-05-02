@@ -129,6 +129,7 @@ MImAbstractKeyAreaStyle {
     touchpoint-vertical-offset: 0mm;
     enable-overlay-mode: false;
     commit-previous-key-on-press: true;
+    auto-padding: true;
 
     /*** Key Geometry ***/
     required-key-icon-margins: 5 5;
@@ -987,6 +988,7 @@ MKeyboardMagnifierStyle.Portrait {
    padding-bottom: 0mm;
 
    enable-overlay-mode: true;
+   auto-padding: false;
 }
 
 #ExtendedKeys.Landscape {
