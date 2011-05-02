@@ -120,15 +120,15 @@
         <key style="special" width="large">
           <binding action="sym" label="?123"/>
         </key>
-
-        <key><binding label="ذ"/></key>
+        
         <key><binding label="،"/></key>
+        <key><binding label="."/></key>
 
         <key width="xx-large">
           <binding action="space"/>
         </key>
-
-        <key><binding label="."/></key>
+        
+        <key><binding label="ذ"/></key>
         <key><binding label="ط"/></key>
 
         <key style="special" width="x-large" rtl="false" id="actionKey">
