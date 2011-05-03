@@ -26,7 +26,6 @@ STYLE_HEADERS += \
     $$WIDGETS_DIR/wordribbonitemstyle.h \
     $$WIDGETS_DIR/wordribbonstyle.h \
     $$WIDGETS_DIR/wordribbondialogstyle.h \
-    $$WIDGETS_DIR/wordribbondialogstyle.h \
     $$WIDGETS_DIR/mkeyboardmagnifierstyle.h \
 
 HEADERS += \
@@ -63,7 +62,6 @@ HEADERS += \
     $$WIDGETS_DIR/wordribbondialog.h \
     $$WIDGETS_DIR/wordribbondialogmodel.h \
     $$WIDGETS_DIR/wordribbondialogview.h \
-    $$WIDGETS_DIR/abstractenginewidgethost.h \
     $$WIDGETS_DIR/magnifierhost.h \
     $$WIDGETS_DIR/magnifier.h \
     $$WIDGETS_DIR/extendedkeys.h \
