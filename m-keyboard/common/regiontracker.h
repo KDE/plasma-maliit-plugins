@@ -43,7 +43,8 @@ class RegionTrackerPrivate;
 //!
 //! Note that widget geometry (position, in practice) changes don't cause
 //! children to notify that their geometry has been changed and therefore
-//! RegionTracker cannot cover such cases in its current form.
+//! RegionTracker does not automatically support such cases in its current form.
+//! One can use \a setGeometryProxy, however.
 //!
 //! This class is public and can be used by popup plugins.
 class RegionTracker : public QObject
@@ -69,6 +70,9 @@ public:
 
     //! \brief Make \a widget part of the tracked input method area
     void addInputMethodArea(const QGraphicsWidget &widget);
+
+    //! \brief Consider geometry changes of \a proxy as geometry changes of \a forWidget
+    void setGeometryProxy(const QGraphicsWidget &forWidget, const QGraphicsWidget &proxy);
 
     //! \brief Enable or disable \a regionChanged and \a inputMethodAreaChanged signals
     //!

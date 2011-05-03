@@ -35,6 +35,7 @@
 #include <QObject>
 #include <QRegion>
 #include <QMap>
+#include <QMultiMap>
 
 class RegionTracker;
 class QGraphicsWidget;
@@ -89,6 +90,7 @@ public:
 
 private slots:
     void handleDestroy(QObject *object);
+    void handleProxyDestroyed(QObject *object);
     void handleGeometryChange();
     void handleVisibilityChange();
 
@@ -105,6 +107,11 @@ private:
 
     //! Regions of widgets that affect the input method area
     RegionStore inputMethodAreaWidgetRegions;
+
+    //! Widget A -> B+ mapping where changes to geometry of A may affect the
+    //! geometry of B, even if B.geometryChanged() is not emitted.
+    typedef QMultiMap<const QObject *, const QObject *> GeometryProxyMap;
+    GeometryProxyMap geometryProxies;
 
 private:
     Q_DISABLE_COPY(RegionTrackerPrivate)

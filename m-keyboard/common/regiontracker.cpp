@@ -133,7 +133,17 @@ void RegionTrackerPrivate::handleGeometryChange()
     if (!widget || !widget->isVisible()) {
         return;
     }
-    changeGeometry(*widget);
+    if (geometryProxies.contains(widget)) {
+        for (GeometryProxyMap::iterator i(geometryProxies.find(widget));
+             i != geometryProxies.end() && i.key() == widget; ++i) {
+            const QGraphicsWidget &realWidget(*dynamic_cast<const QGraphicsWidget *>(i.value()));
+            if (realWidget.isVisible()) {
+                changeGeometry(realWidget);
+            }
+        }
+    } else {
+        changeGeometry(*widget);
+    }
 }
 
 void RegionTrackerPrivate::changeGeometry(const QGraphicsWidget &widget)
@@ -145,10 +155,20 @@ void RegionTrackerPrivate::changeGeometry(const QGraphicsWidget &widget)
 }
 
 
-void RegionTrackerPrivate::handleDestroy(QObject *widget)
+void RegionTrackerPrivate::handleDestroy(QObject *object)
 {
-    widgetRegions.handleDestroy(*widget);
-    inputMethodAreaWidgetRegions.handleDestroy(*widget);
+    const QList<const QObject *> proxies(geometryProxies.keys(object));
+    Q_ASSERT(proxies.length() < 2);
+    if (proxies.length() == 1) {
+        geometryProxies.remove(proxies[0], object);
+    }
+    widgetRegions.handleDestroy(*object);
+    inputMethodAreaWidgetRegions.handleDestroy(*object);
+}
+
+void RegionTrackerPrivate::handleProxyDestroyed(QObject *object)
+{
+    geometryProxies.remove(object);
 }
 
 void RegionTrackerPrivate::handleVisibilityChange()
@@ -211,6 +231,16 @@ void RegionTracker::addInputMethodArea(const QGraphicsWidget &widget)
     Q_D(RegionTracker);
     d->inputMethodAreaWidgetRegions.addWidget(widget);
     d->addWidgetCommon(widget);
+}
+
+void RegionTracker::setGeometryProxy(const QGraphicsWidget &forWidget, const QGraphicsWidget &proxy)
+{
+    Q_D(RegionTracker);
+    d->geometryProxies.insert(&proxy, &forWidget);
+    connect(&proxy, SIGNAL(geometryChanged()),
+            d, SLOT(handleGeometryChange()), Qt::QueuedConnection);
+    connect(&proxy, SIGNAL(destroyed(QObject *)),
+            d, SLOT(handleProxyDestroyed(QObject *)), Qt::UniqueConnection);
 }
 
 bool RegionTracker::enableSignals(bool newEnabled, bool flush)
