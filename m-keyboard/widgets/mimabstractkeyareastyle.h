@@ -179,6 +179,12 @@ public:
     M_STYLE_ATTRIBUTE(bool, syncStyleModeWithKeyCount, SyncStyleModeWithKeyCount)
     M_STYLE_ATTRIBUTE(bool, enableOverlayMode, EnableOverlayMode)
     M_STYLE_ATTRIBUTE(bool, commitPreviousKeyOnPress, CommitPreviousKeyOnPress)
+
+    // Key font colors
+    M_STYLE_ATTRIBUTE(QColor, keyPressedFontColor, KeyPressedFontColor)
+    M_STYLE_ATTRIBUTE(QColor, keySelectedFontColor, KeySelectedFontColor)
+    M_STYLE_ATTRIBUTE(QColor, keyDisabledFontColor, KeyDisabledFontColor)
+    M_STYLE_ATTRIBUTE(QColor, keyHighlightedFontColor, KeyHighlightedFontColor)
 };
 
 class M_EXPORT MImAbstractKeyAreaStyleContainer : public MWidgetStyleContainer

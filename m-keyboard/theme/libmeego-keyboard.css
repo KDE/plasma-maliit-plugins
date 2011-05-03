@@ -37,6 +37,11 @@ MImAbstractKeyAreaStyle {
     font-opacity: 1.0;
     secondary-font: $FONT_SMALL;
 
+    key-pressed-font-color: $FONT_COLOR_KEYBOARD;
+    key-selected-font-color: $COLOR_FOREGROUND;
+    key-disabled-font-color: $FONT_COLOR_KEYBOARD;
+    key-highlighted-font-color: $COLOR_FOREGROUND;
+
     /*** Graphical assets ***/
     background-image: "meegotouch-keyboard-background" $ROUNDED_CORNERS;
     key-background: "meegotouch-keyboard-key" $ROUNDED_CORNERS;

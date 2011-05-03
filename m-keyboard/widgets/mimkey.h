@@ -181,6 +181,9 @@ public:
     //! \brief Return the font of this key.
     const QFont &font() const;
 
+    //! \brief Returns font color. Depends on key state.
+    const QColor &fontColor() const;
+
     //! \brief Disable attribute overriding. This method allows you to get original label or background image.
     //! \param ignore Set this parameter to true if you want to get original key's attributes.
     void setIgnoreOverriding(bool ignore);

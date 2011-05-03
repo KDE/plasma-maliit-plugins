@@ -42,6 +42,10 @@ This CSS class exposes many attributes, some of them useful for debugging even.
  <li>font-color: Specifies the font color.</li>
  <li>secondary-font: Only used for keys that have a secondary label, e.g., phone number layouts.</li>
  <li>font-opacity: Specified font opacity for key in normal state. Any pressed, selected or overridden key will always use opaque font.</li>
+ <li>key-pressed-font-color: The font color for pressed keys.</li>
+ <i>key-selected-font-color: The font color for selected keys.</li>
+ <li>key-disabled-font-color: The font color for disabled keys.</li>
+ <li>key-highlighted-font-color: The font color for highlighted keys. Does not apply to disabled keys.</li>
 </ul>
 
 \subsection sub1 Graphical assets

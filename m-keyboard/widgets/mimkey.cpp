@@ -627,7 +627,7 @@ void MImKey::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget 
 
     } else {
         painter->setFont(font());
-        painter->setPen(styleContainer->fontColor());
+        painter->setPen(fontColor());
         painter->drawText(labelRect(), Qt::AlignCenter, label());
         if (!secondaryLabel().isEmpty()) {
             painter->setFont(styleContainer->secondaryFont());
@@ -977,6 +977,29 @@ const MImKey::IconInfo &MImKey::iconInfo() const
 const QFont &MImKey::font() const
 {
     return *keyFontData->font();
+}
+
+const QColor &MImKey::fontColor() const
+{
+    // When overridden, keys in Normal, Pressed and Selected state will use
+    // overrideColor instead:
+    const bool highlighted(override && override->highlighted());
+    const QColor &overrideColor =(styleContainer->keyHighlightedFontColor());
+
+    switch (state()) {
+    case MImKey::Normal:
+        return (highlighted ? overrideColor : styleContainer->fontColor());
+
+    case MImKey::Pressed:
+        return (highlighted ? overrideColor : styleContainer->keyPressedFontColor());
+
+    case MImKey::Selected:
+        return (highlighted ? overrideColor : styleContainer->keySelectedFontColor());
+
+    // Disabled state ignores override font color:
+    case MImKey::Disabled:
+        return styleContainer->keyDisabledFontColor();
+    }
 }
 
 void MImKey::updateOverrideAttributes(MKeyOverride::KeyOverrideAttributes changedAttributes)
