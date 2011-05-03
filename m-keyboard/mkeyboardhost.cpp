@@ -2235,7 +2235,7 @@ bool MKeyboardHost::needRecomposePreedit(QString &previousWord)
             const QChar lastChar = previousWord.at(previousWord.length() - 1);
             if (!lastChar.isSpace() && !lastChar.isPunct() && !lastChar.isSymbol()) {
                 const int lastWordBreak = previousWord.lastIndexOf(QRegExp("\\s+"));
-                if (lastWordBreak > 0)
+                if (lastWordBreak >= 0)
                     previousWord = previousWord.right(previousWord.length() - lastWordBreak - 1);
                 needRecomposePreedit = true;
             }
