@@ -216,6 +216,7 @@ void Ut_MKeyboardHost::init()
     window->show();
     window->sceneManager()->setOrientationAngle(M::Angle0, MSceneManager::ImmediateTransition);
     QCOMPARE(window->orientationAngle(), M::Angle0);
+    subject->handleAppOrientationChanged(M::Angle0);
 }
 
 void Ut_MKeyboardHost::cleanup()
