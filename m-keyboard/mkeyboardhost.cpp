@@ -425,7 +425,7 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
 
     // Set up animations
     slideUpAnimation.setTargetObject(vkbWidget);
-    slideUpAnimation.setEasingCurve(QEasingCurve::InOutCubic);
+    slideUpAnimation.setEasingCurve(QEasingCurve::InOutQuint);
     slideUpAnimation.setDuration(OnScreenAnimationTime);
 
     connect(&slideUpAnimation, SIGNAL(finished()), this, SLOT(handleAnimationFinished()));

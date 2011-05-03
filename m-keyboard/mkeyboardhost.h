@@ -344,7 +344,7 @@ private:
     };
 
     enum {
-        OnScreenAnimationTime = 400, // in ms
+        OnScreenAnimationTime = 350, // in ms
         HardwareAnimationTime = 100  // in ms
     };
 
