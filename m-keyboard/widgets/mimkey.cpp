@@ -860,11 +860,14 @@ const QRectF & MImKey::secondaryLabelRect() const
 void MImKey::loadIcon(bool shift)
 {
     IconInfo &normalIconInfo(shift ? upperCaseIcon : lowerCaseIcon);
+    IconInfo &normalIconInfoSelected(shift ? upperCaseIconSelected : lowerCaseIconSelected);
     IconInfo &compactIconInfo(shift ? upperCaseCompactIcon : lowerCaseCompactIcon);
+    IconInfo &compactIconInfoSelected(shift ? upperCaseCompactIconSelected : lowerCaseCompactIconSelected);
     const MImKeyBinding::KeyAction action(mModel.binding(shift)->action());
     QSize size;
     QString iconProperty;
     QSize compactIconSize;
+    bool checkIconForSelectedState = false;
 
     switch(action) {
         case MImKeyBinding::ActionBackspace:
@@ -880,6 +883,7 @@ void MImKey::loadIcon(bool shift)
             }
             compactIconSize = styleContainer->keyShiftCompactIconSize();
             size = styleContainer->keyShiftIconSize();
+            checkIconForSelectedState = true;
             break;
         case MImKeyBinding::ActionReturn:
             if (mModel.binding(shift)->label().isEmpty()) {
@@ -915,11 +919,29 @@ void MImKey::loadIcon(bool shift)
         normalIconInfo.pixmap = MTheme::pixmap(normalIconInfo.id, size);
     }
 
+    if (checkIconForSelectedState) {
+        normalIconInfoSelected.id = getCSSProperty<QString>(styleContainer,
+                                                            QString("%1Selected").arg(iconProperty),
+                                                            mModel.rtl());
+        if (!normalIconInfoSelected.id.isEmpty()) {
+            normalIconInfoSelected.pixmap = MTheme::pixmap(normalIconInfoSelected.id, size);
+        }
+    }
+
     const QString compactIconProperty = iconProperty.replace("IconId", "CompactIconId");
     compactIconInfo.id = getCSSProperty<QString>(styleContainer, compactIconProperty, mModel.rtl());
 
     if (!compactIconInfo.id.isEmpty()) {
         compactIconInfo.pixmap = MTheme::pixmap(compactIconInfo.id, compactIconSize);
+    }
+
+    if (checkIconForSelectedState) {
+        compactIconInfoSelected.id = getCSSProperty<QString>(styleContainer,
+                                                             QString("%1Selected").arg(compactIconProperty),
+                                                             mModel.rtl());
+        if (!compactIconInfoSelected.id.isEmpty()) {
+            compactIconInfoSelected.pixmap = MTheme::pixmap(compactIconInfoSelected.id, compactIconSize);
+        }
     }
 }
 
@@ -968,8 +990,15 @@ void MImKey::updateNeedsCompactIcon()
 
 const MImKey::IconInfo &MImKey::iconInfo() const
 {
-    const IconInfo &normalIcon = (shift ? upperCaseIcon : lowerCaseIcon);
-    const IconInfo &compactIcon = (shift ? upperCaseCompactIcon : lowerCaseCompactIcon);
+    const IconInfo &normalIcon = (shift ? (state() == MImKey::Selected ? upperCaseIconSelected
+                                                                       : upperCaseIcon)
+                                        : (state() == MImKey::Selected ? lowerCaseIconSelected
+                                                                       : lowerCaseIcon));
+
+    const IconInfo &compactIcon = (shift ? (state() == MImKey::Selected ? upperCaseCompactIconSelected
+                                                                        : upperCaseCompactIcon)
+                                         : (state() == MImKey::Selected ? lowerCaseCompactIconSelected
+                                                                        : lowerCaseCompactIconSelected));
 
     return (compactIcon.pixmap && needsCompactIcon) ? compactIcon : normalIcon;
 }

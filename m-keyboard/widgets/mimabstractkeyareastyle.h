@@ -159,11 +159,15 @@ public:
     // Shift / capslock icon
     M_STYLE_ATTRIBUTE(QSize, keyShiftIconSize, KeyShiftIconSize)
     M_STYLE_ATTRIBUTE(QString, keyShiftIconId, KeyShiftIconId)
+    M_STYLE_ATTRIBUTE(QString, keyShiftIconIdSelected, KeyShiftIconIdSelected)
     M_STYLE_ATTRIBUTE(QString, keyShiftUppercaseIconId, KeyShiftUppercaseIconId)
+    M_STYLE_ATTRIBUTE(QString, keyShiftUppercaseIconIdSelected, KeyShiftUppercaseIconIdSelected)
 
     M_STYLE_ATTRIBUTE(QSize, keyShiftCompactIconSize, KeyShiftCompactIconSize)
     M_STYLE_ATTRIBUTE(QString, keyShiftCompactIconId, KeyShiftCompactIconId)
+    M_STYLE_ATTRIBUTE(QString, keyShiftCompactIconIdSelected, KeyShiftCompactIconIdSelected)
     M_STYLE_ATTRIBUTE(QString, keyShiftUppercaseCompactIconId, KeyShiftUppercaseCompactIconId)
+    M_STYLE_ATTRIBUTE(QString, keyShiftUppercaseCompactIconIdSelected, KeyShiftUppercaseCompactIconIdSelected)
 
 
     M_STYLE_ATTRIBUTE(bool, drawButtonBoundingRects, DrawButtonBoundingRects)

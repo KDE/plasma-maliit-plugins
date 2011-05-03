@@ -242,8 +242,14 @@ private:
     IconInfo lowerCaseIcon;
     IconInfo upperCaseIcon;
 
+    IconInfo lowerCaseIconSelected;
+    IconInfo upperCaseIconSelected;
+
     IconInfo lowerCaseCompactIcon;
     IconInfo upperCaseCompactIcon;
+
+    IconInfo lowerCaseCompactIconSelected;
+    IconInfo upperCaseCompactIconSelected;
 
     const MImAbstractKeyAreaStyleContainer &styleContainer;
 

@@ -101,10 +101,14 @@ MImAbstractKeyAreaStyle {
 
     key-shift-icon-size: 38 38;
     key-shift-icon-id: "icon-m-input-methods-shift";
+    key-shift-icon-id-selected: "icon-m-input-methods-shift-selected";
     key-shift-uppercase-icon-id: "icon-m-input-methods-capslock";
+    key-shift-uppercase-icon-id-selected: "icon-m-input-methods-capslock-selected";
     key-shift-compact-icon-size: 30 30;
     key-shift-compact-icon-id: "icon-m-input-methods-shift-compact";
+    key-shift-compact-icon-id-selected: "icon-m-input-methods-shift-compact-selected";
     key-shift-uppercase-compact-icon-id: "icon-m-input-methods-capslock-compact";
+    key-shift-uppercase-compact-icon-id-selected: "icon-m-input-methods-capslock-compact-selected";
 
     key-tab-icon-size: 0 0;
     key-tab-icon-id: ; /* non-existant currently */
