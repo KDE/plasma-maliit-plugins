@@ -484,21 +484,21 @@ void MKeyboardSettingsWidget::setErrorCorrectionState(bool enabled)
 
 void MKeyboardSettingsWidget::syncErrorCorrectionState()
 {
-    if (!settingsObject)
+    if (!settingsObject || !errorCorrectionSwitch)
         return;
 
     const bool errorCorrectionState = settingsObject->errorCorrection();
-    if (errorCorrectionSwitch
-        && errorCorrectionSwitch->isChecked() != errorCorrectionState) {
+    if (errorCorrectionSwitch->isChecked() != errorCorrectionState) {
         errorCorrectionSwitch->setChecked(errorCorrectionState);
-        if (!errorCorrectionState) {
-            // Disable the "Select with Space" option if the error correction is disabled
-            setCorrectionSpaceState(false);
-            correctionSpaceSwitch->setEnabled(false);
-        } else {
-            // Enable the "Select with Space" switch again
-            correctionSpaceSwitch->setEnabled(true);
-        }
+    }
+
+    if (!errorCorrectionState) {
+        // Disable the "Select with Space" option if the error correction is disabled
+        setCorrectionSpaceState(false);
+        correctionSpaceSwitch->setEnabled(false);
+    } else {
+        // Enable the "Select with Space" switch again
+        correctionSpaceSwitch->setEnabled(true);
     }
 }
 
