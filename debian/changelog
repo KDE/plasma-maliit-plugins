@@ -4,6 +4,8 @@ meego-keyboard (0.6.1~1) unstable; urgency=low
   * Fixes: NB#226852 - With the shift key held down,text entered is shown in..
   * Fixes: NB#244485 - Wrong preedit selected after tapping backspace in a scenario..
   * Fixes: NB#245999 - backspace gets stuck after certain gesture in VKB
+  * Fixes: NB#247713 - Keyboard drop shadow is missing
+  * Fixes: NB#251619 - Virtual Keyboard open/close transition is off
 
  -- Michael Hasselmann <michaelh@openismus.com>  Mon, 02 May 2011 15:48:19 +0200
 
