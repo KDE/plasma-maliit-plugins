@@ -143,11 +143,15 @@ public:
     // Enter key icon
     M_STYLE_ATTRIBUTE(QSize, keyEnterIconSize, KeyEnterIconSize)
     M_STYLE_ATTRIBUTE(QString, keyEnterIconId, KeyEnterIconId)
+    M_STYLE_ATTRIBUTE(QString, keyEnterIconIdHighlighted, KeyEnterIconIdHighlighted)
     M_STYLE_ATTRIBUTE(QString, keyEnterIconIdRtl, KeyEnterIconIdRtl)
+    M_STYLE_ATTRIBUTE(QString, keyEnterIconIdRtlHighlighted, KeyEnterIconIdRtlHighlighted)
 
     M_STYLE_ATTRIBUTE(QSize,   keyEnterCompactIconSize, KeyEnterCompactIconSize)
     M_STYLE_ATTRIBUTE(QString, keyEnterCompactIconId, KeyEnterCompactIconId)
+    M_STYLE_ATTRIBUTE(QString, keyEnterCompactIconIdHighlighted, KeyEnterCompactIconIdHighlighted)
     M_STYLE_ATTRIBUTE(QString, keyEnterCompactIconIdRtl, KeyEnterCompactIconIdRtl)
+    M_STYLE_ATTRIBUTE(QString, keyEnterCompactIconIdRtlHighlighted, KeyEnterCompactIconIdRtlHighlighted)
 
     // Tab icon
     M_STYLE_ATTRIBUTE(QSize, keyTabIconSize, KeyTabIconSize)
