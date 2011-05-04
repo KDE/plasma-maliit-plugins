@@ -1537,7 +1537,7 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
             if (EngineManager::instance().engine()) {
                 if (!symbolView->isActive())
                     EngineManager::instance().engine()->tapKeyboard(event.correctionPosition(),
-                            vkbWidget->shiftStatus() != ModifierClearState, text.at(0));
+                            event.modifiers() & Qt::ShiftModifier, text.at(0));
                 else
                     EngineManager::instance().engine()->appendCharacter(text.at(0));
             }

@@ -1,6 +1,7 @@
 meego-keyboard (0.6.1~1) unstable; urgency=low
 
   * [UNRELEASED] 
+  * Fixes: NB#226852 - With the shift key held down,text entered is shown in..
   * Fixes: NB#244485 - Wrong preedit selected after tapping backspace in a scenario..
   * Fixes: NB#245999 - backspace gets stuck after certain gesture in VKB
 
