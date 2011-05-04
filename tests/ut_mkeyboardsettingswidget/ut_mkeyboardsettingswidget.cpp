@@ -93,7 +93,7 @@ void Ut_MKeyboardSettingsWidget::testShowKeyboardList()
 {
     subject->selectedKeyboardsItem->click();
     QVERIFY(subject->keyboardDialog);
-    QVERIFY(subject->keyboardDialog->isVisible());
+    QVERIFY(subject->keyboardDialog.data()->isVisible());
     QVERIFY(subject->keyboardList);
 
     QVERIFY(subject->keyboardList->itemModel());
@@ -123,7 +123,7 @@ void Ut_MKeyboardSettingsWidget::testShowKeyboardList()
     QMap<QString, QString> newSelectedKeyboards = settingsObject->selectedKeyboards();
     // The changes are not committed if the dialog is rejected
     QCOMPARE(newSelectedKeyboards.count(), selectedKeyboards.count());
-    subject->keyboardDialog->reject();
+    subject->keyboardDialog.data()->reject();
     newSelectedKeyboards = settingsObject->selectedKeyboards();
     QCOMPARE(newSelectedKeyboards.count(), selectedKeyboards.count());
     // Open the dialog again
@@ -131,7 +131,7 @@ void Ut_MKeyboardSettingsWidget::testShowKeyboardList()
     // Select the item again
     subject->keyboardList->selectItem(subject->keyboardList->itemModel()->index(0,0));
     // Accept the dialog content
-    subject->keyboardDialog->accept();
+    subject->keyboardDialog.data()->accept();
     newSelectedKeyboards = settingsObject->selectedKeyboards();
     if (firstItemIsSelected) {
         QCOMPARE(newSelectedKeyboards.count(), selectedKeyboards.count() - 1);
@@ -213,9 +213,9 @@ void Ut_MKeyboardSettingsWidget::testHandleVisibilityChanged()
     subject->setVisible(true);
     subject->showKeyboardList();
     QVERIFY(subject->keyboardDialog);
-    QCOMPARE(subject->keyboardDialog->isVisible(), true);
+    QCOMPARE(subject->keyboardDialog.data()->isVisible(), true);
 
-    QSignalSpy spy(subject->keyboardDialog, SIGNAL(rejected()));
+    QSignalSpy spy(subject->keyboardDialog.data(), SIGNAL(rejected()));
     subject->setVisible(false);
     QCOMPARE(spy.count(), 1);
 }
