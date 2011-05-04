@@ -222,6 +222,8 @@ private:
     void loadOverrideIcon(const QString &icon);
 
     const IconInfo &iconInfo() const;
+    const IconInfo &normalIconInfo() const;
+    const IconInfo &compactIconInfo() const;
     //! \brief Update cached label position.
     void updateLabelPos() const;
     //! \brief Update label font.
@@ -245,11 +247,17 @@ private:
     IconInfo lowerCaseIconSelected;
     IconInfo upperCaseIconSelected;
 
+    IconInfo lowerCaseIconHighlighted;
+    IconInfo upperCaseIconHighlighted;
+
     IconInfo lowerCaseCompactIcon;
     IconInfo upperCaseCompactIcon;
 
     IconInfo lowerCaseCompactIconSelected;
     IconInfo upperCaseCompactIconSelected;
+
+    IconInfo lowerCaseCompactIconHighlighted;
+    IconInfo upperCaseCompactIconHighlighted;
 
     const MImAbstractKeyAreaStyleContainer &styleContainer;
 

@@ -861,13 +861,18 @@ void MImKey::loadIcon(bool shift)
 {
     IconInfo &normalIconInfo(shift ? upperCaseIcon : lowerCaseIcon);
     IconInfo &normalIconInfoSelected(shift ? upperCaseIconSelected : lowerCaseIconSelected);
+    IconInfo &normalIconInfoHighlighted(shift ? upperCaseIconHighlighted : lowerCaseIconHighlighted);
+
     IconInfo &compactIconInfo(shift ? upperCaseCompactIcon : lowerCaseCompactIcon);
     IconInfo &compactIconInfoSelected(shift ? upperCaseCompactIconSelected : lowerCaseCompactIconSelected);
+    IconInfo &compactIconInfoHighlighted(shift ? upperCaseCompactIconHighlighted : lowerCaseCompactIconHighlighted);
+
     const MImKeyBinding::KeyAction action(mModel.binding(shift)->action());
     QSize size;
     QString iconProperty;
     QSize compactIconSize;
     bool checkIconForSelectedState = false;
+    bool checkIconForHighlightedState = false;
 
     switch(action) {
         case MImKeyBinding::ActionBackspace:
@@ -891,6 +896,7 @@ void MImKey::loadIcon(bool shift)
                 size = styleContainer->keyEnterIconSize();
                 compactIconSize = styleContainer->keyEnterCompactIconSize();
             }
+            checkIconForHighlightedState = true;
             break;
         case MImKeyBinding::ActionLayoutMenu:
             iconProperty = "keyMenuIconId";
@@ -928,6 +934,15 @@ void MImKey::loadIcon(bool shift)
         }
     }
 
+    if (checkIconForHighlightedState) {
+        normalIconInfoHighlighted.id = getCSSProperty<QString>(styleContainer,
+                                                               QString("%1Highlighted").arg(iconProperty),
+                                                               mModel.rtl());
+        if (!normalIconInfoHighlighted.id.isEmpty()) {
+            normalIconInfoHighlighted.pixmap = MTheme::pixmap(normalIconInfoHighlighted.id, size);
+        }
+    }
+
     const QString compactIconProperty = iconProperty.replace("IconId", "CompactIconId");
     compactIconInfo.id = getCSSProperty<QString>(styleContainer, compactIconProperty, mModel.rtl());
 
@@ -941,6 +956,15 @@ void MImKey::loadIcon(bool shift)
                                                              mModel.rtl());
         if (!compactIconInfoSelected.id.isEmpty()) {
             compactIconInfoSelected.pixmap = MTheme::pixmap(compactIconInfoSelected.id, compactIconSize);
+        }
+    }
+
+    if (checkIconForHighlightedState) {
+        compactIconInfoHighlighted.id = getCSSProperty<QString>(styleContainer,
+                                                                QString("%1Highlighted").arg(iconProperty),
+                                                                mModel.rtl());
+        if (!compactIconInfoHighlighted.id.isEmpty()) {
+            compactIconInfoHighlighted.pixmap = MTheme::pixmap(compactIconInfoHighlighted.id, size);
         }
     }
 }
@@ -990,17 +1014,36 @@ void MImKey::updateNeedsCompactIcon()
 
 const MImKey::IconInfo &MImKey::iconInfo() const
 {
-    const IconInfo &normalIcon = (shift ? (state() == MImKey::Selected ? upperCaseIconSelected
-                                                                       : upperCaseIcon)
-                                        : (state() == MImKey::Selected ? lowerCaseIconSelected
-                                                                       : lowerCaseIcon));
+    const IconInfo &compactIcon(compactIconInfo());
 
-    const IconInfo &compactIcon = (shift ? (state() == MImKey::Selected ? upperCaseCompactIconSelected
-                                                                        : upperCaseCompactIcon)
-                                         : (state() == MImKey::Selected ? lowerCaseCompactIconSelected
-                                                                        : lowerCaseCompactIconSelected));
+    return (compactIcon.pixmap && needsCompactIcon) ? compactIcon
+                                                    : normalIconInfo();
+}
 
-    return (compactIcon.pixmap && needsCompactIcon) ? compactIcon : normalIcon;
+const MImKey::IconInfo &MImKey::normalIconInfo() const
+{
+    if (override && override->highlighted()) {
+        return (shift ? upperCaseIconHighlighted : lowerCaseIconHighlighted);
+    }
+
+    if (state() == MImKey::Selected) {
+        return (shift ? upperCaseIconSelected : lowerCaseIconSelected);
+    }
+
+    return (shift ? upperCaseIcon : lowerCaseIcon);
+}
+
+const MImKey::IconInfo &MImKey::compactIconInfo() const
+{
+    if (override && override->highlighted()) {
+        return (shift ? upperCaseCompactIconHighlighted : lowerCaseCompactIconHighlighted);
+    }
+
+    if (state() == MImKey::Selected) {
+        return (shift ? upperCaseCompactIconSelected : lowerCaseCompactIconSelected);
+    }
+
+    return (shift ? upperCaseCompactIcon : lowerCaseCompactIcon);
 }
 
 const QFont &MImKey::font() const
