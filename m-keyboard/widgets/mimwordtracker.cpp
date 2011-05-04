@@ -39,6 +39,7 @@
 #include "mkeyboardhost.h"
 
 #include <QGraphicsLinearLayout>
+#include <QtGlobal>
 #include <QDebug>
 
 #include <MScalableImage>
@@ -308,6 +309,13 @@ void MImWordTracker::setPosition(const QRect &cursorRect)
         = uponCursor ?
           (cursorRect.top() - style()->wordtrackerPointerTopMargin() - containerSize.height()) :
           cursorRect.bottom() + style()->wordtrackerPointerTopMargin() + style()->wordtrackerCursorYOffset();
+
+    // TODO: limit the word tracker to visible widget part rather than to whole input area
+    containerPositionY = qBound<int>(0,
+                                     containerPositionY,
+                                     MPlainWindow::instance()->sceneManager()->visibleSceneSize().height()
+                                     - keyboardHeight
+                                     - containerSize.height());
 
     containerPositionX = cursorRect.left() + cursorRect.width()/2
                          - style()->wordtrackerPointerLeftMargin() - pointerSize.width()/2
