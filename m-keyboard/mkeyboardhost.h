@@ -445,6 +445,7 @@ private:
     bool pendingLanguageNotificationRequest;
     bool regionUpdatesEnabledBeforeOrientationChange;
     M::OrientationAngle appOrientationAngle;
+    bool engineWidgetHostTemporarilyHidden;
 
     friend class EngineHandlerDefault;
     friend class EngineHandlerCJK;
