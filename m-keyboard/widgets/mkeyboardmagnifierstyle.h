@@ -40,6 +40,7 @@ public:
     M_STYLE_ATTRIBUTE(QColor, magnifierTextColor, MagnifierTextColor)
     M_STYLE_ATTRIBUTE(int, magnifierTextMarginTop, MagnifierTextMarginTop)
     M_STYLE_ATTRIBUTE(int, magnifierTextMarginBottom, MagnifierTextMarginBottom)
+    M_STYLE_ATTRIBUTE(int, magnifierTextMarginBottomLowercase, MagnifierTextMarginBottomLowercase)
     M_STYLE_ATTRIBUTE(int, magnifierHideDelay, MagnifierHideDelay)
 
     M_STYLE_ATTRIBUTE(int, extendedKeysOffset, ExtendedKeysOffset)

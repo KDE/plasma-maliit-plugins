@@ -79,6 +79,11 @@ void Magnifier::paint(QPainter *painter,
     QFont font = style->magnifierFont();
     font.setPixelSize(style->magnifierFontSize());
 
+    QRectF drawingArea(textArea);
+    if (!label.isEmpty() && label.at(0).isLower()) {
+        drawingArea.adjust(0, 0, 0, -style->magnifierTextMarginBottomLowercase() * 2);
+    }
+
     painter->setFont(font);
     painter->setPen(style->magnifierTextColor());
 
@@ -86,8 +91,7 @@ void Magnifier::paint(QPainter *painter,
     if (magnifierImage) {
         magnifierImage->draw(topLeft.toPoint(), host->style()->magnifierSize(), painter);
     }
-
-    painter->drawText(textArea, Qt::AlignCenter, label);
+    painter->drawText(drawingArea, Qt::AlignCenter, label);
     mTimestamp("Magnifier", "end");
 }
 
