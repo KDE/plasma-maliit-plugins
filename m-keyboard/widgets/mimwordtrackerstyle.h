@@ -47,6 +47,8 @@ class MImWordTrackerStyle : public MWidgetStyle
     M_STYLE_ATTRIBUTE(int, wordtrackerPointerRightMargin, WordtrackerPointerRightMargin)
     M_STYLE_ATTRIBUTE(int, wordtrackerLeftMargin, WordtrackerLeftMargin)
     M_STYLE_ATTRIBUTE(int, wordtrackerRightMargin, WordtrackerRightMargin)
+    M_STYLE_ATTRIBUTE(int, wordtrackerCursorXOffset, WordtrackerCursorXOffset)
+    M_STYLE_ATTRIBUTE(int, wordtrackerCursorYOffset, WordtrackerCursorYOffset)
 
     M_STYLE_ATTRIBUTE(int, showHideFrames, ShowHideFrames)
     M_STYLE_ATTRIBUTE(int, showHideTime, ShowHideTime)

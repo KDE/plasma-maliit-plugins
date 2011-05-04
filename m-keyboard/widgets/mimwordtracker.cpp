@@ -77,7 +77,8 @@ MImWordTracker::MImWordTracker(MWidget *parentWindow)
       containerWidget(new QGraphicsWidget()),
       mIdealWidth(0),
       candidateItem(new MImCorrectionCandidateItem("", this)),
-      pointerDown(false)
+      pointerXOffset(0),
+      uponCursor(false)
 {
     containerWidget->setObjectName("WordTrackerContainer");
     RegionTracker::instance().addRegion(*containerWidget);
@@ -149,23 +150,26 @@ qreal MImWordTracker::idealWidth() const
 
 qreal MImWordTracker::pointerHeight() const
 {
-    return (style()->wordtrackerPointerSize().height()
-            - style()->wordtrackerPointerOverlap());
+    const QSize pointerSize = style()->wordtrackerPointerSize();
+    if (pointerSize.isEmpty())
+        return 0;
+    else
+        return (pointerSize.height() - style()->wordtrackerPointerOverlap());
 }
 
 void MImWordTracker::drawBackground(QPainter *painter, const QStyleOptionGraphicsItem *option) const
 {
     MStylableWidget::drawBackground(painter, option);
-    if (style()->wordtrackerPointerImage()) {
-        const QSize pointerSize = style()->wordtrackerPointerSize();
-        QRect rect = QRect(pointerDown ? (pointerXOffset + pointerSize.width()) : pointerXOffset,
-                           pointerDown ? (size().height() - style()->wordtrackerPointerOverlap()
+    const QSize pointerSize = style()->wordtrackerPointerSize();
+    if (style()->wordtrackerPointerImage() && !pointerSize.isEmpty()) {
+        QRect rect = QRect(uponCursor ? (pointerXOffset + pointerSize.width()) : pointerXOffset,
+                           uponCursor ? (size().height() - style()->wordtrackerPointerOverlap()
                                           + pointerSize.height())
                            : (style()->wordtrackerPointerOverlap() - pointerSize.height()),
                            pointerSize.width(),
                            pointerSize.height());
 
-        if (pointerDown) {
+        if (uponCursor) {
             // rotate the pointer
             painter->save();
             QPointF widgetOrigin = QPointF(mapToScene(rect.x(), rect.y()));
@@ -292,19 +296,22 @@ void MImWordTracker::setPosition(const QRect &cursorRect)
 
     int keyboardHeight = MKeyboardHost::instance()->keyboardHeight();
 
+    int wordTrackerHeight = containerSize.height() + style()->wordtrackerPointerTopMargin()
+                            + style()->wordtrackerCursorYOffset();
     // check whether there is enough place to place word tracker under cursor.
-    pointerDown = isWordTrackerIntersectingKeyboard(cursorRect,
-                                                    containerSize.height() + style()->wordtrackerPointerTopMargin(),
-                                                    keyboardHeight);
+    uponCursor = isWordTrackerIntersectingKeyboard(cursorRect,
+                                                   wordTrackerHeight,
+                                                   keyboardHeight);
     int containerPositionX = 0, containerPositionY = 0;
 
     containerPositionY
-        = pointerDown ?
+        = uponCursor ?
           (cursorRect.top() - style()->wordtrackerPointerTopMargin() - containerSize.height()) :
-          cursorRect.bottom() + style()->wordtrackerPointerTopMargin();
+          cursorRect.bottom() + style()->wordtrackerPointerTopMargin() + style()->wordtrackerCursorYOffset();
 
     containerPositionX = cursorRect.left() + cursorRect.width()/2
-                         - style()->wordtrackerPointerLeftMargin() - pointerSize.width()/2;
+                         - style()->wordtrackerPointerLeftMargin() - pointerSize.width()/2
+                         - style()->wordtrackerCursorXOffset();
     containerPositionX = qBound<int>(style()->wordtrackerLeftMargin(),
                          containerPositionX,
                          sceneWidth - mIdealWidth - style()->wordtrackerRightMargin());
@@ -312,15 +319,18 @@ void MImWordTracker::setPosition(const QRect &cursorRect)
     QRectF widgetGeometry, containerGeometry;
     containerGeometry = QRectF(QPoint(containerPositionX, containerPositionY), containerSize);
 
-    widgetGeometry = pointerDown ? QRectF(QPointF(0, 0), preferredSize())
+    widgetGeometry = uponCursor ? QRectF(QPointF(0, 0), preferredSize())
                      : QRectF(QPointF(0, pointerHeight()), preferredSize());
 
-    // pointerXOffset is the related x offset for the cursor from the left side of word tracker.
-    pointerXOffset = cursorRect.left() + cursorRect.width()/2
-                     - pointerSize.width()/2 - containerPositionX;
-    pointerXOffset = qBound<qreal>(style()->wordtrackerPointerLeftMargin(),
-                                   pointerXOffset,
-                                   mIdealWidth - style()->wordtrackerPointerRightMargin()- pointerSize.width());
+    if (!pointerSize.isEmpty()) {
+        // pointerXOffset is the related x offset for the cursor from the left side of word tracker.
+        pointerXOffset = cursorRect.left() + cursorRect.width()/2
+                         - pointerSize.width()/2 - containerPositionX;
+        pointerXOffset = qBound<qreal>(style()->wordtrackerPointerLeftMargin(),
+                                       pointerXOffset,
+                                       mIdealWidth - style()->wordtrackerPointerRightMargin()
+                                       - pointerSize.width());
+    }
 
     containerWidget->setGeometry(containerGeometry);
     setGeometry(widgetGeometry);

@@ -566,12 +566,16 @@ WidgetBarStyle {
 MImWordTrackerStyle {
     background-image: "meegotouch-wordtracker-background" $ROUNDED_CORNERS;
 
-    wordtracker-pointer-image: "meegotouch-wordtracker-pointer" 0 0 0 0;
-    wordtracker-pointer-size: 15 12;
-    wordtracker-pointer-overlap: 1;
-    wordtracker-pointer-top-margin: $MARGIN_DOUBLE;
-    wordtracker-pointer-left-margin: $MARGIN_DOUBLE;
-    wordtracker-pointer-right-margin: $MARGIN_DOUBLE;
+    /*word tracker pointer is no used now, so set their attributes to ivalid 0*/
+    wordtracker-pointer-image: "" 0 0 0 0;
+    wordtracker-pointer-size: 0 0;
+    wordtracker-pointer-overlap: 0;
+    wordtracker-pointer-top-margin: 0;
+    wordtracker-pointer-left-margin: 0;
+    wordtracker-pointer-right-margin: 0;
+
+    wordtracker-cursor-x-offset: 6;
+    wordtracker-cursor-y-offset: 6;
 
     show-hide-frames: 100;
     show-hide-time: 400;
@@ -636,7 +640,7 @@ MImCorrectionCandidateItemStyle {
     background-opacity: 1.0;
 
     font: $FONT_DEFAULT; 
-    font-color: $COLOR_INVERTED_FOREGROUND;
+    font-color: $COLOR_FOREGROUND;
     press-timeout: 250;
     release-miss-delta: 30;
     long-tap-timeout: 600;
@@ -657,7 +661,7 @@ MImCorrectionCandidateItemStyle:selected {
 }
 
 MImCorrectionCandidateItemStyle:pressed {
-    background-image: meegotouch-wordtracker-item-pressed $ROUNDED_CORNERS;
+    background-image: meegotouch-wordtracker-background-pressed $ROUNDED_CORNERS;
 }
 
 
