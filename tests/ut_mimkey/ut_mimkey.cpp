@@ -50,12 +50,6 @@
 
 #include <memory>
 
-Q_DECLARE_METATYPE(QList<Ut_MImKey::DirectionPair>)
-Q_DECLARE_METATYPE(Ut_MImKey::KeyList)
-Q_DECLARE_METATYPE(QList<Ut_MImKey::KeyTriple>)
-Q_DECLARE_METATYPE(QList<int>)
-Q_DECLARE_METATYPE(Ut_MImKey::ModelList)
-
 namespace {
 
     class ActiveKeyFinder
@@ -86,7 +80,27 @@ namespace {
         return ((state == MImAbstractKey::Pressed)
                 || (state == MImAbstractKey::Selected));
     }
+
+    enum IconInfoFlag
+    {
+        None = 0x0,
+        NormalIcon = 0x1,
+        CompactIcon = 0x2,
+        SelectedIcon = 0x4,
+        HighlightedIcon = 0x8
+    };
 }
+
+Q_DECLARE_METATYPE(QList<Ut_MImKey::DirectionPair>)
+Q_DECLARE_METATYPE(Ut_MImKey::KeyList)
+Q_DECLARE_METATYPE(QList<Ut_MImKey::KeyTriple>)
+Q_DECLARE_METATYPE(QList<int>)
+Q_DECLARE_METATYPE(Ut_MImKey::ModelList)
+
+Q_DECLARE_FLAGS(IconInfoFlags, IconInfoFlag)
+Q_DECLARE_OPERATORS_FOR_FLAGS(IconInfoFlags)
+Q_DECLARE_METATYPE(IconInfoFlag)
+Q_DECLARE_METATYPE(IconInfoFlags)
 
 void Ut_MImKey::initTestCase()
 {
