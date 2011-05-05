@@ -96,11 +96,7 @@ Q_DECLARE_METATYPE(Ut_MImKey::KeyList)
 Q_DECLARE_METATYPE(QList<Ut_MImKey::KeyTriple>)
 Q_DECLARE_METATYPE(QList<int>)
 Q_DECLARE_METATYPE(Ut_MImKey::ModelList)
-
-Q_DECLARE_FLAGS(IconInfoFlags, IconInfoFlag)
-Q_DECLARE_OPERATORS_FOR_FLAGS(IconInfoFlags)
 Q_DECLARE_METATYPE(IconInfoFlag)
-Q_DECLARE_METATYPE(IconInfoFlags)
 
 void Ut_MImKey::initTestCase()
 {
@@ -617,42 +613,61 @@ void Ut_MImKey::testOverrideBinding()
 void Ut_MImKey::testIconInfo_data()
 {
     // Input values
-    QTest::addColumn<IconInfoFlags>("iconFlags");
+    QTest::addColumn<int>("iconFlags");
     QTest::addColumn<QSize>("keySize");
 
     // The expected result
-    QTest::addColumn<IconInfoFlag>("expectedIconFlag");
+    QTest::addColumn<int>("expectedIconState");
 
     // Essential cases: If the key is so small that the normal icon does not fit AND
     // a compact icon exists, return the compact icon info. Else return the normal icon info.
-    QTest::newRow("Lowercase. Normal icon: fits")
-            << IconInfoFlags(NormalIcon) << QSize(50, 50) << NormalIcon;
+    QTest::newRow("Normal icon: fits")
+            << int(NormalIcon) << QSize(50, 50) << int(NormalIcon);
 
-    QTest::newRow("Lowercase. Normal icon: too tall, Compact icon: exists")
-            << IconInfoFlags(NormalIcon | CompactIcon) << QSize(50, 45) << CompactIcon;
-    QTest::newRow("Lowercase. Normal icon: too tall, Compact icon: non-existant")
-            << IconInfoFlags(NormalIcon) << QSize(50, 45) << NormalIcon;
+    QTest::newRow("Normal icon: too tall, Compact icon: exists")
+            << int(NormalIcon | CompactIcon) << QSize(50, 45) << int(CompactIcon);
+    QTest::newRow("Normal icon: too tall, Compact icon: non-existant")
+            << int(NormalIcon) << QSize(50, 45) << int(NormalIcon);
 
-    QTest::newRow("Lowercase. Normal icon: too wide, Compact icon: exists")
-            << IconInfoFlags(NormalIcon | CompactIcon) << QSize(45, 50) << CompactIcon;
-    QTest::newRow("Lowercase. Normal icon: too wide, Compact icon: non-existant")
-            << IconInfoFlags(NormalIcon) << QSize(45, 50) << NormalIcon;
+    QTest::newRow("Normal icon: too wide, Compact icon: exists")
+            << int(NormalIcon | CompactIcon) << QSize(45, 50) << int(CompactIcon);
+    QTest::newRow("Normal icon: too wide, Compact icon: non-existant")
+            << int(NormalIcon) << QSize(45, 50) << int(NormalIcon);
 
     // Non-critical case: if the normal icon does not exist, try the compact icon
-    QTest::newRow("Lowercase. Normal icon: non-existant")
-            << IconInfoFlags(CompactIcon) << QSize(45, 50) << CompactIcon;
+    QTest::newRow("Normal icon: non-existant")
+            << int(CompactIcon) << QSize(45, 50) << int(CompactIcon);
+
+    QTest::newRow("Selected normal icon: exists")
+            << int(NormalIcon | SelectedIcon) << QSize(50, 50) << int(SelectedIcon);
+    QTest::newRow("Selected normal icon: too tall, Compact icon: exists")
+            << int(NormalIcon | CompactIcon | SelectedIcon) << QSize(50, 45)
+            << int(SelectedIcon | CompactIcon);
+
+    QTest::newRow("Highlighted normal icon: exists")
+            << int(NormalIcon | HighlightedIcon) << QSize(50, 50) << int(HighlightedIcon);
+    QTest::newRow("Highlighted normal icon: too tall, Compact icon: exists")
+            << int(NormalIcon | CompactIcon | HighlightedIcon) << QSize(50, 45)
+            << int(HighlightedIcon | CompactIcon);
 }
 
 void Ut_MImKey::testIconInfo()
 {
     QFETCH(QSize, keySize);
-    QFETCH(IconInfoFlags, iconFlags);
-    QFETCH(IconInfoFlag, expectedIconFlag);
+    QFETCH(int, iconFlags);
+    QFETCH(int, expectedIconState);
 
     QSize testKeyMargins(10, 10);
-    QPixmap normalIconPixmap(40, 40);
-    QPixmap compactIconPixmap(33, 33);
-    MImKey::Geometry keyGeometry(keySize.width(), keySize.height(), 0.0, 0.0, 0.0, 0.0);
+    QPixmap normalIcon(40, 40);
+    QPixmap compactIcon(33, 33);
+    QPixmap normalSelectedIcon(40, 40);
+    QPixmap compactSelectedIcon(33, 33);
+    QPixmap normalHighlightedIcon(40, 40);
+    QPixmap compactHighlightedIcon(33, 33);
+
+    // Key id not relevant for this test:
+    QSharedPointer<MKeyOverride> highlighted(new MKeyOverride("ThisKeyIdDoesNotExist"));
+    highlighted->setHighlighted(true);
 
     // Setup
     MImAbstractKeyAreaStyle *s = const_cast<MImAbstractKeyAreaStyle *>(style->operator->());
@@ -660,15 +675,31 @@ void Ut_MImKey::testIconInfo()
 
     subject = new MImKey(*dataKey, *style, *parent, stylingCache, *fontPool);
 
-    subject->lowerCaseIcon.pixmap = (iconFlags & NormalIcon) ? &normalIconPixmap : 0;
-    subject->lowerCaseCompactIcon.pixmap = (iconFlags & CompactIcon) ? &compactIconPixmap : 0;
-    subject->upperCaseIcon.pixmap = (iconFlags & NormalIcon) ? &normalIconPixmap : 0;
-    subject->upperCaseCompactIcon.pixmap = (iconFlags & CompactIcon) ? &compactIconPixmap : 0;
+    subject->lowerCaseIcon.pixmap = (iconFlags & NormalIcon) ? &normalIcon : 0;
+    subject->lowerCaseCompactIcon.pixmap = (iconFlags & CompactIcon) ? &compactIcon : 0;
+
+    subject->upperCaseIcon.pixmap = (iconFlags & NormalIcon) ? &normalIcon : 0;
+    subject->upperCaseCompactIcon.pixmap = (iconFlags & CompactIcon) ? &compactIcon : 0;
+
+    subject->lowerCaseIconSelected.pixmap = (iconFlags & SelectedIcon) ? &normalSelectedIcon : 0;
+    subject->lowerCaseCompactIconSelected.pixmap = (iconFlags & (SelectedIcon | CompactIcon)) ? &compactSelectedIcon : 0;
+
+    subject->upperCaseIconSelected.pixmap = (iconFlags & SelectedIcon) ? &normalSelectedIcon : 0;
+    subject->upperCaseCompactIconSelected.pixmap = (iconFlags & (SelectedIcon | CompactIcon)) ? &compactSelectedIcon : 0;
+
+    subject->lowerCaseIconHighlighted.pixmap = (iconFlags & HighlightedIcon) ? &normalHighlightedIcon : 0;
+    subject->lowerCaseCompactIconHighlighted.pixmap = (iconFlags & (HighlightedIcon | CompactIcon)) ? &compactHighlightedIcon : 0;
+
+    subject->upperCaseIconHighlighted.pixmap = (iconFlags & HighlightedIcon) ? &normalHighlightedIcon : 0;
+    subject->upperCaseCompactIconHighlighted.pixmap = (iconFlags & (HighlightedIcon | CompactIcon)) ? &compactHighlightedIcon : 0;
 
     // Execute test
+    // Trigger all the icon computations:
+    const MImKey::Geometry keyGeometry(keySize.width(), keySize.height(), 0.0, 0.0, 0.0, 0.0);
     subject->setGeometry(keyGeometry);
 
-    switch(expectedIconFlag) {
+    // Using (composed) flags to represent states:
+    switch(expectedIconState) {
     case CompactIcon:
         subject->setModifiers(true);
         QCOMPARE(&subject->iconInfo(), &subject->upperCaseCompactIcon);
@@ -683,6 +714,42 @@ void Ut_MImKey::testIconInfo()
         QCOMPARE(&subject->iconInfo(), &subject->lowerCaseIcon);
         break;
 
+    case SelectedIcon:
+        subject->currentState = MImKey::Selected;
+
+        subject->setModifiers(true);
+        QCOMPARE(&subject->iconInfo(), &subject->upperCaseIconSelected);
+        subject->setModifiers(false);
+        QCOMPARE(&subject->iconInfo(), &subject->lowerCaseIconSelected);
+        break;
+
+    case (CompactIcon | SelectedIcon):
+        subject->currentState = MImKey::Selected;
+
+        subject->setModifiers(true);
+        QCOMPARE(&subject->iconInfo(), &subject->upperCaseCompactIconSelected);
+        subject->setModifiers(false);
+        QCOMPARE(&subject->iconInfo(), &subject->lowerCaseCompactIconSelected);
+        break;
+
+    case HighlightedIcon:
+        subject->setKeyOverride(highlighted);
+
+        subject->setModifiers(true);
+        QCOMPARE(&subject->iconInfo(), &subject->upperCaseIconHighlighted);
+        subject->setModifiers(false);
+        QCOMPARE(&subject->iconInfo(), &subject->lowerCaseIconHighlighted);
+        break;
+
+    case (CompactIcon | HighlightedIcon):
+        subject->setKeyOverride(highlighted);
+
+        subject->setModifiers(true);
+        QCOMPARE(&subject->iconInfo(), &subject->upperCaseCompactIconHighlighted);
+        subject->setModifiers(false);
+        QCOMPARE(&subject->iconInfo(), &subject->lowerCaseCompactIconHighlighted);
+        break;
+
     default:
         qFatal("Unexpected icon flag, aborting.");
         break;
@@ -690,8 +757,21 @@ void Ut_MImKey::testIconInfo()
 
     subject->lowerCaseIcon.pixmap = 0;
     subject->lowerCaseCompactIcon.pixmap = 0;
+
     subject->upperCaseIcon.pixmap = 0;
     subject->upperCaseCompactIcon.pixmap = 0;
+
+    subject->lowerCaseIconSelected.pixmap =0;
+    subject->lowerCaseCompactIconSelected.pixmap = 0;
+
+    subject->upperCaseIconSelected.pixmap = 0;
+    subject->upperCaseCompactIconSelected.pixmap = 0;
+
+    subject->lowerCaseIconHighlighted.pixmap = 0;
+    subject->lowerCaseCompactIconHighlighted.pixmap = 0;
+
+    subject->upperCaseIconHighlighted.pixmap = 0;
+    subject->upperCaseCompactIconHighlighted.pixmap = 0;
 }
 
 MImKey *Ut_MImKey::createKey(bool state)
