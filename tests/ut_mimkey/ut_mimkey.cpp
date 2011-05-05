@@ -617,59 +617,37 @@ void Ut_MImKey::testOverrideBinding()
 void Ut_MImKey::testIconInfo_data()
 {
     // Input values
-    QTest::addColumn<bool>("isUpperCase");
-    QTest::addColumn<bool>("hasNormalIcon"); // Typically true
+    QTest::addColumn<IconInfoFlags>("iconFlags");
     QTest::addColumn<QSize>("keySize");
-    QTest::addColumn<bool>("hasCompactIcon");
 
     // The expected result
-    QTest::addColumn<QString>("expectedIconType");
+    QTest::addColumn<IconInfoFlag>("expectedIconFlag");
 
     // Essential cases: If the key is so small that the normal icon does not fit AND
     // a compact icon exists, return the compact icon info. Else return the normal icon info.
     QTest::newRow("Lowercase. Normal icon: fits")
-            << false << true << QSize(50, 50) << false << "normal";
+            << IconInfoFlags(NormalIcon) << QSize(50, 50) << NormalIcon;
 
     QTest::newRow("Lowercase. Normal icon: too tall, Compact icon: exists")
-            << false << true << QSize(50, 45) << true << "compact";
+            << IconInfoFlags(NormalIcon | CompactIcon) << QSize(50, 45) << CompactIcon;
     QTest::newRow("Lowercase. Normal icon: too tall, Compact icon: non-existant")
-            << false << true << QSize(50, 45) << false << "normal";
+            << IconInfoFlags(NormalIcon) << QSize(50, 45) << NormalIcon;
 
     QTest::newRow("Lowercase. Normal icon: too wide, Compact icon: exists")
-            << false << true << QSize(45, 50) << true << "compact";
+            << IconInfoFlags(NormalIcon | CompactIcon) << QSize(45, 50) << CompactIcon;
     QTest::newRow("Lowercase. Normal icon: too wide, Compact icon: non-existant")
-            << false << true << QSize(45, 50) << false << "normal";
+            << IconInfoFlags(NormalIcon) << QSize(45, 50) << NormalIcon;
 
     // Non-critical case: if the normal icon does not exist, try the compact icon
     QTest::newRow("Lowercase. Normal icon: non-existant")
-            << false << false << QSize(45, 50) << true << "compact";
-
-    // Same for upper case
-    QTest::newRow("Uppercase. Normal icon: fits")
-            << true << true << QSize(50, 50) << false << "normal";
-
-    QTest::newRow("Uppercase. Normal icon: too tall, Compact icon: exists")
-            << true << true << QSize(50, 45) << true << "compact";
-    QTest::newRow("Uppercase. Normal icon: too tall, Compact icon: non-existant")
-            << true << true << QSize(50, 45) << false << "normal";
-
-    QTest::newRow("Uppercase. Normal icon: too wide, Compact icon: exists")
-            << true << true << QSize(45, 50) << true << "compact";
-    QTest::newRow("Uppercase. Normal icon: too wide, Compact icon: non-existant")
-            << true << true << QSize(45, 50) << false << "normal";
-
-    QTest::newRow("Uppercase. Normal icon: non-existant")
-            << true << false << QSize(45, 50) << true << "compact";
-
+            << IconInfoFlags(CompactIcon) << QSize(45, 50) << CompactIcon;
 }
 
 void Ut_MImKey::testIconInfo()
 {
-    QFETCH(bool, isUpperCase);
     QFETCH(QSize, keySize);
-    QFETCH(bool, hasNormalIcon);
-    QFETCH(bool, hasCompactIcon);
-    QFETCH(QString, expectedIconType);
+    QFETCH(IconInfoFlags, iconFlags);
+    QFETCH(IconInfoFlag, expectedIconFlag);
 
     QSize testKeyMargins(10, 10);
     QPixmap normalIconPixmap(40, 40);
@@ -682,30 +660,32 @@ void Ut_MImKey::testIconInfo()
 
     subject = new MImKey(*dataKey, *style, *parent, stylingCache, *fontPool);
 
-    subject->lowerCaseIcon.pixmap = hasNormalIcon ? &normalIconPixmap : 0;
-    subject->lowerCaseCompactIcon.pixmap = hasCompactIcon ? &compactIconPixmap : 0;
-    subject->upperCaseIcon.pixmap = hasNormalIcon ? &normalIconPixmap : 0;
-    subject->upperCaseCompactIcon.pixmap = hasCompactIcon ? &compactIconPixmap : 0;
-
-    subject->setModifiers(isUpperCase);
+    subject->lowerCaseIcon.pixmap = (iconFlags & NormalIcon) ? &normalIconPixmap : 0;
+    subject->lowerCaseCompactIcon.pixmap = (iconFlags & CompactIcon) ? &compactIconPixmap : 0;
+    subject->upperCaseIcon.pixmap = (iconFlags & NormalIcon) ? &normalIconPixmap : 0;
+    subject->upperCaseCompactIcon.pixmap = (iconFlags & CompactIcon) ? &compactIconPixmap : 0;
 
     // Execute test
     subject->setGeometry(keyGeometry);
 
-    if (expectedIconType == "compact") {
-        if (isUpperCase) {
-            QVERIFY(&subject->iconInfo() == &subject->upperCaseCompactIcon);
-        } else {
-            QVERIFY(&subject->iconInfo() == &subject->lowerCaseCompactIcon);
-        }
-    } else if (expectedIconType == "normal") {
-        if (isUpperCase) {
-            QVERIFY(&subject->iconInfo() == &subject->upperCaseIcon);
-        } else {
-            QVERIFY(&subject->iconInfo() == &subject->lowerCaseIcon);
-        }
-    } else {
-        Q_ASSERT(false); // Should never happen
+    switch(expectedIconFlag) {
+    case CompactIcon:
+        subject->setModifiers(true);
+        QCOMPARE(&subject->iconInfo(), &subject->upperCaseCompactIcon);
+        subject->setModifiers(false);
+        QCOMPARE(&subject->iconInfo(), &subject->lowerCaseCompactIcon);
+        break;
+
+    case NormalIcon:
+        subject->setModifiers(true);
+        QCOMPARE(&subject->iconInfo(), &subject->upperCaseIcon);
+        subject->setModifiers(false);
+        QCOMPARE(&subject->iconInfo(), &subject->lowerCaseIcon);
+        break;
+
+    default:
+        qFatal("Unexpected icon flag, aborting.");
+        break;
     }
 
     subject->lowerCaseIcon.pixmap = 0;
