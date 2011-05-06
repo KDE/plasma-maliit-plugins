@@ -1,0 +1,30 @@
+    Meego-keyboard Extras
+    ---------------------
+
+This directory contains extra resources for Meego-keyboard.
+
+
+   en_gb_halfqwerty.xml
+   --------------------
+
+Demonstrates a "half qwerty" keyboard where each button cycles through two
+candidates  for a button. This mode is available in portrait orientation and
+is an adaptation of en_gb with just changed to use cycling.
+
+Note: currently exposes some bugs in the keyboard that just haven't been
+addressed yet for this mode:
+ - No caps support for cyclable keys, instead the label gets inserted 
+   with caps on.
+ - Keys only cycle, cannot be used through error correction engine this way.
+ - Magnifier not working with cycle keys
+
+Also the keyboard layout is not optimal as the number of buttons in a row is
+not divisible by two, so some extra buttons without cycling are present.
+Either the space is not optimally used because buttons are using one size for all.
+
+Usage: copy the xml file to layouts directory
+  /usr/share/meegotouch/virtual-keyboard/layouts/ 
+and configure it to be used, e.g.
+  gconftool-2 --type list --list-type string \
+   -s /meegotouch/inputmethods/virtualkeyboard/layouts \
+   [en_gb_halfqwerty.xml,someotherlayouts]
