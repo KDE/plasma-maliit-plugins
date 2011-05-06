@@ -318,7 +318,7 @@ void LayoutsManager::syncNumberKeyboards()
     if (numberFormat == "ar") {
         loaded = phoneNumberKeyboard.loadNokiaKeyboard(PhoneNumberKeyboardFileArabic);
     }
-    if (numberFormat == "ru" || numberFormat == "uk") {
+    if (numberFormat == "ru") {
         loaded = phoneNumberKeyboard.loadNokiaKeyboard(PhoneNumberKeyboardFileRussian);
     }
 
