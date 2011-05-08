@@ -1,10 +1,12 @@
 CONFIG += ordered 
 TARGET = meego-im-plugins
 TEMPLATE = subdirs
-SUBDIRS = m-keyboard \
-      tests \
-      fixture_virtualkeyboard \
-      translations \
+SUBDIRS = \
+    m-keyboard \
+    meego-keyboard-quick \
+    tests \
+    fixture_virtualkeyboard \
+    translations \
 
 CONFIG(docs) {
     include (doc/doc.pri)
