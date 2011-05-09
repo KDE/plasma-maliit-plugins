@@ -35,6 +35,7 @@ Rectangle {
     property string caption: ""
     property string captionShifted: ""
     property int fontSize: 28
+    property string symView: ""
 
     radius:  8
     color: "#555"
@@ -61,7 +62,8 @@ Rectangle {
         font.family: "sans"
         font.pixelSize: fontSize
         color: "white"
-        text: (shifted) ? captionShifted : caption
+        text: (inSymView && symView.length) > 0 ? symView
+                                                : (isShifted ? captionShifted : caption)
     }
 
     Rectangle {
