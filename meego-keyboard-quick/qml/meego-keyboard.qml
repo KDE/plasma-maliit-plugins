@@ -34,17 +34,14 @@ import "assets"
 
 Rectangle {
     id: canvas
+    transformOrigin: Item.Center
     width: MInputMethodQuick.screenWidth
     height: MInputMethodQuick.screenHeight
     color: "transparent"
     opacity: 1
 
     Rectangle {
-        id: display
-        width: parent.width
-        height: parent.height
-        anchors.bottom: parent.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
+        id: root
         transformOrigin: Item.Center
         color: "transparent"
         opacity: 1
@@ -59,39 +56,125 @@ Rectangle {
             id: vkb_portrait
             anchors.bottom: parent.bottom
             anchors.horizontalCenter: parent.horizontalCenter
-            rotation: 90
         }
     }
 
     focus: true
-    state: "landscape"
+    state: MInputMethodQuick.appOrientation
 
     states: [
         State {
-            name: "portrait"
+            name: "0"
 
             StateChangeScript {
-                script: MInputMethodQuick.setInputMethodArea(Qt.rect(MInputMethodQuick.screenWidth - vkb_portrait.height, 0,
-                                                             vkb_portrait.height, vkb_portrait.width))
-
+                script: MInputMethodQuick.setInputMethodArea(
+                    Qt.rect(0, MInputMethodQuick.screenHeight - vkb_landscape.height,
+                            vkb_landscape.width, vkb_landscape.height))
             }
 
-            PropertyChanges { target: display; rotation: 90 }
-            PropertyChanges { target: vkb_portrait; x: 0; y: 515; opacity: 1 }
-            PropertyChanges { target: vkb_landscape; opacity: 0 }
+            PropertyChanges {
+                target: root
+                rotation: 0
+                width: parent.width
+                height: parent.height
+                x: 0
+                y: 0
+            }
+
+            PropertyChanges {
+                target: vkb_portrait;
+                opacity: 0
+            }
+
+            PropertyChanges {
+                target: vkb_landscape;
+                opacity: 1
+            }
         },
 
         State {
-            name: "landscape"
+            name: "90"
 
             StateChangeScript {
-                script: MInputMethodQuick.setInputMethodArea(Qt.rect(0, MInputMethodQuick.screenHeight - vkb_landscape.height,
-                                                             vkb_landscape.width, vkb_landscape.height))
+                script: MInputMethodQuick.setInputMethodArea(
+                    Qt.rect(0, 0, vkb_portrait.height, vkb_portrait.width))
             }
 
-            PropertyChanges { target: display; rotation: 0 }
-            PropertyChanges { target: vkb_portrait; opacity: 0 }
-            PropertyChanges { target: vkb_landscape; opacity: 1 }
+            PropertyChanges {
+                target: root
+                rotation: 90
+                width: parent.height
+                height: parent.width
+                x: (parent.width - parent.height) / 2
+                y: (parent.height - parent.width) / 2
+            }
+
+            PropertyChanges {
+                target: vkb_portrait
+                opacity: 1
+            }
+
+            PropertyChanges {
+                target: vkb_landscape;
+                opacity: 0
+            }
+        },
+
+        State {
+            name: "180"
+
+            StateChangeScript {
+                script: MInputMethodQuick.setInputMethodArea(
+                    Qt.rect(0, 0, vkb_landscape.width, vkb_landscape.height))
+            }
+
+            PropertyChanges {
+                target: root
+                rotation: 180
+                width: parent.width
+                height: parent.height
+                x: 0
+                y: 0
+            }
+
+            PropertyChanges {
+                target: vkb_portrait;
+                opacity: 0
+            }
+
+            PropertyChanges {
+                target: vkb_landscape;
+                opacity: 1
+            }
+        },
+
+        State {
+            name: "270"
+
+            StateChangeScript {
+                script: MInputMethodQuick.setInputMethodArea(
+                    Qt.rect(MInputMethodQuick.screenWidth - vkb_portrait.height, 0,
+                            vkb_portrait.height, vkb_portrait.width))
+            }
+
+            PropertyChanges {
+                target: root
+                rotation: 270
+                width: parent.height
+                height: parent.width
+                x: (parent.width - parent.height) / 2
+                y: (parent.height - parent.width) / 2
+            }
+
+            PropertyChanges {
+                target: vkb_portrait
+                opacity: 1
+            }
+
+            PropertyChanges {
+                target: vkb_landscape;
+                opacity: 0
+            }
         }
     ]
 
@@ -99,8 +182,19 @@ Rectangle {
         Transition {
             from: "*"
             to: "*"
-            RotationAnimation { target: display; duration: 400; easing.type: Easing.InOutQuad }
-            PropertyAnimation { targets: [vkb_landscape, vkb_portrait]; properties: "opacity"; duration: 400; easing.type: Easing.InOutQuad }
+
+            RotationAnimation {
+                target: root;
+                duration: 400;
+                easing.type: Easing.InOutQuad
+            }
+
+            PropertyAnimation {
+                targets: [vkb_landscape, vkb_portrait];
+                properties: "opacity";
+                duration: 400;
+                easing.type: Easing.InOutQuad
+            }
         }
     ]
 

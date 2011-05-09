@@ -32,7 +32,6 @@
 import Qt 4.7
 
 Column {
-    y: 480 - height
     property variant row1: ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"]
     property variant row2: ["a", "s", "d", "f", "g", "h", "j", "k", "l"]
     property variant row3: ["z", "x", "c", "v", "b", "n", "m"]
