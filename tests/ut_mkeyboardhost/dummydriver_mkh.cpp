@@ -274,6 +274,13 @@ QString DummyDriverMkh::script()
     return QString();
 }
 
+QString DummyDriverMkh::transliterate(const QString &targetScript, unsigned int index)
+{
+    Q_UNUSED(targetScript);
+    Q_UNUSED(index);
+    return QString();
+}
+
 QString DummyDriverMkh::driver()
 {
     return "dummyimdriver_mkh";

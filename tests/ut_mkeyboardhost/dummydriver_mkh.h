@@ -150,6 +150,8 @@ public:
 
     virtual QString script();
 
+    virtual QString transliterate(const QString &targetScript, unsigned int index);
+
     virtual QString driver();
 
     virtual QString error();
