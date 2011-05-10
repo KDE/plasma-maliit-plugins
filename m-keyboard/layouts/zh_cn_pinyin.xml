@@ -137,9 +137,9 @@
             <binding action="sym" label="&#x7B26;&#x53F7;"/>
           </key>
 
-          <key><binding label="&#xFF0C;"/></key>
+          <key id="emailUrlKey"><binding label="&#xFF0C;"/></key>
           <key width="stretched"><binding action="space" label=""/></key>
-          <key><binding label="&#x3002;"/></key>
+          <key id="emailUrlDotKey"><binding label="&#x3002;"/></key>
 
           <key style="special" width="x-large">
                 <binding action="compose" label="&#36755;&#20837;"/>
@@ -284,9 +284,9 @@
             <binding action="sym" label="&#x7B26;&#x53F7;"/>
           </key>
 
-          <key><binding label="&#xFF0C;"/></key>
+          <key id="emailUrlKey"><binding label="&#xFF0C;"/></key>
           <key width="stretched"><binding action="space" label=""/></key>
-          <key><binding label="&#x3002;"/></key>
+          <key id="emailUrlDotKey"><binding label="&#x3002;"/></key>
 
           <key style="special" width="x-large">
             <binding action="compose" label="&#36755;&#20837;"/>

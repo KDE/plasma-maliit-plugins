@@ -373,6 +373,7 @@ namespace {
     };
 
     const char * const emailUrlKey = "emailUrlKey"; //!< Identifies key which should be customized for email and URL content type
+    const char * const emailUrlDotKey = "emailUrlDotKey"; //!< If dot key is full-width. Need change to latin half-width in Email/Url mode
 }
 
 MImKeyAreaPrivate::MImKeyAreaPrivate(const LayoutData::SharedLayoutSection &newSection,
@@ -1021,25 +1022,37 @@ void MImKeyArea::setContentType(M::TextContentType type)
 {
     static const MImKeyBinding bindAt("@");
     static const MImKeyBinding bindSlash("/");
+    static const MImKeyBinding bindDot(".");
 
     MImKey *key = static_cast<MImKey *>(findKey(emailUrlKey));
-
-    if (!key) {
-        return;
+    if (key) {
+        switch(type) {
+        case M::UrlContentType:
+            key->overrideBinding(&bindSlash);
+            break;
+        case M::EmailContentType:
+            key->overrideBinding(&bindAt);
+            break;
+        default:
+            key->overrideBinding(0);
+            break;
+        }
+        update();
     }
 
-    switch(type) {
-    case M::UrlContentType:
-        key->overrideBinding(&bindSlash);
-        break;
-    case M::EmailContentType:
-        key->overrideBinding(&bindAt);
-        break;
-    default:
-        key->overrideBinding(0);
-        break;
+    MImKey *dotKey = static_cast<MImKey *>(findKey(emailUrlDotKey));
+    if (dotKey) {
+        switch(type) {
+        case M::UrlContentType:
+        case M::EmailContentType:
+            dotKey->overrideBinding(&bindDot);
+            break;
+        default:
+            dotKey->overrideBinding(0);
+            break;
+        }
+        update();
     }
-    update();
 }
 
 void MImKeyArea::setToggleKeyState(bool on)
