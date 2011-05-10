@@ -143,8 +143,10 @@ void Ut_SymbolView::init()
 
 void Ut_SymbolView::cleanup()
 {
+#ifdef HAVE_REACTIONMAP
     // Make sure default stub is restored.
     gMReactionMapStub = &gDefaultMReactionMapStub;
+#endif
 
     MPlainWindow::instance()->sceneManager()->appearSceneWindowNow(parent);
     subject->setParentItem(0);
@@ -163,6 +165,7 @@ void Ut_SymbolView::testReactiveButtonAreas_data()
 
 void Ut_SymbolView::testReactiveButtonAreas()
 {
+#ifdef HAVE_REACTIONMAP
     QFETCH(int, orientationAngle);;
 
     rotateToAngle(static_cast<M::OrientationAngle>(orientationAngle));
@@ -204,6 +207,7 @@ void Ut_SymbolView::testReactiveButtonAreas()
 
     // Check that all buttons are covered by reactive area
     QVERIFY(tester.testChildButtonReactiveAreas(view, subject));
+#endif
 }
 
 void Ut_SymbolView::testReactiveWholeScreen_data()
@@ -218,6 +222,7 @@ void Ut_SymbolView::testReactiveWholeScreen_data()
 
 void Ut_SymbolView::testReactiveWholeScreen()
 {
+#ifdef HAVE_REACTIONMAP
     QFETCH(int, orientationAngle);
 
     rotateToAngle(static_cast<M::OrientationAngle>(orientationAngle));
@@ -241,6 +246,7 @@ void Ut_SymbolView::testReactiveWholeScreen()
     QVERIFY(gridpass);
 
     gMReactionMapStub = &gDefaultMReactionMapStub;
+#endif
 }
 
 

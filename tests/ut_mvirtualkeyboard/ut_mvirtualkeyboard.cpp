@@ -161,8 +161,10 @@ void Ut_MVirtualKeyboard::init()
 
 void Ut_MVirtualKeyboard::cleanup()
 {
+#ifdef HAVE_REACTIONMAP
     // Stub might have been set to a local instance.
     gMReactionMapStub = &gDefaultMReactionMapStub;
+#endif
     delete m_vkb;
     m_vkb = 0;
 }
@@ -762,6 +764,7 @@ void Ut_MVirtualKeyboard::bug_137295()
 
 void Ut_MVirtualKeyboard::testReactionMaps()
 {
+#ifdef HAVE_REACTIONMAP
     MReactionMapTester tester;
     gMReactionMapStub = &tester;
 
@@ -797,6 +800,7 @@ void Ut_MVirtualKeyboard::testReactionMaps()
 
     QVERIFY(tester.testReactionMapGrid(view, 40, 50, m_vkb->mapRectToScene(m_vkb->rect()).toRect(), m_vkb));
     QVERIFY(tester.testChildButtonReactiveAreas(view, m_vkb));
+#endif
 }
 
 // End of test functions!

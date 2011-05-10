@@ -306,6 +306,7 @@ void Ut_MImToolbar::testReactionMaps_data()
 
 void Ut_MImToolbar::testReactionMaps()
 {
+#ifdef HAVE_REACTIONMAP
     QSKIP("Too late to fix this one, no idea why it fails.",
           SkipAll);
     QFETCH(QString, filename);
@@ -343,6 +344,7 @@ void Ut_MImToolbar::testReactionMaps()
     MReactionMapTester::ReactionColorValue middlePointReactionColor = MReactionMapTester::Inactive;
     MReactionMapTester::ReactionColorValue actualMiddlePointColor = tester.colorAt(m_subject->boundingRect().center());
     QCOMPARE(actualMiddlePointColor, middlePointReactionColor);
+#endif
 }
 
 void Ut_MImToolbar::testClose()

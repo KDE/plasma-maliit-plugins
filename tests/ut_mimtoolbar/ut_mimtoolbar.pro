@@ -8,6 +8,12 @@ contains(CONFIG, nomeegotouch) {
     CONFIG += meegotouch
 }
 
+contains(CONFIG, noreactionmap) {
+} else {
+    DEFINES += HAVE_REACTIONMAP
+    CONFIG += meegoreactionmap
+}
+
 DEPENDPATH += .
 INCLUDEPATH += . \
                ../stubs/

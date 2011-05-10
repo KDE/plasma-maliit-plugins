@@ -33,6 +33,7 @@
 #ifndef MREACTIONMAPTESTER_H
 #define MREACTIONMAPTESTER_H
 
+#ifdef HAVE_REACTIONMAP
 #include "mreactionmap_stub.h"
 
 #include <QDebug>
@@ -559,5 +560,6 @@ bool MReactionMapTester::isInsideReactionMap(const QRect &rect) const
 {
     return QRect(0, 0, width(), height()).contains(rect);
 }
+#endif // HAVE_REACTIONMAP
 
 #endif // MREACTIONMAPTESTER_H

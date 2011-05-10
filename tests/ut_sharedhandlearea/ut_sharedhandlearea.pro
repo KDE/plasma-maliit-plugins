@@ -13,7 +13,6 @@ LIBS += -Wl,-rpath=/usr/lib/meego-im-plugins/ -lmeego-keyboard
 HEADERS += ut_sharedhandlearea.h \
            ../stubs/mgconfitem_stub.h \
            ../stubs/fakegconf.h \
-           ../stubs/mreactionmaptester.h \
 
 
 SOURCES += ut_sharedhandlearea.cpp \

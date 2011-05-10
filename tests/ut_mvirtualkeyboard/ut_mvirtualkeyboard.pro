@@ -6,6 +6,11 @@ DEPENDPATH += .
 INCLUDEPATH += . \
                ../stubs/
 
+contains(CONFIG, noreactionmap) {
+} else {
+    DEFINES += HAVE_REACTIONMAP
+    CONFIG += meegoreactionmap
+}
 
 include(../common_check.pri)
 
