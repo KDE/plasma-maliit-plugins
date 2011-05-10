@@ -254,6 +254,9 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
 
     qRegisterMetaType<KeyContext>("KeyContext");
 
+    connect(host, SIGNAL(pluginsChanged()),
+            this, SLOT(onPluginsChange()));
+
     view = new MPlainWindow(host, mainWindow);
     // MSceneManager's of MWindow's are lazy-initialized. However, their
     //implict creation does resize the scene rect of our view, so we trigger
@@ -311,11 +314,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
 
     vkbWidget = new MVirtualKeyboard(LayoutsManager::instance(), vkbStyleContainer, sceneWindow);
     vkbWidget->setInputMethodMode(static_cast<M::InputMethodMode>(inputMethodMode));
-
-    // TODO: we should call vkbWidget->enableSinglePageHorizontalFlick() again when
-    // other plugin is loaded or unloaded
-    const bool enableGesture = (inputMethodHost()->pluginDescriptions(MInputMethod::OnScreen).count() > 1);
-    vkbWidget->enableSinglePageHorizontalFlick(enableGesture);
 
     connect(vkbWidget, SIGNAL(geometryChanged()),
             this, SLOT(handleVirtualKeyboardGeometryChange()));
@@ -1654,6 +1652,13 @@ void MKeyboardHost::updateCorrectionState()
     }
 }
 
+void MKeyboardHost::onPluginsChange()
+{
+    // we should call vkbWidget->enableSinglePageHorizontalFlick() every time when
+    // other plugin is loaded or unloaded
+    const bool enableGesture = (inputMethodHost()->pluginDescriptions(MInputMethod::OnScreen).count() > 1);
+    vkbWidget->enableSinglePageHorizontalFlick(enableGesture);
+}
 
 void MKeyboardHost::userHide()
 {

@@ -235,6 +235,10 @@ private slots:
     //! Update error correction flag
     void updateCorrectionState();
 
+    //! Enable or disable flick gesture when other input method plugins are loaded
+    //! or unloaded
+    void onPluginsChange();
+
 private:
     //! Configures the parts that may change dynamically.
     void prepareHideShowAnimation();
