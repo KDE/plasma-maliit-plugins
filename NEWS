@@ -1,3 +1,11 @@
+0.6.2
+=====
+
+* New features:
+  - A QML-based keyboard. Does not depend on libmeegotouch. Installs as a
+    regular plugin by default, next to the MeeGo Keyboard. Activation like so:
+    $ gconftool-2 -s /meegotouch/inputmethods/plugins/onscreen -t string "MeegoKeyboardQuick"
+
 0.6.0
 =====
 
