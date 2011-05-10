@@ -1718,6 +1718,15 @@ void MKeyboardHost::processKeyEvent(QEvent::Type keyType, Qt::Key keyCode,
 
 void MKeyboardHost::handleClientChange()
 {
+    // There are some cases when the keyboard is not hidden with animation and the key
+    // overrides must be reset in this situations as well (e.g. changing between applications)
+    if (keyOverrideClearPending) {
+        QMap<QString, QSharedPointer<MKeyOverride> > emptyOverrides;
+        vkbWidget->setKeyOverrides(emptyOverrides);
+        symbolView->setKeyOverrides(emptyOverrides);
+        keyOverrideClearPending = false;
+    }
+
     hardwareKeyboard->clientChanged();
     resetInternalState();
     if (sipRequested) {
