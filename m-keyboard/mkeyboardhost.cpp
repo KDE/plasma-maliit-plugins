@@ -2289,7 +2289,7 @@ int MKeyboardHost::keyboardHeight() const
     }
 
     if (sharedHandleArea->isVisible()) {
-        height += sharedHandleArea->size().height();
+        height += sharedHandleArea->size().height() - sharedHandleArea->shadowHeight();
     }
     return height;
 }

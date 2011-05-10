@@ -170,6 +170,15 @@ void SharedHandleArea::finalizeOrientationChange()
     updatePosition();
 }
 
+int SharedHandleArea::shadowHeight() const
+{
+    if (keyboardShadow.isVisible()) {
+        return keyboardShadow.size().height();
+    } else {
+        return 0;
+    }
+}
+
 bool SharedHandleArea::event(QEvent *e)
 {
     if (e->type() == QEvent::GraphicsSceneResize) {

@@ -78,6 +78,7 @@ public:
     //! Update position and geometry when orientation is changed
     void finalizeOrientationChange();
 
+    int shadowHeight() const;
 signals:
     void flickUp(const FlickGesture &gesture);
     void flickDown(const FlickGesture &gesture);
