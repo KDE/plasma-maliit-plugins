@@ -34,6 +34,7 @@ MImAbstractKeyAreaStyle {
     /*** Font Settings ***/
     font: $FONT_KEYBOARD;
     font-color: $FONT_COLOR_KEYBOARD;
+    font-opacity: 1.0;
     secondary-font: $FONT_SMALL;
 
     /*** Graphical assets ***/
@@ -948,7 +949,7 @@ MKeyboardMagnifierStyle {
     magnifier-text-margin-bottom-lowercase: 0.3mm;
     magnifier-delay-closing-interval: 70;
 
-    extended-keys-offset: 85;
+    extended-keys-offset: 2.2mm;
 }
 
 MKeyboardMagnifierStyle.Landscape {
@@ -960,21 +961,28 @@ MKeyboardMagnifierStyle.Portrait {
 }
 
 #ExtendedKeys {
-   background-image: "meegotouch-keyboard-accent-magnifier-background" 25 25 25 25;
-   key-background: "meegotouch-keyboard-accent-magnifier-key" $ROUNDED_CORNERS;
+   font: $FONT_FAMILY bold 64;
+   font-opacity: 0.5;
+   background-image: "meegotouch-keyboard-accent-magnifier-background" 24 24 24 24;
 
-   key-height: 60;
-   key-width-medium-fixed: 82;
-   padding-left: 16;
-   padding-right: 16;
-   padding-top: 16;
-   padding-bottom: 16;
+   key-background: ;
+   key-background-pressed: ;
+
+   padding-left: 1.8mm;
+   padding-right: 1.8mm;
+   padding-top: 0mm;
+   padding-bottom: 0mm;
 
    enable-overlay-mode: true;
 }
 
+#ExtendedKeys.Landscape {
+   key-height-medium: 10mm;
+   key-width-medium-fixed: 8.6mm;
+}
+
 #ExtendedKeys.Portrait {
-   key-height: 84;
-   key-width-medium-fixed: 42;
+   key-height-medium: 11.2mm;
+   key-width-medium-fixed: 4.8mm;
 }
 

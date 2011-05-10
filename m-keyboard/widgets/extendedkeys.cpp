@@ -94,6 +94,51 @@ namespace {
                      + style->paddingRight(),
                      keyArea->size().height());
     }
+
+    /*
+     * Align given keyArea to put interspace between some keys
+     * on top of origin position
+     */
+    void alignExtendedKeyArea(MImAbstractKeyArea *keyArea,
+                      int keyCount,
+                      const QPointF &origin,
+                      int extendedKeysOffset)
+    {
+        if (!keyArea || keyCount < 2) {
+            return;
+        }
+
+        const MImAbstractKeyAreaStyleContainer &style(keyArea->baseStyle());
+        const int paddingL = style->paddingLeft();
+        const int keyWidth = style->keyWidthMediumFixed();
+        const int keyMarginL = style->keyMarginLeft();
+        const int keyMarginR = style->keyMarginRight();
+        // Position of interspace between first and second key.
+        // This line actually depends in MImKey implementation.
+        const int firstPosCandidate = paddingL + keyWidth + keyMarginR;
+
+        // Select interspace which should be placed on top of origin.
+        // n==0 points to interspace between first and second keys
+        int n = qRound((origin.x() - keyArea->pos().x()
+                        - firstPosCandidate)
+                       / (keyWidth + keyMarginL + keyMarginR));
+        // We do not want to put right border of last key on top
+        // of origin position, so upper bound is "keyCount - 2"
+        // instead of "keyCount -1"
+        n = qBound(0, n, keyCount - 2);
+
+        const QPointF correction(firstPosCandidate
+                                 + n * (keyWidth + keyMarginL + keyMarginR),
+                                 keyArea->boundingRect().bottom());
+
+        const QPointF pos(origin
+                          - correction
+                          + QPointF(0, extendedKeysOffset));
+
+        MagnifierHost::applyConstrainedPosition(keyArea, keyArea->parentItem(), pos,
+                                                QMargins(style->paddingLeft(), style->paddingTop(),
+                                                         style->paddingRight(), style->paddingBottom()));
+    }
 }
 
 ExtendedKeys::ExtendedKeys(MagnifierHost *newHost,
@@ -164,14 +209,20 @@ void ExtendedKeys::showExtendedArea(const QPointF &origin,
 
     // Through the main area, we can access the VKB coordinate system:
     const QPointF originMapped(mainArea->mapToItem(this, origin));
+    const QPointF correction(extKeysArea->boundingRect().center().x(),
+                             extKeysArea->boundingRect().bottom());
     const QPointF extKeysPos(originMapped
-                             - extKeysArea->boundingRect().center()
-                             - QPointF(0, host->style()->extendedKeysOffset()));
+                             - correction
+                             + QPointF(0, host->style()->extendedKeysOffset()));
 
     const MImAbstractKeyAreaStyleContainer &style(mainArea->baseStyle());
     MagnifierHost::applyConstrainedPosition(extKeysArea.get(), extKeysArea->parentItem(), extKeysPos,
                                             QMargins(style->paddingLeft(), style->paddingTop(),
                                                      style->paddingRight(), style->paddingBottom()));
+
+    if (extKeysArea->pos() != extKeysPos) {
+        alignExtendedKeyArea(extKeysArea.get(), labels.count(), originMapped, host->style()->extendedKeysOffset());
+    }
 
     MainAreaReset reset;
     MImAbstractKey::visitActiveKeys(&reset);

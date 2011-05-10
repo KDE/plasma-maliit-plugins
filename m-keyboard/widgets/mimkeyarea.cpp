@@ -455,6 +455,7 @@ qreal MImKeyAreaPrivate::computeWidgetHeight() const
     qreal height = q->baseStyle()->size().height();
 
     if (height < 0) {
+        height = 0;
         for (int index = 0; index < rowList.count(); ++index) {
             height += preferredKeyHeight(index);
 
@@ -763,9 +764,10 @@ void MImKeyArea::paint(QPainter *painter,
 
     // Draw text next.
     // We use QGraphicsView::DontSavePainterState, so save/restore state manually
-    // Not strictly needed at the moment, but prevents subtle breakage later
     painter->save();
     painter->setPen(style->fontColor());
+    painter->setOpacity(style->fontOpacity());
+
     foreach (const MImKeyAreaPrivate::KeyRow &row, d->rowList) {
         // rowHasSecondaryLabel is needed for the vertical alignment of
         // secondary label purposes.

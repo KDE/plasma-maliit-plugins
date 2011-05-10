@@ -205,7 +205,9 @@ void MagnifierHost::handleLongKeyPressedOnMainArea(MImAbstractKey *key,
         return;
     }
 
-    extKeys->showExtendedArea(key->buttonBoundingRect().center(),
+    QPointF buttonPos = key->buttonRect().topLeft();
+    buttonPos.rx() += key->buttonRect().width() / 2;
+    extKeys->showExtendedArea(buttonPos,
                               keyContext.scenePos,
                               labels);
     magnifier->hide();
