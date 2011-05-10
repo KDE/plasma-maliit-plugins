@@ -2,6 +2,7 @@ meego-keyboard (0.6.2~1) unstable; urgency=low
 
   * [UNRELEASED]
   * Fixes: NB#252091 - word tracker "tail" is obsolete and should be removed
+  * Fixes: NB#253747 - Switch the location of Ä and Ö in finnish VKB
 
  -- Ning Chi <ext-chi.2.ning@nokia.com>  Tue, 10 May 2011 10:46:16 +0300
 

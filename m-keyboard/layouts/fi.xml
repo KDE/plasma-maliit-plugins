@@ -84,8 +84,8 @@
         <binding shift="true" label="L"/>
       </key>
       <key>
-        <binding label="ö" extended_labels="ø"/>
-        <binding shift="true" label="Ö" extended_labels="Ø"/>
+        <binding label="ä" extended_labels="æ"/>
+        <binding shift="true" label="Ä" extended_labels="Æ"/>
       </key>
 
       </row>
@@ -146,8 +146,8 @@
       </key>
 
       <key>
-        <binding label="ä" extended_labels="æ"/>
-        <binding shift="true" label="Ä" extended_labels="Æ"/>
+        <binding label="ö" extended_labels="ø"/>
+        <binding shift="true" label="Ö" extended_labels="Ø"/>
       </key>
 
       <key style="special" width="xx-large" id="actionKey">
