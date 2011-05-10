@@ -1,6 +1,7 @@
 meego-keyboard (0.6.2~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#250812 - URL sharing within Browser to Facebook - keyboard has !!Go key instead of carriage return
   * Fixes: NB#252091 - word tracker "tail" is obsolete and should be removed
   * Fixes: NB#253747 - Switch the location of Ä and Ö in finnish VKB
   * Fixes: NB#252284 - Memory corruption in libmeegoreactionmap?
