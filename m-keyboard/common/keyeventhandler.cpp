@@ -117,6 +117,12 @@ void KeyEventHandler::handleLongKeyPress(const MImAbstractKey *key, const KeyCon
 
 void KeyEventHandler::handleKeyCancel(const MImAbstractKey *key, const KeyContext &context)
 {
+    if (key->isShiftKey() && shiftHeldDown) {
+        shiftHeldDown = false;
+        ignoreShiftClick = false;
+        emit shiftPressed(false);
+    }
+
     const KeyEvent event = keyToKeyEvent(*key, QEvent::KeyRelease, context);
 
     emit keyCancelled(event);

@@ -1163,6 +1163,19 @@ void MImAbstractKeyArea::reset()
     d->primaryPressArrived = false;
     d->primaryReleaseArrived = false;
 
+    // Handle shift before ungrab because that changes key state
+    bool shiftLatchedOrLocked(false);
+
+    foreach (const MImAbstractKey *key, keys()) {
+        if (key->isShiftKey()) {
+            shiftLatchedOrLocked = key->modifiers();
+            if (key->state() == MImAbstractKey::Pressed) {
+                emit keyCancelled(key, KeyContext());
+            }
+            break;
+        }
+    }
+
     if (scene()->mouseGrabberItem() == this) {
         // Ungrab mouse explicitly since we probably used grabMouse() to get it.
         ungrabMouse();
@@ -1170,15 +1183,6 @@ void MImAbstractKeyArea::reset()
 
     if (d->popup) {
         d->popup->cancel();
-    }
-
-    bool shiftLatchedOrLocked(false);
-
-    foreach (const MImAbstractKey *key, keys()) {
-        if (key->isShiftKey() && key->modifiers()) {
-            shiftLatchedOrLocked = true;
-            break;
-        }
     }
 
     MImKeyVisitor::KeyAreaReset keyAreaReset(MImKeyVisitor::ResetPreservesCapsLock);

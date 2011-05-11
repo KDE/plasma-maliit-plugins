@@ -1405,6 +1405,8 @@ void MKeyboardHost::handleKeyCancel(const KeyEvent &event)
     if (event.qtKey() == Qt::Key_Backspace) {
         backspaceMode = NormalBackspaceMode;
         backspaceTimer.stop();
+    } else if (event.qtKey() == Qt::Key_Shift) {
+        shiftHeldDown = false;
     }
 }
 
