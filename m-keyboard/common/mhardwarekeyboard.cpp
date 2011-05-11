@@ -315,7 +315,7 @@ void MHardwareKeyboard::handleClipboardDataChange()
 bool MHardwareKeyboard::actionOnPress(Qt::Key keyCode) const
 {
     static const Qt::Key pressPassKeys[] = {
-        Qt::Key_Return, Qt::Key_Backspace, Qt::Key_Delete,
+        Qt::Key_Return, Qt::Key_Enter, Qt::Key_Backspace, Qt::Key_Delete,
         Qt::Key_Left, Qt::Key_Right, Qt::Key_Up, Qt::Key_Down,
         Qt::Key_Home, Qt::Key_End, Qt::Key_PageUp, Qt::Key_PageDown };
     static const Qt::Key * const keysEnd = pressPassKeys + ELEMENTS(pressPassKeys);
