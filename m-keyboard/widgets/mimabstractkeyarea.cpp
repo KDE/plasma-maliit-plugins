@@ -1185,7 +1185,7 @@ void MImAbstractKeyArea::reset()
         d->popup->cancel();
     }
 
-    MImKeyVisitor::KeyAreaReset keyAreaReset(MImKeyVisitor::ResetPreservesCapsLock);
+    MImKeyVisitor::KeyAreaReset keyAreaReset;
     keyAreaReset.setKeyParentItem(this);
     MImAbstractKey::visitActiveKeys(&keyAreaReset);
     modifiersChanged(shiftLatchedOrLocked);

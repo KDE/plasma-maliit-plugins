@@ -44,11 +44,6 @@ namespace MImKeyVisitor
         FindBoth
     };
 
-    enum ResetMode {
-        ResetAll,
-        ResetPreservesCapsLock
-    };
-
 
     //! \brief Helper class responsible for finding active shift and dead keys.
     class SpecialKeyFinder
@@ -66,21 +61,17 @@ namespace MImKeyVisitor
         FindMode mode;
     };
 
-    //! \brief Helper class for visiting and reseting active keys whilst
-    //!        optionally preserving caps-lock.
+    //! \brief Helper class for visiting and reseting active keys.
     class KeyAreaReset
         : public MImAbstractKeyVisitor
     {
     public:
-        explicit KeyAreaReset(ResetMode newMode = ResetPreservesCapsLock);
+        KeyAreaReset();
         void setKeyParentItem(QGraphicsItem *newParent);
         bool operator()(MImAbstractKey *key);
-        bool hasCapsLocked() const;
 
     private:
-        bool mHasCapsLocked;
         QGraphicsItem *parent; //!< Can be invalid, only used for comparision
-        ResetMode mode;
     };
 }
 #endif
