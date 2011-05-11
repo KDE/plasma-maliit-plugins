@@ -48,6 +48,7 @@ namespace {
     const QString VKBLayoutsIgnoreRules("number|test|customer|default"); // use as regexp to ignore number, test, customer and default layouts
     const QString SettingsFuzzy("/meegotouch/inputmethods/virtualkeyboard/fuzzyselected");
     const QString SettingsWordPrediction("/meegotouch/inputmethods/virtualkeyboard/wordpredictionenabled");
+    const QString VKBUserLayoutPath(".config/meego-keyboard/layouts/"); // relative to home dir
 };
 
 MKeyboardSettings::MKeyboardSettings()
@@ -98,6 +99,8 @@ void MKeyboardSettings::readAvailableKeyboards()
     availableKeyboardInfos.clear();
     QList<QDir> dirs;
     dirs << QDir(VKBConfigurationPath, VKBLayoutsFilterRule);
+    dirs << QDir(QDir::homePath() + QDir::separator() + VKBUserLayoutPath, VKBLayoutsFilterRule);
+
     QRegExp ignoreExp(VKBLayoutsIgnoreRules, Qt::CaseInsensitive);
 
     foreach (const QDir &dir, dirs) {
