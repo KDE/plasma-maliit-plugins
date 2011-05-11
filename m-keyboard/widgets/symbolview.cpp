@@ -46,6 +46,7 @@
 
 #include <mkeyoverride.h>
 
+#include <MCancelEvent>
 #include <MSceneManager>
 #include <MScalableImage>
 
@@ -622,16 +623,16 @@ bool SymbolView::isPaintable() const
     return isVisible();
 }
 
-void SymbolView::resetCurrentKeyArea(bool resetCapsLock)
-{
-    MImAbstractKeyArea *mainKba = static_cast<MImAbstractKeyArea *>(pageSwitcher->currentWidget());
-    if (mainKba) {
-        mainKba->reset(resetCapsLock);
-    }
-}
-
 void SymbolView::setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides)
 {
     pageSwitcher->setKeyOverrides(overrides);
     this->overrides = overrides;
+}
+
+void SymbolView::cancelEvent(MCancelEvent *event)
+{
+    QGraphicsWidget *keyArea(pageSwitcher->currentWidget());
+    if (keyArea) {
+        scene()->sendEvent(keyArea, event);
+    }
 }

@@ -123,13 +123,6 @@ public slots:
     void hidePopup();
 
     /*!
-     * \brief Resets keyboard and release active keys.
-     * \param resetCapsLock whether to reset shift key when in caps-lock mode.
-     *        By default, always resets shift key.
-     */
-    void reset(bool resetCapsLock = false);
-
-    /*!
      * \brief Uses custom key overrides which is defined by \a overrides.
      */
     virtual void setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides) = 0;
@@ -247,6 +240,14 @@ protected:
     virtual void cancelEvent(MCancelEvent *);
     virtual bool event(QEvent *event);
     //! \reimp_end
+
+    /*!
+     * \brief Resets keyboard and release active keys.
+     *
+     * Doesn't reset latched/locked shift state.  Cancels shift press (that has not been
+     * released).
+     */
+    void reset();
 
     //! \brief Called when key area's visibility changed.
     //! \param visible the new visbility status

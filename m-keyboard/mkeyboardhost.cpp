@@ -1386,17 +1386,22 @@ void MKeyboardHost::handleLongKeyPress(const KeyEvent &event)
 {
     AbstractEngineWidgetHost *engineWidgetHost = EngineManager::instance().handler() ?
         EngineManager::instance().handler()->engineWidgetHost() : 0;
+    // long tap space key when word tracker is visible will switch to word list.
     if (event.qtKey() == Qt::Key_Space
         && correctionEnabled
         && engineWidgetHost
         && engineWidgetHost->isActive()
         && engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode
         && engineWidgetHost->candidates().size() > 0) {
-        // long tap space key when word tracker is visible will switch to word list.
+        // This press event is done. Current touch events are still being
+        // delivered to vkb/symbol view (actually, to one of its children) so
+        // we send cancel event to it.
+        MCancelEvent cancel;
+
         if (symbolView->isActive()) {
-            symbolView->resetCurrentKeyArea();
+            symbolView->scene()->sendEvent(symbolView, &cancel);
         } else {
-            vkbWidget->resetCurrentKeyArea();
+            vkbWidget->scene()->sendEvent(vkbWidget, &cancel);
         }
         engineWidgetHost->showEngineWidget(AbstractEngineWidgetHost::DialogMode);
     }

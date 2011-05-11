@@ -165,13 +165,6 @@ public slots:
     void paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view);
 
     /*!
-     * \brief Resets current active key area (release active keys in the main keyboard).
-     * \param resetCapsLock whether to reset shift key when in caps-lock mode.
-     *        By default, always resets shift key.
-     */
-    void resetCurrentKeyArea(bool resetCapsLock = false);
-
-    /*!
      * \brief Uses custom key overrides which is defined by \a overrides.
      */
     void setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides);
@@ -212,6 +205,7 @@ signals:
 
 protected:
     /*! \reimp */
+    virtual void cancelEvent(MCancelEvent *event);
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *);
     virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);

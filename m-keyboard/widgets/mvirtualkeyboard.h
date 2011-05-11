@@ -207,13 +207,6 @@ public slots:
     void setLayout(int layoutIndex);
 
     /*!
-     * \brief Resets current active key area (release active keys in the main keyboard).
-     * \param resetCapsLock whether to reset shift key when in caps-lock mode.
-     *        By default, always resets shift key.
-     */
-    void resetCurrentKeyArea(bool resetCapsLock = false);
-
-    /*!
      * \brief Uses custom key overrides which is defined by \a overrides.
      */
     void setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides);

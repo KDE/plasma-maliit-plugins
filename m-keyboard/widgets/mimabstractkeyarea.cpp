@@ -1156,7 +1156,7 @@ void MImAbstractKeyArea::handleIdleVkb()
     grabGesture(FlickGestureRecognizer::sharedGestureType());
 }
 
-void MImAbstractKeyArea::reset(bool resetCapsLock)
+void MImAbstractKeyArea::reset()
 {
     Q_D(MImAbstractKeyArea);
 
@@ -1172,8 +1172,7 @@ void MImAbstractKeyArea::reset(bool resetCapsLock)
         d->popup->cancel();
     }
 
-    MImKeyVisitor::KeyAreaReset keyAreaReset(resetCapsLock ? MImKeyVisitor::ResetAll
-                                                           : MImKeyVisitor::ResetPreservesCapsLock);
+    MImKeyVisitor::KeyAreaReset keyAreaReset(MImKeyVisitor::ResetPreservesCapsLock);
     keyAreaReset.setKeyParentItem(this);
     MImAbstractKey::visitActiveKeys(&keyAreaReset);
     modifiersChanged(keyAreaReset.hasCapsLocked());
