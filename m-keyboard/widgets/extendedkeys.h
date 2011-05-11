@@ -65,12 +65,6 @@ public:
     virtual ~ExtendedKeysArea()
     {}
 
-    // Used for event forwarding, to simulate "touch event grabbing"
-    virtual bool event(QEvent *ev)
-    {
-        return MImKeyArea::event(ev);
-    }
-
     virtual bool sceneEvent(QEvent *ev)
     {
         bool result = MImKeyArea::sceneEvent(ev);
