@@ -1,6 +1,5 @@
-meego-keyboard (0.6.2~1) unstable; urgency=low
+meego-keyboard (0.6.2-1) unstable; urgency=low
 
-  * [UNRELEASED]
   * Fixes: NB#252067 - VKB 'attribute extended' highlighted enabled key seems to have a broken style
   * Fixes: NB#250812 - URL sharing within Browser to Facebook - keyboard has !!Go key instead of carriage return
   * Fixes: NB#252091 - word tracker "tail" is obsolete and should be removed
@@ -9,7 +8,7 @@ meego-keyboard (0.6.2~1) unstable; urgency=low
   * Fixes: NB#252078 - keyboard magnifier is not according to layout guide
   * Fixes: NB#252096 - accented keys popup is not according to layout guide
 
- -- Ning Chi <ext-chi.2.ning@nokia.com>  Tue, 10 May 2011 10:46:16 +0300
+ -- Ning Chi <ext-chi.2.ning@nokia.com>  Wed, 11 May 2011 15:46:16 +0300
 
 meego-keyboard (0.6.1-1) unstable; urgency=low
 
