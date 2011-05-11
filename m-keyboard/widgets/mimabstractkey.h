@@ -83,6 +83,9 @@ public:
     virtual void setModifiers(bool shift,
                               QChar accent = QChar()) = 0;
 
+    //! \brief Gets current shift and accent state.
+    virtual bool modifiers(QChar *accent = 0) const = 0;
+
     //! \brief Selected button
     virtual void setSelected(bool selected) = 0;
 

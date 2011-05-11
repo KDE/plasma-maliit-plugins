@@ -367,6 +367,14 @@ void MImKey::setModifiers(bool shift, QChar accent)
     }
 }
 
+bool MImKey::modifiers(QChar *accent) const
+{
+    if (accent) {
+        *accent = this->accent;
+    }
+    return shift;
+}
+
 void MImKey::setDownState(bool down)
 {
     ButtonState newState;

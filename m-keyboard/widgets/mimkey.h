@@ -94,6 +94,7 @@ public:
     virtual const QRectF &buttonBoundingRect() const;
     virtual void setModifiers(bool shift,
                               QChar accent = QChar());
+    virtual bool modifiers(QChar *accent) const;
     virtual void setSelected(bool select);
     virtual void setComposing(bool composing);
     virtual ButtonState state() const;

@@ -1172,10 +1172,19 @@ void MImAbstractKeyArea::reset()
         d->popup->cancel();
     }
 
+    bool shiftLatchedOrLocked(false);
+
+    foreach (const MImAbstractKey *key, keys()) {
+        if (key->isShiftKey() && key->modifiers()) {
+            shiftLatchedOrLocked = true;
+            break;
+        }
+    }
+
     MImKeyVisitor::KeyAreaReset keyAreaReset(MImKeyVisitor::ResetPreservesCapsLock);
     keyAreaReset.setKeyParentItem(this);
     MImAbstractKey::visitActiveKeys(&keyAreaReset);
-    modifiersChanged(keyAreaReset.hasCapsLocked());
+    modifiersChanged(shiftLatchedOrLocked);
     update();
 }
 
