@@ -99,6 +99,9 @@ private slots:
     void testFlickEvent_data();
     void testFlickEvent();
 
+    void testReleasePressedKey_data();
+    void testReleasePressedKey();
+
 private:
     void changeOrientation(M::OrientationAngle angle);
     QSize defaultLayoutSize();
