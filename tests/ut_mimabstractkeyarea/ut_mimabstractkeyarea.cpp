@@ -1359,14 +1359,14 @@ void Ut_MImAbstractKeyArea::testStyleModesFromKeyCount()
     QCOMPARE(subject->baseStyle().currentMode(), expectedStyleMode);
 }
 
-void Ut_MImAbstractKeyArea::testOverlayMode_data()
+void Ut_MImAbstractKeyArea::testLockVerticalMovement_data()
 {
     const QRectF area(0, 0, 100, 100);
     const QSize keyAreaSize(area.width() * 0.5, area.height() * 0.5);
     const QRectF outside(area.adjusted(20, 20, -20, -20));
     const QRectF inside(area.adjusted(40, 40, -40, -40));
 
-    QTest::addColumn<bool>("overlayMode");
+    QTest::addColumn<bool>("lockVerticalMovement");
     QTest::addColumn<bool>("hit");
     QTest::addColumn<QRectF>("area");
     QTest::addColumn<QSize>("keyAreaSize");
@@ -1391,12 +1391,12 @@ void Ut_MImAbstractKeyArea::testOverlayMode_data()
         << (PointList() << inside.topLeft() << inside.topRight()
                         << inside.bottomLeft() << inside.bottomRight());
 
-    QTest::newRow("overlayed but no hits")
+    QTest::newRow("locked movement but no hits")
         << true << false << area << keyAreaSize
         << (PointList() << outside.topLeft() << outside.topRight()
                         << outside.bottomLeft() << outside.bottomRight());
 
-    QTest::newRow("overlayed bullseye")
+    QTest::newRow("locked movement bullseye")
         << true << true << area << keyAreaSize
         << (PointList() << inside.topLeft() << inside.topRight()
                         << inside.bottomLeft() << inside.bottomRight()
@@ -1404,9 +1404,9 @@ void Ut_MImAbstractKeyArea::testOverlayMode_data()
                         << QPointF(area.center().x(), area.bottom()));
 }
 
-void Ut_MImAbstractKeyArea::testOverlayMode()
+void Ut_MImAbstractKeyArea::testLockVerticalMovement()
 {
-    QFETCH(bool, overlayMode);
+    QFETCH(bool, lockVerticalMovement);
     QFETCH(bool, hit);
     QFETCH(QRectF, area);
     QFETCH(QSize, keyAreaSize);
@@ -1420,9 +1420,7 @@ void Ut_MImAbstractKeyArea::testOverlayMode()
     subject->setPos((area.width() - keyAreaSize.width()) * 0.5,
                     (area.height() - keyAreaSize.height()) * 0.5);
 
-    MImAbstractKeyAreaStyle *s = const_cast<MImAbstractKeyAreaStyle *>(subject->baseStyle().operator->());
-    s->setEnableOverlayMode(overlayMode);
-
+    static_cast<MImKeyArea *>(subject)->lockVerticalMovement(lockVerticalMovement);
     const MImAbstractKey *const None = 0;
     const MImAbstractKey *const LetterQ = keyAt(0, 0);
     QVERIFY(LetterQ);

@@ -93,8 +93,8 @@ private slots:
     void testStyleModesFromKeyCount_data();
     void testStyleModesFromKeyCount();
 
-    void testOverlayMode_data();
-    void testOverlayMode();
+    void testLockVerticalMovement_data();
+    void testLockVerticalMovement();
 
     void testFlickEvent_data();
     void testFlickEvent();
