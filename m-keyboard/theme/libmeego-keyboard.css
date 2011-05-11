@@ -127,7 +127,6 @@ MImAbstractKeyAreaStyle {
     flick-gesture-threshold-ratio: 0.5;
 
     touchpoint-vertical-offset: 0mm;
-    enable-overlay-mode: false;
     commit-previous-key-on-press: true;
     auto-padding: true;
 
@@ -987,7 +986,7 @@ MKeyboardMagnifierStyle.Portrait {
    padding-top: 0mm;
    padding-bottom: 0mm;
 
-   enable-overlay-mode: true;
+   commit-previous-key-on-press: false;
    auto-padding: false;
 }
 

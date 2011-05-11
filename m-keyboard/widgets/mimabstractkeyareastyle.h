@@ -185,7 +185,6 @@ public:
     M_STYLE_ATTRIBUTE(qreal, keyMarginBottom, KeyMarginBottom)
 
     M_STYLE_ATTRIBUTE(bool, syncStyleModeWithKeyCount, SyncStyleModeWithKeyCount)
-    M_STYLE_ATTRIBUTE(bool, enableOverlayMode, EnableOverlayMode)
     M_STYLE_ATTRIBUTE(bool, commitPreviousKeyOnPress, CommitPreviousKeyOnPress)
     M_STYLE_ATTRIBUTE(bool, autoPadding, AutoPadding)
 
