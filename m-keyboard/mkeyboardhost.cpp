@@ -1257,12 +1257,10 @@ void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
         }
     }
 
-    MInputMethod::EventRequestType requestType = MInputMethod::EventRequestSignalOnly;
     if ((inputMethodMode == M::InputMethodModeDirect)
          && (event.specialKey() == KeyEvent::NotSpecial)) {
 
-        requestType = MInputMethod::EventRequestBoth;
-        inputMethodHost()->sendKeyEvent(event.toQKeyEvent(), requestType);
+        inputMethodHost()->sendKeyEvent(event.toQKeyEvent(), MInputMethod::EventRequestBoth);
 
     } else if (event.qtKey() == Qt::Key_Backspace) {
         if (backspaceTimer.isActive()) {
