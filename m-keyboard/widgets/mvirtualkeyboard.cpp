@@ -507,7 +507,7 @@ void MVirtualKeyboard::numberKeyboardReset()
 
 void MVirtualKeyboard::cancelEvent(MCancelEvent *event)
 {
-    MImAbstractKeyArea *keyArea = static_cast<MImAbstractKeyArea *>(mainKeyboardSwitcher->currentWidget());
+    QGraphicsWidget *keyArea(mainKeyboardSwitcher->currentWidget());
     if (keyArea) {
         scene()->sendEvent(keyArea, event);
     }
