@@ -71,6 +71,17 @@ public:
         return MImKeyArea::event(ev);
     }
 
+    virtual bool sceneEvent(QEvent *ev)
+    {
+        bool result = MImKeyArea::sceneEvent(ev);
+
+        if (ev->type() == QEvent::GraphicsSceneMouseRelease) {
+            lockVerticalMovement(false);
+        }
+
+        return result;
+    }
+
 protected:
     explicit ExtendedKeysArea(const LayoutData::SharedLayoutSection &section,
                               QGraphicsWidget *parent)
@@ -78,6 +89,7 @@ protected:
     {
         // Used by MATTI:
         setObjectName("VirtualKeyboardExtendedArea");
+        lockVerticalMovement(true);
     }
 
 };

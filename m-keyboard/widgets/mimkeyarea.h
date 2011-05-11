@@ -75,6 +75,12 @@ public:
     virtual void resetActiveKeys();
     //! \reimp_end
 
+    //! \brief Locks down vertical movement.
+    //!
+    //! If enabled, only horizontal movement is used for key lookups, which
+    //! will only return keys from first row.
+    void lockVerticalMovement(bool enabled);
+
 private slots:
     void updateKeyAttributes(const QString &, MKeyOverride::KeyOverrideAttributes);
 

@@ -387,7 +387,8 @@ MImKeyAreaPrivate::MImKeyAreaPrivate(const LayoutData::SharedLayoutSection &newS
       stylingCache(new MImKey::StylingCache),
       toggleKey(0),
       composeKey(0),
-      fontPool(newSection->uniformFontSize())
+      fontPool(newSection->uniformFontSize()),
+      lockVerticalMovement(false)
 {
 }
 
@@ -816,10 +817,16 @@ MImAbstractKey *MImKeyArea::keyAt(const QPoint &pos) const
         return 0;
     }
 
-    const int rowIndex = binaryRangeFind<qreal>(pos.y(), d->rowOffsets);
+    int rowIndex = binaryRangeFind<qreal>(pos.y(), d->rowOffsets);
 
     if (rowIndex == -1) {
-        return 0;
+        // If row could not be found in rowOffsets and vertical movement was
+        // locked, then return first or last row, depending on y position:
+        if (d->lockVerticalMovement) {
+            rowIndex = (pos.y() < 0 ? 0 : numRows - 1);
+        } else {
+            return 0; // Giving up - unable to find key.
+        }
     }
 
     const MImKeyAreaPrivate::KeyRow &currentRow = d->rowList.at(rowIndex);
@@ -1082,4 +1089,10 @@ void MImKeyArea::resetActiveKeys()
         }
     }
     setComposeKeyState(false);
+}
+
+void MImKeyArea::lockVerticalMovement(bool enabled)
+{
+    Q_D(MImKeyArea);
+    d->lockVerticalMovement = enabled;
 }
