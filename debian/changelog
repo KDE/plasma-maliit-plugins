@@ -6,6 +6,8 @@ meego-keyboard (0.6.2~1) unstable; urgency=low
   * Fixes: NB#252091 - word tracker "tail" is obsolete and should be removed
   * Fixes: NB#253747 - Switch the location of Ä and Ö in finnish VKB
   * Fixes: NB#252284 - Memory corruption in libmeegoreactionmap?
+  * Fixes: NB#252078 - keyboard magnifier is not according to layout guide
+  * Fixes: NB#252096 - accented keys popup is not according to layout guide
 
  -- Ning Chi <ext-chi.2.ning@nokia.com>  Tue, 10 May 2011 10:46:16 +0300
 
@@ -18,8 +20,6 @@ meego-keyboard (0.6.1-1) unstable; urgency=low
   * Fixes: NB#247713 - Keyboard drop shadow is missing
   * Fixes: NB#251619 - Virtual Keyboard open/close transition is off
   * Fixes: NB#236808 - MReactionMap c'tor has to find top level widget itself
-  * Fixes: NB#252078 - keyboard magnifier is not according to layout guide
-  * Fixes: NB#252096 - accented keys popup is not according to layout guide
 
  -- Michael Hasselmann <michaelh@openismus.com>  Mon, 02 May 2011 15:48:19 +0200
 
