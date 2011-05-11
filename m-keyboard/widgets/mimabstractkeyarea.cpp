@@ -431,10 +431,9 @@ void MImAbstractKeyAreaPrivate::touchPointMoved(const QTouchEvent::TouchPoint &t
 
     // For a moving touchpoint, we only need to consider enter-key or leave-key events:
     if (lookup.key != lookup.lastKey) {
+        q->updatePopup(lookup.key);
 
         if (lookup.key) {
-            q->updatePopup(lookup.key);
-
             if (lookup.key->enabled()
                 && lookup.key->increaseTouchPointCount()
                 && lookup.key->touchPointCount() == 1) {
