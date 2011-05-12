@@ -103,7 +103,7 @@ Column {
                         CharacterKey {
                             width: keyWidth; height: keyHeight
                             caption: row3[index][0]
-                            captionShifted: row2[index][0].toUpperCase()
+                            captionShifted: row3[index][0].toUpperCase()
                             symView: row3[index][1]
                         }
                     }
