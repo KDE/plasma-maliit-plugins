@@ -1,6 +1,5 @@
-meego-keyboard (0.6.3~1) unstable; urgency=low
+meego-keyboard (0.6.3-1) unstable; urgency=low
 
-  * [UNRELEASED]
   * Fixes: NB#251341 - Switching to plugin does not happen if there is one language set in MeegoKeyboard.
   * Fixes: NB#250363 - A selection for available Input methods needed in Text input Setting
 
