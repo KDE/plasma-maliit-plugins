@@ -1,3 +1,9 @@
+meego-keyboard (0.6.4~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Jan Arne Petersen <jpetersen@openismus.com>  Thu, 12 May 2011 14:35:00 +0200
+
 meego-keyboard (0.6.3-1) unstable; urgency=low
 
   * Fixes: NB#251341 - Switching to plugin does not happen if there is one language set in MeegoKeyboard.
