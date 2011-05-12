@@ -1,3 +1,9 @@
+meego-keyboard (0.6.3~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Viacheslav Sobolev <ext-viacheslav.sobolev@nokia.com>  Thu, 12 May 2011 10:23:02 +0300
+
 meego-keyboard (0.6.2-1) unstable; urgency=low
 
   * Fixes: NB#252067 - VKB 'attribute extended' highlighted enabled key seems to have a broken style
