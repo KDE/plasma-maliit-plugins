@@ -487,6 +487,7 @@ void MKeyboardHost::handleFocusChange(bool focusIn)
     haveFocus = focusIn;
     if (activeState == MInputMethod::OnScreen) {
         if (focusIn) {
+            symbolView->hideSymbolView();
             // reset the temporary shift state when focus is changed
             resetVirtualKeyboardShiftState();
         }
