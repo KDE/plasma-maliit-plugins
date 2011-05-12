@@ -50,7 +50,7 @@ Rectangle {
 
         onReleased: {
             MInputMethodQuick.sendCommit(key_label.text)
-            shifted = false
+            isShifted = false
         }
     }
 
