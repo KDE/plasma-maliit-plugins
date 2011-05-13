@@ -40,15 +40,15 @@
 #include "layoutdata.h"
 #include "reactionmappaintable.h"
 
-#include <MCancelEvent>
 #include <minputmethodnamespace.h>
 #include <MWidget>
 #include <MNamespace>
 #include <mimenginetypes.h>
-#include <QPixmap>
 #include <QSharedPointer>
 #include <QPointer>
 
+class QPixmap;
+class MCancelEvent;
 class QGraphicsGridLayout;
 class QGraphicsLinearLayout;
 class QGraphicsWidget;

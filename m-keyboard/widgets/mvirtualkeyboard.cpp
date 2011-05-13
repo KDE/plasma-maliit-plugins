@@ -56,7 +56,9 @@
 #include <QStyleOptionGraphicsItem>
 #include <QGraphicsWidget>
 #include <QPropertyAnimation>
+#include <QPixmap>
 
+#include <MCancelEvent>
 #include <MButton>
 #include <MScalableImage>
 #include <MSceneManager>

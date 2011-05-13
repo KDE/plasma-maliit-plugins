@@ -31,19 +31,13 @@
 
 #include "extendedkeys.h"
 #include "magnifierhost.h"
-#include "mkeyboardmagnifierstyle.h"
 #include "reactionmapwrapper.h"
 
-#include <reactionmappainter.h>
 #include <regiontracker.h>
 #include <layoutdata.h>
-#include <MScene>
-#include <QPainter>
-#include <QBrush>
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
 #include <QMargins>
-#include <MWidgetCreator>
 #include <MFeedback>
 #include <MCancelEvent>
 
