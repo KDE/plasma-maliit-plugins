@@ -952,10 +952,6 @@ void MImAbstractKeyArea::ungrabMouseEvent(QEvent *)
     d->primaryPressArrived = false;
     d->primaryReleaseArrived = false;
 
-    if (d->multiTouchEnabled() && MImAbstractKey::lastActiveKey()) {
-        MImAbstractKey::lastActiveKey()->resetTouchPointCount();
-    }
-
     d->longPressTimer.stop();
 }
 
