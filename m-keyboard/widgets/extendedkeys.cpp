@@ -42,40 +42,6 @@
 #include <MCancelEvent>
 
 namespace {
-    class MainAreaReset
-        : public MImAbstractKeyVisitor
-    {
-    private:
-        bool mHasCapsLocked;
-
-    public:
-        explicit MainAreaReset()
-            : mHasCapsLocked(false)
-        {}
-
-        bool operator()(MImAbstractKey *key)
-        {
-            if (!key) {
-                return false;
-            }
-
-            if (key->isShiftKey()
-                && (key->state() == MImAbstractKey::Selected)) {
-                // OK, in caps-locked mode. But don't reset shift key:
-                mHasCapsLocked = true;
-            } else {
-                key->resetTouchPointCount();
-            }
-
-            return false;
-        }
-
-        bool hasCapsLocked() const
-        {
-            return mHasCapsLocked;
-        }
-    };
-
     QSize queryKeyAreaSize(const MImAbstractKeyArea *keyArea,
                            int keyCount)
     {
@@ -218,19 +184,17 @@ void ExtendedKeys::showExtendedArea(const QPointF &origin,
         alignExtendedKeyArea(extKeysArea.get(), labels.count(), originMapped, host->style()->extendedKeysOffset());
     }
 
-    MainAreaReset reset;
-    MImAbstractKey::visitActiveKeys(&reset);
-    mainArea->modifiersChanged(reset.hasCapsLocked());
     show();
 
-    // ExtendedKeys is shown on long-press. Therefore we will give mouse grab to the
-    // new extKeysArea. Because mainArea (MImAbstractKeyArea) already resets itself
-    // once it loses mouse grab, we are not required to send MCancelEvent to it to
-    // tell that it will never get release.
-
-    // FIXME: yet we have to send cancel event because of bug NB#248227.
-    // It is sent because we know it will prevent further touch events from
-    // being handled.
+    // ExtendedKeys is shown on long-press. Therefore we will give mouse grab to the new
+    // extKeysArea.  mainArea (MImAbstractKeyArea) does some state reseting once it loses
+    // mouse grab, but we'll nevertheless send it MCancelEvent for the following reasons:
+    //
+    // * Bug NB#248227: cancel event handler has a workaround that prevents further touch
+    // events from being handled.
+    // * We don't need to reset touch point counts of active keys here
+    // * What should be reset in MImAbstractKeyArea::ungrabMouseEvent and why is not
+    // really well defined at the moment.
     MCancelEvent cancel;
     mainArea->scene()->sendEvent(mainArea, &cancel);
 
