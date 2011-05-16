@@ -381,6 +381,8 @@ MImKeyAreaPrivate::MImKeyAreaPrivate(const LayoutData::SharedLayoutSection &newS
     : MImAbstractKeyAreaPrivate(newSection, owner),
       q_ptr(owner),
       rowList(newSection->rowCount()),
+      cachedWidgetHeight(0),
+      mMaxNormalizedWidth(0),
       shiftKey(0),
       equalWidthKeys(true),
       WidthCorrection(0),
