@@ -4,7 +4,7 @@
     <layout type="general" orientation="landscape">
         <section id="main" movable="false">
           <row>
-            <key id="q">
+            <key>
               <binding label="q"/>
               <binding shift="true" label="Q"/>
             </key>

@@ -855,27 +855,23 @@ void Ut_MImAbstractKeyArea::testOverridenKey()
     ++pressExpected;
     QCOMPARE(pressed.count(), pressExpected);
     QVERIFY(pressed.last().first().value<const MImAbstractKey*>() == key1);
+    QCOMPARE(released.count(), 0);
     if (key0->enabled()) {
         ++clickExpected;
         QCOMPARE(clicked.count(), clickExpected);
         QVERIFY(clicked.last().first().value<const MImAbstractKey*>() == key0);
-        ++releaseExpected;
-        QCOMPARE(released.count(), releaseExpected);
-        QVERIFY(released.last().first().value<const MImAbstractKey*>() == key0);
     } else {
         QCOMPARE(clicked.count(), clickExpected);
-        QCOMPARE(released.count(), releaseExpected);
     }
 
     subject->d_ptr->touchPointReleased(tp0);
     subject->d_ptr->touchPointReleased(tp1);
     QCOMPARE(pressed.count(), pressExpected);
-    ++releaseExpected;
-    QCOMPARE(released.count(), releaseExpected);
-    QCOMPARE(released.last().first().value<const MImAbstractKey*>(), key1);
+    QCOMPARE(released.count(), 1);
+    QVERIFY(released.at(0).first().value<const MImAbstractKey*>() == key1);
     ++clickExpected;
     QCOMPARE(clicked.count(), clickExpected);
-    QCOMPARE(clicked.last().first().value<const MImAbstractKey*>(), key1);
+    QVERIFY(clicked.last().first().value<const MImAbstractKey*>() == key1);
 
     pressed.clear();
     released.clear();
@@ -889,7 +885,7 @@ void Ut_MImAbstractKeyArea::testOverridenKey()
     if (key0->enabled()) {
         ++pressExpected;
         QCOMPARE(pressed.count(), pressExpected);
-        QCOMPARE(pressed.last().first().value<const MImAbstractKey*>(), key0);
+        QVERIFY(pressed.last().first().value<const MImAbstractKey*>() == key0);
     } else {
         QCOMPARE(pressed.count(), pressExpected);
     }
@@ -898,7 +894,7 @@ void Ut_MImAbstractKeyArea::testOverridenKey()
     if (key2->enabled()) {
         ++pressExpected;
         QCOMPARE(pressed.count(), pressExpected);
-        QCOMPARE(pressed.last().first().value<const MImAbstractKey*>(), key2);
+        QVERIFY(pressed.last().first().value<const MImAbstractKey*>() == key2);
     } else {
         QCOMPARE(pressed.count(), pressExpected);
     }
@@ -907,10 +903,10 @@ void Ut_MImAbstractKeyArea::testOverridenKey()
     if (key2->enabled()) {
         ++releaseExpected;
         QCOMPARE(released.count(), releaseExpected);
-        QCOMPARE(released.last().first().value<const MImAbstractKey*>(), key2);
+        QVERIFY(released.last().first().value<const MImAbstractKey*>() == key2);
         ++clickExpected;
         QCOMPARE(clicked.count(), clickExpected);
-        QCOMPARE(clicked.last().first().value<const MImAbstractKey*>(), key2);
+        QVERIFY(clicked.last().first().value<const MImAbstractKey*>() == key2);
     } else {
         QCOMPARE(released.count(), releaseExpected);
         QCOMPARE(clicked.count(), clickExpected);
@@ -1492,67 +1488,6 @@ void Ut_MImAbstractKeyArea::testFlickEvent()
         QCOMPARE(spy.count(), 0);
     }
     QCOMPARE(backspace->state(), buttonState);
-}
-
-void Ut_MImAbstractKeyArea::testReleasePressedKey_data()
-{
-    QTest::addColumn<QString>("firstKeyId");
-    QTest::addColumn<QString>("secondKeyId");
-    QTest::addColumn<bool>("expectedClickedSignal");
-
-    QTest::newRow("bs q") << "backspace" << "q" << false;
-    QTest::newRow("q bs") << "q" << "backspace" << true;
-}
-
-void Ut_MImAbstractKeyArea::testReleasePressedKey()
-{
-    QFETCH(QString, firstKeyId);
-    QFETCH(QString, secondKeyId);
-    QFETCH(bool, expectedClickedSignal);
-
-    keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard("test-layout.xml"));
-    subject = MImKeyArea::create(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
-                                 false, 0);
-
-    QSignalSpy spyReleased(subject, SIGNAL(keyReleased(const MImAbstractKey*, const KeyContext &)));
-    QVERIFY(spyReleased.isValid());
-
-    QSignalSpy spyClicked(subject, SIGNAL(keyClicked(const MImAbstractKey*, const KeyContext &)));
-    QVERIFY(spyClicked.isValid());
-
-    MPlainWindow::instance()->scene()->addItem(subject);
-    subject->resize(defaultLayoutSize());
-
-    MImKey *first = dynamic_cast<MImKey *>(subject->findKey(firstKeyId));
-    QVERIFY(first);
-
-    QPoint point1 = first->buttonBoundingRect().center().toPoint();
-    QTouchEvent::TouchPoint tp1(createTouchPoint(0, Qt::TouchPointPressed,
-                                subject->mapToScene(point1),
-                                QPointF()));
-    // press first key
-    subject->d_ptr->touchPointPressed(tp1);
-
-    MImKey *second = dynamic_cast<MImKey *>(subject->findKey(secondKeyId));
-    QVERIFY(second);
-
-    QPoint point2 = second->buttonBoundingRect().center().toPoint();
-    QTouchEvent::TouchPoint tp2(createTouchPoint(1, Qt::TouchPointPressed,
-                                subject->mapToScene(point2),
-                                QPointF()));
-    // press second key
-    subject->d_ptr->touchPointPressed(tp2);
-
-    QCOMPARE(spyReleased.count(), 1);
-    QCOMPARE(spyReleased.first().first().value<const MImAbstractKey*>(), (const MImAbstractKey*)first);
-
-    if (expectedClickedSignal) {
-        QCOMPARE(spyClicked.count(), 1);
-        QCOMPARE(spyClicked.first().first().value<const MImAbstractKey*>(), (const MImAbstractKey*)first);
-    } else {
-        QCOMPARE(spyClicked.count(), 0);
-    }
 }
 
 void Ut_MImAbstractKeyArea::changeOrientation(M::OrientationAngle angle)

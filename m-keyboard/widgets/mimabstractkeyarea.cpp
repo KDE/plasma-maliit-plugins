@@ -367,23 +367,19 @@ void MImAbstractKeyAreaPrivate::touchPointPressed(const QTouchEvent::TouchPoint 
     MImAbstractKey::visitActiveKeys(&finder);
     const bool hasActiveShiftKeys = (finder.shiftKey() != 0);
 
-    if (lastActiveKey
+    if (q->style()->commitPreviousKeyOnPress()
+        && lastActiveKey
         && lastActiveKey->enabled()
+        && lastActiveKey->isNormalKey()
         && lastActiveKey->touchPointCount() > 0) {
         // TODO: play release sound? Potentially confusing to user, who
         // might still press this key.
 
-        const KeyContext keyContext(hasActiveShiftKeys || isUpperCase(),
-                                    QString(),
-                                    tp.scenePos(),
-                                    gAdjustedPositionForCorrection);
-
-        emit q->keyReleased(lastActiveKey, keyContext);
-
-        if (q->style()->commitPreviousKeyOnPress()
-            && lastActiveKey->isNormalKey()) {
-            emit q->keyClicked(lastActiveKey, keyContext);
-        }
+        emit q->keyClicked(lastActiveKey,
+                           KeyContext(hasActiveShiftKeys || isUpperCase(),
+                                      QString(),
+                                      tp.scenePos(),
+                                      gAdjustedPositionForCorrection));
 
         lastActiveKey->resetTouchPointCount();
     }
