@@ -1363,9 +1363,10 @@ void Ut_MImAbstractKeyArea::testLockVerticalMovement_data()
     const QRectF inside(area.adjusted(40, 40, -40, -40));
 
     QTest::addColumn<bool>("lockVerticalMovement");
-    QTest::addColumn<bool>("hit");
     QTest::addColumn<QRectF>("area");
     QTest::addColumn<QSize>("keyAreaSize");
+    QTest::addColumn<QString>("sectionContents");
+    QTest::addColumn<QString>("expectedLabel");
     QTest::addColumn<PointList>("hitPoints");
 
     // Expected hit area in overlay mode, shown as '+':
@@ -1378,54 +1379,68 @@ void Ut_MImAbstractKeyArea::testLockVerticalMovement_data()
     // `----+++++++----´
 
     QTest::newRow("no hits")
-        << false << false << area << keyAreaSize
+        << false << area << keyAreaSize << "Q" << ""
+        << (PointList() << outside.topLeft() << outside.topRight()
+                        << outside.bottomLeft() << outside.bottomRight());
+
+    QTest::newRow("no hits in multi-row area")
+        << false << area << keyAreaSize << "QW\nAS" << ""
         << (PointList() << outside.topLeft() << outside.topRight()
                         << outside.bottomLeft() << outside.bottomRight());
 
     QTest::newRow("bullseye")
-        << false << true << area << keyAreaSize
+        << false << area << keyAreaSize << "Q" << "Q"
         << (PointList() << inside.topLeft() << inside.topRight()
                         << inside.bottomLeft() << inside.bottomRight());
 
     QTest::newRow("locked movement but no hits")
-        << true << false << area << keyAreaSize
+        << true << area << keyAreaSize << "Q" << ""
         << (PointList() << outside.topLeft() << outside.topRight()
                         << outside.bottomLeft() << outside.bottomRight());
 
     QTest::newRow("locked movement bullseye")
-        << true << true << area << keyAreaSize
+        << true << area << keyAreaSize << "Q" << "Q"
         << (PointList() << inside.topLeft() << inside.topRight()
                         << inside.bottomLeft() << inside.bottomRight()
                         << QPointF(area.center().x(), area.top())
                         << QPointF(area.center().x(), area.bottom()));
+
+    QTest::newRow("locked movement, hitting upper area of multi-row area")
+        << true << area << keyAreaSize << "QW\nAS" << "Q"
+        << (PointList() << inside.topLeft()
+                        << QPointF(inside.topLeft().x(), area.top()));
+
+    QTest::newRow("locked movement, hitting lower area of multi-row area")
+        << true << area << keyAreaSize << "QW\nAS" << "S"
+        << (PointList() << inside.bottomRight()
+                        << QPointF(inside.bottomRight().x(), area.bottom()));
 }
 
 void Ut_MImAbstractKeyArea::testLockVerticalMovement()
 {
     QFETCH(bool, lockVerticalMovement);
-    QFETCH(bool, hit);
     QFETCH(QRectF, area);
     QFETCH(QSize, keyAreaSize);
+    QFETCH(QString, sectionContents);
+    QFETCH(QString, expectedLabel);
     QFETCH(PointList, hitPoints);
 
     QGraphicsScene sc;
     sc.setSceneRect(area);
     // scene takes ownership:
-    sc.addItem(subject = createArea("Q", keyAreaSize));
+    sc.addItem(subject = createArea(sectionContents, keyAreaSize));
     // center it:
     subject->setPos((area.width() - keyAreaSize.width()) * 0.5,
                     (area.height() - keyAreaSize.height()) * 0.5);
 
     static_cast<MImKeyArea *>(subject)->lockVerticalMovement(lockVerticalMovement);
-    const MImAbstractKey *const None = 0;
-    const MImAbstractKey *const LetterQ = keyAt(0, 0);
-    QVERIFY(LetterQ);
 
     foreach (const QPointF &hp, hitPoints) {
         // TODO: test crashes on failure (because of scene cleanup)
         // Is it better to just leak a scene instance instead?
-        const MImAbstractKey *const Found = subject->keyAt(subject->mapFromScene(hp).toPoint());
-        QCOMPARE(Found, (hit ? LetterQ : None));
+        const MImAbstractKey *const foundKey = subject->keyAt(subject->mapFromScene(hp).toPoint());
+        const QString foundLabel(foundKey ? foundKey->label() : QString());
+        QCOMPARE(foundLabel, expectedLabel);
     }
 
     subject = 0;
