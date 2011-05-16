@@ -1057,8 +1057,7 @@ void Ut_MImAbstractKeyArea::testKeyLayout()
 {
     const int margin = 5;
     const QSize size(50, 50);
-    subject = Ut_MImAbstractKeyArea::createArea("Q", size, QSize(size.width() - 2 * margin,
-                                                                 size.height() - 2 * margin));
+    subject = Ut_MImAbstractKeyArea::createArea("Q", size);
 
     MImAbstractKeyAreaStyle *s = const_cast<MImAbstractKeyAreaStyle *>(subject->style().operator->());
     s->setPaddingLeft(margin);
@@ -1282,11 +1281,8 @@ void Ut_MImAbstractKeyArea::testTouchPoints()
 
 void Ut_MImAbstractKeyArea::testReset()
 {
-    const int margin = 5;
     const QSize size(50, 50);
-    subject = Ut_MImAbstractKeyArea::createArea("Q", size, QSize(size.width() - 2 * margin,
-                                                                 size.height() - 2 * margin),
-                                                true);
+    subject = Ut_MImAbstractKeyArea::createArea("Q", size, true);
     TpCreator createTp = &createTouchPoint;
 
     MPlainWindow::instance()->scene()->addItem(subject);
@@ -1535,32 +1531,50 @@ MImAbstractKeyArea *Ut_MImAbstractKeyArea::createEmptyArea()
 
 MImAbstractKeyArea *Ut_MImAbstractKeyArea::createArea(const QString &labels,
                                                       const QSize &size,
-                                                      const QSize &fixedNormalKeySize,
                                                       bool usePopup)
 {
     LayoutData::SharedLayoutSection section;
     section = LayoutData::SharedLayoutSection(new LayoutSection(labels));
+
     MImKeyArea *keyArea = MImKeyArea::create(LayoutData::SharedLayoutSection(section), false, 0);
     keyArea->setPopup(usePopup ? new TestPopup : 0);
 
     // Reset the style:
     MImAbstractKeyAreaStyle *s = const_cast<MImAbstractKeyAreaStyle *>(keyArea->style().operator->());
 
-    // Margins:
     s->setMarginLeft(0);
     s->setMarginTop(0);
     s->setMarginRight(0);
     s->setMarginBottom(0);
 
-    // Paddings:
-    s->setPaddingLeft(1);
-    s->setPaddingTop(1);
-    s->setPaddingRight(1);
-    s->setPaddingBottom(1);
+    // Key-affecting margins and paddings:
+    const int padding = 1;
+    const int margin = 1;
+
+    s->setKeyMarginLeft(margin);
+    s->setKeyMarginTop(margin);
+    s->setKeyMarginRight(margin);
+    s->setKeyMarginBottom(margin);
+
+    s->setPaddingLeft(padding);
+    s->setPaddingTop(padding);
+    s->setPaddingRight(padding);
+    s->setPaddingBottom(padding);
 
     // Key geometry:
-    s->setKeyHeightMedium(fixedNormalKeySize.height());
-    s->setKeyWidthMediumFixed(fixedNormalKeySize.width());
+    const int heightConsumedByKeyMarginsAndPaddings(2 * padding + (section->rowCount() - 1) * margin);
+    s->setKeyHeightMedium((size.height() / qMax<int>(1, section->rowCount()))
+                          - heightConsumedByKeyMarginsAndPaddings);
+
+    const int widthConsumedByKeyMarginsAndPaddings(2 * padding + (section->maxColumns() - 1) * margin);
+    s->setKeyWidthMediumFixed((size.width() /qMax<int>(1, section->maxColumns()))
+                              - widthConsumedByKeyMarginsAndPaddings);
+
+    // After changing the key's height it's necessary to recompute the cached
+    // widget height. This situation usually does not happen under real
+    // conditions, but indicates buggy caching, of course.
+    keyArea->d_func()->cachedWidgetHeight = keyArea->d_func()->computeWidgetHeight();
+
     s->setKeyWidthMedium(1.0);
 
     // Behaviour:

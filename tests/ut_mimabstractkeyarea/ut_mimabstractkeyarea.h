@@ -112,7 +112,6 @@ private:
 
     static MImAbstractKeyArea *createArea(const QString &labels,
                                           const QSize &size,
-                                          const QSize &fixedNormalKeySize = QSize(48, 48),
                                           bool usePopup = false);
 
 public:
