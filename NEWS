@@ -5,6 +5,17 @@
   - auto-padding: If true, center-aligns keys in keyboard area. Depends on
     width of key area's size.
 
+* New features:
+  - Extended keys can spread over multiple lines. In the layout files, for
+    example:
+
+      <key>
+        <binding label="e" extended_labels="èé&#10;ëê€"/>
+      </key>
+
+    This will create a 3x2 box holding five labels. &#10; is the XML entity
+    representing \n (newline).
+
 0.6.2
 =====
 
