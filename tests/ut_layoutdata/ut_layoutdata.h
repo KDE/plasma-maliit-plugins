@@ -49,6 +49,7 @@ private slots:
     void initTestCase();
     void cleanupTestCase();
 
+    void testConstructFromString_data();
     void testConstructFromString();
 };
 

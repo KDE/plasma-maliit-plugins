@@ -62,28 +62,59 @@ void Ut_LayoutData::cleanup()
 {
 }
 
+void Ut_LayoutData::testConstructFromString_data()
+{
+    QTest::addColumn<QString>("characters");
+    QTest::addColumn<int>("expectedColumnCount");
+    QTest::addColumn<int>("expectedRowCount");
+    QTest::addColumn<int>("expectedKeyCount");
+
+    QTest::newRow("salmon - single row")
+        << "salmon" << 6 << 1 << 6;
+
+    QTest::newRow("salm\\non - two rows")
+        << "salm\non" << 4 << 2 << 6;
+
+    QTest::newRow("sa\\nlm\\non - three rows")
+        << "sa\nlm\non" << 2 << 3 << 6;
+}
+
 void Ut_LayoutData::testConstructFromString()
 {
-    const QString characters("salmon");
+    QFETCH(QString, characters);
+    QFETCH(int, expectedColumnCount);
+    QFETCH(int, expectedRowCount);
+    QFETCH(int, expectedKeyCount);
+
     const LayoutSection section(characters, false);
 
-    QCOMPARE(section.maxColumns(), characters.length());
-    QCOMPARE(section.rowCount(), 1);
-    QCOMPARE(section.keyCount(), characters.length());
-    QCOMPARE(section.columnsAt(0), characters.length());
+    QCOMPARE(section.maxColumns(), expectedColumnCount);
+    QCOMPARE(section.rowCount(), expectedRowCount);
+    QCOMPARE(section.keyCount(), expectedKeyCount);
+
+    int rowIndex = 0;
+    int colIndex = 0;
     for (int i = 0; i < characters.length(); ++i) {
-        const MImKeyModel * const key(section.keyModel(0, i));
+        if (characters.at(i) == '\n') {
+            ++rowIndex;
+            colIndex = 0;
+            continue;
+        }
+
+        const MImKeyModel * const key(section.keyModel(rowIndex, colIndex));
         QVERIFY(key);
         QCOMPARE(key->style(), MImKeyModel::NormalStyle);
         QCOMPARE(key->width(), MImKeyModel::Medium);
         QVERIFY(key->isFixedWidth());
         QCOMPARE(key->rtl(), false);
-        QCOMPARE(key->binding(false)->label(), QString(characters[i]));
-        QCOMPARE(key->binding(true)->label(), QString(characters[i]));
+        QCOMPARE(key->binding(false)->label(), QString(characters.at(i)));
+        QCOMPARE(key->binding(true)->label(), QString(characters.at(i)));
         QCOMPARE(key->binding(false)->secondaryLabel(), QString());
         QVERIFY(!key->binding(false)->isDead());
         QCOMPARE(key->binding(false)->extendedLabels(), QString());
         QCOMPARE(key->binding(false)->action(), MImKeyBinding::ActionInsert);
+
+        ++colIndex;
     }
 }
 

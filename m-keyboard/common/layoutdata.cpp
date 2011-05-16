@@ -105,23 +105,35 @@ LayoutSection::LayoutSection()
 }
 
 LayoutSection::LayoutSection(const QString &characters, bool rtl)
-    : mMaxColumns(characters.length()),
+    : mMaxColumns(0),
       movable(false),
       sectionName("<dynamic section>"),
       sectionType(Sloppy)
 {
-    Row *row(new Row);
-    row->heightType = Medium;
-    rows.append(row);
+    Row *currentRow = new Row;
+    currentRow->heightType = Medium;
+    rows.append(currentRow);
 
     for (int i = 0; i < characters.length(); ++i) {
-        MImKeyModel *key(new MImKeyModel(MImKeyModel::NormalStyle, MImKeyModel::Medium, true, rtl));
+        const QChar currentCharacter(characters.at(i));
 
-        row->keys.append(key);
+        if (currentCharacter == '\n') {
+            currentRow = new Row;
+            currentRow->heightType = Medium;
+            rows.append(currentRow);
+
+            // Don't append the newline character itself to this row:
+            continue;
+        }
+
+        MImKeyModel *key(new MImKeyModel(MImKeyModel::NormalStyle, MImKeyModel::Medium, true, rtl));
+        currentRow->keys.append(key);
 
         MImKeyBinding *binding(new MImKeyBinding(characters[i]));
         key->setBinding(*binding, false);
         key->setBinding(*binding, true);
+
+        mMaxColumns = qMax<int>(mMaxColumns, currentRow->keys.count());
     }
 }
 
