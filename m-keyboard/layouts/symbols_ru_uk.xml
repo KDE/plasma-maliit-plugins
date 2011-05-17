@@ -98,13 +98,13 @@
           <binding label="&#x0022;"/>
         </key>
         <key>
-          <binding label="?"/>
+          <binding label="&#x00B0;"/>
         </key>
         <key>
           <binding label="!"/>
         </key>
         <key>
-          <binding label="&#x00B0;"/>
+          <binding label="?"/>
         </key>
         <key style="special">
           <binding action="backspace"/>
