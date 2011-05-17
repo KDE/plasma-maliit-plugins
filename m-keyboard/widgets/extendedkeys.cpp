@@ -158,7 +158,7 @@ void ExtendedKeys::showExtendedArea(const QPointF &origin,
     connect(extKeysArea.get(), SIGNAL(displayExited()),
             host,              SLOT(hide()));
 
-    extKeysArea->resize(queryKeyAreaSize(extKeysArea.get(), labels.count()));
+    extKeysArea->resize(queryKeyAreaSize(extKeysArea.get(), extKeysArea->maxColumns()));
     extKeysArea->setParentItem(this);
 
     // Install scene event filter to detect keyarea mouse release. If first

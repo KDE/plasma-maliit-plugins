@@ -86,6 +86,8 @@ protected:
         lockVerticalMovement(true);
     }
 
+    friend class ExtendedKeys;
+
 };
 //! \internal_end
 
