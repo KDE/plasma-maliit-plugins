@@ -61,10 +61,10 @@
           <binding label=")"/>
         </key>
         <key>
-          <binding label="?"/>
+          <binding label="!"/>
         </key>
         <key>
-          <binding label="!"/>
+          <binding label="?"/>
         </key>
 
         <spacer/>
@@ -142,7 +142,7 @@
           <binding label="&#x00A5;"/>
         </key>
         <key>
-          <binding label="&#x20A8;"/>
+          <binding label="&#x20B9;"/>
         </key>
         <key>
           <binding label="&#x0025;"/>
@@ -186,10 +186,10 @@
           <binding label="&#x007D;"/>
         </key>
         <key>
-          <binding label="&#x00BF;"/>
+          <binding label="&#x00A1;"/>
         </key>
         <key>
-          <binding label="&#x00A1;"/>
+          <binding label="&#x00BF;"/>
         </key>
 
         <spacer/>
