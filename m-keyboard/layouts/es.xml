@@ -25,8 +25,8 @@
         <binding shift="true" label="T"/>
       </key>
       <key>
-        <binding accented_labels="ýÿ" accents="´¨" label="y" extended_labels="¥"/>
-        <binding shift="true" accented_labels="ÝŸ" accents="´¨" label="Y" extended_labels="¥"/>
+        <binding accented_labels="ÿ" accents="¨" label="y" extended_labels="¥"/>
+        <binding shift="true" accented_labels="Ÿ" accents="¨" label="Y" extended_labels="¥"/>
       </key>
       <key>
         <binding accented_labels="úü" accents="´¨" label="u" extended_labels="úüùû"/>
@@ -37,8 +37,8 @@
         <binding shift="true" accented_labels="ÍÏ" accents="´¨" label="I" extended_labels="ÍÏÌÎ"/>
       </key>
       <key>
-        <binding accented_labels="óö" accents="´¨" label="o" extended_labels="óºòôõ"/>
-        <binding shift="true" accented_labels="ÓÖ" accents="´¨" label="O" extended_labels="ÓºÒÔÕ"/>
+        <binding accented_labels="óö" accents="´¨" label="o" extended_labels="óºöòôõ"/>
+        <binding shift="true" accented_labels="ÓÖ" accents="´¨" label="O" extended_labels="ÓºÖÒÔÕ"/>
       </key>
       <key>
         <binding label="p"/>
