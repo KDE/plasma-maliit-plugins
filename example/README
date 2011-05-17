@@ -1,7 +1,29 @@
-    Meego-keyboard Extras
-    ---------------------
+    MeeGo Keyboard Examples
+    -----------------------
 
-This directory contains extra resources for Meego-keyboard.
+This directory contains examples for MeeGo Keyboard.
+
+    Activating a Custom Layout
+    --------------------------
+
+1. Copy the XML layout file to layouts directory:
+  /usr/share/meegotouch/virtual-keyboard/layouts/ 
+
+2. Save the list of currently enabled layouts somewhere:
+  gconftool-2 -R /meegotouch/inputmethods/onscreen/enabled
+  gconftool-2 -R /meegotouch/inputmethods/onscreen/active
+
+3. Configure custom layout to be used by MeeGo Keyboard, e.g.:
+
+  gconftool-2 --type list --list-type string \
+    -s /meegotouch/inputmethods/onscreen/enabled \
+    [libmeego-keyboard.so, example_layout.xml]
+
+  gconftool-2 --type list --list-type string \
+    -s /meegotouch/inputmethods/onscreen/active \
+    [libmeego-keyboard.so, example_layout.xml]
+
+4. After test driving, restore old layout configuration (see steps 2 and 3).
 
 
    en_gb_halfqwerty.xml
@@ -22,9 +44,11 @@ Also the keyboard layout is not optimal as the number of buttons in a row is
 not divisible by two, so some extra buttons without cycling are present.
 Either the space is not optimally used because buttons are using one size for all.
 
-Usage: copy the xml file to layouts directory
-  /usr/share/meegotouch/virtual-keyboard/layouts/ 
-and configure it to be used, e.g.
-  gconftool-2 --type list --list-type string \
-   -s /meegotouch/inputmethods/virtualkeyboard/layouts \
-   [en_gb_halfqwerty.xml,someotherlayouts]
+
+   en_gb_multirow_extkeys.xml
+   --------------------------
+
+Demonstrates extended keys popups with multiple rows. Allows to fit mini
+keyboard sections into one key, such as key pads.
+
+Check a, . and spacebar; trigger extended keys through long-press.
