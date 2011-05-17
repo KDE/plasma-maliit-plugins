@@ -1201,13 +1201,6 @@ void MKeyboardHost::handleKeyPress(const KeyEvent &event)
         if (activeState == MInputMethod::OnScreen
             && event.isFromPrimaryTouchPoint()
             && vkbWidget == static_cast<MVirtualKeyboard *>(sender())) {
-
-            // This press event is done. Current touch events are still being
-            // delivered to vkbWidget (actually, to one of its children) so
-            // we send cancel event to it.
-            MCancelEvent cancel;
-            vkbWidget->scene()->sendEvent(vkbWidget, &cancel);
-
             showSymbolView(SymbolView::FollowMouseShowMode,
                            event.scenePosition());
             return;
@@ -1889,6 +1882,16 @@ void MKeyboardHost::updateSymbolViewLevel()
 void MKeyboardHost::showSymbolView(SymbolView::ShowMode showMode,
                                    const QPointF &initialScenePress)
 {
+    // We always send a cancel event when showing symbol view, even when showSymbolView is
+    // not called from handleKeyPress which is the case where cancel event is the obvious
+    // thing to do.  This is because user may hold shift down and click symbol key, which
+    // in that case is handled by handleSymbolKeyClick, because sym is not the primary
+    // touchpoint.  Also in this case we want to reset the active key area so that when
+    // the symbol view is exited, keys won't be in level 1 even when shift key state is
+    // normal.
+    MCancelEvent cancel;
+    vkbWidget->scene()->sendEvent(vkbWidget, &cancel);
+
     symbolView->setPos(0, MPlainWindow::instance()->visibleSceneSize().height() - symbolView->size().height());
     symbolView->showSymbolView(showMode, initialScenePress);
     //give the symbolview right shift level(for hardware state)

@@ -1159,6 +1159,7 @@ void Ut_MKeyboardHost::testSetState()
 void Ut_MKeyboardHost::testSymbolKeyClick()
 {
     QVERIFY(subject->symbolView);
+    subject->show();
 
     // make sure this gets set
     subject->vkbWidget->setShiftState(ModifierLatchedState);
