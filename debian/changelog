@@ -1,6 +1,7 @@
 meego-keyboard (0.6.5~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: Stuck backspace when extended keys pop up
   * Fixes: NB#226861 - VKB layout is changing to lower-case when switched between main view and sym view.
   * Fixes: latched shift when extended key area is shown
   * Fixes: inconsistency between shift key state and level of other keys
