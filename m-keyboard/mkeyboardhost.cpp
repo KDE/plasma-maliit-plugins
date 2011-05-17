@@ -491,8 +491,8 @@ void MKeyboardHost::handleFocusChange(bool focusIn)
     if (activeState == MInputMethod::OnScreen) {
         if (focusIn) {
             symbolView->hideSymbolView();
-            // reset the temporary shift state when focus is changed
-            resetVirtualKeyboardShiftState();
+            // reset latched shift state when focus is changed
+            resetVirtualKeyboardLatchedShiftState();
         }
     } else {
         if (focusIn) {
@@ -813,7 +813,16 @@ void MKeyboardHost::update()
 
 void MKeyboardHost::resetVirtualKeyboardShiftState()
 {
-    // reset the temporary shift state (shift on state set by user or auto capitalization,
+    // reset shift state
+    if (activeState == MInputMethod::OnScreen) {
+        autoCapsTriggered = false;
+        vkbWidget->setShiftState(ModifierClearState);
+    }
+}
+
+void MKeyboardHost::resetVirtualKeyboardLatchedShiftState()
+{
+    // reset latched shift state (shift on state set by user or auto capitalization,
     // besides capslocked)
     if (activeState == MInputMethod::OnScreen && vkbWidget->shiftStatus() != ModifierLockedState) {
         autoCapsTriggered = false;
@@ -2085,7 +2094,7 @@ void MKeyboardHost::showLanguageNotification()
 
 void MKeyboardHost::handleVirtualKeyboardLayoutChanged(const QString &layout)
 {
-    // reset the temporary shift state when layout is changed
+    // reset shift state when layout is changed
     resetVirtualKeyboardShiftState();
     if (symbolView) {
         symbolView->setLayout(layout);

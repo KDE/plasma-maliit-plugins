@@ -1,6 +1,7 @@
 meego-keyboard (0.6.5~2) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#237241 - When changing language, caps lock remains on (characters appear in upper case)
   * Fixes: NB#253459 - Arabic email and URL layouts need symbol changes.
 
  -- Csaba Kertesz <csaba.kertesz@vincit.fi>  Wed, 18 May 2011 10:53:10 +0200

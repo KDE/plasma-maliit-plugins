@@ -1522,19 +1522,19 @@ void Ut_MKeyboardHost::testShiftStateOnLayoutChanged_data()
     QTest::newRow("screen latched") << QString("Test. ") << true << 0 << QString("fr")
                                     << true << ModifierClearState << ModifierLatchedState;
 
-    // manually set shift state to shift locked, changing layout won't change shift state
+    // manually set shift state to shift locked, changing layout will turn it back to shift on according autocaps
     QTest::newRow("screen locked") << QString("Test. ") << true << 0 << QString("en_us")
-                                   << true << ModifierLockedState << ModifierLockedState;
+                                   << true << ModifierLockedState << ModifierLatchedState;
 
     // manually set shift state to shift on, changing layout will change shift to lowercase because
     // layout disable autocaps.
     QTest::newRow("screen latched") << QString("Test. ") << true << 0 << QString("ar")
                                    << false << ModifierLatchedState << ModifierClearState;
 
-    // manually set shift state to shift locked, changing layout won't change shift state even if
+    // manually set shift state to shift locked, changing layout will change shift to lowercase because
     // layout disable autocaps.
     QTest::newRow("screen latched") << QString("Test. ") << true << 0 << QString("ar")
-                                   << false << ModifierLockedState << ModifierLockedState;
+                                   << false << ModifierLockedState << ModifierClearState;
 }
 
 void Ut_MKeyboardHost::testShiftStateOnLayoutChanged()

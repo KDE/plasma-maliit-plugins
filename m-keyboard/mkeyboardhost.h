@@ -255,10 +255,15 @@ private:
     void updateContext();
 
     /*!
-     * Reset temporary shift state (shift on state set by user or auto capitalization,
-     * besides capslocked) for virtual keyboard.
+     * Reset shift state for virtual keyboard.
      */
     void resetVirtualKeyboardShiftState();
+
+    /*!
+     * Reset latched shift state (shift on state set by user or auto capitalization,
+     * besides capslocked) for virtual keyboard.
+     */
+    void resetVirtualKeyboardLatchedShiftState();
 
     //! Actual backspace operation
     void doBackspace();
