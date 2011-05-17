@@ -327,8 +327,10 @@ namespace {
                             qreal spacerWidth)
         {
             int index = 0;
-            currentPos.rx() = (style->autoPadding() ? (MPlainWindow::instance()->visibleSceneSize().width() 
-                                                       - availableWidth) / 2
+            const int visibleWidth(MPlainWindow::instance() ? MPlainWindow::instance()->visibleSceneSize().width()
+                                                            : availableWidth);
+
+            currentPos.rx() = (style->autoPadding() ? (visibleWidth - availableWidth) / 2
                                                     : 0);
 
             // Normalizing spacerIndices into real spacers first.

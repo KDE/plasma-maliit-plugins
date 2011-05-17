@@ -1568,6 +1568,7 @@ MImAbstractKeyArea *Ut_MImAbstractKeyArea::createArea(const QString &labels,
     // Behaviour:
     s->setTouchpointHorizontalGravity(0);
     s->setTouchpointVerticalGravity(0);
+    s->setAutoPadding(false);
 
     keyArea->resize(size);
 
