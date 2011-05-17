@@ -1,3 +1,10 @@
+0.6.5
+=====
+
+* New CSS attributes for MImAbstractkeyAreaStyle:
+  - auto-padding: If true, center-aligns keys in keyboard area. Depends on
+    width of key area's size.
+
 0.6.2
 =====
 
