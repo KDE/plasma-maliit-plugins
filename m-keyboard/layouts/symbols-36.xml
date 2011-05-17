@@ -50,10 +50,10 @@
           <binding label="-"/>
         </key>
         <key>
-          <binding label="_"/>
+          <binding label="="/>
         </key>
         <key>
-          <binding label="="/>
+          <binding label="&#x0026;"/>
         </key>
         <key>
           <binding label="("/>
@@ -92,10 +92,10 @@
           <binding label="&#x0022;"/>
         </key>
         <key>
-          <binding label="&#x0026;"/>
+          <binding label="!"/>
         </key>
         <key>
-          <binding label="!"/>
+          <binding label="?"/>
         </key>
         <key style="special">
           <binding action="backspace"/>
@@ -114,7 +114,7 @@
           <binding action="space"/>
         </key>
         
-        <key><binding label="?"/></key>
+        <key><binding label="_"/></key>
         
         <key style="special" width="x-large" id="actionKey">
           <binding action="return"/>
@@ -204,9 +204,6 @@
           <binding label="&#x007C;"/>
         </key>
         <key>
-          <binding label="&#x00B0;"/>
-        </key>
-        <key>
           <binding label="&#x201C;"/>
         </key>
         <key>
@@ -217,6 +214,9 @@
         </key>
         <key>
           <binding label="&#x00A1;"/>
+        </key>
+        <key>
+          <binding label="&#x00BF;"/>
         </key>
         <key style="special">
           <binding action="backspace"/>
@@ -235,7 +235,7 @@
           <binding action="space"/>
         </key>
         
-        <key><binding label="&#x00BF;"/></key>
+        <key><binding label="&#x00B0;"/></key>
         
         <key style="special" width="x-large" id="actionKey">
           <binding action="return"/>
