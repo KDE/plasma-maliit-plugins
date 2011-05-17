@@ -53,13 +53,7 @@
           <binding label="-"/>
         </key>
         <key>
-          <binding label="_"/>
-        </key>
-        <key>
           <binding label="="/>
-        </key>
-        <key>
-          <binding label="&#x0026;"/>
         </key>
         <key>
           <binding label="("/>
@@ -72,6 +66,12 @@
         </key>
         <key>
           <binding label=":"/>
+        </key>
+        <key>
+          <binding label="!"/>
+        </key>
+        <key>
+          <binding label="?"/>
         </key>
       </row>
 
@@ -101,7 +101,7 @@
           <binding label="&#x00B0;"/>
         </key>
         <key>
-          <binding label="!"/>
+          <binding label="&#x0026;"/>
         </key>
         <key style="special" width="large">
           <binding action="backspace"/>
@@ -121,7 +121,7 @@
         </key>
         
         <key>
-          <binding label="?"/>
+          <binding label="_"/>
         </key>
 
         <key style="special" width="xx-large" id="actionKey">
@@ -185,22 +185,22 @@
           <binding label="&#x00A7;"/>
         </key>
         <key>
-          <binding label="&#x007B;"/>
-        </key>
-        <key>
-          <binding label="&#x007D;"/>
-        </key>
-        <key>
           <binding label="&#x005B;"/>
         </key>
         <key>
           <binding label="&#x005D;"/>
         </key>
         <key>
-          <binding label="&#x00AB;"/>
+          <binding label="&#x007B;"/>
         </key>
         <key>
-          <binding label="&#x00BB;"/>
+          <binding label="&#x007D;"/>
+        </key>
+        <key>
+          <binding label="&#x00A1;"/>
+        </key>
+        <key>
+          <binding label="&#x00BF;"/>
         </key>
       </row>
 
@@ -227,10 +227,10 @@
           <binding label="&#x201E;"/>
         </key>
         <key>
-          <binding label="&#x00A9;"/>
+          <binding label="&#x00AB;"/>
         </key>
         <key>
-          <binding label="&#x00A1;"/>
+          <binding label="&#x00BB;"/>
         </key>
         <key style="special" width="large">
           <binding action="backspace"/>
@@ -250,7 +250,7 @@
         </key>
         
         <key>
-          <binding label="&#x00BF;"/>
+          <binding label="&#x00A9;"/>
         </key>
 
         <key style="special" width="xx-large" id="actionKey">
