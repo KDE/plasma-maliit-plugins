@@ -50,9 +50,6 @@
           <binding label="-"/>
         </key>
         <key>
-          <binding label="_"/>
-        </key>
-        <key>
           <binding label="="/>
         </key>
         <key>
@@ -66,6 +63,9 @@
         </key>
         <key>
           <binding label=":"/>
+        </key>
+        <key>
+          <binding label="?"/>
         </key>
       </row>
 
@@ -117,7 +117,7 @@
           <binding action="space"/>
         </key>
         
-        <key><binding label="?"/></key>
+        <key><binding label="_"/></key>
         
         <key style="special" width="xx-large" id="actionKey">
           <binding action="return"/>
@@ -174,9 +174,6 @@
           <binding label="&#x00A5;"/>
         </key>
         <key>
-          <binding label="&#x0026;"/>
-        </key>
-        <key>
           <binding label="&#x0025;"/>
         </key>
         <key>
@@ -190,6 +187,9 @@
         </key>
         <key>
           <binding label="&#x00BB;"/>
+        </key>
+        <key>
+          <binding label="&#x00BF;"/>
         </key>
       </row>
 
@@ -241,7 +241,7 @@
           <binding action="space"/>
         </key>
         
-        <key><binding label="&#x00BF;"/></key>
+        <key><binding label="&#x0026;"/></key>
         
         <key style="special" width="xx-large" id="actionKey">
           <binding action="return"/>
