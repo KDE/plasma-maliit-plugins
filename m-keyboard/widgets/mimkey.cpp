@@ -500,6 +500,11 @@ bool MImKey::isComposeKey() const
     return (action == MImKeyBinding::ActionCompose);
 }
 
+bool MImKey::isBackspaceKey() const
+{
+    return (binding().action() == MImKeyBinding::ActionBackspace);
+}
+
 bool MImKey::increaseTouchPointCount()
 {
     if (++currentTouchPointCount <= touchPointLimit()) {

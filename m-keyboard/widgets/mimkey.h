@@ -106,6 +106,7 @@ public:
     virtual bool isNormalKey() const;
     virtual bool isQuickPick() const;
     virtual bool isComposeKey() const;
+    virtual bool isBackspaceKey() const;
     virtual bool increaseTouchPointCount();
     virtual bool decreaseTouchPointCount();
     virtual void resetTouchPointCount();

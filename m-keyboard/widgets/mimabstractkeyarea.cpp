@@ -1161,10 +1161,11 @@ void MImAbstractKeyArea::reset()
     foreach (const MImAbstractKey *key, keys()) {
         if (key->isShiftKey()) {
             shiftLatchedOrLocked = key->modifiers();
-            if (key->state() == MImAbstractKey::Pressed) {
-                emit keyCancelled(key, KeyContext());
-            }
-            break;
+        }
+
+        if ((key->isShiftKey() || key->isBackspaceKey())
+            && key->state() == MImAbstractKey::Pressed) {
+            emit keyCancelled(key, KeyContext());
         }
     }
 
