@@ -1,6 +1,7 @@
-meego-keyboard (0.6.5~1) unstable; urgency=low
+meego-keyboard (0.6.5-1) unstable; urgency=low
 
-  * [UNRELEASED]
+  * Fixes: NB#248730
+  * Fixes: NB#254995 - Word tracker font barely readably
   * Fixes: Accented character is getting inputted into the text field when tapped on any of the keys that lies below the accented character list.
   * Fixes: NB#256057 - Multitouch behaviour is broken in main and symbol views
   * Fixes: Stuck backspace when extended keys pop up
@@ -8,7 +9,7 @@ meego-keyboard (0.6.5~1) unstable; urgency=low
   * Fixes: latched shift when extended key area is shown
   * Fixes: inconsistency between shift key state and level of other keys
 
- -- Hannu Koivisto <hannu.koivisto@vincit.fi>  Tue, 17 May 2011 11:40:00 +0200
+ -- Hannu Koivisto <hannu.koivisto@vincit.fi>  Wed, 18 May 2011 10:21:00 +0200
 
 meego-keyboard (0.6.4-1) unstable; urgency=low
 
