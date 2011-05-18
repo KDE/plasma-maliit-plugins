@@ -33,6 +33,7 @@
 #include "mimtoolbar.h"
 #include "sharedhandlearea.h"
 #include "regiontracker.h"
+#include "keyboardshadow.h"
 
 #include <mplainwindow.h>
 #include <MStylableWidget>
@@ -47,7 +48,7 @@ SharedHandleArea::SharedHandleArea(MImToolbar &toolbar, QGraphicsWidget *parent)
     : MWidget(parent),
       mainLayout(*new QGraphicsLinearLayout(Qt::Vertical, this)),
       invisibleHandle(*new Handle(this)),
-      keyboardShadow(*new MStylableWidget(this)),
+      keyboardShadow(*new KeyboardShadow(this)),
       zeroSizeInvisibleHandle(*new QGraphicsWidget(this)),
       toolbar(toolbar),
       inputMethodMode(M::InputMethodModeNormal)
@@ -67,13 +68,13 @@ SharedHandleArea::SharedHandleArea(MImToolbar &toolbar, QGraphicsWidget *parent)
     mainLayout.addItem(&zeroSizeInvisibleHandle);
     connectHandle(invisibleHandle);
 
-    keyboardShadow.setObjectName("KeyboardShadow");
-    keyboardShadow.setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
-    keyboardShadow.show();
-    mainLayout.addItem(&keyboardShadow);
-
     mainLayout.addItem(&toolbar);
     mainLayout.setAlignment(&toolbar, Qt::AlignCenter);
+
+    keyboardShadow.setObjectName("KeyboardShadow");
+    keyboardShadow.show();
+    keyboardShadow.setZValue(1);
+    mainLayout.addItem(&keyboardShadow);
 
     RegionTracker::instance().addRegion(toolbar);
     RegionTracker::instance().addInputMethodArea(toolbar);

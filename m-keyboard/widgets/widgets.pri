@@ -47,6 +47,7 @@ HEADERS += \
     $$WIDGETS_DIR/mtoolbarbuttonview.h \
     $$WIDGETS_DIR/mtoolbarlabel.h \
     $$WIDGETS_DIR/handle.h \
+    $$WIDGETS_DIR/keyboardshadow.h \
     $$WIDGETS_DIR/grip.h \
     $$WIDGETS_DIR/sharedhandlearea.h \
     $$WIDGETS_DIR/mkeyboardsettingswidget.h \
@@ -90,6 +91,7 @@ SOURCES += \
     $$WIDGETS_DIR/mtoolbarbuttonview.cpp \
     $$WIDGETS_DIR/mtoolbarlabel.cpp \
     $$WIDGETS_DIR/handle.cpp \
+    $$WIDGETS_DIR/keyboardshadow.cpp \
     $$WIDGETS_DIR/grip.cpp \
     $$WIDGETS_DIR/sharedhandlearea.cpp \
     $$WIDGETS_DIR/mkeyboardsettingswidget.cpp \

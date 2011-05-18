@@ -104,8 +104,8 @@ private slots:
 private:
     enum LayoutIndex {
         InvisibleHandleIndex,
-        KeyboardShadowIndex,
         ToolbarIndex,
+        KeyboardShadowIndex
     };
 
     QGraphicsLinearLayout &mainLayout;
