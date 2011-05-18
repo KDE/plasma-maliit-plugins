@@ -156,11 +156,6 @@ public slots:
      */
     void switchToNextPage();
 
-    /*!
-     * \brief Selects the previous page if current is not the leftmost.
-     */
-    void switchToPrevPage();
-
     //! \brief Paint symview's area to global reaction map.
     void paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view);
 
@@ -205,6 +200,12 @@ signals:
 
     //! Emitted when user hides the keyboard, e.g. by pressing the close button
     void userInitiatedHide();
+
+    //! \brief Emitted when the user flicks left
+    void flickLeft();
+
+    //! \brief Emitted when the user flicks left
+    void flickRight();
 
 protected:
     /*! \reimp */

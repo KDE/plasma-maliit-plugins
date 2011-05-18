@@ -396,6 +396,14 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
 
     connect(symbolView, SIGNAL(userInitiatedHide()),
             this, SLOT(userHide()));
+    connect(symbolView, SIGNAL(flickLeft()),
+            symbolView, SLOT(hideSymbolView()));
+    connect(symbolView, SIGNAL(flickLeft()),
+            vkbWidget, SLOT(flickLeftHandler()), Qt::QueuedConnection); // Needs to be a QueuedConnection because it will destroy the key area in the symbol view on layout change
+    connect(symbolView, SIGNAL(flickRight()),
+            symbolView, SLOT(hideSymbolView()));
+    connect(symbolView, SIGNAL(flickRight()),
+            vkbWidget, SLOT(flickRightHandler()), Qt::QueuedConnection); // Needs to be a QueuedConnection because it will destroy the key area in the symbol view on layout change
 
     sharedHandleArea->watchOnWidget(symbolView);
 
