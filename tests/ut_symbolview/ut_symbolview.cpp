@@ -311,12 +311,15 @@ void Ut_SymbolView::testHideWithFlick()
     QVERIFY(subject->pageSwitcher && subject->pageSwitcher->count() >= tabIndex);
     MImAbstractKeyArea *page = static_cast<MImAbstractKeyArea *>(subject->pageSwitcher->widget(tabIndex));
 
+    QSignalSpy spy(subject, SIGNAL(userInitiatedHide()));
+    QVERIFY(spy.isValid());
+
     // Using qtest rows we dont need to worry about symbol view's show/hide timers
     // ignoring the call because subject is re-created every time.
     subject->showSymbolView();
-    QCOMPARE(subject->isActive(), true);
+    QCOMPARE(spy.count(), 0);
     emit page->flickDown();
-    QCOMPARE(subject->isActive(), false);
+    QCOMPARE(spy.count(), 1);
 }
 
 

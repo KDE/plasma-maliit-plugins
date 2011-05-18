@@ -392,6 +392,9 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
     connect(symbolView, SIGNAL(longKeyPressed(const KeyEvent &)),
             this, SLOT(handleLongKeyPress(const KeyEvent &)));
 
+    connect(symbolView, SIGNAL(userInitiatedHide()),
+            this, SLOT(userHide()));
+
     sharedHandleArea->watchOnWidget(symbolView);
 
     connect(MPlainWindow::instance()->sceneManager(), SIGNAL(orientationChangeFinished(M::Orientation)),

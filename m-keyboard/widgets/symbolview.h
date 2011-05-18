@@ -203,6 +203,9 @@ signals:
      */
     void keyCancelled(const KeyEvent &event);
 
+    //! Emitted when user hides the keyboard, e.g. by pressing the close button
+    void userInitiatedHide();
+
 protected:
     /*! \reimp */
     virtual void cancelEvent(MCancelEvent *event);

@@ -148,7 +148,7 @@ void SymbolView::connectHandle(Handle *handle)
             Qt::UniqueConnection);
 
     connect(handle, SIGNAL(flickDown(FlickGesture)),
-            this,   SLOT(hideSymbolView()),
+            this,   SIGNAL(userInitiatedHide()),
             Qt::UniqueConnection);
 }
 
@@ -356,7 +356,7 @@ void SymbolView::addPage(const LayoutData::SharedLayoutSection &symbolSection)
 
         connect(page, SIGNAL(flickLeft()), SLOT(switchToNextPage()));
         connect(page, SIGNAL(flickRight()), SLOT(switchToPrevPage()));
-        connect(page, SIGNAL(flickDown()), SLOT(hideSymbolView()));
+        connect(page, SIGNAL(flickDown()), SIGNAL(userInitiatedHide()));
 
         pageSwitcher->addWidget(page);
     }
