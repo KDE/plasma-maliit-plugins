@@ -394,6 +394,14 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
 
     connect(symbolView, SIGNAL(userInitiatedHide()),
             this, SLOT(userHide()));
+    connect(symbolView, SIGNAL(flickLeft()),
+            symbolView, SLOT(hideSymbolView()));
+    connect(symbolView, SIGNAL(flickLeft()),
+            vkbWidget, SLOT(flickLeftHandler()));
+    connect(symbolView, SIGNAL(flickRight()),
+            symbolView, SLOT(hideSymbolView()));
+    connect(symbolView, SIGNAL(flickRight()),
+            vkbWidget, SLOT(flickRightHandler()));
 
     sharedHandleArea->watchOnWidget(symbolView);
 
