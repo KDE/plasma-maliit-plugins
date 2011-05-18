@@ -1667,8 +1667,15 @@ void MKeyboardHost::onPluginsChange()
 {
     // we should call vkbWidget->enableSinglePageHorizontalFlick() every time when
     // other plugin is loaded or unloaded
-    const bool enableGesture = (inputMethodHost()->pluginDescriptions(MInputMethod::OnScreen).count() > 1);
-    vkbWidget->enableSinglePageHorizontalFlick(enableGesture);
+    QList<MImPluginDescription> pluginDescriptions = inputMethodHost()->pluginDescriptions(MInputMethod::OnScreen);
+    int enabledPluginsCount = 0;
+
+    foreach (const MImPluginDescription &description, pluginDescriptions) {
+        if (description.enabled()) {
+            ++enabledPluginsCount;
+        }
+    }
+    vkbWidget->enableSinglePageHorizontalFlick(enabledPluginsCount > 1);
 }
 
 void MKeyboardHost::userHide()
