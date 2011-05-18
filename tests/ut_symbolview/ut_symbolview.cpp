@@ -274,7 +274,6 @@ void Ut_SymbolView::testChangeTab_data()
     QTest::addColumn<int>("finalTabIndex"); // expected
 
     QTest::newRow("Next tab")   << 0 << HorizontalSwitcher::Right << 1;
-    QTest::newRow("Prev tab")   << 1 << HorizontalSwitcher::Left << 0;
 }
 
 void Ut_SymbolView::testChangeTab()
@@ -290,8 +289,6 @@ void Ut_SymbolView::testChangeTab()
 
     if (direction == HorizontalSwitcher::Right) {
         subject->switchToNextPage();
-    } else if (direction == HorizontalSwitcher::Left){
-        subject->switchToPrevPage();
     }
 
     QCOMPARE(subject->activePage, finalTabIndex);
