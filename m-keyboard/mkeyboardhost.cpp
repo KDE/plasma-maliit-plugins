@@ -2207,72 +2207,72 @@ void MKeyboardHost::togglePlusMinus()
         return;
 
     // Sanity check for cursor pos
-    if (cursorPos > text.length())
+    if (cursorPos > text.length() || cursorPos < 0)
         return;
 
-    // Replacing data
-    QString replacedText;
-    int replaceCount = 0;
-    int replacePos = 0;
-    int newCursorPos = -1;
+    // Following code will send (replace or insert) only the sign mark
+    // because it is dangerous to resend the whole word. When
+    // result is disallowed by validator sending the word back
+    // will erase the word instead of just the sign mark.
 
-    // Determine replaced part from the commit string
-    if (cursorPos == 0) { // Cursor in the begin of the text is special case
+    int wordBegin = cursorPos; // Beginning of word to prepend the sign.
 
-        // Include plus/minus sign to be replaced
-        if (text.length() > 0 && (text[0] == PlusSign || text[0] == MinusSign))
-            replacedText = text[0];
+    // Check whether text[cursorPos] is the character to work on (has or will have sign).
+    bool cursorIsAtFirstChar = cursorPos == 0
+                               || (text[cursorPos-1].isSpace()
+                                   && (text[cursorPos] == PlusSign
+                                       || text[cursorPos] == MinusSign));
 
-        // Determine positioning
-        replaceCount = replacedText.length();
-
-        // Keep cursor position if we already have sign
-        if (replacedText.length())
-            newCursorPos = 0;
-
-    } else if (cursorPos > 0
-               && cursorPos < text.length()
-               && text[cursorPos-1].isSpace()
-               && (text[cursorPos] == PlusSign || text[cursorPos] == MinusSign)) { // Cursor in between space and plus/minus sign is special case
-
-        // Determine positioning
-        replacedText = text[cursorPos];
-        replaceCount = 1;
-        newCursorPos = 0;
-
-    } else { // Cursor is some where else
-
-        // Find start of "number" under cursor & collect replaced text
-        for (int i = cursorPos-1; i >= 0; i--) {
+    // Check if need to seek backward for the current word's beginning.
+    if (!cursorIsAtFirstChar) {
+        // Find start of "number" under cursor & track word
+        for (QString::const_iterator i = text.begin() + cursorPos - 1;
+            i >= text.begin(); --i) {
 
             // Space is a start of number
-            if (text[i].isSpace())
+            if (i->isSpace())
                 break;
 
-            // Preprend to commit replace
-            replacedText.prepend(text[i]);
+            --wordBegin;
 
             // Plus & minus signs are a start of number
-            if (i < cursorPos && // If cursor is on plus/minus look for previous word
-                (text[i] == PlusSign || text[i] == MinusSign))
+            if (i < text.begin() + cursorPos && // If cursor is on plus/minus look for previous word
+                (*i == PlusSign || *i == MinusSign))
                 break;
         }
-
-        // Determine positioning
-        replaceCount = replacedText.length();
-        replacePos = -replaceCount;
     }
 
+    // Not exactly the whole word length but from beginning
+    // of word to old cursor.
+    int wordLength = cursorPos - wordBegin;
+
+    char sign = (wordLength >= 0)
+                ? text[wordBegin].toAscii() : 0;
+
     // Change/add sign
-    if (replacedText.length() > 0 && replacedText[0] == MinusSign) // Change minus to plus
-        replacedText[0] = PlusSign;
-    else if (replacedText.length() > 0 && replacedText[0] == PlusSign) // Change plus to minus
-        replacedText[0] = MinusSign;
-    else // Add minus
-        replacedText.prepend(MinusSign);
+    int replaceCount;
+    if (sign && sign == MinusSign) { // Change minus to plus
+        sign = PlusSign;
+        replaceCount = 1;
+    } else if (sign && sign == PlusSign) { // Change plus to minus
+        sign = MinusSign;
+        replaceCount = 1;
+    } else { // Add minus
+        sign = MinusSign;
+        replaceCount = 0;
+    }
+
+    // If replacement is done add one to new cursor position.
+    // Position is relative to start of committed string.
+    // Note: There is currently no way of knowing if adding a sign did not succeed,
+    // due to validator, for example. In that case we incorrectly move cursor one step forward.
+    int newCursorPos = wordLength + (1 - replaceCount);
 
     // Update host
-    inputMethodHost()->sendCommitString(replacedText, replacePos, replaceCount, newCursorPos);
+    inputMethodHost()->sendCommitString(QString(sign),
+                                        -wordLength,
+                                        replaceCount,
+                                        newCursorPos);
 }
 
 void MKeyboardHost::setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides)
