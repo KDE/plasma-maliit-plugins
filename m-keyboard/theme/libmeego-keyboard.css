@@ -960,6 +960,7 @@ MKeyboardMagnifierStyle {
     magnifier-text-margin-top: 0mm;
     magnifier-text-margin-bottom: 0mm;
     magnifier-text-margin-bottom-lowercase: 0.3mm;
+    magnifier-hide-delay: 0;
 
     extended-keys-offset: 2.2mm;
 }
