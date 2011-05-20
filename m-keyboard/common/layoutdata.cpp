@@ -48,7 +48,8 @@ LayoutSection::Row::~Row()
 
 LayoutData::LayoutData()
     : layoutOrientation(M::Landscape),
-      layoutType(General)
+      layoutType(General),
+      isUniformFontSize(false)
 {
 }
 
@@ -100,7 +101,8 @@ LayoutData::SharedLayoutSection LayoutData::section(const QString &name) const
 LayoutSection::LayoutSection()
     : mMaxColumns(0),
       movable(false),
-      sectionType(Sloppy)
+      sectionType(Sloppy),
+      isUniformFontSize(false)
 {
 }
 
@@ -108,7 +110,8 @@ LayoutSection::LayoutSection(const QString &characters, bool rtl)
     : mMaxColumns(0),
       movable(false),
       sectionName("<dynamic section>"),
-      sectionType(Sloppy)
+      sectionType(Sloppy),
+      isUniformFontSize(false)
 {
     Row *currentRow = new Row;
     currentRow->heightType = Medium;
