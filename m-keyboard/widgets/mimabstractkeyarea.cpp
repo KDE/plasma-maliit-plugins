@@ -795,7 +795,7 @@ void MImAbstractKeyArea::updatePopup(MImAbstractKey *key)
         return;
     }
 
-    if (!key) {
+    if (!key || !isVisible()) {
         d->popup->cancel();
         return;
     }
