@@ -1,7 +1,8 @@
 meego-keyboard (0.6.8~1) unstable; urgency=low
 
   * [UNRELEASED]
-  * Fixes: NB#255882, Vkb sign change button clears text entry content
+  * Fixes: NB#255882 - Vkb sign change button clears text entry content
+  * Fixes: NB#256970 - VKB magnifier can get stuck on screen.
 
  -- Ning Chi <ext-chi.2.ning@nokia.com>  Fri, 20 May 2011 15:58:59 +0300
 
