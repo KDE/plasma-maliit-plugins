@@ -796,6 +796,10 @@ QList<MImEngine::KeyboardLayoutKey> MVirtualKeyboard::mainLayoutKeys() const
 
     QList<MImEngine::KeyboardLayoutKey> keys;
     MImAbstractKeyArea *mainKb = keyboardWidget();
+    if (!mainKb) {
+        return keys;
+    }
+
     foreach (const MImAbstractKey *ikey, mainKb->keys()) {
         // only care about the keys which insert characters.
         if (ikey->model().binding()->action() == MImKeyBinding::ActionInsert) {
