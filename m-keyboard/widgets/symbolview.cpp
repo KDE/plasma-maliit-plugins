@@ -487,15 +487,18 @@ void SymbolView::handleKeyReleased(const MImAbstractKey *key)
 void SymbolView::handleKeyClicked(const MImAbstractKey *key)
 {
     const MImKeyBinding::KeyAction keyAction = key->binding().action();
+    bool isOtherKeysPressed = (MImAbstractKey::lastActiveKey() != 0);
 
     // KeyEventHandler forwards key clicks for normal text input etc.
     // We handle here only special case of closing symbol view if certain
     // criteria is met:
     if (!symKeyHeldDown // never hide if sym key is held down
-        // 1) symbol view was opened in temporary mode
+        // 1) symbol view was opened in temporary mode and no other pressed key.
+        // (active key means there is still a key not being released)
         && ((activity == TemporarilyActive
              && key->binding().action() != MImKeyBinding::ActionSwitch
-             && key->binding().action() != MImKeyBinding::ActionSym)
+             && key->binding().action() != MImKeyBinding::ActionSym
+             && !isOtherKeysPressed)
 
              // 2) space is clicked and we were waiting for it to close symbol view.
              || (keyAction == MImKeyBinding::ActionSpace
@@ -521,13 +524,14 @@ void SymbolView::handleKeyClicked(const MImAbstractKey *key)
         }
     }
 
-    // Don't retain temporary mode after click.
-    if (activity == TemporarilyActive) {
+    // Don't retain temporary mode after non-symbol key click and no other pressed key.
+    if (activity == TemporarilyActive
+        && (!isOtherKeysPressed || symKeyHeldDown)) {
         setActivity(Active);
     }
 
     // Release explicit mouse grab since we have it in temporary mode.
-    if (!MImAbstractKey::lastActiveKey() // No keys must be active, otherwise ungrab would release them.
+    if (!isOtherKeysPressed // No keys must be active, otherwise ungrab would release them.
         && pageSwitcher->currentWidget()
         && pageSwitcher->currentWidget() == scene()->mouseGrabberItem()) {
         pageSwitcher->currentWidget()->ungrabMouse();
