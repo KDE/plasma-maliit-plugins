@@ -33,7 +33,6 @@ class MKeyboardMagnifierStyle: public MWidgetStyle
 public:
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, magnifierImage, magnifierImage)
     M_STYLE_ATTRIBUTE(QSize, magnifierSize, magnifierSize)
-    M_STYLE_ATTRIBUTE(int, magnifierArrowHeight, MagnifierArrowHeight)
     M_STYLE_ATTRIBUTE(int, magnifierButtonOverlap, MagnifierButtonOverlap)
     M_STYLE_ATTRIBUTE(QFont, magnifierFont, MagnifierFont)
     M_STYLE_ATTRIBUTE(int, magnifierFontSize, MagnifierFontSize)
