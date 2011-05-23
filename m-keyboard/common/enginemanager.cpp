@@ -131,7 +131,7 @@ public:
         return true;
     }
 
-    virtual bool commitPreeditWhenInterrupted()
+    virtual bool commitPreeditWhenInterrupted() const
     {
         return true;
     }
@@ -319,7 +319,7 @@ public:
         return false;
     }
 
-    virtual bool keepPreeditWhenReset() const
+    virtual bool commitPreeditWhenInterrupted() const
     {
         return true;
     }
@@ -344,22 +344,25 @@ public:
         return false;
     }
 
-    virtual void resetPreeditWithoutCommit()
+    virtual void clearPreedit(bool commit)
+    {
+        Q_UNUSED(commit);
+    }
+
+    virtual void editingInterrupted()
+    {
+        if (stateMachine != NULL)
+            stateMachine->resetWithCommitStringToApp();
+    }
+
+    virtual void resetHandler()
     {
         if (stateMachine != NULL)
             stateMachine->resetWithoutCommitStringToApp();
     }
 
-    virtual void resetPreeditWithCommit()
-    {
-        if (stateMachine != NULL)
-            stateMachine->resetWithCommitStringToApp();
-    }
-
     virtual void preparePluginSwitching()
     {
-        if (stateMachine != NULL)
-            stateMachine->resetWithCommitStringToApp();
     }
 
     virtual bool handleKeyPress(const KeyEvent &event)

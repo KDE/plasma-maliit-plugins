@@ -117,7 +117,7 @@ public:
      * Typical case for interruption is for example when changing to other language or to other input method
      * plugin.
      */
-    virtual bool commitPreeditWhenInterrupted() { return true; }
+    virtual bool commitPreeditWhenInterrupted() const = 0;
 
     /*!
      * \brief Returns true if this language accepts correction suggestion with space key.
@@ -144,14 +144,13 @@ public:
      *
      * \param commit, indicates whether the preedit should be commited before clearing or not
      */
-    virtual void clearPreedit(bool commit) { Q_UNUSED(commit); }
-
+    virtual void clearPreedit(bool commit) = 0;
     /*!
      * \brief Called when editing has been interrupted.
      *
      * At this point engine handler should perform needed actions, for example commit and clear preedit.
      */
-    virtual void editingInterrupted() {}
+    virtual void editingInterrupted() = 0;
 
     /*!
      * \brief Called when keyboard host is reset.
@@ -159,7 +158,7 @@ public:
      * This reset is intended for reseting the handler only. Do not send anything to keyboard host or
      * input method host from this method.
      */
-    virtual void resetHandler() {}
+    virtual void resetHandler() = 0;
 
     /*!
      * \brief Prepare the plugin switching.
