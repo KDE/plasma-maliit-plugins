@@ -701,12 +701,13 @@ void Ut_MKeyboardHost::testAutoCaps()
     QTest::qWait((interval / 2) + 50);
     // final state: preedit(""), shift state:on, after holding backspace enough time.
     QVERIFY(subject->preedit.isEmpty());
-    QVERIFY(!subject->backspaceTimer.isActive());
+    QVERIFY(subject->backspaceTimer.isActive());
     inputMethodHost->cursorPos = 13;
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
     subject->handleKeyRelease(release);
     subject->handleKeyClick(release);
+    QVERIFY(!subject->backspaceTimer.isActive());
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
 
     subject->hide();

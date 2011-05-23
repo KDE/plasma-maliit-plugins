@@ -2,6 +2,7 @@ meego-keyboard (0.6.9~1) unstable; urgency=low
 
   * [UNRELEASED]
   * Fixes: NB#257571 - COREWEB: /usr/bin/meego-im-uiserver 'operator== QFont::operator== QFont::resolve QPainter::setFont MImKeyArea::paint'
+  * Fixes: NB#257024 - Deleting word when word prediction bubble is up works wrong
 
  -- Ning Chi <ext-chi.2.ning@nokia.com>  Tue, 24 May 2011 09:53:50 +0300
 

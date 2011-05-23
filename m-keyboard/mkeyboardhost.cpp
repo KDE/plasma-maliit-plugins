@@ -1145,6 +1145,7 @@ void MKeyboardHost::doBackspace()
         } else {
             resetInternalState();
             inputMethodHost()->sendCommitString("");
+            startBackspace(AutoBackspaceMode);
         }
     } else {
         QString previousWord;
@@ -1271,9 +1272,10 @@ void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
     } else if (event.qtKey() == Qt::Key_Backspace) {
         if (backspaceTimer.isActive()) {
             backspaceTimer.stop();
-            // If the backspace Mode is WordTrackerBackspaceMode, don't need to
-            // do backspace.
-            if (backspaceMode != WordTrackerBackspaceMode) {
+            // If the backspace Mode is WordTrackerBackspaceMode or
+            // AutoBackspaceMode, don't need to do backspace.
+            if (backspaceMode != WordTrackerBackspaceMode
+                && backspaceMode != AutoBackspaceMode) {
                 doBackspace();
             }
             backspaceMode = NormalBackspaceMode;
