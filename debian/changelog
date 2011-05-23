@@ -1,10 +1,9 @@
-meego-keyboard (0.6.8~1) unstable; urgency=low
+meego-keyboard (0.6.8-1) unstable; urgency=low
 
-  * [UNRELEASED]
   * Fixes: NB#255882 - Vkb sign change button clears text entry content
   * Fixes: NB#256970 - VKB magnifier can get stuck on screen.
 
- -- Ning Chi <ext-chi.2.ning@nokia.com>  Fri, 20 May 2011 15:58:59 +0300
+ -- Ning Chi <ext-chi.2.ning@nokia.com>  Mon, 23 May 2011 12:46:59 +0300
 
 meego-keyboard (0.6.7-1) unstable; urgency=low
 
