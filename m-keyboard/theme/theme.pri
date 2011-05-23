@@ -1,5 +1,6 @@
 
 include(priority2_vkb_sliding_press/priority2_vkb_sliding_press.pri)
+include(priority2_vkb_popup_press/priority2_vkb_popup_press.pri)
 
 IMAGES_DATA = theme/meegotouch-keyboard.svg
 images_data.path = /usr/share/themes/base/meegotouch/svg
