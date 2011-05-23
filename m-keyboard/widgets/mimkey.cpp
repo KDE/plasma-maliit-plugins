@@ -207,6 +207,10 @@ MImKey::MImKey(const MImKeyModel &newModel,
 
     hide();
 
+    // Initialize keyFontData, in case font() is called before setGeometry() or anything
+    // else that triggers updateLabelFont().
+    keyFontData = fontPool.font(true);
+
     //label position should be computed later, when geometry will be known
 }
 
