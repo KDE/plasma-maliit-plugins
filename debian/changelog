@@ -1,5 +1,6 @@
 meego-keyboard (0.6.8-1) unstable; urgency=low
 
+  * Fixes: NB#257571 - COREWEB: /usr/bin/meego-im-uiserver 'operator== QFont::operator== QFont::resolve QPainter::setFont MImKeyArea::paint'
   * Fixes: NB#255882 - Vkb sign change button clears text entry content
   * Fixes: NB#256970 - VKB magnifier can get stuck on screen.
 
