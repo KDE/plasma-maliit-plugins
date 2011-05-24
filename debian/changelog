@@ -1,9 +1,14 @@
+meego-keyboard (0.6.9~1) unstable; urgency=low
+
+  * [UNRELEASED]
+  * Fixes: NB#257571 - COREWEB: /usr/bin/meego-im-uiserver 'operator== QFont::operator== QFont::resolve QPainter::setFont MImKeyArea::paint'
+
+ -- Ning Chi <ext-chi.2.ning@nokia.com>  Tue, 24 May 2011 09:53:50 +0300
+
 meego-keyboard (0.6.8-1) unstable; urgency=low
 
-  * Fixes: NB#257571 - COREWEB: /usr/bin/meego-im-uiserver 'operator== QFont::operator== QFont::resolve QPainter::setFont MImKeyArea::paint'
   * Fixes: NB#255882 - Vkb sign change button clears text entry content
   * Fixes: NB#256970 - VKB magnifier can get stuck on screen.
-  * Fixes: NB#254512 - VKB; Cangjie characters are not deleted when the input mode is changed from Cangjie to other language/methods.
 
  -- Ning Chi <ext-chi.2.ning@nokia.com>  Mon, 23 May 2011 12:46:59 +0300
 
