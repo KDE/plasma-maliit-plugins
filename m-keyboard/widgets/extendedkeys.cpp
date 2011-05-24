@@ -62,7 +62,8 @@ namespace {
     void alignExtendedKeyArea(MImAbstractKeyArea *keyArea,
                       int keyCount,
                       const QPointF &origin,
-                      int extendedKeysOffset)
+                      int extendedKeysOffset,
+                      const QMargins &safetyMargins)
     {
         if (!keyArea || keyCount < 2) {
             return;
@@ -96,8 +97,7 @@ namespace {
                           + QPointF(0, extendedKeysOffset));
 
         MagnifierHost::applyConstrainedPosition(keyArea, keyArea->parentItem(), pos,
-                                                QMargins(style->paddingLeft(), style->paddingTop(),
-                                                         style->paddingRight(), style->paddingBottom()));
+                                                safetyMargins);
     }
 }
 
@@ -175,13 +175,15 @@ void ExtendedKeys::showExtendedArea(const QPointF &origin,
                              - correction
                              + QPointF(0, host->style()->extendedKeysOffset()));
 
-    const MImAbstractKeyAreaStyleContainer &style(mainArea->baseStyle());
+    const MKeyboardMagnifierStyleContainer &style = host->style();
+    QMargins safetyMargins(style->safetyMarginLeft(),  MagnifierHost::InvalidMargin,
+                           style->safetyMarginRight(), MagnifierHost::InvalidMargin);
     MagnifierHost::applyConstrainedPosition(extKeysArea.get(), extKeysArea->parentItem(), extKeysPos,
-                                            QMargins(style->paddingLeft(), style->paddingTop(),
-                                                     style->paddingRight(), style->paddingBottom()));
+                                            safetyMargins);
 
     if (extKeysArea->pos() != extKeysPos) {
-        alignExtendedKeyArea(extKeysArea.get(), labels.count(), originMapped, host->style()->extendedKeysOffset());
+        alignExtendedKeyArea(extKeysArea.get(), labels.count(), originMapped,
+                             host->style()->extendedKeysOffset(), safetyMargins);
     }
 
     show();

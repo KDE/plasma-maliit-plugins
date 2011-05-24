@@ -41,6 +41,8 @@ public:
     M_STYLE_ATTRIBUTE(int, magnifierTextMarginBottom, MagnifierTextMarginBottom)
     M_STYLE_ATTRIBUTE(int, magnifierTextMarginBottomLowercase, MagnifierTextMarginBottomLowercase)
     M_STYLE_ATTRIBUTE(int, magnifierHideDelay, MagnifierHideDelay)
+    M_STYLE_ATTRIBUTE(int, safetyMarginLeft, SafetyMarginLeft)
+    M_STYLE_ATTRIBUTE(int, safetyMarginRight, SafetyMarginRight)
 
     M_STYLE_ATTRIBUTE(int, extendedKeysOffset, ExtendedKeysOffset)
 };

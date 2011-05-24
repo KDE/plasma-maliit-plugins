@@ -37,7 +37,6 @@
 #include "mimoverlay.h"
 #include "magnifier.h"
 #include "extendedkeys.h"
-#include "mkeyboardmagnifierstyle.h"
 #include <mimabstractkeyarea.h>
 
 #include <QObject>
@@ -106,6 +105,10 @@ public:
     virtual bool isVisible() const;
     virtual void setVisible(bool visible);
     //! \reimp_end
+
+    //! This value idenfifies margin which disables
+    //! verification in applyConstrainedPosition()
+    static const int InvalidMargin = 1000000;
 
 public slots:
     //! Hide Magnifier and ExtendedKeys

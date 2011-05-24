@@ -67,6 +67,9 @@ void Magnifier::setup()
                       (host->style()->magnifierSize().height()
                        - host->style()->magnifierTextMarginTop()
                        - host->style()->magnifierTextMarginBottom()));
+
+    safetyMargins = QMargins(host->style()->safetyMarginLeft(),  MagnifierHost::InvalidMargin,
+                             host->style()->safetyMarginRight(), MagnifierHost::InvalidMargin);
 }
 
 void Magnifier::paint(QPainter *painter,
@@ -124,7 +127,3 @@ void Magnifier::setLabel(const QString &newLabel)
     update();
 }
 
-void Magnifier::setSafetyMargins(const QMargins &newSafetyMargins)
-{
-    safetyMargins = newSafetyMargins;
-}

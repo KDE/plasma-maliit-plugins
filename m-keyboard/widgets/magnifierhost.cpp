@@ -89,20 +89,19 @@ void MagnifierHost::applyConstrainedPosition(QGraphicsItem *target,
     // coordinates.
     targetRect.translate(newPosVsRealParent - target->pos());
 
-    if (safetyMargins.left() > -1 && (targetRect.left() < parentRect.left())) {
+    if (safetyMargins.left() != InvalidMargin && (targetRect.left() < parentRect.left())) {
         targetRect.moveLeft(parentRect.left());
     }
 
-    if (safetyMargins.top() > -1 && (targetRect.top() < parentRect.top())) {
+    if (safetyMargins.top() != InvalidMargin && (targetRect.top() < parentRect.top())) {
         targetRect.moveTop(parentRect.top());
     }
 
-    if (safetyMargins.right() > -1 && (targetRect.right() > parentRect.right())) {
+    if (safetyMargins.right() != InvalidMargin && (targetRect.right() > parentRect.right())) {
         targetRect.moveRight(parentRect.right());
     }
 
-    if (safetyMargins.bottom() > -1 && (targetRect.bottom() > parentRect.bottom())) {
-
+    if (safetyMargins.bottom() != InvalidMargin && (targetRect.bottom() > parentRect.bottom())) {
         targetRect.moveBottom(targetRect.bottom());
     }
 
@@ -144,8 +143,6 @@ void MagnifierHost::setMainArea(MImAbstractKeyArea *mainArea)
     setParent(mainArea);
     magnifier = QPointer<Magnifier>(new Magnifier(this, mainArea));
     magnifier->setup();
-    magnifier->setSafetyMargins(QMargins(mainArea->baseStyle()->paddingLeft(), -1,
-                                         mainArea->baseStyle()->paddingRight(), -1));
 
     extKeys = QPointer<ExtendedKeys>(new ExtendedKeys(this, mainArea));
 }

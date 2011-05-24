@@ -966,11 +966,17 @@ MKeyboardMagnifierStyle {
 }
 
 MKeyboardMagnifierStyle.Landscape {
-    magnifier-size: 11.2mm 10mm;
+    magnifier-size: 112 100;
+
+    safety-margin-left: -6px;
+    safety-margin-right: -6px;
 }
 
 MKeyboardMagnifierStyle.Portrait {
-    magnifier-size: 9mm 11.2mm;
+    magnifier-size: 90 112;
+
+    safety-margin-left: -2px;
+    safety-margin-right: -2px;
 }
 
 #ExtendedKeys {
@@ -981,8 +987,6 @@ MKeyboardMagnifierStyle.Portrait {
    key-background: ;
    key-background-pressed: ;
 
-   padding-left: 1.8mm;
-   padding-right: 1.8mm;
    padding-top: 0mm;
    padding-bottom: 0mm;
 
@@ -993,10 +997,16 @@ MKeyboardMagnifierStyle.Portrait {
 #ExtendedKeys.Landscape {
    key-height-medium: 10mm;
    key-width-medium-fixed: 8.6mm;
+
+   padding-left: 18;
+   padding-right: 18;
 }
 
 #ExtendedKeys.Portrait {
    key-height-medium: 11.2mm;
    key-width-medium-fixed: 4.8mm;
+
+   padding-left: 20;
+   padding-right: 20;
 }
 

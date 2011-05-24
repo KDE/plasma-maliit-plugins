@@ -102,12 +102,6 @@ public:
     //! Sets the label for the Magnifier
     //! \param label the label
     virtual void setLabel(const QString &label);
-
-    //! Sets the safety margins (i.e., constraints the valid area for the
-    //! Magnifier's position.
-    //! \param safetyMargins the safety margins. Only left and right margins
-    //!        should be used, top and bottom should be set to -1.
-    virtual void setSafetyMargins(const QMargins &safetyMargins);
 };
 
 #endif
