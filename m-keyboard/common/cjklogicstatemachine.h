@@ -37,6 +37,8 @@
 #include <QObject>
 #include <QTimer>
 
+#include <MGConfItem>
+
 class QString;
 class KeyEvent;
 class InputStateAbstract;
@@ -118,10 +120,13 @@ private slots:
      */
     void sendPreedit(const QString &matchedPart, const QString &unmatchedPart);
 
+    void syncChineseTransliteration();
+
 private:
     void emitLayoutMenuKeyClickSignal();
     void changeState(const QString &state);
     bool isValidInputLetter(QChar ch);
+    QString transliterateString(unsigned int candidateIndex, const QString &defaultText);
 
 
     InputStateAbstract *currentState;
@@ -141,6 +146,9 @@ private:
     bool syllableDivideIsEnabled;
 
     bool currentOnOffState;
+
+    MGConfItem chineseTransliterationConf;
+    QString chineseTransliteration;
 };
 
 

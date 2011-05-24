@@ -49,6 +49,17 @@ namespace {
     const QString SettingsFuzzy("/meegotouch/inputmethods/virtualkeyboard/fuzzyselected");
     const QString SettingsWordPrediction("/meegotouch/inputmethods/virtualkeyboard/wordpredictionenabled");
     const QLatin1String KeyboardId("libmeego-keyboard.so");
+    const QString SettingChineseTransliteration("/meegotouch/inputmethods/virtualkeyboard/chinesetransliteration");
+
+    // Option list for automatic Chinese transliteration.
+    const char * chineseTransliterationOptionList[] = {"qtn_ckb_option_off",
+                                                       "qtn_ckb_option_simplified",
+                                                       "qtn_ckb_option_traditional",
+                                                       NULL};
+    const char * chineseTransliterationConfValueList[] = {"off",
+                                                          "hans2hant",
+                                                          "hant2hans",
+                                                          NULL};
 
     QStringList fromEnabledLayoutsSettings(const QStringList& list)
     {
@@ -73,7 +84,8 @@ MKeyboardSettings::MKeyboardSettings()
       keyboardCorrectionSpaceConf(SettingsImCorrectionSpace),
       enabledKeyboardsConf(EnabledSubViewsKey),
       chineseKeyboardFuzzyConf(SettingsFuzzy),
-      chineseKeyboardWordPredictionConf(SettingsWordPrediction)
+      chineseKeyboardWordPredictionConf(SettingsWordPrediction),
+      chineseTransliterationConf(SettingChineseTransliteration)
 {
     connect(&keyboardErrorCorrectionConf, SIGNAL(valueChanged()),
             this, SIGNAL(errorCorrectionChanged()));
@@ -178,5 +190,28 @@ bool MKeyboardSettings::wordPrediction() const
 void MKeyboardSettings::setWordPrediction(bool enabled)
 {
     if (chineseKeyboardWordPredictionConf.value().toBool() != enabled)
-         chineseKeyboardWordPredictionConf.set(enabled);
+        chineseKeyboardWordPredictionConf.set(enabled);
 }
+
+QMap<QString, QString> MKeyboardSettings::chineseTransliterationOptions()
+{
+    QMap<QString, QString> options;
+    for (int i = 0;
+         chineseTransliterationOptionList[i] != NULL, chineseTransliterationConfValueList[i] != NULL;
+         i++)
+        options.insert(QString(chineseTransliterationConfValueList[i]),
+                       qtTrId(chineseTransliterationOptionList[i]));
+    return options;
+}
+
+QString MKeyboardSettings::chineseTransliteration()
+{
+    return chineseTransliterationConf.value().toString().toLower();
+}
+
+void MKeyboardSettings::setChineseTransliteration(QString value)
+{
+    if (chineseTransliterationConf.value().toString().toLower() != value.toLower())
+        chineseTransliterationConf.set(value.toLower());
+}
+

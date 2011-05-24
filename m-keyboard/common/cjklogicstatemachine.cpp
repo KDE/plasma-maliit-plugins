@@ -60,6 +60,15 @@ namespace {
     const QString PredictionStateString("prediction_state");
 
     const QChar ZhuYinTone5(ushort(0x02D9)); // ZhuYin tone 5 mark.
+
+    const QString SettingChineseTransliteration("/meegotouch/inputmethods/virtualkeyboard/chinesetransliteration");
+
+    // The scipt code constants for Chinese.
+    const QString SimplifiedChineseScript("Hans");
+    const QString TraditionalChineseScript("Hant");
+    // The indicators for Chinese transliteration. (Ignore upper case here.)
+    const QString FromSimplifiedToTraditional("hans2hant");
+    const QString FromTraditionalToSimplified("hant2hans");
 }
 
 CJKLogicStateMachine::CJKLogicStateMachine(AbstractEngineWidgetHost &widgetHost,
@@ -75,7 +84,8 @@ CJKLogicStateMachine::CJKLogicStateMachine(AbstractEngineWidgetHost &widgetHost,
       backspaceTimer(new QTimer(this)),
       backspaceLongPressTriggered(false),
       syllableDivideIsEnabled(false),
-      currentOnOffState(false)
+      currentOnOffState(false),
+      chineseTransliterationConf(SettingChineseTransliteration)
 {
     changeState(StandByStateString);
 
@@ -85,6 +95,10 @@ CJKLogicStateMachine::CJKLogicStateMachine(AbstractEngineWidgetHost &widgetHost,
 
     connect(&engineWidgetHost, SIGNAL(candidateClicked(QString,int)),
             this, SLOT(handleCandidateClicked(const QString &, int)));
+
+    syncChineseTransliteration();
+    connect(&chineseTransliterationConf, SIGNAL(valueChanged()),
+            this, SLOT(syncChineseTransliteration()));
 }
 
 
@@ -509,6 +523,31 @@ bool CJKLogicStateMachine::isValidInputLetter(QChar ch)
     }
 }
 
+void CJKLogicStateMachine::syncChineseTransliteration()
+{
+    chineseTransliteration = chineseTransliterationConf.value().toString().toLower();
+}
+
+QString CJKLogicStateMachine::transliterateString(unsigned int candidateIndex,
+                                                  const QString &defaultText)
+{
+    // Transliterate the candidate specified by the index.
+    QString sResult;
+    if (chineseTransliteration == FromSimplifiedToTraditional) {
+        // "Simplified Chinese" --> "Traditional Chinese".
+        sResult = inputMethodEngine.transliterate(TraditionalChineseScript, candidateIndex);
+    } else if (chineseTransliteration == FromTraditionalToSimplified) {
+        // "Traditional Chinese" --> "Simplified Chinese".
+        sResult = inputMethodEngine.transliterate(SimplifiedChineseScript, candidateIndex);
+    }
+
+    // Because sResult may receive an empty string from the engine,
+    // we should check whether it is empty here.
+    if (sResult.isEmpty())
+        return defaultText; // Return the default text when transliteration fails.
+    else
+        return sResult; // Return the transliterated text.
+}
 
 
 StandbyState::StandbyState(CJKLogicStateMachine * machine)
@@ -1095,7 +1134,7 @@ void MatchStartedState::handleCandidateClicked(const QString &candStr, int wordI
     }
 
     stateMachine->userChoseCandidateString = candStr;
-    stateMachine->inputMethodHost.sendCommitString(candStr);
+    stateMachine->inputMethodHost.sendCommitString(stateMachine->transliterateString(wordIndex, candStr));
 
     stateMachine->inputMethodEngine.setSuggestedCandidateIndex(wordIndex);
     int mLength = stateMachine->inputMethodEngine.matchedLength();
@@ -1375,7 +1414,7 @@ void PredictionState::handleCandidateClicked(const QString &candStr, int wordInd
     }
 
     stateMachine->userChoseCandidateString = candStr;
-    stateMachine->inputMethodHost.sendCommitString(candStr);
+    stateMachine->inputMethodHost.sendCommitString(stateMachine->transliterateString(wordIndex, candStr));
 
     stateMachine->inputMethodEngine.clearEngineBuffer();
     qDebug() <<"PredictionState::handleCandidateClicked : string length" <<candStr.length();

@@ -89,6 +89,15 @@ public:
     //! Sets word prediction option of Chinese keyboard.
     void setWordPrediction(bool enabled);
 
+    //! Returns a map with keys and descriptions for all Chinese transliteration options.
+    QMap<QString, QString> chineseTransliterationOptions();
+
+    //! Returns current value of Chinese transliteration option.
+    QString chineseTransliteration();
+
+    //! Sets the value of Chiense transliteration option.
+    void setChineseTransliteration(QString value);
+
 Q_SIGNALS:
     //! Emitted when selected keyboards are changed.
     void enabledKeyboardsChanged();
@@ -122,6 +131,7 @@ private:
 
     MGConfItem chineseKeyboardFuzzyConf;
     MGConfItem chineseKeyboardWordPredictionConf;
+    MGConfItem chineseTransliterationConf;
 };
 
 #endif

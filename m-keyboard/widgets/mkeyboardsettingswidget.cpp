@@ -45,6 +45,7 @@
 #include <MBanner>
 #include <MBasicListItem>
 #include <MContainer>
+#include <MAbstractCellCreator>
 
 #include <QObject>
 #include <QGraphicsLinearLayout>
@@ -61,14 +62,45 @@ namespace
     const QString ObjectNameCorrectionSpaceButton("KeyboardCorrectionSpaceButton");
     const QString ObjectNameFuzzyPinyinButton("KeyboardFuzzyPinyinButton");
     const QString ObjectNameWordPredictionButton("KeyboardWordPredictionButton");
-    const int MKeyboardLayoutRole = Qt::UserRole + 1;
+    const QString ObjectNameChineseTransliterationItem("ChineseTransliterationItem");
+    const int MChineseTransliterationLayoutRole = Qt::UserRole + 1;
 
     const QString ChineseInputLanguage("zh_cn_*.xml");
 };
 
+class MChineseTransliterationCellCreator: public MAbstractCellCreator<MContentItem>
+{
+public:
+    /*! \reimp */
+    virtual MWidget *createCell(const QModelIndex &index,
+                                MWidgetRecycler &recycler) const;
+    virtual void updateCell(const QModelIndex &index, MWidget *cell) const;
+    /*! \reimp_end */
+};
+
+MWidget *MChineseTransliterationCellCreator::createCell(const QModelIndex &index,
+                                         MWidgetRecycler &recycler) const
+{
+    MContentItem *cell = qobject_cast<MContentItem *>(recycler.take("MContentItem"));
+    if (!cell) {
+        cell = new MContentItem(MContentItem::SingleTextLabel);
+    }
+    updateCell(index, cell);
+    return cell;
+}
+
+void MChineseTransliterationCellCreator::updateCell(const QModelIndex &index, MWidget *cell) const
+{
+    MContentItem *contentItem = qobject_cast<MContentItem *>(cell);
+
+    contentItem->setTitle(index.data(Qt::DisplayRole).toString());
+}
+
 MKeyboardSettingsWidget::MKeyboardSettingsWidget(MKeyboardSettings *settings, QGraphicsItem *parent)
     : MWidget(parent),
-      settingsObject(settings)
+      settingsObject(settings),
+      chineseTransliterationDialog(NULL),
+      chineseTransliterationList(NULL)
 {
     MLayout *layout = new MLayout(this);
 
@@ -97,6 +129,9 @@ MKeyboardSettingsWidget::MKeyboardSettingsWidget(MKeyboardSettings *settings, QG
 
 MKeyboardSettingsWidget::~MKeyboardSettingsWidget()
 {
+
+    delete chineseTransliterationDialog;
+    chineseTransliterationDialog = NULL;
 }
 
 void MKeyboardSettingsWidget::buildUi()
@@ -184,6 +219,14 @@ void MKeyboardSettingsWidget::buildUi()
     wordPredictionLayout->setAlignment(wordPredictionSwitch, Qt::AlignCenter);
     containerLayout->addItem(wordPredictionLayout);
 
+    // Chinese transliteration setting.
+    chineseTransliterationItem = new MBasicListItem(MBasicListItem::TitleWithSubtitle, this);
+    chineseTransliterationItem->setObjectName(ObjectNameChineseTransliterationItem);
+    connect(chineseTransliterationItem, SIGNAL(clicked()), this, SLOT(showChineseTransliterationOptions()));
+    chineseTransliterationItem->setStyleName("CommonBasicListItemInverted");
+    chineseTransliterationItem->setTitle(qtTrId("qtn_ckb_convert_chinese"));
+    containerLayout->addItem(chineseTransliterationItem);
+
     chineseContainer->setVisible(false);
 }
 
@@ -219,6 +262,11 @@ void MKeyboardSettingsWidget::updateTitle()
     chineseSettingHeader->setText(qtTrId("qtn_ckb_chinese_keyboards"));
     fuzzyItem->setTitle(qtTrId("qtn_ckb_fuzzy_pinyin"));
     wordPredictionItem->setTitle(qtTrId("qtn_ckb_next_prediction"));
+
+    // Sets subtitle of Chinese transliteration.
+    chineseTransliterationItem->setSubtitle(
+                settingsObject->chineseTransliterationOptions().value(
+                    settingsObject->chineseTransliteration()));
 }
 
 void MKeyboardSettingsWidget::connectSlots()
@@ -365,4 +413,80 @@ void MKeyboardSettingsWidget::syncWordPredictionState()
         (wordPredictionSwitch->isChecked() != wordPredictionState)) {
         wordPredictionSwitch->setChecked(wordPredictionState);
     }
+}
+
+void MKeyboardSettingsWidget::showChineseTransliterationOptions()
+{
+    // Create the dialog when necessary.
+    if (chineseTransliterationDialog == NULL) {
+        chineseTransliterationDialog = new MDialog(qtTrId("qtn_ckb_convert_chinese"), M::OkButton);
+        chineseTransliterationList = new MList(chineseTransliterationDialog);
+        chineseTransliterationList->setCellCreator(new MChineseTransliterationCellCreator);
+        chineseTransliterationList->setSelectionMode(MList::SingleSelection);
+        createChineseTransliterationModel();
+        chineseTransliterationDialog->setCentralWidget(chineseTransliterationList);
+
+        connect(chineseTransliterationDialog, SIGNAL(accepted()),
+                this, SLOT(selectChineseTransliteration()));
+    }
+    // Update the model before displaying the dialog.
+    updateChineseTransliterationModel();
+    // Display the dialog.
+    chineseTransliterationDialog->exec();
+}
+
+void MKeyboardSettingsWidget::createChineseTransliterationModel()
+{
+    if ((settingsObject == NULL) || (chineseTransliterationList == NULL))
+        return;
+
+    // Construct the model of Chinese transliteration.
+    QMap<QString, QString> totalOptions = settingsObject->chineseTransliterationOptions();
+    QStandardItemModel *model = new QStandardItemModel(totalOptions.size(),
+                                                       1,
+                                                       chineseTransliterationList);
+    QMap<QString, QString>::const_iterator it = totalOptions.constBegin();
+    for (int j = 0; it != totalOptions.constEnd(); ++it, ++j) {
+        QStandardItem *item = new QStandardItem(it.value());
+        item->setData(it.value(), Qt::DisplayRole);
+        item->setData(it.key(), MChineseTransliterationLayoutRole);
+        model->setItem(j, item);
+    }
+
+    // Set the model.
+    chineseTransliterationList->setItemModel(model);
+    chineseTransliterationList->setSelectionModel(new QItemSelectionModel(model,
+                                                                          chineseTransliterationList));
+}
+
+void MKeyboardSettingsWidget::updateChineseTransliterationModel()
+{
+    if ((settingsObject == NULL) || (chineseTransliterationList == NULL))
+        return;
+
+    // Clear current selection.
+    chineseTransliterationList->selectionModel()->clearSelection();
+    // Query the model item of current Chinese transliteration setting value.
+    QStandardItemModel *model = static_cast<QStandardItemModel *>(chineseTransliterationList->itemModel());
+    QString hightlightString = settingsObject->chineseTransliterationOptions().value(
+                                                         settingsObject->chineseTransliteration());
+    QList<QStandardItem *> items = model->findItems(hightlightString);
+    // Set the selected item as highlight.
+    chineseTransliterationList->selectionModel()->select(items.at(0)->index(),
+                                                         QItemSelectionModel::Select);
+}
+
+void MKeyboardSettingsWidget::selectChineseTransliteration()
+{
+    if ((settingsObject == NULL) || (chineseTransliterationDialog == NULL))
+        return;
+
+    // Save current option.
+    QModelIndexList indexList = chineseTransliterationList->selectionModel()->selectedIndexes();
+    QString value = indexList.at(0).data(MChineseTransliterationLayoutRole).toString();
+    settingsObject->setChineseTransliteration(value);
+    // Update related title.
+    chineseTransliterationItem->setSubtitle(
+                settingsObject->chineseTransliterationOptions().value(
+                    settingsObject->chineseTransliteration()));
 }

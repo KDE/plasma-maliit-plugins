@@ -57,8 +57,8 @@
         <type>bool</type>
         <default>false</default>
         <locale name="C">
-        <short>Whether fuzzy enabled</short>
-        <long>Whether fuzzy is enabled</long>
+          <short>Whether fuzzy enabled</short>
+          <long>Whether fuzzy is enabled</long>
         </locale>
     </schema>
 
@@ -69,8 +69,20 @@
         <type>bool</type>
         <default>true</default>
         <locale name="C">
-        <short>Whether next word prediction is enabled</short>
-        <long>Whether next word prediction is enabled</long>
+          <short>Whether next word prediction is enabled</short>
+          <long>Whether next word prediction is enabled</long>
+        </locale>
+    </schema>
+
+    <schema>
+        <key>/schemas/meegotouch/inputmethods/virtualkeyboard/chinesetransliteration</key>
+        <applyto>/meegotouch/inputmethods/virtualkeyboard/chinesetransliteration</applyto>
+        <owner>meegotouch</owner>
+        <type>string</type>
+        <default>off</default>
+        <locale name="C">
+          <short>The option for automatic Chinese transliteration</short>
+          <long>The option for automatic Chinese transliteration</long>
         </locale>
     </schema>
   </schemalist>

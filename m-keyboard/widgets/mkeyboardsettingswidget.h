@@ -62,6 +62,7 @@ protected:
     //! reimp_end
 
 private slots:
+    void showChineseTransliterationOptions();
     void updateTitle();
     void setErrorCorrectionState(bool enabled);
     void syncErrorCorrectionState();
@@ -73,12 +74,15 @@ private slots:
     void setWordPredictionState(bool enabled);
     void syncWordPredictionState();
     void updateChineseSettingPanel();
+    void selectChineseTransliteration();
+    void updateChineseTransliterationModel();
 
 private:
     void buildUi();
     void addItem(QGraphicsLayoutItem *item, int row, int column);
     void removeItem(QGraphicsLayoutItem *item);
     void connectSlots();
+    void createChineseTransliterationModel();
 
     MKeyboardSettings *settingsObject;
     MGridLayoutPolicy *landscapePolicy;
@@ -94,6 +98,9 @@ private:
     MBasicListItem *fuzzyItem;
     MButton *wordPredictionSwitch;
     MBasicListItem *wordPredictionItem;
+    MBasicListItem *chineseTransliterationItem;
+    MDialog *chineseTransliterationDialog;
+    MList *chineseTransliterationList;
 
     friend class Ut_MKeyboardSettingsWidget;
 };

@@ -90,6 +90,8 @@ void MKeyboardPlugin::loadTranslation()
         // add virtual-keyboard and hardware-keyboard catalog
         locale.installTrCatalog("virtual-keyboard");
         locale.installTrCatalog("hardware-keyboard");
+        // Load Chinese localization catalog.
+        locale.installTrCatalog("chinese-input");
         MLocale::setDefault(locale);
         translationIsLoaded = true;
     }
