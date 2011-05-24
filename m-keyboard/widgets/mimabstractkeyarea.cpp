@@ -1211,3 +1211,8 @@ QRectF MImAbstractKeyArea::correctedReactionRect(const QRectF &originalRect) con
 
     return rect;
 }
+
+bool MImAbstractKeyArea::contains(const MImAbstractKey *key) const
+{
+    return (!key && keys().contains(key));
+}

@@ -495,7 +495,10 @@ void SymbolView::handleKeyReleased(const MImAbstractKey *key)
 void SymbolView::handleKeyClicked(const MImAbstractKey *key)
 {
     const MImKeyBinding::KeyAction keyAction = key->binding().action();
-    bool isOtherKeysPressed = (MImAbstractKey::lastActiveKey() != 0);
+    MImAbstractKeyArea *mainKba = static_cast<MImAbstractKeyArea *>(pageSwitcher->currentWidget());
+    bool isOtherKeysPressed = (MImAbstractKey::lastActiveKey() != 0
+                               && mainKba
+                               && mainKba->contains(key));
 
     // KeyEventHandler forwards key clicks for normal text input etc.
     // We handle here only special case of closing symbol view if certain

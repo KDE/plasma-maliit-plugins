@@ -100,6 +100,9 @@ public:
     //! \brief Enable or disable horizontal gesture recognition.
     virtual void enableHorizontalFlick(bool enable);
 
+    //! \brief Returns true if \key belongs to this key area.
+    virtual bool contains(const MImAbstractKey *key) const;
+
 public slots:
     //! \brief Tell key area to switch levels for all keys.
     //! \param level the new level
