@@ -961,7 +961,7 @@ MKeyboardMagnifierStyle {
     magnifier-text-color: #505050;
     magnifier-text-margin-top: 0mm;
     magnifier-text-margin-bottom: 0mm;
-    magnifier-text-margin-bottom-lowercase: 0.3mm;
+    magnifier-text-margin-bottom-lowercase: 0mm;
     magnifier-hide-delay: 0;
 
     extended-keys-offset: 0;
@@ -997,23 +997,23 @@ MKeyboardMagnifierStyle.Portrait {
 }
 
 #ExtendedKeys.Landscape {
-   key-height-medium: 10mm;
-   key-width-medium-fixed: 8.6mm;
+   key-height-medium: 100;
+   key-width-medium-fixed: 86;
 
-   padding-left: 18;
-   padding-right: 18;
+   padding-left: 13;
+   padding-right: 13;
 }
 
 #ExtendedKeys.Portrait {
-   key-height-medium: 11.2mm;
-   key-width-medium-fixed: 4.8mm;
+   key-height-medium: 112;
+   key-width-medium-fixed: 48;
 
-   padding-left: 20;
-   padding-right: 20;
+   padding-left: 21;
+   padding-right: 21;
 
-   key-margin-left: 0.1mm;
-   key-margin-top: 0.2mm;
-   key-margin-right: 0.1mm;
-   key-margin-bottom: 0.2mm;
+   key-margin-left: 1;
+   key-margin-top: 2;
+   key-margin-right: 1;
+   key-margin-bottom: 2;
 }
 
