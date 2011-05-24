@@ -12,6 +12,8 @@ MVirtualKeyboardStyle {
     notification-font: $FONT_KEYBOARD;
     notification-font-size: 56;
     notification-font-opacity: 0.9;
+    notification-rounding: 0;
+    notification-background-image: ;
     notification-border-color: #808080;
     notification-background-color: #323232;
     notification-text-color: #FFFFFF;

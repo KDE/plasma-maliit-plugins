@@ -110,26 +110,17 @@ void Ut_Notification::testCreate()
 
 void Ut_Notification::testSetMessageAndGeometry()
 {
+    QString text;
+    QRectF rect(0.0, 0.0, 1000.0, 100.0);
+
     // Empty message -> no crash should happen
     subject->setMessageAndGeometry("", QRectF());
     QVERIFY(subject->message == "");
-    // One word with no available width-> no crash should happen
-    subject->setMessageAndGeometry("One", QRectF());
-    QVERIFY(subject->message == "One");
-    // One word with enough width -> no crash should happen
-    subject->setMessageAndGeometry("One", QRectF(0.0, 0.0, 1000.0, 0.0));
-    QVERIFY(subject->message == "One");
-    // A longer text with no available width -> every word should be a new line
-    subject->setMessageAndGeometry("This is a longer text string", QRectF());
-    QVERIFY(subject->message == "This\nis\na\nlonger\ntext\nstring");
-    // A longer text with available width -> no line breaks
-    subject->setMessageAndGeometry("This is a longer text string",
-                                   QRectF(0.0, 0.0, 1000.0, 0.0));
-    QVERIFY(subject->message == "This is a longer text string");
-    // An other example text with available width -> some line breaks
-    subject->setMessageAndGeometry("Verylonglongword and some shorter",
-                                   QRectF(0.0, 0.0, 100.0, 0.0));
-    QVERIFY(subject->message == "Verylonglongword\nand\nsome\nshorter");
+
+    text = "This is a longer text string";
+    subject->setMessageAndGeometry(text, rect);
+    QCOMPARE(subject->message, text);
+    QCOMPARE(subject->geometry(), rect);
 }
 
 void Ut_Notification::testFadeInFadeOut()

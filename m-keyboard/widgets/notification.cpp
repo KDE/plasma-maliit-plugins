@@ -39,6 +39,7 @@
 #include <QPainter>
 
 #include <MSceneManager>
+#include <MScalableImage>
 #include <float.h>
 
 namespace
@@ -87,13 +88,24 @@ void
 Notification::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
     painter->setFont(font);
-    painter->setPen(border);
-    painter->setBrush(background);
     painter->setRenderHint(QPainter::Antialiasing);
-    painter->drawRoundedRect(rect(), 10, 10);
+
+    const MScalableImage *backgroundImage = style()->notificationBackgroundImage();
+
+    if (backgroundImage) {
+        backgroundImage->draw(boundingRect().toRect(), painter);
+    } else {
+        painter->setPen(border);
+        painter->setBrush(background);
+        const int rounding = style()->notificationRounding();
+        painter->drawRoundedRect(rect(), rounding, rounding);
+    }
+
     painter->setPen(textColor);
     // Draw the normalized message
-    painter->drawText(rect(), Qt::AlignCenter, message);
+    QRectF textRect = rect();
+    textRect.adjust(Margin, Margin, -Margin, -Margin);
+    painter->drawText(textRect, Qt::AlignCenter | Qt::TextWordWrap, message);
 }
 
 
@@ -186,47 +198,6 @@ const MVirtualKeyboardStyleContainer &Notification::style() const
 
 void Notification::setMessageAndGeometry(const QString &msg, const QRectF &area)
 {
-    const QFontMetrics fm(font);
-    QStringList words;
-    QString currentSection;
-    int maxSectionWidth = -1;
-    int sectionNum = 0;
-
-    // Empty the normalized content
-    message = "";
-    // Split the message into words
-    words = msg.split(' ');
-
-    // Build the normalized text message
-    currentSection = "";
-    while (!words.isEmpty()) {
-        currentSection += words.takeFirst()+' ';
-        // The current string part with an additional word would exceed
-        // the available width or there are no words left.
-        if ((!words.isEmpty()
-             && fm.width(currentSection+words[0]) + Margin * 2 >= area.width())
-             || words.isEmpty()) {
-            // Increase the section counter
-            sectionNum++;
-            // Remove the trailing space
-            currentSection.remove(currentSection.size()-1, 1);
-            // Find the maximum width of the sections
-            if (fm.width(currentSection) > maxSectionWidth)
-                maxSectionWidth = fm.width(currentSection);
-            // Add the section to the normalized message text
-            message += currentSection;
-            // Add line break after the section if it is not the last yet
-            if (!words.isEmpty())
-                message += "\n";
-            currentSection = "";
-        }
-    }
-
-    // Reset the geometry
-    const int width = maxSectionWidth + Margin * 2;
-    const int height = fm.height()*sectionNum + Margin * 2;
-
-    setGeometry(area.width() / 2 - width / 2,
-                (area.height() - height) / 2,
-                width, height);
+    message = msg;
+    setGeometry(0, 0, area.width(), area.height());
 }
