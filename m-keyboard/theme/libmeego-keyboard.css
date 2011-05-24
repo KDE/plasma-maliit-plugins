@@ -1008,5 +1008,10 @@ MKeyboardMagnifierStyle.Portrait {
 
    padding-left: 20;
    padding-right: 20;
+
+   key-margin-left: 0.1mm;
+   key-margin-top: 0.2mm;
+   key-margin-right: 0.1mm;
+   key-margin-bottom: 0.2mm;
 }
 
