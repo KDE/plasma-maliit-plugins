@@ -149,20 +149,20 @@
           <binding action="sym" label="?123"/>
         </key>
 
+        <key>
+          <binding label="ї"/>
+          <binding shift="true" label="Ї"/>
+        </key>
         <key id="emailUrlKey"><binding label=","/></key>
-        <key><binding label="."/></key>
 
         <key width="xx-large">
           <binding action="space" label=""/>
         </key>
 
+        <key><binding label="."/></key>
         <key>
           <binding label="ю"/>
           <binding shift="true" label="Ю"/>
-        </key>
-        <key>
-          <binding label="ї"/>
-          <binding shift="true" label="Ї"/>
         </key>
 
         <key style="special" width="x-large" id="actionKey">

@@ -98,7 +98,7 @@
       </row>
 
       <row>
-        <key style="special">
+        <key style="special" width="x-large">
           <binding action="shift"/>
         </key>
 
@@ -134,39 +134,39 @@
           <binding label="ö"/>
           <binding shift="true" label="Ö"/>
         </key>
-        <key>
-          <binding label="ç"/>
-          <binding shift="true" label="Ç"/>
-        </key>
 
-        <key style="special">
+        <key style="special" width="x-large">
           <binding action="backspace"/>
         </key>
       </row>
 
       <row>
-        <key style="special" width="large">
+        <key style="special" width="x-large">
           <binding action="sym" label="?123"/>
-        </key>
-
-        <key id="emailUrlKey"><binding label=","/></key>
-        <key><binding label="."/></key>
-
-        <key width="xx-large">
-          <binding action="space" label=""/>
         </key>
 
         <key>
           <binding label="ğ"/>
           <binding shift="true" label="Ğ"/>
         </key>
+        <key id="emailUrlKey"><binding label=","/></key>
 
-        <key style="special" width="x-large" id="actionKey">
+        <key width="stretched">
+          <binding action="space" label=""/>
+        </key>
+
+        <key><binding label="."/></key>
+        <key>
+          <binding label="ç"/>
+          <binding shift="true" label="Ç"/>
+        </key>
+
+        <key style="special" width="xx-large" id="actionKey">
           <binding action="return"/>
         </key>
       </row>
     </section>
   </layout>
 
-  <import file="symbols-38.xml"/>
+  <import file="symbols-39.xml"/>
 </keyboard>

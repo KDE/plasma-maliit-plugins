@@ -82,18 +82,13 @@
           <binding label="l"/>
           <binding shift="true" label="L"/>
         </key>
-        <key>
-          <binding dead="true" label="`"/>
-          <binding shift="true" dead="true" label="`"/>
-        </key>
+        <key><binding label="&#x0027;"/></key>
       </row>
 
       <row>
-        <key style="special" width="large">
+        <key style="special" width="x-large">
           <binding action="shift"/>
         </key>
-
-        <spacer/>
 
         <key>
           <binding label="z"/>
@@ -124,9 +119,7 @@
           <binding shift="true" label="M"/>
         </key>
 
-        <spacer/>
-
-        <key style="special" width="large">
+        <key style="special" width="x-large">
           <binding action="backspace"/>
         </key>
       </row>
@@ -136,10 +129,14 @@
           <binding action="sym" label="?123"/>
         </key>
 
+        <key style="special">
+          <binding dead="true" label="`"/>
+        </key>
         <key id="emailUrlKey"><binding label=","/></key>
-        <key><binding label="."/></key>
+
         <key width="stretched"><binding action="space"/></key>
-        <key><binding label="&#x0027;"/></key>
+
+        <key><binding label="."/></key>
 
         <key style="special" width="xx-large" id="actionKey">
           <binding action="return"/>

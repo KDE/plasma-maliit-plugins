@@ -157,5 +157,5 @@
     </section>
   </layout>
 
-  <import file="symbols-36.xml"/>
+  <import file="symbols-36-nordic.xml"/>
 </keyboard>

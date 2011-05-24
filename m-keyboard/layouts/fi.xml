@@ -91,11 +91,9 @@
       </row>
 
       <row>
-      <key style="special" width="large">
+      <key style="special" width="x-large">
         <binding action="shift" label=""/>
       </key>
-
-      <spacer/>
 
       <key>
         <binding label="z" extended_labels="ž"/>
@@ -126,9 +124,7 @@
         <binding shift="true" label="M"/>
       </key>
 
-      <spacer/>
-
-      <key style="special" width="large">
+      <key style="special" width="x-large">
         <binding action="backspace" label=""/>
       </key>
       </row>
@@ -157,5 +153,5 @@
     </section>
   </layout>
 
-  <import file="symbols-35.xml"/>
+  <import file="symbols-35-fi.xml"/>
 </keyboard>

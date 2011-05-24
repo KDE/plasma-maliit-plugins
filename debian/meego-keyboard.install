@@ -17,7 +17,9 @@ usr/share/meegotouch/virtual-keyboard/layouts/en_gb_default.xml
 usr/share/meegotouch/virtual-keyboard/layouts/number.xml
 usr/share/meegotouch/virtual-keyboard/layouts/pt.xml
 usr/share/meegotouch/virtual-keyboard/layouts/symbols-38.xml
+usr/share/meegotouch/virtual-keyboard/layouts/symbols-39.xml
 usr/share/meegotouch/virtual-keyboard/layouts/symbols-35.xml
+usr/share/meegotouch/virtual-keyboard/layouts/symbols-35-fi.xml
 usr/share/meegotouch/virtual-keyboard/layouts/pl.xml
 usr/share/meegotouch/virtual-keyboard/layouts/cs.xml
 usr/share/meegotouch/virtual-keyboard/layouts/en_us_default.xml
@@ -28,6 +30,7 @@ usr/share/meegotouch/virtual-keyboard/layouts/sv.xml
 usr/share/meegotouch/virtual-keyboard/layouts/id.xml
 usr/share/meegotouch/virtual-keyboard/layouts/de.xml
 usr/share/meegotouch/virtual-keyboard/layouts/symbols-36.xml
+usr/share/meegotouch/virtual-keyboard/layouts/symbols-36-nordic.xml
 usr/share/meegotouch/virtual-keyboard/layouts/phonenumber_ar.xml
 usr/share/meegotouch/virtual-keyboard/layouts/pt_br.xml
 usr/share/meegotouch/virtual-keyboard/layouts/fr_ca.xml

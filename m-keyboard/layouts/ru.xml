@@ -13,16 +13,16 @@
           <binding shift="true" label="Ц"/>
         </key>
         <key>
-          <binding label="у"/>
-          <binding shift="true" label="У"/>
+          <binding label="у" extended_labels="ў"/>
+          <binding shift="true" label="У" extended_labels="Ў"/>
         </key>
         <key>
           <binding label="к"/>
           <binding shift="true" label="К"/>
         </key>
         <key>
-          <binding label="е" extended_labels="&#x0451;"/>
-          <binding shift="true" label="Е" extended_labels="&#x0401;"/>
+          <binding label="е" extended_labels="ё€"/>
+          <binding shift="true" label="Е" extended_labels="Ё€"/>
         </key>
         <key>
           <binding label="н"/>
@@ -119,8 +119,8 @@
           <binding shift="true" label="М"/>
         </key>
         <key>
-          <binding label="и"/>
-          <binding shift="true" label="И"/>
+          <binding label="и" extended_labels="і"/>
+          <binding shift="true" label="И" extended_labels="І"/>
         </key>
         <key>
           <binding label="т"/>
@@ -149,14 +149,14 @@
           <binding action="sym" label="?123"/>
         </key>
 
+        <key><binding label="-"/></key>
         <key id="emailUrlKey"><binding label=","/></key>
-        <key><binding label="."/></key>
 
         <key width="xx-large">
           <binding action="space" label=""/>
         </key>
 
-        <key><binding label="-"/></key>
+        <key><binding label="."/></key>
         <key>
           <binding label="ъ"/>
           <binding shift="true" label="Ъ"/>

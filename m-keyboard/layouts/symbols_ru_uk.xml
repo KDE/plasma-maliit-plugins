@@ -98,7 +98,7 @@
           <binding label="&#x0022;"/>
         </key>
         <key>
-          <binding label="&#x00B0;"/>
+          <binding label="&#x2116;"/>
         </key>
         <key>
           <binding label="!"/>
@@ -116,14 +116,14 @@
           <binding action="sym" label="АБВ"/>
         </key>
         
+        <key><binding label=";"/></key>
         <key><binding label=","/></key>
-        <key><binding label="."/></key>
         
         <key width="xx-large">
           <binding action="space"/>
         </key>
         
-        <key><binding label=";"/></key>
+        <key><binding label="."/></key>
         <key><binding label=":"/></key>
         
         <key style="special" width="x-large" id="actionKey">
@@ -229,7 +229,7 @@
           <binding label="&#x201E;"/>
         </key>
         <key>
-          <binding label="&#x2116;"/>
+          <binding label="&#x00B0;"/>
         </key>
         <key>
           <binding label="&#x00A9;"/>
@@ -247,14 +247,14 @@
           <binding action="sym" label="АБВ"/>
         </key>
         
-        <key><binding label="&#x003B;"/></key>
-        <key><binding label="&#x003A;"/></key>
+        <key><binding label=";"/></key>
+        <key><binding label=","/></key>
         
         <key width="xx-large">
           <binding action="space"/>
         </key>
-		
-        <key><binding label=";"/></key>
+        
+        <key><binding label="."/></key>
         <key><binding label=":"/></key>
         
         <key style="special" width="x-large" id="actionKey">

@@ -91,11 +91,11 @@
           <binding label="ł"/>
           <binding shift="true" label="Ł"/>
         </key>
-
         <key>
-          <binding dead="true" label="´"/>
-          <binding shift="true" dead="true" label="´"/>
+          <binding label="ą"/>
+          <binding shift="true" label="Ą"/>
         </key>
+
       </row>
 
       <row>
@@ -132,8 +132,8 @@
           <binding shift="true" label="M"/>
         </key>
         <key>
-          <binding label="ą"/>
-          <binding shift="true" label="Ą"/>
+          <binding label="ę"/>
+          <binding shift="true" label="Ę"/>
         </key>
 
         <key style="special" width="large">
@@ -146,14 +146,13 @@
           <binding action="sym" label="?123"/>
         </key>
 
+        <key style="special">
+          <binding dead="true" label="´"/>
+        </key>
         <key id="emailUrlKey"><binding label=","/></key>
-        <key><binding label="."/></key>
         <key width="stretched"><binding action="space"/></key>
 
-        <key>
-          <binding label="ę"/>
-          <binding shift="true" label="Ę"/>
-        </key>
+        <key><binding label="."/></key>
 
         <key style="special" width="xx-large" id="actionKey">
           <binding action="return"/>

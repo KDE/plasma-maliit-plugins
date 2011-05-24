@@ -327,9 +327,8 @@ MImAbstractKeyAreaStyle.Landscape:keys39 {
     use-fixed-key-width: true;
 
     key-width-medium-fixed: 72px;
-    key-width-large-fixed: 111px;
-    key-width-x-large-fixed: 150px;
-    key-width-xx-large-fixed: 345px;
+    key-width-x-large-fixed: 111px;
+    key-width-xx-large-fixed: 150px;
     
     key-margin-left: 3px;
     key-margin-right: 3px;
@@ -342,8 +341,7 @@ MImAbstractKeyAreaStyle.Portrait:keys39 {
     use-fixed-key-width: true;
 
     key-width-medium-fixed: 38px;
-    key-width-large-fixed: 82px;
-    key-width-x-large-fixed: 126px;
+    key-width-x-large-fixed: 60px;
     key-width-xx-large-fixed: 126px;
    
     key-margin-left: 3px;

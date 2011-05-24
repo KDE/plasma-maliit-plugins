@@ -83,17 +83,15 @@
           <binding extended_labels="ľĺł" label="l"/>
           <binding extended_labels="ĽĹŁ" shift="true" label="L"/>
         </key>
-		<key>
+		<key style="special">
             <binding dead="true" label="´"/>
         </key>
       </row>
 
       <row>
-        <key style="special" width="large">
+        <key style="special" width="x-large">
           <binding action="shift" label=""/>
         </key>
-
-        <spacer/>
 
         <key>
           <binding extended_labels="ý¥" accented_labels="ý" accents="´" label="y"/>
@@ -124,9 +122,7 @@
           <binding shift="true" label="M"/>
         </key>
 
-        <spacer/>
-
-        <key style="special" width="large">
+        <key style="special" width="x-large">
           <binding action="backspace" label=""/>
         </key>
       </row>
@@ -136,16 +132,16 @@
           <binding action="sym" label="?123"/>
         </key>
 
+        <key style="special">
+          <binding dead="true" label="ˇ"/>
+        </key>
         <key id="emailUrlKey"><binding label=","/></key>
-       <key><binding label="."/></key>
 
         <key width="stretched">
           <binding action="space" label=""/>
         </key>
 
-         <key>
-          <binding dead="true" label="ˇ"/>
-        </key>
+        <key><binding label="."/></key>
 
         <key style="special" width="xx-large" id="actionKey">
           <binding action="return" label=""/>

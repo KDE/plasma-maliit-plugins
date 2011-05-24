@@ -110,14 +110,14 @@
           <binding action="sym" label="ABC"/>
         </key>
         
-        <key><binding label="_"/></key>
         <key><binding label=","/></key>
+        <key><binding label="."/></key>
         
         <key width="stretched">
           <binding action="space"/>
         </key>
         
-        <key><binding label="."/></key>
+        <key><binding label="_"/></key>
         
         <key style="special" width="xx-large" id="actionKey">
           <binding action="return"/>
