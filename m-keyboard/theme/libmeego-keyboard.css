@@ -953,7 +953,7 @@ CandidateToolButtonStyle#switchButtonPortrait:pressed{
 
 MKeyboardMagnifierStyle {
     magnifier-image: "meegotouch-keyboard-magnifier-background" 24px 24px 24px 24px;
-    magnifier-button-overlap: 2.2mm;
+    magnifier-button-overlap: 0;
     magnifier-font: $FONT_KEYBOARD;
     magnifier-font-size: 64;
     magnifier-text-color: #505050;
@@ -962,7 +962,7 @@ MKeyboardMagnifierStyle {
     magnifier-text-margin-bottom-lowercase: 0.3mm;
     magnifier-hide-delay: 0;
 
-    extended-keys-offset: 2.2mm;
+    extended-keys-offset: 0;
 }
 
 MKeyboardMagnifierStyle.Landscape {
