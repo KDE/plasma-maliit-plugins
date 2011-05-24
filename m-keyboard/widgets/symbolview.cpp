@@ -140,11 +140,13 @@ void SymbolView::setupLayout()
 void SymbolView::connectHandle(Handle *handle)
 {
     connect(handle, SIGNAL(flickLeft(FlickGesture)),
-            this,   SIGNAL(flickLeft()),
+            this,   SLOT(switchToNextPage()),
             Qt::UniqueConnection);
+
     connect(handle, SIGNAL(flickRight(FlickGesture)),
-            this,   SIGNAL(flickRight()),
+            this,   SLOT(switchToPrevPage()),
             Qt::UniqueConnection);
+
     connect(handle, SIGNAL(flickDown(FlickGesture)),
             this,   SIGNAL(userInitiatedHide()),
             Qt::UniqueConnection);
@@ -352,8 +354,8 @@ void SymbolView::addPage(const LayoutData::SharedLayoutSection &symbolSection)
 
         connect(this, SIGNAL(levelSwitched(int)), page, SLOT(switchLevel(int)));
 
-        connect(page, SIGNAL(flickLeft()), SIGNAL(flickLeft()));
-        connect(page, SIGNAL(flickRight()), SIGNAL(flickRight()));
+        connect(page, SIGNAL(flickLeft()), SLOT(switchToNextPage()));
+        connect(page, SIGNAL(flickRight()), SLOT(switchToPrevPage()));
         connect(page, SIGNAL(flickDown()), SIGNAL(userInitiatedHide()));
 
         pageSwitcher->addWidget(page);
@@ -443,6 +445,12 @@ void SymbolView::switchToNextPage()
 {
     pageSwitcher->switchTo((pageCount() == 2 && pageSwitcher->current() == 1)
                            ? HorizontalSwitcher::Left : HorizontalSwitcher::Right);
+}
+
+void SymbolView::switchToPrevPage()
+{
+    pageSwitcher->switchTo((pageCount() == 2 && pageSwitcher->current() == 0)
+                           ? HorizontalSwitcher::Right : HorizontalSwitcher::Left);
 }
 
 void SymbolView::onSwitchDone()
