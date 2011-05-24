@@ -172,7 +172,7 @@ MImAbstractKeyAreaStyle.Landscape {
 
     /*** Key Geometry ***/
     key-height-small: -1; /* unused */
-    key-height-medium: 46px;
+    key-height-medium: 45px;
     key-height-large: 66px;
     key-height-x-large: 82px;
     key-height-xx-large: -1; /* unused */
@@ -190,7 +190,7 @@ MImAbstractKeyAreaStyle.Landscape {
     key-margin-bottom: 12px;
 
     padding-left: 11px;
-    padding-top: 8px;
+    padding-top: 12px;
     padding-right: 11px;
     padding-bottom: 8px;
 
@@ -210,7 +210,7 @@ MImAbstractKeyAreaStyle.Portrait {
 
     /*** Key Geometry ***/
     key-height-small: -1; /* unused */
-    key-height-medium: 62px;
+    key-height-medium: 60px;
     key-height-large: 82px;
     key-height-x-large: 98px;
     key-height-xx-large: -1; /* unused */
@@ -228,7 +228,7 @@ MImAbstractKeyAreaStyle.Portrait {
     key-margin-bottom: 18px;
 
     padding-left: 4px;
-    padding-top: 8px;
+    padding-top: 16px;
     padding-right: 4px;
     padding-bottom: 8px;
 
