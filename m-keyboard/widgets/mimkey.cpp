@@ -1079,9 +1079,6 @@ const QColor &MImKey::fontColor() const
     const QColor &overrideColor =(styleContainer->keyHighlightedFontColor());
 
     switch (state()) {
-    case MImKey::Normal:
-        return (highlighted ? overrideColor : styleContainer->fontColor());
-
     case MImKey::Pressed:
         return (highlighted ? overrideColor : styleContainer->keyPressedFontColor());
 
@@ -1091,6 +1088,11 @@ const QColor &MImKey::fontColor() const
     // Disabled state ignores override font color:
     case MImKey::Disabled:
         return styleContainer->keyDisabledFontColor();
+
+    default:
+        qWarning() << __PRETTY_FUNCTION__ << "Invalid key state:" << state();
+    case MImKey::Normal:
+        return (highlighted ? overrideColor : styleContainer->fontColor());
     }
 }
 
