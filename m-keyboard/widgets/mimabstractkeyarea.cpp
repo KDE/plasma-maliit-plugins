@@ -857,6 +857,19 @@ MImAbstractKeyArea::handleVisibilityChanged(bool visible)
         MImAbstractKey::visitActiveKeys(&finder);
 
         unlockDeadKeys(finder.deadKey());
+
+        foreach (const MImAbstractKey *key, keys()) {
+            // We know there is a special case for backspace
+            // need keyCancelled signal
+            if (key->isBackspaceKey()
+                && key->state() == MImAbstractKey::Pressed) {
+                emit keyCancelled(key, KeyContext());
+            }
+        }
+
+        MImKeyVisitor::KeyAreaReset keyAreaReset;
+        keyAreaReset.setKeyParentItem(this);
+        MImAbstractKey::visitActiveKeys(&keyAreaReset);
     }
 }
 

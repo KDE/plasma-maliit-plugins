@@ -1,6 +1,7 @@
 meego-keyboard (0.6.10-1) unstable; urgency=low
 
   * Fixes: NB#219262 - crash: /usr/bin/meego-im-uiserver QGraphicsItem::~QGraphicsItem
+  * Fixes: NB#257133 - Some keys get stuck in Sym View.
 
  -- Ning Chi <ext-chi.2.ning@nokia.com>  Tue, 31 May 2011 09:53:47 +0300
 

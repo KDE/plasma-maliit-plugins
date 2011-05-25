@@ -392,6 +392,8 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
             this, SLOT(handleKeyRelease(const KeyEvent &)));
     connect(symbolView, SIGNAL(longKeyPressed(const KeyEvent &)),
             this, SLOT(handleLongKeyPress(const KeyEvent &)));
+    connect(symbolView, SIGNAL(keyCancelled(const KeyEvent &)),
+            this, SLOT(handleKeyCancel(const KeyEvent &)));
 
     connect(symbolView, SIGNAL(userInitiatedHide()),
             this, SLOT(userHide()));
