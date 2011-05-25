@@ -30,8 +30,7 @@ for(OPTION,$$list($$lower($$COV_OPTION))){
     }
 }
 
-contains(CONFIG, noreactionmap) {
-} else {
+!noreactionmap {
     DEFINES += HAVE_REACTIONMAP
     CONFIG += meegoreactionmap
 }
@@ -56,7 +55,7 @@ SOURCES += \
     mkeyboardplugin.cpp \
     mimlayouttitleparser.cpp
 
-target.path += /usr/lib/meego-im-plugins
+target.path += $$system(pkg-config --variable pluginsdir MeegoImFramework)
 
 install_headers.path = /usr/include/meego-keyboard
 install_headers.files = $$INSTALL_HEADERS
