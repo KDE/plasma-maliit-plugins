@@ -82,6 +82,8 @@ namespace
 
         return layouts;
     }
+
+    const QString EnglishLanguagePrefix("en");
 }
 
 LayoutsManager *LayoutsManager::Instance = 0;
@@ -93,6 +95,7 @@ LayoutsManager::LayoutsManager()
       xkbModelSetting(XkbModelSettingName),
       numberFormatSetting(NumberFormatSettingName),
       currentHwkbLayoutType(InvalidHardwareKeyboard),
+      temporaryEnglishKeyboardInserted(false),
       mAvailableLayouts()
 {
     // Read settings for the first time and load keyboard layouts.
@@ -393,6 +396,11 @@ void LayoutsManager::syncLayouts()
         }
     }
 
+    // Cancel "Containing temporary English (UK) layout" indicator
+    // when "English (UK)" layout is synchronizedinto current layouts.
+    if (layoutFileList().contains(FallbackLayout))
+        temporaryEnglishKeyboardInserted = false;
+
     if (changed) {
         emit layoutsChanged();
     }
@@ -475,4 +483,40 @@ QMap<QString, QString> LayoutsManager::availableLayouts() const
         }
     }
     return mAvailableLayouts;
+}
+
+void LayoutsManager::ensureEnglishKeyboardAvailable()
+{
+    // If temporary "English (UK)" keyboard has been insterted, do nothing here.
+    if (temporaryEnglishKeyboardInserted)
+        return;
+
+    // Check whether current layouts have included some English layout.
+    foreach (const KeyboardData * const kbData, keyboards.values()) {
+        if (kbData->language().startsWith(EnglishLanguagePrefix)) {
+            // Here means that some English layout exists in current layouts.
+            // It might be "English (UK)" or "English (US)", or whatever other English layout.
+            // Anyway, we needn't add temporary "English (UK)" layout here.
+            return;
+        }
+    }
+
+    // Here means that no any English layout is available in current layouts.
+    // So insert "English (UK)" layout temporarily into current layouts.
+    if (loadLayout(FallbackLayout)) {
+        temporaryEnglishKeyboardInserted = true;
+        emit layoutsChanged();
+    }
+}
+
+void LayoutsManager::releaseTemporaryEnglishKeyboard()
+{
+    // If no temporary "English (UK)" layout exists, do nothing here.
+    if (!temporaryEnglishKeyboardInserted)
+        return;
+
+    // Remove temporary "English (UK)" layout and declare that layouts have been changed.
+    keyboards.remove(FallbackLayout);
+    temporaryEnglishKeyboardInserted = false;
+    emit layoutsChanged();
 }

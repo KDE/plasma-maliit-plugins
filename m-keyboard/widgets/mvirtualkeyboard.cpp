@@ -72,6 +72,8 @@ namespace
     // This GConf item defines whether multitouch is enabled or disabled
     const char * const MultitouchSettings = "/meegotouch/inputmethods/multitouch/enabled";
     const int VerticalAnimatinDuration = 250;
+
+    const QString ChineseLanguagePrefix("zh");
 }
 
 const QString MVirtualKeyboard::WordSeparators("-.,!? \n");
@@ -425,6 +427,18 @@ void MVirtualKeyboard::setKeyboardType(const int type)
     }
 
     setContentType(static_cast<M::TextContentType>(type));
+
+    // (1) If current content type is Email/Url and current active VKB is a Chinese VKB,
+    //     ensure an English keyboard is available.
+    //     ("English (UK)" keyboard would be inserted temporarily when necessary.)
+    // (2) If current content type is not Email/Url, release the temporary "English (UK)" keyboard
+    //     if it exists.
+    if ((type == M::EmailContentType) || (type == M::UrlContentType)) {
+        if (layoutLanguage().startsWith(ChineseLanguagePrefix, Qt::CaseSensitive))
+            LayoutsManager::instance().ensureEnglishKeyboardAvailable();
+    } else {
+        LayoutsManager::instance().releaseTemporaryEnglishKeyboard();
+    }
 }
 
 ModifierState MVirtualKeyboard::shiftStatus() const

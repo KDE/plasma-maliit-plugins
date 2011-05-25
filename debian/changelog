@@ -5,6 +5,7 @@ meego-keyboard (0.6.9~1) unstable; urgency=low
   * Fixes: NB#257024 - Deleting word when word prediction bubble is up works wrong
   * Fixes: NB#258682 - VKB gets stuck in SymView when enabling Caps Lock
   * Fixes: NB#246498 - [TASK] Input; Converting to traditional/simplified Chinese function is needed for Chinese input.
+  * Fixes: NB#242737 - VKB; Latin/English VKB is not shown as default when user taps a text field marked as an “email” or URL field. 
 
  -- Ning Chi <ext-chi.2.ning@nokia.com>  Tue, 24 May 2011 09:53:50 +0300
 

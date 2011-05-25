@@ -120,6 +120,18 @@ public:
      */
     QMap<QString, QString> availableLayouts() const;
 
+    /*!
+     *\brief Ensures that at least 1 English keyboard is available.
+     *\note If current layouts have covered some "English" keyboard(s), nothing would be
+     *      done here. Otherwise "English (UK)" keyboard would be inserted temporarily.
+     */
+    void ensureEnglishKeyboardAvailable();
+
+    /*!
+     *\brief Releases temporary "English (UK)" keyboard if it exists.
+     */
+    void releaseTemporaryEnglishKeyboard();
+
 signals:
     //! Signals that layouts have been reset and keyboard data can
     //! be reloaded using new layouts returned by layoutList().
@@ -197,6 +209,9 @@ private:
     MGConfItem numberFormatSetting;
 
     HardwareKeyboardLayout currentHwkbLayoutType;
+
+    // Layouts hacking indicator.
+    bool temporaryEnglishKeyboardInserted;
 
     //! All available layouts as (filename, title)
     mutable QMap<QString, QString> mAvailableLayouts;
