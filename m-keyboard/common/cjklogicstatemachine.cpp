@@ -456,6 +456,11 @@ void CJKLogicStateMachine::emitLayoutMenuKeyClickSignal()
     emit layoutMenuKeyClicked();
 }
 
+void CJKLogicStateMachine::emitKeyOverrideActiveRequest(bool flag)
+{
+    emit keyOverrideActiveRequest(flag);
+}
+
 void CJKLogicStateMachine::changeState(const QString &state)
 {
     qDebug() <<"#### LogicStateMachine change state to "<<state;
@@ -473,6 +478,7 @@ void CJKLogicStateMachine::changeState(const QString &state)
     }
     else if (state == MatchStateString) {
         currentState = matchState;
+        emitKeyOverrideActiveRequest(false);
         emit composeStateChanged(true);
     }
     else if (state == PredictionStateString) {
@@ -550,6 +556,7 @@ StandbyState::~StandbyState()
 
 void StandbyState::initState()
 {
+    stateMachine->emitKeyOverrideActiveRequest(true);
     return ;
 }
 
@@ -1352,6 +1359,7 @@ PredictionState::~PredictionState()
 
 void PredictionState::initState()
 {
+    stateMachine->emitKeyOverrideActiveRequest(true);
     stateMachine->inputMethodEngine.clearEngineBuffer();
     stateMachine->inputMethodEngine.setContext(stateMachine->userChoseCandidateString, -1);
     QStringList tempPredictionWords = stateMachine->inputMethodEngine.candidates(0, InitialCandidateCount);
@@ -1476,6 +1484,12 @@ void PredictionState::handleEnterKey(const KeyEvent &event)
 {
     Q_UNUSED(event);
     stateMachine->changeState(StandByStateString);
+
+    // In Chinese input methods, enter key may has two states in prediction mode. One is with override attribute,
+    // and another is without it. If we don't send "enter" to app after state machine changed to standby mode,
+    // then enter key with override attribute won't work as user wish when it was pressed.
+    // So no matter which state enter key has, we send the "enter" to function.
+    stateMachine->handleEnterKey(event);
     return ;
 }
 

@@ -444,8 +444,11 @@ void MImKey::setComposing(bool compose)
         return;
     bool changed = (composing != compose);
     composing = compose;
-    if (changed)
+    if (changed) {
+        // Label font should be updated to prevent using old key override label font.
+        updateLabelFont();
         update();
+    }
 }
 
 MImKey::ButtonState MImKey::state() const
