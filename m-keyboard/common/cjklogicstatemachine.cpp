@@ -189,7 +189,6 @@ bool CJKLogicStateMachine::handleKeyEvent(const KeyEvent &event)
             handleOtherKey(event);
             val = true;
         }
-
     } else {        
         if (event.qtKey() >= Qt::Key_Left && event.qtKey()<= Qt::Key_Down) {
             handleArrowKey(event);
@@ -204,7 +203,6 @@ bool CJKLogicStateMachine::handleKeyEvent(const KeyEvent &event)
 
 void CJKLogicStateMachine::handleOrientationChange(M::Orientation orientation)
 {
-    qDebug() <<Q_FUNC_INFO;
     currentState->handleOrientationChange(orientation);
 }
 
@@ -259,13 +257,11 @@ void CJKLogicStateMachine::setSyllableDivideEnabled(bool enabled)
 
 void CJKLogicStateMachine::handleLayoutMenuKey(const KeyEvent &event)
 {
-    qDebug() <<Q_FUNC_INFO;
     currentState->handleLayoutMenuKey(event);
 }
 
 void CJKLogicStateMachine::handleSymbolKey(const KeyEvent &event)
 {
-    qDebug() <<Q_FUNC_INFO;
     currentState->handleSymbolKey(event);
 }
 
@@ -286,25 +282,21 @@ void CJKLogicStateMachine::handleToggleKeyClicked(bool bReset)
 
 void CJKLogicStateMachine::handleDigitKey(const KeyEvent &event)
 {
-    qDebug() <<Q_FUNC_INFO;
     currentState->handleDigitKey(event);
 }
 
 void CJKLogicStateMachine::handleLetterKey(const KeyEvent &event)
 {
-    qDebug() <<Q_FUNC_INFO;
     currentState->handleLetterKey(event);
 }
 
 void CJKLogicStateMachine::handleQuotationMarkKey(const KeyEvent &event)
 {
-    qDebug() <<Q_FUNC_INFO;
     currentState->handleQuotationMarkKey(event);
 }
 
 void CJKLogicStateMachine::handleSpaceKey(const KeyEvent &event)
 {
-    qDebug() <<Q_FUNC_INFO;
     currentState->handleSpaceKey(event);
 }
 
@@ -326,20 +318,17 @@ void CJKLogicStateMachine::handleBackspaceKey(const KeyEvent &event)
 
 void CJKLogicStateMachine::handleLongPressBackspaceKey()
 {
-    qDebug() <<Q_FUNC_INFO;
     currentState->handleLongPressBackspaceKey();
     backspaceLongPressTriggered = true;
 }
 
 void CJKLogicStateMachine::handleEnterKey(const KeyEvent &event)
 {
-    qDebug() <<Q_FUNC_INFO;
     currentState->handleEnterKey(event);
 }
 
 void CJKLogicStateMachine::handleOtherKey(const KeyEvent &event)
 {
-    qDebug() <<Q_FUNC_INFO;
     currentState->handleOtherKey(event);
 }
 
@@ -459,7 +448,6 @@ void CJKLogicStateMachine::sendPreedit(const QString &matchedPart, const QString
 
 void CJKLogicStateMachine::handleCandidateClicked(const QString &candStr, int wordIndex)
 {
-    qDebug() <<Q_FUNC_INFO;
     currentState->handleCandidateClicked(candStr, wordIndex);
 }
 
@@ -562,7 +550,6 @@ StandbyState::~StandbyState()
 
 void StandbyState::initState()
 {
-    qDebug() <<Q_FUNC_INFO;
     return ;
 }
 
@@ -649,7 +636,6 @@ void StandbyState::handleBackspaceKey(const KeyEvent &event)
 
 void StandbyState::handleLongPressBackspaceKey()
 {
-    qDebug() <<Q_FUNC_INFO;
     stateMachine->backspaceTimer->start(BackspaceRepeatInterval);
     const KeyEvent tmpevent("\b", QEvent::KeyPress, Qt::Key_Backspace,
                             KeyEvent::NotSpecial,
@@ -722,7 +708,6 @@ MatchState::~MatchState()
 
 void MatchState::initState()
 {
-    qDebug() <<Q_FUNC_INFO;
     inputPreedit.clear();
     recognizedStringLength = 0;
     matchIsTerminated = false;
@@ -731,7 +716,6 @@ void MatchState::initState()
 
 void MatchState::clearState()
 {
-    qDebug() <<Q_FUNC_INFO;
     changeMatchState("match_not_start_state");
     inputPreedit.clear();
     recognizedStringLength = 0;
@@ -812,7 +796,6 @@ void MatchState::handleEnterKey(const KeyEvent &event)
 
 void MatchState::handleOtherKey(const KeyEvent &event)
 {
-    qDebug() <<Q_FUNC_INFO;
     currentMatchState->handleOtherKey(event);
     return ;
 }
@@ -830,9 +813,6 @@ void MatchState::handleToggleKeyClicked()
 
 void MatchState::changeMatchState(QString newMatchState)
 {
-    qDebug() <<Q_FUNC_INFO;
-    qDebug() <<"#### Match sub StateMachine change state to " <<newMatchState;
-
     if(currentMatchState != NULL)
         currentMatchState->clearState();
 
@@ -935,7 +915,6 @@ void MatchNotStartedState::handleDigitKey(const KeyEvent &event)
 
 void MatchNotStartedState::handleLetterKey(const KeyEvent &event)
 {
-    qDebug() <<Q_FUNC_INFO;
     if (stateMachine->inputMethodEngine.language() == CangjieLang) {
         if (matchStateMachine->inputPreedit.count() >= CangjieInputLimit)
             return ;
@@ -947,7 +926,6 @@ void MatchNotStartedState::handleLetterKey(const KeyEvent &event)
     stateMachine->sendPreedit("", matchStateMachine->inputPreedit);
 
     QStringList tempCandidateWords = stateMachine->inputMethodEngine.candidates(0, InitialCandidateCount);
-    qDebug() <<Q_FUNC_INFO <<" tmp candidate words count = " <<tempCandidateWords.count();
     if (tempCandidateWords.count() > 0) {
         matchStateMachine->matchIsTerminated = false;
         stateMachine->engineWidgetHost.setCandidates(tempCandidateWords);
@@ -1054,7 +1032,6 @@ void MatchNotStartedState::handleOtherKey(const KeyEvent &event)
     //handle punctuation key end ...
 
     if(!matchStateMachine->inputPreedit.isEmpty()) {
-        qDebug() << Q_FUNC_INFO << "sendCommitString = " << matchStateMachine->inputPreedit;
         stateMachine->inputMethodHost.sendCommitString(matchStateMachine->inputPreedit);
     }
     if (event.type() == QEvent::KeyRelease) {
@@ -1126,7 +1103,6 @@ void MatchStartedState::handleOrientationChange(M::Orientation orientation)
 
 void MatchStartedState::handleCandidateClicked(const QString &candStr, int wordIndex)
 {
-    qDebug() <<Q_FUNC_INFO;
     if (candStr.length() == 0 || wordIndex < 0) {
         qDebug() <<"Warning(MatchStartedState::handleCandidateClicked): Invalid user choose canidate index";
         stateMachine->userChoseCandidateString = "";
@@ -1417,12 +1393,9 @@ void PredictionState::handleCandidateClicked(const QString &candStr, int wordInd
     stateMachine->inputMethodHost.sendCommitString(stateMachine->transliterateString(wordIndex, candStr));
 
     stateMachine->inputMethodEngine.clearEngineBuffer();
-    qDebug() <<"PredictionState::handleCandidateClicked : string length" <<candStr.length();
     stateMachine->inputMethodEngine.setContext(candStr, -1);
     QStringList tempPredictionWords = stateMachine->inputMethodEngine.candidates(0, InitialCandidateCount);
 
-    qDebug() <<"PredictionState::handleCandidateClicked : engine results length = "
-             <<tempPredictionWords.length();
     if (tempPredictionWords.count() > 0) {
         stateMachine->engineWidgetHost.setCandidates(tempPredictionWords);
         stateMachine->engineWidgetHost.setTitle(stateMachine->userChoseCandidateString);
