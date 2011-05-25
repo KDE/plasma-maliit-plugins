@@ -652,6 +652,7 @@ void MKeyboardHost::handleAnimationFinished()
             vkbWidget->setKeyOverrides(emptyOverrides);
             symbolView->setKeyOverrides(emptyOverrides);
             keyOverrideClearPending = false;
+            overrides = emptyOverrides;
         }
 
         sharedHandleArea->hide();
@@ -1776,6 +1777,7 @@ void MKeyboardHost::handleClientChange()
         vkbWidget->setKeyOverrides(emptyOverrides);
         symbolView->setKeyOverrides(emptyOverrides);
         keyOverrideClearPending = false;
+        overrides = emptyOverrides;
     }
 
     hardwareKeyboard->clientChanged();
@@ -2269,12 +2271,13 @@ void MKeyboardHost::togglePlusMinus()
                                         newCursorPos);
 }
 
-void MKeyboardHost::setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides)
+void MKeyboardHost::setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &newOverrides)
 {
-    if (!haveFocus && overrides.size() == 0) {
+    if (!haveFocus && newOverrides.size() == 0) {
         keyOverrideClearPending = true; // not changing overrides while hiding
     } else {
         keyOverrideClearPending = false;
+        overrides = newOverrides;
         vkbWidget->setKeyOverrides(overrides);
         symbolView->setKeyOverrides(overrides);
     }
@@ -2302,6 +2305,18 @@ bool MKeyboardHost::needRecomposePreedit(QString &previousWord, QChar *removedSy
         }
     }
     return needRecomposePreedit;
+}
+
+void MKeyboardHost::setKeyOverridesActive(bool active)
+{
+    if (active) {
+        vkbWidget->setKeyOverrides(overrides);
+        symbolView->setKeyOverrides(overrides);
+    } else {
+        QMap<QString, QSharedPointer<MKeyOverride> > emptyOverrides;
+        vkbWidget->setKeyOverrides(emptyOverrides);
+        symbolView->setKeyOverrides(emptyOverrides);
+    }
 }
 
 void MKeyboardHost::handleToggleKeyStateChanged(bool onOff)

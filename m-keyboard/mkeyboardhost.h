@@ -102,7 +102,7 @@ public:
                                   MInputMethod::HandlerState state = MInputMethod::OnScreen);
     virtual QString activeSubView(MInputMethod::HandlerState state = MInputMethod::OnScreen) const;
     virtual void showLanguageNotification();
-    virtual void setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides);
+    virtual void setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &newOverrides);
     //! reimp_end
 
     int keyboardHeight() const;
@@ -116,6 +116,9 @@ public slots:
 
     //! Compose key state is changed to \a composing.
     void handleComposeKeyStateChanged(bool composing);
+
+    //! Set the key overrides active when needed.
+    void setKeyOverridesActive(bool active);
 
 private slots:
     //! \brief Hide and show vkb based on symbol view visibility changes
@@ -455,6 +458,9 @@ private:
     bool regionUpdatesEnabledBeforeOrientationChange;
     M::OrientationAngle appOrientationAngle;
     bool engineWidgetHostTemporarilyHidden;
+
+    //! Contains current keyboard overrides
+    QMap<QString, QSharedPointer<MKeyOverride> > overrides;
 
     friend class EngineHandlerDefault;
     friend class EngineHandlerCJK;
