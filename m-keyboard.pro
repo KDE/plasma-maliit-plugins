@@ -19,7 +19,10 @@ CONFIG(docs) {
 
 #error-correction 
 GCONF_DATA = meego-keyboard.schemas
-gconf_data.path = /usr/share/gconf/schemas
+isEmpty(GCONF_SCHEMAS_DIR) {
+    GCONF_SCHEMAS_DIR = /usr/share/gconf/schemas
+}
+gconf_data.path = $$GCONF_SCHEMAS_DIR
 gconf_data.files = $$GCONF_DATA
 
 INSTALLS += gconf_data \ 
