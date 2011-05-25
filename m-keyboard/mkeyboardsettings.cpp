@@ -197,7 +197,7 @@ QMap<QString, QString> MKeyboardSettings::chineseTransliterationOptions()
 {
     QMap<QString, QString> options;
     for (int i = 0;
-         chineseTransliterationOptionList[i] != NULL, chineseTransliterationConfValueList[i] != NULL;
+         chineseTransliterationOptionList[i] != NULL && chineseTransliterationConfValueList[i] != NULL;
          i++)
         options.insert(QString(chineseTransliterationConfValueList[i]),
                        qtTrId(chineseTransliterationOptionList[i]));
