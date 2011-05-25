@@ -4,12 +4,17 @@ TEMPLATE = subdirs
 SUBDIRS = \
     m-keyboard \
     meego-keyboard-quick \
-    tests \
-    fixture_virtualkeyboard \
     translations \
 
 CONFIG(docs) {
     include (doc/doc.pri)
+}
+
+!notests {
+    SUBDIRS += \
+        tests \
+        fixture_virtualkeyboard \
+
 }
 
 #error-correction 
