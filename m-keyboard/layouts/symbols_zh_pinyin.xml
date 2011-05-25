@@ -55,7 +55,7 @@
          <key width="stretched"><binding action="space"/></key>
          <key><binding label="&#x3002;"/></key>
 
-         <key style="special" width="x-large">
+         <key style="special" width="x-large" id="actionKey">
            <binding action="return"/>
          </key>
        </row>
@@ -114,7 +114,7 @@
          <key width="stretched"><binding action="space"/></key>
          <key><binding label="&#x002E;"/></key>
 
-         <key style="special" width="x-large">
+         <key style="special" width="x-large" id="actionKey">
            <binding action="return"/>
          </key>
        </row>
@@ -175,7 +175,7 @@
          <key width="stretched"><binding action="space"/></key>
          <key><binding label="&#x3002;"/></key>
 
-         <key style="special" width="x-large">
+         <key style="special" width="x-large" id="actionKey">
            <binding action="return"/>
          </key>
        </row>
@@ -234,7 +234,7 @@
          <key width="stretched"><binding action="space"/></key>
          <key><binding label="&#x002E;"/></key>
 
-         <key style="special" width="x-large">
+         <key style="special" width="x-large" id="actionKey">
            <binding action="return"/>
          </key>
        </row>

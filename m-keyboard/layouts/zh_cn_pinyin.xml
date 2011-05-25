@@ -141,7 +141,7 @@
           <key width="stretched"><binding action="space" label=""/></key>
           <key id="emailUrlDotKey"><binding label="&#x3002;"/></key>
 
-          <key style="special" width="x-large">
+          <key style="special" width="x-large" id="actionKey">
                 <binding action="compose" label="&#36755;&#20837;"/>
           </key>
         </row>
@@ -288,7 +288,7 @@
           <key width="stretched"><binding action="space" label=""/></key>
           <key id="emailUrlDotKey"><binding label="&#x3002;"/></key>
 
-          <key style="special" width="x-large">
+          <key style="special" width="x-large" id="actionKey">
             <binding action="compose" label="&#36755;&#20837;"/>
           </key>
         </row>
