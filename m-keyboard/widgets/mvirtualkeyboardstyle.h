@@ -36,6 +36,7 @@
 
 #include <mwidgetstyle.h>
 #include <QFont>
+#include <QEasingCurve>
 
 class MVirtualKeyboard;
 class MScalableImage;
@@ -59,6 +60,7 @@ public:
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, notificationBackgroundImage, NotificationBackgroundImage)
     M_STYLE_ATTRIBUTE(int, notificationRounding, NotificationRounding)
     M_STYLE_ATTRIBUTE(int, layoutChangeDuration, LayoutChangeDuration)
+    M_STYLE_ATTRIBUTE(QEasingCurve, layoutChangeEasingCurve, LayoutChangeEasingCurve)
 };
 
 class MVirtualKeyboardStyleContainer : public MWidgetStyleContainer

@@ -15,6 +15,7 @@ MVirtualKeyboardStyle {
     notification-text-color: #FFFFFF;
     notification-opacity: 0.9;
     layout-change-duration: 300;
+    layout-change-easing-curve: outexpo;
 }
 
 MImAbstractKeyAreaStyle {
