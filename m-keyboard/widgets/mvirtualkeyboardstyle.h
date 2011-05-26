@@ -50,12 +50,6 @@ class MVirtualKeyboardStyle : public MWidgetStyle
     M_STYLE(MVirtualKeyboardStyle)
 
 public:
-    M_STYLE_ATTRIBUTE(qreal, fontOpacity, FontOpacity)
-
-    M_STYLE_ATTRIBUTE(QSize, tabButtonSize, TabButtonSize)
-
-    M_STYLE_ATTRIBUTE(QSize, menuSize, MenuSize)
-
     M_STYLE_ATTRIBUTE(QFont, notificationFont, NotificationFont)
     M_STYLE_ATTRIBUTE(int, notificationFontSize, NotificationFontSize)
     M_STYLE_ATTRIBUTE(QColor, notificationBorderColor, NotificationBorderColor)
@@ -64,8 +58,6 @@ public:
     M_STYLE_ATTRIBUTE(qreal, notificationOpacity, NotificationOpacity)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, notificationBackgroundImage, NotificationBackgroundImage)
     M_STYLE_ATTRIBUTE(int, notificationRounding, NotificationRounding)
-
-    M_STYLE_ATTRIBUTE(QColor, deadkeyLockedColor, DeadkeyLockedColor)
 };
 
 class MVirtualKeyboardStyleContainer : public MWidgetStyleContainer
