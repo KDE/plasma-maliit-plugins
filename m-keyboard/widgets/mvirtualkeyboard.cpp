@@ -570,6 +570,7 @@ void MVirtualKeyboard::createSwitcher()
     mainKeyboardSwitcher = new HorizontalSwitcher(this);
     mainKeyboardSwitcher->setLooping(true);
     mainKeyboardSwitcher->setPreferredWidth(MPlainWindow::instance()->visibleSceneSize().width());
+    mainKeyboardSwitcher->setDuration(style()->layoutChangeDuration());
 
     // In addition to animating sections (MImAbstractKeyAreas), we also
     // use switcher to provide us the moving direction logic.

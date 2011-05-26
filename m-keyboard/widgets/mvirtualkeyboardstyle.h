@@ -58,6 +58,7 @@ public:
     M_STYLE_ATTRIBUTE(qreal, notificationOpacity, NotificationOpacity)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, notificationBackgroundImage, NotificationBackgroundImage)
     M_STYLE_ATTRIBUTE(int, notificationRounding, NotificationRounding)
+    M_STYLE_ATTRIBUTE(int, layoutChangeDuration, LayoutChangeDuration)
 };
 
 class MVirtualKeyboardStyleContainer : public MWidgetStyleContainer
