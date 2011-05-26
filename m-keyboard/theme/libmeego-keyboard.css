@@ -26,8 +26,6 @@ MVirtualKeyboardStyle.Portrait {
 }
 
 MVirtualKeyboardStyle.Landscape {
-    keyboard-area-size: 854 236;
-
     tab-button-size: 108 70;
     menu-size: 790 342;
 }
