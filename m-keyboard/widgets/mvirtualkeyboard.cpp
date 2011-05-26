@@ -524,6 +524,16 @@ void MVirtualKeyboard::cancelEvent(MCancelEvent *event)
     }
 }
 
+void MVirtualKeyboard::resizeEvent(QGraphicsSceneResizeEvent *)
+{
+    const QGraphicsWidget *const widget = mainKeyboardSwitcher->currentWidget();
+
+    if (widget) {
+        notification->resize(widget->size());
+        notification->update();
+    }
+}
+
 void MVirtualKeyboard::onSectionSwitchStarting(int current, int next)
 {
     switchStarted = true;
