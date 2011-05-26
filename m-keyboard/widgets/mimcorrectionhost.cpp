@@ -46,7 +46,8 @@ MImCorrectionHost::MImCorrectionHost(MWidget *window, QObject *parent)
       rotationInProgress(false),
       currentMode(AbstractEngineWidgetHost::FloatingMode),
       pendingCandidatesUpdate(false),
-      wordTracker(new MImWordTracker(window)),
+      wordTrackerContainer(new QGraphicsWidget(window)),
+      wordTracker(new MImWordTracker(wordTrackerContainer)),
       wordList(new MImWordList())
 {
     connect(wordTracker, SIGNAL(candidateClicked(QString)), this, SLOT(handleCandidateClicked(QString)));
@@ -66,7 +67,8 @@ MImCorrectionHost::MImCorrectionHost(MWidget *window, QObject *parent)
 
 MImCorrectionHost::~MImCorrectionHost()
 {
-    delete wordTracker;
+    if (!wordTrackerContainer.isNull())
+        delete wordTrackerContainer;
     delete wordList;
 }
 

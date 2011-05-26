@@ -73,9 +73,9 @@ namespace
 };
 
 
-MImWordTracker::MImWordTracker(MWidget *parentWindow)
-    : MStylableWidget(),
-      containerWidget(new QGraphicsWidget()),
+MImWordTracker::MImWordTracker(QGraphicsWidget *container)
+    : MStylableWidget(container),
+      containerWidget(container),
       mIdealWidth(0),
       candidateItem(new MImCorrectionCandidateItem("", this)),
       pointerXOffset(0),
@@ -83,9 +83,6 @@ MImWordTracker::MImWordTracker(MWidget *parentWindow)
 {
     containerWidget->setObjectName("WordTrackerContainer");
     RegionTracker::instance().addRegion(*containerWidget);
-
-    containerWidget->setParentItem(parentWindow);
-    this->setParentItem(containerWidget);
 
     // By default multi-touch is disabled
     setAcceptTouchEvents(MGConfItem(MultitouchSetting).value().toBool());
@@ -114,8 +111,6 @@ MImWordTracker::MImWordTracker(MWidget *parentWindow)
 
 MImWordTracker::~MImWordTracker()
 {
-    this->setParentItem(0);
-    delete containerWidget;
 }
 
 void MImWordTracker::setCandidate(const QString &string)

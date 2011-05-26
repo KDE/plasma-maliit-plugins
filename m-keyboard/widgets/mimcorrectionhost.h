@@ -39,6 +39,7 @@
 #include <QString>
 #include <QStringList>
 #include <QRegion>
+#include <QPointer>
 
 class QRect;
 class MSceneWindow;
@@ -118,6 +119,7 @@ private:
     QString suggestionString;
     bool pendingCandidatesUpdate;
 
+    QPointer<QGraphicsWidget> wordTrackerContainer;
     MImWordTracker *wordTracker;
     MImWordList *wordList;
     MImEngineWordsInterface *correctionEngine;

@@ -1,6 +1,7 @@
 meego-keyboard (0.6.10~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#219262 - crash: /usr/bin/meego-im-uiserver QGraphicsItem::~QGraphicsItem
 
  -- Ning Chi <ext-chi.2.ning@nokia.com>  Fri, 27 May 2011 14:41:47 +0300
 

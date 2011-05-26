@@ -55,7 +55,7 @@ class MImWordTracker : public MStylableWidget
 
 public:
     //! Constructor
-    explicit MImWordTracker(MWidget *parentWindow);
+    explicit MImWordTracker(QGraphicsWidget *container);
 
     //! Destructor
     ~MImWordTracker();
