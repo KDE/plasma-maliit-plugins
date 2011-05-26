@@ -1080,6 +1080,12 @@ void MImKeyArea::resetActiveKeys()
     Q_D(MImKeyArea);
     foreach (const MImKeyAreaPrivate::KeyRow &row, d->rowList) {
         foreach (MImKey *key, row.keys) {
+            // We know there are special cases forshift and backspace key.
+            // need keyCancelled() signal
+            if ((key->isShiftKey() || key->isBackspaceKey())
+                && key->state() == MImAbstractKey::Pressed) {
+                emit keyCancelled(key, KeyContext());
+            }
             key->setSelected(false);
             key->resetTouchPointCount();
         }
