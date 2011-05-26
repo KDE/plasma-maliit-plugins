@@ -99,6 +99,9 @@ public:
     //! \brief Set duration for sliding animation.
     void setDuration(int ms);
 
+    //! \brief Set easing curve for sliding animation
+    void setEasingCurve(const QEasingCurve &curve);
+
     //! \brief Add widget to switcher. Takes ownership.
     //!
     //! Indices for widgets are added in the order they were added.

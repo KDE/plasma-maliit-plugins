@@ -242,6 +242,11 @@ void HorizontalSwitcher::setDuration(int ms)
     animTimeLine.setFrameRange(0, ms * SwitchFrames / qMax(1, SwitchDuration));
 }
 
+void HorizontalSwitcher::setEasingCurve(const QEasingCurve &curve)
+{
+    animTimeLine.setEasingCurve(curve);
+}
+
 void HorizontalSwitcher::addWidget(QGraphicsWidget *widget)
 {
     if (!widget) {
