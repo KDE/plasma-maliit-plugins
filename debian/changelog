@@ -1,3 +1,9 @@
+meego-keyboard (0.6.10~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Ning Chi <ext-chi.2.ning@nokia.com>  Fri, 27 May 2011 14:41:47 +0300
+
 meego-keyboard (0.6.9-1) unstable; urgency=low
 
   * Fixes: NB#257571 - COREWEB: /usr/bin/meego-im-uiserver 'operator== QFont::operator== QFont::resolve QPainter::setFont MImKeyArea::paint'
