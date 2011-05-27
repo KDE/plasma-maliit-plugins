@@ -241,13 +241,13 @@ bool WordRibbonHost::isFullScreen() const
     return displayMode() == AbstractEngineWidgetHost::DialogMode;
 }
 
-void WordRibbonHost::appendCandidates(int startPos, const QStringList &candidate)
+void WordRibbonHost::appendCandidates(const QStringList &candidate)
 {
-    if (startPos + candidate.count() > this->candidatesCache.capacity()) {
-        this->candidatesCache.setCapacity(startPos + candidate.count());
+    if (candidatesCache.count() + candidate.count() > candidatesCache.capacity()) {
+        this->candidatesCache.setCapacity(candidatesCache.count() + candidate.count());
     }
     for (int i = 0; i < candidate.count(); ++i) {
-        this->candidatesCache.insert(startPos + i, candidate[i]);
+        this->candidatesCache.append(candidate[i]);
     }
 }
 
@@ -266,7 +266,7 @@ void WordRibbonHost::fetchMoreCandidates()
     EngineManager *em = &EngineManager::instance();
     if (em && em->engine()) {
         candidatesFromEngine = EngineManager::instance().engine()->candidates(requestStartPos, requestLength);
-        appendCandidates(requestStartPos, candidatesFromEngine);
+        appendCandidates(candidatesFromEngine);
     } else {
         qWarning() << __PRETTY_FUNCTION__ << "No engine found, cannot fetch candidates!";
     }

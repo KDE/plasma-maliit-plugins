@@ -82,7 +82,7 @@ public:
     virtual bool isActive() const;
     virtual void setTitle(QString &title);
     virtual void setCandidates(const QStringList &candidates);
-    virtual void appendCandidates(int startPos, const QStringList &candidate);
+    virtual void appendCandidates(const QStringList &candidate);
     virtual QStringList candidates() const;
     virtual void showEngineWidget(DisplayMode mode = FloatingMode);
     virtual void hideEngineWidget();

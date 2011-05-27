@@ -107,7 +107,7 @@ public:
     /*!
      * \brief Appends the candidates to engine widget.
      */
-    virtual void appendCandidates(int startPos, const QStringList &candidate) = 0;
+    virtual void appendCandidates(const QStringList &candidate) = 0;
 
     /*!
      * \brief Returns the candidates currently used by engine widget.
