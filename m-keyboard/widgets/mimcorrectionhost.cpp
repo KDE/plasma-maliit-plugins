@@ -129,9 +129,8 @@ void MImCorrectionHost::setCandidates(const QStringList &list)
     }
 }
 
-void MImCorrectionHost::appendCandidates(int startPos, const QStringList &candidateList)
+void MImCorrectionHost::appendCandidates(const QStringList &candidateList)
 {
-    Q_UNUSED(startPos);
     Q_UNUSED(candidateList);
 }
 
