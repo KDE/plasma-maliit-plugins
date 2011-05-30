@@ -6,8 +6,6 @@ DEPENDPATH += .
 INCLUDEPATH += 	. \
 
 LIBS += -L/usr/lib -Wl,-rpath=/usr/lib/meego-im-plugins/ -lmeego-keyboard
-#LIBS += -L/usr/lib -Wl,-rpath=/usr/lib/meego-im-plugins/ -lmeego-keyboard
-
 
 # Input
 HEADERS += ut_mimabstractkeyarea.h \
