@@ -8,6 +8,7 @@ Standards-Version: 3.7.2
 Package: meego-keyboard
 Architecture: any
 Depends:  ${misc:Depends}, ${shlibs:Depends}, meego-im-uiserver
+Replaces: meego-vkb-magnifier
 Description: MeeGo Input Method Keyboard 
  Meego Keyboard 
 
