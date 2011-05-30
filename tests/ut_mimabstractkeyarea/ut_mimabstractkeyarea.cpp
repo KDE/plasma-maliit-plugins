@@ -86,7 +86,15 @@ Q_DECLARE_METATYPE(QList<bool>);
 Q_DECLARE_METATYPE(MImAbstractKey::ButtonState);
 Q_DECLARE_METATYPE(QList<MImKeyBinding::KeyAction>);
 Q_DECLARE_METATYPE(Ut_MImAbstractKeyArea::TestOpList);
+Q_DECLARE_METATYPE(Ut_MImAbstractKeyArea::TouchOpList);
 Q_DECLARE_METATYPE(QSharedPointer<KeyboardData>);
+
+// QTest::touchEvent() does not set any point as primary
+// so we use a mocked version of isPrimary().
+bool QTouchEvent::TouchPoint::isPrimary() const
+{
+    return id() == 0;
+}
 
 class TestPopup
     : public MImAbstractPopup
@@ -155,6 +163,7 @@ void Ut_MImAbstractKeyArea::initTestCase()
     qRegisterMetaType<MImAbstractKey*>();
     qRegisterMetaType<MImAbstractKey::ButtonState>();
     qRegisterMetaType<TestOpList>("TestOpList");
+    qRegisterMetaType<TouchOpList>("TouchOpList");
     qRegisterMetaType<KeyContext>("KeyContext");
 
     sceneWindow = createMSceneWindow(new MPlainWindow); // also create singleton
@@ -1497,6 +1506,178 @@ void Ut_MImAbstractKeyArea::testFlickEvent()
         QCOMPARE(spy.count(), 0);
     }
     QCOMPARE(backspace->state(), buttonState);
+}
+
+void Ut_MImAbstractKeyArea::testTouchPointCount_data()
+{
+    QTest::addColumn<TouchOpList>("touchOpList");
+    QTest::addColumn<QPoint>("keyToCheckPos");
+    QTest::addColumn<int>("expectedTouchPointCount");
+
+    const QPoint key1(3, 3);
+    const QPoint key2(0, 0);
+
+    QTest::newRow("no events")
+        << TouchOpList()
+        << key1 << 0;
+
+    QTest::newRow("press")
+        << (TouchOpList() << TouchTestOperation(Press, key1))
+        << key1 << 1;
+
+    QTest::newRow("press & release")
+        << (TouchOpList()
+            << TouchTestOperation(Press, key1)
+            << TouchTestOperation(Release, key1))
+        << key1 << 0;
+
+    QTest::newRow("stuck key bug due to invalid lastPos")
+        << (TouchOpList()
+            << TouchTestOperation(Press, key1, 0)
+            << TouchTestOperation(Press, key2, 1)
+            << TouchTestOperation(Release, key1, 0) // from now on mouse follows tp=1
+            << TouchTestOperation(Move, key2, 1) // Update mouse event's position with tp=1.
+            << TouchTestOperation(Press, key1, 0) // No new mouse press event because it was pressed all along.
+            << TouchTestOperation(Move, key1, 0)) // Mouse move event from key2 (lastpos) to key1. Event's lastpos needs tweaking if used.
+        << key1 << 1;
+}
+
+void Ut_MImAbstractKeyArea::testTouchPointCount()
+{
+    QFETCH(TouchOpList, touchOpList);
+    QFETCH(QPoint, keyToCheckPos);
+    QFETCH(int, expectedTouchPointCount);
+
+    keyboard = new KeyboardData;
+    QVERIFY(keyboard->loadNokiaKeyboard("test-layout.xml"));
+    subject = MImKeyArea::create(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
+                                 false, 0);
+
+    MWindow *window = MPlainWindow::instance();
+    window->scene()->addItem(subject);
+
+    subject->setAcceptTouchEvents(true);
+    subject->setZValue(1);
+    subject->resize(defaultLayoutSize());
+
+    std::set<int> activeTouchPoints;
+    int mouseEventFollowId = -1;
+    QPointF mouseLastPos;
+
+    foreach (TouchTestOperation op, touchOpList) {
+
+        MImAbstractKey *key = keyAt(op.keyPos.y(), op.keyPos.x());
+        QPointF keyPos = key->buttonRect().center();
+        QVERIFY(key && subject->keyAt(keyPos.toPoint()) == key);
+
+        switch (op.event) {
+        case Press: {
+                activeTouchPoints.insert(op.touchPointId);
+
+                touchEvent(window, activeTouchPoints,
+                           Press, op.touchPointId, keyPos.toPoint());
+
+                if (mouseEventFollowId < 0) { // First press, need to send mouse press event.
+                    mouseEventFollowId = op.touchPointId;
+
+                    QGraphicsSceneMouseEvent mouseEvent(QEvent::GraphicsSceneMousePress);
+                    // Last pos gets reset at press.
+                    mouseEvent.setLastPos(keyPos);
+                    mouseEvent.setLastScenePos(keyPos);
+                    mouseEvent.setPos(keyPos);
+                    mouseEvent.setScenePos(keyPos);
+                    mouseLastPos = keyPos;
+
+                    subject->mousePressEvent(&mouseEvent);
+                } else if (op.touchPointId < mouseEventFollowId) {
+                    // Follow touch point with the smallest id.
+                    mouseEventFollowId = op.touchPointId;
+                }
+                break;
+            }
+        case Move: {
+                touchEvent(window, activeTouchPoints,
+                           Move, op.touchPointId, keyPos.toPoint());
+
+                if (op.touchPointId == mouseEventFollowId) {
+                    QGraphicsSceneMouseEvent mouseEvent(QEvent::GraphicsSceneMouseMove);
+                    mouseEvent.setLastPos(mouseLastPos);
+                    mouseEvent.setLastScenePos(mouseLastPos);
+                    mouseEvent.setPos(keyPos);
+                    mouseEvent.setScenePos(keyPos);
+                    mouseLastPos = keyPos;
+
+                    subject->mouseMoveEvent(&mouseEvent);
+                }
+                break;
+            }
+        case Release: {
+                activeTouchPoints.erase(op.touchPointId);
+
+                touchEvent(window, activeTouchPoints,
+                           Release, op.touchPointId, keyPos.toPoint());
+
+                if (op.touchPointId == mouseEventFollowId) {
+                    if (activeTouchPoints.empty()) {
+
+                        // No touchpoints to follow -> release.
+
+                        QGraphicsSceneMouseEvent mouseEvent(QEvent::GraphicsSceneMouseRelease);
+                        mouseEvent.setLastPos(mouseLastPos);
+                        mouseEvent.setLastScenePos(mouseLastPos);
+                        mouseEvent.setPos(keyPos);
+                        mouseEvent.setScenePos(keyPos);
+                        mouseLastPos = keyPos;
+
+                        subject->mouseReleaseEvent(&mouseEvent);
+
+                        mouseEventFollowId = -1;
+                    } else {
+                        mouseEventFollowId = *activeTouchPoints.begin();
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    MImAbstractKey *keyToCheck = keyAt(keyToCheckPos.y(), keyToCheckPos.x());
+    QVERIFY(keyToCheck);
+    QCOMPARE(keyToCheck->touchPointCount(), expectedTouchPointCount);
+}
+
+void Ut_MImAbstractKeyArea::touchEvent(QWidget *window,
+                                       const std::set<int> &activeTouchPoints,
+                                       Ut_MImAbstractKeyArea::TouchEvent event,
+                                       int id, QPoint pos)
+{
+    // QTouchEventSequence is designed so that at compile time it is known
+    // how many operations are needed. We don't, and we have to work around it.
+    // The events are sent once the temporary object returned by QTest::touchEvent()
+    // is destroyed. It is not possible to save a copy of this object (private copy ctor and assignment).
+    // As a default value for stationary() calls we can use the id that is actually being
+    // pressed/moved/released since it will eventually override the stationary point.
+
+#define TOUCH_SEQUENCE_STATIONARY() \
+    stationary(activeTouchPoints.find(0) != activeTouchPoints.end() ? 0 : id) \
+    .stationary(activeTouchPoints.find(1) != activeTouchPoints.end() ? 1 : id) \
+    .stationary(activeTouchPoints.find(2) != activeTouchPoints.end() ? 2 : id) \
+    .stationary(activeTouchPoints.find(3) != activeTouchPoints.end() ? 3 : id) \
+    .stationary(activeTouchPoints.find(4) != activeTouchPoints.end() ? 4 : id) \
+    .stationary(activeTouchPoints.find(5) != activeTouchPoints.end() ? 5 : id)
+
+    switch (event) {
+    case Press:
+        QTest::touchEvent(window).TOUCH_SEQUENCE_STATIONARY().press(id, pos);
+        break;
+    case Move:
+        QTest::touchEvent(window).TOUCH_SEQUENCE_STATIONARY().move(id, pos);
+        break;
+    case Release:
+        QTest::touchEvent(window).TOUCH_SEQUENCE_STATIONARY().release(id, pos);
+        break;
+    }
+#undef TOUCH_SEQUENCE_STATIONARY
 }
 
 void Ut_MImAbstractKeyArea::changeOrientation(M::OrientationAngle angle)

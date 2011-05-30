@@ -52,6 +52,11 @@ class MImAbstractKeyAreaPrivate
 public:
     Q_DECLARE_PUBLIC(MImAbstractKeyArea)
 
+    enum MouseEventToTouchPointOption {
+        CopyAllMembers,     //!< Copy all relevant members from mouse event to touch point
+        ResetLastPosMember  //!< Do not use mouse event's lastPos member. Use current pos instead.
+    };
+
     //! \brief Constructor
     //! \param newSection Section that is shown by this key area
     //! \param owner Pointer to key area which owns this object
@@ -121,7 +126,9 @@ public:
 
     //! \brief Helper method to create touch points
     //! \param event Mouse event to create touch point from.
-    static QTouchEvent::TouchPoint mouseEventToTouchPoint(const QGraphicsSceneMouseEvent *event);
+    //! \param option Controls which members are used. By default all members are used.
+    static QTouchEvent::TouchPoint fromMouseEvent(const QGraphicsSceneMouseEvent *event,
+                                                  MouseEventToTouchPointOption option = CopyAllMembers);
 
     //! \brief Caching GConf value for multitouch setting.
     static bool multiTouchEnabled();
@@ -187,6 +194,7 @@ public:
     QTime lastTouchPointPressEvent; //!< measures elapsed time between two touchpoint press events
     bool primaryPressArrived; //!< Has primary press arrived, either from touch or mouse events
     bool primaryReleaseArrived; //!< Has primary release arrived, either from touch or mouse events
+    bool mouseMoveInTransition; //!< Whether next mouse move is the first that belongs to new primary touch point.
     bool allowedHorizontalFlick; //!< Contains true if horizontal gestures should be allowed.
     bool ignoreTouchEventsUntilNewBegin; //!< Workaround for NB#248227.
     QPointF mostRecentTouchPosition; //!< Save last touched position.

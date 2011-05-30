@@ -39,6 +39,8 @@
 #include "mnamespace.h"
 #include "flickgesture.h"
 
+#include <set>
+
 class MApplication;
 class MImAbstractKeyArea;
 class KeyboardData;
@@ -99,7 +101,20 @@ private slots:
     void testFlickEvent_data();
     void testFlickEvent();
 
+    void testTouchPointCount_data();
+    void testTouchPointCount();
+
 private:
+    enum TouchEvent {
+        Press,
+        Move,
+        Release
+    };
+
+    void touchEvent(QWidget *window,
+                    const std::set<int> &activeTouchPoints,
+                    TouchEvent event,
+                    int id, QPoint pos);
     void changeOrientation(M::OrientationAngle angle);
     QSize defaultLayoutSize();
 
@@ -122,6 +137,21 @@ public:
     };
 
     typedef QList<TestOperation> TestOpList;
+
+    struct TouchTestOperation {
+        TouchTestOperation(TouchEvent event,
+                           const QPoint &keyRowCol,
+                           int tpId = 0)
+           : event(event),
+             keyPos(keyRowCol),
+             touchPointId(tpId)
+        {}
+        TouchEvent event;
+        QPoint keyPos;
+        int touchPointId;
+    };
+
+    typedef QList<TouchTestOperation> TouchOpList;
 };
 
 #endif // UT_MIMABSTRACTKEYAREA_H

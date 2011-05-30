@@ -142,6 +142,7 @@ MImAbstractKeyAreaPrivate::MImAbstractKeyAreaPrivate(const LayoutData::SharedLay
       section(newSection),
       primaryPressArrived(false),
       primaryReleaseArrived(false),
+      mouseMoveInTransition(false),
       allowedHorizontalFlick(true),
       ignoreTouchEventsUntilNewBegin(false)
 {
@@ -267,6 +268,13 @@ void MImAbstractKeyAreaPrivate::handleTouchEvent(QTouchEvent *event)
         case Qt::TouchPointPressed:
             if (tp.isPrimary()) {
                 primaryTouchPointPressed(tp);
+
+                // Primary touch point pressed and there are other active touch points.
+                if (event->touchPoints().count() > 1) {
+                    // Next mouse move will have a last position which is not suitable
+                    // for touch event conversion.
+                    mouseMoveInTransition = true;
+                }
             } else {
                 touchPointPressed(tp);
             }
@@ -537,7 +545,8 @@ void MImAbstractKeyAreaPrivate::touchPointReleased(const QTouchEvent::TouchPoint
 }
 
 QTouchEvent::TouchPoint
-MImAbstractKeyAreaPrivate::mouseEventToTouchPoint(const QGraphicsSceneMouseEvent *event)
+MImAbstractKeyAreaPrivate::fromMouseEvent(const QGraphicsSceneMouseEvent *event,
+                                          MouseEventToTouchPointOption option)
 {
     Qt::TouchPointState state;
     switch (event->type()) {
@@ -560,9 +569,15 @@ MImAbstractKeyAreaPrivate::mouseEventToTouchPoint(const QGraphicsSceneMouseEvent
     QTouchEvent::TouchPoint tp(0);
     tp.setState(state | Qt::TouchPointPrimary);
     tp.setPos(event->pos());
-    tp.setLastPos(event->lastPos());
     tp.setScenePos(event->scenePos());
-    tp.setLastScenePos(event->lastScenePos());
+
+    if (option == CopyAllMembers) {
+        tp.setLastPos(event->lastPos());
+        tp.setLastScenePos(event->lastScenePos());
+    } else {
+        tp.setLastPos(event->pos());
+        tp.setLastScenePos(event->scenePos());
+    }
 
     return tp;
 }
@@ -887,19 +902,23 @@ void MImAbstractKeyArea::resizeEvent(QGraphicsSceneResizeEvent *event)
 void MImAbstractKeyArea::mousePressEvent(QGraphicsSceneMouseEvent *ev)
 {
     Q_D(MImAbstractKeyArea);
-    d->primaryTouchPointPressed(d->mouseEventToTouchPoint(ev));
+    d->primaryTouchPointPressed(d->fromMouseEvent(ev));
+    d->mouseMoveInTransition = false;
 }
 
 void MImAbstractKeyArea::mouseMoveEvent(QGraphicsSceneMouseEvent *ev)
 {
     Q_D(MImAbstractKeyArea);
-    d->primaryTouchPointMoved(d->mouseEventToTouchPoint(ev));
+    d->primaryTouchPointMoved(d->fromMouseEvent(ev, d->mouseMoveInTransition ?
+                                                    MImAbstractKeyAreaPrivate::ResetLastPosMember :
+                                                    MImAbstractKeyAreaPrivate::CopyAllMembers));
+    d->mouseMoveInTransition = false;
 }
 
 void MImAbstractKeyArea::mouseReleaseEvent(QGraphicsSceneMouseEvent *ev)
 {
     Q_D(MImAbstractKeyArea);
-    d->primaryTouchPointReleased(d->mouseEventToTouchPoint(ev));
+    d->primaryTouchPointReleased(d->fromMouseEvent(ev));
 }
 
 QVariant MImAbstractKeyArea::itemChange(GraphicsItemChange change, const QVariant &value)
