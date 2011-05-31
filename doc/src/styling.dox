@@ -161,4 +161,44 @@ The format is a CSV file, with the following columns:
   <li>br_x, br_y, br_w, br_h: Bounding rectangle of current key (key area + margins)</li>
  </ul></li>
 </ul> 
+
+\section sec3 The WordRibbonItem widget: WordRibbonItemStyle
+This CSS class exposes many attributes.
+
+\subsection sub0 Font settings
+<ul>
+ <li>font: Specifies the font for all characters.</li>
+ <li>font-color: Specifies the font color.</li>
+ <li>pressed-font-color: The font color for pressed items.</li>
+ <li>selected-font-color: The font color for selected items.</li>
+</ul>
+
+\subsection sub1 Graphical assets
+<ul>
+ <li>background-image: Specified the background of the item.</li>
+ <li>background-image-pressed: Specifies the item's background when item is pressed.</li>
+ <li>background-image-selected: Specifies the item's background when item is selected.</li>
+</ul>
+
+\subsection sub2 Widget geometry
+Each item has an area - specified by paddings (left, top, right, bottom) - and margins (left, top, right, bottom).
+<ul>
+ <li>padding-left: Left padding of key.</li>
+ <li>padding-top: top padding of key.</li>
+ <li>padding-right: right padding of key.</li>
+ <li>padding-bottom: bottom padding of key.</li>
+ <li>margin-left: Left margin of key.</li>
+ <li>margin-top: top margin of key.</li>
+ <li>margin-right: right margin of key.</li>
+ <li>margin-bottom: bottom margin of key.</li>
+</ul>
+
+\subsection sub3 Style mode
+<ul>
+ <li>WordRibbonItem has two basic modes. That is ribbon style and dialog style. Ribbon style is used when item is in a ribbon widget. Dialog style is used when item is in a dialog. Each basic mode contains four different sub modes. The sub modes are seperated by containing 1, 2, 3 or more characters. The style modes can be accessed like so:
+<tt>WordRibbonItemStyle.Portrait:ribbonstyleoneword {...}</tt>. In this case, a item
+with one word, when used in ribbon widget and in portrait mode, would use overrides from this section on
+top of the regular landscape overrides for the default mode.</li>
+</ul>
+
 */
