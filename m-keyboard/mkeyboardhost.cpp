@@ -555,6 +555,12 @@ void MKeyboardHost::show()
     }
     RegionTracker::instance().enableSignals(false);
 
+    // Enable the widgets to receive input events
+    // Note: The widgets are disabled when VKB is going to hide.
+    sharedHandleArea->setEnabled(true);
+    vkbWidget->setEnabled(true);
+    symbolView->setEnabled(true);
+
     handleAppOrientationChanged(appOrientationAngle);
 
     // This will add scene window as child of MSceneManager's root element
@@ -625,6 +631,11 @@ void MKeyboardHost::hide()
     if (EngineManager::instance().handler() && EngineManager::instance().handler()->engineWidgetHost()) {
         EngineManager::instance().handler()->engineWidgetHost()->hideEngineWidget();
     }
+
+    // Disable the widgets to avoid receiving input events when sliding away
+    sharedHandleArea->setEnabled(false);
+    vkbWidget->setEnabled(false);
+    symbolView->setEnabled(false);
 
     prepareHideShowAnimation();
     slideUpAnimation.setDirection(QAbstractAnimation::Backward);
