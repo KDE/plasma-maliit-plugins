@@ -43,6 +43,8 @@ class WordRibbonItemStyle: public MWidgetStyle
 public:
     M_STYLE_ATTRIBUTE(QFont,  font, Font)
     M_STYLE_ATTRIBUTE(QColor, fontColor, FontColor)
+    M_STYLE_ATTRIBUTE(QColor, pressedFontColor, PressedFontColor)
+    M_STYLE_ATTRIBUTE(QColor, selectedFontColor, SelectedFontColor)
 
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, backgroundImagePressed, BackgroundImagePressed)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, backgroundImageSelected, BackgroundImageSelected)

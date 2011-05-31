@@ -347,7 +347,21 @@ void WordRibbonItem::updateStyleState(ItemState newState)
     if (mode == WordRibbon::DialogStyleMode)
         return;
 
-    state = newState; 
+    state = newState;
+    switch (state) {
+    case NormalState:
+        textPen.setColor(style()->fontColor());
+        break;
+    case SelectedState:
+        textPen.setColor(style()->selectedFontColor());
+        break;
+    case PressState:
+        textPen.setColor(style()->pressedFontColor());
+        break;
+    default:
+        break;
+    }
+
     update();
 }
 

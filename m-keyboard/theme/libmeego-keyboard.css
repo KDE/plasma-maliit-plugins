@@ -732,6 +732,8 @@ WordRibbonItemStyle{
     minimum-size: 76 57;
     font: $FONT_FAMILY normal 40;
     font-color: white;
+    pressed-font-color: black;
+    selected-font-color: black;
 
     margin-left: 0;
     margin-right: 0;
