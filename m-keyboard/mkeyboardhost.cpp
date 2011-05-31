@@ -61,6 +61,7 @@
 #include <QKeyEvent>
 #include <QRegExp>
 #include <QEasingCurve>
+#include <QTextBoundaryFinder>
 
 #include <MCancelEvent>
 #include <MComponentData>
@@ -2297,9 +2298,11 @@ bool MKeyboardHost::needRecomposePreedit(QString &previousWord, QChar *removedSy
             // ignore space, punct and symbol.
             const QChar lastChar = previousWord.at(previousWord.length() - 1);
             if (!lastChar.isSpace() && !lastChar.isPunct() && !lastChar.isSymbol()) {
-                const int lastWordBreak = previousWord.lastIndexOf(QRegExp("\\s+"));
-                if (lastWordBreak >= 0)
-                    previousWord = previousWord.right(previousWord.length() - lastWordBreak - 1);
+                QTextBoundaryFinder finder(QTextBoundaryFinder::Word, previousWord);
+                finder.setPosition(previousWord.length());
+                const int lastWordBreak = finder.toPreviousBoundary();
+                if (lastWordBreak > 0)
+                    previousWord = previousWord.right(previousWord.length() - lastWordBreak);
                 needRecomposePreedit = true;
             }
         }
