@@ -1,3 +1,9 @@
+meego-keyboard (0.6.11~1) UNRELEASED; urgency=low
+
+  * UNRELEASED
+
+ -- Mohammad Anwari <Mohammad.Anwari@nokia.com>  Wed, 01 Jun 2011 14:24:14 +0300
+
 meego-keyboard (0.6.10-1) unstable; urgency=low
 
   * Fixes: NB#219262 - crash: /usr/bin/meego-im-uiserver QGraphicsItem::~QGraphicsItem
