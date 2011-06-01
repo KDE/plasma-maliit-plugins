@@ -3,6 +3,7 @@ meego-keyboard (0.6.11~1) UNRELEASED; urgency=low
   * Fixes: NB#261859
   * Fixes: NB#257133 - Some keys get stuck in Sym View.
   * Fixes: NB#261480 - [TASK] Don't show VKB language notification when focusing in text fields 
+  * Fixes: NB#259583 - It is not possible to type letter ÿ with VKB
 
  -- Mohammad Anwari <Mohammad.Anwari@nokia.com>  Wed, 01 Jun 2011 14:24:14 +0300
 

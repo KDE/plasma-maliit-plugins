@@ -25,8 +25,8 @@
           <binding shift="true" label="T"/>
         </key>
         <key>
-          <binding accented_labels="ýÿ" accents="´¨" label="y" extended_labels="¥"/>
-          <binding shift="true" accented_labels="ÝŸ" accents="´¨" label="Y" extended_labels="¥"/>
+          <binding accented_labels="ýÿ" accents="´¨" label="y" extended_labels="ÿ¥"/>
+          <binding shift="true" accented_labels="ÝŸ" accents="´¨" label="Y" extended_labels="Ÿ¥"/>
         </key>
         <key>
           <binding accented_labels="ùúûü" accents="`´^¨" label="u" extended_labels="ûùúü"/>
