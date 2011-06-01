@@ -454,7 +454,6 @@ private:
 
     bool toolbarHidePending;
     bool keyOverrideClearPending;
-    bool pendingLanguageNotificationRequest;
     bool regionUpdatesEnabledBeforeOrientationChange;
     M::OrientationAngle appOrientationAngle;
     bool engineWidgetHostTemporarilyHidden;

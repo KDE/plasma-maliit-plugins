@@ -238,7 +238,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
       view(0),
       toolbarHidePending(false),
       keyOverrideClearPending(false),
-      pendingLanguageNotificationRequest(false),
       regionUpdatesEnabledBeforeOrientationChange(true),
       appOrientationAngle(M::Angle90), // shouldn't matter, see handleAppOrientationChanged comment
       engineWidgetHostTemporarilyHidden(false)
@@ -667,11 +666,6 @@ void MKeyboardHost::handleAnimationFinished()
         // just having it here without any two-phase show/hide protocol that considers
         // plugin switching might result to odd situations as well.
         MPlainWindow::instance()->sceneManager()->disappearSceneWindowNow(sceneWindow);
-    } else {
-        if (pendingLanguageNotificationRequest || (vkbWidget->mainKeyboardCount() > 1)) {
-            vkbWidget->showLanguageNotification();
-            pendingLanguageNotificationRequest = false;
-        }
     }
 
     RegionTracker::instance().enableSignals(true);
@@ -2097,12 +2091,9 @@ QString MKeyboardHost::activeSubView(MInputMethod::HandlerState state) const
 
 void MKeyboardHost::showLanguageNotification()
 {
-    if (activeState == MInputMethod::OnScreen && vkbWidget) {
-        if (slideUpAnimation.state() == QAbstractAnimation::Stopped) {
-            vkbWidget->showLanguageNotification();
-        } else {
-            pendingLanguageNotificationRequest = true;
-        }
+    if (activeState == MInputMethod::OnScreen && vkbWidget
+        && slideUpAnimation.state() == QAbstractAnimation::Stopped) {
+        vkbWidget->showLanguageNotification();
     }
 }
 
