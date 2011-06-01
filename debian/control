@@ -29,8 +29,14 @@ Description: MeeGo Input Method Keyboard header files
 Package: meego-keyboard-zh-layouts
 Architecture: any
 Depends:  ${misc:Depends}, ${shlibs:Depends}, meego-keyboard (>= ${binary:Version})
-Description: MeeGo Input Method Keyboard 
- Meego Keyboard 
+Description: MeeGo Input Method Keyboard Chinese layouts
+ Meego Keyboard Chinese virtual keyboard layouts (Cang Jie, Pin Yin, Zhu Yin)
+
+Package: meego-keyboard-ar-layout
+Architecture: any
+Depends:  ${misc:Depends}, ${shlibs:Depends}, meego-keyboard (>= ${binary:Version})
+Description: MeeGo Input Method Keyboard Arabic layout 
+ Meego Keyboard Arabic virtual keyboard layout
 
 Package: meego-keyboard-tests
 Architecture: any

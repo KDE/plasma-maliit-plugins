@@ -6,7 +6,6 @@ usr/share/meegotouch/virtual-keyboard/layouts/hwkbcharloops.xml
 usr/share/meegotouch/virtual-keyboard/layouts/hu.xml
 usr/share/meegotouch/virtual-keyboard/layouts/en_us.xml
 usr/share/meegotouch/virtual-keyboard/layouts/es.xml
-usr/share/meegotouch/virtual-keyboard/layouts/ar.xml
 usr/share/meegotouch/virtual-keyboard/layouts/fr.xml
 usr/share/meegotouch/virtual-keyboard/layouts/tr.xml
 usr/share/meegotouch/virtual-keyboard/layouts/sk.xml
@@ -24,20 +23,17 @@ usr/share/meegotouch/virtual-keyboard/layouts/pl.xml
 usr/share/meegotouch/virtual-keyboard/layouts/cs.xml
 usr/share/meegotouch/virtual-keyboard/layouts/en_us_default.xml
 usr/share/meegotouch/virtual-keyboard/layouts/no.xml
-usr/share/meegotouch/virtual-keyboard/layouts/number_ar.xml
 usr/share/meegotouch/virtual-keyboard/layouts/fi.xml
 usr/share/meegotouch/virtual-keyboard/layouts/sv.xml
 usr/share/meegotouch/virtual-keyboard/layouts/id.xml
 usr/share/meegotouch/virtual-keyboard/layouts/de.xml
 usr/share/meegotouch/virtual-keyboard/layouts/symbols-36.xml
 usr/share/meegotouch/virtual-keyboard/layouts/symbols-36-nordic.xml
-usr/share/meegotouch/virtual-keyboard/layouts/phonenumber_ar.xml
 usr/share/meegotouch/virtual-keyboard/layouts/pt_br.xml
 usr/share/meegotouch/virtual-keyboard/layouts/fr_ca.xml
 usr/share/meegotouch/virtual-keyboard/layouts/phonenumber_ru.xml
 usr/share/meegotouch/virtual-keyboard/layouts/symbols_ru_uk.xml
 usr/share/meegotouch/virtual-keyboard/layouts/it.xml
-usr/share/meegotouch/virtual-keyboard/layouts/symbols_ar.xml
 usr/share/meegotouch/virtual-keyboard/layouts/ms.xml
 usr/share/meegotouch/virtual-keyboard/layouts/uk.xml
 usr/share/meegotouch/virtual-keyboard/layouts/ro.xml
@@ -50,3 +46,5 @@ usr/share/meegotouch/virtual-keyboard/layouts/da.xml
 usr/share/meegotouch/virtual-keyboard/layouts/VirtualKeyboardLayout.dtd
 usr/share/meegotouch/virtual-keyboard/layouts/HardwareKeyboardDeadKeyMap.dtd
 usr/share/meegotouch/virtual-keyboard/layouts/HardwareKeyboardCharaterLoops.dtd
+usr/share/meegotouch/virtual-keyboard/layouts/number_ar.xml
+usr/share/meegotouch/virtual-keyboard/layouts/phonenumber_ar.xml

@@ -1,6 +1,6 @@
 meego-keyboard (0.6.11~1) UNRELEASED; urgency=low
 
-  * UNRELEASED
+  * Fixes: NB#261859
 
  -- Mohammad Anwari <Mohammad.Anwari@nokia.com>  Wed, 01 Jun 2011 14:24:14 +0300
 
