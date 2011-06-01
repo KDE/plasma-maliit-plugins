@@ -406,9 +406,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
             this, SLOT(handleVirtualKeyboardLayoutChanged(const QString &)));
 
     connect(vkbWidget, SIGNAL(shiftLevelChanged()),
-            this, SLOT(handleVirtualKeyboardCapsLock()));
-
-    connect(vkbWidget, SIGNAL(shiftLevelChanged()),
             this, SLOT(updateSymbolViewLevel()));
 
     connect(hardwareKeyboard, SIGNAL(shiftStateChanged()),
@@ -2006,20 +2003,6 @@ void MKeyboardHost::handleHwKeyboardStateChanged()
         // notify the modifier is changed to locked state
         // number and phone number content type always force FN key to be locked,
         // don't need indicator lock notification.
-        showLockOnInfoBanner(lockOnNotificationLabel);
-    } else if (modifierLockOnBanner) {
-        hideLockOnInfoBanner();
-    }
-}
-
-void MKeyboardHost::handleVirtualKeyboardCapsLock()
-{
-    if (activeState != MInputMethod::OnScreen)
-        return;
-
-    if (vkbWidget->shiftStatus() == ModifierLockedState) {
-        //% "Caps lock on"
-        QString lockOnNotificationLabel = qtTrId("qtn_hwkb_caps_lock");
         showLockOnInfoBanner(lockOnNotificationLabel);
     } else if (modifierLockOnBanner) {
         hideLockOnInfoBanner();
