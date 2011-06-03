@@ -88,16 +88,18 @@ private:
     MGridLayoutPolicy *landscapePolicy;
     MLinearLayoutPolicy *portraitPolicy;
     MButton *errorCorrectionSwitch;
-    MBasicListItem *errorCorrectionContentItem;
+    MLabel *errorCorrectionTitle;
+    MLabel *errorCorrectionSubtitle;
     MButton *correctionSpaceSwitch;
-    MBasicListItem *correctionSpaceContentItem;
+    MLabel *correctionSpaceTitle;
+    MLabel *correctionSpaceSubtitle;
 
     QGraphicsWidget *chineseContainer;
     MLabel *chineseSettingHeader;
     MButton *fuzzySwitch;
-    MBasicListItem *fuzzyItem;
+    MLabel *fuzzyTitle;
     MButton *wordPredictionSwitch;
-    MBasicListItem *wordPredictionItem;
+    MLabel *wordPredictionTitle;
     MBasicListItem *chineseTransliterationItem;
     MDialog *chineseTransliterationDialog;
     MList *chineseTransliterationList;

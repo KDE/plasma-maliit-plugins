@@ -137,97 +137,153 @@ MKeyboardSettingsWidget::~MKeyboardSettingsWidget()
 void MKeyboardSettingsWidget::buildUi()
 {
     // Error correction settings
+    MContainer *eCContainer = new MContainer (this);
+    eCContainer->setContentsMargins(0, 0, 0, 0);
+    eCContainer->setStyleName ("CommonLargePanelInverted");
+    eCContainer->setHeaderVisible (false);
+
     errorCorrectionSwitch = new MButton(this);
     errorCorrectionSwitch->setObjectName(ObjectNameErrorCorrectionButton);
     errorCorrectionSwitch->setStyleName("CommonRightSwitchInverted");
     errorCorrectionSwitch->setViewType(MButton::switchType);
     errorCorrectionSwitch->setCheckable(true);
-    errorCorrectionContentItem = new MBasicListItem(MBasicListItem::TitleWithSubtitle, this);
-    errorCorrectionContentItem->setStyleName("CommonBasicListItemInverted");
+
     //% "Error correction"
-    errorCorrectionContentItem->setTitle(qtTrId("qtn_txts_error_correction"));
+    errorCorrectionTitle = new MLabel(this);
+    errorCorrectionTitle->setStyleName("CommonTitleInverted");
+
     //% "Error correction description"
-    errorCorrectionContentItem->setSubtitle(qtTrId("qtn_txts_error_correction_description"));
+    errorCorrectionSubtitle = new MLabel(this);
+    errorCorrectionSubtitle->setStyleName("CommonSubTitleInverted");
+
+    QGraphicsLinearLayout *eCLabelLayout = new QGraphicsLinearLayout(Qt::Vertical);
+    eCLabelLayout->setContentsMargins(0, 0, 0, 0);
+    eCLabelLayout->setSpacing(0);
+    eCLabelLayout->addItem(errorCorrectionTitle);
+    eCLabelLayout->addItem(errorCorrectionSubtitle);
+    eCLabelLayout->addStretch();
+
     QGraphicsLinearLayout *eCLayout = new QGraphicsLinearLayout(Qt::Horizontal);
-    eCLayout->addItem(errorCorrectionContentItem);
+    eCLayout->setContentsMargins(0, 0, 0, 0);
+    eCLayout->setSpacing(0);
+    eCLayout->addItem(eCLabelLayout);
     eCLayout->addItem(errorCorrectionSwitch);
     eCLayout->setAlignment(errorCorrectionSwitch, Qt::AlignCenter);
     // Put to first row, second column on the grid
-    addItem(eCLayout, 0, 1);
+    eCContainer->centralWidget()->setLayout(eCLayout);
+    addItem(eCContainer, 0, 1);
 
     // "Space selects the correction candidate" settings
+    MContainer *wCContainer = new MContainer (this);
+    wCContainer->setContentsMargins(0, 0, 0, 0);
+    wCContainer->setStyleName ("CommonLargePanelInverted");
+    wCContainer->setHeaderVisible (false);
+
     correctionSpaceSwitch = new MButton(this);
     correctionSpaceSwitch->setObjectName(ObjectNameCorrectionSpaceButton);
+    correctionSpaceSwitch->setStyleName("CommonRightSwitchInverted");
     correctionSpaceSwitch->setViewType(MButton::switchType);
     correctionSpaceSwitch->setCheckable(true);
-    correctionSpaceSwitch->setStyleName("CommonRightSwitchInverted");
-    correctionSpaceContentItem = new MBasicListItem(MBasicListItem::TitleWithSubtitle, this);
-    correctionSpaceContentItem->setStyleName("CommonBasicListItemInverted");
+
     //% "Insert with space"
-    correctionSpaceContentItem->setTitle(qtTrId("qtn_txts_insert_with_space"));
+    correctionSpaceTitle = new MLabel(this);
+    correctionSpaceTitle->setStyleName("CommonTitleInverted");
+
     //% "Space key inserts the suggested word"
-    correctionSpaceContentItem->setSubtitle(qtTrId("qtn_txts_insert_with_space_description"));
+    correctionSpaceSubtitle = new MLabel(this);
+    correctionSpaceSubtitle->setStyleName("CommonSubTitleInverted");
+
+    QGraphicsLinearLayout *wCLabelLayout = new QGraphicsLinearLayout(Qt::Vertical);
+    wCLabelLayout->setContentsMargins(0, 0, 0, 0);
+    wCLabelLayout->setSpacing(0);
+    wCLabelLayout->addItem(correctionSpaceTitle);
+    wCLabelLayout->addItem(correctionSpaceSubtitle);
+    wCLabelLayout->addStretch();
+
     QGraphicsLinearLayout *wCLayout = new QGraphicsLinearLayout(Qt::Horizontal);
-    wCLayout->addItem(correctionSpaceContentItem);
+    wCLayout->setContentsMargins(0, 0, 0, 0);
+    wCLayout->setSpacing(0);
+    wCLayout->addItem(wCLabelLayout);
     wCLayout->addItem(correctionSpaceSwitch);
     wCLayout->setAlignment(correctionSpaceSwitch, Qt::AlignCenter);
     // Put to second row, second column on the grid
-    addItem(wCLayout, 1, 1);
+    wCContainer->centralWidget()->setLayout(wCLayout);
+    addItem(wCContainer, 1, 1);
 
     // Initial Chinese setting
 
     // Chinese setting panel container
     QGraphicsLinearLayout *containerLayout = new QGraphicsLinearLayout(Qt::Vertical);
     // Ensure that there is no offset compared to widgets in layout above
-    containerLayout->setContentsMargins(0.0, 0.0, 0.0, 0.0);
+    containerLayout->setContentsMargins(0, 0, 0, 0);
     chineseContainer = new QGraphicsWidget(this); // Used to be able to show/hide all children
     chineseContainer->setLayout(containerLayout);
     //% "Chinese virtual keyboards"
-    chineseSettingHeader = new MLabel(qtTrId("qtn_ckb_chinese_keyboards"), this);
+    chineseSettingHeader = new MLabel(this);
     chineseSettingHeader->setStyleName("CommonGroupHeaderInverted");
     containerLayout->addItem(chineseSettingHeader);
 
     // Error correction setting
+    MContainer *fuzzyContainer = new MContainer (this);
+    fuzzyContainer->setContentsMargins (0, 0, 0, 0);
+    fuzzyContainer->setStyleName ("CommonLargePanelInverted");
+    fuzzyContainer->setHeaderVisible (false);
+
     fuzzySwitch = new MButton(this);
     fuzzySwitch->setObjectName(ObjectNameFuzzyPinyinButton);
     fuzzySwitch->setStyleName("CommonRightSwitchInverted");
     fuzzySwitch->setViewType(MButton::switchType);
     fuzzySwitch->setCheckable(true);
-    fuzzyItem = new MBasicListItem(MBasicListItem::SingleTitle, this);
-    fuzzyItem->setStyleName("CommonBasicListItemInverted");
+
     //% "Fuzzy Pinyin input"
-    fuzzyItem->setTitle(qtTrId("qtn_ckb_fuzzy_pinyin"));
+    fuzzyTitle = new MLabel(this);
+    fuzzyTitle->setStyleName("CommonSingleTitleInverted");
+
     QGraphicsLinearLayout *fuzzyLayout = new QGraphicsLinearLayout(Qt::Horizontal);
-    fuzzyLayout->addItem(fuzzyItem);
+    fuzzyLayout->setContentsMargins(0, 0, 0, 0);
+    fuzzyLayout->setSpacing(0);
+    fuzzyLayout->addItem(fuzzyTitle);
     fuzzyLayout->addItem(fuzzySwitch);
     fuzzyLayout->setAlignment(fuzzySwitch, Qt::AlignCenter);
-    containerLayout->addItem(fuzzyLayout);
+    fuzzyContainer->centralWidget()->setLayout(fuzzyLayout);
+    containerLayout->addItem(fuzzyContainer);
 
     // Word prediction setting
+    MContainer *wordPredictionContainer = new MContainer (this);
+    wordPredictionContainer->setContentsMargins(0, 0, 0, 0);
+    wordPredictionContainer->setStyleName ("CommonLargePanelInverted");
+    wordPredictionContainer->setHeaderVisible (false);
+
     wordPredictionSwitch = new MButton(this);
     wordPredictionSwitch->setObjectName(ObjectNameWordPredictionButton);
     wordPredictionSwitch->setStyleName("CommonRightSwitchInverted");
     wordPredictionSwitch->setViewType(MButton::switchType);
     wordPredictionSwitch->setCheckable(true);
-    wordPredictionItem = new MBasicListItem(MBasicListItem::SingleTitle, this);
-    wordPredictionItem->setStyleName("CommonBasicListItemInverted");
+
     //% "Next word prediction"
-    wordPredictionItem->setTitle(qtTrId("qtn_ckb_next_prediction"));
+    wordPredictionTitle = new MLabel(this);
+    wordPredictionTitle->setStyleName("CommonSingleTitleInverted");
+
     QGraphicsLinearLayout *wordPredictionLayout = new QGraphicsLinearLayout(Qt::Horizontal);
-    wordPredictionLayout->addItem(wordPredictionItem);
+    wordPredictionLayout->setContentsMargins(0, 0, 0, 0);
+    wordPredictionLayout->setSpacing(0);
+    wordPredictionLayout->addItem(wordPredictionTitle);
     wordPredictionLayout->addItem(wordPredictionSwitch);
     wordPredictionLayout->setAlignment(wordPredictionSwitch, Qt::AlignCenter);
-    containerLayout->addItem(wordPredictionLayout);
+    wordPredictionLayout->setAlignment(wordPredictionTitle, Qt::AlignCenter);
+    wordPredictionContainer->centralWidget()->setLayout(wordPredictionLayout);
+    containerLayout->addItem(wordPredictionContainer);
 
     // Chinese transliteration setting.
     chineseTransliterationItem = new MBasicListItem(MBasicListItem::TitleWithSubtitle, this);
     chineseTransliterationItem->setObjectName(ObjectNameChineseTransliterationItem);
     connect(chineseTransliterationItem, SIGNAL(clicked()), this, SLOT(showChineseTransliterationOptions()));
     chineseTransliterationItem->setStyleName("CommonBasicListItemInverted");
-    chineseTransliterationItem->setTitle(qtTrId("qtn_ckb_convert_chinese"));
     containerLayout->addItem(chineseTransliterationItem);
 
     chineseContainer->setVisible(false);
+
+    retranslateUi();
 }
 
 void MKeyboardSettingsWidget::addItem(QGraphicsLayoutItem *item, int row, int column)
@@ -250,18 +306,22 @@ void MKeyboardSettingsWidget::retranslateUi()
 
 void MKeyboardSettingsWidget::updateTitle()
 {
-    if (!errorCorrectionContentItem || !correctionSpaceContentItem
+    if (!errorCorrectionTitle    || !errorCorrectionSubtitle
+        || !correctionSpaceTitle || !correctionSpaceSubtitle
+        || !chineseSettingHeader || !fuzzyTitle
+        || !wordPredictionTitle  || !chineseTransliterationItem
         || !settingsObject)
         return;
 
-    errorCorrectionContentItem->setTitle(qtTrId("qtn_txts_error_correction"));
-    errorCorrectionContentItem->setSubtitle(qtTrId("qtn_txts_error_correction_description"));
-    correctionSpaceContentItem->setTitle(qtTrId("qtn_txts_insert_with_space"));
-    correctionSpaceContentItem->setSubtitle(qtTrId("qtn_txts_insert_with_space_description"));
+    errorCorrectionTitle->setText(qtTrId("qtn_txts_error_correction"));
+    errorCorrectionSubtitle->setText(qtTrId("qtn_txts_error_correction_description"));
+    correctionSpaceTitle->setText(qtTrId("qtn_txts_insert_with_space"));
+    correctionSpaceSubtitle->setText(qtTrId("qtn_txts_insert_with_space_description"));
 
     chineseSettingHeader->setText(qtTrId("qtn_ckb_chinese_keyboards"));
-    fuzzyItem->setTitle(qtTrId("qtn_ckb_fuzzy_pinyin"));
-    wordPredictionItem->setTitle(qtTrId("qtn_ckb_next_prediction"));
+    fuzzyTitle->setText(qtTrId("qtn_ckb_fuzzy_pinyin"));
+    wordPredictionTitle->setText(qtTrId("qtn_ckb_next_prediction"));
+    chineseTransliterationItem->setTitle(qtTrId("qtn_ckb_convert_chinese"));
 
     // Sets subtitle of Chinese transliteration.
     chineseTransliterationItem->setSubtitle(
