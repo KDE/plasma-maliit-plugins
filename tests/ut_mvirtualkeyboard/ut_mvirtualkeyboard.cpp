@@ -115,14 +115,17 @@ void Ut_MVirtualKeyboard::initTestCase()
     MGConfItem item1(InputMethodSetting);
 
     QStringList layoutlist;
-    layoutlist << "libmeego-keyboard.so" << "en_gb.xml"
-               << "libmeego-keyboard.so" << "fi.xml"
-               << "libmeego-keyboard.so" << "ar.xml";
+    layoutlist << "libmeego-keyboard.so"
+               << "/usr/lib/meego-keyboard-tests/layouts/en_gb.xml"
+               << "libmeego-keyboard.so"
+               << "/usr/lib/meego-keyboard-tests/layouts/fi.xml"
+               << "libmeego-keyboard.so"
+               << "/usr/lib/meego-keyboard-tests/layouts/ar.xml";
     item1.set(QVariant(layoutlist));
 
     QString DefaultLayoutSetting(DefaultLayoutSettingName);
     MGConfItem item2(DefaultLayoutSetting);
-    QString defaultLayout = "en_gb.xml";
+    QString defaultLayout = "/usr/lib/meego-keyboard-tests/layouts/en_gb.xml";
     item2.set(QVariant(defaultLayout));
 
     // MVirtualkeyboard uses MPlainWindow internally so we need to instantiate it.

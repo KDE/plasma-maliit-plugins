@@ -17,7 +17,7 @@ SOURCES += ut_mimabstractkeyarea.cpp \
            ../../m-keyboard/widgets/mimabstractkeyarea.cpp \
 
 VKB_TEST_DATA = layouts/*.xml
-vkb_test_data.path = /usr/share/meegotouch/virtual-keyboard/layouts
+vkb_test_data.path = /usr/lib/meego-keyboard-tests/layouts
 vkb_test_data.files = $$VKB_TEST_DATA
 INSTALLS += vkb_test_data
 

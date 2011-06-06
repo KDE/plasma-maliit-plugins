@@ -41,6 +41,8 @@ contains(CONFIG, nomeegotouch) {
     CONFIG += meegotouch
 }
 
+include (test-layouts/test-layouts.pri)
+
 target.commands += $$system(touch tests.xml)
 target.path = /usr/share/meego-keyboard-tests
 target.files += qtestlib2junitxml.xsl runtests.sh tests.xml

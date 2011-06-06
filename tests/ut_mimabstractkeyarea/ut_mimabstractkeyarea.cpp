@@ -65,6 +65,11 @@ Q_DECLARE_METATYPE(const MImAbstractKey*);
 typedef QList<QPointF> PointList;
 Q_DECLARE_METATYPE(PointList);
 
+namespace
+{
+    const QString TestLayoutFilePath = "/usr/lib/meego-keyboard-tests/layouts/";
+};
+
 typedef QTouchEvent::TouchPoint (*TpCreator)(int id,
                                              Qt::TouchPointState state,
                                              const QPointF &scenePos,
@@ -201,7 +206,7 @@ void Ut_MImAbstractKeyArea::cleanup()
 void Ut_MImAbstractKeyArea::testLandscapeBoxSize()
 {
     QSize box;
-    QDir dir("/usr/share/meegotouch/virtual-keyboard/layouts/");
+    QDir dir(TestLayoutFilePath);
     QStringList filters;
     int fileCount = 0;
 
@@ -213,8 +218,8 @@ void Ut_MImAbstractKeyArea::testLandscapeBoxSize()
         subject = 0;
         delete keyboard;
         keyboard = new KeyboardData;
-        qDebug() << "Loading layout file" << info.fileName();
-        QVERIFY(keyboard->loadNokiaKeyboard(info.fileName()));
+        qDebug() << "Loading layout file" << info.absoluteFilePath();
+        QVERIFY(keyboard->loadNokiaKeyboard(info.absoluteFilePath()));
         subject = MImKeyArea::create(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                                      false, 0);
         MPlainWindow::instance()->scene()->addItem(subject);
@@ -239,7 +244,7 @@ void Ut_MImAbstractKeyArea::testLandscapeBoxSize()
 void Ut_MImAbstractKeyArea::testPortraitBoxSize()
 {
     QSize box;
-    QDir dir("/usr/share/meegotouch/virtual-keyboard/layouts/");
+    QDir dir(TestLayoutFilePath);
     QStringList filters;
     int fileCount = 0;
 
@@ -251,8 +256,8 @@ void Ut_MImAbstractKeyArea::testPortraitBoxSize()
         subject = 0;
         delete keyboard;
         keyboard = new KeyboardData;
-        qDebug() << "Loading layout file" << info.fileName();
-        QVERIFY(keyboard->loadNokiaKeyboard(info.fileName()));
+        qDebug() << "Loading layout file" << info.absoluteFilePath();
+        QVERIFY(keyboard->loadNokiaKeyboard(info.absoluteFilePath()));
         subject = MImKeyArea::create(keyboard->layout(LayoutData::General, M::Portrait)->section(LayoutData::mainSection),
                                      false, 0);
         MPlainWindow::instance()->scene()->addItem(subject);
@@ -280,7 +285,7 @@ void Ut_MImAbstractKeyArea::testPaint()
 
     //initialization
     keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
+    QVERIFY(keyboard->loadNokiaKeyboard(QString(TestLayoutFilePath + "en_us.xml")));
     subject = MImKeyArea::create(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                                  false, 0);
     subject->resize(defaultLayoutSize());
@@ -306,7 +311,7 @@ void Ut_MImAbstractKeyArea::testDeadkeys()
     QFETCH(bool, enabled);
 
     keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard("test-deadkey.xml"));
+    QVERIFY(keyboard->loadNokiaKeyboard(QString(TestLayoutFilePath + "test-deadkey.xml")));
     subject = MImKeyArea::create(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                                  false, 0);
     MPlainWindow::instance()->scene()->addItem(subject);
@@ -411,7 +416,7 @@ void Ut_MImAbstractKeyArea::testDeadkeys()
 void Ut_MImAbstractKeyArea::testSelectedDeadkeys()
 {
     keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard("test-deadkey.xml"));
+    QVERIFY(keyboard->loadNokiaKeyboard(QString(TestLayoutFilePath + "test-deadkey.xml")));
     subject = MImKeyArea::create(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                                  false, 0);
     MPlainWindow::instance()->scene()->addItem(subject);
@@ -478,7 +483,7 @@ void Ut_MImAbstractKeyArea::testTwoDeadInOne()
     QFETCH(QString, expectedCharacterLabel);
 
     keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard("test-layout.xml"));
+    QVERIFY(keyboard->loadNokiaKeyboard(QString(TestLayoutFilePath + "test-layout.xml")));
     subject = MImKeyArea::create(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                                  false, 0);
 
@@ -512,7 +517,7 @@ void Ut_MImAbstractKeyArea::testTwoDeadInOne()
 void Ut_MImAbstractKeyArea::testExtendedLabels()
 {
     keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard("test-layout.xml"));
+    QVERIFY(keyboard->loadNokiaKeyboard(QString(TestLayoutFilePath + "test-layout.xml")));
     subject = MImKeyArea::create(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                                  false, 0);
 
@@ -524,7 +529,7 @@ void Ut_MImAbstractKeyArea::testExtendedLabels()
 void Ut_MImAbstractKeyArea::testKeyId()
 {
     keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard("test-layout.xml"));
+    QVERIFY(keyboard->loadNokiaKeyboard(QString(TestLayoutFilePath + "test-layout.xml")));
     subject = MImKeyArea::create(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                                  false, 0);
 
@@ -547,7 +552,7 @@ void Ut_MImAbstractKeyArea::testContentType_data()
     QTest::addColumn<QSharedPointer<KeyboardData> >("keyboardData");
 
     QSharedPointer<KeyboardData> keyboardData(new KeyboardData);
-    QVERIFY(keyboardData->loadNokiaKeyboard("test-layout.xml"));
+    QVERIFY(keyboardData->loadNokiaKeyboard(QString(TestLayoutFilePath + "test-layout.xml")));
 
     QTest::newRow("first pass") << keyboardData;
     QTest::newRow("second pass") << keyboardData;
@@ -581,7 +586,7 @@ void Ut_MImAbstractKeyArea::testImportedLayouts()
     // the second imported file test-import2.xml redefines the portrait stuff.
 
     keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard("test-importer.xml"));
+    QVERIFY(keyboard->loadNokiaKeyboard(QString(TestLayoutFilePath + "test-importer.xml")));
     const LayoutData *model = keyboard->layout(LayoutData::General, M::Landscape);
     QVERIFY(model);
     subject = MImKeyArea::create(model->section(LayoutData::mainSection),
@@ -613,7 +618,7 @@ void Ut_MImAbstractKeyArea::testPopup()
 {
     TpCreator createTp = &createTouchPoint;
     keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
+    QVERIFY(keyboard->loadNokiaKeyboard(QString(TestLayoutFilePath + "en_us.xml")));
     subject = MImKeyArea::create(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                                  false, 0);
     subject->setPopup(new TestPopup);
@@ -670,7 +675,7 @@ void Ut_MImAbstractKeyArea::testPopupOwnership()
 void Ut_MImAbstractKeyArea::testInitialization()
 {
     keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
+    QVERIFY(keyboard->loadNokiaKeyboard(QString(TestLayoutFilePath + "en_us.xml")));
     subject = MImKeyArea::create(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                                  false, 0);
     subject->resize(defaultLayoutSize());
@@ -680,7 +685,7 @@ void Ut_MImAbstractKeyArea::testShiftCapsLock()
 {
     // Load any layout that has shift
     keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
+    QVERIFY(keyboard->loadNokiaKeyboard(QString(TestLayoutFilePath + "en_us.xml")));
     const LayoutData *layout = keyboard->layout(LayoutData::General, M::Landscape);
     QVERIFY(layout);
     const LayoutData::SharedLayoutSection section = layout->section(LayoutData::mainSection);
@@ -750,7 +755,7 @@ void Ut_MImAbstractKeyArea::testOverridenKey()
     QFETCH(QList<bool>, highlight);
 
     keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard("test-normalkey.xml"));
+    QVERIFY(keyboard->loadNokiaKeyboard(QString(TestLayoutFilePath + "test-normalkey.xml")));
     const LayoutData *layout = keyboard->layout(LayoutData::General, M::Landscape);
     QVERIFY(layout);
     const LayoutData::SharedLayoutSection section = layout->section(LayoutData::mainSection);
@@ -928,8 +933,8 @@ void Ut_MImAbstractKeyArea::testRtlKeys_data()
     QTest::addColumn<QString>("fileName");
     QTest::addColumn<QList<MImKeyBinding::KeyAction> >("expectedRtlKeys");
 
-    const QString ar("ar.xml");
-    const QString en_gb("en_gb.xml");
+    const QString ar(QString(TestLayoutFilePath + "ar.xml"));
+    const QString en_gb(QString(TestLayoutFilePath + "en_gb.xml"));
     QList<MImKeyBinding::KeyAction> rtlKeys;
     const QList<MImKeyBinding::KeyAction> nothing;
 
@@ -991,7 +996,7 @@ void Ut_MImAbstractKeyArea::testLongKeyPress()
     const int LongPressTimeOut = 1500; //this value depends on timeout of long press
 
     keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard("en_us.xml"));
+    QVERIFY(keyboard->loadNokiaKeyboard(QString(TestLayoutFilePath + "en_us.xml")));
 
     subject = MImKeyArea::create(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                                  true, 0);
@@ -1475,7 +1480,7 @@ void Ut_MImAbstractKeyArea::testFlickEvent()
     QFETCH(MImAbstractKey::ButtonState, buttonState);
 
     keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard("test-layout.xml"));
+    QVERIFY(keyboard->loadNokiaKeyboard(QString(TestLayoutFilePath + "test-layout.xml")));
     subject = MImKeyArea::create(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                                  false, 0);
 
@@ -1549,7 +1554,7 @@ void Ut_MImAbstractKeyArea::testTouchPointCount()
     QFETCH(int, expectedTouchPointCount);
 
     keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard("test-layout.xml"));
+    QVERIFY(keyboard->loadNokiaKeyboard(QString(TestLayoutFilePath + "test-layout.xml")));
     subject = MImKeyArea::create(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
                                  false, 0);
 
