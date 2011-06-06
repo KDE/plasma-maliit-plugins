@@ -421,9 +421,12 @@ void KeyboardData::parseChildren(const QDomElement &element, ParseParameters &pa
 void KeyboardData::parseTagImport(const QDomElement &element, ParseParameters &params)
 {
     const QString redirectFileName = element.attribute(VKBTagFile);
-    const QString absoluteFileName = VKBConfigurationPath + redirectFileName;
+
+    QString absoluteFileName(redirectFileName);
+    bool fileFound = findLayoutFile(absoluteFileName);
+
     qDebug() << "Importing file" << absoluteFileName;
-    if (QFile::exists(absoluteFileName)) {
+    if (fileFound) {
         const QString *savedFileName = params.fileName;
         if (!loadNokiaKeyboardImpl(redirectFileName, params, true)) {
             qWarning() << __PRETTY_FUNCTION__
