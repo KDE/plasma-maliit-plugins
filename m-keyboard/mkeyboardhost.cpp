@@ -2085,8 +2085,7 @@ QString MKeyboardHost::activeSubView(MInputMethod::HandlerState state) const
 
 void MKeyboardHost::showLanguageNotification()
 {
-    if (activeState == MInputMethod::OnScreen && vkbWidget
-        && slideUpAnimation.state() == QAbstractAnimation::Stopped) {
+    if (activeState == MInputMethod::OnScreen && vkbWidget) {
         vkbWidget->showLanguageNotification();
     }
 }
