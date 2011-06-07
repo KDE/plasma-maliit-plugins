@@ -421,9 +421,6 @@ void MVirtualKeyboard::setKeyboardType(const int type)
     if (newLayoutType != currentLayoutType) {
         currentLayoutType = newLayoutType;
         updateMainLayoutAtKeyboardIndex();
-        if (mainKeyboardSwitcher->count() > 1 && (currentLayoutType == LayoutData::General)) {
-            showLanguageNotification();
-        }
     }
 
     setContentType(static_cast<M::TextContentType>(type));
