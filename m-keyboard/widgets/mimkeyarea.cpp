@@ -1078,6 +1078,11 @@ void MImKeyArea::setComposeKeyState(bool isComposing)
 void MImKeyArea::resetActiveKeys()
 {
     Q_D(MImKeyArea);
+
+    MImKeyVisitor::SpecialKeyFinder deadFinder(MImKeyVisitor::FindDeadKey);
+    MImAbstractKey::visitActiveKeys(&deadFinder);
+    unlockDeadKeys(deadFinder.deadKey());
+
     foreach (const MImKeyAreaPrivate::KeyRow &row, d->rowList) {
         foreach (MImKey *key, row.keys) {
             // We know there are special cases forshift and backspace key.

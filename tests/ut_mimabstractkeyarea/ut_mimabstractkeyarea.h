@@ -104,6 +104,8 @@ private slots:
     void testTouchPointCount_data();
     void testTouchPointCount();
 
+    void testResetActiveKeys();
+
 private:
     enum TouchEvent {
         Press,

@@ -1651,6 +1651,91 @@ void Ut_MImAbstractKeyArea::testTouchPointCount()
     QCOMPARE(keyToCheck->touchPointCount(), expectedTouchPointCount);
 }
 
+void Ut_MImAbstractKeyArea::testResetActiveKeys()
+{
+    keyboard = new KeyboardData;
+    QVERIFY(keyboard->loadNokiaKeyboard(QString(TestLayoutFilePath + "test-deadkey.xml")));
+    subject = MImKeyArea::create(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
+                                 false, 0);
+    MPlainWindow::instance()->scene()->addItem(subject);
+    subject->resize(defaultLayoutSize());
+    QSignalSpy spy(subject, SIGNAL(keyClicked(const MImAbstractKey*, const KeyContext &)));
+    QVERIFY(spy.isValid());
+
+    MImAbstractKey *key = 0;
+    QStringList *list = 0;
+    QList<int> positions;
+    positions << 0 << 1 << 2 << 5 << 6;
+
+    //!!! z is the character that won't be changed when deadkey is locked
+    QStringList lowerUnicodes;
+    lowerUnicodes << QChar('a') << QChar('z') << QChar('e') << QChar('y') << QChar('u');
+    QStringList upperUnicodes; //upper case
+    foreach(QString c, lowerUnicodes)
+        upperUnicodes << c.toUpper();
+
+    //Unicode for alphas with deadkeys:  á << Unicod é  unicode for  ý<<< unicode for  ú
+    QStringList lowerDKUnicodes;
+    lowerDKUnicodes << QChar(0x00e1) << QChar('z') << QChar(0x00e9) << QChar(0x00fd) << QChar(0x00fa);
+    QStringList upperDKUnicodes; // upper case
+    foreach(QString c, lowerDKUnicodes)
+        upperDKUnicodes << c.toUpper();
+
+    for (int i = 0; i < positions.count(); i++) {
+        QCOMPARE(keyAt(0, positions[i])->label(), lowerUnicodes.at(i));
+    }
+
+    key = keyAt(2, 8); // row 3, column 9
+    QVERIFY(key != 0);
+    QVERIFY(key == subject->findKey("dead"));
+    QVERIFY(key->isDeadKey());
+    QString c = QChar(0x00B4);
+    QCOMPARE(key->label(), c);
+
+    //click at deadkey for the first time,
+    //just lock the deadkey, won't emit cliked() signal
+    clickKey(key);
+    QCOMPARE(spy.count(), 0);
+
+    list = &lowerDKUnicodes;
+    //check the alphas, should be with deadkey
+    for (int i = 0; i < positions.count(); i++) {
+        QCOMPARE(keyAt(0, positions[i])->label(), list->at(i));
+    }
+
+    SpecialKeyFinder deadKeyFinder(SpecialKeyFinder::FindDeadKey);
+    MImAbstractKey::visitActiveKeys(&deadKeyFinder);
+    QVERIFY(deadKeyFinder.deadKey());
+
+    subject->resetActiveKeys();
+
+    // after reset active keys, dead keys will be reset.
+    for (int i = 0; i < positions.count(); i++) {
+        QCOMPARE(keyAt(0, positions[i])->label(), lowerUnicodes.at(i));
+    }
+    deadKeyFinder = SpecialKeyFinder(SpecialKeyFinder::FindDeadKey);
+    MImAbstractKey::visitActiveKeys(&deadKeyFinder);
+    QVERIFY(!deadKeyFinder.deadKey());
+
+    // check touch point count before/after resetActiveKeys
+    TpCreator createTp = &createTouchPoint;
+
+    const QPoint mousePos(20, 20);
+    QTouchEvent::TouchPoint tp(0);
+    tp.setScreenPos(mousePos);
+    subject->d_ptr->touchPointPressed(createTp(0, Qt::TouchPointPressed,
+                                        subject->mapToScene(mousePos),
+                                        QPointF()));
+
+    const MImKey *activeKey = dynamic_cast<const MImKey *>(MImAbstractKey::lastActiveKey());
+    QVERIFY(activeKey);
+    QCOMPARE(activeKey->parentItem(), subject);
+    QCOMPARE(activeKey->touchPointCount(), 1);
+
+    subject->resetActiveKeys();
+    QCOMPARE(activeKey->touchPointCount(), 0);
+}
+
 void Ut_MImAbstractKeyArea::touchEvent(QWidget *window,
                                        const std::set<int> &activeTouchPoints,
                                        Ut_MImAbstractKeyArea::TouchEvent event,
