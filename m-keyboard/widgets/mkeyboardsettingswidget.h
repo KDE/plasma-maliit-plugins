@@ -48,6 +48,7 @@ class MGridLayoutPolicy;
 class MLinearLayoutPolicy;
 class MLabel;
 class MContainer;
+class MKeyboardSettingsListItem;
 
 class MKeyboardSettingsWidget : public MWidget
 {
@@ -100,7 +101,7 @@ private:
     MLabel *fuzzyTitle;
     MButton *wordPredictionSwitch;
     MLabel *wordPredictionTitle;
-    MBasicListItem *chineseTransliterationItem;
+    MKeyboardSettingsListItem *chineseTransliterationItem;
     MDialog *chineseTransliterationDialog;
     MList *chineseTransliterationList;
 
