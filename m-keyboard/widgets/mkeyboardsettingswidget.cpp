@@ -31,6 +31,7 @@
 
 #include "mkeyboardsettingswidget.h"
 #include "layoutsmanager.h"
+#include "mkeyboardsettingslistitem.h"
 
 #include <MButton>
 #include <MLabel>
@@ -46,6 +47,7 @@
 #include <MBasicListItem>
 #include <MContainer>
 #include <MAbstractCellCreator>
+#include <MImageWidget>
 
 #include <QObject>
 #include <QGraphicsLinearLayout>
@@ -275,7 +277,10 @@ void MKeyboardSettingsWidget::buildUi()
     containerLayout->addItem(wordPredictionContainer);
 
     // Chinese transliteration setting.
-    chineseTransliterationItem = new MBasicListItem(MBasicListItem::TitleWithSubtitle, this);
+    chineseTransliterationItem = new MKeyboardSettingsListItem();
+    MImageWidget *chineseTransliterationArrow = new MImageWidget();
+    chineseTransliterationArrow->setStyleName("CommonComboBoxIconInverted");
+    chineseTransliterationItem->setImageWidget(chineseTransliterationArrow);
     chineseTransliterationItem->setObjectName(ObjectNameChineseTransliterationItem);
     connect(chineseTransliterationItem, SIGNAL(clicked()), this, SLOT(showChineseTransliterationOptions()));
     chineseTransliterationItem->setStyleName("CommonBasicListItemInverted");

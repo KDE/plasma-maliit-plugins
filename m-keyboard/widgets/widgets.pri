@@ -51,6 +51,7 @@ HEADERS += \
     $$WIDGETS_DIR/grip.h \
     $$WIDGETS_DIR/sharedhandlearea.h \
     $$WIDGETS_DIR/mkeyboardsettingswidget.h \
+    $$WIDGETS_DIR/mkeyboardsettingslistitem.h \
     $$WIDGETS_DIR/getcssproperty.h \
     $$WIDGETS_DIR/mtoolbarlabelview.h \
     $$WIDGETS_DIR/mplainwindow.h \
@@ -95,6 +96,7 @@ SOURCES += \
     $$WIDGETS_DIR/grip.cpp \
     $$WIDGETS_DIR/sharedhandlearea.cpp \
     $$WIDGETS_DIR/mkeyboardsettingswidget.cpp \
+    $$WIDGETS_DIR/mkeyboardsettingslistitem.cpp \
     $$WIDGETS_DIR/mimoverlay.cpp \
     $$WIDGETS_DIR/mtoolbarlabelview.cpp \
     $$WIDGETS_DIR/reactionmappaintable.cpp \
