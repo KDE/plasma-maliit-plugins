@@ -1,13 +1,12 @@
-meego-keyboard (0.6.11~1) UNRELEASED; urgency=low
+meego-keyboard (0.6.11-1) unstable; urgency=low
 
   * Fixes: NB#261859
   * Fixes: NB#257133 - Some keys get stuck in Sym View.
-  * Fixes: NB#261480 - [TASK] Don't show VKB language notification when focusing in text fields 
   * Fixes: NB#259583 - It is not possible to type letter ÿ with VKB
   * Fixes: NB#261831 - [TASK] Remove caps lock notification from virtual keyboard
   * Fixes: NB#257418 - VKB keys can get stuck
 
- -- Mohammad Anwari <Mohammad.Anwari@nokia.com>  Mon, 06 Jun 2011 10:24:14 +0300
+ -- Mohammad Anwari <Mohammad.Anwari@nokia.com>  Tue, 07 Jun 2011 14:04:14 +0300
 
 meego-keyboard (0.6.10-1) unstable; urgency=low
 
