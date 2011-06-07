@@ -92,6 +92,8 @@ Notification::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget
 
     const MScalableImage *backgroundImage = style()->notificationBackgroundImage();
 
+    const qreal oldOpacity = painter->opacity();
+    painter->setOpacity(oldOpacity * style()->notificationBackgroundOpacity());
     if (backgroundImage) {
         backgroundImage->draw(boundingRect().toRect(), painter);
     } else {
@@ -100,6 +102,7 @@ Notification::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget
         const int rounding = style()->notificationRounding();
         painter->drawRoundedRect(rect(), rounding, rounding);
     }
+    painter->setOpacity(oldOpacity);
 
     painter->setPen(textColor);
     // Draw the normalized message

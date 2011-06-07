@@ -14,7 +14,8 @@ MVirtualKeyboardStyle {
     notification-background-color: #323232;
     notification-text-color: #FFFFFF;
     notification-opacity: 0.9;
-    layout-change-duration: 300;
+    notification-background-opacity: 0.9;
+    layout-change-duration: 400;
     layout-change-easing-curve: outexpo;
 }
 

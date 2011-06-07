@@ -57,6 +57,7 @@ public:
     M_STYLE_ATTRIBUTE(QColor, notificationBackgroundColor, NotificationBackgroundColor)
     M_STYLE_ATTRIBUTE(QColor, notificationTextColor, NotificationTextColor)
     M_STYLE_ATTRIBUTE(qreal, notificationOpacity, NotificationOpacity)
+    M_STYLE_ATTRIBUTE(qreal, notificationBackgroundOpacity, NotificationBackgroundOpacity)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, notificationBackgroundImage, NotificationBackgroundImage)
     M_STYLE_ATTRIBUTE(int, notificationRounding, NotificationRounding)
     M_STYLE_ATTRIBUTE(int, layoutChangeDuration, LayoutChangeDuration)
