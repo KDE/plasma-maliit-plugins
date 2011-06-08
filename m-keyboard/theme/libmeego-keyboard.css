@@ -5,18 +5,21 @@
 @const ROUNDED_CORNERS: 15px 15px 15px 15px;
 
 MVirtualKeyboardStyle {
-    notification-font: $FONT_KEYBOARD;
-    notification-font-size: 56;
-    notification-font-opacity: 0.9;
-    notification-rounding: 0;
-    notification-background-image: ;
-    notification-border-color: #808080;
-    notification-background-color: #323232;
-    notification-text-color: #FFFFFF;
-    notification-opacity: 0.9;
-    notification-background-opacity: 0.9;
     layout-change-duration: 400;
     layout-change-easing-curve: outexpo;
+}
+
+NotificationStyle {
+    font: $FONT_KEYBOARD;
+    font-size: 56;
+    font-opacity: 0.9;
+    rounding: 0;
+    background-image: ;
+    border-color: #808080;
+    background-color: #323232;
+    text-color: #FFFFFF;
+    opacity: 0.9;
+    background-opacity: 0.9;
 }
 
 MImAbstractKeyAreaStyle {

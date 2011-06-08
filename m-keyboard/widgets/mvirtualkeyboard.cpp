@@ -111,7 +111,7 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
     RegionTracker::instance().addRegion(*this);
     RegionTracker::instance().addInputMethodArea(*this);
 
-    notification = new Notification(styleContainer, this);
+    notification = new Notification(this);
 
     connect(&eventHandler, SIGNAL(keyPressed(const KeyEvent &)),
             this, SIGNAL(keyPressed(const KeyEvent &)));

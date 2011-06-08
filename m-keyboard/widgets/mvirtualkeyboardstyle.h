@@ -51,15 +51,6 @@ class MVirtualKeyboardStyle : public MWidgetStyle
     M_STYLE(MVirtualKeyboardStyle)
 
 public:
-    M_STYLE_ATTRIBUTE(QFont, notificationFont, NotificationFont)
-    M_STYLE_ATTRIBUTE(int, notificationFontSize, NotificationFontSize)
-    M_STYLE_ATTRIBUTE(QColor, notificationBorderColor, NotificationBorderColor)
-    M_STYLE_ATTRIBUTE(QColor, notificationBackgroundColor, NotificationBackgroundColor)
-    M_STYLE_ATTRIBUTE(QColor, notificationTextColor, NotificationTextColor)
-    M_STYLE_ATTRIBUTE(qreal, notificationOpacity, NotificationOpacity)
-    M_STYLE_ATTRIBUTE(qreal, notificationBackgroundOpacity, NotificationBackgroundOpacity)
-    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, notificationBackgroundImage, NotificationBackgroundImage)
-    M_STYLE_ATTRIBUTE(int, notificationRounding, NotificationRounding)
     M_STYLE_ATTRIBUTE(int, layoutChangeDuration, LayoutChangeDuration)
     M_STYLE_ATTRIBUTE(QEasingCurve, layoutChangeEasingCurve, LayoutChangeEasingCurve)
 };

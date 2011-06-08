@@ -34,11 +34,11 @@
 #ifndef NOTIFICATION_H
 #define NOTIFICATION_H
 
-#include <MWidget>
+#include "notificationstyle.h"
+
+#include <MStylableWidget>
 #include <QTimeLine>
 #include <QTimer>
-
-class MVirtualKeyboardStyleContainer;
 
 
 /*!
@@ -47,7 +47,7 @@ class MVirtualKeyboardStyleContainer;
  *
  *  Using this class to show textual notification on the virtual keyboard
  */
-class Notification : public MWidget
+class Notification : public MStylableWidget
 {
     Q_OBJECT
 
@@ -57,7 +57,7 @@ public:
      * \brief Constructor for creating notification object.
      * \param parent QGraphicsWidget.
      */
-    Notification(const MVirtualKeyboardStyleContainer *style, QGraphicsWidget *parent);
+    explicit Notification(QGraphicsWidget *parent);
 
     //! Destructor
     ~Notification();
@@ -69,6 +69,11 @@ public:
     //! Displays given text a short period of time, centered in area.
     void displayText(const QString &msg, const QRectF &area);
 
+protected:
+    //! \reimp
+    virtual void applyStyle();
+    //! \reimp_end
+
 private slots:
     //! Method to update the opacity
     void updateOpacity(int);
@@ -79,15 +84,9 @@ private slots:
     //! This fades out and hides the widget.
     void fadeOut();
 
-    //! Retrieve information from CSS
-    void getStyleValues();
-
 private:
     //! This shows the widget by fading in.
     void fadeIn();
-
-    //! Getter for style container
-    const MVirtualKeyboardStyleContainer &style() const;
 
     //! Break the message text into more lines if needed and set the geometry
     void setMessageAndGeometry(const QString &msg, const QRectF &area);
@@ -105,14 +104,14 @@ private:
     //! the font used
     QFont font;
 
-    //! CSS style container
-    const MVirtualKeyboardStyleContainer *styleContainer;
-
     //! CSS attributes
     QColor border;
     QColor background;
     QColor textColor;
     qreal opacity;
+
+private:
+    M_STYLABLE_WIDGET(NotificationStyle)
 
 #ifdef UNIT_TEST
     friend class Ut_Notification;
