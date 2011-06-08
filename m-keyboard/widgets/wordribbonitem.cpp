@@ -117,9 +117,7 @@ void WordRibbonItem::mousePressEvent(QGraphicsSceneMouseEvent * event)
     }
 
     isMousePressCancelled = false;
-    if (highlightEffectEnabled) {
-        updateStyleState(PressState);
-    }
+    updateStyleState(PressState);
 
     emit mousePressed();
 }
@@ -140,18 +138,34 @@ void WordRibbonItem::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
     if (isMousePressCancelled)
         return ;
 
-    QRect moveRect = paddingRect.
-                     adjusted(-FocusZoneMargin, -FocusZoneMargin, +FocusZoneMargin, +FocusZoneMargin);
-    if (!moveRect.contains(event->pos().toPoint())) {
-        isMousePressCancelled = true;
-        highlight();
+    if (mode == WordRibbon::DialogStyleMode) {
+        if (!paddingRect.contains(event->pos().toPoint())) {
+            // In "DialogStyleMode", when the touch point has been moved
+            // out of the area of current item, its "Pressed" state should
+            // be cancelled.
+            isMousePressCancelled = true;
+            resetStyleState();
+        }
+    } else {
+        QRect moveRect = paddingRect.adjusted(-FocusZoneMargin,
+                                              -FocusZoneMargin,
+                                              +FocusZoneMargin,
+                                              +FocusZoneMargin);
+        if (!moveRect.contains(event->pos().toPoint())) {
+            // In "RibbonStyleMode", even if the touch point is moved out of
+            // the valid touch area of current item, its "Highlighted" state
+            // should be kept.
+            isMousePressCancelled = true;
+            highlight();
+        }
     }
 }
 
 void WordRibbonItem::cancelEvent(MCancelEvent *event)
 {
     Q_UNUSED(event);
-    highlight();
+    isMousePressCancelled = true;
+    resetStyleState();
 }
 
 void WordRibbonItem::setText(const QString& str)
@@ -185,22 +199,19 @@ void WordRibbonItem::disableHighlight()
 
 void WordRibbonItem::highlight()
 {
-    if (highlightEffectEnabled == false
-        || highlighted() == true) {
+    if (!highlightEffectEnabled
+        || highlighted()) {
         return ;
     }
 
     updateStyleState(SelectedState);
 }
 
-void WordRibbonItem::clearHighlight()
+void WordRibbonItem::resetStyleState()
 {
-    if (highlightEffectEnabled == false
-        || highlighted() == false) {
-        return ;
+    if (state != NormalState) {
+        updateStyleState(NormalState);
     }
-
-    updateStyleState(NormalState);
 }
 
 bool WordRibbonItem::highlighted() const
@@ -344,9 +355,6 @@ void WordRibbonItem::recalculateItemSize()
 
 void WordRibbonItem::updateStyleState(ItemState newState)
 {
-    if (mode == WordRibbon::DialogStyleMode)
-        return;
-
     state = newState;
     switch (state) {
     case NormalState:
