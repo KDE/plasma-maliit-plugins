@@ -79,9 +79,6 @@ void Ut_Notification::initTestCase()
     disableQtPlugins();
     app = new MApplication(argc, app_name);
 
-    style = new MVirtualKeyboardStyleContainer;
-    style->initialize("MVirtualKeyboard", "MVirtualKeyboardView", 0);
-
     new MPlainWindow;
 }
 
@@ -94,7 +91,7 @@ void Ut_Notification::cleanupTestCase()
 
 void Ut_Notification::init()
 {
-    subject = new Notification(style, 0);
+    subject = new Notification(0);
 }
 
 void Ut_Notification::cleanup()
@@ -133,15 +130,15 @@ void Ut_Notification::testFadeInFadeOut()
     QVERIFY(subject->isVisible());
 
     // Fading in
-    QTest::qWait(FadeTime);
+    QTest::qWait(subject->style()->fadeTime());
     QVERIFY(subject->isVisible());
 
     // Fully visible
-    QTest::qWait(HoldTime);
+    QTest::qWait(subject->style()->holdTime());
     QVERIFY(subject->isVisible());
 
     // Fading outs
-    QTest::qWait(FadeTime + 100);
+    QTest::qWait(subject->style()->fadeTime() + 100);
     QVERIFY(!subject->isVisible());
 }
 

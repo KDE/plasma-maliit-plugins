@@ -39,7 +39,6 @@
 
 class MApplication;
 class Notification;
-class MVirtualKeyboardStyleContainer;
 
 class Ut_Notification : public QObject
 {
@@ -48,7 +47,6 @@ class Ut_Notification : public QObject
 private:
     MApplication *app;
     Notification *subject;
-    MVirtualKeyboardStyleContainer *style;
 
 private slots:
     void init();
