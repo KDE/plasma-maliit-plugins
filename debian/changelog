@@ -1,8 +1,8 @@
-meego-keyboard (0.6.12~1) unstable; urgency=low
+meego-keyboard (0.6.12-1) unstable; urgency=low
 
-  *  [UNRELEASED]
+  * Fixes: NB#261480 - [TASK] Don't show VKB language notification when focusing in text fields
 
- -- Ning Chi <ext-chi.2.ning@nokia.com>  Tue, 07 Jun 2011 16:38:46 +0300
+ -- Ning Chi <ext-chi.2.ning@nokia.com>  Wed, 08 Jun 2011 10:06:46 +0300
 
 meego-keyboard (0.6.11-1) unstable; urgency=low
 
