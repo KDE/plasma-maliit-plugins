@@ -28,6 +28,7 @@ STYLE_HEADERS += \
     $$WIDGETS_DIR/wordribbondialogstyle.h \
     $$WIDGETS_DIR/mkeyboardmagnifierstyle.h \
     $$WIDGETS_DIR/notificationstyle.h \
+    $$WIDGETS_DIR/keyboardshadowstyle.h \
 
 HEADERS += \
     $$PUBLIC_HEADERS \

@@ -32,6 +32,8 @@
 #ifndef KEYBOARDSHADOW_H
 #define KEYBOARDSHADOW_H
 
+#include "keyboardshadowstyle.h"
+
 #include <MStylableWidget>
 
 /*!
@@ -65,6 +67,9 @@ public:
     void applyStyle();
     QSizeF sizeHint(Qt::SizeHint which, const QSizeF &constraint) const;
     //! \reimp_end
+
+private:
+    M_STYLABLE_WIDGET(KeyboardShadowStyle)
 };
 
 #endif
