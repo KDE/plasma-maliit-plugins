@@ -75,9 +75,9 @@ public:
     void highlight();
 
     /*!
-     * \brief Clears the highlight
+     * \brief Resets current display style state into Normal state.
      */
-    void clearHighlight();
+    void resetStyleState();
 
     /*!
      * \brief Returns whether the item is highlighted

@@ -210,7 +210,7 @@ void WordRibbon::clearHighlightedItem()
 
     if (0 <= highlightItemIndex && highlightItemIndex < itemList.count()) {
         WordRibbonItem *item = itemList.at(highlightItemIndex);
-        item->clearHighlight();
+        item->resetStyleState();
         highlightItemIndex = -1;
     }
 }
