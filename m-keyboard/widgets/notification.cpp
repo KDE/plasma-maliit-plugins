@@ -51,9 +51,8 @@ namespace
 };
 
 
-Notification::Notification(const MVirtualKeyboardStyleContainer *style, QGraphicsWidget *parent)
-    : MWidget(parent),
-      styleContainer(style),
+Notification::Notification(QGraphicsWidget *parent)
+    : MStylableWidget(parent),
       opacity(0)
 {
     // Notification sets its own absolute opacity
@@ -74,7 +73,6 @@ Notification::Notification(const MVirtualKeyboardStyleContainer *style, QGraphic
     connect(&visibilityTimer, SIGNAL(timeout()),
             this, SLOT(fadeOut()));
 
-    getStyleValues();
     hide();
 }
 
@@ -90,16 +88,16 @@ Notification::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget
     painter->setFont(font);
     painter->setRenderHint(QPainter::Antialiasing);
 
-    const MScalableImage *backgroundImage = style()->notificationBackgroundImage();
+    const MScalableImage *backgroundImage = style()->backgroundImage();
 
     const qreal oldOpacity = painter->opacity();
-    painter->setOpacity(oldOpacity * style()->notificationBackgroundOpacity());
+    painter->setOpacity(oldOpacity * style()->backgroundOpacity());
     if (backgroundImage) {
         backgroundImage->draw(boundingRect().toRect(), painter);
     } else {
         painter->setPen(border);
         painter->setBrush(background);
-        const int rounding = style()->notificationRounding();
+        const int rounding = style()->rounding();
         painter->drawRoundedRect(rect(), rounding, rounding);
     }
     painter->setOpacity(oldOpacity);
@@ -120,6 +118,16 @@ Notification::displayText(const QString &msg, const QRectF &area)
     setMessageAndGeometry(msg, area);
     // Start to fade in
     fadeIn();
+}
+
+void Notification::applyStyle()
+{
+    font = style()->font();
+    font.setPixelSize(style()->fontSize());
+    border = style()->borderColor();
+    background = style()->backgroundColor();
+    textColor = style()->textColor();
+    opacity = style()->opacity();
 }
 
 
@@ -149,17 +157,6 @@ void Notification::fadeOut()
 {
     fadeTimeLine.setDirection(QTimeLine::Backward);
     fadeTimeLine.start();
-}
-
-
-void Notification::getStyleValues()
-{
-    font = style()->notificationFont();
-    font.setPixelSize(style()->notificationFontSize());
-    border = style()->notificationBorderColor();
-    background = style()->notificationBackgroundColor();
-    textColor = style()->notificationTextColor();
-    opacity = style()->notificationOpacity();
 }
 
 
@@ -194,13 +191,9 @@ void Notification::fadeIn()
     }
 }
 
-const MVirtualKeyboardStyleContainer &Notification::style() const
-{
-    return *styleContainer;
-}
-
 void Notification::setMessageAndGeometry(const QString &msg, const QRectF &area)
 {
     message = msg;
-    setGeometry(0, 0, area.width(), area.height());
+    setGeometry(QRectF(0, 0, area.width(), area.height()));
 }
+
