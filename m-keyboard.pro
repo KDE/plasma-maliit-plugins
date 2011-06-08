@@ -2,18 +2,23 @@ CONFIG += ordered
 TARGET = meego-im-plugins
 TEMPLATE = subdirs
 SUBDIRS = \
-    m-keyboard \
     meego-keyboard-quick \
-    translations \
 
 CONFIG(docs) {
     include (doc/doc.pri)
 }
 
-!notests {
+!notests:!nomeegotouch {
     SUBDIRS += \
         tests \
         fixture_virtualkeyboard \
+
+}
+
+!nomeegotouch {
+    SUBDIRS += \
+        m-keyboard \
+        translations \
 
 }
 
