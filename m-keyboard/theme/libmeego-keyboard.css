@@ -19,7 +19,14 @@ NotificationStyle {
     background-color: #323232;
     text-color: #FFFFFF;
     opacity: 0.9;
-    background-opacity: 0.9;
+    background-opacity: 0.8;
+    hold-time: 150;
+    fade-time: 300;
+
+    padding-left: 1mm;
+    padding-top: 1mm;
+    padding-right: 1mm;
+    padding-bottom: 1mm;
 }
 
 MImAbstractKeyAreaStyle {

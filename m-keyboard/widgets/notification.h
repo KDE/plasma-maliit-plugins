@@ -75,8 +75,9 @@ protected:
     //! \reimp_end
 
 private slots:
-    //! Method to update the opacity
-    void updateOpacity(int);
+    //! Method to update the opacity.
+    //! \param frameNumber Current frame number provided by fadeTimeLine.
+    void updateOpacity(int frameNumber);
 
     //! Helper method to handle the end of both fades.
     void fadingFinished();
@@ -109,6 +110,7 @@ private:
     QColor background;
     QColor textColor;
     qreal opacity;
+    int frameCount;
 
 private:
     M_STYLABLE_WIDGET(NotificationStyle)

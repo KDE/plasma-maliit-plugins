@@ -53,6 +53,8 @@ public:
     M_STYLE_ATTRIBUTE(qreal, backgroundOpacity, BackgroundOpacity)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, backgroundImage, BackgroundImage)
     M_STYLE_ATTRIBUTE(int, rounding, Rounding)
+    M_STYLE_ATTRIBUTE(int, holdTime, HoldTime)
+    M_STYLE_ATTRIBUTE(int, fadeTime, FadeTime)
 };
 
 class M_EXPORT NotificationStyleContainer : public MWidgetStyleContainer

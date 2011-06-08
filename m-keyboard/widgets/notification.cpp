@@ -29,7 +29,10 @@
 
  */
 
-
+namespace
+{
+    const int FPS = 20; // Frames per second
+}
 
 #include "mvirtualkeyboardstyle.h"
 #include "notification.h"
@@ -42,28 +45,17 @@
 #include <MScalableImage>
 #include <float.h>
 
-namespace
-{
-    const int Margin = 10;           // Margin of the box surrounding text
-    const int FrameCount = 15;       // How many frames to use in fading
-    const int FadeTime = 300;        // Duration of fading in/out animation
-    const int HoldTime = 700;        // Time to hold the widget in visible state
-};
-
 
 Notification::Notification(QGraphicsWidget *parent)
     : MStylableWidget(parent),
-      opacity(0)
+      opacity(0),
+      frameCount(1)
 {
     // Notification sets its own absolute opacity
     setFlag(ItemIgnoresParentOpacity, true);
     setZValue(FLT_MAX);
 
-    visibilityTimer.setInterval(HoldTime);
     visibilityTimer.setSingleShot(true);
-
-    fadeTimeLine.setFrameRange(0, FrameCount);
-    fadeTimeLine.setDuration(FadeTime);
 
     connect(&fadeTimeLine, SIGNAL(frameChanged(int)),
             this, SLOT(updateOpacity(int)));
@@ -105,7 +97,10 @@ Notification::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget
     painter->setPen(textColor);
     // Draw the normalized message
     QRectF textRect = rect();
-    textRect.adjust(Margin, Margin, -Margin, -Margin);
+    textRect.adjust(style()->paddingLeft(),
+                    style()->paddingTop(),
+                    -style()->paddingRight(),
+                    -style()->paddingBottom());
     painter->drawText(textRect, Qt::AlignCenter | Qt::TextWordWrap, message);
 }
 
@@ -128,13 +123,17 @@ void Notification::applyStyle()
     background = style()->backgroundColor();
     textColor = style()->textColor();
     opacity = style()->opacity();
+    fadeTimeLine.setDuration(style()->fadeTime());
+    visibilityTimer.setInterval(style()->holdTime());
+    frameCount = style()->fadeTime() / FPS;
+    fadeTimeLine.setFrameRange(0, frameCount);
 }
 
 
 void
-Notification::updateOpacity(int op)
+Notification::updateOpacity(int frameNumber)
 {
-    setOpacity(qreal(op) / qreal(FrameCount) * opacity);
+    setOpacity(qreal(frameNumber) / qreal(frameCount) * opacity);
     update();
 }
 
