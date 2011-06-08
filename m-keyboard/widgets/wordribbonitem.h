@@ -45,44 +45,44 @@ public:
     /*!
      * \brief Sets the label of the widget
      */
-    virtual void setText(const QString& str);
+    void setText(const QString& str);
 
     /*!
      * \brief Returns the label of the widget
      */
-    virtual QString text();
+    QString text();
 
     /*!
      * \brief Clears the label
      */
-    virtual void clearText();
+    void clearText();
 
     /*!
      * \brief Sets item to be highlightable
      *
      * By default the item is highlightable
      */
-    virtual void enableHighlight();
+    void enableHighlight();
 
     /*!
      * \brief Sets item to be not highlightable
      */
-    virtual void disableHighlight();
+    void disableHighlight();
 
     /*!
      * \brief Sets the item to be highlighted
      */
-    virtual void highlight();
+    void highlight();
 
     /*!
      * \brief Clears the highlight
      */
-    virtual void clearHighlight();
+    void clearHighlight();
 
     /*!
      * \brief Returns whether the item is highlighted
      */
-    virtual bool highlighted() const;
+    bool highlighted() const;
 
     /*!
      * \brief Sets the position index of the item in the list
@@ -91,14 +91,14 @@ public:
      * This information is used by the input method engine
      * to improve the prediction/correction.
      */
-    virtual void setPositionIndex(int index);
+    void setPositionIndex(int index);
 
     /*!
      * \brief Returns the position index of the item in the list
      *
      * \sa setPositionIndex
      */
-    virtual int positionIndex() const;
+    int positionIndex() const;
 
 signals:
     void mousePressed();
