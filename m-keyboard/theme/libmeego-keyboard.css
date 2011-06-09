@@ -5,8 +5,8 @@
 @const ROUNDED_CORNERS: 15px 15px 15px 15px;
 
 MVirtualKeyboardStyle {
-    layout-change-duration: 400;
-    layout-change-easing-curve: outexpo;
+    layout-change-duration: 350;
+    layout-change-easing-curve: outcubic;
 }
 
 NotificationStyle {
@@ -18,15 +18,15 @@ NotificationStyle {
     border-color: #808080;
     background-color: #323232;
     text-color: #FFFFFF;
-    opacity: 0.9;
+    opacity: 1;
     background-opacity: 0.8;
-    hold-time: 150;
-    fade-time: 300;
+    hold-time: 130;
+    fade-time: 200;
 
     padding-left: 1mm;
     padding-top: 1mm;
     padding-right: 1mm;
-    padding-bottom: 1mm;
+    padding-bottom: 5mm;
 }
 
 MImAbstractKeyAreaStyle {
@@ -119,11 +119,11 @@ MImAbstractKeyAreaStyle {
     key-tab-compact-icon-size: 0 0;
 
     /*** Behaviour ***/
-    long-press-timeout: 700;
-    idle-vkb-timeout: 700;
+    long-press-timeout: 600;
+    idle-vkb-timeout: 150;
 
-    flick-gesture-timeout: 500;
-    flick-gesture-threshold-ratio: 0.5;
+    flick-gesture-timeout: 250;
+    flick-gesture-threshold-ratio: 0.25;
 
     touchpoint-vertical-offset: 0mm;
     commit-previous-key-on-press: true;
