@@ -68,7 +68,8 @@ Rectangle {
 
             StateChangeScript {
                 script: MInputMethodQuick.setInputMethodArea(
-                    Qt.rect(0, MInputMethodQuick.screenHeight - vkb_landscape.height,
+                    Qt.rect((MInputMethodQuick.screenWidth - vkb_landscape.width) / 2,
+                            MInputMethodQuick.screenHeight - vkb_landscape.height,
                             vkb_landscape.width, vkb_landscape.height))
             }
 
@@ -97,7 +98,8 @@ Rectangle {
 
             StateChangeScript {
                 script: MInputMethodQuick.setInputMethodArea(
-                    Qt.rect(0, 0, vkb_portrait.height, vkb_portrait.width))
+                    Qt.rect(0, (MInputMethodQuick.screenHeight - vkb_portrait.width) / 2,
+                            vkb_portrait.height, vkb_portrait.width))
             }
 
             PropertyChanges {
@@ -125,7 +127,8 @@ Rectangle {
 
             StateChangeScript {
                 script: MInputMethodQuick.setInputMethodArea(
-                    Qt.rect(0, 0, vkb_landscape.width, vkb_landscape.height))
+                    Qt.rect((MInputMethodQuick.screenWidth - vkb_landscape.width) / 2,
+                            0, vkb_landscape.width, vkb_landscape.height))
             }
 
             PropertyChanges {
@@ -153,7 +156,8 @@ Rectangle {
 
             StateChangeScript {
                 script: MInputMethodQuick.setInputMethodArea(
-                    Qt.rect(MInputMethodQuick.screenWidth - vkb_portrait.height, 0,
+                    Qt.rect(MInputMethodQuick.screenWidth - vkb_portrait.height,
+                            (MInputMethodQuick.screenHeight - vkb_portrait.width) / 2,
                             vkb_portrait.height, vkb_portrait.width))
             }
 
