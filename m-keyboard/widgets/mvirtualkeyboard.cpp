@@ -112,6 +112,8 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
     RegionTracker::instance().addInputMethodArea(*this);
 
     notification = new Notification(this);
+    connect(notification, SIGNAL(destroyed(QObject *)),
+            this, SLOT(resurrectNotification()));
 
     connect(&eventHandler, SIGNAL(keyPressed(const KeyEvent &)),
             this, SIGNAL(keyPressed(const KeyEvent &)));
@@ -168,6 +170,9 @@ MVirtualKeyboard::~MVirtualKeyboard()
     delete mainKeyboardSwitcher;
     mainKeyboardSwitcher = 0;
 
+    // we do not want to resurrect destroyed notification anymore,
+    // therefore we disconnect all signals from notification explicitly
+    disconnect(notification, 0, this, 0);
     delete notification;
     notification = 0;
 
@@ -301,12 +306,13 @@ void MVirtualKeyboard::resetState()
 void MVirtualKeyboard::showLanguageNotification()
 {
     if ((mainKeyboardSwitcher->current() != -1) && (currentLayoutType == LayoutData::General)) {
-        const QGraphicsWidget *const widget = mainKeyboardSwitcher->currentWidget();
+        QGraphicsWidget *const widget = mainKeyboardSwitcher->currentWidget();
         const QRectF br = widget ? mainKeyboardSwitcher->mapRectToItem(this, widget->boundingRect())
                           : QRectF(QPointF(), MPlainWindow::instance()->visibleSceneSize());
         const QString layoutFile(layoutsMgr.layoutFileList()[mainKeyboardSwitcher->current()]);
 
         notification->displayText(layoutsMgr.keyboardTitle(layoutFile), br);
+        notification->setParentItem(widget ? widget : this);
     }
 }
 
@@ -548,12 +554,21 @@ void MVirtualKeyboard::onSectionSwitchStarting(int current, int next)
     }
 
     if ((current != -1) && (currentLayoutType == LayoutData::General)) {
-        const QGraphicsWidget *const nextWidget = mainKeyboardSwitcher->widget(next);
+        QGraphicsWidget *const nextWidget = mainKeyboardSwitcher->widget(next);
         QRectF br = nextWidget ? mainKeyboardSwitcher->mapRectToItem(this, nextWidget->boundingRect())
                                : QRectF(QPointF(), MPlainWindow::instance()->visibleSceneSize());
 
         notification->displayText(layoutsMgr.keyboardTitle(layoutsMgr.layoutFileList()[next]), br);
+        notification->setParentItem(nextWidget ? nextWidget : this);
     }
+}
+
+
+void MVirtualKeyboard::resurrectNotification()
+{
+    notification = new Notification(this);
+    connect(notification, SIGNAL(destroyed(QObject *)),
+            this, SLOT(resurrectNotification()));
 }
 
 

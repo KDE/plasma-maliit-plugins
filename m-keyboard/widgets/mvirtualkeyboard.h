@@ -247,6 +247,16 @@ private slots:
 
     void onVerticalAnimationFinished();
 
+    /*!
+     * \brief Creates new instance of Notification if previous one being deleted.
+     *
+     * Notification could be deleted, because it is a child of current active layout
+     * and user could disable it through settings applet. In this case we have to
+     * create new instance of Notification to be able to show it later when user
+     * will change layout again.
+     */
+    void resurrectNotification();
+
 signals:
     /*!
      * \brief Emitted when key is pressed
@@ -415,7 +425,7 @@ private:
     //! Switcher for showing the main qwerty section.
     HorizontalSwitcher *mainKeyboardSwitcher;
 
-    Notification *notification;
+    QPointer<Notification> notification;
 
     MImAbstractKeyArea *numberKeyboard;
     MImAbstractKeyArea *phoneNumberKeyboard;
