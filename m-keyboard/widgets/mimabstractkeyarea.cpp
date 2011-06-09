@@ -1210,6 +1210,10 @@ void MImAbstractKeyArea::reset()
         d->popup->cancel();
     }
 
+    MImKeyVisitor::SpecialKeyFinder deadFinder(MImKeyVisitor::FindDeadKey);
+    MImAbstractKey::visitActiveKeys(&deadFinder);
+    unlockDeadKeys(deadFinder.deadKey());
+
     MImKeyVisitor::KeyAreaReset keyAreaReset;
     keyAreaReset.setKeyParentItem(this);
     MImAbstractKey::visitActiveKeys(&keyAreaReset);
