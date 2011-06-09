@@ -1632,12 +1632,8 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
             // dictionary word, show word tracker.
             if (candidates.count() > 1
                 && sourceDictionaryType == MImEngine::DictionaryTypeInvalid) {
-                bool success = false;
-                const QRect rect = inputMethodHost()->cursorRectangle(success);
-                if (success && rect.isValid() && engineWidgetHost) {
-                    engineWidgetHost->setPosition(sceneWindow->mapRectFromScene(rect).toRect());
-                    engineWidgetHost->showEngineWidget(AbstractEngineWidgetHost::FloatingMode);
-                }
+                setEngineWidgetHostPosition(engineWidgetHost);
+                engineWidgetHost->showEngineWidget(AbstractEngineWidgetHost::FloatingMode);
             } else {
                 engineWidgetHost->hideEngineWidget();
             }
@@ -2207,12 +2203,24 @@ void MKeyboardHost::updateCorrectionWidgetPosition()
         EngineManager::instance().handler()->engineWidgetHost() : 0;
     if (correctionEnabled && engineWidgetHost && engineWidgetHost->isActive()
         && engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode) {
-        bool success = false;
-        const QRect rect = inputMethodHost()->cursorRectangle(success);
-        if (success && rect.isValid()) {
-            engineWidgetHost->setPosition(sceneWindow->mapRectFromScene(rect).toRect());
+        setEngineWidgetHostPosition(engineWidgetHost);
+    }
+}
+
+void MKeyboardHost::setEngineWidgetHostPosition(AbstractEngineWidgetHost *engineWidgetHost)
+{
+    bool success = false;
+    const QRect rectVsScene = inputMethodHost()->cursorRectangle(success);
+    // invalid cursorRectangle should not be ignored, wordTracker must hide itself in that case
+    QRect rect;
+    if (success && rectVsScene.isValid()) {
+        rect = sceneWindow->mapRectFromScene(rectVsScene).toRect();
+        // hide wordtracker if cursor is covered by keyboard
+        if (rect.top() > MPlainWindow::instance()->sceneManager()->visibleSceneSize().height() - keyboardHeight()) {
+            rect = QRect();
         }
     }
+    engineWidgetHost->setPosition(rect);
 }
 
 void MKeyboardHost::sendBackSpaceKeyEvent() const

@@ -58,7 +58,7 @@ class SymbolView;
 class SharedHandleArea;
 class MImToolbar;
 class SimpleFileLog;
-
+class AbstractEngineWidgetHost;
 
 //! Logic class for virtual keyboard
 class MKeyboardHost: public MAbstractInputMethod
@@ -373,6 +373,8 @@ private:
         OnScreenAnimationTime = 350, // in ms
         HardwareAnimationTime = 100  // in ms
     };
+
+    void setEngineWidgetHostPosition(AbstractEngineWidgetHost *engineWidgetHost);
 
     class CycleKeyHandler; //! Reacts to cycle key press events.
     friend class CycleKeyHandler;

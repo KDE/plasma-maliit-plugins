@@ -48,6 +48,7 @@ MImCorrectionHost::MImCorrectionHost(MWidget *window, QObject *parent)
       pendingCandidatesUpdate(false),
       wordTrackerContainer(new QGraphicsWidget(window)),
       wordTracker(new MImWordTracker(wordTrackerContainer)),
+      wordTrackerHiddenByPosition(false),
       wordTrackerHiddenByRotation(false),
       wordList(new MImWordList())
 {
@@ -91,7 +92,8 @@ QGraphicsWidget *MImCorrectionHost::inlineWidget() const
 
 bool MImCorrectionHost::isActive() const
 {
-    return (wordTracker->isVisible() || wordList->isVisible() || wordTrackerHiddenByRotation);
+    return wordTrackerHiddenByPosition || wordTrackerHiddenByRotation
+            || wordTracker->isVisible() || wordList->isVisible();
 }
 
 bool MImCorrectionHost::typedWordIsInDictionary()
@@ -163,10 +165,13 @@ void MImCorrectionHost::showEngineWidget(AbstractEngineWidgetHost::DisplayMode m
 
         if (!wordTracker->isVisible()) {
             wordList->disappear();
-            wordTracker->appear(false);
+            if (!wordTrackerHiddenByPosition) {
+                wordTracker->appear(false);
+            }
         }
     } else {
         wordTracker->disappear(false);
+        wordTrackerHiddenByPosition = false;
         wordList->appear();
     }
 }
@@ -175,6 +180,7 @@ void MImCorrectionHost::hideEngineWidget()
 {
     wordTracker->disappear(false);
     // if the wordTracker is really temporary hidden, caller must set a flag
+    wordTrackerHiddenByPosition = false;
     wordTrackerHiddenByRotation = false;
     wordList->disappear();
 }
@@ -192,10 +198,15 @@ void MImCorrectionHost::watchOnWidget(QGraphicsWidget *widget)
 void MImCorrectionHost::setPosition(const QRect &cursorRect)
 {
     if (cursorRect.isNull() || !cursorRect.isValid()) {
-        return;
+        wordTrackerHiddenByPosition = true;
+        wordTracker->disappear(false);
+    } else {
+        if (wordTrackerHiddenByPosition) {
+            wordTracker->appear(false);
+            wordTrackerHiddenByPosition = false;
+        }
+        wordTracker->setPosition(cursorRect);
     }
-
-    wordTracker->setPosition(cursorRect);
 }
 
 void MImCorrectionHost::handleNavigationKey(AbstractEngineWidgetHost::NaviKey key)
