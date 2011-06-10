@@ -1,3 +1,9 @@
+meego-keyboard (0.6.14~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Ning Chi <ext-chi.2.ning@nokia.com>  Fri, 10 Jun 2011 13:45:38 +0300
+
 meego-keyboard (0.6.13-1) unstable; urgency=low
 
   * Fixes: NB#259907 - VKB Transition is not smooth while changing device orientation from portrait to landscape.
