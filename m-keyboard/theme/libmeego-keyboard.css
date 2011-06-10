@@ -12,7 +12,6 @@ MVirtualKeyboardStyle {
 NotificationStyle {
     font: $FONT_KEYBOARD;
     font-size: 56;
-    font-opacity: 0.9;
     rounding: 0;
     background-image: ;
     border-color: #808080;
