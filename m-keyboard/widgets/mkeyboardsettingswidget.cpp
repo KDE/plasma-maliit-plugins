@@ -139,10 +139,10 @@ MKeyboardSettingsWidget::~MKeyboardSettingsWidget()
 void MKeyboardSettingsWidget::buildUi()
 {
     // Error correction settings
-    MContainer *eCContainer = new MContainer (this);
+    MContainer *eCContainer = new MContainer(this);
     eCContainer->setContentsMargins(0, 0, 0, 0);
-    eCContainer->setStyleName ("CommonLargePanelInverted");
-    eCContainer->setHeaderVisible (false);
+    eCContainer->setStyleName("CommonLargePanelInverted");
+    eCContainer->setHeaderVisible(false);
 
     errorCorrectionSwitch = new MButton(this);
     errorCorrectionSwitch->setObjectName(ObjectNameErrorCorrectionButton);
@@ -176,10 +176,10 @@ void MKeyboardSettingsWidget::buildUi()
     addItem(eCContainer, 0, 1);
 
     // "Space selects the correction candidate" settings
-    MContainer *wCContainer = new MContainer (this);
+    MContainer *wCContainer = new MContainer(this);
     wCContainer->setContentsMargins(0, 0, 0, 0);
-    wCContainer->setStyleName ("CommonLargePanelInverted");
-    wCContainer->setHeaderVisible (false);
+    wCContainer->setStyleName("CommonLargePanelInverted");
+    wCContainer->setHeaderVisible(false);
 
     correctionSpaceSwitch = new MButton(this);
     correctionSpaceSwitch->setObjectName(ObjectNameCorrectionSpaceButton);
@@ -226,10 +226,10 @@ void MKeyboardSettingsWidget::buildUi()
     containerLayout->addItem(chineseSettingHeader);
 
     // Error correction setting
-    MContainer *fuzzyContainer = new MContainer (this);
-    fuzzyContainer->setContentsMargins (0, 0, 0, 0);
-    fuzzyContainer->setStyleName ("CommonLargePanelInverted");
-    fuzzyContainer->setHeaderVisible (false);
+    MContainer *fuzzyContainer = new MContainer(this);
+    fuzzyContainer->setContentsMargins(0, 0, 0, 0);
+    fuzzyContainer->setStyleName("CommonLargePanelInverted");
+    fuzzyContainer->setHeaderVisible(false);
 
     fuzzySwitch = new MButton(this);
     fuzzySwitch->setObjectName(ObjectNameFuzzyPinyinButton);
@@ -251,10 +251,10 @@ void MKeyboardSettingsWidget::buildUi()
     containerLayout->addItem(fuzzyContainer);
 
     // Word prediction setting
-    MContainer *wordPredictionContainer = new MContainer (this);
+    MContainer *wordPredictionContainer = new MContainer(this);
     wordPredictionContainer->setContentsMargins(0, 0, 0, 0);
-    wordPredictionContainer->setStyleName ("CommonLargePanelInverted");
-    wordPredictionContainer->setHeaderVisible (false);
+    wordPredictionContainer->setStyleName("CommonLargePanelInverted");
+    wordPredictionContainer->setHeaderVisible(false);
 
     wordPredictionSwitch = new MButton(this);
     wordPredictionSwitch->setObjectName(ObjectNameWordPredictionButton);
