@@ -32,6 +32,14 @@
 import Qt 4.7
 
 Column {
+    KeyboardStyle {
+        id: vkbStyle
+    }
+
+    KeyStyle {
+        id: keyStyle
+    }
+
     property variant row1:["q1", "w2", "e3", "r4", "t5", "y6", "u7", "i8", "o9", "p0"]
     property variant row2: ["a*", "s#", "d+", "f-", "g=", "h(", "j)", "k?", "l!"]
     property variant row3: ["z@", "x~", "c/", "v\\", "b'", "n;", "m:"]
@@ -40,17 +48,19 @@ Column {
     property variant accents_row3: ["", "", "cç", "", "", "nñ", ""]
 
     property int columns: Math.max(row1.length, row2.length, row3.length)
-    property int keyWidth: (columns == 11) ? 38 : 40
-    property int keyHeight: 64
-    property int keyMargin: (columns == 11) ? 6 : 8
+    property int keyWidth: (columns == 11) ? keyStyle.portraitWidthNarrow
+                                           : keyStyle.portraitWidth
+    property int keyHeight: keyStyle.portraitHeight
+    property int keyMargin: (columns == 11) ? keyStyle.portraitMarginNarrow
+                                            : keyStyle.portraitMargin
     property bool isShifted: false
     property bool inSymView: false
 
     Rectangle { //VKB background
         id: vkb
-        color: "#222"
-        width: 480
-        height: 320
+        color: vkbStyle.background
+        width: vkbStyle.portraitWidth
+        height: vkbStyle.portraitHeight
         z: 100
 
         Column { //Holder for the VKB rows

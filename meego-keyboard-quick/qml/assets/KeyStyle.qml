@@ -31,41 +31,23 @@
 
 import Qt 4.7
 
-Rectangle {
-    id: shift_backspace_portrait
+Item {
+    property string background: "#282828"
+    property string backgroundPressed: "#2fa7d4"
+    property string backgroundFunction: "#646464"
+    property int landscapeWidth: 76
+    property int landscapeWidthNarrow: 72
+    property int landscapeHeight: 46
+    property int landscapeMargin: 8
+    property int landscapeMarginNarrow: 5
 
-    KeyStyle {
-        id: keyStyle
-    }
+    property int portraitWidth: 40
+    property int portraitWidthNarrow: 38
+    property int portraitHeight: 64
+    property int portraitMargin: 8
+    property int portraitMarginNarrow: 6
 
-    property string icon: ""
-    property string caption: ""
-    signal clickedPass()
-    signal released()
-
-    radius: 8
-    color: mouse_area.containsMouse ? keyStyle.backgroundPressed
-                                    : keyStyle.background
-
-    MouseArea {
-        id: mouse_area
-        anchors.fill: parent
-        onClicked: { clickedPass() }
-        onReleased: { parent.released() }
-    }
-
-    Image {
-        anchors.centerIn: parent
-        source: icon
-    }
-
-    Text {
-        anchors.centerIn: parent
-        horizontalAlignment: Text.AlignHCenter
-        verticalAlignment: Text.AlignVCenter
-        font.family: "sans"
-        font.pixelSize: keyStyle.fontSize
-        color: keyStyle.fontColor
-        text: caption
-    }
+    property int fontSize: 28
+    property string fontColor: "white"
 }
+

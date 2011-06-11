@@ -32,13 +32,19 @@
 import Qt 4.7
 
 Rectangle {
+    KeyStyle {
+        id: keyStyle
+    }
+
     property string caption: ""
     property string captionShifted: ""
-    property int fontSize: 28
+    property int fontSize: keyStyle.fontSize
     property string symView: ""
 
     radius:  8
-    color: "#555"
+    color: mouse_area.containsMouse ? keyStyle.backgroundPressed
+                                    : keyStyle.background
+
     MouseArea {
         id: mouse_area
         anchors.fill: parent
@@ -60,17 +66,9 @@ Rectangle {
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
         font.family: "sans"
-        font.pixelSize: fontSize
-        color: "white"
+        font.pixelSize: keyStyle.fontSize
+        color: keyStyle.fontColor
         text: (inSymView && symView.length) > 0 ? symView
                                                 : (isShifted ? captionShifted : caption)
-    }
-
-    Rectangle {
-        id: button_pressed_overlay
-        anchors.fill: parent
-        radius: 8
-        color: Qt.rgba(0, 0, 0, 0.3)
-        visible: mouse_area.containsMouse ? true : false
     }
 }
