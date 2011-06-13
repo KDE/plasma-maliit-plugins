@@ -73,9 +73,9 @@ public:
     void repopulate(const QStringList &newWordRibbon);
 
     /*!
-     * \brief Clear and invisible all items
+     * \brief Clear all items
      */
-    void clearAllItems();
+    void clear();
 
     /*!
      * \brief Returns whether the list is empty or not
@@ -128,6 +128,7 @@ private slots:
 private:
     void initializeSubWidgets();
     void reCalculateContentRect(const QSizeF &size);
+    void clearItems();
 
 private:
     QStringList cachedStringList;
