@@ -67,21 +67,6 @@ namespace
     // Used for error correction:
     QPoint gAdjustedPositionForCorrection = QPoint();
 
-    QPointF adjustedByGravity(const MImAbstractKey *const key,
-                              const QPoint &pos,
-                              int horizontalGravity,
-                              int verticalGravity)
-    {
-        if (key
-            && key->isGravityActive()
-            && key->buttonBoundingRect().adjusted(-horizontalGravity, -verticalGravity,
-                                                   horizontalGravity,  verticalGravity).contains(pos)) {
-            return key->buttonBoundingRect().center();
-        }
-
-        return pos;
-    }
-
     QString toString(const QPointF &p, const QString &separator = ", ")
     {
         return QString("%1%2%3").arg(p.x())
@@ -222,6 +207,7 @@ void MImAbstractKeyAreaPrivate::handleFlickGesture(int direction,
         MImKeyVisitor::KeyAreaReset reset;
         MImAbstractKey::visitActiveKeys(&reset);
 
+        touchPointRecords.clear();
         longPressTimer.stop();
         wasGestureTriggered = true;
     }
@@ -353,6 +339,7 @@ void MImAbstractKeyAreaPrivate::touchPointPressed(const QTouchEvent::TouchPoint 
     mTimestamp("MImAbstractKeyArea", "start");
     wasGestureTriggered = false;
     mostRecentTouchPositions.insert(tp.id(), tp.pos());
+    touchPointRecords[tp.id()] = TouchPointRecord(); // Clear record for this touch point.
 
     // Gestures only slow down in speed typing mode:
     if (isInSpeedTypingMode(true)) {
@@ -364,7 +351,6 @@ void MImAbstractKeyAreaPrivate::touchPointPressed(const QTouchEvent::TouchPoint 
     const QPoint pos = q->correctedTouchPoint(tp.scenePos());
     MImAbstractKey *key = q->keyAt(pos);
 
-
     if (q->debugTouchPoints) {
         q->logTouchPoint(tp, key);
     }
@@ -374,7 +360,6 @@ void MImAbstractKeyAreaPrivate::touchPointPressed(const QTouchEvent::TouchPoint 
         mTimestamp("MImAbstractKeyArea", "end");
         return;
     }
-
 
     // Try to commit currently active key before activating new key:
     MImAbstractKey *const lastActiveKey = MImAbstractKey::lastActiveKey();
@@ -396,25 +381,20 @@ void MImAbstractKeyAreaPrivate::touchPointPressed(const QTouchEvent::TouchPoint 
                                       QString(),
                                       tp.scenePos(),
                                       gAdjustedPositionForCorrection));
-
         lastActiveKey->resetTouchPointCount();
     }
 
-    if (key->increaseTouchPointCount()
-        && key->touchPointCount() == 1) {
-        q->updatePopup(key);
+    // Hit new key.
+    TouchPointRecord &rec = touchPointRecords[tp.id()];
+    rec.setHitKey(key);
+
+    if (rec.touchPointEnteredKey() && rec.key()->touchPointCount() == 1) {
+        q->updatePopup(rec.key());
         longPressTouchPointId = tp.id();
         longPressTouchPointIsPrimary = tp.isPrimary();
         longPressTimer.start(q->style()->longPressTimeout());
 
-        // We activate the key's gravity here because a key cannot
-        // differentiate between initially-pressed-key or
-        // activated-by-moving-onto-it.
-        // However, the key deactivates the gravity itself again
-        // (touchpoint count goes from 1 to 0).
-        key->activateGravity();
-
-        emit q->keyPressed(key,
+        emit q->keyPressed(rec.key(),
                            KeyContext(hasActiveShiftKeys || isUpperCase(),
                                       finder.deadKey() ? finder.deadKey()->label() : QString(),
                                       tp.scenePos(), QPoint(), tp.isPrimary()));
@@ -440,53 +420,53 @@ void MImAbstractKeyAreaPrivate::touchPointMoved(const QTouchEvent::TouchPoint &t
     mTimestamp("MImAbstractKeyArea", "start");
 
     const QPoint pos = q->correctedTouchPoint(tp.scenePos());
-    const QPoint lastPos = q->correctedTouchPoint(tp.lastScenePos());
 
-    const GravitationalLookupResult lookup = gravitationalKeyAt(pos, lastPos);
+    {
+        // Modify and store the touch point record.
+        TouchPointRecord &rec = touchPointRecords[tp.id()];
+        rec.setHitKey(gravitationalKeyAt(pos, rec.hasGravity() ? rec.key() : 0));
+    }
+
+    // Take copy since keyarea may get reset when emitting key events.
+    const TouchPointRecord rec = touchPointRecords[tp.id()];
+
     MImKeyVisitor::SpecialKeyFinder finder;
     MImAbstractKey::visitActiveKeys(&finder);
     const bool hasActiveShiftKeys = (finder.shiftKey() != 0);
 
-    // For a moving touchpoint, we only need to consider enter-key or leave-key events:
-    if (lookup.key != lookup.lastKey) {
-        q->updatePopup(lookup.key);
+    if (rec.touchPointEnteredKey() && rec.key()->touchPointCount() == 1) {
+        // Reaction map cannot discover when we move from one key
+        // (= reactive area) to another
+        // slot is called asynchronously to get screen update as fast as possible
+        QMetaObject::invokeMethod(&feedbackSliding, "play", Qt::QueuedConnection);
 
-        if (lookup.key) {
-            if (lookup.key->enabled()
-                && lookup.key->increaseTouchPointCount()
-                && lookup.key->touchPointCount() == 1) {
-                // Reaction map cannot discover when we move from one key
-                // (= reactive area) to another
-                // slot is called asynchronously to get screen update as fast as possible
-                QMetaObject::invokeMethod(&feedbackSliding, "play", Qt::QueuedConnection);
-
-                longPressTouchPointId = tp.id();
-                longPressTouchPointIsPrimary = tp.isPrimary();
-                longPressTimer.start(q->style()->longPressTimeout());
-                emit q->keyPressed(lookup.key,
-                                   KeyContext(hasActiveShiftKeys || isUpperCase(),
-                                              finder.deadKey() ? finder.deadKey()->label() : QString(),
-                                              tp.scenePos(), QPoint(), tp.isPrimary()));
-            }
-        }
-
-        if (lookup.lastKey
-            && lookup.lastKey->enabled()
-            && lookup.lastKey->decreaseTouchPointCount()
-            && lookup.lastKey->touchPointCount() == 0) {
-            emit q->keyReleased(lookup.lastKey,
-                                KeyContext(hasActiveShiftKeys || isUpperCase(),
-                                           finder.deadKey() ? finder.deadKey()->label() : QString()));
-        }
+        longPressTouchPointId = tp.id();
+        longPressTouchPointIsPrimary = tp.isPrimary();
+        longPressTimer.start(q->style()->longPressTimeout());
+        emit q->keyPressed(rec.key(),
+                           KeyContext(hasActiveShiftKeys || isUpperCase(),
+                                      finder.deadKey() ? finder.deadKey()->label() : QString(),
+                                      tp.scenePos(), QPoint(), tp.isPrimary()));
     }
 
-    if (!lookup.key || !lookup.key->enabled()) {
+    if (rec.touchPointLeftKey() && rec.previousKey()->touchPointCount() == 0) {
+        emit q->keyReleased(rec.previousKey(),
+                            KeyContext(hasActiveShiftKeys || isUpperCase(),
+                                       finder.deadKey() ? finder.deadKey()->label() : QString()));
+    }
+
+    if (rec.key() != rec.previousKey()) {
+        q->updatePopup(rec.key());
+    }
+
+    if (!rec.key()) {
         longPressTimer.stop();
     }
 
     if (q->debugTouchPoints) {
-        q->logTouchPoint(tp, lookup.key, lookup.lastKey);
+        q->logTouchPoint(tp, rec.key(), rec.previousKey());
     }
+
     mTimestamp("MImAbstractKeyArea", "end");
 }
 
@@ -504,9 +484,6 @@ void MImAbstractKeyAreaPrivate::touchPointReleased(const QTouchEvent::TouchPoint
     idleVkbTimer.start(q->style()->idleVkbTimeout());
 
     const QPoint pos = q->correctedTouchPoint(tp.scenePos());
-    const QPoint lastPos = q->correctedTouchPoint(tp.lastScenePos());
-
-    const GravitationalLookupResult lookup = gravitationalKeyAt(pos, lastPos);
 
     MImKeyVisitor::SpecialKeyFinder finder;
     MImAbstractKey::visitActiveKeys(&finder);
@@ -517,13 +494,24 @@ void MImAbstractKeyAreaPrivate::touchPointReleased(const QTouchEvent::TouchPoint
                           tp.scenePos(),
                           gAdjustedPositionForCorrection);
 
-    if (lookup.key
-        && lookup.key->enabled()
-        && lookup.key->decreaseTouchPointCount()
-        && lookup.key->touchPointCount() == 0) {
+    {
+        // Modify and store the touch point record.
+        TouchPointRecord &rec = touchPointRecords[tp.id()];
+
+        // If key has changed on release this will first increase its touch point count.
+        rec.setHitKey(gravitationalKeyAt(pos, rec.hasGravity() ? rec.key() : 0));
+    }
+
+    // Take copy since keyarea may get reset when emitting key events.
+    const TouchPointRecord rec = touchPointRecords[tp.id()];
+
+    if (rec.key()
+        && rec.key()->decreaseTouchPointCount()
+        && !rec.touchPointEnteredKey() // This is already missing keyPressed so don't emit keyReleased.
+        && rec.key()->touchPointCount() == 0) {
         longPressTimer.stop();
 
-        emit q->keyReleased(lookup.key, keyContext);
+        emit q->keyReleased(rec.key(), keyContext);
 
         // Update key context after release.
         MImAbstractKey::visitActiveKeys(&finder);
@@ -531,16 +519,12 @@ void MImAbstractKeyAreaPrivate::touchPointReleased(const QTouchEvent::TouchPoint
         clickContext.upperCase = (finder.shiftKey() != 0) || isUpperCase();
         clickContext.accent = finder.deadKey() ? finder.deadKey()->label() : QString();
 
-        click(lookup.key, clickContext);
+        click(rec.key(), clickContext);
     }
 
-    if (lookup.lastKey
-        && lookup.lastKey != lookup.key
-        && lookup.lastKey->enabled()
-        && lookup.lastKey->decreaseTouchPointCount()
-        && lookup.lastKey->touchPointCount() == 0) {
+    if (rec.touchPointLeftKey() && rec.previousKey()->touchPointCount() == 0) {
         // Use the same key context as before release.
-        emit q->keyReleased(lookup.lastKey, keyContext);
+        emit q->keyReleased(rec.previousKey(), keyContext);
     }
 
     // We're finished with this touch point, inform popup:
@@ -551,8 +535,9 @@ void MImAbstractKeyAreaPrivate::touchPointReleased(const QTouchEvent::TouchPoint
     longPressTimer.stop();
 
     if (q->debugTouchPoints) {
-        q->logTouchPoint(tp, lookup.key, lookup.lastKey);
+        q->logTouchPoint(tp, rec.key(), rec.previousKey());
     }
+    touchPointRecords.remove(tp.id());
     mTimestamp("MImAbstractKeyArea", "end");
 }
 
@@ -606,23 +591,27 @@ MImAbstractKeyAreaPrivate::multiTouchEnabled()
     return touchEventsAccepted;
 }
 
-MImAbstractKeyAreaPrivate::GravitationalLookupResult
-MImAbstractKeyAreaPrivate::gravitationalKeyAt(const QPoint &pos,
-                                              const QPoint &lastPos) const
+MImAbstractKey *MImAbstractKeyAreaPrivate::gravitationalKeyAt(const QPoint &pos,
+                                                              MImAbstractKey *gravityKey) const
 {
     Q_Q(const MImAbstractKeyArea);
 
-    // TODO: Needs explicit test coverage, maybe.
     MImAbstractKey *key = 0;
-    MImAbstractKey *lastKey = 0;
 
-    const qreal hGravity = q->style()->touchpointHorizontalGravity();
-    const qreal vGravity = q->style()->touchpointVerticalGravity();
+    if (gravityKey) {
+        const qreal hGravity = q->style()->touchpointHorizontalGravity();
+        const qreal vGravity = q->style()->touchpointVerticalGravity();
 
-    key = q->keyAt(adjustedByGravity(MImAbstractKey::lastActiveKey(),
-                                     pos, hGravity, vGravity).toPoint());
-    lastKey = q->keyAt(adjustedByGravity(MImAbstractKey::lastActiveKey(),
-                                         lastPos, hGravity, vGravity).toPoint());
+        QRectF gravityArea = gravityKey->buttonBoundingRect().adjusted(-hGravity, -vGravity,
+                                                                        hGravity, vGravity);
+        if (gravityArea.contains(pos)) {
+            key = gravityKey;
+        }
+    }
+
+    if (!key) {
+        key = q->keyAt(pos);
+    }
 
     // Check whether error correction needs updated position:
     if (key) {
@@ -638,7 +627,7 @@ MImAbstractKeyAreaPrivate::gravitationalKeyAt(const QPoint &pos,
                             br.bottom() - CorrectionDistanceThreshold));
     }
 
-    return GravitationalLookupResult(key, lastKey);
+    return key;
 }
 
 bool MImAbstractKeyAreaPrivate::isInSpeedTypingMode(bool restartTimers)
@@ -1153,6 +1142,8 @@ void MImAbstractKeyArea::reset()
         d->popup->cancel();
     }
 
+    d->touchPointRecords.clear();
+
     MImKeyVisitor::SpecialKeyFinder deadFinder(MImKeyVisitor::FindDeadKey);
     MImAbstractKey::visitActiveKeys(&deadFinder);
     unlockDeadKeys(deadFinder.deadKey());
@@ -1194,4 +1185,67 @@ QRectF MImAbstractKeyArea::correctedReactionRect(const QRectF &originalRect) con
 bool MImAbstractKeyArea::contains(const MImAbstractKey *key) const
 {
     return (key && keys().contains(key));
+}
+
+MImAbstractKeyAreaPrivate::TouchPointRecord::TouchPointRecord()
+    : m_key(0),
+      m_previousKey(0),
+      keyHasGravity(false)
+{
+}
+
+MImAbstractKey *MImAbstractKeyAreaPrivate::TouchPointRecord::key() const
+{
+    return m_key;
+}
+
+MImAbstractKey *MImAbstractKeyAreaPrivate::TouchPointRecord::previousKey() const
+{
+    return m_previousKey;
+}
+
+void MImAbstractKeyAreaPrivate::TouchPointRecord::setHitKey(MImAbstractKey *key)
+{
+    m_previousKey = m_key;
+
+    if (key == m_key) {
+        return;
+    }
+
+    m_key = key;
+
+    // If key is disabled or touch point count increase/decrease failed
+    // then consider it's not a key.
+    // For example decreaseTouchPointCount() could fail if the key was autocommitted.
+    if (!m_previousKey
+        || !m_previousKey->enabled()
+        || !m_previousKey->decreaseTouchPointCount()) {
+        m_previousKey = 0;
+    }
+    if (!m_key
+        || !m_key->enabled()
+        || !m_key->increaseTouchPointCount()) {
+        m_key = 0;
+    }
+
+    if (touchPointEnteredKey() && m_previousKey == 0) {
+        keyHasGravity = true;
+    } else if (touchPointLeftKey()) {
+        keyHasGravity = false;
+    }
+}
+
+bool MImAbstractKeyAreaPrivate::TouchPointRecord::touchPointEnteredKey() const
+{
+    return m_key && (m_previousKey != m_key);
+}
+
+bool MImAbstractKeyAreaPrivate::TouchPointRecord::touchPointLeftKey() const
+{
+    return m_previousKey && (m_previousKey != m_key);
+}
+
+bool MImAbstractKeyAreaPrivate::TouchPointRecord::hasGravity() const
+{
+    return m_key && keyHasGravity;
 }

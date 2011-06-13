@@ -189,7 +189,6 @@ MImKey::MImKey(const MImKeyModel &newModel,
       selected(false),
       styleContainer(style),
       currentTouchPointCount(0),
-      hasGravity(false),
       rowHasSecondaryLabel(false),
       stylingCache(newStylingCache),
       overrideIcon(0),
@@ -404,7 +403,6 @@ void MImKey::setDownState(bool down)
         case Normal:
             // inactive key should be removed from list of active keys
             activeKeys.removeAll(this);
-            hasGravity = false;
             break;
         case Selected:
             if (currentState == Normal) {
@@ -554,16 +552,6 @@ int MImKey::touchPointCount() const
 int MImKey::touchPointLimit()
 {
     return 20;
-}
-
-void MImKey::activateGravity()
-{
-    hasGravity = true;
-}
-
-bool MImKey::isGravityActive() const
-{
-    return hasGravity;
 }
 
 const MScalableImage * MImKey::backgroundImage() const
