@@ -903,6 +903,12 @@ void Ut_MImAbstractKeyArea::testOverridenKey()
     }
 
     subject->d_ptr->touchPointMoved(tp2);
+
+    if (key0->enabled()) {
+        ++releaseExpected;
+    }
+    QCOMPARE(released.count(), releaseExpected);
+
     if (key2->enabled()) {
         ++pressExpected;
         QCOMPARE(pressed.count(), pressExpected);
@@ -1127,19 +1133,19 @@ void Ut_MImAbstractKeyArea::testTouchPoints_data()
                      << createTp(0, Qt::TouchPointReleased, QPointF(16, 20), QPointF(12, 24))
                      << createTp(1, Qt::TouchPointPressed, QPointF(12, 24), QPointF(-1, -1))
                      << createTp(1, Qt::TouchPointReleased, QPointF(16, 20), QPointF(16, 24))
-                     << createTp(0, Qt::TouchPointReleased, QPointF(80, 20), QPointF(80, 20)))
+                     << createTp(0, Qt::TouchPointReleased, QPointF(80, 20), QPointF(16, 20)))
         << (TpButtonStateMatrix() << (ButtonStateList() << MImAbstractKey::Pressed
                                                         << MImAbstractKey::Normal)
-                                  << (ButtonStateList() << MImAbstractKey::Normal
+                                  << (ButtonStateList() << MImAbstractKey::Normal // Autocommitted
                                                         << MImAbstractKey::Pressed)
-                                  << (ButtonStateList() << MImAbstractKey::Normal
+                                  << (ButtonStateList() << MImAbstractKey::Normal // Release does nothing
                                                         << MImAbstractKey::Pressed)
                                   << (ButtonStateList() << MImAbstractKey::Pressed
+                                                        << MImAbstractKey::Normal) // Double press, tp autocommitted itself.
+                                  << (ButtonStateList() << MImAbstractKey::Normal // Released
                                                         << MImAbstractKey::Normal)
                                   << (ButtonStateList() << MImAbstractKey::Normal
-                                                        << MImAbstractKey::Normal)
-                                  << (ButtonStateList() << MImAbstractKey::Normal
-                                                        << MImAbstractKey::Normal));
+                                                        << MImAbstractKey::Normal)); // Release without press.
 
     QTest::newRow("move into button, release")
         << 1 << "a" << QSize(50, 50)
@@ -1225,7 +1231,7 @@ void Ut_MImAbstractKeyArea::testTouchPoints_data()
                                                         << MImAbstractKey::Normal));
 
     QTest::newRow("sudden release while moving from a to b, mixed with other touchpoint transaction")
-        << 2 << "ab" << QSize(100, 50)
+        << 1 << "ab" << QSize(100, 50)
         << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(12, 24), QPointF(-1, -1))
                      << createTp(0, Qt::TouchPointMoved, QPointF(30, 20), QPointF(12, 24))
                      << createTp(1, Qt::TouchPointPressed, QPointF(70, 16), QPointF(-1, -1))
@@ -1235,10 +1241,10 @@ void Ut_MImAbstractKeyArea::testTouchPoints_data()
                                                         << MImAbstractKey::Normal)
                                   << (ButtonStateList() << MImAbstractKey::Pressed
                                                         << MImAbstractKey::Normal)
-                                  << (ButtonStateList() << MImAbstractKey::Normal
+                                  << (ButtonStateList() << MImAbstractKey::Normal // "a" autocommitted
                                                         << MImAbstractKey::Pressed)
                                   << (ButtonStateList() << MImAbstractKey::Normal
-                                                        << MImAbstractKey::Normal)
+                                                        << MImAbstractKey::Pressed) // Another tp is still active here.
                                   << (ButtonStateList() << MImAbstractKey::Normal
                                                         << MImAbstractKey::Normal));
 }
@@ -1289,6 +1295,7 @@ void Ut_MImAbstractKeyArea::testTouchPoints()
 
         const ButtonStateList &bsl = expectedStates.at(i);
         for (int k = 0; k < bsl.size(); ++k) {
+            qDebug() << "tp " << i << ", button " << k;
             QCOMPARE(tracedButtons.at(k)->state(), bsl.at(k));
         }
     }

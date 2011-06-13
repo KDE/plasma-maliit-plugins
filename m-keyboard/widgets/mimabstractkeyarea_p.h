@@ -57,6 +57,27 @@ public:
         ResetLastPosMember  //!< Do not use mouse event's lastPos member. Use current pos instead.
     };
 
+
+    class TouchPointRecord
+    {
+    public:
+        TouchPointRecord();
+
+        void setHitKey(MImAbstractKey *key);
+
+        MImAbstractKey *key() const;
+        MImAbstractKey *previousKey() const;
+
+        bool touchPointEnteredKey() const;
+        bool touchPointLeftKey() const;
+        bool hasGravity() const;
+
+    private:
+        MImAbstractKey *m_key;
+        MImAbstractKey *m_previousKey;
+        bool keyHasGravity;
+    };
+
     //! \brief Constructor
     //! \param newSection Section that is shown by this key area
     //! \param owner Pointer to key area which owns this object
@@ -148,12 +169,11 @@ public:
 
     //! \brief Gravitational key lookup
     //! \param mappedPos Current position of touchpoint,
-    //!        mapped to widget space.
-    //! \param mappedLastPos Last position of touchpoint,
-    //!        mapped to widget space.
-    //! \returns adjusted key and last key, using \a keyAt.
-    GravitationalLookupResult gravitationalKeyAt(const QPoint &mappedPos,
-                                                 const QPoint &mappedLastPos) const;
+    //!        mapped to keyarea space.
+    //! \param gravityKey The key that is considered having gravity.
+    //! \returns gravityKey itself or result from \a keyAt.
+    MImAbstractKey *gravitationalKeyAt(const QPoint &mappedPos,
+                                       MImAbstractKey *gravityKey) const;
 
     //! \brief Trigger a keyClicked signal, and update key area state.
     //! \param key the clicked key
@@ -202,6 +222,7 @@ public:
     QMap<int, QPointF> mostRecentTouchPositions; //!< Remember the most recent positions for each touch points.
     int longPressTouchPointId; //!< Remember the touch position ID which initiated long press.
     bool longPressTouchPointIsPrimary; //!< Remember if long press touch position was primary.
+    QMap<int, TouchPointRecord> touchPointRecords; //!< Maps touch points to related key information.
 };
 //! \internal_end
 

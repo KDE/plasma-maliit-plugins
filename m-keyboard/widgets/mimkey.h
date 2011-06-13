@@ -111,8 +111,6 @@ public:
     virtual bool decreaseTouchPointCount();
     virtual void resetTouchPointCount();
     virtual int touchPointCount() const;
-    virtual void activateGravity();
-    virtual bool isGravityActive() const;
     virtual const MScalableImage *backgroundImage() const;
     virtual const MScalableImage *normalBackgroundImage() const;
     virtual QRectF boundingRect() const;
@@ -269,8 +267,6 @@ private:
     Geometry currentGeometry;
     QRectF cachedButtonRect;
     QRectF cachedButtonBoundingRect;
-
-    bool hasGravity;
 
     //! Some key in the same row has secondary label
     bool rowHasSecondaryLabel;

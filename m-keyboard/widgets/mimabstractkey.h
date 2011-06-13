@@ -141,12 +141,6 @@ public:
     //! \brief Get current touchpoint count.
     virtual int touchPointCount() const = 0;
 
-    //! \brief Activate gravity. Will be reset on next key release.
-    virtual void activateGravity() = 0;
-
-    //! \brief Returns whether gravity is active.
-    virtual bool isGravityActive() const = 0;
-
     //! \brief Return background image according to current mode and style.
     virtual const MScalableImage *backgroundImage() const = 0;
 

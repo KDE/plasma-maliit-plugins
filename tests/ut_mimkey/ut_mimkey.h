@@ -115,7 +115,6 @@ private slots:
     void testVisitActiveKeys();
 
     void testKeyRects();
-    void testGravity();
 
     void testLabelOverride();
     void testKeyDisabling();

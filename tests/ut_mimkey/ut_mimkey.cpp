@@ -494,20 +494,6 @@ void Ut_MImKey::testKeyRects()
     QCOMPARE(key->buttonBoundingRect(), expectedBoundingRect);
 }
 
-void Ut_MImKey::testGravity()
-{
-    QVERIFY(!subject->isGravityActive());
-
-    subject->activateGravity();
-    QVERIFY(subject->isGravityActive());
-
-    subject->setDownState(true);
-    QVERIFY(subject->isGravityActive());
-
-    subject->setDownState(false);
-    QVERIFY(!subject->isGravityActive());
-}
-
 void Ut_MImKey::testLabelOverride()
 {
     QSharedPointer<MKeyOverride> override(new MKeyOverride("keyId"));
