@@ -108,6 +108,9 @@ void WordRibbonHost::setCandidates(const QStringList &candidates)
         }
         wordRibbon->repopulate(candidates);
     }
+
+    // Request reaction map repaint.
+    signalForwarder.emitRequestRepaint();
 }
 
 void WordRibbonHost::watchOnWidget(QGraphicsWidget *widget)
@@ -159,6 +162,9 @@ void WordRibbonHost::clearCandidate()
     candidatesCache.clear();
     wordRibbon->clear();
     ribbonDialog->accept();
+
+    // Request reaction map repaint.
+    signalForwarder.emitRequestRepaint();
 }
 
 void WordRibbonHost::openWordRibbonDialog()
