@@ -1520,6 +1520,7 @@ void Ut_MImAbstractKeyArea::testTouchPointCount_data()
     QTest::addColumn<QPoint>("keyToCheckPos");
     QTest::addColumn<int>("expectedTouchPointCount");
 
+    // QPoint(row, column)
     const QPoint key1(3, 3);
     const QPoint key2(0, 0);
 
@@ -1572,7 +1573,8 @@ void Ut_MImAbstractKeyArea::testTouchPointCount()
 
     foreach (TouchTestOperation op, touchOpList) {
 
-        MImAbstractKey *key = keyAt(op.keyPos.y(), op.keyPos.x());
+        // Get key based on row & column.
+        MImAbstractKey *key = keyAt(op.keyPos.x(), op.keyPos.y());
         QPointF keyPos = key->buttonRect().center();
         QVERIFY(key && subject->keyAt(keyPos.toPoint()) == key);
 
@@ -1647,7 +1649,7 @@ void Ut_MImAbstractKeyArea::testTouchPointCount()
         }
     }
 
-    MImAbstractKey *keyToCheck = keyAt(keyToCheckPos.y(), keyToCheckPos.x());
+    MImAbstractKey *keyToCheck = keyAt(keyToCheckPos.x(), keyToCheckPos.y());
     QVERIFY(keyToCheck);
     QCOMPARE(keyToCheck->touchPointCount(), expectedTouchPointCount);
 }
