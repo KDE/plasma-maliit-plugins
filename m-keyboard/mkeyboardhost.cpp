@@ -555,11 +555,9 @@ void MKeyboardHost::show()
     }
     RegionTracker::instance().enableSignals(false);
 
-    // Enable the widgets to receive input events
-    // Note: The widgets are disabled when VKB is going to hide.
-    sharedHandleArea->setEnabled(true);
-    vkbWidget->setEnabled(true);
-    symbolView->setEnabled(true);
+    // Enable the widgets back
+    // Note: The widgets have been disabled when VKB was going to hide.
+    MPlainWindow::instance()->setEnabled(true);
 
     handleAppOrientationChanged(appOrientationAngle);
 
@@ -642,10 +640,8 @@ void MKeyboardHost::hide()
         }
     }
 
-    // Disable the widgets to avoid receiving input events when sliding away
-    sharedHandleArea->setEnabled(false);
-    vkbWidget->setEnabled(false);
-    symbolView->setEnabled(false);
+    // Avoid receiving input events when sliding away
+    MPlainWindow::instance()->setEnabled(false);
 
     prepareHideShowAnimation();
     slideUpAnimation.setDirection(QAbstractAnimation::Backward);
