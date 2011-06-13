@@ -1001,6 +1001,11 @@ void MKeyboardHost::finalizeOrientationChange()
         }
     }
 
+    AbstractEngineWidgetHost *engineWidgetHost = EngineManager::instance().handler() ?
+        EngineManager::instance().handler()->engineWidgetHost() : 0;
+    if (engineWidgetHost)
+        engineWidgetHost->finalizeOrientationChange();
+
     // reload keyboard layout for engine when orientation is changed
     engineLayoutDirty = true;
     if (vkbWidget->isVisible()) {
@@ -1090,9 +1095,6 @@ void MKeyboardHost::handleAppOrientationChanged(int angle)
             engineWidgetHost->hideEngineWidget();
         }
     }
-
-    if (engineWidgetHost)
-        engineWidgetHost->finalizeOrientationChange();
 }
 
 void MKeyboardHost::handleCandidateClicked(const QString &clickedCandidate, int index)

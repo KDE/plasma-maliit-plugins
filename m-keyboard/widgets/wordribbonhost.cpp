@@ -95,7 +95,6 @@ void WordRibbonHost::setTitle(QString &title)
 
 void WordRibbonHost::setCandidates(const QStringList &candidates)
 {
-    qDebug() <<Q_FUNC_INFO <<" candidates COUNT = " <<candidates.count();
     if (candidates.isEmpty()) {
         clearCandidate();
     }
@@ -132,15 +131,9 @@ void WordRibbonHost::prepareToOrientationChange()
 
 void WordRibbonHost::finalizeOrientationChange()
 {
-    qDebug() <<Q_FUNC_INFO;
-    QStringList tmpList;
-    for (int i = 0; i < InitialCandidateCount && i < candidatesCache.count(); ++i) {
-        tmpList << this->candidatesCache.at(i);
-    }
     wordRibbon->finalizeOrientationChange();
-    wordRibbon->repopulate(tmpList);
 
-    if (ribbonDialog->isVisible()){
+    if (ribbonDialog->isVisible()) {
         ribbonDialog->finalizeOrientationChange();
     }
 }
@@ -150,16 +143,8 @@ void WordRibbonHost::showEngineWidget(DisplayMode mode)
     if (mode != AbstractEngineWidgetHost::DockedMode)
         return;
 
-    if (candidatesCache.isEmpty()){
-        hideEngineWidget();
-        return;
-    }
-
     wordRibbon->show();
     updatePosition();
-
-    // Request reaction map repaint.
-    signalForwarder.emitRequestRepaint();
 }
 
 void WordRibbonHost::hideEngineWidget()
@@ -171,9 +156,8 @@ void WordRibbonHost::hideEngineWidget()
 
 void WordRibbonHost::clearCandidate()
 {
-    qDebug() <<Q_FUNC_INFO;
     candidatesCache.clear();
-    wordRibbon->clearAllItems();
+    wordRibbon->clear();
     ribbonDialog->accept();
 }
 
@@ -340,6 +324,5 @@ QGraphicsWidget * WordRibbonHost::engineWidget() const
 
 QGraphicsWidget * WordRibbonHost::inlineWidget() const
 {
-
     return qobject_cast<QGraphicsWidget *>(wordRibbon);
 }

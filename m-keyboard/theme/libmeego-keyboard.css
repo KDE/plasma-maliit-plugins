@@ -703,12 +703,12 @@ WordRibbonStyle {
 
 WordRibbonStyle.Landscape {
     background-image: "meegotouch-vkb-chinese-word-predicting-toolbar-background-landscape";
-    minimum-size: 854 65;
+    preferred-size: 854 65;
 }
 
 WordRibbonStyle.Portrait {
     background-image: "meegotouch-vkb-chinese-word-predicting-toolbar-background-portrait";
-    minimum-size: 480 65;
+    preferred-size: 480 65;
 
     padding-left: 4;
     padding-right: 4;
