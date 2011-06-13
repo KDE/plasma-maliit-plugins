@@ -39,7 +39,7 @@
 #include "mnamespace.h"
 #include "flickgesture.h"
 
-#include <set>
+#include <QMap>
 
 class MApplication;
 class MImAbstractKeyArea;
@@ -56,6 +56,10 @@ private:
     MImAbstractKeyArea *subject;
     KeyboardData *keyboard;
     MSceneWindow *sceneWindow;
+
+    QMap<int, QTouchEvent::TouchPoint> touchPointMap;
+    int mouseEventFollowId;
+    QPointF mouseLastPos;
 
 private slots:
     void init();
@@ -113,10 +117,8 @@ private:
         Release
     };
 
-    void touchEvent(QWidget *window,
-                    const std::set<int> &activeTouchPoints,
-                    TouchEvent event,
-                    int id, QPoint pos);
+    void touchEvent(TouchEvent event,
+                    int id, const QPointF &pos);
     void changeOrientation(M::OrientationAngle angle);
     QSize defaultLayoutSize();
 
@@ -137,20 +139,33 @@ public:
         TestOpSetShiftOn,
         TestOpSetShiftOff
     };
+    enum HitPosition {
+        LeftEdge,
+        RightEdge,
+        BottomEdge,
+        TopEdge,
+        Center
+    };
 
     typedef QList<TestOperation> TestOpList;
 
     struct TouchTestOperation {
         TouchTestOperation(TouchEvent event,
                            const QPoint &keyRowCol,
-                           int tpId = 0)
+                           int tpId = 0,
+                           HitPosition hitPos = Center,
+                           QPointF offset = QPointF())
            : event(event),
              keyPos(keyRowCol),
-             touchPointId(tpId)
+             touchPointId(tpId),
+             hitPos(hitPos),
+             offset(offset)
         {}
         TouchEvent event;
         QPoint keyPos;
         int touchPointId;
+        HitPosition hitPos;
+        QPointF offset;
     };
 
     typedef QList<TouchTestOperation> TouchOpList;
