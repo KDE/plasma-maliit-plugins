@@ -600,6 +600,13 @@ void MKeyboardHost::show()
     sendRegionEstimate();
     slideUpAnimation.setDirection(QAbstractAnimation::Forward);
     slideUpAnimation.start();
+
+    if (EngineManager::instance().handler()) {
+        AbstractEngineWidgetHost *engineWidgetHost = EngineManager::instance().handler()->engineWidgetHost();
+        if (engineWidgetHost && engineWidgetHost->displayMode() == AbstractEngineWidgetHost::DockedMode) {
+            engineWidgetHost->showEngineWidget(AbstractEngineWidgetHost::DockedMode);
+        }
+    }
 }
 
 
@@ -628,8 +635,11 @@ void MKeyboardHost::hide()
     RegionTracker::instance().enableSignals(false);
     RegionTracker::instance().sendInputMethodAreaEstimate(QRegion());
 
-    if (EngineManager::instance().handler() && EngineManager::instance().handler()->engineWidgetHost()) {
-        EngineManager::instance().handler()->engineWidgetHost()->hideEngineWidget();
+    if (EngineManager::instance().handler()) {
+        AbstractEngineWidgetHost *engineWidgetHost = EngineManager::instance().handler()->engineWidgetHost();
+        if (engineWidgetHost && engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode) {
+            engineWidgetHost->hideEngineWidget();
+        }
     }
 
     // Disable the widgets to avoid receiving input events when sliding away
@@ -669,6 +679,13 @@ void MKeyboardHost::handleAnimationFinished()
         vkbWidget->hide();
         vkbWidget->resetState();
         symbolView->hideSymbolView();
+
+        if (EngineManager::instance().handler()) {
+            AbstractEngineWidgetHost *engineWidgetHost = EngineManager::instance().handler()->engineWidgetHost();
+            if (engineWidgetHost && engineWidgetHost->displayMode() == AbstractEngineWidgetHost::DockedMode) {
+                engineWidgetHost->hideEngineWidget();
+            }
+        }
         // TODO: the following line which was added to improve plugin switching (see the
         // commit comment) would cause animation not to be seen if it was in ::hide() but
         // just having it here without any two-phase show/hide protocol that considers
@@ -936,9 +953,12 @@ void MKeyboardHost::resetInternalState()
     preedit.clear();
     preeditCursorPos = -1;
     preeditHasBeenEdited = false;
-    if (EngineManager::instance().handler() && EngineManager::instance().handler()->engineWidgetHost()) {
-        EngineManager::instance().handler()->engineWidgetHost()->reset();
-        EngineManager::instance().handler()->engineWidgetHost()->hideEngineWidget();
+    if (EngineManager::instance().handler()) {
+        AbstractEngineWidgetHost *engineWidgetHost = EngineManager::instance().handler()->engineWidgetHost();
+        if (engineWidgetHost && engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode) {
+            engineWidgetHost->reset();
+            engineWidgetHost->hideEngineWidget();
+        }
     }
     if (EngineManager::instance().engine())
         EngineManager::instance().engine()->clearEngineBuffer();

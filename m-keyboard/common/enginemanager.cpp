@@ -262,6 +262,7 @@ public:
                 SLOT(handleCandidateClicked(const QString &, int)),
                 Qt::UniqueConnection);
         mEngineWidgetHost->finalizeOrientationChange();
+        mEngineWidgetHost->showEngineWidget(AbstractEngineWidgetHost::DockedMode);
 
         if (stateMachine != NULL) {
             connect(stateMachine,   SIGNAL(toggleKeyStateChanged(bool)),

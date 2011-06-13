@@ -216,7 +216,6 @@ void CJKLogicStateMachine::resetWithCommitStringToApp()
     currentState = standbyState;
     currentState->initState();
     engineWidgetHost.reset();
-    engineWidgetHost.hideEngineWidget();
     inputMethodEngine.clearEngineBuffer();
     backspaceTimer->stop();
     backspaceLongPressTriggered = false;
@@ -240,7 +239,6 @@ void CJKLogicStateMachine::resetWithoutCommitStringToApp()
     currentState = standbyState;
     currentState->initState();
     engineWidgetHost.reset();
-    engineWidgetHost.hideEngineWidget();
     inputMethodEngine.clearEngineBuffer();
     backspaceTimer->stop();
     backspaceLongPressTriggered = false;
@@ -466,7 +464,6 @@ void CJKLogicStateMachine::changeState(const QString &state)
     qDebug() <<"#### LogicStateMachine change state to "<<state;
 
     engineWidgetHost.reset();
-    engineWidgetHost.hideEngineWidget();
     inputMethodEngine.clearEngineBuffer();
 
     if(currentState != NULL)
@@ -937,11 +934,9 @@ void MatchNotStartedState::handleLetterKey(const KeyEvent &event)
         matchStateMachine->matchIsTerminated = false;
         stateMachine->engineWidgetHost.setCandidates(tempCandidateWords);
         stateMachine->engineWidgetHost.setTitle(matchStateMachine->inputPreedit);
-        stateMachine->engineWidgetHost.showEngineWidget(AbstractEngineWidgetHost::DockedMode);
     } else {
         matchStateMachine->matchIsTerminated = true;
         stateMachine->engineWidgetHost.reset();
-        stateMachine->engineWidgetHost.hideEngineWidget();
     }
     return ;
 }
@@ -986,7 +981,6 @@ void MatchNotStartedState::handleBackspaceKey(const KeyEvent &event)
             matchStateMachine->matchIsTerminated = false;
             stateMachine->engineWidgetHost.setCandidates(tempCandidateWords);
             stateMachine->engineWidgetHost.setTitle(matchStateMachine->inputPreedit);
-            stateMachine->engineWidgetHost.showEngineWidget(AbstractEngineWidgetHost::DockedMode);
         } else {
             matchStateMachine->matchIsTerminated = true;
             qDebug() <<"MatchNotStartedState::handleBackspaceKey()"
@@ -1001,7 +995,6 @@ void MatchNotStartedState::handleLongPressBackspaceKey()
         matchStateMachine->inputPreedit.clear();
         stateMachine->inputMethodHost.sendCommitString(matchStateMachine->inputPreedit);
         stateMachine->engineWidgetHost.reset();
-        stateMachine->engineWidgetHost.hideEngineWidget();
         stateMachine->changeState(StandByStateString);
     }
 }
@@ -1138,12 +1131,10 @@ void MatchStartedState::handleCandidateClicked(const QString &candStr, int wordI
             matchStateMachine->matchIsTerminated = false;
             stateMachine->engineWidgetHost.setCandidates(tempCandidateWords);
             stateMachine->engineWidgetHost.setTitle(matchStateMachine->inputPreedit);
-            stateMachine->engineWidgetHost.showEngineWidget(AbstractEngineWidgetHost::DockedMode);
             return;
         } else {
             matchStateMachine->matchIsTerminated = true;
             stateMachine->engineWidgetHost.reset();
-            stateMachine->engineWidgetHost.hideEngineWidget();
         }
     } else {
         // Time to learn a new word or phase.
@@ -1224,12 +1215,10 @@ void MatchStartedState::handleLetterKey(const KeyEvent &event)
         matchStateMachine->matchIsTerminated = false;
         stateMachine->engineWidgetHost.setCandidates(tempCandidateWords);
         stateMachine->engineWidgetHost.setTitle(matchStateMachine->inputPreedit);
-        stateMachine->engineWidgetHost.showEngineWidget(AbstractEngineWidgetHost::DockedMode);
         return ;
     } else {
         matchStateMachine->matchIsTerminated = true;
         stateMachine->engineWidgetHost.reset();
-        stateMachine->engineWidgetHost.hideEngineWidget();
         return ;
     }
     return ;
@@ -1273,7 +1262,6 @@ void MatchStartedState::handleBackspaceKey(const KeyEvent &event)
             matchStateMachine->matchIsTerminated = false;
             stateMachine->engineWidgetHost.setCandidates(tempCandidateWords);
             stateMachine->engineWidgetHost.setTitle(matchStateMachine->inputPreedit);
-            stateMachine->engineWidgetHost.showEngineWidget(AbstractEngineWidgetHost::DockedMode);
         } else {
             matchStateMachine->matchIsTerminated = true;
         }
@@ -1288,7 +1276,6 @@ void MatchStartedState::handleLongPressBackspaceKey()
         matchStateMachine->inputPreedit.clear();
         stateMachine->inputMethodHost.sendCommitString(matchStateMachine->inputPreedit);
         stateMachine->engineWidgetHost.reset();
-        stateMachine->engineWidgetHost.hideEngineWidget();
         stateMachine->changeState(StandByStateString);
     }
 }
@@ -1366,7 +1353,6 @@ void PredictionState::initState()
     if (tempPredictionWords.count() > 0) {
         stateMachine->engineWidgetHost.setCandidates(tempPredictionWords);
         stateMachine->engineWidgetHost.setTitle(stateMachine->userChoseCandidateString);
-        stateMachine->engineWidgetHost.showEngineWidget(AbstractEngineWidgetHost::DockedMode);
     } else {
         stateMachine->changeState(StandByStateString);
     }
@@ -1407,7 +1393,6 @@ void PredictionState::handleCandidateClicked(const QString &candStr, int wordInd
     if (tempPredictionWords.count() > 0) {
         stateMachine->engineWidgetHost.setCandidates(tempPredictionWords);
         stateMachine->engineWidgetHost.setTitle(stateMachine->userChoseCandidateString);
-        stateMachine->engineWidgetHost.showEngineWidget(AbstractEngineWidgetHost::DockedMode);
         return;
     } else {
         stateMachine->changeState(StandByStateString);
