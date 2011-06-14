@@ -48,6 +48,7 @@ MImCorrectionHost::MImCorrectionHost(MWidget *window, QObject *parent)
       pendingCandidatesUpdate(false),
       wordTrackerContainer(new QGraphicsWidget(window)),
       wordTracker(new MImWordTracker(wordTrackerContainer)),
+      wordTrackerHiddenByRotation(false),
       wordList(new MImWordList())
 {
     connect(wordTracker, SIGNAL(candidateClicked(QString)), this, SLOT(handleCandidateClicked(QString)));
@@ -90,7 +91,7 @@ QGraphicsWidget *MImCorrectionHost::inlineWidget() const
 
 bool MImCorrectionHost::isActive() const
 {
-    return (wordTracker->isVisible() || wordList->isVisible());
+    return (wordTracker->isVisible() || wordList->isVisible() || wordTrackerHiddenByRotation);
 }
 
 bool MImCorrectionHost::typedWordIsInDictionary()
@@ -173,6 +174,8 @@ void MImCorrectionHost::showEngineWidget(AbstractEngineWidgetHost::DisplayMode m
 void MImCorrectionHost::hideEngineWidget()
 {
     wordTracker->disappear(false);
+    // if the wordTracker is really temporary hidden, caller must set a flag
+    wordTrackerHiddenByRotation = false;
     wordList->disappear();
 }
 
@@ -209,6 +212,10 @@ void MImCorrectionHost::prepareToOrientationChange()
 {
     if (isActive()) {
         rotationInProgress = true;
+        if (displayMode() == AbstractEngineWidgetHost::FloatingMode) {
+            hideEngineWidget();
+            wordTrackerHiddenByRotation = true;
+        }
     }
 }
 
@@ -219,7 +226,10 @@ void MImCorrectionHost::finalizeOrientationChange()
 void MImCorrectionHost::handleAppOrientationChanged()
 {
     if (rotationInProgress) {
-        showEngineWidget(currentMode);
+        if (isActive() && displayMode() == AbstractEngineWidgetHost::FloatingMode) {
+            showEngineWidget(currentMode);
+            wordTrackerHiddenByRotation = false;
+        }
         rotationInProgress = false;
     }
 }

@@ -122,6 +122,7 @@ private:
 
     QPointer<QGraphicsWidget> wordTrackerContainer;
     MImWordTracker *wordTracker;
+    bool wordTrackerHiddenByRotation;
     MImWordList *wordList;
     MImEngineWordsInterface *correctionEngine;
 
