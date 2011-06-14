@@ -239,8 +239,7 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
       toolbarHidePending(false),
       keyOverrideClearPending(false),
       regionUpdatesEnabledBeforeOrientationChange(true),
-      appOrientationAngle(M::Angle90), // shouldn't matter, see handleAppOrientationChanged comment
-      engineWidgetHostTemporarilyHidden(false)
+      appOrientationAngle(M::Angle90) // shouldn't matter, see handleAppOrientationChanged comment
 {
     Q_ASSERT(host != 0);
     Q_ASSERT(mainWindow != 0);
@@ -981,12 +980,6 @@ void MKeyboardHost::prepareOrientationChange()
     if (engineWidgetHost) {
         engineWidgetHost->prepareToOrientationChange();
     }
-
-    if (engineWidgetHost && engineWidgetHost->isActive()
-        && engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode) {
-        engineWidgetHost->hideEngineWidget();
-        engineWidgetHostTemporarilyHidden = true;
-    }
 }
 
 void MKeyboardHost::finalizeOrientationChange()
@@ -1086,20 +1079,6 @@ void MKeyboardHost::handleAppOrientationChanged(int angle)
     AbstractEngineWidgetHost *engineWidgetHost = EngineManager::instance().handler() ?
         EngineManager::instance().handler()->engineWidgetHost() : 0;
 
-    // If correction candidate widget was open we need to reposition it.
-    if (engineWidgetHost && (engineWidgetHost->isActive() || engineWidgetHostTemporarilyHidden)
-        && engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode) {
-        engineWidgetHostTemporarilyHidden = false;
-        bool success = false;
-        const QRect rect = inputMethodHost()->cursorRectangle(success);
-        if (success && rect.isValid()) {
-            engineWidgetHost->setPosition(sceneWindow->mapRectFromScene(rect).toRect());
-            engineWidgetHost->showEngineWidget(engineWidgetHost->displayMode());
-        } else {
-            engineWidgetHost->hideEngineWidget();
-        }
-    }
-    
     engineWidgetHost->handleAppOrientationChanged();
 }
 
