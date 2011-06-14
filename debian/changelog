@@ -1,8 +1,8 @@
-meego-keyboard (0.6.14~1) unstable; urgency=low
+meego-keyboard (0.6.14-1) unstable; urgency=low
 
-  * [UNRELEASED]
+  * Fixes: NB#258652 - Keyboard language notification is not according to layout guide
 
- -- Ning Chi <ext-chi.2.ning@nokia.com>  Fri, 10 Jun 2011 13:45:38 +0300
+ -- Ning Chi <ext-chi.2.ning@nokia.com>  Tue, 14 Jun 2011 11:11:38 +0300
 
 meego-keyboard (0.6.13-1) unstable; urgency=low
 
