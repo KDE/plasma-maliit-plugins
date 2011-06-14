@@ -75,14 +75,29 @@ public:
     void highlight();
 
     /*!
-     * \brief Resets current display style state into Normal state.
+     * \brief Sets the item to be pressed.
      */
-    void resetStyleState();
+    void press();
+
+    /*!
+     * \brief Clears hightlighted state of current item.
+     */
+    void clearHighlight();
+
+    /*!
+     * \brief Clears pressed state of current item.
+     */
+    void clearPress();
 
     /*!
      * \brief Returns whether the item is highlighted
      */
     bool highlighted() const;
+
+    /*!
+     * \brief Returns whether the item is pressed.
+     */
+    bool pressed() const;
 
     /*!
      * \brief Sets the position index of the item in the list
