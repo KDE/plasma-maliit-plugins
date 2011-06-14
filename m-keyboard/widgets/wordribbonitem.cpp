@@ -144,7 +144,7 @@ void WordRibbonItem::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
             // out of the area of current item, its "Pressed" state should
             // be cancelled.
             isMousePressCancelled = true;
-            resetStyleState();
+            clearPress();
         }
     } else {
         QRect moveRect = paddingRect.adjusted(-FocusZoneMargin,
@@ -165,7 +165,7 @@ void WordRibbonItem::cancelEvent(MCancelEvent *event)
 {
     Q_UNUSED(event);
     isMousePressCancelled = true;
-    resetStyleState();
+    clearPress();
 }
 
 void WordRibbonItem::setText(const QString& str)
@@ -207,11 +207,22 @@ void WordRibbonItem::highlight()
     updateStyleState(SelectedState);
 }
 
-void WordRibbonItem::resetStyleState()
+void WordRibbonItem::press()
 {
-    if (state != NormalState) {
+    if (!pressed())
+        updateStyleState(PressState);
+}
+
+void WordRibbonItem::clearHighlight()
+{
+    if (highlighted())
         updateStyleState(NormalState);
-    }
+}
+
+void WordRibbonItem::clearPress()
+{
+    if (pressed())
+        updateStyleState(NormalState);
 }
 
 bool WordRibbonItem::highlighted() const
@@ -220,6 +231,11 @@ bool WordRibbonItem::highlighted() const
         return false;
     }
     return state == SelectedState;
+}
+
+bool WordRibbonItem::pressed() const
+{
+    return state == PressState;
 }
 
 void WordRibbonItem::setPositionIndex(int index)
