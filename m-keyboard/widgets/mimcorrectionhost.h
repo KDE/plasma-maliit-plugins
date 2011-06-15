@@ -95,6 +95,7 @@ public:
     virtual void finalizeOrientationChange();
     virtual void reset();
     virtual void setPageIndex(int index = 0);
+    virtual void handleAppOrientationChanged();
     //! reimp_end
 
     /*!

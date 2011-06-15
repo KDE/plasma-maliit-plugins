@@ -141,6 +141,10 @@ void WordRibbonHost::finalizeOrientationChange()
     }
 }
 
+void WordRibbonHost::handleAppOrientationChanged()
+{
+}
+
 void WordRibbonHost::showEngineWidget(DisplayMode mode)
 {
     if (mode != AbstractEngineWidgetHost::DockedMode)

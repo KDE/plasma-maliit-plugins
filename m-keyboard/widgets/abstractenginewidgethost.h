@@ -179,6 +179,8 @@ public:
      */
     virtual void setPageIndex(int index = 0) = 0;
 
+    //! is called when the application has actually completed changing orientation
+    virtual void handleAppOrientationChanged() = 0;
 signals:
     //! This signal is emitted when a candidate is clicked
     void candidateClicked(const QString &selectedWord, int wordIndex);
