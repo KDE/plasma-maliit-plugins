@@ -2190,11 +2190,19 @@ void MKeyboardHost::updateCorrectionWidgetPosition()
 
 void MKeyboardHost::sendBackSpaceKeyEvent() const
 {
-    const KeyEvent event("\b", QEvent::KeyPress, Qt::Key_Backspace,
-                         KeyEvent::NotSpecial,
-                         vkbWidget->shiftStatus() != ModifierClearState
-                         ? Qt::ShiftModifier : Qt::NoModifier);
-    inputMethodHost()->sendKeyEvent(event.toQKeyEvent(),
+    const KeyEvent pressEvent("\b", QEvent::KeyPress, Qt::Key_Backspace,
+                              KeyEvent::NotSpecial,
+                              vkbWidget->shiftStatus() != ModifierClearState
+                              ? Qt::ShiftModifier : Qt::NoModifier);
+
+    const KeyEvent releaseEvent("\b", QEvent::KeyRelease, Qt::Key_Backspace,
+                                KeyEvent::NotSpecial,
+                                vkbWidget->shiftStatus() != ModifierClearState
+                                ? Qt::ShiftModifier : Qt::NoModifier);
+
+    inputMethodHost()->sendKeyEvent(pressEvent.toQKeyEvent(),
+                                    MInputMethod::EventRequestEventOnly);
+    inputMethodHost()->sendKeyEvent(releaseEvent.toQKeyEvent(),
                                     MInputMethod::EventRequestEventOnly);
 }
 
