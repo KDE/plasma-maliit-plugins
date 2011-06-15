@@ -660,7 +660,7 @@ void MImKeyArea::init()
 
     d->loadKeys();
 
-    setCacheMode(QGraphicsItem::DeviceCoordinateCache);
+    setCacheMode(QGraphicsItem::ItemCoordinateCache);
 }
 
 QSizeF MImKeyArea::sizeHint(Qt::SizeHint which,
