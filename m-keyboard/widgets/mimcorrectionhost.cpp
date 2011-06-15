@@ -214,6 +214,10 @@ void MImCorrectionHost::prepareToOrientationChange()
 
 void MImCorrectionHost::finalizeOrientationChange()
 {
+}
+
+void MImCorrectionHost::handleAppOrientationChanged()
+{
     if (rotationInProgress) {
         showEngineWidget(currentMode);
         rotationInProgress = false;

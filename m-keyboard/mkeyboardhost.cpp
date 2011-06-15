@@ -1109,6 +1109,8 @@ void MKeyboardHost::handleAppOrientationChanged(int angle)
             engineWidgetHost->hideEngineWidget();
         }
     }
+    
+    engineWidgetHost->handleAppOrientationChanged();
 }
 
 void MKeyboardHost::handleCandidateClicked(const QString &clickedCandidate, int index)
