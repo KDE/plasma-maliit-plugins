@@ -245,6 +245,10 @@ void CJKLogicStateMachine::resetWithoutCommitStringToApp()
 
     syllableDivideIsEnabled = false;
 
+    // Reset CangJie encoding type as standard Cangjie.
+    if (inputMethodEngine.language() == CangjieLang)
+        handleToggleKeyClicked(true);
+
     return ;
 }
 
