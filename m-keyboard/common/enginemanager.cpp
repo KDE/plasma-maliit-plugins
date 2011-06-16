@@ -473,6 +473,23 @@ QString EngineManager::activeLanguage() const
     return mLanguage;
 }
 
+void EngineManager::ensureLanguageInUse(const QString &lang)
+{
+    if (!languageIsValid()) {
+        mLanguage.clear();
+        updateLanguage(lang);
+    }
+}
+
+bool EngineManager::languageIsValid() const
+{
+    const QString cachedEngineLang = mLanguage.contains("@") ? mLanguage.split('@').last()
+                                                             : mLanguage;
+    const QString actualEngineLang = currentEngine->engine()->language();
+
+    return (cachedEngineLang == actualEngineLang);
+}
+
 void EngineManager::updateLanguage(const QString &lang)
 {
     qDebug() << __PRETTY_FUNCTION__ << "- used language:" << lang;
