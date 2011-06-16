@@ -1008,7 +1008,8 @@ void MatchNotStartedState::handleEnterKey(const KeyEvent &event)
     Q_UNUSED(event);
 
     if (stateMachine->inputMethodEngine.language() == CangjieLang) {
-        handleSpaceKey(event);
+        stateMachine->inputMethodHost.sendCommitString("");
+        stateMachine->changeState(StandByStateString);
         return ;
     }
 
