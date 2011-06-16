@@ -575,6 +575,11 @@ void MKeyboardHost::show()
         vkbWidget->show();
     }
 
+    // Ensure the vkb layout language is the same as actual engine language.
+    // This is done because currently IM engine interface shares correction engine
+    // instances, and some other input method plugin might change engine state.
+    EngineManager::instance().ensureLanguageInUse(vkbWidget->layoutLanguage());
+
     // Update input engine keyboard layout.
     if (vkbWidget->isVisible())
         updateEngineKeyboardLayout();

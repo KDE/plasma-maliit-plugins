@@ -81,6 +81,16 @@ public:
      */
     QString activeLanguage() const;
 
+    /*!
+     * \brief Ensure recorded language is the same as actual engine language.
+     */
+    void ensureLanguageInUse(const QString &lang);
+
+    /*!
+     * \brief Returns recorded language is valid or not.
+     */
+    bool languageIsValid() const;
+
 public slots:
     //! This slot is called when virtual keyboard language is changed.
     void updateLanguage(const QString &language);
