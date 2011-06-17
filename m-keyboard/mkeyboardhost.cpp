@@ -583,7 +583,8 @@ void MKeyboardHost::show()
     // Update input engine keyboard layout.
     if (vkbWidget->isVisible())
         updateEngineKeyboardLayout();
-    if (EngineManager::instance().handler()->hasErrorCorrection())
+    if (EngineManager::instance().handler()
+        && EngineManager::instance().handler()->hasErrorCorrection())
         updateCorrectionState();
 
     // If view's scene rect is larger than scene window, and fully contains it,
@@ -730,7 +731,8 @@ void MKeyboardHost::handleSymbolViewVisibleChanged()
 
 void MKeyboardHost::setPreedit(const QString &preeditString, int cursor)
 {
-    if (EngineManager::instance().handler()->acceptPreeditInjection()) {
+    if (EngineManager::instance().handler()
+        && EngineManager::instance().handler()->acceptPreeditInjection()) {
         const int preeditLength = preeditString.length();
         // Application calls this method to tell the preedit and cursor information.
         // If the length of preedit is less or equal to 4, then ignore the input cursor,
@@ -795,7 +797,7 @@ void MKeyboardHost::localSetPreedit(const QString &preeditString, int replaceSta
 
     if (preedit.isEmpty() && engineWidgetHost && engineWidgetHost->isActive()
         && engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode) {
-        EngineManager::instance().handler()->engineWidgetHost()->hideEngineWidget();
+        engineWidgetHost->hideEngineWidget();
     }
 }
 
@@ -812,16 +814,19 @@ void MKeyboardHost::update()
     if (valid) {
         hardwareKeyboard->setKeyboardType(static_cast<M::TextContentType>(type));
         vkbWidget->setKeyboardType(type);
-        if (EngineManager::instance().handler()->hasErrorCorrection()) {
+        if (EngineManager::instance().handler()
+            && EngineManager::instance().handler()->hasErrorCorrection()) {
             // update correction option when content type is changed.
             updateCorrectionState();
         }
     }
 
-    if (EngineManager::instance().handler()->hasAutoCaps())
-        updateAutoCapitalization();
-    if (EngineManager::instance().handler()->hasContext())
-        updateContext();
+    if (EngineManager::instance().handler()) {
+        if (EngineManager::instance().handler()->hasAutoCaps())
+            updateAutoCapitalization();
+        if (EngineManager::instance().handler()->hasContext())
+            updateContext();
+    }
 
     updateCorrectionWidgetPosition();
 
@@ -934,7 +939,8 @@ void MKeyboardHost::reset()
     qDebug() << __PRETTY_FUNCTION__;
     switch (activeState) {
     case MInputMethod::OnScreen:
-        EngineManager::instance().handler()->resetHandler();
+        if (EngineManager::instance().handler())
+            EngineManager::instance().handler()->resetHandler();
         resetInternalState();
         break;
     case MInputMethod::Hardware:
@@ -1080,8 +1086,8 @@ void MKeyboardHost::handleAppOrientationChanged(int angle)
     // with the application's by going through the rotation explicitly (without animation).
     handleAppOrientationAboutToChange(angle);
 
-    AbstractEngineWidgetHost *engineWidgetHost =
-        EngineManager::instance().handler()->engineWidgetHost();
+    AbstractEngineWidgetHost *engineWidgetHost = EngineManager::instance().handler() ?
+        EngineManager::instance().handler()->engineWidgetHost() : 0;
 
     // If correction candidate widget was open we need to reposition it.
     if (engineWidgetHost && (engineWidgetHost->isActive() || engineWidgetHostTemporarilyHidden)
@@ -1143,7 +1149,8 @@ void MKeyboardHost::commitString(const QString &updatedString)
 void MKeyboardHost::doBackspace()
 {
     // note: backspace shouldn't start accurate mode
-    if (EngineManager::instance().handler()->cursorCanMoveInsidePreedit()
+    if (EngineManager::instance().handler()
+        && EngineManager::instance().handler()->cursorCanMoveInsidePreedit()
         && preedit.length() > 0) {
         if (backspaceMode != AutoBackspaceMode) {
             if ((preeditCursorPos < 0) || (preeditCursorPos == preedit.length())) {
@@ -1204,7 +1211,8 @@ void MKeyboardHost::doBackspace()
     // - text is selected (since we don't know what is
     //   selected we can't predict the next state)
     // - previous cursor position will have autoCaps
-    if (EngineManager::instance().handler()->hasAutoCaps()
+    if (EngineManager::instance().handler()
+        && EngineManager::instance().handler()->hasAutoCaps()
         && vkbWidget->shiftStatus() == ModifierLatchedState
         && (!autoCapsEnabled || cursorPos != 0)
         && !hasSelection
@@ -1227,7 +1235,8 @@ void MKeyboardHost::autoBackspace()
 void MKeyboardHost::handleKeyPress(const KeyEvent &event)
 {
 
-    if (EngineManager::instance().handler()->handleKeyPress(event))
+    if (EngineManager::instance().handler()
+        && EngineManager::instance().handler()->handleKeyPress(event))
         return;
 
     if (event.qtKey() == Qt::Key_Shift) {
@@ -1258,7 +1267,8 @@ void MKeyboardHost::handleKeyPress(const KeyEvent &event)
 
     } else if (event.qtKey() == Qt::Key_Backspace) {
         AbstractEngineWidgetHost *engineWidgetHost =
-            EngineManager::instance().handler()->engineWidgetHost();
+            EngineManager::instance().handler() ?
+            EngineManager::instance().handler()->engineWidgetHost() : 0;
         if ( engineWidgetHost
             && engineWidgetHost->isActive()
             && engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode) {
@@ -1280,7 +1290,8 @@ void MKeyboardHost::handleKeyPress(const KeyEvent &event)
 
 void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
 {
-    if (EngineManager::instance().handler()->handleKeyRelease(event))
+    if (EngineManager::instance().handler()
+        && EngineManager::instance().handler()->handleKeyRelease(event))
         return;
 
     if (event.qtKey() == Qt::Key_Shift) {
@@ -1314,7 +1325,8 @@ void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
 
 void MKeyboardHost::handleKeyClick(const KeyEvent &event)
 {
-    if (EngineManager::instance().handler()->handleKeyClick(event)) {
+    if (EngineManager::instance().handler()
+        && EngineManager::instance().handler()->handleKeyClick(event)) {
         // After the key event is consumed by the proper engine handler, the "shift" state
         // should be updated accordingly right here because the engine handler can not
         // do it.
@@ -1737,8 +1749,10 @@ void MKeyboardHost::sendCopyPaste(CopyPasteState action)
 
 void MKeyboardHost::switchPlugin(MInputMethod::SwitchDirection direction)
 {
-    EngineManager::instance().handler()->editingInterrupted();
-    EngineManager::instance().handler()->preparePluginSwitching();
+    if (EngineManager::instance().handler()) {
+        EngineManager::instance().handler()->editingInterrupted();
+        EngineManager::instance().handler()->preparePluginSwitching();
+    }
     inputMethodHost()->switchPlugin(direction);
 }
 
@@ -1754,7 +1768,8 @@ void MKeyboardHost::sendString(const QString &text)
 
 void MKeyboardHost::sendStringFromToolbar(const QString &text)
 {
-    EngineManager::instance().handler()->clearPreedit(true);
+    if (EngineManager::instance().handler())
+        EngineManager::instance().handler()->clearPreedit(true);
     reset();
     sendString(text);
 }
@@ -1832,7 +1847,8 @@ void MKeyboardHost::setState(const QSet<MInputMethod::HandlerState> &state)
     if (activeState == actualState)
         return;
 
-    if (activeState == MInputMethod::OnScreen)
+    if (activeState == MInputMethod::OnScreen
+        && EngineManager::instance().handler())
         EngineManager::instance().handler()->editingInterrupted();
 
     // Resets before changing the activeState to make sure clear.
@@ -1895,10 +1911,12 @@ void MKeyboardHost::setState(const QSet<MInputMethod::HandlerState> &state)
     symbolView->hideSymbolView();
 
     symbolView->setKeyboardState(actualState);
-    if (EngineManager::instance().handler()->hasErrorCorrection())
-        updateCorrectionState();
-    if (EngineManager::instance().handler()->hasAutoCaps())
-        updateAutoCapitalization();
+    if (EngineManager::instance().handler()) {
+        if (EngineManager::instance().handler()->hasErrorCorrection())
+            updateCorrectionState();
+        if (EngineManager::instance().handler()->hasAutoCaps())
+            updateAutoCapitalization();
+    }
 }
 
 void MKeyboardHost::handleSymbolKeyClick()
@@ -2130,7 +2148,8 @@ void MKeyboardHost::handleVirtualKeyboardLayoutChanged(const QString &layout)
     if (vkbWidget->isVisible())
         updateEngineKeyboardLayout();
 
-    if (EngineManager::instance().handler()->hasAutoCaps())
+    if (EngineManager::instance().handler()
+        && EngineManager::instance().handler()->hasAutoCaps())
         updateAutoCapitalization();
     emit activeSubViewChanged(layout);
 }
@@ -2147,6 +2166,7 @@ void MKeyboardHost::updateEngineKeyboardLayout()
         return;
 
     if (activeState == MInputMethod::OnScreen
+        && EngineManager::instance().handler()
         && EngineManager::instance().handler()->supportTouchPointAccuracy()) {
         const bool status(EngineManager::instance().engine()->setKeyboardLayoutKeys(
                                 vkbWidget->mainLayoutKeys()));
