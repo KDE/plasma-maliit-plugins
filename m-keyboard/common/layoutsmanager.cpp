@@ -62,6 +62,7 @@ namespace
     const QString SymbolKeyboardFileChinese("hwsymbols_chinese.xml");
     const QString FallbackXkbModel("evdev");
     const QString VKBConfigurationPath("/usr/share/meegotouch/virtual-keyboard/layouts/");
+    const QLatin1String VKBUserLayoutPath(".config/meego-keyboard/layouts/");
     const QString VKBLayoutsFilterRule("*.xml");
     const QString VKBLayoutsIgnoreRules("number|test|customer|default"); // use as regexp to ignore number, test, customer and default layouts
     const QLatin1String KeyboardId("libmeego-keyboard.so");
@@ -454,6 +455,8 @@ QMap<QString, QString> LayoutsManager::availableLayouts() const
     if (mAvailableLayouts.empty()) {
         QList<QDir> dirs;
         dirs << QDir(VKBConfigurationPath, VKBLayoutsFilterRule);
+        QFileInfo userLayoutsDirectory(QDir::home(), VKBUserLayoutPath);
+        dirs << QDir(userLayoutsDirectory.filePath(), VKBLayoutsFilterRule);
         QRegExp ignoreExp(VKBLayoutsIgnoreRules, Qt::CaseInsensitive);
 
         foreach (const QDir &dir, dirs) {
