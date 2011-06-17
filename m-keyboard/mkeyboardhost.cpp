@@ -783,10 +783,7 @@ void MKeyboardHost::localSetPreedit(const QString &preeditString, int replaceSta
         EngineManager::instance().handler()->engineWidgetHost() : 0;
     if (EngineManager::instance().engine()) {
         EngineManager::instance().engine()->clearEngineBuffer();
-        if (preeditWordEdited)
-            EngineManager::instance().engine()->appendString(preeditString);
-        else
-            EngineManager::instance().engine()->reselectString(preeditString);
+        EngineManager::instance().engine()->reselectString(preeditString);
         candidates = EngineManager::instance().engine()->candidates();
         preeditInDict = (EngineManager::instance().engine()->candidateSource(0) != MImEngine::DictionaryTypeInvalid);
         if (engineWidgetHost) {
@@ -1613,7 +1610,7 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
             preeditCursorPos += text.length();
             if (EngineManager::instance().engine()) {
                 EngineManager::instance().engine()->clearEngineBuffer();
-                EngineManager::instance().engine()->appendString(preedit);
+                EngineManager::instance().engine()->reselectString(preedit);
             }
         }
 
