@@ -1926,8 +1926,11 @@ void Ut_MKeyboardHost::testAutoPunctuation()
 
     if (autopunctuated) {
         QCOMPARE(inputMethodHost->commit, QString(character) + " ");
-        QCOMPARE(inputMethodHost->sendKeyEventCalls, 1);
+        QCOMPARE(inputMethodHost->sendKeyEventCalls, 2);
         QCOMPARE(inputMethodHost->keyEvents[0]->key(), static_cast<int>(Qt::Key_Backspace));
+        QCOMPARE(inputMethodHost->keyEvents[0]->type(), QEvent::KeyPress);
+        QCOMPARE(inputMethodHost->keyEvents[1]->key(), static_cast<int>(Qt::Key_Backspace));
+        QCOMPARE(inputMethodHost->keyEvents[1]->type(), QEvent::KeyRelease);
     } else {
         QCOMPARE(inputMethodHost->commit, QString());
         QCOMPARE(inputMethodHost->preedit, QString(character));
