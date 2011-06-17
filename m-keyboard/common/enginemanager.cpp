@@ -483,6 +483,9 @@ void EngineManager::ensureLanguageInUse(const QString &lang)
 
 bool EngineManager::languageIsValid() const
 {
+    if (!currentEngine || !currentEngine->engine())
+        return false;
+
     const QString cachedEngineLang = mLanguage.contains("@") ? mLanguage.split('@').last()
                                                              : mLanguage;
     const QString actualEngineLang = currentEngine->engine()->language();
