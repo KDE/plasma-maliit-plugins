@@ -41,6 +41,7 @@
 #include <QMap>
 #include <QObject>
 #include <memory>
+#include <QFileSystemWatcher>
 
 class LayoutsManager : public QObject
 {
@@ -171,6 +172,7 @@ private slots:
     void syncLayouts();
     void syncHardwareKeyboard();
     void syncNumberKeyboards();
+    void layoutsDirectoryChanged();
 
 private:
 
@@ -215,6 +217,9 @@ private:
 
     //! All available layouts as (filename, title)
     mutable QMap<QString, QString> mAvailableLayouts;
+
+    //! Watcher for available layouts
+    QFileSystemWatcher layoutsDirectoryWatcher;
 
     //! Singleton instance
     static LayoutsManager *Instance;
