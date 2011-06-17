@@ -97,7 +97,8 @@ LayoutsManager::LayoutsManager()
       numberFormatSetting(NumberFormatSettingName),
       currentHwkbLayoutType(InvalidHardwareKeyboard),
       temporaryEnglishKeyboardInserted(false),
-      mAvailableLayouts()
+      mAvailableLayouts(),
+      layoutsDirectoryWatcher()
 {
     // Read settings for the first time and load keyboard layouts.
     syncLayouts();
@@ -105,10 +106,14 @@ LayoutsManager::LayoutsManager()
     syncHardwareKeyboard();
     syncNumberKeyboards();
 
+    layoutsDirectoryWatcher.addPath(VKBConfigurationPath);
+    layoutsDirectoryWatcher.addPath(QFileInfo(QDir::home(), VKBUserLayoutPath).filePath());
+
     // Synchronize with settings when someone changes them (e.g. via control panel).
     connect(&configLayouts, SIGNAL(valueChanged()), this, SLOT(syncLayouts()));
     connect(&configLayouts, SIGNAL(valueChanged()), this, SIGNAL(selectedLayoutsChanged()));
     connect(&numberFormatSetting, SIGNAL(valueChanged()), SLOT(syncNumberKeyboards()));
+    connect(&layoutsDirectoryWatcher, SIGNAL(directoryChanged(QString)), this, SLOT(layoutsDirectoryChanged()));
 }
 
 LayoutsManager::~LayoutsManager()
@@ -486,6 +491,11 @@ QMap<QString, QString> LayoutsManager::availableLayouts() const
         }
     }
     return mAvailableLayouts;
+}
+
+void LayoutsManager::layoutsDirectoryChanged()
+{
+    mAvailableLayouts.clear();
 }
 
 void LayoutsManager::ensureEnglishKeyboardAvailable()
