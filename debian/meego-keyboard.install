@@ -48,3 +48,6 @@ usr/share/meegotouch/virtual-keyboard/layouts/HardwareKeyboardDeadKeyMap.dtd
 usr/share/meegotouch/virtual-keyboard/layouts/HardwareKeyboardCharaterLoops.dtd
 usr/share/meegotouch/virtual-keyboard/layouts/number_ar.xml
 usr/share/meegotouch/virtual-keyboard/layouts/phonenumber_ar.xml
+usr/share/meegotouch/virtual-keyboard/layouts/he.xml
+usr/share/meegotouch/virtual-keyboard/layouts/symbols_he.xml
+usr/share/meegotouch/virtual-keyboard/layouts/phonenumber_he.xml
