@@ -58,6 +58,7 @@ namespace
     const QString PhoneNumberKeyboardFileArabic("phonenumber_ar.xml");
     const QString PhoneNumberKeyboardFileLatin("phonenumber.xml");
     const QString PhoneNumberKeyboardFileRussian("phonenumber_ru.xml");
+    const QString PhoneNumberKeyboardFileHebrew("phonenumber_he.xml");
     const QString SymbolKeyboardFileCommon("hwsymbols_common.xml");
     const QString SymbolKeyboardFileChinese("hwsymbols_chinese.xml");
     const QString FallbackXkbModel("evdev");
@@ -351,9 +352,10 @@ void LayoutsManager::syncNumberKeyboards()
     loaded = false;
     if (numberFormat == "ar") {
         loaded = phoneNumberKeyboard.loadNokiaKeyboard(PhoneNumberKeyboardFileArabic);
-    }
-    if (numberFormat == "ru") {
+    } else if (numberFormat == "ru") {
         loaded = phoneNumberKeyboard.loadNokiaKeyboard(PhoneNumberKeyboardFileRussian);
+    } else if (numberFormat == "he") {
+        loaded = phoneNumberKeyboard.loadNokiaKeyboard(PhoneNumberKeyboardFileHebrew);
     }
 
     if (!loaded) {
