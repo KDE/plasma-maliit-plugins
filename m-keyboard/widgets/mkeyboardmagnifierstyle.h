@@ -61,6 +61,8 @@ public:
     M_STYLE_ATTRIBUTE(int, safetyMarginRight, SafetyMarginRight)
 
     M_STYLE_ATTRIBUTE(int, extendedKeysOffset, ExtendedKeysOffset)
+    M_STYLE_ATTRIBUTE(QEasingCurve, extendedKeysShowEasingCurve, ExtendedKeysShowEasingCurve)
+    M_STYLE_ATTRIBUTE(int, extendedKeysShowDuration, ExtendedKeysShowDuration)
 
     M_STYLE_ATTRIBUTE(QEasingCurve, magnifierHideEasingCurve, MagnifierHideEasingCurve)
     M_STYLE_ATTRIBUTE(int, magnifierHideDuration, MagnifierHideDuration)

@@ -961,6 +961,8 @@ MKeyboardMagnifierStyle {
     magnifier-hide-delay: 0;
 
     extended-keys-offset: 0;
+    extended-keys-show-easing-curve: outexpo;
+    extended-keys-show-duration: 100;
 
     magnifier-hide-easing-curve: inexpo;
     magnifier-hide-duration: 100;
