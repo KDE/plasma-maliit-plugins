@@ -33,6 +33,7 @@
 
 #include <MWidgetStyle>
 #include <QFont>
+#include <QEasingCurve>
 
 class MScalableImage;
 
@@ -60,6 +61,9 @@ public:
     M_STYLE_ATTRIBUTE(int, safetyMarginRight, SafetyMarginRight)
 
     M_STYLE_ATTRIBUTE(int, extendedKeysOffset, ExtendedKeysOffset)
+
+    M_STYLE_ATTRIBUTE(QEasingCurve, magnifierHideEasingCurve, MagnifierHideEasingCurve)
+    M_STYLE_ATTRIBUTE(int, magnifierHideDuration, MagnifierHideDuration)
 };
 
 class MKeyboardMagnifierStyleContainer: public MWidgetStyleContainer

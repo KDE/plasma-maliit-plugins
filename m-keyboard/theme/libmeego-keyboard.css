@@ -961,6 +961,9 @@ MKeyboardMagnifierStyle {
     magnifier-hide-delay: 0;
 
     extended-keys-offset: 0;
+
+    magnifier-hide-easing-curve: inexpo;
+    magnifier-hide-duration: 100;
 }
 
 MKeyboardMagnifierStyle.Landscape {

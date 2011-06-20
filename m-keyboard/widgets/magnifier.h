@@ -38,9 +38,11 @@
 #include <QPointF>
 #include <QString>
 #include <QMargins>
+#include <QPropertyAnimation>
 
 class MagnifierHost;
 class QPainter;
+class QAnimationGroup;
 
 //! Keyboard button magnifier.
 //! Shows a key label on top of the current key, magnified.
@@ -48,6 +50,12 @@ class Magnifier: public MImOverlay
 {
     Q_OBJECT
     Q_DISABLE_COPY(Magnifier);
+
+    //! \brief Item's magnitude
+    //!
+    //! This value changes scale of the widget, but keeps central point
+    //! at the same position.
+    Q_PROPERTY(qreal magnitude READ magnitude WRITE setMagnitude)
 
 private:
     //! Position of popup's top left corner in its local coordinates.
@@ -69,6 +77,19 @@ private:
 
     //! Safety margins (wrt. parent item) of the Magnifier.
     QMargins safetyMargins;
+
+    //! Hide animation
+    QPropertyAnimation hideAnimation;
+
+    //! Current magnitude. Default value is 1.
+    qreal currentMagnitude;
+
+private:
+    //! Return current magnitude.
+    qreal magnitude() const;
+
+    //! Set magnitude to given value.
+    void setMagnitude(qreal value);
 
 public:
     //! Constructor
@@ -102,6 +123,12 @@ public:
     //! Sets the label for the Magnifier
     //! \param label the label
     virtual void setLabel(const QString &label);
+
+    //! Show magnifier on the screen
+    void showMagnifier();
+
+    //! Add magnifier to given animation \a group.
+    void addToGroup(QAnimationGroup *group);
 };
 
 #endif
