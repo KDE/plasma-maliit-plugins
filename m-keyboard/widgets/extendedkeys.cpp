@@ -38,6 +38,7 @@
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
 #include <QMargins>
+#include <QAnimationGroup>
 #include <MFeedback>
 #include <MCancelEvent>
 
@@ -108,12 +109,17 @@ ExtendedKeys::ExtendedKeys(MagnifierHost *newHost,
     , host(newHost)
     , mainArea(newMainArea)
     , hideOnNextMouseRelease(false)
+    , showAnimation(this, "magnitude")
+    , currentMagnitude(1)
 {
     setObjectName("ExtendedKeys"); // needed by MATTI (but useful otherwise too)
     RegionTracker::instance().addRegion(*this);
 
     setFlags(QGraphicsItem::ItemHasNoContents);
     setParent(newHost);
+
+    showAnimation.setStartValue(0.0f);
+    showAnimation.setEndValue(1.0f);
 }
 
 ExtendedKeys::~ExtendedKeys()
@@ -186,6 +192,10 @@ void ExtendedKeys::showExtendedArea(const QPointF &origin,
                              host->style()->extendedKeysOffset(), safetyMargins);
     }
 
+    showAnimation.setEasingCurve(host->style()->extendedKeysShowEasingCurve());
+    showAnimation.setDuration(host->style()->extendedKeysShowDuration());
+
+    setMagnitude(showAnimation.startValue().value<qreal>());
     show();
 
     // ExtendedKeys is shown on long-press. Therefore we will give mouse grab to the new
@@ -240,3 +250,39 @@ bool ExtendedKeys::sceneEventFilter(QGraphicsItem *, QEvent *event)
     }
     return false; // Allow event to reach extKeysArea.
 }
+
+qreal ExtendedKeys::magnitude() const
+{
+    return currentMagnitude;
+}
+
+void ExtendedKeys::setMagnitude(qreal value)
+{
+    if (value < 0.0f) {
+        return;
+    }
+
+    currentMagnitude = value;
+    QTransform t;
+    t.translate(anchorPoint.x() * (1.0f - value),
+                anchorPoint.y() * (1.0f - value));
+    t.scale(value, value);
+    setTransform(t);
+}
+
+void ExtendedKeys::hideExtendedArea()
+{
+    showAnimation.stop();
+    hide();
+}
+
+void ExtendedKeys::setAnchorPoint(const QPointF &anchor)
+{
+    anchorPoint = mapFromScene(anchor);
+}
+
+void ExtendedKeys::addToGroup(QAnimationGroup *group)
+{
+    group->addAnimation(&showAnimation);
+}
+

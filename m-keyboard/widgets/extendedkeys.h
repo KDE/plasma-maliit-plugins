@@ -38,6 +38,7 @@
 #include <MTheme>
 #include <QSize>
 #include <QPointer>
+#include <QPropertyAnimation>
 #include <memory>
 
 #include "reactionmappaintable.h"
@@ -47,6 +48,7 @@ class MImAbstractKey;
 class QWidget;
 class QPainter;
 class QStyleOptionGraphicsItem;
+class QAnimationGroup;
 
 //! \internal
 //! \brief Allows access to protected areas of SingleWidgetButtonArea
@@ -96,6 +98,13 @@ class ExtendedKeys
 {
     Q_OBJECT
 
+    //! \brief Item's magnitude
+    //!
+    //! This value changes scale of the widget, but keeps anchor point
+    //! at the same position.
+    //! \sa setAnchorPoint
+    Q_PROPERTY(qreal magnitude READ magnitude WRITE setMagnitude)
+
 private:
     //! host allows interaction with other Magnifier plugin parts.
     MagnifierHost *host;
@@ -109,6 +118,22 @@ private:
     //! Used for non-multitouch mode
     bool hideOnNextMouseRelease;
 
+    //! Show animation
+    QPropertyAnimation showAnimation;
+
+    //! Current magnitude. Default value is 1.
+    qreal currentMagnitude;
+
+    //! Anchor point for animation.
+    QPointF anchorPoint;
+
+private:
+    //! Return current magnitude.
+    qreal magnitude() const;
+
+    //! Set magnitude to given value.
+    void setMagnitude(qreal value);
+
 public:
     explicit ExtendedKeys(MagnifierHost *host,
                           MImAbstractKeyArea *mainArea);
@@ -120,6 +145,13 @@ public:
     void paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view);
     /*! \reimp_end */
 
+    //! \brief Set anchor point for animation.
+    //! \param anchor Some position inside key area in scene coordinates.
+    void setAnchorPoint(const QPointF &anchor);
+
+    //! Add extended keys area to given animation \a group.
+    void addToGroup(QAnimationGroup *group);
+
 public slots:
     //! \brief Creates (and shows) a KeyButtonArea from labels.
     //! \param origin Usually the center of the active button in the main key area,
@@ -130,6 +162,9 @@ public slots:
     void showExtendedArea(const QPointF &origin,
                           const QPointF &tappedScenePos,
                           const QString &labels);
+
+    //! \brief Hide extended area
+    void hideExtendedArea();
 
 protected:
     //! \reimp
