@@ -1,3 +1,14 @@
+0.80.0
+======
+
+CHANGES SINCE 0.6.13
+* Now builds LMT-free version by default (a simple but functional QML keyboard)
+  - Use qmake -r CONFIG+=enable-meegotouch to build LMT reference plugin.
+* Use 0.80 plugins (quick) interface
+
+BUG FIXES
+* Fixes: Send correct input method area for MeeGo Keyboard Quick
+
 0.6.5
 =====
 
