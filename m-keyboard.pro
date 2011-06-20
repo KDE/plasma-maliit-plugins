@@ -8,6 +8,12 @@ CONFIG(docs) {
     include (doc/doc.pri)
 }
 
+!enable-meegotouch {
+    CONFIG+=nomeegotouch
+} else {
+    CONFIG-=nomeegotouch
+}
+
 !notests:!nomeegotouch {
     SUBDIRS += \
         tests \
