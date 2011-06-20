@@ -39,6 +39,7 @@
 #include <QFont>
 #include <QPainter>
 #include <float.h>
+#include <QAnimationGroup>
 
 #include <QDebug>
 
@@ -47,9 +48,13 @@ Magnifier::Magnifier(MagnifierHost *newHost,
     : MImOverlay()
     , host(newHost)
     , geometryParentItem(parent)
+    , hideAnimation(this, "magnitude")
+    , currentMagnitude(1)
 {
     setParent(newHost);
     hide();
+    hideAnimation.setStartValue(qreal(1.0f));
+    hideAnimation.setEndValue(qreal(0.0f));
 }
 
 Magnifier::~Magnifier()
@@ -70,6 +75,9 @@ void Magnifier::setup()
 
     safetyMargins = QMargins(host->style()->safetyMarginLeft(),  MagnifierHost::InvalidMargin,
                              host->style()->safetyMarginRight(), MagnifierHost::InvalidMargin);
+
+    hideAnimation.setDuration(host->style()->magnifierHideDuration());
+    hideAnimation.setEasingCurve(host->style()->magnifierHideEasingCurve());
 }
 
 void Magnifier::paint(QPainter *painter,
@@ -95,6 +103,7 @@ void Magnifier::paint(QPainter *painter,
         magnifierImage->draw(topLeft.toPoint(), host->style()->magnifierSize(), painter);
     }
     painter->drawText(drawingArea, Qt::AlignCenter, label);
+
     mTimestamp("Magnifier", "end");
 }
 
@@ -113,6 +122,7 @@ void Magnifier::updatePos(const QPointF &keyPos,
                                           (boundingRect().height() / 2)
                                           + host->style()->magnifierButtonOverlap()));
 
+    setMagnitude(hideAnimation.startValue().value<qreal>());
     MagnifierHost::applyConstrainedPosition(this, geometryParentItem, newPos, safetyMargins,
                                             MagnifierHost::UseGraphicsViewItemOrigins);
 }
@@ -125,5 +135,36 @@ void Magnifier::setLabel(const QString &newLabel)
 
     label = newLabel;
     update();
+}
+
+qreal Magnifier::magnitude() const
+{
+    return currentMagnitude;
+}
+
+void Magnifier::setMagnitude(qreal value)
+{
+    if (value < 0.0f) {
+        return;
+    }
+
+    currentMagnitude = value;
+    QTransform t;
+    const qreal height = host->style()->magnifierSize().height();
+    t.translate(0, -height / 2.0f * (1.0f - value));
+    t.scale(value, value);
+    setTransform(t);
+}
+
+void Magnifier::showMagnifier()
+{
+    hideAnimation.stop();
+    setMagnitude(hideAnimation.startValue().value<qreal>());
+    show();
+}
+
+void Magnifier::addToGroup(QAnimationGroup *group)
+{
+    group->addAnimation(&hideAnimation);
 }
 
