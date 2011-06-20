@@ -128,7 +128,10 @@ void WordRibbonItem::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
     if (isMousePressCancelled)
         return ;
     else {
-        highlight();
+        // Only show "highlighted" state for RibbonStyleMode here.
+        if (mode == WordRibbon::RibbonStyleMode)
+            highlight();
+
         emit mouseReleased();
     }
 }
