@@ -145,6 +145,11 @@ void MagnifierHost::setMainArea(MImAbstractKeyArea *mainArea)
     magnifier->setup();
 
     extKeys = QPointer<ExtendedKeys>(new ExtendedKeys(this, mainArea));
+
+    // old animations were already destroyed together with previous
+    // values of magnifier and extKeys, so we do not need to clean animationGroup
+    magnifier->addToGroup(&animationGroup);
+    extKeys->addToGroup(&animationGroup);
 }
 
 const MKeyboardMagnifierStyleContainer &MagnifierHost::style() const
@@ -183,7 +188,7 @@ void MagnifierHost::handleKeyPressedOnMainArea(MImAbstractKey *key,
 
     hideDelayTimer.stop();
     magnifier->setLabel(key->label());
-    magnifier->show();
+    magnifier->showMagnifier();
 }
 
 void MagnifierHost::handleLongKeyPressedOnMainArea(MImAbstractKey *key,
@@ -204,10 +209,11 @@ void MagnifierHost::handleLongKeyPressedOnMainArea(MImAbstractKey *key,
 
     QPointF buttonPos = key->buttonRect().topLeft();
     buttonPos.rx() += key->buttonRect().width() / 2;
+    extKeys->setAnchorPoint(magnifier->mapToScene(magnifier->boundingRect().center()));
     extKeys->showExtendedArea(buttonPos,
                               keyContext.scenePos,
                               labels);
-    magnifier->hide();
+    animationGroup.start();
 }
 
 bool MagnifierHost::isVisible() const

@@ -45,6 +45,7 @@
 #include <QGraphicsItem>
 #include <QPointF>
 #include <MTheme>
+#include <QSequentialAnimationGroup>
 
 class MagnifierHost
     : public QObject, public MImAbstractPopup
@@ -60,6 +61,9 @@ private:
 
     //! Magnifier style container.
     MKeyboardMagnifierStyleContainer styleContainer;
+
+    //! Transition from magnifier to extended keys
+    QSequentialAnimationGroup animationGroup;
 
 public:
     //! The Magnifier item is the only item in our code base using the
