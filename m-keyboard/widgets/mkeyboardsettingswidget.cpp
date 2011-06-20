@@ -150,11 +150,9 @@ void MKeyboardSettingsWidget::buildUi()
     errorCorrectionSwitch->setViewType(MButton::switchType);
     errorCorrectionSwitch->setCheckable(true);
 
-    //% "Error correction"
     errorCorrectionTitle = new MLabel(this);
     errorCorrectionTitle->setStyleName("CommonTitleInverted");
 
-    //% "Error correction description"
     errorCorrectionSubtitle = new MLabel(this);
     errorCorrectionSubtitle->setStyleName("CommonSubTitleInverted");
 
@@ -187,11 +185,9 @@ void MKeyboardSettingsWidget::buildUi()
     correctionSpaceSwitch->setViewType(MButton::switchType);
     correctionSpaceSwitch->setCheckable(true);
 
-    //% "Insert with space"
     correctionSpaceTitle = new MLabel(this);
     correctionSpaceTitle->setStyleName("CommonTitleInverted");
 
-    //% "Space key inserts the suggested word"
     correctionSpaceSubtitle = new MLabel(this);
     correctionSpaceSubtitle->setStyleName("CommonSubTitleInverted");
 
@@ -220,7 +216,6 @@ void MKeyboardSettingsWidget::buildUi()
     containerLayout->setContentsMargins(0, 0, 0, 0);
     chineseContainer = new QGraphicsWidget(this); // Used to be able to show/hide all children
     chineseContainer->setLayout(containerLayout);
-    //% "Chinese virtual keyboards"
     chineseSettingHeader = new MLabel(this);
     chineseSettingHeader->setStyleName("CommonGroupHeaderInverted");
     containerLayout->addItem(chineseSettingHeader);
@@ -237,7 +232,6 @@ void MKeyboardSettingsWidget::buildUi()
     fuzzySwitch->setViewType(MButton::switchType);
     fuzzySwitch->setCheckable(true);
 
-    //% "Fuzzy Pinyin input"
     fuzzyTitle = new MLabel(this);
     fuzzyTitle->setStyleName("CommonSingleTitleInverted");
 
@@ -262,7 +256,6 @@ void MKeyboardSettingsWidget::buildUi()
     wordPredictionSwitch->setViewType(MButton::switchType);
     wordPredictionSwitch->setCheckable(true);
 
-    //% "Next word prediction"
     wordPredictionTitle = new MLabel(this);
     wordPredictionTitle->setStyleName("CommonSingleTitleInverted");
 
@@ -318,13 +311,20 @@ void MKeyboardSettingsWidget::updateTitle()
         || !settingsObject)
         return;
 
+    //% "Error correction"
     errorCorrectionTitle->setText(qtTrId("qtn_txts_error_correction"));
+    //% "Error correction description"
     errorCorrectionSubtitle->setText(qtTrId("qtn_txts_error_correction_description"));
+    //% "Insert with space"
     correctionSpaceTitle->setText(qtTrId("qtn_txts_insert_with_space"));
+    //% "Space key inserts the suggested word"
     correctionSpaceSubtitle->setText(qtTrId("qtn_txts_insert_with_space_description"));
 
+    //% "Chinese virtual keyboards"
     chineseSettingHeader->setText(qtTrId("qtn_ckb_chinese_keyboards"));
+    //% "Fuzzy Pinyin input"
     fuzzyTitle->setText(qtTrId("qtn_ckb_fuzzy_pinyin"));
+    //% "Next word prediction"
     wordPredictionTitle->setText(qtTrId("qtn_ckb_next_prediction"));
     chineseTransliterationItem->setTitle(qtTrId("qtn_ckb_convert_chinese"));
 
