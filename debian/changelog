@@ -1,3 +1,9 @@
+meego-keyboard (0.6.17~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Viacheslav Sobolev <vsobolev@vsobolev>  Tue, 21 Jun 2011 13:30:58 +0300
+
 meego-keyboard (0.6.16-1) unstable; urgency=low
 
   * Fixes: NB#264297
