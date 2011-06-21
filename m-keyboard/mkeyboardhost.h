@@ -37,6 +37,7 @@
 #include "keyevent.h"
 #include "mplainwindow.h"
 #include "symbolview.h"
+#include "mkeyoverride.h"
 
 #include <MNamespace>
 
@@ -239,6 +240,10 @@ private slots:
     //! Update CJK overrides data based on current "overrides" data.
     //! This method prepares special overrides data to handle CJK features.
     void updateCJKOverridesData();
+
+    //! Redraw reaction map when MKeyOverride changes enabled attribute
+    void repaintOnAttributeEnabledChange(const QString &keyId,
+                                         const MKeyOverride::KeyOverrideAttributes changedAttributes);
 
 private:
     //! Configures the parts that may change dynamically.
