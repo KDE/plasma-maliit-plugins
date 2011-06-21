@@ -1,3 +1,10 @@
+meego-keyboard (0.6.16-1) unstable; urgency=low
+
+  * Fixes: NB#264297
+  * Fixes: NB#266446
+
+ -- Aapo Kojo <aapo.kojo@nokia.com>  Tue, 21 Jun 2011 09:11:03 +0300
+
 meego-keyboard (0.6.15-1) unstable; urgency=low
 
   * Fixes: NB#254893 - Search suggestion is not updated for Google...
