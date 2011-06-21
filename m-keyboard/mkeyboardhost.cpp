@@ -1728,6 +1728,19 @@ void MKeyboardHost::onPluginsChange()
     vkbWidget->enableSinglePageHorizontalFlick(enabledPluginsCount > 1);
 }
 
+void MKeyboardHost::repaintOnAttributeEnabledChange(const QString &keyId,
+                                                    const MKeyOverride::KeyOverrideAttributes changedAttributes)
+{
+    Q_UNUSED(keyId)
+
+    // If MKeyOverride changes Enabled attribute, emit repain request
+    // to make sure that enabled overridden key plays feedback and
+    // disabled overridden key does not play feedback.
+    if (changedAttributes & MKeyOverride::Enabled) {
+        vkbWidget->signalForwarder.emitRequestRepaint();
+    }
+}
+
 void MKeyboardHost::userHide()
 {
     if (!preedit.isEmpty()) {
@@ -2319,10 +2332,21 @@ void MKeyboardHost::togglePlusMinus()
 
 void MKeyboardHost::setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &newOverrides)
 {
+
+    disconnect(SLOT(repaintOnAttributeEnabledChange(QString, MKeyOverride::KeyOverrideAttributes)));
+
     if (!haveFocus && newOverrides.size() == 0) {
         keyOverrideClearPending = true; // not changing overrides while hiding
     } else {
         keyOverrideClearPending = false;
+
+        QMap<QString, QSharedPointer<MKeyOverride> >::const_iterator i = newOverrides.constBegin();
+        while (i != newOverrides.constEnd()) {
+            connect(i.value().data(), SIGNAL(keyAttributesChanged(QString, MKeyOverride::KeyOverrideAttributes)),
+                    this,             SLOT(repaintOnAttributeEnabledChange(QString, MKeyOverride::KeyOverrideAttributes)));
+            ++i;
+        }
+
         overrides = newOverrides;
         updateCJKOverridesData();
         vkbWidget->setKeyOverrides(overrides);

@@ -698,10 +698,17 @@ void MImKeyArea::drawReactiveAreas(MReactionMap *reactionMap,
         qreal lastRightBorder = 0.0f;
 
         foreach (const MImKey *const key, row.keys) {
-            const QRectF rect = correctedReactionRect(key->buttonBoundingRect());
+            QRectF rect = correctedReactionRect(key->buttonBoundingRect());
 
-            // Check for spacers. If found, we draw the accummulated area and start from scratch.
-            if (lastRightBorder < rect.left()) {
+            if (key->keyOverride() && !key->keyOverride()->enabled()) {
+                // No feedback for disabled overridden keys
+                rect.setRect(0, 0, 0, 0);
+            }
+
+            // Draw the accumulated area and start from scratch if:
+            //  - Current key doesn't have feedback
+            //  - There are spacers between the keys
+            if (rect.isEmpty() || lastRightBorder < rect.left()) {
                 reactionMap->fillRectangle(area);
                 area = QRectF();
             }
