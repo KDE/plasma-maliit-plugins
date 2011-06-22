@@ -78,7 +78,8 @@ namespace
 {
     const QString InputMethodList("MInputMethodList");
     // TODO: check that these paths still hold
-    const QRegExp AutoCapsTrigger("[.?!¡¿] +$");
+    // 0xFFFC = object replacement character. Assume as terminating a sentence.
+    const QRegExp AutoCapsTrigger(QString("[.?!¡¿%1] +$").arg(QChar(0xfffc)));
     const QString AutoPunctuationTriggers(".,?!");
     const int AutoBackspaceDelay = 500;      // in ms
     const int LongPressTime = 600;           // in ms

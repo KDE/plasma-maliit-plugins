@@ -523,7 +523,9 @@ void Ut_MKeyboardHost::testCorrectionContentTypes()
 
 void Ut_MKeyboardHost::testAutoCaps()
 {
-    inputMethodHost->surroundingString = "Test string. You can using it!    ";
+    // unicode object replacement character at the end
+    inputMethodHost->surroundingString
+        = QString("Test string. You can using it!    %1 ").arg(QChar(0xfffc));
     inputMethodHost->autoCapitalizationEnabled_ = true;
     subject->correctionEnabled = true;
     inputMethodHost->contentType_ = M::FreeTextContentType;
@@ -566,6 +568,10 @@ void Ut_MKeyboardHost::testAutoCaps()
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
 
+    inputMethodHost->cursorPos = inputMethodHost->surroundingString.length();
+    subject->update();
+    QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
+    
     inputMethodHost->cursorPos = 0;
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
