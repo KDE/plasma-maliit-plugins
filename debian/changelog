@@ -1,6 +1,7 @@
 meego-keyboard (0.7.0~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#265905
 
  -- Pekka Vuorela <pekka.ta.vuorela@nokia.com>  Thu, 23 Jun 2011 13:57:02 +0300
 
