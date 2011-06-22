@@ -615,19 +615,20 @@ MImWordList MContentItemStyle {
 }
 
 MImWordList MContentItemStyle:pressed {
-    background-image: meegotouch-wordtracker-item-pressed $ROUNDED_CORNERS;
+    background-image : ;
+    background-color : #3D3D3D;
 }
 
 MImWordList MContentItemStyle:selected {
     title-object-name: "MImWordListLabelSelected";
     background-image : ;
-    background-color : ;
+    background-color : #3D3D3D;
 }
 
 MImWordListItem MLabelStyle#MImWordListLabel {
     font: $FONT_LARGE_BOLD;
     color: $COLOR_INVERTED_FOREGROUND;
-    margin-top:    $INDENT_DEFAULT;
+    margin-top:    0;
     margin-bottom: 0;
     margin-left:   $INDENT_DEFAULT;
     margin-right:  $INDENT_DEFAULT;
