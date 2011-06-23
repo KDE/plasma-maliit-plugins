@@ -52,13 +52,12 @@ namespace
     const QString SystemDisplayLanguage("/meegotouch/i18n/language");
     const QString FallbackLayout("en_gb.xml");
     const QString FallbackXkbLayout("us");
+    const QString KeyboardFileExtension(".xml");
     const QString NumberFormatSettingName("/meegotouch/i18n/lc_numeric");
-    const QString NumberKeyboardFileArabic("number_ar.xml");
+    const QString NumberKeyboardFilePrefix("number_");
     const QString NumberKeyboardFileLatin("number.xml");
-    const QString PhoneNumberKeyboardFileArabic("phonenumber_ar.xml");
+    const QString PhoneNumberKeyboardFilePrefix("phonenumber_");
     const QString PhoneNumberKeyboardFileLatin("phonenumber.xml");
-    const QString PhoneNumberKeyboardFileRussian("phonenumber_ru.xml");
-    const QString PhoneNumberKeyboardFileHebrew("phonenumber_he.xml");
     const QString SymbolKeyboardFileCommon("hwsymbols_common.xml");
     const QString SymbolKeyboardFileChinese("hwsymbols_chinese.xml");
     const QString FallbackXkbModel("evdev");
@@ -338,10 +337,14 @@ void LayoutsManager::syncNumberKeyboards()
     QString numberFormat = numberFormatSetting.value().toString().section("_", 0, 0);
     bool loaded = false;
 
+    const QString oldNumberKeyboardFile = numberKeyboard.layoutFile();
+    const QString oldPhoneNumberKeyboardFile = phoneNumberKeyboard.layoutFile();
+
+    QString numberKeyboardFile = NumberKeyboardFilePrefix + numberFormat
+                                 + KeyboardFileExtension;
+
     // Load the proper number layout
-    if (numberFormat == "ar") {
-        loaded = numberKeyboard.loadNokiaKeyboard(NumberKeyboardFileArabic);
-    }
+    loaded = numberKeyboard.loadNokiaKeyboard(numberKeyboardFile);
     // In other cases and fallback
     if (!loaded)
     {
@@ -349,19 +352,20 @@ void LayoutsManager::syncNumberKeyboards()
     }
 
     // Load the proper phone number layout
-    loaded = false;
-    if (numberFormat == "ar") {
-        loaded = phoneNumberKeyboard.loadNokiaKeyboard(PhoneNumberKeyboardFileArabic);
-    } else if (numberFormat == "ru") {
-        loaded = phoneNumberKeyboard.loadNokiaKeyboard(PhoneNumberKeyboardFileRussian);
-    } else if (numberFormat == "he") {
-        loaded = phoneNumberKeyboard.loadNokiaKeyboard(PhoneNumberKeyboardFileHebrew);
-    }
+    QString phoneNumberKeyboardFile = PhoneNumberKeyboardFilePrefix + numberFormat
+                                      + KeyboardFileExtension;
 
+    loaded = false;
+    loaded = phoneNumberKeyboard.loadNokiaKeyboard(phoneNumberKeyboardFile);
+
+    // In other cases and fallback for phone number
     if (!loaded) {
         phoneNumberKeyboard.loadNokiaKeyboard(PhoneNumberKeyboardFileLatin);
     }
-    emit numberFormatChanged();
+
+    if (oldNumberKeyboardFile != numberKeyboard.layoutFile()
+        || oldPhoneNumberKeyboardFile != phoneNumberKeyboard.layoutFile())
+        emit numberFormatChanged();
 }
 
 void LayoutsManager::syncLayouts()
