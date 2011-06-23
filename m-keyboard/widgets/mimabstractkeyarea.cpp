@@ -128,9 +128,6 @@ MImAbstractKeyAreaPrivate::MImAbstractKeyAreaPrivate(const LayoutData::SharedLay
       wasGestureTriggered(false),
       feedbackSliding(MImReactionMap::Sliding),
       section(newSection),
-      primaryPressArrived(false),
-      primaryReleaseArrived(false),
-      mouseMoveInTransition(false),
       allowedHorizontalFlick(true),
       ignoreTouchEventsUntilNewBegin(false),
       longPressTouchPointId(0),
@@ -298,34 +295,15 @@ void MImAbstractKeyAreaPrivate::handleTouchEvent(QTouchEvent *event)
 
         switch (tp.state()) {
         case Qt::TouchPointPressed:
-            if (tp.isPrimary()) {
-                primaryTouchPointPressed(tp);
-
-                // Primary touch point pressed and there are other active touch points.
-                if (event->touchPoints().count() > 1) {
-                    // Next mouse move will have a last position which is not suitable
-                    // for touch event conversion.
-                    mouseMoveInTransition = true;
-                }
-            } else {
-                touchPointPressed(tp);
-            }
+            touchPointPressed(tp);
             break;
 
         case Qt::TouchPointMoved:
-            // Primary touch point moves are always generated
-            // from mouseMoveEvent() handler.
-            if (!tp.isPrimary()) {
-                touchPointMoved(tp);
-            }
+            touchPointMoved(tp);
             break;
 
         case Qt::TouchPointReleased:
-            if (tp.isPrimary()) {
-                primaryTouchPointReleased(tp);
-            } else {
-                touchPointReleased(tp);
-            }
+            touchPointReleased(tp);
             break;
         default:
             break;
@@ -335,44 +313,6 @@ void MImAbstractKeyAreaPrivate::handleTouchEvent(QTouchEvent *event)
     // Stuck key guard. Reset all touch point counts.
     if (event->type() == QEvent::TouchEnd) {
         cancelAllKeys();
-    }
-}
-
-void MImAbstractKeyAreaPrivate::primaryTouchPointPressed(const QTouchEvent::TouchPoint &tp)
-{
-    if (!primaryPressArrived) {
-        primaryPressArrived = true;
-        primaryReleaseArrived = false;
-        touchPointPressed(tp);
-    }
-}
-
-void MImAbstractKeyAreaPrivate::primaryTouchPointMoved(const QTouchEvent::TouchPoint &tp)
-{
-    // The check for both press and release serve the role of a sanity check,
-    // and in addition the release is checked for the purpose of discarding
-    // further mouse move events after primary touch point is lifted.
-    // This is because mouse move events will continue to be delivered for
-    // another, non-primary, touch point.
-    if (!primaryPressArrived || primaryReleaseArrived) {
-        return;
-    }
-
-    touchPointMoved(tp);
-}
-
-void MImAbstractKeyAreaPrivate::primaryTouchPointReleased(const QTouchEvent::TouchPoint &tp)
-{
-    // Just return in case press has not arrived. This can also be due to mouse being
-    // grabbed to somewhere else.
-    if (!primaryPressArrived) {
-        return;
-    }
-
-    if (!primaryReleaseArrived) {
-        touchPointReleased(tp);
-        primaryReleaseArrived = true;
-        primaryPressArrived = false;
     }
 }
 
@@ -899,23 +839,34 @@ void MImAbstractKeyArea::resizeEvent(QGraphicsSceneResizeEvent *event)
 void MImAbstractKeyArea::mousePressEvent(QGraphicsSceneMouseEvent *ev)
 {
     Q_D(MImAbstractKeyArea);
-    d->primaryTouchPointPressed(d->fromMouseEvent(ev));
-    d->mouseMoveInTransition = false;
+
+    if (d->multiTouchEnabled()) {
+        return;
+    }
+
+    d->touchPointPressed(d->fromMouseEvent(ev));
 }
 
 void MImAbstractKeyArea::mouseMoveEvent(QGraphicsSceneMouseEvent *ev)
 {
     Q_D(MImAbstractKeyArea);
-    d->primaryTouchPointMoved(d->fromMouseEvent(ev, d->mouseMoveInTransition ?
-                                                    MImAbstractKeyAreaPrivate::ResetLastPosMember :
-                                                    MImAbstractKeyAreaPrivate::CopyAllMembers));
-    d->mouseMoveInTransition = false;
+
+    if (d->multiTouchEnabled()) {
+        return;
+    }
+
+    d->touchPointMoved(d->fromMouseEvent(ev));
 }
 
 void MImAbstractKeyArea::mouseReleaseEvent(QGraphicsSceneMouseEvent *ev)
 {
     Q_D(MImAbstractKeyArea);
-    d->primaryTouchPointReleased(d->fromMouseEvent(ev));
+
+    if (d->multiTouchEnabled()) {
+        return;
+    }
+
+    d->touchPointReleased(d->fromMouseEvent(ev));
 }
 
 QVariant MImAbstractKeyArea::itemChange(GraphicsItemChange change, const QVariant &value)
@@ -960,9 +911,6 @@ void MImAbstractKeyArea::ungrabMouseEvent(QEvent *)
     if (d->popup) {
         d->popup->cancel();
     }
-
-    d->primaryPressArrived = false;
-    d->primaryReleaseArrived = false;
 
     d->longPressTimer.stop();
 }
@@ -1188,9 +1136,6 @@ void MImAbstractKeyArea::handleIdleVkb()
 void MImAbstractKeyArea::reset()
 {
     Q_D(MImAbstractKeyArea);
-
-    d->primaryPressArrived = false;
-    d->primaryReleaseArrived = false;
 
     // Handle shift before ungrab because that changes key state
     bool shiftLatchedOrLocked(false);
