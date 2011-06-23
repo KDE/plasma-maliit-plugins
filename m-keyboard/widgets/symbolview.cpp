@@ -256,15 +256,6 @@ void SymbolView::hideSymbolView(SymbolView::HideMode mode)
     }
 
     if (mode == NormalHideMode) {
-        // In case we had symbol view temporarily open, reset
-        // user input source to default for current key area.
-        if (activity == TemporarilyActive
-            && pageSwitcher->currentWidget()) {
-            //MImAbstractKeyArea *keyArea = static_cast<MImAbstractKeyArea *>(pageSwitcher->currentWidget());
-            //keyArea->setDefaultUserInputSource();
-            // TODO: ungrab? keyarea will do so currently on release.
-        }
-
         pageSwitcher->setCurrent(0);
     }
 
