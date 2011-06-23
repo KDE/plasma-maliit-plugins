@@ -377,6 +377,7 @@ void MImAbstractKeyAreaPrivate::touchPointPressed(const QTouchEvent::TouchPoint 
 
     if (q->style()->commitPreviousKeyOnPress()
         && lastActiveKey
+        && lastActiveKey != key
         && lastActiveKey->enabled()
         && lastActiveKey->isNormalKey()
         && lastActiveKey->touchPointCount() > 0) {
