@@ -1,3 +1,35 @@
+0.80.1
+======
+
+CHANGES SINCE 0.80.0
+* Add transition animation for magnifier and extended keys
+* Improved language switch animation
+* Added Hebrew language layouts
+* Legacy mode can be enabled through:
+  $ qmake -r CONFIG+=enable-meegotouch
+
+BUG FIXES
+* Fixes: Don't autocommit previous key if it's the same as the new one.
+* Fixes: NB#268341, VKB related vibration feedbacks need to be updated
+* Fixes: NB#265905 - Wrong styles used in Word list dialog
+* Fixes: NB#261490 - [TASK] Implement transition between magnifier and extended keys
+* Fixes: "Unconsumed meta data" during dpkg-buildpackage.
+* Fixes: Syling for 33-keys layouts
+* Fixes: NB#264297
+* Fixes: NB#266879 - No email text input keyboard for Swedish
+* Fixes: Use Hebrew phonenumber layout, too
+* Fixes: BMC#17318 - Missing Hebrew virtual keyboard layout
+* Fixes: NB#265892 - Messaging app hangs or working very slow while writing a message in certain way
+* Fixes: failed Ut_MKeyboardHost
+* Fixes: Cangjie toggle key need to be reset.
+* Fixes: NB#266446
+* Fixes: NB#254893 - Search suggestion is not updated for Google...
+* Fixes: NB#262890 - In the custom toolbar field,buttons present in the vkb toolbar are getting highligtened while the vkb is closing.
+* Fixes: NB#258652 - Keyboard language notification is not according to layout guide
+* Fixes: NB#259910, CommonComboBoxIcons missing from Text input settings
+* Fixes: NB#241979 - VKB; Press down state is not shown in candidate dialog of Chinese Zhuyin input.
+* Fixes: NB#221453 - Dead key remains highlighted after Keys Pup up is present
+
 0.80.0
 ======
 
