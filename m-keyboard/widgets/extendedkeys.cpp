@@ -195,6 +195,10 @@ void ExtendedKeys::showExtendedArea(const QPointF &origin,
     showAnimation.setEasingCurve(host->style()->extendedKeysShowEasingCurve());
     showAnimation.setDuration(host->style()->extendedKeysShowDuration());
 
+    // Convert anchorPoint into coordinates of extended keys area to simplify
+    // calculations for animation. We do it just here, because extKeys area
+    // is placed into final position and won't be moved anymore.
+    anchorPoint = extKeysArea->mapFromScene(anchorPoint);
     setMagnitude(showAnimation.startValue().value<qreal>());
     show();
 
@@ -267,7 +271,7 @@ void ExtendedKeys::setMagnitude(qreal value)
     t.translate(anchorPoint.x() * (1.0f - value),
                 anchorPoint.y() * (1.0f - value));
     t.scale(value, value);
-    setTransform(t);
+    extKeysArea->setTransform(t);
 }
 
 void ExtendedKeys::hideExtendedArea()
@@ -278,7 +282,7 @@ void ExtendedKeys::hideExtendedArea()
 
 void ExtendedKeys::setAnchorPoint(const QPointF &anchor)
 {
-    anchorPoint = mapFromScene(anchor);
+    anchorPoint = anchor;
 }
 
 void ExtendedKeys::addToGroup(QAnimationGroup *group)
