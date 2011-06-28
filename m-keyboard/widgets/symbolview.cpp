@@ -189,6 +189,11 @@ void SymbolView::mousePressEvent(QGraphicsSceneMouseEvent *)
     // Nothing, just stop the event from propagating
 }
 
+MImAbstractKeyArea *SymbolView::activeKeyArea() const
+{
+    return pageSwitcher ? static_cast<MImAbstractKeyArea *>(pageSwitcher->currentWidget()) : 0;
+}
+
 void SymbolView::prepareToOrientationChange()
 {
     qDebug() << __PRETTY_FUNCTION__;

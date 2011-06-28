@@ -120,6 +120,11 @@ public:
     bool isPaintable() const;
     /*! \reimp_end */
 
+    /*!
+     * \brief Get key area that this widget is currently showing or would show if it was visible.
+     */
+    MImAbstractKeyArea *activeKeyArea() const;
+
 public slots:
     /*!
      * Handler to show the page.

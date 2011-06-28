@@ -347,18 +347,9 @@ void MVirtualKeyboard::organizeContent(M::Orientation orientation, const bool fo
 
 void MVirtualKeyboard::drawButtonsReactionMaps(MReactionMap *reactionMap, QGraphicsView *view)
 {
-    // Depending on which keyboard type is currently shown
-    // we must pick the correct MImAbstractKeyArea(s).
-    QGraphicsLayoutItem *item = mainLayout->itemAt(KeyboardIndex);
-
-    if (item) {
-        const bool useWidgetFromSwitcher = (item == mainKeyboardSwitcher
-                                            && mainKeyboardSwitcher->currentWidget());
-
-        MImAbstractKeyArea *kba = static_cast<MImAbstractKeyArea *>(useWidgetFromSwitcher ? mainKeyboardSwitcher->currentWidget()
-                                                                                : item);
-
-        kba->drawReactiveAreas(reactionMap, view);
+    MImAbstractKeyArea *ka = activeKeyArea();
+    if (ka) {
+        ka->drawReactiveAreas(reactionMap, view);
     }
 }
 
@@ -1027,4 +1018,13 @@ QString MVirtualKeyboard::nextPannableLayoutTitle(PanGesture::PanDirection direc
     }
 
     return layoutsMgr.keyboardTitle(layoutsMgr.layoutFileList().at(nextLayoutIndex));
+}
+
+MImAbstractKeyArea *MVirtualKeyboard::activeKeyArea() const
+{
+    // Depending on which keyboard type is currently shown
+    // we must pick the correct MImAbstractKeyArea(s).
+    QGraphicsLayoutItem *item = mainLayout->itemAt(KeyboardIndex);
+    return static_cast<MImAbstractKeyArea *>(item == mainKeyboardSwitcher
+                                             ? mainKeyboardSwitcher->currentWidget() : item);
 }

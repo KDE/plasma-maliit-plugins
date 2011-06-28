@@ -210,6 +210,11 @@ public:
      */
     QString nextPannableLayoutTitle(PanGesture::PanDirection direction) const;
 
+    /*!
+     * \brief Get key area that this widget is currently showing or would show if it was visible.
+     */
+    MImAbstractKeyArea *activeKeyArea() const;
+
 public slots:
     /*!
      * Method to switch level. Changes into next possible level.
