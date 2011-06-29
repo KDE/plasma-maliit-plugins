@@ -63,12 +63,17 @@ namespace MImKeyVisitor
 
     //! \brief Helper class for visiting and reseting active keys.
     class KeyAreaReset
-        : public MImAbstractKeyVisitor
+        : public QObject,
+          public MImAbstractKeyVisitor
     {
+        Q_OBJECT
     public:
         KeyAreaReset();
         void setKeyParentItem(QGraphicsItem *newParent);
         bool operator()(MImAbstractKey *key);
+
+    signals:
+        void keyReleased(const MImAbstractKey *key);
 
     private:
         QGraphicsItem *parent; //!< Can be invalid, only used for comparision
