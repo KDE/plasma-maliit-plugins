@@ -1735,6 +1735,44 @@ void Ut_MImAbstractKeyArea::testResetActiveKeys()
     QCOMPARE(activeKey->touchPointCount(), 0);
 }
 
+void Ut_MImAbstractKeyArea::testStuckKeyGuard()
+{
+    const QString labels("stuck");
+    subject = Ut_MImAbstractKeyArea::createArea("stuck", QSize(200, 50));
+
+    QSignalSpy cancelSpy(subject, SIGNAL(keyCancelled(const MImAbstractKey *, KeyContext)));
+
+    MPlainWindow::instance()->scene()->addItem(subject);
+
+    // Press all keys down and then send empty TouchEnd. All keys should be canceled.
+
+    // To get around autocommit, first press outside keyarea and then move to keys.
+    for (int col = 0; col < labels.length(); ++col) {
+        // Use column as id.
+        touchEvent(Press, col, QPoint(-1, -1));
+    }
+
+    for (int col = 0; col < labels.length(); ++col) {
+        MImAbstractKey *key = keyAt(0, col);
+        const QPointF keyPos = key->buttonRect().center();
+        touchEvent(Move, col, keyPos);
+    }
+
+    for (int col = 0; col < labels.length(); ++col) {
+        QCOMPARE(keyAt(0, col)->touchPointCount(), 1);
+    }
+
+    // Send empty touch end event. Should clear keys.
+    QTouchEvent touchEnd(QEvent::TouchEnd);
+    subject->event(&touchEnd);
+
+    QCOMPARE(cancelSpy.count(), labels.length());
+
+    for (int col = 0; col < labels.length(); ++col) {
+        QCOMPARE(keyAt(0, col)->touchPointCount(), 0);
+    }
+}
+
 void Ut_MImAbstractKeyArea::touchEvent(Ut_MImAbstractKeyArea::TouchEvent event,
                                        int id, const QPointF &pos)
 {

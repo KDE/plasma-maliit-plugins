@@ -179,6 +179,8 @@ public:
         return section->rowCount();
     }
 
+    void cancelAllKeys();
+
     MImAbstractKeyArea * const q_ptr;
 
     int currentLevel; //!< current level

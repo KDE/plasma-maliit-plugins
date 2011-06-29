@@ -109,6 +109,7 @@ private slots:
     void testTouchPointCount();
 
     void testResetActiveKeys();
+    void testStuckKeyGuard();
 
 private:
     enum TouchEvent {

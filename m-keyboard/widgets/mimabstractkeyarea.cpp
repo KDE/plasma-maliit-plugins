@@ -301,6 +301,11 @@ void MImAbstractKeyAreaPrivate::handleTouchEvent(QTouchEvent *event)
             break;
         }
     }
+
+    // Stuck key guard. Reset all touch point counts.
+    if (event->type() == QEvent::TouchEnd) {
+        cancelAllKeys();
+    }
 }
 
 void MImAbstractKeyAreaPrivate::primaryTouchPointPressed(const QTouchEvent::TouchPoint &tp)
@@ -654,6 +659,20 @@ void MImAbstractKeyAreaPrivate::switchStyleMode()
     }
 
     q->style().setCurrentMode(section->styleName());
+}
+
+void MImAbstractKeyAreaPrivate::cancelAllKeys()
+{
+    Q_Q(MImAbstractKeyArea);
+
+    MImKeyVisitor::KeyAreaReset keyAreaReset;
+    keyAreaReset.setKeyParentItem(q);
+
+    // Use default value for KeyContext parameter of keyCancelled. It's not used.
+    QObject::connect(&keyAreaReset, SIGNAL(keyReleased(const MImAbstractKey *)),
+                     q, SIGNAL(keyCancelled(const MImAbstractKey *)));
+
+    MImAbstractKey::visitActiveKeys(&keyAreaReset);
 }
 
 // actual class implementation

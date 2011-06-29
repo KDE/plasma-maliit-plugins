@@ -111,7 +111,13 @@ namespace MImKeyVisitor
             }
         }
 
+        const bool keyWasReleased = key->touchPointCount() > 0;
+
         key->resetTouchPointCount();
+
+        if (keyWasReleased) {
+            emit keyReleased(key);
+        }
 
         return false;
     }

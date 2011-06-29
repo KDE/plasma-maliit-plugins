@@ -45,12 +45,47 @@
 #include <QTimer>
 #include <QTime>
 
-struct KeyContext;
 class FlickGesture;
 class MReactionMap;
 class MImAbstractPopup;
 class MKeyOverride;
 class MImAbstractKeyAreaPrivate;
+
+/*! \brief This structure packs contextual information about
+ *         a key that was pressed/released/clicked.
+ */
+struct KeyContext
+{
+    KeyContext()
+        : upperCase(false),
+          isFromPrimaryTouchPoint(false)
+    {
+    }
+
+    KeyContext(bool upperCase, const QString &accent = QString(),
+               const QPointF &scenePos = QPointF(),
+               const QPoint correctionPos = QPoint(),
+               bool primaryTouchPoint = false,
+               int touchPointId = 0)
+       : upperCase(upperCase),
+         accent(accent),
+         scenePos(scenePos),
+         errorCorrectionPos(correctionPos),
+         isFromPrimaryTouchPoint(primaryTouchPoint),
+         touchPointId(touchPointId)
+    {
+    }
+
+    bool upperCase;            //!< Whether key area was considered to be in upper case level.
+    QString accent;            //!< Active accent, if any.
+    QPointF scenePos;          //!< Accurate scene position of the key's hit point.
+    QPoint errorCorrectionPos; //!< Hit point of the key in layout coordinates,
+                               //!  tweaked suitable for error correction engine.
+    bool isFromPrimaryTouchPoint; //!< Whether key was invoked with primary touch point.
+    int touchPointId;          //!< Id of touch point.
+};
+
+Q_DECLARE_METATYPE(KeyContext)
 
 //! \brief MImAbstractKeyArea is a view for virtual keyboard layout represented by LayoutModel
 class MImAbstractKeyArea
@@ -200,7 +235,7 @@ signals:
     //!
     //! \sa keyReleased
     void keyCancelled(const MImAbstractKey *key,
-                      const KeyContext &keyContext);
+                      const KeyContext &keyContext = KeyContext());
 
     //! \brief Emitted when key area is flicked right.
     void flickRight();
@@ -330,41 +365,5 @@ private:
     friend class Bm_Painting;
 #endif
 };
-
-/*! \brief This structure packs contextual information about
- *         a key that was pressed/released/clicked.
- */
-struct KeyContext
-{
-    KeyContext()
-        : upperCase(false),
-          isFromPrimaryTouchPoint(false)
-    {
-    }
-
-    KeyContext(bool upperCase, const QString &accent = QString(),
-               const QPointF &scenePos = QPointF(),
-               const QPoint correctionPos = QPoint(),
-               bool primaryTouchPoint = false,
-               int touchPointId = 0)
-       : upperCase(upperCase),
-         accent(accent),
-         scenePos(scenePos),
-         errorCorrectionPos(correctionPos),
-         isFromPrimaryTouchPoint(primaryTouchPoint),
-         touchPointId(touchPointId)
-    {
-    }
-
-    bool upperCase;            //!< Whether key area was considered to be in upper case level.
-    QString accent;            //!< Active accent, if any.
-    QPointF scenePos;          //!< Accurate scene position of the key's hit point.
-    QPoint errorCorrectionPos; //!< Hit point of the key in layout coordinates,
-                               //!  tweaked suitable for error correction engine.
-    bool isFromPrimaryTouchPoint; //!< Whether key was invoked with primary touch point.
-    int touchPointId;          //!< Id of touch point.
-};
-
-Q_DECLARE_METATYPE(KeyContext)
 
 #endif
