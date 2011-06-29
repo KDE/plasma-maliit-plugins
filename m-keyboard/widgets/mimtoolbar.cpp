@@ -385,16 +385,17 @@ void MImToolbar::showToolbarWidget(QSharedPointer<const MToolbarData> toolbar)
     currentToolbar = toolbar;
     loadCustomWidgets();
 
-    if (isVisible()) {
-        updateVisibility();
-        // The content has been changed -> Repaint the reaction maps
-        signalForwarder.emitRequestRepaint();
-    }
+    updateVisibility();
+    // The content has been changed -> Repaint the reaction maps
+    signalForwarder.emitRequestRepaint();
+
     arrangeWidgets();
+    show();
 }
 
 void MImToolbar::hideToolbarWidget()
 {
+    hide();
     currentToolbar.clear();
     unloadCustomWidgets();
     arrangeWidgets();
