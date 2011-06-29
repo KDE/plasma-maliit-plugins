@@ -1106,15 +1106,15 @@ void Ut_MImAbstractKeyArea::testTouchPoints_data()
         << (TpButtonStateMatrix() << (ButtonStateList() << MImAbstractKey::Pressed)
                                   << (ButtonStateList() << MImAbstractKey::Normal));
 
-    QTest::newRow("single button, commit before next hit")
-        << 2 << "a" << QSize(50, 50)
+    QTest::newRow("single button, don't autocommit because we're on the same key")
+        << 1 << "a" << QSize(50, 50)
         << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(12, 24), QPointF(-1, -1))
                      << createTp(1, Qt::TouchPointPressed, QPointF(16, 20), QPointF(-1, -1))
                      << createTp(1, Qt::TouchPointReleased, QPointF(16, 20), QPointF(12, 24))
                      << createTp(0, Qt::TouchPointReleased, QPointF(16, 20), QPointF(16, 20)))
         << (TpButtonStateMatrix() << (ButtonStateList() << MImAbstractKey::Pressed)
                                   << (ButtonStateList() << MImAbstractKey::Pressed)
-                                  << (ButtonStateList() << MImAbstractKey::Normal)
+                                  << (ButtonStateList() << MImAbstractKey::Pressed)
                                   << (ButtonStateList() << MImAbstractKey::Normal));
 
     QTest::newRow("2 buttons, 3 touchpoint transactions")
@@ -1178,20 +1178,20 @@ void Ut_MImAbstractKeyArea::testTouchPoints_data()
                                   << (ButtonStateList() << MImAbstractKey::Normal));
 
     QTest::newRow("move into button, press on button with second touchpoint, release first")
-        << 2 << "a" << QSize(50, 50)
+        << 0 << "a" << QSize(50, 50)
         << (TpList() << createTp(0, Qt::TouchPointPressed, QPointF(-1, -1), QPointF(-1, -1))
                      << createTp(0, Qt::TouchPointMoved, QPointF(2, -1), QPointF(-1, -1))
                      << createTp(0, Qt::TouchPointMoved, QPointF(10, 10), QPointF(2, -1))
                      << createTp(0, Qt::TouchPointMoved, QPointF(12, 14), QPointF(10, 10))
-                     << createTp(1, Qt::TouchPointPressed, QPointF(20, 20), QPointF(20, 20))
+                     << createTp(1, Qt::TouchPointPressed, QPointF(20, 20), QPointF(20, 20)) // No autocommit because key is the same.
                      << createTp(0, Qt::TouchPointReleased, QPointF(12, 14), QPointF(12, 14))
-                     << createTp(0, Qt::TouchPointMoved, QPointF(51, 51), QPointF(20, 20)))
+                     << createTp(1, Qt::TouchPointMoved, QPointF(51, 51), QPointF(20, 20)))
         << (TpButtonStateMatrix() << (ButtonStateList() << MImAbstractKey::Normal)
                                   << (ButtonStateList() << MImAbstractKey::Normal)
                                   << (ButtonStateList() << MImAbstractKey::Pressed)
                                   << (ButtonStateList() << MImAbstractKey::Pressed)
                                   << (ButtonStateList() << MImAbstractKey::Pressed)
-                                  << (ButtonStateList() << MImAbstractKey::Normal)
+                                  << (ButtonStateList() << MImAbstractKey::Pressed)
                                   << (ButtonStateList() << MImAbstractKey::Normal));
 
     QTest::newRow("sudden move from a to b")
