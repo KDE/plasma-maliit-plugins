@@ -112,6 +112,7 @@ ExtendedKeys::ExtendedKeys(MagnifierHost *newHost,
     , hideOnNextMouseRelease(false)
     , showAnimation(this, "magnitude")
     , currentMagnitude(1)
+    , isInitialTouchPointPrimary(false)
     , followedTouchPointId(0)
     , followedTouchPointOrigin(MainKeyboardArea)
     , releasedTouchPointId(-1)
@@ -125,6 +126,8 @@ ExtendedKeys::ExtendedKeys(MagnifierHost *newHost,
 
     showAnimation.setStartValue(0.0f);
     showAnimation.setEndValue(1.0f);
+    connect(&showAnimation, SIGNAL(finished()),
+                            SLOT(handleShowAnimationFinished()));
 }
 
 ExtendedKeys::~ExtendedKeys()
@@ -220,49 +223,60 @@ void ExtendedKeys::showExtendedArea(const QPointF &origin,
     followedTouchPointOrigin = MainKeyboardArea;
     releasedTouchPointId = -1;
 
-    // Generate first press or touch event and send it to extKeysArea
-    // if multitouch is enabled.
-    if (acceptTouchEvents()) {
-        QTouchEvent::TouchPoint tp;
-        tp.setId(followedTouchPointId);
-        if (touchPointIsPrimary) {
-            tp.setState(Qt::TouchPointPressed | Qt::TouchPointPrimary);
-        } else {
-            tp.setState(Qt::TouchPointPressed);
-        }
-        tp.setPos(extKeysArea->mapFromScene(tappedScenePos));
-        tp.setScenePos(tappedScenePos);
-        tp.setLastPos(tp.pos());
-        tp.setLastScenePos(tp.scenePos());
-        QList<QTouchEvent::TouchPoint> tpList;
-        tpList.append(tp);
-        QTouchEvent touchEvent(QEvent::TouchBegin, QTouchEvent::TouchScreen, Qt::NoModifier, tp.state(), tpList);
-        scene()->sendEvent(extKeysArea.get(), &touchEvent);
-    }
-
-    // Generate mouse event only if touch point is primary
-    if (touchPointIsPrimary) {
-        QGraphicsSceneMouseEvent press(QEvent::GraphicsSceneMousePress);
-        press.setPos(extKeysArea->mapFromScene(tappedScenePos));
-        press.setLastPos(press.pos());
-        press.setScenePos(tappedScenePos);
-        press.setLastScenePos(press.scenePos());
-        scene()->sendEvent(extKeysArea.get(), &press);
-    }
+    isInitialTouchPointPrimary = touchPointIsPrimary;
+    this->tappedScenePos = tappedScenePos;
 
     // Instead of grabbing mouse, filter and redirect the events here
     mainArea->installEventFilter(this);
+
+}
+
+void ExtendedKeys::handleHide()
+{
+    mainArea->removeEventFilter(this);
+}
+
+void ExtendedKeys::handleShowAnimationFinished()
+{
+    // Only send initial mouse press if touch is not released
+    // while show animation is running.
+    if (!hideOnNextMouseRelease) {
+        // Generate first press or touch event and send it to extKeysArea
+        // if multitouch is enabled.
+        if (acceptTouchEvents()) {
+            QTouchEvent::TouchPoint tp;
+            tp.setId(followedTouchPointId);
+            if (isInitialTouchPointPrimary) {
+                tp.setState(Qt::TouchPointPressed | Qt::TouchPointPrimary);
+            } else {
+                tp.setState(Qt::TouchPointPressed);
+            }
+            tp.setPos(extKeysArea->mapFromScene(tappedScenePos));
+            tp.setScenePos(tappedScenePos);
+            tp.setLastPos(tp.pos());
+            tp.setLastScenePos(tp.scenePos());
+            QList<QTouchEvent::TouchPoint> tpList;
+            tpList.append(tp);
+            QTouchEvent touchEvent(QEvent::TouchBegin, QTouchEvent::TouchScreen, Qt::NoModifier, tp.state(), tpList);
+            scene()->sendEvent(extKeysArea.get(), &touchEvent);
+        }
+    
+        // Generate mouse event only if touch point is primary
+        if (isInitialTouchPointPrimary) {
+            QGraphicsSceneMouseEvent press(QEvent::GraphicsSceneMousePress);
+            press.setPos(extKeysArea->mapFromScene(tappedScenePos));
+            press.setLastPos(press.pos());
+            press.setScenePos(tappedScenePos);
+            press.setLastScenePos(press.scenePos());
+            scene()->sendEvent(extKeysArea.get(), &press);
+        }
+    }
 
     // Update the reaction maps right now
     signalForwarder.emitRequestRepaint();
     // Update the reaction maps if the popup disappears
     connect(extKeysArea.get(), SIGNAL(displayExited()),
             &signalForwarder, SIGNAL(requestRepaint()));
-}
-
-void ExtendedKeys::handleHide()
-{
-    mainArea->removeEventFilter(this);
 }
 
 bool ExtendedKeys::handleTouchEvent(QTouchEvent *event, QGraphicsItem *originalReceiver, EventOrigin from)
@@ -354,17 +368,23 @@ bool ExtendedKeys::handleTouchEvent(QTouchEvent *event, QGraphicsItem *originalR
     }
 
     if (!extKeysAreaTouchPoint.isEmpty()) {
-        QEvent::Type type = event->type();
-
-        // Make sure that TouchBegin and TouchEnd are reported correctly
-        if (extKeysAreaTouchPoint[0].state() & Qt::TouchPointPressed) {
-            type = QEvent::TouchBegin;
-        } else if (extKeysAreaTouchPoint[0].state() & Qt::TouchPointReleased) {
-            type = QEvent::TouchEnd;
+        if (showAnimation.state() != QAbstractAnimation::Stopped) {
+            // Do not forward events to extKeysArea until animation has
+            // finished. Instead, only update initial press position.
+            tappedScenePos = extKeysAreaTouchPoint[0].scenePos();
+        } else {
+            QEvent::Type type = event->type();
+    
+            // Make sure that TouchBegin and TouchEnd are reported correctly
+            if (extKeysAreaTouchPoint[0].state() & Qt::TouchPointPressed) {
+                type = QEvent::TouchBegin;
+            } else if (extKeysAreaTouchPoint[0].state() & Qt::TouchPointReleased) {
+                type = QEvent::TouchEnd;
+            }
+    
+            QTouchEvent tEvent(type, QTouchEvent::TouchScreen, Qt::NoModifier, extKeysAreaTouchPoint[0].state(), extKeysAreaTouchPoint);
+            scene()->sendEvent(extKeysArea.get(), &tEvent);
         }
-
-        QTouchEvent tEvent(type, QTouchEvent::TouchScreen, Qt::NoModifier, extKeysAreaTouchPoint[0].state(), extKeysAreaTouchPoint);
-        scene()->sendEvent(extKeysArea.get(), &tEvent);
         eaten = true;
     }
 
@@ -390,6 +410,8 @@ bool ExtendedKeys::handleTouchEvent(QTouchEvent *event, QGraphicsItem *originalR
 bool ExtendedKeys::handleMouseEvent(QGraphicsSceneMouseEvent *event, EventOrigin from)
 {
     bool eaten = false;
+    QGraphicsSceneMouseEvent *generatedEvent = NULL;
+
 
     if (event->type() == QEvent::GraphicsSceneMousePress) {
         // Start following the first touch after initially
@@ -408,12 +430,11 @@ bool ExtendedKeys::handleMouseEvent(QGraphicsSceneMouseEvent *event, EventOrigin
 
     if (followedTouchPointId == 0
         && followedTouchPointOrigin == from) {
-        QGraphicsSceneMouseEvent generatedEvent(event->type());
-        generatedEvent.setPos(event->pos());
-        generatedEvent.setScenePos(event->scenePos());
-        generatedEvent.setLastPos(event->lastPos());
-        generatedEvent.setLastScenePos(event->lastScenePos());
-        scene()->sendEvent(extKeysArea.get(), &generatedEvent);
+        generatedEvent = new QGraphicsSceneMouseEvent(event->type());
+        generatedEvent->setPos(event->pos());
+        generatedEvent->setScenePos(event->scenePos());
+        generatedEvent->setLastPos(event->lastPos());
+        generatedEvent->setLastScenePos(event->lastScenePos());
         eaten = true;
 
         if (event->type() == QEvent::GraphicsSceneMouseRelease) {
@@ -427,7 +448,6 @@ bool ExtendedKeys::handleMouseEvent(QGraphicsSceneMouseEvent *event, EventOrigin
             if (!hideOnNextMouseRelease) {
                 // Initial touch point is released
                 hideOnNextMouseRelease = true;
-                extKeysArea->lockVerticalMovement(false);
             } else {
                 // Second followed touch point is released, hide
                 // extended keys area
@@ -439,12 +459,11 @@ bool ExtendedKeys::handleMouseEvent(QGraphicsSceneMouseEvent *event, EventOrigin
         // Release logic already handled at touch event handler.
         // Just redirect the mouse event to extKeyArea.
         releasedTouchPointId = -1;
-        QGraphicsSceneMouseEvent generatedEvent(event->type());
-        generatedEvent.setPos(event->pos());
-        generatedEvent.setScenePos(event->scenePos());
-        generatedEvent.setLastPos(event->lastPos());
-        generatedEvent.setLastScenePos(event->lastScenePos());
-        scene()->sendEvent(extKeysArea.get(), &generatedEvent);
+        generatedEvent = new QGraphicsSceneMouseEvent(event->type());
+        generatedEvent->setPos(event->pos());
+        generatedEvent->setScenePos(event->scenePos());
+        generatedEvent->setLastPos(event->lastPos());
+        generatedEvent->setLastScenePos(event->lastScenePos());
         eaten = true;
     } else if (ignoredTouchPoints[from].contains(0)) {
         eaten = true;
@@ -453,6 +472,25 @@ bool ExtendedKeys::handleMouseEvent(QGraphicsSceneMouseEvent *event, EventOrigin
     if (event->type() == QEvent::GraphicsSceneMouseRelease
         && ignoredTouchPoints[from].contains(0)) {
         ignoredTouchPoints[from].removeOne(0);
+    }
+
+    if (generatedEvent) {
+        if (showAnimation.state() != QAbstractAnimation::Stopped) {
+            // Do not forward events to extKeysArea until animation has
+            // finished. Instead, only update initial press position.
+            tappedScenePos = generatedEvent->scenePos();
+        } else {
+            scene()->sendEvent(extKeysArea.get(), generatedEvent);
+        }
+
+        delete generatedEvent;
+        generatedEvent = NULL;
+    }
+
+    // Unlock vertical movement after initial touch has been released
+    // and modified mouse event has been sent to receiver.
+    if (hideOnNextMouseRelease) {
+        extKeysArea->lockVerticalMovement(false);
     }
 
     return eaten;
