@@ -124,6 +124,13 @@ private:
         OverlayArea
     };
 
+    //! Stores initial tapped scene position. This is used to generate
+    //! first touch and press event to extKeysArea.
+    QPointF tappedScenePos;
+
+    //! Tells if initially followed touch point was primary touch point
+    bool isInitialTouchPointPrimary;
+
     //! ID and origin of the touch point that is redirected to extKeysArea
     int followedTouchPointId;
     EventOrigin followedTouchPointOrigin;
@@ -182,6 +189,7 @@ public slots:
                           bool touchPointIsPrimary);
 
 private slots:
+    void handleShowAnimationFinished();
     void handleHide();
 
     //! \brief Hide extended area
