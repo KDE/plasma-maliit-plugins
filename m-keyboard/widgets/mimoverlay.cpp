@@ -79,7 +79,8 @@ bool MImOverlay::sceneEvent(QEvent *e)
     // go to the background virtual keyboard.
     e->setAccepted(e->isAccepted()
                    || e->type() == QEvent::TouchBegin
-                   || e->type() == QEvent::GraphicsSceneMousePress);
+                   || e->type() == QEvent::GraphicsSceneMousePress
+                   || e->type() == QEvent::GraphicsSceneMouseDoubleClick);
     return e->isAccepted();
 }
 

@@ -49,6 +49,8 @@ class QWidget;
 class QPainter;
 class QStyleOptionGraphicsItem;
 class QAnimationGroup;
+class QTouchEvent;
+class QGraphicsSceneMouseEvent;
 
 //! \internal
 //! \brief Allows access to protected areas of MImKeyArea
@@ -66,17 +68,6 @@ public:
 
     virtual ~ExtendedKeysArea()
     {}
-
-    virtual bool sceneEvent(QEvent *ev)
-    {
-        bool result = MImKeyArea::sceneEvent(ev);
-
-        if (ev->type() == QEvent::GraphicsSceneMouseRelease) {
-            lockVerticalMovement(false);
-        }
-
-        return result;
-    }
 
 protected:
     explicit ExtendedKeysArea(const LayoutData::SharedLayoutSection &section,
@@ -127,12 +118,36 @@ private:
     //! Anchor point for animation.
     QPointF anchorPoint;
 
-private:
+    //! Tell where the touch/mouse event came from
+    enum EventOrigin {
+        MainKeyboardArea,
+        OverlayArea
+    };
+
+    //! ID and origin of the touch point that is redirected to extKeysArea
+    int followedTouchPointId;
+    EventOrigin followedTouchPointOrigin;
+
+    //! ID and origin of the touch point that might have a pending release
+    //! event coming. We want to redirect this release event but not do
+    //! anything else.
+    int releasedTouchPointId;
+    EventOrigin releasedTouchPointOrigin;
+
+    //! Ignored touch point ID's for each origin
+    QMap<EventOrigin, QList<int> > ignoredTouchPoints;
+
     //! Return current magnitude.
     qreal magnitude() const;
 
     //! Set magnitude to given value.
     void setMagnitude(qreal value);
+
+    //! Filters and redirects touch events
+    bool handleTouchEvent(QTouchEvent *event, QGraphicsItem *originalReceiver, EventOrigin from);
+
+    //! Filters and redirects mouse events
+    bool handleMouseEvent(QGraphicsSceneMouseEvent *event, EventOrigin from);
 
 public:
     explicit ExtendedKeys(MagnifierHost *host,
@@ -159,18 +174,23 @@ public slots:
     //! \param tappedScenePos Position where finger was tapped, in scene coordinates.
     //!        Used to apply initial press on the new extended area widget.
     //! \param labels The labels to use for the buttons.
+    //! \param touchPointId ID of touch point.
     void showExtendedArea(const QPointF &origin,
                           const QPointF &tappedScenePos,
-                          const QString &labels);
+                          const QString &labels,
+                          int touchPointId,
+                          bool touchPointIsPrimary);
+
+private slots:
+    void handleHide();
 
     //! \brief Hide extended area
     void hideExtendedArea();
 
 protected:
     //! \reimp
-    virtual QVariant itemChange(GraphicsItemChange change,
-                                const QVariant &value);
-    virtual bool sceneEventFilter(QGraphicsItem *watched, QEvent *event);
+    virtual bool eventFilter(QObject *watched, QEvent *event);
+    virtual bool event(QEvent *event);
     //! \reimp_end
 };
 

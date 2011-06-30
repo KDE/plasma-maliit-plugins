@@ -135,10 +135,11 @@ public:
         mVisible = true;
     }
 
-    void handleLongKeyPressedOnMainArea(MImAbstractKey *,
-                                        const KeyContext &)
+    MImAbstractPopup::EffectOnKey handleLongKeyPressedOnMainArea(MImAbstractKey *,
+                                                                 const KeyContext &)
     {
         mVisible = true;
+        return MImAbstractPopup::NoEffect;
     }
 
     bool isVisible() const
