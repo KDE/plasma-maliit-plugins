@@ -144,7 +144,9 @@ MImAbstractKeyAreaPrivate::MImAbstractKeyAreaPrivate(const LayoutData::SharedLay
       primaryReleaseArrived(false),
       mouseMoveInTransition(false),
       allowedHorizontalFlick(true),
-      ignoreTouchEventsUntilNewBegin(false)
+      ignoreTouchEventsUntilNewBegin(false),
+      longPressTouchPointId(0),
+      longPressTouchPointIsPrimary(false)
 {
 }
 
@@ -345,7 +347,7 @@ void MImAbstractKeyAreaPrivate::touchPointPressed(const QTouchEvent::TouchPoint 
 
     mTimestamp("MImAbstractKeyArea", "start");
     wasGestureTriggered = false;
-    mostRecentTouchPosition = tp.pos();
+    mostRecentTouchPositions.insert(tp.id(), tp.pos());
 
     // Gestures only slow down in speed typing mode:
     if (isInSpeedTypingMode(true)) {
@@ -396,6 +398,8 @@ void MImAbstractKeyAreaPrivate::touchPointPressed(const QTouchEvent::TouchPoint 
     if (key->increaseTouchPointCount()
         && key->touchPointCount() == 1) {
         q->updatePopup(key);
+        longPressTouchPointId = tp.id();
+        longPressTouchPointIsPrimary = tp.isPrimary();
         longPressTimer.start(q->style()->longPressTimeout());
 
         // We activate the key's gravity here because a key cannot
@@ -417,7 +421,7 @@ void MImAbstractKeyAreaPrivate::touchPointMoved(const QTouchEvent::TouchPoint &t
 {
     Q_Q(MImAbstractKeyArea);
 
-    mostRecentTouchPosition = tp.pos();
+    mostRecentTouchPositions.insert(tp.id(), tp.pos());
 
     if (wasGestureTriggered) {
         longPressTimer.stop();
@@ -451,6 +455,8 @@ void MImAbstractKeyAreaPrivate::touchPointMoved(const QTouchEvent::TouchPoint &t
                 // slot is called asynchronously to get screen update as fast as possible
                 QMetaObject::invokeMethod(&feedbackSliding, "play", Qt::QueuedConnection);
 
+                longPressTouchPointId = tp.id();
+                longPressTouchPointIsPrimary = tp.isPrimary();
                 longPressTimer.start(q->style()->longPressTimeout());
                 emit q->keyPressed(lookup.key,
                                    KeyContext(hasActiveShiftKeys || isUpperCase(),
@@ -483,7 +489,7 @@ void MImAbstractKeyAreaPrivate::touchPointReleased(const QTouchEvent::TouchPoint
 {
     Q_Q(MImAbstractKeyArea);
 
-    mostRecentTouchPosition = tp.pos();
+    mostRecentTouchPositions.insert(tp.id(), tp.pos());
 
     if (wasGestureTriggered) {
         return;
@@ -1166,11 +1172,19 @@ void MImAbstractKeyArea::handleLongKeyPressed()
                                            : QString());
 
     KeyContext keyContext(d->isUpperCase(), accent,
-                          mapToScene(d->mostRecentTouchPosition));
+                          mapToScene(d->mostRecentTouchPositions.value(d->longPressTouchPointId)));
+    keyContext.touchPointId = d->longPressTouchPointId;
+    keyContext.isFromPrimaryTouchPoint = d->longPressTouchPointIsPrimary;
 
     if (d->popup) {
-        d->popup->handleLongKeyPressedOnMainArea(lastActiveKey,
-                                                  keyContext);
+        MImAbstractPopup::EffectOnKey result;
+        result = d->popup->handleLongKeyPressedOnMainArea(lastActiveKey,
+                                                          keyContext);
+
+        // Reset state of long pressed key if necessary
+        if (result == MImAbstractPopup::ResetPressedKey) {
+            lastActiveKey->resetTouchPointCount();
+        }
     }
 
     emit longKeyPressed(lastActiveKey, keyContext);

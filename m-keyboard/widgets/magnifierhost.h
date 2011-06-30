@@ -103,8 +103,8 @@ public:
     virtual void handleKeyPressedOnMainArea(MImAbstractKey *key,
                                             const KeyContext &keyContext);
 
-    virtual void handleLongKeyPressedOnMainArea(MImAbstractKey *key,
-                                                const KeyContext &keyContext);
+    virtual EffectOnKey handleLongKeyPressedOnMainArea(MImAbstractKey *key,
+                                                       const KeyContext &keyContext);
 
     virtual bool isVisible() const;
     virtual void setVisible(bool visible);

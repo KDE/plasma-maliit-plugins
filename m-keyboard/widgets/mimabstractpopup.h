@@ -48,6 +48,12 @@ class MImAbstractPopup
 public:
     virtual ~MImAbstractPopup() = 0;
 
+    enum EffectOnKey {
+        NoEffect,        //! No effect on pressed key state.
+        ResetPressedKey, //! Reset pressed key state.
+    };
+
+
     //! \brief Set main area
     //!
     //! \param mainArea Allows MImAbstractPopup to forward requests to the
@@ -74,8 +80,8 @@ public:
     //! \brief Allows MImAbstractPopup to act upon long key-pressed on the main area
     //! \param keyPos key's position
     //! \param keyContext Context information at the moment key was long-pressed
-    virtual void handleLongKeyPressedOnMainArea(MImAbstractKey *key,
-                                                const KeyContext &keyContext) = 0;
+    virtual EffectOnKey handleLongKeyPressedOnMainArea(MImAbstractKey *key,
+                                                       const KeyContext &keyContext) = 0;
 
     //! Returns whether MImAbstractPopup has any visible components
     virtual bool isVisible() const = 0;

@@ -186,25 +186,31 @@ void MagnifierHost::handleKeyPressedOnMainArea(MImAbstractKey *key,
         return;
     }
 
+    // We don't want to show magnifier and extended keys area at the
+    // same time.
+    extKeys->hide();
+
     hideDelayTimer.stop();
     magnifier->setLabel(key->label());
     magnifier->showMagnifier();
 }
 
-void MagnifierHost::handleLongKeyPressedOnMainArea(MImAbstractKey *key,
-                                                   const KeyContext &keyContext)
+MImAbstractPopup::EffectOnKey
+MagnifierHost::handleLongKeyPressedOnMainArea(MImAbstractKey *key,
+                                              const KeyContext &keyContext)
 {
+    MImAbstractPopup::EffectOnKey retVal = NoEffect;
     if (!key) {
         qWarning() << __PRETTY_FUNCTION__
                    << "Invalid key press detected, or MagnifierHost not enabled!";
-        return;
+        return retVal;
     }
 
     QString labels = computeExtendedLabelsFromKey(key);
 
     if (labels.count() < 2) {
         // It usually makes no sense to show an extended area for one key.
-        return;
+        return retVal;
     }
 
     QPointF buttonPos = key->buttonRect().topLeft();
@@ -212,8 +218,13 @@ void MagnifierHost::handleLongKeyPressedOnMainArea(MImAbstractKey *key,
     extKeys->setAnchorPoint(magnifier->mapToScene(magnifier->boundingRect().center()));
     extKeys->showExtendedArea(buttonPos,
                               keyContext.scenePos,
-                              labels);
+                              labels,
+                              keyContext.touchPointId,
+                              keyContext.isFromPrimaryTouchPoint);
     animationGroup.start();
+    retVal = ResetPressedKey;
+
+    return retVal;
 }
 
 bool MagnifierHost::isVisible() const

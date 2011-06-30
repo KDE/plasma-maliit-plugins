@@ -197,7 +197,9 @@ public:
     bool mouseMoveInTransition; //!< Whether next mouse move is the first that belongs to new primary touch point.
     bool allowedHorizontalFlick; //!< Contains true if horizontal gestures should be allowed.
     bool ignoreTouchEventsUntilNewBegin; //!< Workaround for NB#248227.
-    QPointF mostRecentTouchPosition; //!< Save last touched position.
+    QMap<int, QPointF> mostRecentTouchPositions; //!< Remember the most recent positions for each touch points.
+    int longPressTouchPointId; //!< Remember the touch position ID which initiated long press.
+    bool longPressTouchPointIsPrimary; //!< Remember if long press touch position was primary.
 };
 //! \internal_end
 

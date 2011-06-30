@@ -345,12 +345,14 @@ struct KeyContext
     KeyContext(bool upperCase, const QString &accent = QString(),
                const QPointF &scenePos = QPointF(),
                const QPoint correctionPos = QPoint(),
-               bool primaryTouchPoint = false)
+               bool primaryTouchPoint = false,
+               int touchPointId = 0)
        : upperCase(upperCase),
          accent(accent),
          scenePos(scenePos),
          errorCorrectionPos(correctionPos),
-         isFromPrimaryTouchPoint(primaryTouchPoint)
+         isFromPrimaryTouchPoint(primaryTouchPoint),
+         touchPointId(touchPointId)
     {
     }
 
@@ -360,6 +362,7 @@ struct KeyContext
     QPoint errorCorrectionPos; //!< Hit point of the key in layout coordinates,
                                //!  tweaked suitable for error correction engine.
     bool isFromPrimaryTouchPoint; //!< Whether key was invoked with primary touch point.
+    int touchPointId;          //!< Id of touch point.
 };
 
 Q_DECLARE_METATYPE(KeyContext)
