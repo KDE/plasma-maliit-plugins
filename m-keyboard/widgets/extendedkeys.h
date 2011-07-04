@@ -51,7 +51,7 @@ class QStyleOptionGraphicsItem;
 class QAnimationGroup;
 
 //! \internal
-//! \brief Allows access to protected areas of SingleWidgetButtonArea
+//! \brief Allows access to protected areas of MImKeyArea
 class ExtendedKeysArea
     : public MImKeyArea
 {
