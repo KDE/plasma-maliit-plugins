@@ -49,6 +49,7 @@
 #include "abstractenginewidgethost.h"
 #include "layoutpanner.h"
 #include "mimsubviewdescription.h"
+#include "touchforwardfilter.h"
 
 #include <mimenginefactory.h>
 #include <mabstractinputmethodhost.h>
@@ -1302,7 +1303,6 @@ void MKeyboardHost::handleKeyPress(const KeyEvent &event)
     } else if (event.specialKey() == KeyEvent::Sym) {
 
         if (activeState == MInputMethod::OnScreen
-            && event.isFromPrimaryTouchPoint()
             && vkbWidget == static_cast<MVirtualKeyboard *>(sender())) {
             showSymbolView(SymbolView::FollowMouseShowMode,
                            event.scenePosition());
@@ -2022,20 +2022,45 @@ void MKeyboardHost::updateSymbolViewLevel()
 void MKeyboardHost::showSymbolView(SymbolView::ShowMode showMode,
                                    const QPointF &initialScenePress)
 {
-    // We always send a cancel event when showing symbol view, even when showSymbolView is
-    // not called from handleKeyPress which is the case where cancel event is the obvious
-    // thing to do.  This is because user may hold shift down and click symbol key, which
-    // in that case is handled by handleSymbolKeyClick, because sym is not the primary
-    // touchpoint.  Also in this case we want to reset the active key area so that when
-    // the symbol view is exited, keys won't be in level 1 even when shift key state is
-    // normal.
-    MCancelEvent cancel;
-    vkbWidget->scene()->sendEvent(vkbWidget, &cancel);
-
     symbolView->setPos(0, MPlainWindow::instance()->visibleSceneSize().height() - symbolView->size().height());
-    symbolView->showSymbolView(showMode, initialScenePress);
+    symbolView->showSymbolView(showMode);
     //give the symbolview right shift level(for hardware state)
     updateSymbolViewLevel();
+
+    // If show mode is FollowMouseShowMode, assume we got here during a press event.
+    // In FollowMouseShowMode we must also grab the mouse, or forward touch events.
+    if (showMode == SymbolView::FollowMouseShowMode) {
+
+        MCancelEvent cancel;
+        vkbWidget->scene()->sendEvent(vkbWidget, &cancel);
+
+        MImAbstractKeyArea *symArea = symbolView->activeKeyArea();
+        Q_ASSERT(symArea);
+
+        if (enableMultiTouch) {
+            MImAbstractKeyArea *vkbArea = vkbWidget->activeKeyArea();
+            Q_ASSERT(vkbArea);
+
+            // Send last vkbWidget event as initial touch event. Type cannot be TouchEnd since
+            // we got here via press.
+            Q_ASSERT(vkbArea->lastTouchEvent().type() != QEvent::TouchEnd);
+
+            (void)new TouchForwardFilter(symArea,
+                                         TouchForwardFilter::TouchInactive,
+                                         vkbArea,
+                                         &vkbArea->lastTouchEvent());
+        } else {
+            symArea->grabMouse();
+
+            // Send initial press
+            QGraphicsSceneMouseEvent press(QEvent::GraphicsSceneMousePress);
+            press.setPos(symArea->mapFromScene(initialScenePress));
+            press.setScenePos(initialScenePress);
+            press.setLastPos(press.pos());
+            press.setLastScenePos(press.scenePos());
+            symArea->scene()->sendEvent(symArea, &press);
+        }
+    }
 }
 
 MInputMethod::InputModeIndicator MKeyboardHost::deadKeyToIndicator(const QChar &key)

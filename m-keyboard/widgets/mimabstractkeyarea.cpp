@@ -132,7 +132,8 @@ MImAbstractKeyAreaPrivate::MImAbstractKeyAreaPrivate(const LayoutData::SharedLay
       ignoreTouchEventsUntilNewBegin(false),
       longPressTouchPointId(0),
       longPressTouchPointIsPrimary(false),
-      enabledPanning(true)
+      enabledPanning(true),
+      lastTouchEvent(QEvent::TouchEnd)
 {
 }
 
@@ -281,6 +282,8 @@ void MImAbstractKeyAreaPrivate::handleGesture(const PanGesture &gesture)
 void MImAbstractKeyAreaPrivate::handleTouchEvent(QTouchEvent *event)
 {
     Q_Q(MImAbstractKeyArea);
+
+    lastTouchEvent = *event;
 
     if (event->type() == QEvent::TouchBegin) {
         ignoreTouchEventsUntilNewBegin = false;
@@ -1293,4 +1296,10 @@ bool MImAbstractKeyArea::panningEnabled() const
 {
     Q_D(const MImAbstractKeyArea);
     return d->enabledPanning;
+}
+
+const QTouchEvent &MImAbstractKeyArea::lastTouchEvent() const
+{
+    Q_D(const MImAbstractKeyArea);
+    return d->lastTouchEvent;
 }

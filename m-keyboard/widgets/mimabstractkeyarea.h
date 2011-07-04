@@ -154,6 +154,9 @@ public:
     //! \brief Returns whether panning gesture is enabled
     bool panningEnabled() const;
 
+    //! \brief Get the most recent touch event.
+    const QTouchEvent &lastTouchEvent() const;
+
 public slots:
     //! \brief Tell key area to switch levels for all keys.
     //! \param level the new level

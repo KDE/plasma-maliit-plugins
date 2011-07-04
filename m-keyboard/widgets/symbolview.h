@@ -130,12 +130,8 @@ public slots:
      * Handler to show the page.
      * If the page is already visible, then just return.
      * \param mode Value is NormalShowMode or FollowMouseShowMode. Default is NormalShowMode. \sa ShowMode.
-     * \param initialScenePress Position in scene coordinates where mouse should initially get pressed.
-     *        If mode is NormalShowMode this parameter is ignored. The location should be location of primary
-     *        touch point because that's the point symbol view will follow.
      */
-    void showSymbolView(ShowMode mode = NormalShowMode,
-                        const QPointF &initialScenePress = QPointF());
+    void showSymbolView(ShowMode mode = NormalShowMode);
 
     /*!
      * Handler to hide the page
@@ -282,8 +278,6 @@ private:
     void connectHandle(Handle *handle);
 
     void setActivity(Activity newActivity);
-
-    void grabAndPressActiveKeyArea(const QPointF &initialPressLocation);
 
     //! Current style being used.
     const MVirtualKeyboardStyleContainer *styleContainer;

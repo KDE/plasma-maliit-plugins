@@ -190,6 +190,7 @@ public:
     QMap<int, TouchPointRecord> touchPointRecords; //!< Maps touch points to related key information.
     KeyEvent::Source source; //!< The source added to events from this area.
     bool enabledPanning;
+    QTouchEvent lastTouchEvent; //!< Used for resending previous event. Used by TouchForwardFilter.
 };
 //! \internal_end
 
