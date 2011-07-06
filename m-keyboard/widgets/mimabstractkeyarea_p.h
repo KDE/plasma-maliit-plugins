@@ -59,6 +59,10 @@ public:
         ResetLastPosMember  //!< Do not use mouse event's lastPos member. Use current pos instead.
     };
 
+    enum AutoCommitBehaviour {
+        AllowAutoCommit,   //!< Allow committing previous key on press.
+        DisallowAutoCommit //!< Don't allow autocommitting.
+    };
 
     class TouchPointRecord
     {
@@ -102,7 +106,9 @@ public:
 
     //! \brief Touch point press handler.
     //! \param tp The unprocessed Qt touchpoint.
-    void touchPointPressed(const QTouchEvent::TouchPoint &tp);
+    //! \param autoCommit Whether to allow or disallow autocommiting of previous key.
+    void touchPointPressed(const QTouchEvent::TouchPoint &tp,
+                           AutoCommitBehaviour autoCommit = AllowAutoCommit);
 
     //! \brief Touch point move handler.
     //! \param tp The unprocessed Qt touchpoint.

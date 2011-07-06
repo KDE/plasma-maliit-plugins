@@ -288,11 +288,17 @@ void MImAbstractKeyAreaPrivate::handleTouchEvent(QTouchEvent *event)
         return;
     }
 
+    AutoCommitBehaviour autoCommitState = AllowAutoCommit;
+
     foreach (const QTouchEvent::TouchPoint &tp, event->touchPoints()) {
 
         switch (tp.state()) {
         case Qt::TouchPointPressed:
-            touchPointPressed(tp);
+            touchPointPressed(tp, autoCommitState);
+
+            // Disallow so multiple presses in the same touch event
+            // cannot commit each other.
+            autoCommitState = DisallowAutoCommit;
             break;
 
         case Qt::TouchPointMoved:
@@ -313,7 +319,8 @@ void MImAbstractKeyAreaPrivate::handleTouchEvent(QTouchEvent *event)
     }
 }
 
-void MImAbstractKeyAreaPrivate::touchPointPressed(const QTouchEvent::TouchPoint &tp)
+void MImAbstractKeyAreaPrivate::touchPointPressed(const QTouchEvent::TouchPoint &tp,
+                                                  AutoCommitBehaviour autoCommitState)
 {
     Q_Q(MImAbstractKeyArea);
 
@@ -349,7 +356,8 @@ void MImAbstractKeyAreaPrivate::touchPointPressed(const QTouchEvent::TouchPoint 
     MImAbstractKey::visitActiveKeys(&finder);
     const bool hasActiveShiftKeys = (finder.shiftKey() != 0);
 
-    if (q->style()->commitPreviousKeyOnPress()
+    if (autoCommitState == AllowAutoCommit
+        && q->style()->commitPreviousKeyOnPress()
         && lastActiveKey
         && lastActiveKey != key
         && lastActiveKey->enabled()
