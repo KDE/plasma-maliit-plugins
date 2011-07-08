@@ -35,6 +35,7 @@ SUBDIRS = \
           ut_mimfontpool \
           ut_magnifier \
           ut_panparameters \
+          ut_touchforwardfilter
 
 contains(CONFIG, nomeegotouch) {
 } else {
