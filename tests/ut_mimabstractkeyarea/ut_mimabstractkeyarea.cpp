@@ -990,6 +990,11 @@ void Ut_MImAbstractKeyArea::testRtlKeys()
 
 void Ut_MImAbstractKeyArea::testLongKeyPress()
 {
+    // This test calls MImKeyArea::create(..., popup = true) which leads
+    // to creation of extendedkeys and utilization of reactionmap painter.
+    // Need to instantiate it here.
+    ReactionMapPainter::createInstance();
+
     TpCreator createTp = &createTouchPoint;
     const int LongPressTimeOut = 1500; //this value depends on timeout of long press
 
