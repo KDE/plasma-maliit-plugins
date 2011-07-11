@@ -82,7 +82,6 @@ signals:
     void symbolSwitchKeyClicked();
     void composeStateChanged(bool);
     void toggleKeyStateChanged(bool);
-    void keyOverrideActiveRequest(bool);
 
 private slots:
     bool handleKeyEvent(const KeyEvent &event);
@@ -125,7 +124,6 @@ private slots:
 
 private:
     void emitLayoutMenuKeyClickSignal();
-    void emitKeyOverrideActiveRequest(bool flag);
     void changeState(const QString &state);
     bool isValidInputLetter(QChar ch);
     QString transliterateString(unsigned int candidateIndex, const QString &defaultText);

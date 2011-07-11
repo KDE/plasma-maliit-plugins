@@ -117,9 +117,6 @@ public slots:
     //! Compose key state is changed to \a composing.
     void handleComposeKeyStateChanged(bool composing);
 
-    //! Set the key overrides active when needed.
-    void setKeyOverridesActive(bool active);
-
 private slots:
     //! \brief Hide and show vkb based on symbol view visibility changes
     void handleSymbolViewVisibleChanged();
@@ -238,6 +235,10 @@ private slots:
     //! Enable or disable flick gesture when other input method plugins are loaded
     //! or unloaded
     void onPluginsChange();
+
+    //! Update CJK overrides data based on current "overrides" data.
+    //! This method prepares special overrides data to handle CJK features.
+    void updateCJKOverridesData();
 
 private:
     //! Configures the parts that may change dynamically.
@@ -459,6 +460,9 @@ private:
 
     //! Contains current keyboard overrides
     QMap<QString, QSharedPointer<MKeyOverride> > overrides;
+
+    //! Contains CJK keyboard overrides to handle corresponding features.
+    QMap<QString, QSharedPointer<MKeyOverride> > cjkOverrides;
 
     friend class EngineHandlerDefault;
     friend class EngineHandlerCJK;

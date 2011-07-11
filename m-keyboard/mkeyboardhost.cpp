@@ -675,6 +675,7 @@ void MKeyboardHost::handleAnimationFinished()
             symbolView->setKeyOverrides(emptyOverrides);
             keyOverrideClearPending = false;
             overrides = emptyOverrides;
+            updateCJKOverridesData();
         }
 
         sharedHandleArea->hide();
@@ -1796,6 +1797,7 @@ void MKeyboardHost::handleClientChange()
         symbolView->setKeyOverrides(emptyOverrides);
         keyOverrideClearPending = false;
         overrides = emptyOverrides;
+        updateCJKOverridesData();
     }
 
     hardwareKeyboard->clientChanged();
@@ -2303,6 +2305,7 @@ void MKeyboardHost::setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverr
     } else {
         keyOverrideClearPending = false;
         overrides = newOverrides;
+        updateCJKOverridesData();
         vkbWidget->setKeyOverrides(overrides);
         symbolView->setKeyOverrides(overrides);
     }
@@ -2334,26 +2337,24 @@ bool MKeyboardHost::needRecomposePreedit(QString &previousWord, QChar *removedSy
     return needRecomposePreedit;
 }
 
-void MKeyboardHost::setKeyOverridesActive(bool active)
-{
-    if (active) {
-        vkbWidget->setKeyOverrides(overrides);
-        symbolView->setKeyOverrides(overrides);
-    } else {
-        QMap<QString, QSharedPointer<MKeyOverride> > emptyOverrides;
-        vkbWidget->setKeyOverrides(emptyOverrides);
-        symbolView->setKeyOverrides(emptyOverrides);
-    }
-}
-
 void MKeyboardHost::handleToggleKeyStateChanged(bool onOff)
 {
-    this->vkbWidget->setToggleKeyState(onOff);
+    vkbWidget->setToggleKeyState(onOff);
 }
 
 void MKeyboardHost::handleComposeKeyStateChanged(bool composing)
 {
-    this->vkbWidget->setComposeKeyState(composing);
+    if (composing) {
+        // Replace current overrides with "CJK" overrides
+        // when "composing" state is active..
+        vkbWidget->setKeyOverrides(cjkOverrides);
+    } else {
+        // Restore original overrides
+        // when "composing" state is NOT active.
+        vkbWidget->setKeyOverrides(overrides);
+    }
+
+    vkbWidget->setComposeKeyState(composing);
 }
 
 int MKeyboardHost::keyboardHeight() const
@@ -2369,4 +2370,12 @@ int MKeyboardHost::keyboardHeight() const
         height += sharedHandleArea->size().height() - sharedHandleArea->shadowHeight();
     }
     return height;
+}
+
+void MKeyboardHost::updateCJKOverridesData()
+{
+    cjkOverrides = overrides;
+    // Disable the overrides for all keys which are "actionKey".
+    // This is a special feature required by CJK languages.
+    cjkOverrides.remove(QString("actionKey"));
 }

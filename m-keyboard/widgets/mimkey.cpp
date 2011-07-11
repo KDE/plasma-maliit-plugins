@@ -644,7 +644,7 @@ void MImKey::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget 
         QPointF iconPos(paintingArea.left() + (paintingArea.width() - iconPixmap->width()) / 2,
                         paintingArea.top() + (paintingArea.height() - iconPixmap->height()) / 2);
         painter->drawPixmap(iconPos, *iconPixmap);
-
+        
     } else {
         painter->setFont(font());
         painter->setPen(fontColor());
@@ -654,6 +654,7 @@ void MImKey::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget 
             painter->drawText(secondaryLabelArea, Qt::AlignCenter, secondaryLabel());
         }
     }
+
     painter->restore();
 
     mTimestamp("MImKey", "end");
@@ -715,13 +716,13 @@ void MImKey::resetKeyOverride()
         return;
 
     invalidateLabelPos();
-    update();
     override.clear();
     delete overrideIcon;
     overrideIcon = 0;
     if (currentState == Disabled) {
         currentState = Normal;
     }
+    update();
     setVisible(currentState != Normal);
 }
 
@@ -934,6 +935,7 @@ void MImKey::loadIcon(bool shift)
             iconProperty = "keyEnterIconId";
             size = styleContainer->keyEnterIconSize();
             compactIconSize = styleContainer->keyEnterCompactIconSize();
+            checkIconForHighlightedState = true;
             break;
         default:
             break;
