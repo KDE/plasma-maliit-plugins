@@ -967,6 +967,8 @@ void MImKeyArea::setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride
 {
     Q_D(MImKeyArea);
 
+    bool bNeedUpdate = false;
+
     for (QList<MImKey *>::const_iterator iterator = d->idToKey.begin();
          iterator != d->idToKey.end();
          ++iterator) {
@@ -986,8 +988,14 @@ void MImKeyArea::setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride
                             this,                             0);
             }
             key->resetKeyOverride();
+            bNeedUpdate = true;
         }
     }
+
+    // When overrides are removed, call "update()" to make sure that overrided keys show their original
+    // icon/text on the key area.
+    if (bNeedUpdate)
+        update();
 }
 
 void MImKeyArea::updateKeyAttributes(const QString &keyId, MKeyOverride::KeyOverrideAttributes attributes)

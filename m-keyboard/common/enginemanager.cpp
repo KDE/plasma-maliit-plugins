@@ -272,10 +272,6 @@ public:
             connect(stateMachine,   SIGNAL(composeStateChanged(bool)),
                     &mKeyboardHost, SLOT(handleComposeKeyStateChanged(bool)),
                     Qt::UniqueConnection);
-
-            connect(stateMachine, SIGNAL(keyOverrideActiveRequest(bool)),
-                    &mKeyboardHost, SLOT(setKeyOverridesActive(bool)),
-                    Qt::UniqueConnection);
         }
     }
 

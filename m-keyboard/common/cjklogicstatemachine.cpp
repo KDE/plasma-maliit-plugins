@@ -458,11 +458,6 @@ void CJKLogicStateMachine::emitLayoutMenuKeyClickSignal()
     emit layoutMenuKeyClicked();
 }
 
-void CJKLogicStateMachine::emitKeyOverrideActiveRequest(bool flag)
-{
-    emit keyOverrideActiveRequest(flag);
-}
-
 void CJKLogicStateMachine::changeState(const QString &state)
 {
     qDebug() <<"#### LogicStateMachine change state to "<<state;
@@ -479,7 +474,6 @@ void CJKLogicStateMachine::changeState(const QString &state)
     }
     else if (state == MatchStateString) {
         currentState = matchState;
-        emitKeyOverrideActiveRequest(false);
         emit composeStateChanged(true);
     }
     else if (state == PredictionStateString) {
@@ -557,7 +551,6 @@ StandbyState::~StandbyState()
 
 void StandbyState::initState()
 {
-    stateMachine->emitKeyOverrideActiveRequest(true);
     return ;
 }
 
@@ -1351,7 +1344,6 @@ PredictionState::~PredictionState()
 
 void PredictionState::initState()
 {
-    stateMachine->emitKeyOverrideActiveRequest(true);
     stateMachine->inputMethodEngine.clearEngineBuffer();
     stateMachine->inputMethodEngine.setContext(stateMachine->userChoseCandidateString, -1);
     QStringList tempPredictionWords = stateMachine->inputMethodEngine.candidates(0, InitialCandidateCount);
