@@ -860,8 +860,6 @@ void MKeyboardHost::localSetPreedit(const QString &preeditString, int replaceSta
     AbstractEngineWidgetHost *engineWidgetHost = EngineManager::instance().handler() ?
         EngineManager::instance().handler()->engineWidgetHost() : 0;
     if (EngineManager::instance().engine()) {
-        EngineManager::instance().engine()->clearEngineBuffer();
-        EngineManager::instance().engine()->reselectString(preeditString);
         candidates = EngineManager::instance().engine()->candidates();
         preeditInDict = (EngineManager::instance().engine()->candidateSource(0) != MImEngine::DictionaryTypeInvalid);
         if (engineWidgetHost) {
@@ -1252,6 +1250,9 @@ void MKeyboardHost::doBackspace()
         if (backspaceMode != AutoBackspaceMode) {
             if ((preeditCursorPos < 0) || (preeditCursorPos == preedit.length())) {
                 const int cursor = (preeditCursorPos > 0) ? (preeditCursorPos - 1) : preeditCursorPos;
+                if (EngineManager::instance().engine()) {
+                    EngineManager::instance().engine()->removeCharacters(1, -1);
+                }
                 localSetPreedit(preedit.left(preedit.length() - 1), 0, 0, cursor, true);
             } else {
                 if (preeditCursorPos == 0) {
@@ -1263,6 +1264,9 @@ void MKeyboardHost::doBackspace()
                     if (needRecomposePreedit(previousWord)) {
                         preedit = previousWord + preedit;
                         preeditCursorPos = previousWord.length();
+                        if (EngineManager::instance().engine()) {
+                            EngineManager::instance().engine()->insertCharacters(previousWord, 0);
+                        }
                         localSetPreedit(preedit, -previousWord.length() - 1,
                                         previousWord.length() + 1, preeditCursorPos, true);
                     } else {
@@ -1272,6 +1276,9 @@ void MKeyboardHost::doBackspace()
                     }
                 } else {
                     --preeditCursorPos;
+                    if (EngineManager::instance().engine()) {
+                        EngineManager::instance().engine()->removeCharacters(1, preeditCursorPos);
+                    }
                     localSetPreedit(preedit.remove(preeditCursorPos, 1), 0, 0, preeditCursorPos, true);
                 }
             }
@@ -1297,6 +1304,16 @@ void MKeyboardHost::doBackspace()
             const bool preeditWordEdited = removedSymbol.isLetter();
             preedit = previousWord;
             preeditCursorPos = previousWord.length();
+
+            if (EngineManager::instance().engine()) {
+                EngineManager::instance().engine()->clearEngineBuffer();
+                if (preeditWordEdited) {
+                    EngineManager::instance().engine()->appendString(preedit);
+                } else {
+                    EngineManager::instance().engine()->reselectString(preedit);
+                }
+            }
+
             localSetPreedit(preedit, -previousWord.length() - 1, previousWord.length() + 1,
                             preeditCursorPos, preeditWordEdited);
         } else {
@@ -1794,11 +1811,10 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
             }
         } else {
             preedit.insert(preeditCursorPos, text);
-            preeditCursorPos += text.length();
             if (EngineManager::instance().engine()) {
-                EngineManager::instance().engine()->clearEngineBuffer();
-                EngineManager::instance().engine()->reselectString(preedit);
+                EngineManager::instance().engine()->insertCharacters(text, preeditCursorPos);
             }
+            preeditCursorPos += text.length();
         }
 
         QStringList candidates;

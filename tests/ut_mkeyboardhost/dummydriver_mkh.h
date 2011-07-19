@@ -156,6 +156,10 @@ public:
 
     virtual QString error();
 
+    virtual void insertCharacters(const QString &text, int index = -1);
+
+    virtual void removeCharacters(int count = 1, int index = -1);
+
     /*!
      *\reimp_end
     */
