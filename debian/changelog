@@ -1,9 +1,9 @@
-meego-keyboard (0.7.0~1) unstable; urgency=low
+meego-keyboard (0.7.0-1) unstable; urgency=low
 
-  * [UNRELEASED]
-  * Fixes: NB#265905
+  * Fixes: NB#219163 - [TASK] Cyrillic languages apart from Russian/Ukranian get latin phone number layout
+  * Fixes: NB#261490 - [TASK] Implement transition between magnifier and extended keys
 
- -- Pekka Vuorela <pekka.ta.vuorela@nokia.com>  Thu, 23 Jun 2011 13:57:02 +0300
+ -- huaming wang <huaming.wang@nokia.com>  Tue, 19 Jul 2011 11:14:01 +0300
 
 meego-keyboard (0.6.16-1) unstable; urgency=low
 
