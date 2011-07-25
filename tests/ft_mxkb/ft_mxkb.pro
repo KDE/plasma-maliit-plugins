@@ -7,7 +7,7 @@ INCLUDEPATH += . \
         ../../m-keyboard/
 
 
-LIBS += -Wl,-rpath=/usr/lib/meego-im-plugins/ -L../../m-keyboard/ -lmeego-keyboard
+LIBS += -Wl,-rpath=/usr/lib/meego-im-plugins/ -L../../m-keyboard/ -lmeego-keyboard -lX11
 
 # Input
 HEADERS += ft_mxkb.h
