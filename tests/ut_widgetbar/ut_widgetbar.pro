@@ -3,6 +3,8 @@ include(../common_top.pri)
 TEMPLATE = app
 CONFIG += QtTest meegotouch meegoimframework
 
+LIBS += -lmeegotouchviews
+
 include(../common_check.pri)
 
 STYLE_HEADERS += $$WIDGETS_DIR/widgetbarstyle.h \
