@@ -359,6 +359,7 @@ void WordRibbon::clearItems()
     for (int i = 0; i < itemList.count(); ++i) {
         WordRibbonItem *item = itemList.at(i);
         item->setVisible(false);
+        item->clearPress();
     }
 
     if (mode == RibbonStyleMode)
