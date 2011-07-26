@@ -226,6 +226,9 @@ class M_EXPORT MImAbstractKeyAreaStyleContainer : public MWidgetStyleContainer
     M_STYLE_MODE(Keys44)
     M_STYLE_MODE(Keys45)
 
+    // Required to set style mode:
+    friend class MImAbstractKeyAreaPrivate;
+
 #ifdef UNIT_TEST
     friend class Ut_MImAbstractKeyArea;
 #endif
