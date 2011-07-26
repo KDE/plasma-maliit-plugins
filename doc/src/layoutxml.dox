@@ -113,6 +113,9 @@ Attributes:
 \li \c movable Unused as of this writing.
 \li \c type \c Non-sloppy type means that accurate input method (no error
 correction) is used with keys of this section by default.
+\li \c style Optional style for this section. Overrides default style (which is
+	     determined by amount of keys in a section). The style must exist
+             as a style mode in order to become accessible through CSS.
 
 \subsection Row
 

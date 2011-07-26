@@ -27,6 +27,7 @@
   id CDATA #REQUIRED
   movable (true | false) "true"
   type (sloppy | non-sloppy) "sloppy"
+  style CDATA #IMPLIED
 >
 
 <!ATTLIST row

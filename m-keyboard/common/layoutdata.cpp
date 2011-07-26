@@ -101,6 +101,7 @@ LayoutData::SharedLayoutSection LayoutData::section(const QString &name) const
 LayoutSection::LayoutSection()
     : mMaxColumns(0),
       movable(false),
+      mStyleName(),
       sectionType(Sloppy),
       isUniformFontSize(false)
 {
@@ -110,6 +111,7 @@ LayoutSection::LayoutSection(const QString &characters, bool rtl)
     : mMaxColumns(0),
       movable(false),
       sectionName("<dynamic section>"),
+      mStyleName(),
       sectionType(Sloppy),
       isUniformFontSize(false)
 {
@@ -148,6 +150,12 @@ LayoutSection::~LayoutSection()
 const QString &LayoutSection::name() const
 {
     return sectionName;
+}
+
+QString LayoutSection::styleName() const
+{
+    return (mStyleName.isEmpty() ? QString("keys%1").arg(keyCount())
+                                 : mStyleName);
 }
 
 LayoutSection::Type LayoutSection::type() const

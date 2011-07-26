@@ -519,6 +519,7 @@ void KeyboardData::parseTagSection(const QDomElement &element, ParseParameters &
     LayoutData::SharedLayoutSection section(new LayoutSection);
     section->movable = toBoolean(element.attribute(VKBTagMovable));
     section->sectionName = element.attribute(VKBTagID);
+    section->mStyleName = element.attribute(StyleString);
     section->sectionType = (element.attribute(VKBTagType) == VKBTagTypeNonsloppy) ? LayoutSection::NonSloppy : LayoutSection::Sloppy;
     section->isUniformFontSize= currentLayout->isUniformFontSize;
     params.currentSection = section;
