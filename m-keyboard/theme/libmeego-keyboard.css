@@ -391,6 +391,23 @@ MImAbstractKeyAreaStyle.Portrait:keys40 {
     padding-right: 1px;
 }
 
+MImAbstractKeyAreaStyle.Landscape:hebrew {
+    use-fixed-key-width: true;
+
+    key-width-medium-fixed: 86px;
+    key-width-x-large-fixed: 133px;
+}
+
+MImAbstractKeyAreaStyle.Portrait:hebrew {
+    use-fixed-key-width: true;
+
+    key-width-medium-fixed: 44px;
+    key-width-x-large-fixed: 70px;
+
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
 KeyboardShadowStyle {
     background-image: "meegotouch-keyboard-border-top";
     margin-top: 0;
