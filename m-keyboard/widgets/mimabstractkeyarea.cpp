@@ -648,103 +648,12 @@ void MImAbstractKeyAreaPrivate::switchStyleMode()
 {
     Q_Q(MImAbstractKeyArea);
 
+    // TODO: rename to syncStyleMode (with layout)?
     if (!q->style()->syncStyleModeWithKeyCount()) {
         return;
     }
 
-    switch(section->keyCount()) {
-
-    case 10:
-        q->style().setModeKeys10();
-        break;
-
-    case 11:
-        q->style().setModeKeys11();
-        break;
-
-    case 12:
-        q->style().setModeKeys12();
-        break;
-
-    case 13:
-        q->style().setModeKeys13();
-        break;
-
-    case 14:
-        q->style().setModeKeys14();
-        break;
-
-    case 15:
-        q->style().setModeKeys15();
-        break;
-
-    case 30:
-        q->style().setModeKeys30();
-        break;
-
-    case 31:
-        q->style().setModeKeys31();
-        break;
-
-    case 32:
-        q->style().setModeKeys32();
-        break;
-
-    case 33:
-        q->style().setModeKeys33();
-        break;
-
-    case 34:
-        q->style().setModeKeys34();
-        break;
-
-    case 35:
-        q->style().setModeKeys35();
-        break;
-
-    case 36:
-        q->style().setModeKeys36();
-        break;
-
-    case 37:
-        q->style().setModeKeys37();
-        break;
-
-    case 38:
-        q->style().setModeKeys38();
-        break;
-
-    case 39:
-        q->style().setModeKeys39();
-        break;
-
-    case 40:
-        q->style().setModeKeys40();
-        break;
-
-    case 41:
-        q->style().setModeKeys41();
-        break;
-
-    case 42:
-        q->style().setModeKeys42();
-        break;
-
-    case 43:
-        q->style().setModeKeys43();
-        break;
-
-    case 44:
-        q->style().setModeKeys44();
-        break;
-
-    case 45:
-        q->style().setModeKeys45();
-        break;
-
-    default:
-        break;
-    }
+    q->style().setCurrentMode(section->styleName());
 }
 
 // actual class implementation
