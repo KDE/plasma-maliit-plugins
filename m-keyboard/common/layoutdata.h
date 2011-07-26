@@ -80,6 +80,9 @@ public:
     //! \return section name
     const QString &name() const;
 
+    //! \return style name
+    QString styleName() const;
+
     //! \return section type
     Type type() const;
 
@@ -145,6 +148,7 @@ private:
     int mMaxColumns;
     bool movable;
     QString sectionName;
+    QString mStyleName;
     // TODO: remove? we only have one section type now
     Type sectionType;
     QList<Row *> rows;
