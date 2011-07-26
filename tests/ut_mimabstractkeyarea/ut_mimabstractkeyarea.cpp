@@ -1345,7 +1345,7 @@ void Ut_MImAbstractKeyArea::testStyleModesFromKeyCount_data()
     QTest::addColumn<QString>("keys");
     QTest::addColumn<QString>("expectedStyleMode");
 
-    QTest::newRow("no keys") << QString() << QString();
+    QTest::newRow("no keys") << QString() << QString("keys0");
     QTest::newRow("10 keys") << QString("qwertyuiop") << QString("keys10");
     QTest::newRow("11 keys") << QString("qwertyuiopa") << QString("keys11");
     QTest::newRow("12 keys") << QString("qwertyuiopas") << QString("keys12");
@@ -1353,12 +1353,12 @@ void Ut_MImAbstractKeyArea::testStyleModesFromKeyCount_data()
     QTest::newRow("14 keys") << QString("qwertyuiopasdf") << QString("keys14");
     QTest::newRow("15 keys") << QString("qwertyuiopasdfg") << QString("keys15");
 
-    QTest::newRow("20 keys") << QString("qwertyuiopasdfghjklö") << QString("");
+    QTest::newRow("20 keys") << QString("qwertyuiopasdfghjklo") << QString("keys20");
     QTest::newRow("30 keys") << QString(keys30) << QString("keys30");
     QTest::newRow("35 keys") << QString("%1qwert").arg(keys30) << QString("keys35");
     QTest::newRow("40 keys") << QString("%1qwertyuiop").arg(keys30) << QString("keys40");
     QTest::newRow("45 keys") << QString("%1qwertyuiopasdfg").arg(keys30) << QString("keys45");
-    QTest::newRow("50 keys") << QString("%1qwertyuiopasdfghjklö").arg(keys30) << QString("");
+    QTest::newRow("50 keys") << QString("%1qwertyuiopasdfghjklo").arg(keys30) << QString("keys50");
 }
 
 void Ut_MImAbstractKeyArea::testStyleModesFromKeyCount()
