@@ -199,34 +199,7 @@ class M_EXPORT MImAbstractKeyAreaStyleContainer : public MWidgetStyleContainer
 {
     M_STYLE_CONTAINER(MImAbstractKeyAreaStyle)
 
-    //! \brief Extra style modes for MImAbstractKeyArea
-    //!
-    //! Based on amount of keys in a given layout. Switches to style mode when
-    //! loading layout (i.e., during construction of MImAbstractKeyArea).
-    M_STYLE_MODE(Keys10)
-    M_STYLE_MODE(Keys11)
-    M_STYLE_MODE(Keys12)
-    M_STYLE_MODE(Keys13)
-    M_STYLE_MODE(Keys14)
-    M_STYLE_MODE(Keys15)
-    M_STYLE_MODE(Keys30)
-    M_STYLE_MODE(Keys31)
-    M_STYLE_MODE(Keys32)
-    M_STYLE_MODE(Keys33)
-    M_STYLE_MODE(Keys34)
-    M_STYLE_MODE(Keys35)
-    M_STYLE_MODE(Keys36)
-    M_STYLE_MODE(Keys37)
-    M_STYLE_MODE(Keys38)
-    M_STYLE_MODE(Keys39)
-    M_STYLE_MODE(Keys40)
-    M_STYLE_MODE(Keys41)
-    M_STYLE_MODE(Keys42)
-    M_STYLE_MODE(Keys43)
-    M_STYLE_MODE(Keys44)
-    M_STYLE_MODE(Keys45)
-
-    // Required to set style mode:
+    // Required to set style mode through MStyleContainer::setCurrentMode():
     friend class MImAbstractKeyAreaPrivate;
 
 #ifdef UNIT_TEST
