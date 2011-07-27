@@ -391,6 +391,31 @@ MImAbstractKeyAreaStyle.Portrait:keys40 {
     padding-right: 1px;
 }
 
+MImAbstractKeyAreaStyle.Landscape:keys47 {
+    use-fixed-key-width: true;
+
+    key-height-medium: 40px;
+
+    key-width-medium-fixed: 76px;
+    key-width-large-fixed: 111px;
+    key-width-x-large-fixed: 150px;
+    key-width-xx-large-fixed: 267px;
+
+    key-margin-left: 4px;
+    key-margin-right: 4px;
+    key-margin-top: 3px;
+    key-margin-bottom: 3px;
+
+    padding-left: 11px;
+    padding-right: 11px;
+    padding-top: 9px;
+    padding-bottom: 3px;
+}
+
+MImAbstractKeyAreaStyle.Portrait:keys47 {
+    use-fixed-key-width: true;
+}
+
 MImAbstractKeyAreaStyle.Landscape:hebrew {
     use-fixed-key-width: true;
 
