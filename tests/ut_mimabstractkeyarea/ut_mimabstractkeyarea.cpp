@@ -1566,7 +1566,6 @@ void Ut_MImAbstractKeyArea::testTouchPointCount_data()
             << TouchTestOperation(Move, keySpace, 0)) // Mouse move event from key2 (lastpos) to key1. Event's lastpos needs tweaking if used.
         << keySpace << 1;
 
-/*  Enable when these are fixed.
     QTest::newRow("stuck key due to release at disappearing key gravitation")
         << (TouchOpList()
             << TouchTestOperation(Press, keyNormal2, 0)
@@ -1590,7 +1589,6 @@ void Ut_MImAbstractKeyArea::testTouchPointCount_data()
             << TouchTestOperation(Move, keyNormal4, 0) // Activates new key
             << TouchTestOperation(Move, keyNormal3, 1)) // lastpos indicates touch point moved from keyNormal1 instead of keyNormal2.
         << keyNormal2 << 0;
-*/
 }
 
 void Ut_MImAbstractKeyArea::testTouchPointCount()
