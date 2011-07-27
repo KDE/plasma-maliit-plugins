@@ -1029,7 +1029,7 @@ void Ut_MImAbstractKeyArea::testLongKeyPress()
 
     // click is not long press
     subject->d_ptr->touchPointPressed(tp0);
-    subject->d_ptr->touchPointReleased(tp1);
+    subject->d_ptr->touchPointReleased(tp0);
     QVERIFY(spy.isEmpty());
     QTest::qWait(LongPressTimeOut);
     QVERIFY(spy.isEmpty());
