@@ -45,6 +45,7 @@
  */
 class QPixmap;
 class MToolbarItem;
+class MToolbarButtonView;
 
 class MToolbarButton : public MButton
 {
@@ -118,6 +119,7 @@ private:
     QSharedPointer<MToolbarItem> itemPtr;
     QSizeF originalMinSize;
 
+    friend class MToolbarButtonView;
     friend class Ut_MImToolbar;
 };
 
