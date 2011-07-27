@@ -46,6 +46,13 @@ public:
     explicit MToolbarButtonView(MToolbarButton *controller);
 
     QSizeF optimalSize(const QSizeF& maxSize);
+
+protected:
+    //! \reimp
+    virtual void drawContents(QPainter *painter, const QStyleOptionGraphicsItem *option) const;
+
+private:
+    MToolbarButton* toolbarButton;
 };
 
 #endif

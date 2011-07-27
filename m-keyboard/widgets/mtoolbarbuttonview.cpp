@@ -33,7 +33,8 @@
 #include "mtoolbarbutton.h"
 
 MToolbarButtonView::MToolbarButtonView(MToolbarButton *controller)
-    : MButtonView(controller)
+    : MButtonView(controller),
+      toolbarButton(controller)
 {
 }
 
@@ -54,4 +55,29 @@ QSizeF MToolbarButtonView::optimalSize(const QSizeF& maxSize)
         return maxSize;
     }
     return preferredSize;
+}
+
+void MToolbarButtonView::drawContents(QPainter *painter, const QStyleOptionGraphicsItem *option) const
+{
+    MButtonView::drawContents(painter, option);
+
+    //draw custom icon
+    if (toolbarButton->iconID().isEmpty() && toolbarButton->icon) {
+        //total horizontal and vertical padding
+        int hPadding = style()->paddingLeft() + style()->paddingRight();
+        int vPadding = style()->paddingTop() + style()->paddingBottom();
+        //area for the content (icon and text)
+        QRectF contentRect(style()->paddingLeft(), style()->paddingTop(),
+                           size().width() - hPadding,
+                           size().height() - vPadding);
+        QSizeF iconSize = toolbarButton->icon->size();
+        iconSize.scale(contentRect.width() * toolbarButton->sizePercent / 100.0,
+                       contentRect.height() * toolbarButton->sizePercent / 100.0,
+                       Qt::KeepAspectRatio);
+        QPointF iconPosition = QPointF(contentRect.center().x() - (iconSize.width() / 2),
+                                       contentRect.center().y() - (iconSize.height() / 2));
+        QRectF iconRect = QRectF(iconPosition, iconSize);
+        painter->drawPixmap(iconRect, *(toolbarButton->icon),
+                            QRectF(toolbarButton->icon->rect()));
+    }
 }
