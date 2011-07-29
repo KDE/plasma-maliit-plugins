@@ -58,9 +58,6 @@ Rectangle {
             MInputMethodQuick.sendCommit(key_label.text)
             isShifted = false
         }
-
-        PluginClose{}
-
     }
 
     Text {

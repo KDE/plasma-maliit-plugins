@@ -63,8 +63,6 @@ Column {
         height: vkbStyle.landscapeHeight
         z: 100
 
-        PluginSwitch{}
-
         Column { //Holder for the VKB rows
             anchors.fill: parent
             anchors.topMargin: 4
