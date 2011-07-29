@@ -158,7 +158,6 @@ ReactionMapPainter::~ReactionMapPainter()
 
 void ReactionMapPainter::createInstance()
 {
-    Q_ASSERT(!singleton);
     if (!singleton) {
         singleton = new ReactionMapPainter();
     }
@@ -166,7 +165,6 @@ void ReactionMapPainter::createInstance()
 
 void ReactionMapPainter::destroyInstance()
 {
-    Q_ASSERT(singleton);
     delete singleton;
     singleton = 0;
 }
