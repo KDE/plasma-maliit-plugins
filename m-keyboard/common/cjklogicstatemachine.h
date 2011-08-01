@@ -127,6 +127,7 @@ private:
     void changeState(const QString &state);
     bool isValidInputLetter(QChar ch);
     QString transliterateString(unsigned int candidateIndex, const QString &defaultText);
+    void setComposingState(bool composingState);
 
 
     InputStateAbstract *currentState;
@@ -146,6 +147,7 @@ private:
     bool syllableDivideIsEnabled;
 
     bool currentOnOffState;
+    bool isComposing;
 
     MGConfItem chineseTransliterationConf;
     QString chineseTransliteration;

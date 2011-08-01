@@ -2,6 +2,7 @@ meego-keyboard (0.7.1~1) unstable; urgency=low
 
   * Fixes: NB#264453 - VKB; Enter key is dimmed after tapping on Quick Cangjie toggle button.
   * Fixes: NB#250640 - [TASK] Input; input text in new note edit view with Zhuyin VKB in landscape mode is not fully visible.
+  * Fixes: NB#275183 - [TASK] The Behavier of Overide Keys in CIM.
 
  -- Zongxin Wang <ext-zongxin.wang@nokia.com>  Mon, 25 Jul 2011 13:29:22 +0300
 

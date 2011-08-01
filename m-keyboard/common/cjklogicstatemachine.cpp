@@ -85,6 +85,7 @@ CJKLogicStateMachine::CJKLogicStateMachine(AbstractEngineWidgetHost &widgetHost,
       backspaceLongPressTriggered(false),
       syllableDivideIsEnabled(false),
       currentOnOffState(false),
+      isComposing(false),
       chineseTransliterationConf(SettingChineseTransliteration)
 {
     changeState(StandByStateString);
@@ -169,8 +170,15 @@ bool CJKLogicStateMachine::handleKeyEvent(const KeyEvent &event)
         handleBackspaceKey(event);
         val = true;
     } else if (event.qtKey() == Qt::Key_Return || event.specialKey() == KeyEvent::Commit) {
-        handleEnterKey(event);
-        val = true;
+        if (isComposing) {
+            // Handle CJK specific process and consume this key event under "composing" state.
+            handleEnterKey(event);
+            val = true;
+        } else {
+            // Do NOT consume this key event when it is NOT "composing",
+            // so general process for this key event would be done under this state.
+            val = false;
+        }
     } else if (event.qtKey() == Qt::Key_Space) {
         handleSpaceKey(event);
         val = true;
@@ -212,7 +220,7 @@ void CJKLogicStateMachine::resetWithCommitStringToApp()
     currentState->shutDown(true);
 
     //Clear itself.
-    emit composeStateChanged(false);
+    setComposingState(false);
     currentState = standbyState;
     currentState->initState();
     engineWidgetHost.reset();
@@ -235,7 +243,7 @@ void CJKLogicStateMachine::resetWithoutCommitStringToApp()
     currentState->shutDown(false);
 
     //Clear itself.
-    emit composeStateChanged(false);
+    setComposingState(false);
     currentState = standbyState;
     currentState->initState();
     engineWidgetHost.reset();
@@ -470,15 +478,15 @@ void CJKLogicStateMachine::changeState(const QString &state)
 
     if (state == StandByStateString) {
         currentState = standbyState;
-        emit composeStateChanged(false);
+        setComposingState(false);
     }
     else if (state == MatchStateString) {
         currentState = matchState;
-        emit composeStateChanged(true);
+        setComposingState(true);
     }
     else if (state == PredictionStateString) {
         currentState = predictionState;
-        emit composeStateChanged(false);
+        setComposingState(false);
     }
     else {
         qDebug() <<"Warning (in CJKLogicStateMachine::changeState) : No such state named : "
@@ -536,6 +544,12 @@ QString CJKLogicStateMachine::transliterateString(unsigned int candidateIndex,
         return defaultText; // Return the default text when transliteration fails.
     else
         return sResult; // Return the transliterated text.
+}
+
+void CJKLogicStateMachine::setComposingState(bool composingState)
+{
+    isComposing = composingState;
+    emit composeStateChanged(isComposing);
 }
 
 
