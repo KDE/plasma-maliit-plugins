@@ -40,6 +40,9 @@ ifneq (,$(filter noreactionmap,$(TMP_BUILD_OPTS)))
     QMAKE_OPTIONS += CONFIG+=noreactionmap
 endif
 
+# Always set "usengf" on.
+QMAKE_OPTIONS += CONFIG+=usengf
+
 
 # shared library versions, option 1
 version=0.1.0

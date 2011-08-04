@@ -35,6 +35,11 @@ for(OPTION,$$list($$lower($$COV_OPTION))){
     CONFIG += meegoreactionmap
 }
 
+usengf {
+    DEFINES += HAVE_NGF
+    CONFIG += mngfclient
+}
+
 QMAKE_CLEAN += *.gcno *.gcda
 
 include(common/common.pri)
