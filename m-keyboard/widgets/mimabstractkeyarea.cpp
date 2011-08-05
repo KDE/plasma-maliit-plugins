@@ -380,7 +380,8 @@ void MImAbstractKeyAreaPrivate::touchPointPressed(const QTouchEvent::TouchPoint 
                            KeyContext(hasActiveShiftKeys || isUpperCase(),
                                       QString(),
                                       tp.scenePos(),
-                                      gAdjustedPositionForCorrection));
+                                      gAdjustedPositionForCorrection,
+                                      false, 0, source));
         lastActiveKey->resetTouchPointCount();
     }
 
@@ -397,7 +398,8 @@ void MImAbstractKeyAreaPrivate::touchPointPressed(const QTouchEvent::TouchPoint 
         emit q->keyPressed(rec.key(),
                            KeyContext(hasActiveShiftKeys || isUpperCase(),
                                       finder.deadKey() ? finder.deadKey()->label() : QString(),
-                                      tp.scenePos(), QPoint(), tp.isPrimary()));
+                                      tp.scenePos(), QPoint(), tp.isPrimary(),
+                                      0, source));
     }
     mTimestamp("MImAbstractKeyArea", "end");
 }
@@ -446,13 +448,15 @@ void MImAbstractKeyAreaPrivate::touchPointMoved(const QTouchEvent::TouchPoint &t
         emit q->keyPressed(rec.key(),
                            KeyContext(hasActiveShiftKeys || isUpperCase(),
                                       finder.deadKey() ? finder.deadKey()->label() : QString(),
-                                      tp.scenePos(), QPoint(), tp.isPrimary()));
+                                      tp.scenePos(), QPoint(), tp.isPrimary(),
+                                      0, source));
     }
 
     if (rec.touchPointLeftKey() && rec.previousKey()->touchPointCount() == 0) {
         emit q->keyReleased(rec.previousKey(),
                             KeyContext(hasActiveShiftKeys || isUpperCase(),
-                                       finder.deadKey() ? finder.deadKey()->label() : QString()));
+                                       finder.deadKey() ? finder.deadKey()->label() : QString(),
+                                       QPointF(), QPoint(), false, 0, source));
     }
 
     if (rec.key() != rec.previousKey()) {
@@ -492,7 +496,8 @@ void MImAbstractKeyAreaPrivate::touchPointReleased(const QTouchEvent::TouchPoint
     KeyContext keyContext((finder.shiftKey() != 0) || isUpperCase(),
                           finder.deadKey() ? finder.deadKey()->label() : QString(),
                           tp.scenePos(),
-                          gAdjustedPositionForCorrection);
+                          gAdjustedPositionForCorrection,
+                          false, 0, source);
 
     {
         // Modify and store the touch point record.
@@ -750,7 +755,8 @@ void MImAbstractKeyArea::updatePopup(MImAbstractKey *key)
     d->popup->updatePos(buttonRect.topLeft(), pos, buttonRect.toRect().size());
     d->popup->handleKeyPressedOnMainArea(key,
                                           KeyContext(d->isUpperCase(),
-                                                     finder.deadKey() ? finder.deadKey()->label() : QString()));
+                                                     finder.deadKey() ? finder.deadKey()->label() : QString(),
+                                                     QPointF(), QPoint(), false, 0, d->source));
 }
 
 int MImAbstractKeyArea::maxColumns() const
@@ -1089,7 +1095,8 @@ void MImAbstractKeyArea::handleLongKeyPressed()
                                            : QString());
 
     KeyContext keyContext(d->isUpperCase(), accent,
-                          mapToScene(d->mostRecentTouchPositions.value(d->longPressTouchPointId)));
+                          mapToScene(d->mostRecentTouchPositions.value(d->longPressTouchPointId)),
+                          QPoint(), false, 0, d->source);
     keyContext.touchPointId = d->longPressTouchPointId;
     keyContext.isFromPrimaryTouchPoint = d->longPressTouchPointIsPrimary;
 
@@ -1185,6 +1192,12 @@ QRectF MImAbstractKeyArea::correctedReactionRect(const QRectF &originalRect) con
 bool MImAbstractKeyArea::contains(const MImAbstractKey *key) const
 {
     return (key && keys().contains(key));
+}
+
+void MImAbstractKeyArea::setSource(KeyEvent::Source source)
+{
+    Q_D(MImAbstractKeyArea);
+    d->source = source;
 }
 
 MImAbstractKeyAreaPrivate::TouchPointRecord::TouchPointRecord()

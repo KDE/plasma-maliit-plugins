@@ -36,7 +36,9 @@
 KeyEvent::KeyEvent(const QString &text, QKeyEvent::Type type, Qt::Key qtKey, SpecialKey specialKey,
                    Qt::KeyboardModifiers modifiers,
                    const QPoint &correctionPos,
-                   const QPointF &scenePos)
+                   const QPointF &scenePos,
+                   Source source,
+                   bool accented)
     : m_type(type),
       m_qtKey(qtKey),
       m_specialKey(specialKey),
@@ -44,7 +46,9 @@ KeyEvent::KeyEvent(const QString &text, QKeyEvent::Type type, Qt::Key qtKey, Spe
       m_modifiers(modifiers),
       m_isFromPrimaryTouchPoint(false),
       m_correctionPos(correctionPos),
-      m_scenePos(scenePos)
+      m_scenePos(scenePos),
+      m_source(source),
+      m_isAccented(accented)
 {
 }
 
@@ -56,7 +60,9 @@ KeyEvent::KeyEvent(const KeyEvent &other, QKeyEvent::Type type)
       m_modifiers(other.m_modifiers),
       m_isFromPrimaryTouchPoint(other.m_isFromPrimaryTouchPoint),
       m_correctionPos(other.m_correctionPos),
-      m_scenePos(other.m_scenePos)
+      m_scenePos(other.m_scenePos),
+      m_source(other.m_source),
+      m_isAccented(other.m_isAccented)
 {
 }
 
@@ -127,4 +133,24 @@ void KeyEvent::setScenePosition(const QPointF &point)
 QPointF KeyEvent::scenePosition() const
 {
     return m_scenePos;
+}
+
+KeyEvent::Source KeyEvent::source() const
+{
+    return m_source;
+}
+
+void KeyEvent::setSource(Source source)
+{
+    m_source = source;
+}
+
+bool KeyEvent::isAccented() const
+{
+    return m_isAccented;
+}
+
+void KeyEvent::setIsAccented(bool accented)
+{
+    m_isAccented = accented;
 }

@@ -32,6 +32,7 @@
 #ifndef MIMABSTRACTKEYAREA_H
 #define MIMABSTRACTKEYAREA_H
 
+#include "keyevent.h"
 #include "mkeyboardcommon.h"
 #include "mimabstractkey.h"
 #include "mimabstractkeyareastyle.h"
@@ -58,7 +59,8 @@ struct KeyContext
 {
     KeyContext()
         : upperCase(false),
-          isFromPrimaryTouchPoint(false)
+          isFromPrimaryTouchPoint(false),
+          source(KeyEvent::Unknown)
     {
     }
 
@@ -66,13 +68,15 @@ struct KeyContext
                const QPointF &scenePos = QPointF(),
                const QPoint correctionPos = QPoint(),
                bool primaryTouchPoint = false,
-               int touchPointId = 0)
+               int touchPointId = 0,
+               KeyEvent::Source source = KeyEvent::Unknown)
        : upperCase(upperCase),
          accent(accent),
          scenePos(scenePos),
          errorCorrectionPos(correctionPos),
          isFromPrimaryTouchPoint(primaryTouchPoint),
-         touchPointId(touchPointId)
+         touchPointId(touchPointId),
+         source(source)
     {
     }
 
@@ -83,6 +87,7 @@ struct KeyContext
                                //!  tweaked suitable for error correction engine.
     bool isFromPrimaryTouchPoint; //!< Whether key was invoked with primary touch point.
     int touchPointId;          //!< Id of touch point.
+    KeyEvent::Source source;   //! The source where the key is located.
 };
 
 Q_DECLARE_METATYPE(KeyContext)
@@ -187,6 +192,9 @@ public slots:
 
     //! \brief Returns popup
     const MImAbstractPopup *popup() const;
+
+    //! \brief Sets the source used with key events sent from this area.
+    void setSource(KeyEvent::Source source);
 
 signals:
     //! \brief Emitted when key is pressed
