@@ -1587,10 +1587,13 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
                 preeditCursorPos += text.length();
             }
             preedit += text;
-            // send touch point to engine if not in symbol view
-            // otherwise send character to engine.
+            // Send touch point to the engine only for non accented keys from
+            // the main view. Otherwise just append the character.
+            // NOTE: tapKeyboard() should be called to the engine only for keys
+            //       that are on the mainlayout. Engine does not know extended
+            //       keys (NB#266766).
             if (EngineManager::instance().engine()) {
-                if (!symbolView->isActive())
+                if (!event.isAccented() && event.source() == KeyEvent::PrimaryLayout)
                     EngineManager::instance().engine()->tapKeyboard(event.correctionPosition(),
                             event.modifiers() & Qt::ShiftModifier, text.at(0));
                 else

@@ -57,6 +57,14 @@ public:
         NumSpecialKeys
     };
 
+    //! Source from where the event was orinated.
+    enum Source {
+        Unknown = -1,
+        PrimaryLayout,
+        SecondaryLayout,
+        Popup
+    };
+
     //! Constructor that takes all attributes
     KeyEvent(const QString &text = QString(),
              QKeyEvent::Type type = QEvent::KeyRelease,
@@ -64,7 +72,9 @@ public:
              SpecialKey specialKey = NotSpecial,
              Qt::KeyboardModifiers modifiers = Qt::NoModifier,
              const QPoint &correctionPos = QPoint(),
-             const QPointF &scenePos = QPointF());
+             const QPointF &scenePos = QPointF(),
+             Source source = Unknown,
+             bool accented = false);
 
     //! Constructor that copies another event, except for type
     KeyEvent(const KeyEvent &other, QKeyEvent::Type type);
@@ -127,6 +137,18 @@ public:
     //! \brief Returns scene position where the event originated.
     QPointF scenePosition() const;
 
+    //! \brief Returns the source where the event originated.
+    Source source() const;
+
+    //! \brief Sets the source where the event originated.
+    void setSource(Source source);
+
+    //! \brief Returns true if the key is accented.
+    bool isAccented() const;
+
+    //! \brief Sets whether the key is accented or not.
+    void setIsAccented(bool accented);
+
 protected:
     QKeyEvent::Type m_type;
     Qt::Key m_qtKey;
@@ -136,6 +158,8 @@ protected:
     bool m_isFromPrimaryTouchPoint;
     QPoint m_correctionPos;
     QPointF m_scenePos;
+    Source m_source;
+    bool m_isAccented;
 };
 
 #endif

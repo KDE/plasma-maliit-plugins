@@ -32,6 +32,7 @@
 #ifndef MIMABSTRACTKEYAREA_P_H
 #define MIMABSTRACTKEYAREA_P_H
 
+#include "keyevent.h"
 #include "layoutdata.h"
 
 #include <MFeedback>
@@ -223,6 +224,7 @@ public:
     int longPressTouchPointId; //!< Remember the touch position ID which initiated long press.
     bool longPressTouchPointIsPrimary; //!< Remember if long press touch position was primary.
     QMap<int, TouchPointRecord> touchPointRecords; //!< Maps touch points to related key information.
+    KeyEvent::Source source; //!< The source added to events from this area.
 };
 //! \internal_end
 

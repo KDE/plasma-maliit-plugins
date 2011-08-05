@@ -32,6 +32,7 @@
 #ifndef EXTENDEDKEYS_H
 #define EXTENDEDKEYS_H
 
+#include <keyevent.h>
 #include <mimoverlay.h>
 #include <mimkeyarea.h>
 #include <mimabstractkeyarea.h>
@@ -63,6 +64,7 @@ public:
     {
         ExtendedKeysArea *keyArea(new ExtendedKeysArea(section, parent));
         keyArea->init();
+        keyArea->setSource(KeyEvent::Popup);
         return keyArea;
     }
 
