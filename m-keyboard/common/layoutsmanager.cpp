@@ -409,9 +409,27 @@ void LayoutsManager::syncLayouts()
     }
 
     // Cancel "Containing temporary English (UK) layout" indicator
-    // when "English (UK)" layout is synchronizedinto current layouts.
-    if (layoutFileList().contains(FallbackLayout))
-        temporaryEnglishKeyboardInserted = false;
+    // when an "English" layout is synchronized into current layouts.
+    // Otherwise if the indicator is "true", make sure that at least
+    // one "English" layout is available in current layouts.
+    if (temporaryEnglishKeyboardInserted) {
+        // Check whether current layouts have contain an "English" one.
+        bool containsEnglishLayout = false;
+        foreach (const KeyboardData * const kbData, keyboards.values()) {
+            if (kbData->language().startsWith(EnglishLanguagePrefix)) {
+                containsEnglishLayout = true;
+                break;
+            }
+        }
+        if (containsEnglishLayout) {
+            // Cancel the indicator.
+            temporaryEnglishKeyboardInserted = false;
+        } else {
+            // Load "English (UK)" for it is required in current case.
+            loadLayout(FallbackLayout);
+        }
+    }
+
 
     if (changed) {
         emit layoutsChanged();

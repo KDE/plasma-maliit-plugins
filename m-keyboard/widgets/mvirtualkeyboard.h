@@ -479,6 +479,8 @@ private:
     QPropertyAnimation *verticalAnimation;
     QRectF animHiddingArea;
     bool switchStarted;
+
+    bool haveSwitchedToEnVkbForEmail;
 };
 
 #endif

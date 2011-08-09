@@ -77,6 +77,7 @@ namespace
     const int VerticalAnimatinDuration = 250;
 
     const QString ChineseLanguagePrefix("zh");
+    const QString EnglishLanguagePrefix("en");
 }
 
 const QString MVirtualKeyboard::WordSeparators("-.,!? \n");
@@ -105,7 +106,8 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
       toggleKeyState(false),
       composeKeyState(false),
       verticalAnimation(NULL),
-      switchStarted(false)
+      switchStarted(false),
+      haveSwitchedToEnVkbForEmail(false)
 {
     setFlag(QGraphicsItem::ItemHasNoContents);
     setObjectName("MVirtualKeyboard");
@@ -425,10 +427,25 @@ void MVirtualKeyboard::setKeyboardType(const int type)
     // (2) If current content type is not Email/Url, release the temporary "English (UK)" keyboard
     //     if it exists.
     if ((type == M::EmailContentType) || (type == M::UrlContentType)) {
-        if (layoutLanguage().startsWith(ChineseLanguagePrefix, Qt::CaseSensitive))
+        if (layoutLanguage().startsWith(ChineseLanguagePrefix, Qt::CaseSensitive)) {
+            // If current active VKB is a Chinese one and the Email/URL entry is just entered,
+            // the English VKB would be automatically shown.
             LayoutsManager::instance().ensureEnglishKeyboardAvailable();
+            if (!haveSwitchedToEnVkbForEmail) {
+                const QStringList layoutList = layoutsMgr.layoutFileList();
+                for (int i=0; i<layoutList.count(); i++) {
+                    QString kbLanguage = layoutsMgr.keyboardLanguage(layoutList.at(i));
+                    if (kbLanguage.startsWith(EnglishLanguagePrefix)) {
+                        setLayout(i);
+                        break;
+                    }
+                }
+                haveSwitchedToEnVkbForEmail = true;
+            }
+        }
     } else {
         LayoutsManager::instance().releaseTemporaryEnglishKeyboard();
+        haveSwitchedToEnVkbForEmail = false;
     }
 }
 
