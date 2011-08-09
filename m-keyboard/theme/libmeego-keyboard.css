@@ -954,44 +954,6 @@ WordRibbon MButtonStyle.Portrait#MoreButton {
     preferred-size: 72 57;
 }
 
-
-CandidateToolButtonStyle#fullDialogButtonLandscape{
-    background-image: "meegotouch-candidatelist-background" 10 10 10 10;
-    minimum-size: 80 64;
-    preferred-size: 80 64;
-    maximum-size: 80 64;
-}
-CandidateToolButtonStyle#fullDialogButtonLandscape:pressed{
-    background-image: "meegotouch-keyboard-toolbar-button-pressed-selected" 10 10 10 10;
-}
-CandidateToolButtonStyle#fullDialogButtonPortrait{
-    background-image: "meegotouch-candidatelist-background" 10 10 10 10;
-    minimum-size: 118 64;
-    preferred-size: 118 64;
-    maximum-size: 118 64;
-}
-CandidateToolButtonStyle#fullDialogButtonPortrait:pressed{
-    background-image: "meegotouch-keyboard-toolbar-button-pressed-selected" 10 10 10 10;
-}
-CandidateToolButtonStyle#switchButtonLandscape{
-    background-image: "meegotouch-candidatelist-background" 10 10 10 10;
-    minimum-size: 80 64;
-    preferred-size: 80 64;
-    maximum-size: 80 64;
-}
-CandidateToolButtonStyle#switchButtonLandscape:pressed{
-	background-image: "meegotouch-keyboard-toolbar-button-pressed-selected" 10 10 10 10;
-}
-CandidateToolButtonStyle#switchButtonPortrait{
-	background-image: "meegotouch-candidatelist-background" 10 10 10 10;
-	minimum-size: 118 64;
-	preferred-size: 118 64;
-	maximum-size: 118 64;
-}
-CandidateToolButtonStyle#switchButtonPortrait:pressed{
-	background-image: "meegotouch-keyboard-toolbar-button-pressed-selected" 10 10 10 10;
-}
-
 MKeyboardMagnifierStyle {
     magnifier-image: "meegotouch-keyboard-magnifier-background" 24px 24px 24px 24px;
     magnifier-button-overlap: 0;
