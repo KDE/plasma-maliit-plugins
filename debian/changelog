@@ -1,3 +1,10 @@
+meego-keyboard (0.7.2-1) unstable; urgency=low
+
+  * Fixes: NB#261144 - Auto correction tooltip hovers above all other UI components
+  * Fixes: NB#257418 - space gets stuck in VKB in landscape mode
+
+ -- huaming wang <huaming.wang@nokia.com>  Tue, 09 Aug 2011 14:18:39 +0300
+
 meego-keyboard (0.7.1-1) unstable; urgency=low
 
   * Fixes: NB#264453 - VKB; Enter key is dimmed after tapping on Quick Cangjie toggle button.
