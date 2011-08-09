@@ -44,6 +44,7 @@
 struct KeyContext;
 class MImAbstractKey;
 class FlickGesture;
+class PanGesture;
 class MImAbstractPopup;
 class QGraphicsSceneMouseEvent;
 
@@ -93,6 +94,8 @@ public:
     //! \param state gesture state
     void handleFlickGesture(int direction,
                             Qt::GestureState state);
+
+    void handleGesture(const PanGesture &gesture);
 
     //! \brief Handler for touch events
     void handleTouchEvent(QTouchEvent *event);
@@ -225,6 +228,7 @@ public:
     bool longPressTouchPointIsPrimary; //!< Remember if long press touch position was primary.
     QMap<int, TouchPointRecord> touchPointRecords; //!< Maps touch points to related key information.
     KeyEvent::Source source; //!< The source added to events from this area.
+    bool enabledPanning;
 };
 //! \internal_end
 

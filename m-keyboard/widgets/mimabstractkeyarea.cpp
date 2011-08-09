@@ -30,12 +30,14 @@
  */
 #include "flickgesture.h"
 #include "flickgesturerecognizer.h"
+#include "borderpanrecognizer.h"
 #include "mimabstractkeyarea.h"
 #include "mimabstractkeyarea_p.h"
 #include "mimkeyvisitor.h"
 #include "mimreactionmap.h"
 #include "mkeyboardhost.h"
 #include "mimabstractpopup.h"
+#include "layoutpanner.h"
 
 #include <MCancelEvent>
 #include <MFeedback>
@@ -46,6 +48,7 @@
 #include <QTextStream>
 #include <QDir>
 #include <QCoreApplication>
+#include <QDebug>
 #include <mtimestamp.h>
 
 #ifdef unix
@@ -131,7 +134,8 @@ MImAbstractKeyAreaPrivate::MImAbstractKeyAreaPrivate(const LayoutData::SharedLay
       allowedHorizontalFlick(true),
       ignoreTouchEventsUntilNewBegin(false),
       longPressTouchPointId(0),
-      longPressTouchPointIsPrimary(false)
+      longPressTouchPointIsPrimary(false),
+      enabledPanning(true)
 {
 }
 
@@ -179,13 +183,6 @@ void MImAbstractKeyAreaPrivate::handleFlickGesture(int direction,
         return;
     }
 
-    if (!allowedHorizontalFlick) {
-        if ((direction == FlickGesture::Left)
-            || (direction == FlickGesture::Right)) {
-            return;
-        }
-    }
-
     // Any non-upward flick gesture, complete or not, resets active keys etc.
     if (!wasGestureTriggered
         && (state != Qt::NoGesture)
@@ -215,14 +212,6 @@ void MImAbstractKeyAreaPrivate::handleFlickGesture(int direction,
     if (state == Qt::GestureFinished) {
 
         switch (direction) {
-        case FlickGesture::Left:
-            emit q->flickLeft();
-            break;
-
-        case FlickGesture::Right:
-            emit q->flickRight();
-            break;
-
         case FlickGesture::Down:
             emit q->flickDown();
             break;
@@ -234,6 +223,61 @@ void MImAbstractKeyAreaPrivate::handleFlickGesture(int direction,
         default:
             return;
         }
+    }
+}
+
+void MImAbstractKeyAreaPrivate::handleGesture(const PanGesture &gesture)
+{
+    Q_Q(MImAbstractKeyArea);
+
+    if (InputMethodMode == M::InputMethodModeDirect) {
+        return;
+    }
+
+    if (!allowedHorizontalFlick) {
+        return;
+    }
+
+    // Any non-upward flick gesture, complete or not, resets active keys etc.
+    if (!wasGestureTriggered
+        && (gesture.state() != Qt::NoGesture)) {
+
+        if (popup) {
+            popup->cancel();
+        }
+
+        MImAbstractKey *const lastActiveKey = MImAbstractKey::lastActiveKey();
+        if (lastActiveKey && lastActiveKey->state() == MImAbstractKey::Pressed) {
+            MImKeyVisitor::SpecialKeyFinder finder;
+            MImAbstractKey::visitActiveKeys(&finder);
+            const bool hasActiveShiftKeys = (finder.shiftKey() != 0);
+            const KeyContext context(hasActiveShiftKeys || isUpperCase());
+            emit q->keyCancelled(lastActiveKey, context);
+        }
+
+        //FIXME: should we do it here?
+        MImKeyVisitor::KeyAreaReset reset;
+        MImAbstractKey::visitActiveKeys(&reset);
+
+        longPressTimer.stop();
+        wasGestureTriggered = true;
+    }
+
+
+    switch (gesture.state()) {
+    case Qt::GestureStarted:
+        LayoutPanner::instance().tryPan(gesture.direction(),
+                                        gesture.startPosition());
+        q->ungrabGesture(FlickGestureRecognizer::sharedGestureType());
+        break;
+    case Qt::GestureUpdated:
+    case Qt::GestureFinished:
+        break;
+    case Qt::GestureCanceled:
+        q->grabGesture(FlickGestureRecognizer::sharedGestureType());
+        break;
+    case Qt::NoGesture:
+        break;
     }
 }
 
@@ -346,6 +390,7 @@ void MImAbstractKeyAreaPrivate::touchPointPressed(const QTouchEvent::TouchPoint 
         idleVkbTimer.stop();
         // TODO: check how expensive gesture (un)grabbing is:
         q->ungrabGesture(FlickGestureRecognizer::sharedGestureType());
+        q->ungrabGesture(BorderPanRecognizer::sharedGestureType());
     }
 
     const QPoint pos = q->correctedTouchPoint(tp.scenePos());
@@ -686,6 +731,9 @@ MImAbstractKeyArea::MImAbstractKeyArea(MImAbstractKeyAreaPrivate *privateData,
 
     d->lastTouchPointPressEvent.restart();
     grabGesture(FlickGestureRecognizer::sharedGestureType());
+    if (d->enabledPanning)  {
+        grabGesture(BorderPanRecognizer::sharedGestureType());
+    }
 
     d->longPressTimer.setSingleShot(true);
     d->idleVkbTimer.setSingleShot(true);
@@ -712,6 +760,12 @@ void MImAbstractKeyArea::init()
 
     d->switchStyleMode();
     debugTouchPoints = style()->debugTouchPoints();
+
+    BorderPanRecognizer::instance()->setTimeout(style()->panGestureTimeout());
+    BorderPanRecognizer::instance()->setStartThreshold(style()->panGestureStartThreshold());
+    BorderPanRecognizer::instance()->setFinishThreshold(style()->panGestureFinishThreshold());
+    BorderPanRecognizer::instance()->setInitialMovement(style()->panGestureInitialMovement());
+
 }
 
 void MImAbstractKeyArea::setInputMethodMode(M::InputMethodMode inputMethodMode)
@@ -941,6 +995,14 @@ bool MImAbstractKeyArea::event(QEvent *ev)
             d->handleFlickGesture(flickGesture->direction(), flickGesture->state());
             eaten = true;
         }
+
+        const Qt::GestureType panGestureType = BorderPanRecognizer::sharedGestureType();
+        PanGesture *panGesture = static_cast<PanGesture *>(static_cast<QGestureEvent *>(ev)->gesture(panGestureType));
+
+        if (panGesture) {
+            d->handleGesture(*panGesture);
+            eaten = true;
+        }
     } else if (ev->type() == QEvent::TouchBegin
                || ev->type() == QEvent::TouchUpdate
                || ev->type() == QEvent::TouchEnd) {
@@ -1116,7 +1178,11 @@ void MImAbstractKeyArea::handleLongKeyPressed()
 
 void MImAbstractKeyArea::handleIdleVkb()
 {
+    Q_D(MImAbstractKeyArea);
     grabGesture(FlickGestureRecognizer::sharedGestureType());
+    if (d->enabledPanning) {
+        grabGesture(BorderPanRecognizer::sharedGestureType());
+    }
 }
 
 void MImAbstractKeyArea::reset()
@@ -1261,4 +1327,16 @@ bool MImAbstractKeyAreaPrivate::TouchPointRecord::touchPointLeftKey() const
 bool MImAbstractKeyAreaPrivate::TouchPointRecord::hasGravity() const
 {
     return m_key && keyHasGravity;
+}
+
+void MImAbstractKeyArea::disablePanning()
+{
+    Q_D(MImAbstractKeyArea);
+
+    if (!d->enabledPanning) {
+        return;
+    }
+
+    d->enabledPanning = false;
+    ungrabGesture(BorderPanRecognizer::sharedGestureType());
 }

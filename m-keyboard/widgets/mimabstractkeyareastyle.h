@@ -60,6 +60,11 @@ public:
     M_STYLE_ATTRIBUTE(qreal, touchpointVerticalGravity, TouchpointVerticalGravity)
     M_STYLE_ATTRIBUTE(qreal, touchpointVerticalOffset, TouchpointVerticalOffset)
 
+    M_STYLE_ATTRIBUTE(int, panGestureTimeout, PanGestureTimeout)
+    M_STYLE_ATTRIBUTE(int, panGestureStartThreshold, PanGestureStartThreshold)
+    M_STYLE_ATTRIBUTE(int, panGestureFinishThreshold, PanGestureFinishThreshold)
+    M_STYLE_ATTRIBUTE(int, panGestureInitialMovement, PanGestureInitialMovement)
+
     M_STYLE_ATTRIBUTE(QSize, size, Size)
     M_STYLE_ATTRIBUTE(qreal, keyHeightSmall, KeyHeightSmall)
     M_STYLE_ATTRIBUTE(qreal, keyHeightMedium, KeyHeightMedium)

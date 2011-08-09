@@ -37,6 +37,7 @@
 #include "mimabstractkey.h"
 #include "mimabstractkeyareastyle.h"
 #include "layoutdata.h"
+#include "pangesture.h"
 
 #include <MStylableWidget>
 #include <MFeedback>
@@ -143,6 +144,9 @@ public:
     //! \brief Returns true if \key belongs to this key area.
     virtual bool contains(const MImAbstractKey *key) const;
 
+    //! \brief Disable recognition of panning gesture
+    void disablePanning();
+
 public slots:
     //! \brief Tell key area to switch levels for all keys.
     //! \param level the new level
@@ -245,18 +249,19 @@ signals:
     void keyCancelled(const MImAbstractKey *key,
                       const KeyContext &keyContext = KeyContext());
 
-    //! \brief Emitted when key area is flicked right.
-    void flickRight();
-
-    //! \brief Emitted when key area is flicked left.
-    void flickLeft();
-
     //! \brief Emitted when key area is flicked down.
     void flickDown();
 
     //! \brief Emitted if button width has changed
     //! \param baseWidth base width used for relative button widths
     void relativeKeyBaseWidthChanged(qreal baseWidth);
+
+    // startPos in scene coordinates
+    void panningStarted(PanGesture::PanDirection direction, QPoint startPos);
+
+    void panningFinished(PanGesture::PanDirection direction);
+
+    void panningCancelled(PanGesture::PanDirection direction);
 
 protected:
     //! \brief Constructor

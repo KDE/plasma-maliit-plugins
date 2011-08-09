@@ -67,8 +67,6 @@ public:
 signals:
     void flickUp(const FlickGesture &gesture);
     void flickDown(const FlickGesture &gesture);
-    void flickLeft(const FlickGesture &gesture);
-    void flickRight(const FlickGesture &gesture);
 
 protected:
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);

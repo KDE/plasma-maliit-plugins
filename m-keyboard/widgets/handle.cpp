@@ -94,7 +94,6 @@ void Handle::flickGestureEvent(FlickGesture &gesture)
         return;
     }
 
-    static const FlickEmitter emitters[4] = { &Handle::flickLeft, &Handle::flickRight,
-                                              &Handle::flickUp, &Handle::flickDown };
+    static const FlickEmitter emitters[2] = { &Handle::flickUp, &Handle::flickDown };
     (this->*emitters[static_cast<int>(gesture.direction())])(gesture);
 }
