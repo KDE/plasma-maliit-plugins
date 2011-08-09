@@ -35,6 +35,7 @@ HEADERS += \
     $$COMMON_DIR/enginecjk.h \
     $$COMMON_DIR/borderpanrecognizer.h \
     $$COMMON_DIR/pangesture.h \
+    $$COMMON_DIR/panparameters.h \
 
 SOURCES += \
     $$COMMON_DIR/keyboarddata.cpp \
@@ -61,6 +62,7 @@ SOURCES += \
     $$COMMON_DIR/mimfontpool.cpp \
     $$COMMON_DIR/borderpanrecognizer.cpp \
     $$COMMON_DIR/pangesture.cpp \
+    $$COMMON_DIR/panparameters.cpp \
 
 INCLUDEPATH += $$COMMON_DIR
 DEPENDPATH += $$COMMON_DIR
