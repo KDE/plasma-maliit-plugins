@@ -492,13 +492,6 @@ void MImAbstractKeyAreaPrivate::touchPointReleased(const QTouchEvent::TouchPoint
     MImKeyVisitor::SpecialKeyFinder finder;
     MImAbstractKey::visitActiveKeys(&finder);
 
-    // Key context before release
-    KeyContext keyContext((finder.shiftKey() != 0) || isUpperCase(),
-                          finder.deadKey() ? finder.deadKey()->label() : QString(),
-                          tp.scenePos(),
-                          gAdjustedPositionForCorrection,
-                          false, 0, source);
-
     {
         // Modify and store the touch point record.
         TouchPointRecord &rec = touchPointRecords[tp.id()];
@@ -506,6 +499,13 @@ void MImAbstractKeyAreaPrivate::touchPointReleased(const QTouchEvent::TouchPoint
         // If key has changed on release this will first increase its touch point count.
         rec.setHitKey(gravitationalKeyAt(pos, rec.hasGravity() ? rec.key() : 0));
     }
+
+    // Key context before release
+    KeyContext keyContext((finder.shiftKey() != 0) || isUpperCase(),
+                          finder.deadKey() ? finder.deadKey()->label() : QString(),
+                          tp.scenePos(),
+                          gAdjustedPositionForCorrection,
+                          false, 0, source);
 
     // Take copy since keyarea may get reset when emitting key events.
     const TouchPointRecord rec = touchPointRecords[tp.id()];
