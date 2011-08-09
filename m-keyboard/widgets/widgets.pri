@@ -29,6 +29,7 @@ STYLE_HEADERS += \
     $$WIDGETS_DIR/mkeyboardmagnifierstyle.h \
     $$WIDGETS_DIR/notificationstyle.h \
     $$WIDGETS_DIR/keyboardshadowstyle.h \
+    $$WIDGETS_DIR/notificationareastyle.h \
 
 HEADERS += \
     $$PUBLIC_HEADERS \
@@ -70,6 +71,7 @@ HEADERS += \
     $$WIDGETS_DIR/magnifier.h \
     $$WIDGETS_DIR/extendedkeys.h \
     $$WIDGETS_DIR/mimsnapshotpixmapitem.h \
+    $$WIDGETS_DIR/notificationarea.h \
 
 INSTALL_HEADERS += $$PUBLIC_HEADERS + $$PUBLIC_STYLE_HEADERS
 
@@ -113,6 +115,7 @@ SOURCES += \
     $$WIDGETS_DIR/magnifier.cpp \
     $$WIDGETS_DIR/extendedkeys.cpp \
     $$WIDGETS_DIR/mimsnapshotpixmapitem.cpp \
+    $$WIDGETS_DIR/notificationarea.cpp \
 
 INCLUDEPATH += $$WIDGETS_DIR
 DEPENDPATH += $$WIDGETS_DIR

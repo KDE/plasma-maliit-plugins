@@ -36,6 +36,7 @@ HEADERS += \
     $$COMMON_DIR/borderpanrecognizer.h \
     $$COMMON_DIR/pangesture.h \
     $$COMMON_DIR/panparameters.h \
+    $$COMMON_DIR/notificationpanparameters.h \
 
 SOURCES += \
     $$COMMON_DIR/keyboarddata.cpp \
