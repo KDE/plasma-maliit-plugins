@@ -33,6 +33,8 @@ HEADERS += \
     $$COMMON_DIR/enginehandler.h \
     $$COMMON_DIR/cjklogicstatemachine.h \
     $$COMMON_DIR/enginecjk.h \
+    $$COMMON_DIR/borderpanrecognizer.h \
+    $$COMMON_DIR/pangesture.h \
 
 SOURCES += \
     $$COMMON_DIR/keyboarddata.cpp \
@@ -57,6 +59,8 @@ SOURCES += \
     $$COMMON_DIR/cjklogicstatemachine.cpp \
     $$COMMON_DIR/enginecjk.cpp \
     $$COMMON_DIR/mimfontpool.cpp \
+    $$COMMON_DIR/borderpanrecognizer.cpp \
+    $$COMMON_DIR/pangesture.cpp \
 
 INCLUDEPATH += $$COMMON_DIR
 DEPENDPATH += $$COMMON_DIR
