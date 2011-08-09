@@ -28,41 +28,65 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  */
-#ifndef NOTIFICATIONSTYLE_H
-#define NOTIFICATIONSTYLE_H
 
+#ifndef MIMSNAPSHOTPIXMAPITEM_H
+#define MIMSNAPSHOTPIXMAPITEM_H
+
+#include <QPixmap>
 #include <QObject>
+#include <QGraphicsItem>
+#include <QGraphicsPixmapItem>
+#include <QPointer>
+#include <QMap>
 
-#include <MWidgetStyle>
+class QGraphicsWidget;
+class PanParameters;
 
 /*!
-    \brief Style for language change notification
-*/
-class M_EXPORT NotificationStyle : public MWidgetStyle
+ * \brief MImSnapshotPixmapItem is a snapshot which is grabbed from the screen
+ * rectangle, or wigets, or pixmaps.
+ */
+class MImSnapshotPixmapItem : public QObject, public QGraphicsPixmapItem
 {
     Q_OBJECT
-    M_STYLE(NotificationStyle)
+    Q_PROPERTY(qreal opacity READ opacity WRITE setOpacity)
 
 public:
-    M_STYLE_ATTRIBUTE(QFont, font, Font)
-    M_STYLE_ATTRIBUTE(int, fontSize, FontSize)
-    M_STYLE_ATTRIBUTE(QColor, borderColor, BorderColor)
-    M_STYLE_ATTRIBUTE(QColor, backgroundColor, BackgroundColor)
-    M_STYLE_ATTRIBUTE(QColor, textColor, TextColor)
-    M_STYLE_ATTRIBUTE(Qt::Alignment, textHorizontalAlignment, TextHorizontalAlignment)
-    M_STYLE_ATTRIBUTE(Qt::Alignment, textVerticalAlignment, TextVerticalAlignment)
-    M_STYLE_ATTRIBUTE(bool, textWrap, TextWrap)
-    M_STYLE_ATTRIBUTE(qreal, opacity, Opacity)
-    M_STYLE_ATTRIBUTE(qreal, backgroundOpacity, BackgroundOpacity)
-    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, backgroundImage, BackgroundImage)
-    M_STYLE_ATTRIBUTE(int, rounding, Rounding)
-    M_STYLE_ATTRIBUTE(int, holdTime, HoldTime)
-    M_STYLE_ATTRIBUTE(int, fadeTime, FadeTime)
+    MImSnapshotPixmapItem(const QPixmap &pixmap, QGraphicsItem* parent = 0);
+    explicit MImSnapshotPixmapItem(QGraphicsItem *parent = 0);
+
+    virtual ~MImSnapshotPixmapItem();
+
+    //! Grabs the snapshot from screen rectangle.
+    void grabScreen(const QRect& rect);
+
+    //! Grabs the snapshot from widgets.
+    void grabWidgets(QList<QPointer<QGraphicsWidget> > widgets);
+
+    //! Grabs the snapshot from pimaps
+    void grabPixmaps(QMap<QPixmap*, QPoint > pixmaps);
+
+    /*!
+     * \brief Connects to a PanParameter object
+     *
+     * Connects the updating (position, scale, opacity) slots with signals
+     * from \a parametersObj.
+     */
+    void connectPanParameters(PanParameters *parametersObj);
+
+public slots:
+    //! Updates the positions.
+    void updatePos(const QPointF &pos);
+
+    //! Updates the opacity.
+    void updateOpacity(qreal opacity);
+
+    //! Updates the scale.
+    void updateScale(qreal scale);
+
+private:
+    QPointer<PanParameters> mParameters;
+    Q_DISABLE_COPY(MImSnapshotPixmapItem)
 };
 
-class M_EXPORT NotificationStyleContainer : public MWidgetStyleContainer
-{
-    M_STYLE_CONTAINER(NotificationStyle)
-};
-
-#endif // NOTIFICATIONSTYLE_H
+#endif
