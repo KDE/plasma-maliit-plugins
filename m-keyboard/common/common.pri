@@ -37,6 +37,9 @@ HEADERS += \
     $$COMMON_DIR/pangesture.h \
     $$COMMON_DIR/panparameters.h \
     $$COMMON_DIR/notificationpanparameters.h \
+    $$COMMON_DIR/outgoinglayoutpanparameters.h \
+    $$COMMON_DIR/incominglayoutpanparameters.h \
+    $$COMMON_DIR/foregroundmaskpanparameters.h \
 
 SOURCES += \
     $$COMMON_DIR/keyboarddata.cpp \
