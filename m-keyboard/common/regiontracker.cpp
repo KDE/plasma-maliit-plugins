@@ -50,6 +50,13 @@ void RegionStore::addWidget(const QObject &widget)
     regions[&widget] = QRect();
 }
 
+void RegionStore::removeWidget(const QObject &widget)
+{
+    if (regions.contains(&widget)) {
+        regions.remove(&widget);
+    }
+}
+
 void RegionStore::handleGeometryChange(const QObject &widget, const QRegion &region)
 {
     if (!regions.contains(&widget)) {
@@ -125,6 +132,13 @@ void RegionTrackerPrivate::addWidgetCommon(const QGraphicsWidget &widget)
             this, SLOT(handleDestroy(QObject *)), Qt::UniqueConnection);
     connect(&widget, SIGNAL(visibleChanged()),
             this, SLOT(handleVisibilityChange()), Qt::QueuedConnection);
+}
+
+void RegionTrackerPrivate::removeWidgetCommon(const QGraphicsWidget &widget)
+{
+    disconnect(&widget, 0, this, 0);
+    widgetRegions.handleDestroy(widget);
+    inputMethodAreaWidgetRegions.handleDestroy(widget);
 }
 
 void RegionTrackerPrivate::handleGeometryChange()
@@ -225,6 +239,14 @@ void RegionTracker::addRegion(const QGraphicsWidget &widget)
     d->widgetRegions.addWidget(widget);
     d->addWidgetCommon(widget);
 }
+
+void RegionTracker::removeRegion(const QGraphicsWidget &widget)
+{
+    Q_D(RegionTracker);
+    d->removeWidgetCommon(widget);
+    d->widgetRegions.removeWidget(widget);
+}
+
 
 void RegionTracker::addInputMethodArea(const QGraphicsWidget &widget)
 {

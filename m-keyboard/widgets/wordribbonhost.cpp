@@ -336,3 +336,8 @@ QGraphicsWidget * WordRibbonHost::inlineWidget() const
 {
     return qobject_cast<QGraphicsWidget *>(wordRibbon);
 }
+
+void WordRibbonHost::setRegionEnabled(bool enabled)
+{
+    Q_UNUSED(enabled);
+}
