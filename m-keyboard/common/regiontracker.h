@@ -68,6 +68,9 @@ public:
     //! \brief Make \a widget part of the tracked screen region
     void addRegion(const QGraphicsWidget &widget);
 
+    //! \brief Remove \a widget from the tracked screen region
+    void removeRegion(const QGraphicsWidget &widget);
+
     //! \brief Make \a widget part of the tracked input method area
     void addInputMethodArea(const QGraphicsWidget &widget);
 

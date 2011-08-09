@@ -48,6 +48,7 @@ public:
     RegionStore();
 
     void addWidget(const QObject &widget);
+    void removeWidget(const QObject &widget);
     void enable(bool newEnabled, bool flush);
 
     void handleDestroy(const QObject &widget);
@@ -97,6 +98,7 @@ private slots:
 private:
     //! \brief Common work of RegionTracker::addRegion and RegionTracker::addInputMethodArea
     void addWidgetCommon(const QGraphicsWidget &widget);
+    void removeWidgetCommon(const QGraphicsWidget &widget);
     void changeGeometry(const QGraphicsWidget &widget);
 
 private:

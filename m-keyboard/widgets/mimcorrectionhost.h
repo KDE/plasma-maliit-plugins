@@ -96,6 +96,7 @@ public:
     virtual void reset();
     virtual void setPageIndex(int index = 0);
     virtual void handleAppOrientationChanged();
+    virtual void setRegionEnabled(bool enabled);
     //! reimp_end
 
     /*!

@@ -368,3 +368,12 @@ void MImWordTracker::paintReactionMap(MReactionMap *reactionMap, QGraphicsView *
     reactionMap->fillRectangle(geometry());
 #endif // HAVE_REACTIONMAP
 }
+
+void MImWordTracker::setRegionEnabled(bool enabled)
+{
+    if (enabled) {
+        RegionTracker::instance().addRegion(*containerWidget);
+    } else {
+        RegionTracker::instance().removeRegion(*containerWidget);
+    }
+}

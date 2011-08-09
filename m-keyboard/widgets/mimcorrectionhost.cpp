@@ -303,3 +303,10 @@ void MImCorrectionHost::setTitle(QString &title)
 {
     Q_UNUSED(title);
 }
+
+void MImCorrectionHost::setRegionEnabled(bool enabled)
+{
+    if (currentMode == AbstractEngineWidgetHost::FloatingMode) {
+        wordTracker->setRegionEnabled(enabled);
+    }
+}

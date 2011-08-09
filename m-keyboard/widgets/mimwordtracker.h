@@ -102,6 +102,12 @@ public:
      */
     void paintReactionMap(MReactionMap *reactionMap, QGraphicsView *view);
 
+    /*!
+     * \brief Sets whether the word tracker is tracked by screen region
+     *  according \a enabled.
+     */
+    void setRegionEnabled(bool enabled);
+
 signals:
     //! Emitted when word tracker needs reaction map update
     void makeReactionMapDirty();

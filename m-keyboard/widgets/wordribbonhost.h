@@ -77,6 +77,7 @@ public:
     virtual void reset();
     virtual void setPageIndex(int index);
     virtual void handleAppOrientationChanged();
+    virtual void setRegionEnabled(bool enabled);
     /*! \reimp_end */
 
     // Reimplement for ReactionMapPaintable.
