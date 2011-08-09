@@ -30,6 +30,7 @@ STYLE_HEADERS += \
     $$WIDGETS_DIR/notificationstyle.h \
     $$WIDGETS_DIR/keyboardshadowstyle.h \
     $$WIDGETS_DIR/notificationareastyle.h \
+    $$WIDGETS_DIR/layoutpannerstyle.h \
 
 HEADERS += \
     $$PUBLIC_HEADERS \
@@ -72,6 +73,7 @@ HEADERS += \
     $$WIDGETS_DIR/extendedkeys.h \
     $$WIDGETS_DIR/mimsnapshotpixmapitem.h \
     $$WIDGETS_DIR/notificationarea.h \
+    $$WIDGETS_DIR/layoutpanner.h \
 
 INSTALL_HEADERS += $$PUBLIC_HEADERS + $$PUBLIC_STYLE_HEADERS
 
@@ -116,6 +118,7 @@ SOURCES += \
     $$WIDGETS_DIR/extendedkeys.cpp \
     $$WIDGETS_DIR/mimsnapshotpixmapitem.cpp \
     $$WIDGETS_DIR/notificationarea.cpp \
+    $$WIDGETS_DIR/layoutpanner.cpp \
 
 INCLUDEPATH += $$WIDGETS_DIR
 DEPENDPATH += $$WIDGETS_DIR
