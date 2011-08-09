@@ -206,10 +206,7 @@ bool FlickGestureRecognizer::hasGesturePassedThreshold(const FlickGesture &gestu
     if (gesture.direction() == FlickGesture::NoDirection) {
         return false;
     } else {
-        const bool horizontal = gesture.direction() == FlickGesture::Left
-                                || gesture.direction() == FlickGesture::Right;
-        const int distance = horizontal ? threshold.x() : threshold.y();
-        return gesture.distance() >= distance;
+        return gesture.distance() >= threshold.y();
     }
 }
 
@@ -249,7 +246,7 @@ void FlickGestureRecognizer::updateGesture(FlickGesture &gesture,
         const bool distShortened = (gesture.dist - gesture.prevDist) < 0 ? true : false;
         gesture.hasZigZagged = majorDirectionChanged || distShortened;
     }
-    
+
     if (!gesture.isAccidentallyFlicked) {
         gesture.isAccidentallyFlicked = isAccidentalFlick(gesture);
     }
@@ -264,10 +261,7 @@ void FlickGestureRecognizer::setMajorDirectionAndDistance(FlickGesture &gesture)
     gesture.prevDir = gesture.dir;
     gesture.prevDist = gesture.dist;
 
-    if (horizontalDistance > verticalDistance) {
-        gesture.dir = diff.x() > 0 ? FlickGesture::Right : FlickGesture::Left;
-        gesture.dist = horizontalDistance;
-    } else if (horizontalDistance < verticalDistance) {
+    if (horizontalDistance < verticalDistance) {
         gesture.dir = diff.y() > 0 ? FlickGesture::Down : FlickGesture::Up;
         gesture.dist = verticalDistance;
     }

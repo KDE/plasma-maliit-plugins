@@ -45,8 +45,6 @@ class FlickGesture : public QGesture
 public:
     //! Possible gesture directions
     enum Direction {
-        Left,
-        Right,
         Up,
         Down,
         NoDirection,
