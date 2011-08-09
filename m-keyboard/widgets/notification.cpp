@@ -28,28 +28,34 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  */
+#include "mvirtualkeyboardstyle.h"
+#include "notification.h"
+#include "panparameters.h"
+
+#include <QDebug>
+#include <QFontMetrics>
+#include <QPainter>
+#include <QGraphicsSceneResizeEvent>
+
+#include <MSceneManager>
+#include <MScalableImage>
+#include <float.h>
 
 namespace
 {
     const int FPS = 20; // Frames per second
 }
 
-#include "mvirtualkeyboardstyle.h"
-#include "notification.h"
-
-#include <QDebug>
-#include <QFontMetrics>
-#include <QPainter>
-
-#include <MSceneManager>
-#include <MScalableImage>
-#include <float.h>
-
-
-Notification::Notification(QGraphicsWidget *parent)
+Notification::Notification(QGraphicsItem *parent)
     : MStylableWidget(parent),
-      opacity(0),
-      frameCount(1)
+      textHorizontalAlignment(Qt::AlignHCenter),
+      textVerticalAlignment(Qt::AlignVCenter),
+      textWrap(false),
+      mOpacity(0),
+      frameCount(1),
+      textLayout(new QStaticText()),
+      maximumTextWidth(0),
+      dirty(true)
 {
     // Notification sets its own absolute opacity
     setFlag(ItemIgnoresParentOpacity, true);
@@ -58,7 +64,7 @@ Notification::Notification(QGraphicsWidget *parent)
     visibilityTimer.setSingleShot(true);
 
     connect(&fadeTimeLine, SIGNAL(frameChanged(int)),
-            this, SLOT(updateOpacity(int)));
+            this, SLOT(updateOpacityByFrame(int)));
     connect(&fadeTimeLine, SIGNAL(finished()),
             this, SLOT(fadingFinished()));
 
@@ -71,6 +77,7 @@ Notification::Notification(QGraphicsWidget *parent)
 
 Notification::~Notification()
 {
+    connectPanParameters(0);
 }
 
 
@@ -97,11 +104,10 @@ Notification::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget
     painter->setPen(textColor);
     // Draw the normalized message
     QRectF textRect = rect();
-    textRect.adjust(style()->paddingLeft(),
-                    style()->paddingTop(),
-                    -style()->paddingRight(),
-                    -style()->paddingBottom());
-    painter->drawText(textRect, Qt::AlignCenter | Qt::TextWordWrap, message);
+
+    QPointF textOffset((textRect.width() - textLayout->size().width()) / 2,
+                       (textRect.height() - textLayout->size().height()) / 2);
+    painter->drawStaticText(textOffset, *textLayout);
 }
 
 
@@ -115,6 +121,19 @@ Notification::displayText(const QString &msg, const QRectF &area)
     fadeIn();
 }
 
+void Notification::setText(const QString &text)
+{
+    qDebug() << __PRETTY_FUNCTION__ << ":" << text;
+    message = text;
+    dirty = true;
+    reLayout();
+}
+
+QString Notification::text() const
+{
+    return message;
+}
+
 void Notification::applyStyle()
 {
     font = style()->font();
@@ -122,7 +141,10 @@ void Notification::applyStyle()
     border = style()->borderColor();
     background = style()->backgroundColor();
     textColor = style()->textColor();
-    opacity = style()->opacity();
+    textHorizontalAlignment = style()->textHorizontalAlignment();
+    textVerticalAlignment = style()->textVerticalAlignment();
+    textWrap = style()->textWrap();
+    mOpacity = style()->opacity();
     fadeTimeLine.setDuration(style()->fadeTime());
     visibilityTimer.setInterval(style()->holdTime());
     frameCount = style()->fadeTime() / FPS;
@@ -131,12 +153,11 @@ void Notification::applyStyle()
 
 
 void
-Notification::updateOpacity(int frameNumber)
+Notification::updateOpacityByFrame(int frameNumber)
 {
-    setOpacity(qreal(frameNumber) / qreal(frameCount) * opacity);
+    setOpacity(qreal(frameNumber) / qreal(frameCount) * mOpacity);
     update();
 }
-
 
 void
 Notification::fadingFinished()
@@ -193,6 +214,100 @@ void Notification::fadeIn()
 void Notification::setMessageAndGeometry(const QString &msg, const QRectF &area)
 {
     message = msg;
-    setGeometry(QRectF(0, 0, area.width(), area.height()));
+    setPos(area.topLeft());
+    // setMaximumTextWidth() will change the dirty flag to true.
+    setMaximumTextWidth(area.width());
 }
 
+void Notification::updatePos(const QPointF &pos)
+{
+    setPos(pos);
+    update();
+}
+
+void Notification::updateOpacity(qreal opacity)
+{
+    setOpacity(opacity);
+}
+
+void Notification::updateScale(qreal scale)
+{
+    setScale(scale);
+}
+
+void Notification::reLayout()
+{
+    if (!dirty)
+        return;
+    dirty = false;
+    delete textLayout;
+    textLayout = new QStaticText();
+    QTextOption textOption;
+    textLayout->setPerformanceHint(QStaticText::AggressiveCaching);
+    textOption.setAlignment(textHorizontalAlignment | textVerticalAlignment);
+    if (textWrap) {
+        textOption.setWrapMode(QTextOption::WordWrap);
+    } else {
+        textOption.setWrapMode(QTextOption::NoWrap);
+    }
+    textLayout->setTextOption(textOption);
+    textLayout->setText(message);
+    textLayout->prepare(QTransform(), font);
+    if (textWrap
+        && maximumTextWidth > 0
+        && maximumTextWidth < textLayout->size().width()) {
+        textLayout->setTextWidth(maximumTextWidth - style()->paddingLeft()
+                                 - style()->paddingRight());
+        textLayout->prepare(QTransform(), font);
+    }
+    updateGeometry();
+}
+
+void Notification::setMaximumTextWidth(qreal textWidth)
+{
+    maximumTextWidth = textWidth;
+    dirty = true;
+    reLayout();
+}
+
+QSizeF Notification::sizeHint(Qt::SizeHint which, const QSizeF &constraint) const
+{
+    switch (which) {
+    case Qt::MinimumSize: {
+        return MStylableWidget::sizeHint(which, constraint);
+    }
+    case Qt::MaximumSize: {
+            return QSizeF(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+    }
+    case Qt::PreferredSize: {
+        QSizeF size = textLayout->size();
+        size += QSize(style()->paddingLeft() + style()->paddingRight(),
+                      style()->paddingTop() + style()->paddingBottom());
+        size.boundedTo(constraint);
+        return size;
+    }
+    default:
+        qWarning() << __PRETTY_FUNCTION__
+            << "don't know how to handle the value of 'which':" << which;
+    }
+    return QSizeF(0, 0);
+}
+
+void Notification::connectPanParameters(PanParameters *parameters)
+{
+    if (!mParameters.isNull()) {
+        disconnect(mParameters.data(), 0, this, 0);
+    }
+    mParameters = parameters;
+
+    if (!mParameters.isNull())  {
+        connect(parameters, SIGNAL(positionChanged(QPointF)),
+                this,       SLOT(updatePos(QPointF)));
+
+        connect(parameters, SIGNAL(opacityChanged(qreal)),
+                this,       SLOT(updateOpacity(qreal)));
+
+        connect(parameters, SIGNAL(scaleChanged(qreal)),
+                this,       SLOT(updateScale(qreal)));
+    }
+}
