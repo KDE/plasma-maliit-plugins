@@ -33,6 +33,7 @@
 #include "mkeyboardhost_p.h"
 
 #include "flickgesturerecognizer.h"
+#include "borderpanrecognizer.h"
 #include "mvirtualkeyboardstyle.h"
 #include "mvirtualkeyboard.h"
 #include "mhardwarekeyboard.h"
@@ -46,6 +47,8 @@
 #include "reactionmapwrapper.h"
 #include "enginemanager.h"
 #include "abstractenginewidgethost.h"
+#include "layoutpanner.h"
+#include "mimsubviewdescription.h"
 
 #include <mimenginefactory.h>
 #include <mabstractinputmethodhost.h>
@@ -240,7 +243,9 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
       toolbarHidePending(false),
       keyOverrideClearPending(false),
       regionUpdatesEnabledBeforeOrientationChange(true),
-      appOrientationAngle(M::Angle90) // shouldn't matter, see handleAppOrientationChanged comment
+      appOrientationAngle(M::Angle90), // shouldn't matter, see handleAppOrientationChanged comment
+      engineWidgetHostTemporarilyHidden(false),
+      enabledOnScreenPluginsCount(0)
 {
     Q_ASSERT(host != 0);
     Q_ASSERT(mainWindow != 0);
@@ -311,6 +316,20 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
     LayoutsManager::createInstance();
 
     FlickGestureRecognizer::registerSharedRecognizer();
+    BorderPanRecognizer::registerSharedRecognizer();
+
+    LayoutPanner::createInstance(sceneWindow);
+
+    connect(&LayoutPanner::instance(),
+            SIGNAL(preparingLayoutPan(PanGesture::PanDirection, const QPoint&)),
+            this,
+            SLOT(handlePreparingLayoutPan(PanGesture::PanDirection, const QPoint&)));
+
+    connect(&LayoutPanner::instance(),
+            SIGNAL(layoutPanFinished(PanGesture::PanDirection)),
+            this,
+            SLOT(handleLayoutPanFinished(PanGesture::PanDirection)),
+            Qt::DirectConnection);
 
     vkbWidget = new MVirtualKeyboard(LayoutsManager::instance(), vkbStyleContainer, sceneWindow);
     vkbWidget->setInputMethodMode(static_cast<M::InputMethodMode>(inputMethodMode));
@@ -335,6 +354,9 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
 
     connect(vkbWidget, SIGNAL(pluginSwitchRequired(MInputMethod::SwitchDirection)),
             this, SLOT(switchPlugin(MInputMethod::SwitchDirection)));
+
+    connect(vkbWidget, SIGNAL(verticalAnimationFinished()),
+            this, SLOT(preparePanningIncomingWidget()));
 
     // construct hardware keyboard object
     hardwareKeyboard = new MHardwareKeyboard(*host, this);
@@ -447,6 +469,7 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
 
 MKeyboardHost::~MKeyboardHost()
 {
+    LayoutPanner::destroyInstance();
     slideUpAnimation.stop();
     EngineManager::destroyInstance();
     hideLockOnInfoBanner();
@@ -702,6 +725,8 @@ void MKeyboardHost::handleAnimationFinished()
         // just having it here without any two-phase show/hide protocol that considers
         // plugin switching might result to odd situations as well.
         MPlainWindow::instance()->sceneManager()->disappearSceneWindowNow(sceneWindow);
+    } else { // QAbstractAnimation::Forward
+        preparePanningIncomingWidget();
     }
 
     RegionTracker::instance().enableSignals(true);
@@ -825,6 +850,14 @@ void MKeyboardHost::update()
             // update correction option when content type is changed.
             updateCorrectionState();
         }
+    }
+
+    if (!valid
+        || (type == M::NumberContentType)
+        || (type == M::PhoneNumberContentType)) {
+        LayoutPanner::instance().setPanEnabled(false);
+    } else {
+        LayoutPanner::instance().setPanEnabled(true);
     }
 
     if (EngineManager::instance().handler()) {
@@ -980,6 +1013,8 @@ void MKeyboardHost::resetInternalState()
 
 void MKeyboardHost::prepareOrientationChange()
 {
+    LayoutPanner::instance().prepareOrientationChange();
+
     // Suppress layout change noise during orientation change.
     regionUpdatesEnabledBeforeOrientationChange = RegionTracker::instance().enableSignals(false);
 
@@ -1018,6 +1053,10 @@ void MKeyboardHost::finalizeOrientationChange()
     if (vkbWidget->isVisible()) {
         updateEngineKeyboardLayout();
     }
+
+    LayoutPanner::instance().finalizeOrientationChange();
+    preparePanningIncomingWidget();
+
     // Reactivate tracker after rotation and layout has settled.
     RegionTracker::instance().enableSignals(regionUpdatesEnabledBeforeOrientationChange, sipRequested);
     regionUpdatesEnabledBeforeOrientationChange = true;
@@ -1445,6 +1484,10 @@ void MKeyboardHost::handleLongKeyPress(const KeyEvent &event)
 
 void MKeyboardHost::handleKeyCancel(const KeyEvent &event)
 {
+    if (EngineManager::instance().handler()
+        && EngineManager::instance().handler()->handleKeyCancel(event))
+        return;
+
     if (event.qtKey() == Qt::Key_Backspace) {
         backspaceMode = NormalBackspaceMode;
         backspaceTimer.stop();
@@ -1698,14 +1741,14 @@ void MKeyboardHost::onPluginsChange()
     // we should call vkbWidget->enableSinglePageHorizontalFlick() every time when
     // other plugin is loaded or unloaded
     QList<MImPluginDescription> pluginDescriptions = inputMethodHost()->pluginDescriptions(MInputMethod::OnScreen);
-    int enabledPluginsCount = 0;
+    enabledOnScreenPluginsCount = 0;
 
     foreach (const MImPluginDescription &description, pluginDescriptions) {
         if (description.enabled()) {
-            ++enabledPluginsCount;
+            ++enabledOnScreenPluginsCount;
         }
     }
-    vkbWidget->enableSinglePageHorizontalFlick(enabledPluginsCount > 1);
+    vkbWidget->enableSinglePageHorizontalFlick(enabledOnScreenPluginsCount > 1);
 }
 
 void MKeyboardHost::repaintOnAttributeEnabledChange(const QString &keyId,
@@ -2146,8 +2189,13 @@ void MKeyboardHost::handleVirtualKeyboardLayoutChanged(const QString &layout)
     resetInternalState();
 
     engineLayoutDirty = true;
-    if (vkbWidget->isVisible())
+    if (vkbWidget->isVisible()) {
         updateEngineKeyboardLayout();
+        // if vkb is playing vertical animation, will prepare panning
+        // incoming widget later.
+        if (!vkbWidget->isPlayingAnimation())
+            preparePanningIncomingWidget();
+    }
 
     if (EngineManager::instance().handler()
         && EngineManager::instance().handler()->hasAutoCaps())
@@ -2407,6 +2455,7 @@ int MKeyboardHost::keyboardHeight() const
     return height;
 }
 
+
 void MKeyboardHost::updateCJKOverridesData()
 {
     cjkOverrides = overrides;
@@ -2414,3 +2463,159 @@ void MKeyboardHost::updateCJKOverridesData()
     // This is a special feature required by CJK languages.
     cjkOverrides.remove(QString("actionKey"));
 }
+
+void MKeyboardHost::preparePanningIncomingWidget()
+{
+    LayoutPanner::instance().clearIncomingWidgets(PanGesture::PanLeft);
+    LayoutPanner::instance().clearIncomingWidgets(PanGesture::PanRight);
+    // update panning next possible widgets.
+    vkbWidget->updatePanningSwitchIncomingWidget();
+    preparePanningIncomingEngineWidget(PanGesture::PanLeft);
+    preparePanningIncomingEngineWidget(PanGesture::PanRight);
+    LayoutPanner::instance().grabIncomingSnapshot();
+}
+
+void MKeyboardHost::preparePanningIncomingEngineWidget(PanGesture::PanDirection direction)
+{
+    QString nextLayoutLanguage = vkbWidget->nextPannableLayout(direction);
+    qDebug() << "next language for direction"
+             << direction << " :" << nextLayoutLanguage;
+    if (EngineManager::instance().handler(nextLayoutLanguage)) {
+        AbstractEngineWidgetHost *engineWidgetHost
+            = EngineManager::instance().handler(nextLayoutLanguage)->engineWidgetHost();
+        if (engineWidgetHost
+            && engineWidgetHost->displayMode()
+               == AbstractEngineWidgetHost::DockedMode) {
+            LayoutPanner::instance().addIncomingWidget(
+                direction,
+                engineWidgetHost->engineWidget());
+        }
+    }
+}
+
+void MKeyboardHost::handlePreparingLayoutPan(PanGesture::PanDirection direction,
+                                             const QPoint &startPos)
+{
+    Q_UNUSED(startPos);
+    bool valid = false;
+    const int type = inputMethodHost()->contentType(valid);
+    if (direction == PanGesture::PanNone
+        || !valid
+        || (type == M::NumberContentType)
+        || (type == M::PhoneNumberContentType)) {
+        return;
+    }
+
+    if (vkbWidget->isVisible()
+        && vkbWidget->isAtBoundary(direction)
+        && enabledOnScreenPluginsCount > 1) {
+        prepareSwitchingPlugin(direction);
+    }
+
+    RegionTracker::instance().enableSignals(false);
+
+    if (vkbWidget->isVisible()) {
+        vkbWidget->prepareLayoutSwitch(direction);
+
+        if (EngineManager::instance().handler()) {
+            AbstractEngineWidgetHost *engineWidgetHost
+                = EngineManager::instance().handler()->engineWidgetHost();
+            if (engineWidgetHost
+                && engineWidgetHost->displayMode()
+                   == AbstractEngineWidgetHost::DockedMode) {
+                LayoutPanner::instance().addOutgoingWidget(engineWidgetHost->engineWidget());
+            }
+        }
+
+        // set notification layout titles
+        QList<MImSubViewDescription> desc = inputMethodHost()->surroundingSubViewDescriptions(MInputMethod::OnScreen);
+        qDebug() << __PRETTY_FUNCTION__ << desc.first().title() << vkbWidget->layoutTitle() << desc.last().title();
+        LayoutPanner::instance()
+            .setIncomingLayoutTitle(PanGesture::PanRight, desc.last().title());
+        LayoutPanner::instance().setOutgoingLayoutTitle(vkbWidget->layoutTitle());
+        LayoutPanner::instance()
+            .setIncomingLayoutTitle(PanGesture::PanLeft, desc.first().title());
+    }
+
+    if (sharedHandleArea->isVisible()) {
+        sharedHandleArea->prepareLayoutSwitch();
+    }
+}
+
+void MKeyboardHost::handleLayoutPanFinished(PanGesture::PanDirection direction)
+{
+    if (LayoutPanner::instance().isSwitchingPlugin()) {
+        finalizeSwitchingPlugin(direction);
+    } else {
+        if (vkbWidget->isVisible()) {
+            vkbWidget->finalizeLayoutSwitch(direction);
+        }
+
+        sharedHandleArea->finalizeLayoutSwitch();
+        RegionTracker::instance().enableSignals(true);
+    }
+}
+
+void MKeyboardHost::prepareSwitchingPlugin(PanGesture::PanDirection direction)
+{
+    // disable engine widget region during panning switching.
+    if (EngineManager::instance().handler()) {
+        AbstractEngineWidgetHost *engineWidgetHost
+            = EngineManager::instance().handler()->engineWidgetHost();
+        if (engineWidgetHost
+                && engineWidgetHost->displayMode()
+                == AbstractEngineWidgetHost::FloatingMode) {
+            engineWidgetHost->setRegionEnabled(false);
+        }
+    }
+
+    LayoutPanner::instance().setSwitchingPlugin(true);
+    PanGesture::PanDirection layoutDirection = (direction == PanGesture::PanLeft)
+        ? PanGesture::PanRight
+        : PanGesture::PanLeft;
+    LayoutPanner::instance().clearIncomingWidgets(layoutDirection);
+    LayoutPanner::instance().grabIncomingSnapshot();
+
+    MInputMethod::SwitchDirection switchDirection
+        = (direction == PanGesture::PanRight)
+        ? MInputMethod::SwitchPreparationBackward
+        : MInputMethod::SwitchPreparationForward;
+    inputMethodHost()->switchPlugin(switchDirection);
+}
+
+void MKeyboardHost::finalizeSwitchingPlugin(PanGesture::PanDirection direction)
+{
+    if (EngineManager::instance().handler()) {
+        AbstractEngineWidgetHost *engineWidgetHost
+            = EngineManager::instance().handler()->engineWidgetHost();
+        if (engineWidgetHost
+            && engineWidgetHost->displayMode()
+               == AbstractEngineWidgetHost::FloatingMode) {
+            engineWidgetHost->setRegionEnabled(true);
+        }
+    }
+
+    if (direction != PanGesture::PanNone) {
+        MInputMethod::SwitchDirection switchDirection
+            = (direction == PanGesture::PanRight)
+              ? MInputMethod::SwitchBackward : MInputMethod::SwitchForward;
+
+        // finalize the vkb panning switching
+        if (vkbWidget->isVisible()) {
+            vkbWidget->finalizeLayoutSwitch(PanGesture::PanNone);
+        }
+        RegionTracker::instance().enableSignals(true);
+        switchPlugin(switchDirection);
+    } else {
+        // finalize the plugin switching
+        inputMethodHost()->switchPlugin(MInputMethod::SwitchCanceled);
+
+        if (vkbWidget->isVisible()) {
+            vkbWidget->finalizeLayoutSwitch(direction);
+        }
+        sharedHandleArea->finalizeLayoutSwitch();
+        RegionTracker::instance().enableSignals(true);
+    }
+}
+
+

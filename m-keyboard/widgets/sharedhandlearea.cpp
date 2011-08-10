@@ -34,6 +34,7 @@
 #include "sharedhandlearea.h"
 #include "regiontracker.h"
 #include "keyboardshadow.h"
+#include "layoutpanner.h"
 
 #include <mplainwindow.h>
 #include <MStylableWidget>
@@ -86,13 +87,12 @@ SharedHandleArea::SharedHandleArea(MImToolbar &toolbar, QGraphicsWidget *parent)
 
 SharedHandleArea::~SharedHandleArea()
 {
+    snapshotPixmap.clear();
 }
 
 
 void SharedHandleArea::connectHandle(const Handle &handle)
 {
-    connect(&handle, SIGNAL(flickLeft(const FlickGesture &)), this, SIGNAL(flickLeft(const FlickGesture &)));
-    connect(&handle, SIGNAL(flickRight(const FlickGesture &)), this, SIGNAL(flickRight(const FlickGesture &)));
     connect(&handle, SIGNAL(flickUp(const FlickGesture &)), this, SIGNAL(flickUp(const FlickGesture &)));
     connect(&handle, SIGNAL(flickDown(const FlickGesture &)), this, SIGNAL(flickDown(const FlickGesture &)));
 }
@@ -188,4 +188,23 @@ bool SharedHandleArea::event(QEvent *e)
         updatePosition();
     }
     return MWidget::event(e);
+}
+
+void SharedHandleArea::prepareLayoutSwitch()
+{
+    if (!isVisible())
+        return;
+
+    // SharedHandleArea needs to provide a snapshot
+    snapshotPixmap.clear();
+    snapshotPixmap = QSharedPointer<QPixmap>(new QPixmap(QPixmap::grabWidget(scene()->views().at(0), sceneBoundingRect().toRect())));
+    LayoutPanner::instance().addSharedPixmap(snapshotPixmap.data(),
+                                             pos().toPoint());
+    hide();
+}
+
+void SharedHandleArea::finalizeLayoutSwitch()
+{
+    snapshotPixmap.clear();
+    show();
 }

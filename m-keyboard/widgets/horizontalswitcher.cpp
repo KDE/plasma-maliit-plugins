@@ -33,6 +33,7 @@
 #include "horizontalswitcher.h"
 #include "mimabstractkey.h"
 #include "mimabstractkeyarea.h"
+#include "layoutpanner.h"
 
 #include <QGraphicsSceneResizeEvent>
 #include <QGraphicsScene>
@@ -183,7 +184,11 @@ void HorizontalSwitcher::setCurrent(int index)
 
         QGraphicsWidget *widget = slides.at(index);
         widget->setPos(0, 0);
-        widget->resize(size());
+        if (widget->preferredHeight() != size().height())
+            widget->resize(QSizeF(size().width(), widget->preferredHeight()));
+        else
+            widget->resize(size());
+        widget->setEnabled(true);
         widget->show();
 
         // Ultimately might lead to a reaction map update in MKeyboardHost,
@@ -219,6 +224,11 @@ QGraphicsWidget *HorizontalSwitcher::widget(int index)
 {
     return (isValidIndex(index) ? slides.at(index)
                                 : 0);
+}
+
+int HorizontalSwitcher::indexOf(QGraphicsWidget *widget) const
+{
+    return slides.indexOf(widget);
 }
 
 int HorizontalSwitcher::count() const
@@ -358,6 +368,94 @@ void HorizontalSwitcher::finishAnimation()
     emit switchDone(old, slides.at(currentIndex));
 }
 
+void HorizontalSwitcher::updatePanningSwitchIncomingWidget(PanGesture::PanDirection direction)
+{
+    qDebug() << __PRETTY_FUNCTION__
+        << ", CURRENT INDEX:" << currentIndex;
+    int newIndex = (direction == PanGesture::PanLeft)
+                    ? (currentIndex - 1)
+                    : (currentIndex + 1) % slides.count();
+    if (newIndex < 0) {
+        newIndex += slides.count();
+    }
+
+    QGraphicsWidget *nextWidget = slides.at(newIndex);
+
+    MImAbstractKeyArea *const nextKeyArea = dynamic_cast<MImAbstractKeyArea *>(nextWidget);
+    if (nextKeyArea) {
+        nextKeyArea->resetActiveKeys();
+    }
+
+    // Try to fit current size.
+    nextWidget->resize(size());
+
+    if (nextWidget->pos().y() + nextWidget->size().height() < size().height()) {
+        nextWidget->setPos(0.0, (size().height() - nextWidget->size().height()));
+    }
+
+    LayoutPanner::instance().addIncomingWidget(direction, nextWidget);
+}
+
+void HorizontalSwitcher::prepareLayoutSwitch(PanGesture::PanDirection direction)
+{
+    SwitchDirection switchDirection = direction == PanGesture::PanRight ? Left : Right;
+
+    QGraphicsWidget *currentWidget = slides.at(currentIndex);
+    // reset current and next key area
+    MImAbstractKeyArea *const currentKeyArea = dynamic_cast<MImAbstractKeyArea *>(currentWidget);
+    if (currentKeyArea) {
+        currentKeyArea->hidePopup();
+        currentKeyArea->resetActiveKeys();
+        currentKeyArea->setEnabled(false);
+    }
+
+    LayoutPanner::instance().addOutgoingWidget(currentWidget);
+
+    // if it is switching plugin, don't need next widget.
+    if (LayoutPanner::instance().isSwitchingPlugin())
+        return;
+
+    int newIndex = (switchDirection == Left ? (currentIndex - 1)
+                                            : (currentIndex + 1) % slides.count());
+    if (newIndex < 0) {
+        newIndex += slides.count();
+    }
+
+    QGraphicsWidget *nextWidget = slides.at(newIndex);
+
+    emit switchStarting(currentIndex, newIndex);
+    emit switchStarting(currentWidget, nextWidget);
+}
+
+void HorizontalSwitcher::finalizeLayoutSwitch(PanGesture::PanDirection direction)
+{
+    qDebug() << __PRETTY_FUNCTION__ << direction;
+    const int oldIndex = currentIndex;
+    int newIndex = currentIndex;
+    switch (direction) {
+    case PanGesture::PanLeft:
+        newIndex = (currentIndex + 1) % slides.count();
+        break;
+    case PanGesture::PanRight:
+        newIndex = (currentIndex - 1);
+        if (newIndex < 0)
+            newIndex += slides.count();
+        break;
+    case PanGesture::PanNone:
+    default:
+        // canceled and no change.
+        break;
+    }
+    // re-enable old keyarea
+    slides.at(oldIndex)->setEnabled(true);
+
+    qDebug() << ", pan from:" << oldIndex << " to :" << newIndex;
+    if (newIndex != oldIndex) {
+        emit switchDone(slides.at(oldIndex), slides.at(newIndex));
+        emit layoutChanged(newIndex);
+    }
+}
+
 bool HorizontalSwitcher::isValidIndex(int index) const
 {
     return (index >= 0 && index < slides.size());
@@ -427,4 +525,3 @@ void HorizontalSwitcher::updateHorizontalFlickRecognition()
         }
     }
 }
-

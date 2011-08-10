@@ -46,6 +46,7 @@
 #include "reactionmappainter.h"
 #include "regiontracker.h"
 #include "reactionmapwrapper.h"
+#include "mkeyboardhost.h"
 
 #include <mtoolbardata.h>
 #include <mkeyoverride.h>
@@ -112,6 +113,7 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
     RegionTracker::instance().addInputMethodArea(*this);
 
     notification = new Notification(this);
+    notification->setStyleName("SwitchingPlugin");
     connect(notification, SIGNAL(destroyed(QObject *)),
             this, SLOT(resurrectNotification()));
 
@@ -187,8 +189,6 @@ MVirtualKeyboard::~MVirtualKeyboard()
 template <class T>
 void MVirtualKeyboard::connectHandle(const T &handle)
 {
-    connect(&handle, SIGNAL(flickLeft(const FlickGesture &)), this, SLOT(flickLeftHandler()));
-    connect(&handle, SIGNAL(flickRight(const FlickGesture &)), this, SLOT(flickRightHandler()));
     connect(&handle, SIGNAL(flickDown(const FlickGesture &)), this, SIGNAL(userInitiatedHide()));
 }
 
@@ -196,6 +196,10 @@ void MVirtualKeyboard::connectHandle(const T &handle)
 void
 MVirtualKeyboard::prepareToOrientationChange()
 {
+    if (verticalAnimation->state() == QPropertyAnimation::Running) {
+        verticalAnimation->stop();
+        onVerticalAnimationFinished();
+    }
 }
 
 
@@ -247,36 +251,6 @@ MVirtualKeyboard::setShiftState(ModifierState state)
 
         switchLevel();
         emit shiftLevelChanged();
-    }
-}
-
-
-void
-MVirtualKeyboard::flickLeftHandler()
-{
-    if (!mainKeyboardSwitcher->isRunning()) {
-        if (mainKeyboardSwitcher->isAtBoundary(HorizontalSwitcher::Right)) {
-            emit pluginSwitchRequired(MInputMethod::SwitchForward);
-            return;
-        }
-
-        mainKeyboardSwitcher->switchTo(HorizontalSwitcher::Right);
-        setLayout(mainKeyboardSwitcher->current());
-    }
-}
-
-
-void
-MVirtualKeyboard::flickRightHandler()
-{
-    if (!mainKeyboardSwitcher->isRunning()) {
-        if (mainKeyboardSwitcher->isAtBoundary(HorizontalSwitcher::Left)) {
-            emit pluginSwitchRequired(MInputMethod::SwitchBackward);
-            return;
-        }
-
-        mainKeyboardSwitcher->switchTo(HorizontalSwitcher::Left);
-        setLayout(mainKeyboardSwitcher->current());
     }
 }
 
@@ -476,6 +450,8 @@ void MVirtualKeyboard::setLayout(int layoutIndex)
         // initiated by a flick gesture.
         if (mainKeyboardSwitcher->count() >= layoutIndex) {
             mainKeyboardSwitcher->setCurrent(layoutIndex);
+            // Adjust size in case the layout height maybe changed.
+            adjustSize();
         }
         emit layoutChanged(currentLayout);
     }
@@ -542,6 +518,8 @@ void MVirtualKeyboard::resizeEvent(QGraphicsSceneResizeEvent *)
 
 void MVirtualKeyboard::onSectionSwitchStarting(int current, int next)
 {
+    Q_UNUSED(current);
+    Q_UNUSED(next);
     switchStarted = true;
 
     if (mainKeyboardSwitcher->currentWidget()) {
@@ -552,21 +530,13 @@ void MVirtualKeyboard::onSectionSwitchStarting(int current, int next)
         // appearing popup, for example.
         mainKeyboardSwitcher->currentWidget()->ungrabMouse();
     }
-
-    if ((current != -1) && (currentLayoutType == LayoutData::General)) {
-        QGraphicsWidget *const nextWidget = mainKeyboardSwitcher->widget(next);
-        QRectF br = nextWidget ? mainKeyboardSwitcher->mapRectToItem(this, nextWidget->boundingRect())
-                               : QRectF(QPointF(), MPlainWindow::instance()->visibleSceneSize());
-
-        notification->displayText(layoutsMgr.keyboardTitle(layoutsMgr.layoutFileList()[next]), br);
-        notification->setParentItem(nextWidget ? nextWidget : this);
-    }
 }
 
 
 void MVirtualKeyboard::resurrectNotification()
 {
     notification = new Notification(this);
+    notification->setStyleName("SwitchingPlugin");
     connect(notification, SIGNAL(destroyed(QObject *)),
             this, SLOT(resurrectNotification()));
 }
@@ -578,7 +548,9 @@ void MVirtualKeyboard::onSectionSwitched(QGraphicsWidget *previous, QGraphicsWid
     if (switchStarted) {
         int heightDelta = ((previous == NULL) || (current == NULL))
                           ? 0 : (previous->size().height() - current->size().height());
-        playVerticalAnimation(heightDelta);
+        // Only play vertical animation when layout height is changed to bigger
+        if (heightDelta < 0)
+            playVerticalAnimation(heightDelta);
     }
 
     switchStarted = false;
@@ -605,6 +577,9 @@ void MVirtualKeyboard::createSwitcher()
     // Repaint the reaction maps if the keyboard is changed
     connect(mainKeyboardSwitcher, SIGNAL(switchDone(QGraphicsWidget *, QGraphicsWidget *)),
             &signalForwarder, SIGNAL(requestRepaint()));
+
+    connect(mainKeyboardSwitcher, SIGNAL(layoutChanged(int)),
+            this, SLOT(setLayout(int)));
 }
 
 
@@ -633,9 +608,6 @@ MImAbstractKeyArea *MVirtualKeyboard::createMainSectionView(const QString &layou
                                                     LayoutData::mainSection,
                                                     true, parent);
 
-    // horizontal flick handling only on main section of qwerty
-    connect(keyArea, SIGNAL(flickLeft()), this, SLOT(flickLeftHandler()));
-    connect(keyArea, SIGNAL(flickRight()), this, SLOT(flickRightHandler()));
     connect(this, SIGNAL(displayExited()), keyArea, SLOT(hidePopup()));
 
     return keyArea;
@@ -745,7 +717,9 @@ bool MVirtualKeyboard::symViewAvailable() const
 void MVirtualKeyboard::switchLayout(MInputMethod::SwitchDirection direction, bool enableAnimation)
 {
     qDebug() << __PRETTY_FUNCTION__ << direction << enableAnimation;
-    if (direction == MInputMethod::SwitchUndefined) {
+    if (direction == MInputMethod::SwitchUndefined
+        || direction == MInputMethod::SwitchPreparationForward
+        || direction == MInputMethod::SwitchPreparationBackward) {
         return;
     }
 
@@ -951,10 +925,81 @@ void MVirtualKeyboard::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 
 void MVirtualKeyboard::onVerticalAnimationFinished()
 {
+    // set pos to end position to ensure it is already properly moved
+    setPos(verticalAnimation->endValue().toPointF());
     // Recover original painting flag.
     setFlag(QGraphicsItem::ItemHasNoContents);
     // Enable VKB.
     setEnabled(true);
     // Repaint the reaction map.
     signalForwarder.emitRequestRepaint();
+    emit verticalAnimationFinished();
+}
+
+void MVirtualKeyboard::updatePanningSwitchIncomingWidget()
+{
+    if (mainKeyboardSwitcher) {
+        mainKeyboardSwitcher->updatePanningSwitchIncomingWidget(PanGesture::PanLeft);
+        mainKeyboardSwitcher->updatePanningSwitchIncomingWidget(PanGesture::PanRight);
+    }
+}
+
+void MVirtualKeyboard::prepareLayoutSwitch(PanGesture::PanDirection direction)
+{
+    if (verticalAnimation->state() == QPropertyAnimation::Running) {
+        verticalAnimation->stop();
+        onVerticalAnimationFinished();
+    }
+    if (mainKeyboardSwitcher) {
+        mainKeyboardSwitcher->prepareLayoutSwitch(direction);
+    }
+}
+
+void MVirtualKeyboard::finalizeLayoutSwitch(PanGesture::PanDirection direction)
+{
+    if (mainKeyboardSwitcher) {
+        mainKeyboardSwitcher->finalizeLayoutSwitch(direction);
+    }
+}
+
+
+bool MVirtualKeyboard::isAtBoundary(PanGesture::PanDirection direction) const
+{
+    bool val = false;
+    if (mainKeyboardSwitcher) {
+        HorizontalSwitcher::SwitchDirection switchDirection
+            = (direction == PanGesture::PanRight)
+              ? HorizontalSwitcher::Left : HorizontalSwitcher::Right;
+        val = mainKeyboardSwitcher->isAtBoundary(switchDirection);
+    }
+    return val;
+}
+
+QString MVirtualKeyboard::nextPannableLayout(PanGesture::PanDirection direction) const
+{
+    const QStringList layoutList = layoutsMgr.layoutFileList();
+
+    int currentLayoutIndex = layoutList.indexOf(currentLayout);
+    int nextLayoutIndex = (direction == PanGesture::PanRight)
+                          ? (currentLayoutIndex + 1) % layoutList.count()
+                          : (currentLayoutIndex - 1);
+    if (nextLayoutIndex < 0) {
+        nextLayoutIndex += layoutList.count();
+    }
+    return layoutsMgr.keyboardLanguage(layoutList.at(nextLayoutIndex));
+}
+
+QString MVirtualKeyboard::nextPannableLayoutTitle(PanGesture::PanDirection direction) const
+{
+    const QStringList layoutList = layoutsMgr.layoutFileList();
+
+    int currentLayoutIndex = layoutList.indexOf(currentLayout);
+    int nextLayoutIndex = (direction == PanGesture::PanLeft)
+                          ? (currentLayoutIndex + 1) % layoutList.count()
+                          : (currentLayoutIndex - 1);
+    if (nextLayoutIndex < 0) {
+        nextLayoutIndex += layoutList.count();
+    }
+
+    return layoutsMgr.keyboardTitle(layoutsMgr.layoutFileList().at(nextLayoutIndex));
 }

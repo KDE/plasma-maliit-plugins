@@ -33,6 +33,7 @@
 #ifndef HORIZONTALSWITCHER_H
 #define HORIZONTALSWITCHER_H
 
+#include "pangesture.h"
 #include <QObject>
 #include <QGraphicsWidget>
 #include <QGraphicsItemAnimation>
@@ -41,6 +42,7 @@
 #include <MNamespace>
 
 class MKeyOverride;
+class MImBorderGlue;
 
 class HorizontalSwitcher : public QGraphicsWidget
 {
@@ -85,6 +87,8 @@ public:
 
     //! \return Widget in a given \a index or NULL if index is invalid
     QGraphicsWidget *widget(int index);
+
+    int indexOf(QGraphicsWidget *widget) const;
 
     //! \return Number of widgets in the switcher.
     int count() const;
@@ -143,6 +147,19 @@ public:
     //! Gestures are always enabled if we have more than one widget in switcher.
     void enableSinglePageHorizontalFlick(bool enable);
 
+    /*!
+     * \brief Updates the next incoming widget for panning switch.
+     */
+    void updatePanningSwitchIncomingWidget(PanGesture::PanDirection direction);
+
+    /*!
+     *\brief Prepares for layout switch to \a direction.
+     */
+    void prepareLayoutSwitch(PanGesture::PanDirection direction);
+
+    //! Finalizes layout switch to \a direction
+    void finalizeLayoutSwitch(PanGesture::PanDirection direction);
+
 signals:
     /*! \brief Signals the beginning of a switch.
      *         This is emitted even if there is no animation.
@@ -162,6 +179,8 @@ signals:
     void switchDone(int previous, int current);
 
     void switchDone(QGraphicsWidget *previous, QGraphicsWidget *current);
+
+    void layoutChanged(int layoutIndex);
 
 protected:
     //! \reimp

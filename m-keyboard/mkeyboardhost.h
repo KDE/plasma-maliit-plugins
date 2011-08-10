@@ -38,6 +38,7 @@
 #include "mplainwindow.h"
 #include "symbolview.h"
 #include "mkeyoverride.h"
+#include "pangesture.h"
 
 #include <MNamespace>
 
@@ -245,6 +246,15 @@ private slots:
     void repaintOnAttributeEnabledChange(const QString &keyId,
                                          const MKeyOverride::KeyOverrideAttributes changedAttributes);
 
+    //! handle prepareing layout pan.
+    void handlePreparingLayoutPan(PanGesture::PanDirection direction, const QPoint &startPos);
+
+    //! handle layout pan finished
+    void handleLayoutPanFinished(PanGesture::PanDirection direction);
+
+    //! prepare snapshots for panning incoming widgets.
+    void preparePanningIncomingWidget();
+
 private:
     //! Configures the parts that may change dynamically.
     void prepareHideShowAnimation();
@@ -322,6 +332,8 @@ private:
     void updatePreedit(const QString &string, int candidateCount, bool preeditInDictionary,
                        int replaceStart = 0, int replaceLength = 0, int cursorPosition = -1);
 
+    void preparePanningIncomingEngineWidget(PanGesture::PanDirection);
+
     /*!
      * \brief This enum defines different mode for backspace clicking.
      */
@@ -350,6 +362,12 @@ private:
     //! Check whether there is a previous word before cursor need to be recomposed
     //! as preedit. This method is used for vkb backspace.
     bool needRecomposePreedit(QString &previousWord, QChar *removedSymbol = 0);
+
+    //! Prepares switching plugin to \a direction.
+    void prepareSwitchingPlugin(PanGesture::PanDirection direction);
+
+    //! Finalizes switching plugin to \a direction.
+    void finalizeSwitchingPlugin(PanGesture::PanDirection direction);
 
 private:
     //! \brief Slides full-width QGraphicsWidgets up from the bottom of the display,
@@ -462,6 +480,7 @@ private:
     bool regionUpdatesEnabledBeforeOrientationChange;
     M::OrientationAngle appOrientationAngle;
     bool engineWidgetHostTemporarilyHidden;
+    int enabledOnScreenPluginsCount;
 
     //! Contains current keyboard overrides
     QMap<QString, QSharedPointer<MKeyOverride> > overrides;
