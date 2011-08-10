@@ -11,17 +11,38 @@ MVirtualKeyboardStyle {
 
 NotificationStyle {
     font: $FONT_KEYBOARD;
-    font-size: 56;
+    font-size: 64;
     rounding: 0;
     background-image: ;
     border-color: #808080;
     background-color: #323232;
     text-color: #FFFFFF;
+    font-opacity: 1.0;
+    text-horizontal-alignment: hcenter;
+    text-vertical-alignment: bottom;
+    text-wrap: false;
     opacity: 1;
-    background-opacity: 0.8;
+    background-opacity: 0.0;
     hold-time: 130;
     fade-time: 200;
 
+    padding-left: 1mm;
+    padding-top: 1mm;
+    padding-right: 1mm;
+    padding-bottom: 1mm;
+}
+
+NotificationStyle.Portrait {
+    font-size: 56;
+}
+
+NotificationStyle#SwitchingPlugin {
+    font: $FONT_KEYBOARD;
+    font-size: 56;
+    background-opacity: 0.8;
+    text-horizontal-alignment: hcenter;
+    text-vertical-alignment: vcenter;
+    text-wrap: true;
     padding-left: 1mm;
     padding-top: 1mm;
     padding-right: 1mm;
@@ -119,7 +140,7 @@ MImAbstractKeyAreaStyle {
 
     /*** Behaviour ***/
     long-press-timeout: 600;
-    idle-vkb-timeout: 150;
+    idle-vkb-timeout: 350;
 
     flick-gesture-timeout: 250;
     flick-gesture-threshold-ratio: 0.25;
@@ -127,6 +148,11 @@ MImAbstractKeyAreaStyle {
     touchpoint-vertical-offset: 0mm;
     commit-previous-key-on-press: true;
     auto-padding: true;
+
+    pan-gesture-timeout: 250;
+    pan-gesture-start-threshold: 20;
+    pan-gesture-finish-threshold: 200;
+    pan-gesture-initial-movement: 20;
 
     /*** Key Geometry ***/
     required-key-icon-margins: 5 5;
@@ -1023,3 +1049,68 @@ MKeyboardMagnifierStyle.Portrait {
    key-margin-bottom: 2;
 }
 
+LayoutPannerStyle {
+   commit-threshold: 427;
+   panning-animation-curve: outcubic;
+   panning-animation-duration: 300;
+   background-image: "meegotouch-keyboard-background" $ROUNDED_CORNERS;
+
+   dimming-color: #000000;
+   initial-dimming-opacity: 0.7;
+
+   catching-up-animation-curve: outcubic;
+   catching-up-animation-maximum-duration: 500;
+   catching-up-animation-speed: 1.5; /*for pixel*/
+
+   minimum-movement-threshold: 5;
+   sudden-movement-threshold: 40;
+}
+
+LayoutPannerStyle.Portrait {
+   commit-threshold: 240;
+   catching-up-animation-duration: 450;
+
+   catching-up-animation-speed: 1.5;
+}
+
+
+NotificationAreaStyle {
+    background-image: "Notification_bg_L" $ROUNDED_CORNERS;
+    minimum-size: 100% 244;
+    preferred-size: 100% 244;
+    maximum-size: 100% 244;
+
+    initial-opacity: 0;
+    visible-opacity: 1.0;
+
+    notification-maximum-width: 500;
+    small-size-scale-factor: 0.5;
+    initial-edge-maximum-visible-width: 0.25;
+    initial-edge-opacity: 0.6;
+
+    position-start-progress: 0.08;
+    position-end-progress: 0.5;
+
+    scale-start-progress: 0.08;
+    scale-end-progress: 0.5;
+
+    opacity-start-progress: 0.2;
+    opacity-end-progress: 1.0;
+
+    show-animation-curve: outcubic;
+    show-animation-duration: 200;
+
+    hide-animation-curve: outcubic;
+    hide-animation-duration: 800;
+}
+
+NotificationAreaStyle.Portrait {
+    background-image: "Notification_bg_P" $ROUNDED_CORNERS;
+    minimum-size: 100% 536;
+    preferred-size: 100% 536;
+    maximum-size: 100% 536;
+    notification-maximum-width: 360;
+
+    position-start-progress: 0.1;
+    scale-start-progress: 0.1;
+}
