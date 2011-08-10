@@ -139,12 +139,6 @@ void SymbolView::setupLayout()
 
 void SymbolView::connectHandle(Handle *handle)
 {
-    connect(handle, SIGNAL(flickLeft(FlickGesture)),
-            this,   SIGNAL(flickLeft()),
-            Qt::UniqueConnection);
-    connect(handle, SIGNAL(flickRight(FlickGesture)),
-            this,   SIGNAL(flickRight()),
-            Qt::UniqueConnection);
     connect(handle, SIGNAL(flickDown(FlickGesture)),
             this,   SIGNAL(userInitiatedHide()),
             Qt::UniqueConnection);
@@ -343,8 +337,6 @@ void SymbolView::addPage(const LayoutData::SharedLayoutSection &symbolSection)
 
         connect(this, SIGNAL(levelSwitched(int)), page, SLOT(switchLevel(int)));
 
-        connect(page, SIGNAL(flickLeft()), SIGNAL(flickLeft()));
-        connect(page, SIGNAL(flickRight()), SIGNAL(flickRight()));
         connect(page, SIGNAL(flickDown()), SIGNAL(userInitiatedHide()));
 
         pageSwitcher->addWidget(page);
@@ -359,6 +351,7 @@ MImAbstractKeyArea *SymbolView::createMImAbstractKeyArea(const LayoutData::Share
     if (!section.isNull()) {
         keyArea = MImKeyArea::create(section, usePopup, 0);
         keyArea->setSource(KeyEvent::SecondaryLayout);
+        keyArea->disablePanning();
         eventHandler.addEventSource(keyArea);
 
         connect(keyArea, SIGNAL(keyClicked(const MImAbstractKey *, const KeyContext &)),
