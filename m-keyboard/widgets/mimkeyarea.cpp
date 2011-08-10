@@ -689,7 +689,14 @@ void MImKeyArea::drawReactiveAreas(MReactionMap *reactionMap,
     Q_D(MImKeyArea);
 
     reactionMap->setTransform(this, view);
-    reactionMap->setDrawingValue(MImReactionMap::Press, MImReactionMap::Release);
+
+    // TODO: should be fixed by reactionmap painter, don't draw reactionmap for
+    // disabled and obscured items, and honor the Z value.
+    if (!isEnabled() || isObscured()) {
+        reactionMap->setInactiveDrawingValue();
+    } else {
+        reactionMap->setDrawingValue(MImReactionMap::Press, MImReactionMap::Release);
+    }
 
     foreach (const MImKeyAreaPrivate::KeyRow &row, d->rowList) {
         // 'area' is used for key bounding rect coalescing, to improve
