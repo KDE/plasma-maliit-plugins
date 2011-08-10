@@ -162,6 +162,7 @@ void ExtendedKeys::showExtendedArea(const QPointF &origin,
     MFeedback::play("priority2_vkb_popup_press");
     // TODO: disable swipe gestures from extended keys area
     extKeysArea.reset(ExtendedKeysArea::create(section, this));
+    extKeysArea->disablePanning();
     extKeysArea->setStyleName("ExtendedKeys");
 
     // Send clicked signal as if it was from mainArea.
