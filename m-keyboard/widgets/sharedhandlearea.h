@@ -79,11 +79,16 @@ public:
     void finalizeOrientationChange();
 
     int shadowHeight() const;
+
+    //! Prepares for layout switch
+    void prepareLayoutSwitch();
+
+    //! Finalize layout switch
+    void finalizeLayoutSwitch();
+
 signals:
     void flickUp(const FlickGesture &gesture);
     void flickDown(const FlickGesture &gesture);
-    void flickLeft(const FlickGesture &gesture);
-    void flickRight(const FlickGesture &gesture);
 
 protected:
     // \reimp
@@ -127,6 +132,8 @@ private:
     MImToolbar &toolbar;
 
     M::InputMethodMode inputMethodMode;
+
+    QSharedPointer<QPixmap> snapshotPixmap;
 };
 
 #endif

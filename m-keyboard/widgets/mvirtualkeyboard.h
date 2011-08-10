@@ -141,6 +141,17 @@ public:
     void finalizeOrientationChange();
 
     /*!
+     * \brief Updates the next incoming widget for panning switch.
+     */
+    void updatePanningSwitchIncomingWidget();
+
+    //! Prepares virtual keyboard for layout switch to \a direction
+    void prepareLayoutSwitch(PanGesture::PanDirection direction);
+
+    //! Finalizes layout switch to \a direction
+    void finalizeLayoutSwitch(PanGesture::PanDirection direction);
+
+    /*!
      * \brief Returns whether the symbol view is available for current layout.
      */
     bool symViewAvailable() const;
@@ -181,6 +192,23 @@ public:
     //! \brief Enable or disable horizontal gesture recognition.
     //! \sa HorizontalSwitcher::enableSinglePageHorizontalFlick(bool)
     void enableSinglePageHorizontalFlick(bool enable);
+
+    /*!
+     * \brief Returns true if it is not possible to switch to the next
+     * widget of current with given direction.
+     * \param direction Direction of switching
+     */
+    bool isAtBoundary(PanGesture::PanDirection direction) const;
+
+    /*!
+     * \brief Get the next panning layout (from layout list) according \a direction
+     */
+    QString nextPannableLayout(PanGesture::PanDirection direction) const;
+
+    /*!
+     * \brief Get the title of the next panning layout (from layout list) according \a direction
+     */
+    QString nextPannableLayoutTitle(PanGesture::PanDirection direction) const;
 
 public slots:
     /*!
@@ -226,16 +254,6 @@ private slots:
      * \brief Handler for shift pressed state change (separate from shift state).
      */
     void handleShiftPressed(bool shiftPressed);
-
-    /*!
-     * Handler for right flick operation
-     */
-    void flickRightHandler();
-
-    /*!
-     * Handler for left flick operation
-     */
-    void flickLeftHandler();
 
     void keyboardsReset();
 
@@ -322,6 +340,9 @@ signals:
      * \param pluginName Name orf plugin which will be activated
      */
     void pluginSwitchRequired(const QString &pluginName);
+
+    //! Emitted when vertical animation is finished.
+    void verticalAnimationFinished();
 
 protected:
     //! \reimp
