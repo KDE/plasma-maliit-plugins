@@ -152,6 +152,15 @@ bool CJKLogicStateMachine::handleKeyClick(const KeyEvent &event)
         return false;
 }
 
+bool CJKLogicStateMachine::handleKeyCancel(const KeyEvent &event)
+{
+    if (event.qtKey() == Qt::Key_Backspace) {
+        backspaceTimer->stop();
+        backspaceLongPressTriggered = false;
+    }
+    return false;
+}
+
 bool CJKLogicStateMachine::handleKeyEvent(const KeyEvent &event)
 {    
     mTimestamp("handleKeyEvent", "start");

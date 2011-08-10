@@ -196,6 +196,15 @@ public:
      *         Otherwise return "false".
      */
     virtual bool handleKeyClick(const KeyEvent &event) = 0;
+
+    /*!
+     * \brief Handle a key cacellation event.
+     * \param event, the key cacellation event to be processed.
+     * \return "true" if the engine handler consumes the key event;
+     *         Otherwise return "false".
+     */
+    virtual bool handleKeyCancel(const KeyEvent &event) = 0;
+
 };
 
 
