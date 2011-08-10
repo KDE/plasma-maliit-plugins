@@ -204,6 +204,12 @@ public:
         return false;
     }
 
+    virtual bool handleKeyCancel(const KeyEvent &event)
+    {
+        Q_UNUSED(event);
+        return false;
+    }
+
     //! \reimp_end
 
 private:
@@ -220,15 +226,6 @@ public:
           mEngineWidgetHost(new WordRibbonHost(keyboardHost.sceneWindow, 0)),
           stateMachine(NULL)
     {
-        // Create CJK logic state machine only when the engine is ready.
-        if ((keyboardHost.inputMethodHost() != NULL)
-            && (EngineManager::instance().engine() != NULL)) {
-            stateMachine = new CJKLogicStateMachine(*mEngineWidgetHost,
-                                                    *(keyboardHost.inputMethodHost()),
-                                                    *(EngineManager::instance().engine()));
-            stateMachine->setSyllableDivideEnabled(false);
-        }
-
         mEngineWidgetHost->watchOnWidget(keyboardHost.vkbWidget);
         mEngineWidgetHost->watchOnWidget(keyboardHost.symbolView);
         keyboardHost.sharedHandleArea->watchOnWidget(mEngineWidgetHost->inlineWidget());
@@ -263,6 +260,16 @@ public:
                 Qt::UniqueConnection);
         mEngineWidgetHost->finalizeOrientationChange();
         mEngineWidgetHost->showEngineWidget(AbstractEngineWidgetHost::DockedMode);
+
+        // Create CJK logic state machine only when the engine is ready.
+        if (stateMachine == NULL
+            && (mKeyboardHost.inputMethodHost() != NULL)
+            && (EngineManager::instance().engine() != NULL)) {
+            stateMachine = new CJKLogicStateMachine(*mEngineWidgetHost,
+                                                    *(mKeyboardHost.inputMethodHost()),
+                                                    *(EngineManager::instance().engine()));
+            stateMachine->setSyllableDivideEnabled(false);
+        }
 
         if (stateMachine != NULL) {
             connect(stateMachine,   SIGNAL(toggleKeyStateChanged(bool)),
@@ -389,6 +396,14 @@ public:
         else
             return false;
     }
+
+    virtual bool handleKeyCancel(const KeyEvent &event)
+    {
+        if (stateMachine != NULL)
+            return stateMachine->handleKeyCancel(event);
+        else
+            return false;
+    }
     //! \reimp_end
 
 private:
@@ -438,6 +453,17 @@ EngineManager &EngineManager::EngineManager::instance()
 EngineHandler *EngineManager::handler() const
 {
     return currentEngineHandler;
+}
+
+EngineHandler *EngineManager::handler(const QString &lang)
+{
+    if (lang == mLanguage)
+        return currentEngineHandler;
+
+    const QString language = lang.contains("@") ? lang.split('@').first()
+                                   : lang;
+
+    return findOrCreateEngineHandler(language);
 }
 
 MImEngineWordsInterface *EngineManager::engine() const

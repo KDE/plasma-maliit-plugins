@@ -72,6 +72,11 @@ public:
     EngineHandler *handler() const;
 
     /*!
+     * \brief Returns the pointer of EngineHandler for \a language
+     */
+    EngineHandler *handler(const QString &language);
+
+    /*!
      * \brief Returns the pointer of current used error correction/prediction engine.
      */
     MImEngineWordsInterface *engine() const;
