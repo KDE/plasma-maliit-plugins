@@ -1470,59 +1470,6 @@ void Ut_MImAbstractKeyArea::testLockVerticalMovement()
     subject = 0;
 }
 
-void Ut_MImAbstractKeyArea::testFlickEvent_data()
-{
-    QTest::addColumn<bool>("keyIsPressed");
-    QTest::addColumn<Qt::GestureState>("gestureState");
-    QTest::addColumn<bool>("expectedSignal");
-    QTest::addColumn<MImAbstractKey::ButtonState>("buttonState");
-
-    QTest::newRow("signal")       << true  << Qt::GestureCanceled << true  << MImAbstractKey::Normal;
-    QTest::newRow("key released") << false << Qt::GestureCanceled << false << MImAbstractKey::Normal;
-    QTest::newRow("no gesture")   << true  << Qt::NoGesture       << false << MImAbstractKey::Pressed;
-}
-
-void Ut_MImAbstractKeyArea::testFlickEvent()
-{
-    QFETCH(bool, keyIsPressed);
-    QFETCH(Qt::GestureState, gestureState);
-    QFETCH(bool, expectedSignal);
-    QFETCH(MImAbstractKey::ButtonState, buttonState);
-
-    keyboard = new KeyboardData;
-    QVERIFY(keyboard->loadNokiaKeyboard(QString(TestLayoutFilePath + "test-layout.xml")));
-    subject = MImKeyArea::create(keyboard->layout(LayoutData::General, M::Landscape)->section(LayoutData::mainSection),
-                                 false, 0);
-
-    QSignalSpy spy(subject, SIGNAL(keyCancelled(const MImAbstractKey*, const KeyContext &)));
-    QVERIFY(spy.isValid());
-
-    MImKey *backspace = dynamic_cast<MImKey *>(subject->findKey("backspace"));
-    QVERIFY(backspace);
-
-    if (keyIsPressed) {
-        MPlainWindow::instance()->scene()->addItem(subject);
-        subject->resize(defaultLayoutSize());
-
-        QPoint point = backspace->buttonBoundingRect().center().toPoint();
-        QTouchEvent::TouchPoint tp(createTouchPoint(0, Qt::TouchPointPressed,
-                                                    subject->mapToScene(point),
-                                                    QPointF()));
-        // press backspace key
-        subject->d_ptr->touchPointPressed(tp);
-    }
-
-    subject->d_ptr->handleFlickGesture(FlickGesture::Right, gestureState);
-
-    if (expectedSignal) {
-        QCOMPARE(spy.count(), 1);
-        QCOMPARE(spy.first().first().value<const MImAbstractKey*>(), (const MImAbstractKey*)backspace);
-    } else {
-        QCOMPARE(spy.count(), 0);
-    }
-    QCOMPARE(backspace->state(), buttonState);
-}
-
 void Ut_MImAbstractKeyArea::testTouchPointCount_data()
 {
     QTest::addColumn<TouchOpList>("touchOpList");

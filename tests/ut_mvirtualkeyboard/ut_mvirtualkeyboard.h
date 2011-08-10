@@ -74,8 +74,6 @@ private slots:
     void testStateReset();
     void testShiftLevelChange_data();
     void testShiftLevelChange();
-    void flickRightHandlerTest();
-    void flickLeftHandlerTest();
     void loadSymbolViewTemporarilyTest();
     void errorCorrectionTest();
     void setKeyboardType();
