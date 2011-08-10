@@ -102,9 +102,6 @@ private slots:
     void testLockVerticalMovement_data();
     void testLockVerticalMovement();
 
-    void testFlickEvent_data();
-    void testFlickEvent();
-
     void testTouchPointCount_data();
     void testTouchPointCount();
 

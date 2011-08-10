@@ -130,8 +130,6 @@ void Ut_FlickRecognizer::testDirections_data()
     const int ylength = gestureFinishMovementThreshold.y() + 1;
 
     const QRectF area(0, 0, xlength, ylength);
-    QTest::newRow("->") << area.topLeft() << area.topRight() << FlickGesture::Right;
-    QTest::newRow("<-") << area.topRight() << area.topLeft() << FlickGesture::Left;
     QTest::newRow("v") << area.topLeft() << area.bottomLeft() << FlickGesture::Down;
     QTest::newRow("^") << area.bottomLeft() << area.topLeft() << FlickGesture::Up;
 }
@@ -166,7 +164,7 @@ void Ut_FlickRecognizer::testTimeout()
 
     // Constant start and end point for this test.
     const QPointF start(0, 0);
-    const QPointF end(start + QPointF(gestureFinishMovementThreshold.x() + 2, 0));
+    const QPointF end(start + QPointF(0, gestureFinishMovementThreshold.y() + 2));
 
     doMouseSwipe(start, end, duration);
 
@@ -179,8 +177,8 @@ void Ut_FlickRecognizer::testMovementThreshold_data()
     QTest::addColumn<QPointF>("end");
     QTest::addColumn<bool>("wasFlicked");
 
-    QTest::newRow("valid horizontal") << QPointF() << QPointF(gestureFinishMovementThreshold.x() + 10, 0) << true;
-    QTest::newRow("invalid horizontal") << QPointF() << QPointF(qMax<qreal>(0, (gestureFinishMovementThreshold.x() - 10)), 0) << false;
+    QTest::newRow("horizontal #1") << QPointF() << QPointF(gestureFinishMovementThreshold.x() + 10, 0) << false;
+    QTest::newRow("horizontal #2") << QPointF() << QPointF(qMax<qreal>(0, (gestureFinishMovementThreshold.x() - 10)), 0) << false;
     QTest::newRow("valid vertical") << QPointF() << QPointF(0, gestureFinishMovementThreshold.y() + 10) << true;
     QTest::newRow("invalid vertical") << QPointF() << QPointF(0, qMax<qreal>(0, (gestureFinishMovementThreshold.y() - 10))) << false;
 }
@@ -200,11 +198,9 @@ void Ut_FlickRecognizer::testMovementThreshold()
 
 void Ut_FlickRecognizer::testStartThreshold_data()
 {
-    const int xlength = gestureStartMovementThreshold.x();
     const int ylength = gestureStartMovementThreshold.y();
 
-    if (xlength >= gestureFinishMovementThreshold.x()
-        || ylength >= gestureFinishMovementThreshold.y()) {
+    if (ylength >= gestureFinishMovementThreshold.y()) {
         QSKIP("Cannot recognize separate start because gesture finishes too soon.", SkipSingle);
     }
 
@@ -212,8 +208,6 @@ void Ut_FlickRecognizer::testStartThreshold_data()
     QTest::addColumn<QPointF>("end");
     QTest::addColumn<bool>("wasStarted");
 
-    QTest::newRow("valid horizontal")   << QPointF() << QPointF(xlength, 0)     << true;
-    QTest::newRow("invalid horizontal") << QPointF() << QPointF(xlength - 1, 0) << false;
     QTest::newRow("valid vertical")     << QPointF() << QPointF(0, ylength)     << true;
     QTest::newRow("invalid vertical")   << QPointF() << QPointF(0, ylength - 1) << false;
 }
@@ -244,7 +238,7 @@ void Ut_FlickRecognizer::testInvalidZigZag_data()
 
     const unsigned int intermediatePoints = 6;
     QList<QPointF> path = makeSwipePointPath(QPointF(0, 0),
-                                             QPointF(gestureFinishMovementThreshold.x(), 0),
+                                             QPointF(0, gestureFinishMovementThreshold.y()),
                                              intermediatePoints);
     const QPointF point2 = path.at(2);
     const QPointF point3 = path.at(3);
@@ -262,7 +256,7 @@ void Ut_FlickRecognizer::testInvalidZigZag_data()
     path[3] = point3;
 
     // Switch major direction at one point.
-    path[2].rx() *= -1;
+    path[2].ry() *= -1;
     QTest::newRow("major direction changed") << path << false;
 }
 
@@ -284,16 +278,16 @@ void Ut_FlickRecognizer::testInvalidTwoFinger_data()
     // Simulate the common accidental flick-made-by-two-fingers gesture.
     QList<QPointF> path;
     path << QPointF(0, 0)
-         << QPointF(1, 0)
-         << QPointF(2, 0)
-         << QPointF(gestureFinishMovementThreshold.x(), 0)
-         << QPointF(gestureFinishMovementThreshold.x() + 1, 0)
-         << QPointF(gestureFinishMovementThreshold.x() + 2, 0);
+         << QPointF(0, 1)
+         << QPointF(0, 2)
+         << QPointF(0, gestureFinishMovementThreshold.y())
+         << QPointF(0, gestureFinishMovementThreshold.y() + 1)
+         << QPointF(0, gestureFinishMovementThreshold.y() + 2);
 
     QTest::newRow("too long jump") << path << false;
 
     // Make one stop in the middle.
-    path[3] = QPointF(gestureFinishMovementThreshold.x() / 2, 0);
+    path[3] = QPointF(0, gestureFinishMovementThreshold.y() / 2);
     QTest::newRow("valid flick") << path << true;
 }
 
