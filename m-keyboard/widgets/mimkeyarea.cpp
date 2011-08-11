@@ -396,6 +396,7 @@ MImKeyAreaPrivate::MImKeyAreaPrivate(const LayoutData::SharedLayoutSection &newS
 
 MImKeyAreaPrivate::~MImKeyAreaPrivate()
 {
+    cancelAllKeys();
     for (RowIterator rowIter(rowList.begin()); rowIter != rowList.end(); ++rowIter) {
         qDeleteAll(rowIter->keys);
         rowIter->keys.clear();
