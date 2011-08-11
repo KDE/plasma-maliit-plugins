@@ -62,7 +62,6 @@ public:
                                            1.0)
                           );
         }
-        emit positionChanged(mPosition);
 
         mScale = mFromScale
             + (mToScale - mFromScale)
@@ -70,7 +69,6 @@ public:
                             (mProgress - mScaleStartProgress)
                             / (mScaleEndProgress - mScaleStartProgress),
                             1.0);
-        emit scaleChanged(mScale);
 
         mOpacity = mFromOpacity
                    + (mToOpacity - mFromOpacity)
@@ -78,7 +76,6 @@ public:
                                    (mProgress - mOpacityStartProgress)
                                    / (mOpacityEndProgress - mOpacityStartProgress),
                                    1.0);
-        emit opacityChanged(mOpacity);
     }
     virtual void reset()
     {
