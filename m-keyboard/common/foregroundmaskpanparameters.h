@@ -49,7 +49,6 @@ public:
         mOpacity = qBound(qreal(0.0),
                           qreal(1 - qAbs(mProgress * 2 - 1)) * mOpacityFactor,
                           mOpacityFactor);
-        emit opacityChanged(mOpacity);
     }
     virtual void reset()
     {

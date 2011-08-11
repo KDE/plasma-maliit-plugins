@@ -60,11 +60,9 @@ public:
             mOpacity = qreal(mProgress * 2) * mOpacityFactor;
         else
             mOpacity = qreal(mOpacityFactor);
-        emit opacityChanged(mOpacity);
 
         mPosition = mFromPosition
             + QPointF(mToPosition - mFromPosition) * mProgress;
-        emit positionChanged(mPosition);
     };
 
     virtual void reset()

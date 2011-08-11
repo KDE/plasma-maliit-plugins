@@ -33,7 +33,7 @@
 
 PanParameters::PanParameters(QObject *parent)
     : QObject(parent),
-      mProgress(0),
+      mProgress(0.0),
       mOpacityFactor(1.0),
       mFromOpacity(1.0),
       mToOpacity(1.0),
@@ -57,7 +57,21 @@ PanParameters::~PanParameters()
 void PanParameters::setProgress(qreal progress)
 {
     mProgress = progress;
+    QPointF oldPosition = mPosition;
+    qreal oldScale = mScale;
+    qreal oldOpacity = mOpacity;
+
     update();
+
+    if (oldPosition != mPosition) {
+        emit positionChanged(mPosition);
+    }
+    if (oldScale != mScale) {
+        emit scaleChanged(mScale);
+    }
+    if (oldOpacity != mOpacity) {
+        emit opacityChanged(mOpacity);
+    }
 }
 
 
