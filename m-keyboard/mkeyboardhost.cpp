@@ -908,6 +908,7 @@ void MKeyboardHost::updateAutoCapitalization()
         autoCapsEnabled = hardwareKeyboard->autoCapsEnabled();
         break;
     }
+    int oldCursorPos = cursorPos;
     bool valid = false;
     const int type = inputMethodHost()->contentType(valid);
     autoCapsEnabled = (autoCapsEnabled
@@ -944,10 +945,18 @@ void MKeyboardHost::updateAutoCapitalization()
 
     if ((activeState == MInputMethod::OnScreen)
         && (vkbWidget->shiftStatus() != ModifierLockedState)) {
-        // FIXME: This will break the behaviour of keeping shift latched when shift+character occured.
-        // We would really need a state machine for the shift state handling.
-        vkbWidget->setShiftState(autoCapsTriggered ?
-                                 ModifierLatchedState : ModifierClearState);
+        if (cursorPos == oldCursorPos
+            && vkbWidget->shiftStatus() == ModifierLatchedState) {
+            //do not clear LatchedState if cursor is the same position
+            //eg: user can manually enable Latched at any position
+            //then rotate the device, the Latched state shouldn't be cleared
+        }
+        else {
+            // FIXME: This will break the behaviour of keeping shift latched when shift+character occured.
+            // We would really need a state machine for the shift state handling.
+            vkbWidget->setShiftState(autoCapsTriggered ?
+                                         ModifierLatchedState : ModifierClearState);
+        }
     } else if ((activeState == MInputMethod::Hardware) &&
                (hardwareKeyboard->modifierState(Qt::ShiftModifier) != ModifierLockedState)) {
         hardwareKeyboard->setAutoCapitalization(autoCapsTriggered);
@@ -1009,6 +1018,7 @@ void MKeyboardHost::resetInternalState()
     if (EngineManager::instance().engine())
         EngineManager::instance().engine()->clearEngineBuffer();
     cycleKeyHandler->reset();
+    cursorPos = -1;
 }
 
 void MKeyboardHost::prepareOrientationChange()
