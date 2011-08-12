@@ -25,6 +25,9 @@ class LayoutPannerStyle : public MWidgetStyle
     M_STYLE_ATTRIBUTE(qreal, outgoingToOpacity, OutgoingToOpacity)
     M_STYLE_ATTRIBUTE(qreal, outgoingOpacityStartProgress, OutgoingOpacityStartProgress)
     M_STYLE_ATTRIBUTE(qreal, outgoingOpacityEndProgress, OutgoingOpacityEndProgress)
+
+    M_STYLE_ATTRIBUTE(qreal, incomingFromOpacity, IncomingFromOpacity)
+    M_STYLE_ATTRIBUTE(qreal, incomingToOpacity, IncomingToOpacity)
 };
 
 class LayoutPannerStyleContainer : public MWidgetStyleContainer

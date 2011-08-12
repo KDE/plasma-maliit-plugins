@@ -1070,6 +1070,9 @@ LayoutPannerStyle {
 
    outgoing-opacity-start-progress: 0.5;
    outgoing-opacity-end-progress: 1.0;
+
+   incoming-from-opacity: 1.0;
+   incoming-to-opacity: 0.0;
 }
 
 LayoutPannerStyle.Portrait {
