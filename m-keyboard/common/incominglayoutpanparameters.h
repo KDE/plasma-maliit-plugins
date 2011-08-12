@@ -55,14 +55,18 @@ public:
         lastProgress = mProgress;
 
         if (start)
-            mOpacity = qreal(mOpacityFactor);
+            mOpacity = qreal(mFromOpacity);
         else if (mProgress <= 0.5)
-            mOpacity = qreal(mProgress * 2) * mOpacityFactor;
+            mOpacity = qreal(mProgress * 2) * (mFromOpacity - mToOpacity);
         else
-            mOpacity = qreal(mOpacityFactor);
+            mOpacity = qreal(mFromOpacity);
 
         mPosition = mFromPosition
-            + QPointF(mToPosition - mFromPosition) * mProgress;
+            + QPointF(mToPosition - mFromPosition)
+            * qBound<qreal>(0,
+                    (mProgress - mPositionStartProgress) /
+                    (mPositionEndProgress - mPositionStartProgress),
+                    1.0);
     };
 
     virtual void reset()

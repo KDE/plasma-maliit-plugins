@@ -443,7 +443,7 @@ void LayoutPanner::preparePanningItems()
     incomingPixmapPosY += sharedPixmapItem->boundingRect().height();
 
     incomingLayoutItemFromPos = QPointF(incomingPixmapPosX, incomingPixmapPosY);
-    incomingLayoutItem->updateOpacity(1.0);
+    incomingLayoutItem->updateOpacity(style()->incomingFromOpacity());
     incomingLayoutItem->updatePos(incomingLayoutItemFromPos);
     incomingLayoutItem->setVisible(true);
 
@@ -451,6 +451,9 @@ void LayoutPanner::preparePanningItems()
 
     incomingLayoutParameters->setPositionRange(incomingLayoutItemFromPos,
                                                 incomingLayoutItemToPos);
+
+    incomingLayoutParameters->setOpacityRange(style()->incomingFromOpacity(),
+                                              style()->incomingToOpacity());
 
     sharedPixmapItem->setPos(QPointF(0, 0));
 
