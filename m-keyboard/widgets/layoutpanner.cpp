@@ -414,7 +414,9 @@ void LayoutPanner::preparePanningItems()
 
     QPointF outgoingLayoutItemFromPos
         = QPointF(0, sharedPixmapItem->boundingRect().height());
-    outgoingLayoutItem->setPos(outgoingLayoutItemFromPos);
+    outgoingLayoutItem->updateOpacity(1.0);
+    outgoingLayoutItem->updatePos(outgoingLayoutItemFromPos);
+    outgoingLayoutItem->setVisible(true);
     QPointF outgoingPanningItemToPos =
         (direction == PanGesture::PanRight)
         ? QPointF(keyboardWidth, outgoingLayoutItemFromPos.y())
@@ -434,8 +436,9 @@ void LayoutPanner::preparePanningItems()
     incomingPixmapPosY += sharedPixmapItem->boundingRect().height();
 
     incomingLayoutItemFromPos = QPointF(incomingPixmapPosX, incomingPixmapPosY);
+    incomingLayoutItem->updateOpacity(1.0);
+    incomingLayoutItem->updatePos(incomingLayoutItemFromPos);
     incomingLayoutItem->setVisible(true);
-    incomingLayoutItem->setPos(incomingLayoutItemFromPos);
 
     QPointF incomingLayoutItemToPos = QPointF(0, incomingLayoutItemFromPos.y());
 
