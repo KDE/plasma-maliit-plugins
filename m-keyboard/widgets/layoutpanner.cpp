@@ -414,7 +414,7 @@ void LayoutPanner::preparePanningItems()
 
     QPointF outgoingLayoutItemFromPos
         = QPointF(0, sharedPixmapItem->boundingRect().height());
-    outgoingLayoutItem->updateOpacity(1.0);
+    outgoingLayoutItem->updateOpacity(style()->outgoingFromOpacity());
     outgoingLayoutItem->updatePos(outgoingLayoutItemFromPos);
     outgoingLayoutItem->setVisible(true);
     QPointF outgoingPanningItemToPos =
@@ -424,6 +424,13 @@ void LayoutPanner::preparePanningItems()
 
     outgoingLayoutParameters->setPositionRange(outgoingLayoutItemFromPos,
                                                 outgoingPanningItemToPos);
+
+    outgoingLayoutParameters->setOpacityRange(style()->outgoingFromOpacity(),
+                                              style()->outgoingToOpacity());
+
+    outgoingLayoutParameters->setOpacityProgressRange(
+        style()->outgoingOpacityStartProgress(),
+        style()->outgoingOpacityEndProgress());
 
     QPointF incomingLayoutItemFromPos;
     int incomingPixmapPosX = (direction == PanGesture::PanRight)

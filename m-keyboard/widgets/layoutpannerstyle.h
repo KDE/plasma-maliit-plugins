@@ -20,6 +20,11 @@ class LayoutPannerStyle : public MWidgetStyle
     M_STYLE_ATTRIBUTE(qreal, catchingUpAnimationSpeed, CatchingUpAnimationSpeed)
     M_STYLE_ATTRIBUTE(qreal, minimumMovementThreshold, MinimumMovementThreshold)
     M_STYLE_ATTRIBUTE(qreal, suddenMovementThreshold, SuddenMovementThreshold)
+
+    M_STYLE_ATTRIBUTE(qreal, outgoingFromOpacity, OutgoingFromOpacity)
+    M_STYLE_ATTRIBUTE(qreal, outgoingToOpacity, OutgoingToOpacity)
+    M_STYLE_ATTRIBUTE(qreal, outgoingOpacityStartProgress, OutgoingOpacityStartProgress)
+    M_STYLE_ATTRIBUTE(qreal, outgoingOpacityEndProgress, OutgoingOpacityEndProgress)
 };
 
 class LayoutPannerStyleContainer : public MWidgetStyleContainer

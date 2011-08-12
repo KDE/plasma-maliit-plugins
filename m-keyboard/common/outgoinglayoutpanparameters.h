@@ -44,14 +44,19 @@ public:
 
     //! reimp
     virtual void update() {
-
-        if (mProgress >= 0.5)
-            mOpacity = qreal(qAbs(mProgress - 1) * 2) * mOpacityFactor;
-        else
-            mOpacity = qreal(mOpacityFactor);
+        mOpacity = mFromOpacity
+                   + (mToOpacity - mFromOpacity)
+                   * qBound<qreal>(0,
+                                   (mProgress - mOpacityStartProgress)
+                                   / (mOpacityEndProgress - mOpacityStartProgress),
+                                   1.0);
 
         mPosition = mFromPosition
-                    + QPointF(mToPosition - mFromPosition) * mProgress;
+            + QPointF(mToPosition - mFromPosition)
+            * qBound<qreal>(0,
+                    (mProgress - mPositionStartProgress) /
+                    (mPositionEndProgress - mPositionStartProgress),
+                    1.0);
     };
 
     virtual void reset() {
