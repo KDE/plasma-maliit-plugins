@@ -161,7 +161,8 @@ public:
         if (!mKeyboardHost.preedit.isEmpty()) {
             if (commit) {
                 // Commit current preedit
-                mKeyboardHost.inputMethodHost()->sendCommitString(mKeyboardHost.preedit);
+                mKeyboardHost.inputMethodHost()->sendCommitString(mKeyboardHost.preedit,
+                                                                  0, 0, mKeyboardHost.preeditCursorPos);
             } else {
                 // Clear current preedit
                 QList<MInputMethod::PreeditTextFormat> preeditFormats;
