@@ -62,6 +62,8 @@ NotificationArea::NotificationArea(QGraphicsItem *parent)
 
     connect(&hideAnimationGroup, SIGNAL(finished()),
             this, SLOT(reset()));
+
+    setVisible(false);
 }
 
 
@@ -72,8 +74,6 @@ NotificationArea::~NotificationArea()
 void NotificationArea::prepareNotifications(PanGesture::PanDirection direction)
 {
     qDebug() << __PRETTY_FUNCTION__;
-
-    onNotificationAnimationFinished();
 
     const int screenWidth
         = (MPlainWindow::instance()->sceneManager()->orientation() == M::Portrait)
@@ -292,8 +292,15 @@ QString NotificationArea::setIncomingLayoutTitle(PanGesture::PanDirection direct
 
 void NotificationArea::playShowAnimation()
 {
-    setOpacity(style()->initialOpacity());
-    setVisible(true);
+    if (!isVisible()) {
+        setVisible(true);
+        setOpacity(style()->initialOpacity());
+    }
+    hideAnimationGroup.stop();
+    hideAnimationGroup.clear();
+    // show animation start from current opacity
+    showAnimation.setStartValue(opacity());
+    showAnimation.setEndValue(style()->visibleOpacity());
     showAnimation.start();
 }
 
@@ -313,7 +320,7 @@ void NotificationArea::playHideAnimation(PanGesture::PanDirection result)
     QPropertyAnimation *bgAnimation = new QPropertyAnimation(this);
     bgAnimation->setTargetObject(this);
     bgAnimation->setPropertyName("opacity");
-    bgAnimation->setStartValue(1.0);
+    bgAnimation->setStartValue(opacity());
     bgAnimation->setEndValue(0.0);
     bgAnimation->setEasingCurve(style()->hideAnimationCurve());
     bgAnimation->setDuration(style()->hideAnimationDuration());
@@ -321,7 +328,7 @@ void NotificationArea::playHideAnimation(PanGesture::PanDirection result)
     QPropertyAnimation *itemAnimation = new QPropertyAnimation(this);
     itemAnimation->setTargetObject(resultNotification);
     itemAnimation->setPropertyName("opacity");
-    itemAnimation->setStartValue(this->opacity());
+    itemAnimation->setStartValue(opacity());
     itemAnimation->setEndValue(0.0);
     itemAnimation->setEasingCurve(style()->hideAnimationCurve());
     itemAnimation->setDuration(style()->hideAnimationDuration());
@@ -357,7 +364,6 @@ void NotificationArea::applyStyle()
 {
     showAnimation.setEasingCurve(style()->showAnimationCurve());
     showAnimation.setDuration(style()->showAnimationDuration());
-    showAnimation.setStartValue(style()->initialOpacity());
     showAnimation.setEndValue(style()->visibleOpacity());
 }
 
