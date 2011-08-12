@@ -33,6 +33,7 @@
 
 #include "mreactionmaptester.h"
 
+#include "borderpanrecognizer.h"
 #include "mgconfitem_stub.h"
 #include "mvirtualkeyboard.h"
 #include "mvirtualkeyboardstyle.h"
@@ -115,10 +116,13 @@ void Ut_SymbolView::initTestCase()
 
     new MPlainWindow;
     RegionTracker::createInstance();
+
+    BorderPanRecognizer::registerSharedRecognizer();
 }
 
 void Ut_SymbolView::cleanupTestCase()
 {
+    BorderPanRecognizer::unregisterSharedRecognizer();
     RegionTracker::destroyInstance();
     ReactionMapPainter::destroyInstance();
     delete MPlainWindow::instance();

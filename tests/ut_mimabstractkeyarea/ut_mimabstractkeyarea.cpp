@@ -35,6 +35,7 @@
 #include "mimkeyarea_p.h"
 #include "mimkey.h"
 #include "flickgesturerecognizer.h"
+#include "borderpanrecognizer.h"
 #include "keyboarddata.h"
 #include "mimkeymodel.h"
 #include "mplainwindow.h"
@@ -168,6 +169,7 @@ void Ut_MImAbstractKeyArea::initTestCase()
     sceneWindow = createMSceneWindow(new MPlainWindow); // also create singleton
 
     FlickGestureRecognizer::registerSharedRecognizer();
+    BorderPanRecognizer::registerSharedRecognizer();
 
     MPlainWindow::instance()->grabGesture(FlickGestureRecognizer::sharedGestureType());
     MPlainWindow::instance()->show();
@@ -177,6 +179,7 @@ void Ut_MImAbstractKeyArea::initTestCase()
 void Ut_MImAbstractKeyArea::cleanupTestCase()
 {
     FlickGestureRecognizer::unregisterSharedRecognizer();
+    BorderPanRecognizer::unregisterSharedRecognizer();
     delete sceneWindow;
     delete MPlainWindow::instance();
     RegionTracker::destroyInstance();

@@ -117,7 +117,6 @@ void Ut_Notification::testSetMessageAndGeometry()
     text = "This is a longer text string";
     subject->setMessageAndGeometry(text, rect);
     QCOMPARE(subject->message, text);
-    QCOMPARE(subject->geometry(), rect);
 }
 
 void Ut_Notification::testFadeInFadeOut()
