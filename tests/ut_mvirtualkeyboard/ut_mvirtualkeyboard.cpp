@@ -34,6 +34,7 @@
 #include "mapplication.h"
 #include "mgconfitem_stub.h"
 #include "mreactionmaptester.h"
+#include "borderpanrecognizer.h"
 #include "mvirtualkeyboardstyle.h"
 #include "mvirtualkeyboard.h"
 #include "horizontalswitcher.h"
@@ -141,10 +142,12 @@ void Ut_MVirtualKeyboard::initTestCase()
     vkbStyleContainer->initialize("MVirtualKeyboard", "MVirtualKeyboardView", 0);
 
     LayoutsManager::createInstance();
+    BorderPanRecognizer::registerSharedRecognizer();
 }
 
 void Ut_MVirtualKeyboard::cleanupTestCase()
 {
+    BorderPanRecognizer::unregisterSharedRecognizer();
     LayoutsManager::destroyInstance();
     delete vkbParent;
     delete vkbStyleContainer;
