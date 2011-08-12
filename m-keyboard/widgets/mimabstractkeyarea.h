@@ -144,8 +144,15 @@ public:
     //! \brief Returns true if \key belongs to this key area.
     virtual bool contains(const MImAbstractKey *key) const;
 
-    //! \brief Disable recognition of panning gesture
-    void disablePanning();
+    /*!
+     * \brief Enables/Disables recognition of panning gesture
+     *
+     * Warning: don't enable the panning during fast typing.
+     */
+    void setPanningEnabled(bool enable);
+
+    //! \brief Returns whether panning gesture is enabled
+    bool panningEnabled() const;
 
 public slots:
     //! \brief Tell key area to switch levels for all keys.
