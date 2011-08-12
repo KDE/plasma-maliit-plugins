@@ -351,7 +351,7 @@ MImAbstractKeyArea *SymbolView::createMImAbstractKeyArea(const LayoutData::Share
     if (!section.isNull()) {
         keyArea = MImKeyArea::create(section, usePopup, 0);
         keyArea->setSource(KeyEvent::SecondaryLayout);
-        keyArea->disablePanning();
+        keyArea->setPanningEnabled(false);
         eventHandler.addEventSource(keyArea);
 
         connect(keyArea, SIGNAL(keyClicked(const MImAbstractKey *, const KeyContext &)),

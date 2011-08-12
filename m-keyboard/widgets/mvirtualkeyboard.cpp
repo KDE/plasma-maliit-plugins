@@ -549,8 +549,14 @@ void MVirtualKeyboard::onSectionSwitched(QGraphicsWidget *previous, QGraphicsWid
         int heightDelta = ((previous == NULL) || (current == NULL))
                           ? 0 : (previous->size().height() - current->size().height());
         // Only play vertical animation when layout height is changed to bigger
-        if (heightDelta < 0)
+        if (heightDelta < 0) {
+            // disable the panning when playing vertical movement animation
+            MImAbstractKeyArea *keyArea = static_cast<MImAbstractKeyArea *>(current);
+            if (keyArea) {
+                keyArea->setPanningEnabled(false);
+            }
             playVerticalAnimation(heightDelta);
+        }
     }
 
     switchStarted = false;
@@ -907,6 +913,7 @@ void MVirtualKeyboard::playVerticalAnimation(int animLine)
     QPointF endPos(pos().x(), pos().y() + animLine);
     verticalAnimation->setStartValue(startPos);
     verticalAnimation->setEndValue(endPos);
+
     verticalAnimation->start();
 }
 
@@ -933,6 +940,11 @@ void MVirtualKeyboard::onVerticalAnimationFinished()
     setEnabled(true);
     // Repaint the reaction map.
     signalForwarder.emitRequestRepaint();
+    // re-enable the panning when vertical movement animation is finished.
+    MImAbstractKeyArea *mainKb = keyboardWidget();
+    if (mainKb) {
+        mainKb->setPanningEnabled(true);
+    }
     emit verticalAnimationFinished();
 }
 

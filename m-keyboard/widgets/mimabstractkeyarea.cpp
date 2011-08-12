@@ -1329,14 +1329,23 @@ bool MImAbstractKeyAreaPrivate::TouchPointRecord::hasGravity() const
     return m_key && keyHasGravity;
 }
 
-void MImAbstractKeyArea::disablePanning()
+void MImAbstractKeyArea::setPanningEnabled(bool enable)
 {
     Q_D(MImAbstractKeyArea);
 
-    if (!d->enabledPanning) {
+    if (d->enabledPanning == enable) {
         return;
     }
 
-    d->enabledPanning = false;
-    ungrabGesture(BorderPanRecognizer::sharedGestureType());
+    d->enabledPanning = enable;
+    if (d->enabledPanning)
+        grabGesture(BorderPanRecognizer::sharedGestureType());
+    else
+        ungrabGesture(BorderPanRecognizer::sharedGestureType());
+}
+
+bool MImAbstractKeyArea::panningEnabled() const
+{
+    Q_D(const MImAbstractKeyArea);
+    return d->enabledPanning;
 }
