@@ -117,7 +117,7 @@ void NotificationArea::prepareNotifications(PanGesture::PanDirection direction)
     outgoingNotification->updateScale(outgoingNotificationFromScale);
     outgoingNotification->updateOpacity(1.0);
     outgoingNotification->updatePos(outgoingNotificationFromPos);
-    outgoingNotification->setVisible(true);
+    outgoingNotification->setVisible(false);
     outgoingNotificationParameters->setPositionRange(
         outgoingNotificationFromPos, outgoingNotificationToPos);
     outgoingNotificationParameters->setScaleRange(outgoingNotificationFromScale,
@@ -185,7 +185,7 @@ void NotificationArea::prepareNotifications(PanGesture::PanDirection direction)
     incomingNotification->updateScale(incomingNotificationFromScale);
     incomingNotification->updatePos(incomingNotificationFromPos);
     incomingNotification->updateOpacity(style()->initialEdgeOpacity());
-    incomingNotification->setVisible(true);
+    incomingNotification->setVisible(false);
     incomingNotificationParameters->setPositionRange(
         incomingNotificationFromPos, incomingNotificationToPos);
     incomingNotificationParameters->setScaleRange(incomingNotificationFromScale,
@@ -243,7 +243,7 @@ void NotificationArea::prepareNotifications(PanGesture::PanDirection direction)
     assistantNotification->updateScale(assistantNotificationFromScale);
     assistantNotification->updateOpacity(style()->initialEdgeOpacity());
     assistantNotification->updatePos(assistantNotificationFromPos);
-    assistantNotification->setVisible(true);
+    assistantNotification->setVisible(false);
     assistantNotificationParameters->setPositionRange(
         assistantNotificationFromPos, assistantNotificationToPos);
     assistantNotificationParameters->setScaleRange(assistantNotificationFromScale,
@@ -296,6 +296,10 @@ void NotificationArea::playShowAnimation()
         setVisible(true);
         setOpacity(style()->initialOpacity());
     }
+
+    incomingNotification->setVisible(true);
+    assistantNotification->setVisible(true);
+    outgoingNotification->setVisible(true);
     hideAnimationGroup.stop();
     hideAnimationGroup.clear();
     // show animation start from current opacity

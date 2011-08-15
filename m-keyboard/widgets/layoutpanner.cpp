@@ -362,6 +362,8 @@ void LayoutPanner::prepare()
     default:
         break;
     }
+
+    notificationArea->prepareNotifications(direction);
     outgoingLayoutItem->grabScreen(rect.toRect());
     sharedPixmapItem->grabPixmaps(sharedPixmapMap);
 
@@ -387,7 +389,6 @@ void LayoutPanner::prepare()
     notificationArea->setPos(QPointF(0,
                                      sharedPixmapItem->boundingRect().height()
                                      - notificationArea->preferredHeight()));
-    notificationArea->prepareNotifications(direction);
 
     if (mPluginSwitching) {
         foreach (QGraphicsWidget *widget, outgoingWidgets) {
