@@ -1,3 +1,9 @@
+meego-keyboard (0.7.3-1) unstable; urgency=low
+
+  * Fixes: NB#259257 - [TASK] Panning interaction between multiple keyboard layouts 
+
+ -- huaming wang <huaming.wang@nokia.com>  Tue, 16 Aug 2011 11:38:53 +0300
+
 meego-keyboard (0.7.2-1) unstable; urgency=low
 
   * Fixes: NB#261144 - Auto correction tooltip hovers above all other UI components
