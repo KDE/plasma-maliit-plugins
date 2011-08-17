@@ -85,7 +85,6 @@ CJKLogicStateMachine::CJKLogicStateMachine(AbstractEngineWidgetHost &widgetHost,
       backspaceLongPressTriggered(false),
       syllableDivideIsEnabled(false),
       currentOnOffState(false),
-      isComposing(false),
       chineseTransliterationConf(SettingChineseTransliteration)
 {
     changeState(StandByStateString);
@@ -179,15 +178,8 @@ bool CJKLogicStateMachine::handleKeyEvent(const KeyEvent &event)
         handleBackspaceKey(event);
         val = true;
     } else if (event.qtKey() == Qt::Key_Return || event.specialKey() == KeyEvent::Commit) {
-        if (isComposing) {
-            // Handle CJK specific process and consume this key event under "composing" state.
-            handleEnterKey(event);
-            val = true;
-        } else {
-            // Do NOT consume this key event when it is NOT "composing",
-            // so general process for this key event would be done under this state.
-            val = false;
-        }
+        handleEnterKey(event);
+        val = true;
     } else if (event.qtKey() == Qt::Key_Space) {
         handleSpaceKey(event);
         val = true;
@@ -557,8 +549,7 @@ QString CJKLogicStateMachine::transliterateString(unsigned int candidateIndex,
 
 void CJKLogicStateMachine::setComposingState(bool composingState)
 {
-    isComposing = composingState;
-    emit composeStateChanged(isComposing);
+    emit composeStateChanged(composingState);
 }
 
 
@@ -671,7 +662,8 @@ void StandbyState::handleLongPressBackspaceKey()
 void StandbyState::handleEnterKey(const KeyEvent &event)
 {
     Q_UNUSED(event);
-    stateMachine->inputMethodHost.sendCommitString(event.toQKeyEvent().text());
+    stateMachine->inputMethodHost.sendKeyEvent(KeyEvent(event, QEvent::KeyPress).toQKeyEvent(), MInputMethod::EventRequestEventOnly);
+    stateMachine->inputMethodHost.sendKeyEvent(event.toQKeyEvent(), MInputMethod::EventRequestEventOnly);
     return ;
 }
 

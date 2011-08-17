@@ -148,7 +148,6 @@ private:
     bool syllableDivideIsEnabled;
 
     bool currentOnOffState;
-    bool isComposing;
 
     MGConfItem chineseTransliterationConf;
     QString chineseTransliteration;
