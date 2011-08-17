@@ -569,6 +569,7 @@ void KeyboardData::parseTagBinding(const QDomElement &element, ParseParameters &
     binding->accented_labels = element.attribute(VKBTagAccentedLabels);
 
     binding->extended_labels = element.attribute(VKBTagExtendedLabels);
+    binding->rtl = toBoolean(element.attribute(RtlString, RtlStringDefValue));
 
     params.currentKey->setBinding(*binding, shift);
 }

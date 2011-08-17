@@ -190,6 +190,8 @@ through the characters in the \c cycleset string.
 \li \c quickpick Setting quickpick value to true will make the key close
 the current keyboard view. Currently only supported in symbol view. This
 only works if the key is pressed first after symbol view is opened.
+\li \c rtl if true, this key uses right-to-left version of the label. This is used for
+specifying the rtl specific punctuations. In practise, it will prepend the Unicode Right-to-left embedding mark only when rendering it on the key, while preserving the original label content.
 
 Actions:
 

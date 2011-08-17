@@ -789,7 +789,7 @@ void MImKeyArea::paint(QPainter *painter,
             key->setSecondaryLabelEnabled(rowHasSecondaryLabel);
 
             QRectF rect = mapFromItem(key, key->labelRect()).boundingRect();
-            painter->drawText(rect, Qt::AlignCenter, key->label());
+            painter->drawText(rect, Qt::AlignCenter, key->renderingLabel());
         }
     }
 

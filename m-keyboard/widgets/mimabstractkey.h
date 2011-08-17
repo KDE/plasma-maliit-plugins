@@ -69,6 +69,9 @@ public:
 
     //! \brief Returns current label. It is affected by active modifiers.
     virtual const QString label() const = 0;
+    
+    //! \brief Returns rendering version of current label. It is logically the same with label(), but shown with modifier or with different glyph
+    virtual const QString renderingLabel() const = 0;
 
     //! \brief Returns the secondary label.
     virtual const QString secondaryLabel() const = 0;

@@ -43,7 +43,8 @@ MImKeyBinding::MImKeyBinding()
       keyLabel(""),
       dead(false),
       quickPick(false),
-      compose(false)
+      compose(false),
+      rtl(false)
 {
 }
 
@@ -52,7 +53,8 @@ MImKeyBinding::MImKeyBinding(const QString &label)
       keyLabel(label),
       dead(false),
       quickPick(false),
-      compose(false)
+      compose(false),
+      rtl(false)
 {
 }
 
