@@ -1,3 +1,9 @@
+meego-keyboard (0.7.5~1) unstable; urgency=low
+
+  * Fixes: NB#277056 - Zhuyin; Enter key does not dismiss candidates
+
+ -- Zongxin Wang <ext-zongxin.wang@nokia.com>  Fri, 19 Aug 2011 14:33:45 +0300
+
 meego-keyboard (0.7.4-1) unstable; urgency=low
 
   * Fixes: NB#277034 - Input Methods: The right and left brackets are improperly displayed in Arabic Virtual Keyboard
