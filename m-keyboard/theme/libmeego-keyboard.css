@@ -150,9 +150,12 @@ MImAbstractKeyAreaStyle {
     auto-padding: true;
 
     pan-gesture-timeout: 250;
-    pan-gesture-start-threshold: 20;
+    /*the distance betwee the first touch position and the edge of keyboard
+    must be less than pan-gesture-start-threshold*/
+    pan-gesture-start-threshold: 15;
     pan-gesture-finish-threshold: 200;
-    pan-gesture-initial-movement: 20;
+    /*the minimum movement distance of pan gesture*/
+    pan-gesture-initial-movement: 40;
 
     /*** Key Geometry ***/
     required-key-icon-margins: 5 5;
@@ -1050,38 +1053,48 @@ MKeyboardMagnifierStyle.Portrait {
 }
 
 LayoutPannerStyle {
-   commit-threshold: 427;
+   commit-threshold: 342;
    panning-animation-curve: outcubic;
    panning-animation-duration: 300;
    background-image:; /*"meegotouch-keyboard-background" $ROUNDED_CORNERS;*/
    background-color: #000000;
    background-opacity: 0.95;
 
-   dimming-color: #000000;
    initial-dimming-opacity: 0.7;
 
-   catching-up-animation-curve: outcubic;
    catching-up-animation-maximum-duration: 500;
-   catching-up-animation-speed: 1.5; /*for pixel*/
+   
+   layouts-catching-up-animation-curve: outcubic;
+   /*layouts catching up animation duration = (movement pixels * multiplier)*/
+   layouts-catching-up-animation-duration-multiplier: 0.6;
 
+   notifications-catching-up-animation-curve: outcubic;
+   /*notifications catching up animation duration = (movement pixels * multiplier)*/
+   notifications-catching-up-animation-duration-multiplier: 0.6;
+   /*the puase of notifications catching up animation in its duration*/
+   notifications-catching-up-animation-pause: 0.1;
+
+   /*if the movement when playing catching up animation is bigger than
+   minimum-movement-threshold, then adjust the endValue of catching up animation*/
    minimum-movement-threshold: 5;
-   sudden-movement-threshold: 40;
+   
+   /*if sudden movement distance is bigger than sudden-movement-threshold,
+   then play catching up animation*/
+   sudden-movement-threshold: 80;
 
-   outgoing-from-opacity: 1.0;
-   outgoing-to-opacity: 0.0;
+   outgoing-layout-from-opacity: 1.0;
+   outgoing-layout-to-opacity: 0.0;
 
-   outgoing-opacity-start-progress: 0.5;
-   outgoing-opacity-end-progress: 1.0;
+   outgoing-layout-opacity-start-progress: 0.5;
+   outgoing-layout-opacity-end-progress: 1.0;
 
-   incoming-from-opacity: 1.0;
-   incoming-to-opacity: 0.0;
+   incoming-layout-from-opacity: 1.0;
+   incoming-layout-to-opacity: 0.0;
 }
 
 LayoutPannerStyle.Portrait {
-   commit-threshold: 240;
-   catching-up-animation-duration: 450;
-
-   catching-up-animation-speed: 1.5;
+   commit-threshold: 192;
+   catching-up-animation-maximum-duration: 450;
 }
 
 
@@ -1095,18 +1108,41 @@ NotificationAreaStyle {
     visible-opacity: 1.0;
 
     notification-maximum-width: 500;
+
+    /*the smallest scale factor for notifications. It will be used as the from
+    scale for incoming notification, and used as the to scale for outgoing
+    notification.*/
     small-size-scale-factor: 0.5;
+
+    /*the maximum visible width for incoming and assistant notifications
+    at the beginning of panning. It is the percent of keyboard width*/
     initial-edge-maximum-visible-width: 0.25;
+    /*the from opacity for incoming and assistant notifications*/
     initial-edge-opacity: 0.6;
 
-    position-start-progress: 0.08;
-    position-end-progress: 0.5;
+    outgoing-position-start-progress: 0.4;
+    outgoing-position-end-progress: 0.75;
+    outgoing-scale-start-progress: 0.4;
+    outgoing-scale-end-progress: 0.7;
+    outgoing-opacity-start-progress: 0.4;
+    outgoing-opacity-end-progress: 1.0;
 
-    scale-start-progress: 0.08;
-    scale-end-progress: 0.5;
+    incoming-position-start-progress: 0.08;
+    incoming-position-end-progress: 0.5;
+    incoming-scale-start-progress: 0.1;
+    incoming-scale-end-progress: 0.7;
+    incoming-opacity-start-progress: 0.3;
+    incoming-opacity-end-progress: 1.0;
 
-    opacity-start-progress: 0.2;
-    opacity-end-progress: 1.0;
+    outgoing-scale-mutation-progress: 0.4;
+    outgoing-scale-mutation: 0.75;
+    outgoing-opacity-mutation-progress: 0.4;
+    outgoing-opacity-mutation: 0.5;
+
+    incoming-scale-mutation-progress: 0.4;
+    incoming-scale-mutation: 1.0;
+    incoming-opacity-mutation-progress: 0.4;
+    incoming-opacity-mutation: 1.0;
 
     show-animation-curve: outcubic;
     show-animation-duration: 200;

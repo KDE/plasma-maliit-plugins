@@ -60,7 +60,21 @@ class NotificationArea;
 class LayoutPanner : public MStylableWidget, public ReactionMapPaintable
 {
     Q_OBJECT
+    /*!
+     * panningPosition defines the position of panning widgets.
+     * Change this property to update positions for layouts and notifications.
+     */
     Q_PROPERTY(QPoint panningPosition READ panningPosition WRITE setPanningPosition)
+    /*!
+     * layoutProgress defines current layouts panning progress.
+     * Change this property to update positions for layouts.
+     * */
+    Q_PROPERTY(qreal layoutsProgress READ layoutsProgress WRITE setLayoutsProgress)
+    /*!
+     * notificationsProgress defines current notifications panning progress.
+     * Change this property to update positions for notifications.
+     */
+    Q_PROPERTY(qreal notificationsProgress READ notificationsProgress WRITE setNotificationsProgress)
 
 public:
     virtual ~LayoutPanner();
@@ -170,10 +184,16 @@ public slots:
 private slots:
     void onPanningAnimationFinished();
 
+    void onCatchingUpAnimationFinished();
+
 private:
     const QPoint &panningPosition() const;
     void setPanningPosition(const QPoint &pos);
     void goToPanningPosition(const QPoint &start, const QPoint &end);
+    qreal layoutsProgress() const;
+    void setLayoutsProgress(qreal progress);
+    qreal notificationsProgress() const;
+    void setNotificationsProgress(qreal progress);
     void prepare();
     /*!
      * \brief finalize the panning switch.
@@ -190,7 +210,7 @@ private:
     QPoint lastMousePos;
     PanGesture::PanDirection direction;
     QPropertyAnimation panningAnimation;
-    QPropertyAnimation catchingUpAnimation;
+    QParallelAnimationGroup catchingUpAnimationGroup;
     QList<QPointer<QGraphicsWidget> > outgoingWidgets;
     QList<QPointer<QGraphicsWidget> > leftIncomingWidgets;
     QList<QPointer<QGraphicsWidget> > rightIncomingWidgets;
@@ -207,6 +227,8 @@ private:
     PanParameters *outgoingLayoutParameters;
     PanParameters *incomingLayoutParameters;
     PanParameters *foregroundMaskPanParameters;
+    qreal mLayoutsProgress;
+    qreal mNotificationsProgress;
     static LayoutPanner *sharedInstance;
 
     M_STYLABLE_WIDGET(LayoutPannerStyle)

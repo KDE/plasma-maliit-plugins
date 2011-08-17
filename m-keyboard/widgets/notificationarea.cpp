@@ -47,11 +47,19 @@ NotificationArea::NotificationArea(QGraphicsItem *parent)
       outgoingNotification(new Notification(this)),
       incomingNotification(new Notification(this)),
       assistantNotification(new Notification(this)),
-      outgoingNotificationParameters(new NotificationPanParameters(this)),
-      incomingNotificationParameters(new NotificationPanParameters(this)),
-      assistantNotificationParameters(new NotificationPanParameters(this)),
+      outgoingNotificationParameters(new OutgoingNotificationPanParameters(this)),
+      incomingNotificationParameters(new IncomingNotificationPanParameters(this)),
+      assistantNotificationParameters(new AssistantNotificationPanParameters(this)),
       hideAnimationGroup(this),
-      showAnimation(this, "opacity")
+      showAnimation(this, "opacity"),
+      outgoingNotificationFromScale(0.0),
+      outgoingNotificationToScale(0.0),
+      incomingNotificationFromScale(0.0),
+      incomingNotificationToScale(0.0),
+      assistantNotificationFromScale(0.0),
+      assistantNotificationToScale(0.0),
+      linearTransitionStartProgress(0.0),
+      linearTransitionEndProgress(0.0)
 {
     outgoingNotification->connectPanParameters(outgoingNotificationParameters);
     incomingNotification->connectPanParameters(incomingNotificationParameters);
@@ -74,13 +82,14 @@ NotificationArea::~NotificationArea()
 void NotificationArea::prepareNotifications(PanGesture::PanDirection direction)
 {
     qDebug() << __PRETTY_FUNCTION__;
+    this->direction = direction;
 
+    // prepare the panning parameters for notifications
     const int screenWidth
         = (MPlainWindow::instance()->sceneManager()->orientation() == M::Portrait)
           ? MPlainWindow::instance()->visibleSceneSize(M::Landscape).height()
           : MPlainWindow::instance()->visibleSceneSize(M::Landscape).width();
 
-    // prepare notifications
     qreal notificationMaximumWidth
         = style()->notificationMaximumWidth();
 
@@ -88,13 +97,12 @@ void NotificationArea::prepareNotifications(PanGesture::PanDirection direction)
     incomingNotification->setMaximumTextWidth(notificationMaximumWidth);
     assistantNotification->setMaximumTextWidth(notificationMaximumWidth);
 
-    qreal outgoingNotificationFromScale
+    outgoingNotificationFromScale
         = qBound<qreal>(0, qreal(notificationMaximumWidth / outgoingNotification->preferredWidth()), 1.0);
 
-    qreal outgoingNotificationToScale
-        = style()->smallSizeScaleFactor();
+    outgoingNotificationToScale = style()->smallSizeScaleFactor();
 
-    QPointF outgoingNotificationFromPos
+    outgoingNotificationFromPos
         = QPointF((screenWidth - outgoingNotification->preferredWidth()
                    * outgoingNotificationFromScale) / 2,
                   preferredHeight()
@@ -111,27 +119,13 @@ void NotificationArea::prepareNotifications(PanGesture::PanDirection direction)
         = preferredHeight()
           - outgoingNotification->preferredHeight() * outgoingNotificationToScale;
 
-    QPointF outgoingNotificationToPos
+    outgoingNotificationToPos
         = QPointF(outgoingNotificationToPosX, outgoingNotificationToPosY);
 
     outgoingNotification->updateScale(outgoingNotificationFromScale);
     outgoingNotification->updateOpacity(1.0);
     outgoingNotification->updatePos(outgoingNotificationFromPos);
     outgoingNotification->setVisible(false);
-    outgoingNotificationParameters->setPositionRange(
-        outgoingNotificationFromPos, outgoingNotificationToPos);
-    outgoingNotificationParameters->setScaleRange(outgoingNotificationFromScale,
-                                                  outgoingNotificationToScale);
-    outgoingNotificationParameters->setOpacityRange(1.0, 0.0);
-    outgoingNotificationParameters->setPositionProgressRange(
-            style()->positionStartProgress(),
-            style()->positionEndProgress());
-    outgoingNotificationParameters->setScaleProgressRange(
-            style()->scaleStartProgress(),
-            style()->scaleEndProgress());
-    outgoingNotificationParameters->setOpacityProgressRange(
-            style()->opacityStartProgress(),
-            style()->opacityEndProgress());
 
     qreal leftAndRightSpace
         = (outgoingNotification->preferredWidth()
@@ -147,9 +141,9 @@ void NotificationArea::prepareNotifications(PanGesture::PanDirection direction)
         assistantNotification->setText(mLeftLayoutTitle);
     }
 
-    qreal incomingNotificationFromScale = outgoingNotificationToScale;
+    incomingNotificationFromScale = outgoingNotificationToScale;
 
-    qreal incomingNotificationToScale
+    incomingNotificationToScale
         = qBound<qreal>(0, qreal(notificationMaximumWidth / incomingNotification->preferredWidth()), 1.0);
 
     qreal incomingNotificationFromPosX = 0;
@@ -172,10 +166,10 @@ void NotificationArea::prepareNotifications(PanGesture::PanDirection direction)
     qreal incomingNotificationFromPosY
         = preferredHeight()
           - incomingNotification->preferredHeight() * incomingNotificationFromScale;
-    QPointF incomingNotificationFromPos
+    incomingNotificationFromPos
         = QPointF(incomingNotificationFromPosX, incomingNotificationFromPosY);
 
-    QPointF incomingNotificationToPos
+    incomingNotificationToPos
         = QPointF((screenWidth - incomingNotification->preferredWidth()
                    * incomingNotificationToScale) / 2,
                   preferredHeight()
@@ -186,25 +180,10 @@ void NotificationArea::prepareNotifications(PanGesture::PanDirection direction)
     incomingNotification->updatePos(incomingNotificationFromPos);
     incomingNotification->updateOpacity(style()->initialEdgeOpacity());
     incomingNotification->setVisible(false);
-    incomingNotificationParameters->setPositionRange(
-        incomingNotificationFromPos, incomingNotificationToPos);
-    incomingNotificationParameters->setScaleRange(incomingNotificationFromScale,
-                                                  incomingNotificationToScale);
-    incomingNotificationParameters->setOpacityRange(style()->initialEdgeOpacity(),
-                                                    1.0);
 
-    incomingNotificationParameters->setPositionProgressRange(
-            style()->positionStartProgress(),
-            style()->positionEndProgress());
-    incomingNotificationParameters->setScaleProgressRange(
-            style()->scaleStartProgress(),
-            style()->scaleEndProgress());
-    incomingNotificationParameters->setOpacityProgressRange(
-            style()->opacityStartProgress(),
-            style()->opacityEndProgress());
-
-
-    qreal assistantNotificationFromScale = outgoingNotificationToScale;
+    assistantNotificationFromScale = outgoingNotificationToScale;
+    assistantNotificationToScale = 
+        assistantNotificationFromScale * outgoingNotificationToScale;
 
     qreal assistantNotificationFromPosX = 0;
 
@@ -231,12 +210,12 @@ void NotificationArea::prepareNotifications(PanGesture::PanDirection direction)
         = preferredHeight()
           - assistantNotification->preferredHeight() * outgoingNotificationToScale;
 
-    QPointF assistantNotificationFromPos
+    assistantNotificationFromPos
         = QPointF(assistantNotificationFromPosX, assistantNotificationFromPosY);
 
     qreal outgoingNotificationXMoveMent
         = outgoingNotificationToPos.x() - outgoingNotificationFromPos.x();
-    QPointF assistantNotificationToPos
+    assistantNotificationToPos
         = QPointF(assistantNotificationFromPos.x() + outgoingNotificationXMoveMent,
                   assistantNotificationToPosY);
 
@@ -244,22 +223,38 @@ void NotificationArea::prepareNotifications(PanGesture::PanDirection direction)
     assistantNotification->updateOpacity(style()->initialEdgeOpacity());
     assistantNotification->updatePos(assistantNotificationFromPos);
     assistantNotification->setVisible(false);
-    assistantNotificationParameters->setPositionRange(
-        assistantNotificationFromPos, assistantNotificationToPos);
-    assistantNotificationParameters->setScaleRange(assistantNotificationFromScale,
-                                               assistantNotificationFromScale * outgoingNotificationToScale);
-    assistantNotificationParameters->setOpacityRange(style()->initialEdgeOpacity(),
-                                                 0.0);
 
-    assistantNotificationParameters->setPositionProgressRange(
-            style()->positionStartProgress(),
-            style()->positionEndProgress());
-    assistantNotificationParameters->setScaleProgressRange(
-            style()->scaleStartProgress(),
-            style()->scaleEndProgress());
-    assistantNotificationParameters->setOpacityProgressRange(
-            style()->opacityStartProgress(),
-            style()->opacityEndProgress());
+    if (direction == PanGesture::PanLeft) {
+        outgoingNotificationParameters->setAvoidOverlappingPanParameters(
+            incomingNotificationParameters, direction,
+            outgoingNotification->preferredWidth());
+
+        assistantNotificationParameters->setKeepDistancePanParameters(
+            outgoingNotificationParameters, direction,
+            assistantNotification->preferredWidth(),
+            (outgoingNotification->pos().x()
+            - assistantNotification->pos().x()
+            - assistantNotification->preferredWidth()
+            * assistantNotificationParameters->scale()));
+
+    } else {
+        outgoingNotificationParameters->setAvoidOverlappingPanParameters(
+            incomingNotificationParameters, direction,
+            incomingNotification->preferredWidth());
+
+        assistantNotificationParameters->setKeepDistancePanParameters(
+            outgoingNotificationParameters, direction,
+            outgoingNotification->preferredWidth(),
+            (assistantNotification->pos().x()
+            - outgoingNotification->pos().x()
+            - outgoingNotification->preferredWidth()
+            * outgoingNotificationParameters->scale()));
+    }
+
+    initPanParameters();
+    outgoingNotificationParameters->reset();
+    incomingNotificationParameters->reset();
+    assistantNotificationParameters->reset();
 }
 
 void NotificationArea::setOutgoingLayoutTitle(const QString &title)
@@ -359,8 +354,8 @@ void NotificationArea::cancel()
 
 void NotificationArea::setProgress(qreal progress)
 {
-    outgoingNotificationParameters->setProgress(progress);
     incomingNotificationParameters->setProgress(progress);
+    outgoingNotificationParameters->setProgress(progress);
     assistantNotificationParameters->setProgress(progress);
 }
 
@@ -376,4 +371,148 @@ void NotificationArea::reset()
     setOutgoingLayoutTitle("");
     setIncomingLayoutTitle(PanGesture::PanLeft, "");
     setIncomingLayoutTitle(PanGesture::PanRight, "");
+}
+
+void NotificationArea::requireLinearTransition(qreal startProgress,
+                                               qreal endProgress)
+{
+    if (linearTransitionStartProgress == startProgress
+        && linearTransitionEndProgress == endProgress)
+        return;
+
+    linearTransitionStartProgress = startProgress;
+    linearTransitionEndProgress = endProgress;
+
+    initPanParameters();
+    if (endProgress > style()->outgoingScaleMutationProgress()
+        || endProgress > style()->outgoingOpacityMutationProgress()) {
+        // adjust scale and opacity changing range and value
+        // to make the animation transition smooth.
+        incomingNotificationParameters->setPositionRange(
+            incomingNotificationParameters->positionAt(startProgress),
+            incomingNotificationParameters->positionAt(endProgress));
+        incomingNotificationParameters->setPositionProgressRange(
+            startProgress, endProgress);
+
+        incomingNotificationParameters->setScaleRange(
+            incomingNotificationParameters->scaleAt(startProgress),
+            incomingNotificationParameters->scaleAt(endProgress));
+        incomingNotificationParameters->setScaleProgressRange(
+            startProgress, endProgress);
+
+        incomingNotificationParameters->setOpacityRange(
+        incomingNotificationParameters->opacityAt(startProgress),
+        incomingNotificationParameters->opacityAt(endProgress));
+        incomingNotificationParameters->setOpacityProgressRange(
+            startProgress, endProgress);
+
+        outgoingNotificationParameters->setPositionRange(
+        outgoingNotificationParameters->positionAt(startProgress),
+        outgoingNotificationParameters->positionAt(endProgress));
+        outgoingNotificationParameters->setPositionProgressRange(
+            startProgress, endProgress);
+
+        outgoingNotificationParameters->setScaleRange(
+            outgoingNotificationParameters->scaleAt(startProgress),
+            outgoingNotificationParameters->scaleAt(endProgress));
+        outgoingNotificationParameters->setScaleProgressRange(
+            startProgress, endProgress);
+
+        outgoingNotificationParameters->setOpacityRange(
+        outgoingNotificationParameters->opacityAt(startProgress),
+            outgoingNotificationParameters->opacityAt(endProgress));
+        outgoingNotificationParameters->setOpacityProgressRange(
+            startProgress, endProgress);
+    }
+
+    // disable scale and opacity mutation.
+    if (linearTransitionStartProgress != linearTransitionEndProgress) {
+        outgoingNotificationParameters->setScaleMutation(0.00, 0.00);
+        outgoingNotificationParameters->setOpacityMutation(0.00, 0.00);
+        incomingNotificationParameters->setScaleMutation(0.00, 0.00);
+        incomingNotificationParameters->setOpacityMutation(0.00, 0.00);
+    }
+}
+
+void NotificationArea::clearLinearTransition()
+{
+    requireLinearTransition(0.0, 0.0);
+}
+
+/*!
+ * Initialize the PanParameters for notifications.
+ */
+void NotificationArea::initPanParameters()
+{
+    outgoingNotificationParameters->setScaleRange(outgoingNotificationFromScale,
+                                                  outgoingNotificationToScale);
+    outgoingNotificationParameters->setOpacityRange(1.0, 0.0);
+    outgoingNotificationParameters->setPositionRange(
+        outgoingNotificationFromPos, outgoingNotificationToPos);
+
+    incomingNotificationParameters->setScaleRange(incomingNotificationFromScale,
+                                                  incomingNotificationToScale);
+    incomingNotificationParameters->setOpacityRange(style()->initialEdgeOpacity(),
+                                                    1.0);
+    incomingNotificationParameters->setPositionRange(
+        incomingNotificationFromPos, incomingNotificationToPos);
+
+    assistantNotificationParameters->setPositionRange(
+        assistantNotificationFromPos, assistantNotificationToPos);
+    assistantNotificationParameters->setScaleRange(assistantNotificationFromScale,
+                                                   assistantNotificationToScale);
+    assistantNotificationParameters->setOpacityRange(style()->initialEdgeOpacity(),
+                                                     0.0);
+
+    // set scale and opacity mutation
+    outgoingNotificationParameters->setScaleMutation(
+        style()->outgoingScaleMutationProgress(),
+        style()->outgoingScaleMutation());
+
+    outgoingNotificationParameters->setOpacityMutation(
+        style()->outgoingOpacityMutationProgress(),
+        style()->outgoingOpacityMutation());
+
+    qreal incomingScaleMutation =
+        qMin<qreal>(style()->incomingScaleMutation(),
+                    qBound<qreal>(0,
+                                  qreal(style()->notificationMaximumWidth()
+                                  / incomingNotification->preferredWidth()),
+                                  1.0));
+    incomingNotificationParameters->setScaleMutation(
+        style()->incomingScaleMutationProgress(),
+        incomingScaleMutation);
+    incomingNotificationParameters->setOpacityMutation(
+        style()->incomingOpacityMutationProgress(),
+        style()->incomingOpacityMutation());
+
+    outgoingNotificationParameters->setPositionProgressRange(
+            style()->outgoingPositionStartProgress(),
+            style()->outgoingPositionEndProgress());
+    outgoingNotificationParameters->setScaleProgressRange(
+            style()->outgoingScaleStartProgress(),
+            style()->outgoingScaleEndProgress());
+    outgoingNotificationParameters->setOpacityProgressRange(
+            style()->outgoingOpacityStartProgress(),
+            style()->outgoingOpacityEndProgress());
+
+    incomingNotificationParameters->setPositionProgressRange(
+            style()->incomingPositionStartProgress(),
+            style()->incomingPositionEndProgress());
+    incomingNotificationParameters->setScaleProgressRange(
+            style()->incomingScaleStartProgress(),
+            style()->incomingScaleEndProgress());
+    incomingNotificationParameters->setOpacityProgressRange(
+            style()->incomingOpacityStartProgress(),
+            style()->incomingOpacityEndProgress());
+
+    assistantNotificationParameters->setPositionProgressRange(
+            style()->outgoingPositionStartProgress(),
+            style()->outgoingPositionEndProgress());
+    assistantNotificationParameters->setScaleProgressRange(
+            style()->outgoingScaleStartProgress(),
+            style()->outgoingScaleEndProgress());
+    assistantNotificationParameters->setOpacityProgressRange(
+            style()->outgoingOpacityStartProgress(),
+            style()->outgoingOpacityEndProgress());
 }

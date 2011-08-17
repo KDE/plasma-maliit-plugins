@@ -45,6 +45,9 @@
 #include <QPainter>
 #include <QGraphicsWidget>
 #include <QGraphicsSceneMouseEvent>
+#include <QEasingCurve>
+#include <QPauseAnimation>
+#include <QSequentialAnimationGroup>
 #include <QDebug>
 
 #include <MGConfItem>
@@ -63,7 +66,7 @@ LayoutPanner::LayoutPanner(QGraphicsWidget *parent) :
     ReactionMapPaintable(),
     mPanEnabled(true),
     panningAnimation(this, "panningPosition"),
-    catchingUpAnimation(this, "panningPosition"),
+    catchingUpAnimationGroup(this),
     result(PanGesture::PanNone),
     mPluginSwitching(false),
     outgoingLayoutItem(new MImSnapshotPixmapItem(this)),
@@ -75,10 +78,15 @@ LayoutPanner::LayoutPanner(QGraphicsWidget *parent) :
     notificationArea(new NotificationArea(this)),
     outgoingLayoutParameters(new OutgoingLayoutPanParameters(this)),
     incomingLayoutParameters(new IncomingLayoutPanParameters(this)),
-    foregroundMaskPanParameters(new ForegroundMaskPanParameters(this))
+    foregroundMaskPanParameters(new ForegroundMaskPanParameters(this)),
+    mLayoutsProgress(0.0),
+    mNotificationsProgress(0.0)
 {
     connect(&panningAnimation, SIGNAL(finished()),
             this, SLOT(onPanningAnimationFinished()));
+
+    connect(&catchingUpAnimationGroup, SIGNAL(finished()),
+            this, SLOT(onCatchingUpAnimationFinished()));
 
     maskPixmapItem->setZValue(MaskItemZValue);
 
@@ -228,18 +236,66 @@ const QPoint &LayoutPanner::panningPosition() const
     return currentPos;
 }
 
+/*!
+ * Plays catching up animation to move keyboard layous and notifications
+ * from position \a start to \a end.
+ */
 void LayoutPanner::goToPanningPosition(const QPoint &start, const QPoint &end)
 {
-    catchingUpAnimation.stop();
+    catchingUpAnimationGroup.stop();
+    catchingUpAnimationGroup.clear();
+    QPropertyAnimation *layoutsCatchingUpAnimation
+        = new QPropertyAnimation(this, "layoutsProgress");
+    QPropertyAnimation *notificationsCatchingUpAnimation
+        = new QPropertyAnimation(this, "notificationsProgress");
 
-    qreal duration = qBound<qreal>(0.0,
-                          qAbs(end.x() - start.x())
-                          * style()->catchingUpAnimationSpeed(),
-                          style()->catchingUpAnimationMaximumDuration());
-    catchingUpAnimation.setDuration(duration);
-    catchingUpAnimation.setStartValue(start);
-    catchingUpAnimation.setEndValue(end);
-    catchingUpAnimation.start();
+    qreal layoutsDuration = qBound<qreal>(0.0,
+                            qAbs(end.x() - start.x())
+                            * style()->layoutsCatchingUpAnimationDurationMultiplier(),
+                            style()->catchingUpAnimationMaximumDuration());
+
+    qreal notificationsDuration = qBound<qreal>(0.0,
+                                  qAbs(end.x() - start.x())
+                                  * style()->notificationsCatchingUpAnimationDurationMultiplier(),
+                                  style()->catchingUpAnimationMaximumDuration());
+
+    bool isPortrait =
+        (MPlainWindow::instance()->sceneManager()->orientation() == M::Portrait);
+    qreal startProgress = isPortrait
+                     ? qreal(qAbs(start.x() - startPos.x()) / size().height())
+                     : qreal(qAbs(start.x() - startPos.x()) / size().width());
+
+    qreal endProgress = isPortrait
+                     ? qreal(qAbs(end.x() - startPos.x()) / size().height())
+                     : qreal(qAbs(end.x() - startPos.x()) / size().width());
+
+    layoutsCatchingUpAnimation->setDuration(layoutsDuration);
+    layoutsCatchingUpAnimation->setEasingCurve(style()->layoutsCatchingUpAnimationCurve());
+
+    QSequentialAnimationGroup *notificationsAnimationGroup
+        = new QSequentialAnimationGroup(this);
+    notificationsAnimationGroup->addAnimation(
+        new QPauseAnimation(notificationsDuration
+                            * style()->notificationsCatchingUpAnimationPause()));
+
+    notificationsCatchingUpAnimation->setEasingCurve(
+        style()->notificationsCatchingUpAnimationCurve());
+    notificationsCatchingUpAnimation->setDuration(
+        notificationsDuration
+        * (1 - style()->notificationsCatchingUpAnimationPause()));
+    notificationsAnimationGroup->addAnimation(notificationsCatchingUpAnimation);
+
+    layoutsCatchingUpAnimation->setStartValue(startProgress);
+    layoutsCatchingUpAnimation->setEndValue(endProgress);
+    notificationsCatchingUpAnimation->setStartValue(startProgress);
+    notificationsCatchingUpAnimation->setEndValue(endProgress);
+
+    catchingUpAnimationGroup.addAnimation(layoutsCatchingUpAnimation);
+    catchingUpAnimationGroup.addAnimation(notificationsAnimationGroup);
+
+    // require linear transition during catching up animation 
+    notificationArea->requireLinearTransition(startProgress, endProgress);
+    catchingUpAnimationGroup.start();
 }
 
 void LayoutPanner::setPanningPosition(const QPoint &pos)
@@ -248,14 +304,12 @@ void LayoutPanner::setPanningPosition(const QPoint &pos)
 
     bool isPortrait =
         (MPlainWindow::instance()->sceneManager()->orientation() == M::Portrait);
-    const qreal progress = isPortrait
-                           ? qreal(qAbs(distance())) / size().height()
-                           : qreal(qAbs(distance())) / size().width();
+    qreal progress = isPortrait
+                     ? qreal(qAbs(distance())) / size().height()
+                     : qreal(qAbs(distance())) / size().width();
 
-    outgoingLayoutParameters->setProgress(progress);
-    incomingLayoutParameters->setProgress(progress);
-    foregroundMaskPanParameters->setProgress(progress);
-    notificationArea->setProgress(progress);
+    setLayoutsProgress(progress);
+    setNotificationsProgress(progress);
 }
 
 void LayoutPanner::onPanningAnimationFinished()
@@ -283,37 +337,85 @@ void LayoutPanner::onPanningAnimationFinished()
     reset();
 }
 
+void LayoutPanner::onCatchingUpAnimationFinished()
+{
+    notificationArea->clearLinearTransition();
+    // Re-enable the mutaion maybe cause notifications to change scale and opacity.
+    // So call setNotificationsProgress() to update.
+    setNotificationsProgress(mNotificationsProgress);
+}
+
 void LayoutPanner::applyStyle()
 {
     panningAnimation.setEasingCurve(style()->panningAnimationCurve());
-    catchingUpAnimation.setEasingCurve(style()->catchingUpAnimationCurve());
 }
 
 void LayoutPanner::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     QPoint currentMousePos = event->pos().toPoint();
+    bool isPortrait =
+        (MPlainWindow::instance()->sceneManager()->orientation() == M::Portrait);
 
     int moveDistance = 0;
-    if (catchingUpAnimation.state() == QAbstractAnimation::Running)
-        moveDistance = qAbs(currentMousePos.x()
-                            - catchingUpAnimation.endValue().toPoint().x());
-    else {
+    qreal endProgress = 0.0;
+    if (catchingUpAnimationGroup.state() == QAbstractAnimation::Running) {
+        QPropertyAnimation *animation
+            = qobject_cast<QPropertyAnimation *>(catchingUpAnimationGroup.animationAt(0));
+        if (animation) {
+            endProgress
+                = isPortrait
+                  ? qAbs(currentMousePos.x() - startPos.x()) / size().height()
+                  : qAbs(currentMousePos.x() - startPos.x()) / size().width();
+
+            moveDistance
+                = isPortrait
+                  ? qAbs(endProgress - animation->endValue().toReal())
+                    * size().height()
+                  : qAbs(endProgress - animation->endValue().toReal())
+                    * size().width();
+        }
+    } else {
         moveDistance = qAbs(currentMousePos.x() - lastMousePos.x());
     }
 
-    if (moveDistance > style()->suddenMovementThreshold()) {
+    if (qAbs(moveDistance) > style()->suddenMovementThreshold()
+        && lastMousePos == startPos) {
+        // only need catching up animation for first panning.
         goToPanningPosition(lastMousePos, currentMousePos);
 
-    } else if (catchingUpAnimation.state() == QAbstractAnimation::Running
-               && moveDistance > style()->minimumMovementThreshold()) {
+    } else if (catchingUpAnimationGroup.state() == QAbstractAnimation::Running
+               && qAbs(moveDistance) > style()->minimumMovementThreshold()) {
         // if catchingUpAnimation is already started,
-        // change the endvalue forcatching up animation
-        catchingUpAnimation.setEndValue(currentMousePos);
+        // adjust the end progress for catching up animation
+        for (int i = 0; i < catchingUpAnimationGroup.animationCount(); i++) {
+            QSequentialAnimationGroup *animationGroup
+                = qobject_cast<QSequentialAnimationGroup *>
+                  (catchingUpAnimationGroup.animationAt(i));
+            if (animationGroup) {
+                for (int j = 0; j < animationGroup->animationCount(); j++) {
+                    QPropertyAnimation *animation
+                        = qobject_cast<QPropertyAnimation *>
+                          (animationGroup->animationAt(i));
+                    if (animation) {
+                        // require new linear transition end progress
+                        notificationArea->requireLinearTransition(
+                            animation->startValue().toReal(), endProgress);
+                        animation->setEndValue(endProgress);
+                    }
+                }
+            } else {
+                QPropertyAnimation *animation
+                = qobject_cast<QPropertyAnimation *>
+                  (catchingUpAnimationGroup.animationAt(i));
+                if (animation)
+                    animation->setEndValue(endProgress);
+            }
+        }
 
-    } else if (catchingUpAnimation.state() != QAbstractAnimation::Running) {
-        catchingUpAnimation.stop();
+    } else if (catchingUpAnimationGroup.state() != QAbstractAnimation::Running) {
+        catchingUpAnimationGroup.stop();
+        catchingUpAnimationGroup.clear();
         setPanningPosition(currentMousePos);
-
     }
     // else ignore the small movements.
 
@@ -425,7 +527,7 @@ void LayoutPanner::preparePanningItems()
 
     QPointF outgoingLayoutItemFromPos
         = QPointF(0, sharedPixmapItem->boundingRect().height());
-    outgoingLayoutItem->updateOpacity(style()->outgoingFromOpacity());
+    outgoingLayoutItem->updateOpacity(style()->outgoingLayoutFromOpacity());
     outgoingLayoutItem->updatePos(outgoingLayoutItemFromPos);
     outgoingLayoutItem->setVisible(true);
     QPointF outgoingPanningItemToPos =
@@ -436,12 +538,12 @@ void LayoutPanner::preparePanningItems()
     outgoingLayoutParameters->setPositionRange(outgoingLayoutItemFromPos,
                                                 outgoingPanningItemToPos);
 
-    outgoingLayoutParameters->setOpacityRange(style()->outgoingFromOpacity(),
-                                              style()->outgoingToOpacity());
+    outgoingLayoutParameters->setOpacityRange(style()->outgoingLayoutFromOpacity(),
+                                              style()->outgoingLayoutToOpacity());
 
     outgoingLayoutParameters->setOpacityProgressRange(
-        style()->outgoingOpacityStartProgress(),
-        style()->outgoingOpacityEndProgress());
+        style()->outgoingLayoutOpacityStartProgress(),
+        style()->outgoingLayoutOpacityEndProgress());
 
     QPointF incomingLayoutItemFromPos;
     int incomingPixmapPosX = (direction == PanGesture::PanRight)
@@ -454,17 +556,17 @@ void LayoutPanner::preparePanningItems()
     incomingPixmapPosY += sharedPixmapItem->boundingRect().height();
 
     incomingLayoutItemFromPos = QPointF(incomingPixmapPosX, incomingPixmapPosY);
-    incomingLayoutItem->updateOpacity(style()->incomingFromOpacity());
+    incomingLayoutItem->updateOpacity(style()->incomingLayoutFromOpacity());
     incomingLayoutItem->updatePos(incomingLayoutItemFromPos);
     incomingLayoutItem->setVisible(true);
 
     QPointF incomingLayoutItemToPos = QPointF(0, incomingLayoutItemFromPos.y());
 
     incomingLayoutParameters->setPositionRange(incomingLayoutItemFromPos,
-                                                incomingLayoutItemToPos);
+                                               incomingLayoutItemToPos);
 
-    incomingLayoutParameters->setOpacityRange(style()->incomingFromOpacity(),
-                                              style()->incomingToOpacity());
+    incomingLayoutParameters->setOpacityRange(style()->incomingLayoutFromOpacity(),
+                                              style()->incomingLayoutToOpacity());
 
     sharedPixmapItem->setPos(QPointF(0, 0));
 
@@ -514,6 +616,9 @@ void LayoutPanner::setSwitchingPlugin(bool flag)
 
 void LayoutPanner::reset()
 {
+    catchingUpAnimationGroup.stop();
+    catchingUpAnimationGroup.clear();
+
     mPluginSwitching = false;
     result = PanGesture::PanNone;
     outgoingWidgets.clear();
@@ -524,6 +629,8 @@ void LayoutPanner::reset()
     outgoingLayoutParameters->reset();
     incomingLayoutParameters->reset();
     foregroundMaskPanParameters->reset();
+    mLayoutsProgress= 0.0;
+    mNotificationsProgress = 0.0;
 }
 
 bool LayoutPanner::isPanningLayouts() const
@@ -619,4 +726,28 @@ void LayoutPanner::setIncomingLayoutTitle(PanGesture::PanDirection direction,
 {
     notificationArea->setIncomingLayoutTitle(direction,
                                                        title);
+}
+
+qreal LayoutPanner::layoutsProgress() const
+{
+    return mLayoutsProgress;
+}
+
+void LayoutPanner::setLayoutsProgress(qreal progress)
+{
+    mLayoutsProgress = progress;
+    outgoingLayoutParameters->setProgress(progress);
+    incomingLayoutParameters->setProgress(progress);
+    foregroundMaskPanParameters->setProgress(progress);
+}
+
+qreal LayoutPanner::notificationsProgress() const
+{
+    return mNotificationsProgress;
+}
+
+void LayoutPanner::setNotificationsProgress(qreal progress)
+{
+    mNotificationsProgress = progress;
+    notificationArea->setProgress(progress);
 }
