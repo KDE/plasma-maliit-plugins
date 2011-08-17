@@ -62,16 +62,16 @@
           <binding label="&#x0026;"/>
         </key>
         <key>
-          <binding label="("/>
+          <binding label=")" rtl="true"/>
         </key>
         <key>
-          <binding label=")"/>
+          <binding label="(" rtl="true"/>
         </key>
         <key>
-          <binding label="&lt;"/>
+          <binding label="&gt;" rtl="true"/>
         </key>
         <key>
-          <binding label="&gt;"/>
+          <binding label="&lt;" rtl="true"/>
         </key>
       </row>
 
@@ -187,22 +187,22 @@
           <binding label="&#x00A7;"/>
         </key>
         <key>
-          <binding label="&#x007B;"/>
+          <binding label="&#x007D;" rtl="true"/>
         </key>
         <key>
-          <binding label="&#x007D;"/>
+          <binding label="&#x007B;" rtl="true"/>
         </key>
         <key>
-          <binding label="&#x005B;"/>
+          <binding label="&#x005D;" rtl="true"/>
         </key>
         <key>
-          <binding label="&#x005D;"/>
+          <binding label="&#x005B;" rtl="true"/>
         </key>
         <key>
-          <binding label="&#x00AB;"/>
+          <binding label="&#x00BB;" rtl="true"/>
         </key>
         <key>
-          <binding label="&#x00BB;"/>
+          <binding label="&#x00AB;" rtl="true"/>
         </key>
       </row>
 

@@ -118,6 +118,9 @@ public:
     //! close the view it was "picked" from. Only symbol view currently supports this.
     bool isQuickPick() const;
 
+    //! \return true if the key needs right-to-left representation during rendering
+    bool isRtl() const;
+
 private:
     //! Helper method for toKeyEvent methods
     KeyEvent toKeyEventImpl(QKeyEvent::Type eventType,
@@ -148,6 +151,8 @@ private:
     bool quickPick;
     //! True if this is a compose key.
     bool compose;
+    //! True if this is an rtl key.
+    bool rtl;
 
     friend class KeyboardData;
     friend class Ut_MImKeyModel;
@@ -186,6 +191,11 @@ inline MImKeyBinding::KeyAction MImKeyBinding::action() const
 inline QString MImKeyBinding::extendedLabels() const
 {
     return extended_labels;
+}
+
+inline bool MImKeyBinding::isRtl() const
+{
+    return rtl;
 }
 
 

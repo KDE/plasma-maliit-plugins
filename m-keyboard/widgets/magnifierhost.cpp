@@ -191,7 +191,7 @@ void MagnifierHost::handleKeyPressedOnMainArea(MImAbstractKey *key,
     extKeys->hide();
 
     hideDelayTimer.stop();
-    magnifier->setLabel(key->label());
+    magnifier->setLabel(key->renderingLabel());
     magnifier->showMagnifier();
 }
 

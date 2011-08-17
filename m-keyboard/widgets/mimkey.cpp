@@ -115,6 +115,9 @@ namespace {
 
     const char * const HighlightedName = "Highlighted";
 
+    //! Unicode Right-to-Left Embedding mark (RLE)
+    const QChar RleMark(0x202B);
+
     // Return style name by it's type
     QString style2name(MImKeyModel::StyleType styleType)
     {
@@ -226,6 +229,15 @@ const QString MImKey::label() const
         return QString();
 
     return currentLabel;
+}
+
+const QString MImKey::renderingLabel() const
+{
+    if (binding().isRtl()) {
+        return QString(RleMark) + label();
+    } else {
+        return label();
+    }
 }
 
 const QString MImKey::secondaryLabel() const
@@ -636,7 +648,7 @@ void MImKey::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget 
     } else {
         painter->setFont(font());
         painter->setPen(fontColor());
-        painter->drawText(labelRect(), Qt::AlignCenter, label());
+        painter->drawText(labelRect(), Qt::AlignCenter, renderingLabel());
         if (!secondaryLabel().isEmpty()) {
             painter->setFont(styleContainer->secondaryFont());
             painter->drawText(secondaryLabelArea, Qt::AlignCenter, secondaryLabel());

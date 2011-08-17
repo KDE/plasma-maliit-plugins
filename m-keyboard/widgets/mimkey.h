@@ -89,6 +89,7 @@ public:
 
     //! \reimp
     virtual const QString label() const;
+    virtual const QString renderingLabel() const;
     virtual const QString secondaryLabel() const;
     virtual const QRectF &buttonRect() const;
     virtual const QRectF &buttonBoundingRect() const;
