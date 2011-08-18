@@ -26,6 +26,8 @@ SOURCES += ut_symbolview.cpp \
            ../stubs/fakegconf.cpp \
            $$WIDGETS_DIR/symbolview.cpp \
 
+OTHER_FILES += testsymbols.xml
+
 include(../common_check.pri)
 
 TESTLAYOUTFILE = testsymbols.xml
