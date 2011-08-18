@@ -504,13 +504,12 @@ void SymbolView::handleKeyClicked(const MImAbstractKey *key)
     }
 
     // Set hideOnSpaceKey to true if user clicked a non-numeric symbol character.
-    hideOnSpaceKey = false;
-    if (keyAction == MImKeyBinding::ActionInsert) {
-        bool isNumeric = false;
-        (void)key->label().toInt(&isNumeric);
-        if (!isNumeric) {
-            hideOnSpaceKey = true;
-        }
+    if (keyAction == MImKeyBinding::ActionInsert
+        && (key->label().length() != 1
+            || key->label().at(0).category() != QChar::Number_DecimalDigit)) {
+        hideOnSpaceKey = true;
+    } else {
+        hideOnSpaceKey = false;
     }
 
     // Don't retain temporary mode after non-symbol key click and no other pressed key.
