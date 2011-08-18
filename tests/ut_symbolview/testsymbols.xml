@@ -27,6 +27,12 @@
       </row>
       <row>
         <key><binding action="space"/></key>
+        <key>
+          <binding label="٤"/>
+        </key>
+        <key>
+          <binding label="۴"/>
+        </key>
       </row>
     </section>
 

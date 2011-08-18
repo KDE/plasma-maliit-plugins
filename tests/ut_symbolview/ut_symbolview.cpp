@@ -383,7 +383,11 @@ void Ut_SymbolView::testAutomaticCloseOnKeyClick_data()
     const QPoint quickPickKey(0, 0); // '@'
     const QPoint normalKey(1, 0); // excluding numerics
     const QPoint spaceKey(0, 1);
-    const QPoint numberKey(5, 0);
+    const QPoint numberKeys[3] = {
+        QPoint(5, 0), // arabic
+        QPoint(1, 1), // arabic-indic
+        QPoint(2, 1)  // extended arabic-indic
+    };
 
     QTest::newRow("Normal key click, symbol view stays open.")
         << (KeyList() << normalKey) << true;
@@ -399,10 +403,14 @@ void Ut_SymbolView::testAutomaticCloseOnKeyClick_data()
         << (KeyList() << spaceKey) << true;
     QTest::newRow("close by hitting space key after some other keys")
         << (KeyList() << normalKey << normalKey << spaceKey) << false;
-    QTest::newRow("space after number doesn't close symbol view")
-        << (KeyList() << numberKey << spaceKey) << true;
-    QTest::newRow("number must be last one for space to close symbol view")
-        << (KeyList() << numberKey << normalKey << spaceKey) << false;
+
+    // Test number cases
+    for (int i = 0; i < 3; ++i) {
+        QTest::newRow(QString("space after number doesn't close symbol view #%1").arg(i).toAscii().data())
+            << (KeyList() << numberKeys[i] << spaceKey) << true;
+        QTest::newRow(QString("number must be last one for space to close symbol view #%1").arg(i).toAscii().data())
+            << (KeyList() << numberKeys[i] << normalKey << spaceKey) << false;
+    }
 }
 
 void Ut_SymbolView::testAutomaticCloseOnKeyClick()
