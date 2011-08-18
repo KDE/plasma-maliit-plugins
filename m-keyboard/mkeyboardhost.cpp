@@ -672,7 +672,9 @@ void MKeyboardHost::hide()
 
     if (EngineManager::instance().handler()) {
         AbstractEngineWidgetHost *engineWidgetHost = EngineManager::instance().handler()->engineWidgetHost();
-        if (engineWidgetHost && engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode) {
+        if (engineWidgetHost
+            && (engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode
+                || engineWidgetHost->displayMode() == AbstractEngineWidgetHost::DialogMode)) {
             engineWidgetHost->hideEngineWidget();
         }
     }
@@ -1010,7 +1012,9 @@ void MKeyboardHost::resetInternalState()
     preeditHasBeenEdited = false;
     if (EngineManager::instance().handler()) {
         AbstractEngineWidgetHost *engineWidgetHost = EngineManager::instance().handler()->engineWidgetHost();
-        if (engineWidgetHost && engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode) {
+        if (engineWidgetHost
+            && (engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode
+                || engineWidgetHost->displayMode() == AbstractEngineWidgetHost::DialogMode)) {
             engineWidgetHost->reset();
             engineWidgetHost->hideEngineWidget();
         }
