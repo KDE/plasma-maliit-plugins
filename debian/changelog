@@ -1,3 +1,9 @@
+meego-keyboard (0.7.4-1) unstable; urgency=low
+
+  * Fixes: NB#277034 - Input Methods: The right and left brackets are improperly displayed in Arabic Virtual Keyboard
+
+ -- huaming wang <huaming.wang@nokia.com>  Fri, 19 Aug 2011 13:14:26 +0300
+
 meego-keyboard (0.7.3-1) unstable; urgency=low
 
   * Fixes: NB#259257 - [TASK] Panning interaction between multiple keyboard layouts 
