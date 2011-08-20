@@ -616,6 +616,11 @@ void MKeyboardHost::show()
     // instances, and some other input method plugin might change engine state.
     EngineManager::instance().ensureLanguageInUse(vkbWidget->layoutLanguage());
 
+    // Set new language to input context.
+    if (activeState == MInputMethod::OnScreen) {
+        inputMethodHost()->setLanguage(vkbWidget->layoutLanguage());
+    }
+
     // Update input engine keyboard layout.
     if (vkbWidget->isVisible())
         updateEngineKeyboardLayout();
@@ -683,6 +688,9 @@ void MKeyboardHost::hide()
             engineWidgetHost->hideEngineWidget();
         }
     }
+
+    // Clear language.
+    inputMethodHost()->setLanguage("");
 
     // Avoid receiving input events when sliding away
     MPlainWindow::instance()->setEnabled(false);
@@ -2204,6 +2212,9 @@ void MKeyboardHost::handleVirtualKeyboardLayoutChanged(const QString &layout)
 
     // update language properties
     EngineManager::instance().updateLanguage(vkbWidget->layoutLanguage());
+
+    // Set new language to input context.
+    inputMethodHost()->setLanguage(vkbWidget->layoutLanguage());
 
     resetInternalState();
 
