@@ -1,8 +1,8 @@
-meego-keyboard (0.7.5~1) unstable; urgency=low
+meego-keyboard (0.7.5-1) unstable; urgency=low
 
   * Fixes: NB#277056 - Zhuyin; Enter key does not dismiss candidates
 
- -- Zongxin Wang <ext-zongxin.wang@nokia.com>  Fri, 19 Aug 2011 14:33:45 +0300
+ -- Ning Chi <ext-chi.2.ning@nokia.com>  Sat, 20 Aug 2011 14:59:44 +0300
 
 meego-keyboard (0.7.4-1) unstable; urgency=low
 
