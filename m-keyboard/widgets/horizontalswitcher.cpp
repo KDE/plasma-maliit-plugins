@@ -409,7 +409,6 @@ void HorizontalSwitcher::prepareLayoutSwitch(PanGesture::PanDirection direction)
     MImAbstractKeyArea *const currentKeyArea = dynamic_cast<MImAbstractKeyArea *>(currentWidget);
     if (currentKeyArea) {
         currentKeyArea->hidePopup();
-        currentKeyArea->resetActiveKeys();
         currentKeyArea->setEnabled(false);
     }
 
