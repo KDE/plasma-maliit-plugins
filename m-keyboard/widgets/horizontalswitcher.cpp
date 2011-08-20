@@ -392,6 +392,10 @@ void HorizontalSwitcher::updatePanningSwitchIncomingWidget(PanGesture::PanDirect
     if (nextWidget->pos().y() + nextWidget->size().height() < size().height()) {
         nextWidget->setPos(0.0, (size().height() - nextWidget->size().height()));
     }
+    if (nextWidget->size().height() == size().height()
+        && nextWidget->pos().y() != 0.0) {
+        nextWidget->setPos(0.0, 0.0);
+    }
 
     LayoutPanner::instance().addIncomingWidget(direction, nextWidget);
 }
