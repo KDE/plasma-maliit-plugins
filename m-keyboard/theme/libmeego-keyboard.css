@@ -1053,7 +1053,9 @@ LayoutPannerStyle {
    commit-threshold: 427;
    panning-animation-curve: outcubic;
    panning-animation-duration: 300;
-   background-image: "meegotouch-keyboard-background" $ROUNDED_CORNERS;
+   background-image:; /*"meegotouch-keyboard-background" $ROUNDED_CORNERS;*/
+   background-color: #000000;
+   background-opacity: 0.95;
 
    dimming-color: #000000;
    initial-dimming-opacity: 0.7;
