@@ -199,17 +199,27 @@ void LayoutPanner::addSharedPixmap(QPixmap *pixmap, const QPoint &position)
 }
 
 void LayoutPanner::paint(QPainter *painter,
-                               const QStyleOptionGraphicsItem *,
-                               QWidget *)
+                         const QStyleOptionGraphicsItem *,
+                         QWidget *)
 {
     QRectF rect= boundingRect();
     if (MPlainWindow::instance()->sceneManager()->orientation() == M::Portrait) {
-        rect = QRect(0, 0, rect.height(), rect.width());
+        rect = QRectF(0, 0, rect.height(), rect.width());
     }
 
     const MScalableImage *background = style()->backgroundImage();
-    if (background && !mPluginSwitching) {
+    if (background) {
         background->draw(rect.toRect(), painter);
+        return;
+    }
+
+    const QColor backgroundColor = style()->backgroundColor();
+    const qreal opacity = qBound(qreal(0.0f), style()->backgroundOpacity(), qreal(1.0f));
+    if (backgroundColor.isValid() && opacity > 0) {
+        const qreal oldOpacity = painter->opacity();
+        painter->setOpacity(opacity);
+        painter->fillRect(rect, backgroundColor);
+        painter->setOpacity(oldOpacity);
     }
 }
 
