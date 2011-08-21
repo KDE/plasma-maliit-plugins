@@ -65,7 +65,7 @@ public:
 public slots:
     bool handleKeyPress(const KeyEvent &event);
     bool handleKeyRelease(const KeyEvent &event);
-    bool handleKeyClick(const KeyEvent &event);
+    bool handleKeyClick(const KeyEvent &event, bool cycleKeyActive);
     bool handleKeyCancel(const KeyEvent &event);
 
     void handleOrientationChange(M::Orientation orientation);

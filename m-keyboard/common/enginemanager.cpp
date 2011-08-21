@@ -199,9 +199,10 @@ public:
         return false;
     }
 
-    virtual bool handleKeyClick(const KeyEvent &event)
+    virtual bool handleKeyClick(const KeyEvent &event, bool cycleKeyActive)
     {
         Q_UNUSED(event);
+        Q_UNUSED(cycleKeyActive);
         return false;
     }
 
@@ -390,10 +391,10 @@ public:
             return false;
     }
 
-    virtual bool handleKeyClick(const KeyEvent &event)
+    virtual bool handleKeyClick(const KeyEvent &event, bool cycleKeyActive)
     {
         if (stateMachine != NULL)
-            return stateMachine->handleKeyClick(event);
+            return stateMachine->handleKeyClick(event, cycleKeyActive);
         else
             return false;
     }

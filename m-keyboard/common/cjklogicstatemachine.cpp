@@ -143,9 +143,12 @@ bool CJKLogicStateMachine::handleKeyRelease(const KeyEvent &event)
         return false;
 }
 
-bool CJKLogicStateMachine::handleKeyClick(const KeyEvent &event)
+bool CJKLogicStateMachine::handleKeyClick(const KeyEvent &event, bool cycleKeyActive)
 {
-    if (event.qtKey() != Qt::Key_Backspace)
+    // (1) If Cycle key is active, CJK logic state machine will not process the key click event.
+    // (2) "Qt::Key_Backspace" key click event would not be processed here either.
+    if (!cycleKeyActive
+        && (event.qtKey() != Qt::Key_Backspace))
         return handleKeyEvent(event);
     else
         return false;

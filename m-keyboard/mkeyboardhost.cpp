@@ -201,6 +201,11 @@ void MKeyboardHost::CycleKeyHandler::reset()
     timer.stop();
 }
 
+bool MKeyboardHost::CycleKeyHandler::isActive()
+{
+    return timer.isActive();
+}
+
 void MKeyboardHost::CycleKeyHandler::commitCycleKey()
 {
     if (cycleText.length() > 0) {
@@ -1367,7 +1372,7 @@ void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
 void MKeyboardHost::handleKeyClick(const KeyEvent &event)
 {
     if (EngineManager::instance().handler()
-        && EngineManager::instance().handler()->handleKeyClick(event)) {
+        && EngineManager::instance().handler()->handleKeyClick(event, cycleKeyHandler->isActive())) {
         // After the key event is consumed by the proper engine handler, the "shift" state
         // should be updated accordingly right here because the engine handler can not
         // do it.

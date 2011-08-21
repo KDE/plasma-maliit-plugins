@@ -1,3 +1,9 @@
+meego-keyboard (0.7.6~1) unstable; urgency=low
+
+  * Fixes: NB#275406 - Something wrong when inputing '*' and '#' in Contacts application.
+
+ -- Wang Zongxin <ext-zongxin.wang@nokia.com>  Tue, 23 Aug 2011 13:05:15 +0300
+
 meego-keyboard (0.7.5-1) unstable; urgency=low
 
   * Fixes: NB#277056 - Zhuyin; Enter key does not dismiss candidates
