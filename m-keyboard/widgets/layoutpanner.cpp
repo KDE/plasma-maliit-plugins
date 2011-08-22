@@ -387,6 +387,8 @@ void LayoutPanner::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
                && qAbs(moveDistance) > style()->minimumMovementThreshold()) {
         // if catchingUpAnimation is already started,
         // adjust the end progress for catching up animation
+        // TODO: use member variables with QPointer type to record animations
+        // to avoid for loop and qobject_cast.
         for (int i = 0; i < catchingUpAnimationGroup.animationCount(); i++) {
             QSequentialAnimationGroup *animationGroup
                 = qobject_cast<QSequentialAnimationGroup *>
@@ -655,10 +657,31 @@ void LayoutPanner::finalize()
     if (!isVisible())
         return;
 
-    panningAnimation.setStartValue(currentPos);
-    QPoint endPos(0, 0);
-    bool isPortrait =
+    const bool isPortrait =
         (MPlainWindow::instance()->sceneManager()->orientation() == M::Portrait);
+    QPointF startValue = currentPos;
+
+    if (catchingUpAnimationGroup.state() == QAbstractAnimation::Running) {
+        qreal currentProgress = 0.0;
+        for (int i = 0; i < catchingUpAnimationGroup.animationCount(); i++) {
+            QPropertyAnimation *animation
+                = qobject_cast<QPropertyAnimation *>(catchingUpAnimationGroup.animationAt(i));
+            if (animation) {
+                currentProgress = animation->currentValue().toReal();
+                break;
+            }
+        }
+        const int keyboardWidth = isPortrait ? size().height() : size().width();
+        startValue.setX((direction == PanGesture::PanRight)
+                        ? currentProgress * keyboardWidth
+                        : (1- currentProgress) * keyboardWidth);
+
+        catchingUpAnimationGroup.stop();
+        catchingUpAnimationGroup.clear();
+    }
+    panningAnimation.setStartValue(startValue);
+
+    QPoint endPos(0, 0);
     if (qAbs(distance()) > style()->commitThreshold()) {
         // change language
         if (isPortrait)
