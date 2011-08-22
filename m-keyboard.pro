@@ -10,17 +10,17 @@ CONFIG(docs) {
     include (doc/doc.pri)
 }
 
-!notests:!nomeegotouch {
-    SUBDIRS += \
-        tests \
-        fixture_virtualkeyboard \
-
-}
-
 !nomeegotouch {
     SUBDIRS += \
         m-keyboard \
         translations \
+
+}
+
+!notests:!nomeegotouch {
+    SUBDIRS += \
+        tests \
+        fixture_virtualkeyboard \
 
 }
 
