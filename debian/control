@@ -38,6 +38,18 @@ Depends:  ${misc:Depends}, ${shlibs:Depends}, meego-keyboard (>= ${binary:Versio
 Description: MeeGo Input Method Keyboard Arabic layout 
  Meego Keyboard Arabic virtual keyboard layout
 
+Package: meego-keyboard-th-layout
+Architecture: any
+Depends:  ${misc:Depends}, ${shlibs:Depends}, meego-keyboard (>= ${binary:Version})
+Description: MeeGo Input Method Keyboard Thai layout
+ Meego Keyboard Thai virtual keyboard layout
+
+Package: meego-keyboard-vi-layout
+Architecture: any
+Depends:  ${misc:Depends}, ${shlibs:Depends}, meego-keyboard (>= ${binary:Version})
+Description: MeeGo Input Method Keyboard Vietnamese layout
+ Meego Keyboard Vietnamese virtual keyboard layout
+
 Package: meego-keyboard-tests
 Architecture: any
 Depends:  testrunner-lite, libmeegoimengine-dummydriver, meego-keyboard (= ${binary:Version}), ${misc:Depends}, ${shlibs:Depends}
