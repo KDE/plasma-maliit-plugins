@@ -1,3 +1,43 @@
+0.80.5
+======
+
+CHANGES SINCE 0.80.1
+* Added Vietnamese and Thai language layouts.
+* Replace flick gesture for layout switching with panning gesture:
+  - Allows to preview language layout before switching to it, making this
+    gesture more discoverable than previous one.
+* Change touchpoint handling to track touchpoint id's again:
+  - Fixes stuck key issues that happened due to key gravity feature. Added a
+    stuck key guard regardless.
+* Style name overrides for layout sections:
+  - Can override default style name for layout sections in XML files now,
+    allowing for more flexible theming in CSS.
+
+BUG FIXES
+* Fixes: NB#242162, SYM view closes if arabic numbers are typed before 'Space' -key
+* Fixes: Bug 277056 - Zhuyin; Enter key does not dismiss candidates.
+* Fixes: NB#277034 Input Methods: The right and left brackets are improperly displayed in Arabic Virtual Keyboard
+* Fixes: NB#276201, VKB lose latched state after device rotating
+* Fixes: NB#275477, Backspace key is deleting the text even after rotating the device.
+* Fixes: disable the panning during vkb is playing vertical animation
+* Fixes: failed unit tests caused by new the pan gesture
+* Fixes: NB#257418, space gets stuck in VKB
+* Fixes: NB#275183.
+* Fixes: NB#250640.
+* Fixes: NB#264654, Dimmed custom enter key should disable haptic feedback
+* Fixes: Bug 272907 - icon is not displayed in the center of the toolbar button
+* Fixes: Long press test had 'click' incorrectly set up.
+* Fixes: Bug 274111 - The press down state of Candidate button is not cleared after rotate.
+* Fixes: Styling for Hebrew CSS
+* Fixes: MImAbstractKeyArea UT
+* Fixes: NB#271763 - [FEA] Allow language layout files to specify style class
+* Fixes: NB#270051, Inputting extended key with dragging does not always work.
+* Fixes: NB#256681, Unexpected shift and touchpoint behaviour when opening extended key area with shift pressed
+* Fixes: Fix "MScalableImage: Received request to draw pixmap of invalid size 480x0".
+* Fixes: Ut_MImAbstractKeyArea was not up-to-date with autocommit behaviour.
+* Fixes: NB219163 - [TASK] Cyrillic languages phone number layout
+* Fixes: resolve issue with mouse grabbing
+
 0.80.1
 ======
 
