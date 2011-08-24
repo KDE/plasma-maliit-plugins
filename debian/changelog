@@ -1,3 +1,9 @@
+meego-keyboard (0.7.7~1) unstable; urgency=low
+
+  * Fixes: NB#278443 - Input: ITU-T VKB (T9 keyboard) in Hindi number mode has Arabic letters. It should be always Latin letters
+
+ -- Aapo Kojo <aapo.kojo@nokia.com>  Wed, 24 Aug 2011 10:20:00 +0300
+
 meego-keyboard (0.7.6-1) unstable; urgency=low
 
   * Fixes: NB#275406 - Something wrong when inputing '*' and '#' in Contacts application.
