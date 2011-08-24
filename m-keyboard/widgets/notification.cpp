@@ -55,7 +55,8 @@ Notification::Notification(QGraphicsItem *parent)
       frameCount(1),
       textLayout(new QStaticText()),
       maximumTextWidth(0),
-      dirty(true)
+      dirty(true),
+      scale(1.0f)
 {
     // Notification sets its own absolute opacity
     setFlag(ItemIgnoresParentOpacity, true);
@@ -105,9 +106,24 @@ Notification::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget
     // Draw the normalized message
     QRectF textRect = rect();
 
-    QPointF textOffset((textRect.width() - textLayout->size().width()) / 2,
-                       (textRect.height() - textLayout->size().height()) / 2);
+    QPointF textOffset;
+
+    textOffset.setX((textRect.width() / scale - textLayout->size().width()) / 2);
+
+    if (textVerticalAlignment == Qt::AlignVCenter) {
+        textOffset.setY((textRect.height()
+                         - style()->paddingBottom()
+                         + style()->paddingTop()
+                         - textLayout->size().height()) / (scale * 2.0f));
+    } else if (textVerticalAlignment == Qt::AlignBottom) {
+        textOffset.setY((textRect.height() - style()->paddingBottom()) / scale
+                         - textLayout->size().height() / (scale / 2.0f + 0.5f));
+    }
+
+    const QTransform oldTransform = painter->transform();
+    painter->setTransform(transform, true);
     painter->drawStaticText(textOffset, *textLayout);
+    painter->setTransform(oldTransform, false);
 }
 
 
@@ -260,6 +276,16 @@ void Notification::reLayout()
                                  - style()->paddingRight());
         textLayout->prepare(QTransform(), font);
     }
+
+    if (style()->textMaximumWidth() > 0
+        && style()->textMaximumWidth() < textLayout->size().width()) {
+        scale = qreal(style()->textMaximumWidth()) / textLayout->size().width();
+        transform = QTransform::fromScale(scale, scale);
+        textLayout->prepare(transform, font);
+    } else {
+        scale = 1.0f;
+        transform = QTransform();
+    }
     updateGeometry();
 }
 
@@ -284,7 +310,14 @@ QSizeF Notification::sizeHint(Qt::SizeHint which, const QSizeF &constraint) cons
         size += QSize(style()->paddingLeft() + style()->paddingRight(),
                       style()->paddingTop() + style()->paddingBottom());
         size.boundedTo(constraint);
-        return size;
+        QSizeF parentSize = style()->preferredSize();
+        if (parentSize.width() < 0) {
+            parentSize.setWidth(size.width());
+        }
+        if (parentSize.height() < 0) {
+            parentSize.setHeight(size.height());
+        }
+        return parentSize;
     }
     default:
         qWarning() << __PRETTY_FUNCTION__

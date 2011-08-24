@@ -347,7 +347,6 @@ signals:
 protected:
     //! \reimp
     virtual void cancelEvent(MCancelEvent *event);
-    virtual void resizeEvent(QGraphicsSceneResizeEvent *);
     //! \reimp_end
 
 private:

@@ -30,6 +30,10 @@ NotificationStyle {
     padding-top: 1mm;
     padding-right: 1mm;
     padding-bottom: 1mm;
+
+    text-maximum-width: 0;
+
+    preferred-size: -1 -1;
 }
 
 NotificationStyle.Portrait {
@@ -37,16 +41,35 @@ NotificationStyle.Portrait {
 }
 
 NotificationStyle#SwitchingPlugin {
-    font: $FONT_KEYBOARD;
-    font-size: 56;
-    background-opacity: 0.8;
+    background-opacity: 1.0;
+    background-image: "Notification_bg_L" $ROUNDED_CORNERS;
+    font-size: 64;
     text-horizontal-alignment: hcenter;
-    text-vertical-alignment: vcenter;
-    text-wrap: true;
-    padding-left: 1mm;
-    padding-top: 1mm;
-    padding-right: 1mm;
-    padding-bottom: 5mm;
+    text-vertical-alignment: bottom;
+
+    hold-time: 250;
+
+    preferred-size: 100% 200;
+    minimum-size:   100% 200;
+    maximum-size:   100% 200;
+
+    text-maximum-width: 500;
+}
+
+NotificationStyle#SwitchingPlugin.Portrait {
+    background-opacity: 1.0;
+    background-image: "Notification_bg_P" $ROUNDED_CORNERS;
+    font-size: 56;
+    text-horizontal-alignment: hcenter;
+    text-vertical-alignment: bottom;
+
+    hold-time: 250;
+
+    preferred-size: 100% 300;
+    minimum-size:   100% 300;
+    maximum-size:   100% 300;
+
+    text-maximum-width: 360;
 }
 
 MImAbstractKeyAreaStyle {

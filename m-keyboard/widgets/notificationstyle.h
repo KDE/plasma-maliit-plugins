@@ -58,6 +58,7 @@ public:
     M_STYLE_ATTRIBUTE(int, rounding, Rounding)
     M_STYLE_ATTRIBUTE(int, holdTime, HoldTime)
     M_STYLE_ATTRIBUTE(int, fadeTime, FadeTime)
+    M_STYLE_ATTRIBUTE(int, textMaximumWidth, TextMaximumWidth)
 };
 
 class M_EXPORT NotificationStyleContainer : public MWidgetStyleContainer

@@ -2508,8 +2508,6 @@ void MKeyboardHost::preparePanningIncomingWidget()
 void MKeyboardHost::preparePanningIncomingEngineWidget(PanGesture::PanDirection direction)
 {
     QString nextLayoutLanguage = vkbWidget->nextPannableLayout(direction);
-    qDebug() << "next language for direction"
-             << direction << " :" << nextLayoutLanguage;
     if (EngineManager::instance().handler(nextLayoutLanguage)) {
         AbstractEngineWidgetHost *engineWidgetHost
             = EngineManager::instance().handler(nextLayoutLanguage)->engineWidgetHost();

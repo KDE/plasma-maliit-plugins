@@ -47,6 +47,8 @@
 #include "regiontracker.h"
 #include "reactionmapwrapper.h"
 #include "mkeyboardhost.h"
+#include "enginemanager.h"
+#include "abstractenginewidgethost.h"
 
 #include <mtoolbardata.h>
 #include <mkeyoverride.h>
@@ -279,14 +281,35 @@ void MVirtualKeyboard::resetState()
 
 void MVirtualKeyboard::showLanguageNotification()
 {
+    int wordRibbonHeight = 0;
+
+    if (EngineManager::instance().handler(layoutLanguage())) {
+        AbstractEngineWidgetHost *engineWidgetHost
+            = EngineManager::instance().handler(layoutLanguage())->engineWidgetHost();
+        if (engineWidgetHost
+            && engineWidgetHost->displayMode()
+               == AbstractEngineWidgetHost::DockedMode) {
+            wordRibbonHeight = engineWidgetHost->engineWidget()->rect().height();
+        }
+    }
+
     if ((mainKeyboardSwitcher->current() != -1) && (currentLayoutType == LayoutData::General)) {
         QGraphicsWidget *const widget = mainKeyboardSwitcher->currentWidget();
-        const QRectF br = widget ? mainKeyboardSwitcher->mapRectToItem(this, widget->boundingRect())
-                          : QRectF(QPointF(), MPlainWindow::instance()->visibleSceneSize());
+        QRectF br;
+
+        if (widget) {
+            br = QRectF(QPointF(), notification->preferredSize());
+        } else {
+            br = QRectF(QPointF(), MPlainWindow::instance()->visibleSceneSize());
+        }
         const QString layoutFile(layoutsMgr.layoutFileList()[mainKeyboardSwitcher->current()]);
 
         notification->displayText(layoutsMgr.keyboardTitle(layoutFile), br);
         notification->setParentItem(widget ? widget : this);
+        notification->setPos(0,
+                             widget
+                             ? -notification->preferredHeight() - wordRibbonHeight
+                             : 0);
     }
 }
 
@@ -503,16 +526,6 @@ void MVirtualKeyboard::cancelEvent(MCancelEvent *event)
     QGraphicsWidget *keyArea(mainKeyboardSwitcher->currentWidget());
     if (keyArea) {
         scene()->sendEvent(keyArea, event);
-    }
-}
-
-void MVirtualKeyboard::resizeEvent(QGraphicsSceneResizeEvent *)
-{
-    const QGraphicsWidget *const widget = mainKeyboardSwitcher->currentWidget();
-
-    if (widget) {
-        notification->resize(widget->size());
-        notification->update();
     }
 }
 

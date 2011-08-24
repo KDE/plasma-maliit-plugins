@@ -41,6 +41,7 @@
 #include <QTimer>
 #include <QStaticText>
 #include <QPointer>
+#include <QTransform>
 
 class QGraphicsSceneResizeEvent;
 class PanParameters;
@@ -141,6 +142,8 @@ private:
     QSize maximumTextSize;
     bool dirty;
     QPointer<PanParameters> mParameters;
+    qreal scale;
+    QTransform transform;
 
 private:
     M_STYLABLE_WIDGET(NotificationStyle)
