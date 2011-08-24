@@ -1,4 +1,4 @@
-meego-keyboard (0.7.7~1) unstable; urgency=low
+meego-keyboard (0.7.7-1) unstable; urgency=low
 
   * Fixes: NB#278443 - Input: ITU-T VKB (T9 keyboard) in Hindi number mode has Arabic letters. It should be always Latin letters
 
