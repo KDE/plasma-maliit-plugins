@@ -107,7 +107,7 @@ void NotificationArea::prepareNotifications(PanGesture::PanDirection direction)
                    * outgoingNotificationFromScale) / 2,
                   preferredHeight()
                   - outgoingNotification->preferredHeight()
-                  * outgoingNotificationFromScale);
+                  * (outgoingNotificationFromScale / 2.0f + 0.5f));
 
     qreal outgoingNotificationToPosX
         = (direction == PanGesture::PanRight)
@@ -117,7 +117,8 @@ void NotificationArea::prepareNotifications(PanGesture::PanDirection direction)
 
     qreal outgoingNotificationToPosY
         = preferredHeight()
-          - outgoingNotification->preferredHeight() * outgoingNotificationToScale;
+          - outgoingNotification->preferredHeight()
+          * (outgoingNotificationToScale / 2.0f + 0.5f);
 
     outgoingNotificationToPos
         = QPointF(outgoingNotificationToPosX, outgoingNotificationToPosY);
@@ -146,35 +147,37 @@ void NotificationArea::prepareNotifications(PanGesture::PanDirection direction)
     incomingNotificationToScale
         = qBound<qreal>(0, qreal(notificationMaximumWidth / incomingNotification->preferredWidth()), 1.0);
 
-    qreal incomingNotificationFromPosX = 0;
+    qreal fromPosX = 0;
     if (incomingNotification->preferredWidth() * incomingNotificationFromScale
         > leftAndRightSpace) {
 
-       incomingNotificationFromPosX
+       fromPosX
         = (direction == PanGesture::PanRight)
           ? leftAndRightSpace
             - incomingNotification->preferredWidth() * incomingNotificationFromScale
           : screenWidth - leftAndRightSpace;
     } else {
 
-       incomingNotificationFromPosX
+       fromPosX
         = (direction == PanGesture::PanRight)
           ? 0
           : screenWidth - incomingNotification->preferredWidth() * incomingNotificationFromScale;
     }
 
-    qreal incomingNotificationFromPosY
-        = preferredHeight()
-          - incomingNotification->preferredHeight() * incomingNotificationFromScale;
-    incomingNotificationFromPos
-        = QPointF(incomingNotificationFromPosX, incomingNotificationFromPosY);
+    qreal fromPosY = preferredHeight()
+                     - incomingNotification->preferredHeight()
+                     * (incomingNotificationFromScale / 2.0f + 0.5f);
 
-    incomingNotificationToPos
-        = QPointF((screenWidth - incomingNotification->preferredWidth()
-                   * incomingNotificationToScale) / 2,
-                  preferredHeight()
-                  - incomingNotification->preferredHeight()
-                  * incomingNotificationToScale);
+    incomingNotificationFromPos = QPointF(fromPosX, fromPosY);
+
+    qreal toPosX = (screenWidth - incomingNotification->preferredWidth()
+                    * incomingNotificationToScale) / 2;
+
+    qreal toPosY = preferredHeight()
+                   - incomingNotification->preferredHeight()
+                   * (incomingNotificationToScale / 2.0f + 0.5f);
+
+    incomingNotificationToPos = QPointF(toPosX, toPosY);
 
     incomingNotification->updateScale(incomingNotificationFromScale);
     incomingNotification->updatePos(incomingNotificationFromPos);
@@ -205,10 +208,12 @@ void NotificationArea::prepareNotifications(PanGesture::PanDirection direction)
 
     qreal assistantNotificationFromPosY
         = preferredHeight()
-          - assistantNotification->preferredHeight() * assistantNotificationFromScale;
+          - assistantNotification->preferredHeight()
+          * (assistantNotificationFromScale / 2.0f + 0.5f);
     qreal assistantNotificationToPosY
         = preferredHeight()
-          - assistantNotification->preferredHeight() * outgoingNotificationToScale;
+          - assistantNotification->preferredHeight()
+          * (outgoingNotificationToScale / 2.0f + 0.5f);
 
     assistantNotificationFromPos
         = QPointF(assistantNotificationFromPosX, assistantNotificationFromPosY);
