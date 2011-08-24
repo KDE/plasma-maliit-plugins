@@ -160,6 +160,8 @@ public:
 
     virtual void removeCharacters(int count = 1, int index = -1);
 
+    virtual void commitWord(int index = -1, bool ignoreNewWord = true);
+
     /*!
      *\reimp_end
     */

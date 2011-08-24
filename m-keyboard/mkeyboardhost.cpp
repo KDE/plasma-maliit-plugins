@@ -1213,14 +1213,10 @@ void MKeyboardHost::commitString(const QString &updatedString)
     AbstractEngineWidgetHost *engineWidgetHost = EngineManager::instance().handler() ?
         EngineManager::instance().handler()->engineWidgetHost() : 0;
 
+    // Word selected from candidates list -> commit suggested word to the engine (add new words)
     if (EngineManager::instance().engine() && engineWidgetHost) {
-        if (engineWidgetHost->candidates().count() > 1) {
-            const int suggestionIndex = engineWidgetHost->suggestedWordIndex();
-            if (suggestionIndex >= 0) {
-                EngineManager::instance().engine()->setSuggestedCandidateIndex(suggestionIndex);
-            }
-        }
-        EngineManager::instance().engine()->saveAndClearEngineBuffer();
+        const int suggestionIndex = engineWidgetHost->suggestedWordIndex();
+        EngineManager::instance().engine()->commitWord(suggestionIndex, false);
     }
 
     // Add space after preedit if word tracker was clicked OR
@@ -1741,7 +1737,14 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
             && EngineManager::instance().handler()->correctionAcceptedWithSpaceEnabled()) {
             if (engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode) {
                 spaceInsertedAfterCommitString = true;
-                const QString suggestion = engineWidgetHost->candidates().at(engineWidgetHost->suggestedWordIndex());
+                const int suggestionIndex = engineWidgetHost->suggestedWordIndex();
+                const QString suggestion = engineWidgetHost->candidates().at(suggestionIndex);
+
+                // Commit suggested word to the engine (ignore new words)
+                if (EngineManager::instance().engine()) {
+                    EngineManager::instance().engine()->commitWord(suggestionIndex);
+                }
+
                 inputMethodHost()->sendCommitString(suggestion + " ");
                 eventSent = true;
             } else {
@@ -1757,6 +1760,27 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
                                                   && preeditCursorPos != preedit.length()
                                                   && inputMethodHost()->surroundingText(surroundingText, cursorPos)
                                                   && (cursorPos >= 0);
+
+                // Commit finished word to engine
+                if (EngineManager::instance().engine()) {
+
+                    // Check if preedit was split
+                    if (!needRepositionCursor) {
+                        // Not split -> commit finished word (ignore new words)
+                        EngineManager::instance().engine()->commitWord();
+                    } else if (preeditCursorPos > 0) {
+                        // Split -> remove the split tail from the engine buffer
+                        EngineManager::instance().engine()->removeCharacters(preedit.length()-preeditCursorPos);
+                        // Refresh candidates
+                        const QStringList candidates = EngineManager::instance().engine()->candidates();
+                        if (candidates.size() > 0) {
+                            // Commit split word (ignore new words)
+                            EngineManager::instance().engine()->commitWord();
+                        }
+                    }
+                }
+
+                // Insert text to preedit
                 int eventCharactersInserted(0);
                 eventSent = event.qtKey() != Qt::Key_Return;
                 if (eventSent) {

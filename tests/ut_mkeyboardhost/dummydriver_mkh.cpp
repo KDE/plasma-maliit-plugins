@@ -313,6 +313,12 @@ void DummyDriverMkh::removeCharacters(int count, int index)
     Q_UNUSED(index);
 }
 
+void DummyDriverMkh::commitWord(int index, bool ignoreNewWord)
+{
+    Q_UNUSED(index);
+    Q_UNUSED(ignoreNewWord);
+}
+
 void DummyDriverMkh::setCandidates(const QStringList &candidates)
 {
     candidateList = candidates;
