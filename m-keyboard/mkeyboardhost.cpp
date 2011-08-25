@@ -690,9 +690,6 @@ void MKeyboardHost::hide()
         }
     }
 
-    // Clear language.
-    inputMethodHost()->setLanguage("");
-
     // Avoid receiving input events when sliding away
     MPlainWindow::instance()->setEnabled(false);
 
