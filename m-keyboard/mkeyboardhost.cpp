@@ -97,6 +97,7 @@ namespace
     const char PlusSign('+');
     const char MinusSign('-');
     bool gOwnsComponentData = false;
+    const char * const UnknownTitle = "";
 
     QSize defaultScreenSize(QWidget *w)
     {
@@ -2557,12 +2558,16 @@ void MKeyboardHost::handlePreparingLayoutPan(PanGesture::PanDirection direction,
 
         // set notification layout titles
         QList<MImSubViewDescription> desc = inputMethodHost()->surroundingSubViewDescriptions(MInputMethod::OnScreen);
-        qDebug() << __PRETTY_FUNCTION__ << desc.first().title() << vkbWidget->layoutTitle() << desc.last().title();
-        LayoutPanner::instance()
-            .setIncomingLayoutTitle(PanGesture::PanRight, desc.last().title());
+        if (!desc.isEmpty()) {
+            LayoutPanner::instance()
+                .setIncomingLayoutTitle(PanGesture::PanRight, desc.last().title());
+            LayoutPanner::instance()
+                .setIncomingLayoutTitle(PanGesture::PanLeft, desc.first().title());
+        } else {
+            LayoutPanner::instance().setIncomingLayoutTitle(PanGesture::PanRight, UnknownTitle);
+            LayoutPanner::instance().setIncomingLayoutTitle(PanGesture::PanLeft, UnknownTitle);
+        }
         LayoutPanner::instance().setOutgoingLayoutTitle(vkbWidget->layoutTitle());
-        LayoutPanner::instance()
-            .setIncomingLayoutTitle(PanGesture::PanLeft, desc.first().title());
     }
 
     if (sharedHandleArea->isVisible()) {
