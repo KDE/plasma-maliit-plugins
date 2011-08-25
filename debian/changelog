@@ -1,8 +1,8 @@
-meego-keyboard (0.7.8~1) unstable; urgency=low
+meego-keyboard (0.7.8-1) unstable; urgency=low
 
   * Fixes: NB#252531, Cursor is in the wrong end of textedit in arabic.
 
- -- Aapo Kojo <aapo.kojo@nokia.com>  Wed, 24 Aug 2011 13:59:26 +0300
+ -- Aapo Kojo <aapo.kojo@nokia.com>  Thu, 25 Aug 2011 14:56:26 +0300
 
 meego-keyboard (0.7.7-1) unstable; urgency=low
 
