@@ -118,7 +118,6 @@ public:
     QVector<QPair<qreal, qreal> > rowOffsets; //!< cached offsets for faster key lookups
     MImKey *shiftKey; //!< stores shift key, if available in this key area
     bool equalWidthKeys; //!< whether to assume equal width for all keys
-    int WidthCorrection; //!< width correction for Arabic layouts
     QSharedPointer<MImKey::StylingCache> stylingCache; //!< Cached information about current styling
     QList<MImKey *> idToKey; //!< Contains information about keys which have identifiers
     MImKey *toggleKey; //!< stores toggle key, if available in this key area
