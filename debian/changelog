@@ -1,8 +1,8 @@
-meego-keyboard (0.7.9~1) unstable; urgency=low
+meego-keyboard (0.7.9-1) unstable; urgency=low
 
-  * [UNRELEASED]
+  * Fixes: NB#279040 - HWR crashed after Zhuyin input in email field of Contacts application
 
- -- Viacheslav Sobolev <ext-viacheslav.sobolev@nokia.com>  Fri, 26 Aug 2011 12:08:30 +0300
+ -- huaming wang <huaming.wang@nokia.com>  Fri, 26 Aug 2011 14:57:08 +0300
 
 meego-keyboard (0.7.8-1) unstable; urgency=low
 
