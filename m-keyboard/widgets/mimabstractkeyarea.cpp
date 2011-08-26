@@ -1111,12 +1111,9 @@ void MImAbstractKeyArea::handleLongKeyPressed()
     keyContext.isFromPrimaryTouchPoint = d->longPressTouchPointIsPrimary;
 
     if (d->popup) {
-        MImAbstractPopup::EffectOnKey result;
-        result = d->popup->handleLongKeyPressedOnMainArea(lastActiveKey,
-                                                          keyContext);
-
         // Reset state of long pressed key if necessary
-        if (result == MImAbstractPopup::ResetPressedKey) {
+        if (MImAbstractPopup::ResetPressedKey
+                == d->popup->handleLongKeyPressedOnMainArea(lastActiveKey, keyContext)) {
             lastActiveKey->resetTouchPointCount();
         }
     }
