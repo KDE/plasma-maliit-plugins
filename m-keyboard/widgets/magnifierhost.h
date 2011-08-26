@@ -114,6 +114,9 @@ public:
     //! verification in applyConstrainedPosition()
     static const int InvalidMargin = 1000000;
 
+    //! Test API
+    MImAbstractKeyArea * extendedKeysArea() const;
+
 public slots:
     //! Hide Magnifier and ExtendedKeys
     //! Since ExtendedKeys usually hides on key press, it is recommended to

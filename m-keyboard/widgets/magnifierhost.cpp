@@ -38,17 +38,39 @@
 #include <QDebug>
 
 namespace {
+    const char ExtendedLabelsSeparator(' ');
+
     QString computeExtendedLabelsFromKey(const MImAbstractKey *key)
     {
+        // Returning empty labels means: No extended keys available for this key.
         QString labels;
 
-        if (key) {
-            if (key->isNormalKey()) {
-                labels.append(key->binding().label());
-            }
-
-            labels.append(key->binding().extendedLabels());
+        if (not key || not key->isNormalKey()) {
+            return labels;
         }
+
+        // Splitting up the extended labels, as it will also tell us whether they contained label separators:
+        QStringList extLabels(key->binding().extendedLabels().split(ExtendedLabelsSeparator));
+
+        // Split always returns a list of size > 0, even if the splitted string was ""
+        if (extLabels.count() < 1 || extLabels.at(0).isEmpty()) {
+            return labels;
+        } else if (extLabels.count() == 1 && extLabels.at(0).count() > 1) {
+            const QString &first(extLabels.at(0));
+            extLabels.clear();
+            foreach (QChar curr, first) {
+                extLabels.append(QString(curr));
+            }
+        }
+
+        labels.append(key->binding().label());
+        labels.append(ExtendedLabelsSeparator);
+        labels.append(extLabels.join(QString(ExtendedLabelsSeparator)));
+
+        // Trim separators around newlines:
+        labels.replace(QString("%1\n%2")
+                       .arg(ExtendedLabelsSeparator)
+                       .arg(ExtendedLabelsSeparator), "\n");
 
         return labels;
     }
@@ -206,9 +228,9 @@ MagnifierHost::handleLongKeyPressedOnMainArea(MImAbstractKey *key,
         return retVal;
     }
 
-    QString labels = computeExtendedLabelsFromKey(key);
+    const QString &labels(computeExtendedLabelsFromKey(key));
 
-    if (labels.count() < 2) {
+    if (labels.isEmpty()) {
         // It usually makes no sense to show an extended area for one key.
         return retVal;
     }
@@ -236,6 +258,15 @@ void MagnifierHost::setVisible(bool visible)
 {
     magnifier->setVisible(visible);
     extKeys->setVisible(visible);
+}
+
+MImAbstractKeyArea * MagnifierHost::extendedKeysArea() const
+{
+    if (ExtendedKeys *ek = extKeys.data()) {
+        return ek->extendedKeysArea();
+    }
+
+    return 0;
 }
 
 void MagnifierHost::hide()

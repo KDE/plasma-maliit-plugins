@@ -158,6 +158,7 @@ private:
     friend class Ut_MImKeyModel;
     friend class Ut_MImKey;
     friend class Ut_MVirtualKeyboard;
+    friend class Ut_MagnifierHost;
 };
 
 

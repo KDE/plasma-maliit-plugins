@@ -190,6 +190,9 @@ public slots:
                           int touchPointId,
                           bool touchPointIsPrimary);
 
+    //! Test API
+    MImAbstractKeyArea * extendedKeysArea() const;
+
 private slots:
     void handleShowAnimationFinished();
     void handleHide();

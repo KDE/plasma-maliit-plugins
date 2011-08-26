@@ -232,6 +232,11 @@ void ExtendedKeys::showExtendedArea(const QPointF &origin,
 
 }
 
+MImAbstractKeyArea * ExtendedKeys::extendedKeysArea() const
+{
+    return extKeysArea.get();
+}
+
 void ExtendedKeys::handleHide()
 {
     mainArea->removeEventFilter(this);

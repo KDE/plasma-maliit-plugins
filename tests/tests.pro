@@ -35,7 +35,8 @@ SUBDIRS = \
           ut_mimfontpool \
           ut_magnifier \
           ut_panparameters \
-          ut_touchforwardfilter
+          ut_touchforwardfilter \
+          ut_magnifierhost \
 
 contains(CONFIG, nomeegotouch) {
 } else {
