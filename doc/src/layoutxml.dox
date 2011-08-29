@@ -182,8 +182,15 @@ accents attribute.  If a dead key has been clicked and its \c label can be
 found in the \c accents attribute, the index of that character in \c accents
 is used to index \c accented_labels string and the found character is
 temporarily used in place of the value of the \c label attribute.
-\li \c extended_labels A string of characters to be made accessible in
-addition to other *_labels attributes.
+\li \c extended_labels A string of characters to be made accessible in addition
+to other *_labels attributes. Each character will be interpreted as one key,
+unless the string contains spaces. Those are treated as separators, allowing to
+create keys with a label length greater than 1. Additionally, newlines can be
+used to enforce multi-row extended keys. Note that newlines are encoded as
+&#10; in XML. Examples: "abc" - three keys a, b and c. "ab&#10;c" - three keys,
+with a, b being on first row and c being on second row. "alpha beta&#10;gamma"
+- three keys, with alpha, beta being on first row and gamma being on second
+row.
 \li \c cycleset This is used together with the \c cycle \c action to provide
 multitap functionality for the key.  That is, repeated key clicks cycle
 through the characters in the \c cycleset string.
