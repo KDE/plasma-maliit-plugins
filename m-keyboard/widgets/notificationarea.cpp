@@ -237,10 +237,10 @@ void NotificationArea::prepareNotifications(PanGesture::PanDirection direction)
         assistantNotificationParameters->setKeepDistancePanParameters(
             outgoingNotificationParameters, direction,
             assistantNotification->preferredWidth(),
-            (outgoingNotification->pos().x()
-            - assistantNotification->pos().x()
+            (outgoingNotificationFromPos.x()
+            - assistantNotificationFromPos.x()
             - assistantNotification->preferredWidth()
-            * assistantNotificationParameters->scale()));
+            * assistantNotificationFromScale));
 
     } else {
         outgoingNotificationParameters->setAvoidOverlappingPanParameters(
@@ -250,10 +250,10 @@ void NotificationArea::prepareNotifications(PanGesture::PanDirection direction)
         assistantNotificationParameters->setKeepDistancePanParameters(
             outgoingNotificationParameters, direction,
             outgoingNotification->preferredWidth(),
-            (assistantNotification->pos().x()
-            - outgoingNotification->pos().x()
+            (assistantNotificationFromPos.x()
+            - outgoingNotificationFromPos.x()
             - outgoingNotification->preferredWidth()
-            * outgoingNotificationParameters->scale()));
+            * outgoingNotificationFromScale));
     }
 
     initPanParameters();
