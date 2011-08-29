@@ -75,7 +75,7 @@ void MImSnapshotPixmapItem::grabScreen(const QRect &rect)
 
 void MImSnapshotPixmapItem::grabWidgets(const QList<QPointer<QGraphicsWidget> > &widgets)
 {
-    if (widgets.count() == 0) {
+    if (not MPlainWindow::instance() || widgets.isEmpty()) {
         // clear by setting empty pixmap
         setPixmap(QPixmap());
         return;
@@ -100,6 +100,12 @@ void MImSnapshotPixmapItem::grabWidgets(const QList<QPointer<QGraphicsWidget> > 
 
     const QPointF pos(0, posY);
     QPixmap pixmap(rect.width(), rect.height());
+
+    if (pixmap.isNull()) {
+        // Avoid painting on invalid pixmap => could crash otherwise.
+        return;
+    }
+
     pixmap.fill(Qt::transparent);
     QPainter painter(&pixmap);
     foreach (QGraphicsWidget *widget, widgets) {
@@ -145,6 +151,12 @@ void MImSnapshotPixmapItem::grabPixmaps(const QMap<QPixmap*, QPoint > &pixmaps)
 
     QPixmap pixmap(isPortrait ? QSize(rect.height(), rect.width())
                               : rect.size());
+
+    if (pixmap.isNull()) {
+        // Avoid painting on invalid pixmap => could crash otherwise.
+        return;
+    }
+
     QPainter painter(&pixmap);
 
     if (isPortrait) {
