@@ -651,7 +651,15 @@ void MKeyboardHost::show()
     if (EngineManager::instance().handler()) {
         AbstractEngineWidgetHost *engineWidgetHost = EngineManager::instance().handler()->engineWidgetHost();
         if (engineWidgetHost && engineWidgetHost->displayMode() == AbstractEngineWidgetHost::DockedMode) {
-            engineWidgetHost->showEngineWidget(AbstractEngineWidgetHost::DockedMode);
+            bool valid = false;
+            const int type = inputMethodHost()->contentType(valid);
+            if (!valid
+                || (type == M::NumberContentType)
+                || (type == M::PhoneNumberContentType)) {
+                engineWidgetHost->hideEngineWidget();
+            } else {
+                engineWidgetHost->showEngineWidget(AbstractEngineWidgetHost::DockedMode);
+            }
         }
     }
 }
@@ -872,6 +880,19 @@ void MKeyboardHost::update()
         LayoutPanner::instance().setPanEnabled(false);
     } else {
         LayoutPanner::instance().setPanEnabled(true);
+    }
+
+    if (EngineManager::instance().handler()) {
+        AbstractEngineWidgetHost *engineWidgetHost = EngineManager::instance().handler()->engineWidgetHost();
+        if (engineWidgetHost && engineWidgetHost->displayMode() == AbstractEngineWidgetHost::DockedMode) {
+            if (!valid
+                || (type == M::NumberContentType)
+                || (type == M::PhoneNumberContentType)) {
+                engineWidgetHost->hideEngineWidget();
+            } else {
+                engineWidgetHost->showEngineWidget(AbstractEngineWidgetHost::DockedMode);
+            }
+        }
     }
 
     if (EngineManager::instance().handler()) {
