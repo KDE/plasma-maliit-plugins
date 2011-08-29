@@ -73,19 +73,17 @@ void MImSnapshotPixmapItem::grabScreen(const QRect &rect)
     setPixmap(pixmap);
 }
 
-void MImSnapshotPixmapItem::grabWidgets(QList<QPointer<QGraphicsWidget> > widgets)
+void MImSnapshotPixmapItem::grabWidgets(const QList<QPointer<QGraphicsWidget> > &widgets)
 {
-    if (!widgets.count()) {
+    if (widgets.count() == 0) {
         // clear by setting empty pixmap
         setPixmap(QPixmap());
         return;
     }
 
-    bool isPortrait =
-        (MPlainWindow::instance()->sceneManager()->orientation() == M::Portrait);
-    const QRectF screenRect
-        = QRectF(QPoint(0, 0),
-                 MPlainWindow::instance()->visibleSceneSize(M::Landscape));
+    const QSize &visibleSceneSize(MPlainWindow::instance()->visibleSceneSize(M::Landscape));
+    const bool isPortrait((MPlainWindow::instance()->sceneManager()->orientation() == M::Portrait));
+    const QRectF &screenRect(QRectF(QPoint(0, 0), visibleSceneSize));
 
     QRectF rect;
     foreach (const QGraphicsWidget *widget, widgets) {
@@ -94,15 +92,13 @@ void MImSnapshotPixmapItem::grabWidgets(QList<QPointer<QGraphicsWidget> > widget
 
     qreal posY = 0;
     if (isPortrait) {
-        posY = MPlainWindow::instance()->visibleSceneSize(M::Landscape).width()
-                - rect.width();
-        rect =QRectF(0, 0, rect.height(), rect.width());
+        posY = visibleSceneSize.width() - rect.width();
+        rect = QRectF(0, 0, rect.height(), rect.width());
     } else {
-        posY = MPlainWindow::instance()->visibleSceneSize(M::Landscape).height()
-                - rect.height();
+        posY = visibleSceneSize.height() - rect.height();
     }
-    QPoint pos(0, posY);
 
+    const QPointF pos(0, posY);
     QPixmap pixmap(rect.width(), rect.height());
     pixmap.fill(Qt::transparent);
     QPainter painter(&pixmap);
@@ -126,16 +122,16 @@ void MImSnapshotPixmapItem::grabWidgets(QList<QPointer<QGraphicsWidget> > widget
     setPixmap(pixmap);
 }
 
-void MImSnapshotPixmapItem::grabPixmaps(QMap<QPixmap*, QPoint > pixmaps)
+void MImSnapshotPixmapItem::grabPixmaps(const QMap<QPixmap*, QPoint > &pixmaps)
 {
     qDebug() << __PRETTY_FUNCTION__ << " with pixmaps:" <<  pixmaps.count();
-    if (!pixmaps.count()) {
+    if (pixmaps.isEmpty()) {
         // clear by setting empty pixmap
         setPixmap(QPixmap());
         return;
     }
 
-    bool isPortrait =
+    const bool isPortrait =
         (MPlainWindow::instance()->sceneManager()->orientation() == M::Portrait);
 
     QRect rect;
@@ -150,7 +146,7 @@ void MImSnapshotPixmapItem::grabPixmaps(QMap<QPixmap*, QPoint > pixmaps)
         basePos.setY(qMin(it.value().y(), basePos.y()));
     }
 
-    QSize size = isPortrait ? QSize(rect.height(), rect.width()) : rect.size();
+    const QSize size = isPortrait ? QSize(rect.height(), rect.width()) : rect.size();
     QPixmap pixmap(size);
     QPainter painter(&pixmap);
 

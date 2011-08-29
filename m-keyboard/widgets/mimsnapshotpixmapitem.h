@@ -61,10 +61,10 @@ public:
     void grabScreen(const QRect& rect);
 
     //! Grabs the snapshot from widgets.
-    void grabWidgets(QList<QPointer<QGraphicsWidget> > widgets);
+    void grabWidgets(const QList<QPointer<QGraphicsWidget> > &widgets);
 
     //! Grabs the snapshot from pimaps
-    void grabPixmaps(QMap<QPixmap*, QPoint > pixmaps);
+    void grabPixmaps(const QMap<QPixmap*, QPoint > &pixmaps);
 
     /*!
      * \brief Connects to a PanParameter object
