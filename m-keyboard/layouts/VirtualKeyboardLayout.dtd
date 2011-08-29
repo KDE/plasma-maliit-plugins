@@ -55,4 +55,6 @@
   extended_labels CDATA #IMPLIED
   cycleset CDATA #IMPLIED
   dead (true | false) "false"
-  quickpick (true | false) "false">
+  quickpick (true | false) "false"
+  rtl (true | false) "false"
+>
