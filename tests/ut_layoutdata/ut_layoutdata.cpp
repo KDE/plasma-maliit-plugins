@@ -36,7 +36,7 @@
 
 #include <MApplication>
 #include <MTheme>
-
+#include <QStringList>
 
 void Ut_LayoutData::initTestCase()
 {
@@ -67,16 +67,30 @@ void Ut_LayoutData::testConstructFromString_data()
     QTest::addColumn<QString>("characters");
     QTest::addColumn<int>("expectedColumnCount");
     QTest::addColumn<int>("expectedRowCount");
-    QTest::addColumn<int>("expectedKeyCount");
+    QTest::addColumn<QStringList>("expectedLabels");
+
+    const QStringList salmon(QStringList() << "s" << "a" << "l" << "m" << "o" << "n");
 
     QTest::newRow("salmon - single row")
-        << "salmon" << 6 << 1 << 6;
+        << "salmon" << 6 << 1
+        << salmon;
 
     QTest::newRow("salm\\non - two rows")
-        << "salm\non" << 4 << 2 << 6;
+        << "salm\non" << 4 << 2
+        << salmon;
 
     QTest::newRow("sa\\nlm\\non - three rows")
-        << "sa\nlm\non" << 2 << 3 << 6;
+        << "sa\nlm\non" << 2 << 3
+        << salmon;
+
+    QTest::newRow("salmon catfish trout - three keys")
+        << "salmon catfish trout" << 3 << 1
+        << (QStringList() << "salmon" << "catfish" << "trout");
+
+
+    QTest::newRow("salmon catfish trout\\ncarp perch - five keys over two rows")
+        << "salmon catfish trout\ncarp perch" << 3 << 2
+        << (QStringList() << "salmon" << "catfish" << "trout" << "carp" << "perch");
 }
 
 void Ut_LayoutData::testConstructFromString()
@@ -84,39 +98,35 @@ void Ut_LayoutData::testConstructFromString()
     QFETCH(QString, characters);
     QFETCH(int, expectedColumnCount);
     QFETCH(int, expectedRowCount);
-    QFETCH(int, expectedKeyCount);
+    QFETCH(QStringList, expectedLabels);
 
     const LayoutSection section(characters, false);
 
     QCOMPARE(section.maxColumns(), expectedColumnCount);
     QCOMPARE(section.rowCount(), expectedRowCount);
-    QCOMPARE(section.keyCount(), expectedKeyCount);
+    QCOMPARE(section.keyCount(), expectedLabels.count());
 
-    int rowIndex = 0;
-    int colIndex = 0;
-    for (int i = 0; i < characters.length(); ++i) {
-        if (characters.at(i) == '\n') {
-            ++rowIndex;
-            colIndex = 0;
-            continue;
+    int labelIndex = 0;
+    for (int rowIndex = 0; rowIndex < section.rowCount(); ++rowIndex) {
+        for (int colIndex = 0; colIndex < section.maxColumns(); ++colIndex) {
+            if (const MImKeyModel * const key = section.keyModel(rowIndex, colIndex)) {
+                QCOMPARE(key->style(), MImKeyModel::NormalStyle);
+                QCOMPARE(key->width(), MImKeyModel::Medium);
+                QVERIFY(key->isFixedWidth());
+                QCOMPARE(key->rtl(), false);
+                QCOMPARE(key->binding(true)->label(), expectedLabels.at(labelIndex));
+                QCOMPARE(key->binding(false)->label(), expectedLabels.at(labelIndex));
+                QCOMPARE(key->binding(false)->secondaryLabel(), QString());
+                QVERIFY(!key->binding(false)->isDead());
+                QCOMPARE(key->binding(false)->extendedLabels(), QString());
+                QCOMPARE(key->binding(false)->action(), MImKeyBinding::ActionInsert);
+                ++labelIndex;
+            }
         }
-
-        const MImKeyModel * const key(section.keyModel(rowIndex, colIndex));
-        QVERIFY(key);
-        QCOMPARE(key->style(), MImKeyModel::NormalStyle);
-        QCOMPARE(key->width(), MImKeyModel::Medium);
-        QVERIFY(key->isFixedWidth());
-        QCOMPARE(key->rtl(), false);
-        QCOMPARE(key->binding(false)->label(), QString(characters.at(i)));
-        QCOMPARE(key->binding(true)->label(), QString(characters.at(i)));
-        QCOMPARE(key->binding(false)->secondaryLabel(), QString());
-        QVERIFY(!key->binding(false)->isDead());
-        QCOMPARE(key->binding(false)->extendedLabels(), QString());
-        QCOMPARE(key->binding(false)->action(), MImKeyBinding::ActionInsert);
-
-        ++colIndex;
     }
-}
 
+    // Verify that we actually found the expected keys:
+    QCOMPARE(labelIndex, section.keyCount());
+}
 
 QTEST_APPLESS_MAIN(Ut_LayoutData);
