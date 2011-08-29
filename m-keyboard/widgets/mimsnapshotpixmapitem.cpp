@@ -103,20 +103,17 @@ void MImSnapshotPixmapItem::grabWidgets(const QList<QPointer<QGraphicsWidget> > 
     pixmap.fill(Qt::transparent);
     QPainter painter(&pixmap);
     foreach (QGraphicsWidget *widget, widgets) {
-        QPixmap tp(widget->size().toSize());
-        QPainter p(&tp);
-        // The children must be inside parent widget, otherwise it only
-        // grab children content in side parent widget to the pixmap.
-        foreach (QGraphicsItem *item, widget->childItems())
-            item->paint(&p, 0, 0);
-        widget->paint(&p, 0, 0);
+        const QPointF tp(isPortrait ? QPointF(0, widget->scenePos().x() - pos.y())
+                                    : widget->scenePos() - pos);
 
-        if (isPortrait) {
-            painter.drawPixmap(QPointF(0, widget->scenePos().x() - pos.y()),
-                               tp);
-        } else {
-            painter.drawPixmap(QPointF(widget->scenePos() - pos), tp);
-        }
+        QTransform t;
+        t.translate(tp.x(), tp.y());
+        painter.setTransform(t);
+
+        foreach (QGraphicsItem *item, widget->childItems())
+            item->paint(&painter, 0, 0);
+
+        widget->paint(&painter, 0, 0);
     }
 
     setPixmap(pixmap);
@@ -146,8 +143,8 @@ void MImSnapshotPixmapItem::grabPixmaps(const QMap<QPixmap*, QPoint > &pixmaps)
         basePos.setY(qMin(it.value().y(), basePos.y()));
     }
 
-    const QSize size = isPortrait ? QSize(rect.height(), rect.width()) : rect.size();
-    QPixmap pixmap(size);
+    QPixmap pixmap(isPortrait ? QSize(rect.height(), rect.width())
+                              : rect.size());
     QPainter painter(&pixmap);
 
     if (isPortrait) {
