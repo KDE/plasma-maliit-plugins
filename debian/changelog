@@ -1,8 +1,8 @@
-meego-keyboard (0.7.10~1) unstable; urgency=low
+meego-keyboard (0.7.10-1) unstable; urgency=low
 
-  * [UNRELEASED]
+  * Fixes: NB#279536, VKB slide and popup feedbacks need to be updated along with new vibra daemon
 
- -- Ning Chi <ext-chi.2.ning@nokia.com>  Mon, 29 Aug 2011 11:56:15 +0300
+ -- Ning Chi <ext-chi.2.ning@nokia.com>  Tue, 30 Aug 2011 12:46:00 +0300
 
 meego-keyboard (0.7.9-1) unstable; urgency=low
 
