@@ -120,10 +120,20 @@ void MImSnapshotPixmapItem::grabWidgets(const QList<QPointer<QGraphicsWidget> > 
         t.translate(tp.x(), tp.y());
         painter.setTransform(t);
 
-        foreach (QGraphicsItem *item, widget->childItems())
-            item->paint(&painter, 0, 0);
-
         widget->paint(&painter, 0, 0);
+        foreach (QGraphicsItem *item, widget->childItems()) {
+            // If isPortrait is true, then keep in mind that "rect" is also
+            // "rotated" to portrait mode and moved to the area covered by the
+            // VKB  (on the display). We still need to adjust the item (in
+            // scene position) to that area.
+            const QPointF &itemPos(isPortrait ? QPointF(rect.width() - item->scenePos().y(),
+                                                        item->scenePos().x() - pos.y())
+                                              : item->scenePos() - pos);
+            QTransform itemTransform;
+            itemTransform.translate(itemPos.x(), itemPos.y());
+            painter.setTransform(itemTransform);
+            item->paint(&painter, 0, 0);
+        }
     }
 
     setPixmap(pixmap);
