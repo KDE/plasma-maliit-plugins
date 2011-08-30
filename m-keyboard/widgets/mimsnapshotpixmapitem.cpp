@@ -81,7 +81,11 @@ void MImSnapshotPixmapItem::grabWidgets(const QList<QPointer<QGraphicsWidget> > 
         return;
     }
 
+    // Querying visible scene size for landscape orientation, because
+    // widget->sceneBoundingRect() always returns the bounding rectangle of
+    // the widget for landscape orientation:
     const QSize &visibleSceneSize(MPlainWindow::instance()->visibleSceneSize(M::Landscape));
+
     const bool isPortrait((MPlainWindow::instance()->sceneManager()->orientation() == M::Portrait));
     const QRectF &screenRect(QRectF(QPoint(0, 0), visibleSceneSize));
 
