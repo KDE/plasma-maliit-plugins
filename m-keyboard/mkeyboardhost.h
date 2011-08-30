@@ -252,7 +252,10 @@ private slots:
     //! handle layout pan finished
     void handleLayoutPanFinished(PanGesture::PanDirection direction);
 
-    //! prepare snapshots for panning incoming widgets.
+    //! prepare snapshots for panning incoming widgets, async
+    void asyncPreparePanningIncomingWidget();
+
+    //! prepare snapshots for panning incoming widgets
     void preparePanningIncomingWidget();
 
 private:

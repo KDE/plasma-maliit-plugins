@@ -363,7 +363,7 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
             this, SLOT(switchPlugin(MInputMethod::SwitchDirection)));
 
     connect(vkbWidget, SIGNAL(verticalAnimationFinished()),
-            this, SLOT(preparePanningIncomingWidget()));
+            this, SLOT(asyncPreparePanningIncomingWidget()));
 
     // construct hardware keyboard object
     hardwareKeyboard = new MHardwareKeyboard(*host, this);
@@ -748,7 +748,7 @@ void MKeyboardHost::handleAnimationFinished()
         // plugin switching might result to odd situations as well.
         MPlainWindow::instance()->sceneManager()->disappearSceneWindowNow(sceneWindow);
     } else { // QAbstractAnimation::Forward
-        preparePanningIncomingWidget();
+        asyncPreparePanningIncomingWidget();
     }
 
     RegionTracker::instance().enableSignals(true);
@@ -1102,7 +1102,7 @@ void MKeyboardHost::finalizeOrientationChange()
     }
 
     LayoutPanner::instance().finalizeOrientationChange();
-    preparePanningIncomingWidget();
+    asyncPreparePanningIncomingWidget();
 
     // Reactivate tracker after rotation and layout has settled.
     RegionTracker::instance().enableSignals(regionUpdatesEnabledBeforeOrientationChange, sipRequested);
@@ -2268,7 +2268,7 @@ void MKeyboardHost::handleVirtualKeyboardLayoutChanged(const QString &layout)
         // if vkb is playing vertical animation, will prepare panning
         // incoming widget later.
         if (!vkbWidget->isPlayingAnimation())
-            preparePanningIncomingWidget();
+            asyncPreparePanningIncomingWidget();
     }
 
     if (EngineManager::instance().handler()
@@ -2536,6 +2536,11 @@ void MKeyboardHost::updateCJKOverridesData()
     // Disable the overrides for all keys which are "actionKey".
     // This is a special feature required by CJK languages.
     cjkOverrides.remove(QString("actionKey"));
+}
+
+void MKeyboardHost::asyncPreparePanningIncomingWidget()
+{
+    QTimer::singleShot(250, this, SLOT(preparePanningIncomingWidget()));
 }
 
 void MKeyboardHost::preparePanningIncomingWidget()
