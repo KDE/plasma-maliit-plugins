@@ -989,7 +989,7 @@ void MKeyboardHost::updateAutoCapitalization()
         else {
             // FIXME: This will break the behaviour of keeping shift latched when shift+character occured.
             // We would really need a state machine for the shift state handling.
-            vkbWidget->setShiftState(autoCapsTriggered ?
+            vkbWidget->setShiftState((autoCapsTriggered || shiftHeldDown) ?
                                          ModifierLatchedState : ModifierClearState);
         }
     } else if ((activeState == MInputMethod::Hardware) &&
