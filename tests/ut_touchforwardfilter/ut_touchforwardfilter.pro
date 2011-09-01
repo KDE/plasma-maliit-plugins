@@ -1,7 +1,6 @@
 include(../common_top.pri)
 
 TEMPLATE = app
-TARGET =
 DEPENDPATH += .
 INCLUDEPATH += .
 
