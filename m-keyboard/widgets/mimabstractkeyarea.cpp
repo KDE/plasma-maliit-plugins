@@ -132,7 +132,8 @@ MImAbstractKeyAreaPrivate::MImAbstractKeyAreaPrivate(const LayoutData::SharedLay
       longPressTouchPointId(0),
       longPressTouchPointIsPrimary(false),
       enabledPanning(true),
-      lastTouchEvent(QEvent::TouchEnd)
+      lastTouchEvent(QEvent::TouchEnd),
+      idle(true)
 {
 }
 
@@ -335,6 +336,7 @@ void MImAbstractKeyAreaPrivate::touchPointPressed(const QTouchEvent::TouchPoint 
         // TODO: check how expensive gesture (un)grabbing is:
         q->ungrabGesture(FlickGestureRecognizer::sharedGestureType());
         q->ungrabGesture(BorderPanRecognizer::sharedGestureType());
+        idle = false;
     }
 
     const QPoint pos = q->correctedTouchPoint(tp.scenePos());
@@ -380,7 +382,13 @@ void MImAbstractKeyAreaPrivate::touchPointPressed(const QTouchEvent::TouchPoint 
     rec.setHitKey(key);
 
     if (rec.touchPointEnteredKey() && rec.key()->touchPointCount() == 1) {
-        q->updatePopup(rec.key());
+        if (idle && BorderPanRecognizer::instance()->maybePanGesture()) {
+            QTimer::singleShot(q->style()->pauseUpdatePopupTimeout(),
+                               q,
+                               SLOT(asyncUpdatePopup()));
+        } else {
+            q->updatePopup(rec.key());
+        }
         longPressTouchPointId = tp.id();
         longPressTouchPointIsPrimary = tp.isPrimary();
         longPressTimer.start(q->style()->longPressTimeout());
@@ -729,6 +737,17 @@ const LayoutData::SharedLayoutSection &MImAbstractKeyArea::sectionModel() const
     Q_D(const MImAbstractKeyArea);
 
     return d->section;
+}
+
+void MImAbstractKeyArea::asyncUpdatePopup()
+{
+    MImAbstractKey *const lastActiveKey = MImAbstractKey::lastActiveKey();
+    if (lastActiveKey
+        && lastActiveKey->enabled()
+        && lastActiveKey->isNormalKey()
+        && lastActiveKey->touchPointCount() > 0) {
+        updatePopup(lastActiveKey);
+    }
 }
 
 void MImAbstractKeyArea::updatePopup(MImAbstractKey *key)
@@ -1129,6 +1148,7 @@ void MImAbstractKeyArea::handleIdleVkb()
     if (d->enabledPanning) {
         grabGesture(BorderPanRecognizer::sharedGestureType());
     }
+    d->idle = true;
 }
 
 void MImAbstractKeyArea::reset()
@@ -1168,6 +1188,7 @@ void MImAbstractKeyArea::reset()
     keyAreaReset.setKeyParentItem(this);
     MImAbstractKey::visitActiveKeys(&keyAreaReset);
     modifiersChanged(shiftLatchedOrLocked);
+    d->idle = true;
     update();
 }
 

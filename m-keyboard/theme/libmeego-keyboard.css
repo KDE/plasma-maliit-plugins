@@ -200,6 +200,8 @@ MImAbstractKeyAreaStyle {
     commit-previous-key-on-press: true;
     auto-padding: true;
 
+    /*when pressing keys which are near keyboard border, pause to update popup*/
+    pause-update-popup-timeout: 75;
     pan-gesture-timeout: 250;
     /*the distance betwee the first touch position and the edge of keyboard
     must be less than pan-gesture-start-threshold*/

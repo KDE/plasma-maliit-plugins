@@ -33,6 +33,7 @@
 #define BORDERPANRECOGNIZER_H
 
 #include <QGestureRecognizer>
+#include <QTouchEvent>
 
 class PanGesture;
 class QGraphicsSceneMouseEvent;
@@ -57,6 +58,8 @@ public:
     void setStartThreshold(int threshold);
     void setFinishThreshold(int threshold);
     void setInitialMovement(int initialMovement);
+
+    bool maybePanGesture() const;
 private:
     //! Constructor
     BorderPanRecognizer();
@@ -82,6 +85,9 @@ private:
     int startThreshold;
     int finishThreshold;
     int initialMovement;
+
+    QTouchEvent lastTouchEvent; //!< Used for resending previous event. Used by TouchForwardFilter.
+    bool mMaybePanGesture;
 };
 
 #endif // BORDERPANRECOGNIZER_H

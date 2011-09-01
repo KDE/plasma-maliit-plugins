@@ -60,6 +60,7 @@ public:
     M_STYLE_ATTRIBUTE(qreal, touchpointVerticalGravity, TouchpointVerticalGravity)
     M_STYLE_ATTRIBUTE(qreal, touchpointVerticalOffset, TouchpointVerticalOffset)
 
+    M_STYLE_ATTRIBUTE(int, pauseUpdatePopupTimeout, PauseUpdatePopupTimeout)
     M_STYLE_ATTRIBUTE(int, panGestureTimeout, PanGestureTimeout)
     M_STYLE_ATTRIBUTE(int, panGestureStartThreshold, PanGestureStartThreshold)
     M_STYLE_ATTRIBUTE(int, panGestureFinishThreshold, PanGestureFinishThreshold)

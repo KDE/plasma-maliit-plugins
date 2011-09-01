@@ -363,6 +363,10 @@ protected:
     QRectF correctedReactionRect(const QRectF &originalRect) const;
 
 protected slots:
+
+    //! Shows popup and updates its content and position according current pressed key.
+    void asyncUpdatePopup();
+
     //! Update background images, text layouts, etc. when the theme changed.
     virtual void onThemeChangeCompleted();
 

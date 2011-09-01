@@ -197,6 +197,7 @@ public:
     KeyEvent::Source source; //!< The source added to events from this area.
     bool enabledPanning;
     QTouchEvent lastTouchEvent; //!< Used for resending previous event. Used by TouchForwardFilter.
+    bool idle;
 };
 //! \internal_end
 
