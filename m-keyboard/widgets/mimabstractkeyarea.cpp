@@ -706,11 +706,12 @@ void MImAbstractKeyArea::init()
     d->switchStyleMode();
     debugTouchPoints = style()->debugTouchPoints();
 
-    BorderPanRecognizer::instance()->setTimeout(style()->panGestureTimeout());
-    BorderPanRecognizer::instance()->setStartThreshold(style()->panGestureStartThreshold());
-    BorderPanRecognizer::instance()->setFinishThreshold(style()->panGestureFinishThreshold());
-    BorderPanRecognizer::instance()->setInitialMovement(style()->panGestureInitialMovement());
-
+    if (BorderPanRecognizer *instance = BorderPanRecognizer::instance()) {
+        instance->setTimeout(style()->panGestureTimeout());
+        instance->setStartThreshold(style()->panGestureStartThreshold());
+        instance->setFinishThreshold(style()->panGestureFinishThreshold());
+        instance->setInitialMovement(style()->panGestureInitialMovement());
+    }
 }
 
 void MImAbstractKeyArea::setInputMethodMode(M::InputMethodMode inputMethodMode)
