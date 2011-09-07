@@ -411,6 +411,8 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
 
     symbolView = new SymbolView(LayoutsManager::instance(), vkbStyleContainer,
                                 vkbWidget->selectedLayout(), sceneWindow);
+    sharedHandleArea->watchOnWidget(symbolView);
+
     connect(symbolView, SIGNAL(geometryChanged()),
             this, SLOT(handleSymbolViewGeometryChange()));
     connect(symbolView, SIGNAL(visibleChanged()), this, SLOT(handleSymbolViewVisibleChanged()));
@@ -428,16 +430,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
 
     connect(symbolView, SIGNAL(userInitiatedHide()),
             this, SLOT(userHide()));
-    connect(symbolView, SIGNAL(flickLeft()),
-            symbolView, SLOT(hideSymbolView()));
-    connect(symbolView, SIGNAL(flickLeft()),
-            vkbWidget, SLOT(flickLeftHandler()), Qt::QueuedConnection); // Needs to be a QueuedConnection because it will destroy the key area in the symbol view on layout change
-    connect(symbolView, SIGNAL(flickRight()),
-            symbolView, SLOT(hideSymbolView()));
-    connect(symbolView, SIGNAL(flickRight()),
-            vkbWidget, SLOT(flickRightHandler()), Qt::QueuedConnection); // Needs to be a QueuedConnection because it will destroy the key area in the symbol view on layout change
-
-    sharedHandleArea->watchOnWidget(symbolView);
 
     connect(MPlainWindow::instance()->sceneManager(), SIGNAL(orientationChangeFinished(M::Orientation)),
             this, SLOT(finalizeOrientationChange()));
@@ -2529,8 +2521,7 @@ void MKeyboardHost::togglePlusMinus()
 
 void MKeyboardHost::setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &newOverrides)
 {
-
-    disconnect(SLOT(repaintOnAttributeEnabledChange(QString, MKeyOverride::KeyOverrideAttributes)));
+    disconnect(this, SLOT(repaintOnAttributeEnabledChange(QString,MKeyOverride::KeyOverrideAttributes)));
 
     if (!haveFocus && newOverrides.size() == 0) {
         keyOverrideClearPending = true; // not changing overrides while hiding
