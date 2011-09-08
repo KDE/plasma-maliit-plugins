@@ -62,6 +62,10 @@ public:
         ActionSwitch,
         ActionOnOffToggle,
         ActionCompose,
+        ActionLeft,
+        ActionUp,
+        ActionRight,
+        ActionDown,
         NumActions
     };
 

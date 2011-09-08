@@ -522,6 +522,15 @@ bool MImKey::isBackspaceKey() const
     return (binding().action() == MImKeyBinding::ActionBackspace);
 }
 
+bool MImKey::isAutoRepeatKey() const
+{
+    return (binding().action() == MImKeyBinding::ActionBackspace
+            || binding().action() == MImKeyBinding::ActionLeft
+            || binding().action() == MImKeyBinding::ActionUp
+            || binding().action() == MImKeyBinding::ActionRight
+            || binding().action() == MImKeyBinding::ActionDown);
+}
+
 bool MImKey::increaseTouchPointCount()
 {
     if (++currentTouchPointCount <= touchPointLimit()) {

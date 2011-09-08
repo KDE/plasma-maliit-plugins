@@ -143,6 +143,18 @@ KeyEvent MImKeyBinding::toKeyEventImpl(QKeyEvent::Type eventType,
             text = "\r";
         }
         break;
+    case ActionLeft:
+        key = Qt::Key_Left;
+        break;
+    case ActionUp:
+        key = Qt::Key_Up;
+        break;
+    case ActionRight:
+        key = Qt::Key_Right;
+        break;
+    case ActionDown:
+        key = Qt::Key_Down;
+        break;
     case NumActions:
         Q_ASSERT(false);
     }

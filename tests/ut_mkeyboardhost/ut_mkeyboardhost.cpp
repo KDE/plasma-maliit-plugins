@@ -571,7 +571,7 @@ void Ut_MKeyboardHost::testAutoCaps()
     inputMethodHost->cursorPos = inputMethodHost->surroundingString.length();
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
-    
+
     inputMethodHost->cursorPos = 0;
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
@@ -690,7 +690,8 @@ void Ut_MKeyboardHost::testAutoCaps()
 
     // press and release backspace before timeout will only delete one character,
     subject->handleKeyPress(press);
-    QVERIFY(subject->backspaceTimer.isActive());
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatBackspace);
+    QVERIFY(subject->repeatTimer.isActive());
     subject->handleKeyRelease(release);
     subject->handleKeyClick(release);
     subject->update();
@@ -699,21 +700,25 @@ void Ut_MKeyboardHost::testAutoCaps()
 
     // but hold backspace longer than timeout, will delete the whole preedit.
     subject->handleKeyPress(press);
-    int interval = subject->backspaceTimer.interval();
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatBackspace);
+    int interval = subject->repeatTimer.interval();
     QTest::qWait(interval / 2);
-    QVERIFY(subject->backspaceTimer.isActive());
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatBackspace);
+    QVERIFY(subject->repeatTimer.isActive());
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
     QTest::qWait((interval / 2) + 50);
     // final state: preedit(""), shift state:on, after holding backspace enough time.
     QVERIFY(subject->preedit.isEmpty());
-    QVERIFY(subject->backspaceTimer.isActive());
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatBackspace);
+    QVERIFY(subject->repeatTimer.isActive());
     inputMethodHost->cursorPos = 13;
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
     subject->handleKeyRelease(release);
     subject->handleKeyClick(release);
-    QVERIFY(!subject->backspaceTimer.isActive());
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatInactive);
+    QVERIFY(!subject->repeatTimer.isActive());
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
 
     subject->hide();
@@ -765,6 +770,84 @@ void Ut_MKeyboardHost::testAutoCaps()
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
     gAutoCapsEnabled = true;
+}
+
+void Ut_MKeyboardHost::testAutoRepeat()
+{
+    KeyEvent pressRightArrow("", QEvent::KeyPress, Qt::Key_Right);
+    KeyEvent releaseRightArrow(pressRightArrow, QEvent::KeyRelease);
+    KeyEvent pressBackspace("", QEvent::KeyPress, Qt::Key_Backspace);
+    KeyEvent releaseBackspace(pressBackspace, QEvent::KeyRelease);
+
+    // unicode object replacement character at the end
+    inputMethodHost->surroundingString
+        = QString("Test string.");
+    inputMethodHost->contentType_ = M::FreeTextContentType;
+    inputMethodHost->cursorPos = 0;
+    subject->preedit = "You can use";
+
+    subject->show();
+    subject->update();
+
+    // Repeat time should stop after single press&release
+    subject->handleKeyPress(pressRightArrow);
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatArrow);
+    QCOMPARE(subject->repeatTimer.isActive(), true);
+    subject->handleKeyRelease(releaseRightArrow);
+    subject->handleKeyClick(pressRightArrow);
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatInactive);
+    QCOMPARE(subject->repeatTimer.isActive(), false);
+
+    // Press and hold should cause auto repeat
+    subject->handleKeyPress(pressRightArrow);
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatArrow);
+    QCOMPARE(subject->repeatTimer.isActive(), true);
+    int interval = subject->repeatTimer.interval();
+    QTest::qWait(interval / 2);
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatArrow);
+    QCOMPARE(subject->repeatTimer.isActive(), true);
+    QTest::qWait((interval / 2) + 50);
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatArrow);
+    QCOMPARE(subject->repeatTimer.isActive(), true);
+    subject->handleKeyRelease(releaseRightArrow);
+    subject->handleKeyClick(pressRightArrow);
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatInactive);
+    QCOMPARE(subject->repeatTimer.isActive(), false);
+
+    // Auto repeat should change repeat action on each press that
+    // has repeat functionality.
+
+    // Case: Press arrow, press backspace, release arrow, release backspace
+    subject->handleKeyPress(pressRightArrow);
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatArrow);
+    QCOMPARE(subject->repeatTimer.isActive(), true);
+    subject->handleKeyPress(pressBackspace);
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatBackspace);
+    QCOMPARE(subject->repeatTimer.isActive(), true);
+    subject->handleKeyRelease(releaseRightArrow);
+    subject->handleKeyClick(pressRightArrow);
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatBackspace);
+    QCOMPARE(subject->repeatTimer.isActive(), true);
+    subject->handleKeyRelease(releaseBackspace);
+    subject->handleKeyClick(pressBackspace);
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatInactive);
+    QCOMPARE(subject->repeatTimer.isActive(), false);
+
+    // Case: Press backspace, press arrow, release arrow, release backspace
+    subject->handleKeyPress(pressBackspace);
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatBackspace);
+    QCOMPARE(subject->repeatTimer.isActive(), true);
+    subject->handleKeyPress(pressRightArrow);
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatArrow);
+    QCOMPARE(subject->repeatTimer.isActive(), true);
+    subject->handleKeyRelease(releaseRightArrow);
+    subject->handleKeyClick(pressRightArrow);
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatInactive);
+    QCOMPARE(subject->repeatTimer.isActive(), false);
+    subject->handleKeyRelease(releaseBackspace);
+    subject->handleKeyClick(pressBackspace);
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatInactive);
+    QCOMPARE(subject->repeatTimer.isActive(), false);
 }
 
 void Ut_MKeyboardHost::testApplicationOrientationChanged()

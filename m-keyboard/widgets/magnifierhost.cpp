@@ -230,8 +230,9 @@ MagnifierHost::handleLongKeyPressedOnMainArea(MImAbstractKey *key,
 
     const QString &labels(computeExtendedLabelsFromKey(key));
 
-    if (labels.isEmpty()) {
-        // It usually makes no sense to show an extended area for one key.
+    if (labels.isEmpty() || key->isAutoRepeatKey()) {
+        // Do not show an extended area for key without extended labels
+        // or for any key with auto repeat.
         return retVal;
     }
 

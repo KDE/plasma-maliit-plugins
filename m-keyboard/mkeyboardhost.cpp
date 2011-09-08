@@ -85,9 +85,9 @@ namespace
     // 0xFFFC = object replacement character. Assume as terminating a sentence.
     const QRegExp AutoCapsTrigger(QString("[.?!¡¿%1] +$").arg(QChar(0xfffc)));
     const QString AutoPunctuationTriggers(".,?!");
-    const int AutoBackspaceDelay = 500;      // in ms
+    const int AutoRepeatDelay = 500;         // in ms
     const int LongPressTime = 600;           // in ms
-    const int BackspaceRepeatInterval = 100; // in ms
+    const int AutoRepeatInterval = 100;      // in ms
     const int MultitapTime = 1500;           // in ms
     const Qt::KeyboardModifier FnLevelModifier = Qt::GroupSwitchModifier;
     // This GConf item defines whether multitouch is enabled or disabled
@@ -232,7 +232,8 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
       hasSelection(false),
       preeditHasBeenEdited(false),
       inputMethodMode(M::InputMethodModeNormal),
-      backspaceTimer(),
+      keyRepeatMode(RepeatInactive),
+      repeatTimer(),
       shiftHeldDown(false),
       activeState(MInputMethod::OnScreen),
       modifierLockOnBanner(0),
@@ -252,7 +253,9 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
       regionUpdatesEnabledBeforeOrientationChange(true),
       appOrientationAngle(M::Angle90), // shouldn't matter, see handleAppOrientationChanged comment
       engineWidgetHostTemporarilyHidden(false),
-      enabledOnScreenPluginsCount(0)
+      enabledOnScreenPluginsCount(0),
+      pressedArrowKey(Qt::Key_unknown),
+      firstArrowSent(false)
 {
     Q_ASSERT(host != 0);
     Q_ASSERT(mainWindow != 0);
@@ -458,8 +461,8 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
     if (vkbWidget->isVisible())
         updateEngineKeyboardLayout();
 
-    backspaceTimer.setSingleShot(true);
-    connect(&backspaceTimer, SIGNAL(timeout()), this, SLOT(autoBackspace()));
+    repeatTimer.setSingleShot(true);
+    connect(&repeatTimer, SIGNAL(timeout()), this, SLOT(autoRepeat()));
 
     // Set up animations
     slideUpAnimation.setTargetObject(vkbWidget);
@@ -493,7 +496,8 @@ MKeyboardHost::~MKeyboardHost()
     delete touchPointLogHandle;
     touchPointLogHandle = 0;
     backspaceMode = NormalBackspaceMode;
-    backspaceTimer.stop();
+    keyRepeatMode = RepeatInactive;
+    repeatTimer.stop();
     LayoutsManager::destroyInstance();
     ReactionMapPainter::destroyInstance();
     RegionTracker::destroyInstance();
@@ -1039,7 +1043,8 @@ void MKeyboardHost::resetInternalState()
 {
     spaceInsertedAfterCommitString = false;
     backspaceMode = NormalBackspaceMode;
-    backspaceTimer.stop();
+    keyRepeatMode = RepeatInactive;
+    repeatTimer.stop();
     preedit.clear();
     preeditCursorPos = -1;
     preeditHasBeenEdited = false;
@@ -1299,11 +1304,63 @@ void MKeyboardHost::doBackspace()
     }
 }
 
+void MKeyboardHost::doArrow()
+{
+    // Arrows are currently used only for navigation, so hide word tracker,
+    // stop pre-editing and only retain cursor position when navigating
+    // with arrows.
+    AbstractEngineWidgetHost *engineWidgetHost =
+        EngineManager::instance().handler() ?
+        EngineManager::instance().handler()->engineWidgetHost() : 0;
+    if (engineWidgetHost
+        && engineWidgetHost->isActive()
+        && engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode) {
+        engineWidgetHost->hideEngineWidget();
+    }
+
+    if (!preedit.isEmpty()) {
+        inputMethodHost()->sendCommitString(preedit, 0, 0, preeditCursorPos);
+        if (EngineManager::instance().engine())
+            EngineManager::instance().engine()->clearEngineBuffer();
+        preedit.clear();
+        preeditCursorPos = -1;
+    }
+
+    const KeyEvent pressEvent("\b", QEvent::KeyPress, pressedArrowKey,
+                              KeyEvent::NotSpecial, shiftHeldDown ? Qt::ShiftModifier : Qt::NoModifier);
+
+    const KeyEvent releaseEvent("\b", QEvent::KeyRelease, pressedArrowKey,
+                                KeyEvent::NotSpecial, shiftHeldDown ? Qt::ShiftModifier : Qt::NoModifier);
+
+    inputMethodHost()->sendKeyEvent(pressEvent.toQKeyEvent(),
+                                    MInputMethod::EventRequestEventOnly);
+    inputMethodHost()->sendKeyEvent(releaseEvent.toQKeyEvent(),
+                                    MInputMethod::EventRequestEventOnly);
+}
+
+void MKeyboardHost::autoRepeat()
+{
+    if (keyRepeatMode == RepeatBackspace) {
+        autoBackspace();
+    } else if (keyRepeatMode == RepeatArrow) {
+        autoArrow();
+    }
+}
+
 void MKeyboardHost::autoBackspace()
 {
     backspaceMode = AutoBackspaceMode;
-    backspaceTimer.start(BackspaceRepeatInterval); // Must restart before doBackspace
+    keyRepeatMode = RepeatBackspace;
+    repeatTimer.start(AutoRepeatInterval); // Must restart before doBackspace
     doBackspace();
+}
+
+void MKeyboardHost::autoArrow()
+{
+    keyRepeatMode = RepeatArrow;
+    repeatTimer.start(AutoRepeatInterval);
+    firstArrowSent = true;
+    doArrow();
 }
 
 void MKeyboardHost::handleKeyPress(const KeyEvent &event)
@@ -1358,6 +1415,11 @@ void MKeyboardHost::handleKeyPress(const KeyEvent &event)
         } else {
             startBackspace(NormalBackspaceMode);
         }
+    } else if (isKeyEventArrow(event)) {
+        firstArrowSent = false;
+        pressedArrowKey = event.qtKey();
+        keyRepeatMode = RepeatArrow;
+        repeatTimer.start(AutoRepeatDelay);
     }
 }
 
@@ -1383,8 +1445,9 @@ void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
         inputMethodHost()->sendKeyEvent(event.toQKeyEvent(), MInputMethod::EventRequestBoth);
 
     } else if (event.qtKey() == Qt::Key_Backspace) {
-        if (backspaceTimer.isActive()) {
-            backspaceTimer.stop();
+        if (keyRepeatMode == RepeatBackspace) {
+            keyRepeatMode = RepeatInactive;
+            repeatTimer.stop();
             // If the backspace Mode is WordTrackerBackspaceMode or
             // AutoBackspaceMode, don't need to do backspace.
             if (backspaceMode != WordTrackerBackspaceMode
@@ -1392,6 +1455,14 @@ void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
                 doBackspace();
             }
             backspaceMode = NormalBackspaceMode;
+        }
+    } else if (isKeyEventArrow(event)) {
+        if (keyRepeatMode == RepeatArrow && pressedArrowKey == event.qtKey()) {
+            keyRepeatMode = RepeatInactive;
+            repeatTimer.stop();
+            if (!firstArrowSent) {
+                doArrow();
+            }
         }
     }
 }
@@ -1473,6 +1544,7 @@ void MKeyboardHost::handleGeneralKeyClick(const KeyEvent &event)
         }
     } else if (vkbWidget->shiftStatus() == ModifierLatchedState
                && (event.qtKey() != Qt::Key_Backspace)
+               && !isKeyEventArrow(event)
                && (event.specialKey() != KeyEvent::Sym)
                && (event.specialKey() != KeyEvent::Switch)
                && (event.specialKey() != KeyEvent::LayoutMenu)
@@ -1480,6 +1552,7 @@ void MKeyboardHost::handleGeneralKeyClick(const KeyEvent &event)
         // Any key except shift toggles shift off if it's on (not locked).
         // Exceptions are:
         // - backspace, toggles shift off is handled in doBackspace()
+        // - arrows, in case of arrow keys, update() will set correct shift state
         // - sym, pressing sym key keeps current shift state
         // - switch, pressing switch key keeps current shift state
         // - menu, pressing menu key keeps current shift state
@@ -1535,8 +1608,16 @@ void MKeyboardHost::handleKeyCancel(const KeyEvent &event)
         return;
 
     if (event.qtKey() == Qt::Key_Backspace) {
-        backspaceMode = NormalBackspaceMode;
-        backspaceTimer.stop();
+        if (keyRepeatMode == RepeatBackspace) {
+            backspaceMode = NormalBackspaceMode;
+            keyRepeatMode = RepeatInactive;
+            repeatTimer.stop();
+        }
+    } else if (isKeyEventArrow(event)) {
+        if (keyRepeatMode == RepeatArrow) {
+            keyRepeatMode = RepeatInactive;
+            repeatTimer.stop();
+        }
     } else if (event.qtKey() == Qt::Key_Shift) {
         shiftHeldDown = false;
     }
@@ -1573,10 +1654,11 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
         || (!(event.specialKey() == KeyEvent::NotSpecial
               || event.specialKey() == KeyEvent::CycleSet))
 
-        // Finally, discard Qt backspace, which is handled in
+        // Finally, discard Qt backspace and arrowkeys, which are handled in
         // handleKeyPress/Release.
         || (event.qtKey() == Qt::Key_Backspace)
-        || (event.qtKey() == Qt::Key_Shift)) {
+        || (event.qtKey() == Qt::Key_Shift)
+        || isKeyEventArrow(event)) {
 
         return;
     }
@@ -2319,7 +2401,8 @@ void MKeyboardHost::updatePreedit(const QString &string, int candidateCount, boo
 void MKeyboardHost::startBackspace(MKeyboardHost::BackspaceMode mode)
 {
     backspaceMode = mode;
-    backspaceTimer.start(AutoBackspaceDelay);
+    keyRepeatMode = RepeatBackspace;
+    repeatTimer.start(AutoRepeatDelay);
 }
 
 void MKeyboardHost::updateCorrectionWidgetPosition()
@@ -2699,4 +2782,11 @@ void MKeyboardHost::finalizeSwitchingPlugin(PanGesture::PanDirection direction)
     }
 }
 
+bool MKeyboardHost::isKeyEventArrow(const KeyEvent &event) const
+{
+    return event.qtKey() == Qt::Key_Left
+           || event.qtKey() == Qt::Key_Up
+           || event.qtKey() == Qt::Key_Right
+           || event.qtKey() == Qt::Key_Down;
+}
 

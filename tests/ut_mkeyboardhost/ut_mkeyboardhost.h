@@ -75,6 +75,7 @@ private slots:
     void testCorrectionContentTypes();
 
     void testAutoCaps();
+    void testAutoRepeat();
     void testApplicationOrientationChanged();
 
     void testCopyPaste();

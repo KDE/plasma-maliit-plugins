@@ -128,6 +128,9 @@ public:
     //! \brief Tells whether the key is a backspace key.
     virtual bool isBackspaceKey() const = 0;
 
+    //! \brief Tells whether the key is auto repeat key.
+    virtual bool isAutoRepeatKey() const = 0;
+
     //! \brief Called when a new touchpoint was registered on this button.
     //! \returns true if the counter could be increased.
     //!          Cannot exceed total active touchpoint limit

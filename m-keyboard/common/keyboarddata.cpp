@@ -117,6 +117,10 @@ namespace
     const char * const ActionStrSwitch            = "switch";
     const char * const ActionStrOnOffToogle       = "on_off_toggle";
     const char * const ActionStrCompose           = "compose";
+    const char * const ActionStrLeft              = "left";
+    const char * const ActionStrUp                = "up";
+    const char * const ActionStrRight             = "right";
+    const char * const ActionStrDown              = "down";
 
     const char * const VKBTagImport               = "import";
     const char * const VKBTagFile                 = "file";
@@ -646,6 +650,14 @@ MImKeyBinding::KeyAction KeyboardData::keyActionFromString(const QString &typeSt
         result = MImKeyBinding::ActionOnOffToggle;
     else if (typeStr == ActionStrCompose)
         result = MImKeyBinding::ActionCompose;
+    else if (typeStr == ActionStrLeft)
+        result = MImKeyBinding::ActionLeft;
+    else if (typeStr == ActionStrUp)
+        result = MImKeyBinding::ActionUp;
+    else if (typeStr == ActionStrRight)
+        result = MImKeyBinding::ActionRight;
+    else if (typeStr == ActionStrDown)
+        result = MImKeyBinding::ActionDown;
     else
         result = MImKeyBinding::ActionInsert;
     return result;

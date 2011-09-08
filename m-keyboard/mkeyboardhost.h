@@ -181,8 +181,14 @@ private slots:
     //! handles user initiated hiding of the keyboard
     void userHide();
 
+    //! calls either autoBackspace() or autoArrow() depending on keyRepeatMode
+    void autoRepeat();
+
     //! does one backspace and schedules the next if it is holding backspace.
     void autoBackspace();
+
+    //! does one arrow click and schedules the next if it is holding arrow.
+    void autoArrow();
 
     /*! \brief Sends request to copy or paste text
      *  \param action ImCopyPasteState Required action (copy or paste)
@@ -287,6 +293,9 @@ private:
     //! Actual backspace operation
     void doBackspace();
 
+    //! Actual arrow operation
+    void doArrow();
+
     /*! \brief Handle key click event that changes the state of the keyboard.
      *
      *  This method should contain functionality that is common to
@@ -372,6 +381,9 @@ private:
     //! Finalizes switching plugin to \a direction.
     void finalizeSwitchingPlugin(PanGesture::PanDirection direction);
 
+    //! Returns true if KeyEvent is an arrow key
+    bool isKeyEventArrow(const KeyEvent &event) const;
+
 private:
     //! \brief Slides full-width QGraphicsWidgets up from the bottom of the display,
     //! aligning their bottom with the display bottom
@@ -428,7 +440,14 @@ private:
 
     int inputMethodMode;
 
-    QTimer backspaceTimer;
+    enum RepeatMode {
+        RepeatInactive,
+        RepeatBackspace,
+        RepeatArrow
+    };
+
+    RepeatMode keyRepeatMode;
+    QTimer repeatTimer;
 
     KeyEvent lastClickEvent;
 
@@ -490,6 +509,9 @@ private:
 
     //! Contains CJK keyboard overrides to handle corresponding features.
     QMap<QString, QSharedPointer<MKeyOverride> > cjkOverrides;
+
+    Qt::Key pressedArrowKey;
+    bool firstArrowSent;
 
     friend class EngineHandlerDefault;
     friend class EngineHandlerCJK;
