@@ -1,9 +1,8 @@
-meego-keyboard (0.7.11~1) unstable; urgency=low
+meego-keyboard (0.7.11-1) unstable; urgency=low
 
-  * [UNRELEASED]
   * Fixes: NB#278596 - Opening new message window is jerky/stuttering
 
- -- Michael Hasselmann <michaelh@openismus.com>  Wed, 31 Aug 2011 15:45:23 +0200
+ -- Michael Hasselmann <michaelh@openismus.com>  Thu, 08 Sep 2011 15:10:23 +0200
 
 meego-keyboard (0.7.10-1) unstable; urgency=low
 
