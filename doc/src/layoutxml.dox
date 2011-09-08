@@ -210,6 +210,10 @@ brief and describe only a part of the functionality at a high level.
 accented_labels, if applicable.
 \li \c shift Shift modifier.
 \li \c backspace Delete character or word to the left.
+\li \c left Left cursor key.
+\li \c up Up cursor key.
+\li \c right Right cursor key.
+\li \c down Down cursor key.
 \li \c space Insert space character.
 \li \c cycle Insert first character of \c cycleset attribure or replace the
 previously inserted character with the following character of \c cycleset

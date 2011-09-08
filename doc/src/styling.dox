@@ -61,13 +61,13 @@ This CSS class exposes many attributes, some of them useful for debugging even.
 pressed, disabled, selected}. Keys can be highlighted dynamically (determined
 by application), whereas special and deadkey are specified as the key's style
 attribute in the XML layout files.</li>
- <li>key-{backspace, menu, enter, shift, tab}-icon-id: Specifies icon for backspace, menu, enter, shift or tab key.</li>
- <li>key-{backspace, menu, enter, shift, tab}-icon-id-rtl: Specifies right-to-left icon variant for backspace, menu, enter, shift or tab key.</li>
- <li>key-{backspace, menu, enter, shift, tab}-icon-size: Specifies the icon size for backspace, menu, enter, shift or tab key.</li>
+ <li>key-{backspace, menu, enter, shift, tab, left, up, right, down}-icon-id: Specifies icon for backspace, menu, enter, shift, tab, left arrow, up arrow, right arrow and down arrow key.</li>
+ <li>key-{backspace, menu, enter, shift, tab, left, up, right, down}-icon-id-rtl: Specifies right-to-left icon variant for backspace, menu, enter, shift, tab, left arrow, up arrow, right arrow and down arrow key.</li>
+ <li>key-{backspace, menu, enter, shift, tab, left, up, right, down}-icon-size: Specifies the icon size for backspace, menu, enter, shift, tab, left arrow, up arrow, right arrow and down arrow key.</li>
  <li>key-shift-uppercase-icon-id: Uppercase variant for shift key.</li>
- <li>key-{backspace, menu, enter, shift, shift-uppercase, tab}-compact-icon-size: Size of compact icon.</li>
- <li>key-{backspace, menu, enter, shift, shift-uppercase, tab}-compact-icon-id: Id of compact icon. See required-key-icon-margins for details.</li>
- <li>key-{backspace, menu, enter, shift, shift-uppercase, tab}-compact-icon-id-rtl: Id of compact icon version (rtl).</li>
+ <li>key-{backspace, menu, enter, shift, shift-uppercase, tab, left, up, right, down}-compact-icon-size: Size of compact icon.</li>
+ <li>key-{backspace, menu, enter, shift, shift-uppercase, tab, left, up, right, down}-compact-icon-id: Id of compact icon. See required-key-icon-margins for details.</li>
+ <li>key-{backspace, menu, enter, shift, shift-uppercase, tab, left, up, right, down}-compact-icon-id-rtl: Id of compact icon version (rtl).</li>
 </ul>
 
 \subsection sub2 Behaviour
