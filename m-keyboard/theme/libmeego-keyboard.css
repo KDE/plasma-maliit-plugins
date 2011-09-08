@@ -127,6 +127,34 @@ MImAbstractKeyAreaStyle {
     /*** FIXME: no rtl icon available ***/
     key-backspace-compact-icon-id-rtl: "icon-m-input-methods-backspace-compact";
 
+    key-left-icon-id: "icon-s-input-method-left";
+    key-left-icon-size: 32 32;
+    key-left-icon-id-rtl: "icon-s-input-method-left";
+    key-left-compact-icon-id: ;
+    key-left-compact-icon-size: 0 0;
+    key-left-compact-icon-id-rtl: ;
+
+    key-up-icon-id: "icon-s-input-method-up";
+    key-up-icon-size: 32 32;
+    key-up-icon-id-rtl: "icon-s-input-method-up";
+    key-up-compact-icon-id: ;
+    key-up-compact-icon-size: 0 0;
+    key-up-compact-icon-id-rtl: ;
+
+    key-right-icon-id: "icon-s-input-method-right";
+    key-right-icon-size: 32 32;
+    key-right-icon-id-rtl: "icon-s-input-method-right";
+    key-right-compact-icon-id: ;
+    key-right-compact-icon-size: 0 0;
+    key-right-compact-icon-id-rtl: ;
+
+    key-down-icon-id: "icon-s-input-method-down";
+    key-down-icon-size: 32 32;
+    key-down-icon-id-rtl: "icon-s-input-method-down";
+    key-down-compact-icon-id: ;
+    key-down-compact-icon-size: 0 0;
+    key-down-compact-icon-id-rtl: ;
+
     key-menu-icon-size: 48 48;
     key-menu-icon-id: "icon-m-input-methods-menu";
     key-menu-icon-id-rtl: "icon-m-rtl-input-methods-menu";

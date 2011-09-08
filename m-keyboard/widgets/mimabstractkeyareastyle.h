@@ -145,6 +145,42 @@ public:
     M_STYLE_ATTRIBUTE(QString, keyMenuCompactIconId, KeyMenuCompactIconId)
     M_STYLE_ATTRIBUTE(QString, keyMenuCompactIconIdRtl, KeyMenuCompactIconIdRtl)
 
+    // Left arrow key icon
+    M_STYLE_ATTRIBUTE(QSize, keyLeftIconSize, KeyLeftIconSize)
+    M_STYLE_ATTRIBUTE(QString, keyLeftIconId, KeyLeftIconId)
+    M_STYLE_ATTRIBUTE(QString, keyLeftIconIdRtl, KeyLeftIconIdRtl)
+
+    M_STYLE_ATTRIBUTE(QSize,   keyLeftCompactIconSize, KeyLeftCompactIconSize)
+    M_STYLE_ATTRIBUTE(QString, keyLeftCompactIconId, KeyLeftCompactIconId)
+    M_STYLE_ATTRIBUTE(QString, keyLeftCompactIconIdRtl, KeyLeftCompactIconIdRtl)
+
+    // Up arrow key icon
+    M_STYLE_ATTRIBUTE(QSize, keyUpIconSize, KeyUpIconSize)
+    M_STYLE_ATTRIBUTE(QString, keyUpIconId, KeyUpIconId)
+    M_STYLE_ATTRIBUTE(QString, keyUpIconIdRtl, KeyUpIconIdRtl)
+
+    M_STYLE_ATTRIBUTE(QSize,   keyUpCompactIconSize, KeyUpCompactIconSize)
+    M_STYLE_ATTRIBUTE(QString, keyUpCompactIconId, KeyUpCompactIconId)
+    M_STYLE_ATTRIBUTE(QString, keyUpCompactIconIdRtl, KeyUpCompactIconIdRtl)
+
+    // Right arrow key icon
+    M_STYLE_ATTRIBUTE(QSize, keyRightIconSize, KeyRightIconSize)
+    M_STYLE_ATTRIBUTE(QString, keyRightIconId, KeyRightIconId)
+    M_STYLE_ATTRIBUTE(QString, keyRightIconIdRtl, KeyRightIconIdRtl)
+
+    M_STYLE_ATTRIBUTE(QSize,   keyRightCompactIconSize, KeyRightCompactIconSize)
+    M_STYLE_ATTRIBUTE(QString, keyRightCompactIconId, KeyRightCompactIconId)
+    M_STYLE_ATTRIBUTE(QString, keyRightCompactIconIdRtl, KeyRightCompactIconIdRtl)
+
+    // Down arrow key icon
+    M_STYLE_ATTRIBUTE(QSize, keyDownIconSize, KeyDownIconSize)
+    M_STYLE_ATTRIBUTE(QString, keyDownIconId, KeyDownIconId)
+    M_STYLE_ATTRIBUTE(QString, keyDownIconIdRtl, KeyDownIconIdRtl)
+
+    M_STYLE_ATTRIBUTE(QSize,   keyDownCompactIconSize, KeyDownCompactIconSize)
+    M_STYLE_ATTRIBUTE(QString, keyDownCompactIconId, KeyDownCompactIconId)
+    M_STYLE_ATTRIBUTE(QString, keyDownCompactIconIdRtl, KeyDownCompactIconIdRtl)
+
     // Enter key icon
     M_STYLE_ATTRIBUTE(QSize, keyEnterIconSize, KeyEnterIconSize)
     M_STYLE_ATTRIBUTE(QString, keyEnterIconId, KeyEnterIconId)

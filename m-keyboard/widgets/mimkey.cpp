@@ -910,6 +910,26 @@ void MImKey::loadIcon(bool shift)
             size = styleContainer->keyBackspaceIconSize();
             compactIconSize = styleContainer->keyBackspaceCompactIconSize();
             break;
+        case MImKeyBinding::ActionLeft:
+            iconProperty = "keyLeftIconId";
+            size = styleContainer->keyLeftIconSize();
+            compactIconSize = styleContainer->keyLeftCompactIconSize();
+            break;
+        case MImKeyBinding::ActionUp:
+            iconProperty = "keyUpIconId";
+            size = styleContainer->keyUpIconSize();
+            compactIconSize = styleContainer->keyUpCompactIconSize();
+            break;
+        case MImKeyBinding::ActionRight:
+            iconProperty = "keyRightIconId";
+            size = styleContainer->keyRightIconSize();
+            compactIconSize = styleContainer->keyRightCompactIconSize();
+            break;
+        case MImKeyBinding::ActionDown:
+            iconProperty = "keyDownIconId";
+            size = styleContainer->keyDownIconSize();
+            compactIconSize = styleContainer->keyDownCompactIconSize();
+            break;
         case MImKeyBinding::ActionShift:
             if (shift) {
                 iconProperty = "keyShiftUppercaseIconId";
