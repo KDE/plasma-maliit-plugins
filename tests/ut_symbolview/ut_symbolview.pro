@@ -1,6 +1,6 @@
 include(../common_top.pri)
 TEMPLATE = app
-CONFIG += QtTest meegotouch MImServer meegoimframework
+CONFIG += QtTest meegotouch MImServer
 
 contains(CONFIG, noreactionmap) {
 } else {
@@ -12,7 +12,7 @@ DEPENDPATH += .
 INCLUDEPATH += 	. \
                 ../stubs/ \
 
-LIBS += -L/usr/lib -Wl,-rpath=/usr/lib/meego-im-plugins/ -lmeego-keyboard
+LIBS += -L/usr/lib -Wl,-rpath=$${MALIIT_PLUGINS_DIR} -lmeego-keyboard
 # Input
 HEADERS += ut_symbolview.h \
            ../stubs/mgconfitem_stub.h \

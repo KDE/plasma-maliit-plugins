@@ -1,10 +1,10 @@
 include(../common_top.pri)
 
-CONFIG += QtTest meegotouch MImServer meegoimframework
+CONFIG += QtTest meegotouch MImServer
 DEPENDPATH += .
 INCLUDEPATH += 	. \
 
-LIBS += -L/usr/lib -Wl,-rpath=/usr/lib/meego-im-plugins/ -lmeego-keyboard
+LIBS += -L/usr/lib -Wl,-rpath=$${MALIIT_PLUGINS_DIR} -lmeego-keyboard
 
 
 # Input

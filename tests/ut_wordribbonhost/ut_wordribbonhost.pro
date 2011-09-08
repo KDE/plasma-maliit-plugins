@@ -1,8 +1,8 @@
 include(../common_top.pri)
 
 TEMPLATE = app
-CONFIG += QtTest meegotouch meegoimframework
-LIBS += -Wl,-rpath=/usr/lib/meego-im-plugins/ -lmeego-keyboard
+CONFIG += QtTest meegotouch
+LIBS += -Wl,-rpath=$${MALIIT_PLUGINS_DIR} -lmeego-keyboard
 
 include(../common_check.pri)
 

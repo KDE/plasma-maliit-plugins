@@ -1,13 +1,13 @@
 include(../common_top.pri)
 
 TEMPLATE = app
-CONFIG += QtTest meegotouch MImServer meegoimframework
+CONFIG += QtTest meegotouch MImServer
 DEPENDPATH += .
 INCLUDEPATH += . \
         ../../m-keyboard/
 
 
-LIBS += -Wl,-rpath=/usr/lib/meego-im-plugins/ -L../../m-keyboard/ -lmeego-keyboard -lX11
+LIBS += -Wl,-rpath=$${MALIIT_PLUGINS_DIR} -L../../m-keyboard/ -lmeego-keyboard -lX11
 
 # Input
 HEADERS += ft_mxkb.h

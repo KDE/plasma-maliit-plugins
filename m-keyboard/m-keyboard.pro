@@ -15,7 +15,16 @@ M_MGEN_OUTDIR = .gen
 QT += xml
 
 LIBS += -lmeegoimengine
-CONFIG += plugin meegotouch meegoimengine meegoimframework
+CONFIG += plugin meegotouch meegoimengine
+
+enable-legacy {
+    CONFIG += meegoimframework
+} else {
+    CONFIG += link_pkgconfig
+    PKGCONFIG += maliit-plugins-0.80
+    # moc needs the include path
+    INCLUDEPATH += $$system(pkg-config --cflags maliit-plugins-0.80 | tr \' \' \'\\n\' | grep ^-I | cut -d I -f 2-)
+}
 
 CONFIG += link_pkgconfig
 PKGCONFIG += gconf-2.0 xkbfile
@@ -55,15 +64,16 @@ SOURCES += \
     mkeyboardplugin.cpp \
     mimlayouttitleparser.cpp
 
-target.path += $$system(pkg-config --variable pluginsdir MeegoImFramework)
+target.path += $${MALIIT_PLUGINS_DIR}
 
-install_headers.path = /usr/include/meego-keyboard
-install_headers.files = $$INSTALL_HEADERS
+INSTALLS += target
 
+enable-legacy {
+    install_headers.path = /usr/include/meego-keyboard
+    install_headers.files = $$INSTALL_HEADERS
 
-INSTALLS += \
-    target \
-    install_headers \
+    INSTALLS += install_headers
+}
 
 QMAKE_EXTRA_TARGETS += check-xml
 check-xml.depends = lib$${TARGET}.so

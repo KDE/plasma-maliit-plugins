@@ -6,7 +6,7 @@ DEPENDPATH += .
 INCLUDEPATH += . \
         ../stubs/
 
-LIBS += -L/usr/lib -Wl,-rpath=/usr/lib/meego-im-plugins/ -lmeego-keyboard
+LIBS += -L/usr/lib -Wl,-rpath=$${MALIIT_PLUGINS_DIR} -lmeego-keyboard
 
 CONFIG += meegoimengine meegoimenginewords link_pkgconfig
 PKGCONFIG += gconf-2.0

@@ -6,7 +6,7 @@ include(../common_top.pri)
 TARGET = ut_wordribbondialog
 TEMPLATE = app
 CONFIG += meegotouch
-LIBS += -Wl,-rpath=/usr/lib/meego-im-plugins/ -lmeego-keyboard
+LIBS += -Wl,-rpath=$${MALIIT_PLUGINS_DIR} -lmeego-keyboard
 
 include(../common_check.pri)
 

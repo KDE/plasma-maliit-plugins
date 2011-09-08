@@ -46,7 +46,16 @@ for(OPTION,$$list($$lower($$COV_OPTION))){
 QMAKE_CLEAN += *.gcno *.gcda
 
 LIBS += -lmeegoimengine
-CONFIG += meegoimframework meegoimengine
+CONFIG += meegoimengine
+
+enable-legacy {
+    CONFIG += meegoimframework
+} else {
+    CONFIG += link_pkgconfig
+    PKGCONFIG += maliit-plugins-0.80
+    # moc needs the include path
+    INCLUDEPATH += $$system(pkg-config --cflags maliit-plugins-0.80 | tr \' \' \'\\n\' | grep ^-I | cut -d I -f 2-)
+}
 
 OBJECTS_DIR = .obj
 MOC_DIR = .moc

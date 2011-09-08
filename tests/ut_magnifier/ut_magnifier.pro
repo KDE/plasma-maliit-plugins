@@ -5,7 +5,7 @@ CONFIG += meegotouch
 
 include(../common_check.pri)
 
-LIBS += -L/usr/lib/ -Wl,-rpath=/usr/lib/meego-im-plugins/ -lmeego-keyboard
+LIBS += -L/usr/lib/ -Wl,-rpath=$${MALIIT_PLUGINS_DIR} -lmeego-keyboard
 
 HEADERS += \
     ut_magnifier.h \

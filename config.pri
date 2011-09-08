@@ -8,3 +8,9 @@ QMAKE_CXXFLAGS_DEBUG+=-Werror
 } else {
     CONFIG-=nomeegotouch
 }
+
+enable-legacy {
+    MALIIT_PLUGINS_DIR=$$system(pkg-config --variable pluginsdir MeegoImFramework)
+} else {
+    MALIIT_PLUGINS_DIR=$$system(pkg-config --variable pluginsdir maliit-plugins-0.80)
+}

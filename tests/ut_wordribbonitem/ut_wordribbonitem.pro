@@ -9,7 +9,7 @@ CONFIG += meegotouch
 
 include(../common_check.pri)
 
-LIBS += -Wl,-rpath=/usr/lib/meego-im-plugins/ -lmeego-keyboard
+LIBS += -Wl,-rpath=$${MALIIT_PLUGINS_DIR} -lmeego-keyboard
 
 HEADERS += ut_wordribbonitem.h
 
