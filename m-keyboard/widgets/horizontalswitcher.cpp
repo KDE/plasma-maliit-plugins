@@ -381,20 +381,22 @@ void HorizontalSwitcher::updatePanningSwitchIncomingWidget(PanGesture::PanDirect
 
     QGraphicsWidget *nextWidget = slides.at(newIndex);
 
-    MImAbstractKeyArea *const nextKeyArea = dynamic_cast<MImAbstractKeyArea *>(nextWidget);
-    if (nextKeyArea) {
-        nextKeyArea->resetActiveKeys();
-    }
-
-    // Try to fit current size.
-    nextWidget->resize(size());
-
-    if (nextWidget->pos().y() + nextWidget->size().height() < size().height()) {
-        nextWidget->setPos(0.0, (size().height() - nextWidget->size().height()));
-    }
-    if (nextWidget->size().height() == size().height()
-        && nextWidget->pos().y() != 0.0) {
-        nextWidget->setPos(0.0, 0.0);
+    if (currentIndex != newIndex) {
+        MImAbstractKeyArea *const nextKeyArea = dynamic_cast<MImAbstractKeyArea *>(nextWidget);
+        if (nextKeyArea) {
+            nextKeyArea->resetActiveKeys();
+        }
+    
+        // Try to fit current size.
+        nextWidget->resize(size());
+    
+        if (nextWidget->pos().y() + nextWidget->size().height() < size().height()) {
+            nextWidget->setPos(0.0, (size().height() - nextWidget->size().height()));
+        }
+        if (nextWidget->size().height() == size().height()
+            && nextWidget->pos().y() != 0.0) {
+            nextWidget->setPos(0.0, 0.0);
+        }
     }
 
     LayoutPanner::instance().addIncomingWidget(direction, nextWidget);
