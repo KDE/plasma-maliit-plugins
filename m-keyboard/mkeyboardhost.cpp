@@ -255,7 +255,8 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
       engineWidgetHostTemporarilyHidden(false),
       enabledOnScreenPluginsCount(0),
       pressedArrowKey(Qt::Key_unknown),
-      firstArrowSent(false)
+      firstArrowSent(false),
+      pluginSwitched(false)
 {
     Q_ASSERT(host != 0);
     Q_ASSERT(mainWindow != 0);
@@ -625,6 +626,14 @@ void MKeyboardHost::show()
     if (EngineManager::instance().handler()
         && EngineManager::instance().handler()->hasErrorCorrection())
         updateCorrectionState();
+
+    // Call update() if plugin has been switched since last time keyboard was
+    // shown. This is to make sure that keyboard is in correct state if switching
+    // from another plugin.
+    if (pluginSwitched) {
+        pluginSwitched = false;
+        update();
+    }
 
     // If view's scene rect is larger than scene window, and fully contains it,
     // then dock scene window (and therefore, VKB) to the bottom center of scene:
@@ -1869,6 +1878,8 @@ void MKeyboardHost::onPluginsChange()
         }
     }
     vkbWidget->enableSinglePageHorizontalFlick(enabledOnScreenPluginsCount > 1);
+
+    pluginSwitched = true;
 }
 
 void MKeyboardHost::repaintOnAttributeEnabledChange(const QString &keyId,
@@ -1912,6 +1923,8 @@ void MKeyboardHost::sendCopyPaste(CopyPasteState action)
 
 void MKeyboardHost::switchPlugin(MInputMethod::SwitchDirection direction)
 {
+    pluginSwitched = true;
+
     if (EngineManager::instance().handler()) {
         EngineManager::instance().handler()->editingInterrupted();
         EngineManager::instance().handler()->preparePluginSwitching();

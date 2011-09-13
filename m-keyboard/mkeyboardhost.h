@@ -513,6 +513,8 @@ private:
     Qt::Key pressedArrowKey;
     bool firstArrowSent;
 
+    bool pluginSwitched;
+
     friend class EngineHandlerDefault;
     friend class EngineHandlerCJK;
 #ifdef UNIT_TEST
