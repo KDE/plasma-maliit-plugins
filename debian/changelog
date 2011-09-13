@@ -1,3 +1,9 @@
+meego-keyboard (0.7.14~1) unstable; urgency=low
+
+  * Fixes: NB#280952
+
+ -- Wang Zongxin <ext-zongxin.wang@nokia.com>  Wed, 21 Sep 2011 16:16:32 +0300
+
 meego-keyboard (0.7.13-1) unstable; urgency=low
 
   * Fixes: NB#281465
