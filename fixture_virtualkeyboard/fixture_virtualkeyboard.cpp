@@ -102,6 +102,8 @@ bool FixtureVirtualKeyboard::execute(void *objectInstance,
         action = MImKeyBinding::ActionCompose;
     } else if (key == "AccentKeys") {
         action = MImKeyBinding::ActionSwitch;
+    } else if (key == "OnOffToggle") {
+        action = MImKeyBinding::ActionOnOffToggle;
     } else {
         keyAction = false;
     }
