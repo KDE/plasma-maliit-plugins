@@ -1,3 +1,9 @@
+meego-keyboard (0.7.13-1) unstable; urgency=low
+
+  * Fixes: NB#281465
+
+ -- Aapo Kojo <aapo.kojo@nokia.com>  Fri, 16 Sep 2011 15:04:06 +0300
+
 meego-keyboard (0.7.12-1) unstable; urgency=low
 
   * New release
