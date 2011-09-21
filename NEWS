@@ -1,3 +1,18 @@
+0.80.6
+======
+
+CHANGES SINCE 0.80.5
+* Legacy mode config option changed to enable-legacy instead of
+  enable-meegotouch. Enable with:
+  $ qmake -r CONFIG+=enable-legacy
+  The enable-meegotouch config option can be used to build
+  the LMT based keyboard plugin.
+* qmake HELP=1 will now output a list of build options
+
+BUG FIXES
+* QML keyboard plugin cannot enter alphanumerical characters (regression in 0.80.5)
+* Remove unwanted debian/ directory (regression in 0.80.5)
+
 0.80.5
 ======
 
