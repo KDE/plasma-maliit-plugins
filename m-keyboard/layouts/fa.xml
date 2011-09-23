@@ -116,7 +116,7 @@
 
       <row>
         <key style="special" width="x-large">
-          <binding action="sym" label="?123"/>
+          <binding action="sym" label="؟٣٢١"/>
         </key>
         
         <key id="emailUrlKey"><binding label="،"/></key>
