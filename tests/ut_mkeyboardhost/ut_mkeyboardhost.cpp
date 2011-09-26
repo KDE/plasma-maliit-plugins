@@ -2027,6 +2027,41 @@ void Ut_MKeyboardHost::testAutoPunctuation()
     }
 }
 
+void Ut_MKeyboardHost::testAutoCommit_data()
+{
+    QTest::addColumn<QChar>("character");
+    QTest::addColumn<bool>("autocommitted");
+
+    QTest::newRow("-") << QChar('-') << false;
+    QTest::newRow("'") << QChar('\'') << false;
+    QTest::newRow("a") << QChar('a') << false;
+    QTest::newRow(".") << QChar('.') << true;
+    QTest::newRow(",") << QChar(',') << true;
+    QTest::newRow("!") << QChar('!') << true;
+    QTest::newRow("?") << QChar('?') << true;
+    QTest::newRow("#") << QChar('#') << true;
+}
+
+void Ut_MKeyboardHost::testAutoCommit()
+{
+    QFETCH(QChar, character);
+    QFETCH(bool, autocommitted);
+    const QString testString("Calculator");
+
+    subject->show();
+
+    subject->setPreedit(testString, -1);
+    subject->handleKeyClick(KeyEvent(character, QEvent::KeyRelease));
+
+    if (autocommitted) {
+        QCOMPARE(inputMethodHost->commit, QString(testString + character));
+        QCOMPARE(subject->preedit, QString());
+    } else {
+        QCOMPARE(inputMethodHost->commit, QString());
+        QCOMPARE(inputMethodHost->preedit, QString(testString + character));
+    }
+}
+
 void Ut_MKeyboardHost::testToolbarPosition()
 {
     // Position after portrait vkb -> hwkb (landscape) transition

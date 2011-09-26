@@ -128,6 +128,9 @@ private slots:
     void testAutoPunctuation_data();
     void testAutoPunctuation();
 
+    void testAutoCommit_data();
+    void testAutoCommit();
+
     void testToolbarPosition();
 
     void testTogglePlusMinus_data();
