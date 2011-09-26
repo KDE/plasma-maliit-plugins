@@ -384,6 +384,9 @@ private:
     //! Returns true if KeyEvent is an arrow key
     bool isKeyEventArrow(const KeyEvent &event) const;
 
+    //! Returns true if KeyEvent is a delimiter character
+    bool isDelimiter(const QString &event) const;
+
 private:
     //! \brief Slides full-width QGraphicsWidgets up from the bottom of the display,
     //! aligning their bottom with the display bottom

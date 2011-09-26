@@ -1685,7 +1685,16 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
 
         sendCommitStringOrReturnEvent(event);
 
-    } else if ((event.qtKey() == Qt::Key_Space) || (event.qtKey() == Qt::Key_Return) || (event.qtKey() == Qt::Key_Tab)) {
+    } else if ((event.qtKey() == Qt::Key_Space) || (event.qtKey() == Qt::Key_Return) || (event.qtKey() == Qt::Key_Tab)
+               || isDelimiter(text)) {
+        if (spaceInsertedAfterCommitStringPrev && (text.length() == 1)
+            && AutoPunctuationTriggers.contains(text[0])) {
+            sendBackSpaceKeyEvent();
+            resetInternalState();
+            inputMethodHost()->sendCommitString(text + " ");
+            return;
+        }
+
         // commit suggestion if correction candidate widget is visible and with popupMode
         // or ignore it if correction widget is visible and with suggestionlist mode
         // otherwise commit preedit
@@ -1741,11 +1750,6 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
             EngineManager::instance().engine()->clearEngineBuffer();
         preedit.clear();
         preeditCursorPos = -1;
-    } else if (spaceInsertedAfterCommitStringPrev && (text.length() == 1)
-               && AutoPunctuationTriggers.contains(text[0])) {
-        sendBackSpaceKeyEvent();
-        resetInternalState();
-        inputMethodHost()->sendCommitString(text + " ");
     } else {
         // append text to the end of preedit if cursor is at the end of
         // preedit (or cursor is -1, invisible). Or if cursor is inside
@@ -2792,5 +2796,18 @@ bool MKeyboardHost::isKeyEventArrow(const KeyEvent &event) const
            || event.qtKey() == Qt::Key_Up
            || event.qtKey() == Qt::Key_Right
            || event.qtKey() == Qt::Key_Down;
+}
+
+bool MKeyboardHost::isDelimiter(const QString &text) const
+{
+    if (text.size() != 1) {
+        return false;
+    }
+
+    const QChar character(text.at(0));
+
+    // Hyphen (-) and apostrophe (') are not considered as a delimiter
+    return (character.isPunct() || character.isSpace() || character.isSymbol())
+            && character != '\'' && character != '-';
 }
 
