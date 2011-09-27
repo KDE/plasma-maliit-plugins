@@ -544,6 +544,13 @@ MImAbstractKeyAreaStyle.Portrait:hebrew {
     padding-right: 6px;
 }
 
+
+MImAbstractKeyAreaStyle.Landscape:vietnamese {
+}
+
+MImAbstractKeyAreaStyle.Portrait:vietnamese {
+}
+
 KeyboardShadowStyle {
     background-image: "meegotouch-keyboard-border-top";
     margin-top: 0;
