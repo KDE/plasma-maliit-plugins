@@ -7,7 +7,7 @@ meego-keyboard (0.7.15-2) unstable; urgency=low
 meego-keyboard (0.7.15-1) unstable; urgency=low
 
   * Fixes: NB#275190 - [TASK] Track haptic feedback resource issue for error prompt
-  * Fixes: NB#275694 - Chinese letters are allowed to enter in email address field.
+  * Fixes NB#275694 - Chinese letters are allowed to enter in email address field.
 
  -- Wang Zongxin <ext-zongxin.wang@nokia.com>  Fri, 30 Sep 2011 10:52:03 +0300
 
@@ -37,7 +37,7 @@ meego-keyboard (0.7.11-1) unstable; urgency=low
 
 meego-keyboard (0.7.10-1) unstable; urgency=low
 
-  * Fixes: NB#279536, VKB slide and popup feedbacks need to be updated along with new vibra daemon
+  * Fixes NB#279536, VKB slide and popup feedbacks need to be updated along with new vibra daemon
 
  -- Ning Chi <ext-chi.2.ning@nokia.com>  Tue, 30 Aug 2011 12:46:00 +0300
 
