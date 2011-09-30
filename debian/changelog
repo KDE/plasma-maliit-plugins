@@ -1,9 +1,9 @@
-meego-keyboard (0.7.15~1) unstable; urgency=low
+meego-keyboard (0.7.15-1) unstable; urgency=low
 
   * Fixes: NB#275190 - [TASK] Track haptic feedback resource issue for error prompt
-  * Fixes: NB#275694 - Chinese letters are allowed to enter in email address field.
+  * Fixes NB#275694 - Chinese letters are allowed to enter in email address field.
 
- -- Wang Zongxin <ext-zongxin.wang@nokia.com>  Wed, 28 Sep 2011 15:30:03 +0300
+ -- Wang Zongxin <ext-zongxin.wang@nokia.com>  Fri, 30 Sep 2011 10:52:03 +0300
 
 meego-keyboard (0.7.14-1) unstable; urgency=low
 
