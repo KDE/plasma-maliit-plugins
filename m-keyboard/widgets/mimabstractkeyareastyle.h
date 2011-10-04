@@ -44,8 +44,11 @@ class M_EXPORT MImAbstractKeyAreaStyle : public MWidgetStyle
 public:
     M_STYLE_ATTRIBUTE(QColor, fontColor, FontColor)
     M_STYLE_ATTRIBUTE(QFont, font, Font)
+    M_STYLE_ATTRIBUTE(int, fontSize, FontSize)
     M_STYLE_ATTRIBUTE(qreal, fontOpacity, FontOpacity)
     M_STYLE_ATTRIBUTE(QFont, secondaryFont, SecondaryFont)
+    M_STYLE_ATTRIBUTE(int, enlargedLabelFontSize, LowercaseLabelFontSize)
+    M_STYLE_ATTRIBUTE(qreal, toneResizeFactor, ToneResizeFactor)
 
     M_STYLE_ATTRIBUTE(int, labelMarginTop, LabelMarginTop)
     M_STYLE_ATTRIBUTE(int, labelMarginLeftWithSecondary, LabelMarginLeftWithSecondary)

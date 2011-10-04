@@ -125,6 +125,9 @@ public:
     //! \return true if the key needs right-to-left representation during rendering
     bool isRtl() const;
 
+    //! \return true if the key label needs to be rendered in an enlarged font
+    bool useEnlargedFont() const;
+
 private:
     //! Helper method for toKeyEvent methods
     KeyEvent toKeyEventImpl(QKeyEvent::Type eventType,
@@ -157,6 +160,8 @@ private:
     bool compose;
     //! True if this is an rtl key.
     bool rtl;
+    //! True if the label font is to be larger than default
+    bool enlarged;
 
     friend class KeyboardData;
     friend class Ut_MImKeyModel;
@@ -203,6 +208,10 @@ inline bool MImKeyBinding::isRtl() const
     return rtl;
 }
 
+inline bool MImKeyBinding::useEnlargedFont() const
+{
+    return enlarged;
+}
 
 /*!
  * \brief MImKeyModel is a container for bindings of a key in a keyboard layout

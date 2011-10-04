@@ -2,7 +2,7 @@
 <!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
 <keyboard title="עברית" version="1.0" catalog="virtual-keyboard" language="he" autocapitalization="false">
   <layout type="general">
-    <section id="main">
+    <section id="main" style="bigfont">
       <row>
         <spacer/>
         

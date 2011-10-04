@@ -57,4 +57,5 @@
   dead (true | false) "false"
   quickpick (true | false) "false"
   rtl (true | false) "false"
+  enlarge (true | false) "false"
 >

@@ -101,6 +101,7 @@ namespace
     const char * const VKBTagCycleSet             = "cycleset";
     const char * const VKBTagDead                 = "dead";
     const char * const VKBTagQuickPick            = "quickpick";
+    const char * const VKBTagEnlargedFont         = "enlarge";
 
     const char * const ActionStrInsert            = "insert";
     const char * const ActionStrShift             = "shift";
@@ -568,6 +569,13 @@ void KeyboardData::parseTagBinding(const QDomElement &element, ParseParameters &
     binding->secondary_label = element.attribute(VKBTagSecondaryLabel);
     binding->dead = toBoolean(element.attribute(VKBTagDead));
     binding->quickPick = toBoolean(element.attribute(VKBTagQuickPick));
+
+    // Lower-case enlarged by default, can override each key
+    if (element.hasAttribute(VKBTagEnlargedFont))
+        binding->enlarged = toBoolean(element.attribute(VKBTagEnlargedFont));
+    else
+        binding->enlarged = ((binding->keyLabel.length() == 1)
+                              && (binding->keyLabel.at(0).isLower()));
 
     binding->accents = element.attribute(VKBTagAccents);
     binding->accented_labels = element.attribute(VKBTagAccentedLabels);

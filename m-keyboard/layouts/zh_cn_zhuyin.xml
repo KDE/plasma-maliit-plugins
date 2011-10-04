@@ -113,7 +113,7 @@
    </layout>
 
    <layout type="general" orientation="portrait" uniform-font-size="true">
-      <section id="main">
+      <section id="main" style="smallfont">
         <row>
           <key><binding label="&#x3105;"/></key>
           <spacer/>
@@ -203,7 +203,7 @@
         </row>
 
         <row>
-          <key style="special" width="x-large">
+          <key style="special" width="xx-large">
             <binding action="sym" label="&#x7B26;&#x865F;"/>
           </key>
 
@@ -216,7 +216,7 @@
             <binding action="backspace" label=""/>
           </key>
 
-          <key style="special" width="x-large" id="actionKey">
+          <key style="special" width="xx-large" id="actionKey">
             <binding action="compose" label="&#36664;&#20837;"/>
           </key>
         </row>

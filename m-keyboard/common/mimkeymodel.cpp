@@ -44,7 +44,8 @@ MImKeyBinding::MImKeyBinding()
       dead(false),
       quickPick(false),
       compose(false),
-      rtl(false)
+      rtl(false),
+      enlarged(false)
 {
 }
 
@@ -54,7 +55,8 @@ MImKeyBinding::MImKeyBinding(const QString &label)
       dead(false),
       quickPick(false),
       compose(false),
-      rtl(false)
+      rtl(false),
+      enlarged(false)
 {
 }
 

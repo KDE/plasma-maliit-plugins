@@ -78,6 +78,7 @@ MImAbstractKeyAreaStyle {
     font-color: $FONT_COLOR_KEYBOARD;
     font-opacity: 1.0;
     secondary-font: $FONT_SMALL;
+    tone-resize-factor: 2.0;
 
     key-pressed-font-color: $FONT_COLOR_KEYBOARD;
     key-selected-font-color: $COLOR_FOREGROUND;
@@ -283,6 +284,7 @@ MImAbstractKeyAreaStyle.Portrait {
     label-margin-top: 1.2mm;
     label-margin-left-with-secondary: 4.6mm;
     secondary-label-separation: 0.9mm;
+    enlarged-label-font-size: 35;
 
     /*** Behaviour ***/
     touchpoint-horizontal-gravity: 17px;
@@ -544,11 +546,18 @@ MImAbstractKeyAreaStyle.Portrait:hebrew {
     padding-right: 6px;
 }
 
-
 MImAbstractKeyAreaStyle.Landscape:vietnamese {
 }
 
 MImAbstractKeyAreaStyle.Portrait:vietnamese {
+}
+
+MImAbstractKeyAreaStyle.Portrait:bigfont {
+    font-size: 35;
+}
+
+MImAbstractKeyAreaStyle.Portrait:smallfont {
+    font-size: 28;
 }
 
 KeyboardShadowStyle {
