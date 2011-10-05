@@ -1290,6 +1290,7 @@ void Ut_MKeyboardHost::testUpdateSymbolViewLevel()
 
     // test autocaps
     subject->autoCapsEnabled = true; // enable auto caps
+    inputMethodHost->autoCapitalizationEnabled_ = true;
     subject->hardwareKeyboard->setAutoCapitalization(true);
     QCOMPARE(subject->hardwareKeyboard->modifierState(Qt::ShiftModifier), ModifierLatchedState);
     subject->hardwareKeyboard->setAutoCapitalization(false);
@@ -1320,6 +1321,7 @@ void Ut_MKeyboardHost::testUpdateSymbolViewLevel()
     //onscreen state
     QVERIFY(subject->vkbWidget);
     subject->autoCapsEnabled = false; // disable auto caps
+    inputMethodHost->autoCapitalizationEnabled_ = false;
     subject->vkbWidget->setShiftState(ModifierClearState);
     state.clear();
     state << MInputMethod::OnScreen;
