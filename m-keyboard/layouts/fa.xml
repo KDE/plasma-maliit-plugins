@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
-<keyboard version="1.0" title="پارسی" language="fa" catalog="virtual-keyboard" autocapitalization="false">
+<keyboard version="1.0" title="فارسى" language="fa" catalog="virtual-keyboard" autocapitalization="false">
   <layout type="general">
     <section id="main" style="bigfont">
       <row>
