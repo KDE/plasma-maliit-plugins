@@ -53,6 +53,18 @@
 
 namespace
 {
+    //! Unicode Object Replacement character
+    const QChar ObjectReplacementChar(0xfffc);
+
+    //! Unicode Right Double Quotation mark
+    const QChar RightDoubleQuotationMark(0x201d);
+
+    //! Unicode Double Low-9 Quotation mark
+    const QChar DoubleLowQuotationMark(0x201e);
+
+    const QRegExp AutoCapsTrigger(QString("[.?!¡¿%1] +$").arg(ObjectReplacementChar));
+    const QRegExp AutoCapsQuotationTrigger(QString("[.?!](\"|'|%1|%2|\"'|'\"|%1'|'%1|%2'|'%2) +$").arg(RightDoubleQuotationMark).arg(DoubleLowQuotationMark));
+
     const QString DefaultInputLanguage("default");
     const bool DefaultCorrectionSettingAcceptedWithSpaceOption = false;
     const QString CorrectionSettingWithSpace("/meegotouch/inputmethods/virtualkeyboard/correctwithspace");
@@ -67,6 +79,7 @@ public:
           mKeyboardHost(keyboardHost),
           mEngineWidgetHost(new MImCorrectionHost(keyboardHost.sceneWindow, 0))
     {
+        autoCapsTriggerList << AutoCapsTrigger;
     }
 
     virtual ~EngineHandlerDefault() {
@@ -124,6 +137,11 @@ public:
     virtual bool hasAutoCaps() const
     {
         return true;
+    }
+
+    virtual QList<QRegExp> autoCapsTriggers() const
+    {
+        return autoCapsTriggerList;
     }
 
     virtual bool hasContext() const
@@ -217,6 +235,36 @@ public:
 private:
     MKeyboardHost &mKeyboardHost;
     AbstractEngineWidgetHost *mEngineWidgetHost;
+    QList<QRegExp> autoCapsTriggerList;
+};
+
+class EngineHandlerEnglish : public EngineHandlerDefault
+{
+public:
+    EngineHandlerEnglish(MKeyboardHost &keyboardHost)
+        : EngineHandlerDefault(keyboardHost)
+    {
+        autoCapsTriggerList << AutoCapsTrigger << AutoCapsQuotationTrigger;
+    }
+
+    virtual ~EngineHandlerEnglish() {
+    }
+
+    static QStringList supportedLanguages() {
+        QStringList languages;
+        languages << "en_gb" << "en_us";
+        return languages;
+    }
+
+    //! \reimp
+    virtual QList<QRegExp> autoCapsTriggers() const
+    {
+        return autoCapsTriggerList;
+    }
+    //! \reimp_end
+
+private:
+    QList<QRegExp> autoCapsTriggerList;
 };
 
 class EngineHandlerCJK : public EngineHandler
@@ -322,6 +370,11 @@ public:
     virtual bool hasAutoCaps() const
     {
         return false;
+    }
+
+    virtual QList<QRegExp> autoCapsTriggers() const
+    {
+        return QList<QRegExp>();
     }
 
     virtual bool hasContext() const
@@ -584,6 +637,11 @@ EngineHandler *EngineManager::findOrCreateEngineHandler(const QString &language)
         // create CJK language properties
         matchedEngineHandler = QPointer<EngineHandlerCJK>(new EngineHandlerCJK(mKeyboardHost));
         foreach (const QString &lang, EngineHandlerCJK::supportedLanguages())
+            handlerMap.insert(lang, matchedEngineHandler);
+
+    } else if (EngineHandlerEnglish::supportedLanguages().contains(language)){
+        matchedEngineHandler = QPointer<EngineHandlerEnglish>(new EngineHandlerEnglish(mKeyboardHost));
+        foreach (const QString &lang, EngineHandlerEnglish::supportedLanguages())
             handlerMap.insert(lang, matchedEngineHandler);
 
     } else {

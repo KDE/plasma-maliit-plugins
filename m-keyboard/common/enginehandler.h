@@ -38,6 +38,8 @@
 #include <QMap>
 #include <QPointer>
 #include <QStringList>
+#include <QList>
+#include <QRegExp>
 
 class MAbstractKeyboardEngine;
 class MImEngineWordsInterface;
@@ -105,6 +107,11 @@ public:
      * \brief Returns true if this language supports auto capitalization.
      */
     virtual bool hasAutoCaps() const = 0;
+
+    /*!
+     * \brief Returns a list of regular expressions that match for auto capitalization cases.
+     */
+    virtual QList<QRegExp> autoCapsTriggers() const = 0;
 
     /*!
      * \brief Returns true if this language supports context.

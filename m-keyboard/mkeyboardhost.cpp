@@ -82,8 +82,6 @@ namespace
 {
     const QString InputMethodList("MInputMethodList");
     // TODO: check that these paths still hold
-    // 0xFFFC = object replacement character. Assume as terminating a sentence.
-    const QRegExp AutoCapsTrigger(QString("[.?!¡¿%1] +$").arg(QChar(0xfffc)));
     const QString AutoPunctuationTriggers(".,?!");
     const int AutoRepeatDelay = 500;         // in ms
     const int LongPressTime = 600;           // in ms
@@ -107,6 +105,25 @@ namespace
         }
 
         return QApplication::desktop()->screenGeometry(w).size();
+    }
+
+    bool triggersAutoCaps(const QString &text)
+    {
+        if (not EngineManager::instance().handler()) {
+            return false;
+        }
+
+        bool triggered = false;
+        QList<QRegExp> triggers = EngineManager::instance().handler()->autoCapsTriggers();
+
+        for (int i = 0; i < triggers.size(); ++i) {
+            if (text.contains(triggers[i])) {
+                triggered = true;
+                break;
+            }
+        }
+
+        return triggered;
     }
 }
 
@@ -981,7 +998,7 @@ void MKeyboardHost::updateAutoCapitalization()
                          && ((inputPosition == 0)
                              || ((inputPosition > 0)
                                  && (inputPosition <= surroundingText.length())
-                                 && surroundingText.left(inputPosition).contains(AutoCapsTrigger))));
+                                 && triggersAutoCaps(surroundingText.left(inputPosition)))));
 
     if ((activeState == MInputMethod::OnScreen)
         && (vkbWidget->shiftStatus() != ModifierLockedState)) {
@@ -1300,7 +1317,7 @@ void MKeyboardHost::doBackspace()
             || !autoCapsEnabled
             || (cursorPos > 0
                 && cursorPos <= surroundingText.length()
-                && !surroundingText.left(cursorPos-1).contains(AutoCapsTrigger)))) {
+                && !triggersAutoCaps(surroundingText.left(cursorPos-1))))) {
         vkbWidget->setShiftState(ModifierClearState);
     }
 }
@@ -1540,7 +1557,7 @@ void MKeyboardHost::handleGeneralKeyClick(const KeyEvent &event)
         if (!autoCapsEnabled
             || (!hasSelection
                 && cursorPos <= surroundingText.length()
-                && !surroundingText.left(cursorPos).contains(AutoCapsTrigger))) {
+                && !triggersAutoCaps(surroundingText.left(cursorPos)))) {
             vkbWidget->setShiftState(ModifierClearState);
         }
     } else if (vkbWidget->shiftStatus() == ModifierLatchedState
