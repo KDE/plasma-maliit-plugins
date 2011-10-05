@@ -90,6 +90,8 @@ namespace
     int gHideLockOnInfoBannerCallCount = 0;
     int gShowLanguageNotificationCallCount = 0;
 
+    QString gLayoutLanguage("fi");
+
     const char * const TargetSettingsName("/meegotouch/target/name");
     const char * const DefaultTargetName("Default");
 
@@ -117,12 +119,14 @@ Q_DECLARE_METATYPE(Ut_MKeyboardHost::TestOpList)
 Q_DECLARE_METATYPE(MInputMethod::InputModeIndicator)
 Q_DECLARE_METATYPE(QList<MImEngine::DictionaryType>)
 Q_DECLARE_METATYPE(MInputMethod::PreeditFace)
+Q_DECLARE_METATYPE(QList<int>)
+Q_DECLARE_METATYPE(QList<ModifierState>)
 
 // Stubbing..................................................................
 
 QString MVirtualKeyboard::layoutLanguage() const
 {
-    return QString("fi");
+    return gLayoutLanguage;
 }
 
 bool MVirtualKeyboard::autoCapsEnabled() const
@@ -208,6 +212,8 @@ void Ut_MKeyboardHost::init()
     engineConfig.set(QVariant(QString("dummyimdriver")));
     MGConfItem config(CorrectionSetting);
     config.set(QVariant(false));
+
+    gLayoutLanguage = "fi";
 
     subject = new MKeyboardHost(inputMethodHost, mainWindow);
     inputMethodHost->clear();
@@ -770,6 +776,62 @@ void Ut_MKeyboardHost::testAutoCaps()
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
     gAutoCapsEnabled = true;
+}
+
+void Ut_MKeyboardHost::testAutoCapsQuotes_data()
+{
+    QTest::addColumn<QString>("testString");
+    QTest::addColumn<QString>("layoutLanguage");
+    QTest::addColumn<QList<int> >("cursorPositions");
+    QTest::addColumn<QList<ModifierState> >("modifierStates");
+
+    QTest::newRow("Quotes") << QString("\"Hello\" ")
+                            << QString("en_us")
+                            << (QList<int>() << 7 << 8)
+                            << (QList<ModifierState>() << ModifierClearState << ModifierClearState);
+
+    // 0x201d = Right Double Quotation Mark
+    // 0x201e = Double Low-9 Quotation Mark
+    QTest::newRow("All") << QString("A.\" B?' C!%1 D.%2 E?'\" F!'\" G.'%1 H?%1' I!%1' J.'%2 ").arg(QChar(0x201d)).arg(QChar(0x201e))
+                         << QString("en_us")
+                         << (QList<int>() << 4 << 8 << 12 << 16 << 21 << 26 << 31 << 36 << 41 << 46)
+                         << (QList<ModifierState>() << ModifierLatchedState << ModifierLatchedState
+                                                    << ModifierLatchedState << ModifierLatchedState
+                                                    << ModifierLatchedState << ModifierLatchedState
+                                                    << ModifierLatchedState << ModifierLatchedState
+                                                    << ModifierLatchedState << ModifierLatchedState);
+
+    QTest::newRow("AllNoEnglish") << QString("A.\" B?' C!%1 D.%2 E?'\" F!'\" G.'%1 H?%1' I!%1' J.'%2 ").arg(QChar(0x201d)).arg(QChar(0x201e))
+                                  << QString("fi")
+                                  << (QList<int>() << 4 << 8 << 12 << 16 << 21 << 26 << 31 << 36 << 41 << 46)
+                                  << (QList<ModifierState>() << ModifierClearState << ModifierClearState
+                                                             << ModifierClearState << ModifierClearState
+                                                             << ModifierClearState << ModifierClearState
+                                                             << ModifierClearState << ModifierClearState
+                                                             << ModifierClearState << ModifierClearState);
+}
+
+void Ut_MKeyboardHost::testAutoCapsQuotes()
+{
+    QFETCH(QString, testString);
+    QFETCH(QString, layoutLanguage);
+    QFETCH(QList<int>, cursorPositions);
+    QFETCH(QList<ModifierState>, modifierStates);
+
+    inputMethodHost->surroundingString = testString;
+    inputMethodHost->autoCapitalizationEnabled_ = true;
+    subject->correctionEnabled = true;
+    gLayoutLanguage = layoutLanguage;
+    EngineManager::instance().updateLanguage(layoutLanguage);
+    inputMethodHost->contentType_ = M::FreeTextContentType;
+
+    subject->show();
+
+    for (int i = 0; i < cursorPositions.size(); ++i) {
+        inputMethodHost->cursorPos = cursorPositions[i];
+        subject->update();
+        QCOMPARE(subject->vkbWidget->shiftStatus(), modifierStates[i]);
+    }
 }
 
 void Ut_MKeyboardHost::testAutoRepeat()

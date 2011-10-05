@@ -75,6 +75,8 @@ private slots:
     void testCorrectionContentTypes();
 
     void testAutoCaps();
+    void testAutoCapsQuotes_data();
+    void testAutoCapsQuotes();
     void testAutoRepeat();
     void testApplicationOrientationChanged();
 
