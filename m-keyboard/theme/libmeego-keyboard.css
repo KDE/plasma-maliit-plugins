@@ -538,12 +538,11 @@ MImAbstractKeyAreaStyle.Landscape:hebrew {
 
 MImAbstractKeyAreaStyle.Portrait:hebrew {
     use-fixed-key-width: true;
+    font-size: 35;
 
-    key-width-medium-fixed: 44px;
-    key-width-x-large-fixed: 70px;
-
-    padding-left: 6px;
-    padding-right: 6px;
+    key-width-large-fixed: 88px;
+    key-width-x-large-fixed: 112px;
+    key-width-xx-large-fixed: 160px;
 }
 
 MImAbstractKeyAreaStyle.Landscape:vietnamese {

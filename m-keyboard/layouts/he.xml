@@ -2,7 +2,7 @@
 <!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
 <keyboard title="עברית" version="1.0" catalog="virtual-keyboard" language="he" autocapitalization="false">
   <layout type="general">
-    <section id="main" style="bigfont">
+    <section id="main" style="hebrew">
       <row>
         <spacer/>
         
@@ -106,15 +106,11 @@
           <binding action="sym" label="?123"/>
         </key>
 
-        <spacer/>
-
         <key id="emailUrlKey"><binding label=","/></key>
-        <key width="stretched"><binding action="space"/></key>
+        <key width="xx-large"><binding action="space"/></key>
         <key><binding label="."/></key>
 
-        <spacer/>
-
-        <key style="special" width="xx-large" id="actionKey">
+        <key style="special" width="x-large" id="actionKey">
           <binding action="return"/>
         </key>
       </row>
