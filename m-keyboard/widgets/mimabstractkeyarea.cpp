@@ -1135,6 +1135,10 @@ void MImAbstractKeyArea::handleLongKeyPressed()
         if (MImAbstractPopup::ResetPressedKey
                 == d->popup->handleLongKeyPressedOnMainArea(lastActiveKey, keyContext)) {
             lastActiveKey->resetTouchPointCount();
+
+            MImKeyVisitor::SpecialKeyFinder deadFinder(MImKeyVisitor::FindDeadKey);
+            MImAbstractKey::visitActiveKeys(&deadFinder);
+            unlockDeadKeys(deadFinder.deadKey());
         }
     }
 
