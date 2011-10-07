@@ -87,6 +87,7 @@ namespace
     const int LongPressTime = 600;           // in ms
     const int AutoRepeatInterval = 100;      // in ms
     const int MultitapTime = 1500;           // in ms
+    const int PrepareIncomingWidgetDelay = 250; // in ms
     const Qt::KeyboardModifier FnLevelModifier = Qt::GroupSwitchModifier;
     // This GConf item defines whether multitouch is enabled or disabled
     const char * const MultitouchSettings = "/meegotouch/inputmethods/multitouch/enabled";
@@ -273,7 +274,8 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
       enabledOnScreenPluginsCount(0),
       pressedArrowKey(Qt::Key_unknown),
       firstArrowSent(false),
-      pluginSwitched(false)
+      pluginSwitched(false),
+      preparePanningTimer()
 {
     Q_ASSERT(host != 0);
     Q_ASSERT(mainWindow != 0);
@@ -358,6 +360,11 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
             this,
             SLOT(handleLayoutPanFinished(PanGesture::PanDirection)),
             Qt::DirectConnection);
+
+    preparePanningTimer.setSingleShot(true);
+    preparePanningTimer.setInterval(PrepareIncomingWidgetDelay);
+    connect(&preparePanningTimer, SIGNAL(timeout()),
+            this,                 SLOT(preparePanningIncomingWidget()));
 
     vkbWidget = new MVirtualKeyboard(LayoutsManager::instance(), vkbStyleContainer, sceneWindow);
     vkbWidget->setInputMethodMode(static_cast<M::InputMethodMode>(inputMethodMode));
@@ -2688,7 +2695,7 @@ void MKeyboardHost::updateCJKOverridesData()
 
 void MKeyboardHost::asyncPreparePanningIncomingWidget()
 {
-    QTimer::singleShot(250, this, SLOT(preparePanningIncomingWidget()));
+    preparePanningTimer.start();
 }
 
 void MKeyboardHost::preparePanningIncomingWidget()
@@ -2757,6 +2764,12 @@ void MKeyboardHost::handlePreparingLayoutPan(PanGesture::PanDirection direction,
     RegionTracker::instance().enableSignals(false);
 
     if (vkbWidget->isVisible()) {
+        // if preparePanningTimer is running, stop it and
+        // prepare incoming snapshot immediately.
+        if (preparePanningTimer.isActive()) {
+            preparePanningTimer.stop();
+            preparePanningIncomingWidget();
+        }
         vkbWidget->prepareLayoutSwitch(direction);
 
         if (EngineManager::instance().handler()) {

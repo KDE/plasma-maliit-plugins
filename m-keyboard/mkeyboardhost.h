@@ -518,6 +518,8 @@ private:
 
     bool pluginSwitched;
 
+    QTimer preparePanningTimer;
+
     friend class EngineHandlerDefault;
     friend class EngineHandlerCJK;
 #ifdef UNIT_TEST
