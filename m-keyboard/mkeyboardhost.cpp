@@ -2706,14 +2706,31 @@ void MKeyboardHost::preparePanningIncomingEngineWidget(PanGesture::PanDirection 
 {
     QString nextLayoutLanguage = vkbWidget->nextPannableLayout(direction);
     if (EngineManager::instance().handler(nextLayoutLanguage)) {
+
+        AbstractEngineWidgetHost *currentEngineWidgetHost
+            = EngineManager::instance().handler()->engineWidgetHost();
+        const QGraphicsWidget *currentEngineWidget =
+            (currentEngineWidgetHost
+             && currentEngineWidgetHost->displayMode()
+                == AbstractEngineWidgetHost::DockedMode)
+            ? currentEngineWidgetHost->engineWidget()
+            : 0;
         AbstractEngineWidgetHost *engineWidgetHost
             = EngineManager::instance().handler(nextLayoutLanguage)->engineWidgetHost();
-        if (engineWidgetHost
-            && engineWidgetHost->displayMode()
-               == AbstractEngineWidgetHost::DockedMode) {
-            LayoutPanner::instance().addIncomingWidget(
-                direction,
-                engineWidgetHost->engineWidget());
+        QGraphicsWidget *engineWidget =
+            (engineWidgetHost
+             && engineWidgetHost->displayMode()
+                == AbstractEngineWidgetHost::DockedMode)
+            ? engineWidgetHost->engineWidget()
+            : 0;
+
+        // The engine widget(wordribbon) could be shared between different
+        // Chinese IM layouts. So if we display engine widget in the snapshot
+        // of the next incoming layout, the candidate words filled in wordribbon
+        // will also appear. This issue could be fixed by not adding the
+        // engineWidget (if same instance) to the incoming snapshot.
+        if (engineWidget && engineWidget != currentEngineWidget) {
+            LayoutPanner::instance().addIncomingWidget(direction, engineWidget);
         }
     }
 }
