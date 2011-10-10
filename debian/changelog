@@ -1,6 +1,6 @@
 meego-keyboard (0.7.16~1) unstable; urgency=low
 
-  * New release
+  * Fixes: NB#282901 - Contact > while editing a contact, Arabic digits appears instead of Hindic on the keypad
 
  -- Aapo Kojo <aapo.kojo@nokia.com>  Mon, 03 Oct 2011 10:31:39 +0300
 
