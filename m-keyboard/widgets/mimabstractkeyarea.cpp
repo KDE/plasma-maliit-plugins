@@ -129,6 +129,7 @@ MImAbstractKeyAreaPrivate::MImAbstractKeyAreaPrivate(const LayoutData::SharedLay
       feedbackSliding(MImReactionMap::Sliding),
       section(newSection),
       allowedHorizontalFlick(true),
+      ignoreTouchEventsUntilNewBegin(false),
       longPressTouchPointId(0),
       longPressTouchPointIsPrimary(false),
       enabledPanning(true),
@@ -285,7 +286,12 @@ void MImAbstractKeyAreaPrivate::handleTouchEvent(QTouchEvent *event)
 
     lastTouchEvent = *event;
 
-    if (!q->isVisible()) {
+    if (event->type() == QEvent::TouchBegin) {
+        ignoreTouchEventsUntilNewBegin = false;
+    }
+
+    if (!q->isVisible() ||
+        ignoreTouchEventsUntilNewBegin) {
         return;
     }
 
@@ -1183,6 +1189,9 @@ void MImAbstractKeyArea::reset()
     }
 
     d->touchPointRecords.clear();
+
+    // Workaround for NB#248227.
+    d->ignoreTouchEventsUntilNewBegin = true;
 
     MImKeyVisitor::SpecialKeyFinder deadFinder(MImKeyVisitor::FindDeadKey);
     MImAbstractKey::visitActiveKeys(&deadFinder);
