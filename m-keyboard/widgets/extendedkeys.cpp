@@ -112,6 +112,7 @@ ExtendedKeys::ExtendedKeys(MagnifierHost *newHost,
     , hideOnNextMouseRelease(false)
     , showAnimation(this, "magnitude")
     , currentMagnitude(1)
+    , showAnimationFinished(false)
     , isInitialTouchPointPrimary(false)
     , followedTouchPointId(0)
     , followedTouchPointOrigin(MainKeyboardArea)
@@ -205,6 +206,7 @@ void ExtendedKeys::showExtendedArea(const QPointF &origin,
 
     showAnimation.setEasingCurve(host->style()->extendedKeysShowEasingCurve());
     showAnimation.setDuration(host->style()->extendedKeysShowDuration());
+    showAnimationFinished = false;
 
     // Convert anchorPoint into coordinates of extended keys area to simplify
     // calculations for animation. We do it just here, because extKeys area
@@ -283,6 +285,8 @@ void ExtendedKeys::handleShowAnimationFinished()
     // Update the reaction maps if the popup disappears
     connect(extKeysArea.get(), SIGNAL(displayExited()),
             &signalForwarder, SIGNAL(requestRepaint()));
+
+    showAnimationFinished = true;
 }
 
 bool ExtendedKeys::handleTouchEvent(QTouchEvent *event, QGraphicsItem *originalReceiver, EventOrigin from)
@@ -374,7 +378,7 @@ bool ExtendedKeys::handleTouchEvent(QTouchEvent *event, QGraphicsItem *originalR
     }
 
     if (!extKeysAreaTouchPoint.isEmpty()) {
-        if (showAnimation.state() != QAbstractAnimation::Stopped) {
+        if (not showAnimationFinished) {
             // Do not forward events to extKeysArea until animation has
             // finished. Instead, only update initial press position.
             tappedScenePos = extKeysAreaTouchPoint[0].scenePos();
@@ -481,7 +485,7 @@ bool ExtendedKeys::handleMouseEvent(QGraphicsSceneMouseEvent *event, EventOrigin
     }
 
     if (generatedEvent) {
-        if (showAnimation.state() != QAbstractAnimation::Stopped) {
+        if (not showAnimationFinished) {
             // Do not forward events to extKeysArea until animation has
             // finished. Instead, only update initial press position.
             tappedScenePos = generatedEvent->scenePos();

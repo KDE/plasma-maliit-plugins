@@ -117,6 +117,11 @@ private:
     //! Current magnitude. Default value is 1.
     qreal currentMagnitude;
 
+    //! Tracks the state of showAnimation. We have to use a separate
+    //! boolean value because showAnimation can be a part of
+    //! QAnimationGroup and we don't know when showAnimation is started.
+    bool showAnimationFinished;
+
     //! Anchor point for animation.
     QPointF anchorPoint;
 
