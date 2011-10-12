@@ -1,9 +1,12 @@
-meego-keyboard (0.7.16~1) unstable; urgency=low
+meego-keyboard (0.7.16-1) unstable; urgency=low
 
   * Fixes: NB#280274 - Input methods: 'permille' symbol in keyboard displayed instead of 'section of a law' symbol in Kazakh language
   * Fixes: NB#282901 - Contact > while editing a contact, Arabic digits appears instead of Hindic on the keypad
+  * Fixes: NB#284004 - Vietnamese VKB is shown as truncated in landscape mode & some keys are missing in portrait mode.
+  * Fixes: NB#268106 - Accents in Thai layouts are not aligned correctly inside a key/pop-up menu
+  * Fixes: NB#272715 - Dead key VKB layout is retaining in a scenario.
 
- -- Aapo Kojo <aapo.kojo@nokia.com>  Mon, 03 Oct 2011 10:31:39 +0300
+ -- Aapo Kojo <aapo.kojo@nokia.com>  Wed, 12 Oct 2011 09:28:00 +0300
 
 meego-keyboard (0.7.15-2) unstable; urgency=low
 
