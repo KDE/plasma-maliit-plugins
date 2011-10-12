@@ -1,6 +1,7 @@
 meego-keyboard (0.7.17~1) unstable; urgency=low
 
   * [UNRELEASED]
+  * Fixes: NB#284540 - The Candidate words is showed next Plugin.
 
  -- Ning Chi <ext-chi.2.ning@nokia.com>  Wed, 12 Oct 2011 10:44:24 +0300
 
