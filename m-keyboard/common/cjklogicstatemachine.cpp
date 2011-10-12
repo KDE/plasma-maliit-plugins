@@ -1139,7 +1139,7 @@ void MatchStartedState::handleCandidateClicked(const QString &candStr, int wordI
     stateMachine->userChoseCandidateString = candStr;
     stateMachine->inputMethodHost.sendCommitString(stateMachine->transliterateString(wordIndex, candStr));
 
-    stateMachine->inputMethodEngine.setSuggestedCandidateIndex(wordIndex);
+    stateMachine->inputMethodEngine.commitWord(wordIndex);
     int mLength = stateMachine->inputMethodEngine.matchedLength();
 
     // Record selected candidate for learning words later.
