@@ -1,3 +1,9 @@
+meego-keyboard (0.7.17~1) unstable; urgency=low
+
+  * [UNRELEASED]
+
+ -- Ning Chi <ext-chi.2.ning@nokia.com>  Wed, 12 Oct 2011 10:44:24 +0300
+
 meego-keyboard (0.7.16-1) unstable; urgency=low
 
   * Fixes: NB#280274 - Input methods: 'permille' symbol in keyboard displayed instead of 'section of a law' symbol in Kazakh language
