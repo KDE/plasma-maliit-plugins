@@ -32,7 +32,7 @@
 
 <!ATTLIST row
   height (small | medium | large | x-large | xx-large) "medium"
-  fixed (true | false) "false">
+>
 
 <!ATTLIST key
   style (normal | special | deadkey) "normal"
