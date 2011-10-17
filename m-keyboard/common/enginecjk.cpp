@@ -72,7 +72,7 @@ MImEngineWordsInterface *EngineCJK::engine() const
 QStringList EngineCJK::supportedLanguages()
 {
     QStringList languages;
-    languages << "zh" << "ja" << "ko";
+    languages << "zh" << "ja";
     return languages;
 }
 
@@ -127,3 +127,55 @@ void EngineCJK::synchronizeWordPrediction()
     else
         mEngine->disablePrediction();
 }
+
+EngineKorean::EngineKorean(MAbstractInputMethodHost &imHost, const QString &engineName)
+    : AbstractEngine(imHost, engineName),
+      inputMethodHost(imHost),
+      mEngine(MImEngineFactory::instance()->createEngineWords(engineName))
+{
+    if (mEngine) {
+        initializeEngine();
+    } else {
+        qWarning() << __PRETTY_FUNCTION__ << "Failed to load input engine for "
+            << engineName;
+    }
+}
+
+EngineKorean::~EngineKorean()
+{
+    if (mEngine)
+        MImEngineFactory::instance()->deleteEngine(mEngine);
+}
+
+MImEngineWordsInterface *EngineKorean::engine() const
+{
+    return mEngine;
+}
+
+QStringList EngineKorean::supportedLanguages()
+{
+    QStringList languages;
+    languages << "ko";
+    return languages;
+}
+
+void EngineKorean::initializeEngine()
+{
+    if (!mEngine)
+        return;
+    updateEngineLanguage("ko");
+}
+
+void EngineKorean::updateEngineLanguage(const QString &language)
+{
+    if (!mEngine)
+        return;
+    if (!language.isEmpty()) {
+        qDebug() << __PRETTY_FUNCTION__ << "- used language:" << language;
+
+        const QString variant = language.contains("@") ? language.split('@').last()
+                                : language;
+        mEngine->setLanguage(variant, MImEngine::LanguagePriorityPrimary);
+    }
+}
+
