@@ -181,12 +181,10 @@ KeyEvent MImKeyBinding::toKeyEvent(QKeyEvent::Type eventType, bool isComposing, 
 
 MImKeyModel::MImKeyModel(MImKeyModel::StyleType style,
                          MImKeyModel::WidthType widthType,
-                         bool isFixed,
                          bool isRtl,
                          const QString &id)
     : mStyle(style),
       mWidthType(widthType),
-      isFixed(isFixed),
       isRtl(isRtl),
       keyId(id)
 {
@@ -242,11 +240,6 @@ MImKeyModel::StyleType MImKeyModel::style() const
 MImKeyModel::WidthType MImKeyModel::width() const
 {
     return mWidthType;
-}
-
-bool MImKeyModel::isFixedWidth() const
-{
-    return isFixed;
 }
 
 bool MImKeyModel::rtl() const

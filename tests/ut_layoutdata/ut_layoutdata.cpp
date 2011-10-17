@@ -112,7 +112,6 @@ void Ut_LayoutData::testConstructFromString()
             if (const MImKeyModel * const key = section.keyModel(rowIndex, colIndex)) {
                 QCOMPARE(key->style(), MImKeyModel::NormalStyle);
                 QCOMPARE(key->width(), MImKeyModel::Medium);
-                QVERIFY(key->isFixedWidth());
                 QCOMPARE(key->rtl(), false);
                 QCOMPARE(key->binding(true)->label(), expectedLabels.at(labelIndex));
                 QCOMPARE(key->binding(false)->label(), expectedLabels.at(labelIndex));

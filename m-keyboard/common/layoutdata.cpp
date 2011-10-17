@@ -42,10 +42,9 @@ const QString LayoutData::symbolsSymSection("symbols Sym");
 namespace {
 
     MImKeyModel * createKeyModel(const QString &label,
-                                 bool isFixed,
                                  bool isRtl)
     {
-        MImKeyModel *key(new MImKeyModel(MImKeyModel::NormalStyle, MImKeyModel::Medium, isFixed, isRtl));
+        MImKeyModel *key(new MImKeyModel(MImKeyModel::NormalStyle, MImKeyModel::Medium, isRtl));
         MImKeyBinding *binding(new MImKeyBinding(label));
         key->setBinding(*binding, false);
         key->setBinding(*binding, true);
@@ -137,11 +136,11 @@ LayoutSection::LayoutSection(const QString &characters, bool rtl)
         if (labelList.count() == 1) {
             const QString &labels(labelList.at(0));
             for (int i = 0; i < labels.count(); ++i) {
-                currentRow->keys.append(createKeyModel(labels.at(i), true, rtl));
+                currentRow->keys.append(createKeyModel(labels.at(i), rtl));
             }
         } else if (labelList.count() > 1) {
             foreach (const QString &s, labelList) {
-                currentRow->keys.append(createKeyModel(s, true, rtl));
+                currentRow->keys.append(createKeyModel(s, rtl));
             }
         }
 

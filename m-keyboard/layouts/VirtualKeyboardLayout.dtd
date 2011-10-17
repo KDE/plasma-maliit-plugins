@@ -37,7 +37,6 @@
 <!ATTLIST key
   style (normal | special | deadkey) "normal"
   width (small | medium | large | x-large | xx-large | stretched) "medium"
-  fixed (true | false) "false"
   rtl (true | false) "false"
   id CDATA #IMPLIED
 >

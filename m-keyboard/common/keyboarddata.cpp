@@ -133,8 +133,6 @@ namespace
     const char * const StyleStringDefValue        = "normal";
     const char * const WidthTypeString            = "width";
     const char * const WidthTypeStringDefValue    = "medium";
-    const char * const FixedString                = "fixed";
-    const char * const FixedStringDefValue        = "false";
     const char * const HeightTypeString           = "height";
     const char * const HeightTypeStringDefValue   = "medium";
     const char * const KeyIdString                = "id";
@@ -591,7 +589,6 @@ void KeyboardData::parseTagKey(const QDomElement &element, ParseParameters &para
     MImKeyModel::StyleType type = toStyleType(element.attribute(StyleString, StyleStringDefValue));
     MImKeyModel::WidthType widthType = toWidthType(element.attribute(WidthTypeString, WidthTypeStringDefValue));
     const bool isRtl = toBoolean(element.attribute(RtlString, RtlStringDefValue));
-    const bool isFixed = toBoolean(element.attribute(FixedString, FixedStringDefValue));
     const QString keyId = element.attribute(KeyIdString);
 
     if (!keyId.isEmpty()) {
@@ -604,7 +601,7 @@ void KeyboardData::parseTagKey(const QDomElement &element, ParseParameters &para
         }
     }
 
-    MImKeyModel *key = new MImKeyModel(type, widthType, isFixed, isRtl, keyId);
+    MImKeyModel *key = new MImKeyModel(type, widthType, isRtl, keyId);
     params.currentKey = key;
     params.currentRow->keys.append(key);
 

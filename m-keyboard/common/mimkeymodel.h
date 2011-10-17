@@ -242,12 +242,10 @@ public:
      * \brief Constructs new object
      * \param type The style type for button.
      * \param widthType The width type for the button.
-     * \param isFixed Contains true if button should use fixed width type.
      * \param isRtl Contains true if button should use RTL icon.
      */
     explicit MImKeyModel(StyleType type = NormalStyle, WidthType widthType = Medium,
-                        bool isFixed = false, bool isRtl = false,
-                        const QString &id = QString());
+                         bool isRtl = false, const QString &id = QString());
 
     ~MImKeyModel();
 
@@ -286,9 +284,6 @@ public:
     //! Returns the width type.
     WidthType width() const;
 
-    //! Returns true if button uses fixed width type.
-    bool isFixedWidth() const;
-
     //! Returns true if button uses RTL icon.
     bool rtl() const;
 
@@ -317,9 +312,6 @@ private:
     StyleType mStyle;
 
     WidthType mWidthType;
-
-    //! Contains true if button uses fixed width.
-    bool isFixed;
 
     //! Contains true if button uses RTL icon.
     bool isRtl;
