@@ -109,6 +109,8 @@ public:
 
     int keyboardHeight() const;
 
+    bool imExtensionEvent(MImExtensionEvent *event);
+
 public slots:
     //! Toggle key state is changed to \a onOff.
     void handleToggleKeyStateChanged(bool onOff);

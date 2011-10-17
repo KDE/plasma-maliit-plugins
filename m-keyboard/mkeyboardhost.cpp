@@ -58,6 +58,7 @@
 #include <mkeyoverride.h>
 #include <mgconfitem.h>
 #include <mimplugindescription.h>
+#include <mimupdateevent.h>
 
 #include <QApplication>
 #include <QDesktopWidget>
@@ -2682,6 +2683,25 @@ int MKeyboardHost::keyboardHeight() const
         height += sharedHandleArea->size().height() - sharedHandleArea->shadowHeight();
     }
     return height;
+}
+
+bool MKeyboardHost::imExtensionEvent(MImExtensionEvent *event)
+{
+    if (not event) {
+        return false;
+    }
+
+    switch (event->type()) {
+    case MImExtensionEvent::Update: {
+        MImUpdateEvent *update = static_cast<MImUpdateEvent *>(event);
+        LayoutsManager::instance().setWesternNumericInputEnforced(update->westernNumericInputEnforced());
+    } break;
+
+    default:
+        break;
+    }
+
+    return false;
 }
 
 

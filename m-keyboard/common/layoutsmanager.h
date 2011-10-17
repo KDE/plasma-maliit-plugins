@@ -133,6 +133,11 @@ public:
      */
     void releaseTemporaryEnglishKeyboard();
 
+    /*!
+     *\brief Whether western numeric input shall be enforced, regardless of current locale.
+     */
+    void setWesternNumericInputEnforced(bool enforced);
+
 signals:
     //! Signals that layouts have been reset and keyboard data can
     //! be reloaded using new layouts returned by layoutList().
@@ -225,6 +230,8 @@ private:
     static LayoutsManager *Instance;
 
     friend class Ut_LayoutsManager;
+
+    bool westernNumericInputEnforced;
 };
 
 
