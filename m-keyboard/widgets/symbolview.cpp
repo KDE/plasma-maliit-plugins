@@ -152,11 +152,11 @@ void SymbolView::reloadContent()
 
         loadSwitcherPages(layoutData, activePage);
         setShiftState(shiftState);
-    } else if (activeState == MInputMethod::Hardware && currentOrientation == M::Landscape) {
-        const LayoutData *layoutData = layoutsMgr.hardwareLayout(LayoutData::General, M::Landscape);
+    } else if (activeState == MInputMethod::Hardware) {
+        const LayoutData *layoutData = layoutsMgr.hardwareLayout(LayoutData::General, currentOrientation);
         if (!layoutData) {
             // Get it by layout then.
-            layoutData = layoutsMgr.layout(currentLayout, LayoutData::General, M::Landscape);
+            layoutData = layoutsMgr.layout(currentLayout, LayoutData::General, currentOrientation);
         }
 
         loadSwitcherPages(layoutData, activePage);

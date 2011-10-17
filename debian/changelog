@@ -4,6 +4,7 @@ meego-keyboard (0.7.17~1) unstable; urgency=low
   * Fixes: NB#284540 - The Candidate words is showed next Plugin.
   * Fixes: NB#281474 - Word suggestion list is disappearing when the finger is lifted from the keyboard after long tapping on the space key.
   * Fixes: NB#285711 - Accent popup shows two active keys sometimes
+  * Fixes: NB#281156 - [hwkb] N950 Hardware SYM key causes virtual keyboard to print button label
 
  -- Ning Chi <ext-chi.2.ning@nokia.com>  Wed, 12 Oct 2011 10:44:24 +0300
 
