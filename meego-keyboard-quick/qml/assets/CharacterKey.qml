@@ -56,7 +56,7 @@ Rectangle {
 
         onReleased: {
             MInputMethodQuick.sendCommit(key_label.text)
-            isShifted = false
+            isShifted = isShiftLocked ? isShifted : false
         }
     }
 

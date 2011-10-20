@@ -42,6 +42,7 @@ Rectangle {
     property string caption: ""
     signal clickedPass()
     signal released()
+    signal pressedAndHoldPass()
 
     radius: 8
     color: mouse_area.containsMouse ? keyStyle.backgroundPressed
@@ -52,6 +53,7 @@ Rectangle {
         anchors.fill: parent
         onClicked: { clickedPass() }
         onReleased: { parent.released() }
+        onPressAndHold: { pressedAndHoldPass() }
     }
 
     Image {

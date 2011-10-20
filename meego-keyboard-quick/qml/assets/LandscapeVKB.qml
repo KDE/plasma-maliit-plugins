@@ -55,6 +55,7 @@ Column {
                                             : keyStyle.landscapeMargin
     property bool isShifted: false
     property bool inSymView: false
+    property bool isShiftLocked: false
 
     Rectangle { //VKB background
         id: vkb
@@ -103,8 +104,18 @@ Column {
                 spacing: (columns == 11) ? 54 : 26
                 FunctionKey {
                     width: 100; height: keyHeight
-                    icon: (isShifted) ? "icon-m-input-methods-shift-uppercase.svg" : "icon-m-input-methods-shift-lowercase.svg"
-                    onClickedPass: { isShifted = (!isShifted) }
+                     icon: (isShiftLocked) ? "icon-m-input-methods-capslock.svg" :
+                                             (isShifted) ? "icon-m-input-methods-shift-uppercase.svg" : 
+                                                           "icon-m-input-methods-shift-lowercase.svg"
+                    color: isShiftLocked ? keyStyle.backgroundPressed : keyStyle.background
+                    onClickedPass: {
+                            isShifted = (!isShifted)
+                            isShiftLocked = isShiftLocked ? false : isShiftLocked
+                    }
+                    onPressedAndHoldPass: {
+                            isShifted = (!isShifted)
+                            isShiftLocked = (!isShiftLocked)
+                    }
                 }
                 Row {
                     spacing: keyMargin
