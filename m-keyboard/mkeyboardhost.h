@@ -522,6 +522,7 @@ private:
 
     friend class EngineHandlerDefault;
     friend class EngineHandlerCJK;
+    friend class EngineHandlerTonal;
 #ifdef UNIT_TEST
     friend class Ut_MKeyboardHost;
 #endif

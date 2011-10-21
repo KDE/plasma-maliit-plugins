@@ -42,6 +42,8 @@
 #include "mvirtualkeyboard.h"
 #include "symbolview.h"
 #include "keyevent.h"
+#include "enginehandlerdefault.h"
+#include "enginehandlertonal.h"
 
 #include "mkeyboardhost.h"
 #include <mimenginefactory.h>
@@ -53,219 +55,9 @@
 
 namespace
 {
-    //! Unicode Object Replacement character
-    const QChar ObjectReplacementChar(0xfffc);
-
-    //! Unicode Right Double Quotation mark
-    const QChar RightDoubleQuotationMark(0x201d);
-
-    //! Unicode Double Low-9 Quotation mark
-    const QChar DoubleLowQuotationMark(0x201e);
-
-    const QRegExp AutoCapsTrigger(QString("[.?!¡¿%1] +$").arg(ObjectReplacementChar));
-    const QRegExp AutoCapsQuotationTrigger(QString("[.?!](\"|'|%1|%2|\"'|'\"|%1'|'%1|%2'|'%2) +$").arg(RightDoubleQuotationMark).arg(DoubleLowQuotationMark));
-
     const QString DefaultInputLanguage("default");
-    const bool DefaultCorrectionSettingAcceptedWithSpaceOption = false;
-    const QString CorrectionSettingWithSpace("/meegotouch/inputmethods/virtualkeyboard/correctwithspace");
     const QString InputMethodCorrectionEngineRoot("/meegotouch/inputmethods/correctionengine");
 }
-
-class EngineHandlerDefault : public EngineHandler
-{
-public:
-    EngineHandlerDefault(MKeyboardHost &keyboardHost)
-        : EngineHandler(keyboardHost),
-          mKeyboardHost(keyboardHost),
-          mEngineWidgetHost(new MImCorrectionHost(keyboardHost.sceneWindow, 0))
-    {
-        autoCapsTriggerList << AutoCapsTrigger;
-    }
-
-    virtual ~EngineHandlerDefault() {
-        delete mEngineWidgetHost;
-        mEngineWidgetHost = 0;
-    }
-    
-    static QStringList supportedLanguages() {
-        return QStringList();
-    }
-
-    //! \reimp
-    virtual void activate()
-    {
-        connect(mEngineWidgetHost,
-                SIGNAL(candidateClicked(const QString &, int)),
-                &mKeyboardHost,
-                SLOT(handleCandidateClicked(const QString &, int)),
-                Qt::UniqueConnection);
-        mEngineWidgetHost->finalizeOrientationChange();
-    }
-
-    virtual void deactivate()
-    {
-        disconnect(mEngineWidgetHost, 0,
-                   &mKeyboardHost,    0);
-    }
-
-    virtual AbstractEngineWidgetHost *engineWidgetHost()
-    {
-        // return default error correction host
-        return mEngineWidgetHost;
-    }
-
-    virtual bool cursorCanMoveInsidePreedit() const
-    {
-        return true;
-    }
-
-    virtual bool hasHwKeyboardIndicator() const
-    {
-        return true;
-    }
-
-    virtual bool hasErrorCorrection() const
-    {
-        return true;
-    }
-
-    virtual bool acceptPreeditInjection() const
-    {
-        return true;
-    }
-
-    virtual bool hasAutoCaps() const
-    {
-        return true;
-    }
-
-    virtual QList<QRegExp> autoCapsTriggers() const
-    {
-        return autoCapsTriggerList;
-    }
-
-    virtual bool hasContext() const
-    {
-        return true;
-    }
-
-    virtual bool commitPreeditWhenInterrupted() const
-    {
-        return true;
-    }
-
-    virtual bool correctionAcceptedWithSpaceEnabled() const
-    {
-        return MGConfItem(CorrectionSettingWithSpace).value(DefaultCorrectionSettingAcceptedWithSpaceOption).toBool();
-    }
-
-    virtual bool isComposingInputMethod() const
-    {
-        return false;
-    }
-
-    virtual bool supportTouchPointAccuracy() const
-    {
-        return true;
-    }
-
-    virtual bool commitWhenCandidateClicked() const
-    {
-        return true;
-    }
-
-    virtual void clearPreedit(bool commit)
-    {
-        if (!mKeyboardHost.preedit.isEmpty()) {
-            if (commit) {
-                // Commit current preedit
-                mKeyboardHost.inputMethodHost()->sendCommitString(mKeyboardHost.preedit,
-                                                                  0, 0, mKeyboardHost.preeditCursorPos);
-            } else {
-                // Clear current preedit
-                QList<MInputMethod::PreeditTextFormat> preeditFormats;
-                MInputMethod::PreeditTextFormat preeditFormat(0, 0, MInputMethod::PreeditKeyPress);
-                preeditFormats << preeditFormat;
-                mKeyboardHost.inputMethodHost()->sendPreeditString("", preeditFormats);
-            }
-            mKeyboardHost.preedit.clear();
-        }
-    }
-
-    virtual void editingInterrupted()
-    {
-        clearPreedit(commitPreeditWhenInterrupted());
-    }
-
-    virtual void resetHandler()
-    {
-    }
-
-    virtual void preparePluginSwitching()
-    {
-    }
-
-    virtual bool handleKeyPress(const KeyEvent &event)
-    {
-        Q_UNUSED(event);
-        return false;
-    }
-
-    virtual bool handleKeyRelease(const KeyEvent &event)
-    {
-        Q_UNUSED(event);
-        return false;
-    }
-
-    virtual bool handleKeyClick(const KeyEvent &event, bool cycleKeyActive)
-    {
-        Q_UNUSED(event);
-        Q_UNUSED(cycleKeyActive);
-        return false;
-    }
-
-    virtual bool handleKeyCancel(const KeyEvent &event)
-    {
-        Q_UNUSED(event);
-        return false;
-    }
-
-    //! \reimp_end
-
-private:
-    MKeyboardHost &mKeyboardHost;
-    AbstractEngineWidgetHost *mEngineWidgetHost;
-    QList<QRegExp> autoCapsTriggerList;
-};
-
-class EngineHandlerEnglish : public EngineHandlerDefault
-{
-public:
-    EngineHandlerEnglish(MKeyboardHost &keyboardHost)
-        : EngineHandlerDefault(keyboardHost)
-    {
-        autoCapsTriggerList << AutoCapsTrigger << AutoCapsQuotationTrigger;
-    }
-
-    virtual ~EngineHandlerEnglish() {
-    }
-
-    static QStringList supportedLanguages() {
-        QStringList languages;
-        languages << "en_gb" << "en_us";
-        return languages;
-    }
-
-    //! \reimp
-    virtual QList<QRegExp> autoCapsTriggers() const
-    {
-        return autoCapsTriggerList;
-    }
-    //! \reimp_end
-
-private:
-    QList<QRegExp> autoCapsTriggerList;
-};
 
 class EngineHandlerCJK : public EngineHandler
 {
@@ -642,6 +434,11 @@ EngineHandler *EngineManager::findOrCreateEngineHandler(const QString &language)
     } else if (EngineHandlerEnglish::supportedLanguages().contains(language)){
         matchedEngineHandler = QPointer<EngineHandlerEnglish>(new EngineHandlerEnglish(mKeyboardHost));
         foreach (const QString &lang, EngineHandlerEnglish::supportedLanguages())
+            handlerMap.insert(lang, matchedEngineHandler);
+
+    } else if (EngineHandlerTonal::supportedLanguages().contains(language)){
+        matchedEngineHandler = QPointer<EngineHandlerTonal>(new EngineHandlerTonal(mKeyboardHost));
+        foreach (const QString &lang, EngineHandlerTonal::supportedLanguages())
             handlerMap.insert(lang, matchedEngineHandler);
 
     } else {

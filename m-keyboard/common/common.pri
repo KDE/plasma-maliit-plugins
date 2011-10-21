@@ -31,6 +31,8 @@ HEADERS += \
     $$COMMON_DIR/enginedefault.h \
     $$COMMON_DIR/enginemanager.h \
     $$COMMON_DIR/enginehandler.h \
+    $$COMMON_DIR/enginehandlerdefault.h \
+    $$COMMON_DIR/enginehandlertonal.h \
     $$COMMON_DIR/cjklogicstatemachine.h \
     $$COMMON_DIR/enginecjk.h \
     $$COMMON_DIR/borderpanrecognizer.h \
@@ -60,6 +62,8 @@ SOURCES += \
     $$COMMON_DIR/regiontracker.cpp \
     $$COMMON_DIR/simplefilelog.cpp \
     $$COMMON_DIR/enginedefault.cpp \
+    $$COMMON_DIR/enginehandlerdefault.cpp \
+    $$COMMON_DIR/enginehandlertonal.cpp \
     $$COMMON_DIR/enginemanager.cpp \
     $$COMMON_DIR/cjklogicstatemachine.cpp \
     $$COMMON_DIR/enginecjk.cpp \
