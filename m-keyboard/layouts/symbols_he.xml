@@ -2,7 +2,7 @@
 <!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
 <keyboard version="1.0" catalog="symbols">
   <layout type="general">
-    <section id="symbols0" type="non-sloppy">
+    <section id="symbols0" type="non-sloppy" style="hebrew">
       <row>
         <key>
           <binding label="1"/>
@@ -31,9 +31,14 @@
         <key>
           <binding label="9"/>
         </key>
+        <key>
+          <binding label="0"/>
+        </key>
       </row>
 
       <row>
+        <spacer/>
+        
         <key>
           <binding label="*"/>
         </key>
@@ -56,17 +61,21 @@
           <binding label=")"/>
         </key>
         <key>
-          <binding label="?"/>
+          <binding label="!"/>
         </key>
         <key>
-          <binding label="0"/>
+          <binding label="?"/>
         </key>
+        
+        <spacer/>
       </row>
 
       <row>
         <key style="special">
           <binding action="switch" label="1/2"/>
         </key>
+        
+        <spacer/>
 
         <key>
           <binding label="@" quickpick="true"/>
@@ -84,11 +93,13 @@
           <binding label="&#x0027;" quickpick="true"/>
         </key>
         <key>
-          <binding label=":"/>
+          <binding label=";"/>
         </key>
         <key>
-          <binding label="!"/>
+          <binding label=":"/>
         </key>
+        
+        <spacer/>
 
         <key style="special">
           <binding action="backspace"/>
@@ -96,15 +107,16 @@
       </row>
 
       <row>
-        <key style="special" width="x-large">
-          <binding action="sym" label="אבג"/>
+        <key style="special" width="large">
+          <binding action="sym" label="&#x05D0;&#x05D1;&#x05D2;"/>
         </key>
-
+        
         <key><binding label=","/></key>
-        <key width="stretched"><binding action="space"/></key>
+        <key width="xx-large">
+            <binding action="space"/>
+        </key>
         <key><binding label="."/></key>
-        <key><binding label=";"/></key>
-
+        
         <key style="special" width="x-large" id="actionKey">
           <binding action="return"/>
         </key>
@@ -112,93 +124,104 @@
       </row>
     </section>
 
-    <section id="symbols1" type="non-sloppy">
+    <section id="symbols1" type="non-sloppy" style="hebrew">
       <row>
         <key>
-          <binding label="&#x20AC;"/>
+          <binding label="€"/>
         </key>
         <key>
-          <binding label="&#x00A3;"/>
+          <binding label="£"/>
         </key>
         <key>
-          <binding label="&#x0024;"/>
+          <binding label="$"/>
         </key>
         <key>
-          <binding label="&#x00A5;"/>
+          <binding label="¥"/>
         </key>
         <key>
-          <binding label="&#x0025;"/>
+          <binding label="₪"/>
         </key>
         <key>
-          <binding label="&#x003C;"/>
+          <binding label="%"/>
         </key>
         <key>
-          <binding label="&#x003E;"/>
+          <binding label="&lt;"/>
         </key>
         <key>
-          <binding label="&#x005B;"/>
+          <binding label="&gt;"/>
         </key>
         <key>
-          <binding label="&#x005D;"/>
+          <binding label="["/>
+        </key>
+        <key>
+          <binding label="]"/>
         </key>
       </row>
 
       <row>
-         <key>
-          <binding label="&#x0060;"/>
+        <spacer/>
+
+        <key>
+          <binding label="`"/>
         </key>
         <key>
-          <binding label="&#x005E;"/>
+          <binding label="^"/>
         </key>
         <key>
-          <binding label="&#x007C;"/>
+          <binding label="|"/>
         </key>
         <key>
-          <binding label="&#x005F;"/>
+          <binding label="_"/>
         </key>
         <key>
-          <binding label="&#x00A7;"/>
+          <binding label="§"/>
         </key>
         <key>
-          <binding label="&#x007B;"/>
+          <binding label="{"/>
         </key>
         <key>
-          <binding label="&#x007D;"/>
+          <binding label="}"/>
         </key>
         <key>
-          <binding label="&#x00BF;"/>
+          <binding label="¡"/>
         </key>
         <key>
-          <binding label="&#x00A1;"/>
+          <binding label="¿"/>
         </key>
+        
+        <spacer/>
       </row>
 
       <row>
         <key style="special">
           <binding action="switch" label="2/2"/>
         </key>
+        
+        <spacer/>
 
         <key>
-          <binding label="&#x00AB;"/>
+          <binding label="«"/>
         </key>
         <key>
-          <binding label="&#x00BB;"/>
+          <binding label="»"/>
         </key>
         <key>
           <binding label="&#x0022;"/>
         </key>
         <key>
-          <binding label="&#x201C;"/>
+          <binding label="“"/>
         </key>
         <key>
-          <binding label="&#x201D;"/>
+          <binding label="”"/>
         </key>
         <key>
-          <binding label="&#x201E;"/>
+          <binding label="„"/>
         </key>
         <key>
-          <binding label="&#x0026;"/>
+          <binding label="&amp;"/>
         </key>
+
+        <spacer/>
 
         <key style="special">
           <binding action="backspace"/>
@@ -206,15 +229,16 @@
       </row>
 
       <row>
-        <key style="special" width="x-large">
-          <binding action="sym" label="אבג"/>
+        <key style="special" width="large">
+          <binding action="sym" label="&#x05D0;&#x05D1;&#x05D2;"/>
         </key>
-
+        
         <key><binding label=","/></key>
-        <key width="stretched"><binding action="space"/></key>
+        <key width="xx-large">
+            <binding action="space"/>
+        </key>
         <key><binding label="."/></key>
-        <key><binding label="&#x20AA;"/></key>
-
+        
         <key style="special" width="x-large" id="actionKey">
           <binding action="return"/>
         </key>

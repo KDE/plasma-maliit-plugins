@@ -47,6 +47,8 @@
 #include "regiontracker.h"
 #include "reactionmapwrapper.h"
 #include "mkeyboardhost.h"
+#include "enginemanager.h"
+#include "abstractenginewidgethost.h"
 
 #include <mtoolbardata.h>
 #include <mkeyoverride.h>
@@ -75,6 +77,7 @@ namespace
     const int VerticalAnimatinDuration = 250;
 
     const QString ChineseLanguagePrefix("zh");
+    const QString EnglishLanguagePrefix("en");
 }
 
 const QString MVirtualKeyboard::WordSeparators("-.,!? \n");
@@ -103,7 +106,8 @@ MVirtualKeyboard::MVirtualKeyboard(const LayoutsManager &layoutsManager,
       toggleKeyState(false),
       composeKeyState(false),
       verticalAnimation(NULL),
-      switchStarted(false)
+      switchStarted(false),
+      haveSwitchedToEnVkbForEmail(false)
 {
     setFlag(QGraphicsItem::ItemHasNoContents);
     setObjectName("MVirtualKeyboard");
@@ -279,14 +283,35 @@ void MVirtualKeyboard::resetState()
 
 void MVirtualKeyboard::showLanguageNotification()
 {
+    int wordRibbonHeight = 0;
+
+    if (EngineManager::instance().handler(layoutLanguage())) {
+        AbstractEngineWidgetHost *engineWidgetHost
+            = EngineManager::instance().handler(layoutLanguage())->engineWidgetHost();
+        if (engineWidgetHost
+            && engineWidgetHost->displayMode()
+               == AbstractEngineWidgetHost::DockedMode) {
+            wordRibbonHeight = engineWidgetHost->engineWidget()->rect().height();
+        }
+    }
+
     if ((mainKeyboardSwitcher->current() != -1) && (currentLayoutType == LayoutData::General)) {
         QGraphicsWidget *const widget = mainKeyboardSwitcher->currentWidget();
-        const QRectF br = widget ? mainKeyboardSwitcher->mapRectToItem(this, widget->boundingRect())
-                          : QRectF(QPointF(), MPlainWindow::instance()->visibleSceneSize());
+        QRectF br;
+
+        if (widget) {
+            br = QRectF(QPointF(), notification->preferredSize());
+        } else {
+            br = QRectF(QPointF(), MPlainWindow::instance()->visibleSceneSize());
+        }
         const QString layoutFile(layoutsMgr.layoutFileList()[mainKeyboardSwitcher->current()]);
 
         notification->displayText(layoutsMgr.keyboardTitle(layoutFile), br);
         notification->setParentItem(widget ? widget : this);
+        notification->setPos(0,
+                             widget
+                             ? -notification->preferredHeight() - wordRibbonHeight
+                             : 0);
     }
 }
 
@@ -324,18 +349,9 @@ void MVirtualKeyboard::organizeContent(M::Orientation orientation, const bool fo
 
 void MVirtualKeyboard::drawButtonsReactionMaps(MReactionMap *reactionMap, QGraphicsView *view)
 {
-    // Depending on which keyboard type is currently shown
-    // we must pick the correct MImAbstractKeyArea(s).
-    QGraphicsLayoutItem *item = mainLayout->itemAt(KeyboardIndex);
-
-    if (item) {
-        const bool useWidgetFromSwitcher = (item == mainKeyboardSwitcher
-                                            && mainKeyboardSwitcher->currentWidget());
-
-        MImAbstractKeyArea *kba = static_cast<MImAbstractKeyArea *>(useWidgetFromSwitcher ? mainKeyboardSwitcher->currentWidget()
-                                                                                : item);
-
-        kba->drawReactiveAreas(reactionMap, view);
+    MImAbstractKeyArea *ka = activeKeyArea();
+    if (ka) {
+        ka->drawReactiveAreas(reactionMap, view);
     }
 }
 
@@ -411,10 +427,25 @@ void MVirtualKeyboard::setKeyboardType(const int type)
     // (2) If current content type is not Email/Url, release the temporary "English (UK)" keyboard
     //     if it exists.
     if ((type == M::EmailContentType) || (type == M::UrlContentType)) {
-        if (layoutLanguage().startsWith(ChineseLanguagePrefix, Qt::CaseSensitive))
+        if (layoutLanguage().startsWith(ChineseLanguagePrefix, Qt::CaseSensitive)) {
+            // If current active VKB is a Chinese one and the Email/URL entry is just entered,
+            // the English VKB would be automatically shown.
             LayoutsManager::instance().ensureEnglishKeyboardAvailable();
+            if (!haveSwitchedToEnVkbForEmail) {
+                const QStringList layoutList = layoutsMgr.layoutFileList();
+                for (int i=0; i<layoutList.count(); i++) {
+                    QString kbLanguage = layoutsMgr.keyboardLanguage(layoutList.at(i));
+                    if (kbLanguage.startsWith(EnglishLanguagePrefix)) {
+                        setLayout(i);
+                        break;
+                    }
+                }
+                haveSwitchedToEnVkbForEmail = true;
+            }
+        }
     } else {
         LayoutsManager::instance().releaseTemporaryEnglishKeyboard();
+        haveSwitchedToEnVkbForEmail = false;
     }
 }
 
@@ -503,16 +534,6 @@ void MVirtualKeyboard::cancelEvent(MCancelEvent *event)
     QGraphicsWidget *keyArea(mainKeyboardSwitcher->currentWidget());
     if (keyArea) {
         scene()->sendEvent(keyArea, event);
-    }
-}
-
-void MVirtualKeyboard::resizeEvent(QGraphicsSceneResizeEvent *)
-{
-    const QGraphicsWidget *const widget = mainKeyboardSwitcher->currentWidget();
-
-    if (widget) {
-        notification->resize(widget->size());
-        notification->update();
     }
 }
 
@@ -1014,4 +1035,13 @@ QString MVirtualKeyboard::nextPannableLayoutTitle(PanGesture::PanDirection direc
     }
 
     return layoutsMgr.keyboardTitle(layoutsMgr.layoutFileList().at(nextLayoutIndex));
+}
+
+MImAbstractKeyArea *MVirtualKeyboard::activeKeyArea() const
+{
+    // Depending on which keyboard type is currently shown
+    // we must pick the correct MImAbstractKeyArea(s).
+    QGraphicsLayoutItem *item = mainLayout->itemAt(KeyboardIndex);
+    return static_cast<MImAbstractKeyArea *>(item == mainKeyboardSwitcher
+                                             ? mainKeyboardSwitcher->currentWidget() : item);
 }

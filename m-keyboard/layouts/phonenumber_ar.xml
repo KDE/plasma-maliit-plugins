@@ -8,28 +8,28 @@
           <binding label="&#x0661;"/>
         </key>
         <key>
-          <binding label="&#x0662;" secondary_label="&#x0628;&#x062A;&#x0629;&#x062B;"/>
+          <binding label="&#x0662;" secondary_label="abc"/>
         </key>
         <key>
-          <binding label="&#x0663;" secondary_label="&#x0627;&#x0621;"/>
+          <binding label="&#x0663;" secondary_label="def"/>
         </key>
         <key>
-          <binding label="&#x0664;" secondary_label="&#x0633;&#x0634;&#x0635;&#x0636;"/>
+          <binding label="&#x0664;" secondary_label="ghi"/>
         </key>
         <key>
-          <binding label="&#x0665;" secondary_label="&#x062F;&#x0630;&#x0631;&#x0632;"/>
+          <binding label="&#x0665;" secondary_label="jkl"/>
         </key>
         <key>
-          <binding label="&#x0666;" secondary_label="&#x062C;&#x062D;&#x062E;"/>
+          <binding label="&#x0666;" secondary_label="mno"/>
         </key>
         <key>
-          <binding label="&#x0667;" secondary_label="&#x0646;&#x0647;&#x0648;&#x064A;"/>
+          <binding label="&#x0667;" secondary_label="pqrs"/>
         </key>
         <key>
-          <binding label="&#x0668;" secondary_label="&#x0641;&#x0642;&#x0643;&#x0644;&#x0645;"/>
+          <binding label="&#x0668;" secondary_label="tuv"/>
         </key>
         <key>
-          <binding label="&#x0669;" secondary_label="&#x0637;&#x0638;&#x0639;&#x063A;"/>
+          <binding label="&#x0669;" secondary_label="wxyz"/>
         </key>
         <key>
           <binding label="&#x0660;"/>
@@ -62,34 +62,34 @@
           <binding label="&#x0661;"/>
         </key>
         <key>
-          <binding label="&#x0662;" secondary_label="&#x0628;&#x062A;&#x0629;&#x062B;"/>
+          <binding label="&#x0662;" secondary_label="abc"/>
         </key>
         <key>
-          <binding label="&#x0663;" secondary_label="&#x0627;&#x0621;"/>
-        </key>
-      </row>
-
-      <row> 
-        <key>
-          <binding label="&#x0664;" secondary_label="&#x0633;&#x0634;&#x0635;&#x0636;"/>
-        </key>
-        <key>
-          <binding label="&#x0665;" secondary_label="&#x062F;&#x0630;&#x0631;&#x0632;"/>
-        </key>
-        <key>
-          <binding label="&#x0666;" secondary_label="&#x062C;&#x062D;&#x062E;"/>
+          <binding label="&#x0663;" secondary_label="def"/>
         </key>
       </row>
 
       <row> 
         <key>
-          <binding label="&#x0667;" secondary_label="&#x0646;&#x0647;&#x0648;&#x064A;"/>
+          <binding label="&#x0664;" secondary_label="ghi"/>
         </key>
         <key>
-          <binding label="&#x0668;" secondary_label="&#x0641;&#x0642;&#x0643;&#x0644;&#x0645;"/>
+          <binding label="&#x0665;" secondary_label="jkl"/>
         </key>
         <key>
-          <binding label="&#x0669;" secondary_label="&#x0637;&#x0638;&#x0639;&#x063A;"/>
+          <binding label="&#x0666;" secondary_label="mno"/>
+        </key>
+      </row>
+
+      <row> 
+        <key>
+          <binding label="&#x0667;" secondary_label="pqrs"/>
+        </key>
+        <key>
+          <binding label="&#x0668;" secondary_label="tuv"/>
+        </key>
+        <key>
+          <binding label="&#x0669;" secondary_label="wxyz"/>
         </key>
       </row>
 

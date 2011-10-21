@@ -5,3 +5,4 @@ layouts_data.files = $$LAYOUTS_DATA
 INSTALLS += \
     layouts_data \
 
+OTHER_FILES += $$LAYOUTS_DATA

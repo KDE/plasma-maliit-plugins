@@ -2,7 +2,7 @@
 <!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
 <keyboard version="1.0" catalog="symbols">
   <layout type="general">
-    <section id="symbols0" type="non-sloppy">
+    <section id="symbols0" type="non-sloppy" style="bigfont">
       <row>
         <key>
           <binding label="&#x0661;"/>
@@ -112,28 +112,28 @@
       </row>
 
       <row>
-        <key style="special" width="large">
+        <key style="special" width="x-large">
           <binding action="sym" label="&#x0627;&#x200C;&#x0628;&#x200C;&#x062A;"/>
         </key>
         
         <key><binding label="&#x061B;"/></key>
         <key><binding label="&#x060C;"/></key>
         
-        <key width="xx-large">
+        <key width="stretched">
           <binding action="space"/>
         </key>
         
         <key><binding label="."/></key>
         <key><binding label=":"/></key>
         
-        <key style="special" width="x-large" id="actionKey">
+        <key style="special" width="xx-large" id="actionKey">
           <binding action="return"/>
         </key>
 
       </row>
     </section>
 
-    <section id="symbols1" type="non-sloppy">
+    <section id="symbols1" type="non-sloppy" style="bigfont">
       <row>
         <key>
           <binding label="1"/>
@@ -243,21 +243,21 @@
       </row>
 
       <row>
-        <key style="special" width="large">
+        <key style="special" width="x-large">
           <binding action="sym" label="&#x0627;&#x200C;&#x0628;&#x200C;&#x062A;"/>
         </key>
         
         <key><binding label=";"/></key>
         <key><binding label=","/></key>
         
-        <key width="xx-large">
+        <key width="stretched">
           <binding action="space"/>
         </key>
 		
         <key><binding label="."/></key>
         <key><binding label=":"/></key>
         
-        <key style="special" width="x-large" id="actionKey">
+        <key style="special" width="xx-large" id="actionKey">
           <binding action="return"/>
         </key>
       </row>

@@ -86,6 +86,7 @@ public:
     virtual void setOrientationAngleLocked(bool lock);
     virtual QString selection(bool &valid);
     virtual QList<MImPluginDescription> pluginDescriptions(MInputMethod::HandlerState state) const;
+    virtual void setLanguage(const QString &language);
 
     QString preedit;
     QString commit;

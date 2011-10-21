@@ -49,6 +49,7 @@
 #include "abstractenginewidgethost.h"
 #include "layoutpanner.h"
 #include "mimsubviewdescription.h"
+#include "touchforwardfilter.h"
 
 #include <mimenginefactory.h>
 #include <mabstractinputmethodhost.h>
@@ -81,13 +82,12 @@ namespace
 {
     const QString InputMethodList("MInputMethodList");
     // TODO: check that these paths still hold
-    // 0xFFFC = object replacement character. Assume as terminating a sentence.
-    const QRegExp AutoCapsTrigger(QString("[.?!¡¿%1] +$").arg(QChar(0xfffc)));
     const QString AutoPunctuationTriggers(".,?!");
-    const int AutoBackspaceDelay = 500;      // in ms
+    const int AutoRepeatDelay = 500;         // in ms
     const int LongPressTime = 600;           // in ms
-    const int BackspaceRepeatInterval = 100; // in ms
+    const int AutoRepeatInterval = 100;      // in ms
     const int MultitapTime = 1500;           // in ms
+    const int PrepareIncomingWidgetDelay = 250; // in ms
     const Qt::KeyboardModifier FnLevelModifier = Qt::GroupSwitchModifier;
     // This GConf item defines whether multitouch is enabled or disabled
     const char * const MultitouchSettings = "/meegotouch/inputmethods/multitouch/enabled";
@@ -97,6 +97,7 @@ namespace
     const char PlusSign('+');
     const char MinusSign('-');
     bool gOwnsComponentData = false;
+    const char * const UnknownTitle = "";
 
     QSize defaultScreenSize(QWidget *w)
     {
@@ -105,6 +106,25 @@ namespace
         }
 
         return QApplication::desktop()->screenGeometry(w).size();
+    }
+
+    bool triggersAutoCaps(const QString &text)
+    {
+        if (not EngineManager::instance().handler()) {
+            return false;
+        }
+
+        bool triggered = false;
+        QList<QRegExp> triggers = EngineManager::instance().handler()->autoCapsTriggers();
+
+        for (int i = 0; i < triggers.size(); ++i) {
+            if (text.contains(triggers[i])) {
+                triggered = true;
+                break;
+            }
+        }
+
+        return triggered;
     }
 }
 
@@ -201,6 +221,11 @@ void MKeyboardHost::CycleKeyHandler::reset()
     timer.stop();
 }
 
+bool MKeyboardHost::CycleKeyHandler::isActive()
+{
+    return timer.isActive();
+}
+
 void MKeyboardHost::CycleKeyHandler::commitCycleKey()
 {
     if (cycleText.length() > 0) {
@@ -225,7 +250,8 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
       hasSelection(false),
       preeditHasBeenEdited(false),
       inputMethodMode(M::InputMethodModeNormal),
-      backspaceTimer(),
+      keyRepeatMode(RepeatInactive),
+      repeatTimer(),
       shiftHeldDown(false),
       activeState(MInputMethod::OnScreen),
       modifierLockOnBanner(0),
@@ -245,7 +271,11 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
       regionUpdatesEnabledBeforeOrientationChange(true),
       appOrientationAngle(M::Angle90), // shouldn't matter, see handleAppOrientationChanged comment
       engineWidgetHostTemporarilyHidden(false),
-      enabledOnScreenPluginsCount(0)
+      enabledOnScreenPluginsCount(0),
+      pressedArrowKey(Qt::Key_unknown),
+      firstArrowSent(false),
+      pluginSwitched(false),
+      preparePanningTimer()
 {
     Q_ASSERT(host != 0);
     Q_ASSERT(mainWindow != 0);
@@ -331,6 +361,11 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
             SLOT(handleLayoutPanFinished(PanGesture::PanDirection)),
             Qt::DirectConnection);
 
+    preparePanningTimer.setSingleShot(true);
+    preparePanningTimer.setInterval(PrepareIncomingWidgetDelay);
+    connect(&preparePanningTimer, SIGNAL(timeout()),
+            this,                 SLOT(preparePanningIncomingWidget()));
+
     vkbWidget = new MVirtualKeyboard(LayoutsManager::instance(), vkbStyleContainer, sceneWindow);
     vkbWidget->setInputMethodMode(static_cast<M::InputMethodMode>(inputMethodMode));
 
@@ -356,7 +391,7 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
             this, SLOT(switchPlugin(MInputMethod::SwitchDirection)));
 
     connect(vkbWidget, SIGNAL(verticalAnimationFinished()),
-            this, SLOT(preparePanningIncomingWidget()));
+            this, SLOT(asyncPreparePanningIncomingWidget()));
 
     // construct hardware keyboard object
     hardwareKeyboard = new MHardwareKeyboard(*host, this);
@@ -401,6 +436,8 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
 
     symbolView = new SymbolView(LayoutsManager::instance(), vkbStyleContainer,
                                 vkbWidget->selectedLayout(), sceneWindow);
+    sharedHandleArea->watchOnWidget(symbolView);
+
     connect(symbolView, SIGNAL(geometryChanged()),
             this, SLOT(handleSymbolViewGeometryChange()));
     connect(symbolView, SIGNAL(visibleChanged()), this, SLOT(handleSymbolViewVisibleChanged()));
@@ -418,16 +455,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
 
     connect(symbolView, SIGNAL(userInitiatedHide()),
             this, SLOT(userHide()));
-    connect(symbolView, SIGNAL(flickLeft()),
-            symbolView, SLOT(hideSymbolView()));
-    connect(symbolView, SIGNAL(flickLeft()),
-            vkbWidget, SLOT(flickLeftHandler()), Qt::QueuedConnection); // Needs to be a QueuedConnection because it will destroy the key area in the symbol view on layout change
-    connect(symbolView, SIGNAL(flickRight()),
-            symbolView, SLOT(hideSymbolView()));
-    connect(symbolView, SIGNAL(flickRight()),
-            vkbWidget, SLOT(flickRightHandler()), Qt::QueuedConnection); // Needs to be a QueuedConnection because it will destroy the key area in the symbol view on layout change
-
-    sharedHandleArea->watchOnWidget(symbolView);
 
     connect(MPlainWindow::instance()->sceneManager(), SIGNAL(orientationChangeFinished(M::Orientation)),
             this, SLOT(finalizeOrientationChange()));
@@ -451,8 +478,8 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
     if (vkbWidget->isVisible())
         updateEngineKeyboardLayout();
 
-    backspaceTimer.setSingleShot(true);
-    connect(&backspaceTimer, SIGNAL(timeout()), this, SLOT(autoBackspace()));
+    repeatTimer.setSingleShot(true);
+    connect(&repeatTimer, SIGNAL(timeout()), this, SLOT(autoRepeat()));
 
     // Set up animations
     slideUpAnimation.setTargetObject(vkbWidget);
@@ -486,7 +513,8 @@ MKeyboardHost::~MKeyboardHost()
     delete touchPointLogHandle;
     touchPointLogHandle = 0;
     backspaceMode = NormalBackspaceMode;
-    backspaceTimer.stop();
+    keyRepeatMode = RepeatInactive;
+    repeatTimer.stop();
     LayoutsManager::destroyInstance();
     ReactionMapPainter::destroyInstance();
     RegionTracker::destroyInstance();
@@ -611,12 +639,25 @@ void MKeyboardHost::show()
     // instances, and some other input method plugin might change engine state.
     EngineManager::instance().ensureLanguageInUse(vkbWidget->layoutLanguage());
 
+    // Set new language to input context.
+    if (activeState == MInputMethod::OnScreen) {
+        inputMethodHost()->setLanguage(vkbWidget->layoutLanguage());
+    }
+
     // Update input engine keyboard layout.
     if (vkbWidget->isVisible())
         updateEngineKeyboardLayout();
     if (EngineManager::instance().handler()
         && EngineManager::instance().handler()->hasErrorCorrection())
         updateCorrectionState();
+
+    // Call update() if plugin has been switched since last time keyboard was
+    // shown. This is to make sure that keyboard is in correct state if switching
+    // from another plugin.
+    if (pluginSwitched) {
+        pluginSwitched = false;
+        update();
+    }
 
     // If view's scene rect is larger than scene window, and fully contains it,
     // then dock scene window (and therefore, VKB) to the bottom center of scene:
@@ -639,7 +680,15 @@ void MKeyboardHost::show()
     if (EngineManager::instance().handler()) {
         AbstractEngineWidgetHost *engineWidgetHost = EngineManager::instance().handler()->engineWidgetHost();
         if (engineWidgetHost && engineWidgetHost->displayMode() == AbstractEngineWidgetHost::DockedMode) {
-            engineWidgetHost->showEngineWidget(AbstractEngineWidgetHost::DockedMode);
+            bool valid = false;
+            const int type = inputMethodHost()->contentType(valid);
+            if (!valid
+                || (type == M::NumberContentType)
+                || (type == M::PhoneNumberContentType)) {
+                engineWidgetHost->hideEngineWidget();
+            } else {
+                engineWidgetHost->showEngineWidget(AbstractEngineWidgetHost::DockedMode);
+            }
         }
     }
 }
@@ -672,7 +721,9 @@ void MKeyboardHost::hide()
 
     if (EngineManager::instance().handler()) {
         AbstractEngineWidgetHost *engineWidgetHost = EngineManager::instance().handler()->engineWidgetHost();
-        if (engineWidgetHost && engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode) {
+        if (engineWidgetHost
+            && (engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode
+                || engineWidgetHost->displayMode() == AbstractEngineWidgetHost::DialogMode)) {
             engineWidgetHost->hideEngineWidget();
         }
     }
@@ -726,7 +777,7 @@ void MKeyboardHost::handleAnimationFinished()
         // plugin switching might result to odd situations as well.
         MPlainWindow::instance()->sceneManager()->disappearSceneWindowNow(sceneWindow);
     } else { // QAbstractAnimation::Forward
-        preparePanningIncomingWidget();
+        asyncPreparePanningIncomingWidget();
     }
 
     RegionTracker::instance().enableSignals(true);
@@ -816,8 +867,6 @@ void MKeyboardHost::localSetPreedit(const QString &preeditString, int replaceSta
     AbstractEngineWidgetHost *engineWidgetHost = EngineManager::instance().handler() ?
         EngineManager::instance().handler()->engineWidgetHost() : 0;
     if (EngineManager::instance().engine()) {
-        EngineManager::instance().engine()->clearEngineBuffer();
-        EngineManager::instance().engine()->reselectString(preeditString);
         candidates = EngineManager::instance().engine()->candidates();
         preeditInDict = (EngineManager::instance().engine()->candidateSource(0) != MImEngine::DictionaryTypeInvalid);
         if (engineWidgetHost) {
@@ -858,6 +907,19 @@ void MKeyboardHost::update()
         LayoutPanner::instance().setPanEnabled(false);
     } else {
         LayoutPanner::instance().setPanEnabled(true);
+    }
+
+    if (EngineManager::instance().handler()) {
+        AbstractEngineWidgetHost *engineWidgetHost = EngineManager::instance().handler()->engineWidgetHost();
+        if (engineWidgetHost && engineWidgetHost->displayMode() == AbstractEngineWidgetHost::DockedMode) {
+            if (!valid
+                || (type == M::NumberContentType)
+                || (type == M::PhoneNumberContentType)) {
+                engineWidgetHost->hideEngineWidget();
+            } else {
+                engineWidgetHost->showEngineWidget(AbstractEngineWidgetHost::DockedMode);
+            }
+        }
     }
 
     if (EngineManager::instance().handler()) {
@@ -941,7 +1003,7 @@ void MKeyboardHost::updateAutoCapitalization()
                          && ((inputPosition == 0)
                              || ((inputPosition > 0)
                                  && (inputPosition <= surroundingText.length())
-                                 && surroundingText.left(inputPosition).contains(AutoCapsTrigger))));
+                                 && triggersAutoCaps(surroundingText.left(inputPosition)))));
 
     if ((activeState == MInputMethod::OnScreen)
         && (vkbWidget->shiftStatus() != ModifierLockedState)) {
@@ -954,7 +1016,7 @@ void MKeyboardHost::updateAutoCapitalization()
         else {
             // FIXME: This will break the behaviour of keeping shift latched when shift+character occured.
             // We would really need a state machine for the shift state handling.
-            vkbWidget->setShiftState(autoCapsTriggered ?
+            vkbWidget->setShiftState((autoCapsTriggered || shiftHeldDown) ?
                                          ModifierLatchedState : ModifierClearState);
         }
     } else if ((activeState == MInputMethod::Hardware) &&
@@ -1004,13 +1066,16 @@ void MKeyboardHost::resetInternalState()
 {
     spaceInsertedAfterCommitString = false;
     backspaceMode = NormalBackspaceMode;
-    backspaceTimer.stop();
+    keyRepeatMode = RepeatInactive;
+    repeatTimer.stop();
     preedit.clear();
     preeditCursorPos = -1;
     preeditHasBeenEdited = false;
     if (EngineManager::instance().handler()) {
         AbstractEngineWidgetHost *engineWidgetHost = EngineManager::instance().handler()->engineWidgetHost();
-        if (engineWidgetHost && engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode) {
+        if (engineWidgetHost
+            && (engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode
+                || engineWidgetHost->displayMode() == AbstractEngineWidgetHost::DialogMode)) {
             engineWidgetHost->reset();
             engineWidgetHost->hideEngineWidget();
         }
@@ -1065,7 +1130,7 @@ void MKeyboardHost::finalizeOrientationChange()
     }
 
     LayoutPanner::instance().finalizeOrientationChange();
-    preparePanningIncomingWidget();
+    asyncPreparePanningIncomingWidget();
 
     // Reactivate tracker after rotation and layout has settled.
     RegionTracker::instance().enableSignals(regionUpdatesEnabledBeforeOrientationChange, sipRequested);
@@ -1155,14 +1220,10 @@ void MKeyboardHost::commitString(const QString &updatedString)
     AbstractEngineWidgetHost *engineWidgetHost = EngineManager::instance().handler() ?
         EngineManager::instance().handler()->engineWidgetHost() : 0;
 
+    // Word selected from candidates list -> commit suggested word to the engine (add new words)
     if (EngineManager::instance().engine() && engineWidgetHost) {
-        if (engineWidgetHost->candidates().count() > 1) {
-            const int suggestionIndex = engineWidgetHost->suggestedWordIndex();
-            if (suggestionIndex >= 0) {
-                EngineManager::instance().engine()->setSuggestedCandidateIndex(suggestionIndex);
-            }
-        }
-        EngineManager::instance().engine()->saveAndClearEngineBuffer();
+        const int suggestionIndex = engineWidgetHost->suggestedWordIndex();
+        EngineManager::instance().engine()->commitWord(suggestionIndex, false);
     }
 
     // Add space after preedit if word tracker was clicked OR
@@ -1192,6 +1253,9 @@ void MKeyboardHost::doBackspace()
         if (backspaceMode != AutoBackspaceMode) {
             if ((preeditCursorPos < 0) || (preeditCursorPos == preedit.length())) {
                 const int cursor = (preeditCursorPos > 0) ? (preeditCursorPos - 1) : preeditCursorPos;
+                if (EngineManager::instance().engine()) {
+                    EngineManager::instance().engine()->removeCharacters(1, -1);
+                }
                 localSetPreedit(preedit.left(preedit.length() - 1), 0, 0, cursor, true);
             } else {
                 if (preeditCursorPos == 0) {
@@ -1203,6 +1267,9 @@ void MKeyboardHost::doBackspace()
                     if (needRecomposePreedit(previousWord)) {
                         preedit = previousWord + preedit;
                         preeditCursorPos = previousWord.length();
+                        if (EngineManager::instance().engine()) {
+                            EngineManager::instance().engine()->insertCharacters(previousWord, 0);
+                        }
                         localSetPreedit(preedit, -previousWord.length() - 1,
                                         previousWord.length() + 1, preeditCursorPos, true);
                     } else {
@@ -1212,6 +1279,9 @@ void MKeyboardHost::doBackspace()
                     }
                 } else {
                     --preeditCursorPos;
+                    if (EngineManager::instance().engine()) {
+                        EngineManager::instance().engine()->removeCharacters(1, preeditCursorPos);
+                    }
                     localSetPreedit(preedit.remove(preeditCursorPos, 1), 0, 0, preeditCursorPos, true);
                 }
             }
@@ -1237,6 +1307,16 @@ void MKeyboardHost::doBackspace()
             const bool preeditWordEdited = removedSymbol.isLetter();
             preedit = previousWord;
             preeditCursorPos = previousWord.length();
+
+            if (EngineManager::instance().engine()) {
+                EngineManager::instance().engine()->clearEngineBuffer();
+                if (preeditWordEdited) {
+                    EngineManager::instance().engine()->appendString(preedit);
+                } else {
+                    EngineManager::instance().engine()->reselectString(preedit);
+                }
+            }
+
             localSetPreedit(preedit, -previousWord.length() - 1, previousWord.length() + 1,
                             preeditCursorPos, preeditWordEdited);
         } else {
@@ -1257,16 +1337,68 @@ void MKeyboardHost::doBackspace()
             || !autoCapsEnabled
             || (cursorPos > 0
                 && cursorPos <= surroundingText.length()
-                && !surroundingText.left(cursorPos-1).contains(AutoCapsTrigger)))) {
+                && !triggersAutoCaps(surroundingText.left(cursorPos-1))))) {
         vkbWidget->setShiftState(ModifierClearState);
+    }
+}
+
+void MKeyboardHost::doArrow()
+{
+    // Arrows are currently used only for navigation, so hide word tracker,
+    // stop pre-editing and only retain cursor position when navigating
+    // with arrows.
+    AbstractEngineWidgetHost *engineWidgetHost =
+        EngineManager::instance().handler() ?
+        EngineManager::instance().handler()->engineWidgetHost() : 0;
+    if (engineWidgetHost
+        && engineWidgetHost->isActive()
+        && engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode) {
+        engineWidgetHost->hideEngineWidget();
+    }
+
+    if (!preedit.isEmpty()) {
+        inputMethodHost()->sendCommitString(preedit, 0, 0, preeditCursorPos);
+        if (EngineManager::instance().engine())
+            EngineManager::instance().engine()->clearEngineBuffer();
+        preedit.clear();
+        preeditCursorPos = -1;
+    }
+
+    const KeyEvent pressEvent("\b", QEvent::KeyPress, pressedArrowKey,
+                              KeyEvent::NotSpecial, shiftHeldDown ? Qt::ShiftModifier : Qt::NoModifier);
+
+    const KeyEvent releaseEvent("\b", QEvent::KeyRelease, pressedArrowKey,
+                                KeyEvent::NotSpecial, shiftHeldDown ? Qt::ShiftModifier : Qt::NoModifier);
+
+    inputMethodHost()->sendKeyEvent(pressEvent.toQKeyEvent(),
+                                    MInputMethod::EventRequestEventOnly);
+    inputMethodHost()->sendKeyEvent(releaseEvent.toQKeyEvent(),
+                                    MInputMethod::EventRequestEventOnly);
+}
+
+void MKeyboardHost::autoRepeat()
+{
+    if (keyRepeatMode == RepeatBackspace) {
+        autoBackspace();
+    } else if (keyRepeatMode == RepeatArrow) {
+        autoArrow();
     }
 }
 
 void MKeyboardHost::autoBackspace()
 {
     backspaceMode = AutoBackspaceMode;
-    backspaceTimer.start(BackspaceRepeatInterval); // Must restart before doBackspace
+    keyRepeatMode = RepeatBackspace;
+    repeatTimer.start(AutoRepeatInterval); // Must restart before doBackspace
     doBackspace();
+}
+
+void MKeyboardHost::autoArrow()
+{
+    keyRepeatMode = RepeatArrow;
+    repeatTimer.start(AutoRepeatInterval);
+    firstArrowSent = true;
+    doArrow();
 }
 
 void MKeyboardHost::handleKeyPress(const KeyEvent &event)
@@ -1287,7 +1419,6 @@ void MKeyboardHost::handleKeyPress(const KeyEvent &event)
     } else if (event.specialKey() == KeyEvent::Sym) {
 
         if (activeState == MInputMethod::OnScreen
-            && event.isFromPrimaryTouchPoint()
             && vkbWidget == static_cast<MVirtualKeyboard *>(sender())) {
             showSymbolView(SymbolView::FollowMouseShowMode,
                            event.scenePosition());
@@ -1322,6 +1453,11 @@ void MKeyboardHost::handleKeyPress(const KeyEvent &event)
         } else {
             startBackspace(NormalBackspaceMode);
         }
+    } else if (isKeyEventArrow(event)) {
+        firstArrowSent = false;
+        pressedArrowKey = event.qtKey();
+        keyRepeatMode = RepeatArrow;
+        repeatTimer.start(AutoRepeatDelay);
     }
 }
 
@@ -1347,8 +1483,9 @@ void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
         inputMethodHost()->sendKeyEvent(event.toQKeyEvent(), MInputMethod::EventRequestBoth);
 
     } else if (event.qtKey() == Qt::Key_Backspace) {
-        if (backspaceTimer.isActive()) {
-            backspaceTimer.stop();
+        if (keyRepeatMode == RepeatBackspace) {
+            keyRepeatMode = RepeatInactive;
+            repeatTimer.stop();
             // If the backspace Mode is WordTrackerBackspaceMode or
             // AutoBackspaceMode, don't need to do backspace.
             if (backspaceMode != WordTrackerBackspaceMode
@@ -1357,13 +1494,21 @@ void MKeyboardHost::handleKeyRelease(const KeyEvent &event)
             }
             backspaceMode = NormalBackspaceMode;
         }
+    } else if (isKeyEventArrow(event)) {
+        if (keyRepeatMode == RepeatArrow && pressedArrowKey == event.qtKey()) {
+            keyRepeatMode = RepeatInactive;
+            repeatTimer.stop();
+            if (!firstArrowSent) {
+                doArrow();
+            }
+        }
     }
 }
 
 void MKeyboardHost::handleKeyClick(const KeyEvent &event)
 {
     if (EngineManager::instance().handler()
-        && EngineManager::instance().handler()->handleKeyClick(event)) {
+        && EngineManager::instance().handler()->handleKeyClick(event, cycleKeyHandler->isActive())) {
         // After the key event is consumed by the proper engine handler, the "shift" state
         // should be updated accordingly right here because the engine handler can not
         // do it.
@@ -1432,11 +1577,12 @@ void MKeyboardHost::handleGeneralKeyClick(const KeyEvent &event)
         if (!autoCapsEnabled
             || (!hasSelection
                 && cursorPos <= surroundingText.length()
-                && !surroundingText.left(cursorPos).contains(AutoCapsTrigger))) {
+                && !triggersAutoCaps(surroundingText.left(cursorPos)))) {
             vkbWidget->setShiftState(ModifierClearState);
         }
     } else if (vkbWidget->shiftStatus() == ModifierLatchedState
                && (event.qtKey() != Qt::Key_Backspace)
+               && !isKeyEventArrow(event)
                && (event.specialKey() != KeyEvent::Sym)
                && (event.specialKey() != KeyEvent::Switch)
                && (event.specialKey() != KeyEvent::LayoutMenu)
@@ -1444,6 +1590,7 @@ void MKeyboardHost::handleGeneralKeyClick(const KeyEvent &event)
         // Any key except shift toggles shift off if it's on (not locked).
         // Exceptions are:
         // - backspace, toggles shift off is handled in doBackspace()
+        // - arrows, in case of arrow keys, update() will set correct shift state
         // - sym, pressing sym key keeps current shift state
         // - switch, pressing switch key keeps current shift state
         // - menu, pressing menu key keeps current shift state
@@ -1499,8 +1646,16 @@ void MKeyboardHost::handleKeyCancel(const KeyEvent &event)
         return;
 
     if (event.qtKey() == Qt::Key_Backspace) {
-        backspaceMode = NormalBackspaceMode;
-        backspaceTimer.stop();
+        if (keyRepeatMode == RepeatBackspace) {
+            backspaceMode = NormalBackspaceMode;
+            keyRepeatMode = RepeatInactive;
+            repeatTimer.stop();
+        }
+    } else if (isKeyEventArrow(event)) {
+        if (keyRepeatMode == RepeatArrow) {
+            keyRepeatMode = RepeatInactive;
+            repeatTimer.stop();
+        }
     } else if (event.qtKey() == Qt::Key_Shift) {
         shiftHeldDown = false;
     }
@@ -1537,10 +1692,11 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
         || (!(event.specialKey() == KeyEvent::NotSpecial
               || event.specialKey() == KeyEvent::CycleSet))
 
-        // Finally, discard Qt backspace, which is handled in
+        // Finally, discard Qt backspace and arrowkeys, which are handled in
         // handleKeyPress/Release.
         || (event.qtKey() == Qt::Key_Backspace)
-        || (event.qtKey() == Qt::Key_Shift)) {
+        || (event.qtKey() == Qt::Key_Shift)
+        || isKeyEventArrow(event)) {
 
         return;
     }
@@ -1566,7 +1722,16 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
 
         sendCommitStringOrReturnEvent(event);
 
-    } else if ((event.qtKey() == Qt::Key_Space) || (event.qtKey() == Qt::Key_Return) || (event.qtKey() == Qt::Key_Tab)) {
+    } else if ((event.qtKey() == Qt::Key_Space) || (event.qtKey() == Qt::Key_Return) || (event.qtKey() == Qt::Key_Tab)
+               || isDelimiter(text)) {
+        if (spaceInsertedAfterCommitStringPrev && (text.length() == 1)
+            && AutoPunctuationTriggers.contains(text[0])) {
+            sendBackSpaceKeyEvent();
+            resetInternalState();
+            inputMethodHost()->sendCommitString(text + " ");
+            return;
+        }
+
         // commit suggestion if correction candidate widget is visible and with popupMode
         // or ignore it if correction widget is visible and with suggestionlist mode
         // otherwise commit preedit
@@ -1579,7 +1744,14 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
             && EngineManager::instance().handler()->correctionAcceptedWithSpaceEnabled()) {
             if (engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode) {
                 spaceInsertedAfterCommitString = true;
-                const QString suggestion = engineWidgetHost->candidates().at(engineWidgetHost->suggestedWordIndex());
+                const int suggestionIndex = engineWidgetHost->suggestedWordIndex();
+                const QString suggestion = engineWidgetHost->candidates().at(suggestionIndex);
+
+                // Commit suggested word to the engine (ignore new words)
+                if (EngineManager::instance().engine()) {
+                    EngineManager::instance().engine()->commitWord(suggestionIndex);
+                }
+
                 inputMethodHost()->sendCommitString(suggestion + " ");
                 eventSent = true;
             } else {
@@ -1595,6 +1767,27 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
                                                   && preeditCursorPos != preedit.length()
                                                   && inputMethodHost()->surroundingText(surroundingText, cursorPos)
                                                   && (cursorPos >= 0);
+
+                // Commit finished word to engine
+                if (EngineManager::instance().engine()) {
+
+                    // Check if preedit was split
+                    if (!needRepositionCursor) {
+                        // Not split -> commit finished word (ignore new words)
+                        EngineManager::instance().engine()->commitWord();
+                    } else if (preeditCursorPos > 0) {
+                        // Split -> remove the split tail from the engine buffer
+                        EngineManager::instance().engine()->removeCharacters(preedit.length()-preeditCursorPos);
+                        // Refresh candidates
+                        const QStringList candidates = EngineManager::instance().engine()->candidates();
+                        if (candidates.size() > 0) {
+                            // Commit split word (ignore new words)
+                            EngineManager::instance().engine()->commitWord();
+                        }
+                    }
+                }
+
+                // Insert text to preedit
                 int eventCharactersInserted(0);
                 eventSent = event.qtKey() != Qt::Key_Return;
                 if (eventSent) {
@@ -1622,11 +1815,6 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
             EngineManager::instance().engine()->clearEngineBuffer();
         preedit.clear();
         preeditCursorPos = -1;
-    } else if (spaceInsertedAfterCommitStringPrev && (text.length() == 1)
-               && AutoPunctuationTriggers.contains(text[0])) {
-        sendBackSpaceKeyEvent();
-        resetInternalState();
-        inputMethodHost()->sendCommitString(text + " ");
     } else {
         // append text to the end of preedit if cursor is at the end of
         // preedit (or cursor is -1, invisible). Or if cursor is inside
@@ -1654,11 +1842,10 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
             }
         } else {
             preedit.insert(preeditCursorPos, text);
-            preeditCursorPos += text.length();
             if (EngineManager::instance().engine()) {
-                EngineManager::instance().engine()->clearEngineBuffer();
-                EngineManager::instance().engine()->reselectString(preedit);
+                EngineManager::instance().engine()->insertCharacters(text, preeditCursorPos);
             }
+            preeditCursorPos += text.length();
         }
 
         QStringList candidates;
@@ -1759,6 +1946,8 @@ void MKeyboardHost::onPluginsChange()
         }
     }
     vkbWidget->enableSinglePageHorizontalFlick(enabledOnScreenPluginsCount > 1);
+
+    pluginSwitched = true;
 }
 
 void MKeyboardHost::repaintOnAttributeEnabledChange(const QString &keyId,
@@ -1802,6 +1991,8 @@ void MKeyboardHost::sendCopyPaste(CopyPasteState action)
 
 void MKeyboardHost::switchPlugin(MInputMethod::SwitchDirection direction)
 {
+    pluginSwitched = true;
+
     if (EngineManager::instance().handler()) {
         EngineManager::instance().handler()->editingInterrupted();
         EngineManager::instance().handler()->preparePluginSwitching();
@@ -2007,20 +2198,45 @@ void MKeyboardHost::updateSymbolViewLevel()
 void MKeyboardHost::showSymbolView(SymbolView::ShowMode showMode,
                                    const QPointF &initialScenePress)
 {
-    // We always send a cancel event when showing symbol view, even when showSymbolView is
-    // not called from handleKeyPress which is the case where cancel event is the obvious
-    // thing to do.  This is because user may hold shift down and click symbol key, which
-    // in that case is handled by handleSymbolKeyClick, because sym is not the primary
-    // touchpoint.  Also in this case we want to reset the active key area so that when
-    // the symbol view is exited, keys won't be in level 1 even when shift key state is
-    // normal.
-    MCancelEvent cancel;
-    vkbWidget->scene()->sendEvent(vkbWidget, &cancel);
-
     symbolView->setPos(0, MPlainWindow::instance()->visibleSceneSize().height() - symbolView->size().height());
-    symbolView->showSymbolView(showMode, initialScenePress);
+    symbolView->showSymbolView(showMode);
     //give the symbolview right shift level(for hardware state)
     updateSymbolViewLevel();
+
+    // If show mode is FollowMouseShowMode, assume we got here during a press event.
+    // In FollowMouseShowMode we must also grab the mouse, or forward touch events.
+    if (showMode == SymbolView::FollowMouseShowMode) {
+
+        MCancelEvent cancel;
+        vkbWidget->scene()->sendEvent(vkbWidget, &cancel);
+
+        MImAbstractKeyArea *symArea = symbolView->activeKeyArea();
+        Q_ASSERT(symArea);
+
+        if (enableMultiTouch) {
+            MImAbstractKeyArea *vkbArea = vkbWidget->activeKeyArea();
+            Q_ASSERT(vkbArea);
+
+            // Send last vkbWidget event as initial touch event. Type cannot be TouchEnd since
+            // we got here via press.
+            Q_ASSERT(vkbArea->lastTouchEvent().type() != QEvent::TouchEnd);
+
+            (void)new TouchForwardFilter(symArea,
+                                         TouchForwardFilter::TouchInactive,
+                                         vkbArea,
+                                         &vkbArea->lastTouchEvent());
+        } else {
+            symArea->grabMouse();
+
+            // Send initial press
+            QGraphicsSceneMouseEvent press(QEvent::GraphicsSceneMousePress);
+            press.setPos(symArea->mapFromScene(initialScenePress));
+            press.setScenePos(initialScenePress);
+            press.setLastPos(press.pos());
+            press.setLastScenePos(press.scenePos());
+            symArea->scene()->sendEvent(symArea, &press);
+        }
+    }
 }
 
 MInputMethod::InputModeIndicator MKeyboardHost::deadKeyToIndicator(const QChar &key)
@@ -2196,6 +2412,9 @@ void MKeyboardHost::handleVirtualKeyboardLayoutChanged(const QString &layout)
     // update language properties
     EngineManager::instance().updateLanguage(vkbWidget->layoutLanguage());
 
+    // Set new language to input context.
+    inputMethodHost()->setLanguage(vkbWidget->layoutLanguage());
+
     resetInternalState();
 
     engineLayoutDirty = true;
@@ -2204,7 +2423,7 @@ void MKeyboardHost::handleVirtualKeyboardLayoutChanged(const QString &layout)
         // if vkb is playing vertical animation, will prepare panning
         // incoming widget later.
         if (!vkbWidget->isPlayingAnimation())
-            preparePanningIncomingWidget();
+            asyncPreparePanningIncomingWidget();
     }
 
     if (EngineManager::instance().handler()
@@ -2255,7 +2474,8 @@ void MKeyboardHost::updatePreedit(const QString &string, int candidateCount, boo
 void MKeyboardHost::startBackspace(MKeyboardHost::BackspaceMode mode)
 {
     backspaceMode = mode;
-    backspaceTimer.start(AutoBackspaceDelay);
+    keyRepeatMode = RepeatBackspace;
+    repeatTimer.start(AutoRepeatDelay);
 }
 
 void MKeyboardHost::updateCorrectionWidgetPosition()
@@ -2382,8 +2602,7 @@ void MKeyboardHost::togglePlusMinus()
 
 void MKeyboardHost::setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &newOverrides)
 {
-
-    disconnect(SLOT(repaintOnAttributeEnabledChange(QString, MKeyOverride::KeyOverrideAttributes)));
+    disconnect(this, SLOT(repaintOnAttributeEnabledChange(QString,MKeyOverride::KeyOverrideAttributes)));
 
     if (!haveFocus && newOverrides.size() == 0) {
         keyOverrideClearPending = true; // not changing overrides while hiding
@@ -2474,6 +2693,11 @@ void MKeyboardHost::updateCJKOverridesData()
     cjkOverrides.remove(QString("actionKey"));
 }
 
+void MKeyboardHost::asyncPreparePanningIncomingWidget()
+{
+    preparePanningTimer.start();
+}
+
 void MKeyboardHost::preparePanningIncomingWidget()
 {
     LayoutPanner::instance().clearIncomingWidgets(PanGesture::PanLeft);
@@ -2488,17 +2712,32 @@ void MKeyboardHost::preparePanningIncomingWidget()
 void MKeyboardHost::preparePanningIncomingEngineWidget(PanGesture::PanDirection direction)
 {
     QString nextLayoutLanguage = vkbWidget->nextPannableLayout(direction);
-    qDebug() << "next language for direction"
-             << direction << " :" << nextLayoutLanguage;
     if (EngineManager::instance().handler(nextLayoutLanguage)) {
+
+        AbstractEngineWidgetHost *currentEngineWidgetHost
+            = EngineManager::instance().handler()->engineWidgetHost();
+        const QGraphicsWidget *currentEngineWidget =
+            (currentEngineWidgetHost
+             && currentEngineWidgetHost->displayMode()
+                == AbstractEngineWidgetHost::DockedMode)
+            ? currentEngineWidgetHost->engineWidget()
+            : 0;
         AbstractEngineWidgetHost *engineWidgetHost
             = EngineManager::instance().handler(nextLayoutLanguage)->engineWidgetHost();
-        if (engineWidgetHost
-            && engineWidgetHost->displayMode()
-               == AbstractEngineWidgetHost::DockedMode) {
-            LayoutPanner::instance().addIncomingWidget(
-                direction,
-                engineWidgetHost->engineWidget());
+        QGraphicsWidget *engineWidget =
+            (engineWidgetHost
+             && engineWidgetHost->displayMode()
+                == AbstractEngineWidgetHost::DockedMode)
+            ? engineWidgetHost->engineWidget()
+            : 0;
+
+        // The engine widget(wordribbon) could be shared between different
+        // Chinese IM layouts. So if we display engine widget in the snapshot
+        // of the next incoming layout, the candidate words filled in wordribbon
+        // will also appear. This issue could be fixed by not adding the
+        // engineWidget (if same instance) to the incoming snapshot.
+        if (engineWidget && engineWidget != currentEngineWidget) {
+            LayoutPanner::instance().addIncomingWidget(direction, engineWidget);
         }
     }
 }
@@ -2525,6 +2764,12 @@ void MKeyboardHost::handlePreparingLayoutPan(PanGesture::PanDirection direction,
     RegionTracker::instance().enableSignals(false);
 
     if (vkbWidget->isVisible()) {
+        // if preparePanningTimer is running, stop it and
+        // prepare incoming snapshot immediately.
+        if (preparePanningTimer.isActive()) {
+            preparePanningTimer.stop();
+            preparePanningIncomingWidget();
+        }
         vkbWidget->prepareLayoutSwitch(direction);
 
         if (EngineManager::instance().handler()) {
@@ -2539,12 +2784,16 @@ void MKeyboardHost::handlePreparingLayoutPan(PanGesture::PanDirection direction,
 
         // set notification layout titles
         QList<MImSubViewDescription> desc = inputMethodHost()->surroundingSubViewDescriptions(MInputMethod::OnScreen);
-        qDebug() << __PRETTY_FUNCTION__ << desc.first().title() << vkbWidget->layoutTitle() << desc.last().title();
-        LayoutPanner::instance()
-            .setIncomingLayoutTitle(PanGesture::PanRight, desc.last().title());
+        if (!desc.isEmpty()) {
+            LayoutPanner::instance()
+                .setIncomingLayoutTitle(PanGesture::PanRight, desc.last().title());
+            LayoutPanner::instance()
+                .setIncomingLayoutTitle(PanGesture::PanLeft, desc.first().title());
+        } else {
+            LayoutPanner::instance().setIncomingLayoutTitle(PanGesture::PanRight, UnknownTitle);
+            LayoutPanner::instance().setIncomingLayoutTitle(PanGesture::PanLeft, UnknownTitle);
+        }
         LayoutPanner::instance().setOutgoingLayoutTitle(vkbWidget->layoutTitle());
-        LayoutPanner::instance()
-            .setIncomingLayoutTitle(PanGesture::PanLeft, desc.first().title());
     }
 
     if (sharedHandleArea->isVisible()) {
@@ -2628,4 +2877,24 @@ void MKeyboardHost::finalizeSwitchingPlugin(PanGesture::PanDirection direction)
     }
 }
 
+bool MKeyboardHost::isKeyEventArrow(const KeyEvent &event) const
+{
+    return event.qtKey() == Qt::Key_Left
+           || event.qtKey() == Qt::Key_Up
+           || event.qtKey() == Qt::Key_Right
+           || event.qtKey() == Qt::Key_Down;
+}
+
+bool MKeyboardHost::isDelimiter(const QString &text) const
+{
+    if (text.size() != 1) {
+        return false;
+    }
+
+    const QChar character(text.at(0));
+
+    // Hyphen (-) and apostrophe (') are not considered as a delimiter
+    return (character.isPunct() || character.isSpace() || character.isSymbol())
+            && character != '\'' && character != '-';
+}
 

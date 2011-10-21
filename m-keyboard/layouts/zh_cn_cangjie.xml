@@ -67,7 +67,7 @@
    </layout>
 
    <layout type="general" orientation="portrait" uniform-font-size="true">
-      <section id="main">
+      <section id="main" style="smallfont">
         <row>
           <key><binding label="&#x624B;"/></key>
           <key><binding label="&#x7530;"/></key>
@@ -124,7 +124,7 @@
           <key width="stretched"><binding action="space" label=""/></key>
           <key id="emailUrlDotKey"><binding label="&#x3002;"/></key>
 
-          <key style="special" width="x-large" id="actionKey">
+          <key style="special" width="xx-large" id="actionKey">
             <binding action="return"/>
           </key>
         </row>

@@ -67,8 +67,6 @@ private slots:
     void initTestCase();
     void cleanupTestCase();
 
-    void testLandscapeBoxSize();
-    void testPortraitBoxSize();
     void testPaint();
     void testDeadkeys_data();
     void testDeadkeys();

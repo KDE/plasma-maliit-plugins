@@ -40,7 +40,9 @@
 #include <QPropertyAnimation>
 
 class Notification;
-class PanParameters;
+class OutgoingNotificationPanParameters;
+class IncomingNotificationPanParameters;
+class AssistantNotificationPanParameters;
 
 /*!
  * \class NotificationArea
@@ -93,6 +95,20 @@ public:
     //! Sets current pan progress.
     void setProgress(qreal progress);
 
+    /*! 
+     * \brief Requires linear transition between \a startProgress and \a endProgress.
+     *
+     * When requring linear transition, the mutation will be disabled, and the
+     * scale and opacity will be changed in linear during \a startProgress and
+     * \a endProgress,
+     */
+    void requireLinearTransition(qreal startProgress, qreal endProgress);
+
+    /*!
+     * \brief Clears the linear transition requirements.
+     */
+    void clearLinearTransition();
+
 protected:
     //! \reimp
     virtual void applyStyle();
@@ -101,6 +117,7 @@ protected:
 private slots:
     void onNotificationAnimationFinished();
 
+    void initPanParameters();
     void reset();
 
 private:
@@ -112,11 +129,29 @@ private:
     Notification *outgoingNotification;
     Notification *incomingNotification;
     Notification *assistantNotification;
-    PanParameters *outgoingNotificationParameters;
-    PanParameters *incomingNotificationParameters;
-    PanParameters *assistantNotificationParameters;
+    OutgoingNotificationPanParameters *outgoingNotificationParameters;
+    IncomingNotificationPanParameters *incomingNotificationParameters;
+    AssistantNotificationPanParameters *assistantNotificationParameters;
     QParallelAnimationGroup hideAnimationGroup;
     QPropertyAnimation showAnimation;
+    PanGesture::PanDirection direction;
+    bool mMutationEnabled;
+
+    qreal outgoingNotificationFromScale;
+    qreal outgoingNotificationToScale;
+    QPointF outgoingNotificationFromPos;
+    QPointF outgoingNotificationToPos;
+    qreal incomingNotificationFromScale;
+    qreal incomingNotificationToScale;
+    QPointF incomingNotificationFromPos;
+    QPointF incomingNotificationToPos;
+    qreal assistantNotificationFromScale;
+    qreal assistantNotificationToScale;
+    QPointF assistantNotificationFromPos;
+    QPointF assistantNotificationToPos;
+    qreal linearTransitionStartProgress;
+    qreal linearTransitionEndProgress;
+
 #ifdef UNIT_TEST
     friend class Ut_NotificationArea;
 #endif

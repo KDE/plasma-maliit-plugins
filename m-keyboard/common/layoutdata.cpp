@@ -29,8 +29,6 @@
 
  */
 
-
-
 #include "layoutdata.h"
 #include "mimkeymodel.h"
 
@@ -40,6 +38,19 @@
 const QString LayoutData::mainSection("main");
 const QString LayoutData::functionkeySection("functionkey");
 const QString LayoutData::symbolsSymSection("symbols Sym");
+
+namespace {
+
+    MImKeyModel * createKeyModel(const QString &label,
+                                 bool isRtl)
+    {
+        MImKeyModel *key(new MImKeyModel(MImKeyModel::NormalStyle, MImKeyModel::Medium, isRtl));
+        MImKeyBinding *binding(new MImKeyBinding(label));
+        key->setBinding(*binding, false);
+        key->setBinding(*binding, true);
+        return key;
+    }
+}
 
 LayoutSection::Row::~Row()
 {
@@ -115,28 +126,23 @@ LayoutSection::LayoutSection(const QString &characters, bool rtl)
       sectionType(Sloppy),
       isUniformFontSize(false)
 {
-    Row *currentRow = new Row;
-    currentRow->heightType = Medium;
-    rows.append(currentRow);
+    const QStringList &lines(characters.split('\n'));
+    foreach (const QString &line, lines) {
+        Row *currentRow = new Row;
+        currentRow->heightType = Medium;
+        rows.append(currentRow);
 
-    for (int i = 0; i < characters.length(); ++i) {
-        const QChar currentCharacter(characters.at(i));
-
-        if (currentCharacter == '\n') {
-            currentRow = new Row;
-            currentRow->heightType = Medium;
-            rows.append(currentRow);
-
-            // Don't append the newline character itself to this row:
-            continue;
+        const QStringList &labelList(line.split(' '));
+        if (labelList.count() == 1) {
+            const QString &labels(labelList.at(0));
+            for (int i = 0; i < labels.count(); ++i) {
+                currentRow->keys.append(createKeyModel(labels.at(i), rtl));
+            }
+        } else if (labelList.count() > 1) {
+            foreach (const QString &s, labelList) {
+                currentRow->keys.append(createKeyModel(s, rtl));
+            }
         }
-
-        MImKeyModel *key(new MImKeyModel(MImKeyModel::NormalStyle, MImKeyModel::Medium, true, rtl));
-        currentRow->keys.append(key);
-
-        MImKeyBinding *binding(new MImKeyBinding(characters[i]));
-        key->setBinding(*binding, false);
-        key->setBinding(*binding, true);
 
         mMaxColumns = qMax<int>(mMaxColumns, currentRow->keys.count());
     }

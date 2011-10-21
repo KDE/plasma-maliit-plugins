@@ -301,6 +301,24 @@ QString DummyDriverMkh::error()
     return QString();
 }
 
+void DummyDriverMkh::insertCharacters(const QString &text, int index)
+{
+    Q_UNUSED(text);
+    Q_UNUSED(index);
+}
+
+void DummyDriverMkh::removeCharacters(int count, int index)
+{
+    Q_UNUSED(count);
+    Q_UNUSED(index);
+}
+
+void DummyDriverMkh::commitWord(int index, bool ignoreNewWord)
+{
+    Q_UNUSED(index);
+    Q_UNUSED(ignoreNewWord);
+}
+
 void DummyDriverMkh::setCandidates(const QStringList &candidates)
 {
     candidateList = candidates;

@@ -44,7 +44,8 @@ MImKeyBinding::MImKeyBinding()
       dead(false),
       quickPick(false),
       compose(false),
-      rtl(false)
+      rtl(false),
+      enlarged(false)
 {
 }
 
@@ -54,7 +55,8 @@ MImKeyBinding::MImKeyBinding(const QString &label)
       dead(false),
       quickPick(false),
       compose(false),
-      rtl(false)
+      rtl(false),
+      enlarged(false)
 {
 }
 
@@ -143,6 +145,18 @@ KeyEvent MImKeyBinding::toKeyEventImpl(QKeyEvent::Type eventType,
             text = "\r";
         }
         break;
+    case ActionLeft:
+        key = Qt::Key_Left;
+        break;
+    case ActionUp:
+        key = Qt::Key_Up;
+        break;
+    case ActionRight:
+        key = Qt::Key_Right;
+        break;
+    case ActionDown:
+        key = Qt::Key_Down;
+        break;
     case NumActions:
         Q_ASSERT(false);
     }
@@ -167,12 +181,10 @@ KeyEvent MImKeyBinding::toKeyEvent(QKeyEvent::Type eventType, bool isComposing, 
 
 MImKeyModel::MImKeyModel(MImKeyModel::StyleType style,
                          MImKeyModel::WidthType widthType,
-                         bool isFixed,
                          bool isRtl,
                          const QString &id)
     : mStyle(style),
       mWidthType(widthType),
-      isFixed(isFixed),
       isRtl(isRtl),
       keyId(id)
 {
@@ -228,11 +240,6 @@ MImKeyModel::StyleType MImKeyModel::style() const
 MImKeyModel::WidthType MImKeyModel::width() const
 {
     return mWidthType;
-}
-
-bool MImKeyModel::isFixedWidth() const
-{
-    return isFixed;
 }
 
 bool MImKeyModel::rtl() const

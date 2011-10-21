@@ -42,6 +42,8 @@
 #include "mvirtualkeyboard.h"
 #include "symbolview.h"
 #include "keyevent.h"
+#include "enginehandlerdefault.h"
+#include "enginehandlertonal.h"
 
 #include "mkeyboardhost.h"
 #include <mimenginefactory.h>
@@ -54,169 +56,8 @@
 namespace
 {
     const QString DefaultInputLanguage("default");
-    const bool DefaultCorrectionSettingAcceptedWithSpaceOption = false;
-    const QString CorrectionSettingWithSpace("/meegotouch/inputmethods/virtualkeyboard/correctwithspace");
     const QString InputMethodCorrectionEngineRoot("/meegotouch/inputmethods/correctionengine");
 }
-
-class EngineHandlerDefault : public EngineHandler
-{
-public:
-    EngineHandlerDefault(MKeyboardHost &keyboardHost)
-        : EngineHandler(keyboardHost),
-          mKeyboardHost(keyboardHost),
-          mEngineWidgetHost(new MImCorrectionHost(keyboardHost.sceneWindow, 0))
-    {
-    }
-
-    virtual ~EngineHandlerDefault() {
-        delete mEngineWidgetHost;
-        mEngineWidgetHost = 0;
-    }
-    
-    static QStringList supportedLanguages() {
-        return QStringList();
-    }
-
-    //! \reimp
-    virtual void activate()
-    {
-        connect(mEngineWidgetHost,
-                SIGNAL(candidateClicked(const QString &, int)),
-                &mKeyboardHost,
-                SLOT(handleCandidateClicked(const QString &, int)),
-                Qt::UniqueConnection);
-        mEngineWidgetHost->finalizeOrientationChange();
-    }
-
-    virtual void deactivate()
-    {
-        disconnect(mEngineWidgetHost, 0,
-                   &mKeyboardHost,    0);
-    }
-
-    virtual AbstractEngineWidgetHost *engineWidgetHost()
-    {
-        // return default error correction host
-        return mEngineWidgetHost;
-    }
-
-    virtual bool cursorCanMoveInsidePreedit() const
-    {
-        return true;
-    }
-
-    virtual bool hasHwKeyboardIndicator() const
-    {
-        return true;
-    }
-
-    virtual bool hasErrorCorrection() const
-    {
-        return true;
-    }
-
-    virtual bool acceptPreeditInjection() const
-    {
-        return true;
-    }
-
-    virtual bool hasAutoCaps() const
-    {
-        return true;
-    }
-
-    virtual bool hasContext() const
-    {
-        return true;
-    }
-
-    virtual bool commitPreeditWhenInterrupted() const
-    {
-        return true;
-    }
-
-    virtual bool correctionAcceptedWithSpaceEnabled() const
-    {
-        return MGConfItem(CorrectionSettingWithSpace).value(DefaultCorrectionSettingAcceptedWithSpaceOption).toBool();
-    }
-
-    virtual bool isComposingInputMethod() const
-    {
-        return false;
-    }
-
-    virtual bool supportTouchPointAccuracy() const
-    {
-        return true;
-    }
-
-    virtual bool commitWhenCandidateClicked() const
-    {
-        return true;
-    }
-
-    virtual void clearPreedit(bool commit)
-    {
-        if (!mKeyboardHost.preedit.isEmpty()) {
-            if (commit) {
-                // Commit current preedit
-                mKeyboardHost.inputMethodHost()->sendCommitString(mKeyboardHost.preedit,
-                                                                  0, 0, mKeyboardHost.preeditCursorPos);
-            } else {
-                // Clear current preedit
-                QList<MInputMethod::PreeditTextFormat> preeditFormats;
-                MInputMethod::PreeditTextFormat preeditFormat(0, 0, MInputMethod::PreeditKeyPress);
-                preeditFormats << preeditFormat;
-                mKeyboardHost.inputMethodHost()->sendPreeditString("", preeditFormats);
-            }
-            mKeyboardHost.preedit.clear();
-        }
-    }
-
-    virtual void editingInterrupted()
-    {
-        clearPreedit(commitPreeditWhenInterrupted());
-    }
-
-    virtual void resetHandler()
-    {
-    }
-
-    virtual void preparePluginSwitching()
-    {
-    }
-
-    virtual bool handleKeyPress(const KeyEvent &event)
-    {
-        Q_UNUSED(event);
-        return false;
-    }
-
-    virtual bool handleKeyRelease(const KeyEvent &event)
-    {
-        Q_UNUSED(event);
-        return false;
-    }
-
-    virtual bool handleKeyClick(const KeyEvent &event)
-    {
-        Q_UNUSED(event);
-        return false;
-    }
-
-    virtual bool handleKeyCancel(const KeyEvent &event)
-    {
-        Q_UNUSED(event);
-        return false;
-    }
-
-    //! \reimp_end
-
-private:
-    MKeyboardHost &mKeyboardHost;
-    AbstractEngineWidgetHost *mEngineWidgetHost;
-};
 
 class EngineHandlerCJK : public EngineHandler
 {
@@ -323,6 +164,11 @@ public:
         return false;
     }
 
+    virtual QList<QRegExp> autoCapsTriggers() const
+    {
+        return QList<QRegExp>();
+    }
+
     virtual bool hasContext() const
     {
         return false;
@@ -390,10 +236,10 @@ public:
             return false;
     }
 
-    virtual bool handleKeyClick(const KeyEvent &event)
+    virtual bool handleKeyClick(const KeyEvent &event, bool cycleKeyActive)
     {
         if (stateMachine != NULL)
-            return stateMachine->handleKeyClick(event);
+            return stateMachine->handleKeyClick(event, cycleKeyActive);
         else
             return false;
     }
@@ -583,6 +429,16 @@ EngineHandler *EngineManager::findOrCreateEngineHandler(const QString &language)
         // create CJK language properties
         matchedEngineHandler = QPointer<EngineHandlerCJK>(new EngineHandlerCJK(mKeyboardHost));
         foreach (const QString &lang, EngineHandlerCJK::supportedLanguages())
+            handlerMap.insert(lang, matchedEngineHandler);
+
+    } else if (EngineHandlerEnglish::supportedLanguages().contains(language)){
+        matchedEngineHandler = QPointer<EngineHandlerEnglish>(new EngineHandlerEnglish(mKeyboardHost));
+        foreach (const QString &lang, EngineHandlerEnglish::supportedLanguages())
+            handlerMap.insert(lang, matchedEngineHandler);
+
+    } else if (EngineHandlerTonal::supportedLanguages().contains(language)){
+        matchedEngineHandler = QPointer<EngineHandlerTonal>(new EngineHandlerTonal(mKeyboardHost));
+        foreach (const QString &lang, EngineHandlerTonal::supportedLanguages())
             handlerMap.insert(lang, matchedEngineHandler);
 
     } else {

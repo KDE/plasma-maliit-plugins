@@ -54,11 +54,11 @@
          <key><binding label="&#x0024;"/></key>
          <key><binding label="&#x00A3;"/></key>
 
-  	 <key style="special"><binding action="backspace"/></key>
+         <key style="special"><binding action="backspace"/></key>
        </row>
 
        <row>
-         <key style="special" width="xx-large">
+         <key style="special" width="x-large">
            <binding action="sym" label="&#x6CE8;&#x97F3;"/>         
          </key>
 
@@ -66,7 +66,7 @@
          <key width="stretched"><binding action="space"/></key>
          <key><binding label="&#x3002;"/></key>
 
-         <key style="special" width="xx-large" id="actionKey">
+         <key style="special" width="x-large" id="actionKey">
            <binding action="return"/>
          </key>
        </row>
@@ -124,11 +124,11 @@
          <key><binding label="&#x3016;"/></key>
          <key><binding label="&#x3017;"/></key>
 
-  	 <key style="special"><binding action="backspace"/></key>
+         <key style="special"><binding action="backspace"/></key>
        </row>
 
        <row>
-         <key style="special" width="xx-large">
+         <key style="special" width="x-large">
            <binding action="sym" label="&#x6CE8;&#x97F3;"/>         
          </key>
 
@@ -136,7 +136,7 @@
          <key width="stretched"><binding action="space"/></key>
          <key><binding label="&#x002E;"/></key>
 
-         <key style="special" width="xx-large" id="actionKey">
+         <key style="special" width="x-large" id="actionKey">
            <binding action="return"/>
          </key>
        </row>
@@ -196,11 +196,11 @@
          <key><binding label="&#x0024;"/></key>
          <key><binding label="&#x00A3;"/></key>
 
-  	 <key style="special"><binding action="backspace"/></key>
+         <key style="special"><binding action="backspace"/></key>
        </row>
 
        <row>
-         <key style="special" width="xx-large">
+         <key style="special" width="x-large">
            <binding action="sym" label="&#x6CE8;&#x97F3;"/>         
          </key>
 
@@ -208,7 +208,7 @@
          <key width="stretched"><binding action="space"/></key>
          <key><binding label="&#x3002;"/></key>
 
-         <key style="special" width="xx-large" id="actionKey">
+         <key style="special" width="x-large" id="actionKey">
            <binding action="return"/>
          </key>
        </row>
@@ -266,11 +266,11 @@
          <key><binding label="&#x3016;"/></key>
          <key><binding label="&#x3017;"/></key>
 
-  	 <key style="special"><binding action="backspace"/></key>
+         <key style="special"><binding action="backspace"/></key>
        </row>
 
        <row>
-         <key style="special" width="xx-large">
+         <key style="special" width="x-large">
            <binding action="sym" label="&#x6CE8;&#x97F3;"/>         
          </key>
 
@@ -278,7 +278,7 @@
          <key width="stretched"><binding action="space"/></key>
          <key><binding label="&#x002E;"/></key>
 
-         <key style="special" width="xx-large" id="actionKey">
+         <key style="special" width="x-large" id="actionKey">
            <binding action="return"/>
          </key>
        </row>

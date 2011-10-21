@@ -90,6 +90,8 @@ namespace
     int gHideLockOnInfoBannerCallCount = 0;
     int gShowLanguageNotificationCallCount = 0;
 
+    QString gLayoutLanguage("fi");
+
     const char * const TargetSettingsName("/meegotouch/target/name");
     const char * const DefaultTargetName("Default");
 
@@ -117,12 +119,14 @@ Q_DECLARE_METATYPE(Ut_MKeyboardHost::TestOpList)
 Q_DECLARE_METATYPE(MInputMethod::InputModeIndicator)
 Q_DECLARE_METATYPE(QList<MImEngine::DictionaryType>)
 Q_DECLARE_METATYPE(MInputMethod::PreeditFace)
+Q_DECLARE_METATYPE(QList<int>)
+Q_DECLARE_METATYPE(QList<ModifierState>)
 
 // Stubbing..................................................................
 
 QString MVirtualKeyboard::layoutLanguage() const
 {
-    return QString("fi");
+    return gLayoutLanguage;
 }
 
 bool MVirtualKeyboard::autoCapsEnabled() const
@@ -208,6 +212,8 @@ void Ut_MKeyboardHost::init()
     engineConfig.set(QVariant(QString("dummyimdriver")));
     MGConfItem config(CorrectionSetting);
     config.set(QVariant(false));
+
+    gLayoutLanguage = "fi";
 
     subject = new MKeyboardHost(inputMethodHost, mainWindow);
     inputMethodHost->clear();
@@ -571,7 +577,7 @@ void Ut_MKeyboardHost::testAutoCaps()
     inputMethodHost->cursorPos = inputMethodHost->surroundingString.length();
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
-    
+
     inputMethodHost->cursorPos = 0;
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
@@ -690,7 +696,8 @@ void Ut_MKeyboardHost::testAutoCaps()
 
     // press and release backspace before timeout will only delete one character,
     subject->handleKeyPress(press);
-    QVERIFY(subject->backspaceTimer.isActive());
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatBackspace);
+    QVERIFY(subject->repeatTimer.isActive());
     subject->handleKeyRelease(release);
     subject->handleKeyClick(release);
     subject->update();
@@ -699,21 +706,25 @@ void Ut_MKeyboardHost::testAutoCaps()
 
     // but hold backspace longer than timeout, will delete the whole preedit.
     subject->handleKeyPress(press);
-    int interval = subject->backspaceTimer.interval();
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatBackspace);
+    int interval = subject->repeatTimer.interval();
     QTest::qWait(interval / 2);
-    QVERIFY(subject->backspaceTimer.isActive());
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatBackspace);
+    QVERIFY(subject->repeatTimer.isActive());
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
     QTest::qWait((interval / 2) + 50);
     // final state: preedit(""), shift state:on, after holding backspace enough time.
     QVERIFY(subject->preedit.isEmpty());
-    QVERIFY(subject->backspaceTimer.isActive());
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatBackspace);
+    QVERIFY(subject->repeatTimer.isActive());
     inputMethodHost->cursorPos = 13;
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
     subject->handleKeyRelease(release);
     subject->handleKeyClick(release);
-    QVERIFY(!subject->backspaceTimer.isActive());
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatInactive);
+    QVERIFY(!subject->repeatTimer.isActive());
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierLatchedState);
 
     subject->hide();
@@ -765,6 +776,140 @@ void Ut_MKeyboardHost::testAutoCaps()
     subject->update();
     QVERIFY(subject->vkbWidget->shiftStatus() == ModifierClearState);
     gAutoCapsEnabled = true;
+}
+
+void Ut_MKeyboardHost::testAutoCapsQuotes_data()
+{
+    QTest::addColumn<QString>("testString");
+    QTest::addColumn<QString>("layoutLanguage");
+    QTest::addColumn<QList<int> >("cursorPositions");
+    QTest::addColumn<QList<ModifierState> >("modifierStates");
+
+    QTest::newRow("Quotes") << QString("\"Hello\" ")
+                            << QString("en_us")
+                            << (QList<int>() << 7 << 8)
+                            << (QList<ModifierState>() << ModifierClearState << ModifierClearState);
+
+    // 0x201d = Right Double Quotation Mark
+    // 0x201e = Double Low-9 Quotation Mark
+    QTest::newRow("All") << QString("A.\" B?' C!%1 D.%2 E?'\" F!'\" G.'%1 H?%1' I!%1' J.'%2 ").arg(QChar(0x201d)).arg(QChar(0x201e))
+                         << QString("en_us")
+                         << (QList<int>() << 4 << 8 << 12 << 16 << 21 << 26 << 31 << 36 << 41 << 46)
+                         << (QList<ModifierState>() << ModifierLatchedState << ModifierLatchedState
+                                                    << ModifierLatchedState << ModifierLatchedState
+                                                    << ModifierLatchedState << ModifierLatchedState
+                                                    << ModifierLatchedState << ModifierLatchedState
+                                                    << ModifierLatchedState << ModifierLatchedState);
+
+    QTest::newRow("AllNoEnglish") << QString("A.\" B?' C!%1 D.%2 E?'\" F!'\" G.'%1 H?%1' I!%1' J.'%2 ").arg(QChar(0x201d)).arg(QChar(0x201e))
+                                  << QString("fi")
+                                  << (QList<int>() << 4 << 8 << 12 << 16 << 21 << 26 << 31 << 36 << 41 << 46)
+                                  << (QList<ModifierState>() << ModifierClearState << ModifierClearState
+                                                             << ModifierClearState << ModifierClearState
+                                                             << ModifierClearState << ModifierClearState
+                                                             << ModifierClearState << ModifierClearState
+                                                             << ModifierClearState << ModifierClearState);
+}
+
+void Ut_MKeyboardHost::testAutoCapsQuotes()
+{
+    QFETCH(QString, testString);
+    QFETCH(QString, layoutLanguage);
+    QFETCH(QList<int>, cursorPositions);
+    QFETCH(QList<ModifierState>, modifierStates);
+
+    inputMethodHost->surroundingString = testString;
+    inputMethodHost->autoCapitalizationEnabled_ = true;
+    subject->correctionEnabled = true;
+    gLayoutLanguage = layoutLanguage;
+    EngineManager::instance().updateLanguage(layoutLanguage);
+    inputMethodHost->contentType_ = M::FreeTextContentType;
+
+    subject->show();
+
+    for (int i = 0; i < cursorPositions.size(); ++i) {
+        inputMethodHost->cursorPos = cursorPositions[i];
+        subject->update();
+        QCOMPARE(subject->vkbWidget->shiftStatus(), modifierStates[i]);
+    }
+}
+
+void Ut_MKeyboardHost::testAutoRepeat()
+{
+    KeyEvent pressRightArrow("", QEvent::KeyPress, Qt::Key_Right);
+    KeyEvent releaseRightArrow(pressRightArrow, QEvent::KeyRelease);
+    KeyEvent pressBackspace("", QEvent::KeyPress, Qt::Key_Backspace);
+    KeyEvent releaseBackspace(pressBackspace, QEvent::KeyRelease);
+
+    // unicode object replacement character at the end
+    inputMethodHost->surroundingString
+        = QString("Test string.");
+    inputMethodHost->contentType_ = M::FreeTextContentType;
+    inputMethodHost->cursorPos = 0;
+    subject->preedit = "You can use";
+
+    subject->show();
+    subject->update();
+
+    // Repeat time should stop after single press&release
+    subject->handleKeyPress(pressRightArrow);
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatArrow);
+    QCOMPARE(subject->repeatTimer.isActive(), true);
+    subject->handleKeyRelease(releaseRightArrow);
+    subject->handleKeyClick(pressRightArrow);
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatInactive);
+    QCOMPARE(subject->repeatTimer.isActive(), false);
+
+    // Press and hold should cause auto repeat
+    subject->handleKeyPress(pressRightArrow);
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatArrow);
+    QCOMPARE(subject->repeatTimer.isActive(), true);
+    int interval = subject->repeatTimer.interval();
+    QTest::qWait(interval / 2);
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatArrow);
+    QCOMPARE(subject->repeatTimer.isActive(), true);
+    QTest::qWait((interval / 2) + 50);
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatArrow);
+    QCOMPARE(subject->repeatTimer.isActive(), true);
+    subject->handleKeyRelease(releaseRightArrow);
+    subject->handleKeyClick(pressRightArrow);
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatInactive);
+    QCOMPARE(subject->repeatTimer.isActive(), false);
+
+    // Auto repeat should change repeat action on each press that
+    // has repeat functionality.
+
+    // Case: Press arrow, press backspace, release arrow, release backspace
+    subject->handleKeyPress(pressRightArrow);
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatArrow);
+    QCOMPARE(subject->repeatTimer.isActive(), true);
+    subject->handleKeyPress(pressBackspace);
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatBackspace);
+    QCOMPARE(subject->repeatTimer.isActive(), true);
+    subject->handleKeyRelease(releaseRightArrow);
+    subject->handleKeyClick(pressRightArrow);
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatBackspace);
+    QCOMPARE(subject->repeatTimer.isActive(), true);
+    subject->handleKeyRelease(releaseBackspace);
+    subject->handleKeyClick(pressBackspace);
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatInactive);
+    QCOMPARE(subject->repeatTimer.isActive(), false);
+
+    // Case: Press backspace, press arrow, release arrow, release backspace
+    subject->handleKeyPress(pressBackspace);
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatBackspace);
+    QCOMPARE(subject->repeatTimer.isActive(), true);
+    subject->handleKeyPress(pressRightArrow);
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatArrow);
+    QCOMPARE(subject->repeatTimer.isActive(), true);
+    subject->handleKeyRelease(releaseRightArrow);
+    subject->handleKeyClick(pressRightArrow);
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatInactive);
+    QCOMPARE(subject->repeatTimer.isActive(), false);
+    subject->handleKeyRelease(releaseBackspace);
+    subject->handleKeyClick(pressBackspace);
+    QCOMPARE(subject->keyRepeatMode, MKeyboardHost::RepeatInactive);
+    QCOMPARE(subject->repeatTimer.isActive(), false);
 }
 
 void Ut_MKeyboardHost::testApplicationOrientationChanged()
@@ -1207,6 +1352,7 @@ void Ut_MKeyboardHost::testUpdateSymbolViewLevel()
 
     // test autocaps
     subject->autoCapsEnabled = true; // enable auto caps
+    inputMethodHost->autoCapitalizationEnabled_ = true;
     subject->hardwareKeyboard->setAutoCapitalization(true);
     QCOMPARE(subject->hardwareKeyboard->modifierState(Qt::ShiftModifier), ModifierLatchedState);
     subject->hardwareKeyboard->setAutoCapitalization(false);
@@ -1237,6 +1383,7 @@ void Ut_MKeyboardHost::testUpdateSymbolViewLevel()
     //onscreen state
     QVERIFY(subject->vkbWidget);
     subject->autoCapsEnabled = false; // disable auto caps
+    inputMethodHost->autoCapitalizationEnabled_ = false;
     subject->vkbWidget->setShiftState(ModifierClearState);
     state.clear();
     state << MInputMethod::OnScreen;
@@ -1941,6 +2088,41 @@ void Ut_MKeyboardHost::testAutoPunctuation()
         QCOMPARE(inputMethodHost->commit, QString());
         QCOMPARE(inputMethodHost->preedit, QString(character));
         QCOMPARE(inputMethodHost->sendKeyEventCalls, 0);
+    }
+}
+
+void Ut_MKeyboardHost::testAutoCommit_data()
+{
+    QTest::addColumn<QChar>("character");
+    QTest::addColumn<bool>("autocommitted");
+
+    QTest::newRow("-") << QChar('-') << false;
+    QTest::newRow("'") << QChar('\'') << false;
+    QTest::newRow("a") << QChar('a') << false;
+    QTest::newRow(".") << QChar('.') << true;
+    QTest::newRow(",") << QChar(',') << true;
+    QTest::newRow("!") << QChar('!') << true;
+    QTest::newRow("?") << QChar('?') << true;
+    QTest::newRow("#") << QChar('#') << true;
+}
+
+void Ut_MKeyboardHost::testAutoCommit()
+{
+    QFETCH(QChar, character);
+    QFETCH(bool, autocommitted);
+    const QString testString("Calculator");
+
+    subject->show();
+
+    subject->setPreedit(testString, -1);
+    subject->handleKeyClick(KeyEvent(character, QEvent::KeyRelease));
+
+    if (autocommitted) {
+        QCOMPARE(inputMethodHost->commit, QString(testString + character));
+        QCOMPARE(subject->preedit, QString());
+    } else {
+        QCOMPARE(inputMethodHost->commit, QString());
+        QCOMPARE(inputMethodHost->preedit, QString(testString + character));
     }
 }
 

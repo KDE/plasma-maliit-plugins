@@ -72,8 +72,8 @@ namespace {
 }
 
 CJKLogicStateMachine::CJKLogicStateMachine(AbstractEngineWidgetHost &widgetHost,
-                                                       MAbstractInputMethodHost &host,
-                                                       MImEngineWordsInterface &engine)
+                                           MAbstractInputMethodHost &host,
+                                           MImEngineWordsInterface &engine)
     : currentState(NULL),
       standbyState(new StandbyState(this)),
       matchState(new MatchState(this)),
@@ -85,6 +85,9 @@ CJKLogicStateMachine::CJKLogicStateMachine(AbstractEngineWidgetHost &widgetHost,
       backspaceLongPressTriggered(false),
       syllableDivideIsEnabled(false),
       currentOnOffState(false),
+#ifdef HAVE_NGF
+      ngfClient(new MNGFClient(this)),
+#endif
       chineseTransliterationConf(SettingChineseTransliteration)
 {
     changeState(StandByStateString);
@@ -104,20 +107,19 @@ CJKLogicStateMachine::CJKLogicStateMachine(AbstractEngineWidgetHost &widgetHost,
 
 CJKLogicStateMachine::~CJKLogicStateMachine()
 {
-    if (standbyState != NULL) {
-        delete standbyState;
-        standbyState = NULL;
-    }
+    delete standbyState;
+    standbyState = NULL;
 
-    if (matchState != NULL) {
-        delete matchState;
-        matchState = NULL;
-    }
+    delete matchState;
+    matchState = NULL;
 
-    if (predictionState != NULL) {
-        delete predictionState;
-        predictionState = NULL;
-    }
+    delete predictionState;
+    predictionState = NULL;
+
+#ifdef HAVE_NGF
+    delete ngfClient;
+    ngfClient = NULL;
+#endif
 
     currentState = NULL;
 
@@ -143,9 +145,12 @@ bool CJKLogicStateMachine::handleKeyRelease(const KeyEvent &event)
         return false;
 }
 
-bool CJKLogicStateMachine::handleKeyClick(const KeyEvent &event)
+bool CJKLogicStateMachine::handleKeyClick(const KeyEvent &event, bool cycleKeyActive)
 {
-    if (event.qtKey() != Qt::Key_Backspace)
+    // (1) If Cycle key is active, CJK logic state machine will not process the key click event.
+    // (2) "Qt::Key_Backspace" key click event would not be processed here either.
+    if (!cycleKeyActive
+        && (event.qtKey() != Qt::Key_Backspace))
         return handleKeyEvent(event);
     else
         return false;
@@ -264,6 +269,13 @@ void CJKLogicStateMachine::resetWithoutCommitStringToApp()
 void CJKLogicStateMachine::setSyllableDivideEnabled(bool enabled)
 {
     syllableDivideIsEnabled = enabled;
+}
+
+void CJKLogicStateMachine::playWarningPrompt()
+{
+#ifdef HAVE_NGF
+    ngfClient->playEvent("warning_tacticon");
+#endif
 }
 
 void CJKLogicStateMachine::handleLayoutMenuKey(const KeyEvent &event)
@@ -855,7 +867,6 @@ MatchNotStartedState::MatchNotStartedState(MatchState *matchMachine, CJKLogicSta
 
 MatchNotStartedState::~MatchNotStartedState()
 {
-
 }
 
 void MatchNotStartedState::initState()
@@ -932,8 +943,11 @@ void MatchNotStartedState::handleDigitKey(const KeyEvent &event)
 void MatchNotStartedState::handleLetterKey(const KeyEvent &event)
 {
     if (stateMachine->inputMethodEngine.language() == CangjieLang) {
-        if (matchStateMachine->inputPreedit.count() >= CangjieInputLimit)
+        if (matchStateMachine->inputPreedit.count() >= CangjieInputLimit) {
+            // Play a warning prompt for CangJie because input string exceeds the limit.
+            stateMachine->playWarningPrompt();
             return ;
+        }
     }
     matchStateMachine->inputPreedit += event.toQKeyEvent().text();
 
@@ -1125,7 +1139,7 @@ void MatchStartedState::handleCandidateClicked(const QString &candStr, int wordI
     stateMachine->userChoseCandidateString = candStr;
     stateMachine->inputMethodHost.sendCommitString(stateMachine->transliterateString(wordIndex, candStr));
 
-    stateMachine->inputMethodEngine.setSuggestedCandidateIndex(wordIndex);
+    stateMachine->inputMethodEngine.commitWord(wordIndex);
     int mLength = stateMachine->inputMethodEngine.matchedLength();
 
     // Record selected candidate for learning words later.

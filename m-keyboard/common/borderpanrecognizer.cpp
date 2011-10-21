@@ -53,6 +53,8 @@ BorderPanRecognizer::BorderPanRecognizer() :
     , startThreshold(DefaultStartThreshold)
     , finishThreshold(DefaultFinishThreshold)
     , initialMovement(DefaultInitialMovement)
+    , lastTouchEvent(QEvent::TouchEnd)
+    , mMaybePanGesture(false)
 {
 }
 
@@ -114,8 +116,10 @@ QGestureRecognizer::Result BorderPanRecognizer::recognize(QGesture * gesture,
     const QGraphicsSceneMouseEvent *mouseEvent(static_cast<const QGraphicsSceneMouseEvent *>(event));
 
     // We are using this recognizer for QGraphicsWidgets only
-    const QGraphicsWidget *widget(static_cast<const QGraphicsWidget *>(watched));
-    Q_ASSERT(widget);
+    const QGraphicsWidget *widget(qobject_cast<const QGraphicsWidget *>(watched));
+    if (!widget) {
+        return Ignore;
+    }
 
     switch (event->type()) {
     case QEvent::GraphicsSceneMousePress:
@@ -134,6 +138,21 @@ QGestureRecognizer::Result BorderPanRecognizer::recognize(QGesture * gesture,
         result = recognizeFinalize(panGesture, mouseEvent, widget);
         break;
 
+    case QEvent::TouchBegin:
+        result = Ignore;
+        lastTouchEvent = *(static_cast<QTouchEvent*>(event));
+        if (lastTouchEvent.type() == QEvent::TouchBegin) {
+            foreach (const QTouchEvent::TouchPoint &tp,
+                     lastTouchEvent.touchPoints()) {
+                const int x = tp.pos().x();
+                if (x < startThreshold
+                    || x > (widget->size().width() - startThreshold)) {
+                    mMaybePanGesture = true;
+                    break;
+                }
+            }
+        }
+        break;
     default:
         result = Ignore;
         break;
@@ -153,6 +172,8 @@ void BorderPanRecognizer::reset(QGesture *gesture)
 {
     PanGesture &panGesture = static_cast<PanGesture &>(*gesture);
     panGesture.reset();
+    lastTouchEvent = QTouchEvent(QEvent::TouchEnd);
+    mMaybePanGesture= false;
     QGestureRecognizer::reset(gesture);
 }
 
@@ -259,4 +280,9 @@ void BorderPanRecognizer::setFinishThreshold(int threshold)
 void BorderPanRecognizer::setInitialMovement(int initialMovement)
 {
     this->initialMovement = initialMovement;
+}
+
+bool BorderPanRecognizer::maybePanGesture() const
+{
+    return mMaybePanGesture;
 }

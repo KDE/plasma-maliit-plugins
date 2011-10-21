@@ -73,19 +73,21 @@ void MImSnapshotPixmapItem::grabScreen(const QRect &rect)
     setPixmap(pixmap);
 }
 
-void MImSnapshotPixmapItem::grabWidgets(QList<QPointer<QGraphicsWidget> > widgets)
+void MImSnapshotPixmapItem::grabWidgets(const QList<QPointer<QGraphicsWidget> > &widgets)
 {
-    if (!widgets.count()) {
+    if (not MPlainWindow::instance() || widgets.isEmpty()) {
         // clear by setting empty pixmap
         setPixmap(QPixmap());
         return;
     }
 
-    bool isPortrait =
-        (MPlainWindow::instance()->sceneManager()->orientation() == M::Portrait);
-    const QRectF screenRect
-        = QRectF(QPoint(0, 0),
-                 MPlainWindow::instance()->visibleSceneSize(M::Landscape));
+    // Querying visible scene size for landscape orientation, because
+    // widget->sceneBoundingRect() always returns the bounding rectangle of
+    // the widget for landscape orientation:
+    const QSize &visibleSceneSize(MPlainWindow::instance()->visibleSceneSize(M::Landscape));
+
+    const bool isPortrait((MPlainWindow::instance()->sceneManager()->orientation() == M::Portrait));
+    const QRectF &screenRect(QRectF(QPoint(0, 0), visibleSceneSize));
 
     QRectF rect;
     foreach (const QGraphicsWidget *widget, widgets) {
@@ -94,48 +96,59 @@ void MImSnapshotPixmapItem::grabWidgets(QList<QPointer<QGraphicsWidget> > widget
 
     qreal posY = 0;
     if (isPortrait) {
-        posY = MPlainWindow::instance()->visibleSceneSize(M::Landscape).width()
-                - rect.width();
-        rect =QRectF(0, 0, rect.height(), rect.width());
+        posY = visibleSceneSize.width() - rect.width();
+        rect = QRectF(0, 0, rect.height(), rect.width());
     } else {
-        posY = MPlainWindow::instance()->visibleSceneSize(M::Landscape).height()
-                - rect.height();
+        posY = visibleSceneSize.height() - rect.height();
     }
-    QPoint pos(0, posY);
 
+    const QPointF pos(0, posY);
     QPixmap pixmap(rect.width(), rect.height());
+
+    if (pixmap.isNull()) {
+        // Avoid painting on invalid pixmap => could crash otherwise.
+        return;
+    }
+
     pixmap.fill(Qt::transparent);
     QPainter painter(&pixmap);
     foreach (QGraphicsWidget *widget, widgets) {
-        QPixmap tp(widget->size().toSize());
-        QPainter p(&tp);
-        // The children must be inside parent widget, otherwise it only
-        // grab children content in side parent widget to the pixmap.
-        foreach (QGraphicsItem *item, widget->childItems())
-            item->paint(&p, 0, 0);
-        widget->paint(&p, 0, 0);
+        const QPointF tp(isPortrait ? QPointF(0, widget->scenePos().x() - pos.y())
+                                    : widget->scenePos() - pos);
 
-        if (isPortrait) {
-            painter.drawPixmap(QPointF(0, widget->scenePos().x() - pos.y()),
-                               tp);
-        } else {
-            painter.drawPixmap(QPointF(widget->scenePos() - pos), tp);
+        QTransform t;
+        t.translate(tp.x(), tp.y());
+        painter.setTransform(t);
+
+        widget->paint(&painter, 0, 0);
+        foreach (QGraphicsItem *item, widget->childItems()) {
+            // If isPortrait is true, then keep in mind that "rect" is also
+            // "rotated" to portrait mode and moved to the area covered by the
+            // VKB  (on the display). We still need to adjust the item (in
+            // scene position) to that area.
+            const QPointF &itemPos(isPortrait ? QPointF(rect.width() - item->scenePos().y(),
+                                                        item->scenePos().x() - pos.y())
+                                              : item->scenePos() - pos);
+            QTransform itemTransform;
+            itemTransform.translate(itemPos.x(), itemPos.y());
+            painter.setTransform(itemTransform);
+            item->paint(&painter, 0, 0);
         }
     }
 
     setPixmap(pixmap);
 }
 
-void MImSnapshotPixmapItem::grabPixmaps(QMap<QPixmap*, QPoint > pixmaps)
+void MImSnapshotPixmapItem::grabPixmaps(const QMap<QPixmap*, QPoint > &pixmaps)
 {
     qDebug() << __PRETTY_FUNCTION__ << " with pixmaps:" <<  pixmaps.count();
-    if (!pixmaps.count()) {
+    if (pixmaps.isEmpty()) {
         // clear by setting empty pixmap
         setPixmap(QPixmap());
         return;
     }
 
-    bool isPortrait =
+    const bool isPortrait =
         (MPlainWindow::instance()->sceneManager()->orientation() == M::Portrait);
 
     QRect rect;
@@ -150,8 +163,14 @@ void MImSnapshotPixmapItem::grabPixmaps(QMap<QPixmap*, QPoint > pixmaps)
         basePos.setY(qMin(it.value().y(), basePos.y()));
     }
 
-    QSize size = isPortrait ? QSize(rect.height(), rect.width()) : rect.size();
-    QPixmap pixmap(size);
+    QPixmap pixmap(isPortrait ? QSize(rect.height(), rect.width())
+                              : rect.size());
+
+    if (pixmap.isNull()) {
+        // Avoid painting on invalid pixmap => could crash otherwise.
+        return;
+    }
+
     QPainter painter(&pixmap);
 
     if (isPortrait) {

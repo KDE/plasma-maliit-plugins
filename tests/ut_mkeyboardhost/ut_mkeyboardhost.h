@@ -75,6 +75,9 @@ private slots:
     void testCorrectionContentTypes();
 
     void testAutoCaps();
+    void testAutoCapsQuotes_data();
+    void testAutoCapsQuotes();
+    void testAutoRepeat();
     void testApplicationOrientationChanged();
 
     void testCopyPaste();
@@ -126,6 +129,9 @@ private slots:
 
     void testAutoPunctuation_data();
     void testAutoPunctuation();
+
+    void testAutoCommit_data();
+    void testAutoCommit();
 
     void testToolbarPosition();
 

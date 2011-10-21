@@ -71,7 +71,7 @@ namespace {
 
 void Ut_PanParameters::initTestCase()
 {
-    notificationParameters = new NotificationPanParameters(this);
+    notificationParameters = new OutgoingNotificationPanParameters(this);
     notificationParameters->setPositionRange(QPointF(0, 0), QPointF(854, 0));
     notificationParameters->setScaleRange(1.0, 0.5);
     notificationParameters->setOpacityRange(1.0, 0.0);

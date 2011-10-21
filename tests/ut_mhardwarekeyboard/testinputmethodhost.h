@@ -189,6 +189,10 @@ public:
         return QList<MImPluginDescription>();
     }
 
+    virtual void setLanguage(const QString &/*language*/)
+    {
+    }
+
 private:
     Q_DISABLE_COPY(TestInputMethodHost)
 

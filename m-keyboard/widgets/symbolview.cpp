@@ -152,11 +152,11 @@ void SymbolView::reloadContent()
 
         loadSwitcherPages(layoutData, activePage);
         setShiftState(shiftState);
-    } else if (activeState == MInputMethod::Hardware && currentOrientation == M::Landscape) {
-        const LayoutData *layoutData = layoutsMgr.hardwareLayout(LayoutData::General, M::Landscape);
+    } else if (activeState == MInputMethod::Hardware) {
+        const LayoutData *layoutData = layoutsMgr.hardwareLayout(LayoutData::General, currentOrientation);
         if (!layoutData) {
             // Get it by layout then.
-            layoutData = layoutsMgr.layout(currentLayout, LayoutData::General, M::Landscape);
+            layoutData = layoutsMgr.layout(currentLayout, LayoutData::General, currentOrientation);
         }
 
         loadSwitcherPages(layoutData, activePage);
@@ -189,6 +189,11 @@ void SymbolView::mousePressEvent(QGraphicsSceneMouseEvent *)
     // Nothing, just stop the event from propagating
 }
 
+MImAbstractKeyArea *SymbolView::activeKeyArea() const
+{
+    return pageSwitcher ? static_cast<MImAbstractKeyArea *>(pageSwitcher->currentWidget()) : 0;
+}
+
 void SymbolView::prepareToOrientationChange()
 {
     qDebug() << __PRETTY_FUNCTION__;
@@ -200,8 +205,7 @@ void SymbolView::finalizeOrientationChange()
     organizeContent();
 }
 
-void SymbolView::showSymbolView(ShowMode mode,
-                                const QPointF &initialScenePress)
+void SymbolView::showSymbolView(ShowMode mode)
 {
     show();
 
@@ -210,30 +214,10 @@ void SymbolView::showSymbolView(ShowMode mode,
 
     if (mode == FollowMouseShowMode) {
         setActivity(TemporarilyActive);
-        grabAndPressActiveKeyArea(initialScenePress);
     } else {
         setActivity(Active);
     }
 }
-
-void SymbolView::grabAndPressActiveKeyArea(const QPointF &initialScenePress)
-{
-    MImAbstractKeyArea *keyArea = static_cast<MImAbstractKeyArea *>(pageSwitcher->currentWidget());
-    if (keyArea) {
-
-        // Grab and send press. We use regular scene mouse event because we happen
-        // to know that MImAbstractKeyArea actually uses mouse events for primary touch point.
-        keyArea->grabMouse();
-
-        QGraphicsSceneMouseEvent press(QEvent::GraphicsSceneMousePress);
-        press.setPos(keyArea->mapFromScene(initialScenePress));
-        press.setScenePos(initialScenePress);
-        press.setLastPos(press.pos());
-        press.setLastScenePos(press.scenePos());
-        scene()->sendEvent(keyArea, &press);
-    }
-}
-
 
 void SymbolView::hideSymbolView(SymbolView::HideMode mode)
 {
@@ -514,12 +498,13 @@ void SymbolView::handleKeyClicked(const MImAbstractKey *key)
 
     // Don't retain temporary mode after non-symbol key click and no other pressed key.
     if (activity == TemporarilyActive
-        && (!isOtherKeysPressed || symKeyHeldDown)) {
+        && (key->binding().action() == MImKeyBinding::ActionSym // for non-sym key down and clicking sym key
+            || symKeyHeldDown)) {
         setActivity(Active);
     }
 
     // Release explicit mouse grab since we have it in temporary mode.
-    if (!isOtherKeysPressed // No keys must be active, otherwise ungrab would release them.
+    if (!enableMultiTouch
         && pageSwitcher->currentWidget()
         && pageSwitcher->currentWidget() == scene()->mouseGrabberItem()) {
         pageSwitcher->currentWidget()->ungrabMouse();

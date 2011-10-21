@@ -101,6 +101,7 @@ namespace
     const char * const VKBTagCycleSet             = "cycleset";
     const char * const VKBTagDead                 = "dead";
     const char * const VKBTagQuickPick            = "quickpick";
+    const char * const VKBTagEnlargedFont         = "enlarge";
 
     const char * const ActionStrInsert            = "insert";
     const char * const ActionStrShift             = "shift";
@@ -117,6 +118,10 @@ namespace
     const char * const ActionStrSwitch            = "switch";
     const char * const ActionStrOnOffToogle       = "on_off_toggle";
     const char * const ActionStrCompose           = "compose";
+    const char * const ActionStrLeft              = "left";
+    const char * const ActionStrUp                = "up";
+    const char * const ActionStrRight             = "right";
+    const char * const ActionStrDown              = "down";
 
     const char * const VKBTagImport               = "import";
     const char * const VKBTagFile                 = "file";
@@ -128,8 +133,6 @@ namespace
     const char * const StyleStringDefValue        = "normal";
     const char * const WidthTypeString            = "width";
     const char * const WidthTypeStringDefValue    = "medium";
-    const char * const FixedString                = "fixed";
-    const char * const FixedStringDefValue        = "false";
     const char * const HeightTypeString           = "height";
     const char * const HeightTypeStringDefValue   = "medium";
     const char * const KeyIdString                = "id";
@@ -565,6 +568,13 @@ void KeyboardData::parseTagBinding(const QDomElement &element, ParseParameters &
     binding->dead = toBoolean(element.attribute(VKBTagDead));
     binding->quickPick = toBoolean(element.attribute(VKBTagQuickPick));
 
+    // Lower-case enlarged by default, can override each key
+    if (element.hasAttribute(VKBTagEnlargedFont))
+        binding->enlarged = toBoolean(element.attribute(VKBTagEnlargedFont));
+    else
+        binding->enlarged = ((binding->keyLabel.length() == 1)
+                              && (binding->keyLabel.at(0).isLower()));
+
     binding->accents = element.attribute(VKBTagAccents);
     binding->accented_labels = element.attribute(VKBTagAccentedLabels);
 
@@ -579,7 +589,6 @@ void KeyboardData::parseTagKey(const QDomElement &element, ParseParameters &para
     MImKeyModel::StyleType type = toStyleType(element.attribute(StyleString, StyleStringDefValue));
     MImKeyModel::WidthType widthType = toWidthType(element.attribute(WidthTypeString, WidthTypeStringDefValue));
     const bool isRtl = toBoolean(element.attribute(RtlString, RtlStringDefValue));
-    const bool isFixed = toBoolean(element.attribute(FixedString, FixedStringDefValue));
     const QString keyId = element.attribute(KeyIdString);
 
     if (!keyId.isEmpty()) {
@@ -592,7 +601,7 @@ void KeyboardData::parseTagKey(const QDomElement &element, ParseParameters &para
         }
     }
 
-    MImKeyModel *key = new MImKeyModel(type, widthType, isFixed, isRtl, keyId);
+    MImKeyModel *key = new MImKeyModel(type, widthType, isRtl, keyId);
     params.currentKey = key;
     params.currentRow->keys.append(key);
 
@@ -646,6 +655,14 @@ MImKeyBinding::KeyAction KeyboardData::keyActionFromString(const QString &typeSt
         result = MImKeyBinding::ActionOnOffToggle;
     else if (typeStr == ActionStrCompose)
         result = MImKeyBinding::ActionCompose;
+    else if (typeStr == ActionStrLeft)
+        result = MImKeyBinding::ActionLeft;
+    else if (typeStr == ActionStrUp)
+        result = MImKeyBinding::ActionUp;
+    else if (typeStr == ActionStrRight)
+        result = MImKeyBinding::ActionRight;
+    else if (typeStr == ActionStrDown)
+        result = MImKeyBinding::ActionDown;
     else
         result = MImKeyBinding::ActionInsert;
     return result;

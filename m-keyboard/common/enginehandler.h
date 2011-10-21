@@ -38,6 +38,8 @@
 #include <QMap>
 #include <QPointer>
 #include <QStringList>
+#include <QList>
+#include <QRegExp>
 
 class MAbstractKeyboardEngine;
 class MImEngineWordsInterface;
@@ -105,6 +107,11 @@ public:
      * \brief Returns true if this language supports auto capitalization.
      */
     virtual bool hasAutoCaps() const = 0;
+
+    /*!
+     * \brief Returns a list of regular expressions that match for auto capitalization cases.
+     */
+    virtual QList<QRegExp> autoCapsTriggers() const = 0;
 
     /*!
      * \brief Returns true if this language supports context.
@@ -192,10 +199,11 @@ public:
      * it can not complete refreshing other UI parts (for example, update Caps Lock state). So the remained
      * UI update should be done by the caller after this method returns.
      * \param event, the key click event to be processed.
+     * \param cycleKeyActive, current state of cycle key handling in the keyboard host.
      * \return "true" if the engine handler consumes the key event;
      *         Otherwise return "false".
      */
-    virtual bool handleKeyClick(const KeyEvent &event) = 0;
+    virtual bool handleKeyClick(const KeyEvent &event, bool cycleKeyActive = false) = 0;
 
     /*!
      * \brief Handle a key cacellation event.

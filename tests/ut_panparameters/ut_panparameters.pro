@@ -7,7 +7,7 @@ INCLUDEPATH += .
 
 include(../common_check.pri)
 
-LIBS += -Wl,-rpath=$${MALIIT_PLUGINS_DIR} -lmeego-keyboard
+LIBS += -Wl,-rpath=/usr/lib/meego-im-plugins/ -lmeego-keyboard
 
 # Input
 HEADERS += ut_panparameters.h \

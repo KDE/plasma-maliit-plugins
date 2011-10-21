@@ -59,6 +59,10 @@ public:
         ResetLastPosMember  //!< Do not use mouse event's lastPos member. Use current pos instead.
     };
 
+    enum AutoCommitBehaviour {
+        AllowAutoCommit,   //!< Allow committing previous key on press.
+        DisallowAutoCommit //!< Don't allow autocommitting.
+    };
 
     class TouchPointRecord
     {
@@ -100,45 +104,11 @@ public:
     //! \brief Handler for touch events
     void handleTouchEvent(QTouchEvent *event);
 
-
-    /*! \brief Touch point press handler for primary touch point.
-     *  \param tp The unprocessed Qt touchpoint.
-     *
-     *  This and other primary touch point methods (press, move, release) are used
-     *  because we want to enable mouse grab for primary touch points. This is possible
-     *  by utilizing regular mouse events even in multi-touch mode. Qt does not support
-     *  grabbing of touch points.
-     *
-     *  This is meant to be called from regular mouse events and primary touch point events.
-     *  Only the first one arrived will actually be processed. Reason for this
-     *  is that it is undocumented which one arrives first in case both are being
-     *  delivered.
-     *  \sa primaryTouchPointMoved
-     *  \sa primaryTouchPointReleased
-     */
-    void primaryTouchPointPressed(const QTouchEvent::TouchPoint &tp);
-
-    /*! \brief Touch point move handler for primary touch point.
-     *  \param tp The unprocessed Qt touchpoint.
-     *
-     *  This should be called only from mouseMoveEvent() handler.
-     */
-    void primaryTouchPointMoved(const QTouchEvent::TouchPoint &tp);
-
-    /*! \brief Touch point release handler for primary touch point.
-     *  \param tp The unprocessed Qt touchpoint.
-     *
-     *  This is meant to be called from regular mouse events and primary touch point events.
-     *  Only the first one arrived will actually be processed. Reason for this
-     *  is that it is undocumented which one arrives first in case both are being
-     *  delivered.
-     */
-    void primaryTouchPointReleased(const QTouchEvent::TouchPoint &tp);
-
-
     //! \brief Touch point press handler.
     //! \param tp The unprocessed Qt touchpoint.
-    void touchPointPressed(const QTouchEvent::TouchPoint &tp);
+    //! \param autoCommit Whether to allow or disallow autocommiting of previous key.
+    void touchPointPressed(const QTouchEvent::TouchPoint &tp,
+                           AutoCommitBehaviour autoCommit = AllowAutoCommit);
 
     //! \brief Touch point move handler.
     //! \param tp The unprocessed Qt touchpoint.
@@ -218,9 +188,6 @@ public:
     QTimer longPressTimer; //!< used to recognize long press
     QTimer idleVkbTimer;  //!< Whenever this key area of the VKB idles, gestures are activated.
     QTime lastTouchPointPressEvent; //!< measures elapsed time between two touchpoint press events
-    bool primaryPressArrived; //!< Has primary press arrived, either from touch or mouse events
-    bool primaryReleaseArrived; //!< Has primary release arrived, either from touch or mouse events
-    bool mouseMoveInTransition; //!< Whether next mouse move is the first that belongs to new primary touch point.
     bool allowedHorizontalFlick; //!< Contains true if horizontal gestures should be allowed.
     bool ignoreTouchEventsUntilNewBegin; //!< Workaround for NB#248227.
     QMap<int, QPointF> mostRecentTouchPositions; //!< Remember the most recent positions for each touch points.
@@ -229,6 +196,8 @@ public:
     QMap<int, TouchPointRecord> touchPointRecords; //!< Maps touch points to related key information.
     KeyEvent::Source source; //!< The source added to events from this area.
     bool enabledPanning;
+    QTouchEvent lastTouchEvent; //!< Used for resending previous event. Used by TouchForwardFilter.
+    bool idle;
 };
 //! \internal_end
 

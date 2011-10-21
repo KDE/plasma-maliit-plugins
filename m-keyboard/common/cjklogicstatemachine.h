@@ -39,6 +39,10 @@
 
 #include <MGConfItem>
 
+#ifdef HAVE_NGF
+#include <MNGFClient>
+#endif
+
 class QString;
 class KeyEvent;
 class InputStateAbstract;
@@ -65,7 +69,7 @@ public:
 public slots:
     bool handleKeyPress(const KeyEvent &event);
     bool handleKeyRelease(const KeyEvent &event);
-    bool handleKeyClick(const KeyEvent &event);
+    bool handleKeyClick(const KeyEvent &event, bool cycleKeyActive);
     bool handleKeyCancel(const KeyEvent &event);
 
     void handleOrientationChange(M::Orientation orientation);
@@ -76,6 +80,7 @@ public slots:
 
     void setSyllableDivideEnabled(bool enabled);
     bool IsSyllableDivideEnabled() const { return syllableDivideIsEnabled;}
+    void playWarningPrompt();
 
 signals:
     void layoutMenuKeyClicked();
@@ -148,6 +153,10 @@ private:
     bool syllableDivideIsEnabled;
 
     bool currentOnOffState;
+
+#ifdef HAVE_NGF
+    MNGFClient *ngfClient;
+#endif
 
     MGConfItem chineseTransliterationConf;
     QString chineseTransliteration;

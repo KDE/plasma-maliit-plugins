@@ -62,6 +62,10 @@ public:
         ActionSwitch,
         ActionOnOffToggle,
         ActionCompose,
+        ActionLeft,
+        ActionUp,
+        ActionRight,
+        ActionDown,
         NumActions
     };
 
@@ -121,6 +125,9 @@ public:
     //! \return true if the key needs right-to-left representation during rendering
     bool isRtl() const;
 
+    //! \return true if the key label needs to be rendered in an enlarged font
+    bool useEnlargedFont() const;
+
 private:
     //! Helper method for toKeyEvent methods
     KeyEvent toKeyEventImpl(QKeyEvent::Type eventType,
@@ -153,11 +160,14 @@ private:
     bool compose;
     //! True if this is an rtl key.
     bool rtl;
+    //! True if the label font is to be larger than default
+    bool enlarged;
 
     friend class KeyboardData;
     friend class Ut_MImKeyModel;
     friend class Ut_MImKey;
     friend class Ut_MVirtualKeyboard;
+    friend class Ut_MagnifierHost;
 };
 
 
@@ -198,6 +208,10 @@ inline bool MImKeyBinding::isRtl() const
     return rtl;
 }
 
+inline bool MImKeyBinding::useEnlargedFont() const
+{
+    return enlarged;
+}
 
 /*!
  * \brief MImKeyModel is a container for bindings of a key in a keyboard layout
@@ -228,12 +242,10 @@ public:
      * \brief Constructs new object
      * \param type The style type for button.
      * \param widthType The width type for the button.
-     * \param isFixed Contains true if button should use fixed width type.
      * \param isRtl Contains true if button should use RTL icon.
      */
     explicit MImKeyModel(StyleType type = NormalStyle, WidthType widthType = Medium,
-                        bool isFixed = false, bool isRtl = false,
-                        const QString &id = QString());
+                         bool isRtl = false, const QString &id = QString());
 
     ~MImKeyModel();
 
@@ -272,9 +284,6 @@ public:
     //! Returns the width type.
     WidthType width() const;
 
-    //! Returns true if button uses fixed width type.
-    bool isFixedWidth() const;
-
     //! Returns true if button uses RTL icon.
     bool rtl() const;
 
@@ -303,9 +312,6 @@ private:
     StyleType mStyle;
 
     WidthType mWidthType;
-
-    //! Contains true if button uses fixed width.
-    bool isFixed;
 
     //! Contains true if button uses RTL icon.
     bool isRtl;

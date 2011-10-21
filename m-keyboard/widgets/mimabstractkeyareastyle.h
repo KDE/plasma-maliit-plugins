@@ -44,8 +44,11 @@ class M_EXPORT MImAbstractKeyAreaStyle : public MWidgetStyle
 public:
     M_STYLE_ATTRIBUTE(QColor, fontColor, FontColor)
     M_STYLE_ATTRIBUTE(QFont, font, Font)
+    M_STYLE_ATTRIBUTE(int, fontSize, FontSize)
     M_STYLE_ATTRIBUTE(qreal, fontOpacity, FontOpacity)
     M_STYLE_ATTRIBUTE(QFont, secondaryFont, SecondaryFont)
+    M_STYLE_ATTRIBUTE(int, enlargedLabelFontSize, LowercaseLabelFontSize)
+    M_STYLE_ATTRIBUTE(qreal, toneResizeFactor, ToneResizeFactor)
 
     M_STYLE_ATTRIBUTE(int, labelMarginTop, LabelMarginTop)
     M_STYLE_ATTRIBUTE(int, labelMarginLeftWithSecondary, LabelMarginLeftWithSecondary)
@@ -60,6 +63,7 @@ public:
     M_STYLE_ATTRIBUTE(qreal, touchpointVerticalGravity, TouchpointVerticalGravity)
     M_STYLE_ATTRIBUTE(qreal, touchpointVerticalOffset, TouchpointVerticalOffset)
 
+    M_STYLE_ATTRIBUTE(int, pauseUpdatePopupTimeout, PauseUpdatePopupTimeout)
     M_STYLE_ATTRIBUTE(int, panGestureTimeout, PanGestureTimeout)
     M_STYLE_ATTRIBUTE(int, panGestureStartThreshold, PanGestureStartThreshold)
     M_STYLE_ATTRIBUTE(int, panGestureFinishThreshold, PanGestureFinishThreshold)
@@ -144,6 +148,42 @@ public:
     M_STYLE_ATTRIBUTE(QSize,   keyMenuCompactIconSize, KeyMenuCompactIconSize)
     M_STYLE_ATTRIBUTE(QString, keyMenuCompactIconId, KeyMenuCompactIconId)
     M_STYLE_ATTRIBUTE(QString, keyMenuCompactIconIdRtl, KeyMenuCompactIconIdRtl)
+
+    // Left arrow key icon
+    M_STYLE_ATTRIBUTE(QSize, keyLeftIconSize, KeyLeftIconSize)
+    M_STYLE_ATTRIBUTE(QString, keyLeftIconId, KeyLeftIconId)
+    M_STYLE_ATTRIBUTE(QString, keyLeftIconIdRtl, KeyLeftIconIdRtl)
+
+    M_STYLE_ATTRIBUTE(QSize,   keyLeftCompactIconSize, KeyLeftCompactIconSize)
+    M_STYLE_ATTRIBUTE(QString, keyLeftCompactIconId, KeyLeftCompactIconId)
+    M_STYLE_ATTRIBUTE(QString, keyLeftCompactIconIdRtl, KeyLeftCompactIconIdRtl)
+
+    // Up arrow key icon
+    M_STYLE_ATTRIBUTE(QSize, keyUpIconSize, KeyUpIconSize)
+    M_STYLE_ATTRIBUTE(QString, keyUpIconId, KeyUpIconId)
+    M_STYLE_ATTRIBUTE(QString, keyUpIconIdRtl, KeyUpIconIdRtl)
+
+    M_STYLE_ATTRIBUTE(QSize,   keyUpCompactIconSize, KeyUpCompactIconSize)
+    M_STYLE_ATTRIBUTE(QString, keyUpCompactIconId, KeyUpCompactIconId)
+    M_STYLE_ATTRIBUTE(QString, keyUpCompactIconIdRtl, KeyUpCompactIconIdRtl)
+
+    // Right arrow key icon
+    M_STYLE_ATTRIBUTE(QSize, keyRightIconSize, KeyRightIconSize)
+    M_STYLE_ATTRIBUTE(QString, keyRightIconId, KeyRightIconId)
+    M_STYLE_ATTRIBUTE(QString, keyRightIconIdRtl, KeyRightIconIdRtl)
+
+    M_STYLE_ATTRIBUTE(QSize,   keyRightCompactIconSize, KeyRightCompactIconSize)
+    M_STYLE_ATTRIBUTE(QString, keyRightCompactIconId, KeyRightCompactIconId)
+    M_STYLE_ATTRIBUTE(QString, keyRightCompactIconIdRtl, KeyRightCompactIconIdRtl)
+
+    // Down arrow key icon
+    M_STYLE_ATTRIBUTE(QSize, keyDownIconSize, KeyDownIconSize)
+    M_STYLE_ATTRIBUTE(QString, keyDownIconId, KeyDownIconId)
+    M_STYLE_ATTRIBUTE(QString, keyDownIconIdRtl, KeyDownIconIdRtl)
+
+    M_STYLE_ATTRIBUTE(QSize,   keyDownCompactIconSize, KeyDownCompactIconSize)
+    M_STYLE_ATTRIBUTE(QString, keyDownCompactIconId, KeyDownCompactIconId)
+    M_STYLE_ATTRIBUTE(QString, keyDownCompactIconIdRtl, KeyDownCompactIconIdRtl)
 
     // Enter key icon
     M_STYLE_ATTRIBUTE(QSize, keyEnterIconSize, KeyEnterIconSize)

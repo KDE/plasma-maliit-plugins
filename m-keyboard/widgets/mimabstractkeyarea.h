@@ -154,6 +154,9 @@ public:
     //! \brief Returns whether panning gesture is enabled
     bool panningEnabled() const;
 
+    //! \brief Get the most recent touch event.
+    const QTouchEvent &lastTouchEvent() const;
+
 public slots:
     //! \brief Tell key area to switch levels for all keys.
     //! \param level the new level
@@ -360,6 +363,10 @@ protected:
     QRectF correctedReactionRect(const QRectF &originalRect) const;
 
 protected slots:
+
+    //! Shows popup and updates its content and position according current pressed key.
+    void asyncUpdatePopup();
+
     //! Update background images, text layouts, etc. when the theme changed.
     virtual void onThemeChangeCompleted();
 

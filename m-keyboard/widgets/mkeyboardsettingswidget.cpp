@@ -48,6 +48,7 @@
 #include <MContainer>
 #include <MAbstractCellCreator>
 #include <MImageWidget>
+#include <MSeparator>
 
 #include <QObject>
 #include <QGraphicsLinearLayout>
@@ -216,9 +217,32 @@ void MKeyboardSettingsWidget::buildUi()
     containerLayout->setContentsMargins(0, 0, 0, 0);
     chineseContainer = new QGraphicsWidget(this); // Used to be able to show/hide all children
     chineseContainer->setLayout(containerLayout);
+
     chineseSettingHeader = new MLabel(this);
     chineseSettingHeader->setStyleName("CommonGroupHeaderInverted");
-    containerLayout->addItem(chineseSettingHeader);
+
+    MContainer *headerContainer = new MContainer;
+    headerContainer->setContentsMargins(0, 0, 0, 0);
+    headerContainer->setStyleName("CommonGroupHeaderPanelInverted");
+    headerContainer->setHeaderVisible(false);
+
+    MSeparator *headerSeparator = new MSeparator;
+    headerSeparator->setStyleName("CommonGroupHeaderDividerInverted");
+
+    QGraphicsLinearLayout *headerLayout(new QGraphicsLinearLayout(Qt::Horizontal));
+    headerLayout->setContentsMargins(0, 0, 0, 0);
+    headerLayout->setSpacing(0);
+
+    headerLayout->addItem(headerSeparator);
+    headerLayout->setStretchFactor(headerSeparator, 2);
+
+    headerLayout->addItem(chineseSettingHeader);
+    headerLayout->setAlignment(chineseSettingHeader, Qt::AlignLeft);
+    headerLayout->setStretchFactor(chineseSettingHeader, 0);
+
+    headerContainer->centralWidget()->setLayout(headerLayout);
+
+    containerLayout->addItem(headerContainer);
 
     // Error correction setting
     MContainer *fuzzyContainer = new MContainer(this);

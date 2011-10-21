@@ -385,7 +385,6 @@ MImKeyAreaPrivate::MImKeyAreaPrivate(const LayoutData::SharedLayoutSection &newS
       mMaxNormalizedWidth(0),
       shiftKey(0),
       equalWidthKeys(true),
-      WidthCorrection(0),
       stylingCache(new MImKey::StylingCache),
       toggleKey(0),
       composeKey(0),
@@ -423,21 +422,6 @@ void MImKeyAreaPrivate::loadKeys()
             if (!key->model().id().isEmpty()) {
                 registerKeyId(key);
             }
-
-            // Temporary, dirty workaround-hack to detect Arabic layouts
-            // because the QTextLayout rendering is broken with Arabic characters and
-            // the width must be corrected. See NB#197937 and QTBUG-15511.
-            // TODO: Remove this when the above bugs are fixed.
-            if (WidthCorrection == 0)
-            {
-                QVector<uint> Ucs4Codes = key->label().toUcs4();
-                uint UnicodeCode = Ucs4Codes.size() > 0 ? Ucs4Codes[0] : 0;
-
-                // The character is in the Unicode range of the Arabic characters.
-                if (UnicodeCode >= 1536 && UnicodeCode <= 1791)
-                    WidthCorrection = -8;
-            }
-
 
             // TODO: Remove restriction to have only one shift key per layout?
             if (key->binding().action() == MImKeyBinding::ActionShift) {

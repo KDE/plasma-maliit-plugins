@@ -74,6 +74,7 @@ HEADERS += \
     $$WIDGETS_DIR/mimsnapshotpixmapitem.h \
     $$WIDGETS_DIR/notificationarea.h \
     $$WIDGETS_DIR/layoutpanner.h \
+    $$WIDGETS_DIR/touchforwardfilter.h
 
 INSTALL_HEADERS += $$PUBLIC_HEADERS + $$PUBLIC_STYLE_HEADERS
 
@@ -119,6 +120,7 @@ SOURCES += \
     $$WIDGETS_DIR/mimsnapshotpixmapitem.cpp \
     $$WIDGETS_DIR/notificationarea.cpp \
     $$WIDGETS_DIR/layoutpanner.cpp \
+    $$WIDGETS_DIR/touchforwardfilter.cpp
 
 INCLUDEPATH += $$WIDGETS_DIR
 DEPENDPATH += $$WIDGETS_DIR

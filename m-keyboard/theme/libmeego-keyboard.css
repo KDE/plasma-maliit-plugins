@@ -30,6 +30,10 @@ NotificationStyle {
     padding-top: 1mm;
     padding-right: 1mm;
     padding-bottom: 1mm;
+
+    text-maximum-width: 0;
+
+    preferred-size: -1 -1;
 }
 
 NotificationStyle.Portrait {
@@ -37,16 +41,35 @@ NotificationStyle.Portrait {
 }
 
 NotificationStyle#SwitchingPlugin {
-    font: $FONT_KEYBOARD;
-    font-size: 56;
-    background-opacity: 0.8;
+    background-opacity: 1.0;
+    background-image: "Notification_bg_L" $ROUNDED_CORNERS;
+    font-size: 64;
     text-horizontal-alignment: hcenter;
-    text-vertical-alignment: vcenter;
-    text-wrap: true;
-    padding-left: 1mm;
-    padding-top: 1mm;
-    padding-right: 1mm;
-    padding-bottom: 5mm;
+    text-vertical-alignment: bottom;
+
+    hold-time: 250;
+
+    preferred-size: 100% 200;
+    minimum-size:   100% 200;
+    maximum-size:   100% 200;
+
+    text-maximum-width: 500;
+}
+
+NotificationStyle#SwitchingPlugin.Portrait {
+    background-opacity: 1.0;
+    background-image: "Notification_bg_P" $ROUNDED_CORNERS;
+    font-size: 56;
+    text-horizontal-alignment: hcenter;
+    text-vertical-alignment: bottom;
+
+    hold-time: 250;
+
+    preferred-size: 100% 300;
+    minimum-size:   100% 300;
+    maximum-size:   100% 300;
+
+    text-maximum-width: 360;
 }
 
 MImAbstractKeyAreaStyle {
@@ -55,6 +78,7 @@ MImAbstractKeyAreaStyle {
     font-color: $FONT_COLOR_KEYBOARD;
     font-opacity: 1.0;
     secondary-font: $FONT_SMALL;
+    tone-resize-factor: 2.0;
 
     key-pressed-font-color: $FONT_COLOR_KEYBOARD;
     key-selected-font-color: $COLOR_FOREGROUND;
@@ -104,6 +128,34 @@ MImAbstractKeyAreaStyle {
     /*** FIXME: no rtl icon available ***/
     key-backspace-compact-icon-id-rtl: "icon-m-input-methods-backspace-compact";
 
+    key-left-icon-id: "icon-s-input-method-left";
+    key-left-icon-size: 32 32;
+    key-left-icon-id-rtl: "icon-s-input-method-left";
+    key-left-compact-icon-id: ;
+    key-left-compact-icon-size: 0 0;
+    key-left-compact-icon-id-rtl: ;
+
+    key-up-icon-id: "icon-s-input-method-up";
+    key-up-icon-size: 32 32;
+    key-up-icon-id-rtl: "icon-s-input-method-up";
+    key-up-compact-icon-id: ;
+    key-up-compact-icon-size: 0 0;
+    key-up-compact-icon-id-rtl: ;
+
+    key-right-icon-id: "icon-s-input-method-right";
+    key-right-icon-size: 32 32;
+    key-right-icon-id-rtl: "icon-s-input-method-right";
+    key-right-compact-icon-id: ;
+    key-right-compact-icon-size: 0 0;
+    key-right-compact-icon-id-rtl: ;
+
+    key-down-icon-id: "icon-s-input-method-down";
+    key-down-icon-size: 32 32;
+    key-down-icon-id-rtl: "icon-s-input-method-down";
+    key-down-compact-icon-id: ;
+    key-down-compact-icon-size: 0 0;
+    key-down-compact-icon-id-rtl: ;
+
     key-menu-icon-size: 48 48;
     key-menu-icon-id: "icon-m-input-methods-menu";
     key-menu-icon-id-rtl: "icon-m-rtl-input-methods-menu";
@@ -149,10 +201,15 @@ MImAbstractKeyAreaStyle {
     commit-previous-key-on-press: true;
     auto-padding: true;
 
+    /*when pressing keys which are near keyboard border, pause to update popup*/
+    pause-update-popup-timeout: 75;
     pan-gesture-timeout: 250;
-    pan-gesture-start-threshold: 20;
+    /*the distance betwee the first touch position and the edge of keyboard
+    must be less than pan-gesture-start-threshold*/
+    pan-gesture-start-threshold: 15;
     pan-gesture-finish-threshold: 200;
-    pan-gesture-initial-movement: 20;
+    /*the minimum movement distance of pan gesture*/
+    pan-gesture-initial-movement: 40;
 
     /*** Key Geometry ***/
     required-key-icon-margins: 5 5;
@@ -227,6 +284,7 @@ MImAbstractKeyAreaStyle.Portrait {
     label-margin-top: 1.2mm;
     label-margin-left-with-secondary: 4.6mm;
     secondary-label-separation: 0.9mm;
+    enlarged-label-font-size: 35;
 
     /*** Behaviour ***/
     touchpoint-horizontal-gravity: 17px;
@@ -417,6 +475,33 @@ MImAbstractKeyAreaStyle.Portrait:keys40 {
     padding-right: 1px;
 }
 
+MImAbstractKeyAreaStyle.Landscape:keys45 {
+    use-fixed-key-width: true;
+
+    key-height-medium: 40px;
+
+    key-width-medium-fixed: 76px;
+    key-width-large-fixed: 111px;
+    key-width-x-large-fixed: 150px;
+    key-width-xx-large-fixed: 267px;
+
+    key-margin-left: 4px;
+    key-margin-right: 4px;
+    key-margin-top: 3px;
+    key-margin-bottom: 3px;
+
+    padding-left: 11px;
+    padding-right: 11px;
+    padding-top: 9px;
+    padding-bottom: 3px;
+}
+
+MImAbstractKeyAreaStyle.Portrait:keys45 {
+    use-fixed-key-width: true;
+
+    key-width-x-large-fixed: 88px;
+}
+
 MImAbstractKeyAreaStyle.Landscape:keys47 {
     use-fixed-key-width: true;
 
@@ -440,23 +525,40 @@ MImAbstractKeyAreaStyle.Landscape:keys47 {
 
 MImAbstractKeyAreaStyle.Portrait:keys47 {
     use-fixed-key-width: true;
+
+    key-width-x-large-fixed: 88px;
 }
 
 MImAbstractKeyAreaStyle.Landscape:hebrew {
     use-fixed-key-width: true;
+    font-size: 35;
 
-    key-width-medium-fixed: 86px;
-    key-width-x-large-fixed: 133px;
+    key-width-large-fixed: 88px;
+    key-width-x-large-fixed: 112px;
+    key-width-xx-large-fixed: 160px;
 }
 
 MImAbstractKeyAreaStyle.Portrait:hebrew {
     use-fixed-key-width: true;
+    font-size: 35;
 
-    key-width-medium-fixed: 44px;
-    key-width-x-large-fixed: 70px;
+    key-width-large-fixed: 88px;
+    key-width-x-large-fixed: 112px;
+    key-width-xx-large-fixed: 160px;
+}
 
-    padding-left: 6px;
-    padding-right: 6px;
+MImAbstractKeyAreaStyle.Landscape:vietnamese {
+}
+
+MImAbstractKeyAreaStyle.Portrait:vietnamese {
+}
+
+MImAbstractKeyAreaStyle.Portrait:bigfont {
+    font-size: 35;
+}
+
+MImAbstractKeyAreaStyle.Portrait:smallfont {
+    font-size: 28;
 }
 
 KeyboardShadowStyle {
@@ -766,7 +868,7 @@ MImToolbarStyle.Portrait {
 
 
 WordRibbonStyle {
-    background-image: "meegotouch-vkb-chinese-word-predicting-toolbar-background-landscape";
+    background-image: "meegotouch-keyboard-word-ribbon";
     space-between: 8;
 
     margin-left: 0;
@@ -781,12 +883,10 @@ WordRibbonStyle {
 }
 
 WordRibbonStyle.Landscape {
-    background-image: "meegotouch-vkb-chinese-word-predicting-toolbar-background-landscape";
     preferred-size: 854 65;
 }
 
 WordRibbonStyle.Portrait {
-    background-image: "meegotouch-vkb-chinese-word-predicting-toolbar-background-portrait";
     preferred-size: 480 65;
 
     padding-left: 4;
@@ -1050,38 +1150,48 @@ MKeyboardMagnifierStyle.Portrait {
 }
 
 LayoutPannerStyle {
-   commit-threshold: 427;
+   commit-threshold: 342;
    panning-animation-curve: outcubic;
    panning-animation-duration: 300;
    background-image:; /*"meegotouch-keyboard-background" $ROUNDED_CORNERS;*/
    background-color: #000000;
    background-opacity: 0.95;
 
-   dimming-color: #000000;
    initial-dimming-opacity: 0.7;
 
-   catching-up-animation-curve: outcubic;
    catching-up-animation-maximum-duration: 500;
-   catching-up-animation-speed: 1.5; /*for pixel*/
+   
+   layouts-catching-up-animation-curve: outcubic;
+   /*layouts catching up animation duration = (movement pixels * multiplier)*/
+   layouts-catching-up-animation-duration-multiplier: 0.6;
 
+   notifications-catching-up-animation-curve: outcubic;
+   /*notifications catching up animation duration = (movement pixels * multiplier)*/
+   notifications-catching-up-animation-duration-multiplier: 0.6;
+   /*the puase of notifications catching up animation in its duration*/
+   notifications-catching-up-animation-pause: 0.1;
+
+   /*if the movement when playing catching up animation is bigger than
+   minimum-movement-threshold, then adjust the endValue of catching up animation*/
    minimum-movement-threshold: 5;
-   sudden-movement-threshold: 40;
+   
+   /*if sudden movement distance is bigger than sudden-movement-threshold,
+   then play catching up animation*/
+   sudden-movement-threshold: 80;
 
-   outgoing-from-opacity: 1.0;
-   outgoing-to-opacity: 0.0;
+   outgoing-layout-from-opacity: 1.0;
+   outgoing-layout-to-opacity: 0.0;
 
-   outgoing-opacity-start-progress: 0.5;
-   outgoing-opacity-end-progress: 1.0;
+   outgoing-layout-opacity-start-progress: 0.5;
+   outgoing-layout-opacity-end-progress: 1.0;
 
-   incoming-from-opacity: 1.0;
-   incoming-to-opacity: 0.0;
+   incoming-layout-from-opacity: 1.0;
+   incoming-layout-to-opacity: 0.0;
 }
 
 LayoutPannerStyle.Portrait {
-   commit-threshold: 240;
-   catching-up-animation-duration: 450;
-
-   catching-up-animation-speed: 1.5;
+   commit-threshold: 192;
+   catching-up-animation-maximum-duration: 450;
 }
 
 
@@ -1095,18 +1205,41 @@ NotificationAreaStyle {
     visible-opacity: 1.0;
 
     notification-maximum-width: 500;
+
+    /*the smallest scale factor for notifications. It will be used as the from
+    scale for incoming notification, and used as the to scale for outgoing
+    notification.*/
     small-size-scale-factor: 0.5;
+
+    /*the maximum visible width for incoming and assistant notifications
+    at the beginning of panning. It is the percent of keyboard width*/
     initial-edge-maximum-visible-width: 0.25;
+    /*the from opacity for incoming and assistant notifications*/
     initial-edge-opacity: 0.6;
 
-    position-start-progress: 0.08;
-    position-end-progress: 0.5;
+    outgoing-position-start-progress: 0.4;
+    outgoing-position-end-progress: 0.75;
+    outgoing-scale-start-progress: 0.4;
+    outgoing-scale-end-progress: 0.7;
+    outgoing-opacity-start-progress: 0.4;
+    outgoing-opacity-end-progress: 1.0;
 
-    scale-start-progress: 0.08;
-    scale-end-progress: 0.5;
+    incoming-position-start-progress: 0.08;
+    incoming-position-end-progress: 0.5;
+    incoming-scale-start-progress: 0.1;
+    incoming-scale-end-progress: 0.7;
+    incoming-opacity-start-progress: 0.3;
+    incoming-opacity-end-progress: 1.0;
 
-    opacity-start-progress: 0.2;
-    opacity-end-progress: 1.0;
+    outgoing-scale-mutation-progress: 0.4;
+    outgoing-scale-mutation: 0.75;
+    outgoing-opacity-mutation-progress: 0.4;
+    outgoing-opacity-mutation: 0.5;
+
+    incoming-scale-mutation-progress: 0.4;
+    incoming-scale-mutation: 1.0;
+    incoming-opacity-mutation-progress: 0.4;
+    incoming-opacity-mutation: 1.0;
 
     show-animation-curve: outcubic;
     show-animation-duration: 200;

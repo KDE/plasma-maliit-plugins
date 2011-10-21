@@ -287,3 +287,7 @@ QList<MImPluginDescription> MInputMethodHostStub::pluginDescriptions(MInputMetho
     return QList<MImPluginDescription>();
 }
 
+void MInputMethodHostStub::setLanguage(const QString &)
+{
+}
+

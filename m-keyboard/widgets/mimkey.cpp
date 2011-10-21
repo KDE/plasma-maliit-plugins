@@ -118,6 +118,12 @@ namespace {
     //! Unicode Right-to-Left Embedding mark (RLE)
     const QChar RleMark(0x202B);
 
+    //! Unicode Pop Directional Formatting mark (PDF)
+    const QChar PdfMark(0x202C);
+
+    //! Unicode n-width space (en-space) mark
+    const QChar EnSpace(0x2002);
+
     // Return style name by it's type
     QString style2name(MImKeyModel::StyleType styleType)
     {
@@ -233,10 +239,15 @@ const QString MImKey::label() const
 
 const QString MImKey::renderingLabel() const
 {
+    QString text = label();
+    // Add a space character before non-spaced marks to allow their positioning in labels
+    if ((text.length() == 1) && text.at(0).category() == QChar::Mark_NonSpacing)
+        text.prepend(EnSpace);
+
     if (binding().isRtl()) {
-        return QString(RleMark) + label();
+        return QString(RleMark) + text + QString(PdfMark);
     } else {
-        return label();
+        return text;
     }
 }
 
@@ -304,18 +315,41 @@ void MImKey::invalidateLabelPos()
 void MImKey::updateLabelFont()
 {
     // this method does not update stylingCache,
-    // because it can not increase font size,
-    // so new font will always fit into area prepared
-    // for font defined by styling
+    // because it can not increase font size
+    // beyond key limits
 
     // Use a maximum label rectangle that is a bit smaller than the button
     const QRect maximumLabelRect = buttonRect().adjusted(0, 0, -10, -5).toRect();
     const bool shareFont = (model().width() == MImKeyModel::Medium
                            && !keyOverride());
     keyFontData = fontPool.font(shareFont);
+    QFont* font = keyFontData->font();
+
     // Skip a non-sense case without real dimensions
     if (buttonRect().width() != 0 && buttonRect().height() != 0) {
-        scaleDownFont(keyFontData->font(), label(), maximumLabelRect);
+        int pixelSize = font->pixelSize();
+        // Check for layout-specific font size
+        if (pixelSize == -1)
+            font->setPointSize(styleContainer->fontSize());
+        else
+            font->setPixelSize(styleContainer->fontSize());
+
+        QString text = label();
+        if (text.length() == 1) {
+            if (binding().useEnlargedFont()) {
+                if (pixelSize == -1)
+                    font->setPointSize(styleContainer->enlargedLabelFontSize());
+                else
+                    font->setPixelSize(styleContainer->enlargedLabelFontSize());
+            } else if (text.at(0).category() == QChar::Mark_NonSpacing) {
+                // Vn tones, Thai tones and vowels etc
+                if (pixelSize == -1)
+                    font->setPointSize(font->pointSize() * styleContainer->toneResizeFactor());
+                else
+                    font->setPixelSize(pixelSize * styleContainer->toneResizeFactor());
+            }
+        }
+        scaleDownFont(font, text, maximumLabelRect);
     }
 }
 
@@ -520,6 +554,15 @@ bool MImKey::isComposeKey() const
 bool MImKey::isBackspaceKey() const
 {
     return (binding().action() == MImKeyBinding::ActionBackspace);
+}
+
+bool MImKey::isAutoRepeatKey() const
+{
+    return (binding().action() == MImKeyBinding::ActionBackspace
+            || binding().action() == MImKeyBinding::ActionLeft
+            || binding().action() == MImKeyBinding::ActionUp
+            || binding().action() == MImKeyBinding::ActionRight
+            || binding().action() == MImKeyBinding::ActionDown);
 }
 
 bool MImKey::increaseTouchPointCount()
@@ -900,6 +943,26 @@ void MImKey::loadIcon(bool shift)
             iconProperty = "keyBackspaceIconId";
             size = styleContainer->keyBackspaceIconSize();
             compactIconSize = styleContainer->keyBackspaceCompactIconSize();
+            break;
+        case MImKeyBinding::ActionLeft:
+            iconProperty = "keyLeftIconId";
+            size = styleContainer->keyLeftIconSize();
+            compactIconSize = styleContainer->keyLeftCompactIconSize();
+            break;
+        case MImKeyBinding::ActionUp:
+            iconProperty = "keyUpIconId";
+            size = styleContainer->keyUpIconSize();
+            compactIconSize = styleContainer->keyUpCompactIconSize();
+            break;
+        case MImKeyBinding::ActionRight:
+            iconProperty = "keyRightIconId";
+            size = styleContainer->keyRightIconSize();
+            compactIconSize = styleContainer->keyRightCompactIconSize();
+            break;
+        case MImKeyBinding::ActionDown:
+            iconProperty = "keyDownIconId";
+            size = styleContainer->keyDownIconSize();
+            compactIconSize = styleContainer->keyDownCompactIconSize();
             break;
         case MImKeyBinding::ActionShift:
             if (shift) {

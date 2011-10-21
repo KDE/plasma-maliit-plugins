@@ -44,6 +44,7 @@ public:
     virtual ~CycleKeyHandler();
     bool handleTextInputKeyClick(const KeyEvent &event);
     void reset();
+    bool isActive();
 
 private slots:
     void commitCycleKey();
