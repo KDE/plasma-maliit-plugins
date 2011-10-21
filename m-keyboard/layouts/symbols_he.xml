@@ -2,7 +2,7 @@
 <!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
 <keyboard version="1.0" catalog="symbols">
   <layout type="general">
-    <section id="symbols0" type="non-sloppy">
+    <section id="symbols0" type="non-sloppy" style="hebrew">
       <row>
         <key>
           <binding label="1"/>
@@ -71,7 +71,7 @@
       </row>
 
       <row>
-        <key style="special" width="large">
+        <key style="special">
           <binding action="switch" label="1/2"/>
         </key>
         
@@ -101,7 +101,7 @@
         
         <spacer/>
 
-        <key style="special" width="large">
+        <key style="special">
           <binding action="backspace"/>
         </key>
       </row>
@@ -112,19 +112,19 @@
         </key>
         
         <key><binding label=","/></key>
-        <key width="stretched">
+        <key width="xx-large">
             <binding action="space"/>
         </key>
         <key><binding label="."/></key>
         
-        <key style="special" width="xx-large" id="actionKey">
+        <key style="special" width="x-large" id="actionKey">
           <binding action="return"/>
         </key>
 
       </row>
     </section>
 
-    <section id="symbols1" type="non-sloppy">
+    <section id="symbols1" type="non-sloppy" style="hebrew">
       <row>
         <key>
           <binding label="€"/>
@@ -193,7 +193,7 @@
       </row>
 
       <row>
-        <key style="special" width="large">
+        <key style="special">
           <binding action="switch" label="2/2"/>
         </key>
         
@@ -223,7 +223,7 @@
 
         <spacer/>
 
-        <key style="special" width="large">
+        <key style="special">
           <binding action="backspace"/>
         </key>
       </row>
@@ -234,12 +234,12 @@
         </key>
         
         <key><binding label=","/></key>
-        <key width="stretched">
+        <key width="xx-large">
             <binding action="space"/>
         </key>
         <key><binding label="."/></key>
         
-        <key style="special" width="xx-large" id="actionKey">
+        <key style="special" width="x-large" id="actionKey">
           <binding action="return"/>
         </key>
       </row>
