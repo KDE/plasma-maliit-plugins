@@ -110,11 +110,11 @@ Column {
                     color: isShiftLocked ? keyStyle.backgroundPressed : keyStyle.background
                     onClickedPass: {
                             isShifted = (!isShifted)
-                            isShiftLocked = isShiftLocked ? false : isShiftLocked
+                            isShiftLocked = false
                     }
                     onPressedAndHoldPass: {
-                            isShifted = (!isShifted)
-                            isShiftLocked = (!isShiftLocked)
+                            isShifted = true
+                            isShiftLocked = true
                     }
                 }
                 Row {
