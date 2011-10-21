@@ -1,3 +1,60 @@
+0.80.7
+======
+
+CHANGES SINCE 0.80.6
+* Merge latest Harmattan VKB plugin into Maliit upstream.
+* Caps-lock functionlity and dynamic key overrides for QML plugin.
+
+BUG FIXES
+* Fixes: Long-press on shift key always activates caps-lock
+* Fixes: BMC#23442 - [CE] Caps Lock is inaccessible in virtual keyboard
+* Fixes: Align Arabic and Farsi symviews with main view
+* Fixes: Align Hebrew symbol view with "qwerty" view
+* Fixes: Use bigger font size for Hebrew layout in landscape mode
+* Fixes: NB#286697 - In landscape mode, backspace key is missing in hebrew vkb layout
+* Fixes: NB#277439 - Above and below Thai characters input consecutively go above each other
+* Fixes: NB#281156 - [hwkb] N950 Hardware SYM key causes virtual keyboard to print button label
+* Fixes: NB#285711 - Accent popup shows two active keys sometimes
+* Fixes: NB#281474 - Word suggestion list is disappearing when the finger is lifted from the keyboard after long tapping on the space key.
+* Fixes: sometimes during panning, the next incoming layout snapshot is empty.
+* Fixes: NB#284540 - The Candidate words is showed next Plugin.
+* Fixes: NB#280274 - permille symbol shown instead of section of a law in Kazakh
+* Fixes: NB#282901 - Contact > while editing a contact, Arabic digits appears instead of Hindic on the keypad.
+* Fixes: NB#272715 - Dead key VKB layout is retaining in a scenario.
+* Fixes: NB#285297 - Define key widths for Hebrew layout
+* Fixes: NB#284133, Autocaps doesn't work with English quotation rules
+* Fixes: NB#285299, Change Farsi keyboard layout name ("Parsi" -> "Farsi")
+* Fixes: NB#268106, Accents in Thai layouts are not aligned correctly inside a key/pop-up menu
+* Fixes: NB#281752, Word tracker does not separate words from symbol when typing.
+* Fixes: NB#284004, Vietnamese VKB is shown as truncated in landscape mode & some keys are missing in portrait mode.
+* Fixes: NB#275694 - Chinese letters are allowed to enter in email address field.
+* Fixes: NB#275190.
+* Fixes: NB#279665 - Input Settings; §qtn_ckb_chinese_keyboards§ layout is wrong.
+* Fixes: NB#283593 - VKB: Sym Key button is unlocalized and wrong layout for question mark displayed.
+* Fixes: NB#280952.
+* Fixes: NB#278294, With the swype keyboard enabled,if all the keyboards are deselected and selected again, unable to change the vkb layouts.
+* Fixes: NB#281465, With the one installed keyboard and vkb in caps lock state,shift key is shown as inactive when the device is rotated.
+* Fixes: Signal connection warnings due to flick gesture and key overrides
+* Fixes: NB#278740 - meego-keyboard-dev package is incomplete
+* Fixes: NB#271761 - Multi-label keys always have extended keys
+* Fixes: Check whether BorderPanRecognizer exists
+* Fixes: NB#255890, Autocaps logic screws up shift state when shift is held down
+* Fixes: Empty TARGET rule in TouchForwardFilter UT prevents proper installation
+* Fixes: NB#278596 - Opening new message window is jerky/stuttering
+* Fixes: Blit children items correctly on widget surface
+* Fixes: Avoid potential crashes in MImSnapshotItemPixmapItem::grabWidgets
+* Fixes: For shapshot item, use single painter instance and blit directly onto target pixmap
+* Fixes: Coding style in MImSnapshotPixmapItem
+* Fixes: Bug 279089 - Number view in Chinese VKB should not display candidate bar.
+* Fixes: NB#279536, VKB slide and popup feedbacks need to be updated along with new vibra daemon
+* Fixes: NB#279903 - The assistant layout notification does not have proper position
+* Fixes: NB#277776 - [TASK] [Fine Tuning] Panning gesture style
+* Fixes: NB#279040 - HWR crashed after Zhuyin input in email field of Contacts application
+* Fixes: NB#252531, Cursor is in the wrong end of textedit in arabic.
+* Fixes: NB#278443 Input: ITU-T VKB (T9 keyboard) in Hindi number mode has Arabic letters. It should be always Latin letters
+* Fixes: NB#275406.
+* Fixes: NB#276954 Focus on textedit causes candidate list to popup unnecessarily
+
 0.80.6
 ======
 
