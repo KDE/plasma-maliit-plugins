@@ -532,8 +532,9 @@ MImAbstractKeyAreaStyle.Portrait:keys47 {
 MImAbstractKeyAreaStyle.Landscape:hebrew {
     use-fixed-key-width: true;
 
-    key-width-medium-fixed: 86px;
-    key-width-x-large-fixed: 133px;
+    key-width-large-fixed: 88px;
+    key-width-x-large-fixed: 112px;
+    key-width-xx-large-fixed: 160px;
 }
 
 MImAbstractKeyAreaStyle.Portrait:hebrew {
