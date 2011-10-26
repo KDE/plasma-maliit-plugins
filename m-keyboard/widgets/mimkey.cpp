@@ -314,10 +314,6 @@ void MImKey::invalidateLabelPos()
 
 void MImKey::updateLabelFont()
 {
-    // this method does not update stylingCache,
-    // because it can not increase font size
-    // beyond key limits
-
     // Use a maximum label rectangle that is a bit smaller than the button
     const QRect maximumLabelRect = buttonRect().adjusted(0, 0, -10, -5).toRect();
     const bool shareFont = (model().width() == MImKeyModel::Medium
@@ -350,6 +346,7 @@ void MImKey::updateLabelFont()
             }
         }
         scaleDownFont(font, text, maximumLabelRect);
+        stylingCache->primary = QFontMetrics(*font);
     }
 }
 
@@ -392,7 +389,7 @@ void MImKey::updateLabelPos() const
             const int primaryX = paintingArea.left() + labelLeftWithSecondary;
             labelArea = QRectF(primaryX,
                                paintingArea.top(),
-                               stylingCache->primary.width(label()),
+                               stylingCache->primary.width(renderingLabel()),
                                paintingArea.height());
             if (!secondaryLabel().isEmpty()) {
                 secondaryLabelArea = QRectF(labelArea.right() + secondarySeparation,
