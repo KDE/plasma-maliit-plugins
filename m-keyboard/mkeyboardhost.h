@@ -40,6 +40,7 @@
 #include "mkeyoverride.h"
 #include "pangesture.h"
 
+#include <mimupdatereceiver.h>
 #include <MNamespace>
 
 #include <QTimer>
@@ -110,6 +111,7 @@ public:
     int keyboardHeight() const;
 
     bool imExtensionEvent(MImExtensionEvent *event);
+    MImUpdateReceiver * updateReceiver() const;
 
 public slots:
     //! Toggle key state is changed to \a onOff.
@@ -524,6 +526,7 @@ private:
     bool preferringNumbers;
 
     QTimer preparePanningTimer;
+    MImUpdateReceiver *mUpdateReceiver;
 
     friend class EngineHandlerDefault;
     friend class EngineHandlerCJK;

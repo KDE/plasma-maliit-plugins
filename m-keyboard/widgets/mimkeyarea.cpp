@@ -722,7 +722,8 @@ void MImKeyArea::paint(QPainter *painter,
     mTimestamp("MImKeyArea", "start");
     const MImAbstractKeyAreaStyleContainer &style(baseStyle());
 
-    const MScalableImage *background = style->backgroundImage();
+    const MScalableImage *background = (translucentModeEnabled() ? style->translucentBackgroundImage()
+                                                                 : style->backgroundImage());
 
     if (background) {
         background->draw(boundingRect().toRect(), painter);
@@ -738,6 +739,9 @@ void MImKeyArea::paint(QPainter *painter,
     foreach (const MImKeyAreaPrivate::KeyRow &row, d->rowList) {
         foreach (MImKey *key, row.keys) {
             key->setIgnoreOverriding(true);
+            key->setBackgroundOpacity(translucentModeEnabled() ? MImKey::TranslucentBackground
+                                                               : MImKey::OpaqueBackground);
+
             kp(key);
             d->drawDebugRects(painter, key,
                               drawButtonBoundingRects,
@@ -754,7 +758,8 @@ void MImKeyArea::paint(QPainter *painter,
     // Draw text next.
     // We use QGraphicsView::DontSavePainterState, so save/restore state manually
     painter->save();
-    painter->setPen(style->fontColor());
+    painter->setPen(translucentModeEnabled() ? style->translucentFontColor()
+                                             : style->fontColor());
     painter->setOpacity(style->fontOpacity());
 
     foreach (const MImKeyAreaPrivate::KeyRow &row, d->rowList) {

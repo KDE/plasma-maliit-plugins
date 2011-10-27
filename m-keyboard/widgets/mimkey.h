@@ -53,6 +53,11 @@ class MImKey
       public MImAbstractKey
 {
 public:
+    enum BackgroundOpacity {
+        OpaqueBackground,
+        TranslucentBackground
+    };
+
     //! Contains cached font information for current style
     struct StylingCache
     {
@@ -193,6 +198,9 @@ public:
     //! \brief Override key's binding.
     void overrideBinding(const MImKeyBinding* binding);
 
+    //! \brief How to draw background.
+    void setBackgroundOpacity(BackgroundOpacity bo);
+
     //! The width for this button. Not managed by this class.
     //! It is used by MImKeyArea to store the correct button size.
     qreal width;
@@ -296,6 +304,7 @@ private:
     bool needsCompactIcon;
 
     MImFontPool &fontPool;
+    BackgroundOpacity backgroundOpacity;
 
 #ifdef UNIT_TEST
     friend class Ut_MImKey;

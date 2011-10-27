@@ -103,6 +103,7 @@ namespace {
     }
 
     const char * const KeyBackground = "keyBackground";
+    const char * const TranslucentKeyBackground = "translucentKeyBackground";
 
     const char * const SpecialStyleName = "Special";
     const char * const DeadkeyStyleName = "Deadkey";
@@ -204,7 +205,8 @@ MImKey::MImKey(const MImKeyModel &newModel,
       ignoreOverride(false),
       composing(false),
       needsCompactIcon(false),
-      fontPool(pool)
+      fontPool(pool),
+      backgroundOpacity(OpaqueBackground)
 {
     if (mModel.binding(false)) {
         loadIcon(false);
@@ -609,7 +611,8 @@ int MImKey::touchPointLimit()
 const MScalableImage * MImKey::backgroundImage() const
 {
     const MScalableImage *background = 0;
-    QString backgroundProperty(KeyBackground);
+    QString backgroundProperty(backgroundOpacity == OpaqueBackground ? KeyBackground
+                                                                     : TranslucentKeyBackground);
 
     backgroundProperty.append(style2name(model().style()));
 
@@ -640,7 +643,8 @@ const MScalableImage * MImKey::backgroundImage() const
 const MScalableImage *MImKey::normalBackgroundImage() const
 {
     const MScalableImage *background = 0;
-    QString backgroundProperty(KeyBackground);
+    QString backgroundProperty(backgroundOpacity == OpaqueBackground ? KeyBackground
+                                                                     : TranslucentKeyBackground);
 
     backgroundProperty.append(style2name(model().style()));
 
@@ -1138,23 +1142,33 @@ const QColor &MImKey::fontColor() const
     // When overridden, keys in Normal, Pressed and Selected state will use
     // overrideColor instead:
     const bool highlighted(override && override->highlighted());
+    const bool translucent(backgroundOpacity == MImKey::TranslucentBackground);
     const QColor &overrideColor =(styleContainer->keyHighlightedFontColor());
+
+    const MImAbstractKeyAreaStyle &s(*styleContainer.operator->());
 
     switch (state()) {
     case MImKey::Pressed:
-        return (highlighted ? overrideColor : styleContainer->keyPressedFontColor());
+        return (highlighted ? overrideColor
+                            : (translucent ? s.translucentKeyPressedFontColor()
+                                           : s.keyPressedFontColor()));
 
     case MImKey::Selected:
-        return (highlighted ? overrideColor : styleContainer->keySelectedFontColor());
+        return (highlighted ? overrideColor
+                            : (translucent ? s.translucentKeySelectedFontColor()
+                                           : s.keySelectedFontColor()));
 
     // Disabled state ignores override font color:
     case MImKey::Disabled:
-        return styleContainer->keyDisabledFontColor();
+        return (translucent ? s.translucentKeyDisabledFontColor()
+                            : s.keyDisabledFontColor());
 
     default:
         qWarning() << __PRETTY_FUNCTION__ << "Invalid key state:" << state();
     case MImKey::Normal:
-        return (highlighted ? overrideColor : styleContainer->fontColor());
+        return (highlighted ? overrideColor
+                            : (translucent ? s.translucentFontColor()
+                                           : s.fontColor()));
     }
 }
 
@@ -1189,5 +1203,10 @@ void MImKey::updateOverrideAttributes(MKeyOverride::KeyOverrideAttributes change
     } else {
         show();
     }
+}
+
+void MImKey::setBackgroundOpacity(BackgroundOpacity bo)
+{
+    backgroundOpacity = bo;
 }
 

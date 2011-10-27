@@ -198,6 +198,7 @@ public:
     bool enabledPanning;
     QTouchEvent lastTouchEvent; //!< Used for resending previous event. Used by TouchForwardFilter.
     bool idle;
+    bool translucentModeEnabled; //!< Whether the key area should render itself translucently.
 };
 //! \internal_end
 

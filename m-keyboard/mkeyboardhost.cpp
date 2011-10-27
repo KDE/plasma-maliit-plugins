@@ -278,7 +278,8 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
       pluginSwitched(false),
       focusChanged(false),
       preferringNumbers(false),
-      preparePanningTimer()
+      preparePanningTimer(),
+      mUpdateReceiver(new MImUpdateReceiver(this))
 {
     Q_ASSERT(host != 0);
     Q_ASSERT(mainWindow != 0);
@@ -2735,6 +2736,7 @@ bool MKeyboardHost::imExtensionEvent(MImExtensionEvent *event)
         MImUpdateEvent *update = static_cast<MImUpdateEvent *>(event);
         LayoutsManager::instance().setWesternNumericInputEnforced(update->westernNumericInputEnforced());
         preferringNumbers = update->preferNumbers();
+        mUpdateReceiver->process(update);
     } break;
 
     default:
@@ -2742,6 +2744,11 @@ bool MKeyboardHost::imExtensionEvent(MImExtensionEvent *event)
     }
 
     return false;
+}
+
+MImUpdateReceiver * MKeyboardHost::updateReceiver() const
+{
+    return mUpdateReceiver;
 }
 
 

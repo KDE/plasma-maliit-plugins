@@ -261,6 +261,7 @@ public:
 class M_EXPORT MImAbstractKeyAreaStyleContainer : public MWidgetStyleContainer
 {
     M_STYLE_CONTAINER(MImAbstractKeyAreaStyle)
+    M_STYLE_MODE(Translucent)
 
     // Required to set style mode through MStyleContainer::setCurrentMode():
     friend class MImAbstractKeyAreaPrivate;
