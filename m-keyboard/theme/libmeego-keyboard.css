@@ -85,6 +85,13 @@ MImAbstractKeyAreaStyle {
     key-disabled-font-color: $FONT_COLOR_KEYBOARD;
     key-highlighted-font-color: $COLOR_FOREGROUND;
 
+    /*** Font colors for translucent key area ***/
+    translucent-font-color: $COLOR_FOREGROUND;
+    translucent-key-pressed-font-color: $COLOR_FOREGROUND;
+    translucent-key-selected-font-color: $COLOR_FOREGROUND;
+    translucent-key-disabled-font-color: $FONT_COLOR_KEYBOARD;
+    translucent-key-highlighted-font-color: $COLOR_FOREGROUND;
+
     /*** Graphical assets ***/
     background-image: "meegotouch-keyboard-background" $ROUNDED_CORNERS;
     key-background: "meegotouch-keyboard-key" $ROUNDED_CORNERS;
@@ -119,6 +126,12 @@ MImAbstractKeyAreaStyle {
     key-background-deadkey-pressed-highlighted: "meegotouch-keyboard-key-highlighted-pressed" $ROUNDED_CORNERS;
     key-background-deadkey-selected-highlighted: "meegotouch-keyboard-key-selected-highlighted" $ROUNDED_CORNERS;
     key-background-deadkey-pressed-selected-highlighted: "meegotouch-keyboard-key-pressed-selected-highlighted" $ROUNDED_CORNERS;
+
+    /*** Translucent graphical assets ***/
+    translucent-background-image: "meegotouch-keyboard-background-translucent" $ROUNDED_CORNERS;
+    translucent-key-background: "meegotouch-keyboard-key-translucent" $ROUNDED_CORNERS;
+    translucent-key-background-highlighted: "meegotouch-keyboard-key-highlighted-translucent" $ROUNDED_CORNERS;
+    translucent-key-background-special: "meegotouch-keyboard-function-key-translucent" $ROUNDED_CORNERS;
 
     key-backspace-icon-id: "icon-m-input-methods-backspace";
     key-backspace-icon-size: 38 38;
