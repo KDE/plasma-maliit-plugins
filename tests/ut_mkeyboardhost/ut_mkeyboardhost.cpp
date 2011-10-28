@@ -215,7 +215,7 @@ void Ut_MKeyboardHost::init()
 
     gLayoutLanguage = "fi";
 
-    subject = new MKeyboardHost(inputMethodHost, mainWindow);
+    subject = MKeyboardHost::create(inputMethodHost, mainWindow);
     inputMethodHost->clear();
     gAutoCapsEnabled = true;
 

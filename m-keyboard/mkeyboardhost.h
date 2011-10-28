@@ -68,9 +68,17 @@ class MKeyboardHost: public MAbstractInputMethod
     Q_OBJECT
 
 public:
+
     MKeyboardHost(MAbstractInputMethodHost *host,
                   QWidget *mainWindow);
     virtual ~MKeyboardHost();
+
+    //! Creates MKeyboardHost instance and init()'s it.
+    static MKeyboardHost * create(MAbstractInputMethodHost *host,
+                                  QWidget *mainWindow);
+
+    //! Completes initialization of MKeyboardHost instance.
+    void init();
 
     //! \brief Return the current instance, or 0 if none.
     static MKeyboardHost* instance();
@@ -527,6 +535,7 @@ private:
 
     QTimer preparePanningTimer;
     MImUpdateReceiver *mUpdateReceiver;
+    QWidget *mMainWindow;
 
     friend class EngineHandlerDefault;
     friend class EngineHandlerCJK;

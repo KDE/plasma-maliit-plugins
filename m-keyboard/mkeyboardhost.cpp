@@ -279,10 +279,26 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
       focusChanged(false),
       preferringNumbers(false),
       preparePanningTimer(),
-      mUpdateReceiver(new MImUpdateReceiver(this))
+      mUpdateReceiver(new MImUpdateReceiver(this)),
+      mMainWindow(mainWindow)
 {
+    Q_ASSERT(currentInstance == 0); // Several instances of this class is invalid.
+    currentInstance = this;
+}
+
+MKeyboardHost * MKeyboardHost::create(MAbstractInputMethodHost *host,
+                                      QWidget *mainWindow)
+{
+    MKeyboardHost *kbHost = new MKeyboardHost(host, mainWindow);
+    kbHost->init();
+    return kbHost;
+}
+
+void MKeyboardHost::init()
+{
+    MAbstractInputMethodHost *const host = inputMethodHost();
     Q_ASSERT(host != 0);
-    Q_ASSERT(mainWindow != 0);
+    Q_ASSERT(mMainWindow != 0);
 
     if (!MComponentData::instance()) {
         static int argc = qApp->argc();
@@ -296,7 +312,7 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
     connect(host, SIGNAL(pluginsChanged()),
             this, SLOT(onPluginsChange()));
 
-    view = new MPlainWindow(host, mainWindow);
+    view = new MPlainWindow(host, mMainWindow);
     // MSceneManager's of MWindow's are lazy-initialized. However, their
     //implict creation does resize the scene rect of our view, so we trigger
     // the lazy-initialization right here, to stay in control of things:
@@ -311,7 +327,7 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
     view->setSceneRect(QRect(QPoint(), screenSize));
 
 #ifdef HAVE_REACTIONMAP
-    MReactionMap::createInstance(*mainWindow, qAppName(), this);
+    MReactionMap::createInstance(*mMainWindow, qAppName(), this);
 #endif
 
     RegionTracker::createInstance();
@@ -493,9 +509,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
     connect(&slideUpAnimation, SIGNAL(finished()), this, SLOT(handleAnimationFinished()));
     // Trigger a reaction map update
     connect(&slideUpAnimation, SIGNAL(finished()), &ReactionMapPainter::instance(), SLOT(repaint()));
-
-    Q_ASSERT(currentInstance == 0); // Several instances of this class is invalid.
-    currentInstance = this;
 }
 
 MKeyboardHost::~MKeyboardHost()
