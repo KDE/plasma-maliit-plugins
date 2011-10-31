@@ -1,3 +1,9 @@
+meego-keyboard (0.7.18~1) unstable; urgency=low
+
+  * Fixes: NB#285309 - No way to input Western Arabic numerals
+
+ -- Aapo Kojo <aapo.kojo@nokia.com>  Mon, 31 Oct 2011 10:51:15 +0200
+
 meego-keyboard (0.7.17-1) unstable; urgency=low
 
   * Fixes: NB#277439 - Above and below Thai characters input consecutively go above each other
