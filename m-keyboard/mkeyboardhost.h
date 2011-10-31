@@ -520,6 +520,9 @@ private:
 
     bool pluginSwitched;
 
+    bool focusChanged;
+    bool preferringNumbers;
+
     QTimer preparePanningTimer;
 
     friend class EngineHandlerDefault;

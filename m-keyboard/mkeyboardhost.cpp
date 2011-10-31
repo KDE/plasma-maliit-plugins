@@ -276,6 +276,8 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
       pressedArrowKey(Qt::Key_unknown),
       firstArrowSent(false),
       pluginSwitched(false),
+      focusChanged(false),
+      preferringNumbers(false),
       preparePanningTimer()
 {
     Q_ASSERT(host != 0);
@@ -547,8 +549,10 @@ QTextStream &MKeyboardHost::touchPointLog()
 void MKeyboardHost::handleFocusChange(bool focusIn)
 {
     haveFocus = focusIn;
+    focusChanged = false;
     if (activeState == MInputMethod::OnScreen) {
         if (focusIn) {
+            focusChanged = true;
             symbolView->hideSymbolView();
             // reset latched shift state when focus is changed
             resetVirtualKeyboardLatchedShiftState();
@@ -586,6 +590,10 @@ void MKeyboardHost::sendRegionEstimate()
         QRectF vkbRect(vkbWidget->rect());
         vkbRect.moveBottom(stackedRects.top());
         stackedRects |= vkbRect;
+    } else if (symbolView->isVisible()) {
+        QRectF symRect(symbolView->rect());
+        symRect.moveBottom(stackedRects.top());
+        stackedRects |= symRect;
     }
 
     // Add toolbar rect (toolbar is always visible, even when it is empty)
@@ -633,6 +641,10 @@ void MKeyboardHost::show()
     prepareHideShowAnimation();
     if (activeState == MInputMethod::OnScreen) {
         vkbWidget->show();
+        if ((preferringNumbers && focusChanged)) {
+            focusChanged = false;
+            showSymbolView();
+        }
     }
 
     // Ensure the vkb layout language is the same as actual engine language.
@@ -704,7 +716,8 @@ void MKeyboardHost::prepareHideShowAnimation()
     } else {
         slideUpAnimation.setDuration(OnScreenAnimationTime);
 
-        if (symbolView->isActive()) {
+        if (symbolView->isActive()
+            || (preferringNumbers && focusChanged)) {
             slideUpAnimation.setTargetObject(symbolView);
         } else {
             slideUpAnimation.setTargetObject(vkbWidget);
@@ -779,6 +792,11 @@ void MKeyboardHost::handleAnimationFinished()
         MPlainWindow::instance()->sceneManager()->disappearSceneWindowNow(sceneWindow);
     } else { // QAbstractAnimation::Forward
         asyncPreparePanningIncomingWidget();
+        if (symbolView->isActive()) {
+            // Make sure VKB will be shown in correct place if symbol view
+            // was animated visible.
+            vkbWidget->setPos(0, MPlainWindow::instance()->visibleSceneSize().height() - vkbWidget->size().height());
+        }
     }
 
     RegionTracker::instance().enableSignals(true);
@@ -893,6 +911,19 @@ void MKeyboardHost::update()
 
     const int type = inputMethodHost()->contentType(valid);
     if (valid) {
+        // Show symbol view if focus changed to a text field that has
+        // flag Qt::ImhPreferNumbers set.
+        if (sipRequested
+            && (slideUpAnimation.state() == QAbstractAnimation::Stopped)
+            && preferringNumbers
+            && focusChanged
+            && (activeState == MInputMethod::OnScreen)
+            && type != M::NumberContentType
+            && type != M::PhoneNumberContentType) {
+            focusChanged = false;
+            showSymbolView();
+        }
+
         hardwareKeyboard->setKeyboardType(static_cast<M::TextContentType>(type));
         vkbWidget->setKeyboardType(type);
         if (EngineManager::instance().handler()
@@ -2695,6 +2726,7 @@ bool MKeyboardHost::imExtensionEvent(MImExtensionEvent *event)
     case MImExtensionEvent::Update: {
         MImUpdateEvent *update = static_cast<MImUpdateEvent *>(event);
         LayoutsManager::instance().setWesternNumericInputEnforced(update->westernNumericInputEnforced());
+        preferringNumbers = update->preferNumbers();
     } break;
 
     default:
