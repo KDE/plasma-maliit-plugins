@@ -312,3 +312,12 @@ bool EngineHandlerTonal::handleKeyClick(const KeyEvent &event, bool cycleKeyActi
     }
     return false;
 }
+
+bool EngineHandlerTonal::addSpaceWhenCandidateCommited() const
+{
+    const QString &lang = EngineManager::instance().activeLanguage();
+    if (lang.startsWith("th")) {
+        return false;
+    }
+    return EngineHandlerDefault::addSpaceWhenCandidateCommited();
+}

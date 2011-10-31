@@ -51,6 +51,7 @@ public:
     virtual bool handleKeyPress(const KeyEvent &event);
     virtual bool handleKeyRelease(const KeyEvent &event);
     virtual bool handleKeyClick(const KeyEvent &event, bool cycleKeyActive);
+    virtual bool addSpaceWhenCandidateCommited() const;
     //! \reimp_end
 
 private: // functions
