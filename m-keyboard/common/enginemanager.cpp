@@ -200,6 +200,11 @@ public:
         return false;
     }
 
+    virtual bool addSpaceWhenCandidateCommited() const
+    {
+        return true;
+    }
+
     virtual void clearPreedit(bool commit)
     {
         Q_UNUSED(commit);

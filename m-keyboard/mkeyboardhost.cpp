@@ -1262,6 +1262,8 @@ void MKeyboardHost::commitString(const QString &updatedString)
     // if word was selected from word list when preedit was edited AND
     // cursor was at the end of preedit.
     if (engineWidgetHost
+        && (!EngineManager::instance().handler()
+            || EngineManager::instance().handler()->addSpaceWhenCandidateCommited())
         && (engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode
             || (engineWidgetHost->displayMode() == AbstractEngineWidgetHost::DialogMode
                 && preeditHasBeenEdited
@@ -1775,7 +1777,6 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
             && engineWidgetHost->isActive()
             && EngineManager::instance().handler()->correctionAcceptedWithSpaceEnabled()) {
             if (engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode) {
-                spaceInsertedAfterCommitString = true;
                 const int suggestionIndex = engineWidgetHost->suggestedWordIndex();
                 const QString suggestion = engineWidgetHost->candidates().at(suggestionIndex);
 
@@ -1784,7 +1785,14 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
                     EngineManager::instance().engine()->commitWord(suggestionIndex);
                 }
 
-                inputMethodHost()->sendCommitString(suggestion + " ");
+                if (!EngineManager::instance().handler()
+                    || EngineManager::instance().handler()->addSpaceWhenCandidateCommited()) {
+                    spaceInsertedAfterCommitString = true;
+                    inputMethodHost()->sendCommitString(suggestion + " ");
+                } else {
+                    inputMethodHost()->sendCommitString(suggestion);
+                }
+
                 eventSent = true;
             } else {
                 // ignore space click when word list is visible.

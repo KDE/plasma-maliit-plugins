@@ -59,6 +59,7 @@ public:
     virtual bool isComposingInputMethod() const;
     virtual bool supportTouchPointAccuracy() const;
     virtual bool commitWhenCandidateClicked() const;
+    virtual bool addSpaceWhenCandidateCommited() const;
     virtual void clearPreedit(bool commit);
     virtual void editingInterrupted();
     virtual void resetHandler();
