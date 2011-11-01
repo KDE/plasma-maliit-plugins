@@ -118,7 +118,7 @@
 
       <row>
         <key style="special" width="x-large">
-          <binding action="sym" label="؟٣٢١"/>
+          <binding action="sym" label="?123"/>
         </key>
         
         <key><binding label="ذ"/></key>

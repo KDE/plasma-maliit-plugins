@@ -34,6 +34,9 @@
         <key>
           <binding label="&#x06F0;"/>
         </key>
+        <key>
+          <binding label="٪"/>
+        </key>
       </row>
 
       <row>
@@ -56,16 +59,19 @@
           <binding label="="/>
         </key>
         <key>
-          <binding label="٪"/>
-        </key>
-        <key>
-          <binding label="&#x0026;"/>
-        </key>
-        <key>
           <binding label="("/>
         </key>
         <key>
           <binding label=")"/>
+        </key>
+        <key>
+          <binding label="&#x003C;"/>
+        </key>
+        <key>
+          <binding label="&#x003E;"/>
+        </key>
+        <key>
+          <binding label="&#x0026;"/>
         </key>
       </row>
 
@@ -77,25 +83,28 @@
           <binding label="@" quickpick="true"/>
         </key>
         <key>
-          <binding label="~"/>
-        </key>
-        <key>
           <binding label="/"/>
         </key>
         <key>
           <binding label="\"/>
         </key>
         <key>
-          <binding label="&#x0027;" quickpick="true"/>
+          <binding label="&#x066B;"/>
         </key>
         <key>
-          <binding label="&#x066B;"/>
+          <binding label="&#x066C;"/>
+        </key>
+        <key>
+          <binding label="&#x061B;"/>
+        </key>
+        <key>
+          <binding label="&#x0027;" quickpick="true"/>
         </key>
         <key>
           <binding label="!"/>
         </key>
         <key>
-          <binding label="&#x061F;"/>
+          <binding label="؟"/>
         </key>
         
         <key style="special">
@@ -105,17 +114,16 @@
 
       <row>
         <key style="special" width="large">
-          <binding action="sym" label="&#x0627;&#x200C;&#x0628;&#x200C;&#x062A;"/>
+          <binding action="sym" label="&#x0627;&#x200C;&#x0628;&#x200C;&#x067E;"/>
         </key>
         
         <key><binding label="&#x060C;"/></key>
-        <key><binding label="."/></key>
         
         <key width="stretched">
           <binding action="space"/>
         </key>
-        
-        <key><binding label="&#x061B;"/></key>
+
+        <key><binding label="."/></key>
         
         <key style="special" width="xx-large" id="actionKey">
           <binding action="return"/>
@@ -156,6 +164,9 @@
         <key>
           <binding label="0"/>
         </key>
+        <key>
+          <binding label="%"/>
+        </key>
       </row>
 
       <row>
@@ -178,28 +189,10 @@
           <binding label="§"/>
         </key>
         <key>
-          <binding label="%"/>
-        </key>
-        <key>
-          <binding label="‰"/>
-        </key>
-        <key>
           <binding label="["/>
         </key>
         <key>
           <binding label="]"/>
-        </key>
-      </row>
-
-      <row>
-        <key style="special">
-          <binding action="switch" label="2/2"/>
-        </key>
-        <key>
-          <binding label="&lt;"/>
-        </key>
-        <key>
-          <binding label="&gt;"/>
         </key>
         <key>
           <binding label="«"/>
@@ -208,13 +201,38 @@
           <binding label="»"/>
         </key>
         <key>
+          <binding label="‰"/>
+        </key>
+
+      </row>
+
+      <row>
+        <key style="special">
+          <binding action="switch" label="2/2"/>
+        </key>
+        <key>
+          <binding label="&#x0060;"/>
+        </key>
+        <key>
+          <binding label="^"/>
+        </key>
+        <key>
+          <binding label="|"/>
+        </key>
+        <key>
+          <binding label="~"/>
+        </key>
+        <key>
+          <binding label=":"/>
+        </key>
+        <key>
+          <binding label=";"/>
+        </key>
+        <key>
           <binding label="&#x0022;"/>
         </key>
         <key>
-          <binding label="“"/>
-        </key>
-        <key>
-          <binding label="”"/>
+          <binding label="„"/>
         </key>
         <key>
           <binding label="?"/>
@@ -227,17 +245,16 @@
 
       <row>
         <key style="special" width="large">
-          <binding action="sym" label="&#x0627;&#x200C;&#x0628;&#x200C;&#x062A;"/>
+          <binding action="sym" label="&#x0627;&#x200C;&#x0628;&#x200C;&#x067E;"/>
         </key>
         
-        <key><binding label=";"/></key>
-        <key><binding label="."/></key>
+        <key><binding label=","/></key>
         
         <key width="stretched">
           <binding action="space"/>
         </key>
 		
-        <key><binding label=":"/></key>
+        <key><binding label="."/></key>
         
         <key style="special" width="xx-large" id="actionKey">
           <binding action="return"/>
