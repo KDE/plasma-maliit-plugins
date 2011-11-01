@@ -147,6 +147,9 @@ bool EngineHandlerTonal::isThaiInputAcceptable(QChar prevLetter, QChar curLetter
         return true;
     else if (ThaiCategoryAD2.contains(curLetter) && ThaiCategoryAV3.contains(prevLetter))
         return true;
+    // Thai consonants
+    else if (prevLetter >= QChar(0x0E01) && prevLetter <= QChar(0x0E2E))
+        return true;
 
     // Any other combination is illegal
     return false;
@@ -211,29 +214,24 @@ bool EngineHandlerTonal::handleKeyClick(const KeyEvent &event, bool cycleKeyActi
             // Actually this is not always so in Thai, but rendering the wrongly
             // placed diacritic this way looks at least as good as not allowing it
             QChar prevLetter;
-            if (cursorPos > 0)
+            if (cursorPos > 0) {
                 prevLetter = context.at(cursorPos - 1);
-            if (prevLetter.category() == QChar::Mark_NonSpacing) {
+                // Thai follows special rules for non-spacing characters
                 if (lang.startsWith("th")) {
-                    // Thai allows some non-spacing characters consequently
                     if (!isThaiInputAcceptable(prevLetter, curLetter))
                         prevLetter = QChar();
-                } else
-                    // By default two non-spacers consequently is illegal
+                } else if (prevLetter.category() == QChar::Mark_NonSpacing) {
                     prevLetter = QChar();
+                }
             }
-            bool commit = false;
             // For illegal combinations, give a space to zero-width characters for improved rendering
             if (prevLetter.isNull()) {
-                context.append(" ");
+                context.insert(cursorPos, " ");
                 cursorPos++;
-                commit = true;
             }
             // Send these to the host
             context.insert(cursorPos, curLetter);
             mKeyboardHost.setPreedit(context, cursorPos + 1);
-            if (commit)
-                clearPreedit(true);
             return true;
         // May have to correct Vietnamese tone position
         } else if (!autoPositionedTone.isNull() && 

@@ -68,10 +68,10 @@ private: // functions
     */
     bool placeVietnameseTone(QString& context, int cursorPos, QChar& tone);
 
-    /*! Determines whether the given input is legal to form a combined sequence in Thai.
+    /*! Determines whether this non-spacing letter is legal after the given letter in Thai.
      * \param prevLetter The letter preceding the input
-     * \param curLetter The letter just input
-     * \return true if the newly input letter should be accepted
+     * \param curLetter The non-spacing letter just input
+     * \return true if the newly input letter should be accepted as a combined sequence
     */
     bool isThaiInputAcceptable(QChar prevLetter, QChar curLetter);
 
