@@ -1,4 +1,3 @@
-
 #include "enginehandlerkorean.h"
 #include "mabstractinputmethodhost.h"
 #include "enginemanager.h"
@@ -15,7 +14,7 @@ namespace
 }
 
 EngineHandlerKorean::EngineHandlerKorean(MKeyboardHost &keyboardHost)
-    : EngineHandler(keyboardHost),
+    : EngineHandlerDefault(keyboardHost),
       mKeyboardHost(keyboardHost),
       mEngineWidgetHost(new MImCorrectionHost(keyboardHost.sceneWindow, 0))
 {
@@ -268,4 +267,3 @@ void EngineHandlerKorean::clearCandidates()
 {
     engine->clearEngineBuffer();
 }
-

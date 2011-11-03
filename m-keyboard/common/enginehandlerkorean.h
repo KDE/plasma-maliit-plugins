@@ -1,5 +1,6 @@
 #include "mabstractinputmethodhost.h"
 #include "enginemanager.h"
+#include "enginehandlerdefault.h"
 #include "mimcorrectionhost.h"
 #include "mkeyboardhost.h"
 #include <mimenginefactory.h>
@@ -31,10 +32,10 @@
  *
  */
 
-class EngineHandlerKorean : public EngineHandler
+class EngineHandlerKorean : public EngineHandlerDefault
 {
 public:
-    EngineHandlerKorean(MKeyboardHost &keyboardHost);
+    explicit EngineHandlerKorean(MKeyboardHost &keyboardHost);
     virtual ~EngineHandlerKorean();
     static QStringList supportedLanguages();
 
