@@ -51,11 +51,6 @@ public:
     virtual bool handleKeyPress(const KeyEvent &event);
     virtual bool handleKeyRelease(const KeyEvent &event);
     virtual bool handleKeyClick(const KeyEvent &event, bool cycleKeyActive);
-    virtual void deactivate();
-    virtual void clearPreedit(bool commit);
-    virtual void editingInterrupted();
-    virtual void resetHandler();
-    virtual void preparePluginSwitching();
     //! \reimp_end
 
 private: // functions
@@ -75,9 +70,17 @@ private: // functions
     */
     bool isThaiInputAcceptable(QChar prevLetter, QChar curLetter);
 
-private: // data
+    /*! Recomposes preedit if need be -- takes the last word from surroundingText to preedit.
+     * \return the changed preedit string, null if not changed
+    */
+    QString recomposePreedit();
 
-    MImEngineWordsInterface *engine;
-    QChar autoPositionedTone;
+    /*! Determines whether the tone mark in a Vietnamese word needs to be moved
+     * given the new input.
+     * \param input, The new input
+     * \param autoPositionedTone, The tone to be repositioned is placed here by this function
+     * \return true if there may be a need to relocate the tone mark
+    */
+    bool needsVietnameseToneReposition(QChar input, QChar& autoPositionedTone);
 };
 #endif

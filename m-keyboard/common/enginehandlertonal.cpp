@@ -37,6 +37,7 @@
 #include "enginehandlertonal.h"
 
 #include <mimenginefactory.h>
+#include <QTextBoundaryFinder>
 
 namespace
 {
@@ -46,20 +47,20 @@ namespace
     const QString ThaiCategoryABV1(QString("%1%2").arg(QChar(0x0E34)).arg(QChar(0x0E38)));
     const QString ThaiCategoryABV2(QString("%1%2%3").arg(QChar(0x0E31)).arg(QChar(0x0E36)).arg(QChar(0x0E39)));
     const QString ThaiCategoryAV3(QString("%1%2").arg(QChar(0x0E35)).arg(QChar(0x0E37)));
+
     const QString VietnameseVowels(QString::fromUtf8("aeiouyăâêôơư"));
     const QString VietnameseVowelsWithDiacritics(QString::fromUtf8("ăâêôơư"));
     const QString VietnameseFinalConsonants("cmnt");
+    const QString VietnameseTones(QString("%1%2%3%4%5").arg(QChar(0x0301)).arg(QChar(0x0300)).arg(QChar(0x0309)).arg(QChar(0x0303)).arg(QChar(0x0323)));
 }
 
 EngineHandlerTonal::EngineHandlerTonal(MKeyboardHost &keyboardHost)
    : EngineHandlerDefault(keyboardHost)
 {
-    engine = EngineManager::instance().engine();
 }
 
 EngineHandlerTonal::~EngineHandlerTonal()
 {
-    engine = 0;
 }
 
 bool EngineHandlerTonal::placeVietnameseTone(QString& context, int cursorPos, QChar& tone)
@@ -67,13 +68,11 @@ bool EngineHandlerTonal::placeVietnameseTone(QString& context, int cursorPos, QC
     int pos = -1;
     bool posMoved = false;
     bool replaced = false;
-    autoPositionedTone = QChar();
     for (int i = cursorPos - 1; i >= 0; i--) {
         if (VietnameseVowels.contains(context.at(i), Qt::CaseInsensitive)) {
             // A vowel with diacritics gets the tone mark, if there is one
             if (VietnameseVowelsWithDiacritics.contains(context.at(i), Qt::CaseInsensitive)) {
                 pos = i;
-                autoPositionedTone = QChar();
                 break;
             }
             // Set the pos to the first found vowel, can be set elsewhere later
@@ -83,7 +82,6 @@ bool EngineHandlerTonal::placeVietnameseTone(QString& context, int cursorPos, QC
             else if (pos - i > 1) {
                 if (!posMoved)
                     pos--;
-                autoPositionedTone = QChar();
                 break;
             } else if (i > 0) {
                 // In diphtongs tone normally falls on the first vowel, with some exceptions:
@@ -100,7 +98,6 @@ bool EngineHandlerTonal::placeVietnameseTone(QString& context, int cursorPos, QC
                     if (pos == context.length() - 1) {
                         // If we are inserting at the end of the syllable, we have to check what is
                         // inserted next to know if a consonant follows or not
-                        autoPositionedTone = tone;
                         posMoved = true;
                         pos--;
                     }
@@ -158,14 +155,12 @@ bool EngineHandlerTonal::isThaiInputAcceptable(QChar prevLetter, QChar curLetter
 //! \reimp
 bool EngineHandlerTonal::handleKeyPress(const KeyEvent &event)
 {
-    QString txt = event.text();
+    const QString &txt = event.text();
     if (event.specialKey() == KeyEvent::NotSpecial && txt.length() == 1) {
         QChar ch=txt.at(0);
         if (ch.category() == QChar::Mark_NonSpacing ||
-            (!autoPositionedTone.isNull() && 
-             engine->language().startsWith("vi") &&
-             (VietnameseFinalConsonants.contains(ch, Qt::CaseInsensitive) ||
-              VietnameseVowels.contains(ch, Qt::CaseInsensitive))))
+            (EngineManager::instance().activeLanguage().startsWith("vi") &&
+             needsVietnameseToneReposition(ch, ch)))
             return true;
     }
     return false;
@@ -173,36 +168,99 @@ bool EngineHandlerTonal::handleKeyPress(const KeyEvent &event)
 
 bool EngineHandlerTonal::handleKeyRelease(const KeyEvent &event)
 {
-    QString txt = event.text();
+    const QString &txt = event.text();
     if (event.specialKey() == KeyEvent::NotSpecial && txt.length() == 1) {
         QChar ch=txt.at(0);
         if (ch.category() == QChar::Mark_NonSpacing ||
-            (!autoPositionedTone.isNull() && 
-             engine->language().startsWith("vi") &&
-             (VietnameseFinalConsonants.contains(ch, Qt::CaseInsensitive) ||
-              VietnameseVowels.contains(ch, Qt::CaseInsensitive))))
+            (EngineManager::instance().activeLanguage().startsWith("vi") &&
+             needsVietnameseToneReposition(ch, ch)))
             return true;
     }
     return false;
+}
+
+bool EngineHandlerTonal::needsVietnameseToneReposition(QChar input, QChar& autoPositionedTone)
+{
+    // may need this if contains oa or oe, and the tone is on o
+    // and there's nothing yet after the a or e
+    // and the thing being input is a final consonant or vowel
+    if (!VietnameseFinalConsonants.contains(input, Qt::CaseInsensitive) &&
+        !VietnameseVowels.contains(input, Qt::CaseInsensitive))
+        return false;
+
+    const QString &context = (mKeyboardHost.preedit.isEmpty()?
+            recomposePreedit() : mKeyboardHost.preedit);
+
+    const int len = context.length();
+    if (len < 3)
+        return false;
+
+    if (context.endsWith("a", Qt::CaseInsensitive) || context.endsWith("e", Qt::CaseInsensitive)) {
+        if (VietnameseTones.contains(context.at(len-2)) &&
+            (context.at(len-3) == 'o' || context.at(len-3) == 'O')) {
+            autoPositionedTone = context.at(len-2);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+QString EngineHandlerTonal::recomposePreedit()
+{
+    QString surroundingText;
+    int cursorPos;
+    if (mKeyboardHost.inputMethodHost()->surroundingText(surroundingText, cursorPos)
+        && !surroundingText.isEmpty()
+        && cursorPos > 0) {
+        QString previousWord = surroundingText.left(cursorPos);
+        if (!previousWord.isEmpty()) {
+            // ignore space, punct and symbol.
+            const QChar lastChar = previousWord.at(previousWord.length() - 1);
+            if (!lastChar.isSpace() && !lastChar.isPunct() && !lastChar.isSymbol()) {
+                QTextBoundaryFinder finder(QTextBoundaryFinder::Word, previousWord);
+                finder.setPosition(previousWord.length());
+                const int lastWordBreak = finder.toPreviousBoundary();
+                if (lastWordBreak > 0)
+                    previousWord = previousWord.right(previousWord.length() - lastWordBreak);
+
+                const int len = previousWord.length();
+                mKeyboardHost.localSetPreedit(previousWord, -len,
+                                              len, len, false);
+                return previousWord;
+            }
+        }
+    }
+
+    // No preedit to be found
+    return QString();
 }
 
 bool EngineHandlerTonal::handleKeyClick(const KeyEvent &event, bool cycleKeyActive)
 {
     if (cycleKeyActive)
         return false;
-    QString txt = event.text();
+    const QString &txt = event.text();
     if (event.specialKey() == KeyEvent::NotSpecial && txt.length() == 1) {
+        QChar curLetter = txt.at(0);
+        const QString &lang = EngineManager::instance().activeLanguage();
+        QChar autoPositionedTone;
+
+        if (curLetter.category() != QChar::Mark_NonSpacing && 
+            (!lang.startsWith("vi") || !needsVietnameseToneReposition(curLetter, autoPositionedTone)))
+            return false;
+
         QString context = mKeyboardHost.preedit;
+        if (context.isEmpty())
+            context = recomposePreedit();
+
         int cursorPos = mKeyboardHost.preeditCursorPos;
         if (cursorPos > context.length())
             cursorPos = context.length();
         else if (cursorPos < 0)
             cursorPos = 0;
 
-        QChar curLetter = txt.at(0);
         if (curLetter.category() == QChar::Mark_NonSpacing) {
-            QString lang = engine->language();
-
             if (lang.startsWith("vi")) {
                 // Set Vietnamese tones in their right positions
                 if (placeVietnameseTone(context, cursorPos, curLetter))
@@ -233,24 +291,18 @@ bool EngineHandlerTonal::handleKeyClick(const KeyEvent &event, bool cycleKeyActi
             context.insert(cursorPos, curLetter);
             mKeyboardHost.setPreedit(context, cursorPos + 1);
             return true;
-        // May have to correct Vietnamese tone position
-        } else if (!autoPositionedTone.isNull() && 
-                   engine->language().startsWith("vi") &&
-                   (VietnameseFinalConsonants.contains(curLetter, Qt::CaseInsensitive) ||
-                    VietnameseVowels.contains(curLetter, Qt::CaseInsensitive))) {
+
+        } else { // May have to correct Vietnamese tone position
             int i = context.lastIndexOf(autoPositionedTone);
             if (i >= 0 && cursorPos > i) {
                 // First remove the previously inserted tone, then place it again in the new syllable
                 context.remove(i, 1);
                 context.insert(cursorPos-1, curLetter);
-                // Take a copy, since placeViet... clears it
-                QChar tone = autoPositionedTone;
-                placeVietnameseTone(context, cursorPos, tone);
+                placeVietnameseTone(context, cursorPos, autoPositionedTone);
                 mKeyboardHost.preeditCursorPos = cursorPos + 1;
                 return true;
             }
-            // We have presumably moved away, so keeping this doesn't make sense
-            autoPositionedTone = QChar();
+            // We have presumably moved away
             // Restore everything, and take in the key click
             context = mKeyboardHost.preedit;
             context.insert(cursorPos, curLetter);
@@ -258,35 +310,5 @@ bool EngineHandlerTonal::handleKeyClick(const KeyEvent &event, bool cycleKeyActi
             return true;
         }
     }
-    autoPositionedTone = QChar();
     return false;
 }
-
-void EngineHandlerTonal::deactivate()
-{
-    autoPositionedTone = QChar();
-    EngineHandlerDefault::deactivate();
-}
-
-void EngineHandlerTonal::clearPreedit(bool commit)
-{
-    autoPositionedTone = QChar();
-    EngineHandlerDefault::clearPreedit(commit);
-}
-
-void EngineHandlerTonal::editingInterrupted()
-{
-    autoPositionedTone = QChar();
-    clearPreedit(commitPreeditWhenInterrupted());
-}
-
-void EngineHandlerTonal::resetHandler()
-{
-    autoPositionedTone = QChar();
-}
-
-void EngineHandlerTonal::preparePluginSwitching()
-{
-    autoPositionedTone = QChar();
-}
-
