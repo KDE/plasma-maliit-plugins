@@ -866,6 +866,7 @@ void MKeyboardHost::setPreedit(const QString &preeditString, int cursor)
         if (EngineManager::instance().engine()) {
             EngineManager::instance().engine()->clearEngineBuffer();
             EngineManager::instance().engine()->reselectString(preeditString);
+
             candidates = EngineManager::instance().engine()->candidates();
             preeditInDict = (EngineManager::instance().engine()->candidateSource(0) != MImEngine::DictionaryTypeInvalid);
             if (EngineManager::instance().handler() && EngineManager::instance().handler()->engineWidgetHost())
@@ -1789,7 +1790,9 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
         if (event.qtKey() == Qt::Key_Space
             && engineWidgetHost
             && engineWidgetHost->isActive()
-            && EngineManager::instance().handler()->correctionAcceptedWithSpaceEnabled()) {
+            && EngineManager::instance().handler()->correctionAcceptedWithSpaceEnabled()
+            && engineWidgetHost->suggestedWordIndex() >= 0
+            && engineWidgetHost->candidates().size() > engineWidgetHost->suggestedWordIndex()) {
             if (engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode) {
                 const int suggestionIndex = engineWidgetHost->suggestedWordIndex();
                 const QString suggestion = engineWidgetHost->candidates().at(suggestionIndex);
