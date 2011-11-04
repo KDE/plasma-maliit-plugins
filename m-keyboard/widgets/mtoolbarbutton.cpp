@@ -31,6 +31,8 @@
 
 #include "mtoolbarbutton.h"
 #include "mtoolbarbuttonview.h"
+#include "mkeyboardhost.h"
+#include <mimupdatereceiver.h>
 #include <mtoolbaritem.h>
 #include <MButton>
 #include <QFileInfo>
@@ -89,6 +91,15 @@ MToolbarButton::MToolbarButton(QSharedPointer<MToolbarItem> item,
             this, SLOT(onClick()));
     connect(itemPtr.data(), SIGNAL(propertyChanged(const QString&)),
             this, SLOT(updateData(const QString&)));
+
+    if (MKeyboardHost *instance = MKeyboardHost::instance()) {
+        if (MImUpdateReceiver *receiver = instance->updateReceiver()) {
+            // Read initial value and follow further changes:
+            setTranslucentModeEnabled(receiver->translucentInputMethod());
+            connect(receiver, SIGNAL(translucentInputMethodChanged(bool)),
+                    this, SLOT(setTranslucentModeEnabled(bool)));
+        }
+    }
 }
 
 MToolbarButton::~MToolbarButton()
@@ -208,3 +219,14 @@ void MToolbarButton::onClick()
     emit clicked(itemPtr.data());
 }
 
+void MToolbarButton::setTranslucentModeEnabled(bool value)
+{
+    MToolbarButtonStyleContainer *s = static_cast<MToolbarButtonStyleContainer *>(&style());
+    if (value) {
+        s->setModeTranslucent();
+    } else {
+        s->setModeDefault();
+    }
+
+    update();
+}

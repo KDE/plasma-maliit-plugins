@@ -3,7 +3,7 @@ include(../common_top.pri)
 TEMPLATE = app
 CONFIG += QtTest meegotouch meegoimframework
 
-LIBS += -lmeegotouchviews
+LIBS += -lmeegotouchviews ../../m-keyboard/libmeego-keyboard.so
 
 include(../common_check.pri)
 

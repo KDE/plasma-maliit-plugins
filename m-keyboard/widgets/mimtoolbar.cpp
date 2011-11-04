@@ -36,7 +36,9 @@
 #include "mtoolbarlabel.h"
 #include "reactionmapwrapper.h"
 #include "mplainwindow.h"
+#include "mkeyboardhost.h"
 
+#include <mimupdatereceiver.h>
 #include <mtoolbardata.h>
 #include <mtoolbaritem.h>
 #include <mtoolbarlayout.h>
@@ -79,6 +81,15 @@ MImToolbar::MImToolbar(QGraphicsWidget *parent)
 
     // Request a reaction map painting if it appears
     connect(this, SIGNAL(displayEntered()), &signalForwarder, SIGNAL(requestRepaint()));
+
+    if (MKeyboardHost *instance = MKeyboardHost::instance()) {
+        if (MImUpdateReceiver *receiver = instance->updateReceiver()) {
+            // Read initial value and follow further changes:
+            setTranslucentModeEnabled(receiver->translucentInputMethod());
+            connect(receiver, SIGNAL(translucentInputMethodChanged(bool)),
+                    this, SLOT(setTranslucentModeEnabled(bool)));
+        }
+    }
 }
 
 MImToolbar::~MImToolbar()
@@ -483,4 +494,16 @@ bool MImToolbar::isPaintable() const
 const MToolbarData *MImToolbar::currentToolbarData() const
 {
     return currentToolbar.data();
+}
+
+void MImToolbar::setTranslucentModeEnabled(bool value)
+{
+    if (value) {
+        style().setModeTranslucent();
+    } else {
+        style().setModeDefault();
+    }
+
+    applyStyle();
+    update();
 }

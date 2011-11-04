@@ -91,6 +91,11 @@ public:
     //! Set the text of the button and updates the preferred size internally
     void setText(const QString &text);
 
+public slots:
+    //! Enable translucent mode.
+    //! \param value whether translucent mode is enabled.
+    void setTranslucentModeEnabled(bool value);
+
 signals:
     /*!
      * \brief Emitted when button is clicked.
