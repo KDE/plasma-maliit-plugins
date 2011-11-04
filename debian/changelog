@@ -1,3 +1,9 @@
+meego-keyboard (0.7.19-2) unstable; urgency=low
+
+  * Full fix for NB#278777
+
+ -- Aapo Kojo <aapo.kojo@nokia.com>  Fri, 04 Nov 2011 14:37:54 +0200
+
 meego-keyboard (0.7.19-1) unstable; urgency=low
 
   * Fixes: NB#280695 - Thai above and below characters on numbers etc
