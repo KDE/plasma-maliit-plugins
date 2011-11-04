@@ -1,11 +1,12 @@
-meego-keyboard (0.7.19~1) unstable; urgency=low
+meego-keyboard (0.7.19-1) unstable; urgency=low
 
   * Fixes: NB#280695 - Thai above and below characters on numbers etc
-  * Fixes: NB#289053 - Thai VKB is missing "ฎ" and duplicates "ฏ"
-  * Fixes: NB#287913 - [TASK] VKB layouts are not shown as per spec.
+  * Fixes NB#289053 - Thai VKB is missing "ฎ" and duplicates "ฏ"
+  * Fixes NB#287913 - [TASK] VKB layouts are not shown as per spec.
   * Fixes: NB#284151 - [TASK] ImhPreferNumbers does not open page 2 on virtual keyboard
+  * Fixes NB#278777 - Error correction not working correctly in Thai (adds unwanted space)
 
- -- Aapo Kojo <aapo.kojo@nokia.com>  Wed, 02 Nov 2011 09:28:07 +0200
+ -- Aapo Kojo <aapo.kojo@nokia.com>  Fri, 04 Nov 2011 09:28:07 +0200
 
 meego-keyboard (0.7.18-1) unstable; urgency=low
 
