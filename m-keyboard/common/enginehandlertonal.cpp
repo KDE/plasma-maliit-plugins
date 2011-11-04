@@ -79,7 +79,7 @@ bool EngineHandlerTonal::placeVietnameseTone(QString& context, int cursorPos, QC
             if (pos < 0)
                 pos = i;
             // There can only be 3 vowels, and if there are, the tone doesn't fall on the last one
-            else if (pos - i > 1) {
+            else if (posMoved || pos - i > 1) {
                 if (!posMoved)
                     pos--;
                 break;
