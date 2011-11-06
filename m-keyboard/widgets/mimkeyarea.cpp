@@ -760,7 +760,8 @@ void MImKeyArea::paint(QPainter *painter,
     painter->save();
     painter->setPen(translucentModeEnabled() ? style->translucentFontColor()
                                              : style->fontColor());
-    painter->setOpacity(style->fontOpacity());
+    painter->setOpacity(translucentModeEnabled() ? style->translucentFontOpacity()
+                                                 : style->fontOpacity());
 
     foreach (const MImKeyAreaPrivate::KeyRow &row, d->rowList) {
         // rowHasSecondaryLabel is needed for the vertical alignment of

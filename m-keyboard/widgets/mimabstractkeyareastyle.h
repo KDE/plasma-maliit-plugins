@@ -251,6 +251,7 @@ public:
     M_STYLE_ATTRIBUTE(QColor, keyHighlightedFontColor, KeyHighlightedFontColor)
 
     // Key font colors for translucent key area:
+    M_STYLE_ATTRIBUTE(qreal,  translucentFontOpacity, TranslucentFontOpacity)
     M_STYLE_ATTRIBUTE(QColor, translucentFontColor, TranslucentFontColor)
     M_STYLE_ATTRIBUTE(QColor, translucentKeyPressedFontColor, TranslucentKeyPressedFontColor)
     M_STYLE_ATTRIBUTE(QColor, translucentKeySelectedFontColor, TranslucentKeySelectedFontColor)

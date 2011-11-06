@@ -86,7 +86,8 @@ MImAbstractKeyAreaStyle {
     key-highlighted-font-color: $COLOR_FOREGROUND;
 
     /*** Font colors for translucent key area ***/
-    translucent-font-color: $COLOR_FOREGROUND;
+    translucent-font-opacity: 0.67;
+    translucent-font-color: $FONT_COLOR_KEYBOARD;
     translucent-key-pressed-font-color: $COLOR_FOREGROUND;
     translucent-key-selected-font-color: $COLOR_FOREGROUND;
     translucent-key-disabled-font-color: $FONT_COLOR_KEYBOARD;
