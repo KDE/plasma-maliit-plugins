@@ -646,6 +646,11 @@ MToolbarButtonStyle {
     release-feedback: ;
 }
 
+MToolbarButtonStyle:translucent {
+    text-color: $FONT_COLOR_KEYBOARD;
+    background-image: "meegotouch-keyboard-toolbar-button-translucent" $ROUNDED_CORNERS;
+}
+
 MToolbarButtonStyle:disabled {
     background-image: "meegotouch-keyboard-toolbar-button-disabled"  $ROUNDED_CORNERS;
 }
@@ -866,6 +871,10 @@ MImToolbarStyle {
     margin-bottom: 0;
     margin-left: 0;
     margin-right: 0;
+}
+
+MImToolbarStyle:translucent {
+    background-image: "meegotouch-keyboard-toolbar-background-translucent" $ROUNDED_CORNERS;
 }
 
 MImToolbarStyle.Landscape {
