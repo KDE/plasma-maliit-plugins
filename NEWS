@@ -1,3 +1,28 @@
+0.80.8
+======
+
+CHANGES SINCE 0.80.7
+* Merge latest Harmattan VKB plugin into Maliit upstream.
+* QML plugin got a 2-page symview
+* Use swipe gestures to close QML plugin and switch to other plugins.
+
+BUG FIXES
+* Fixes: BMC#23461 - [CE] No special character in VKB
+* Fixes: Use rpath to dynamically link Ut_WidgetBar to meego-keyboard lib
+* Fixes: Key label color in translucent mode
+* Fixes: Crash after certain thai letters and space.
+* Fixes: Vietnamese tone position in triphtongs with no diacritics
+* Fixes: NB#278777 - Error correction not working correctly in Thai (adds unwanted space)
+* Fixes: Add forgotten license header to Korean engine handler
+* Fixes: NB#278777 - Error correction not working correctly in Thai (adds unwanted space)
+* Fixes: Thai and Vietnamese tone input when preedit is off
+* Fixes: NB#284151 - [TASK] ImhPreferNumbers does not open page 2 on virtual keyboard
+* Fixes: NB#287913 - [TASK] VKB layouts are not shown as per spec.
+* Fixes: NB#289053 - Thai VKB is missing "ฎ" and duplicates "ฏ"
+* Fixes: NB#280695 - Thai above and below characters on numbers etc
+* Fixes: NB#285309 - No way to input Western Arabic numerals
+* Fixes: Update styling cache at label font change
+
 0.80.7
 ======
 
