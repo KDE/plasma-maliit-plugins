@@ -63,7 +63,7 @@ MKeyboardPlugin::createInputMethod(MAbstractInputMethodHost *host,
 {
     loadTranslation();
     mTimestamp("MKeyboardPlugin", "start");
-    MAbstractInputMethod *inputMethod = new MKeyboardHost(host, mainWindow);
+    MKeyboardHost *inputMethod = MKeyboardHost::create(host, mainWindow);
     mTimestamp("MKeyboardPlugin", "end");
     return inputMethod;
 }

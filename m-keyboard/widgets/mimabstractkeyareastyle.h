@@ -42,7 +42,6 @@ class M_EXPORT MImAbstractKeyAreaStyle : public MWidgetStyle
     M_STYLE(MImAbstractKeyAreaStyle)
 
 public:
-    M_STYLE_ATTRIBUTE(QColor, fontColor, FontColor)
     M_STYLE_ATTRIBUTE(QFont, font, Font)
     M_STYLE_ATTRIBUTE(int, fontSize, FontSize)
     M_STYLE_ATTRIBUTE(qreal, fontOpacity, FontOpacity)
@@ -81,6 +80,17 @@ public:
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundPressed, KeyBackgroundPressed)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundSelected, KeyBackgroundSelected)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundPressedSelected, KeyBackgroundPressedSelected)
+
+    // translucent backgrounds:
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, translucentBackgroundImage, TranslucentBackgroundImage)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, translucentKeyBackground, TranslucentKeyBackground)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, translucentKeyBackgroundPressed, TranslucentKeyBackgroundPressed)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, translucentKeyBackgroundHighlighted, TranslucentKeyBackgroundHighlighted)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, translucentKeyBackgroundSpecial, TranslucentKeyBackgroundSpecial)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, translucentKeyBackgroundSpecialSelected, TranslucentKeyBackgroundSpecialSelected)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, translucentKeyBackgroundSpecialHighlighted, TranslucentKeyBackgroundSpecialHighlighted)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, translucentKeyBackgroundDeadkey, TranslucentKeyBackgroundDeadkey)
+    M_STYLE_PTR_ATTRIBUTE(MScalableImage *, translucentKeyBackgroundDeadkeyHighlighted, TranslucentKeyBackgroundDeadkeyHighlighted)
 
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundHighlighted, KeyBackgroundHighlighted)
     M_STYLE_PTR_ATTRIBUTE(MScalableImage *, keyBackgroundPressedHighlighted, KeyBackgroundPressedHighlighted)
@@ -234,15 +244,25 @@ public:
     M_STYLE_ATTRIBUTE(bool, autoPadding, AutoPadding)
 
     // Key font colors
+    M_STYLE_ATTRIBUTE(QColor, fontColor, FontColor)
     M_STYLE_ATTRIBUTE(QColor, keyPressedFontColor, KeyPressedFontColor)
     M_STYLE_ATTRIBUTE(QColor, keySelectedFontColor, KeySelectedFontColor)
     M_STYLE_ATTRIBUTE(QColor, keyDisabledFontColor, KeyDisabledFontColor)
     M_STYLE_ATTRIBUTE(QColor, keyHighlightedFontColor, KeyHighlightedFontColor)
+
+    // Key font colors for translucent key area:
+    M_STYLE_ATTRIBUTE(qreal,  translucentFontOpacity, TranslucentFontOpacity)
+    M_STYLE_ATTRIBUTE(QColor, translucentFontColor, TranslucentFontColor)
+    M_STYLE_ATTRIBUTE(QColor, translucentKeyPressedFontColor, TranslucentKeyPressedFontColor)
+    M_STYLE_ATTRIBUTE(QColor, translucentKeySelectedFontColor, TranslucentKeySelectedFontColor)
+    M_STYLE_ATTRIBUTE(QColor, translucentKeyDisabledFontColor, TranslucentKeyDisabledFontColor)
+    M_STYLE_ATTRIBUTE(QColor, translucentKeyHighlightedFontColor, TranslucentKeyHighlightedFontColor)
 };
 
 class M_EXPORT MImAbstractKeyAreaStyleContainer : public MWidgetStyleContainer
 {
     M_STYLE_CONTAINER(MImAbstractKeyAreaStyle)
+    M_STYLE_MODE(Translucent)
 
     // Required to set style mode through MStyleContainer::setCurrentMode():
     friend class MImAbstractKeyAreaPrivate;

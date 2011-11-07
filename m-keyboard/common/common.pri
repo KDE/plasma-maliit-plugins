@@ -65,6 +65,7 @@ SOURCES += \
     $$COMMON_DIR/enginehandlerdefault.cpp \
     $$COMMON_DIR/enginehandlertonal.cpp \
     $$COMMON_DIR/enginemanager.cpp \
+    $$COMMON_DIR/enginehandlerkorean.cpp \
     $$COMMON_DIR/cjklogicstatemachine.cpp \
     $$COMMON_DIR/enginecjk.cpp \
     $$COMMON_DIR/mimfontpool.cpp \

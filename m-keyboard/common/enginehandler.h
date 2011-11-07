@@ -147,6 +147,11 @@ public:
     virtual bool commitWhenCandidateClicked() const = 0;
 
     /*!
+     * \brief Returns true if this language wants a space after commited candidate.
+     */
+    virtual bool addSpaceWhenCandidateCommited() const = 0;
+
+    /*!
      * \brief Clears preedit from keyboard host and input method host.
      *
      * \param commit, indicates whether the preedit should be commited before clearing or not

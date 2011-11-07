@@ -58,6 +58,7 @@
 #include <mkeyoverride.h>
 #include <mgconfitem.h>
 #include <mimplugindescription.h>
+#include <mimupdateevent.h>
 
 #include <QApplication>
 #include <QDesktopWidget>
@@ -275,10 +276,29 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
       pressedArrowKey(Qt::Key_unknown),
       firstArrowSent(false),
       pluginSwitched(false),
-      preparePanningTimer()
+      focusChanged(false),
+      preferringNumbers(false),
+      preparePanningTimer(),
+      mUpdateReceiver(new MImUpdateReceiver(this)),
+      mMainWindow(mainWindow)
 {
+    Q_ASSERT(currentInstance == 0); // Several instances of this class is invalid.
+    currentInstance = this;
+}
+
+MKeyboardHost * MKeyboardHost::create(MAbstractInputMethodHost *host,
+                                      QWidget *mainWindow)
+{
+    MKeyboardHost *kbHost = new MKeyboardHost(host, mainWindow);
+    kbHost->init();
+    return kbHost;
+}
+
+void MKeyboardHost::init()
+{
+    MAbstractInputMethodHost *const host = inputMethodHost();
     Q_ASSERT(host != 0);
-    Q_ASSERT(mainWindow != 0);
+    Q_ASSERT(mMainWindow != 0);
 
     if (!MComponentData::instance()) {
         static int argc = qApp->argc();
@@ -292,7 +312,7 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
     connect(host, SIGNAL(pluginsChanged()),
             this, SLOT(onPluginsChange()));
 
-    view = new MPlainWindow(host, mainWindow);
+    view = new MPlainWindow(host, mMainWindow);
     // MSceneManager's of MWindow's are lazy-initialized. However, their
     //implict creation does resize the scene rect of our view, so we trigger
     // the lazy-initialization right here, to stay in control of things:
@@ -307,7 +327,7 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
     view->setSceneRect(QRect(QPoint(), screenSize));
 
 #ifdef HAVE_REACTIONMAP
-    MReactionMap::createInstance(*mainWindow, qAppName(), this);
+    MReactionMap::createInstance(*mMainWindow, qAppName(), this);
 #endif
 
     RegionTracker::createInstance();
@@ -489,9 +509,6 @@ MKeyboardHost::MKeyboardHost(MAbstractInputMethodHost *host,
     connect(&slideUpAnimation, SIGNAL(finished()), this, SLOT(handleAnimationFinished()));
     // Trigger a reaction map update
     connect(&slideUpAnimation, SIGNAL(finished()), &ReactionMapPainter::instance(), SLOT(repaint()));
-
-    Q_ASSERT(currentInstance == 0); // Several instances of this class is invalid.
-    currentInstance = this;
 }
 
 MKeyboardHost::~MKeyboardHost()
@@ -546,8 +563,10 @@ QTextStream &MKeyboardHost::touchPointLog()
 void MKeyboardHost::handleFocusChange(bool focusIn)
 {
     haveFocus = focusIn;
+    focusChanged = false;
     if (activeState == MInputMethod::OnScreen) {
         if (focusIn) {
+            focusChanged = true;
             symbolView->hideSymbolView();
             // reset latched shift state when focus is changed
             resetVirtualKeyboardLatchedShiftState();
@@ -585,6 +604,10 @@ void MKeyboardHost::sendRegionEstimate()
         QRectF vkbRect(vkbWidget->rect());
         vkbRect.moveBottom(stackedRects.top());
         stackedRects |= vkbRect;
+    } else if (symbolView->isVisible()) {
+        QRectF symRect(symbolView->rect());
+        symRect.moveBottom(stackedRects.top());
+        stackedRects |= symRect;
     }
 
     // Add toolbar rect (toolbar is always visible, even when it is empty)
@@ -632,6 +655,10 @@ void MKeyboardHost::show()
     prepareHideShowAnimation();
     if (activeState == MInputMethod::OnScreen) {
         vkbWidget->show();
+        if ((preferringNumbers && focusChanged)) {
+            focusChanged = false;
+            showSymbolView();
+        }
     }
 
     // Ensure the vkb layout language is the same as actual engine language.
@@ -703,7 +730,8 @@ void MKeyboardHost::prepareHideShowAnimation()
     } else {
         slideUpAnimation.setDuration(OnScreenAnimationTime);
 
-        if (symbolView->isActive()) {
+        if (symbolView->isActive()
+            || (preferringNumbers && focusChanged)) {
             slideUpAnimation.setTargetObject(symbolView);
         } else {
             slideUpAnimation.setTargetObject(vkbWidget);
@@ -778,6 +806,11 @@ void MKeyboardHost::handleAnimationFinished()
         MPlainWindow::instance()->sceneManager()->disappearSceneWindowNow(sceneWindow);
     } else { // QAbstractAnimation::Forward
         asyncPreparePanningIncomingWidget();
+        if (symbolView->isActive()) {
+            // Make sure VKB will be shown in correct place if symbol view
+            // was animated visible.
+            vkbWidget->setPos(0, MPlainWindow::instance()->visibleSceneSize().height() - vkbWidget->size().height());
+        }
     }
 
     RegionTracker::instance().enableSignals(true);
@@ -833,6 +866,7 @@ void MKeyboardHost::setPreedit(const QString &preeditString, int cursor)
         if (EngineManager::instance().engine()) {
             EngineManager::instance().engine()->clearEngineBuffer();
             EngineManager::instance().engine()->reselectString(preeditString);
+
             candidates = EngineManager::instance().engine()->candidates();
             preeditInDict = (EngineManager::instance().engine()->candidateSource(0) != MImEngine::DictionaryTypeInvalid);
             if (EngineManager::instance().handler() && EngineManager::instance().handler()->engineWidgetHost())
@@ -892,6 +926,19 @@ void MKeyboardHost::update()
 
     const int type = inputMethodHost()->contentType(valid);
     if (valid) {
+        // Show symbol view if focus changed to a text field that has
+        // flag Qt::ImhPreferNumbers set.
+        if (sipRequested
+            && (slideUpAnimation.state() == QAbstractAnimation::Stopped)
+            && preferringNumbers
+            && focusChanged
+            && (activeState == MInputMethod::OnScreen)
+            && type != M::NumberContentType
+            && type != M::PhoneNumberContentType) {
+            focusChanged = false;
+            showSymbolView();
+        }
+
         hardwareKeyboard->setKeyboardType(static_cast<M::TextContentType>(type));
         vkbWidget->setKeyboardType(type);
         if (EngineManager::instance().handler()
@@ -1230,6 +1277,8 @@ void MKeyboardHost::commitString(const QString &updatedString)
     // if word was selected from word list when preedit was edited AND
     // cursor was at the end of preedit.
     if (engineWidgetHost
+        && (!EngineManager::instance().handler()
+            || EngineManager::instance().handler()->addSpaceWhenCandidateCommited())
         && (engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode
             || (engineWidgetHost->displayMode() == AbstractEngineWidgetHost::DialogMode
                 && preeditHasBeenEdited
@@ -1741,9 +1790,10 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
         if (event.qtKey() == Qt::Key_Space
             && engineWidgetHost
             && engineWidgetHost->isActive()
-            && EngineManager::instance().handler()->correctionAcceptedWithSpaceEnabled()) {
+            && EngineManager::instance().handler()->correctionAcceptedWithSpaceEnabled()
+            && engineWidgetHost->suggestedWordIndex() >= 0
+            && engineWidgetHost->candidates().size() > engineWidgetHost->suggestedWordIndex()) {
             if (engineWidgetHost->displayMode() == AbstractEngineWidgetHost::FloatingMode) {
-                spaceInsertedAfterCommitString = true;
                 const int suggestionIndex = engineWidgetHost->suggestedWordIndex();
                 const QString suggestion = engineWidgetHost->candidates().at(suggestionIndex);
 
@@ -1752,7 +1802,14 @@ void MKeyboardHost::handleTextInputKeyClick(const KeyEvent &event)
                     EngineManager::instance().engine()->commitWord(suggestionIndex);
                 }
 
-                inputMethodHost()->sendCommitString(suggestion + " ");
+                if (!EngineManager::instance().handler()
+                    || EngineManager::instance().handler()->addSpaceWhenCandidateCommited()) {
+                    spaceInsertedAfterCommitString = true;
+                    inputMethodHost()->sendCommitString(suggestion + " ");
+                } else {
+                    inputMethodHost()->sendCommitString(suggestion);
+                }
+
                 eventSent = true;
             } else {
                 // ignore space click when word list is visible.
@@ -2682,6 +2739,32 @@ int MKeyboardHost::keyboardHeight() const
         height += sharedHandleArea->size().height() - sharedHandleArea->shadowHeight();
     }
     return height;
+}
+
+bool MKeyboardHost::imExtensionEvent(MImExtensionEvent *event)
+{
+    if (not event) {
+        return false;
+    }
+
+    switch (event->type()) {
+    case MImExtensionEvent::Update: {
+        MImUpdateEvent *update = static_cast<MImUpdateEvent *>(event);
+        LayoutsManager::instance().setWesternNumericInputEnforced(update->westernNumericInputEnforced());
+        preferringNumbers = update->preferNumbers();
+        mUpdateReceiver->process(update);
+    } break;
+
+    default:
+        break;
+    }
+
+    return false;
+}
+
+MImUpdateReceiver * MKeyboardHost::updateReceiver() const
+{
+    return mUpdateReceiver;
 }
 
 

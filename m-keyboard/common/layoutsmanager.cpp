@@ -98,7 +98,8 @@ LayoutsManager::LayoutsManager()
       currentHwkbLayoutType(InvalidHardwareKeyboard),
       temporaryEnglishKeyboardInserted(false),
       mAvailableLayouts(),
-      layoutsDirectoryWatcher()
+      layoutsDirectoryWatcher(),
+      westernNumericInputEnforced(false)
 {
     // Read settings for the first time and load keyboard layouts.
     syncLayouts();
@@ -334,7 +335,8 @@ bool LayoutsManager::loadLayout(const QString &layout)
 
 void LayoutsManager::syncNumberKeyboards()
 {
-    QString numberFormat = numberFormatSetting.value().toString().section("_", 0, 0);
+    QString numberFormat = westernNumericInputEnforced
+            ? "en" : numberFormatSetting.value().toString().section("_", 0, 0);
     bool loaded = false;
 
     const QString oldNumberKeyboardFile = numberKeyboard.layoutFile();
@@ -556,4 +558,12 @@ void LayoutsManager::releaseTemporaryEnglishKeyboard()
     keyboards.remove(FallbackLayout);
     temporaryEnglishKeyboardInserted = false;
     emit layoutsChanged();
+}
+
+void LayoutsManager::setWesternNumericInputEnforced(bool enforced)
+{
+    if (westernNumericInputEnforced != enforced) {
+        westernNumericInputEnforced = enforced;
+        syncNumberKeyboards();
+    }
 }

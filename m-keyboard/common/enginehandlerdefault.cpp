@@ -154,6 +154,11 @@ bool EngineHandlerDefault::commitWhenCandidateClicked() const
     return true;
 }
 
+bool EngineHandlerDefault::addSpaceWhenCandidateCommited() const
+{
+    return true;
+}
+
 void EngineHandlerDefault::clearPreedit(bool commit)
 {
     if (!mKeyboardHost.preedit.isEmpty()) {

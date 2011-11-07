@@ -147,6 +147,10 @@ private slots:
     //! Invalidate and activate layouts, emit \a regionUpdated signal
     void arrangeWidgets();
 
+    //! Enable translucent mode.
+    //! \param value whether translucent mode is enabled.
+    void setTranslucentModeEnabled(bool value);
+
 signals:
     //! Emitted when toolbar's region changed
     void regionUpdated();

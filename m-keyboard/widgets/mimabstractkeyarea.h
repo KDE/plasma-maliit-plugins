@@ -157,6 +157,9 @@ public:
     //! \brief Get the most recent touch event.
     const QTouchEvent &lastTouchEvent() const;
 
+    //! \brief Returns whether key area should render itself translucently.
+    bool translucentModeEnabled() const;
+
 public slots:
     //! \brief Tell key area to switch levels for all keys.
     //! \param level the new level
@@ -209,6 +212,9 @@ public slots:
 
     //! \brief Sets the source used with key events sent from this area.
     void setSource(KeyEvent::Source source);
+
+    //! \brief Enable translucent mode.
+    void setTranslucentModeEnabled(bool enabled);
 
 signals:
     //! \brief Emitted when key is pressed

@@ -58,7 +58,7 @@ void Ut_WordRibbonHost::initTestCase()
 
     inputMethodHost = new MInputMethodHostStub;
     mainWindow = new QWidget;
-    keyboardHost = new MKeyboardHost(inputMethodHost, mainWindow);
+    keyboardHost = MKeyboardHost::create(inputMethodHost, mainWindow);
 
     // MImCorrectionHost uses this internally
     if (MPlainWindow::instance()->orientationAngle() != M::Angle0) {

@@ -31,6 +31,7 @@
 
 #include "mabstractinputmethodhost.h"
 #include "enginemanager.h"
+#include "enginehandlerkorean.h"
 #include "abstractengine.h"
 #include "enginedefault.h"
 #include "enginecjk.h"
@@ -88,7 +89,7 @@ public:
     static QStringList supportedLanguages()
     {
         QStringList languages;
-        languages << "zh" << "jp" << "ko";
+        languages << "zh" << "jp"; // ko will be handled in EngineHandlerKorean
         return languages;
     }
 
@@ -197,6 +198,11 @@ public:
     virtual bool commitWhenCandidateClicked() const
     {
         return false;
+    }
+
+    virtual bool addSpaceWhenCandidateCommited() const
+    {
+        return true;
     }
 
     virtual void clearPreedit(bool commit)
@@ -435,12 +441,14 @@ EngineHandler *EngineManager::findOrCreateEngineHandler(const QString &language)
         matchedEngineHandler = QPointer<EngineHandlerEnglish>(new EngineHandlerEnglish(mKeyboardHost));
         foreach (const QString &lang, EngineHandlerEnglish::supportedLanguages())
             handlerMap.insert(lang, matchedEngineHandler);
-
     } else if (EngineHandlerTonal::supportedLanguages().contains(language)){
         matchedEngineHandler = QPointer<EngineHandlerTonal>(new EngineHandlerTonal(mKeyboardHost));
         foreach (const QString &lang, EngineHandlerTonal::supportedLanguages())
             handlerMap.insert(lang, matchedEngineHandler);
-
+    } else if (EngineHandlerKorean::supportedLanguages().contains(language)) {
+        matchedEngineHandler = QPointer<EngineHandlerKorean>(new EngineHandlerKorean(mKeyboardHost));
+        foreach (const QString &lang, EngineHandlerKorean::supportedLanguages())
+            handlerMap.insert(lang, matchedEngineHandler);
     } else {
         // use default language properties
         matchedEngineHandler = handlerMap.value(DefaultInputLanguage).data();
@@ -459,13 +467,17 @@ AbstractEngine *EngineManager::findOrCreateEngine(const QString &language,
     if (matchedIt != engineMap.end()) {
         // the engine for language is already in the map
         matchedEngine = matchedIt.value().data();
-
     } else if (EngineCJK::supportedLanguages().contains(language)){
         // create CJK engine
         matchedEngine = QPointer<EngineCJK>(
                 new EngineCJK(*(mKeyboardHost.inputMethodHost()), engineName));
 
         foreach (const QString &lang, EngineCJK::supportedLanguages())
+            engineMap.insert(lang, matchedEngine);
+    } else if (EngineKorean::supportedLanguages().contains(language)) {
+        matchedEngine = QPointer<EngineKorean>(
+	        new EngineKorean(*(mKeyboardHost.inputMethodHost()), engineName));
+        foreach (const QString &lang, EngineKorean::supportedLanguages())
             engineMap.insert(lang, matchedEngine);
     } else {
         // use default engine

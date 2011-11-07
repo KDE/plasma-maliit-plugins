@@ -44,6 +44,7 @@ class M_EXPORT MToolbarButtonStyle : public MButtonIconStyle
 class M_EXPORT MToolbarButtonStyleContainer : public MButtonIconStyleContainer
 {
     M_STYLE_CONTAINER(MToolbarButtonStyle)
+    M_STYLE_MODE(Translucent)
 };
 
 #endif

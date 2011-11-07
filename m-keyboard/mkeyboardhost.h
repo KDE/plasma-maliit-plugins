@@ -40,6 +40,7 @@
 #include "mkeyoverride.h"
 #include "pangesture.h"
 
+#include <mimupdatereceiver.h>
 #include <MNamespace>
 
 #include <QTimer>
@@ -67,9 +68,17 @@ class MKeyboardHost: public MAbstractInputMethod
     Q_OBJECT
 
 public:
+
     MKeyboardHost(MAbstractInputMethodHost *host,
                   QWidget *mainWindow);
     virtual ~MKeyboardHost();
+
+    //! Creates MKeyboardHost instance and init()'s it.
+    static MKeyboardHost * create(MAbstractInputMethodHost *host,
+                                  QWidget *mainWindow);
+
+    //! Completes initialization of MKeyboardHost instance.
+    void init();
 
     //! \brief Return the current instance, or 0 if none.
     static MKeyboardHost* instance();
@@ -108,6 +117,9 @@ public:
     //! reimp_end
 
     int keyboardHeight() const;
+
+    bool imExtensionEvent(MImExtensionEvent *event);
+    MImUpdateReceiver * updateReceiver() const;
 
 public slots:
     //! Toggle key state is changed to \a onOff.
@@ -518,11 +530,17 @@ private:
 
     bool pluginSwitched;
 
+    bool focusChanged;
+    bool preferringNumbers;
+
     QTimer preparePanningTimer;
+    MImUpdateReceiver *mUpdateReceiver;
+    QWidget *mMainWindow;
 
     friend class EngineHandlerDefault;
     friend class EngineHandlerCJK;
     friend class EngineHandlerTonal;
+    friend class EngineHandlerKorean;
 #ifdef UNIT_TEST
     friend class Ut_MKeyboardHost;
 #endif

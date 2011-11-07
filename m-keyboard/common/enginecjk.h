@@ -42,7 +42,7 @@ class MImEngineWordsInterface;
   \class EngineCJK
 
   \brief The EngineCJK class creates, initializes and keeps the MImEngineWordsInterface
-   for the Chinese, or Japanese or Korea input method engine.
+   for the Chinese, or Japanese input method engine.
 */
 class EngineCJK : public AbstractEngine
 {
@@ -85,6 +85,27 @@ private:
     MGConfItem *settingWordPrediction;
 
     friend class Ut_MKeyboarEngineManager;
+};
+
+class EngineKorean : public AbstractEngine
+{
+    Q_OBJECT
+    Q_DISABLE_COPY(EngineKorean)
+
+public:
+    EngineKorean(MAbstractInputMethodHost &imHost, const QString &engineName);
+    virtual ~EngineKorean();
+    static QStringList supportedLanguages();
+    virtual MImEngineWordsInterface *engine() const;
+
+public slots:
+    virtual void updateEngineLanguage(const QString &language);
+
+private:
+    void initializeEngine();
+
+    MAbstractInputMethodHost &inputMethodHost;
+    MImEngineWordsInterface *mEngine;
 };
 
 #endif

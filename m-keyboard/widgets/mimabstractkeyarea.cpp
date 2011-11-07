@@ -134,7 +134,8 @@ MImAbstractKeyAreaPrivate::MImAbstractKeyAreaPrivate(const LayoutData::SharedLay
       longPressTouchPointIsPrimary(false),
       enabledPanning(true),
       lastTouchEvent(QEvent::TouchEnd),
-      idle(true)
+      idle(true),
+      translucentModeEnabled(false)
 {
 }
 
@@ -706,6 +707,15 @@ MImAbstractKeyArea::MImAbstractKeyArea(MImAbstractKeyAreaPrivate *privateData,
     connect(MTheme::instance(), SIGNAL(themeChangeCompleted()),
             this, SLOT(onThemeChangeCompleted()),
             Qt::UniqueConnection);
+
+    if (MKeyboardHost *instance = MKeyboardHost::instance()) {
+        if (MImUpdateReceiver *receiver = instance->updateReceiver()) {
+            // Read initial value and follow further changes:
+            setTranslucentModeEnabled(receiver->translucentInputMethod());
+            connect(receiver, SIGNAL(translucentInputMethodChanged(bool)),
+                    this, SLOT(setTranslucentModeEnabled(bool)));
+        }
+    }
 }
 
 MImAbstractKeyArea::~MImAbstractKeyArea()
@@ -1331,4 +1341,19 @@ const QTouchEvent &MImAbstractKeyArea::lastTouchEvent() const
 {
     Q_D(const MImAbstractKeyArea);
     return d->lastTouchEvent;
+}
+
+void MImAbstractKeyArea::setTranslucentModeEnabled(bool enabled)
+{
+    Q_D(MImAbstractKeyArea);
+    if (d->translucentModeEnabled != enabled) {
+        d->translucentModeEnabled = enabled;
+        update();
+    }
+}
+
+bool MImAbstractKeyArea::translucentModeEnabled() const
+{
+    Q_D(const MImAbstractKeyArea);
+    return d->translucentModeEnabled;
 }

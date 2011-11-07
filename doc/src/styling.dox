@@ -47,6 +47,7 @@ This CSS class exposes many attributes, some of them useful for debugging even.
  <li>key-disabled-font-color: The font color for disabled keys.</li>
  <li>key-highlighted-font-color: The font color for highlighted keys. Does not apply to disabled keys.</li>
 </ul>
+translucent-key-*-font-color attributes can be used if key area is used in translucent mode. Note that translucent mode is controlled by application.
 
 \subsection sub1 Graphical assets
 <ul>
@@ -69,6 +70,7 @@ attribute in the XML layout files.</li>
  <li>key-{backspace, menu, enter, shift, shift-uppercase, tab, left, up, right, down}-compact-icon-id: Id of compact icon. See required-key-icon-margins for details.</li>
  <li>key-{backspace, menu, enter, shift, shift-uppercase, tab, left, up, right, down}-compact-icon-id-rtl: Id of compact icon version (rtl).</li>
 </ul>
+translucent-key-background-* attributes can be used if key area is used in translucent mode. Note that translucent mode is controlled by application.
 
 \subsection sub2 Behaviour
 <ul>
