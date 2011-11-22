@@ -1,3 +1,10 @@
+0.81.0
+======
+
+CHANGES SINCE 0.80.8
+* Remove MeeGo Keyboard
+  - Official reference plugin is the QML plugin, now named Maliit Keyboard.
+
 0.80.8
 ======
 
