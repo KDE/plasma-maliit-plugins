@@ -1,3 +1,38 @@
-This is the meego-keyboard, a plugin of Harmattan Input Method Framework.
+Maliit
 
-It provides hardware keyboard handler and a multiple languages virtual keyboard.
+Maliit provides a flexible and cross-platform input method framework. It has a
+plugin-based client-server architecture where applications act as clients and
+communicate with the Maliit server via input context plugins. The communication
+link currently uses D-Bus. Maliit is an open source framework (LGPL 2) with
+open source plugins (BSD).
+
+These are the Maliit reference plugins.
+
+
+Installing
+
+Qt 4.7 must be installed to build the Maliit reference plugins. At a terminal, run:
+
+qmake
+make
+make install
+
+Run qmake HELP=1 to get more information about build options.
+
+
+Running
+
+Plugins require a running maliit-server. Active and enabled plugins are
+controlled via GConf. The reference plugin is configured like so:
+
+gconftool-2 -s --type list --list-type string /maliit/onscreen/enabled "[libmaliit-keyboard.so,]"
+gconftool-2 -s --type list --list-type string /maliit/onscreen/active "[libmaliit-keyboard.so,]"
+
+There can be more than one enabled plugin, but only one can be active at a time.
+
+Resources
+
+Wiki: http://wiki.maliit.org/ and http://wiki.maliit.org/Plugins
+IRC: #maliit on chat.freenode.net
+Announcement mailing list: maliit-announce@lists.maliit.org
+Discussion mailing list: maliit-discuss@lists.maliit.org
