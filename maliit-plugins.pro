@@ -1,5 +1,8 @@
 include(config.pri)
 
+MALIIT_PACKAGENAME = maliit-plugins
+MALIIT_VERSION = 0.80.8
+
 !isEmpty(HELP) {
     # Output help
     help_string = \
@@ -26,3 +29,13 @@ TEMPLATE = subdirs
 SUBDIRS = \
     maliit-keyboard \
 
+DIST_NAME = $$MALIIT_PACKAGENAME-$$MALIIT_VERSION
+DIST_PATH = $$OUT_PWD/$$DIST_NAME
+TARBALL_SUFFIX = .tar.bz2
+TARBALL_PATH = $$DIST_PATH$$TARBALL_SUFFIX
+
+# The 'make dist' target
+# Creates a tarball
+QMAKE_EXTRA_TARGETS += dist
+dist.target = dist
+dist.commands += git archive HEAD --prefix=$$DIST_NAME/ | bzip2 > $$TARBALL_PATH
