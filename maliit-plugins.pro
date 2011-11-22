@@ -1,7 +1,7 @@
 include(config.pri)
 
 MALIIT_PACKAGENAME = maliit-plugins
-MALIIT_VERSION = 0.80.8
+MALIIT_VERSION = 0.81.0
 
 !isEmpty(HELP) {
     # Output help
