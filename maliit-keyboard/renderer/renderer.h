@@ -32,6 +32,7 @@
 #ifndef MALIIT_KEYBOARD_RENDERER_H
 #define MALIIT_KEYBOARD_RENDERER_H
 
+#include "keyarea.h"
 #include <QtCore>
 
 namespace MaliitKeyboard {
@@ -48,6 +49,9 @@ class Renderer
 public:
     explicit Renderer(QObject *parent = 0);
     virtual ~Renderer();
+
+    Q_SLOT void show(const KeyArea &ka);
+    Q_SLOT void hide(const KeyArea &ka);
 
 private:
     const QScopedPointer<RendererPrivate> d_ptr;

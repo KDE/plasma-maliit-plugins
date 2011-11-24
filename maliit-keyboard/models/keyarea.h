@@ -29,29 +29,21 @@
  *
  */
 
-#include "renderer.h"
+#ifndef MALIIT_KEYBOARD_KEYAREA_H
+#define MALIIT_KEYBOARD_KEYAREA_H
+
+#include "key.h"
+#include <QtCore>
 
 namespace MaliitKeyboard {
 
-class RendererPrivate
-{};
-
-Renderer::Renderer(QObject *parent)
-    : QObject(parent)
-    , d_ptr(new RendererPrivate)
-{}
-
-Renderer::~Renderer()
-{}
-
-void Renderer::show(const KeyArea &ka)
+struct KeyArea
 {
-    Q_UNUSED(ka)
-}
-
-void Renderer::hide(const KeyArea &ka)
-{
-    Q_UNUSED(ka)
-}
+    int id;
+    QRectF area;
+    QVector<Key> keys;
+};
 
 } // namespace MaliitKeyboard
+
+#endif // MALIIT_KEYBOARD_KEYAREA_H

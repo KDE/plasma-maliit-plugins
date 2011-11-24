@@ -29,29 +29,11 @@
  *
  */
 
-#include "renderer.h"
+#include "key.h"
 
 namespace MaliitKeyboard {
 
-class RendererPrivate
-{};
-
-Renderer::Renderer(QObject *parent)
-    : QObject(parent)
-    , d_ptr(new RendererPrivate)
+Key::Key()
 {}
-
-Renderer::~Renderer()
-{}
-
-void Renderer::show(const KeyArea &ka)
-{
-    Q_UNUSED(ka)
-}
-
-void Renderer::hide(const KeyArea &ka)
-{
-    Q_UNUSED(ka)
-}
 
 } // namespace MaliitKeyboard

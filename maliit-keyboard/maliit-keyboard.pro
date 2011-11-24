@@ -27,6 +27,7 @@ enable-legacy {
 }
 
 include(renderer/renderer.pri)
+include(models/models.pri)
 
 SOURCES += \
     maliitkeyboardplugin.cpp \
