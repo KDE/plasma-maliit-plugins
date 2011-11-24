@@ -26,11 +26,14 @@ enable-legacy {
     INCLUDEPATH += $$system(pkg-config --cflags maliit-plugins-quick-0.80 | tr \' \' \'\\n\' | grep ^-I | cut -d I -f 2-)
 }
 
+include(renderer/renderer.pri)
+
 SOURCES += \
     maliitkeyboardplugin.cpp \
 
 HEADERS += \
     maliitkeyboardplugin.h \
+
 
 qml.files = qml/maliit-keyboard.qml qml/assets
 qml.path = $${MALIIT_KEYBOARD_DIR}
