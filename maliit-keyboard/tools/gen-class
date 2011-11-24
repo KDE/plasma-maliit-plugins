@@ -2,18 +2,16 @@
 
 ### Generate Qt/C++ classes from template files.
 
-HEADER_TMPL=header.tmpl
-IMPL_TMPL=implementation.tmpl
-
-MINIMUM_ARGS=2
-
+DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd )"
+TMPL_DIR=${DIR}/templates
+MINIMUM_ARGS=3
 ERROR_GENERAL=1
 ERROR_BADARGS=65
 
 ### Functions
 print_usage() {
 
-    echo "Usage: `basename $0` class_name out_dir"
+    echo "Usage: `basename $0` plain|qobject class_name out_dir"
 }
 
 generate_class () {
@@ -40,4 +38,16 @@ then
   exit $ERROR_BADARGS
 fi
 
-generate_class $1 $2
+case $1 in
+    plain)
+        HEADER_TMPL=${TMPL_DIR}/header.tmpl
+        IMPL_TMPL=${TMPL_DIR}/implementation.tmpl
+        ;;
+
+    qobject)
+        HEADER_TMPL=${TMPL_DIR}/header-qobject.tmpl
+        IMPL_TMPL=${TMPL_DIR}/implementation-qobject.tmpl
+        ;;
+esac
+
+generate_class $2 $3
