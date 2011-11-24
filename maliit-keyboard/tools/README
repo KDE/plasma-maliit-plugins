@@ -1,0 +1,2 @@
+gen-class: A simple code generator for Qt/C++ classes. Takes a class name and
+           an output directory as parameters.
