@@ -12,3 +12,4 @@ core
 *.gcno
 *~
 *.swp
+*.pro.user

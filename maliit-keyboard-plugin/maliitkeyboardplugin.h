@@ -32,21 +32,26 @@
 #ifndef MALIIT_KEYBOARD_PLUGIN_H
 #define MALIIT_KEYBOARD_PLUGIN_H
 
-#include <minputmethodquickplugin.h>
-#include <QObject>
+#include <minputmethodplugin.h>
+#include <QtCore>
+#include <QtGui>
 
 class MaliitKeyboardPlugin
-    : public QObject, public MInputMethodQuickPlugin
+    : public QObject, public MInputMethodPlugin
 {
     Q_OBJECT
-    Q_INTERFACES(MInputMethodQuickPlugin MInputMethodPlugin)
+    Q_INTERFACES(MInputMethodPlugin)
 
 public:
     MaliitKeyboardPlugin();
 
     //! \reimpl
     virtual QString name() const;
-    virtual QString qmlFileName() const;
+    virtual QStringList languages() const;
+    virtual MAbstractInputMethod * createInputMethod(MAbstractInputMethodHost *host,
+                                                     QWidget *mainWindow);
+    virtual MAbstractInputMethodSettings * createInputMethodSettings();
+    virtual QSet<MInputMethod::HandlerState> supportedStates() const;
     //! \reimpl_end
 };
 

@@ -29,37 +29,21 @@
  *
  */
 
-#ifndef MALIIT_KEYBOARD_RENDERER_H
-#define MALIIT_KEYBOARD_RENDERER_H
-
+#include "renderer/renderer.h"
 #include "models/keyarea.h"
+
 #include <QtCore>
 #include <QtGui>
 
-namespace MaliitKeyboard {
-
-class RendererPrivate;
-
-class Renderer
-    : public QObject
+int main(int argc,
+         char ** argv)
 {
-    Q_OBJECT
-    Q_DISABLE_COPY(Renderer)
-    Q_DECLARE_PRIVATE(Renderer)
+    QApplication app(argc, argv);
 
-public:
-    explicit Renderer(QObject *parent = 0);
-    virtual ~Renderer();
+    MaliitKeyboard::KeyArea ka;
+    MaliitKeyboard::Renderer renderer;
+    renderer.setWindow(new QWidget);
+    renderer.show(ka);
 
-    void setWindow(QWidget *window);
-    Q_SLOT void show(const KeyArea &ka);
-    Q_SLOT void hide(const KeyArea &ka);
-    Q_SLOT void setDelta(const KeyArea &ka);
-
-private:
-    const QScopedPointer<RendererPrivate> d_ptr;
-};
-
-} // namespace MaliitKeyboard
-
-#endif // MALIIT_KEYBOARD_RENDERER_H
+    return app.exec();
+}

@@ -26,8 +26,10 @@ MALIIT_VERSION = 0.81.1
 CONFIG += ordered 
 TEMPLATE = subdirs
 SUBDIRS = \
+    nemo-keyboard \
     maliit-keyboard \
-    nemo-keyboard
+    maliit-keyboard-plugin \
+    maliit-keyboard-viewer \
 
 DIST_NAME = $$MALIIT_PACKAGENAME-$$MALIIT_VERSION
 DIST_PATH = $$OUT_PWD/$$DIST_NAME
