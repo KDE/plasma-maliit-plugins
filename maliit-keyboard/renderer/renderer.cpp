@@ -31,10 +31,23 @@
 
 #include "renderer.h"
 
+#ifdef MALIIT_KEYBOARD_HAVE_GL
+#include <QGLWidget>
+#endif
+
 namespace MaliitKeyboard {
 
 class RendererPrivate
-{};
+{
+public:
+    QWidget *window;
+    QGraphicsView *view;
+
+    explicit RendererPrivate()
+        : window(0)
+        , view(0)
+    {}
+};
 
 Renderer::Renderer(QObject *parent)
     : QObject(parent)
@@ -44,12 +57,44 @@ Renderer::Renderer(QObject *parent)
 Renderer::~Renderer()
 {}
 
+void Renderer::setWindow(QWidget *window)
+{
+    Q_D(Renderer);
+    d->window = window;
+}
+
 void Renderer::show(const KeyArea &ka)
+{
+    Q_UNUSED(ka)
+    Q_D(Renderer);
+    if (not d->window) {
+        qCritical() << __PRETTY_FUNCTION__
+                    << "No main window specified, don't know where to render to.";
+        return;
+    }
+
+    if (not d->view) {
+        d->view = new QGraphicsView;
+        d->view->setAttribute(Qt::WA_OpaquePaintEvent);
+        d->view->setAttribute(Qt::WA_NoSystemBackground);
+
+#ifdef MALIIT_KEYBOARD_HAVE_GL
+        d->view->setViewport(new QGLWidget);
+#endif
+
+        d->view->viewport()->setAttribute(Qt::WA_OpaquePaintEvent);
+        d->view->viewport()->setAttribute(Qt::WA_NoSystemBackground);
+
+        d->view->showFullScreen();
+   }
+}
+
+void Renderer::hide(const KeyArea &ka)
 {
     Q_UNUSED(ka)
 }
 
-void Renderer::hide(const KeyArea &ka)
+void Renderer::setDelta(const KeyArea &ka)
 {
     Q_UNUSED(ka)
 }
