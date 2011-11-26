@@ -20,11 +20,14 @@ enable-legacy {
     INCLUDEPATH += $$system(pkg-config --cflags maliit-plugins-0.80 | tr \' \' \'\\n\' | grep ^-I | cut -d I -f 2-)
 }
 
-SOURCES += \
-    maliitkeyboardplugin.cpp \
 
 HEADERS += \
     maliitkeyboardplugin.h \
+    inputmethod.h \
+
+SOURCES += \
+    maliitkeyboardplugin.cpp \
+    inputmethod.cpp \
 
 target.path += $${MALIIT_PLUGINS_DIR}
 INSTALLS += target

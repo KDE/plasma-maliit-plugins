@@ -29,39 +29,47 @@
  *
  */
 
-#include "maliitkeyboardplugin.h"
 #include "inputmethod.h"
+#include "renderer/renderer.h"
+#include "models/keyarea.h"
 
-QString MaliitKeyboardPlugin::name() const
+namespace MaliitKeyboard {
+
+class InputMethodPrivate
 {
-    return QString("Maliit Keyboard");
+public:
+    QPointer<QWidget> window;
+    Renderer renderer;
+
+    explicit InputMethodPrivate(QWidget *new_window)
+        : window(new_window)
+    {
+        renderer.setWindow(window);
+    }
+};
+
+InputMethod::InputMethod(MAbstractInputMethodHost *host,
+                         QWidget *window)
+    : MAbstractInputMethod(host, window)
+    , d_ptr(new InputMethodPrivate(window))
+{}
+
+InputMethod::~InputMethod()
+{}
+
+void InputMethod::show()
+{
+    Q_D(InputMethod);
+
+    KeyArea ka;
+    d->renderer.show(ka);
 }
 
-QStringList MaliitKeyboardPlugin::languages() const
+void InputMethod::hide()
 {
-    QStringList list;
-    list.append("en");
+    Q_D(InputMethod);
 
-    return list;
+    d->renderer.hideAll();
 }
 
-MAbstractInputMethod * MaliitKeyboardPlugin::createInputMethod(MAbstractInputMethodHost *host,
-                                                               QWidget *window)
-{
-    return new MaliitKeyboard::InputMethod(host, window);
-}
-
-MAbstractInputMethodSettings * MaliitKeyboardPlugin::createInputMethodSettings()
-{
-    return 0;
-}
-
-QSet<MInputMethod::HandlerState> MInputMethodPlugin::supportedStates() const
-{
-    QSet<MInputMethod::HandlerState> set;
-    set.insert(MInputMethod::OnScreen);
-
-    return set;
-}
-
-Q_EXPORT_PLUGIN2(MaliitKeyboard, MaliitKeyboardPlugin)
+} // namespace MaliitKeyboard

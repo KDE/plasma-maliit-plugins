@@ -54,6 +54,7 @@ public:
     void setWindow(QWidget *window);
     Q_SLOT void show(const KeyArea &ka);
     Q_SLOT void hide(const KeyArea &ka);
+    Q_SLOT void hideAll();
     Q_SLOT void setDelta(const KeyArea &ka);
 
 private:

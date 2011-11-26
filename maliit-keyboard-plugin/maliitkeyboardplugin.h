@@ -49,7 +49,7 @@ public:
     virtual QString name() const;
     virtual QStringList languages() const;
     virtual MAbstractInputMethod * createInputMethod(MAbstractInputMethodHost *host,
-                                                     QWidget *mainWindow);
+                                                     QWidget *window);
     virtual MAbstractInputMethodSettings * createInputMethodSettings();
     virtual QSet<MInputMethod::HandlerState> supportedStates() const;
     //! \reimpl_end

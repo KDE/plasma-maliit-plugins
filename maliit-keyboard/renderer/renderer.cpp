@@ -94,6 +94,9 @@ void Renderer::hide(const KeyArea &ka)
     Q_UNUSED(ka)
 }
 
+void Renderer::hideAll()
+{}
+
 void Renderer::setDelta(const KeyArea &ka)
 {
     Q_UNUSED(ka)
