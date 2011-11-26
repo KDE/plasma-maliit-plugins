@@ -29,7 +29,7 @@
  *
  */
 
-#include "maliitkeyboardplugin.h"
+#include "plugin.h"
 #include "inputmethod.h"
 
 QString MaliitKeyboardPlugin::name() const

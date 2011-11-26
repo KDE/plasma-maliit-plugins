@@ -22,11 +22,11 @@ enable-legacy {
 
 
 HEADERS += \
-    maliitkeyboardplugin.h \
+    plugin.h \
     inputmethod.h \
 
 SOURCES += \
-    maliitkeyboardplugin.cpp \
+    plugin.cpp \
     inputmethod.cpp \
 
 target.path += $${MALIIT_PLUGINS_DIR}
