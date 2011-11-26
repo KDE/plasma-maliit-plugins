@@ -29,42 +29,45 @@
  *
  */
 
-#ifndef MALIIT_KEYBOARD_RENDERER_H
-#define MALIIT_KEYBOARD_RENDERER_H
-
-#include "models/keyarea.h"
-#include "abstractbackgroundbuffer.h"
-
-#include <QtCore>
-#include <QtGui>
+#include "graphicsview.h"
 
 namespace MaliitKeyboard {
 
-class RendererPrivate;
+class GraphicsViewPrivate
+{};
 
-class Renderer
-    : public QObject
+GraphicsView::GraphicsView(QWidget *parent)
+    : QGraphicsView(parent)
+    , m_buffer(0)
+{}
+
+GraphicsView::GraphicsView(QGraphicsScene *scene,
+                           QWidget *parent)
+    : QGraphicsView(scene, parent)
+    , m_buffer(0)
+{}
+
+GraphicsView::~GraphicsView()
+{}
+
+void GraphicsView::setBackgroundBuffer(AbstractBackgroundBuffer *buffer)
 {
-    Q_OBJECT
-    Q_DISABLE_COPY(Renderer)
-    Q_DECLARE_PRIVATE(Renderer)
+    m_buffer = buffer;
+}
 
-public:
-    explicit Renderer(QObject *parent = 0);
-    virtual ~Renderer();
+void GraphicsView::drawBackground(QPainter *painter,
+                                  const QRectF &rect)
+{
+    if (not m_buffer || rect.isEmpty()) {
+        return;
+    }
 
-    void setWindow(QWidget *window);
-    void setBackgroundBuffer(AbstractBackgroundBuffer *buffer);
-
-    Q_SLOT void show(const KeyArea &ka);
-    Q_SLOT void hide(const KeyArea &ka);
-    Q_SLOT void hideAll();
-    Q_SLOT void setDelta(const KeyArea &ka);
-
-private:
-    const QScopedPointer<RendererPrivate> d_ptr;
-};
+#if defined(Q_WS_X11)
+    const QPixmap &bg(m_buffer->background());
+    if (not bg.isNull()) {
+        painter->drawPixmap(rect.toRect(), bg, rect.toRect());
+    }
+#endif
+}
 
 } // namespace MaliitKeyboard
-
-#endif // MALIIT_KEYBOARD_RENDERER_H

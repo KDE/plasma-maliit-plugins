@@ -31,6 +31,7 @@
 
 #include "renderer.h"
 #include "keyareaitem.h"
+#include "graphicsview.h"
 
 #ifdef MALIIT_KEYBOARD_HAVE_GL
 #include <QGLWidget>
@@ -38,9 +39,11 @@
 
 namespace MaliitKeyboard { namespace {
 
-QGraphicsView * createView(QWidget *widget)
+QGraphicsView * createView(QWidget *widget,
+                           AbstractBackgroundBuffer *buffer)
 {
-    QGraphicsView *view = new QGraphicsView(widget);
+    GraphicsView *view = new GraphicsView(widget);
+    view->setBackgroundBuffer(buffer);
     view->resize(widget->size());
     QGraphicsScene *scene = new QGraphicsScene(view);
     view->setScene(scene);
@@ -80,11 +83,13 @@ class RendererPrivate
 public:
     QWidget *window;
     QGraphicsView *view;
+    AbstractBackgroundBuffer *buffer;
     QHash<int, KeyAreaItem *> registry;
 
     explicit RendererPrivate()
         : window(0)
         , view(0)
+        , buffer(0)
         , registry()
     {}
 };
@@ -103,6 +108,12 @@ void Renderer::setWindow(QWidget *window)
     d->window = window;
 }
 
+void Renderer::setBackgroundBuffer(AbstractBackgroundBuffer *buffer)
+{
+    Q_D(Renderer);
+    d->buffer = buffer;
+}
+
 void Renderer::show(const KeyArea &ka)
 {
     Q_D(Renderer);
@@ -114,7 +125,7 @@ void Renderer::show(const KeyArea &ka)
     }
 
     if (not d->view) {
-        d->view = createView(d->window);
+        d->view = createView(d->window, d->buffer);
         d->view->showFullScreen();
 
         QGraphicsRectItem *root = new QGraphicsRectItem;

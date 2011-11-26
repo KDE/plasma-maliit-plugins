@@ -29,42 +29,41 @@
  *
  */
 
-#ifndef MALIIT_KEYBOARD_RENDERER_H
-#define MALIIT_KEYBOARD_RENDERER_H
+#ifndef MALIIT_KEYBOARD_GRAPHICSVIEW_H
+#define MALIIT_KEYBOARD_GRAPHICSVIEW_H
 
-#include "models/keyarea.h"
 #include "abstractbackgroundbuffer.h"
-
-#include <QtCore>
 #include <QtGui>
 
 namespace MaliitKeyboard {
 
-class RendererPrivate;
+class GraphicsViewPrivate;
 
-class Renderer
-    : public QObject
+class GraphicsView
+    : public QGraphicsView
 {
     Q_OBJECT
-    Q_DISABLE_COPY(Renderer)
-    Q_DECLARE_PRIVATE(Renderer)
+    Q_DISABLE_COPY(GraphicsView)
+    Q_DECLARE_PRIVATE(GraphicsView)
 
 public:
-    explicit Renderer(QObject *parent = 0);
-    virtual ~Renderer();
+    explicit GraphicsView(QWidget *parent = 0);
+    explicit GraphicsView(QGraphicsScene * scene,
+                          QWidget *parent = 0);
+    virtual ~GraphicsView();
 
-    void setWindow(QWidget *window);
     void setBackgroundBuffer(AbstractBackgroundBuffer *buffer);
 
-    Q_SLOT void show(const KeyArea &ka);
-    Q_SLOT void hide(const KeyArea &ka);
-    Q_SLOT void hideAll();
-    Q_SLOT void setDelta(const KeyArea &ka);
+protected:
+    //! \reimp
+    virtual void drawBackground(QPainter *painter,
+                                const QRectF &rect);
+    //! \reimp
 
 private:
-    const QScopedPointer<RendererPrivate> d_ptr;
+    AbstractBackgroundBuffer *m_buffer;
 };
 
 } // namespace MaliitKeyboard
 
-#endif // MALIIT_KEYBOARD_RENDERER_H
+#endif // MALIIT_KEYBOARD_GRAPHICSVIEW_H

@@ -29,42 +29,24 @@
  *
  */
 
-#ifndef MALIIT_KEYBOARD_RENDERER_H
-#define MALIIT_KEYBOARD_RENDERER_H
+#ifndef MALIIT_KEYBOARD_ABSTRACTBACKGROUND_H
+#define MALIIT_KEYBOARD_ABSTRACTBACKGROUND_H
 
-#include "models/keyarea.h"
-#include "abstractbackgroundbuffer.h"
-
-#include <QtCore>
 #include <QtGui>
 
 namespace MaliitKeyboard {
 
-class RendererPrivate;
-
-class Renderer
-    : public QObject
+class AbstractBackgroundBuffer
 {
-    Q_OBJECT
-    Q_DISABLE_COPY(Renderer)
-    Q_DECLARE_PRIVATE(Renderer)
-
 public:
-    explicit Renderer(QObject *parent = 0);
-    virtual ~Renderer();
+    explicit AbstractBackgroundBuffer();
+    virtual ~AbstractBackgroundBuffer() = 0;
 
-    void setWindow(QWidget *window);
-    void setBackgroundBuffer(AbstractBackgroundBuffer *buffer);
-
-    Q_SLOT void show(const KeyArea &ka);
-    Q_SLOT void hide(const KeyArea &ka);
-    Q_SLOT void hideAll();
-    Q_SLOT void setDelta(const KeyArea &ka);
-
-private:
-    const QScopedPointer<RendererPrivate> d_ptr;
+#ifdef Q_WS_X11
+    virtual QPixmap background() const = 0;
+#endif
 };
 
 } // namespace MaliitKeyboard
 
-#endif // MALIIT_KEYBOARD_RENDERER_H
+#endif // MALIIT_KEYBOARD_ABSTRACTBACKGROUND_H
