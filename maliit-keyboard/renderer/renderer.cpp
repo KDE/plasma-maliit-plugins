@@ -35,7 +35,25 @@
 #include <QGLWidget>
 #endif
 
-namespace MaliitKeyboard {
+namespace MaliitKeyboard { namespace {
+
+QGraphicsView * createView(QWidget *widget)
+{
+    QGraphicsView *view = new QGraphicsView(widget);
+    view->setAttribute(Qt::WA_OpaquePaintEvent);
+    view->setAttribute(Qt::WA_NoSystemBackground);
+
+#ifdef MALIIT_KEYBOARD_HAVE_GL
+    view->setViewport(new QGLWidget);
+#endif
+
+    view->viewport()->setAttribute(Qt::WA_OpaquePaintEvent);
+    view->viewport()->setAttribute(Qt::WA_NoSystemBackground);
+
+    return view;
+}
+
+} // namespace
 
 class RendererPrivate
 {
@@ -74,17 +92,7 @@ void Renderer::show(const KeyArea &ka)
     }
 
     if (not d->view) {
-        d->view = new QGraphicsView;
-        d->view->setAttribute(Qt::WA_OpaquePaintEvent);
-        d->view->setAttribute(Qt::WA_NoSystemBackground);
-
-#ifdef MALIIT_KEYBOARD_HAVE_GL
-        d->view->setViewport(new QGLWidget);
-#endif
-
-        d->view->viewport()->setAttribute(Qt::WA_OpaquePaintEvent);
-        d->view->viewport()->setAttribute(Qt::WA_NoSystemBackground);
-
+        d->view = createView(d->window);
         d->view->showFullScreen();
    }
 }
