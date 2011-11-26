@@ -30,6 +30,7 @@
  */
 
 #include "renderer.h"
+#include "keyareaitem.h"
 
 #ifdef MALIIT_KEYBOARD_HAVE_GL
 #include <QGLWidget>
@@ -40,17 +41,36 @@ namespace MaliitKeyboard { namespace {
 QGraphicsView * createView(QWidget *widget)
 {
     QGraphicsView *view = new QGraphicsView(widget);
+    view->resize(widget->size());
+    QGraphicsScene *scene = new QGraphicsScene(view);
+    view->setScene(scene);
+    view->setFrameShape(QFrame::NoFrame);
+    view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     view->setAttribute(Qt::WA_OpaquePaintEvent);
     view->setAttribute(Qt::WA_NoSystemBackground);
 
 #ifdef MALIIT_KEYBOARD_HAVE_GL
     view->setViewport(new QGLWidget);
 #endif
-
     view->viewport()->setAttribute(Qt::WA_OpaquePaintEvent);
     view->viewport()->setAttribute(Qt::WA_NoSystemBackground);
 
     return view;
+}
+
+QGraphicsItem * rootItem(QGraphicsView *view)
+{
+    if (not view || not view->scene()) {
+        return 0;
+    }
+
+    QList<QGraphicsItem *> items = view->scene()->items(Qt::DescendingOrder);
+    if (not items.isEmpty()) {
+        return items.at(0);
+    }
+
+    return 0;
 }
 
 } // namespace
@@ -60,10 +80,12 @@ class RendererPrivate
 public:
     QWidget *window;
     QGraphicsView *view;
+    QHash<int, KeyAreaItem *> registry;
 
     explicit RendererPrivate()
         : window(0)
         , view(0)
+        , registry()
     {}
 };
 
@@ -83,8 +105,8 @@ void Renderer::setWindow(QWidget *window)
 
 void Renderer::show(const KeyArea &ka)
 {
-    Q_UNUSED(ka)
     Q_D(Renderer);
+
     if (not d->window) {
         qCritical() << __PRETTY_FUNCTION__
                     << "No main window specified, don't know where to render to.";
@@ -94,12 +116,34 @@ void Renderer::show(const KeyArea &ka)
     if (not d->view) {
         d->view = createView(d->window);
         d->view->showFullScreen();
+
+        QGraphicsRectItem *root = new QGraphicsRectItem;
+        root->setRect(d->view->rect());
+        root->show();
+        d->view->scene()->addItem(root);
    }
+
+    // Allow for multiple key areas being shown at the same time:
+    // TODO: Animate fade-in, from nearest window border.
+    if (KeyAreaItem *found = d->registry.value(ka.id)) {
+        found->show();
+        found->update();
+    } else {
+        KeyAreaItem *item = new KeyAreaItem(&d->registry, ka, rootItem(d->view));
+        item->show();
+        item->update();
+    }
 }
 
 void Renderer::hide(const KeyArea &ka)
 {
-    Q_UNUSED(ka)
+    Q_D(Renderer);
+
+    // TODO: Animate fade-out.
+    // TODO: Animate fade-out, towards nearest window border.
+    if (KeyAreaItem *found = d->registry.value(ka.id)) {
+        found->hide();
+    }
 }
 
 void Renderer::hideAll()

@@ -29,21 +29,37 @@
  *
  */
 
-#ifndef MALIIT_KEYBOARD_KEYAREA_H
-#define MALIIT_KEYBOARD_KEYAREA_H
-
-#include "key.h"
-#include <QtCore>
+#include "keyareaitem.h"
 
 namespace MaliitKeyboard {
 
-struct KeyArea
+KeyAreaItem::KeyAreaItem(KeyAreaItemRegistry *registry,
+                         const KeyArea &key_area,
+                         QGraphicsItem *parent)
+    : QGraphicsItem(parent)
+    , m_registry(registry)
+    , m_key_area(key_area)
 {
-    int id;
-    QRectF rect;
-    QVector<Key> keys;
-};
+    m_registry->insert(m_key_area.id, this);
+    update();
+}
+
+KeyAreaItem::~KeyAreaItem()
+{
+    m_registry->remove(m_key_area.id);
+}
+
+QRectF KeyAreaItem::boundingRect() const
+{
+    return m_key_area.rect;
+}
+
+void KeyAreaItem::paint(QPainter *painter,
+                        const QStyleOptionGraphicsItem *,
+                        QWidget *)
+{
+    painter->setBrush(Qt::green);
+    painter->drawRect(boundingRect());
+}
 
 } // namespace MaliitKeyboard
-
-#endif // MALIIT_KEYBOARD_KEYAREA_H

@@ -40,10 +40,22 @@ int main(int argc,
 {
     QApplication app(argc, argv);
 
-    MaliitKeyboard::KeyArea ka;
+    QWidget *window = new QWidget;
+    window->resize(480, 854);
+    window->showFullScreen();
+
     MaliitKeyboard::Renderer renderer;
-    renderer.setWindow(new QWidget);
-    renderer.show(ka);
+    renderer.setWindow(window);
+
+    MaliitKeyboard::KeyArea ka0;
+    ka0.id = 0;
+    ka0.rect = QRectF(0, 554, 480, 300);
+    renderer.show(ka0);
+
+    MaliitKeyboard::KeyArea ka1;
+    ka1.id = 1;
+    ka1.rect = QRectF(0, 0, 480, 100);
+    renderer.show(ka1);
 
     return app.exec();
 }

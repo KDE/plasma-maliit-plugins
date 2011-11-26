@@ -29,21 +29,11 @@
  *
  */
 
-#ifndef MALIIT_KEYBOARD_KEYAREA_H
-#define MALIIT_KEYBOARD_KEYAREA_H
-
-#include "key.h"
-#include <QtCore>
+#include "keyitem.h"
 
 namespace MaliitKeyboard {
 
-struct KeyArea
-{
-    int id;
-    QRectF rect;
-    QVector<Key> keys;
-};
+KeyItem::KeyItem()
+{}
 
 } // namespace MaliitKeyboard
-
-#endif // MALIIT_KEYBOARD_KEYAREA_H
