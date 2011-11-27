@@ -43,7 +43,7 @@ class MaliitKeyboardPlugin
     Q_INTERFACES(MInputMethodPlugin)
 
 public:
-    MaliitKeyboardPlugin();
+    explicit MaliitKeyboardPlugin(QObject *parent = 0);
 
     //! \reimpl
     virtual QString name() const;

@@ -32,6 +32,11 @@
 #include "plugin.h"
 #include "inputmethod.h"
 
+MaliitKeyboardPlugin::MaliitKeyboardPlugin(QObject *parent)
+    : QObject(parent)
+    , MInputMethodPlugin()
+{}
+
 QString MaliitKeyboardPlugin::name() const
 {
     return QString("Maliit Keyboard");
@@ -56,7 +61,7 @@ MAbstractInputMethodSettings * MaliitKeyboardPlugin::createInputMethodSettings()
     return 0;
 }
 
-QSet<MInputMethod::HandlerState> MInputMethodPlugin::supportedStates() const
+QSet<MInputMethod::HandlerState> MaliitKeyboardPlugin::supportedStates() const
 {
     QSet<MInputMethod::HandlerState> set;
     set.insert(MInputMethod::OnScreen);

@@ -34,11 +34,10 @@
 namespace MaliitKeyboard {
 
 KeyAreaItem::KeyAreaItem(KeyAreaItemRegistry *registry,
-                         const KeyArea &key_area,
                          QGraphicsItem *parent)
     : QGraphicsItem(parent)
     , m_registry(registry)
-    , m_key_area(key_area)
+    , m_key_area()
 {
     m_registry->insert(m_key_area.id, this);
     update();
@@ -47,6 +46,11 @@ KeyAreaItem::KeyAreaItem(KeyAreaItemRegistry *registry,
 KeyAreaItem::~KeyAreaItem()
 {
     m_registry->remove(m_key_area.id);
+}
+
+void KeyAreaItem::setKeyArea(const KeyArea &ka)
+{
+    m_key_area = ka;
 }
 
 QRectF KeyAreaItem::boundingRect() const

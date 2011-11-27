@@ -49,9 +49,10 @@ private:
 
 public:
     explicit KeyAreaItem(KeyAreaItemRegistry *registry,
-                         const KeyArea &key_area,
                          QGraphicsItem *parent = 0);
     virtual ~KeyAreaItem();
+
+    void setKeyArea(const KeyArea &ka);
 
     //! \reimp
     virtual QRectF boundingRect() const;

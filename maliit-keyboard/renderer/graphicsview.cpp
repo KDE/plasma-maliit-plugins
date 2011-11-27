@@ -65,6 +65,7 @@ void GraphicsView::drawBackground(QPainter *painter,
 #if defined(Q_WS_X11)
     const QPixmap &bg(m_buffer->background());
     if (not bg.isNull()) {
+        qDebug() << __PRETTY_FUNCTION__ << "draw bg";
         painter->drawPixmap(rect.toRect(), bg, rect.toRect());
     }
 #endif

@@ -33,6 +33,7 @@
 #define MALIIT_KEYBOARD_INPUTMETHOD_H
 
 #include <mabstractinputmethod.h>
+#include <mabstractinputmethodhost.h>
 #include <QtGui>
 
 namespace MaliitKeyboard {

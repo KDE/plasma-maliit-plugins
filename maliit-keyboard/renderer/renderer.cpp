@@ -45,19 +45,16 @@ QGraphicsView * createView(QWidget *widget,
     GraphicsView *view = new GraphicsView(widget);
     view->setBackgroundBuffer(buffer);
     view->resize(widget->size());
+    view->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
     QGraphicsScene *scene = new QGraphicsScene(view);
     view->setScene(scene);
     view->setFrameShape(QFrame::NoFrame);
     view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    view->setAttribute(Qt::WA_OpaquePaintEvent);
-    view->setAttribute(Qt::WA_NoSystemBackground);
 
 #ifdef MALIIT_KEYBOARD_HAVE_GL
     view->setViewport(new QGLWidget);
 #endif
-    view->viewport()->setAttribute(Qt::WA_OpaquePaintEvent);
-    view->viewport()->setAttribute(Qt::WA_NoSystemBackground);
 
     return view;
 }
@@ -82,15 +79,17 @@ class RendererPrivate
 {
 public:
     QWidget *window;
-    QGraphicsView *view;
+    QScopedPointer<QGraphicsView> view;
     AbstractBackgroundBuffer *buffer;
     QHash<int, KeyAreaItem *> registry;
+    QRegion region;
 
     explicit RendererPrivate()
         : window(0)
         , view(0)
         , buffer(0)
         , registry()
+        , region()
     {}
 };
 
@@ -106,6 +105,14 @@ void Renderer::setWindow(QWidget *window)
 {
     Q_D(Renderer);
     d->window = window;
+
+    d->view.reset(createView(d->window, d->buffer));
+    d->view->show();
+
+    QGraphicsRectItem *root = new QGraphicsRectItem;
+    root->setRect(d->view->rect());
+    root->show();
+    d->view->scene()->addItem(root);
 }
 
 void Renderer::setBackgroundBuffer(AbstractBackgroundBuffer *buffer)
@@ -114,51 +121,58 @@ void Renderer::setBackgroundBuffer(AbstractBackgroundBuffer *buffer)
     d->buffer = buffer;
 }
 
+QRegion Renderer::region() const
+{
+    Q_D(const Renderer);
+    return d->region;
+}
+
 void Renderer::show(const KeyArea &ka)
 {
     Q_D(Renderer);
 
-    if (not d->window) {
+    if (not d->window || d->view.isNull()) {
         qCritical() << __PRETTY_FUNCTION__
                     << "No main window specified, don't know where to render to.";
         return;
     }
 
-    if (not d->view) {
-        d->view = createView(d->window, d->buffer);
-        d->view->showFullScreen();
-
-        QGraphicsRectItem *root = new QGraphicsRectItem;
-        root->setRect(d->view->rect());
-        root->show();
-        d->view->scene()->addItem(root);
-   }
-
-    // Allow for multiple key areas being shown at the same time:
+    // Allows for multiple key areas being shown at the same time:
     // TODO: Animate fade-in, from nearest window border.
+    KeyAreaItem *item = 0;
     if (KeyAreaItem *found = d->registry.value(ka.id)) {
-        found->show();
-        found->update();
+        item = found;
     } else {
-        KeyAreaItem *item = new KeyAreaItem(&d->registry, ka, rootItem(d->view));
-        item->show();
-        item->update();
+        item = new KeyAreaItem(&d->registry, rootItem(d->view.data()));
     }
+
+    d->region -= QRegion(item->boundingRect().toRect());
+    item->setKeyArea(ka);
+
+    d->region |= QRegion(item->boundingRect().toRect());
+    item->show();
 }
 
 void Renderer::hide(const KeyArea &ka)
 {
     Q_D(Renderer);
 
-    // TODO: Animate fade-out.
     // TODO: Animate fade-out, towards nearest window border.
     if (KeyAreaItem *found = d->registry.value(ka.id)) {
+        d->region -= QRegion(found->boundingRect().toRect());
         found->hide();
     }
 }
 
 void Renderer::hideAll()
-{}
+{
+    Q_D(Renderer);
+
+    d->region = QRegion();
+    foreach (KeyAreaItem *item, d->registry) {
+        item->hide();
+    }
+}
 
 void Renderer::setDelta(const KeyArea &ka)
 {

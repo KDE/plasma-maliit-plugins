@@ -31,27 +31,66 @@
 
 #include "inputmethod.h"
 #include "renderer/renderer.h"
+#include "renderer/abstractbackgroundbuffer.h"
 #include "models/keyarea.h"
 
 namespace MaliitKeyboard {
 
+class BackgroundBuffer
+    : public AbstractBackgroundBuffer
+{
+private:
+    MAbstractInputMethodHost *m_host;
+
+public:
+    explicit BackgroundBuffer(MAbstractInputMethodHost *host)
+        : AbstractBackgroundBuffer()
+    {
+        m_host = host;
+    }
+
+    virtual ~BackgroundBuffer()
+    {}
+
+#ifdef Q_WS_X11
+    QPixmap background() const
+    {
+        if (not m_host) {
+            static QPixmap empty;
+            return empty;
+        }
+
+        return m_host->background();
+    }
+#endif
+};
+
 class InputMethodPrivate
 {
 public:
-    QPointer<QWidget> window;
+    QWidget *window;
+    BackgroundBuffer buffer;
     Renderer renderer;
 
-    explicit InputMethodPrivate(QWidget *new_window)
+    explicit InputMethodPrivate(MAbstractInputMethodHost *host,
+                                QWidget *new_window)
         : window(new_window)
+        , buffer(host)
+        , renderer()
     {
+        if (qApp && qApp->desktop()) {
+            window->resize(qApp->desktop()->screenGeometry().size());
+        }
+
         renderer.setWindow(window);
+        renderer.setBackgroundBuffer(&buffer);
     }
 };
 
 InputMethod::InputMethod(MAbstractInputMethodHost *host,
                          QWidget *window)
     : MAbstractInputMethod(host, window)
-    , d_ptr(new InputMethodPrivate(window))
+    , d_ptr(new InputMethodPrivate(host, window))
 {}
 
 InputMethod::~InputMethod()
@@ -62,7 +101,12 @@ void InputMethod::show()
     Q_D(InputMethod);
 
     KeyArea ka;
+    ka.id = 0;
+    ka.rect = QRectF(0, 554, 480, 300);
     d->renderer.show(ka);
+
+    inputMethodHost()->setInputMethodArea(d->renderer.region());
+    inputMethodHost()->setScreenRegion(d->renderer.region());
 }
 
 void InputMethod::hide()
@@ -70,6 +114,8 @@ void InputMethod::hide()
     Q_D(InputMethod);
 
     d->renderer.hideAll();
+    inputMethodHost()->setInputMethodArea(d->renderer.region());
+    inputMethodHost()->setScreenRegion(d->renderer.region());
 }
 
 } // namespace MaliitKeyboard

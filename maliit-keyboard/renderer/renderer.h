@@ -55,6 +55,7 @@ public:
 
     void setWindow(QWidget *window);
     void setBackgroundBuffer(AbstractBackgroundBuffer *buffer);
+    QRegion region() const;
 
     Q_SLOT void show(const KeyArea &ka);
     Q_SLOT void hide(const KeyArea &ka);
