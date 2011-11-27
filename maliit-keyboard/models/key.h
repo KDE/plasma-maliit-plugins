@@ -32,16 +32,31 @@
 #ifndef MALIIT_KEYBOARD_KEY_H
 #define MALIIT_KEYBOARD_KEY_H
 
-#include <QtCore>
+#include "keylabel.h"
+#include <QtGui>
 
 namespace MaliitKeyboard {
 
 class Key
 {
 private:
+    QRect m_rect;
+    QPixmap m_background;
+    KeyLabel m_label;
 
 public:
     explicit Key();
+
+    QRect rect() const;
+    void setRect(const QRect &rect);
+
+#ifdef Q_WS_X11
+    QPixmap background() const;
+    void setBackground(const QPixmap &background);
+#endif
+
+    KeyLabel label() const;
+    void setLabel(const KeyLabel &label);
 };
 
 } // namespace MaliitKeyboard

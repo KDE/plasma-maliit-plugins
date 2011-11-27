@@ -29,36 +29,55 @@
  *
  */
 
-#include "keyrenderer.h"
+#include "keylabel.h"
 
 namespace MaliitKeyboard {
 
-KeyRenderer::KeyRenderer()
-    : m_origin()
+KeyLabel::KeyLabel()
+    : m_label()
+    , m_rect()
+    , m_font()
+    , m_color()
 {}
 
-void KeyRenderer::setOrigin(const QPoint &origin)
+QByteArray KeyLabel::text() const
 {
-    m_origin = origin;
+    return m_label;
 }
 
-void KeyRenderer::render(QPainter *painter,
-                         const Key &key)
+void KeyLabel::setText(const QByteArray &label)
 {
-    const QRect &key_rect(key.rect().translated(m_origin));
-    const QRect &key_label_rect(key.label().rect().translated(key_rect.topLeft()));
+    m_label = label;
+}
 
-#ifdef Q_WS_X11
-    qDebug() << __PRETTY_FUNCTION__;
-    painter->drawPixmap(key_rect, key.background());
-#endif
+QRect KeyLabel::rect() const
+{
+    return m_rect;
+}
 
-    if (QFont *font = key.label().font().data()) {
-        painter->setFont(*font);
-    }
+void KeyLabel::setRect(const QRect &rect)
+{
+    m_rect = rect;
+}
 
-    painter->setPen(key.label().color());
-    painter->drawText(key_label_rect, key.label().text());
+SharedFont KeyLabel::font() const
+{
+    return m_font;
+}
+
+void KeyLabel::setFont(const SharedFont &font)
+{
+    m_font = font;
+}
+
+QColor KeyLabel::color() const
+{
+    return m_color;
+}
+
+void KeyLabel::setColor(const QColor &color)
+{
+    m_color = color;
 }
 
 } // namespace MaliitKeyboard

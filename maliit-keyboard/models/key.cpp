@@ -34,6 +34,41 @@
 namespace MaliitKeyboard {
 
 Key::Key()
+    : m_rect()
+    , m_background()
+    , m_label()
 {}
+
+QRect Key::rect() const
+{
+    return m_rect;
+}
+
+void Key::setRect(const QRect &rect)
+{
+    m_rect = rect;
+}
+
+#ifdef Q_WS_X11
+QPixmap Key::background() const
+{
+    return m_background;
+}
+
+void Key::setBackground(const QPixmap &background)
+{
+    m_background = background;
+}
+#endif
+
+KeyLabel Key::label() const
+{
+    return m_label;
+}
+
+void Key::setLabel(const KeyLabel &label)
+{
+    m_label = label;
+}
 
 } // namespace MaliitKeyboard

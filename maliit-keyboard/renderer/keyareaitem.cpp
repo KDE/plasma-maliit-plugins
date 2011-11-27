@@ -30,6 +30,7 @@
  */
 
 #include "keyareaitem.h"
+#include "models/key.h"
 
 namespace MaliitKeyboard {
 
@@ -38,6 +39,7 @@ KeyAreaItem::KeyAreaItem(KeyAreaItemRegistry *registry,
     : QGraphicsItem(parent)
     , m_registry(registry)
     , m_key_area()
+    , m_key_renderer()
 {
     m_registry->insert(m_key_area.id, this);
     update();
@@ -51,6 +53,7 @@ KeyAreaItem::~KeyAreaItem()
 void KeyAreaItem::setKeyArea(const KeyArea &ka)
 {
     m_key_area = ka;
+    m_key_renderer.setOrigin(boundingRect().topLeft().toPoint());
 }
 
 QRectF KeyAreaItem::boundingRect() const
@@ -64,6 +67,10 @@ void KeyAreaItem::paint(QPainter *painter,
 {
     painter->setBrush(Qt::green);
     painter->drawRect(boundingRect());
+
+    foreach (Key k, m_key_area.keys) {
+        m_key_renderer.render(painter, k);
+    }
 }
 
 } // namespace MaliitKeyboard

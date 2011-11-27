@@ -29,36 +29,39 @@
  *
  */
 
-#include "keyrenderer.h"
+#ifndef MALIIT_KEYBOARD_KEYLABEL_H
+#define MALIIT_KEYBOARD_KEYLABEL_H
+
+#include <QtGui>
 
 namespace MaliitKeyboard {
 
-KeyRenderer::KeyRenderer()
-    : m_origin()
-{}
+typedef QSharedPointer<QFont> SharedFont;
 
-void KeyRenderer::setOrigin(const QPoint &origin)
+class KeyLabel
 {
-    m_origin = origin;
-}
+private:
+    QByteArray m_label;
+    QRect m_rect;
+    SharedFont m_font;
+    QColor m_color;
 
-void KeyRenderer::render(QPainter *painter,
-                         const Key &key)
-{
-    const QRect &key_rect(key.rect().translated(m_origin));
-    const QRect &key_label_rect(key.label().rect().translated(key_rect.topLeft()));
+public:
+    explicit KeyLabel();
 
-#ifdef Q_WS_X11
-    qDebug() << __PRETTY_FUNCTION__;
-    painter->drawPixmap(key_rect, key.background());
-#endif
+    QByteArray text() const;
+    void setText(const QByteArray &text);
 
-    if (QFont *font = key.label().font().data()) {
-        painter->setFont(*font);
-    }
+    QRect rect() const;
+    void setRect(const QRect &rect);
 
-    painter->setPen(key.label().color());
-    painter->drawText(key_label_rect, key.label().text());
-}
+    SharedFont font() const;
+    void setFont(const SharedFont &font);
+
+    QColor color() const;
+    void setColor(const QColor &color);
+};
 
 } // namespace MaliitKeyboard
+
+#endif // MALIIT_KEYBOARD_KEYLABEL_H

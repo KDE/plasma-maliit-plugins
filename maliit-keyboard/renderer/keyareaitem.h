@@ -33,6 +33,8 @@
 #define MALIIT_KEYBOARD_KEYAREAITEM_H
 
 #include "keyarea.h"
+#include "keyrenderer.h"
+
 #include <QtGui>
 
 namespace MaliitKeyboard {
@@ -46,6 +48,7 @@ class KeyAreaItem
 private:
     KeyAreaItemRegistry *m_registry;
     KeyArea m_key_area;
+    KeyRenderer m_key_renderer;
 
 public:
     explicit KeyAreaItem(KeyAreaItemRegistry *registry,
