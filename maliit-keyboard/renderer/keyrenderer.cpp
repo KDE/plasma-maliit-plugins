@@ -49,8 +49,7 @@ void KeyRenderer::render(QPainter *painter,
     const QRect &key_label_rect(key.label().rect().translated(key_rect.topLeft()));
 
 #ifdef Q_WS_X11
-    qDebug() << __PRETTY_FUNCTION__;
-    painter->drawPixmap(key_rect, key.background());
+    qDrawBorderPixmap(painter, key_rect, key.margins(), key.background());
 #endif
 
     if (QFont *font = key.label().font().data()) {

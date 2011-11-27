@@ -41,6 +41,7 @@ class Key
 {
 private:
     QRect m_rect;
+    QMargins m_margins;
     QPixmap m_background;
     KeyLabel m_label;
 
@@ -49,6 +50,9 @@ public:
 
     QRect rect() const;
     void setRect(const QRect &rect);
+
+    QMargins margins() const;
+    void setMargins(const QMargins &margins);
 
 #ifdef Q_WS_X11
     QPixmap background() const;

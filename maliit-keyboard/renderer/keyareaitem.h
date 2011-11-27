@@ -32,7 +32,7 @@
 #ifndef MALIIT_KEYBOARD_KEYAREAITEM_H
 #define MALIIT_KEYBOARD_KEYAREAITEM_H
 
-#include "keyarea.h"
+#include "models/keyarea.h"
 #include "keyrenderer.h"
 
 #include <QtGui>

@@ -35,6 +35,7 @@ namespace MaliitKeyboard {
 
 Key::Key()
     : m_rect()
+    , m_margins()
     , m_background()
     , m_label()
 {}
@@ -47,6 +48,16 @@ QRect Key::rect() const
 void Key::setRect(const QRect &rect)
 {
     m_rect = rect;
+}
+
+QMargins Key::margins() const
+{
+    return m_margins;
+}
+
+void Key::setMargins(const QMargins &margins)
+{
+    m_margins = margins;
 }
 
 #ifdef Q_WS_X11

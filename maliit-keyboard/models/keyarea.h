@@ -33,6 +33,7 @@
 #define MALIIT_KEYBOARD_KEYAREA_H
 
 #include "key.h"
+
 #include <QtCore>
 
 namespace MaliitKeyboard {

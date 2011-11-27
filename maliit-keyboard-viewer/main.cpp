@@ -34,12 +34,36 @@
 #include "models/key.h"
 #include "models/keylabel.h"
 
-#include <QtCore>
 #include <QtGui>
+
+namespace {
+MaliitKeyboard::Key createKey(const QPixmap &pm,
+                              const MaliitKeyboard::SharedFont &f,
+                              const QRect &kr,
+                              const QRect &lr,
+                              const QByteArray &t,
+                              const QColor &c)
+{
+    MaliitKeyboard::KeyLabel l;
+    l.setRect(lr);
+    l.setText(t);
+    l.setColor(c);
+    l.setFont(f);
+
+    MaliitKeyboard::Key k;
+    k.setRect(kr);
+    k.setBackground(pm);
+    k.setLabel(l);
+
+    return k;
+}
+
+}
 
 int main(int argc,
          char ** argv)
 {
+    typedef QByteArray QBA;
     QApplication app(argc, argv);
 
     QWidget *window = new QWidget;
@@ -49,7 +73,7 @@ int main(int argc,
     MaliitKeyboard::Renderer renderer;
     renderer.setWindow(window);
 
-    QPixmap pm(40, 60);
+    QPixmap pm(8, 8);
     pm.fill(Qt::lightGray);
 
     MaliitKeyboard::SharedFont font(new QFont);
@@ -59,30 +83,14 @@ int main(int argc,
     MaliitKeyboard::KeyArea ka0;
     ka0.id = 0;
     ka0.rect = QRectF(0, 554, 480, 300);
-
-    MaliitKeyboard::KeyLabel label0;
-    label0.setRect(QRect(5, 5, 20, 40));
-    label0.setText("Q");
-    label0.setFont(font);
-    label0.setColor(Qt::darkBlue);
-
-    MaliitKeyboard::Key key0;
-    key0.setRect(QRect(10, 10, 40, 60));
-    key0.setBackground(pm);
-    key0.setLabel(label0);
-    ka0.keys.append(key0);
-
-    MaliitKeyboard::KeyLabel label1;
-    label1.setRect(QRect(5, 5, 20, 40));
-    label1.setText("W");
-    label1.setFont(font);
-    label1.setColor(Qt::darkMagenta);
-
-    MaliitKeyboard::Key key1;
-    key1.setRect(QRect(60, 10, 40, 60));
-    key1.setBackground(pm);
-    key1.setLabel(label1);
-    ka0.keys.append(key1);
+    ka0.keys.append(createKey(pm, font, QRect(10, 10, 40, 60),
+                              QRect(5, 5, 20, 40), QBA("Q"), Qt::darkBlue));
+    ka0.keys.append(createKey(pm, font, QRect(60, 10, 80, 120),
+                              QRect(5, 5, 20, 40), QBA("W"), Qt::darkMagenta));
+    ka0.keys.append(createKey(pm, font, QRect(10, 80, 40, 50),
+                              QRect(5, 5, 20, 40), QBA("A"), Qt::black));
+    ka0.keys.append(createKey(pm, font, QRect(10, 140, 130, 60),
+                              QRect(5, 5, 20, 40), QBA("X"), Qt::darkCyan));
 
     renderer.show(ka0);
 
