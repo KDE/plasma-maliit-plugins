@@ -12,6 +12,4 @@ SOURCES += \
     keyarea.cpp \
     layout.cpp \
 
-INCLUDEPATH += $$MODELS_DIR
 DEPENDPATH += $$MODELS_DIR
-

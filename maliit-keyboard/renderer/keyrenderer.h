@@ -32,7 +32,7 @@
 #ifndef MALIIT_KEYBOARD_KEYRENDERER_H
 #define MALIIT_KEYBOARD_KEYRENDERER_H
 
-#include "key.h"
+#include "models/key.h"
 #include <QPainter>
 
 namespace MaliitKeyboard {

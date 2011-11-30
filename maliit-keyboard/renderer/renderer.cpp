@@ -30,10 +30,10 @@
  */
 
 #include "renderer.h"
-#include "models/keyarea.h"
 #include "keyareaitem.h"
 #include "keyitem.h"
 #include "graphicsview.h"
+#include "models/keyarea.h"
 
 #ifdef MALIIT_KEYBOARD_HAVE_GL
 #include <QGLWidget>

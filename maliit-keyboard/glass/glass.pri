@@ -6,6 +6,4 @@ HEADERS += \
 SOURCES += \
     glass.cpp \
 
-INCLUDEPATH += $$GLASS_DIR
 DEPENDPATH += $$GLASS_DIR
-

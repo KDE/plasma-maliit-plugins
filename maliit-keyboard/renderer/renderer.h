@@ -32,8 +32,8 @@
 #ifndef MALIIT_KEYBOARD_RENDERER_H
 #define MALIIT_KEYBOARD_RENDERER_H
 
-#include "models/layout.h"
 #include "abstractbackgroundbuffer.h"
+#include "models/layout.h"
 
 #include <QtGui>
 

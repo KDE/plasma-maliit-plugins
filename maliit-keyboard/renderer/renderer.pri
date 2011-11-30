@@ -16,7 +16,4 @@ SOURCES += \
     abstractbackgroundbuffer.cpp \
     graphicsview.cpp \
 
-INCLUDEPATH += $$RENDERER_DIR
 DEPENDPATH += $$RENDERER_DIR
-
-
