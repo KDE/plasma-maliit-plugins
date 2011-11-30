@@ -40,6 +40,22 @@ Layout::Layout()
     , m_extended()
 {}
 
+KeyArea Layout::lookup(Panel panel) const
+{
+    switch(panel) {
+    case LeftPanel: return m_left;
+    case RightPanel: return m_right;
+    case CenterPanel: return m_center;
+    case ExtendedPanel: return m_extended;
+    case PanelCount: break;
+    }
+
+    qCritical() << __PRETTY_FUNCTION__
+                << "Should not be reached, invalid panel:" << panel;
+    static const KeyArea invalid;
+    return invalid;
+}
+
 KeyArea Layout::leftPanel() const
 {
     return m_left;
@@ -49,7 +65,6 @@ void Layout::setLeftPanel(const KeyArea &left)
 {
     if (m_left != left) {
         m_left = left;
-        emit panelChanged(LeftPanelChanged);
     }
 }
 
@@ -62,7 +77,6 @@ void Layout::setRightPanel(const KeyArea &right)
 {
     if (m_right != right) {
         m_right = right;
-        emit panelChanged(RightPanelChanged);
     }
 }
 
@@ -75,7 +89,6 @@ void Layout::setCenterPanel(const KeyArea &center)
 {
     if (m_center != center) {
         m_center = center;
-        emit panelChanged(CenterPanelChanged);
     }
 }
 
@@ -88,40 +101,34 @@ void Layout::setExtendedPanel(const KeyArea &extended)
 {
     if (m_extended != extended) {
         m_extended = extended;
-        emit panelChanged(ExtendedPanelChanged);
     }
 }
 
-void Layout::setAllPanels(const KeyArea &left,
-                          const KeyArea &right,
-                          const KeyArea &center,
-                          const KeyArea &extended)
+void Layout::appendActiveKey(Panel panel,
+                             const Key &key)
 {
-    bool changed = false;
+    internalLookup(panel)->appendActiveKey(key);
+}
 
-    if (m_left != left) {
-        m_left = left;
-        changed = true;
+void Layout::removeActiveKey(Panel panel,
+                             const Key &key)
+{
+    internalLookup(panel)->removeActiveKey(key);
+}
+
+KeyArea * Layout::internalLookup(Panel panel)
+{
+    KeyArea * current = 0;
+
+    switch (panel) {
+    case LeftPanel: current = &m_left; break;
+    case RightPanel: current = &m_right; break;
+    case CenterPanel: current = &m_center; break;
+    case ExtendedPanel: current = &m_extended; break;
+    case PanelCount: break;
     }
 
-    if (m_right != right) {
-        m_right = right;
-        changed = true;
-    }
-
-    if (m_center != center) {
-        m_center = center;
-        changed = true;
-    }
-
-    if (m_extended != extended) {
-        m_extended = extended;
-        changed = true;
-    }
-
-    if (changed) {
-        emit panelChanged(AllPanelsChanged);
-    }
+    return current;
 }
 
 } // namespace MaliitKeyboard

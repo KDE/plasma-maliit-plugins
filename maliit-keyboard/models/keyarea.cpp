@@ -49,19 +49,19 @@ void KeyArea::setRect(const QRectF &rect)
     m_rect = rect;
 }
 
-void KeyArea::appendToKeys(const Key &key)
+void KeyArea::appendKey(const Key &key)
 {
     Key k(key);
     m_keys.append(k);
 }
 
-void KeyArea::appendToActiveKeys(const Key &key)
+void KeyArea::appendActiveKey(const Key &key)
 {
     Key k(key);
     m_active_keys.append(k);
 }
 
-void KeyArea::removeFromActiveKeys(const Key &key)
+void KeyArea::removeActiveKey(const Key &key)
 {
     for (int index = 0; index < m_active_keys.count(); ++index) {
         if (m_active_keys.at(index) == key) {
@@ -96,3 +96,4 @@ bool operator!=(const KeyArea &lhs,
 }
 
 } // namespace MaliitKeyboard
+

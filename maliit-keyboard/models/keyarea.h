@@ -33,7 +33,6 @@
 #define MALIIT_KEYBOARD_KEYAREA_H
 
 #include "key.h"
-
 #include <QtCore>
 
 namespace MaliitKeyboard {
@@ -49,12 +48,6 @@ private:
     QVector<Key> m_active_keys;
 
 public:
-    enum Change {
-        KeysChanged = 0,
-        ActiveKeysChanged,
-        ChangeCount
-    };
-
     explicit KeyArea();
 
     QRectF rect() const;
@@ -63,9 +56,9 @@ public:
     QVector<Key> keys() const;
     QVector<Key> activeKeys() const; // O(n)
 
-    void appendToKeys(const Key &key);
-    void appendToActiveKeys(const Key &key);
-    void removeFromActiveKeys(const Key &key);
+    void appendKey(const Key &key);
+    void appendActiveKey(const Key &key);
+    void removeActiveKey(const Key &key);
 };
 
 bool operator==(const KeyArea &lhs,

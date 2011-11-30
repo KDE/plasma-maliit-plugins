@@ -30,6 +30,7 @@
  */
 
 #include "renderer.h"
+#include "models/keyarea.h"
 #include "keyareaitem.h"
 #include "keyitem.h"
 #include "graphicsview.h"
@@ -82,20 +83,22 @@ QGraphicsItem * rootItem(QGraphicsView *view)
 class RendererPrivate
 {
 public:
+    typedef QVector<KeyAreaItem *> Pool;
+
     QWidget *window;
     QScopedPointer<QGraphicsView> view;
     AbstractBackgroundBuffer *buffer;
-    KeyAreaItem::Registry registry;
     QRegion region;
-    QVector<KeyItem *> pool;
+    QVector<KeyItem *> key_items;
+    QHash<SharedLayout, Pool> pools;
 
     explicit RendererPrivate()
         : window(0)
         , view(0)
         , buffer(0)
-        , registry()
         , region()
-        , pool()
+        , key_items()
+        , pools()
     {}
 };
 
@@ -139,13 +142,13 @@ QWidget * Renderer::viewport() const
     return d->view->viewport();
 }
 
-void Renderer::show(const SharedKeyArea &ka)
+void Renderer::show(const SharedLayout &layout)
 {
     Q_D(Renderer);
 
-    if (ka.isNull() || not d->window || d->view.isNull()) {
+    if (layout.isNull() || not d->window || d->view.isNull()) {
         qCritical() << __PRETTY_FUNCTION__
-                    << "Invalid key area or no main window specified,"
+                    << "Invalid layout or no main window specified,"
                     << "don't know where to render to.";
         return;
     }
@@ -153,32 +156,40 @@ void Renderer::show(const SharedKeyArea &ka)
     // Allows for multiple key areas being shown at the same time:
     // TODO: Animate fade-in, from nearest window border.
     KeyAreaItem *item = 0;
-    if (KeyAreaItem *found = d->registry.value(ka)) {
+    const RendererPrivate::Pool &pool(d->pools.value(layout));
+    if (pool.isEmpty()) {
+        item = new KeyAreaItem(rootItem(d->view.data()));
+        RendererPrivate::Pool p(Layout::PanelCount, 0);
+        p.replace(Layout::CenterPanel, item);
+        d->pools.insert(layout, p);
+    } else if (KeyAreaItem *found = pool.at(Layout::CenterPanel)) {
         item = found;
-    } else {
-        item = new KeyAreaItem(&d->registry, rootItem(d->view.data()));
     }
 
     // TODO: Construct region from polygon path so that split key areas dont
     // consume space in between them.
     d->region -= QRegion(item->boundingRect().toRect());
-    item->setKeyArea(ka);
+    item->setKeyArea(layout->centerPanel());
 
     d->region |= QRegion(item->boundingRect().toRect());
     item->show();
 }
 
-void Renderer::hide(const SharedKeyArea &ka)
+void Renderer::hide(const SharedLayout &layout)
 {
-    if (ka.isNull()) {
+    if (layout.isNull()) {
         qCritical() << __PRETTY_FUNCTION__
-                    << "Cannot hide non-existant KeyArea.";
+                    << "Cannot hide non-existant layout.";
+        return;
     }
 
     Q_D(Renderer);
 
     // TODO: Animate fade-out, towards nearest window border.
-    if (KeyAreaItem *found = d->registry.value(ka)) {
+    const RendererPrivate::Pool &pool(d->pools.value(layout));
+    if (pool.isEmpty()) {
+        return;
+    } else if (KeyAreaItem *found = pool.at(Layout::CenterPanel)) {
         d->region -= QRegion(found->boundingRect().toRect());
         found->hide();
     }
@@ -189,54 +200,55 @@ void Renderer::hideAll()
     Q_D(Renderer);
 
     d->region = QRegion();
-    foreach (KeyAreaItem *item, d->registry) {
-        item->hide();
+    foreach (RendererPrivate::Pool p, d->pools) {
+        for (int index = 0; index < p.count(); ++index) {
+            if (KeyAreaItem *found = p.at(index)) {
+                found->hide();
+            }
+        }
     }
 }
 
-void Renderer::onActiveKeysChanged(const SharedKeyArea &ka)
+void Renderer::onActiveKeysChanged(const SharedLayout &layout,
+                                   Layout::Panel changed)
 {
-    if (ka.isNull()) {
+    if (layout.isNull()) {
         qCritical() << __PRETTY_FUNCTION__
-                    << "Cannot access keys from non-existant KeyArea.";
-    }
+                    << "Invalid layout.";
+        return;
+        }
 
     Q_D(Renderer);
 
-    const QVector<Key> &active_keys(ka->activeKeys());
-    QGraphicsItem *const ka_item = d->registry.value(ka);
-    int index = 0;
+    const RendererPrivate::Pool &pool(d->pools.value(layout));
+    if (pool.isEmpty()) {
+        qCritical() << __PRETTY_FUNCTION__
+                    << "Unknown layout. Forgot to show it?";
+        return;
+    }
 
-    for (; index < active_keys.count(); ++index) {
+    if (KeyAreaItem *const ka_item = pool.at(changed)) {
+        const KeyArea &ka(layout->lookup(changed));
+        int index = 0;
 
-        KeyItem *item = 0;
-        if (index >= d->pool.count()) {
-            item = new KeyItem(d->registry.value(ka));
-            d->pool.append(item);
-        } else {
-            item = d->pool.at(index);
+        for (; index < ka.activeKeys().count(); ++index) {
+            KeyItem *item = 0;
+
+            if (index >= d->key_items.count()) {
+                item = new KeyItem;
+                d->key_items.append(item);
+            } else {
+                item = d->key_items.at(index);
+            }
+
+            item->setParentItem(ka_item);
+            item->setKey(ka.activeKeys().at(index));
+            item->show();
         }
 
-        item->setParentItem(ka_item);
-        item->setKey(active_keys.at(index));
-        item->show();
-    }
-
-    for (; index < d->pool.count(); ++index) {
-        d->pool.at(index)->hide();
-    }
-}
-
-void Renderer::onKeyAreaChanged(const SharedKeyArea &ka,
-                                KeyArea::Change change)
-{
-    switch (change) {
-    case KeyArea::ActiveKeysChanged:
-        onActiveKeysChanged(ka);
-        break;
-
-    default:
-        break;
+        for (; index < d->key_items.count(); ++index) {
+            d->key_items.at(index)->hide();
+        }
     }
 }
 

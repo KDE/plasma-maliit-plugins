@@ -34,6 +34,7 @@
 #include "models/keyarea.h"
 #include "models/key.h"
 #include "models/keylabel.h"
+#include "models/layout.h"
 
 #include <QtGui>
 
@@ -59,7 +60,7 @@ MaliitKeyboard::Key createKey(const QPixmap &pm,
     return k;
 }
 
-MaliitKeyboard::KeyArea * createPrimaryKeyArea()
+MaliitKeyboard::KeyArea createPrimaryKeyArea()
 {
     typedef QByteArray QBA;
 
@@ -70,21 +71,21 @@ MaliitKeyboard::KeyArea * createPrimaryKeyArea()
     font->setBold(true);
     font->setPointSize(16);
 
-    MaliitKeyboard::KeyArea *ka = new MaliitKeyboard::KeyArea;
-    ka->setRect(QRectF(0, 554, 480, 300));
-    ka->appendToKeys(createKey(pm, font, QRect(10, 10, 40, 60),
-                         QRect(5, 5, 20, 40), QBA("Q"), Qt::darkBlue));
-    ka->appendToKeys(createKey(pm, font, QRect(60, 10, 80, 120),
-                         QRect(5, 5, 20, 40), QBA("W"), Qt::darkMagenta));
-    ka->appendToKeys(createKey(pm, font, QRect(10, 80, 40, 50),
-                         QRect(5, 5, 20, 40), QBA("A"), Qt::black));
-    ka->appendToKeys(createKey(pm, font, QRect(10, 140, 130, 60),
-                         QRect(5, 5, 20, 40), QBA("X"), Qt::darkCyan));
+    MaliitKeyboard::KeyArea ka;
+    ka.setRect(QRectF(0, 554, 480, 300));
+    ka.appendKey(createKey(pm, font, QRect(10, 10, 40, 60),
+                           QRect(5, 5, 20, 40), QBA("Q"), Qt::darkBlue));
+    ka.appendKey(createKey(pm, font, QRect(60, 10, 80, 120),
+                           QRect(5, 5, 20, 40), QBA("W"), Qt::darkMagenta));
+    ka.appendKey(createKey(pm, font, QRect(10, 80, 40, 50),
+                           QRect(5, 5, 20, 40), QBA("A"), Qt::black));
+    ka.appendKey(createKey(pm, font, QRect(10, 140, 130, 60),
+                           QRect(5, 5, 20, 40), QBA("X"), Qt::darkCyan));
 
     return ka;
 }
 
-MaliitKeyboard::KeyArea * createSecondaryKeyArea()
+MaliitKeyboard::KeyArea createSecondaryKeyArea()
 {
     typedef QByteArray QBA;
 
@@ -95,12 +96,12 @@ MaliitKeyboard::KeyArea * createSecondaryKeyArea()
     font->setBold(true);
     font->setPointSize(16);
 
-    MaliitKeyboard::KeyArea *ka = new MaliitKeyboard::KeyArea;
-    ka->setRect(QRectF(0, 0, 480, 100));
-    ka->appendToKeys(createKey(pm, font, QRect(10, 10, 40, 60),
-                         QRect(5, 5, 20, 40), QBA("T"), Qt::darkBlue));
-    ka->appendToKeys(createKey(pm, font, QRect(60, 10, 80, 80),
-                         QRect(5, 5, 20, 40), QBA("O"), Qt::darkMagenta));
+    MaliitKeyboard::KeyArea ka;
+    ka.setRect(QRectF(0, 0, 480, 100));
+    ka.appendKey(createKey(pm, font, QRect(10, 10, 40, 60),
+                           QRect(5, 5, 20, 40), QBA("T"), Qt::darkBlue));
+    ka.appendKey(createKey(pm, font, QRect(60, 10, 80, 80),
+                           QRect(5, 5, 20, 40), QBA("O"), Qt::darkMagenta));
 
     return ka;
 }
@@ -117,21 +118,24 @@ int main(int argc,
     window->resize(480, 854);
     window->showFullScreen();
 
-    MaliitKeyboard::SharedKeyArea ka0(createPrimaryKeyArea());
-    MaliitKeyboard::SharedKeyArea ka1(createSecondaryKeyArea());
+    MaliitKeyboard::SharedLayout l0(new MaliitKeyboard::Layout);
+    l0->setCenterPanel(createPrimaryKeyArea());
+
+    MaliitKeyboard::SharedLayout l1(new MaliitKeyboard::Layout);
+    l1->setCenterPanel(createSecondaryKeyArea());
 
     MaliitKeyboard::Renderer renderer;
     renderer.setWindow(window);
-    renderer.show(ka0);
-    renderer.show(ka1);
+    renderer.show(l0);
+    renderer.show(l1);
 
     MaliitKeyboard::Glass glass;
     glass.setWindow(renderer.viewport());
-    glass.activate(ka0);
-    glass.activate(ka1);
+    glass.activate(l0);
+    glass.activate(l1);
 
-    QObject::connect(&glass,    SIGNAL(keyAreaChanged(SharedKeyArea,KeyArea::Change)),
-                     &renderer, SLOT(onKeyAreaChanged(SharedKeyArea,KeyArea::Change)));
+    QObject::connect(&glass,    SIGNAL(activeKeysChanged(SharedLayout,Layout::Panel)),
+                     &renderer, SLOT(onActiveKeysChanged(SharedLayout,Layout::Panel)));
 
     return app.exec();
 }

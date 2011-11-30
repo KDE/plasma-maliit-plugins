@@ -49,15 +49,17 @@ private:
     KeyArea m_extended;
 
 public:
-    enum PanelChange {
-        AllPanelsChanged,
-        LeftPanelChanged,
-        RightPanelChanged,
-        CenterPanelChanged,
-        ExtendedPanelChanged
+    enum Panel {
+        LeftPanel,
+        RightPanel,
+        CenterPanel,
+        ExtendedPanel,
+        PanelCount
     };
 
     explicit Layout();
+
+    KeyArea lookup(Panel panel) const;
 
     KeyArea leftPanel() const;
     void setLeftPanel(const KeyArea &left);
@@ -71,12 +73,14 @@ public:
     KeyArea extendedPanel() const;
     void setExtendedPanel(const KeyArea &extended);
 
-    void setAllPanels(const KeyArea &left,
-                      const KeyArea &right,
-                      const KeyArea &center,
-                      const KeyArea &extended);
+    void appendActiveKey(Panel panel,
+                         const Key &key);
 
-    Q_SIGNAL void panelChanged(PanelChange change);
+    void removeActiveKey(Panel panel,
+                         const Key &key);
+
+private:
+    KeyArea * internalLookup(Panel panel);
 };
 
 } // namespace MaliitKeyboard

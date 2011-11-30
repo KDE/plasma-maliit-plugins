@@ -32,7 +32,7 @@
 #ifndef MALIIT_KEYBOARD_RENDERER_H
 #define MALIIT_KEYBOARD_RENDERER_H
 
-#include "models/keyarea.h"
+#include "models/layout.h"
 #include "abstractbackgroundbuffer.h"
 
 #include <QtGui>
@@ -57,14 +57,11 @@ public:
     QRegion region() const;
     QWidget * viewport() const;
 
-    Q_SLOT void show(const SharedKeyArea &ka);
-    Q_SLOT void hide(const SharedKeyArea &ka);
+    Q_SLOT void show(const SharedLayout &layout);
+    Q_SLOT void hide(const SharedLayout &layout);
     Q_SLOT void hideAll();
-    Q_SLOT void onActiveKeysChanged(const SharedKeyArea &ka);
-
-    // helper functions, needs to move elsewhere:
-    Q_SLOT void onKeyAreaChanged(const SharedKeyArea &ka,
-                                 KeyArea::Change change);
+    Q_SLOT void onActiveKeysChanged(const SharedLayout &layout,
+                                    Layout::Panel changed);
 
 private:
     const QScopedPointer<RendererPrivate> d_ptr;

@@ -34,6 +34,7 @@
 
 #include "models/key.h"
 #include "models/keyarea.h"
+#include "models/layout.h"
 
 #include <QtGui>
 
@@ -54,12 +55,12 @@ public:
 
     void setWindow(QWidget *window);
 
-    Q_SLOT void activate(const SharedKeyArea &ka);
-    Q_SLOT void deactivate(const SharedKeyArea &ka);
+    Q_SLOT void activate(const SharedLayout &layout);
+    Q_SLOT void deactivate(const SharedLayout &layout);
     Q_SLOT void deactivateAll();
 
-    Q_SIGNAL void keyAreaChanged(const SharedKeyArea &ka,
-                                 KeyArea::Change change);
+    Q_SIGNAL void activeKeysChanged(const SharedLayout &layout,
+                                    Layout::Panel changed);
 
 protected:
     //! \reimp

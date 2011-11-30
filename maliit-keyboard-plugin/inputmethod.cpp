@@ -33,6 +33,7 @@
 #include "renderer/renderer.h"
 #include "renderer/abstractbackgroundbuffer.h"
 #include "models/keyarea.h"
+#include "models/layout.h"
 
 namespace MaliitKeyboard {
 
@@ -100,9 +101,12 @@ void InputMethod::show()
 {
     Q_D(InputMethod);
 
-    SharedKeyArea ka(new KeyArea);
-    ka->setRect(QRectF(0, 554, 480, 300));
-    d->renderer.show(ka);
+    KeyArea ka;
+    ka.setRect(QRectF(0, 554, 480, 300));
+
+    SharedLayout layout(new Layout);
+    layout->setCenterPanel(ka);
+    d->renderer.show(layout);
 
     inputMethodHost()->setInputMethodArea(d->renderer.region());
     inputMethodHost()->setScreenRegion(d->renderer.region());

@@ -37,8 +37,12 @@ class GlassPrivate
 {
 public:
     QWidget *window;
-    QVector<SharedKeyArea> key_areas;
-    QVector<Key> pressed_keys;
+    QVector<SharedLayout> layouts;
+
+    explicit GlassPrivate()
+        : window(0)
+        , layouts()
+    {}
 };
 
 Glass::Glass(QObject *parent)
@@ -59,32 +63,32 @@ void Glass::setWindow(QWidget *window)
     d->window->installEventFilter(this);
 }
 
-void Glass::activate(const SharedKeyArea &ka)
+void Glass::activate(const SharedLayout &layout)
 {
-    if (ka.isNull()) {
+    if (layout.isNull()) {
         qCritical() << __PRETTY_FUNCTION__
-                    << "Cannot activate non-existant KeyArea.";
+                    << "Cannot activate non-existant layout.";
         return;
     }
 
     Q_D(Glass);
 
-    d->key_areas.append(ka);
+    d->layouts.append(layout);
 }
 
-void Glass::deactivate(const SharedKeyArea &ka)
+void Glass::deactivate(const SharedLayout &layout)
 {
-    if (ka.isNull()) {
+    if (layout.isNull()) {
         qCritical() << __PRETTY_FUNCTION__
-                    << "Cannot deactivate non-existant KeyArea.";
+                    << "Cannot deactivate non-existant layout.";
         return;
     }
 
     Q_D(Glass);
 
-    for (int index = 0; index < d->key_areas.count(); ++index) {
-        if (ka == d->key_areas.at(index)) {
-            d->key_areas.remove(index);
+    for (int index = 0; index < d->layouts.count(); ++index) {
+        if (layout == d->layouts.at(index)) {
+            d->layouts.remove(index);
             break;
         }
     }
@@ -93,7 +97,7 @@ void Glass::deactivate(const SharedKeyArea &ka)
 void Glass::deactivateAll()
 {
     Q_D(Glass);
-    d->key_areas.clear();
+    d->layouts.clear();
 }
 
 bool Glass::eventFilter(QObject *obj,
@@ -120,30 +124,33 @@ bool Glass::eventFilter(QObject *obj,
         QMouseEvent *qme = static_cast<QMouseEvent *>(ev);
         ev->accept();
 
-        foreach (const SharedKeyArea &ka, d->key_areas) {
-            const QVector<Key> &keys(ka->keys());
+        foreach (const SharedLayout &layout, d->layouts) {
+            // FIXME: also need to check extendedPanel
+            const QVector<Key> &keys(layout->centerPanel().keys());
+
             // FIXME: use binary range search
-            if (ka->rect().contains(qme->posF())) {
-                bool ka_changed = false;
+            if (layout->centerPanel().rect().contains(qme->posF())) {
+                bool active_keys_changed = false;
+
                 for (int index = 0; index < keys.count(); ++index) {
                     Key k(keys.at(index));
 
                     // Pressed state is not stored in key itself, so list of pressed keys (overridden keys) must be maintained elsewhere.
-                    const bool pressed = k.rect().translated(ka->rect().toRect().topLeft()).contains(qme->pos());
-                    const bool was_pressed(ka->activeKeys().contains(k));
+                    const bool pressed = k.rect().translated(layout->centerPanel().rect().toRect().topLeft()).contains(qme->pos());
+                    const bool was_pressed(layout->centerPanel().activeKeys().contains(k));
 
                     if (was_pressed && pressed) {
-                        ka->removeFromActiveKeys(k);
-                        ka_changed = true;
+                        layout->removeActiveKey(Layout::CenterPanel, k);
+                        active_keys_changed = true;
                     } else if (not was_pressed && pressed) {
                         k.setBackground(pressed_bg);
-                        ka->appendToActiveKeys(k);
-                        ka_changed = true;
+                        layout->appendActiveKey(Layout::CenterPanel, k);
+                        active_keys_changed = true;
                     }
                 }
 
-                if (ka_changed) {
-                    emit keyAreaChanged(ka, KeyArea::ActiveKeysChanged);
+                if (active_keys_changed) {
+                    emit activeKeysChanged(layout, Layout::CenterPanel);
                 }
             }
         }
