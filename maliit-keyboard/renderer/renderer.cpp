@@ -252,4 +252,17 @@ void Renderer::onActiveKeysChanged(const SharedLayout &layout,
     }
 }
 
+void Renderer::onLayoutPanelChanged(const SharedLayout &layout,
+                                    Layout::Panel changed)
+{
+    // TODO: make show() somewhat reusable to update a layout.
+    Q_UNUSED(changed)
+
+    if (layout.isNull()) {
+        qCritical() << __PRETTY_FUNCTION__
+                    << "Invalid layout.";
+        return;
+    }
+}
+
 } // namespace MaliitKeyboard
