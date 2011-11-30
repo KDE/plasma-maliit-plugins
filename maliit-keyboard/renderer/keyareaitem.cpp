@@ -34,42 +34,62 @@
 
 namespace MaliitKeyboard {
 
-KeyAreaItem::KeyAreaItem(KeyAreaItemRegistry *registry,
+KeyAreaItem::KeyAreaItem(Registry *registry,
                          QGraphicsItem *parent)
     : QGraphicsItem(parent)
     , m_registry(registry)
     , m_key_area()
-    , m_key_renderer()
 {
-    m_registry->insert(m_key_area.id, this);
-    update();
+    setCacheMode(QGraphicsItem::DeviceCoordinateCache);
 }
 
 KeyAreaItem::~KeyAreaItem()
 {
-    m_registry->remove(m_key_area.id);
+    if (not m_key_area.isNull()) {
+        m_registry->remove(m_key_area);
+    }
 }
 
-void KeyAreaItem::setKeyArea(const KeyArea &ka)
+SharedKeyArea KeyAreaItem::keyArea() const
 {
+    return m_key_area;
+}
+
+void KeyAreaItem::setKeyArea(const SharedKeyArea &ka)
+{
+    if (not m_key_area.isNull()) {
+        m_registry->remove(m_key_area);
+    }
+
+    // FIXME: only update if ka changed; hide if ka empty.
     m_key_area = ka;
-    m_key_renderer.setOrigin(boundingRect().topLeft().toPoint());
+    update();
+
+    if (not m_key_area.isNull()) {
+        m_registry->insert(m_key_area, this);
+    }
 }
 
 QRectF KeyAreaItem::boundingRect() const
 {
-    return m_key_area.rect;
+    return (not m_key_area.isNull() ? m_key_area->rect() : QRectF());
 }
 
 void KeyAreaItem::paint(QPainter *painter,
                         const QStyleOptionGraphicsItem *,
                         QWidget *)
 {
+    if (m_key_area.isNull()) {
+        qCritical() << __PRETTY_FUNCTION__
+                    << "Cannot paint non-existant KeyArea.";
+        return;
+    }
+
     painter->setBrush(Qt::green);
     painter->drawRect(boundingRect());
 
-    foreach (Key k, m_key_area.keys) {
-        m_key_renderer.render(painter, k);
+    foreach (const Key &k, m_key_area->keys()) {
+        KeyRenderer::render(painter, k, boundingRect().topLeft().toPoint());
     }
 }
 

@@ -12,6 +12,7 @@ contains(QT_MAJOR_VERSION, 4) {
 
 include(renderer/renderer.pri)
 include(models/models.pri)
+include(glass/glass.pri)
 
 target.path += $$PREFIX/usr/lib
 INSTALLS += target

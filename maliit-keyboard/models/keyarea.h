@@ -38,13 +38,39 @@
 
 namespace MaliitKeyboard {
 
-struct KeyArea
+class KeyArea;
+typedef QSharedPointer<KeyArea> SharedKeyArea;
+
+class KeyArea
 {
-    int id;
-    QRectF rect;
-    QVector<Key> keys;
+private:
+    uint m_id;
+    QRectF m_rect;
+    QVector<Key> m_keys;
+    QVector<Key> m_active_keys;
+
+public:
+    enum Change {
+        KeysChanged = 0,
+        ActiveKeysChanged,
+        ChangeCount
+    };
+
+    explicit KeyArea();
+
+    QRectF rect() const;
+    void setRect(const QRectF &rect);
+
+    QVector<Key> keys() const;
+    QVector<Key> activeKeys() const; // O(n)
+
+    void appendToKeys(const Key &key);
+    void appendToActiveKeys(const Key &key);
+    void removeFromActiveKeys(const Key &key);
 };
 
 } // namespace MaliitKeyboard
+
+Q_DECLARE_METATYPE(MaliitKeyboard::KeyArea)
 
 #endif // MALIIT_KEYBOARD_KEYAREA_H

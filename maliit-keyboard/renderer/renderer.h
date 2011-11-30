@@ -35,7 +35,6 @@
 #include "models/keyarea.h"
 #include "abstractbackgroundbuffer.h"
 
-#include <QtCore>
 #include <QtGui>
 
 namespace MaliitKeyboard {
@@ -56,11 +55,16 @@ public:
     void setWindow(QWidget *window);
     void setBackgroundBuffer(AbstractBackgroundBuffer *buffer);
     QRegion region() const;
+    QWidget * viewport() const;
 
-    Q_SLOT void show(const KeyArea &ka);
-    Q_SLOT void hide(const KeyArea &ka);
+    Q_SLOT void show(const SharedKeyArea &ka);
+    Q_SLOT void hide(const SharedKeyArea &ka);
     Q_SLOT void hideAll();
-    Q_SLOT void setDelta(const KeyArea &ka);
+    Q_SLOT void onActiveKeysChanged(const SharedKeyArea &ka);
+
+    // helper functions, needs to move elsewhere:
+    Q_SLOT void onKeyAreaChanged(const SharedKeyArea &ka,
+                                 KeyArea::Change change);
 
 private:
     const QScopedPointer<RendererPrivate> d_ptr;

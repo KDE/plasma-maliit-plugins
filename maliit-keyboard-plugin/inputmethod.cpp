@@ -100,9 +100,8 @@ void InputMethod::show()
 {
     Q_D(InputMethod);
 
-    KeyArea ka;
-    ka.id = 0;
-    ka.rect = QRectF(0, 554, 480, 300);
+    SharedKeyArea ka(new KeyArea);
+    ka->setRect(QRectF(0, 554, 480, 300));
     d->renderer.show(ka);
 
     inputMethodHost()->setInputMethodArea(d->renderer.region());

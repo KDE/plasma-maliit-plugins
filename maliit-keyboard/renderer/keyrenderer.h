@@ -39,14 +39,10 @@ namespace MaliitKeyboard {
 
 class KeyRenderer
 {
-private:
-    QPoint m_origin;
-
 public:
-    explicit KeyRenderer();
-    void setOrigin(const QPoint &origin);
-    void render(QPainter *painter,
-                const Key &key);
+    static void render(QPainter *painter,
+                       const Key &key,
+                       const QPoint &origin);
 };
 
 } // namespace MaliitKeyboard

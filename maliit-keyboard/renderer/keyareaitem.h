@@ -39,23 +39,24 @@
 
 namespace MaliitKeyboard {
 
-class KeyAreaItem;
-typedef QHash<int, KeyAreaItem *> KeyAreaItemRegistry;
-
 class KeyAreaItem
     : public QGraphicsItem
 {
+public:
+    typedef QHash<SharedKeyArea, KeyAreaItem *> Registry;
+
 private:
-    KeyAreaItemRegistry *m_registry;
-    KeyArea m_key_area;
-    KeyRenderer m_key_renderer;
+    Registry *m_registry;
+    SharedKeyArea m_key_area;
 
 public:
-    explicit KeyAreaItem(KeyAreaItemRegistry *registry,
+    // FIXE: Make registry shared, too?
+    explicit KeyAreaItem(Registry *registry,
                          QGraphicsItem *parent = 0);
     virtual ~KeyAreaItem();
 
-    void setKeyArea(const KeyArea &ka);
+    SharedKeyArea keyArea() const;
+    void setKeyArea(const SharedKeyArea &ka);
 
     //! \reimp
     virtual QRectF boundingRect() const;

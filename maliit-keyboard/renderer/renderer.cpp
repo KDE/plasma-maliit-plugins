@@ -31,13 +31,16 @@
 
 #include "renderer.h"
 #include "keyareaitem.h"
+#include "keyitem.h"
 #include "graphicsview.h"
 
 #ifdef MALIIT_KEYBOARD_HAVE_GL
 #include <QGLWidget>
 #endif
 
-namespace MaliitKeyboard { namespace {
+namespace MaliitKeyboard {
+
+namespace {
 
 QGraphicsView * createView(QWidget *widget,
                            AbstractBackgroundBuffer *buffer)
@@ -46,6 +49,7 @@ QGraphicsView * createView(QWidget *widget,
     view->setBackgroundBuffer(buffer);
     view->resize(widget->size());
     view->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
+    view->setOptimizationFlags(QGraphicsView::DontClipPainter | QGraphicsView::DontSavePainterState);
     QGraphicsScene *scene = new QGraphicsScene(view);
     view->setScene(scene);
     view->setFrameShape(QFrame::NoFrame);
@@ -81,8 +85,9 @@ public:
     QWidget *window;
     QScopedPointer<QGraphicsView> view;
     AbstractBackgroundBuffer *buffer;
-    QHash<int, KeyAreaItem *> registry;
+    KeyAreaItem::Registry registry;
     QRegion region;
+    QVector<KeyItem *> pool;
 
     explicit RendererPrivate()
         : window(0)
@@ -90,6 +95,7 @@ public:
         , buffer(0)
         , registry()
         , region()
+        , pool()
     {}
 };
 
@@ -127,25 +133,34 @@ QRegion Renderer::region() const
     return d->region;
 }
 
-void Renderer::show(const KeyArea &ka)
+QWidget * Renderer::viewport() const
+{
+    Q_D(const Renderer);
+    return d->view->viewport();
+}
+
+void Renderer::show(const SharedKeyArea &ka)
 {
     Q_D(Renderer);
 
-    if (not d->window || d->view.isNull()) {
+    if (ka.isNull() || not d->window || d->view.isNull()) {
         qCritical() << __PRETTY_FUNCTION__
-                    << "No main window specified, don't know where to render to.";
+                    << "Invalid key area or no main window specified,"
+                    << "don't know where to render to.";
         return;
     }
 
     // Allows for multiple key areas being shown at the same time:
     // TODO: Animate fade-in, from nearest window border.
     KeyAreaItem *item = 0;
-    if (KeyAreaItem *found = d->registry.value(ka.id)) {
+    if (KeyAreaItem *found = d->registry.value(ka)) {
         item = found;
     } else {
         item = new KeyAreaItem(&d->registry, rootItem(d->view.data()));
     }
 
+    // TODO: Construct region from polygon path so that split key areas dont
+    // consume space in between them.
     d->region -= QRegion(item->boundingRect().toRect());
     item->setKeyArea(ka);
 
@@ -153,12 +168,17 @@ void Renderer::show(const KeyArea &ka)
     item->show();
 }
 
-void Renderer::hide(const KeyArea &ka)
+void Renderer::hide(const SharedKeyArea &ka)
 {
+    if (ka.isNull()) {
+        qCritical() << __PRETTY_FUNCTION__
+                    << "Cannot hide non-existant KeyArea.";
+    }
+
     Q_D(Renderer);
 
     // TODO: Animate fade-out, towards nearest window border.
-    if (KeyAreaItem *found = d->registry.value(ka.id)) {
+    if (KeyAreaItem *found = d->registry.value(ka)) {
         d->region -= QRegion(found->boundingRect().toRect());
         found->hide();
     }
@@ -174,9 +194,50 @@ void Renderer::hideAll()
     }
 }
 
-void Renderer::setDelta(const KeyArea &ka)
+void Renderer::onActiveKeysChanged(const SharedKeyArea &ka)
 {
-    Q_UNUSED(ka)
+    if (ka.isNull()) {
+        qCritical() << __PRETTY_FUNCTION__
+                    << "Cannot access keys from non-existant KeyArea.";
+    }
+
+    Q_D(Renderer);
+
+    const QVector<Key> &active_keys(ka->activeKeys());
+    QGraphicsItem *const ka_item = d->registry.value(ka);
+    int index = 0;
+
+    for (; index < active_keys.count(); ++index) {
+
+        KeyItem *item = 0;
+        if (index >= d->pool.count()) {
+            item = new KeyItem(d->registry.value(ka));
+            d->pool.append(item);
+        } else {
+            item = d->pool.at(index);
+        }
+
+        item->setParentItem(ka_item);
+        item->setKey(active_keys.at(index));
+        item->show();
+    }
+
+    for (; index < d->pool.count(); ++index) {
+        d->pool.at(index)->hide();
+    }
+}
+
+void Renderer::onKeyAreaChanged(const SharedKeyArea &ka,
+                                KeyArea::Change change)
+{
+    switch (change) {
+    case KeyArea::ActiveKeysChanged:
+        onActiveKeysChanged(ka);
+        break;
+
+    default:
+        break;
+    }
 }
 
 } // namespace MaliitKeyboard

@@ -30,10 +30,39 @@
  */
 
 #include "keyitem.h"
+#include "keyrenderer.h"
 
 namespace MaliitKeyboard {
 
-KeyItem::KeyItem()
-{}
+KeyItem::KeyItem(QGraphicsItem *parent)
+    : QGraphicsItem(parent)
+    , m_key()
+{
+}
+
+void KeyItem::setKey(const Key &key)
+{
+    if (m_key != key) {
+        m_key = key;
+
+        if (boundingRect().isEmpty()) {
+            hide();
+        } else {
+            update();
+        }
+    }
+}
+
+QRectF KeyItem::boundingRect() const
+{
+    return QRectF(m_key.rect()).translated(parentItem()->boundingRect().topLeft());
+}
+
+void KeyItem::paint(QPainter *painter,
+                    const QStyleOptionGraphicsItem *,
+                    QWidget *)
+{
+    KeyRenderer::render(painter, m_key, parentItem()->boundingRect().topLeft().toPoint());
+}
 
 } // namespace MaliitKeyboard

@@ -29,33 +29,48 @@
  *
  */
 
-#ifndef MALIIT_KEYBOARD_KEYITEM_H
-#define MALIIT_KEYBOARD_KEYITEM_H
+#ifndef MALIIT_KEYBOARD_GLASS_H
+#define MALIIT_KEYBOARD_GLASS_H
 
 #include "models/key.h"
+#include "models/keyarea.h"
+
 #include <QtGui>
 
 namespace MaliitKeyboard {
 
-class KeyItem
-    : public QGraphicsItem
+class GlassPrivate;
+
+class Glass
+    : public QObject
 {
-private:
-    Key m_key;
+    Q_OBJECT
+    Q_DISABLE_COPY(Glass)
+    Q_DECLARE_PRIVATE(Glass)
 
 public:
-    explicit KeyItem(QGraphicsItem *parent = 0);
+    explicit Glass(QObject *parent = 0);
+    virtual ~Glass();
 
-    void setKey(const Key &key);
+    void setWindow(QWidget *window);
 
+    Q_SLOT void activate(const SharedKeyArea &ka);
+    Q_SLOT void deactivate(const SharedKeyArea &ka);
+    Q_SLOT void deactivateAll();
+
+    Q_SIGNAL void keyAreaChanged(const SharedKeyArea &ka,
+                                 KeyArea::Change change);
+
+protected:
     //! \reimp
-    virtual QRectF boundingRect() const;
-    virtual void paint(QPainter *painter,
-                       const QStyleOptionGraphicsItem *option,
-                       QWidget *widget);
+    virtual bool eventFilter(QObject *obj,
+                             QEvent *ev);
     //! \reimp_end
+
+private:    
+    const QScopedPointer<GlassPrivate> d_ptr;
 };
 
 } // namespace MaliitKeyboard
 
-#endif // MALIIT_KEYBOARD_KEYITEM_H
+#endif // MALIIT_KEYBOARD_GLASS_H

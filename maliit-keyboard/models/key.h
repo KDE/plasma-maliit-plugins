@@ -63,6 +63,15 @@ public:
     void setLabel(const KeyLabel &label);
 };
 
+bool operator==(const Key &lhs,
+                const Key &rhs);
+
+bool operator!=(const Key &lhs,
+                const Key &rhs);
+
+
 } // namespace MaliitKeyboard
+
+Q_DECLARE_METATYPE(MaliitKeyboard::Key)
 
 #endif // MALIIT_KEYBOARD_KEY_H

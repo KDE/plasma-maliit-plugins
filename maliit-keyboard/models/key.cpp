@@ -82,4 +82,17 @@ void Key::setLabel(const KeyLabel &label)
     m_label = label;
 }
 
+bool operator==(const Key &lhs,
+                const Key &rhs)
+{
+    // FIXME: introduce comparison for labels.
+    return (lhs.rect() == rhs.rect() && lhs.label().text() == rhs.label().text());
+}
+
+bool operator!=(const Key &lhs,
+                const Key &rhs)
+{
+    return (not (lhs == rhs));
+}
+
 } // namespace MaliitKeyboard

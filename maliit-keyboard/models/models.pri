@@ -8,6 +8,7 @@ HEADERS += \
 SOURCES += \
     key.cpp \
     keylabel.cpp \
+    keyarea.cpp \
 
 INCLUDEPATH += $$MODELS_DIR
 DEPENDPATH += $$MODELS_DIR

@@ -29,33 +29,56 @@
  *
  */
 
-#ifndef MALIIT_KEYBOARD_KEYITEM_H
-#define MALIIT_KEYBOARD_KEYITEM_H
-
-#include "models/key.h"
-#include <QtGui>
+#include "keyarea.h"
 
 namespace MaliitKeyboard {
 
-class KeyItem
-    : public QGraphicsItem
+KeyArea::KeyArea()
+    : m_rect()
+    , m_keys()
+    , m_active_keys()
+{}
+
+QRectF KeyArea::rect() const
 {
-private:
-    Key m_key;
+    return m_rect;
+}
 
-public:
-    explicit KeyItem(QGraphicsItem *parent = 0);
+void KeyArea::setRect(const QRectF &rect)
+{
+    m_rect = rect;
+}
 
-    void setKey(const Key &key);
+void KeyArea::appendToKeys(const Key &key)
+{
+    Key k(key);
+    m_keys.append(k);
+}
 
-    //! \reimp
-    virtual QRectF boundingRect() const;
-    virtual void paint(QPainter *painter,
-                       const QStyleOptionGraphicsItem *option,
-                       QWidget *widget);
-    //! \reimp_end
-};
+void KeyArea::appendToActiveKeys(const Key &key)
+{
+    Key k(key);
+    m_active_keys.append(k);
+}
+
+void KeyArea::removeFromActiveKeys(const Key &key)
+{
+    for (int index = 0; index < m_active_keys.count(); ++index) {
+        if (m_active_keys.at(index) == key) {
+            m_active_keys.remove(index);
+            return;
+        }
+    }
+}
+
+QVector<Key> KeyArea::keys() const
+{
+    return m_keys;
+}
+
+QVector<Key> KeyArea::activeKeys() const
+{
+    return m_active_keys;
+}
 
 } // namespace MaliitKeyboard
-
-#endif // MALIIT_KEYBOARD_KEYITEM_H

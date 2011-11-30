@@ -33,19 +33,11 @@
 
 namespace MaliitKeyboard {
 
-KeyRenderer::KeyRenderer()
-    : m_origin()
-{}
-
-void KeyRenderer::setOrigin(const QPoint &origin)
-{
-    m_origin = origin;
-}
-
 void KeyRenderer::render(QPainter *painter,
-                         const Key &key)
+                         const Key &key,
+                         const QPoint &origin)
 {
-    const QRect &key_rect(key.rect().translated(m_origin));
+    const QRect &key_rect(key.rect().translated(origin));
     const QRect &key_label_rect(key.label().rect().translated(key_rect.topLeft()));
 
 #ifdef Q_WS_X11
