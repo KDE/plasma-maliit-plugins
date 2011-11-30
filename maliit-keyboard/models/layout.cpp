@@ -29,53 +29,99 @@
  *
  */
 
-#ifndef MALIIT_KEYBOARD_KEYAREA_H
-#define MALIIT_KEYBOARD_KEYAREA_H
-
-#include "key.h"
-
-#include <QtCore>
+#include "layout.h"
 
 namespace MaliitKeyboard {
 
-class KeyArea;
-typedef QSharedPointer<KeyArea> SharedKeyArea;
+Layout::Layout()
+    : m_left()
+    , m_right()
+    , m_center()
+    , m_extended()
+{}
 
-class KeyArea
+KeyArea Layout::leftPanel() const
 {
-private:
-    QRectF m_rect;
-    QVector<Key> m_keys;
-    QVector<Key> m_active_keys;
+    return m_left;
+}
 
-public:
-    enum Change {
-        KeysChanged = 0,
-        ActiveKeysChanged,
-        ChangeCount
-    };
+void Layout::setLeftPanel(const KeyArea &left)
+{
+    if (m_left != left) {
+        m_left = left;
+        emit panelChanged(LeftPanelChanged);
+    }
+}
 
-    explicit KeyArea();
+KeyArea Layout::rightPanel() const
+{
+    return m_right;
+}
 
-    QRectF rect() const;
-    void setRect(const QRectF &rect);
+void Layout::setRightPanel(const KeyArea &right)
+{
+    if (m_right != right) {
+        m_right = right;
+        emit panelChanged(RightPanelChanged);
+    }
+}
 
-    QVector<Key> keys() const;
-    QVector<Key> activeKeys() const; // O(n)
+KeyArea Layout::centerPanel() const
+{
+    return m_center;
+}
 
-    void appendToKeys(const Key &key);
-    void appendToActiveKeys(const Key &key);
-    void removeFromActiveKeys(const Key &key);
-};
+void Layout::setCenterPanel(const KeyArea &center)
+{
+    if (m_center != center) {
+        m_center = center;
+        emit panelChanged(CenterPanelChanged);
+    }
+}
 
-bool operator==(const KeyArea &lhs,
-                const KeyArea &rhs);
+KeyArea Layout::extendedPanel() const
+{
+    return m_extended;
+}
 
-bool operator!=(const KeyArea &lhs,
-                const KeyArea &rhs);
+void Layout::setExtendedPanel(const KeyArea &extended)
+{
+    if (m_extended != extended) {
+        m_extended = extended;
+        emit panelChanged(ExtendedPanelChanged);
+    }
+}
+
+void Layout::setAllPanels(const KeyArea &left,
+                          const KeyArea &right,
+                          const KeyArea &center,
+                          const KeyArea &extended)
+{
+    bool changed = false;
+
+    if (m_left != left) {
+        m_left = left;
+        changed = true;
+    }
+
+    if (m_right != right) {
+        m_right = right;
+        changed = true;
+    }
+
+    if (m_center != center) {
+        m_center = center;
+        changed = true;
+    }
+
+    if (m_extended != extended) {
+        m_extended = extended;
+        changed = true;
+    }
+
+    if (changed) {
+        emit panelChanged(AllPanelsChanged);
+    }
+}
 
 } // namespace MaliitKeyboard
-
-Q_DECLARE_METATYPE(MaliitKeyboard::KeyArea)
-
-#endif // MALIIT_KEYBOARD_KEYAREA_H

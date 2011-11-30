@@ -29,53 +29,56 @@
  *
  */
 
-#ifndef MALIIT_KEYBOARD_KEYAREA_H
-#define MALIIT_KEYBOARD_KEYAREA_H
+#ifndef MALIIT_KEYBOARD_LAYOUT_H
+#define MALIIT_KEYBOARD_LAYOUT_H
 
-#include "key.h"
-
+#include "keyarea.h"
 #include <QtCore>
 
 namespace MaliitKeyboard {
 
-class KeyArea;
-typedef QSharedPointer<KeyArea> SharedKeyArea;
+class Layout;
+typedef QSharedPointer<Layout> SharedLayout;
 
-class KeyArea
+class Layout
 {
 private:
-    QRectF m_rect;
-    QVector<Key> m_keys;
-    QVector<Key> m_active_keys;
+    KeyArea m_left;
+    KeyArea m_right;
+    KeyArea m_center;
+    KeyArea m_extended;
 
 public:
-    enum Change {
-        KeysChanged = 0,
-        ActiveKeysChanged,
-        ChangeCount
+    enum PanelChange {
+        AllPanelsChanged,
+        LeftPanelChanged,
+        RightPanelChanged,
+        CenterPanelChanged,
+        ExtendedPanelChanged
     };
 
-    explicit KeyArea();
+    explicit Layout();
 
-    QRectF rect() const;
-    void setRect(const QRectF &rect);
+    KeyArea leftPanel() const;
+    void setLeftPanel(const KeyArea &left);
 
-    QVector<Key> keys() const;
-    QVector<Key> activeKeys() const; // O(n)
+    KeyArea rightPanel() const;
+    void setRightPanel(const KeyArea &right);
 
-    void appendToKeys(const Key &key);
-    void appendToActiveKeys(const Key &key);
-    void removeFromActiveKeys(const Key &key);
+    KeyArea centerPanel() const;
+    void setCenterPanel(const KeyArea &center);
+
+    KeyArea extendedPanel() const;
+    void setExtendedPanel(const KeyArea &extended);
+
+    void setAllPanels(const KeyArea &left,
+                      const KeyArea &right,
+                      const KeyArea &center,
+                      const KeyArea &extended);
+
+    Q_SIGNAL void panelChanged(PanelChange change);
 };
-
-bool operator==(const KeyArea &lhs,
-                const KeyArea &rhs);
-
-bool operator!=(const KeyArea &lhs,
-                const KeyArea &rhs);
 
 } // namespace MaliitKeyboard
 
-Q_DECLARE_METATYPE(MaliitKeyboard::KeyArea)
-
-#endif // MALIIT_KEYBOARD_KEYAREA_H
+#endif // MALIIT_KEYBOARD_LAYOUT_H

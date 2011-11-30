@@ -81,4 +81,18 @@ QVector<Key> KeyArea::activeKeys() const
     return m_active_keys;
 }
 
+bool operator==(const KeyArea &lhs,
+                const KeyArea &rhs)
+{
+    return (lhs.rect() == rhs.rect()
+            && lhs.keys() == rhs.keys()
+            && lhs.activeKeys() == rhs.activeKeys());
+}
+
+bool operator!=(const KeyArea &lhs,
+                const KeyArea &rhs)
+{
+    return (not (lhs == rhs));
+}
+
 } // namespace MaliitKeyboard
