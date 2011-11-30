@@ -65,6 +65,7 @@ void Layout::setLeftPanel(const KeyArea &left)
 {
     if (m_left != left) {
         m_left = left;
+        m_active_keys.left.clear();
     }
 }
 
@@ -77,6 +78,7 @@ void Layout::setRightPanel(const KeyArea &right)
 {
     if (m_right != right) {
         m_right = right;
+        m_active_keys.right.clear();
     }
 }
 
@@ -89,6 +91,7 @@ void Layout::setCenterPanel(const KeyArea &center)
 {
     if (m_center != center) {
         m_center = center;
+        m_active_keys.center.clear();
     }
 }
 
@@ -101,34 +104,56 @@ void Layout::setExtendedPanel(const KeyArea &extended)
 {
     if (m_extended != extended) {
         m_extended = extended;
+        m_active_keys.extended.clear();
     }
+}
+
+QVector<Key> Layout::activeKeys(Panel panel) const
+{
+    switch (panel) {
+    case LeftPanel: return m_active_keys.left;
+    case RightPanel: return m_active_keys.right;
+    case CenterPanel: return m_active_keys.center;
+    case ExtendedPanel: return m_active_keys.extended;
+    case PanelCount: break;
+    }
+
+    static const QVector<Key> empty;
+    return empty;
 }
 
 void Layout::appendActiveKey(Panel panel,
                              const Key &key)
 {
-    internalLookup(panel)->appendActiveKey(key);
+    switch (panel) {
+    case LeftPanel: m_active_keys.left.append(key); break;
+    case RightPanel: m_active_keys.right.append(key); break;
+    case CenterPanel: m_active_keys.center.append(key); break;
+    case ExtendedPanel: m_active_keys.extended.append(key); break;
+    case PanelCount: break;
+    }
 }
 
 void Layout::removeActiveKey(Panel panel,
                              const Key &key)
 {
-    internalLookup(panel)->removeActiveKey(key);
-}
-
-KeyArea * Layout::internalLookup(Panel panel)
-{
-    KeyArea * current = 0;
-
+    QVector<Key> *active_keys = 0;
     switch (panel) {
-    case LeftPanel: current = &m_left; break;
-    case RightPanel: current = &m_right; break;
-    case CenterPanel: current = &m_center; break;
-    case ExtendedPanel: current = &m_extended; break;
+    case LeftPanel: active_keys = &m_active_keys.left; break;
+    case RightPanel: active_keys = &m_active_keys.right; break;
+    case CenterPanel: active_keys = &m_active_keys.center; break;
+    case ExtendedPanel: active_keys = &m_active_keys.extended; break;
     case PanelCount: break;
     }
 
-    return current;
+    if (active_keys) {
+        for (int index = 0; index < active_keys->count(); ++index) {
+            if (active_keys->at(index) == key) {
+                active_keys->remove(index);
+                break;
+            }
+        }
+    }
 }
 
 } // namespace MaliitKeyboard

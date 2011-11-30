@@ -137,7 +137,7 @@ bool Glass::eventFilter(QObject *obj,
 
                     // Pressed state is not stored in key itself, so list of pressed keys (overridden keys) must be maintained elsewhere.
                     const bool pressed = k.rect().translated(layout->centerPanel().rect().toRect().topLeft()).contains(qme->pos());
-                    const bool was_pressed(layout->centerPanel().activeKeys().contains(k));
+                    const bool was_pressed(layout->activeKeys(Layout::CenterPanel).contains(k));
 
                     if (was_pressed && pressed) {
                         layout->removeActiveKey(Layout::CenterPanel, k);

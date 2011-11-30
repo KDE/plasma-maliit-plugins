@@ -45,7 +45,6 @@ class KeyArea
 private:
     QRectF m_rect;
     QVector<Key> m_keys;
-    QVector<Key> m_active_keys;
 
 public:
     explicit KeyArea();
@@ -54,11 +53,7 @@ public:
     void setRect(const QRectF &rect);
 
     QVector<Key> keys() const;
-    QVector<Key> activeKeys() const; // O(n)
-
     void appendKey(const Key &key);
-    void appendActiveKey(const Key &key);
-    void removeActiveKey(const Key &key);
 };
 
 bool operator==(const KeyArea &lhs,

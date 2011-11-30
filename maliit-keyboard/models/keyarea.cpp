@@ -36,7 +36,6 @@ namespace MaliitKeyboard {
 KeyArea::KeyArea()
     : m_rect()
     , m_keys()
-    , m_active_keys()
 {}
 
 QRectF KeyArea::rect() const
@@ -55,38 +54,16 @@ void KeyArea::appendKey(const Key &key)
     m_keys.append(k);
 }
 
-void KeyArea::appendActiveKey(const Key &key)
-{
-    Key k(key);
-    m_active_keys.append(k);
-}
-
-void KeyArea::removeActiveKey(const Key &key)
-{
-    for (int index = 0; index < m_active_keys.count(); ++index) {
-        if (m_active_keys.at(index) == key) {
-            m_active_keys.remove(index);
-            return;
-        }
-    }
-}
-
 QVector<Key> KeyArea::keys() const
 {
     return m_keys;
-}
-
-QVector<Key> KeyArea::activeKeys() const
-{
-    return m_active_keys;
 }
 
 bool operator==(const KeyArea &lhs,
                 const KeyArea &rhs)
 {
     return (lhs.rect() == rhs.rect()
-            && lhs.keys() == rhs.keys()
-            && lhs.activeKeys() == rhs.activeKeys());
+            && lhs.keys() == rhs.keys());
 }
 
 bool operator!=(const KeyArea &lhs,

@@ -228,10 +228,10 @@ void Renderer::onActiveKeysChanged(const SharedLayout &layout,
     }
 
     if (KeyAreaItem *const ka_item = pool.at(changed)) {
-        const KeyArea &ka(layout->lookup(changed));
+        const QVector<Key> &active_keys(layout->activeKeys(changed));
         int index = 0;
 
-        for (; index < ka.activeKeys().count(); ++index) {
+        for (; index < active_keys.count(); ++index) {
             KeyItem *item = 0;
 
             if (index >= d->key_items.count()) {
@@ -242,7 +242,7 @@ void Renderer::onActiveKeysChanged(const SharedLayout &layout,
             }
 
             item->setParentItem(ka_item);
-            item->setKey(ka.activeKeys().at(index));
+            item->setKey(active_keys.at(index));
             item->show();
         }
 

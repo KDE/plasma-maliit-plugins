@@ -48,6 +48,13 @@ private:
     KeyArea m_center;
     KeyArea m_extended;
 
+    struct {
+        QVector<Key> left;
+        QVector<Key> right;
+        QVector<Key> center;
+        QVector<Key> extended;
+    } m_active_keys;
+
 public:
     enum Panel {
         LeftPanel,
@@ -73,14 +80,11 @@ public:
     KeyArea extendedPanel() const;
     void setExtendedPanel(const KeyArea &extended);
 
+    QVector<Key> activeKeys(Panel panel) const;
     void appendActiveKey(Panel panel,
                          const Key &key);
-
     void removeActiveKey(Panel panel,
                          const Key &key);
-
-private:
-    KeyArea * internalLookup(Panel panel);
 };
 
 } // namespace MaliitKeyboard
