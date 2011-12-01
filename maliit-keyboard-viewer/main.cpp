@@ -46,7 +46,8 @@ MaliitKeyboard::Key createKey(const QPixmap &pm,
                               const QRect &kr,
                               const QRect &lr,
                               const QByteArray &t,
-                              const QColor &c)
+                              const QColor &c,
+                              MaliitKeyboard::Key::Action a = MaliitKeyboard::Key::ActionCommit)
 {
     MaliitKeyboard::KeyLabel l;
     l.setRect(lr);
@@ -58,6 +59,7 @@ MaliitKeyboard::Key createKey(const QPixmap &pm,
     k.setRect(kr);
     k.setBackground(pm);
     k.setLabel(l);
+    k.setAction(a);
 
     return k;
 }
@@ -78,11 +80,12 @@ MaliitKeyboard::KeyArea createPrimaryKeyArea()
     ka.appendKey(createKey(pm, font, QRect(10, 10, 40, 60),
                            QRect(5, 5, 20, 40), QBA("Q"), Qt::darkBlue));
     ka.appendKey(createKey(pm, font, QRect(60, 10, 80, 120),
-                           QRect(5, 5, 20, 40), QBA("W"), Qt::darkMagenta));
+                           QRect(5, 5, 70, 40), QBA("W"), Qt::darkMagenta));
     ka.appendKey(createKey(pm, font, QRect(10, 80, 40, 50),
                            QRect(5, 5, 20, 40), QBA("A"), Qt::black));
     ka.appendKey(createKey(pm, font, QRect(10, 140, 130, 60),
-                           QRect(5, 5, 20, 40), QBA("X"), Qt::darkCyan));
+                           QRect(5, 5, 120, 40), QBA("shift"), Qt::darkCyan,
+                           MaliitKeyboard::Key::ActionShift));
 
     return ka;
 }
@@ -107,7 +110,6 @@ MaliitKeyboard::KeyArea createSecondaryKeyArea()
 
     return ka;
 }
-
 
 }
 
@@ -136,11 +138,16 @@ int main(int argc,
     glass.activate(l0);
     glass.activate(l1);
 
+    // One layout updater can only hold one layout.
     MaliitKeyboard::LayoutUpdater updater;
+    updater.init();
     updater.setLayout(l0);
 
-    QObject::connect(&glass,    SIGNAL(activeKeysChanged(SharedLayout,Layout::Panel)),
+    QObject::connect(&glass,    SIGNAL(activeKeysChanged(SharedLayout,Layout::Panel,Reason)),
                      &renderer, SLOT(onActiveKeysChanged(SharedLayout,Layout::Panel)));
+
+    QObject::connect(&glass,   SIGNAL(activeKeysChanged(SharedLayout,Layout::Panel,Reason)),
+                     &updater, SLOT(onActiveKeysChanged(SharedLayout,Layout::Panel,Reason)));
 
     return app.exec();
 }

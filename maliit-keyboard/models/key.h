@@ -39,7 +39,32 @@ namespace MaliitKeyboard {
 
 class Key
 {
+public:
+    enum Action {
+        ActionInsert,
+        ActionShift,
+        ActionSpace,
+        ActionBackspace,
+        ActionCycle,
+        ActionLayoutMenu,
+        ActionSym,
+        ActionReturn,
+        ActionDecimalSeparator,
+        ActionPlusMinusToggle,
+        ActionTab,
+        ActionCommit,
+        ActionSwitch,
+        ActionOnOffToggle,
+        ActionCompose,
+        ActionLeft,
+        ActionUp,
+        ActionRight,
+        ActionDown,
+        NumActions
+    };
+
 private:
+    Action m_action;
     QRect m_rect;
     QMargins m_margins;
     QPixmap m_background;
@@ -47,6 +72,9 @@ private:
 
 public:
     explicit Key();
+
+    Action action() const;
+    void setAction(Action action);
 
     QRect rect() const;
     void setRect(const QRect &rect);

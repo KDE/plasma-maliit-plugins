@@ -36,17 +36,83 @@ namespace MaliitKeyboard {
 class LayoutUpdaterPrivate
 {
 public:
+    // TODO: who takes ownership of the states?
+    struct States {
+        QState *no_shift;
+        QState *shift;
+        QState *latched_shift;
+        QState *caps_lock;
+
+        explicit States()
+            : no_shift(0)
+            , shift(0)
+            , latched_shift(0)
+            , caps_lock(0)
+        {}
+    };
+
     SharedLayout layout;
     QScopedPointer<KeyboardLoader> loader;
+    QScopedPointer<QStateMachine> machine;
+    States states;
 };
 
 LayoutUpdater::LayoutUpdater(QObject *parent)
-    : QStateMachine(parent)
+    : QObject(parent)
     , d_ptr(new LayoutUpdaterPrivate)
 {}
 
 LayoutUpdater::~LayoutUpdater()
 {}
+
+void LayoutUpdater::init()
+{
+    Q_D(LayoutUpdater);
+
+    d->machine.reset(new QStateMachine);
+    d->machine->setChildMode(QState::ExclusiveStates);
+
+    LayoutUpdaterPrivate::States &s(d->states);
+    s.no_shift = new QState;
+    s.no_shift->setObjectName("no-shift");
+
+    s.shift = new QState;
+    s.shift->setObjectName("shift");
+
+    s.latched_shift = new QState;
+    s.latched_shift->setObjectName("latched-shift");
+
+    s.caps_lock = new QState;
+    s.caps_lock->setObjectName("caps-lock");
+
+    s.no_shift->addTransition(this, SIGNAL(shiftPressed()), s.shift);
+    s.no_shift->addTransition(this, SIGNAL(autoCapsActivated()), s.latched_shift);
+    connect(s.no_shift, SIGNAL(entered()),
+            this,       SLOT(switchLayoutToLower()));
+
+    s.shift->addTransition(this, SIGNAL(shiftCancelled()), s.no_shift);
+    s.shift->addTransition(this, SIGNAL(shiftReleased()), s.latched_shift);
+    connect(s.shift, SIGNAL(entered()),
+            this,    SLOT(switchLayoutToUpper()));
+
+    s.latched_shift->addTransition(this, SIGNAL(shiftCancelled()), s.no_shift);
+    s.latched_shift->addTransition(this, SIGNAL(shiftReleased()), s.caps_lock);
+    connect(s.latched_shift, SIGNAL(entered()),
+            this,            SLOT(switchLayoutToUpper()));
+
+    s.caps_lock->addTransition(this, SIGNAL(shiftReleased()), s.no_shift);
+    connect(s.caps_lock, SIGNAL(entered()),
+            this,        SLOT(switchLayoutToUpper()));
+
+    d->machine->addState(s.no_shift);
+    d->machine->addState(s.shift);
+    d->machine->addState(s.latched_shift);
+    d->machine->addState(s.caps_lock);
+    d->machine->setInitialState(s.no_shift);
+
+    // Defer to first main loop iteration:
+    QTimer::singleShot(0, d->machine.data(), SLOT(start()));
+}
 
 void LayoutUpdater::setLayout(const SharedLayout &layout)
 {
@@ -58,6 +124,46 @@ void LayoutUpdater::setKeyboardLoader(KeyboardLoader *loader)
 {
     Q_D(LayoutUpdater);
     d->loader.reset(loader);
+}
+
+void LayoutUpdater::onActiveKeysChanged(const SharedLayout &layout,
+                                        Layout::Panel changed,
+                                        Reason reason)
+{
+    Q_D(const LayoutUpdater);
+
+    if (d->layout != layout) {
+        return;
+    }
+
+    if (changed != Layout::CenterPanel) {
+        qWarning() << __PRETTY_FUNCTION__
+                   << "Can only handle Layout::CenterPanel at the moment, got:" << changed;
+    }
+
+    switch (reason) {
+    case ReasonShiftPressed: emit shiftPressed(); break;
+    case ReasonShiftReleased: emit shiftReleased(); break;
+
+    case ReasonKeyReleased: {
+        if (d->machine->configuration().contains(d->states.latched_shift)) {
+            emit shiftCancelled();
+        }
+    } break;
+
+    default:
+        break;
+    }
+}
+
+void LayoutUpdater::switchLayoutToUpper()
+{
+    qDebug() << __PRETTY_FUNCTION__;
+}
+
+void LayoutUpdater::switchLayoutToLower()
+{
+    qDebug() << __PRETTY_FUNCTION__;
 }
 
 } // namespace MaliitKeyboard

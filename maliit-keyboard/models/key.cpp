@@ -34,11 +34,22 @@
 namespace MaliitKeyboard {
 
 Key::Key()
-    : m_rect()
+    : m_action(ActionCommit)
+    , m_rect()
     , m_margins()
     , m_background()
     , m_label()
 {}
+
+Key::Action Key::action() const
+{
+    return m_action;
+}
+
+void Key::setAction(Action action)
+{
+    m_action = action;
+}
 
 QRect Key::rect() const
 {

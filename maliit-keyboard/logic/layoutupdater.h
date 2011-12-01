@@ -32,8 +32,10 @@
 #ifndef MALIIT_KEYBOARD_LAYOUTUPDATER_H
 #define MALIIT_KEYBOARD_LAYOUTUPDATER_H
 
+#include "reason.h"
 #include "keyboardloader.h"
 #include "models/layout.h"
+#include "glass/glass.h"
 
 #include <QtCore>
 
@@ -42,7 +44,7 @@ namespace MaliitKeyboard {
 class LayoutUpdaterPrivate;
 
 class LayoutUpdater
-    : public QStateMachine
+    : public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY(LayoutUpdater)
@@ -52,10 +54,24 @@ public:
     explicit LayoutUpdater(QObject *parent = 0);
     virtual ~LayoutUpdater();
 
+    void init();
+
     void setLayout(const SharedLayout &layout);
     void setKeyboardLoader(KeyboardLoader *loader);
 
+    Q_SLOT void onActiveKeysChanged(const SharedLayout &layout,
+                                    Layout::Panel changed,
+                                    Reason reason);
+
 private:
+    Q_SIGNAL void shiftPressed();
+    Q_SIGNAL void shiftReleased();
+    Q_SIGNAL void autoCapsActivated();
+    Q_SIGNAL void shiftCancelled();
+
+    Q_SLOT void switchLayoutToUpper();
+    Q_SLOT void switchLayoutToLower();
+
     const QScopedPointer<LayoutUpdaterPrivate> d_ptr;
 };
 

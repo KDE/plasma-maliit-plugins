@@ -131,6 +131,7 @@ bool Glass::eventFilter(QObject *obj,
             // FIXME: use binary range search
             if (layout->centerPanel().rect().contains(qme->posF())) {
                 bool active_keys_changed = false;
+                Reason reason = ReasonUnknown;
 
                 for (int index = 0; index < keys.count(); ++index) {
                     Key k(keys.at(index));
@@ -140,9 +141,15 @@ bool Glass::eventFilter(QObject *obj,
                     const bool was_pressed(layout->activeKeys(Layout::CenterPanel).contains(k));
 
                     if (was_pressed && pressed) {
+                        reason = (k.action() == Key::ActionShift) ? ReasonShiftReleased
+                                                                  : ReasonKeyReleased;
+
                         layout->removeActiveKey(Layout::CenterPanel, k);
                         active_keys_changed = true;
                     } else if (not was_pressed && pressed) {
+                        reason = (k.action() == Key::ActionShift) ? ReasonShiftPressed
+                                                                  : ReasonKeyPressed;
+
                         k.setBackground(pressed_bg);
                         layout->appendActiveKey(Layout::CenterPanel, k);
                         active_keys_changed = true;
@@ -150,7 +157,7 @@ bool Glass::eventFilter(QObject *obj,
                 }
 
                 if (active_keys_changed) {
-                    emit activeKeysChanged(layout, Layout::CenterPanel);
+                    emit activeKeysChanged(layout, Layout::CenterPanel, reason);
                 }
             }
         }

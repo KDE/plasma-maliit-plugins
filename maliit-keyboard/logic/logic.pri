@@ -1,6 +1,7 @@
 LOGIC_DIR = ./logic
 
 HEADERS += \
+    reason.h \
     layoutupdater.h \
     keyboardloader.h \
 
@@ -9,5 +10,6 @@ SOURCES += \
     keyboardloader.cpp \
 
 DEPENDPATH += $$LOGIC_DIR
+
 
 
