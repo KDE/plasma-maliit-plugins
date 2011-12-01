@@ -159,7 +159,7 @@ void Renderer::show(const SharedLayout &layout)
     const RendererPrivate::Pool &pool(d->pools.value(layout));
     if (pool.isEmpty()) {
         item = new KeyAreaItem(rootItem(d->view.data()));
-        RendererPrivate::Pool p(Layout::PanelCount, 0);
+        RendererPrivate::Pool p(Layout::NumPanels, 0);
         p.replace(layout->activePanel(), item);
         d->pools.insert(layout, p);
     } else if (KeyAreaItem *found = pool.at(layout->activePanel())) {
@@ -211,12 +211,7 @@ void Renderer::hideAll()
 
 void Renderer::onLayoutChanged(const SharedLayout &layout)
 {
-    // TODO: make show() somewhat reusable to update a layout.
-    if (layout.isNull()) {
-        qCritical() << __PRETTY_FUNCTION__
-                    << "Invalid layout.";
-        return;
-    }
+    show(layout);
 }
 
 void Renderer::onActiveKeysChanged(const SharedLayout &layout)

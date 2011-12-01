@@ -34,7 +34,7 @@
 namespace MaliitKeyboard {
 
 Layout::Layout()
-    : m_active_panel(Layout::CenterPanel)
+    : m_active_panel(CenterPanel)
     , m_left()
     , m_right()
     , m_center()
@@ -48,12 +48,29 @@ Layout::Panel Layout::activePanel() const
 
 void Layout::setActivePanel(Panel panel)
 {
-    m_active_panel = panel;
+    if (panel != NumPanels) {
+        m_active_panel = panel;
+    }
 }
 
 KeyArea Layout::activeKeyArea() const
 {
     return lookup(activePanel());
+}
+
+void Layout::setActiveKeyArea(const KeyArea &active)
+{
+    switch (activePanel()) {
+    case LeftPanel: setLeftPanel(active); break;
+    case RightPanel: setRightPanel(active); break;
+    case CenterPanel: setCenterPanel(active); break;
+    case ExtendedPanel: setExtendedPanel(active); break;
+
+    default:
+        qCritical() << __PRETTY_FUNCTION__
+                    << "Should not be reached, invalid panel:" << activePanel();
+        break;
+    }
 }
 
 KeyArea Layout::leftPanel() const
@@ -115,7 +132,7 @@ QVector<Key> Layout::activeKeys() const
     case RightPanel: return m_active_keys.right;
     case CenterPanel: return m_active_keys.center;
     case ExtendedPanel: return m_active_keys.extended;
-    case PanelCount: break;
+    case NumPanels: break;
     }
 
     static const QVector<Key> empty;
@@ -129,7 +146,7 @@ void Layout::appendActiveKey(const Key &key)
     case RightPanel: m_active_keys.right.append(key); break;
     case CenterPanel: m_active_keys.center.append(key); break;
     case ExtendedPanel: m_active_keys.extended.append(key); break;
-    case PanelCount: break;
+    case NumPanels: break;
     }
 }
 
@@ -141,7 +158,7 @@ void Layout::removeActiveKey(const Key &key)
     case RightPanel: active_keys = &m_active_keys.right; break;
     case CenterPanel: active_keys = &m_active_keys.center; break;
     case ExtendedPanel: active_keys = &m_active_keys.extended; break;
-    case PanelCount: break;
+    case NumPanels: break;
     }
 
     if (active_keys) {
@@ -161,7 +178,7 @@ KeyArea Layout::lookup(Panel panel) const
     case RightPanel: return m_right;
     case CenterPanel: return m_center;
     case ExtendedPanel: return m_extended;
-    case PanelCount: break;
+    case NumPanels: break;
     }
 
     qCritical() << __PRETTY_FUNCTION__

@@ -48,7 +48,7 @@ public:
         RightPanel,
         CenterPanel,
         ExtendedPanel,
-        PanelCount
+        NumPanels
     };
 
 private:
@@ -72,6 +72,7 @@ public:
     void setActivePanel(Panel panel);
 
     KeyArea activeKeyArea() const;
+    void setActiveKeyArea(const KeyArea &active);
 
     KeyArea leftPanel() const;
     void setLeftPanel(const KeyArea &left);

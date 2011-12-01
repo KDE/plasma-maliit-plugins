@@ -33,6 +33,41 @@
 
 namespace MaliitKeyboard {
 
+namespace {
+
+enum Transform {
+    TransformToUpper,
+    TransformToLower
+};
+
+KeyArea transformKeyArea(const KeyArea &ka,
+                         Transform t)
+{
+    KeyArea new_ka;
+    new_ka.setRect(ka.rect());
+
+    foreach (Key key, ka.keys()) {
+        KeyLabel label(key.label());
+
+        switch (t) {
+        case TransformToUpper:
+            label.setText(label.text().toUpper());
+            break;
+
+        case TransformToLower:
+            label.setText(label.text().toLower());
+            break;
+        }
+
+        key.setLabel(label);
+        new_ka.appendKey(key);
+    }
+
+    return new_ka;
+}
+
+}
+
 class LayoutUpdaterPrivate
 {
 public:
@@ -178,12 +213,26 @@ void LayoutUpdater::onKeyReleased(const SharedLayout &layout,
 
 void LayoutUpdater::switchLayoutToUpper()
 {
-    qDebug() << __PRETTY_FUNCTION__;
+    Q_D(const LayoutUpdater);
+
+    if (not d->layout) {
+        return;
+    }
+
+    d->layout->setActiveKeyArea(transformKeyArea(d->layout->activeKeyArea(), TransformToUpper));
+    emit layoutChanged(d->layout);
 }
 
 void LayoutUpdater::switchLayoutToLower()
 {
-    qDebug() << __PRETTY_FUNCTION__;
+    Q_D(const LayoutUpdater);
+
+    if (not d->layout) {
+        return;
+    }
+
+    d->layout->setActiveKeyArea(transformKeyArea(d->layout->activeKeyArea(), TransformToLower));
+    emit layoutChanged(d->layout);
 }
 
 } // namespace MaliitKeyboard
