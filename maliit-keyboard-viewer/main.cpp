@@ -31,6 +31,8 @@
 
 #include "renderer/renderer.h"
 #include "glass/glass.h"
+#include "logic/layoutupdater.h"
+
 #include "models/keyarea.h"
 #include "models/key.h"
 #include "models/keylabel.h"
@@ -133,6 +135,9 @@ int main(int argc,
     glass.setWindow(renderer.viewport());
     glass.activate(l0);
     glass.activate(l1);
+
+    MaliitKeyboard::LayoutUpdater updater;
+    updater.setLayout(l0);
 
     QObject::connect(&glass,    SIGNAL(activeKeysChanged(SharedLayout,Layout::Panel)),
                      &renderer, SLOT(onActiveKeysChanged(SharedLayout,Layout::Panel)));
