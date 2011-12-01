@@ -60,10 +60,9 @@ public:
     Q_SLOT void show(const SharedLayout &layout);
     Q_SLOT void hide(const SharedLayout &layout);
     Q_SLOT void hideAll();
-    Q_SLOT void onActiveKeysChanged(const SharedLayout &layout,
-                                    Layout::Panel changed);
-    Q_SLOT void onLayoutPanelChanged(const SharedLayout &layout,
-                                     Layout::Panel changed);
+
+    Q_SLOT void onLayoutChanged(const SharedLayout &layout);
+    Q_SLOT void onActiveKeysChanged(const SharedLayout &layout);
 
 
 private:

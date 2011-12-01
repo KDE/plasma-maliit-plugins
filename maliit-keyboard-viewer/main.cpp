@@ -143,11 +143,17 @@ int main(int argc,
     updater.init();
     updater.setLayout(l0);
 
-    QObject::connect(&glass,    SIGNAL(activeKeysChanged(SharedLayout,Layout::Panel,Reason)),
-                     &renderer, SLOT(onActiveKeysChanged(SharedLayout,Layout::Panel)));
+    QObject::connect(&glass,   SIGNAL(keyPressed(SharedLayout, Key)),
+                     &updater, SLOT(onKeyPressed(SharedLayout, Key)));
 
-    QObject::connect(&glass,   SIGNAL(activeKeysChanged(SharedLayout,Layout::Panel,Reason)),
-                     &updater, SLOT(onActiveKeysChanged(SharedLayout,Layout::Panel,Reason)));
+    QObject::connect(&glass,   SIGNAL(keyReleased(SharedLayout, Key)),
+                     &updater, SLOT(onKeyReleased(SharedLayout, Key)));
+
+    QObject::connect(&updater,  SIGNAL(layoutChanged(SharedLayout)),
+                     &renderer, SLOT(onLayoutChanged(SharedLayout)));
+
+    QObject::connect(&updater,  SIGNAL(activeKeysChanged(SharedLayout)),
+                     &renderer, SLOT(onActiveKeysChanged(SharedLayout)));
 
     return app.exec();
 }

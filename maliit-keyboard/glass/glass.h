@@ -35,7 +35,6 @@
 #include "models/key.h"
 #include "models/keyarea.h"
 #include "models/layout.h"
-#include "logic/reason.h"
 
 #include <QtGui>
 
@@ -60,9 +59,11 @@ public:
     Q_SLOT void deactivate(const SharedLayout &layout);
     Q_SLOT void deactivateAll();
 
-    Q_SIGNAL void activeKeysChanged(const SharedLayout &layout,
-                                    Layout::Panel changed,
-                                    Reason reason);
+    Q_SIGNAL void keyPressed(const SharedLayout &layout,
+                             const Key &key);
+
+    Q_SIGNAL void keyReleased(const SharedLayout &layout,
+                              const Key &key);
 
 protected:
     //! \reimp

@@ -32,7 +32,6 @@
 #ifndef MALIIT_KEYBOARD_LAYOUTUPDATER_H
 #define MALIIT_KEYBOARD_LAYOUTUPDATER_H
 
-#include "reason.h"
 #include "keyboardloader.h"
 #include "models/layout.h"
 #include "glass/glass.h"
@@ -59,9 +58,13 @@ public:
     void setLayout(const SharedLayout &layout);
     void setKeyboardLoader(KeyboardLoader *loader);
 
-    Q_SLOT void onActiveKeysChanged(const SharedLayout &layout,
-                                    Layout::Panel changed,
-                                    Reason reason);
+    Q_SLOT void onKeyPressed(const SharedLayout &layout,
+                             const Key &key);
+    Q_SLOT void onKeyReleased(const SharedLayout &layout,
+                              const Key &key);
+
+    Q_SIGNAL void layoutChanged(const SharedLayout &layout);
+    Q_SIGNAL void activeKeysChanged(const SharedLayout &layout);
 
 private:
     Q_SIGNAL void shiftPressed();

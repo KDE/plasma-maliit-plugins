@@ -103,20 +103,11 @@ void Glass::deactivateAll()
 bool Glass::eventFilter(QObject *obj,
                         QEvent *ev)
 {
-    // FIXME: Remove test code
-    bool static init = false;
-        static QPixmap pressed_bg(8, 8);
-
-    if (not init) {
-        pressed_bg.fill(Qt::darkBlue);
-        init = true;
-    }
+    Q_D(Glass);
 
     if (not obj || not ev) {
         return false;
     }
-
-    Q_D(Glass);
 
     switch(ev->type()) {
     case QKeyEvent::MouseButtonPress:
@@ -130,34 +121,22 @@ bool Glass::eventFilter(QObject *obj,
 
             // FIXME: use binary range search
             if (layout->centerPanel().rect().contains(qme->posF())) {
-                bool active_keys_changed = false;
-                Reason reason = ReasonUnknown;
 
                 for (int index = 0; index < keys.count(); ++index) {
                     Key k(keys.at(index));
 
                     // Pressed state is not stored in key itself, so list of pressed keys (overridden keys) must be maintained elsewhere.
-                    const bool pressed = k.rect().translated(layout->centerPanel().rect().toRect().topLeft()).contains(qme->pos());
-                    const bool was_pressed(layout->activeKeys(Layout::CenterPanel).contains(k));
+                    const bool key_hit = k.rect().translated(layout->centerPanel().rect().toRect().topLeft()).contains(qme->pos());
+                    if (key_hit) {
 
-                    if (was_pressed && pressed) {
-                        reason = (k.action() == Key::ActionShift) ? ReasonShiftReleased
-                                                                  : ReasonKeyReleased;
+                        if (qme->type() == QKeyEvent::MouseButtonPress) {
+                            emit keyPressed(layout, k);
+                        } else if (qme->type() == QKeyEvent::MouseButtonRelease) {
+                            emit keyReleased(layout, k);
+                        }
 
-                        layout->removeActiveKey(Layout::CenterPanel, k);
-                        active_keys_changed = true;
-                    } else if (not was_pressed && pressed) {
-                        reason = (k.action() == Key::ActionShift) ? ReasonShiftPressed
-                                                                  : ReasonKeyPressed;
-
-                        k.setBackground(pressed_bg);
-                        layout->appendActiveKey(Layout::CenterPanel, k);
-                        active_keys_changed = true;
+                        break;
                     }
-                }
-
-                if (active_keys_changed) {
-                    emit activeKeysChanged(layout, Layout::CenterPanel, reason);
                 }
             }
         }

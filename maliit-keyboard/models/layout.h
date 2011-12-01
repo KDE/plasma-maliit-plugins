@@ -42,7 +42,17 @@ typedef QSharedPointer<Layout> SharedLayout;
 
 class Layout
 {
+public:
+    enum Panel {
+        LeftPanel,
+        RightPanel,
+        CenterPanel,
+        ExtendedPanel,
+        PanelCount
+    };
+
 private:
+    Panel m_active_panel;
     KeyArea m_left;
     KeyArea m_right;
     KeyArea m_center;
@@ -56,17 +66,12 @@ private:
     } m_active_keys;
 
 public:
-    enum Panel {
-        LeftPanel,
-        RightPanel,
-        CenterPanel,
-        ExtendedPanel,
-        PanelCount
-    };
-
     explicit Layout();
 
-    KeyArea lookup(Panel panel) const;
+    Panel activePanel() const;
+    void setActivePanel(Panel panel);
+
+    KeyArea activeKeyArea() const;
 
     KeyArea leftPanel() const;
     void setLeftPanel(const KeyArea &left);
@@ -80,11 +85,12 @@ public:
     KeyArea extendedPanel() const;
     void setExtendedPanel(const KeyArea &extended);
 
-    QVector<Key> activeKeys(Panel panel) const;
-    void appendActiveKey(Panel panel,
-                         const Key &key);
-    void removeActiveKey(Panel panel,
-                         const Key &key);
+    QVector<Key> activeKeys() const;
+    void appendActiveKey(const Key &key);
+    void removeActiveKey(const Key &key);
+
+private:
+    KeyArea lookup(Panel panel) const;
 };
 
 } // namespace MaliitKeyboard

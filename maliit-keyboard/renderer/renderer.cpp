@@ -160,16 +160,16 @@ void Renderer::show(const SharedLayout &layout)
     if (pool.isEmpty()) {
         item = new KeyAreaItem(rootItem(d->view.data()));
         RendererPrivate::Pool p(Layout::PanelCount, 0);
-        p.replace(Layout::CenterPanel, item);
+        p.replace(layout->activePanel(), item);
         d->pools.insert(layout, p);
-    } else if (KeyAreaItem *found = pool.at(Layout::CenterPanel)) {
+    } else if (KeyAreaItem *found = pool.at(layout->activePanel())) {
         item = found;
     }
 
     // TODO: Construct region from polygon path so that split key areas dont
     // consume space in between them.
     d->region -= QRegion(item->boundingRect().toRect());
-    item->setKeyArea(layout->centerPanel());
+    item->setKeyArea(layout->activeKeyArea());
 
     d->region |= QRegion(item->boundingRect().toRect());
     item->show();
@@ -209,14 +209,23 @@ void Renderer::hideAll()
     }
 }
 
-void Renderer::onActiveKeysChanged(const SharedLayout &layout,
-                                   Layout::Panel changed)
+void Renderer::onLayoutChanged(const SharedLayout &layout)
+{
+    // TODO: make show() somewhat reusable to update a layout.
+    if (layout.isNull()) {
+        qCritical() << __PRETTY_FUNCTION__
+                    << "Invalid layout.";
+        return;
+    }
+}
+
+void Renderer::onActiveKeysChanged(const SharedLayout &layout)
 {
     if (layout.isNull()) {
         qCritical() << __PRETTY_FUNCTION__
                     << "Invalid layout.";
         return;
-        }
+     }
 
     Q_D(Renderer);
 
@@ -227,8 +236,8 @@ void Renderer::onActiveKeysChanged(const SharedLayout &layout,
         return;
     }
 
-    if (KeyAreaItem *const ka_item = pool.at(changed)) {
-        const QVector<Key> &active_keys(layout->activeKeys(changed));
+    if (KeyAreaItem *const ka_item = pool.at(layout->activePanel())) {
+        const QVector<Key> &active_keys(layout->activeKeys());
         int index = 0;
 
         for (; index < active_keys.count(); ++index) {
@@ -249,19 +258,6 @@ void Renderer::onActiveKeysChanged(const SharedLayout &layout,
         for (; index < d->key_items.count(); ++index) {
             d->key_items.at(index)->hide();
         }
-    }
-}
-
-void Renderer::onLayoutPanelChanged(const SharedLayout &layout,
-                                    Layout::Panel changed)
-{
-    // TODO: make show() somewhat reusable to update a layout.
-    Q_UNUSED(changed)
-
-    if (layout.isNull()) {
-        qCritical() << __PRETTY_FUNCTION__
-                    << "Invalid layout.";
-        return;
     }
 }
 

@@ -34,26 +34,26 @@
 namespace MaliitKeyboard {
 
 Layout::Layout()
-    : m_left()
+    : m_active_panel(Layout::CenterPanel)
+    , m_left()
     , m_right()
     , m_center()
     , m_extended()
 {}
 
-KeyArea Layout::lookup(Panel panel) const
+Layout::Panel Layout::activePanel() const
 {
-    switch(panel) {
-    case LeftPanel: return m_left;
-    case RightPanel: return m_right;
-    case CenterPanel: return m_center;
-    case ExtendedPanel: return m_extended;
-    case PanelCount: break;
-    }
+    return m_active_panel;
+}
 
-    qCritical() << __PRETTY_FUNCTION__
-                << "Should not be reached, invalid panel:" << panel;
-    static const KeyArea invalid;
-    return invalid;
+void Layout::setActivePanel(Panel panel)
+{
+    m_active_panel = panel;
+}
+
+KeyArea Layout::activeKeyArea() const
+{
+    return lookup(activePanel());
 }
 
 KeyArea Layout::leftPanel() const
@@ -108,9 +108,9 @@ void Layout::setExtendedPanel(const KeyArea &extended)
     }
 }
 
-QVector<Key> Layout::activeKeys(Panel panel) const
+QVector<Key> Layout::activeKeys() const
 {
-    switch (panel) {
+    switch (m_active_panel) {
     case LeftPanel: return m_active_keys.left;
     case RightPanel: return m_active_keys.right;
     case CenterPanel: return m_active_keys.center;
@@ -122,10 +122,9 @@ QVector<Key> Layout::activeKeys(Panel panel) const
     return empty;
 }
 
-void Layout::appendActiveKey(Panel panel,
-                             const Key &key)
+void Layout::appendActiveKey(const Key &key)
 {
-    switch (panel) {
+    switch (m_active_panel) {
     case LeftPanel: m_active_keys.left.append(key); break;
     case RightPanel: m_active_keys.right.append(key); break;
     case CenterPanel: m_active_keys.center.append(key); break;
@@ -134,11 +133,10 @@ void Layout::appendActiveKey(Panel panel,
     }
 }
 
-void Layout::removeActiveKey(Panel panel,
-                             const Key &key)
+void Layout::removeActiveKey(const Key &key)
 {
     QVector<Key> *active_keys = 0;
-    switch (panel) {
+    switch (m_active_panel) {
     case LeftPanel: active_keys = &m_active_keys.left; break;
     case RightPanel: active_keys = &m_active_keys.right; break;
     case CenterPanel: active_keys = &m_active_keys.center; break;
@@ -154,6 +152,22 @@ void Layout::removeActiveKey(Panel panel,
             }
         }
     }
+}
+
+KeyArea Layout::lookup(Panel panel) const
+{
+    switch(panel) {
+    case LeftPanel: return m_left;
+    case RightPanel: return m_right;
+    case CenterPanel: return m_center;
+    case ExtendedPanel: return m_extended;
+    case PanelCount: break;
+    }
+
+    qCritical() << __PRETTY_FUNCTION__
+                << "Should not be reached, invalid panel:" << panel;
+    static const KeyArea invalid;
+    return invalid;
 }
 
 } // namespace MaliitKeyboard

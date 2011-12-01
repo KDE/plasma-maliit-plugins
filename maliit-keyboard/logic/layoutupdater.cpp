@@ -126,9 +126,8 @@ void LayoutUpdater::setKeyboardLoader(KeyboardLoader *loader)
     d->loader.reset(loader);
 }
 
-void LayoutUpdater::onActiveKeysChanged(const SharedLayout &layout,
-                                        Layout::Panel changed,
-                                        Reason reason)
+void LayoutUpdater::onKeyPressed(const SharedLayout &layout,
+                                 const Key &key)
 {
     Q_D(const LayoutUpdater);
 
@@ -136,23 +135,44 @@ void LayoutUpdater::onActiveKeysChanged(const SharedLayout &layout,
         return;
     }
 
-    if (changed != Layout::CenterPanel) {
-        qWarning() << __PRETTY_FUNCTION__
-                   << "Can only handle Layout::CenterPanel at the moment, got:" << changed;
+    // FIXME: Remove test code
+    // TEST CODE STARTS
+    bool static init = false;
+        static QPixmap pressed_bg(8, 8);
+
+    if (not init) {
+        pressed_bg.fill(Qt::darkBlue);
+        init = true;
+    }
+    // TEST CODE ENDS
+
+    Key k(key);
+    k.setBackground(pressed_bg);
+
+    layout->appendActiveKey(k);
+    emit activeKeysChanged(layout);
+
+    if (key.action() == Key::ActionShift) {
+        emit shiftPressed();
+    }
+}
+
+void LayoutUpdater::onKeyReleased(const SharedLayout &layout,
+                                  const Key &key)
+{
+    Q_D(const LayoutUpdater);
+
+    if (d->layout != layout) {
+        return;
     }
 
-    switch (reason) {
-    case ReasonShiftPressed: emit shiftPressed(); break;
-    case ReasonShiftReleased: emit shiftReleased(); break;
+    layout->removeActiveKey(key);
+    emit activeKeysChanged(layout);
 
-    case ReasonKeyReleased: {
-        if (d->machine->configuration().contains(d->states.latched_shift)) {
-            emit shiftCancelled();
-        }
-    } break;
-
-    default:
-        break;
+    if (key.action() == Key::ActionShift) {
+        emit shiftReleased();
+    } else if (d->machine->configuration().contains(d->states.latched_shift)) {
+        emit shiftCancelled();
     }
 }
 
