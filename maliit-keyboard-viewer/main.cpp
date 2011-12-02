@@ -86,6 +86,9 @@ MaliitKeyboard::KeyArea createPrimaryKeyArea()
     ka.appendKey(createKey(pm, font, QRect(10, 140, 130, 60),
                            QRect(5, 5, 120, 40), QBA("shift"), Qt::darkCyan,
                            MaliitKeyboard::Key::ActionShift));
+    ka.appendKey(createKey(pm, font, QRect(160, 10, 120, 120),
+                           QRect(5, 5, 120, 40), QBA("switch"), Qt::darkCyan,
+                           MaliitKeyboard::Key::ActionSwitch));
 
     return ka;
 }
@@ -138,7 +141,8 @@ int main(int argc,
     glass.activate(l0);
     glass.activate(l1);
 
-    // One layout updater can only hold one layout.
+    // One layout updater can only manage one layout. If more layouts need to
+    // be managed, then more layout updaters are required.
     MaliitKeyboard::LayoutUpdater updater;
     updater.init();
     updater.setLayout(l0);

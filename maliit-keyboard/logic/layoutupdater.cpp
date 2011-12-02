@@ -66,6 +66,19 @@ KeyArea transformKeyArea(const KeyArea &ka,
     return new_ka;
 }
 
+KeyArea replaceKey(const KeyArea &ka,
+                   const Key &replace)
+{
+    KeyArea new_ka;
+    new_ka.setRect(ka.rect());
+
+    foreach (const Key &key, ka.keys()) {
+        new_ka.appendKey((key.label().text() == replace.label().text()) ? replace : key);
+    }
+
+    return new_ka;
+}
+
 }
 
 class LayoutUpdaterPrivate
@@ -190,6 +203,14 @@ void LayoutUpdater::onKeyPressed(const SharedLayout &layout,
     if (key.action() == Key::ActionShift) {
         emit shiftPressed();
     }
+
+    // MORE TEST CODE STARTS
+    if (key.action() == Key::ActionSwitch) {
+        k.setRect(k.rect().adjusted(0, 0, 20, 20));
+        d->layout->setActiveKeyArea(replaceKey(d->layout->activeKeyArea(), k));
+        emit layoutChanged(d->layout);
+    }
+    // TEST CODE ENDS
 }
 
 void LayoutUpdater::onKeyReleased(const SharedLayout &layout,
@@ -209,6 +230,15 @@ void LayoutUpdater::onKeyReleased(const SharedLayout &layout,
     } else if (d->machine->configuration().contains(d->states.latched_shift)) {
         emit shiftCancelled();
     }
+
+    // MORE TEST CODE STARTS
+    Key k(key);
+    if (key.action() == Key::ActionSwitch) {
+        k.setRect(k.rect().adjusted(0, 0, -20, -20));
+        d->layout->setActiveKeyArea(replaceKey(d->layout->activeKeyArea(), k));
+        emit layoutChanged(d->layout);
+    }
+    // TEST CODE ENDS
 }
 
 void LayoutUpdater::switchLayoutToUpper()
