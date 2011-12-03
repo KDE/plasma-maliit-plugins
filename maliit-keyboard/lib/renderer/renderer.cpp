@@ -78,6 +78,25 @@ QGraphicsItem * rootItem(QGraphicsView *view)
     return 0;
 }
 
+void recycleKeyItem(QVector<KeyItem *> *key_items,
+                    int index,
+                    const Key &key,
+                    QGraphicsItem *parent)
+{
+    KeyItem *item = 0;
+
+    if (index >= key_items->count()) {
+        item = new KeyItem;
+        key_items->append(item);
+    } else {
+        item = key_items->at(index);
+    }
+
+    item->setParentItem(parent);
+    item->setKey(key);
+    item->show();
+}
+
 } // namespace
 
 class RendererPrivate
@@ -236,33 +255,11 @@ void Renderer::onKeysChanged(const SharedLayout &layout)
         int index = 0;
 
         for (; index < active_keys.count(); ++index) {
-            KeyItem *item = 0;
-
-            if (index >= d->key_items.count()) {
-                item = new KeyItem;
-                d->key_items.append(item);
-            } else {
-                item = d->key_items.at(index);
-            }
-
-            item->setParentItem(ka_item);
-            item->setKey(active_keys.at(index));
-            item->show();
+            recycleKeyItem(&d->key_items, index, active_keys.at(index), ka_item);
         }
 
         if (layout->magnifierKey().valid()) {
-            KeyItem *magnifier = 0;
-
-            if (index >= d->key_items.count()) {
-                magnifier = new KeyItem;
-                d->key_items.append(magnifier);
-            } else {
-                magnifier = d->key_items.at(index);
-            }
-
-            magnifier->setParentItem(ka_item);
-            magnifier->setKey(layout->magnifierKey());
-            magnifier->show();
+            recycleKeyItem(&d->key_items, index, layout->magnifierKey(), ka_item);
             ++index;
         }
 
