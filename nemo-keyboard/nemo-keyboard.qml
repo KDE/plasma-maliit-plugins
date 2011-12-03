@@ -30,7 +30,7 @@
  */
 
 import Qt 4.7
-import "assets"
+import org.nemomobile 1.0
 
 Rectangle {
     id: canvas

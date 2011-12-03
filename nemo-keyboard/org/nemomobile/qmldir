@@ -1,0 +1,11 @@
+LandscapeVKB 1.0 LandscapeVKB.qml
+PortraitVKB 1.0 PortraitVKB.qml
+RussianPortrait 1.0 RussianPortrait.qml
+EnglishPortrait 1.0 EnglishPortrait.qml
+CharacterKey 1.0 CharacterKey.qml
+FunctionKey 1.0 FunctionKey.qml
+PluginClose  1.0 PluginClose.qml
+PluginSwitch 1.0 PluginSwitch.qml
+Popper 1.0 Popper.qml
+KeyStyle  1.0 KeyStyle.qml
+KeyboardStyle 1.0 KeyboardStyle.qml
