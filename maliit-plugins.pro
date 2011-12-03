@@ -28,8 +28,6 @@ TEMPLATE = subdirs
 SUBDIRS = \
     nemo-keyboard \
     maliit-keyboard \
-    maliit-keyboard-plugin \
-    maliit-keyboard-viewer \
 
 DIST_NAME = $$MALIIT_PACKAGENAME-$$MALIIT_VERSION
 DIST_PATH = $$OUT_PWD/$$DIST_NAME

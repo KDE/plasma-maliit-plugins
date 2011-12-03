@@ -2,8 +2,8 @@ TEMPLATE = app
 TARGET = maliit-keyboard-viewer
 target.path = $$PREFIX/usr/bin
 
-INCLUDEPATH += ../maliit-keyboard
-LIBS += -L../maliit-keyboard -lmaliit-keyboard
+INCLUDEPATH += ../lib
+LIBS += -L../lib -lmaliit-keyboard
 SOURCES += main.cpp
 
 QT += core gui

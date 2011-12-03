@@ -1,0 +1,14 @@
+include(../../config.pri)
+
+VERSION = 0.2.0
+TARGET = maliit-keyboard
+TEMPLATE = lib
+QT = core gui declarative
+
+include(renderer/renderer.pri)
+include(models/models.pri)
+include(glass/glass.pri)
+include(logic/logic.pri)
+
+target.path += $$PREFIX/usr/lib
+INSTALLS += target
