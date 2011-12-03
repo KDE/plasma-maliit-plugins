@@ -36,7 +36,7 @@ namespace MaliitKeyboard {
 Key::Key()
     : m_action(ActionCommit)
     , m_rect()
-    , m_margins()
+    , m_background_borders()
     , m_background()
     , m_label()
 {}
@@ -61,14 +61,14 @@ void Key::setRect(const QRect &rect)
     m_rect = rect;
 }
 
-QMargins Key::margins() const
+QMargins Key::backgroundBorders() const
 {
-    return m_margins;
+    return m_background_borders;
 }
 
-void Key::setMargins(const QMargins &margins)
+void Key::setBackgroundBorders(const QMargins &borders)
 {
-    m_margins = margins;
+    m_background_borders = borders;
 }
 
 #ifdef Q_WS_X11
