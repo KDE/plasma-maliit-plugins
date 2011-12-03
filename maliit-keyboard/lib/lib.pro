@@ -3,7 +3,7 @@ include(../../config.pri)
 VERSION = 0.2.0
 TARGET = maliit-keyboard
 TEMPLATE = lib
-QT = core gui declarative
+QT = core gui
 
 include(renderer/renderer.pri)
 include(models/models.pri)
