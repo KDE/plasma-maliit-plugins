@@ -62,12 +62,10 @@ void GraphicsView::drawBackground(QPainter *painter,
         return;
     }
 
-#if defined(Q_WS_X11)
     const QPixmap &bg(m_buffer->background());
     if (not bg.isNull()) {
         painter->drawPixmap(rect.toRect(), bg, rect.toRect());
     }
-#endif
 }
 
 } // namespace MaliitKeyboard

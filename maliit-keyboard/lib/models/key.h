@@ -82,10 +82,8 @@ public:
     QMargins backgroundBorders() const;
     void setBackgroundBorders(const QMargins &borders);
 
-#ifdef Q_WS_X11
     QPixmap background() const;
     void setBackground(const QPixmap &background);
-#endif
 
     KeyLabel label() const;
     void setLabel(const KeyLabel &label);

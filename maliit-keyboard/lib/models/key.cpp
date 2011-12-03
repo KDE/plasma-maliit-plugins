@@ -71,7 +71,6 @@ void Key::setBackgroundBorders(const QMargins &borders)
     m_background_borders = borders;
 }
 
-#ifdef Q_WS_X11
 QPixmap Key::background() const
 {
     return m_background;
@@ -81,7 +80,6 @@ void Key::setBackground(const QPixmap &background)
 {
     m_background = background;
 }
-#endif
 
 KeyLabel Key::label() const
 {

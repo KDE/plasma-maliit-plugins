@@ -42,9 +42,7 @@ public:
     explicit AbstractBackgroundBuffer();
     virtual ~AbstractBackgroundBuffer() = 0;
 
-#ifdef Q_WS_X11
     virtual QPixmap background() const = 0;
-#endif
 };
 
 } // namespace MaliitKeyboard

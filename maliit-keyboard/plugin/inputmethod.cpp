@@ -53,7 +53,6 @@ public:
     virtual ~BackgroundBuffer()
     {}
 
-#ifdef Q_WS_X11
     QPixmap background() const
     {
         if (not m_host) {
@@ -63,7 +62,6 @@ public:
 
         return m_host->background();
     }
-#endif
 };
 
 class InputMethodPrivate
