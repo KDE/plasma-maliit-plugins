@@ -156,8 +156,8 @@ int main(int argc,
     QObject::connect(&updater,  SIGNAL(layoutChanged(SharedLayout)),
                      &renderer, SLOT(onLayoutChanged(SharedLayout)));
 
-    QObject::connect(&updater,  SIGNAL(activeKeysChanged(SharedLayout)),
-                     &renderer, SLOT(onActiveKeysChanged(SharedLayout)));
+    QObject::connect(&updater,  SIGNAL(keysChanged(SharedLayout)),
+                     &renderer, SLOT(onKeysChanged(SharedLayout)));
 
     return app.exec();
 }

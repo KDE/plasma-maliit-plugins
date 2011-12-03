@@ -65,6 +65,8 @@ private:
         QVector<Key> extended;
     } m_active_keys;
 
+    Key m_magnifier_key;
+
 public:
     explicit Layout();
 
@@ -89,6 +91,10 @@ public:
     QVector<Key> activeKeys() const;
     void appendActiveKey(const Key &key);
     void removeActiveKey(const Key &key);
+
+    Key magnifierKey() const;
+    void setMagnifierKey(const Key &key);
+    void clearMagnifierKey();
 
 private:
     KeyArea lookup(Panel panel) const;

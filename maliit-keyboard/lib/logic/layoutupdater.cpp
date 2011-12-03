@@ -186,19 +186,44 @@ void LayoutUpdater::onKeyPressed(const SharedLayout &layout,
     // FIXME: Remove test code
     // TEST CODE STARTS
     bool static init = false;
-        static QPixmap pressed_bg(8, 8);
+    static QPixmap pressed_bg(8, 8);
+    static QPixmap magnifier_bg(8, 8);
+    static SharedFont magnifier_font(new QFont);
 
     if (not init) {
         pressed_bg.fill(Qt::darkBlue);
+        magnifier_bg.fill(Qt::black);
+        magnifier_font->setPointSize(32);
         init = true;
     }
     // TEST CODE ENDS
 
     Key k(key);
     k.setBackground(pressed_bg);
-
     layout->appendActiveKey(k);
-    emit activeKeysChanged(layout);
+
+    if (key.action() == Key::ActionCommit) {
+        Key magnifier(key);
+        magnifier.setBackground(magnifier_bg);
+
+        QRect magnifier_rect(key.rect().translated(0, -120).adjusted(-20, -20, 20, 20));
+        const QRectF key_area_rect(d->layout->activeKeyArea().rect());
+        if (magnifier_rect.left() < key_area_rect.left() + 10) {
+            magnifier_rect.setLeft(key_area_rect.left() + 10);
+        } else if (magnifier_rect.right() > key_area_rect.right() - 10) {
+            magnifier_rect.setRight(key_area_rect.right() - 10);
+        }
+
+        magnifier.setRect(magnifier_rect);
+        KeyLabel magnifier_label(magnifier.label());
+        magnifier_label.setColor(Qt::white);
+        magnifier_label.setRect(magnifier_label.rect().adjusted(0, 0, 40, 40));
+        magnifier_label.setFont(magnifier_font);
+        magnifier.setLabel(magnifier_label);
+        layout->setMagnifierKey(magnifier);
+    }
+
+    emit keysChanged(layout);
 
     if (key.action() == Key::ActionShift) {
         emit shiftPressed();
@@ -223,11 +248,13 @@ void LayoutUpdater::onKeyReleased(const SharedLayout &layout,
     }
 
     layout->removeActiveKey(key);
-    emit activeKeysChanged(layout);
+    layout->setMagnifierKey(Key());
+    emit keysChanged(layout);
 
     if (key.action() == Key::ActionShift) {
         emit shiftReleased();
-    } else if (d->machine->configuration().contains(d->states.latched_shift)) {
+    } else if (key.action() == Key::ActionCommit
+               && d->machine->configuration().contains(d->states.latched_shift)) {
         emit shiftCancelled();
     }
 

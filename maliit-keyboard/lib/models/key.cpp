@@ -41,6 +41,11 @@ Key::Key()
     , m_label()
 {}
 
+bool Key::valid() const
+{
+    return (not m_rect.isEmpty());
+}
+
 Key::Action Key::action() const
 {
     return m_action;

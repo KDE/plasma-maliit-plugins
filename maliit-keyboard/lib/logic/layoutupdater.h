@@ -64,7 +64,7 @@ public:
                               const Key &key);
 
     Q_SIGNAL void layoutChanged(const SharedLayout &layout);
-    Q_SIGNAL void activeKeysChanged(const SharedLayout &layout);
+    Q_SIGNAL void keysChanged(const SharedLayout &layout);
 
 private:
     Q_SIGNAL void shiftPressed();

@@ -39,6 +39,8 @@ Layout::Layout()
     , m_right()
     , m_center()
     , m_extended()
+    , m_active_keys()
+    , m_magnifier_key()
 {}
 
 Layout::Panel Layout::activePanel() const
@@ -169,6 +171,21 @@ void Layout::removeActiveKey(const Key &key)
             }
         }
     }
+}
+
+Key Layout::magnifierKey() const
+{
+    return m_magnifier_key;
+}
+
+void Layout::setMagnifierKey(const Key &key)
+{
+    m_magnifier_key = key;
+}
+
+void Layout::clearMagnifierKey()
+{
+    setMagnifierKey(Key());
 }
 
 KeyArea Layout::lookup(Panel panel) const

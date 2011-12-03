@@ -62,7 +62,7 @@ public:
     Q_SLOT void hideAll();
 
     Q_SLOT void onLayoutChanged(const SharedLayout &layout);
-    Q_SLOT void onActiveKeysChanged(const SharedLayout &layout);
+    Q_SLOT void onKeysChanged(const SharedLayout &layout);
 
 
 private:

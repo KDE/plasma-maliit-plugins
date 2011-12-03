@@ -73,6 +73,8 @@ private:
 public:
     explicit Key();
 
+    bool valid() const;
+
     Action action() const;
     void setAction(Action action);
 

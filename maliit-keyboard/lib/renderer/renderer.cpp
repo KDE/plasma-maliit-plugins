@@ -214,7 +214,7 @@ void Renderer::onLayoutChanged(const SharedLayout &layout)
     show(layout);
 }
 
-void Renderer::onActiveKeysChanged(const SharedLayout &layout)
+void Renderer::onKeysChanged(const SharedLayout &layout)
 {
     if (layout.isNull()) {
         qCritical() << __PRETTY_FUNCTION__
@@ -250,6 +250,23 @@ void Renderer::onActiveKeysChanged(const SharedLayout &layout)
             item->show();
         }
 
+        if (layout->magnifierKey().valid()) {
+            KeyItem *magnifier = 0;
+
+            if (index >= d->key_items.count()) {
+                magnifier = new KeyItem;
+                d->key_items.append(magnifier);
+            } else {
+                magnifier = d->key_items.at(index);
+            }
+
+            magnifier->setParentItem(ka_item);
+            magnifier->setKey(layout->magnifierKey());
+            magnifier->show();
+            ++index;
+        }
+
+        // Hide remaining, currently unneeded key items:
         for (; index < d->key_items.count(); ++index) {
             d->key_items.at(index)->hide();
         }
