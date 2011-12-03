@@ -5,6 +5,8 @@ QMAKE_CXXFLAGS_DEBUG+=-Werror
 
 enable-legacy {
     MALIIT_PLUGINS_DIR=$$system(pkg-config --variable pluginsdir MeegoImFramework)
+    MALIIT_PLUGINS_DATA_DIR=$$system(pkg-config --variable pluginsdatadir MeegoImFramework)
 } else {
     MALIIT_PLUGINS_DIR=$$system(pkg-config --variable pluginsdir maliit-plugins-0.80)
+    MALIIT_PLUGINS_DATA_DIR=$$system(pkg-config --variable pluginsdatadir maliit-plugins-0.80)
 }
