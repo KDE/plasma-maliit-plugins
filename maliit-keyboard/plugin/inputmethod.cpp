@@ -30,12 +30,68 @@
  */
 
 #include "inputmethod.h"
+#include "editor.h"
+#include "logic/layoutupdater.h"
 #include "renderer/renderer.h"
 #include "renderer/abstractbackgroundbuffer.h"
+#include "glass/glass.h"
 #include "models/keyarea.h"
 #include "models/layout.h"
 
 namespace MaliitKeyboard {
+
+namespace {
+
+MaliitKeyboard::Key createKey(const QPixmap &pm,
+                              const MaliitKeyboard::SharedFont &f,
+                              const QRect &kr,
+                              const QRect &lr,
+                              const QByteArray &t,
+                              const QColor &c,
+                              MaliitKeyboard::Key::Action a = MaliitKeyboard::Key::ActionCommit)
+{
+    MaliitKeyboard::KeyLabel l;
+    l.setRect(lr);
+    l.setText(t);
+    l.setColor(c);
+    l.setFont(f);
+
+    MaliitKeyboard::Key k;
+    k.setRect(kr);
+    k.setBackground(pm);
+    k.setLabel(l);
+    k.setAction(a);
+
+    return k;
+}
+
+MaliitKeyboard::KeyArea createKeyArea()
+{
+    typedef QByteArray QBA;
+
+    QPixmap pm(8, 8);
+    pm.fill(Qt::lightGray);
+
+    MaliitKeyboard::SharedFont font(new QFont);
+    font->setBold(true);
+    font->setPointSize(16);
+
+    MaliitKeyboard::KeyArea ka;
+    ka.setRect(QRectF(0, 554, 480, 300));
+    ka.appendKey(createKey(pm, font, QRect(10, 10, 40, 60),
+                           QRect(5, 5, 20, 40), QBA("Q"), Qt::darkBlue));
+    ka.appendKey(createKey(pm, font, QRect(60, 10, 80, 120),
+                           QRect(5, 5, 70, 40), QBA("W"), Qt::darkMagenta));
+    ka.appendKey(createKey(pm, font, QRect(10, 80, 40, 50),
+                           QRect(5, 5, 20, 40), QBA("A"), Qt::black));
+    ka.appendKey(createKey(pm, font, QRect(10, 140, 130, 60),
+                           QRect(5, 5, 120, 40), QBA("shift"), Qt::darkCyan,
+                           MaliitKeyboard::Key::ActionShift));
+
+    return ka;
+}
+
+}
 
 class BackgroundBuffer
     : public AbstractBackgroundBuffer
@@ -70,12 +126,18 @@ public:
     QWidget *window;
     BackgroundBuffer buffer;
     Renderer renderer;
+    Glass glass;
+    LayoutUpdater layout_updater;
+    Editor editor;
 
     explicit InputMethodPrivate(MAbstractInputMethodHost *host,
                                 QWidget *new_window)
         : window(new_window)
         , buffer(host)
         , renderer()
+        , glass()
+        , layout_updater()
+        , editor()
     {
         if (qApp && qApp->desktop()) {
             window->resize(qApp->desktop()->screenGeometry().size());
@@ -83,6 +145,8 @@ public:
 
         renderer.setWindow(window);
         renderer.setBackgroundBuffer(&buffer);
+        glass.setWindow(renderer.viewport());
+        editor.setHost(host);
     }
 };
 
@@ -90,7 +154,24 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host,
                          QWidget *window)
     : MAbstractInputMethod(host, window)
     , d_ptr(new InputMethodPrivate(host, window))
-{}
+{
+    Q_D(InputMethod);
+
+    connect(&d->glass,  SIGNAL(keyReleased(Key,SharedLayout)),
+            &d->editor, SLOT(onKeyReleased(Key)));
+
+    connect(&d->glass,          SIGNAL(keyPressed(Key,SharedLayout)),
+            &d->layout_updater, SLOT(onKeyPressed(Key,SharedLayout)));
+
+    connect(&d->glass,          SIGNAL(keyReleased(Key,SharedLayout)),
+            &d->layout_updater, SLOT(onKeyReleased(Key,SharedLayout)));
+
+    connect(&d->layout_updater, SIGNAL(layoutChanged(SharedLayout)),
+            &d->renderer,       SLOT(onLayoutChanged(SharedLayout)));
+
+    connect(&d->layout_updater, SIGNAL(keysChanged(SharedLayout)),
+            &d->renderer,       SLOT(onKeysChanged(SharedLayout)));
+}
 
 InputMethod::~InputMethod()
 {}
@@ -99,13 +180,15 @@ void InputMethod::show()
 {
     Q_D(InputMethod);
 
-    KeyArea ka;
-    ka.setRect(QRectF(0, 554, 480, 300));
-
     SharedLayout layout(new Layout);
-    layout->setCenterPanel(ka);
-    d->renderer.show(layout);
+    layout->setCenterPanel(createKeyArea());
 
+    d->renderer.addLayout(layout);
+    d->renderer.show();
+    d->glass.addLayout(layout);
+    d->layout_updater.setLayout(layout);
+
+    // FIXME: Region can change, for example when showing extended keys.
     inputMethodHost()->setInputMethodArea(d->renderer.region());
     inputMethodHost()->setScreenRegion(d->renderer.region());
 }
@@ -114,7 +197,9 @@ void InputMethod::hide()
 {
     Q_D(InputMethod);
 
-    d->renderer.hideAll();
+    d->renderer.clearLayouts();
+    d->glass.clearLayouts();
+
     inputMethodHost()->setInputMethodArea(d->renderer.region());
     inputMethodHost()->setScreenRegion(d->renderer.region());
 }

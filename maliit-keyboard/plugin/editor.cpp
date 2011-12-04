@@ -29,50 +29,46 @@
  *
  */
 
-#ifndef MALIIT_KEYBOARD_GLASS_H
-#define MALIIT_KEYBOARD_GLASS_H
-
-#include "models/key.h"
-#include "models/keyarea.h"
-#include "models/layout.h"
-
-#include <QtGui>
+#include "editor.h"
 
 namespace MaliitKeyboard {
 
-class GlassPrivate;
-
-class Glass
-    : public QObject
+class EditorPrivate
 {
-    Q_OBJECT
-    Q_DISABLE_COPY(Glass)
-    Q_DECLARE_PRIVATE(Glass)
-
 public:
-    explicit Glass(QObject *parent = 0);
-    virtual ~Glass();
+    MAbstractInputMethodHost *host;
 
-    void setWindow(QWidget *window);
-
-    void addLayout(const SharedLayout &layout);
-    void clearLayouts();
-
-    Q_SIGNAL void keyPressed(const Key &key,
-                             const SharedLayout &layout);
-    Q_SIGNAL void keyReleased(const Key &key,
-                              const SharedLayout &layout);
-
-protected:
-    //! \reimp
-    virtual bool eventFilter(QObject *obj,
-                             QEvent *ev);
-    //! \reimp_end
-
-private:    
-    const QScopedPointer<GlassPrivate> d_ptr;
+    explicit EditorPrivate()
+        : host(0)
+    {}
 };
 
-} // namespace MaliitKeyboard
+Editor::Editor(QObject *parent)
+    : QObject(parent)
+    , d_ptr(new EditorPrivate)
+{}
 
-#endif // MALIIT_KEYBOARD_GLASS_H
+Editor::~Editor()
+{}
+
+void Editor::setHost(MAbstractInputMethodHost *host)
+{
+    Q_D(Editor);
+    d->host = host;
+}
+
+void Editor::onKeyReleased(const Key &key)
+{
+    Q_D(Editor);
+
+    switch(key.action()) {
+    case Key::ActionCommit:
+        d->host->sendCommitString(key.label().text());
+        break;
+
+    default:
+        break;
+    }
+}
+
+} // namespace MaliitKeyboard

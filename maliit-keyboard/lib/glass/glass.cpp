@@ -58,43 +58,18 @@ void Glass::setWindow(QWidget *window)
     Q_D(Glass);
 
     d->window = window;
-    deactivateAll();
+    clearLayouts();
 
     d->window->installEventFilter(this);
 }
 
-void Glass::activate(const SharedLayout &layout)
+void Glass::addLayout(const SharedLayout &layout)
 {
-    if (layout.isNull()) {
-        qCritical() << __PRETTY_FUNCTION__
-                    << "Cannot activate non-existant layout.";
-        return;
-    }
-
     Q_D(Glass);
-
     d->layouts.append(layout);
 }
 
-void Glass::deactivate(const SharedLayout &layout)
-{
-    if (layout.isNull()) {
-        qCritical() << __PRETTY_FUNCTION__
-                    << "Cannot deactivate non-existant layout.";
-        return;
-    }
-
-    Q_D(Glass);
-
-    for (int index = 0; index < d->layouts.count(); ++index) {
-        if (layout == d->layouts.at(index)) {
-            d->layouts.remove(index);
-            break;
-        }
-    }
-}
-
-void Glass::deactivateAll()
+void Glass::clearLayouts()
 {
     Q_D(Glass);
     d->layouts.clear();

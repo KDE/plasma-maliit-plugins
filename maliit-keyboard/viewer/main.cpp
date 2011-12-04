@@ -133,13 +133,14 @@ int main(int argc,
 
     MaliitKeyboard::Renderer renderer;
     renderer.setWindow(window);
-    renderer.show(l0);
-    renderer.show(l1);
+    renderer.addLayout(l0);
+    renderer.addLayout(l1);
+    renderer.show();
 
     MaliitKeyboard::Glass glass;
     glass.setWindow(renderer.viewport());
-    glass.activate(l0);
-    glass.activate(l1);
+    glass.addLayout(l0);
+    glass.addLayout(l1);
 
     // One layout updater can only manage one layout. If more layouts need to
     // be managed, then more layout updaters are required.

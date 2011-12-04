@@ -43,6 +43,108 @@ namespace MaliitKeyboard {
 
 namespace {
 
+class LayoutItem {
+public:
+    SharedLayout layout;
+    KeyAreaItem *left_item;
+    KeyAreaItem *right_item;
+    KeyAreaItem *center_item;
+    KeyAreaItem *extended_item;
+    QRegion region;
+
+    explicit LayoutItem()
+        : layout()
+        , left_item(0)
+        , right_item(0)
+        , center_item(0)
+        , extended_item(0)
+        , region()
+    {}
+
+    KeyAreaItem *activeItem() const
+    {
+        if (layout.isNull()) {
+            qCritical() << __PRETTY_FUNCTION__
+                        << "Invalid layout!";
+            return 0;
+        }
+
+        switch(layout->activePanel()) {
+        case Layout::LeftPanel:
+            return left_item;
+
+        case Layout::RightPanel:
+            return right_item;
+
+        case Layout::CenterPanel:
+            return center_item;
+
+        case Layout::ExtendedPanel:
+            return extended_item;
+
+        default:
+            qCritical() << __PRETTY_FUNCTION__
+                        << "Invalid case - should not be reached!"
+                        << layout->activePanel();
+            return 0;
+        }
+
+        qCritical() << __PRETTY_FUNCTION__
+                    << "Should not be reached!";
+        return 0;
+    }
+
+    void show(QGraphicsItem *root,
+              QRegion *region)
+    {
+        if (layout.isNull() || not region) {
+            qCritical() << __PRETTY_FUNCTION__
+                        << "Invalid region or layout!";
+            return;
+        }
+
+        if (not center_item) {
+            center_item = new KeyAreaItem(root);
+        }
+
+        if (not extended_item) {
+            extended_item = new KeyAreaItem(root);
+        }
+
+        center_item->setKeyArea(layout->centerPanel());
+        center_item->show();
+        *region |= QRegion(layout->centerPanel().rect().toRect());
+
+        extended_item->setKeyArea(layout->extendedPanel());
+
+        if (layout->activePanel() != Layout::ExtendedPanel) {
+            extended_item->hide();
+        } else {
+            extended_item->show();
+            *region |= QRegion(layout->extendedPanel().rect().toRect());
+        }
+    }
+
+    void hide()
+    {
+        if (left_item) {
+            left_item->hide();
+        }
+
+        if (right_item) {
+            right_item->hide();
+        }
+
+        if (center_item) {
+            center_item->hide();
+        }
+
+        if (extended_item) {
+            extended_item->hide();
+        }
+    }
+};
+
 QGraphicsView * createView(QWidget *widget,
                            AbstractBackgroundBuffer *buffer)
 {
@@ -61,6 +163,7 @@ QGraphicsView * createView(QWidget *widget,
     view->setViewport(new QGLWidget);
 #endif
 
+    scene->setSceneRect(widget->rect());
     return view;
 }
 
@@ -102,22 +205,20 @@ void recycleKeyItem(QVector<KeyItem *> *key_items,
 class RendererPrivate
 {
 public:
-    typedef QVector<KeyAreaItem *> Pool;
-
     QWidget *window;
     QScopedPointer<QGraphicsView> view;
     AbstractBackgroundBuffer *buffer;
     QRegion region;
+    QVector<LayoutItem> layout_items;
     QVector<KeyItem *> key_items;
-    QHash<SharedLayout, Pool> pools;
 
     explicit RendererPrivate()
         : window(0)
         , view(0)
         , buffer(0)
         , region()
+        , layout_items()
         , key_items()
-        , pools()
     {}
 };
 
@@ -135,12 +236,6 @@ void Renderer::setWindow(QWidget *window)
     d->window = window;
 
     d->view.reset(createView(d->window, d->buffer));
-    d->view->show();
-
-    QGraphicsRectItem *root = new QGraphicsRectItem;
-    root->setRect(d->view->rect());
-    root->show();
-    d->view->scene()->addItem(root);
 }
 
 void Renderer::setBackgroundBuffer(AbstractBackgroundBuffer *buffer)
@@ -161,76 +256,60 @@ QWidget * Renderer::viewport() const
     return d->view->viewport();
 }
 
-void Renderer::show(const SharedLayout &layout)
+void Renderer::addLayout(const SharedLayout &layout)
 {
     Q_D(Renderer);
 
-    if (layout.isNull() || not d->window || d->view.isNull()) {
-        qCritical() << __PRETTY_FUNCTION__
-                    << "Invalid layout or no main window specified,"
-                    << "don't know where to render to.";
-        return;
-    }
-
-    // Allows for multiple key areas being shown at the same time:
-    // TODO: Animate fade-in, from nearest window border.
-    KeyAreaItem *item = 0;
-    const RendererPrivate::Pool &pool(d->pools.value(layout));
-    if (pool.isEmpty()) {
-        item = new KeyAreaItem(rootItem(d->view.data()));
-        RendererPrivate::Pool p(Layout::NumPanels, 0);
-        p.replace(layout->activePanel(), item);
-        d->pools.insert(layout, p);
-    } else if (KeyAreaItem *found = pool.at(layout->activePanel())) {
-        item = found;
-    }
-
-    // TODO: Construct region from polygon path so that split key areas dont
-    // consume space in between them.
-    d->region -= QRegion(item->boundingRect().toRect());
-    item->setKeyArea(layout->activeKeyArea());
-
-    d->region |= QRegion(item->boundingRect().toRect());
-    item->show();
+    LayoutItem li;
+    li.layout = layout;
+    d->layout_items.append(li);
 }
 
-void Renderer::hide(const SharedLayout &layout)
+void Renderer::clearLayouts()
 {
-    if (layout.isNull()) {
-        qCritical() << __PRETTY_FUNCTION__
-                    << "Cannot hide non-existant layout.";
-        return;
-    }
-
     Q_D(Renderer);
 
-    // TODO: Animate fade-out, towards nearest window border.
-    const RendererPrivate::Pool &pool(d->pools.value(layout));
-    if (pool.isEmpty()) {
-        return;
-    } else if (KeyAreaItem *found = pool.at(Layout::CenterPanel)) {
-        d->region -= QRegion(found->boundingRect().toRect());
-        found->hide();
-    }
+    d->layout_items.clear();
+    d->key_items.clear();
+    d->view->scene()->clear();
 }
 
-void Renderer::hideAll()
+void Renderer::show()
 {
     Q_D(Renderer);
+
+    if (not rootItem(d->view.data())) {
+        d->view->scene()->addItem(new QGraphicsRectItem);
+    }
+
+    if (not d->view) {
+        qCritical() << __PRETTY_FUNCTION__
+                    << "No view exists, aborting!";
+    }
+
+    for (int index = 0; index < d->layout_items.count(); ++index) {
+        LayoutItem &li(d->layout_items[index]);
+        li.show(rootItem(d->view.data()), &d->region);
+    }
+
+    d->view->show();
+}
+
+void Renderer::hide()
+{
+    Q_D(Renderer);
+
+    foreach (LayoutItem li, d->layout_items) {
+        li.hide();
+    }
 
     d->region = QRegion();
-    foreach (RendererPrivate::Pool p, d->pools) {
-        for (int index = 0; index < p.count(); ++index) {
-            if (KeyAreaItem *found = p.at(index)) {
-                found->hide();
-            }
-        }
-    }
 }
 
 void Renderer::onLayoutChanged(const SharedLayout &layout)
 {
-    show(layout);
+    Q_UNUSED(layout)
+    show();
 }
 
 void Renderer::onKeysChanged(const SharedLayout &layout)
@@ -243,23 +322,27 @@ void Renderer::onKeysChanged(const SharedLayout &layout)
 
     Q_D(Renderer);
 
-    const RendererPrivate::Pool &pool(d->pools.value(layout));
-    if (pool.isEmpty()) {
-        qCritical() << __PRETTY_FUNCTION__
-                    << "Unknown layout. Forgot to show it?";
-        return;
+    KeyAreaItem *parent = 0;
+    for (int index = 0; index < d->layout_items.count(); ++index) {
+        const LayoutItem &li(d->layout_items.at(index));
+
+        if (li.layout == layout) {
+            parent = li.activeItem();
+            break;
+        }
     }
 
-    if (KeyAreaItem *const ka_item = pool.at(layout->activePanel())) {
+    // Found the KeyAreaItem, which means layout is known by the renderer, too.
+    if (parent) {
         const QVector<Key> &active_keys(layout->activeKeys());
         int index = 0;
 
         for (; index < active_keys.count(); ++index) {
-            recycleKeyItem(&d->key_items, index, active_keys.at(index), ka_item);
+            recycleKeyItem(&d->key_items, index, active_keys.at(index), parent);
         }
 
         if (layout->magnifierKey().valid()) {
-            recycleKeyItem(&d->key_items, index, layout->magnifierKey(), ka_item);
+            recycleKeyItem(&d->key_items, index, layout->magnifierKey(), parent);
             ++index;
         }
 

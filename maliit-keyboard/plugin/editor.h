@@ -29,50 +29,36 @@
  *
  */
 
-#ifndef MALIIT_KEYBOARD_GLASS_H
-#define MALIIT_KEYBOARD_GLASS_H
+#ifndef MALIIT_KEYBOARD_EDITOR_H
+#define MALIIT_KEYBOARD_EDITOR_H
 
 #include "models/key.h"
-#include "models/keyarea.h"
-#include "models/layout.h"
 
-#include <QtGui>
+#include <mabstractinputmethodhost.h>
+#include <QtCore>
 
 namespace MaliitKeyboard {
 
-class GlassPrivate;
+class EditorPrivate;
 
-class Glass
+class Editor
     : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(Glass)
-    Q_DECLARE_PRIVATE(Glass)
+    Q_DISABLE_COPY(Editor)
+    Q_DECLARE_PRIVATE(Editor)
 
 public:
-    explicit Glass(QObject *parent = 0);
-    virtual ~Glass();
+    explicit Editor(QObject *parent = 0);
+    virtual ~Editor();
 
-    void setWindow(QWidget *window);
+    void setHost(MAbstractInputMethodHost *host);
+    Q_SLOT void onKeyReleased(const Key &key);
 
-    void addLayout(const SharedLayout &layout);
-    void clearLayouts();
-
-    Q_SIGNAL void keyPressed(const Key &key,
-                             const SharedLayout &layout);
-    Q_SIGNAL void keyReleased(const Key &key,
-                              const SharedLayout &layout);
-
-protected:
-    //! \reimp
-    virtual bool eventFilter(QObject *obj,
-                             QEvent *ev);
-    //! \reimp_end
-
-private:    
-    const QScopedPointer<GlassPrivate> d_ptr;
+private:
+    const QScopedPointer<EditorPrivate> d_ptr;
 };
 
 } // namespace MaliitKeyboard
 
-#endif // MALIIT_KEYBOARD_GLASS_H
+#endif // MALIIT_KEYBOARD_EDITOR_H

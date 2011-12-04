@@ -24,10 +24,12 @@ enable-legacy {
 HEADERS += \
     plugin.h \
     inputmethod.h \
+    editor.h \
 
 SOURCES += \
     plugin.cpp \
     inputmethod.cpp \
+    editor.cpp \
 
 target.path += $${MALIIT_PLUGINS_DIR}
 INSTALLS += target

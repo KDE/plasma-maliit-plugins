@@ -57,9 +57,11 @@ public:
     QRegion region() const;
     QWidget * viewport() const;
 
-    Q_SLOT void show(const SharedLayout &layout);
-    Q_SLOT void hide(const SharedLayout &layout);
-    Q_SLOT void hideAll();
+    void addLayout(const SharedLayout &layout);
+    void clearLayouts();
+
+    Q_SLOT void show();
+    Q_SLOT void hide();
 
     Q_SLOT void onLayoutChanged(const SharedLayout &layout);
     Q_SLOT void onKeysChanged(const SharedLayout &layout);

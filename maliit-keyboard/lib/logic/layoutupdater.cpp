@@ -99,10 +99,15 @@ public:
         {}
     };
 
+    bool initialized;
     SharedLayout layout;
     QScopedPointer<KeyboardLoader> loader;
     QScopedPointer<QStateMachine> machine;
     States states;
+
+    explicit LayoutUpdaterPrivate()
+        : initialized(false)
+    {}
 };
 
 LayoutUpdater::LayoutUpdater(QObject *parent)
@@ -166,6 +171,11 @@ void LayoutUpdater::setLayout(const SharedLayout &layout)
 {
     Q_D(LayoutUpdater);
     d->layout = layout;
+
+    if (not d->initialized) {
+        init();
+        d->initialized = true;
+    }
 }
 
 void LayoutUpdater::setKeyboardLoader(KeyboardLoader *loader)
