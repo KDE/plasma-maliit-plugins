@@ -44,4 +44,34 @@ KeyboardLoader::KeyboardLoader(QObject *parent)
 KeyboardLoader::~KeyboardLoader()
 {}
 
+QStringList KeyboardLoader::ids() const
+{
+    QStringList list;
+    list.append("en_gb.xml");
+    list.append("de.xml");
+
+    return list;
+}
+
+QString KeyboardLoader::activeId() const
+{
+    return QString("en_gb.xml");
+}
+
+void KeyboardLoader::setActiveId(const QString &id)
+{
+    Q_UNUSED(id)
+}
+
+QString KeyboardLoader::title(const QString &id) const
+{
+    if (id == "en_gb.xml") {
+        return QString("English (GB)");
+    } else if (id == "de.xml") {
+        return QString("Deutsch");
+    }
+
+    return QString("invalid");
+}
+
 } // namespace MaliitKeyboard

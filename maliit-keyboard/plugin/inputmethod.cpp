@@ -32,6 +32,7 @@
 #include "inputmethod.h"
 #include "editor.h"
 #include "logic/layoutupdater.h"
+#include "logic/keyboardloader.h"
 #include "renderer/renderer.h"
 #include "renderer/abstractbackgroundbuffer.h"
 #include "glass/glass.h"
@@ -128,6 +129,7 @@ public:
     Renderer renderer;
     Glass glass;
     LayoutUpdater layout_updater;
+    KeyboardLoader loader;
     Editor editor;
 
     explicit InputMethodPrivate(MAbstractInputMethodHost *host,
@@ -202,6 +204,45 @@ void InputMethod::hide()
 
     inputMethodHost()->setInputMethodArea(d->renderer.region());
     inputMethodHost()->setScreenRegion(d->renderer.region());
+}
+
+void InputMethod::switchContext(MInputMethod::SwitchDirection direction,
+                                bool animated)
+{
+    Q_UNUSED(direction)
+    Q_UNUSED(animated)
+}
+
+QList<MAbstractInputMethod::MInputMethodSubView>
+InputMethod::subViews(MInputMethod::HandlerState state) const
+{
+    Q_UNUSED(state)
+    Q_D(const InputMethod);
+
+    QList<MInputMethodSubView> views;
+    foreach (const QString &id, d->loader.ids()) {
+        MInputMethodSubView v;
+        v.subViewId = id;
+        v.subViewTitle = d->loader.title(id);
+        views.append(v);
+    }
+
+    return views;
+}
+
+void InputMethod::setActiveSubView(const QString &id,
+                                   MInputMethod::HandlerState state)
+{
+    Q_UNUSED(state)
+    Q_D(InputMethod);
+    d->loader.setActiveId(id);
+}
+
+QString InputMethod::activeSubView(MInputMethod::HandlerState state) const
+{
+    Q_UNUSED(state)
+    Q_D(const InputMethod);
+    return d->loader.activeId();
 }
 
 } // namespace MaliitKeyboard

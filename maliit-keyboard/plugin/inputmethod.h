@@ -53,8 +53,16 @@ public:
 
     virtual ~InputMethod();
 
-    void show();
-    void hide();
+    //! \reimp
+    virtual void show();
+    virtual void hide();
+    virtual void switchContext(MInputMethod::SwitchDirection direction,
+                               bool animated);
+    virtual QList<MAbstractInputMethod::MInputMethodSubView>
+    subViews(MInputMethod::HandlerState state = MInputMethod::OnScreen) const;
+    virtual void setActiveSubView(const QString &id,
+                                  MInputMethod::HandlerState state = MInputMethod::OnScreen);
+    virtual QString activeSubView(MInputMethod::HandlerState state = MInputMethod::OnScreen) const;
 
 private:
     const QScopedPointer<InputMethodPrivate> d_ptr;

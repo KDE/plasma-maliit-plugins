@@ -49,6 +49,12 @@ public:
     explicit KeyboardLoader(QObject *parent = 0);
     virtual ~KeyboardLoader();
 
+    QStringList ids() const;
+    QString activeId() const;
+    void setActiveId(const QString &id);
+
+    QString title(const QString &id) const;
+
 private:
     const QScopedPointer<KeyboardLoaderPrivate> d_ptr;
 };
