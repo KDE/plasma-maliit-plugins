@@ -33,6 +33,66 @@
 
 namespace MaliitKeyboard {
 
+Keyboard createKeyboard()
+{
+    QStringList keys;
+    keys.append("qwertyuiop");
+    keys.append("asdfghjkl");
+    keys.append("^zxcvbnm\b");
+    keys.append("#, .\n");
+
+    Keyboard kb;
+    int index = 0;
+
+    foreach (const QString &row, keys) {
+        foreach (QChar c, row) {
+            Key k;
+            KeyLabel l;
+            KeyDescription d;
+            d.row = index;
+
+            if (c == '^') {
+                l.setText("shift");
+                k.setAction(Key::ActionShift);
+                d.style = KeyDescription::SpecialStyle;
+                d.width = KeyDescription::Large;
+            } else if (c == '\b') {
+                l.setText("back");
+                k.setAction(Key::ActionBackspace);
+                d.style = KeyDescription::SpecialStyle;
+                d.width = KeyDescription::Large;
+            } else if (c == ' ') {
+                k.setAction(Key::ActionSpace);
+                d.style = KeyDescription::NormalStyle;
+                d.width = KeyDescription::Stretched;
+            } else if (c == '\n') {
+                l.setText("enter");
+                k.setAction(Key::ActionReturn);
+                d.style = KeyDescription::SpecialStyle;
+                d.width = KeyDescription::XLarge;
+            } else if (c == '#') {
+                l.setText("?123");
+                k.setAction(Key::ActionSym);
+                d.style = KeyDescription::SpecialStyle;
+                d.width = KeyDescription::Large;
+            } else {
+                l.setText(c);
+                k.setAction(Key::ActionCommit);
+                d.style = KeyDescription::NormalStyle;
+                d.width = KeyDescription::Medium;
+            }
+
+            k.setLabel(l);
+            kb.keys.append(k);
+            kb.key_descriptions.append(d);
+        }
+
+        ++index;
+    }
+
+    return kb;
+}
+
 class KeyboardLoaderPrivate
 {
 public:
@@ -89,7 +149,7 @@ QString KeyboardLoader::title(const QString &id) const
 
 Keyboard KeyboardLoader::keyboard() const
 {
-    return Keyboard();
+    return createKeyboard();
 }
 
 Keyboard KeyboardLoader::nextKeyboard() const

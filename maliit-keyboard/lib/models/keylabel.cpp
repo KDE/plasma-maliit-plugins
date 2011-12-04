@@ -40,12 +40,12 @@ KeyLabel::KeyLabel()
     , m_color()
 {}
 
-QByteArray KeyLabel::text() const
+QString KeyLabel::text() const
 {
     return m_label;
 }
 
-void KeyLabel::setText(const QByteArray &label)
+void KeyLabel::setText(const QString &label)
 {
     m_label = label;
 }

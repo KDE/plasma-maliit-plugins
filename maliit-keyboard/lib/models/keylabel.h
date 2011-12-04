@@ -41,7 +41,7 @@ typedef QSharedPointer<QFont> SharedFont;
 class KeyLabel
 {
 private:
-    QByteArray m_label;
+    QString m_label;
     QRect m_rect;
     SharedFont m_font;
     QColor m_color;
@@ -49,8 +49,8 @@ private:
 public:
     explicit KeyLabel();
 
-    QByteArray text() const;
-    void setText(const QByteArray &text);
+    QString text() const;
+    void setText(const QString &text);
 
     QRect rect() const;
     void setRect(const QRect &rect);

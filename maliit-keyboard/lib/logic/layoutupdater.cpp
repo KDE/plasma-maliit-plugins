@@ -212,9 +212,9 @@ void LayoutUpdater::onKeyPressed(const Key &key,
     static SharedFont magnifier_font(new QFont);
 
     if (not init) {
-        pressed_bg.fill(Qt::darkBlue);
-        magnifier_bg.fill(Qt::black);
-        magnifier_font->setPointSize(32);
+        pressed_bg.fill(Qt::blue);
+        magnifier_bg.fill(QColor("#eee"));
+        magnifier_font->setPointSize(40);
         init = true;
     }
     // TEST CODE ENDS
@@ -237,7 +237,7 @@ void LayoutUpdater::onKeyPressed(const Key &key,
 
         magnifier.setRect(magnifier_rect);
         KeyLabel magnifier_label(magnifier.label());
-        magnifier_label.setColor(Qt::white);
+        magnifier_label.setColor(Qt::black);
         magnifier_label.setRect(magnifier_label.rect().adjusted(0, 0, 40, 40));
         magnifier_label.setFont(magnifier_font);
         magnifier.setLabel(magnifier_label);
@@ -249,14 +249,6 @@ void LayoutUpdater::onKeyPressed(const Key &key,
     if (key.action() == Key::ActionShift) {
         emit shiftPressed();
     }
-
-    // MORE TEST CODE STARTS
-    if (key.action() == Key::ActionSwitch) {
-        k.setRect(k.rect().adjusted(0, 0, 20, 20));
-        d->layout->setActiveKeyArea(replaceKey(d->layout->activeKeyArea(), k));
-        emit layoutChanged(d->layout);
-    }
-    // TEST CODE ENDS
 }
 
 void LayoutUpdater::onKeyReleased(const Key &key,
@@ -323,7 +315,63 @@ void LayoutUpdater::onKeyboardChanged()
     }
 
     KeyArea ka;
-    const Keyboard &kb(d->loader->keyboard());
+    Keyboard kb(d->loader->keyboard());
+
+    QPixmap normal_bg(4, 4);
+    QPixmap special_bg(4, 4);
+    QPixmap deadkey_bg(4, 4);
+
+    normal_bg.fill(QColor("#333"));
+    special_bg.fill(QColor("#999"));
+    deadkey_bg.fill(QColor("#ccc"));
+
+    static SharedFont font(new QFont);
+    font->setPointSize(20);
+
+    static SharedFont small_font(new QFont);
+    small_font->setPointSize(12);
+
+    QPoint pos(2, 0);
+    int row_height = 64;
+    int prev_row = 0;
+
+    for (int index = 0; index < kb.keys.count(); ++index) {
+        Key &key(kb.keys[index]);
+        const KeyDescription &desc(kb.key_descriptions.at(index));
+        int width = 0;
+        pos.setY(6 + (6 + row_height) * desc.row);
+
+        switch (desc.style) {
+        case KeyDescription::NormalStyle: key.setBackground(normal_bg); break;
+        case KeyDescription::SpecialStyle: key.setBackground(special_bg); break;
+        case KeyDescription::DeadkeyStyle: key.setBackground(deadkey_bg); break;
+        }
+
+        switch (desc.width) {
+        case KeyDescription::Small: width = 22; break;
+        case KeyDescription::Medium: width = 42; break;
+        case KeyDescription::Large: width = 66; break;
+        case KeyDescription::XLarge: width = 90; break;
+        case KeyDescription::XXLarge: width = 114; break;
+        case KeyDescription::Stretched: width = 138; break;
+        }
+
+        if (prev_row != desc.row) {
+            pos.setX(2);
+        }
+
+        prev_row = desc.row;
+        key.setRect(QRect(pos.x(), pos.y(), width, row_height));
+
+        KeyLabel label(key.label());
+        label.setFont(label.text().count() > 1 ? small_font : font);
+        label.setColor(Qt::white);
+        label.setRect(QRect(4, 4, key.rect().width() - 8, key.rect().height() - 8));
+        key.setLabel(label);
+
+        pos += QPoint(width + 6, 0);
+    }
+
     ka.setKeys(kb.keys);
     ka.setRect(QRectF(0, 556, 480, 300)); // FIXME: Need to compute layout geometry properly.
     d->layout->setCenterPanel(ka);

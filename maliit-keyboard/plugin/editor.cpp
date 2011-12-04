@@ -61,9 +61,29 @@ void Editor::onKeyReleased(const Key &key)
 {
     Q_D(Editor);
 
+    if (not d->host) {
+        qCritical() << __PRETTY_FUNCTION__
+                    << "No host found, forgot to set it?";
+        return;
+    }
+
     switch(key.action()) {
     case Key::ActionCommit:
         d->host->sendCommitString(key.label().text());
+        break;
+
+    case Key::ActionBackspace: {
+        QKeyEvent ev(QEvent::KeyPress, Qt::Key_Backspace, Qt::NoModifier);
+        d->host->sendKeyEvent(ev);
+     } break;
+
+    case Key::ActionReturn: {
+        QKeyEvent ev(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier);
+        d->host->sendKeyEvent(ev);
+    } break;
+
+    case Key::ActionSpace:
+        d->host->sendCommitString(" ");
         break;
 
     default:

@@ -66,7 +66,8 @@ void KeyAreaItem::paint(QPainter *painter,
                         const QStyleOptionGraphicsItem *,
                         QWidget *)
 {
-    painter->setBrush(Qt::green);
+    painter->setPen(Qt::NoPen);
+    painter->setBrush(Qt::black);
     painter->drawRect(boundingRect());
 
     foreach (const Key &k, m_key_area.keys()) {
