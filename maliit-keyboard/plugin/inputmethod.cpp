@@ -41,59 +41,6 @@
 
 namespace MaliitKeyboard {
 
-namespace {
-
-MaliitKeyboard::Key createKey(const QPixmap &pm,
-                              const MaliitKeyboard::SharedFont &f,
-                              const QRect &kr,
-                              const QRect &lr,
-                              const QByteArray &t,
-                              const QColor &c,
-                              MaliitKeyboard::Key::Action a = MaliitKeyboard::Key::ActionCommit)
-{
-    MaliitKeyboard::KeyLabel l;
-    l.setRect(lr);
-    l.setText(t);
-    l.setColor(c);
-    l.setFont(f);
-
-    MaliitKeyboard::Key k;
-    k.setRect(kr);
-    k.setBackground(pm);
-    k.setLabel(l);
-    k.setAction(a);
-
-    return k;
-}
-
-MaliitKeyboard::KeyArea createKeyArea()
-{
-    typedef QByteArray QBA;
-
-    QPixmap pm(8, 8);
-    pm.fill(Qt::lightGray);
-
-    MaliitKeyboard::SharedFont font(new QFont);
-    font->setBold(true);
-    font->setPointSize(16);
-
-    MaliitKeyboard::KeyArea ka;
-    ka.setRect(QRectF(0, 554, 480, 300));
-    ka.appendKey(createKey(pm, font, QRect(10, 10, 40, 60),
-                           QRect(5, 5, 20, 40), QBA("Q"), Qt::darkBlue));
-    ka.appendKey(createKey(pm, font, QRect(60, 10, 80, 120),
-                           QRect(5, 5, 70, 40), QBA("W"), Qt::darkMagenta));
-    ka.appendKey(createKey(pm, font, QRect(10, 80, 40, 50),
-                           QRect(5, 5, 20, 40), QBA("A"), Qt::black));
-    ka.appendKey(createKey(pm, font, QRect(10, 140, 130, 60),
-                           QRect(5, 5, 120, 40), QBA("shift"), Qt::darkCyan,
-                           MaliitKeyboard::Key::ActionShift));
-
-    return ka;
-}
-
-}
-
 class BackgroundBuffer
     : public AbstractBackgroundBuffer
 {
@@ -129,7 +76,6 @@ public:
     Renderer renderer;
     Glass glass;
     LayoutUpdater layout_updater;
-    KeyboardLoader loader;
     Editor editor;
 
     explicit InputMethodPrivate(MAbstractInputMethodHost *host,
@@ -149,6 +95,12 @@ public:
         renderer.setBackgroundBuffer(&buffer);
         glass.setWindow(renderer.viewport());
         editor.setHost(host);
+        layout_updater.setKeyboardLoader(new KeyboardLoader);
+
+        SharedLayout layout(new Layout);
+        renderer.addLayout(layout);
+        glass.addLayout(layout);
+        layout_updater.setLayout(layout);
     }
 };
 
@@ -182,13 +134,7 @@ void InputMethod::show()
 {
     Q_D(InputMethod);
 
-    SharedLayout layout(new Layout);
-    layout->setCenterPanel(createKeyArea());
-
-    d->renderer.addLayout(layout);
     d->renderer.show();
-    d->glass.addLayout(layout);
-    d->layout_updater.setLayout(layout);
 
     // FIXME: Region can change, for example when showing extended keys.
     inputMethodHost()->setInputMethodArea(d->renderer.region());
@@ -220,11 +166,14 @@ InputMethod::subViews(MInputMethod::HandlerState state) const
     Q_D(const InputMethod);
 
     QList<MInputMethodSubView> views;
-    foreach (const QString &id, d->loader.ids()) {
-        MInputMethodSubView v;
-        v.subViewId = id;
-        v.subViewTitle = d->loader.title(id);
-        views.append(v);
+
+    if (KeyboardLoader *loader = d->layout_updater.keyboardLoader()) {
+        foreach (const QString &id, loader->ids()) {
+            MInputMethodSubView v;
+            v.subViewId = id;
+            v.subViewTitle = loader->title(id);
+            views.append(v);
+        }
     }
 
     return views;
@@ -235,14 +184,25 @@ void InputMethod::setActiveSubView(const QString &id,
 {
     Q_UNUSED(state)
     Q_D(InputMethod);
-    d->loader.setActiveId(id);
+
+    if (KeyboardLoader *loader = d->layout_updater.keyboardLoader()) {
+        loader->setActiveId(id);
+    }
 }
 
 QString InputMethod::activeSubView(MInputMethod::HandlerState state) const
 {
     Q_UNUSED(state)
     Q_D(const InputMethod);
-    return d->loader.activeId();
+
+    if (KeyboardLoader *loader = d->layout_updater.keyboardLoader()) {
+        return loader->activeId();
+    }
+
+    qWarning() << __PRETTY_FUNCTION__
+               << "Invalid subview detect!";
+
+    return QString();
 }
 
 } // namespace MaliitKeyboard

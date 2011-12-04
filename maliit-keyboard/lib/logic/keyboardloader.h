@@ -52,21 +52,21 @@ public:
     explicit KeyboardLoader(QObject *parent = 0);
     virtual ~KeyboardLoader();
 
-    QStringList ids() const;
-    QString activeId() const;
-    void setActiveId(const QString &id);
+    virtual QStringList ids() const;
+    virtual QString activeId() const;
+    virtual void setActiveId(const QString &id);
     Q_SIGNAL void activeIdChanged(const QString &id) const;
 
-    QString title(const QString &id) const;
+    virtual QString title(const QString &id) const;
 
-    Keyboard keyboard() const;
-    Keyboard nextKeyboard() const;
-    Keyboard previousKeyboard() const;
+    virtual Keyboard keyboard() const;
+    virtual Keyboard nextKeyboard() const;
+    virtual Keyboard previousKeyboard() const;
 
-    Keyboard shiftedKeyboard() const;
-    Keyboard symbolsKeyboard(int page = 0) const;
-    Keyboard deadKeyboard(const Key &dead) const;
-    Keyboard extendedKeyboard(const Key &key) const;
+    virtual Keyboard shiftedKeyboard() const;
+    virtual Keyboard symbolsKeyboard(int page = 0) const;
+    virtual Keyboard deadKeyboard(const Key &dead) const;
+    virtual Keyboard extendedKeyboard(const Key &key) const;
 
 private:
     const QScopedPointer<KeyboardLoaderPrivate> d_ptr;

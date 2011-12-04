@@ -39,7 +39,7 @@ public:
     QString active_id;
 
     explicit KeyboardLoaderPrivate()
-        : active_id("en_gb.xml")
+        : active_id()
     {}
 };
 

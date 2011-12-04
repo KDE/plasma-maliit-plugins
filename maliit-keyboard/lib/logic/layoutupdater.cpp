@@ -30,6 +30,8 @@
  */
 
 #include "layoutupdater.h"
+#include "models/keyboard.h"
+#include "models/keydescription.h"
 
 namespace MaliitKeyboard {
 
@@ -178,10 +180,19 @@ void LayoutUpdater::setLayout(const SharedLayout &layout)
     }
 }
 
+KeyboardLoader * LayoutUpdater::keyboardLoader() const
+{
+    Q_D(const LayoutUpdater);
+    return d->loader.data();
+}
+
 void LayoutUpdater::setKeyboardLoader(KeyboardLoader *loader)
 {
     Q_D(LayoutUpdater);
     d->loader.reset(loader);
+
+    connect(loader, SIGNAL(activeIdChanged(QString)),
+            this,   SLOT(onKeyboardChanged()));
 }
 
 void LayoutUpdater::onKeyPressed(const Key &key,
@@ -299,6 +310,23 @@ void LayoutUpdater::switchLayoutToLower()
     }
 
     d->layout->setActiveKeyArea(transformKeyArea(d->layout->activeKeyArea(), TransformToLower));
+    emit layoutChanged(d->layout);
+}
+
+void LayoutUpdater::onKeyboardChanged()
+{
+    Q_D(const LayoutUpdater);
+
+    if (not d->loader || not d->layout) {
+        qCritical() << __PRETTY_FUNCTION__
+                    << "Could not find keyboard loader or layout, forgot to set them?";
+    }
+
+    KeyArea ka;
+    const Keyboard &kb(d->loader->keyboard());
+    ka.setKeys(kb.keys);
+    ka.setRect(QRectF(0, 556, 480, 300)); // FIXME: Need to compute layout geometry properly.
+    d->layout->setCenterPanel(ka);
     emit layoutChanged(d->layout);
 }
 

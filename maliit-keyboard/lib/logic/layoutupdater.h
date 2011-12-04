@@ -56,6 +56,8 @@ public:
     void init();
 
     void setLayout(const SharedLayout &layout);
+
+    KeyboardLoader * keyboardLoader() const;
     void setKeyboardLoader(KeyboardLoader *loader);
 
     Q_SLOT void onKeyPressed(const Key &key,
@@ -74,6 +76,7 @@ private:
 
     Q_SLOT void switchLayoutToUpper();
     Q_SLOT void switchLayoutToLower();
+    Q_SLOT void onKeyboardChanged();
 
     const QScopedPointer<LayoutUpdaterPrivate> d_ptr;
 };
