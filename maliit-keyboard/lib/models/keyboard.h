@@ -29,53 +29,20 @@
  *
  */
 
-#include "keyarea.h"
+#ifndef MALIIT_KEYBOARD_KEYBOARD_H
+#define MALIIT_KEYBOARD_KEYBOARD_H
+
+#include "key.h"
+#include "keydescription.h"
 
 namespace MaliitKeyboard {
 
-KeyArea::KeyArea()
-    : m_rect()
-    , m_keys()
-{}
-
-QRectF KeyArea::rect() const
+struct Keyboard
 {
-    return m_rect;
-}
-
-void KeyArea::setRect(const QRectF &rect)
-{
-    m_rect = rect;
-}
-
-void KeyArea::appendKey(const Key &key)
-{
-    Key k(key);
-    m_keys.append(k);
-}
-
-QVector<Key> KeyArea::keys() const
-{
-    return m_keys;
-}
-
-void KeyArea::setKeys(const QVector<Key> &keys)
-{
-    m_keys = keys;
-}
-
-bool operator==(const KeyArea &lhs,
-                const KeyArea &rhs)
-{
-    return (lhs.rect() == rhs.rect()
-            && lhs.keys() == rhs.keys());
-}
-
-bool operator!=(const KeyArea &lhs,
-                const KeyArea &rhs)
-{
-    return (not (lhs == rhs));
-}
+    QVector<Key> keys;
+    QVector<KeyDescription> key_descriptions;
+};
 
 } // namespace MaliitKeyboard
 
+#endif // MALIIT_KEYBOARD_KEYBOARD_H

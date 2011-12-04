@@ -4,6 +4,8 @@ HEADERS += \
     key.h \
     keylabel.h \
     keyarea.h \
+    keyboard.h \
+    keydescription.h \
     layout.h \
 
 SOURCES += \
@@ -13,3 +15,4 @@ SOURCES += \
     layout.cpp \
 
 DEPENDPATH += $$MODELS_DIR
+

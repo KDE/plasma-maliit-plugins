@@ -53,6 +53,8 @@ public:
     void setRect(const QRectF &rect);
 
     QVector<Key> keys() const;
+    void setKeys(const QVector<Key> &keys);
+
     void appendKey(const Key &key);
 };
 

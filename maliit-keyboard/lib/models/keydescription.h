@@ -29,53 +29,34 @@
  *
  */
 
-#include "keyarea.h"
+#ifndef MALIIT_KEYBOARD_KEYDESCRIPTION_H
+#define MALIIT_KEYBOARD_KEYDESCRIPTION_H
 
 namespace MaliitKeyboard {
 
-KeyArea::KeyArea()
-    : m_rect()
-    , m_keys()
-{}
-
-QRectF KeyArea::rect() const
+struct KeyDescription
 {
-    return m_rect;
-}
+    enum Style {
+        NormalStyle,
+        SpecialStyle,
+        DeadkeyStyle
+    };
 
-void KeyArea::setRect(const QRectF &rect)
-{
-    m_rect = rect;
-}
+    enum Width {
+        Small,
+        Medium,
+        Large,
+        XLarge,
+        XXLarge,
+        Stretched
+    };
 
-void KeyArea::appendKey(const Key &key)
-{
-    Key k(key);
-    m_keys.append(k);
-}
-
-QVector<Key> KeyArea::keys() const
-{
-    return m_keys;
-}
-
-void KeyArea::setKeys(const QVector<Key> &keys)
-{
-    m_keys = keys;
-}
-
-bool operator==(const KeyArea &lhs,
-                const KeyArea &rhs)
-{
-    return (lhs.rect() == rhs.rect()
-            && lhs.keys() == rhs.keys());
-}
-
-bool operator!=(const KeyArea &lhs,
-                const KeyArea &rhs)
-{
-    return (not (lhs == rhs));
-}
+    int row;
+    bool use_rtl_icon;
+    Style style;
+    Width width;
+};
 
 } // namespace MaliitKeyboard
 
+#endif // MALIIT_KEYBOARD_KEYDESCRIPTION_H

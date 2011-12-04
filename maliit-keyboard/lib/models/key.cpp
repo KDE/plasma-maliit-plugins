@@ -35,10 +35,11 @@ namespace MaliitKeyboard {
 
 Key::Key()
     : m_action(ActionCommit)
+    , m_label()
     , m_rect()
     , m_background_borders()
     , m_background()
-    , m_label()
+    , m_icon()
 {}
 
 bool Key::valid() const
@@ -54,6 +55,16 @@ Key::Action Key::action() const
 void Key::setAction(Action action)
 {
     m_action = action;
+}
+
+KeyLabel Key::label() const
+{
+    return m_label;
+}
+
+void Key::setLabel(const KeyLabel &label)
+{
+    m_label = label;
 }
 
 QRect Key::rect() const
@@ -86,14 +97,14 @@ void Key::setBackground(const QPixmap &background)
     m_background = background;
 }
 
-KeyLabel Key::label() const
+QPixmap Key::icon() const
 {
-    return m_label;
+    return m_icon;
 }
 
-void Key::setLabel(const KeyLabel &label)
+void Key::setIcon(const QPixmap &icon)
 {
-    m_label = label;
+    m_icon = icon;
 }
 
 bool operator==(const Key &lhs,

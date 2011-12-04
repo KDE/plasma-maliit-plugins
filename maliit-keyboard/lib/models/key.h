@@ -65,10 +65,11 @@ public:
 
 private:
     Action m_action;
+    KeyLabel m_label;
     QRect m_rect;
     QMargins m_background_borders;
     QPixmap m_background;
-    KeyLabel m_label;
+    QPixmap m_icon;
 
 public:
     explicit Key();
@@ -77,6 +78,9 @@ public:
 
     Action action() const;
     void setAction(Action action);
+
+    KeyLabel label() const;
+    void setLabel(const KeyLabel &label);
 
     QRect rect() const;
     void setRect(const QRect &rect);
@@ -87,8 +91,8 @@ public:
     QPixmap background() const;
     void setBackground(const QPixmap &background);
 
-    KeyLabel label() const;
-    void setLabel(const KeyLabel &label);
+    QPixmap icon() const;
+    void setIcon(const QPixmap &icon);
 };
 
 bool operator==(const Key &lhs,

@@ -34,7 +34,14 @@
 namespace MaliitKeyboard {
 
 class KeyboardLoaderPrivate
-{};
+{
+public:
+    QString active_id;
+
+    explicit KeyboardLoaderPrivate()
+        : active_id("en_gb.xml")
+    {}
+};
 
 KeyboardLoader::KeyboardLoader(QObject *parent)
     : QObject(parent)
@@ -55,12 +62,18 @@ QStringList KeyboardLoader::ids() const
 
 QString KeyboardLoader::activeId() const
 {
-    return QString("en_gb.xml");
+    Q_D(const KeyboardLoader);
+    return d->active_id;
 }
 
 void KeyboardLoader::setActiveId(const QString &id)
 {
-    Q_UNUSED(id)
+    Q_D(KeyboardLoader);
+
+    if (d->active_id != id) {
+        d->active_id = id;
+        emit activeIdChanged(d->active_id);
+    }
 }
 
 QString KeyboardLoader::title(const QString &id) const
@@ -72,6 +85,44 @@ QString KeyboardLoader::title(const QString &id) const
     }
 
     return QString("invalid");
+}
+
+Keyboard KeyboardLoader::keyboard() const
+{
+    return Keyboard();
+}
+
+Keyboard KeyboardLoader::nextKeyboard() const
+{
+    return Keyboard();
+}
+
+Keyboard KeyboardLoader::previousKeyboard() const
+{
+    return Keyboard();
+}
+
+Keyboard KeyboardLoader::shiftedKeyboard() const
+{
+    return Keyboard();
+}
+
+Keyboard KeyboardLoader::symbolsKeyboard(int page) const
+{
+    Q_UNUSED(page)
+    return Keyboard();
+}
+
+Keyboard KeyboardLoader::deadKeyboard(const Key &dead) const
+{
+    Q_UNUSED(dead)
+    return Keyboard();
+}
+
+Keyboard KeyboardLoader::extendedKeyboard(const Key &key) const
+{
+    Q_UNUSED(key)
+    return Keyboard();
 }
 
 } // namespace MaliitKeyboard

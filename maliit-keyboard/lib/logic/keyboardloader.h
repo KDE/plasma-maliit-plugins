@@ -32,6 +32,9 @@
 #ifndef MALIIT_KEYBOARD_KEYBOARDLOADER_H
 #define MALIIT_KEYBOARD_KEYBOARDLOADER_H
 
+#include "models/key.h"
+#include "models/keyboard.h"
+
 #include <QtCore>
 
 namespace MaliitKeyboard {
@@ -52,8 +55,18 @@ public:
     QStringList ids() const;
     QString activeId() const;
     void setActiveId(const QString &id);
+    Q_SIGNAL void activeIdChanged(const QString &id) const;
 
     QString title(const QString &id) const;
+
+    Keyboard keyboard() const;
+    Keyboard nextKeyboard() const;
+    Keyboard previousKeyboard() const;
+
+    Keyboard shiftedKeyboard() const;
+    Keyboard symbolsKeyboard(int page = 0) const;
+    Keyboard deadKeyboard(const Key &dead) const;
+    Keyboard extendedKeyboard(const Key &key) const;
 
 private:
     const QScopedPointer<KeyboardLoaderPrivate> d_ptr;
