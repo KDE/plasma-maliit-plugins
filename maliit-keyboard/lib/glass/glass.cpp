@@ -130,9 +130,9 @@ bool Glass::eventFilter(QObject *obj,
                     if (key_hit) {
 
                         if (qme->type() == QKeyEvent::MouseButtonPress) {
-                            emit keyPressed(layout, k);
+                            emit keyPressed(k, layout);
                         } else if (qme->type() == QKeyEvent::MouseButtonRelease) {
-                            emit keyReleased(layout, k);
+                            emit keyReleased(k, layout);
                         }
 
                         break;

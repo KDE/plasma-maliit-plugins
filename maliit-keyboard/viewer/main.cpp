@@ -147,11 +147,11 @@ int main(int argc,
     updater.init();
     updater.setLayout(l0);
 
-    QObject::connect(&glass,   SIGNAL(keyPressed(SharedLayout, Key)),
-                     &updater, SLOT(onKeyPressed(SharedLayout, Key)));
+    QObject::connect(&glass,   SIGNAL(keyPressed(Key, SharedLayout)),
+                     &updater, SLOT(onKeyPressed(Key, SharedLayout)));
 
-    QObject::connect(&glass,   SIGNAL(keyReleased(SharedLayout, Key)),
-                     &updater, SLOT(onKeyReleased(SharedLayout, Key)));
+    QObject::connect(&glass,   SIGNAL(keyReleased(Key, SharedLayout)),
+                     &updater, SLOT(onKeyReleased(Key, SharedLayout)));
 
     QObject::connect(&updater,  SIGNAL(layoutChanged(SharedLayout)),
                      &renderer, SLOT(onLayoutChanged(SharedLayout)));

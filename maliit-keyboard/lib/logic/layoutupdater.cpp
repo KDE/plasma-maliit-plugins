@@ -174,8 +174,8 @@ void LayoutUpdater::setKeyboardLoader(KeyboardLoader *loader)
     d->loader.reset(loader);
 }
 
-void LayoutUpdater::onKeyPressed(const SharedLayout &layout,
-                                 const Key &key)
+void LayoutUpdater::onKeyPressed(const Key &key,
+                                 const SharedLayout &layout)
 {
     Q_D(const LayoutUpdater);
 
@@ -238,8 +238,8 @@ void LayoutUpdater::onKeyPressed(const SharedLayout &layout,
     // TEST CODE ENDS
 }
 
-void LayoutUpdater::onKeyReleased(const SharedLayout &layout,
-                                  const Key &key)
+void LayoutUpdater::onKeyReleased(const Key &key,
+                                  const SharedLayout &layout)
 {
     Q_D(const LayoutUpdater);
 

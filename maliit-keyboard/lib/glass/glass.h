@@ -59,11 +59,11 @@ public:
     Q_SLOT void deactivate(const SharedLayout &layout);
     Q_SLOT void deactivateAll();
 
-    Q_SIGNAL void keyPressed(const SharedLayout &layout,
-                             const Key &key);
+    Q_SIGNAL void keyPressed(const Key &key,
+                             const SharedLayout &layout);
 
-    Q_SIGNAL void keyReleased(const SharedLayout &layout,
-                              const Key &key);
+    Q_SIGNAL void keyReleased(const Key &key,
+                              const SharedLayout &layout);
 
 protected:
     //! \reimp

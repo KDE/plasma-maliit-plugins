@@ -58,10 +58,10 @@ public:
     void setLayout(const SharedLayout &layout);
     void setKeyboardLoader(KeyboardLoader *loader);
 
-    Q_SLOT void onKeyPressed(const SharedLayout &layout,
-                             const Key &key);
-    Q_SLOT void onKeyReleased(const SharedLayout &layout,
-                              const Key &key);
+    Q_SLOT void onKeyPressed(const Key &key,
+                             const SharedLayout &layout);
+    Q_SLOT void onKeyReleased(const Key &key,
+                              const SharedLayout &layout);
 
     Q_SIGNAL void layoutChanged(const SharedLayout &layout);
     Q_SIGNAL void keysChanged(const SharedLayout &layout);
