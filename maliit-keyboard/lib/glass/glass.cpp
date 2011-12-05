@@ -92,16 +92,16 @@ bool Glass::eventFilter(QObject *obj,
 
         foreach (const SharedLayout &layout, d->layouts) {
             // FIXME: also need to check extendedPanel
-            const QVector<Key> &keys(layout->centerPanel().keys());
+            const QVector<Key> &keys(layout->centerPanel().keys);
 
             // FIXME: use binary range search
-            if (layout->centerPanel().rect().contains(qme->posF())) {
+            if (layout->centerPanel().rect.contains(qme->posF())) {
 
                 for (int index = 0; index < keys.count(); ++index) {
                     Key k(keys.at(index));
 
                     // Pressed state is not stored in key itself, so list of pressed keys (overridden keys) must be maintained elsewhere.
-                    const bool key_hit = k.rect().translated(layout->centerPanel().rect().toRect().topLeft()).contains(qme->pos());
+                    const bool key_hit = k.rect().translated(layout->centerPanel().rect.toRect().topLeft()).contains(qme->pos());
                     if (key_hit) {
 
                         if (qme->type() == QKeyEvent::MouseButtonPress) {

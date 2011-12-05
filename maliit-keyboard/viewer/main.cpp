@@ -76,19 +76,19 @@ MaliitKeyboard::KeyArea createPrimaryKeyArea()
     font->setPointSize(16);
 
     MaliitKeyboard::KeyArea ka;
-    ka.setRect(QRectF(0, 554, 480, 300));
-    ka.appendKey(createKey(pm, font, QRect(10, 10, 40, 60),
-                           QRect(5, 5, 20, 40), QBA("Q"), Qt::darkBlue));
-    ka.appendKey(createKey(pm, font, QRect(60, 10, 80, 120),
-                           QRect(5, 5, 70, 40), QBA("W"), Qt::darkMagenta));
-    ka.appendKey(createKey(pm, font, QRect(10, 80, 40, 50),
-                           QRect(5, 5, 20, 40), QBA("A"), Qt::black));
-    ka.appendKey(createKey(pm, font, QRect(10, 140, 130, 60),
-                           QRect(5, 5, 120, 40), QBA("shift"), Qt::darkCyan,
-                           MaliitKeyboard::Key::ActionShift));
-    ka.appendKey(createKey(pm, font, QRect(160, 10, 120, 120),
-                           QRect(5, 5, 120, 40), QBA("switch"), Qt::darkCyan,
-                           MaliitKeyboard::Key::ActionSwitch));
+    ka.rect = QRectF(0, 554, 480, 300);
+    ka.keys.append(createKey(pm, font, QRect(10, 10, 40, 60),
+                             QRect(5, 5, 20, 40), QBA("Q"), Qt::darkBlue));
+    ka.keys.append(createKey(pm, font, QRect(60, 10, 80, 120),
+                             QRect(5, 5, 70, 40), QBA("W"), Qt::darkMagenta));
+    ka.keys.append(createKey(pm, font, QRect(10, 80, 40, 50),
+                             QRect(5, 5, 20, 40), QBA("A"), Qt::black));
+    ka.keys.append(createKey(pm, font, QRect(10, 140, 130, 60),
+                             QRect(5, 5, 120, 40), QBA("shift"), Qt::darkCyan,
+                             MaliitKeyboard::Key::ActionShift));
+    ka.keys.append(createKey(pm, font, QRect(160, 10, 120, 120),
+                             QRect(5, 5, 120, 40), QBA("switch"), Qt::darkCyan,
+                             MaliitKeyboard::Key::ActionSwitch));
 
     return ka;
 }
@@ -105,11 +105,11 @@ MaliitKeyboard::KeyArea createSecondaryKeyArea()
     font->setPointSize(16);
 
     MaliitKeyboard::KeyArea ka;
-    ka.setRect(QRectF(0, 0, 480, 100));
-    ka.appendKey(createKey(pm, font, QRect(10, 10, 40, 60),
-                           QRect(5, 5, 20, 40), QBA("T"), Qt::darkBlue));
-    ka.appendKey(createKey(pm, font, QRect(60, 10, 80, 80),
-                           QRect(5, 5, 20, 40), QBA("O"), Qt::darkMagenta));
+    ka.rect = QRectF(0, 0, 480, 100);
+    ka.keys.append(createKey(pm, font, QRect(10, 10, 40, 60),
+                             QRect(5, 5, 20, 40), QBA("T"), Qt::darkBlue));
+    ka.keys.append(createKey(pm, font, QRect(60, 10, 80, 80),
+                             QRect(5, 5, 20, 40), QBA("O"), Qt::darkMagenta));
 
     return ka;
 }

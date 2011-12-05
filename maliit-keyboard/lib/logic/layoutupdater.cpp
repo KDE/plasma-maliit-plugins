@@ -46,9 +46,9 @@ KeyArea transformKeyArea(const KeyArea &ka,
                          Transform t)
 {
     KeyArea new_ka;
-    new_ka.setRect(ka.rect());
+    new_ka.rect = ka.rect;
 
-    foreach (Key key, ka.keys()) {
+    foreach (Key key, ka.keys) {
         KeyLabel label(key.label());
 
         switch (t) {
@@ -62,7 +62,7 @@ KeyArea transformKeyArea(const KeyArea &ka,
         }
 
         key.setLabel(label);
-        new_ka.appendKey(key);
+        new_ka.keys.append(key);
     }
 
     return new_ka;
@@ -72,10 +72,10 @@ KeyArea replaceKey(const KeyArea &ka,
                    const Key &replace)
 {
     KeyArea new_ka;
-    new_ka.setRect(ka.rect());
+    new_ka.rect = ka.rect;
 
-    foreach (const Key &key, ka.keys()) {
-        new_ka.appendKey((key.label().text() == replace.label().text()) ? replace : key);
+    foreach (const Key &key, ka.keys) {
+        new_ka.keys.append((key.label().text() == replace.label().text()) ? replace : key);
     }
 
     return new_ka;
@@ -228,7 +228,7 @@ void LayoutUpdater::onKeyPressed(const Key &key,
         magnifier.setBackground(magnifier_bg);
 
         QRect magnifier_rect(key.rect().translated(0, -120).adjusted(-20, -20, 20, 20));
-        const QRectF key_area_rect(d->layout->activeKeyArea().rect());
+        const QRectF key_area_rect(d->layout->activeKeyArea().rect);
         if (magnifier_rect.left() < key_area_rect.left() + 10) {
             magnifier_rect.setLeft(key_area_rect.left() + 10);
         } else if (magnifier_rect.right() > key_area_rect.right() - 10) {
@@ -423,8 +423,8 @@ void LayoutUpdater::onKeyboardChanged()
     }
 
     const int height = pos.y() + row_height;
-    ka.setKeys(kb.keys);
-    ka.setRect(QRectF(0, 854 - height, 480, height));
+    ka.keys = kb.keys;
+    ka.rect =  QRectF(0, 854 - height, 480, height);
     d->layout->setCenterPanel(ka);
     emit layoutChanged(d->layout);
 }

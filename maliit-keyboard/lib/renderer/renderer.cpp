@@ -113,7 +113,7 @@ public:
 
         center_item->setKeyArea(layout->centerPanel());
         center_item->show();
-        *region |= QRegion(layout->centerPanel().rect().toRect());
+        *region |= QRegion(layout->centerPanel().rect.toRect());
 
         extended_item->setKeyArea(layout->extendedPanel());
 
@@ -121,7 +121,7 @@ public:
             extended_item->hide();
         } else {
             extended_item->show();
-            *region |= QRegion(layout->extendedPanel().rect().toRect());
+            *region |= QRegion(layout->extendedPanel().rect.toRect());
         }
     }
 

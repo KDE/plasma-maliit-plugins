@@ -37,25 +37,10 @@
 
 namespace MaliitKeyboard {
 
-class KeyArea;
-typedef QSharedPointer<KeyArea> SharedKeyArea;
-
-class KeyArea
+struct KeyArea
 {
-private:
-    QRectF m_rect;
-    QVector<Key> m_keys;
-
-public:
-    explicit KeyArea();
-
-    QRectF rect() const;
-    void setRect(const QRectF &rect);
-
-    QVector<Key> keys() const;
-    void setKeys(const QVector<Key> &keys);
-
-    void appendKey(const Key &key);
+    QRectF rect;
+    QVector<Key> keys;
 };
 
 bool operator==(const KeyArea &lhs,

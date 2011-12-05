@@ -33,42 +33,11 @@
 
 namespace MaliitKeyboard {
 
-KeyArea::KeyArea()
-    : m_rect()
-    , m_keys()
-{}
-
-QRectF KeyArea::rect() const
-{
-    return m_rect;
-}
-
-void KeyArea::setRect(const QRectF &rect)
-{
-    m_rect = rect;
-}
-
-void KeyArea::appendKey(const Key &key)
-{
-    Key k(key);
-    m_keys.append(k);
-}
-
-QVector<Key> KeyArea::keys() const
-{
-    return m_keys;
-}
-
-void KeyArea::setKeys(const QVector<Key> &keys)
-{
-    m_keys = keys;
-}
-
 bool operator==(const KeyArea &lhs,
                 const KeyArea &rhs)
 {
-    return (lhs.rect() == rhs.rect()
-            && lhs.keys() == rhs.keys());
+    return (lhs.rect == rhs.rect
+            && lhs.keys == rhs.keys);
 }
 
 bool operator!=(const KeyArea &lhs,
