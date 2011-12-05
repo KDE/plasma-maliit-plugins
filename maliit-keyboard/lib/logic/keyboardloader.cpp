@@ -37,19 +37,25 @@ Keyboard createKeyboard()
 {
     QStringList keys;
     keys.append("qwertyuiop");
-    keys.append("asdfghjkl");
-    keys.append("^zxcvbnm\b");
-    keys.append("#, .\n");
+    keys.append("|asdfghjkl|");
+    keys.append("^|zxcvbnm|\b");
+    keys.append("#|, .|\n");
 
     Keyboard kb;
-    int index = 0;
+    int row_index = 0;
 
     foreach (const QString &row, keys) {
+        int index = 0;
+
         foreach (QChar c, row) {
             Key k;
             KeyLabel l;
             KeyDescription d;
-            d.row = index;
+            d.row = row_index;
+
+            d.left_spacer = (index > 0 && row.at(index - 1) == '|');
+            d.right_spacer = (index + 1 < row.count() && row.at(index + 1) == '|');
+            ++index;
 
             if (c == '^') {
                 l.setText("shift");
@@ -74,7 +80,9 @@ Keyboard createKeyboard()
                 l.setText("?123");
                 k.setAction(Key::ActionSym);
                 d.style = KeyDescription::SpecialStyle;
-                d.width = KeyDescription::Large;
+                d.width = KeyDescription::XLarge;
+            } else if (c == '|') {
+                continue;
             } else {
                 l.setText(c);
                 k.setAction(Key::ActionCommit);
@@ -87,7 +95,7 @@ Keyboard createKeyboard()
             kb.key_descriptions.append(d);
         }
 
-        ++index;
+        ++row_index;
     }
 
     return kb;

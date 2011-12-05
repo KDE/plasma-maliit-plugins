@@ -314,6 +314,8 @@ void LayoutUpdater::onKeyboardChanged()
                     << "Could not find keyboard loader or layout, forgot to set them?";
     }
 
+    // An ad-hoc geometry updater that also uses styling information.
+    // Will only work for portrait mode (lots of hardcoded stuff).
     KeyArea ka;
     Keyboard kb(d->loader->keyboard());
 
@@ -334,12 +336,20 @@ void LayoutUpdater::onKeyboardChanged()
     QPoint pos(2, 0);
     int row_height = 70;
     int prev_row = 0;
+    QVector<int> row_indices;
+    int spacer_count = 0;
+
 
     for (int index = 0; index < kb.keys.count(); ++index) {
+        row_indices.append(index);
         Key &key(kb.keys[index]);
         const KeyDescription &desc(kb.key_descriptions.at(index));
         int width = 0;
         pos.setY(row_height * desc.row);
+
+        if (desc.left_spacer || desc.right_spacer) {
+            ++spacer_count;
+        }
 
         switch (desc.style) {
         case KeyDescription::NormalStyle: key.setBackground(normal_bg); break;
@@ -357,11 +367,6 @@ void LayoutUpdater::onKeyboardChanged()
         }
 
         width += 6;
-
-        if (prev_row != desc.row) {
-            pos.setX(2);
-        }
-
         prev_row = desc.row;
         key.setRect(QRect(pos.x(), pos.y(), width, row_height));
         key.setMargins(QMargins(pos.x() < 5 ? 1 : 3, 3,
@@ -374,6 +379,47 @@ void LayoutUpdater::onKeyboardChanged()
         key.setLabel(label);
 
         pos += QPoint(width, 0);
+
+        if ((index + 1 == kb.keys.count())
+            || (index + 1 < kb.keys.count() && kb.key_descriptions.at(index + 1).row > desc.row)) {
+            if (spacer_count > 0 && pos.x() < 481  ) {
+                const int spacer_width = qMax<int>(0, 480 - pos.x()) / spacer_count;
+                pos.setX(0);
+                int right_x = 0;
+
+                foreach (int row_index, row_indices) {
+                    Key &k(kb.keys[row_index]);
+                    const KeyDescription &d(kb.key_descriptions.at(row_index));
+
+                    QRect r(k.rect());
+                    QMargins m(k.margins());
+                    int extra_width = 0;
+
+                    if (d.left_spacer) {
+                        m.setLeft(m.left() + spacer_width);
+                        extra_width += spacer_width;
+                    }
+
+                    if (d.right_spacer) {
+                        m.setRight(m.right() + spacer_width);
+                        extra_width += spacer_width;
+                    }
+
+                    k.setMargins(m);
+
+                    r.translate(right_x - r.left(), 0);
+                    r.setWidth(r.width() + extra_width);
+                    k.setRect(r);
+
+                    right_x = r.right();
+                }
+
+            }
+
+            row_indices.clear();
+            pos.setX(0);
+            spacer_count = 0;
+        }
     }
 
     const int height = pos.y() + row_height;

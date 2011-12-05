@@ -39,7 +39,6 @@ namespace MaliitKeyboard {
 
 struct Keyboard
 {
-    // TODO: Add spacer info.
     QVector<Key> keys;
     QVector<KeyDescription> key_descriptions;
 };

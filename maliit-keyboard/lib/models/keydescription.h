@@ -52,7 +52,9 @@ struct KeyDescription
     };
 
     int row;
-    bool use_rtl_icon;
+    bool use_rtl_icon: 1;
+    bool left_spacer: 1;
+    bool right_spacer: 1;
     Style style;
     Width width;
 };
