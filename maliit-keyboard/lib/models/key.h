@@ -67,6 +67,7 @@ private:
     Action m_action;
     KeyLabel m_label;
     QRect m_rect;
+    QMargins m_margins;
     QMargins m_background_borders;
     QPixmap m_background;
     QPixmap m_icon;
@@ -84,6 +85,9 @@ public:
 
     QRect rect() const;
     void setRect(const QRect &rect);
+
+    QMargins margins() const;
+    void setMargins(const QMargins &margins);
 
     QMargins backgroundBorders() const;
     void setBackgroundBorders(const QMargins &borders);

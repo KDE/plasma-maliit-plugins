@@ -332,14 +332,14 @@ void LayoutUpdater::onKeyboardChanged()
     small_font->setPointSize(12);
 
     QPoint pos(2, 0);
-    int row_height = 64;
+    int row_height = 70;
     int prev_row = 0;
 
     for (int index = 0; index < kb.keys.count(); ++index) {
         Key &key(kb.keys[index]);
         const KeyDescription &desc(kb.key_descriptions.at(index));
         int width = 0;
-        pos.setY(6 + (6 + row_height) * desc.row);
+        pos.setY(row_height * desc.row);
 
         switch (desc.style) {
         case KeyDescription::NormalStyle: key.setBackground(normal_bg); break;
@@ -356,12 +356,16 @@ void LayoutUpdater::onKeyboardChanged()
         case KeyDescription::Stretched: width = 138; break;
         }
 
+        width += 6;
+
         if (prev_row != desc.row) {
             pos.setX(2);
         }
 
         prev_row = desc.row;
         key.setRect(QRect(pos.x(), pos.y(), width, row_height));
+        key.setMargins(QMargins(pos.x() < 5 ? 1 : 3, 3,
+                                pos.x() > 475 ? 1 : 3, 3));
 
         KeyLabel label(key.label());
         label.setFont(label.text().count() > 1 ? small_font : font);
@@ -369,11 +373,12 @@ void LayoutUpdater::onKeyboardChanged()
         label.setRect(QRect(4, 4, key.rect().width() - 8, key.rect().height() - 8));
         key.setLabel(label);
 
-        pos += QPoint(width + 6, 0);
+        pos += QPoint(width, 0);
     }
 
+    const int height = pos.y() + row_height;
     ka.setKeys(kb.keys);
-    ka.setRect(QRectF(0, 556, 480, 300)); // FIXME: Need to compute layout geometry properly.
+    ka.setRect(QRectF(0, 854 - height, 480, height));
     d->layout->setCenterPanel(ka);
     emit layoutChanged(d->layout);
 }
