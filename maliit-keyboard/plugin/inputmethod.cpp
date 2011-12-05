@@ -145,8 +145,7 @@ void InputMethod::hide()
 {
     Q_D(InputMethod);
 
-    d->renderer.clearLayouts();
-    d->glass.clearLayouts();
+    d->renderer.hide();
 
     inputMethodHost()->setInputMethodArea(d->renderer.region());
     inputMethodHost()->setScreenRegion(d->renderer.region());

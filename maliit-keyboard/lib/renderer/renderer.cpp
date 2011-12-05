@@ -282,9 +282,9 @@ void Renderer::show()
         d->view->scene()->addItem(new QGraphicsRectItem);
     }
 
-    if (not d->view) {
+    if (not d->view || d->layout_items.isEmpty()) {
         qCritical() << __PRETTY_FUNCTION__
-                    << "No view exists, aborting!";
+                    << "No view or no layouts exists, aborting!";
     }
 
     for (int index = 0; index < d->layout_items.count(); ++index) {
