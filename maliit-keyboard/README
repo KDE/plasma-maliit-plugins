@@ -1,0 +1,23 @@
+Maliit Keyboard
+===============
+
+This is a C++ based reference plugin. It focuses on good performance and decent
+usability.
+
+
+Known issues
+============
+
+On multi-screen setups, Qt's QDesktopWidget will not always report the invidual
+screen sizes, but instead only report the full virtual screen size. Since this
+information is used to position the virtual keyboard, it can somtimes lead to
+the virtual keyboard ending up in weird places. To workaround this issue, a
+settings key can be set. On Linux, the virtual keyboard's settings are usually
+located in $HOME/.config/maliit.org/vkb. It might look like this:
+
+  [General]
+  _anchor=@Point(960 1080)
+
+Remove the leading underscore from the anchor key and adjust the settings to
+point at the center bottom of your preferred screen. The virtual keyboard will
+anchor itself to it.

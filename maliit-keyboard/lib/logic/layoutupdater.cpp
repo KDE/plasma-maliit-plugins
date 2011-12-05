@@ -106,9 +106,15 @@ public:
     QScopedPointer<KeyboardLoader> loader;
     QScopedPointer<QStateMachine> machine;
     States states;
+    QPoint anchor;
 
     explicit LayoutUpdaterPrivate()
         : initialized(false)
+        , layout()
+        , loader()
+        , machine()
+        , states()
+        , anchor()
     {}
 };
 
@@ -123,6 +129,21 @@ LayoutUpdater::~LayoutUpdater()
 void LayoutUpdater::init()
 {
     Q_D(LayoutUpdater);
+
+    // A workaround for virtual desktops where QDesktopWidget reports
+    // screenGeometry incorrectly: Allow user to override via settings.
+    QSettings settings("maliit.org", "vkb");
+    d->anchor = settings.value("anchor").toPoint();
+
+    if (d->anchor.isNull()) {
+        const QRect screen_area(QApplication::desktop() ? QApplication::desktop()->screenGeometry()
+                                                        : QRect(0, 0, 480, 854));
+        d->anchor = QPoint(screen_area.width() / 2, screen_area.height());
+
+        // Enforce creation of settings file, otherwise it's too hard to find
+        // the override (and get the syntax ride). I know, it's weird.
+        settings.setValue("_anchor", d->anchor);
+    }
 
     d->machine.reset(new QStateMachine);
     d->machine->setChildMode(QState::ExclusiveStates);
@@ -424,7 +445,7 @@ void LayoutUpdater::onKeyboardsChanged()
 
     const int height = pos.y() + row_height;
     ka.keys = kb.keys;
-    ka.rect =  QRectF(0, 854 - height, 480, height);
+    ka.rect =  QRectF(d->anchor.x() - 240, d->anchor.y() - height, 480, height);
     d->layout->setCenterPanel(ka);
     emit layoutChanged(d->layout);
 }
