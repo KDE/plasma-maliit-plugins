@@ -76,7 +76,7 @@ private:
 
     Q_SLOT void switchLayoutToUpper();
     Q_SLOT void switchLayoutToLower();
-    Q_SLOT void onKeyboardChanged();
+    Q_SLOT void onKeyboardsChanged();
 
     const QScopedPointer<LayoutUpdaterPrivate> d_ptr;
 };

@@ -191,8 +191,8 @@ void LayoutUpdater::setKeyboardLoader(KeyboardLoader *loader)
     Q_D(LayoutUpdater);
     d->loader.reset(loader);
 
-    connect(loader, SIGNAL(activeIdChanged(QString)),
-            this,   SLOT(onKeyboardChanged()));
+    connect(loader, SIGNAL(keyboardsChanged()),
+            this,   SLOT(onKeyboardsChanged()));
 }
 
 void LayoutUpdater::onKeyPressed(const Key &key,
@@ -305,7 +305,7 @@ void LayoutUpdater::switchLayoutToLower()
     emit layoutChanged(d->layout);
 }
 
-void LayoutUpdater::onKeyboardChanged()
+void LayoutUpdater::onKeyboardsChanged()
 {
     Q_D(const LayoutUpdater);
 

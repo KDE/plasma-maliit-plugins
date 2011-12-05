@@ -55,7 +55,6 @@ public:
     virtual QStringList ids() const;
     virtual QString activeId() const;
     virtual void setActiveId(const QString &id);
-    Q_SIGNAL void activeIdChanged(const QString &id) const;
 
     virtual QString title(const QString &id) const;
 
@@ -67,6 +66,8 @@ public:
     virtual Keyboard symbolsKeyboard(int page = 0) const;
     virtual Keyboard deadKeyboard(const Key &dead) const;
     virtual Keyboard extendedKeyboard(const Key &key) const;
+
+    Q_SIGNAL void keyboardsChanged() const;
 
 private:
     const QScopedPointer<KeyboardLoaderPrivate> d_ptr;

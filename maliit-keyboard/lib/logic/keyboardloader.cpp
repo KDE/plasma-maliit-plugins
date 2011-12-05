@@ -140,7 +140,9 @@ void KeyboardLoader::setActiveId(const QString &id)
 
     if (d->active_id != id) {
         d->active_id = id;
-        emit activeIdChanged(d->active_id);
+
+        // FIXME: Emit only after parsing new keyboard.
+        emit keyboardsChanged();
     }
 }
 
