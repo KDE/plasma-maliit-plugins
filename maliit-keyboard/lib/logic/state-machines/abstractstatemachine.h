@@ -29,68 +29,26 @@
  *
  */
 
-#ifndef MALIIT_KEYBOARD_LAYOUTUPDATER_H
-#define MALIIT_KEYBOARD_LAYOUTUPDATER_H
+#ifndef MALIIT_KEYBOARD_ABSTRACTSTATEMACHINE_H
+#define MALIIT_KEYBOARD_ABSTRACTSTATEMACHINE_H
 
-#include "keyboardloader.h"
-#include "models/layout.h"
-#include "glass/glass.h"
-
-#include <QtCore>
+class QString;
 
 namespace MaliitKeyboard {
 
-class LayoutUpdaterPrivate;
+class LayoutUpdater;
 
-class LayoutUpdater
-    : public QObject
+class AbstractStateMachine
 {
-    Q_OBJECT
-    Q_DISABLE_COPY(LayoutUpdater)
-    Q_DECLARE_PRIVATE(LayoutUpdater)
-
 public:
-    explicit LayoutUpdater(QObject *parent = 0);
-    virtual ~LayoutUpdater();
+    explicit AbstractStateMachine();
+    virtual ~AbstractStateMachine() = 0;
 
-    void init();
-
-    QStringList keyboardIds() const;
-    QString activeKeyboardId() const;
-    void setActiveKeyboardId(const QString &id);
-    QString keyboardTitle(const QString &id) const;
-
-    void setLayout(const SharedLayout &layout);
-    void resetKeyboardLoader(KeyboardLoader *loader);
-
-    Q_SLOT void onKeyPressed(const Key &key,
-                             const SharedLayout &layout);
-    Q_SLOT void onKeyReleased(const Key &key,
-                              const SharedLayout &layout);
-
-    Q_SIGNAL void layoutChanged(const SharedLayout &layout);
-    Q_SIGNAL void keysChanged(const SharedLayout &layout);
-
-private:
-    Q_SIGNAL void shiftPressed();
-    Q_SIGNAL void shiftReleased();
-    Q_SIGNAL void autoCapsActivated();
-    Q_SIGNAL void shiftCancelled();
-
-    Q_SLOT void switchLayoutToUpper();
-    Q_SLOT void switchLayoutToLower();
-    Q_SLOT void onKeyboardsChanged();
-
-    Q_SIGNAL void symKeyReleased();
-    Q_SIGNAL void symSwitcherReleased();
-
-    Q_SLOT void switchToMainView();
-    Q_SLOT void switchToPrimarySymView();
-    Q_SLOT void switchToSecondarySymView();
-
-    const QScopedPointer<LayoutUpdaterPrivate> d_ptr;
+    virtual void setup(LayoutUpdater *updater) = 0;
+    virtual bool inState(const QString &name) const;
+    virtual void restart();
 };
 
 } // namespace MaliitKeyboard
 
-#endif // MALIIT_KEYBOARD_LAYOUTUPDATER_H
+#endif // MALIIT_KEYBOARD_ABSTRACTSTATEMACHINE_H

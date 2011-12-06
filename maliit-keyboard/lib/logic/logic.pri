@@ -10,6 +10,4 @@ SOURCES += \
 
 DEPENDPATH += $$LOGIC_DIR
 
-
-
-
+include(state-machines/state-machines.pri)

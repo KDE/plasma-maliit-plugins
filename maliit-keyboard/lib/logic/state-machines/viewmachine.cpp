@@ -29,68 +29,58 @@
  *
  */
 
-#ifndef MALIIT_KEYBOARD_LAYOUTUPDATER_H
-#define MALIIT_KEYBOARD_LAYOUTUPDATER_H
-
-#include "keyboardloader.h"
-#include "models/layout.h"
-#include "glass/glass.h"
-
-#include <QtCore>
+#include "viewmachine.h"
+#include "logic/layoutupdater.h"
 
 namespace MaliitKeyboard {
 
-class LayoutUpdaterPrivate;
+ViewMachine::ViewMachine(QObject *parent)
+    : QStateMachine(parent)
+{}
 
-class LayoutUpdater
-    : public QObject
+ViewMachine::~ViewMachine()
+{}
+
+void ViewMachine::setup(LayoutUpdater *updater)
 {
-    Q_OBJECT
-    Q_DISABLE_COPY(LayoutUpdater)
-    Q_DECLARE_PRIVATE(LayoutUpdater)
+    if (not updater) {
+        qCritical() << __PRETTY_FUNCTION__
+                    << "No updater specified. Aborting setup.";
+        return;
+    }
 
-public:
-    explicit LayoutUpdater(QObject *parent = 0);
-    virtual ~LayoutUpdater();
+    setChildMode(QState::ExclusiveStates);
 
-    void init();
+    QState *main = 0;
+    QState *symbols0 = 0;
+    QState *symbols1 = 0;
 
-    QStringList keyboardIds() const;
-    QString activeKeyboardId() const;
-    void setActiveKeyboardId(const QString &id);
-    QString keyboardTitle(const QString &id) const;
+    // TODO: does ViewMachine really take ownership?
+    addState(main = new QState);
+    addState(symbols0 = new QState);
+    addState(symbols1 = new QState);
+    setInitialState(main);
 
-    void setLayout(const SharedLayout &layout);
-    void resetKeyboardLoader(KeyboardLoader *loader);
+    main->setObjectName("main");
+    symbols0->setObjectName("symbols0");
+    symbols1->setObjectName("symbols1");
 
-    Q_SLOT void onKeyPressed(const Key &key,
-                             const SharedLayout &layout);
-    Q_SLOT void onKeyReleased(const Key &key,
-                              const SharedLayout &layout);
+    main->addTransition(updater, SIGNAL(symKeyReleased()), symbols0);
+    connect(main,    SIGNAL(entered()),
+            updater, SLOT(switchToMainView()));
 
-    Q_SIGNAL void layoutChanged(const SharedLayout &layout);
-    Q_SIGNAL void keysChanged(const SharedLayout &layout);
+    symbols0->addTransition(updater, SIGNAL(symKeyReleased()), main);
+    symbols0->addTransition(updater, SIGNAL(symSwitcherReleased()), symbols1);
+    connect(symbols0, SIGNAL(entered()),
+            updater,  SLOT(switchToPrimarySymView()));
 
-private:
-    Q_SIGNAL void shiftPressed();
-    Q_SIGNAL void shiftReleased();
-    Q_SIGNAL void autoCapsActivated();
-    Q_SIGNAL void shiftCancelled();
+    symbols1->addTransition(updater, SIGNAL(symKeyReleased()), main);
+    symbols1->addTransition(updater, SIGNAL(symSwitcherReleased()), symbols0);
+    connect(symbols1, SIGNAL(entered()),
+            updater,  SLOT(switchToSecondarySymView()));
 
-    Q_SLOT void switchLayoutToUpper();
-    Q_SLOT void switchLayoutToLower();
-    Q_SLOT void onKeyboardsChanged();
-
-    Q_SIGNAL void symKeyReleased();
-    Q_SIGNAL void symSwitcherReleased();
-
-    Q_SLOT void switchToMainView();
-    Q_SLOT void switchToPrimarySymView();
-    Q_SLOT void switchToSecondarySymView();
-
-    const QScopedPointer<LayoutUpdaterPrivate> d_ptr;
-};
+    // Defer to first main loop iteration:
+    QTimer::singleShot(0, this, SLOT(start()));
+}
 
 } // namespace MaliitKeyboard
-
-#endif // MALIIT_KEYBOARD_LAYOUTUPDATER_H

@@ -29,68 +29,36 @@
  *
  */
 
-#ifndef MALIIT_KEYBOARD_LAYOUTUPDATER_H
-#define MALIIT_KEYBOARD_LAYOUTUPDATER_H
-
-#include "keyboardloader.h"
-#include "models/layout.h"
-#include "glass/glass.h"
-
+#include "abstractstatemachine.h"
 #include <QtCore>
 
 namespace MaliitKeyboard {
 
-class LayoutUpdaterPrivate;
+AbstractStateMachine::AbstractStateMachine()
+{}
 
-class LayoutUpdater
-    : public QObject
+AbstractStateMachine::~AbstractStateMachine()
+{}
+
+bool AbstractStateMachine::inState(const QString &name) const
 {
-    Q_OBJECT
-    Q_DISABLE_COPY(LayoutUpdater)
-    Q_DECLARE_PRIVATE(LayoutUpdater)
+    if (const QStateMachine *sm = dynamic_cast<const QStateMachine *>(this)) {
+        foreach (QAbstractState *state, sm->configuration()) {
+            if (state->objectName() == name) {
+                return true;
+            }
+        }
+    }
 
-public:
-    explicit LayoutUpdater(QObject *parent = 0);
-    virtual ~LayoutUpdater();
+    return false;
+}
 
-    void init();
-
-    QStringList keyboardIds() const;
-    QString activeKeyboardId() const;
-    void setActiveKeyboardId(const QString &id);
-    QString keyboardTitle(const QString &id) const;
-
-    void setLayout(const SharedLayout &layout);
-    void resetKeyboardLoader(KeyboardLoader *loader);
-
-    Q_SLOT void onKeyPressed(const Key &key,
-                             const SharedLayout &layout);
-    Q_SLOT void onKeyReleased(const Key &key,
-                              const SharedLayout &layout);
-
-    Q_SIGNAL void layoutChanged(const SharedLayout &layout);
-    Q_SIGNAL void keysChanged(const SharedLayout &layout);
-
-private:
-    Q_SIGNAL void shiftPressed();
-    Q_SIGNAL void shiftReleased();
-    Q_SIGNAL void autoCapsActivated();
-    Q_SIGNAL void shiftCancelled();
-
-    Q_SLOT void switchLayoutToUpper();
-    Q_SLOT void switchLayoutToLower();
-    Q_SLOT void onKeyboardsChanged();
-
-    Q_SIGNAL void symKeyReleased();
-    Q_SIGNAL void symSwitcherReleased();
-
-    Q_SLOT void switchToMainView();
-    Q_SLOT void switchToPrimarySymView();
-    Q_SLOT void switchToSecondarySymView();
-
-    const QScopedPointer<LayoutUpdaterPrivate> d_ptr;
-};
+void AbstractStateMachine::restart()
+{
+    if (QStateMachine *sm = dynamic_cast<QStateMachine *>(this)) {
+        sm->stop();
+        QTimer::singleShot(0, sm, SLOT(start()));
+    }
+}
 
 } // namespace MaliitKeyboard
-
-#endif // MALIIT_KEYBOARD_LAYOUTUPDATER_H

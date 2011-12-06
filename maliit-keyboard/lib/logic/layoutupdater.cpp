@@ -30,6 +30,8 @@
  */
 
 #include "layoutupdater.h"
+#include "logic/state-machines/shiftmachine.h"
+#include "logic/state-machines/viewmachine.h"
 #include "models/keyboard.h"
 #include "models/keydescription.h"
 
@@ -216,41 +218,11 @@ KeyArea createFromKeyboard(const Keyboard &source,
 class LayoutUpdaterPrivate
 {
 public:
-    // TODO: who takes ownership of the states?
-    struct ShiftStates {
-        QState *no_shift;
-        QState *shift;
-        QState *latched_shift;
-        QState *caps_lock;
-
-        explicit ShiftStates()
-            : no_shift(0)
-            , shift(0)
-            , latched_shift(0)
-            , caps_lock(0)
-        {}
-    };
-
-    struct ViewState {
-        QState *main;
-        // FIXME: Use nested states to have an arbitrary amount of symbol pages.
-        QState *symbols0;
-        QState *symbols1;
-
-        explicit ViewState()
-            : main(0)
-            , symbols0(0)
-            , symbols1(0)
-        {}
-    };
-
     bool initialized;
     SharedLayout layout;
     QScopedPointer<KeyboardLoader> loader;
-    QScopedPointer<QStateMachine> shift_machine;
-    ShiftStates shift_states;
-    QScopedPointer<QStateMachine> view_machine;
-    ViewState view_states;
+    ShiftMachine shift_machine;
+    ViewMachine view_machine;
     QPoint anchor;
 
     explicit LayoutUpdaterPrivate()
@@ -258,9 +230,7 @@ public:
         , layout()
         , loader(new KeyboardLoader)
         , shift_machine()
-        , shift_states()
         , view_machine()
-        , view_states()
         , anchor()
     {}
 };
@@ -296,8 +266,8 @@ void LayoutUpdater::init()
         settings.setValue("_anchor", d->anchor);
     }
 
-    setupShiftMachine();
-    setupViewMachine();
+    d->shift_machine.setup(this);
+    d->view_machine.setup(this);
 }
 
 QStringList LayoutUpdater::keyboardIds() const
@@ -420,7 +390,7 @@ void LayoutUpdater::onKeyReleased(const Key &key,
         break;
 
     case Key::ActionCommit:
-        if (d->shift_machine->configuration().contains(d->shift_states.latched_shift)) {
+        if (d->shift_machine.inState("latched-shift")) {
             emit shiftCancelled();
         }
         break;
@@ -484,7 +454,7 @@ void LayoutUpdater::switchToMainView()
 
 void LayoutUpdater::switchToPrimarySymView()
 {
-    Q_D(const LayoutUpdater);
+    Q_D(LayoutUpdater);
 
     if (not verify(d->loader, d->layout)) {
         return;
@@ -492,9 +462,7 @@ void LayoutUpdater::switchToPrimarySymView()
 
     d->layout->setCenterPanel(createFromKeyboard(d->loader->symbolsKeyboard(0), d->anchor));
     // Reset shift state machine, also see switchToMainView.
-    d->shift_machine->stop();
-    // Fixes a Qt warning, as one cannot restart a state machine right away.
-    QTimer::singleShot(0, d->shift_machine.data(), SLOT(start()));
+    d->shift_machine.restart();
 
     //d->shift_machine->start();
     emit layoutChanged(d->layout);
@@ -510,95 +478,6 @@ void LayoutUpdater::switchToSecondarySymView()
 
     d->layout->setCenterPanel(createFromKeyboard(d->loader->symbolsKeyboard(1), d->anchor));
     emit layoutChanged(d->layout);
-}
-
-void LayoutUpdater::setupShiftMachine()
-{
-    Q_D(LayoutUpdater);
-
-    d->shift_machine.reset(new QStateMachine);
-    d->shift_machine->setChildMode(QState::ExclusiveStates);
-
-    LayoutUpdaterPrivate::ShiftStates &s(d->shift_states);
-    s.no_shift = new QState;
-    s.no_shift->setObjectName("no-shift");
-
-    s.shift = new QState;
-    s.shift->setObjectName("shift");
-
-    s.latched_shift = new QState;
-    s.latched_shift->setObjectName("latched-shift");
-
-    s.caps_lock = new QState;
-    s.caps_lock->setObjectName("caps-lock");
-
-    s.no_shift->addTransition(this, SIGNAL(shiftPressed()), s.shift);
-    s.no_shift->addTransition(this, SIGNAL(autoCapsActivated()), s.latched_shift);
-    connect(s.no_shift, SIGNAL(entered()),
-            this,       SLOT(switchLayoutToLower()));
-
-    s.shift->addTransition(this, SIGNAL(shiftCancelled()), s.no_shift);
-    s.shift->addTransition(this, SIGNAL(shiftReleased()), s.latched_shift);
-    connect(s.shift, SIGNAL(entered()),
-            this,    SLOT(switchLayoutToUpper()));
-
-    s.latched_shift->addTransition(this, SIGNAL(shiftCancelled()), s.no_shift);
-    s.latched_shift->addTransition(this, SIGNAL(shiftReleased()), s.caps_lock);
-    connect(s.latched_shift, SIGNAL(entered()),
-            this,            SLOT(switchLayoutToUpper()));
-
-    s.caps_lock->addTransition(this, SIGNAL(shiftReleased()), s.no_shift);
-    connect(s.caps_lock, SIGNAL(entered()),
-            this,        SLOT(switchLayoutToUpper()));
-
-    d->shift_machine->addState(s.no_shift);
-    d->shift_machine->addState(s.shift);
-    d->shift_machine->addState(s.latched_shift);
-    d->shift_machine->addState(s.caps_lock);
-    d->shift_machine->setInitialState(s.no_shift);
-
-    // Defer to first main loop iteration:
-    QTimer::singleShot(0, d->shift_machine.data(), SLOT(start()));
-}
-
-void LayoutUpdater::setupViewMachine()
-{
-    Q_D(LayoutUpdater);
-
-    d->view_machine.reset(new QStateMachine);
-    d->view_machine->setChildMode(QState::ExclusiveStates);
-
-    LayoutUpdaterPrivate::ViewState &s(d->view_states);
-    s.main = new QState;
-    s.main->setObjectName("main");
-
-    s.symbols0 = new QState;
-    s.symbols0->setObjectName("symbols0");
-
-    s.symbols1 = new QState;
-    s.symbols1->setObjectName("symbols1");
-
-    s.main->addTransition(this, SIGNAL(symKeyReleased()), s.symbols0);
-    connect(s.main, SIGNAL(entered()),
-            this,   SLOT(switchToMainView()));
-
-    s.symbols0->addTransition(this, SIGNAL(symKeyReleased()), s.main);
-    s.symbols0->addTransition(this, SIGNAL(symSwitcherReleased()), s.symbols1);
-    connect(s.symbols0, SIGNAL(entered()),
-            this,       SLOT(switchToPrimarySymView()));
-
-    s.symbols1->addTransition(this, SIGNAL(symKeyReleased()), s.main);
-    s.symbols1->addTransition(this, SIGNAL(symSwitcherReleased()), s.symbols0);
-    connect(s.symbols1, SIGNAL(entered()),
-            this,       SLOT(switchToSecondarySymView()));
-
-    d->view_machine->addState(s.main);
-    d->view_machine->addState(s.symbols0);
-    d->view_machine->addState(s.symbols1);
-    d->view_machine->setInitialState(s.main);
-
-    // Defer to first main loop iteration:
-    QTimer::singleShot(0, d->view_machine.data(), SLOT(start()));
 }
 
 } // namespace MaliitKeyboard
