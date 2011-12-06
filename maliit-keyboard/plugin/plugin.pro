@@ -2,7 +2,7 @@ include(../../config.pri)
 
 TARGET = maliit-keyboard-plugin
 TEMPLATE = lib
-QT = core gui declarative
+QT += core gui declarative
 LIBS += -L../lib -lmaliit-keyboard
 INCLUDEPATH += ../lib
 

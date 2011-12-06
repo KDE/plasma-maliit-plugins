@@ -35,7 +35,7 @@
 #include "graphicsview.h"
 #include "models/keyarea.h"
 
-#ifdef MALIIT_KEYBOARD_HAVE_GL
+#ifdef MALIIT_KEYBOARD_HAVE_OPENGL
 #include <QGLWidget>
 #endif
 
@@ -151,7 +151,7 @@ QGraphicsView * createView(QWidget *widget,
     GraphicsView *view = new GraphicsView(widget);
     view->setBackgroundBuffer(buffer);
     view->resize(widget->size());
-    view->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
+    view->setViewportUpdateMode(QGraphicsView::MinimalViewportUpdate);
     view->setOptimizationFlags(QGraphicsView::DontClipPainter | QGraphicsView::DontSavePainterState);
     QGraphicsScene *scene = new QGraphicsScene(view);
     view->setScene(scene);
@@ -159,7 +159,8 @@ QGraphicsView * createView(QWidget *widget,
     view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-#ifdef MALIIT_KEYBOARD_HAVE_GL
+#ifdef MALIIT_KEYBOARD_HAVE_OPENGL
+    view->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
     view->setViewport(new QGLWidget);
 #endif
 
