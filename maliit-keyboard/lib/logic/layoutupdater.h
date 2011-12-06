@@ -55,10 +55,13 @@ public:
 
     void init();
 
-    void setLayout(const SharedLayout &layout);
+    QStringList keyboardIds() const;
+    QString activeKeyboardId() const;
+    void setActiveKeyboardId(const QString &id);
+    QString keyboardTitle(const QString &id) const;
 
-    KeyboardLoader * keyboardLoader() const;
-    void setKeyboardLoader(KeyboardLoader *loader);
+    void setLayout(const SharedLayout &layout);
+    void resetKeyboardLoader(KeyboardLoader *loader);
 
     Q_SLOT void onKeyPressed(const Key &key,
                              const SharedLayout &layout);

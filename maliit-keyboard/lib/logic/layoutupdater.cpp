@@ -256,7 +256,7 @@ public:
     explicit LayoutUpdaterPrivate()
         : initialized(false)
         , layout()
-        , loader()
+        , loader(new KeyboardLoader)
         , shift_machine()
         , shift_states()
         , view_machine()
@@ -268,7 +268,11 @@ public:
 LayoutUpdater::LayoutUpdater(QObject *parent)
     : QObject(parent)
     , d_ptr(new LayoutUpdaterPrivate)
-{}
+{
+    connect(d_ptr->loader.data(), SIGNAL(keyboardsChanged()),
+            this,                 SLOT(onKeyboardsChanged()),
+            Qt::UniqueConnection);
+}
 
 LayoutUpdater::~LayoutUpdater()
 {}
@@ -296,6 +300,30 @@ void LayoutUpdater::init()
     setupViewMachine();
 }
 
+QStringList LayoutUpdater::keyboardIds() const
+{
+    Q_D(const LayoutUpdater);
+    return d->loader->ids();
+}
+
+QString LayoutUpdater::activeKeyboardId() const
+{
+    Q_D(const LayoutUpdater);
+    return d->loader->activeId();
+}
+
+void LayoutUpdater::setActiveKeyboardId(const QString &id)
+{
+    Q_D(LayoutUpdater);
+    d->loader->setActiveId(id);
+}
+
+QString LayoutUpdater::keyboardTitle(const QString &id) const
+{
+    Q_D(const LayoutUpdater);
+    return d->loader->title(id);
+}
+
 void LayoutUpdater::setLayout(const SharedLayout &layout)
 {
     Q_D(LayoutUpdater);
@@ -307,19 +335,14 @@ void LayoutUpdater::setLayout(const SharedLayout &layout)
     }
 }
 
-KeyboardLoader * LayoutUpdater::keyboardLoader() const
-{
-    Q_D(const LayoutUpdater);
-    return d->loader.data();
-}
-
-void LayoutUpdater::setKeyboardLoader(KeyboardLoader *loader)
+void LayoutUpdater::resetKeyboardLoader(KeyboardLoader *loader)
 {
     Q_D(LayoutUpdater);
     d->loader.reset(loader);
 
     connect(loader, SIGNAL(keyboardsChanged()),
-            this,   SLOT(onKeyboardsChanged()));
+            this,   SLOT(onKeyboardsChanged()),
+            Qt::UniqueConnection);
 }
 
 void LayoutUpdater::onKeyPressed(const Key &key,

@@ -32,7 +32,6 @@
 #include "inputmethod.h"
 #include "editor.h"
 #include "logic/layoutupdater.h"
-#include "logic/keyboardloader.h"
 #include "renderer/renderer.h"
 #include "renderer/abstractbackgroundbuffer.h"
 #include "glass/glass.h"
@@ -95,7 +94,6 @@ public:
         renderer.setBackgroundBuffer(&buffer);
         glass.setWindow(renderer.viewport());
         editor.setHost(host);
-        layout_updater.setKeyboardLoader(new KeyboardLoader);
 
         SharedLayout layout(new Layout);
         renderer.addLayout(layout);
@@ -166,13 +164,11 @@ InputMethod::subViews(MInputMethod::HandlerState state) const
 
     QList<MInputMethodSubView> views;
 
-    if (KeyboardLoader *loader = d->layout_updater.keyboardLoader()) {
-        foreach (const QString &id, loader->ids()) {
-            MInputMethodSubView v;
-            v.subViewId = id;
-            v.subViewTitle = loader->title(id);
-            views.append(v);
-        }
+    foreach (const QString &id, d->layout_updater.keyboardIds()) {
+        MInputMethodSubView v;
+        v.subViewId = id;
+        v.subViewTitle = d->layout_updater.keyboardTitle(id);
+        views.append(v);
     }
 
     return views;
@@ -184,9 +180,7 @@ void InputMethod::setActiveSubView(const QString &id,
     Q_UNUSED(state)
     Q_D(InputMethod);
 
-    if (KeyboardLoader *loader = d->layout_updater.keyboardLoader()) {
-        loader->setActiveId(id);
-    }
+    d->layout_updater.setActiveKeyboardId(id);
 }
 
 QString InputMethod::activeSubView(MInputMethod::HandlerState state) const
@@ -194,14 +188,7 @@ QString InputMethod::activeSubView(MInputMethod::HandlerState state) const
     Q_UNUSED(state)
     Q_D(const InputMethod);
 
-    if (KeyboardLoader *loader = d->layout_updater.keyboardLoader()) {
-        return loader->activeId();
-    }
-
-    qWarning() << __PRETTY_FUNCTION__
-               << "Invalid subview detect!";
-
-    return QString();
+    return d->layout_updater.activeKeyboardId();
 }
 
 } // namespace MaliitKeyboard
