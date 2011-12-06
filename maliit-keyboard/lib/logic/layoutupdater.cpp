@@ -42,6 +42,18 @@ enum Transform {
     TransformToLower
 };
 
+bool verify(const QScopedPointer<KeyboardLoader> &loader,
+            const SharedLayout &layout)
+{
+    if (loader.isNull() || layout.isNull()) {
+        qCritical() << __PRETTY_FUNCTION__
+                    << "Could not find keyboard loader or layout, forgot to set them?";
+        return false;
+    }
+
+    return true;
+}
+
 KeyArea transformKeyArea(const KeyArea &ka,
                          Transform t)
 {
@@ -81,264 +93,13 @@ KeyArea replaceKey(const KeyArea &ka,
     return new_ka;
 }
 
-}
-
-class LayoutUpdaterPrivate
+KeyArea createFromKeyboard(const Keyboard &source,
+                           const QPoint &anchor)
 {
-public:
-    // TODO: who takes ownership of the states?
-    struct States {
-        QState *no_shift;
-        QState *shift;
-        QState *latched_shift;
-        QState *caps_lock;
-
-        explicit States()
-            : no_shift(0)
-            , shift(0)
-            , latched_shift(0)
-            , caps_lock(0)
-        {}
-    };
-
-    bool initialized;
-    SharedLayout layout;
-    QScopedPointer<KeyboardLoader> loader;
-    QScopedPointer<QStateMachine> machine;
-    States states;
-    QPoint anchor;
-
-    explicit LayoutUpdaterPrivate()
-        : initialized(false)
-        , layout()
-        , loader()
-        , machine()
-        , states()
-        , anchor()
-    {}
-};
-
-LayoutUpdater::LayoutUpdater(QObject *parent)
-    : QObject(parent)
-    , d_ptr(new LayoutUpdaterPrivate)
-{}
-
-LayoutUpdater::~LayoutUpdater()
-{}
-
-void LayoutUpdater::init()
-{
-    Q_D(LayoutUpdater);
-
-    // A workaround for virtual desktops where QDesktopWidget reports
-    // screenGeometry incorrectly: Allow user to override via settings.
-    QSettings settings("maliit.org", "vkb");
-    d->anchor = settings.value("anchor").toPoint();
-
-    if (d->anchor.isNull()) {
-        const QRect screen_area(QApplication::desktop() ? QApplication::desktop()->screenGeometry()
-                                                        : QRect(0, 0, 480, 854));
-        d->anchor = QPoint(screen_area.width() / 2, screen_area.height());
-
-        // Enforce creation of settings file, otherwise it's too hard to find
-        // the override (and get the syntax ride). I know, it's weird.
-        settings.setValue("_anchor", d->anchor);
-    }
-
-    d->machine.reset(new QStateMachine);
-    d->machine->setChildMode(QState::ExclusiveStates);
-
-    LayoutUpdaterPrivate::States &s(d->states);
-    s.no_shift = new QState;
-    s.no_shift->setObjectName("no-shift");
-
-    s.shift = new QState;
-    s.shift->setObjectName("shift");
-
-    s.latched_shift = new QState;
-    s.latched_shift->setObjectName("latched-shift");
-
-    s.caps_lock = new QState;
-    s.caps_lock->setObjectName("caps-lock");
-
-    s.no_shift->addTransition(this, SIGNAL(shiftPressed()), s.shift);
-    s.no_shift->addTransition(this, SIGNAL(autoCapsActivated()), s.latched_shift);
-    connect(s.no_shift, SIGNAL(entered()),
-            this,       SLOT(switchLayoutToLower()));
-
-    s.shift->addTransition(this, SIGNAL(shiftCancelled()), s.no_shift);
-    s.shift->addTransition(this, SIGNAL(shiftReleased()), s.latched_shift);
-    connect(s.shift, SIGNAL(entered()),
-            this,    SLOT(switchLayoutToUpper()));
-
-    s.latched_shift->addTransition(this, SIGNAL(shiftCancelled()), s.no_shift);
-    s.latched_shift->addTransition(this, SIGNAL(shiftReleased()), s.caps_lock);
-    connect(s.latched_shift, SIGNAL(entered()),
-            this,            SLOT(switchLayoutToUpper()));
-
-    s.caps_lock->addTransition(this, SIGNAL(shiftReleased()), s.no_shift);
-    connect(s.caps_lock, SIGNAL(entered()),
-            this,        SLOT(switchLayoutToUpper()));
-
-    d->machine->addState(s.no_shift);
-    d->machine->addState(s.shift);
-    d->machine->addState(s.latched_shift);
-    d->machine->addState(s.caps_lock);
-    d->machine->setInitialState(s.no_shift);
-
-    // Defer to first main loop iteration:
-    QTimer::singleShot(0, d->machine.data(), SLOT(start()));
-}
-
-void LayoutUpdater::setLayout(const SharedLayout &layout)
-{
-    Q_D(LayoutUpdater);
-    d->layout = layout;
-
-    if (not d->initialized) {
-        init();
-        d->initialized = true;
-    }
-}
-
-KeyboardLoader * LayoutUpdater::keyboardLoader() const
-{
-    Q_D(const LayoutUpdater);
-    return d->loader.data();
-}
-
-void LayoutUpdater::setKeyboardLoader(KeyboardLoader *loader)
-{
-    Q_D(LayoutUpdater);
-    d->loader.reset(loader);
-
-    connect(loader, SIGNAL(keyboardsChanged()),
-            this,   SLOT(onKeyboardsChanged()));
-}
-
-void LayoutUpdater::onKeyPressed(const Key &key,
-                                 const SharedLayout &layout)
-{
-    Q_D(const LayoutUpdater);
-
-    if (d->layout != layout) {
-        return;
-    }
-
-    // FIXME: Remove test code
-    // TEST CODE STARTS
-    bool static init = false;
-    static QPixmap pressed_bg(8, 8);
-    static QPixmap magnifier_bg(8, 8);
-    static SharedFont magnifier_font(new QFont);
-
-    if (not init) {
-        pressed_bg.fill(Qt::blue);
-        magnifier_bg.fill(QColor("#eee"));
-        magnifier_font->setPointSize(40);
-        init = true;
-    }
-    // TEST CODE ENDS
-
-    Key k(key);
-    k.setBackground(pressed_bg);
-    layout->appendActiveKey(k);
-
-    if (key.action() == Key::ActionCommit) {
-        Key magnifier(key);
-        magnifier.setBackground(magnifier_bg);
-
-        QRect magnifier_rect(key.rect().translated(0, -120).adjusted(-20, -20, 20, 20));
-        const QRectF key_area_rect(d->layout->activeKeyArea().rect);
-        if (magnifier_rect.left() < key_area_rect.left() + 10) {
-            magnifier_rect.setLeft(key_area_rect.left() + 10);
-        } else if (magnifier_rect.right() > key_area_rect.right() - 10) {
-            magnifier_rect.setRight(key_area_rect.right() - 10);
-        }
-
-        magnifier.setRect(magnifier_rect);
-        KeyLabel magnifier_label(magnifier.label());
-        magnifier_label.setColor(Qt::black);
-        magnifier_label.setRect(magnifier_label.rect().adjusted(0, 0, 40, 40));
-        magnifier_label.setFont(magnifier_font);
-        magnifier.setLabel(magnifier_label);
-        layout->setMagnifierKey(magnifier);
-    }
-
-    emit keysChanged(layout);
-
-    if (key.action() == Key::ActionShift) {
-        emit shiftPressed();
-    }
-}
-
-void LayoutUpdater::onKeyReleased(const Key &key,
-                                  const SharedLayout &layout)
-{
-    Q_D(const LayoutUpdater);
-
-    if (d->layout != layout) {
-        return;
-    }
-
-    layout->removeActiveKey(key);
-    layout->setMagnifierKey(Key());
-    emit keysChanged(layout);
-
-    if (key.action() == Key::ActionShift) {
-        emit shiftReleased();
-    } else if (key.action() == Key::ActionCommit
-               && d->machine->configuration().contains(d->states.latched_shift)) {
-        emit shiftCancelled();
-    }
-
-    // MORE TEST CODE STARTS
-    Key k(key);
-    if (key.action() == Key::ActionSwitch) {
-        k.setRect(k.rect().adjusted(0, 0, -20, -20));
-        d->layout->setActiveKeyArea(replaceKey(d->layout->activeKeyArea(), k));
-        emit layoutChanged(d->layout);
-    }
-    // TEST CODE ENDS
-}
-
-void LayoutUpdater::switchLayoutToUpper()
-{
-    Q_D(const LayoutUpdater);
-
-    if (not d->layout) {
-        return;
-    }
-
-    d->layout->setActiveKeyArea(transformKeyArea(d->layout->activeKeyArea(), TransformToUpper));
-    emit layoutChanged(d->layout);
-}
-
-void LayoutUpdater::switchLayoutToLower()
-{
-    Q_D(const LayoutUpdater);
-
-    if (not d->layout) {
-        return;
-    }
-
-    d->layout->setActiveKeyArea(transformKeyArea(d->layout->activeKeyArea(), TransformToLower));
-    emit layoutChanged(d->layout);
-}
-
-void LayoutUpdater::onKeyboardsChanged()
-{
-    Q_D(const LayoutUpdater);
-
-    if (not d->loader || not d->layout) {
-        qCritical() << __PRETTY_FUNCTION__
-                    << "Could not find keyboard loader or layout, forgot to set them?";
-    }
-
     // An ad-hoc geometry updater that also uses styling information.
     // Will only work for portrait mode (lots of hardcoded stuff).
     KeyArea ka;
-    Keyboard kb(d->loader->keyboard());
+    Keyboard kb(source);
 
     QPixmap normal_bg(4, 4);
     QPixmap special_bg(4, 4);
@@ -445,9 +206,376 @@ void LayoutUpdater::onKeyboardsChanged()
 
     const int height = pos.y() + row_height;
     ka.keys = kb.keys;
-    ka.rect =  QRectF(d->anchor.x() - 240, d->anchor.y() - height, 480, height);
-    d->layout->setCenterPanel(ka);
+    ka.rect =  QRectF(anchor.x() - 240, anchor.y() - height, 480, height);
+
+    return ka;
+}
+
+}
+
+class LayoutUpdaterPrivate
+{
+public:
+    // TODO: who takes ownership of the states?
+    struct ShiftStates {
+        QState *no_shift;
+        QState *shift;
+        QState *latched_shift;
+        QState *caps_lock;
+
+        explicit ShiftStates()
+            : no_shift(0)
+            , shift(0)
+            , latched_shift(0)
+            , caps_lock(0)
+        {}
+    };
+
+    struct ViewState {
+        QState *main;
+        // FIXME: Use nested states to have an arbitrary amount of symbol pages.
+        QState *symbols0;
+        QState *symbols1;
+
+        explicit ViewState()
+            : main(0)
+            , symbols0(0)
+            , symbols1(0)
+        {}
+    };
+
+    bool initialized;
+    SharedLayout layout;
+    QScopedPointer<KeyboardLoader> loader;
+    QScopedPointer<QStateMachine> shift_machine;
+    ShiftStates shift_states;
+    QScopedPointer<QStateMachine> view_machine;
+    ViewState view_states;
+    QPoint anchor;
+
+    explicit LayoutUpdaterPrivate()
+        : initialized(false)
+        , layout()
+        , loader()
+        , shift_machine()
+        , shift_states()
+        , view_machine()
+        , view_states()
+        , anchor()
+    {}
+};
+
+LayoutUpdater::LayoutUpdater(QObject *parent)
+    : QObject(parent)
+    , d_ptr(new LayoutUpdaterPrivate)
+{}
+
+LayoutUpdater::~LayoutUpdater()
+{}
+
+void LayoutUpdater::init()
+{
+    Q_D(LayoutUpdater);
+
+    // A workaround for virtual desktops where QDesktopWidget reports
+    // screenGeometry incorrectly: Allow user to override via settings.
+    QSettings settings("maliit.org", "vkb");
+    d->anchor = settings.value("anchor").toPoint();
+
+    if (d->anchor.isNull()) {
+        const QRect screen_area(QApplication::desktop() ? QApplication::desktop()->screenGeometry()
+                                                        : QRect(0, 0, 480, 854));
+        d->anchor = QPoint(screen_area.width() / 2, screen_area.height());
+
+        // Enforce creation of settings file, otherwise it's too hard to find
+        // the override (and get the syntax ride). I know, it's weird.
+        settings.setValue("_anchor", d->anchor);
+    }
+
+    setupShiftMachine();
+    setupViewMachine();
+}
+
+void LayoutUpdater::setLayout(const SharedLayout &layout)
+{
+    Q_D(LayoutUpdater);
+    d->layout = layout;
+
+    if (not d->initialized) {
+        init();
+        d->initialized = true;
+    }
+}
+
+KeyboardLoader * LayoutUpdater::keyboardLoader() const
+{
+    Q_D(const LayoutUpdater);
+    return d->loader.data();
+}
+
+void LayoutUpdater::setKeyboardLoader(KeyboardLoader *loader)
+{
+    Q_D(LayoutUpdater);
+    d->loader.reset(loader);
+
+    connect(loader, SIGNAL(keyboardsChanged()),
+            this,   SLOT(onKeyboardsChanged()));
+}
+
+void LayoutUpdater::onKeyPressed(const Key &key,
+                                 const SharedLayout &layout)
+{
+    Q_D(const LayoutUpdater);
+
+    if (d->layout != layout) {
+        return;
+    }
+
+    // FIXME: Remove test code
+    // TEST CODE STARTS
+    bool static init = false;
+    static QPixmap pressed_bg(8, 8);
+    static QPixmap magnifier_bg(8, 8);
+    static SharedFont magnifier_font(new QFont);
+
+    if (not init) {
+        pressed_bg.fill(Qt::blue);
+        magnifier_bg.fill(QColor("#eee"));
+        magnifier_font->setPointSize(40);
+        init = true;
+    }
+    // TEST CODE ENDS
+
+    Key k(key);
+    k.setBackground(pressed_bg);
+    layout->appendActiveKey(k);
+
+    if (key.action() == Key::ActionCommit) {
+        Key magnifier(key);
+        magnifier.setBackground(magnifier_bg);
+
+        QRect magnifier_rect(key.rect().translated(0, -120).adjusted(-20, -20, 20, 20));
+        const QRectF key_area_rect(d->layout->activeKeyArea().rect);
+        if (magnifier_rect.left() < key_area_rect.left() + 10) {
+            magnifier_rect.setLeft(key_area_rect.left() + 10);
+        } else if (magnifier_rect.right() > key_area_rect.right() - 10) {
+            magnifier_rect.setRight(key_area_rect.right() - 10);
+        }
+
+        magnifier.setRect(magnifier_rect);
+        KeyLabel magnifier_label(magnifier.label());
+        magnifier_label.setColor(Qt::black);
+        magnifier_label.setRect(magnifier_label.rect().adjusted(0, 0, 40, 40));
+        magnifier_label.setFont(magnifier_font);
+        magnifier.setLabel(magnifier_label);
+        layout->setMagnifierKey(magnifier);
+    }
+
+    emit keysChanged(layout);
+
+    if (key.action() == Key::ActionShift) {
+        emit shiftPressed();
+    }
+}
+
+void LayoutUpdater::onKeyReleased(const Key &key,
+                                  const SharedLayout &layout)
+{
+    Q_D(const LayoutUpdater);
+
+    if (d->layout != layout) {
+        return;
+    }
+
+    layout->removeActiveKey(key);
+    layout->setMagnifierKey(Key());
+    emit keysChanged(layout);
+
+    switch (key.action()) {
+    case Key::ActionShift:
+        emit shiftReleased();
+        break;
+
+    case Key::ActionCommit:
+        if (d->shift_machine->configuration().contains(d->shift_states.latched_shift)) {
+            emit shiftCancelled();
+        }
+        break;
+
+    case Key::ActionSym:
+        emit symKeyReleased();
+        break;
+
+    case Key::ActionSwitch:
+        emit symSwitcherReleased();
+        break;
+
+    default:
+        break;
+    }
+}
+
+void LayoutUpdater::switchLayoutToUpper()
+{
+    Q_D(const LayoutUpdater);
+
+    if (not d->layout) {
+        return;
+    }
+
+    d->layout->setActiveKeyArea(transformKeyArea(d->layout->activeKeyArea(), TransformToUpper));
     emit layoutChanged(d->layout);
+}
+
+void LayoutUpdater::switchLayoutToLower()
+{
+    Q_D(const LayoutUpdater);
+
+    if (not d->layout) {
+        return;
+    }
+
+    d->layout->setActiveKeyArea(transformKeyArea(d->layout->activeKeyArea(), TransformToLower));
+    emit layoutChanged(d->layout);
+}
+
+void LayoutUpdater::onKeyboardsChanged()
+{
+    Q_D(const LayoutUpdater);
+
+    if (not verify(d->loader, d->layout)) {
+        return;
+    }
+
+    d->layout->setCenterPanel(createFromKeyboard(d->loader->keyboard(), d->anchor));
+    emit layoutChanged(d->layout);
+}
+
+void LayoutUpdater::switchToMainView()
+{
+    // This will undo the changes done by shift, which is perhaps what we want.
+    // But if shift state is actually dependent on view state, then that's
+    // needs to be modelled as part of the state machines, or not?
+    onKeyboardsChanged();
+}
+
+void LayoutUpdater::switchToPrimarySymView()
+{
+    Q_D(const LayoutUpdater);
+
+    if (not verify(d->loader, d->layout)) {
+        return;
+    }
+
+    d->layout->setCenterPanel(createFromKeyboard(d->loader->symbolsKeyboard(0), d->anchor));
+    // Reset shift state machine, also see switchToMainView.
+    d->shift_machine->stop();
+    // Fixes a Qt warning, as one cannot restart a state machine right away.
+    QTimer::singleShot(0, d->shift_machine.data(), SLOT(start()));
+
+    //d->shift_machine->start();
+    emit layoutChanged(d->layout);
+}
+
+void LayoutUpdater::switchToSecondarySymView()
+{
+    Q_D(const LayoutUpdater);
+
+    if (not verify(d->loader, d->layout)) {
+        return;
+    }
+
+    d->layout->setCenterPanel(createFromKeyboard(d->loader->symbolsKeyboard(1), d->anchor));
+    emit layoutChanged(d->layout);
+}
+
+void LayoutUpdater::setupShiftMachine()
+{
+    Q_D(LayoutUpdater);
+
+    d->shift_machine.reset(new QStateMachine);
+    d->shift_machine->setChildMode(QState::ExclusiveStates);
+
+    LayoutUpdaterPrivate::ShiftStates &s(d->shift_states);
+    s.no_shift = new QState;
+    s.no_shift->setObjectName("no-shift");
+
+    s.shift = new QState;
+    s.shift->setObjectName("shift");
+
+    s.latched_shift = new QState;
+    s.latched_shift->setObjectName("latched-shift");
+
+    s.caps_lock = new QState;
+    s.caps_lock->setObjectName("caps-lock");
+
+    s.no_shift->addTransition(this, SIGNAL(shiftPressed()), s.shift);
+    s.no_shift->addTransition(this, SIGNAL(autoCapsActivated()), s.latched_shift);
+    connect(s.no_shift, SIGNAL(entered()),
+            this,       SLOT(switchLayoutToLower()));
+
+    s.shift->addTransition(this, SIGNAL(shiftCancelled()), s.no_shift);
+    s.shift->addTransition(this, SIGNAL(shiftReleased()), s.latched_shift);
+    connect(s.shift, SIGNAL(entered()),
+            this,    SLOT(switchLayoutToUpper()));
+
+    s.latched_shift->addTransition(this, SIGNAL(shiftCancelled()), s.no_shift);
+    s.latched_shift->addTransition(this, SIGNAL(shiftReleased()), s.caps_lock);
+    connect(s.latched_shift, SIGNAL(entered()),
+            this,            SLOT(switchLayoutToUpper()));
+
+    s.caps_lock->addTransition(this, SIGNAL(shiftReleased()), s.no_shift);
+    connect(s.caps_lock, SIGNAL(entered()),
+            this,        SLOT(switchLayoutToUpper()));
+
+    d->shift_machine->addState(s.no_shift);
+    d->shift_machine->addState(s.shift);
+    d->shift_machine->addState(s.latched_shift);
+    d->shift_machine->addState(s.caps_lock);
+    d->shift_machine->setInitialState(s.no_shift);
+
+    // Defer to first main loop iteration:
+    QTimer::singleShot(0, d->shift_machine.data(), SLOT(start()));
+}
+
+void LayoutUpdater::setupViewMachine()
+{
+    Q_D(LayoutUpdater);
+
+    d->view_machine.reset(new QStateMachine);
+    d->view_machine->setChildMode(QState::ExclusiveStates);
+
+    LayoutUpdaterPrivate::ViewState &s(d->view_states);
+    s.main = new QState;
+    s.main->setObjectName("main");
+
+    s.symbols0 = new QState;
+    s.symbols0->setObjectName("symbols0");
+
+    s.symbols1 = new QState;
+    s.symbols1->setObjectName("symbols1");
+
+    s.main->addTransition(this, SIGNAL(symKeyReleased()), s.symbols0);
+    connect(s.main, SIGNAL(entered()),
+            this,   SLOT(switchToMainView()));
+
+    s.symbols0->addTransition(this, SIGNAL(symKeyReleased()), s.main);
+    s.symbols0->addTransition(this, SIGNAL(symSwitcherReleased()), s.symbols1);
+    connect(s.symbols0, SIGNAL(entered()),
+            this,       SLOT(switchToPrimarySymView()));
+
+    s.symbols1->addTransition(this, SIGNAL(symKeyReleased()), s.main);
+    s.symbols1->addTransition(this, SIGNAL(symSwitcherReleased()), s.symbols0);
+    connect(s.symbols1, SIGNAL(entered()),
+            this,       SLOT(switchToSecondarySymView()));
+
+    d->view_machine->addState(s.main);
+    d->view_machine->addState(s.symbols0);
+    d->view_machine->addState(s.symbols1);
+    d->view_machine->setInitialState(s.main);
+
+    // Defer to first main loop iteration:
+    QTimer::singleShot(0, d->view_machine.data(), SLOT(start()));
 }
 
 } // namespace MaliitKeyboard

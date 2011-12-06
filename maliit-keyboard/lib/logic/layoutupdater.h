@@ -78,6 +78,16 @@ private:
     Q_SLOT void switchLayoutToLower();
     Q_SLOT void onKeyboardsChanged();
 
+    Q_SIGNAL void symKeyReleased();
+    Q_SIGNAL void symSwitcherReleased();
+
+    Q_SLOT void switchToMainView();
+    Q_SLOT void switchToPrimarySymView();
+    Q_SLOT void switchToSecondarySymView();
+
+    void setupShiftMachine();
+    void setupViewMachine();
+
     const QScopedPointer<LayoutUpdaterPrivate> d_ptr;
 };
 

@@ -33,14 +33,8 @@
 
 namespace MaliitKeyboard {
 
-Keyboard createKeyboard()
+Keyboard createKeyboard(const QStringList &keys)
 {
-    QStringList keys;
-    keys.append("qwertyuiop");
-    keys.append("|asdfghjkl|");
-    keys.append("^|zxcvbnm|\b");
-    keys.append("#|, .|\n");
-
     Keyboard kb;
     int row_index = 0;
 
@@ -81,6 +75,11 @@ Keyboard createKeyboard()
                 k.setAction(Key::ActionSym);
                 d.style = KeyDescription::SpecialStyle;
                 d.width = KeyDescription::XLarge;
+            } else if (c == '/') {
+                l.setText("switch");
+                k.setAction(Key::ActionSwitch);
+                d.style = KeyDescription::SpecialStyle;
+                d.width = KeyDescription::Large;
             } else if (c == '|') {
                 continue;
             } else {
@@ -159,7 +158,13 @@ QString KeyboardLoader::title(const QString &id) const
 
 Keyboard KeyboardLoader::keyboard() const
 {
-    return createKeyboard();
+    QStringList keys;
+    keys.append("qwertyuiop");
+    keys.append("|asdfghjkl|");
+    keys.append("^|zxcvbnm|\b");
+    keys.append("#|, .|\n");
+
+    return createKeyboard(keys);
 }
 
 Keyboard KeyboardLoader::nextKeyboard() const
@@ -180,7 +185,20 @@ Keyboard KeyboardLoader::shiftedKeyboard() const
 Keyboard KeyboardLoader::symbolsKeyboard(int page) const
 {
     Q_UNUSED(page)
-    return Keyboard();
+
+    QStringList keys;
+    keys.append("1234567890");
+
+    if (page == 0) {
+        keys.append("|_@%&$+-=*|");
+    } else if (page == 1) {
+        keys.append("|@_'`[]:;~|");
+    }
+
+    keys.append("/|!?()<>\"|\b");
+    keys.append("#|, .|\n");
+
+    return createKeyboard(keys);
 }
 
 Keyboard KeyboardLoader::deadKeyboard(const Key &dead) const
