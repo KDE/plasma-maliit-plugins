@@ -90,8 +90,7 @@ public:
             window->resize(qApp->desktop()->screenGeometry().size());
         }
 
-        renderer.setWindow(window);
-        renderer.setBackgroundBuffer(&buffer);
+        renderer.setWindow(window, &buffer);
         glass.setWindow(renderer.viewport());
         editor.setHost(host);
 

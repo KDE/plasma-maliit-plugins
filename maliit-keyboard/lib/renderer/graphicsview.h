@@ -37,14 +37,11 @@
 
 namespace MaliitKeyboard {
 
-class GraphicsViewPrivate;
-
 class GraphicsView
     : public QGraphicsView
 {
     Q_OBJECT
     Q_DISABLE_COPY(GraphicsView)
-    Q_DECLARE_PRIVATE(GraphicsView)
 
 public:
     explicit GraphicsView(QWidget *parent = 0);

@@ -52,8 +52,8 @@ public:
     explicit Renderer(QObject *parent = 0);
     virtual ~Renderer();
 
-    void setWindow(QWidget *window);
-    void setBackgroundBuffer(AbstractBackgroundBuffer *buffer);
+    void setWindow(QWidget *window,
+                   AbstractBackgroundBuffer *buffer = 0);
     QRegion region() const;
     QWidget * viewport() const;
 

@@ -231,18 +231,14 @@ Renderer::Renderer(QObject *parent)
 Renderer::~Renderer()
 {}
 
-void Renderer::setWindow(QWidget *window)
+void Renderer::setWindow(QWidget *window,
+                         AbstractBackgroundBuffer *buffer)
 {
     Q_D(Renderer);
     d->window = window;
 
-    d->view.reset(createView(d->window, d->buffer));
-}
-
-void Renderer::setBackgroundBuffer(AbstractBackgroundBuffer *buffer)
-{
-    Q_D(Renderer);
     d->buffer = buffer;
+    d->view.reset(createView(d->window, d->buffer));
 }
 
 QRegion Renderer::region() const
