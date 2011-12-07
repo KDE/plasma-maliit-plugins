@@ -316,6 +316,10 @@ void Renderer::show()
                     << "No view or no layouts exists, aborting!";
     }
 
+    foreach (QGraphicsItem *key_item, d->key_items) {
+        key_item->hide();
+    }
+
     Layout::Orientation orientation = Layout::Landscape;
 
     for (int index = 0; index < d->layout_items.count(); ++index) {
