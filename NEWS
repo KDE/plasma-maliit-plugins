@@ -1,3 +1,18 @@
+0.81.1
+======
+
+CHANGES SINCE 0.81.0
+* New Nemo Keyboard
+  - Comes with adjusted UX for Nemo Mobile project.
+  - Pure QML plugin, no C++ wrapper required.
+* Plugins can install data and QML modules properly
+  - Use MALIIT_PLUGINS_DATA_DIR for maliit-plugins
+  - Nemo Keyboard for example installs everything apart from main QML file to
+    /usr/share/maliit/plugins/org/nemomobile/
+
+BUG FIXES
+* Fixes: MALIIT#35 - The Maliit Keyboard's layout causes grid illusion
+
 0.81.0
 ======
 
