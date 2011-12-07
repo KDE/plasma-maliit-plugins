@@ -79,12 +79,29 @@ bool Glass::eventFilter(QObject *obj,
                         QEvent *ev)
 {
     Q_D(Glass);
+    static bool measure_fps(QCoreApplication::arguments().contains("-measure-fps"));
 
     if (not obj || not ev) {
         return false;
     }
 
     switch(ev->type()) {
+    case QEvent::Paint: {
+        if (measure_fps) {
+            static int count = 0;
+            static QElapsedTimer fps_timer;
+
+            if (0 == count % 120) {
+                qDebug() << "FPS:" << count / ((0.01 + fps_timer.elapsed()) / 1000) << count;
+                fps_timer.restart();
+                count = 0;
+            }
+
+            d->window->update();
+            ++count;
+        }
+    } break;
+
     case QKeyEvent::MouseButtonPress:
     case QKeyEvent::MouseButtonRelease: {
         QMouseEvent *qme = static_cast<QMouseEvent *>(ev);
