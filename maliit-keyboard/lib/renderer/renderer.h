@@ -54,7 +54,10 @@ public:
 
     void setWindow(QWidget *window,
                    AbstractBackgroundBuffer *buffer = 0);
+
     QRegion region() const;
+    Q_SIGNAL void regionChanged(const QRegion &region);
+
     QWidget * viewport() const;
 
     void addLayout(const SharedLayout &layout);

@@ -341,6 +341,8 @@ void Renderer::show()
         d->root->setPos(0, rect.height());
         break;
     }
+
+    emit regionChanged(d->region);
 }
 
 void Renderer::hide()
@@ -352,6 +354,7 @@ void Renderer::hide()
     }
 
     d->region = QRegion();
+    emit regionChanged(d->region);
 }
 
 void Renderer::onLayoutChanged(const SharedLayout &layout)

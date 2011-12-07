@@ -122,6 +122,12 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host,
 
     connect(&d->layout_updater, SIGNAL(keysChanged(SharedLayout)),
             &d->renderer,       SLOT(onKeysChanged(SharedLayout)));
+
+    connect(&d->renderer, SIGNAL(regionChanged(QRegion)),
+            host,         SLOT(setInputMethodArea(QRegion)));
+
+    connect(&d->renderer, SIGNAL(regionChanged(QRegion)),
+            host,         SLOT(setScreenRegion(QRegion)));
 }
 
 InputMethod::~InputMethod()
@@ -130,22 +136,13 @@ InputMethod::~InputMethod()
 void InputMethod::show()
 {
     Q_D(InputMethod);
-
     d->renderer.show();
-
-    // FIXME: Region can change, for example when showing extended keys.
-    inputMethodHost()->setInputMethodArea(d->renderer.region());
-    inputMethodHost()->setScreenRegion(d->renderer.region());
 }
 
 void InputMethod::hide()
 {
     Q_D(InputMethod);
-
     d->renderer.hide();
-
-    inputMethodHost()->setInputMethodArea(d->renderer.region());
-    inputMethodHost()->setScreenRegion(d->renderer.region());
 }
 
 void InputMethod::switchContext(MInputMethod::SwitchDirection direction,
