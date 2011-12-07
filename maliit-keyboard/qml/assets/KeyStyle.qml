@@ -32,8 +32,8 @@
 import Qt 4.7
 
 Item {
-    property string background: "#282828"
-    property string backgroundPressed: "#2fa7d4"
+    property string background: "#292421"
+    property string backgroundPressed: "#698B22"
     property string backgroundFunction: "#646464"
     property int landscapeWidth: 76
     property int landscapeWidthNarrow: 72
@@ -48,6 +48,6 @@ Item {
     property int portraitMarginNarrow: 6
 
     property int fontSize: 28
-    property string fontColor: "white"
+    property string fontColor: "#FFFCCF"
 }
 

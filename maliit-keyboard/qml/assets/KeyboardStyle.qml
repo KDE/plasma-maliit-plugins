@@ -32,7 +32,7 @@
 import Qt 4.7
 
 Item {
-    property string background: "#d9d9d9"
+    property string background: "#C6C1A8"
     property int landscapeWidth: 854
     property int landscapeHeight: 230
     property int portraitWidth: 480
