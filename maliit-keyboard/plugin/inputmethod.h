@@ -63,6 +63,8 @@ public:
     virtual void setActiveSubView(const QString &id,
                                   MInputMethod::HandlerState state = MInputMethod::OnScreen);
     virtual QString activeSubView(MInputMethod::HandlerState state = MInputMethod::OnScreen) const;
+    virtual void handleAppOrientationChanged(int angle);
+    //! \reimp_end
 
 private:
     const QScopedPointer<InputMethodPrivate> d_ptr;

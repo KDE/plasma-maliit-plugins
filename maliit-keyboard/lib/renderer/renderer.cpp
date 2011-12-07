@@ -111,18 +111,26 @@ public:
             extended_item = new KeyAreaItem(root);
         }
 
+        center_item->setParentItem(root);
         center_item->setKeyArea(layout->centerPanel());
+        //center_item->setRotation(layout->orientation() == Layout::Landscape ? 0 : 270);
+        center_item->update();
         center_item->show();
-        *region |= QRegion(layout->centerPanel().rect.toRect());
+        *region |= QRegion(center_item->mapRectToScene(center_item->boundingRect()).toRect());
 
+        extended_item->setParentItem(root);
         extended_item->setKeyArea(layout->extendedPanel());
+        extended_item->update();
+        //extended_item->setRotation(layout->orientation() == Layout::Landscape ? 0 : 270);
 
         if (layout->activePanel() != Layout::ExtendedPanel) {
             extended_item->hide();
         } else {
             extended_item->show();
-            *region |= QRegion(layout->extendedPanel().rect.toRect());
+            *region |= QRegion(extended_item->mapRectToScene(extended_item->boundingRect()).toRect());
         }
+
+        root->show();
     }
 
     void hide()
@@ -145,6 +153,36 @@ public:
     }
 };
 
+class RootItem
+    : public QGraphicsItem
+{
+private:
+    QRectF m_rect;
+
+public:
+    explicit RootItem(QGraphicsItem *parent = 0)
+        : QGraphicsItem(parent)
+        , m_rect()
+    {
+        setFlag(QGraphicsItem::ItemHasNoContents);
+    }
+
+    void setRect(const QRectF &rect)
+    {
+        m_rect = rect;
+    }
+
+    virtual QRectF boundingRect() const
+    {
+        return m_rect;
+    }
+
+    virtual void paint(QPainter *,
+                       const QStyleOptionGraphicsItem *,
+                       QWidget *)
+    {}
+};
+
 QGraphicsView * createView(QWidget *widget,
                            AbstractBackgroundBuffer *buffer)
 {
@@ -155,6 +193,7 @@ QGraphicsView * createView(QWidget *widget,
     view->setOptimizationFlags(QGraphicsView::DontClipPainter | QGraphicsView::DontSavePainterState);
     QGraphicsScene *scene = new QGraphicsScene(view);
     view->setScene(scene);
+    view->setSceneRect(widget->rect());
     view->setFrameShape(QFrame::NoFrame);
     view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -166,20 +205,6 @@ QGraphicsView * createView(QWidget *widget,
 
     scene->setSceneRect(widget->rect());
     return view;
-}
-
-QGraphicsItem * rootItem(QGraphicsView *view)
-{
-    if (not view || not view->scene()) {
-        return 0;
-    }
-
-    QList<QGraphicsItem *> items = view->scene()->items(Qt::DescendingOrder);
-    if (not items.isEmpty()) {
-        return items.at(0);
-    }
-
-    return 0;
 }
 
 void recycleKeyItem(QVector<KeyItem *> *key_items,
@@ -212,6 +237,7 @@ public:
     QRegion region;
     QVector<LayoutItem> layout_items;
     QVector<KeyItem *> key_items;
+    RootItem *root;
 
     explicit RendererPrivate()
         : window(0)
@@ -220,6 +246,7 @@ public:
         , region()
         , layout_items()
         , key_items()
+        , root(0)
     {}
 };
 
@@ -268,6 +295,7 @@ void Renderer::clearLayouts()
 
     d->layout_items.clear();
     d->key_items.clear();
+    d->root = 0;
     d->view->scene()->clear();
 }
 
@@ -275,8 +303,12 @@ void Renderer::show()
 {
     Q_D(Renderer);
 
-    if (not rootItem(d->view.data())) {
-        d->view->scene()->addItem(new QGraphicsRectItem);
+    const QRect &rect(d->view->rect());
+
+    if (not d->root) {
+        d->view->scene()->addItem(d->root = new RootItem);
+        d->root->setRect(rect);
+        d->root->show();
     }
 
     if (not d->view || d->layout_items.isEmpty()) {
@@ -284,12 +316,31 @@ void Renderer::show()
                     << "No view or no layouts exists, aborting!";
     }
 
+    Layout::Orientation orientation = Layout::Landscape;
+
     for (int index = 0; index < d->layout_items.count(); ++index) {
         LayoutItem &li(d->layout_items[index]);
-        li.show(rootItem(d->view.data()), &d->region);
+
+        if (li.layout) {
+            orientation = li.layout->orientation(); // last layout wins ...
+        }
+
+        li.show(d->root, &d->region);
     }
 
-    d->view->show();
+    switch (orientation) {
+    case Layout::Landscape:
+        d->root->setRect(rect);
+        d->root->setRotation(0);
+        d->root->setPos(0, 0);
+        break;
+
+    case Layout::Portrait:
+        d->root->setRect(QRectF(rect.x(), rect.y(), rect.height(), rect.width()));
+        d->root->setRotation(-90);
+        d->root->setPos(0, rect.height());
+        break;
+    }
 }
 
 void Renderer::hide()

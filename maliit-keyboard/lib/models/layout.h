@@ -43,6 +43,11 @@ typedef QSharedPointer<Layout> SharedLayout;
 class Layout
 {
 public:
+    enum Orientation {
+        Landscape,
+        Portrait
+    };
+
     enum Panel {
         LeftPanel,
         RightPanel,
@@ -52,6 +57,7 @@ public:
     };
 
 private:
+    Orientation m_orientation;
     Panel m_active_panel;
     KeyArea m_left;
     KeyArea m_right;
@@ -69,6 +75,9 @@ private:
 
 public:
     explicit Layout();
+
+    Orientation orientation() const;
+    void setOrientation(Orientation orientation);
 
     Panel activePanel() const;
     void setActivePanel(Panel panel);

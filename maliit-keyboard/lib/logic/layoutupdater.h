@@ -62,6 +62,7 @@ public:
 
     void setLayout(const SharedLayout &layout);
     void resetKeyboardLoader(KeyboardLoader *loader);
+    void setOrientation(Layout::Orientation orientation);
 
     Q_SLOT void onKeyPressed(const Key &key,
                              const SharedLayout &layout);

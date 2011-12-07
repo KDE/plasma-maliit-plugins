@@ -56,6 +56,29 @@ bool verify(const QScopedPointer<KeyboardLoader> &loader,
     return true;
 }
 
+// FIXME: only access settings *once*
+QPoint computeAnchor(Layout::Orientation orientation)
+{
+    // A workaround for virtual desktops where QDesktopWidget reports
+    // screenGeometry incorrectly: Allow user to override via settings.
+    QSettings settings("maliit.org", "vkb");
+    QPoint anchor(settings.value("anchor").toPoint());
+
+    if (anchor.isNull()) {
+        const QRect screen_area(QApplication::desktop() ? QApplication::desktop()->screenGeometry()
+                                                        : QRect(0, 0, 480, 854));
+        anchor = (orientation == Layout::Landscape)
+                  ? QPoint(screen_area.width() / 2, screen_area.height())
+                  : QPoint(screen_area.height() / 2, screen_area.width());
+
+        // Enforce creation of settings file, otherwise it's too hard to find
+        // the override (and get the syntax ride). I know, it's weird.
+        settings.setValue("_anchor", anchor);
+    }
+
+    return anchor;
+}
+
 KeyArea transformKeyArea(const KeyArea &ka,
                          Transform t)
 {
@@ -96,7 +119,9 @@ KeyArea replaceKey(const KeyArea &ka,
 }
 
 KeyArea createFromKeyboard(const Keyboard &source,
-                           const QPoint &anchor)
+                           const QPoint &anchor,
+                           int max_width,
+                           Layout::Orientation orientation)
 {
     // An ad-hoc geometry updater that also uses styling information.
     // Will only work for portrait mode (lots of hardcoded stuff).
@@ -117,8 +142,10 @@ KeyArea createFromKeyboard(const Keyboard &source,
     static SharedFont small_font(new QFont);
     small_font->setPointSize(12);
 
-    QPoint pos(2, 0);
-    int row_height = 70;
+    QPoint pos(0, 0);
+    const int row_height = (orientation == Layout::Landscape) ? 60 : 80;
+    const qreal base_width = (orientation == Layout::Landscape) ? 78 : 42;
+    const qreal margin = 3;
     int prev_row = 0;
     QVector<int> row_indices;
     int spacer_count = 0;
@@ -141,20 +168,23 @@ KeyArea createFromKeyboard(const Keyboard &source,
         case KeyDescription::DeadkeyStyle: key.setBackground(deadkey_bg); break;
         }
 
+        qreal k = 1;
+
         switch (desc.width) {
-        case KeyDescription::Small: width = 22; break;
-        case KeyDescription::Medium: width = 42; break;
-        case KeyDescription::Large: width = 66; break;
-        case KeyDescription::XLarge: width = 90; break;
-        case KeyDescription::XXLarge: width = 114; break;
-        case KeyDescription::Stretched: width = 138; break;
+        case KeyDescription::Small: k = 0.5; break;
+        case KeyDescription::Medium: k = 1; break;
+        case KeyDescription::Large: k = 1.5; break;
+        case KeyDescription::XLarge: k = 2; break;
+        case KeyDescription::XXLarge: k = 2.5; break;
+        case KeyDescription::Stretched: k = 3; break;
         }
 
-        width += 6;
+        width = k * base_width + (k - 0.5) * margin;
+
+        width += margin * 2;
         prev_row = desc.row;
         key.setRect(QRect(pos.x(), pos.y(), width, row_height));
-        key.setMargins(QMargins(pos.x() < 5 ? 1 : 3, 3,
-                                pos.x() > 475 ? 1 : 3, 3));
+        key.setMargins(QMargins(3, 3, 3, 3));
 
         KeyLabel label(key.label());
         label.setFont(label.text().count() > 1 ? small_font : font);
@@ -166,8 +196,8 @@ KeyArea createFromKeyboard(const Keyboard &source,
 
         if ((index + 1 == kb.keys.count())
             || (index + 1 < kb.keys.count() && kb.key_descriptions.at(index + 1).row > desc.row)) {
-            if (spacer_count > 0 && pos.x() < 481  ) {
-                const int spacer_width = qMax<int>(0, 480 - pos.x()) / spacer_count;
+            if (spacer_count > 0 && pos.x() < max_width + 1) {
+                const int spacer_width = qMax<int>(0, max_width - pos.x()) / spacer_count;
                 pos.setX(0);
                 int right_x = 0;
 
@@ -208,7 +238,8 @@ KeyArea createFromKeyboard(const Keyboard &source,
 
     const int height = pos.y() + row_height;
     ka.keys = kb.keys;
-    ka.rect =  QRectF(anchor.x() - 240, anchor.y() - height, 480, height);
+    ka.rect =  QRectF(anchor.x() - max_width / 2, anchor.y() - height,
+                      max_width, height);
 
     return ka;
 }
@@ -251,21 +282,7 @@ void LayoutUpdater::init()
 {
     Q_D(LayoutUpdater);
 
-    // A workaround for virtual desktops where QDesktopWidget reports
-    // screenGeometry incorrectly: Allow user to override via settings.
-    QSettings settings("maliit.org", "vkb");
-    d->anchor = settings.value("anchor").toPoint();
-
-    if (d->anchor.isNull()) {
-        const QRect screen_area(QApplication::desktop() ? QApplication::desktop()->screenGeometry()
-                                                        : QRect(0, 0, 480, 854));
-        d->anchor = QPoint(screen_area.width() / 2, screen_area.height());
-
-        // Enforce creation of settings file, otherwise it's too hard to find
-        // the override (and get the syntax ride). I know, it's weird.
-        settings.setValue("_anchor", d->anchor);
-    }
-
+    d->anchor = computeAnchor(Layout::Landscape);
     d->shift_machine.setup(this);
     d->view_machine.setup(this);
 }
@@ -313,6 +330,22 @@ void LayoutUpdater::resetKeyboardLoader(KeyboardLoader *loader)
     connect(loader, SIGNAL(keyboardsChanged()),
             this,   SLOT(onKeyboardsChanged()),
             Qt::UniqueConnection);
+}
+
+void LayoutUpdater::setOrientation(Layout::Orientation orientation)
+{
+    Q_D(LayoutUpdater);
+
+    if (d->layout && d->layout->orientation() != orientation) {
+        d->layout->setOrientation(orientation);
+
+        // FIXME: reposition extended keys, too (and left/right?)
+        d->anchor = computeAnchor(orientation);
+        d->layout->setCenterPanel(createFromKeyboard(d->loader->keyboard(),
+                                                     d->anchor, d->anchor.x() * 2,
+                                                     orientation));
+        emit layoutChanged(d->layout);
+    }
 }
 
 void LayoutUpdater::onKeyPressed(const Key &key,
@@ -440,7 +473,9 @@ void LayoutUpdater::onKeyboardsChanged()
         return;
     }
 
-    d->layout->setCenterPanel(createFromKeyboard(d->loader->keyboard(), d->anchor));
+    d->layout->setCenterPanel(createFromKeyboard(d->loader->keyboard(),
+                                                 d->anchor, d->anchor.x() * 2,
+                                                 d->layout->orientation()));
     emit layoutChanged(d->layout);
 }
 
@@ -460,7 +495,9 @@ void LayoutUpdater::switchToPrimarySymView()
         return;
     }
 
-    d->layout->setCenterPanel(createFromKeyboard(d->loader->symbolsKeyboard(0), d->anchor));
+    d->layout->setCenterPanel(createFromKeyboard(d->loader->symbolsKeyboard(0),
+                                                 d->anchor, d->anchor.x() * 2,
+                                                 d->layout->orientation()));
     // Reset shift state machine, also see switchToMainView.
     d->shift_machine.restart();
 
@@ -476,7 +513,9 @@ void LayoutUpdater::switchToSecondarySymView()
         return;
     }
 
-    d->layout->setCenterPanel(createFromKeyboard(d->loader->symbolsKeyboard(1), d->anchor));
+    d->layout->setCenterPanel(createFromKeyboard(d->loader->symbolsKeyboard(1),
+                                                 d->anchor, d->anchor.x() * 2,
+                                                 d->layout->orientation()));
     emit layoutChanged(d->layout);
 }
 

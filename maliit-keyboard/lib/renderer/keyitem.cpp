@@ -38,6 +38,7 @@ KeyItem::KeyItem(QGraphicsItem *parent)
     : QGraphicsItem(parent)
     , m_key()
 {
+    setCacheMode(QGraphicsItem::DeviceCoordinateCache);
 }
 
 void KeyItem::setKey(const Key &key)

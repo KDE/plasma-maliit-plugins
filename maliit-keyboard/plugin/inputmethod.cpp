@@ -190,4 +190,11 @@ QString InputMethod::activeSubView(MInputMethod::HandlerState state) const
     return d->layout_updater.activeKeyboardId();
 }
 
+void InputMethod::handleAppOrientationChanged(int angle)
+{
+    Q_D(InputMethod);
+    d->layout_updater.setOrientation((angle == 0 || angle == 180) ? Layout::Landscape
+                                                                  : Layout::Portrait);
+}
+
 } // namespace MaliitKeyboard
