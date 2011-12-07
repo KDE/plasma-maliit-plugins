@@ -339,7 +339,8 @@ void LayoutUpdater::setOrientation(Layout::Orientation orientation)
     if (d->layout && d->layout->orientation() != orientation) {
         d->layout->setOrientation(orientation);
 
-        // FIXME: reposition extended keys, too (and left/right?)
+        // FIXME: reposition extended keys, too (and left/right?).
+        // FIXME: consider shift state.
         d->anchor = computeAnchor(orientation);
         d->layout->setCenterPanel(createFromKeyboard(d->loader->keyboard(),
                                                      d->anchor, d->anchor.x() * 2,

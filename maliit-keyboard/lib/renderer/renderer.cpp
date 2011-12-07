@@ -199,8 +199,13 @@ QGraphicsView * createView(QWidget *widget,
     view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 #ifdef MALIIT_KEYBOARD_HAVE_OPENGL
-    view->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
-    view->setViewport(new QGLWidget);
+    QGLWidget *gl_widget = new QGLWidget;
+    if (gl_widget->isValid()) {
+        view->setViewport(gl_widget);
+        view->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
+    } else {
+        delete gl_widget;
+    }
 #endif
 
     scene->setSceneRect(widget->rect());
