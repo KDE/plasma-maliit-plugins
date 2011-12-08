@@ -77,6 +77,7 @@ void TagSection::appendRow(const TagRowPtr &row)
 
 bool TagSection::operator==(const TagSection &other) const
 {
+    Q_UNUSED(other)
     return false;
 }
 

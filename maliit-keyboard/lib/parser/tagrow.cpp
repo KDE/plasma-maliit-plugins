@@ -56,6 +56,7 @@ void TagRow::appendElement(const TagRowElementPtr &element)
 
 bool TagRow::operator==(const TagRow &other)
 {
+    Q_UNUSED(other)
     return false;
 }
 

@@ -70,6 +70,7 @@ void TagLayout::appendSection(const TagSectionPtr &section)
 
 bool TagLayout::operator==(const TagLayout &other) const
 {
+    Q_UNUSED(other)
     return false;
 }
 
