@@ -211,8 +211,7 @@ KeyArea Layout::lookup(Panel panel) const
 
     qCritical() << __PRETTY_FUNCTION__
                 << "Should not be reached, invalid panel:" << panel;
-    static const KeyArea invalid;
-    return invalid;
+    return KeyArea();
 }
 
 } // namespace MaliitKeyboard
