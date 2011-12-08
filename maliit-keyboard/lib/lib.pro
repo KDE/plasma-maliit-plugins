@@ -9,6 +9,7 @@ include(renderer/renderer.pri)
 include(models/models.pri)
 include(glass/glass.pri)
 include(logic/logic.pri)
+include(parser/parser.pri)
 
 target.path += $$PREFIX/usr/lib
 INSTALLS += target
