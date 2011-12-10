@@ -13,3 +13,4 @@ include(parser/parser.pri)
 
 target.path += $$PREFIX/usr/lib
 INSTALLS += target
+DEFINES += MALIIT_PLUGINS_DATA_DIR=\\\"$$MALIIT_PLUGINS_DATA_DIR\\\"
