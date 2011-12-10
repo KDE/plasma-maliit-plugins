@@ -9,7 +9,8 @@ MALIIT_VERSION = 0.81.1
         Important build options: \
         \\n\\t \
         \\nRecognised CONFIG flags: \
-        \\n\\t enable-legacy : Build for legacy mode (using meego-im ABI/API compatabible maliit-framework) \
+        \\n\\t enable-legacy: Build for legacy mode (using meego-im ABI/API compatabible maliit-framework) \
+        \\n\\t use-xml-lll: Build XML language layout loader instead of naive one.
         \\nInfluential environment variables: \
         \\n\\t PKG_CONFIG_PATH: Specify the pkg-config files to use for dependencies \
         \\nExamples: \

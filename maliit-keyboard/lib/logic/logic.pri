@@ -5,8 +5,14 @@ HEADERS += \
     keyboardloader.h \
 
 SOURCES += \
-    layoutupdater.cpp \
-    keyboardloader.cpp \
+    layoutupdater.cpp
+
+# This is temporary only, just to have anything working as xml LLL is still WIP.
+use-xml-lll {
+    SOURCES += xmlkeyboardloader.cpp
+} else {
+    SOURCES += keyboardloader.cpp
+}
 
 DEPENDPATH += $$LOGIC_DIR
 
