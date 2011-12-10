@@ -43,16 +43,15 @@ public:
     enum Action {
         ActionInsert,
         ActionShift,
-        ActionSpace,
         ActionBackspace,
+        ActionSpace,
         ActionCycle,
         ActionLayoutMenu,
         ActionSym,
         ActionReturn,
+        ActionCommit,
         ActionDecimalSeparator,
         ActionPlusMinusToggle,
-        ActionTab,
-        ActionCommit,
         ActionSwitch,
         ActionOnOffToggle,
         ActionCompose,
@@ -60,6 +59,8 @@ public:
         ActionUp,
         ActionRight,
         ActionDown,
+        ActionTab,
+        ActionDead,
         NumActions
     };
 
