@@ -1,11 +1,9 @@
-languages.path = $$MALIIT_PLUGINS_DATA_DIR/languages
 languages.files = \
-    de.xml \
-    en_gb.xml \
-    pl.xml \
-    symbols-36-nordic.xml \
-    symbols_en.xml \
-    symbols-38.xml \
-    VirtualKeyboardLayout.dtd
+    languages/de.xml \
+    languages/en_gb.xml \
+    languages/pl.xml \
+    languages/symbols-36-nordic.xml \
+    languages/symbols_en.xml \
+    languages/symbols-38.xml \
+    languages/VirtualKeyboardLayout.dtd \
 
-INSTALLS += languages
