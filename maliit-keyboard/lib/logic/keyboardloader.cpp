@@ -89,6 +89,9 @@ Keyboard get_keyboard(const TagKeyboardPtr& keyboard,
                       const QString &dead_label = "")
 {
     Keyboard skeyboard;
+
+    // FIXME: set style based on key count/style override.
+    skeyboard.style_name = QString("keys33");
     const QChar dead_key((dead_label.size() == 1) ? dead_label[0] : QChar::Null);
 
     if (keyboard) {

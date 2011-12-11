@@ -29,59 +29,48 @@
  *
  */
 
-#ifndef MALIIT_KEYBOARD_KEYDESCRIPTION_H
-#define MALIIT_KEYBOARD_KEYDESCRIPTION_H
+#ifndef MALIIT_KEYBOARD_STYLE_H
+#define MALIIT_KEYBOARD_STYLE_H
+
+#include "models/layout.h"
+#include "models/keydescription.h"
+
+#include <QtCore>
 
 namespace MaliitKeyboard {
 
-struct KeyDescription
+class StylePrivate;
+
+class Style
+    : public QObject
 {
-    enum Style {
-        NormalStyle,
-        SpecialStyle,
-        DeadkeyStyle
-    };
+    Q_OBJECT
+    Q_DISABLE_COPY(Style)
+    Q_DECLARE_PRIVATE(Style)
 
-    enum Width {
-        Small,
-        Medium,
-        Large,
-        XLarge,
-        XXLarge,
-        Stretched
-    };
+public:
+    explicit Style(QObject *parent = 0);
+    virtual ~Style();
 
-    enum Icon {
-        NoIcon,
-        ReturnIcon,
-        BackspaceIcon,
-        ShiftIcon,
-        ShiftLatchedIcon,
-        CapsLockIcon
-    };
+    void setStyleName(const QString &name);
 
-    enum State {
-        NormalState,
-        PressedState,
-        DisabledState,
-        HighlightedState
-    };
+    QPixmap background(KeyDescription::Style style,
+                       KeyDescription::State state) const;
+    QPixmap icon(KeyDescription::Icon icon,
+                 KeyDescription::State state) const;
 
-    enum FontGroup {
-        NormalFontGroup,
-        BigFontGroup
-    };
+    QString fontName(const QString &group_id = QString()) const;
+    qreal fontSize(const QString &group_id = QString()) const;
 
-    int row;
-    bool use_rtl_icon: 1;
-    bool left_spacer: 1;
-    bool right_spacer: 1;
-    Style style;
-    Width width;
-    Icon icon;
-    FontGroup font_group;
+    qreal keyHeight(Layout::Orientation orientation) const;
+    qreal keyWidth(Layout::Orientation orientation,
+                   KeyDescription::Width width) const;
+    qreal keyAreaWidth(Layout::Orientation orientation) const;
+
+private:
+    const QScopedPointer<StylePrivate> d_ptr;
 };
 
 } // namespace MaliitKeyboard
 
-#endif // MALIIT_KEYBOARD_KEYDESCRIPTION_H
+#endif // MALIIT_KEYBOARD_STYLE_H

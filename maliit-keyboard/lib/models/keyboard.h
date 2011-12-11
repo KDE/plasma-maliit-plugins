@@ -39,6 +39,7 @@ namespace MaliitKeyboard {
 
 struct Keyboard
 {
+    QString style_name;
     QVector<Key> keys;
     QVector<KeyDescription> key_descriptions;
 };

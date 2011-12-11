@@ -30,6 +30,7 @@
  */
 
 #include "layoutupdater.h"
+#include "style.h"
 #include "logic/state-machines/shiftmachine.h"
 #include "logic/state-machines/viewmachine.h"
 #include "models/keyboard.h"
@@ -118,15 +119,23 @@ KeyArea replaceKey(const KeyArea &ka,
     return new_ka;
 }
 
-KeyArea createFromKeyboard(const Keyboard &source,
+KeyArea createFromKeyboard(Style *style,
+                           const Keyboard &source,
                            const QPoint &anchor,
-                           int max_width,
                            Layout::Orientation orientation)
 {
     // An ad-hoc geometry updater that also uses styling information.
     // Will only work for portrait mode (lots of hardcoded stuff).
     KeyArea ka;
     Keyboard kb(source);
+
+    if (not style) {
+        qCritical() << __PRETTY_FUNCTION__
+                    << "No style given, aborting.";
+        return ka;
+    }
+
+    style->setStyleName(kb.style_name);
 
     QPixmap normal_bg(4, 4);
     QPixmap special_bg(4, 4);
@@ -136,15 +145,15 @@ KeyArea createFromKeyboard(const Keyboard &source,
     special_bg.fill(QColor("#999"));
     deadkey_bg.fill(QColor("#ccc"));
 
-    static SharedFont font(new QFont);
-    font->setPointSize(20);
+    static SharedFont font(new QFont(style->fontName()));
+    font->setPixelSize(style->fontSize());
 
-    static SharedFont small_font(new QFont);
+    static SharedFont small_font(new QFont(style->fontName()));
     small_font->setPointSize(12);
 
     QPoint pos(0, 0);
-    const int row_height = (orientation == Layout::Landscape) ? 60 : 80;
-    const qreal base_width = (orientation == Layout::Landscape) ? 78 : 42;
+    const qreal max_width(style->keyAreaWidth(orientation));
+    const qreal key_height(style->keyHeight(orientation));
     const qreal margin = 3;
     int prev_row = 0;
     QVector<int> row_indices;
@@ -156,35 +165,25 @@ KeyArea createFromKeyboard(const Keyboard &source,
         Key &key(kb.keys[index]);
         const KeyDescription &desc(kb.key_descriptions.at(index));
         int width = 0;
-        pos.setY(row_height * desc.row);
+        pos.setY(key_height * desc.row);
 
         if (desc.left_spacer || desc.right_spacer) {
             ++spacer_count;
         }
 
+        // FIXME: Get background from style.
         switch (desc.style) {
         case KeyDescription::NormalStyle: key.setBackground(normal_bg); break;
         case KeyDescription::SpecialStyle: key.setBackground(special_bg); break;
         case KeyDescription::DeadkeyStyle: key.setBackground(deadkey_bg); break;
         }
 
-        qreal k = 1;
-
-        switch (desc.width) {
-        case KeyDescription::Small: k = 0.5; break;
-        case KeyDescription::Medium: k = 1; break;
-        case KeyDescription::Large: k = 1.5; break;
-        case KeyDescription::XLarge: k = 2; break;
-        case KeyDescription::XXLarge: k = 2.5; break;
-        case KeyDescription::Stretched: k = 3; break;
-        }
-
-        width = k * base_width + (k - 0.5) * margin;
-
-        width += margin * 2;
         prev_row = desc.row;
-        key.setRect(QRect(pos.x(), pos.y(), width, row_height));
-        key.setMargins(QMargins(3, 3, 3, 3));
+        width = style->keyWidth(orientation, desc.width) + margin * 2;
+        key.setRect(QRect(pos.x(), pos.y(), width, key_height));
+
+        // FIXME: Get key margins from style.
+        key.setMargins(QMargins(margin, margin, margin, margin));
 
         KeyLabel label(key.label());
         label.setFont(label.text().count() > 1 ? small_font : font);
@@ -227,7 +226,6 @@ KeyArea createFromKeyboard(const Keyboard &source,
 
                     right_x = r.right();
                 }
-
             }
 
             row_indices.clear();
@@ -236,7 +234,7 @@ KeyArea createFromKeyboard(const Keyboard &source,
         }
     }
 
-    const int height = pos.y() + row_height;
+    const int height = pos.y() + key_height;
     ka.keys = kb.keys;
     ka.rect =  QRectF(anchor.x() - max_width / 2, anchor.y() - height,
                       max_width, height);
@@ -255,6 +253,7 @@ public:
     ShiftMachine shift_machine;
     ViewMachine view_machine;
     QPoint anchor;
+    Style style;
 
     explicit LayoutUpdaterPrivate()
         : initialized(false)
@@ -263,6 +262,7 @@ public:
         , shift_machine()
         , view_machine()
         , anchor()
+        , style()
     {}
 };
 
@@ -342,8 +342,9 @@ void LayoutUpdater::setOrientation(Layout::Orientation orientation)
         // FIXME: reposition extended keys, too (and left/right?).
         // FIXME: consider shift state.
         d->anchor = computeAnchor(orientation);
-        d->layout->setCenterPanel(createFromKeyboard(d->loader->keyboard(),
-                                                     d->anchor, d->anchor.x() * 2,
+        d->layout->setCenterPanel(createFromKeyboard(&d->style,
+                                                     d->loader->keyboard(),
+                                                     d->anchor,
                                                      orientation));
         emit layoutChanged(d->layout);
     }
@@ -468,14 +469,15 @@ void LayoutUpdater::switchLayoutToLower()
 
 void LayoutUpdater::onKeyboardsChanged()
 {
-    Q_D(const LayoutUpdater);
+    Q_D(LayoutUpdater);
 
     if (not verify(d->loader, d->layout)) {
         return;
     }
 
-    d->layout->setCenterPanel(createFromKeyboard(d->loader->keyboard(),
-                                                 d->anchor, d->anchor.x() * 2,
+    d->layout->setCenterPanel(createFromKeyboard(&d->style,
+                                                 d->loader->keyboard(),
+                                                 d->anchor,
                                                  d->layout->orientation()));
     emit layoutChanged(d->layout);
 }
@@ -496,8 +498,9 @@ void LayoutUpdater::switchToPrimarySymView()
         return;
     }
 
-    d->layout->setCenterPanel(createFromKeyboard(d->loader->symbolsKeyboard(0),
-                                                 d->anchor, d->anchor.x() * 2,
+    d->layout->setCenterPanel(createFromKeyboard(&d->style,
+                                                 d->loader->symbolsKeyboard(0),
+                                                 d->anchor,
                                                  d->layout->orientation()));
     // Reset shift state machine, also see switchToMainView.
     d->shift_machine.restart();
@@ -508,14 +511,15 @@ void LayoutUpdater::switchToPrimarySymView()
 
 void LayoutUpdater::switchToSecondarySymView()
 {
-    Q_D(const LayoutUpdater);
+    Q_D(LayoutUpdater);
 
     if (not verify(d->loader, d->layout)) {
         return;
     }
 
-    d->layout->setCenterPanel(createFromKeyboard(d->loader->symbolsKeyboard(1),
-                                                 d->anchor, d->anchor.x() * 2,
+    d->layout->setCenterPanel(createFromKeyboard(&d->style,
+                                                 d->loader->symbolsKeyboard(1),
+                                                 d->anchor,
                                                  d->layout->orientation()));
     emit layoutChanged(d->layout);
 }
