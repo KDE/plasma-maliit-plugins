@@ -47,7 +47,7 @@ MaliitKeyboard::Key createKey(const QPixmap &pm,
                               const QRect &lr,
                               const QByteArray &t,
                               const QColor &c,
-                              MaliitKeyboard::Key::Action a = MaliitKeyboard::Key::ActionCommit)
+                              MaliitKeyboard::Key::Action a = MaliitKeyboard::Key::ActionInsert)
 {
     MaliitKeyboard::KeyLabel l;
     l.setRect(lr);

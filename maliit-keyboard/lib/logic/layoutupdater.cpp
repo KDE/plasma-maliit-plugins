@@ -387,7 +387,7 @@ void LayoutUpdater::onKeyPressed(const Key &key,
     k.setBackground(pressed_bg);
     layout->appendActiveKey(k);
 
-    if (key.action() == Key::ActionCommit) {
+    if (key.action() == Key::ActionInsert) {
         Key magnifier(key);
         magnifier.setBackground(magnifier_bg);
 
@@ -433,7 +433,7 @@ void LayoutUpdater::onKeyReleased(const Key &key,
         emit shiftReleased();
         break;
 
-    case Key::ActionCommit:
+    case Key::ActionInsert:
         if (d->shift_machine.inState("latched-shift")) {
             emit shiftCancelled();
         }
