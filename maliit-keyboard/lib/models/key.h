@@ -41,26 +41,29 @@ class Key
 {
 public:
     enum Action {
-        ActionInsert,
-        ActionShift,
-        ActionBackspace,
-        ActionSpace,
-        ActionCycle,
-        ActionLayoutMenu,
-        ActionSym,
-        ActionReturn,
-        ActionCommit,
-        ActionDecimalSeparator,
+        ActionInsert, //!< Key's label is inserted into text editor.
+        ActionShift, //!< Switches keyboard to shows uppercase variant.
+        ActionBackspace, //!< Key deletes previous character in text editor.
+        ActionSpace, //!< Key inserts space into text editor.
+        ActionCycle, //!< Key loops through set of characters when pressed in
+                     //!< rapid succession and inserts currently shown key
+                     //!< label into text editor after short time out.
+        ActionLayoutMenu, //!< Key brings up a menu to choose other language(s).
+        ActionSym, //!< Switches keyboard to symbol view.
+        ActionReturn, //!< Key inserts return into text editor.
+        ActionCommit, //!< Key commits preedit to text editor.
+        ActionDecimalSeparator, //!< Shown key is a decimal separator that
+                                //!< might require localization.
         ActionPlusMinusToggle,
-        ActionSwitch,
+        ActionSwitch, //!< Key switches through symbol view pages.
         ActionOnOffToggle,
-        ActionCompose,
-        ActionLeft,
-        ActionUp,
-        ActionRight,
-        ActionDown,
-        ActionTab,
-        ActionDead,
+        ActionCompose, //!< Key is used to compose character.
+        ActionLeft, //!< Key moves cursor position to left, in text editor.
+        ActionUp, //!< Key moves cursor position to previous line, in text editor.
+        ActionRight, //!< Key moves cursor position to right, in text editor.
+        ActionDown, //!< Key moves cursor position to next line, in text editor.
+        ActionTab, //!< Key moves cursor position by one tab, in text editor.
+        ActionDead, //!< Switches keyboard to deadkey variation, using key's label as lookup.
         NumActions
     };
 

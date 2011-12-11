@@ -68,7 +68,7 @@ void Editor::onKeyReleased(const Key &key)
     }
 
     switch(key.action()) {
-    case Key::ActionCommit:
+    case Key::ActionInsert:
         d->host->sendCommitString(key.label().text());
         break;
 

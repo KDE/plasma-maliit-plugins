@@ -34,7 +34,7 @@
 namespace MaliitKeyboard {
 
 Key::Key()
-    : m_action(ActionCommit)
+    : m_action(ActionInsert)
     , m_label()
     , m_rect()
     , m_margins()
