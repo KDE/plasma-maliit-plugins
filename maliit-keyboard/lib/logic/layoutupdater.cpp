@@ -151,10 +151,12 @@ KeyArea createFromKeyboard(Style *style,
     static SharedFont small_font(new QFont(style->fontName()));
     small_font->setPointSize(12);
 
-    QPoint pos(0, 0);
     const qreal max_width(style->keyAreaWidth(orientation));
     const qreal key_height(style->keyHeight(orientation));
-    const qreal margin = 3;
+    const qreal margin = style->keyMargin(orientation);
+    const qreal padding = style->keyAreaPadding(orientation);
+
+    QPoint pos(0, 0);
     int prev_row = 0;
     QVector<int> row_indices;
     int spacer_count = 0;
@@ -166,24 +168,30 @@ KeyArea createFromKeyboard(Style *style,
         const KeyDescription &desc(kb.key_descriptions.at(index));
         int width = 0;
         pos.setY(key_height * desc.row);
+        prev_row = desc.row;
+
+        bool at_row_end((index + 1 == kb.keys.count())
+                        || (index + 1 < kb.keys.count()
+                            && kb.key_descriptions.at(index + 1).row > desc.row));
 
         if (desc.left_spacer || desc.right_spacer) {
             ++spacer_count;
         }
 
-        // FIXME: Get background from style.
         switch (desc.style) {
         case KeyDescription::NormalStyle: key.setBackground(normal_bg); break;
         case KeyDescription::SpecialStyle: key.setBackground(special_bg); break;
         case KeyDescription::DeadkeyStyle: key.setBackground(deadkey_bg); break;
         }
 
-        prev_row = desc.row;
-        width = style->keyWidth(orientation, desc.width) + margin * 2;
-        key.setRect(QRect(pos.x(), pos.y(), width, key_height));
+        width = style->keyWidth(orientation, desc.width);
+        const bool use_padding_over_margin(pos.x() == 0
+                                           || pos.x() + width + margin + padding == max_width);
 
-        // FIXME: Get key margins from style.
-        key.setMargins(QMargins(margin, margin, margin, margin));
+        const qreal key_margin(use_padding_over_margin ? margin + padding : margin * 2);
+        key.setRect(QRect(pos.x(), pos.y(), width + key_margin, key_height));
+        key.setMargins(QMargins(use_padding_over_margin ? padding : margin, margin,
+                                use_padding_over_margin ? padding : margin, margin));
 
         KeyLabel label(key.label());
         label.setFont(label.text().count() > 1 ? small_font : font);
@@ -191,10 +199,9 @@ KeyArea createFromKeyboard(Style *style,
         label.setRect(QRect(4, 4, key.rect().width() - 8, key.rect().height() - 8));
         key.setLabel(label);
 
-        pos += QPoint(width, 0);
+        pos.rx() += key.rect().width();
 
-        if ((index + 1 == kb.keys.count())
-            || (index + 1 < kb.keys.count() && kb.key_descriptions.at(index + 1).row > desc.row)) {
+        if (at_row_end) {
             if (spacer_count > 0 && pos.x() < max_width + 1) {
                 const int spacer_width = qMax<int>(0, max_width - pos.x()) / spacer_count;
                 pos.setX(0);
@@ -263,7 +270,9 @@ public:
         , view_machine()
         , anchor()
         , style()
-    {}
+    {
+        style.setProfile("nokia-n9");
+    }
 };
 
 LayoutUpdater::LayoutUpdater(QObject *parent)

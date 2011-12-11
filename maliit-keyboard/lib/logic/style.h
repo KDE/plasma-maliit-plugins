@@ -52,6 +52,7 @@ public:
     explicit Style(QObject *parent = 0);
     virtual ~Style();
 
+    void setProfile(const QString &profile);
     void setStyleName(const QString &name);
 
     QPixmap background(KeyDescription::Style style,
@@ -66,6 +67,9 @@ public:
     qreal keyWidth(Layout::Orientation orientation,
                    KeyDescription::Width width) const;
     qreal keyAreaWidth(Layout::Orientation orientation) const;
+
+    qreal keyMargin(Layout::Orientation orientation) const;
+    qreal keyAreaPadding(Layout::Orientation orienation) const;
 
 private:
     const QScopedPointer<StylePrivate> d_ptr;
