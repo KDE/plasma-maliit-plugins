@@ -1,3 +1,4 @@
+// -*- mode: C++; c-basic-offset: 4; indent-tabs-mode: nil; c-file-offsets: ((innamespace . 0)); -*-
 /*
  * This file is part of Maliit Plugins
  *
@@ -29,81 +30,173 @@
  *
  */
 
+#include <QDir>
+#include <QFile>
+#include <QRegExp>
+
+#include "parser/layoutparser.h"
+
 #include "keyboardloader.h"
 
-namespace MaliitKeyboard {
+namespace {
 
-Keyboard createKeyboard(const QStringList &keys)
+using namespace MaliitKeyboard;
+
+const char *const languages_dir(MALIIT_PLUGINS_DATA_DIR "/languages");
+
+TagKeyboardPtr get_tag_keyboard(const QString& id)
 {
-    Keyboard kb;
-    int row_index = 0;
+    QFile file (QString::fromLatin1(languages_dir) + "/" + id + ".xml");
 
-    foreach (const QString &row, keys) {
-        int index = 0;
+    if (file.exists()) {
+        file.open(QIODevice::ReadOnly);
 
-        foreach (QChar c, row) {
-            Key k;
-            KeyLabel l;
-            KeyDescription d;
-            d.row = row_index;
+        LayoutParser parser(&file);
+        const bool result(parser.parse());
 
-            d.left_spacer = (index > 0 && row.at(index - 1) == '|');
-            d.right_spacer = (index + 1 < row.count() && row.at(index + 1) == '|');
-            ++index;
-
-            if (c == '^') {
-                l.setText("shift");
-                k.setAction(Key::ActionShift);
-                d.style = KeyDescription::SpecialStyle;
-                d.width = KeyDescription::Large;
-            } else if (c == '\b') {
-                l.setText("back");
-                k.setAction(Key::ActionBackspace);
-                d.style = KeyDescription::SpecialStyle;
-                d.width = KeyDescription::Large;
-            } else if (c == ' ') {
-                k.setAction(Key::ActionSpace);
-                d.style = KeyDescription::NormalStyle;
-                d.width = KeyDescription::Stretched;
-            } else if (c == '\n') {
-                l.setText("enter");
-                k.setAction(Key::ActionReturn);
-                d.style = KeyDescription::SpecialStyle;
-                d.width = KeyDescription::XLarge;
-            } else if (c == '#') {
-                l.setText("?123");
-                k.setAction(Key::ActionSym);
-                d.style = KeyDescription::SpecialStyle;
-                d.width = KeyDescription::XLarge;
-            } else if (c == '/') {
-                l.setText("switch");
-                k.setAction(Key::ActionSwitch);
-                d.style = KeyDescription::SpecialStyle;
-                d.width = KeyDescription::Large;
-            } else if (c == '|') {
-                continue;
-            } else {
-                l.setText(c);
-                k.setAction(Key::ActionCommit);
-                d.style = KeyDescription::NormalStyle;
-                d.width = KeyDescription::Medium;
-            }
-
-            k.setLabel(l);
-            kb.keys.append(k);
-            kb.key_descriptions.append(d);
+        file.close();
+        if (result) {
+            return parser.keyboard();
         }
-
-        ++row_index;
     }
 
-    return kb;
+    return TagKeyboardPtr();
 }
+
+QStringList get_imports(const QString &id)
+{
+    QFile file (QString::fromLatin1(languages_dir) + "/" + id + ".xml");
+
+    if (file.exists()) {
+        file.open(QIODevice::ReadOnly);
+
+        LayoutParser parser(&file);
+        const bool result(parser.parse());
+
+        file.close();
+        if (result) {
+            return parser.imports();
+        }
+    }
+
+    return QStringList();
+
+}
+
+Keyboard get_keyboard(const TagKeyboardPtr& keyboard,
+                      bool shifted = false,
+                      int page = 0,
+                      const QString &dead_label = "")
+{
+    Keyboard skeyboard;
+    const QChar dead_key((dead_label.size() == 1) ? dead_label[0] : QChar::Null);
+
+    if (keyboard) {
+        TagKeyboard::TagLayouts layouts(keyboard->layouts());
+
+        if (not layouts.isEmpty()) {
+            TagLayout::TagSections sections(layouts.first()->sections());
+            // sections cannot be empty - parser does not allow that.
+            TagSection::TagRows rows(sections[page % sections.size()]->rows());
+            int row_num(0);
+
+            Q_FOREACH (const TagRowPtr& row, rows) {
+                TagRow::TagRowElements elements(row->elements());
+                Q_FOREACH (const TagRowElementPtr& element, elements) {
+                    if (element->element_type() == TagRowElement::Key) {
+                        TagKeyPtr key(element.staticCast<TagKey>());
+                        TagKey::TagBindings bindings(key->bindings());
+                        Key skey;
+                        KeyDescription skey_description;
+
+                        skey_description.row = row_num;
+                        skey_description.width = static_cast<KeyDescription::Width>(key->width());
+                        skey_description.style = static_cast<KeyDescription::Style>(key->style());
+                        skey_description.use_rtl_icon = key->rtl();
+
+                        TagBindingPtr the_binding;
+
+                        Q_FOREACH (const TagBindingPtr& binding, bindings) {
+                            if (binding->shift() == shifted and not binding->alt()) {
+                                the_binding = binding;
+                                break;
+                            }
+                        }
+                        if (not the_binding) {
+                            the_binding = bindings.first();
+                        }
+
+                        KeyLabel label;
+                        const int index(dead_key.isNull() ? -1 : the_binding->accents().indexOf(dead_key));
+
+                        if (index < 0) {
+                            label.setText(the_binding->label());
+                        } else {
+                            label.setText(the_binding->accented_labels()[index]);
+                        }
+                        if (the_binding->dead()) {
+                            // TODO: document it.
+                            skey.setAction(Key::ActionDead);
+                        } else {
+                            skey.setAction(static_cast<Key::Action>(the_binding->action()));
+                        }
+                        skey.setLabel(label);
+
+                        skeyboard.keys.append(skey);
+                        skeyboard.key_descriptions.append(skey_description);
+                    }
+                }
+                ++row_num;
+            }
+        }
+    }
+    return skeyboard;
+}
+
+QPair<TagKeyPtr, TagBindingPtr> get_tag_key_and_binding(const TagKeyboardPtr &keyboard,
+                                                        const QString &label)
+{
+    QPair<TagKeyPtr, TagBindingPtr> pair;
+
+    if (keyboard) {
+        TagKeyboard::TagLayouts layouts(keyboard->layouts());
+
+        if (not layouts.isEmpty()) {
+            // sections cannot be empty - parser does not allow that.
+            TagSection::TagRows rows(layouts.first()->sections().first()->rows());
+
+            Q_FOREACH (const TagRowPtr& row, rows) {
+                TagRow::TagRowElements elements(row->elements());
+
+                Q_FOREACH (const TagRowElementPtr& element, elements) {
+                    if (element->element_type() == TagRowElement::Key) {
+                        TagKeyPtr key(element.staticCast<TagKey>());
+                        TagKey::TagBindings bindings(key->bindings());
+
+                        Q_FOREACH (const TagBindingPtr& binding, bindings) {
+                            if (binding->label() == label) {
+                                pair.first = key;
+                                pair.second = binding;
+                                return pair;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return pair;
+}
+
+}
+
+namespace MaliitKeyboard {
 
 class KeyboardLoaderPrivate
 {
 public:
     QString active_id;
+    Keyboard keyboard;
 
     explicit KeyboardLoaderPrivate()
         : active_id()
@@ -120,11 +213,20 @@ KeyboardLoader::~KeyboardLoader()
 
 QStringList KeyboardLoader::ids() const
 {
-    QStringList list;
-    list.append("en_gb.xml");
-    list.append("de.xml");
+    QStringList ids;
+    QDir dir(languages_dir,
+             "*.xml",
+             QDir::Name | QDir::IgnoreCase,
+             QDir::Files | QDir::NoSymLinks | QDir::Readable);
 
-    return list;
+    if (dir.exists()) {
+        QFileInfoList file_infos(dir.entryInfoList());
+
+        Q_FOREACH (const QFileInfo& file_info, file_infos) {
+            ids.append(file_info.baseName());
+        }
+    }
+    return ids;
 }
 
 QString KeyboardLoader::activeId() const
@@ -147,70 +249,124 @@ void KeyboardLoader::setActiveId(const QString &id)
 
 QString KeyboardLoader::title(const QString &id) const
 {
-    if (id == "en_gb.xml") {
-        return QString("English (GB)");
-    } else if (id == "de.xml") {
-        return QString("Deutsch");
-    }
+    TagKeyboardPtr keyboard(get_tag_keyboard(id));
 
-    return QString("invalid");
+    if (keyboard) {
+        return keyboard->title();
+    }
+    return "invalid";
 }
 
 Keyboard KeyboardLoader::keyboard() const
 {
-    QStringList keys;
-    keys.append("qwertyuiop");
-    keys.append("|asdfghjkl|");
-    keys.append("^|zxcvbnm|\b");
-    keys.append("#|, .|\n");
+    Q_D(const KeyboardLoader);
+    TagKeyboardPtr keyboard(get_tag_keyboard(d->active_id));
 
-    return createKeyboard(keys);
+    return get_keyboard(keyboard);
 }
 
 Keyboard KeyboardLoader::nextKeyboard() const
 {
-    return Keyboard();
+    Q_D(const KeyboardLoader);
+
+    const QStringList all_ids(ids());
+
+    if (all_ids.isEmpty()) {
+        return Keyboard();
+    }
+
+    int next_index (all_ids.indexOf(d->active_id) + 1);
+
+    if (next_index >= all_ids.size()) {
+        next_index = 0;
+    }
+
+    TagKeyboardPtr keyboard(get_tag_keyboard(all_ids[next_index]));
+
+    return get_keyboard(keyboard);
 }
 
 Keyboard KeyboardLoader::previousKeyboard() const
 {
-    return Keyboard();
+    Q_D(const KeyboardLoader);
+
+    const QStringList all_ids(ids());
+
+    if (all_ids.isEmpty()) {
+        return Keyboard();
+    }
+
+    int previous_index (all_ids.indexOf(d->active_id) - 1);
+
+    if (previous_index < 0) {
+        previous_index = 0;
+    }
+
+    TagKeyboardPtr keyboard(get_tag_keyboard(all_ids[previous_index]));
+
+    return get_keyboard(keyboard);
 }
 
 Keyboard KeyboardLoader::shiftedKeyboard() const
 {
-    return Keyboard();
+    Q_D(const KeyboardLoader);
+    TagKeyboardPtr keyboard(get_tag_keyboard(d->active_id));
+
+    return get_keyboard(keyboard, true);
 }
 
 Keyboard KeyboardLoader::symbolsKeyboard(int page) const
 {
-    Q_UNUSED(page)
+    Q_D(const KeyboardLoader);
+    QStringList imports(get_imports(d->active_id));
+    const QRegExp symbols_regexp("^(symbols.*).xml$");
 
-    QStringList keys;
-    keys.append("1234567890");
-
-    if (page == 0) {
-        keys.append("|_@%&$+-=*|");
-    } else if (page == 1) {
-        keys.append("|@_'`[]:;~|");
+    Q_FOREACH (const QString &import, imports) {
+        if (symbols_regexp.exactMatch(import)) {
+            TagKeyboardPtr keyboard(get_tag_keyboard(symbols_regexp.cap(1)));
+            return get_keyboard(keyboard, false, page);
+        }
     }
 
-    keys.append("/|!?()<>\"|\b");
-    keys.append("#|, .|\n");
-
-    return createKeyboard(keys);
+    return Keyboard();
 }
 
 Keyboard KeyboardLoader::deadKeyboard(const Key &dead) const
 {
-    Q_UNUSED(dead)
-    return Keyboard();
+    Q_D(const KeyboardLoader);
+    TagKeyboardPtr keyboard(get_tag_keyboard(d->active_id));
+
+    // TODO: detect whether we want it shifted or not.
+    return get_keyboard(keyboard, false, 0, dead.label().text());
 }
 
 Keyboard KeyboardLoader::extendedKeyboard(const Key &key) const
 {
-    Q_UNUSED(key)
-    return Keyboard();
+    Q_D(const KeyboardLoader);
+    const TagKeyboardPtr keyboard(get_tag_keyboard(d->active_id));
+    const QPair<TagKeyPtr, TagBindingPtr> pair(get_tag_key_and_binding(keyboard, key.label().text()));
+    Keyboard skeyboard;
+
+    if (pair.first and pair.second) {
+        const QString extended_labels(pair.second->extended_labels());
+
+        Q_FOREACH(const QChar &c, extended_labels) {
+            Key skey;
+            KeyDescription skey_description;
+            KeyLabel label;
+
+            label.setText(c);
+            skey.setLabel(label);
+            skey.setAction(static_cast<Key::Action>(pair.second->action()));
+            skey_description.row = 0;
+            skey_description.width = static_cast<KeyDescription::Width>(pair.first->width());
+            skey_description.style = static_cast<KeyDescription::Style>(pair.first->style());
+            skey_description.use_rtl_icon = pair.first->rtl();
+            skeyboard.keys.append(skey);
+            skeyboard.key_descriptions.append(skey_description);
+        }
+    }
+    return skeyboard;
 }
 
 } // namespace MaliitKeyboard
