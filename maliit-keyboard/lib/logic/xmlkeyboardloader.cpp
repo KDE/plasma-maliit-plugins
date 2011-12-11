@@ -322,7 +322,7 @@ Keyboard KeyboardLoader::symbolsKeyboard(int page) const
     const QRegExp symbols_regexp("^(symbols.*).xml$");
 
     Q_FOREACH (const QString &import, imports) {
-        if (symbols_regexp.indexIn(import)) {
+        if (symbols_regexp.exactMatch(import)) {
             TagKeyboardPtr keyboard(get_tag_keyboard(symbols_regexp.cap(1)));
             return get_keyboard(keyboard, false, page);
         }
