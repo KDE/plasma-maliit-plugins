@@ -33,15 +33,53 @@
 
 namespace MaliitKeyboard {
 
+namespace {
+void removeActiveKey(QVector<Key> *active_keys,
+                     const Key &key)
+{
+    if (not active_keys) {
+        return;
+    }
+
+    for (int index = 0; index < active_keys->count(); ++index) {
+        if (active_keys->at(index) == key) {
+            active_keys->remove(index);
+            break;
+        }
+    }
+}
+
+Key findActiveKey(QVector<Key> *active_keys,
+                  const QPoint &origin,
+                  const QPoint &pos)
+{
+    if (not active_keys) {
+        return Key();
+    }
+
+    for (int index = 0; index < active_keys->count(); ++index) {
+        const Key &k(active_keys->at(index));
+        if (k.rect().translated(origin).contains(pos)) {
+            return k;
+        }
+    }
+
+    return Key();
+}
+}
+
 class GlassPrivate
 {
 public:
     QWidget *window;
     QVector<SharedLayout> layouts;
+    QVector<Key> active_keys;
+    QPoint last_pos;
 
     explicit GlassPrivate()
         : window(0)
         , layouts()
+        , active_keys()
     {}
 };
 
@@ -105,12 +143,13 @@ bool Glass::eventFilter(QObject *obj,
     case QKeyEvent::MouseButtonPress:
     case QKeyEvent::MouseButtonRelease: {
         QMouseEvent *qme = static_cast<QMouseEvent *>(ev);
+        d->last_pos = qme->pos();
         ev->accept();
 
         foreach (const SharedLayout &layout, d->layouts) {
             const QPoint &pos(layout->orientation() == Layout::Landscape
                               ? qme->pos() : QPoint(d->window->height() - qme->pos().y(), qme->pos().x()));
-            const QVector<Key> &keys(layout->centerPanel().keys);
+            const QVector<Key> &keys(layout->activeKeyArea().keys);
 
             // FIXME: use binary range search
             const QRect &rect(layout->activeKeyArea().rect.toRect());
@@ -124,19 +163,60 @@ bool Glass::eventFilter(QObject *obj,
                     if (key_rect.contains(pos)) {
 
                         if (qme->type() == QKeyEvent::MouseButtonPress) {
+                            d->active_keys.append(k);
                             emit keyPressed(k, layout);
                         } else if (qme->type() == QKeyEvent::MouseButtonRelease) {
+                            removeActiveKey(&d->active_keys, k);
                             emit keyReleased(k, layout);
                         }
 
-                        break;
+                        return true;
                     }
                 }
             }
         }
+    } break;
 
-        return true;
-    }
+    case QKeyEvent::MouseMove: {
+        QMouseEvent *qme = static_cast<QMouseEvent *>(ev);
+        ev->accept();
+
+        foreach (const SharedLayout &layout, d->layouts) {
+            const QPoint &pos(layout->orientation() == Layout::Landscape
+                              ? qme->pos() : QPoint(d->window->height() - qme->pos().y(), qme->pos().x()));
+            const QPoint &last_pos(layout->orientation() == Layout::Landscape
+                                   ? d->last_pos : QPoint(d->window->height() - d->last_pos.y(), d->last_pos.x()));
+            d->last_pos = qme->pos();
+            const QVector<Key> &keys(layout->activeKeyArea().keys);
+
+            // FIXME: use binary range search
+            const QRect &rect(layout->activeKeyArea().rect.toRect());
+            const QPoint &origin(rect.topLeft());
+
+            const Key &last_key(findActiveKey(&d->active_keys, origin, last_pos));
+            if (not last_key.rect().isEmpty()
+                && not last_key.rect().translated(origin).contains(pos)) {
+                removeActiveKey(&d->active_keys, last_key);
+                emit keyExited(last_key, layout);
+            }
+
+            if (rect.contains(pos)) {
+                for (int index = 0; index < keys.count(); ++index) {
+                    Key k(keys.at(index));
+
+                    // Pressed state is not stored in key itself, so list of pressed keys (overridden keys) must be maintained elsewhere.
+                    const QRect &key_rect = k.rect().translated(origin);
+                    if (key_rect.contains(pos)
+                        && k != findActiveKey(&d->active_keys, origin, pos)) {
+                        d->active_keys.append(k);
+                        emit keyEntered(k, layout);
+
+                        return true;
+                    }
+                }
+            }
+        }
+    } break;
 
     default:
         break;

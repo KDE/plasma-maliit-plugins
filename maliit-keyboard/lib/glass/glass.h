@@ -62,6 +62,10 @@ public:
                              const SharedLayout &layout);
     Q_SIGNAL void keyReleased(const Key &key,
                               const SharedLayout &layout);
+    Q_SIGNAL void keyEntered(const Key &key,
+                             const SharedLayout &layout);
+    Q_SIGNAL void keyExited(const Key &key,
+                            const SharedLayout &layout);
 
 protected:
     //! \reimp

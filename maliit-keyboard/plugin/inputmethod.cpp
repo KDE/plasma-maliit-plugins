@@ -117,6 +117,12 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host,
     connect(&d->glass,          SIGNAL(keyReleased(Key,SharedLayout)),
             &d->layout_updater, SLOT(onKeyReleased(Key,SharedLayout)));
 
+    connect(&d->glass,          SIGNAL(keyEntered(Key,SharedLayout)),
+            &d->layout_updater, SLOT(onKeyEntered(Key,SharedLayout)));
+
+    connect(&d->glass,          SIGNAL(keyExited(Key,SharedLayout)),
+            &d->layout_updater, SLOT(onKeyExited(Key,SharedLayout)));
+
     connect(&d->layout_updater, SIGNAL(layoutChanged(SharedLayout)),
             &d->renderer,       SLOT(onLayoutChanged(SharedLayout)));
 

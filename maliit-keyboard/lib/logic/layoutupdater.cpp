@@ -263,6 +263,60 @@ KeyArea createFromKeyboard(Style *style,
     return ka;
 }
 
+Key makeActive(const Key &key,
+               const Style &style)
+{
+    // FIXME: Remove test code
+    // TEST CODE STARTS
+    static const QMargins bg_margins(6, 6, 6, 6);
+    // TEST CODE ENDS
+
+    Key k(key);
+    // FIXME: Use correct key style, but where to look it up?
+    k.setBackground(style.keyBackground(KeyDescription::NormalStyle,
+                                        KeyDescription::PressedState));
+    k.setBackgroundBorders(bg_margins);
+
+    return k;
+}
+
+Key magnifyKey(const Key &key,
+               const Style &style,
+               const QRectF &key_area_rect)
+{
+    // FIXME: Remove test code
+    // TEST CODE STARTS
+    static SharedFont magnifier_font(new QFont);
+    magnifier_font->setPixelSize(50);
+    static const QMargins bg_margins(6, 6, 6, 6);
+    // TEST CODE ENDS
+
+    if (key.action() != Key::ActionInsert) {
+        return Key();
+    }
+
+    Key magnifier(key);
+    magnifier.setBackground(style.keyBackground(KeyDescription::NormalStyle,
+                                                KeyDescription::PressedState));
+
+    QRect magnifier_rect(key.rect().translated(0, -120).adjusted(-20, -20, 20, 20));
+    if (magnifier_rect.left() < key_area_rect.left() + 10) {
+        magnifier_rect.setLeft(key_area_rect.left() + 10);
+    } else if (magnifier_rect.right() > key_area_rect.right() - 10) {
+        magnifier_rect.setRight(key_area_rect.right() - 10);
+    }
+
+    magnifier.setRect(magnifier_rect);
+    magnifier.setBackgroundBorders(bg_margins);
+
+    KeyLabel magnifier_label(magnifier.label());
+    magnifier_label.setColor(Qt::white);
+    magnifier_label.setFont(magnifier_font);
+    magnifier.setLabel(magnifier_label);
+
+    return magnifier;
+}
+
 }
 
 class LayoutUpdaterPrivate
@@ -387,42 +441,8 @@ void LayoutUpdater::onKeyPressed(const Key &key,
         return;
     }
 
-    // FIXME: Remove test code
-    // TEST CODE STARTS
-    static SharedFont magnifier_font(new QFont);
-    magnifier_font->setPixelSize(50);
-    static const QMargins bg_margins(6, 6, 6, 6);
-    // TEST CODE ENDS
-
-    Key k(key);
-    // FIXME: Use correct key style, but where to look it up?
-    k.setBackground(d->style.keyBackground(KeyDescription::NormalStyle,
-                                           KeyDescription::PressedState));
-    k.setBackgroundBorders(bg_margins);
-    layout->appendActiveKey(k);
-
-    if (key.action() == Key::ActionInsert) {
-        Key magnifier(key);
-        magnifier.setBackground(d->style.keyBackground(KeyDescription::NormalStyle,
-                                                       KeyDescription::PressedState));
-
-        QRect magnifier_rect(key.rect().translated(0, -120).adjusted(-20, -20, 20, 20));
-        const QRectF key_area_rect(d->layout->activeKeyArea().rect);
-        if (magnifier_rect.left() < key_area_rect.left() + 10) {
-            magnifier_rect.setLeft(key_area_rect.left() + 10);
-        } else if (magnifier_rect.right() > key_area_rect.right() - 10) {
-            magnifier_rect.setRight(key_area_rect.right() - 10);
-        }
-
-        magnifier.setRect(magnifier_rect);
-        magnifier.setBackgroundBorders(bg_margins);
-
-        KeyLabel magnifier_label(magnifier.label());
-        magnifier_label.setColor(Qt::white);
-        magnifier_label.setFont(magnifier_font);
-        magnifier.setLabel(magnifier_label);
-        layout->setMagnifierKey(magnifier);
-    }
+    layout->appendActiveKey(makeActive(key, d->style));
+    layout->setMagnifierKey(magnifyKey(key, d->style, d->layout->activeKeyArea().rect));
 
     switch (key.action()) {
     case Key::ActionShift:
@@ -451,7 +471,7 @@ void LayoutUpdater::onKeyReleased(const Key &key,
     }
 
     layout->removeActiveKey(key);
-    layout->setMagnifierKey(Key());
+    layout->clearMagnifierKey();
 
     switch (key.action()) {
     case Key::ActionShift:
@@ -485,6 +505,33 @@ void LayoutUpdater::onKeyReleased(const Key &key,
         break;
     }
 
+    emit keysChanged(layout);
+}
+
+void LayoutUpdater::onKeyEntered(const Key &key,
+                                 const SharedLayout &layout)
+{
+    Q_D(const LayoutUpdater);
+
+    if (d->layout != layout) {
+        return;
+    }
+
+    layout->appendActiveKey(makeActive(key, d->style));
+    layout->setMagnifierKey(magnifyKey(key, d->style, d->layout->activeKeyArea().rect));
+    emit keysChanged(layout);
+}
+
+void LayoutUpdater::onKeyExited(const Key &key, const SharedLayout &layout)
+{
+    Q_D(const LayoutUpdater);
+
+    if (d->layout != layout) {
+        return;
+    }
+
+    layout->removeActiveKey(key);
+    layout->clearMagnifierKey(); // FIXME: This is in a race with onKeyEntered.
     emit keysChanged(layout);
 }
 
