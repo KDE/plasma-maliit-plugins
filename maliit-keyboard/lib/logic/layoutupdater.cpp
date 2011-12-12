@@ -33,6 +33,7 @@
 #include "style.h"
 #include "logic/state-machines/shiftmachine.h"
 #include "logic/state-machines/viewmachine.h"
+#include "logic/state-machines/deadkeymachine.h"
 #include "models/keyboard.h"
 #include "models/keydescription.h"
 
@@ -259,6 +260,7 @@ public:
     QScopedPointer<KeyboardLoader> loader;
     ShiftMachine shift_machine;
     ViewMachine view_machine;
+    DeadkeyMachine deadkey_machine;
     QPoint anchor;
     Style style;
 
@@ -268,6 +270,7 @@ public:
         , loader(new KeyboardLoader)
         , shift_machine()
         , view_machine()
+        , deadkey_machine()
         , anchor()
         , style()
     {
@@ -294,6 +297,7 @@ void LayoutUpdater::init()
     d->anchor = computeAnchor(Layout::Landscape);
     d->shift_machine.setup(this);
     d->view_machine.setup(this);
+    d->deadkey_machine.setup(this);
 }
 
 QStringList LayoutUpdater::keyboardIds() const
@@ -362,7 +366,7 @@ void LayoutUpdater::setOrientation(Layout::Orientation orientation)
 void LayoutUpdater::onKeyPressed(const Key &key,
                                  const SharedLayout &layout)
 {
-    Q_D(const LayoutUpdater);
+    Q_D(LayoutUpdater);
 
     if (d->layout != layout) {
         return;
@@ -410,8 +414,18 @@ void LayoutUpdater::onKeyPressed(const Key &key,
 
     emit keysChanged(layout);
 
-    if (key.action() == Key::ActionShift) {
+    switch (key.action()) {
+    case Key::ActionShift:
         emit shiftPressed();
+        break;
+
+    case Key::ActionDead:
+        d->deadkey_machine.setAccentKey(key);
+        emit deadkeyPressed();
+        break;
+
+    default:
+        break;
     }
 }
 
@@ -437,6 +451,11 @@ void LayoutUpdater::onKeyReleased(const Key &key,
         if (d->shift_machine.inState("latched-shift")) {
             emit shiftCancelled();
         }
+
+        if (d->deadkey_machine.inState("latched-deadkey")) {
+            emit deadkeyCancelled();
+        }
+
         break;
 
     case Key::ActionSym:
@@ -445,6 +464,10 @@ void LayoutUpdater::onKeyReleased(const Key &key,
 
     case Key::ActionSwitch:
         emit symSwitcherReleased();
+        break;
+
+    case Key::ActionDead:
+        emit deadkeyReleased();
         break;
 
     default:
@@ -496,7 +519,7 @@ void LayoutUpdater::switchToMainView()
     // This will undo the changes done by shift, which is perhaps what we want.
     // But if shift state is actually dependent on view state, then that's
     // needs to be modelled as part of the state machines, or not?
-    onKeyboardsChanged();
+     onKeyboardsChanged();
 }
 
 void LayoutUpdater::switchToPrimarySymView()
@@ -530,6 +553,22 @@ void LayoutUpdater::switchToSecondarySymView()
                                                  d->loader->symbolsKeyboard(1),
                                                  d->anchor,
                                                  d->layout->orientation()));
+    emit layoutChanged(d->layout);
+}
+
+void LayoutUpdater::switchToAccentedView()
+{
+    Q_D(LayoutUpdater);
+
+    if (not verify(d->loader, d->layout)) {
+        return;
+    }
+
+    d->layout->setCenterPanel(createFromKeyboard(&d->style,
+                                                 d->loader->deadKeyboard(d->deadkey_machine.accentKey()),
+                                                 d->anchor,
+                                                 d->layout->orientation()));
+
     emit layoutChanged(d->layout);
 }
 

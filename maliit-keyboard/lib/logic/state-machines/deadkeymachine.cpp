@@ -29,19 +29,30 @@
  *
  */
 
-#include "shiftmachine.h"
+#include "deadkeymachine.h"
 #include "logic/layoutupdater.h"
 
 namespace MaliitKeyboard {
 
-ShiftMachine::ShiftMachine(QObject *parent)
+class DeadkeyMachinePrivate
+{
+public:
+    Key accent_key;
+
+    explicit DeadkeyMachinePrivate()
+        : accent_key()
+    {}
+};
+
+DeadkeyMachine::DeadkeyMachine(QObject *parent)
     : QStateMachine(parent)
+    , d_ptr(new DeadkeyMachinePrivate)
 {}
 
-ShiftMachine::~ShiftMachine()
+DeadkeyMachine::~DeadkeyMachine()
 {}
 
-void ShiftMachine::setup(LayoutUpdater *updater)
+void DeadkeyMachine::setup(LayoutUpdater *updater)
 {
     if (not updater) {
         qCritical() << __PRETTY_FUNCTION__
@@ -51,40 +62,47 @@ void ShiftMachine::setup(LayoutUpdater *updater)
 
     setChildMode(QState::ExclusiveStates);
 
-    QState *no_shift = 0;
-    QState *shift = 0;
-    QState *latched_shift = 0;
-    QState *caps_lock = 0;
+    QState *no_deadkey = 0;
+    QState *deadkey = 0;
+    QState *latched_deadkey = 0;
 
-    // TODO: does ShiftMachine really take ownership?
-    addState(no_shift = new QState);
-    addState(shift = new QState);
-    addState(latched_shift = new QState);
-    addState(caps_lock = new QState);
-    setInitialState(no_shift);
 
-    no_shift->setObjectName("no-shift");
-    shift->setObjectName("shift");
-    latched_shift->setObjectName("latched-shift");
-    caps_lock->setObjectName("caps-lock");
+    addState(no_deadkey = new QState);
+    addState(deadkey = new QState);
+    addState(latched_deadkey = new QState);
+    setInitialState(no_deadkey);
 
-    no_shift->addTransition(updater, SIGNAL(shiftPressed()), shift);
-    no_shift->addTransition(updater, SIGNAL(autoCapsActivated()), latched_shift);
-    connect(no_shift, SIGNAL(entered()),
-            updater,  SLOT(switchLayoutToLower()));
+    no_deadkey->setObjectName("no-deadkey");
+    deadkey->setObjectName("deadkey");
+    latched_deadkey->setObjectName("latched-deadkey");
 
-    shift->addTransition(updater, SIGNAL(shiftCancelled()), no_shift);
-    shift->addTransition(updater, SIGNAL(shiftReleased()), latched_shift);
-    connect(shift,   SIGNAL(entered()),
-            updater, SLOT(switchLayoutToUpper()));
+    no_deadkey->addTransition(updater, SIGNAL(deadkeyPressed()), deadkey);
+    connect(no_deadkey, SIGNAL(entered()),
+            updater,    SLOT(switchToMainView()));
 
-    latched_shift->addTransition(updater, SIGNAL(shiftCancelled()), no_shift);
-    latched_shift->addTransition(updater, SIGNAL(shiftReleased()), caps_lock);
 
-    caps_lock->addTransition(updater, SIGNAL(shiftReleased()), no_shift);
+    deadkey->addTransition(updater, SIGNAL(deadkeyCancelled()), no_deadkey);
+    deadkey->addTransition(updater, SIGNAL(deadkeyReleased()), latched_deadkey);
+    connect(deadkey, SIGNAL(entered()),
+            updater, SLOT(switchToAccentedView()));
+
+    latched_deadkey->addTransition(updater, SIGNAL(deadkeyCancelled()), no_deadkey);
+    latched_deadkey->addTransition(updater, SIGNAL(deadkeyPressed()), no_deadkey);
 
     // Defer to first main loop iteration:
     QTimer::singleShot(0, this, SLOT(start()));
+}
+
+void DeadkeyMachine::setAccentKey(const Key &accent_key)
+{
+    Q_D(DeadkeyMachine);
+    d->accent_key = accent_key;
+}
+
+Key DeadkeyMachine::accentKey() const
+{
+    Q_D(const DeadkeyMachine);
+    return d->accent_key;
 }
 
 } // namespace MaliitKeyboard

@@ -29,75 +29,39 @@
  *
  */
 
-#ifndef MALIIT_KEYBOARD_LAYOUTUPDATER_H
-#define MALIIT_KEYBOARD_LAYOUTUPDATER_H
+#ifndef MALIIT_KEYBOARD_DEADKEYMACHINE_H
+#define MALIIT_KEYBOARD_DEADKEYMACHINE_H
 
-#include "keyboardloader.h"
-#include "models/layout.h"
-#include "glass/glass.h"
+#include "abstractstatemachine.h"
+#include "models/key.h"
 
 #include <QtCore>
 
 namespace MaliitKeyboard {
 
-class LayoutUpdaterPrivate;
+class DeadkeyMachinePrivate;
 
-class LayoutUpdater
-    : public QObject
+class DeadkeyMachine
+    : public QStateMachine
+    , public AbstractStateMachine
 {
     Q_OBJECT
-    Q_DISABLE_COPY(LayoutUpdater)
-    Q_DECLARE_PRIVATE(LayoutUpdater)
+    Q_DISABLE_COPY(DeadkeyMachine)
+    Q_DECLARE_PRIVATE(DeadkeyMachine)
 
 public:
-    explicit LayoutUpdater(QObject *parent = 0);
-    virtual ~LayoutUpdater();
+    explicit DeadkeyMachine(QObject *parent = 0);
+    virtual ~DeadkeyMachine();
 
-    void init();
+    virtual void setup(LayoutUpdater *updater);
 
-    QStringList keyboardIds() const;
-    QString activeKeyboardId() const;
-    void setActiveKeyboardId(const QString &id);
-    QString keyboardTitle(const QString &id) const;
-
-    void setLayout(const SharedLayout &layout);
-    void resetKeyboardLoader(KeyboardLoader *loader);
-    void setOrientation(Layout::Orientation orientation);
-
-    Q_SLOT void onKeyPressed(const Key &key,
-                             const SharedLayout &layout);
-    Q_SLOT void onKeyReleased(const Key &key,
-                              const SharedLayout &layout);
-
-    Q_SIGNAL void layoutChanged(const SharedLayout &layout);
-    Q_SIGNAL void keysChanged(const SharedLayout &layout);
+    virtual void setAccentKey(const Key &accent_key);
+    Key accentKey() const;
 
 private:
-    Q_SIGNAL void shiftPressed();
-    Q_SIGNAL void shiftReleased();
-    Q_SIGNAL void autoCapsActivated();
-    Q_SIGNAL void shiftCancelled();
-
-    Q_SLOT void switchLayoutToUpper();
-    Q_SLOT void switchLayoutToLower();
-    Q_SLOT void onKeyboardsChanged();
-
-    Q_SIGNAL void symKeyReleased();
-    Q_SIGNAL void symSwitcherReleased();
-
-    Q_SLOT void switchToMainView();
-    Q_SLOT void switchToPrimarySymView();
-    Q_SLOT void switchToSecondarySymView();
-
-    Q_SIGNAL void deadkeyPressed();
-    Q_SIGNAL void deadkeyReleased();
-    Q_SIGNAL void deadkeyCancelled();
-
-    Q_SLOT void switchToAccentedView();
-
-    const QScopedPointer<LayoutUpdaterPrivate> d_ptr;
+    const QScopedPointer<DeadkeyMachinePrivate> d_ptr;
 };
 
 } // namespace MaliitKeyboard
 
-#endif // MALIIT_KEYBOARD_LAYOUTUPDATER_H
+#endif // MALIIT_KEYBOARD_DEADKEYMACHINE_H
