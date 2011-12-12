@@ -47,7 +47,16 @@ void KeyRenderer::render(QPainter *painter,
     }
 
     painter->setPen(key.label().color());
-    painter->drawText(key_rect, Qt::AlignCenter, key.label().text());
+    const QString &text(key.label().text());
+    const QPixmap &icon(key.icon());
+
+    if (not text.isEmpty()) {
+        painter->drawText(key_rect, Qt::AlignCenter, text);
+    } else if (not icon.isNull()) {
+        const QPoint &c(key_rect.center());
+        const QPoint tl(c.x() - icon.width() / 2, c.y() - icon.height() / 2);
+        painter->drawPixmap(tl, icon);
+    }
 }
 
 } // namespace MaliitKeyboard

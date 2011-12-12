@@ -190,6 +190,29 @@ KeyArea createFromKeyboard(Style *style,
         label.setColor(Qt::white);
         key.setLabel(label);
 
+        // FIXME: Read from KeyDescription instead.
+        if (key.label().text().isEmpty()) {
+            switch (key.action()) {
+            case Key::ActionShift:
+                key.setIcon(style->icon(KeyDescription::ShiftIcon,
+                                        KeyDescription::NormalState));
+                break;
+
+            case Key::ActionBackspace:
+                key.setIcon(style->icon(KeyDescription::BackspaceIcon,
+                                        KeyDescription::NormalState));
+                break;
+
+            case Key::ActionReturn:
+                key.setIcon(style->icon(KeyDescription::ReturnIcon,
+                                        KeyDescription::NormalState));
+                break;
+
+            default:
+                break;
+            }
+        }
+
         pos.rx() += key.rect().width();
 
         if (at_row_end) {
