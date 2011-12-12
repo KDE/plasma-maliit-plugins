@@ -229,10 +229,11 @@ class KeyboardLoaderPrivate
 {
 public:
     QString active_id;
-    Keyboard keyboard;
+    mutable bool currently_shifted;
 
     explicit KeyboardLoaderPrivate()
         : active_id()
+        , currently_shifted(false)
     {}
 };
 
@@ -295,6 +296,7 @@ Keyboard KeyboardLoader::keyboard() const
     Q_D(const KeyboardLoader);
     TagKeyboardPtr keyboard(get_tag_keyboard(d->active_id));
 
+    d->currently_shifted = false;
     return get_keyboard(keyboard);
 }
 
@@ -316,6 +318,7 @@ Keyboard KeyboardLoader::nextKeyboard() const
 
     TagKeyboardPtr keyboard(get_tag_keyboard(all_ids[next_index]));
 
+    d->currently_shifted = false;
     return get_keyboard(keyboard);
 }
 
@@ -337,6 +340,7 @@ Keyboard KeyboardLoader::previousKeyboard() const
 
     TagKeyboardPtr keyboard(get_tag_keyboard(all_ids[previous_index]));
 
+    d->currently_shifted = false;
     return get_keyboard(keyboard);
 }
 
@@ -345,6 +349,7 @@ Keyboard KeyboardLoader::shiftedKeyboard() const
     Q_D(const KeyboardLoader);
     TagKeyboardPtr keyboard(get_tag_keyboard(d->active_id));
 
+    d->currently_shifted = true;
     return get_keyboard(keyboard, true);
 }
 
@@ -354,6 +359,7 @@ Keyboard KeyboardLoader::symbolsKeyboard(int page) const
     QStringList imports(get_imports(d->active_id));
     const QRegExp symbols_regexp("^(symbols.*).xml$");
 
+    d->currently_shifted = false;
     Q_FOREACH (const QString &import, imports) {
         if (symbols_regexp.exactMatch(import)) {
             TagKeyboardPtr keyboard(get_tag_keyboard(symbols_regexp.cap(1)));
@@ -370,7 +376,7 @@ Keyboard KeyboardLoader::deadKeyboard(const Key &dead) const
     TagKeyboardPtr keyboard(get_tag_keyboard(d->active_id));
 
     // TODO: detect whether we want it shifted or not.
-    return get_keyboard(keyboard, false, 0, dead.label().text());
+    return get_keyboard(keyboard, d->currently_shifted, 0, dead.label().text());
 }
 
 Keyboard KeyboardLoader::extendedKeyboard(const Key &key) const
