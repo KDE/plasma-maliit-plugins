@@ -132,24 +132,21 @@ QPixmap loadImage(const QString &id,
         return QPixmap();
     }
 
-    qCritical() << "group, id:" << store->group() << id;
-    const QPixmap &image(image_filename_format
-                         .arg(images_dir)
-                         .arg(store->value(id).toString()));
+    QPixmap image(image_filename_format
+                  .arg(images_dir)
+                  .arg(store->value(id).toString()));
 
     if (image.isNull()) {
         // Try a one-step lookup in default group:
         const QString &group(store->group());
         store->endGroup();
         store->beginGroup("default");
-        const QPixmap &next_image(image_filename_format
-                                  .arg(images_dir)
-                                  .arg(store->value(QString("/default/%1").arg(id)).toString()));
-
-        store->setValue(id, "measdash");
+        image = QPixmap(image_filename_format
+                        .arg(images_dir)
+                        .arg(store->value(id).toString()));
 
         // OK, giving up:
-        if (next_image.isNull()) {
+        if (image.isNull()) {
             qWarning() << __PRETTY_FUNCTION__
                        << "Image not found. Image id:" << id
                        << ", file name:" << images_dir << store->value(id).toString();
@@ -212,8 +209,8 @@ void Style::setStyleName(const QString &name)
     }
 }
 
-QPixmap Style::background(KeyDescription::Style style,
-                          KeyDescription::State state) const
+QPixmap Style::keyBackground(KeyDescription::Style style,
+                             KeyDescription::State state) const
 {
     Q_D(const Style);
 

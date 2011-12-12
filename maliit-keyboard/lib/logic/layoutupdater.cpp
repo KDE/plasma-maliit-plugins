@@ -138,19 +138,13 @@ KeyArea createFromKeyboard(Style *style,
 
     style->setStyleName(kb.style_name);
 
-    QPixmap normal_bg(4, 4);
-    QPixmap special_bg(4, 4);
-    QPixmap deadkey_bg(4, 4);
-
-    normal_bg.fill(QColor("#333"));
-    special_bg.fill(QColor("#999"));
-    deadkey_bg.fill(QColor("#ccc"));
-
     static SharedFont font(new QFont(style->fontName()));
     font->setPixelSize(style->fontSize());
 
     static SharedFont small_font(new QFont(style->fontName()));
     small_font->setPointSize(12);
+
+    static const QMargins bg_margins(6, 6, 6, 6);
 
     const qreal max_width(style->keyAreaWidth(orientation));
     const qreal key_height(style->keyHeight(orientation));
@@ -179,11 +173,8 @@ KeyArea createFromKeyboard(Style *style,
             ++spacer_count;
         }
 
-        switch (desc.style) {
-        case KeyDescription::NormalStyle: key.setBackground(normal_bg); break;
-        case KeyDescription::SpecialStyle: key.setBackground(special_bg); break;
-        case KeyDescription::DeadkeyStyle: key.setBackground(deadkey_bg); break;
-        }
+        key.setBackground(style->keyBackground(desc.style, KeyDescription::NormalState));
+        key.setBackgroundBorders(bg_margins);
 
         width = style->keyWidth(orientation, desc.width);
         const bool use_padding_over_margin(pos.x() == 0
@@ -374,26 +365,22 @@ void LayoutUpdater::onKeyPressed(const Key &key,
 
     // FIXME: Remove test code
     // TEST CODE STARTS
-    bool static init = false;
-    static QPixmap pressed_bg(8, 8);
-    static QPixmap magnifier_bg(8, 8);
     static SharedFont magnifier_font(new QFont);
-
-    if (not init) {
-        pressed_bg.fill(Qt::blue);
-        magnifier_bg.fill(QColor("#eee"));
-        magnifier_font->setPointSize(40);
-        init = true;
-    }
+    magnifier_font->setPixelSize(50);
+    static const QMargins bg_margins(6, 6, 6, 6);
     // TEST CODE ENDS
 
     Key k(key);
-    k.setBackground(pressed_bg);
+    // FIXME: Use correct key style, but where to look it up?
+    k.setBackground(d->style.keyBackground(KeyDescription::NormalStyle,
+                                           KeyDescription::PressedState));
+    k.setBackgroundBorders(bg_margins);
     layout->appendActiveKey(k);
 
     if (key.action() == Key::ActionInsert) {
         Key magnifier(key);
-        magnifier.setBackground(magnifier_bg);
+        magnifier.setBackground(d->style.keyBackground(KeyDescription::NormalStyle,
+                                                       KeyDescription::PressedState));
 
         QRect magnifier_rect(key.rect().translated(0, -120).adjusted(-20, -20, 20, 20));
         const QRectF key_area_rect(d->layout->activeKeyArea().rect);
@@ -404,8 +391,10 @@ void LayoutUpdater::onKeyPressed(const Key &key,
         }
 
         magnifier.setRect(magnifier_rect);
+        magnifier.setBackgroundBorders(bg_margins);
+
         KeyLabel magnifier_label(magnifier.label());
-        magnifier_label.setColor(Qt::black);
+        magnifier_label.setColor(Qt::white);
         magnifier_label.setRect(magnifier_label.rect().adjusted(0, 0, 40, 40));
         magnifier_label.setFont(magnifier_font);
         magnifier.setLabel(magnifier_label);

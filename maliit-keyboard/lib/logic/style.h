@@ -55,8 +55,8 @@ public:
     void setProfile(const QString &profile);
     void setStyleName(const QString &name);
 
-    QPixmap background(KeyDescription::Style style,
-                       KeyDescription::State state) const;
+    QPixmap keyBackground(KeyDescription::Style style,
+                          KeyDescription::State state) const;
     QPixmap icon(KeyDescription::Icon icon,
                  KeyDescription::State state) const;
 
