@@ -67,7 +67,7 @@
    </layout>
 
    <layout type="general" orientation="portrait" uniform-font-size="true">
-      <section id="main" style="smallfont">
+      <section id="main">
         <row>
           <key><binding label="&#x624B;"/></key>
           <key><binding label="&#x7530;"/></key>

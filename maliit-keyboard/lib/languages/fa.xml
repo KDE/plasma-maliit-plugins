@@ -2,7 +2,7 @@
 <!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
 <keyboard version="1.0" title="فارسى" language="fa" catalog="virtual-keyboard" autocapitalization="false">
   <layout type="general">
-    <section id="main" style="bigfont">
+    <section id="main">
       <row>
         <key>
           <binding label="ض"/>

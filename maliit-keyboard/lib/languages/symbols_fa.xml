@@ -2,7 +2,7 @@
 <!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
 <keyboard version="1.0" catalog="symbols">
   <layout type="general">
-    <section id="symbols0" type="non-sloppy" style="bigfont">
+    <section id="symbols0" type="non-sloppy">
       <row>
         <key>
           <binding label="&#x06F1;"/>
@@ -133,7 +133,7 @@
       </row>
     </section>
 
-    <section id="symbols1" type="non-sloppy" style="bigfont">
+    <section id="symbols1" type="non-sloppy">
       <row>
         <key>
           <binding label="1"/>

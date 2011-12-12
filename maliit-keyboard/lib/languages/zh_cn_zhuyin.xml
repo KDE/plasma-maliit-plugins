@@ -113,7 +113,7 @@
    </layout>
 
    <layout type="general" orientation="portrait" uniform-font-size="true">
-      <section id="main" style="smallfont">
+      <section id="main">
         <row>
           <key><binding label="&#x3105;"/></key>
           <spacer/>
