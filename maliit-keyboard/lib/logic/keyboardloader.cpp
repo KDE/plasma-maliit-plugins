@@ -101,7 +101,7 @@ Keyboard get_keyboard(const TagKeyboardPtr& keyboard,
             const TagSection::TagRows rows(section->rows());
             int row_num(0);
             QString section_style(section->style());
-            int normal_key_count(0);
+            int key_count(0);
 
             Q_FOREACH (const TagRowPtr& row, rows) {
                 const TagRow::TagRowElements elements(row->elements());
@@ -112,10 +112,7 @@ Keyboard get_keyboard(const TagKeyboardPtr& keyboard,
                         const TagKeyPtr key(element.staticCast<TagKey>());
                         const TagKey::TagBindings bindings(key->bindings());
                         TagBindingPtr the_binding;
-
-                        if (key->style() == TagKey::Normal) {
-                            ++normal_key_count;
-                        }
+                        ++key_count;
 
                         Q_FOREACH (const TagBindingPtr& binding, bindings) {
                             if (binding->shift() == shifted and not binding->alt()) {
@@ -186,7 +183,7 @@ Keyboard get_keyboard(const TagKeyboardPtr& keyboard,
                 ++row_num;
             }
             if (section_style.isEmpty()) {
-                section_style = "keys" + QString::number(normal_key_count);
+                section_style = "keys" + QString::number(key_count);
             }
             skeyboard.style_name = section_style;
         }

@@ -214,7 +214,7 @@ void LayoutParser::parseSection()
     m_last_section = TagSectionPtr(new TagSection(id,
                                                   movable,
                                                   type,
-                                                  id));
+                                                  style));
     m_last_layout->appendSection(m_last_section);
 
     bool found_row(false);
