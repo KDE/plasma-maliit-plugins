@@ -188,7 +188,6 @@ KeyArea createFromKeyboard(Style *style,
         KeyLabel label(key.label());
         label.setFont(label.text().count() > 1 ? small_font : font);
         label.setColor(Qt::white);
-        label.setRect(QRect(4, 4, key.rect().width() - 8, key.rect().height() - 8));
         key.setLabel(label);
 
         pos.rx() += key.rect().width();
@@ -395,7 +394,6 @@ void LayoutUpdater::onKeyPressed(const Key &key,
 
         KeyLabel magnifier_label(magnifier.label());
         magnifier_label.setColor(Qt::white);
-        magnifier_label.setRect(magnifier_label.rect().adjusted(0, 0, 40, 40));
         magnifier_label.setFont(magnifier_font);
         magnifier.setLabel(magnifier_label);
         layout->setMagnifierKey(magnifier);

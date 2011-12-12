@@ -39,7 +39,6 @@ void KeyRenderer::render(QPainter *painter,
 {
     const QMargins &m(key.margins());
     const QRect &key_rect(key.rect().translated(origin).adjusted(m.left(), m.top(), -m.right(), -m.bottom()));
-    const QRect &key_label_rect(key.label().rect().translated(key_rect.topLeft()));
 
     qDrawBorderPixmap(painter, key_rect, key.backgroundBorders(), key.background());
 
@@ -48,7 +47,7 @@ void KeyRenderer::render(QPainter *painter,
     }
 
     painter->setPen(key.label().color());
-    painter->drawText(key_label_rect, key.label().text());
+    painter->drawText(key_rect, Qt::AlignCenter, key.label().text());
 }
 
 } // namespace MaliitKeyboard

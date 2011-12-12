@@ -50,7 +50,6 @@ MaliitKeyboard::Key createKey(const QPixmap &pm,
                               MaliitKeyboard::Key::Action a = MaliitKeyboard::Key::ActionInsert)
 {
     MaliitKeyboard::KeyLabel l;
-    l.setRect(lr);
     l.setText(t);
     l.setColor(c);
     l.setFont(f);

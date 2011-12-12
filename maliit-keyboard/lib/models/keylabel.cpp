@@ -35,7 +35,6 @@ namespace MaliitKeyboard {
 
 KeyLabel::KeyLabel()
     : m_label()
-    , m_rect()
     , m_font()
     , m_color()
 {}
@@ -48,16 +47,6 @@ QString KeyLabel::text() const
 void KeyLabel::setText(const QString &label)
 {
     m_label = label;
-}
-
-QRect KeyLabel::rect() const
-{
-    return m_rect;
-}
-
-void KeyLabel::setRect(const QRect &rect)
-{
-    m_rect = rect;
 }
 
 SharedFont KeyLabel::font() const

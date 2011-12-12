@@ -42,7 +42,6 @@ class KeyLabel
 {
 private:
     QString m_label;
-    QRect m_rect;
     SharedFont m_font;
     QColor m_color;
 
@@ -51,9 +50,6 @@ public:
 
     QString text() const;
     void setText(const QString &text);
-
-    QRect rect() const;
-    void setRect(const QRect &rect);
 
     SharedFont font() const;
     void setFont(const SharedFont &font);
