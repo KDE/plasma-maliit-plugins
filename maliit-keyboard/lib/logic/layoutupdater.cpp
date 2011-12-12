@@ -177,13 +177,13 @@ KeyArea createFromKeyboard(Style *style,
         key.setBackgroundBorders(bg_margins);
 
         width = style->keyWidth(orientation, desc.width);
-        const bool use_padding_over_margin(pos.x() == 0
-                                           || pos.x() + width + margin + padding == max_width);
+        const bool use_left_padding(pos.x() == 0);
+        const bool use_right_padding(pos.x() + width + margin + padding == max_width);
 
-        const qreal key_margin(use_padding_over_margin ? margin + padding : margin * 2);
+        const qreal key_margin((use_left_padding || use_right_padding) ? margin + padding : margin * 2);
         key.setRect(QRect(pos.x(), pos.y(), width + key_margin, key_height));
-        key.setMargins(QMargins(use_padding_over_margin ? padding : margin, margin,
-                                use_padding_over_margin ? padding : margin, margin));
+        key.setMargins(QMargins(use_left_padding ? padding : margin, margin,
+                                use_right_padding ? padding : margin, margin));
 
         KeyLabel label(key.label());
         label.setFont(label.text().count() > 1 ? small_font : font);
