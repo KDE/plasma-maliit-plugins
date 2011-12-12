@@ -112,18 +112,18 @@
         <key style="special" width="x-large">
           <binding action="sym" label="ABC"/>
         </key>
-
+        
         <key>
           <binding label="_"/>
         </key>
         <key><binding label=","/></key>
-
+        
         <key width="stretched">
           <binding action="space"/>
         </key>
 
         <key><binding label="."/></key>
-
+        
         <key style="special" width="xx-large" id="actionKey">
           <binding action="return"/>
         </key>
@@ -241,16 +241,16 @@
         <key style="special" width="x-large">
           <binding action="sym" label="ABC"/>
         </key>
-
+        
         <key><binding label="&#x003C;"/></key>
         <key><binding label="&#x003E;"/></key>
-
+        
         <key width="stretched">
           <binding action="space"/>
         </key>
 
         <key><binding label="&#x00A9;"/></key>
-
+        
         <key style="special" width="xx-large" id="actionKey">
           <binding action="return"/>
         </key>

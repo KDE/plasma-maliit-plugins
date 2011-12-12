@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
+<keyboard title="Ελληνικά (EL)" version="1.0" catalog="el_gr" language="en_gr">
+  <layout type="general">
+    <section id="main" style="keys33"><!-- symview of this layout has only 33 keys, hence the style override -->
+      <row>
+        <key>
+          <binding label=";"/>
+          <binding shift="true" label=":"/>
+        </key>
+        <key>
+          <binding label="ς"/>
+          <binding shift="true" label="/"/>
+        </key>
+        <key>
+          <binding label="ε" extended_labels="έ€" accented_labels="έ" accents="΄"/>
+          <binding shift="true" label="Ε" extended_labels="Έ€" accented_labels="Έ" accents="΄"/>
+        </key>
+        <key>
+          <binding label="ρ"/>
+          <binding shift="true" label="Ρ"/>
+        </key>
+        <key>
+          <binding label="τ"/>
+          <binding shift="true" label="Τ"/>
+        </key>
+        <key>
+          <binding label="υ" extended_labels="ύϋΰ" accented_labels="ύϋΰ" accents="΄¨΅"/>
+          <binding shift="true" label="Υ" extended_labels="ΎΫ" accented_labels="ΎΫ" accents="΄¨"/>
+        </key>
+        <key>
+          <binding label="θ"/>
+          <binding shift="true" label="Θ"/>
+        </key>
+        <key>
+          <binding label="ι" extended_labels="ίϊΐ" accented_labels="ίϊΐ" accents="΄¨΅"/>
+          <binding shift="true" label="Ι" extended_labels="ΊΪ" accented_labels="ΊΪ" accents="΄¨"/>
+        </key>
+        <key>
+          <binding label="ο" extended_labels="ό" accented_labels="ό" accents="΄"/>
+          <binding shift="true" label="Ο" extended_labels="Ό" accented_labels="Ό" accents="΄"/>
+        </key>
+        <key>
+          <binding label="π"/>
+          <binding shift="true" label="Π"/>
+        </key>
+      </row>
+
+      <row>
+        <spacer/>
+
+        <key>
+          <binding label="α" extended_labels="ά" accented_labels="ά" accents="΄"/>
+          <binding shift="true" label="Α" extended_labels="Ά" accented_labels="Ά" accents="΄"/>
+        </key>
+        <key>
+          <binding label="σ" extended_labels="ς"/>
+          <binding shift="true" label="Σ"/>
+        </key>
+        <key>
+          <binding label="δ"/>
+          <binding shift="true" label="Δ"/>
+        </key>
+        <key>
+          <binding label="φ"/>
+          <binding shift="true" label="Φ"/>
+        </key>
+        <key>
+          <binding label="γ"/>
+          <binding shift="true" label="Γ"/>
+        </key>
+        <key>
+          <binding label="η" extended_labels="ή" accented_labels="ή" accents="΄"/>
+          <binding shift="true" label="Η" extended_labels="Ή" accented_labels="Ή" accents="΄"/>
+        </key>
+        <key>
+          <binding label="ξ"/>
+          <binding shift="true" label="Ξ"/>
+        </key>
+        <key>
+          <binding label="κ"/>
+          <binding shift="true" label="Κ"/>
+        </key>
+        <key>
+          <binding label="λ"/>
+          <binding shift="true" label="Λ"/>
+        </key>
+        <key>
+          <binding label="΄" dead="true" extended_labels="¨΅"/>
+        </key>
+        <spacer/>
+      </row>
+
+      <row>
+        <key style="special" width="large">
+          <binding action="shift"/>
+        </key>
+
+        <spacer/>
+
+        <key>
+          <binding label="ζ"/>
+          <binding shift="true" label="Ζ"/>
+        </key>
+        <key>
+          <binding label="χ"/>
+          <binding shift="true" label="Χ"/>
+        </key>
+        <key>
+          <binding label="ψ" />
+          <binding shift="true" label="Ψ" />
+        </key>
+        <key>
+          <binding label="ω" extended_labels="ώ" accented_labels="ώ" accents="΄"/>
+          <binding shift="true" label="Ω" extended_labels="Ώ" accented_labels="Ώ" accents="΄"/>
+        </key>
+        <key>
+          <binding label="β"/>
+          <binding shift="true" label="Β"/>
+        </key>
+        <key>
+          <binding label="ν"/>
+          <binding shift="true" label="Ν"/>
+        </key>
+        <key>
+          <binding label="μ"/>
+          <binding shift="true" label="Μ"/>
+        </key>
+
+        <spacer/>
+
+        <key style="special" width="large">
+          <binding action="backspace"/>
+        </key>
+      </row>
+
+      <row>
+        <key style="special" width="x-large">
+          <binding action="sym" label="?123"/>
+        </key>
+
+        <spacer/>
+
+        <key id="emailUrlKey"><binding label=","/></key>
+        <key width="xx-large"><binding action="space"/></key>
+        <key><binding label="."/></key>
+
+        <spacer/>
+
+        <key style="special" width="x-large" id="actionKey">
+          <binding action="return"/>
+        </key>
+      </row>
+    </section>
+  </layout>
+
+  <import file="symbols_en.xml"/>
+</keyboard>

@@ -18,7 +18,8 @@ include(parser/parser.pri)
 include(languages/languages.pri)
 
 target.path += $$PREFIX/usr/lib
-languages.path = $$MALIIT_PLUGINS_DATA_DIR/languages
+languages.path = $$MALIIT_PLUGINS_DATA_DIR
+languages.files = languages/
 images.path = $$ORG_MALIIT_DIR
 images.files = images/
 styles.path = $$ORG_MALIIT_DIR
