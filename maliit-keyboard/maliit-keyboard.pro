@@ -3,7 +3,12 @@ include(../config.pri)
 VERSION = 0.1.0
 TARGET = maliit-keyboard
 TEMPLATE = lib
-QT = core gui declarative
+
+contains(QT_MAJOR_VERSION, 4) {
+    QT = core gui declarative
+} else {
+    QT = core gui widgets declarative
+}
 
 MALIIT_KEYBOARD_DIR=$${MALIIT_PLUGINS_DIR}/maliit-keyboard
 MALIIT_KEYBOARD_FILE=$${MALIIT_KEYBOARD_DIR}/maliit-keyboard.qml
