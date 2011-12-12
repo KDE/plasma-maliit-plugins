@@ -95,7 +95,6 @@ void Layout::setLeftPanel(const KeyArea &left)
 {
     if (m_left != left) {
         m_left = left;
-        m_active_keys.left.clear();
     }
 }
 
@@ -108,7 +107,6 @@ void Layout::setRightPanel(const KeyArea &right)
 {
     if (m_right != right) {
         m_right = right;
-        m_active_keys.right.clear();
     }
 }
 
@@ -121,7 +119,6 @@ void Layout::setCenterPanel(const KeyArea &center)
 {
     if (m_center != center) {
         m_center = center;
-        m_active_keys.center.clear();
     }
 }
 
@@ -134,7 +131,6 @@ void Layout::setExtendedPanel(const KeyArea &extended)
 {
     if (m_extended != extended) {
         m_extended = extended;
-        m_active_keys.extended.clear();
     }
 }
 
@@ -148,8 +144,15 @@ QVector<Key> Layout::activeKeys() const
     case NumPanels: break;
     }
 
-    static const QVector<Key> empty;
-    return empty;
+    return QVector<Key>();
+}
+
+void Layout::clearActiveKeys()
+{
+    m_active_keys.left.clear();
+    m_active_keys.right.clear();
+    m_active_keys.center.clear();
+    m_active_keys.extended.clear();
 }
 
 void Layout::appendActiveKey(const Key &key)

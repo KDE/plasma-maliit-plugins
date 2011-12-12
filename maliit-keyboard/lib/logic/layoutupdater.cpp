@@ -372,6 +372,8 @@ void LayoutUpdater::setOrientation(Layout::Orientation orientation)
                                                      d->loader->keyboard(),
                                                      d->anchor,
                                                      orientation));
+
+        d->layout->clearActiveKeys();
         emit layoutChanged(d->layout);
     }
 }
@@ -422,8 +424,6 @@ void LayoutUpdater::onKeyPressed(const Key &key,
         layout->setMagnifierKey(magnifier);
     }
 
-    emit keysChanged(layout);
-
     switch (key.action()) {
     case Key::ActionShift:
         emit shiftPressed();
@@ -437,6 +437,8 @@ void LayoutUpdater::onKeyPressed(const Key &key,
     default:
         break;
     }
+
+    emit keysChanged(layout);
 }
 
 void LayoutUpdater::onKeyReleased(const Key &key,
@@ -450,7 +452,6 @@ void LayoutUpdater::onKeyReleased(const Key &key,
 
     layout->removeActiveKey(key);
     layout->setMagnifierKey(Key());
-    emit keysChanged(layout);
 
     switch (key.action()) {
     case Key::ActionShift:
@@ -483,6 +484,8 @@ void LayoutUpdater::onKeyReleased(const Key &key,
     default:
         break;
     }
+
+    emit keysChanged(layout);
 }
 
 void LayoutUpdater::switchLayoutToUpper()

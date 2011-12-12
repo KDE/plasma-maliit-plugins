@@ -98,6 +98,7 @@ public:
     void setExtendedPanel(const KeyArea &extended);
 
     QVector<Key> activeKeys() const;
+    void clearActiveKeys();
     void appendActiveKey(const Key &key);
     void removeActiveKey(const Key &key);
 
