@@ -40,28 +40,10 @@ const char *const images_dir(MALIIT_KEYBOARD_IMAGES_DIR);
 const QString profile_filename_format("%1/%2.ini");
 const QString image_filename_format("%1/%2");
 const QString key_with_format("key-width%2");
-const QString background_format("background/%1%2");
-const QString icon_format("icon/%1%2");
 
-void beginOrientationGroup(const QScopedPointer<QSettings> &store,
-                           Layout::Orientation orientation)
-{
-    if (store.isNull()) {
-        qCritical() << __PRETTY_FUNCTION__
-                    << "No store found, aborting.";
-        return;
-    }
-
-    switch(orientation) {
-    case Layout::Landscape:
-        store->beginGroup("landscape");
-        break;
-
-    case Layout::Portrait:
-        store->beginGroup("portrait");
-        break;
-    }
-}
+const QString backgroud_id_build_format("background/%1%2");
+const QString icon_id_build_format("icon/%1%2");
+const QString id_build_format("%1/%2/%3");
 
 QString fromKeyWidth(KeyDescription::Width width)
 {
@@ -114,6 +96,52 @@ QString fromKeyState(KeyDescription::State state)
     return QString();
 }
 
+QString buildBackgroundId(KeyDescription::Style style,
+                          KeyDescription::State state)
+{
+    return backgroud_id_build_format
+           .arg(fromKeyStyle(style))
+           .arg(fromKeyState(state));
+}
+
+QString buildIconId(KeyDescription::Icon icon,
+                    KeyDescription::State state)
+{
+    return icon_id_build_format
+           .arg(fromKeyIcon(icon))
+           .arg(fromKeyState(state));
+}
+
+QString buildId(Layout::Orientation orientation,
+                const QString &style_name,
+                const QString &id)
+{
+    return id_build_format
+           .arg(style_name)
+           .arg(orientation == Layout::Landscape ? "landscape" : "portrait")
+           .arg(id);
+}
+
+QVariant lookup(const QScopedPointer<QSettings> &store,
+                Layout::Orientation orientation,
+                const QString &style_name,
+                const QString &id)
+{
+    if (store.isNull()) {
+        qCritical() << __PRETTY_FUNCTION__
+                    << "No store found, aborting.";
+        return QVariant();
+    }
+
+    const QVariant &result(store->value(buildId(orientation, style_name, id)));
+
+    if (not result.isValid()) {
+        return store->value(buildId(orientation, "default", id));
+    }
+
+    return result;
+}
+
 QPixmap loadImage(const QString &id,
                   const QScopedPointer<QSettings> &store,
                   QHash<QString, QPixmap> *cache)
@@ -132,31 +160,15 @@ QPixmap loadImage(const QString &id,
         return QPixmap();
     }
 
-    QPixmap image(image_filename_format
-                  .arg(images_dir)
-                  .arg(store->value(id).toString()));
+    const QPixmap &image(image_filename_format
+                         .arg(images_dir)
+                         .arg(store->value(id).toString()));
 
     if (image.isNull()) {
-        // Try a one-step lookup in default group:
-        const QString &group(store->group());
-        store->endGroup();
-        store->beginGroup("default");
-        image = QPixmap(image_filename_format
-                        .arg(images_dir)
-                        .arg(store->value(id).toString()));
-
-        // OK, giving up:
-        if (image.isNull()) {
-            qWarning() << __PRETTY_FUNCTION__
-                       << "Image not found. Image id:" << id
-                       << ", file name:" << images_dir << store->value(id).toString();
-        }
-
-        store->endGroup();
-        store->beginGroup(group);
-    }
-
-    if (cache) {
+        qWarning() << __PRETTY_FUNCTION__
+                   << "Image not found. Image id:" << id
+                   << ", file name:" << images_dir << store->value(id).toString();
+    } else if (cache) {
         cache->insert(id, image);
     }
 
@@ -200,13 +212,7 @@ void Style::setProfile(const QString &profile)
 void Style::setStyleName(const QString &name)
 {
     Q_D(Style);
-
-    if (d->name != name) {
-        d->store->endGroup();
-        d->name = name;
-        d->image_cache.clear();
-        d->store->beginGroup(d->name);
-    }
+    d->name = name;
 }
 
 QPixmap Style::keyBackground(KeyDescription::Style style,
@@ -214,9 +220,7 @@ QPixmap Style::keyBackground(KeyDescription::Style style,
 {
     Q_D(const Style);
 
-    return loadImage(background_format
-                     .arg(fromKeyStyle(style))
-                     .arg(fromKeyState(state)),
+    return loadImage(buildBackgroundId(style, state),
                      d->store, &d->image_cache);
 }
 
@@ -225,9 +229,7 @@ QPixmap Style::icon(KeyDescription::Icon icon,
 {
     Q_D(const Style);
 
-    return loadImage(icon_format
-                     .arg(fromKeyIcon(icon))
-                     .arg(fromKeyState(state)),
+    return loadImage(buildIconId(icon, state),
                      d->store, &d->image_cache);
 }
 
@@ -246,52 +248,32 @@ qreal Style::fontSize(const QString &group_id) const
 qreal Style::keyHeight(Layout::Orientation orientation) const
 {
     Q_D(const Style);
-
-    beginOrientationGroup(d->store, orientation);
-    const qreal result = d->store->value("key-height").toReal();
-    d->store->endGroup();
-    return result;
+    return lookup(d->store, orientation, d->name, "key-height").toReal();
 }
 
 qreal Style::keyWidth(Layout::Orientation orientation,
                       KeyDescription::Width width) const
 {
     Q_D(const Style);
-
-    beginOrientationGroup(d->store, orientation);
-    const qreal result = d->store->value(key_with_format.arg(fromKeyWidth(width))).toReal();
-    d->store->endGroup();
-    return result;
+    return lookup(d->store, orientation, d->name, key_with_format.arg(fromKeyWidth(width))).toReal();
 }
 
 qreal Style::keyAreaWidth(Layout::Orientation orientation) const
 {
     Q_D(const Style);
-
-    beginOrientationGroup(d->store, orientation);
-    const qreal result = d->store->value("key-area-width").toReal();
-    d->store->endGroup();
-    return result;
+    return lookup(d->store, orientation, d->name, "key-area-width").toReal();
 }
 
 qreal Style::keyMargin(Layout::Orientation orientation) const
 {
     Q_D(const Style);
-
-    beginOrientationGroup(d->store, orientation);
-    const qreal result = d->store->value("key-margins").toReal();
-    d->store->endGroup();
-    return result;
+    return lookup(d->store, orientation, d->name, "key-margins").toReal();
 }
 
 qreal Style::keyAreaPadding(Layout::Orientation orientation) const
 {
     Q_D(const Style);
-
-    beginOrientationGroup(d->store, orientation);
-    const qreal result = d->store->value("key-area-paddings").toReal();
-    d->store->endGroup();
-    return result;
+    return lookup(d->store, orientation, d->name, "key-area-paddings").toReal();
 }
 
 } // namespace MaliitKeyboard
