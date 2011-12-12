@@ -89,29 +89,33 @@ Keyboard get_keyboard(const TagKeyboardPtr& keyboard,
                       const QString &dead_label = "")
 {
     Keyboard skeyboard;
-
-    // FIXME: set style based on key count/style override.
-    skeyboard.style_name = QString("keys33");
     const QChar dead_key((dead_label.size() == 1) ? dead_label[0] : QChar::Null);
 
     if (keyboard) {
         TagKeyboard::TagLayouts layouts(keyboard->layouts());
 
         if (not layouts.isEmpty()) {
-            TagLayout::TagSections sections(layouts.first()->sections());
+            const TagLayout::TagSections sections(layouts.first()->sections());
             // sections cannot be empty - parser does not allow that.
-            TagSection::TagRows rows(sections[page % sections.size()]->rows());
+            const TagSectionPtr section(sections[page % sections.size()]);
+            const TagSection::TagRows rows(section->rows());
             int row_num(0);
+            QString section_style(section->style());
+            int normal_key_count(0);
 
             Q_FOREACH (const TagRowPtr& row, rows) {
-                TagRow::TagRowElements elements(row->elements());
+                const TagRow::TagRowElements elements(row->elements());
                 bool spacer_met(false);
 
                 Q_FOREACH (const TagRowElementPtr& element, elements) {
                     if (element->element_type() == TagRowElement::Key) {
-                        TagKeyPtr key(element.staticCast<TagKey>());
-                        TagKey::TagBindings bindings(key->bindings());
+                        const TagKeyPtr key(element.staticCast<TagKey>());
+                        const TagKey::TagBindings bindings(key->bindings());
                         TagBindingPtr the_binding;
+
+                        if (key->style() == TagKey::Normal) {
+                            ++normal_key_count;
+                        }
 
                         Q_FOREACH (const TagBindingPtr& binding, bindings) {
                             if (binding->shift() == shifted and not binding->alt()) {
@@ -181,6 +185,10 @@ Keyboard get_keyboard(const TagKeyboardPtr& keyboard,
                 }
                 ++row_num;
             }
+            if (section_style.isEmpty()) {
+                section_style = "keys" + QString::number(normal_key_count);
+            }
+            skeyboard.style_name = section_style;
         }
     }
     return skeyboard;
