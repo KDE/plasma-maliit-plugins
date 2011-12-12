@@ -105,18 +105,12 @@ Keyboard get_keyboard(const TagKeyboardPtr& keyboard,
 
             Q_FOREACH (const TagRowPtr& row, rows) {
                 TagRow::TagRowElements elements(row->elements());
+                bool spacer_met(false);
+
                 Q_FOREACH (const TagRowElementPtr& element, elements) {
                     if (element->element_type() == TagRowElement::Key) {
                         TagKeyPtr key(element.staticCast<TagKey>());
                         TagKey::TagBindings bindings(key->bindings());
-                        Key skey;
-                        KeyDescription skey_description;
-
-                        skey_description.row = row_num;
-                        skey_description.width = static_cast<KeyDescription::Width>(key->width());
-                        skey_description.style = static_cast<KeyDescription::Style>(key->style());
-                        skey_description.use_rtl_icon = key->rtl();
-
                         TagBindingPtr the_binding;
 
                         Q_FOREACH (const TagBindingPtr& binding, bindings) {
@@ -137,6 +131,9 @@ Keyboard get_keyboard(const TagKeyboardPtr& keyboard,
                         } else {
                             label.setText(the_binding->accented_labels()[index]);
                         }
+
+                        Key skey;
+
                         if (the_binding->dead()) {
                             // TODO: document it.
                             skey.setAction(Key::ActionDead);
@@ -144,9 +141,42 @@ Keyboard get_keyboard(const TagKeyboardPtr& keyboard,
                             skey.setAction(static_cast<Key::Action>(the_binding->action()));
                         }
                         skey.setLabel(label);
-
                         skeyboard.keys.append(skey);
+
+                        KeyDescription skey_description;
+
+                        skey_description.row = row_num;
+                        skey_description.use_rtl_icon = key->rtl();
+                        skey_description.left_spacer = spacer_met;
+                        skey_description.right_spacer = false;
+                        skey_description.style = static_cast<KeyDescription::Style>(key->style());
+                        skey_description.width = static_cast<KeyDescription::Width>(key->width());
+                        switch (skey.action()) {
+                        case Key::ActionBackspace:
+                            skey_description.icon = KeyDescription::BackspaceIcon;
+                            break;
+                        case Key::ActionReturn:
+                            skey_description.icon = KeyDescription::ReturnIcon;
+                            break;
+                        case Key::ActionShift:
+                            skey_description.icon = KeyDescription::ShiftIcon;
+                            break;
+                        default:
+                            skey_description.icon = KeyDescription::NoIcon;
+                            break;
+                        }
+                        skey_description.font_group = KeyDescription::NormalFontGroup;
                         skeyboard.key_descriptions.append(skey_description);
+                        spacer_met = false;
+                    } else { // spacer
+                        if (not skeyboard.key_descriptions.isEmpty()) {
+                            KeyDescription& previous_skey_description(skeyboard.key_descriptions.last());
+
+                            if (previous_skey_description.row == row_num) {
+                                previous_skey_description.right_spacer = true;
+                            }
+                        }
+                        spacer_met = true;
                     }
                 }
                 ++row_num;
