@@ -13,3 +13,4 @@ core
 *~
 *.swp
 *.pro.user
+*.core
