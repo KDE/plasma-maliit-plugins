@@ -32,9 +32,9 @@
 #include "inputmethod.h"
 #include "editor.h"
 #include "logic/layoutupdater.h"
-#include "view/renderer/renderer.h"
-#include "view/renderer/abstractbackgroundbuffer.h"
-#include "view/glass/glass.h"
+#include "view/renderer.h"
+#include "view/abstractbackgroundbuffer.h"
+#include "view/glass.h"
 #include "models/keyarea.h"
 #include "models/layout.h"
 
