@@ -4,4 +4,5 @@ SUBDIRS = \
     lib \
     plugin \
     viewer \
+    benchmark \
 
