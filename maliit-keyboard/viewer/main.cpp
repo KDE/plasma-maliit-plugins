@@ -38,7 +38,8 @@
 #include "models/keylabel.h"
 #include "models/layout.h"
 
-#include <QtGui>
+#include <QApplication>
+#include <QWidget>
 
 namespace {
 MaliitKeyboard::Key createKey(const QPixmap &pm,

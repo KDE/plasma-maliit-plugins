@@ -30,10 +30,12 @@
  *
  */
 
-#include <cstdlib>
-#include <ctime>
 
 #include "logic/layoutupdater.h"
+
+#include <cstdlib>
+#include <ctime>
+#include <QApplication>
 
 int main(int argc,
          char ** argv)

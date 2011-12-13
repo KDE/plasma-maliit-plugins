@@ -39,6 +39,9 @@
 #include "models/layout.h"
 
 #include <mimsubviewdescription.h>
+#include <QApplication>
+#include <QWidget>
+#include <QDesktopWidget>
 
 namespace MaliitKeyboard {
 

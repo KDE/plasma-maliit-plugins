@@ -33,7 +33,7 @@
 #define MALIIT_KEYBOARD_KEYITEM_H
 
 #include "models/key.h"
-#include <QtGui>
+#include <QGraphicsItem>
 
 namespace MaliitKeyboard {
 

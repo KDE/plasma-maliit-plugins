@@ -33,7 +33,7 @@
 #define MALIIT_KEYBOARD_GRAPHICSVIEW_H
 
 #include "abstractbackgroundbuffer.h"
-#include <QtGui>
+#include <QGraphicsView>
 
 namespace MaliitKeyboard {
 

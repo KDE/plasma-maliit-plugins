@@ -35,7 +35,7 @@
 #include "keyrenderer.h"
 #include "models/keyarea.h"
 
-#include <QtGui>
+#include <QGraphicsItem>
 
 namespace MaliitKeyboard {
 

@@ -30,6 +30,7 @@
  */
 
 #include "keyrenderer.h"
+#include <qdrawutil.h>
 
 namespace MaliitKeyboard {
 

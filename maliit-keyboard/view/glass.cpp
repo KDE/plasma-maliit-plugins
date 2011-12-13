@@ -30,6 +30,7 @@
  */
 
 #include "glass.h"
+#include <QWidget>
 
 namespace MaliitKeyboard {
 
