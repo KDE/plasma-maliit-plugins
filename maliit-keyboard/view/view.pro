@@ -3,9 +3,14 @@ include(../../config.pri)
 VERSION = 0.2.0
 TARGET = maliit-keyboard-view
 TEMPLATE = lib
-QT += core gui
 INCLUDEPATH=../lib
 LIB += -L../lib -lmaliit-keyboard
+
+contains(QT_MAJOR_VERSION, 4) {
+    QT = core gui
+} else {
+    QT = core gui widgets
+}
 
 HEADERS += \
     glass.h \

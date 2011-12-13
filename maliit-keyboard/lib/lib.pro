@@ -3,8 +3,13 @@ include(../../config.pri)
 VERSION = 0.2.0
 TARGET = maliit-keyboard
 TEMPLATE = lib
-QT += core
 DEFINES += MALIIT_PLUGINS_DATA_DIR=\\\"$${MALIIT_PLUGINS_DATA_DIR}\\\"
+
+contains(QT_MAJOR_VERSION, 4) {
+    QT = core gui
+} else {
+    QT = core gui widgets
+}
 
 ORG_MALIIT_DIR = "$${MALIIT_PLUGINS_DATA_DIR}/org/maliit"
 DEFINES += MALIIT_KEYBOARD_IMAGES_DIR=\\\"$${ORG_MALIIT_DIR}/images\\\"

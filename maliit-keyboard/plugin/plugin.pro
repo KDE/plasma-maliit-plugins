@@ -2,9 +2,14 @@ include(../../config.pri)
 
 TARGET = maliit-keyboard-plugin
 TEMPLATE = lib
-QT += core gui declarative
 LIBS += -L../lib -lmaliit-keyboard -L../view -lmaliit-keyboard-view
 INCLUDEPATH += ../lib ../
+
+contains(QT_MAJOR_VERSION, 4) {
+    QT = core gui
+} else {
+    QT = core gui widgets
+}
 
 MALIIT_KEYBOARD_DIR=$${MALIIT_PLUGINS_DIR}/maliit-keyboard
 

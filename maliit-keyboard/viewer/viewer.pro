@@ -6,5 +6,10 @@ INCLUDEPATH += ../lib ../
 LIBS += -L../lib -lmaliit-keyboard -L../view -lmaliit-keyboard-view
 SOURCES += main.cpp
 
-QT += core gui
+contains(QT_MAJOR_VERSION, 4) {
+    QT = core gui
+} else {
+    QT = core gui widgets
+}
+
 INSTALLS += target
