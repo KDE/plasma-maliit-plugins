@@ -14,3 +14,5 @@ core
 *.swp
 *.pro.user
 *.core
+*.tar.*
+*.md5
