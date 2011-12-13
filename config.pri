@@ -19,3 +19,6 @@ enable-opengl {
     QT += opengl
     DEFINES += MALIIT_KEYBOARD_HAVE_OPENGL
 }
+
+MALIIT_PACKAGENAME = maliit-plugins
+MALIIT_VERSION = $$system(cat $$IN_PWD/VERSION)
