@@ -38,6 +38,8 @@
 #include "models/keyarea.h"
 #include "models/layout.h"
 
+#include <mimsubviewdescription.h>
+
 namespace MaliitKeyboard {
 
 class BackgroundBuffer
@@ -111,6 +113,12 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host,
     connect(&d->glass,  SIGNAL(keyReleased(Key,SharedLayout)),
             &d->editor, SLOT(onKeyReleased(Key)));
 
+    connect(&d->glass,          SIGNAL(switchLeft(SharedLayout)),
+            &d->layout_updater, SLOT(onSwitchLeft(SharedLayout)));
+
+    connect(&d->glass,          SIGNAL(switchRight(SharedLayout)),
+            &d->layout_updater, SLOT(onSwitchRight(SharedLayout)));
+
     connect(&d->glass,          SIGNAL(keyPressed(Key,SharedLayout)),
             &d->layout_updater, SLOT(onKeyPressed(Key,SharedLayout)));
 
@@ -134,6 +142,12 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host,
 
     connect(&d->renderer, SIGNAL(regionChanged(QRegion)),
             host,         SLOT(setScreenRegion(QRegion)));
+
+    connect(&d->glass, SIGNAL(switchLeft(SharedLayout)),
+            this,      SLOT(onSwitchLeft()));
+
+    connect(&d->glass, SIGNAL(switchRight(SharedLayout)),
+            this,      SLOT(onSwitchRight()));
 }
 
 InputMethod::~InputMethod()
@@ -198,6 +212,28 @@ void InputMethod::handleAppOrientationChanged(int angle)
     Q_D(InputMethod);
     d->layout_updater.setOrientation((angle == 0 || angle == 180) ? Layout::Landscape
                                                                   : Layout::Portrait);
+}
+
+void InputMethod::onSwitchLeft()
+{
+    // This API smells real bad.
+    const QList<MImSubViewDescription> &list =
+        inputMethodHost()->surroundingSubViewDescriptions(MInputMethod::OnScreen);
+
+    if (list.count() > 0) {
+        emit activeSubViewChanged(list.at(0).id());
+    }
+}
+
+void InputMethod::onSwitchRight()
+{
+    // This API smells real bad.
+    const QList<MImSubViewDescription> &list =
+        inputMethodHost()->surroundingSubViewDescriptions(MInputMethod::OnScreen);
+
+    if (list.count() > 1) {
+        emit activeSubViewChanged(list.at(1).id());
+    }
 }
 
 } // namespace MaliitKeyboard

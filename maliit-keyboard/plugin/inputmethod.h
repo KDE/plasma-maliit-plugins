@@ -67,6 +67,9 @@ public:
     //! \reimp_end
 
 private:
+    Q_SLOT void onSwitchLeft();
+    Q_SLOT void onSwitchRight();
+
     const QScopedPointer<InputMethodPrivate> d_ptr;
 };
 

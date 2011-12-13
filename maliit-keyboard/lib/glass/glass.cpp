@@ -75,11 +75,18 @@ public:
     QVector<SharedLayout> layouts;
     QVector<Key> active_keys;
     QPoint last_pos;
+    QPoint press_pos;
+    QElapsedTimer gesture_timer;
+    bool gesture_triggered;
 
     explicit GlassPrivate()
         : window(0)
         , layouts()
         , active_keys()
+        , last_pos()
+        , press_pos()
+        , gesture_timer()
+        , gesture_triggered(false)
     {}
 };
 
@@ -141,9 +148,18 @@ bool Glass::eventFilter(QObject *obj,
     } break;
 
     case QKeyEvent::MouseButtonPress:
+        d->gesture_timer.restart();
+        d->gesture_triggered = false;
+
+        // Intended fallthru:
     case QKeyEvent::MouseButtonRelease: {
+        if (d->gesture_triggered) {
+            return false;
+        }
+
         QMouseEvent *qme = static_cast<QMouseEvent *>(ev);
         d->last_pos = qme->pos();
+        d->press_pos = qme->pos(); // FIXME: dont update on mouse release, clear instead.
         ev->accept();
 
         foreach (const SharedLayout &layout, d->layouts) {
@@ -178,6 +194,10 @@ bool Glass::eventFilter(QObject *obj,
     } break;
 
     case QKeyEvent::MouseMove: {
+        if (d->gesture_triggered) {
+            return false;
+        }
+
         QMouseEvent *qme = static_cast<QMouseEvent *>(ev);
         ev->accept();
 
@@ -187,10 +207,42 @@ bool Glass::eventFilter(QObject *obj,
             const QPoint &last_pos(layout->orientation() == Layout::Landscape
                                    ? d->last_pos : QPoint(d->window->height() - d->last_pos.y(), d->last_pos.x()));
             d->last_pos = qme->pos();
+
+            const QPoint &press_pos(layout->orientation() == Layout::Landscape
+                                    ? d->press_pos : QPoint(d->window->height() - d->press_pos.y(), d->press_pos.x()));
+
+            const QRect &rect(layout->activeKeyArea().rect.toRect());
+
+            if (d->gesture_timer.elapsed() < 250) {
+                if (pos.y() > (press_pos.y() - rect.height() * 0.33)
+                    && pos.y() < (press_pos.y() + rect.height() * 0.33)) {
+                    if (pos.x() < (press_pos.x() - rect.width() * 0.33)) {
+                        foreach (const Key &k, d->active_keys) {
+                            emit keyExited(k, layout);
+                        }
+
+                        d->active_keys.clear();
+                        d->gesture_triggered = true;
+                        emit switchRight(layout);
+
+                        return true;
+                    } else if (pos.x() > (press_pos.x() + rect.width() * 0.33)) {
+                        foreach (const Key &k, d->active_keys) {
+                            emit keyExited(k, layout);
+                        }
+
+                        d->active_keys.clear();
+                        d->gesture_triggered = true;
+                        emit switchLeft(layout);
+
+                        return true;
+                    }
+                }
+            }
+
             const QVector<Key> &keys(layout->activeKeyArea().keys);
 
             // FIXME: use binary range search
-            const QRect &rect(layout->activeKeyArea().rect.toRect());
             const QPoint &origin(rect.topLeft());
 
             const Key &last_key(findActiveKey(&d->active_keys, origin, last_pos));

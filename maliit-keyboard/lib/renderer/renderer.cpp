@@ -382,6 +382,12 @@ void Renderer::onKeysChanged(const SharedLayout &layout)
 
     Q_D(Renderer);
 
+    if (d->key_items.count() > 10) {
+        qWarning() << __PRETTY_FUNCTION__
+                   << "Unusal amount of key items:" << d->key_items.count()
+                   << ", amount of active keys:" << layout->activeKeys().count();
+    }
+
     KeyAreaItem *parent = 0;
     for (int index = 0; index < d->layout_items.count(); ++index) {
         const LayoutItem &li(d->layout_items.at(index));
@@ -392,10 +398,10 @@ void Renderer::onKeysChanged(const SharedLayout &layout)
         }
     }
 
+    int index = 0;
     // Found the KeyAreaItem, which means layout is known by the renderer, too.
     if (parent) {
         const QVector<Key> &active_keys(layout->activeKeys());
-        int index = 0;
 
         for (; index < active_keys.count(); ++index) {
             recycleKeyItem(&d->key_items, index, active_keys.at(index), parent);
@@ -405,11 +411,11 @@ void Renderer::onKeysChanged(const SharedLayout &layout)
             recycleKeyItem(&d->key_items, index, layout->magnifierKey(), parent);
             ++index;
         }
+    }
 
-        // Hide remaining, currently unneeded key items:
-        for (; index < d->key_items.count(); ++index) {
-            d->key_items.at(index)->hide();
-        }
+    // Hide remaining, currently unneeded key items:
+    for (; index < d->key_items.count(); ++index) {
+        d->key_items.at(index)->hide();
     }
 }
 
