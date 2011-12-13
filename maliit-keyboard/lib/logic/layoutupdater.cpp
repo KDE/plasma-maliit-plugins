@@ -151,7 +151,6 @@ KeyArea createFromKeyboard(Style *style,
     const qreal padding = style->keyAreaPadding(orientation);
 
     QPoint pos(0, 0);
-    int prev_row = 0;
     QVector<int> row_indices;
     int spacer_count = 0;
 
@@ -162,7 +161,6 @@ KeyArea createFromKeyboard(Style *style,
         const KeyDescription &desc(kb.key_descriptions.at(index));
         int width = 0;
         pos.setY(key_height * desc.row);
-        prev_row = desc.row;
 
         bool at_row_end((index + 1 == kb.keys.count())
                         || (index + 1 < kb.keys.count()
