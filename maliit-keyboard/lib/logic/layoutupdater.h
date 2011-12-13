@@ -59,6 +59,7 @@ public:
     void setActiveKeyboardId(const QString &id);
     QString keyboardTitle(const QString &id) const;
 
+    void setScreenSize(const QSize &size);
     void setLayout(const SharedLayout &layout);
     void resetKeyboardLoader(KeyboardLoader *loader);
     void setOrientation(Layout::Orientation orientation);

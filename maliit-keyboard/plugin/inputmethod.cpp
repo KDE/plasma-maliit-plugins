@@ -100,6 +100,10 @@ public:
         renderer.addLayout(layout);
         glass.addLayout(layout);
         layout_updater.setLayout(layout);
+
+        const QRect screen_area(QApplication::desktop() ? QApplication::desktop()->screenGeometry()
+                                                        : QRect(0, 0, 480, 854));
+        layout_updater.setScreenSize(screen_area.size());
     }
 };
 

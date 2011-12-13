@@ -59,7 +59,8 @@ bool verify(const QScopedPointer<KeyboardLoader> &loader,
 }
 
 // FIXME: only access settings *once*
-QPoint computeAnchor(Layout::Orientation orientation)
+QPoint computeAnchor(const QSize &size,
+                     Layout::Orientation orientation)
 {
     // A workaround for virtual desktops where QDesktopWidget reports
     // screenGeometry incorrectly: Allow user to override via settings.
@@ -67,11 +68,9 @@ QPoint computeAnchor(Layout::Orientation orientation)
     QPoint anchor(settings.value("anchor").toPoint());
 
     if (anchor.isNull()) {
-        const QRect screen_area(QApplication::desktop() ? QApplication::desktop()->screenGeometry()
-                                                        : QRect(0, 0, 480, 854));
         anchor = (orientation == Layout::Landscape)
-                  ? QPoint(screen_area.width() / 2, screen_area.height())
-                  : QPoint(screen_area.height() / 2, screen_area.width());
+                  ? QPoint(size.width() / 2, size.height())
+                  : QPoint(size.height() / 2, size.width());
 
         // Enforce creation of settings file, otherwise it's too hard to find
         // the override (and get the syntax ride). I know, it's weird.
@@ -328,6 +327,7 @@ public:
     ShiftMachine shift_machine;
     ViewMachine view_machine;
     DeadkeyMachine deadkey_machine;
+    QSize screen_size;
     QPoint anchor;
     Style style;
 
@@ -338,6 +338,7 @@ public:
         , shift_machine()
         , view_machine()
         , deadkey_machine()
+        , screen_size()
         , anchor()
         , style()
     {
@@ -361,7 +362,6 @@ void LayoutUpdater::init()
 {
     Q_D(LayoutUpdater);
 
-    d->anchor = computeAnchor(Layout::Landscape);
     d->shift_machine.setup(this);
     d->view_machine.setup(this);
     d->deadkey_machine.setup(this);
@@ -383,12 +383,19 @@ void LayoutUpdater::setActiveKeyboardId(const QString &id)
 {
     Q_D(LayoutUpdater);
     d->loader->setActiveId(id);
+    d->anchor = computeAnchor(d->screen_size, Layout::Landscape);
 }
 
 QString LayoutUpdater::keyboardTitle(const QString &id) const
 {
     Q_D(const LayoutUpdater);
     return d->loader->title(id);
+}
+
+void LayoutUpdater::setScreenSize(const QSize &size)
+{
+    Q_D(LayoutUpdater);
+    d->screen_size = size;
 }
 
 void LayoutUpdater::setLayout(const SharedLayout &layout)
@@ -421,7 +428,7 @@ void LayoutUpdater::setOrientation(Layout::Orientation orientation)
 
         // FIXME: reposition extended keys, too (and left/right?).
         // FIXME: consider shift state.
-        d->anchor = computeAnchor(orientation);
+        d->anchor = computeAnchor(d->screen_size, orientation);
         d->layout->setCenterPanel(createFromKeyboard(&d->style,
                                                      d->loader->keyboard(),
                                                      d->anchor,
