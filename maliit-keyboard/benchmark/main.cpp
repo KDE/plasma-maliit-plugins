@@ -53,7 +53,9 @@ int main(int argc,
     const QStringList ids (updater.keyboardIds());
     const int count(ids.size());
 
-    if (not count) {
+    // no sense in benchmarking one language - id won't change and no keyboard
+    // loading will happen
+    if (count < 2) {
         qDebug("No language files found.");
         return 1;
     }
@@ -65,13 +67,26 @@ int main(int argc,
     const int rounds(1000);
     int meeting_rounds(0);
     int missing_rounds(0);
+    int previous_index(-1);
 
     std::srand(time(0));
     for (int iter(0); iter < rounds; ++iter) {
+        int index(std::rand() % count);
+
+        // we want to be sure that we check different ids everytime.
+        if (index == previous_index) {
+            if (index + 1 == count) {
+                --index;
+            } else {
+                ++index;
+            }
+        }
+        previous_index = index;
+
         QTime timer;
 
         timer.start();
-        updater.setActiveKeyboardId(ids[std::rand() % count]);
+        updater.setActiveKeyboardId(ids[index]);
 
         int this_time = timer.elapsed();
 
@@ -86,11 +101,14 @@ int main(int argc,
             }
         }
     }
-    //qDebug("Last style name: %s", qPrintable(str));
     if (deadline > 0) {
         qDebug("Deadline: %f", deadline);
-        qDebug("Iterations meeting deadline: %d, average %f ms, total time %f ms", meeting_rounds, meeting_total_time / meeting_rounds, meeting_total_time);
-        qDebug("Iterations missing deadline: %d, average %f ms. total time %f ms", missing_rounds, missing_total_time / missing_rounds, missing_total_time);
+        if (meeting_rounds > 0) {
+            qDebug("Iterations meeting deadline: %d, average %f ms, total time %f ms", meeting_rounds, meeting_total_time / meeting_rounds, meeting_total_time);
+        }
+        if (missing_rounds > 0) {
+            qDebug("Iterations missing deadline: %d, average %f ms. total time %f ms", missing_rounds, missing_total_time / missing_rounds, missing_total_time);
+        }
     }
     qDebug("Iterations total: %d, average: %f ms, total time %f ms", rounds, total_time / rounds, total_time);
 }
