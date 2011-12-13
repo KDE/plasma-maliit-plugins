@@ -48,6 +48,12 @@ int main(int argc,
         }
     }
 
+    int mode(0);
+
+    if (argc > 2) {
+        mode = 1;
+    }
+
     MaliitKeyboard::SharedLayout layout(new MaliitKeyboard::Layout);
     MaliitKeyboard::LayoutUpdater updater;
     const QStringList ids (updater.keyboardIds());
@@ -68,47 +74,70 @@ int main(int argc,
     int meeting_rounds(0);
     int missing_rounds(0);
     int previous_index(-1);
+    QTime overall_mode_timer;
+    int overall_counter(0);
 
     std::srand(time(0));
-    for (int iter(0); iter < rounds; ++iter) {
-        int index(std::rand() % count);
+    if (mode) {
+        overall_mode_timer.start();
+        while (overall_mode_timer.elapsed() < deadline * 1000) {
+            int index(std::rand() % count);
 
-        // we want to be sure that we check different ids everytime.
-        if (index == previous_index) {
-            if (index + 1 == count) {
-                --index;
-            } else {
-                ++index;
+            // we want to be sure that we check different ids everytime.
+            if (index == previous_index) {
+                if (index + 1 == count) {
+                    --index;
+                } else {
+                    ++index;
+                }
             }
+            previous_index = index;
+            updater.setActiveKeyboardId(ids[index]);
+            ++overall_counter;
         }
-        previous_index = index;
+        qDebug("Done %d iterations in %f seconds.", overall_counter, deadline);
+    } else {
+        for (int iter(0); iter < rounds; ++iter) {
+            int index(std::rand() % count);
 
-        QTime timer;
-
-        timer.start();
-        updater.setActiveKeyboardId(ids[index]);
-
-        int this_time = timer.elapsed();
-
-        total_time += this_time;
-        if (deadline > 0) {
-            if (this_time > deadline) {
-                ++missing_rounds;
-                missing_total_time += this_time;
-            } else {
-                ++meeting_rounds;
-                meeting_total_time += this_time;
+            // we want to be sure that we check different ids everytime.
+            if (index == previous_index) {
+                if (index + 1 == count) {
+                    --index;
+                } else {
+                    ++index;
+                }
             }
+            previous_index = index;
+
+            QTime timer;
+
+            timer.start();
+            updater.setActiveKeyboardId(ids[index]);
+
+            int this_time = timer.elapsed();
+
+            total_time += this_time;
+            if (deadline > 0) {
+                if (this_time > deadline) {
+                    ++missing_rounds;
+                    missing_total_time += this_time;
+                } else {
+                    ++meeting_rounds;
+                    meeting_total_time += this_time;
+                }
+            }
+
+            if (deadline > 0) {
+                qDebug("Deadline: %f", deadline);
+                if (meeting_rounds > 0) {
+                    qDebug("Iterations meeting deadline: %d, average %f ms, total time %f ms", meeting_rounds, meeting_total_time / meeting_rounds, meeting_total_time);
+                }
+                if (missing_rounds > 0) {
+                    qDebug("Iterations missing deadline: %d, average %f ms. total time %f ms", missing_rounds, missing_total_time / missing_rounds, missing_total_time);
+                }
+            }
+            qDebug("Iterations total: %d, average: %f ms, total time %f ms", rounds, total_time / rounds, total_time);
         }
     }
-    if (deadline > 0) {
-        qDebug("Deadline: %f", deadline);
-        if (meeting_rounds > 0) {
-            qDebug("Iterations meeting deadline: %d, average %f ms, total time %f ms", meeting_rounds, meeting_total_time / meeting_rounds, meeting_total_time);
-        }
-        if (missing_rounds > 0) {
-            qDebug("Iterations missing deadline: %d, average %f ms. total time %f ms", missing_rounds, missing_total_time / missing_rounds, missing_total_time);
-        }
-    }
-    qDebug("Iterations total: %d, average: %f ms, total time %f ms", rounds, total_time / rounds, total_time);
 }
