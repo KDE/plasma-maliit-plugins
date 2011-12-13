@@ -29,8 +29,8 @@
  *
  */
 
-#include "renderer/renderer.h"
-#include "glass/glass.h"
+#include "view/renderer/renderer.h"
+#include "view/glass/glass.h"
 #include "logic/layoutupdater.h"
 
 #include "models/keyarea.h"

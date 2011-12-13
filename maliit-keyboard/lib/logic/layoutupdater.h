@@ -34,7 +34,6 @@
 
 #include "keyboardloader.h"
 #include "models/layout.h"
-#include "glass/glass.h"
 
 #include <QtCore>
 
