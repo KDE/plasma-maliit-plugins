@@ -11,6 +11,10 @@ enable-legacy {
     MALIIT_PLUGINS_DATA_DIR=$$system(pkg-config --variable pluginsdatadir maliit-plugins-0.80)
 }
 
+isEmpty(MALIIT_PLUGINS_DATA_DIR) {
+    MALIIT_PLUGINS_DATA_DIR=/usr/local/share/maliit/plugins
+}
+
 enable-opengl {
     QT += opengl
     DEFINES += MALIIT_KEYBOARD_HAVE_OPENGL
