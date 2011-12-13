@@ -113,6 +113,12 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host,
     connect(&d->glass,  SIGNAL(keyReleased(Key,SharedLayout)),
             &d->editor, SLOT(onKeyReleased(Key)));
 
+    connect(&d->glass, SIGNAL(keyboardClosed()),
+            inputMethodHost(), SLOT(notifyImInitiatedHiding()));
+
+    connect(&d->glass, SIGNAL(keyboardClosed()),
+            &d->renderer, SLOT(hide()));
+
     connect(&d->glass,          SIGNAL(switchLeft(SharedLayout)),
             &d->layout_updater, SLOT(onSwitchLeft(SharedLayout)));
 

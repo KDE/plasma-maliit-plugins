@@ -217,28 +217,32 @@ bool Glass::eventFilter(QObject *obj,
                 if (pos.y() > (press_pos.y() - rect.height() * 0.33)
                     && pos.y() < (press_pos.y() + rect.height() * 0.33)) {
                     if (pos.x() < (press_pos.x() - rect.width() * 0.33)) {
-                        foreach (const Key &k, d->active_keys) {
-                            emit keyExited(k, layout);
-                        }
-
-                        d->active_keys.clear();
                         d->gesture_triggered = true;
                         emit switchRight(layout);
-
-                        return true;
                     } else if (pos.x() > (press_pos.x() + rect.width() * 0.33)) {
-                        foreach (const Key &k, d->active_keys) {
-                            emit keyExited(k, layout);
-                        }
-
-                        d->active_keys.clear();
                         d->gesture_triggered = true;
                         emit switchLeft(layout);
-
-                        return true;
+                    }
+                } else if (pos.x() > (press_pos.x() - rect.width() * 0.33)
+                           && pos.x() < (press_pos.x() + rect.width() * 0.33)) {
+                    if (pos.y() > (press_pos.y() + rect.height() * 0.50)) {
+                        d->gesture_triggered = true;
+                        emit keyboardClosed();
                     }
                 }
             }
+
+            if (d->gesture_triggered) {
+                foreach (const Key &k, d->active_keys) {
+                    emit keyExited(k, layout);
+                }
+
+                d->active_keys.clear();
+
+                return true;
+            }
+
+
 
             const QVector<Key> &keys(layout->activeKeyArea().keys);
 

@@ -68,6 +68,7 @@ public:
                             const SharedLayout &layout);
     Q_SIGNAL void switchLeft(const SharedLayout &layout);
     Q_SIGNAL void switchRight(const SharedLayout &layout);
+    Q_SIGNAL void keyboardClosed();
 
 protected:
     //! \reimp
