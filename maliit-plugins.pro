@@ -13,11 +13,11 @@ include(config.pri)
         \\n\\t qmake \
         \\n\\t qmake CONFIG+=enable-legacy \
 
-    !build_pass:system(echo \"$$help_string\")
+    !build_pass:system(echo -e \"$$help_string\")
 } else {
     config_string = Tip: Run qmake HELP=1 for a list of all supported build options
 
-    !build_pass:system(echo \"$$config_string\")
+    !build_pass:system(echo -e \"$$config_string\")
 }
 
 CONFIG += ordered 
