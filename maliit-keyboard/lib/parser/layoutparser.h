@@ -1,4 +1,4 @@
-// -*- mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
+// -*- mode: C++; c-basic-offset: 4; indent-tabs-mode: nil; c-file-offsets: ((innamespace . 0)); -*-
 /*
  * This file is part of Maliit Plugins
  *
@@ -71,7 +71,7 @@ private:
     void parseKey();
     void parseBinding();
     void parseSpacer();
-    void findRootElement();
+    void goToRootElement();
     void readToEnd();
 
     void error(const QString &message);
