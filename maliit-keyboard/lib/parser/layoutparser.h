@@ -48,6 +48,7 @@ public:
     explicit LayoutParser(QIODevice *device);
 
     bool parse();
+    bool isLanguageFile();
 
     const QString errorString() const;
 

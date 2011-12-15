@@ -61,6 +61,21 @@ bool LayoutParser::parse()
     return not m_xml.hasError();
 }
 
+bool LayoutParser::isLanguageFile()
+{
+    goToRootElement();
+
+    if (not m_xml.isStartElement() || m_xml.name() != QLatin1String("keyboard")) {
+        return false;
+    } else if (not m_xml.hasError()) {
+        const QXmlStreamAttributes attributes(m_xml.attributes());
+        const QStringRef language(attributes.value(QLatin1String("language")));
+
+        return (not language.isEmpty());
+    }
+    return false;
+}
+
 void LayoutParser::goToRootElement()
 {
     while (not m_xml.atEnd()) {
