@@ -86,7 +86,7 @@ KeyArea transformKeyArea(const KeyArea &ka,
     KeyArea new_ka;
     new_ka.rect = ka.rect;
 
-    foreach (Key key, ka.keys) {
+    Q_FOREACH (Key key, ka.keys) {
         KeyLabel label(key.label());
 
         switch (t) {
@@ -112,7 +112,7 @@ KeyArea replaceKey(const KeyArea &ka,
     KeyArea new_ka;
     new_ka.rect = ka.rect;
 
-    foreach (const Key &key, ka.keys) {
+    Q_FOREACH (const Key &key, ka.keys) {
         new_ka.keys.append((key.label().text() == replace.label().text()) ? replace : key);
     }
 
@@ -218,7 +218,7 @@ KeyArea createFromKeyboard(Style *style,
                 pos.setX(0);
                 int right_x = 0;
 
-                foreach (int row_index, row_indices) {
+                Q_FOREACH (int row_index, row_indices) {
                     Key &k(kb.keys[row_index]);
                     const KeyDescription &d(kb.key_descriptions.at(row_index));
 
@@ -439,7 +439,7 @@ void LayoutUpdater::setOrientation(Layout::Orientation orientation)
 
         d->layout->clearActiveKeys();
         d->layout->clearMagnifierKey();
-        emit layoutChanged(d->layout);
+        Q_EMIT layoutChanged(d->layout);
     }
 }
 
@@ -457,19 +457,19 @@ void LayoutUpdater::onKeyPressed(const Key &key,
 
     switch (key.action()) {
     case Key::ActionShift:
-        emit shiftPressed();
+        Q_EMIT shiftPressed();
         break;
 
     case Key::ActionDead:
         d->deadkey_machine.setAccentKey(key);
-        emit deadkeyPressed();
+        Q_EMIT deadkeyPressed();
         break;
 
     default:
         break;
     }
 
-    emit keysChanged(layout);
+    Q_EMIT keysChanged(layout);
 }
 
 void LayoutUpdater::onKeyReleased(const Key &key,
@@ -486,37 +486,37 @@ void LayoutUpdater::onKeyReleased(const Key &key,
 
     switch (key.action()) {
     case Key::ActionShift:
-        emit shiftReleased();
+        Q_EMIT shiftReleased();
         break;
 
     case Key::ActionInsert:
         if (d->shift_machine.inState("latched-shift")) {
-            emit shiftCancelled();
+            Q_EMIT shiftCancelled();
         }
 
         if (d->deadkey_machine.inState("latched-deadkey")) {
-            emit deadkeyCancelled();
+            Q_EMIT deadkeyCancelled();
         }
 
         break;
 
     case Key::ActionSym:
-        emit symKeyReleased();
+        Q_EMIT symKeyReleased();
         break;
 
     case Key::ActionSwitch:
-        emit symSwitcherReleased();
+        Q_EMIT symSwitcherReleased();
         break;
 
     case Key::ActionDead:
-        emit deadkeyReleased();
+        Q_EMIT deadkeyReleased();
         break;
 
     default:
         break;
     }
 
-    emit keysChanged(layout);
+    Q_EMIT keysChanged(layout);
 }
 
 void LayoutUpdater::onKeyEntered(const Key &key,
@@ -530,7 +530,7 @@ void LayoutUpdater::onKeyEntered(const Key &key,
 
     layout->appendActiveKey(makeActive(key, d->style));
     layout->setMagnifierKey(magnifyKey(key, d->style, d->layout->activeKeyArea().rect));
-    emit keysChanged(layout);
+    Q_EMIT keysChanged(layout);
 }
 
 void LayoutUpdater::onKeyExited(const Key &key, const SharedLayout &layout)
@@ -543,7 +543,7 @@ void LayoutUpdater::onKeyExited(const Key &key, const SharedLayout &layout)
 
     layout->removeActiveKey(key);
     layout->clearMagnifierKey(); // FIXME: This is in a race with onKeyEntered.
-    emit keysChanged(layout);
+    Q_EMIT keysChanged(layout);
 }
 
 void LayoutUpdater::switchLayoutToUpper()
@@ -555,7 +555,7 @@ void LayoutUpdater::switchLayoutToUpper()
     }
 
     d->layout->setActiveKeyArea(transformKeyArea(d->layout->activeKeyArea(), TransformToUpper));
-    emit layoutChanged(d->layout);
+    Q_EMIT layoutChanged(d->layout);
 }
 
 void LayoutUpdater::switchLayoutToLower()
@@ -567,7 +567,7 @@ void LayoutUpdater::switchLayoutToLower()
     }
 
     d->layout->setActiveKeyArea(transformKeyArea(d->layout->activeKeyArea(), TransformToLower));
-    emit layoutChanged(d->layout);
+    Q_EMIT layoutChanged(d->layout);
 }
 
 void LayoutUpdater::onKeyboardsChanged()
@@ -584,7 +584,7 @@ void LayoutUpdater::onKeyboardsChanged()
                                                  d->loader->keyboard(),
                                                  d->anchor,
                                                  d->layout->orientation()));
-    emit layoutChanged(d->layout);
+    Q_EMIT layoutChanged(d->layout);
 }
 
 void LayoutUpdater::switchToMainView()
@@ -611,7 +611,7 @@ void LayoutUpdater::switchToPrimarySymView()
     d->shift_machine.restart();
 
     //d->shift_machine->start();
-    emit layoutChanged(d->layout);
+    Q_EMIT layoutChanged(d->layout);
 }
 
 void LayoutUpdater::switchToSecondarySymView()
@@ -626,7 +626,7 @@ void LayoutUpdater::switchToSecondarySymView()
                                                  d->loader->symbolsKeyboard(1),
                                                  d->anchor,
                                                  d->layout->orientation()));
-    emit layoutChanged(d->layout);
+    Q_EMIT layoutChanged(d->layout);
 }
 
 void LayoutUpdater::switchToAccentedView()
@@ -642,7 +642,7 @@ void LayoutUpdater::switchToAccentedView()
                                                  d->anchor,
                                                  d->layout->orientation()));
 
-    emit layoutChanged(d->layout);
+    Q_EMIT layoutChanged(d->layout);
 }
 
 } // namespace MaliitKeyboard

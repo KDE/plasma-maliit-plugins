@@ -332,7 +332,7 @@ void Renderer::show()
                     << "No view or no layouts exists, aborting!";
     }
 
-    foreach (QGraphicsItem *key_item, d->key_items) {
+    Q_FOREACH (QGraphicsItem *key_item, d->key_items) {
         key_item->hide();
     }
 
@@ -365,20 +365,20 @@ void Renderer::show()
 
     d->view->show();
     d->view->raise();
-    emit regionChanged(d->region);
+    Q_EMIT regionChanged(d->region);
 }
 
 void Renderer::hide()
 {
     Q_D(Renderer);
 
-    foreach (LayoutItem li, d->layout_items) {
+    Q_FOREACH (LayoutItem li, d->layout_items) {
         li.hide();
     }
 
     d->view->hide();
     d->region = QRegion();
-    emit regionChanged(d->region);
+    Q_EMIT regionChanged(d->region);
 }
 
 void Renderer::onLayoutChanged(const SharedLayout &layout)
