@@ -433,6 +433,7 @@ void LayoutUpdater::setOrientation(Layout::Orientation orientation)
                                                      orientation));
 
         d->layout->clearActiveKeys();
+        d->layout->clearMagnifierKey();
         emit layoutChanged(d->layout);
     }
 }
@@ -540,24 +541,6 @@ void LayoutUpdater::onKeyExited(const Key &key, const SharedLayout &layout)
     emit keysChanged(layout);
 }
 
-void LayoutUpdater::onSwitchLeft(const SharedLayout &layout)
-{
-    Q_D(LayoutUpdater);
-
-    if (d->layout != layout) {
-        return;
-    }
-
-    d->layout->clearActiveKeys();
-    d->layout->clearMagnifierKey();
-    emit keysChanged(d->layout);
-}
-
-void LayoutUpdater::onSwitchRight(const SharedLayout &layout)
-{
-    onSwitchLeft(layout);
-}
-
 void LayoutUpdater::switchLayoutToUpper()
 {
     Q_D(const LayoutUpdater);
@@ -590,6 +573,8 @@ void LayoutUpdater::onKeyboardsChanged()
         return;
     }
 
+    d->layout->clearActiveKeys();
+    d->layout->clearMagnifierKey();
     d->layout->setCenterPanel(createFromKeyboard(&d->style,
                                                  d->loader->keyboard(),
                                                  d->anchor,
