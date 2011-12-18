@@ -45,13 +45,7 @@ namespace {
 bool verify(const QScopedPointer<KeyboardLoader> &loader,
             const SharedLayout &layout)
 {
-    if (loader.isNull() || layout.isNull()) {
-        qCritical() << __PRETTY_FUNCTION__
-                    << "Could not find keyboard loader or layout, forgot to set them?";
-        return false;
-    }
-
-    return true;
+    return (not loader.isNull() && not layout.isNull());
 }
 
 // FIXME: only access settings *once*
@@ -386,10 +380,16 @@ void LayoutUpdater::setLayout(const SharedLayout &layout)
     }
 }
 
+//! Replace internal KeyboardLoader with another instance or completely
+//! disable it (when set to 0). LayoutUpdater takes ownership.
 void LayoutUpdater::resetKeyboardLoader(KeyboardLoader *loader)
 {
     Q_D(LayoutUpdater);
     d->loader.reset(loader);
+
+    if (d->loader.isNull()) {
+        return;
+    }
 
     connect(loader, SIGNAL(keyboardsChanged()),
             this,   SLOT(onKeyboardsChanged()),
