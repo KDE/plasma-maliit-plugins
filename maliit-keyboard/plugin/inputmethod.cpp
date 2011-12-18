@@ -126,6 +126,15 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host,
     connect(&d->glass, SIGNAL(keyboardClosed()),
             &d->renderer, SLOT(hide()));
 
+    connect(&d->glass,          SIGNAL(keyboardClosed()),
+            &d->layout_updater, SLOT(clearActiveKeysAndMagnifier()));
+
+    connect(&d->glass,          SIGNAL(switchLeft(SharedLayout)),
+            &d->layout_updater, SLOT(clearActiveKeysAndMagnifier()));
+
+    connect(&d->glass,          SIGNAL(switchRight(SharedLayout)),
+            &d->layout_updater, SLOT(clearActiveKeysAndMagnifier()));
+
     connect(&d->glass,          SIGNAL(keyPressed(Key,SharedLayout)),
             &d->layout_updater, SLOT(onKeyPressed(Key,SharedLayout)));
 

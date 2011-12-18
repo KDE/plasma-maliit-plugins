@@ -432,8 +432,7 @@ void LayoutUpdater::setOrientation(Layout::Orientation orientation)
                                                      d->anchor,
                                                      orientation));
 
-        d->layout->clearActiveKeys();
-        d->layout->clearMagnifierKey();
+        clearActiveKeysAndMagnifier();
         Q_EMIT layoutChanged(d->layout);
     }
 }
@@ -539,6 +538,20 @@ void LayoutUpdater::onKeyExited(const Key &key, const SharedLayout &layout)
     layout->removeActiveKey(key);
     layout->clearMagnifierKey(); // FIXME: This is in a race with onKeyEntered.
     Q_EMIT keysChanged(layout);
+}
+
+void LayoutUpdater::clearActiveKeysAndMagnifier()
+{
+    Q_D(const LayoutUpdater);
+
+    if (d->layout.isNull()) {
+        qCritical() << __PRETTY_FUNCTION__
+                    << "No layout specified.";
+        return;
+    }
+
+    d->layout->clearActiveKeys();
+    d->layout->clearMagnifierKey();
 }
 
 void LayoutUpdater::switchLayoutToUpper()
