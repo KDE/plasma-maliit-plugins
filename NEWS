@@ -1,3 +1,29 @@
+0.81.2
+======
+
+CHANGES SINCE 0.81.1
+* New Maliit Keyboard
+  - Can use all MeeGo Keyboard language layouts.
+  - Written in C++, optimized for rendering performance and low latency.
+  - Activate via 
+    $ gconftool-2 -s --type list --list-type string /maliit/onscreen/enabled \
+      "[libmaliit-keyboard-plugin.so,en_gb]"
+    $ gconftool-2 -s --type list --list-type string /maliit/onscreen/active \
+      "[libmaliit-keyboard-plugin.so,en_gb]"
+  - Further language layouts can be enabled by using the language name as defined
+    in /usr/share/maliit/plugins/languages/ and adding them to the "enabled"
+    string list key.
+  - Simple gesture support to close keyboard (swipe down) and to change
+    language layouts (swipe left/right).
+
+BUG FIXES
+* Fixes: MALIIT#66 - Key Magnifier only works on right-hand side of the keyboard
+* Fixes: qmake HELP=1 output is not legible.
+* Fixes: MALIIT#54 – Don’t list symview or [phone]number layouts as language layouts.
+* Fixes: Build also under Qt5
+* Fixes: MALIIT#45 - Maliit Keyboard doesn't have language-specific layouts
+* Fixes: MALIIT#36 - Improve Maliit Keyboard performance
+
 0.81.1
 ======
 
