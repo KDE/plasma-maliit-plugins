@@ -297,10 +297,15 @@ Key magnifyKey(const Key &key,
                                                 KeyDescription::PressedState));
 
     QRect magnifier_rect(key.rect().translated(0, -120).adjusted(-20, -20, 20, 20));
-    if (magnifier_rect.left() < key_area_rect.left() + 10) {
-        magnifier_rect.setLeft(key_area_rect.left() + 10);
-    } else if (magnifier_rect.right() > key_area_rect.right() - 10) {
-        magnifier_rect.setRight(key_area_rect.right() - 10);
+    const QRect &mapped(magnifier_rect.translated(key_area_rect.topLeft().toPoint()));
+
+    const int delta_left(mapped.left() - (key_area_rect.left() + 10));
+    const int delta_right((key_area_rect.right() - 10) - mapped.right());
+
+    if (delta_left < 0) {
+        magnifier_rect.translate(qAbs<int>(delta_left), 0);
+    } else if (delta_right < 0) {
+        magnifier_rect.translate(delta_right, 0);
     }
 
     magnifier.setRect(magnifier_rect);
