@@ -43,6 +43,19 @@ namespace MaliitKeyboard {
 
 namespace {
 
+QRect mapToScreenCoordinates(const QRectF &rect,
+                             Layout::Orientation o)
+{
+    switch (o) {
+    case Layout::Landscape:
+        return rect.toRect();
+    case Layout::Portrait:
+        return QRect(rect.y(), rect.x(), rect.height(), rect.width());
+    }
+
+    return QRect();
+}
+
 class LayoutItem {
 public:
     SharedLayout layout;
@@ -113,21 +126,19 @@ public:
 
         center_item->setParentItem(root);
         center_item->setKeyArea(layout->centerPanel());
-        //center_item->setRotation(layout->orientation() == Layout::Landscape ? 0 : 270);
         center_item->update();
         center_item->show();
-        *region |= QRegion(center_item->mapRectToScene(center_item->boundingRect()).toRect());
+        *region |= QRegion(mapToScreenCoordinates(layout->centerPanel().rect, layout->orientation()));
 
         extended_item->setParentItem(root);
         extended_item->setKeyArea(layout->extendedPanel());
         extended_item->update();
-        //extended_item->setRotation(layout->orientation() == Layout::Landscape ? 0 : 270);
 
         if (layout->activePanel() != Layout::ExtendedPanel) {
             extended_item->hide();
         } else {
             extended_item->show();
-            *region |= QRegion(extended_item->mapRectToScene(extended_item->boundingRect()).toRect());
+            *region |= QRegion(mapToScreenCoordinates(layout->extendedPanel().rect, layout->orientation()));
         }
 
         root->show();
@@ -325,6 +336,7 @@ void Renderer::show()
         key_item->hide();
     }
 
+    d->region = QRegion();
     Layout::Orientation orientation = Layout::Landscape;
 
     for (int index = 0; index < d->layout_items.count(); ++index) {
@@ -351,6 +363,8 @@ void Renderer::show()
         break;
     }
 
+    d->view->show();
+    d->view->raise();
     emit regionChanged(d->region);
 }
 
@@ -362,6 +376,7 @@ void Renderer::hide()
         li.hide();
     }
 
+    d->view->hide();
     d->region = QRegion();
     emit regionChanged(d->region);
 }
