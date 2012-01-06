@@ -143,7 +143,7 @@ Column {
         Row {
             spacing: 8
             CharacterKey { caption: ","; captionShifted: ","; width: 56; height: keyHeight; sizeType: "keyboard-key-56x60.png" }
-            CharacterKey { caption: " "; width: 136; height: keyHeight; sizeType: "keyboard-key-136x60.png" }
+            CharacterKey { caption: " "; captionShifted: " "; width: 136; height: keyHeight; sizeType: "keyboard-key-136x60.png" }
             CharacterKey { caption: "."; captionShifted: "."; width: 56; height: keyHeight; sizeType: "keyboard-key-56x60.png" }
         }
         FunctionKey {

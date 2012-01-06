@@ -171,8 +171,8 @@ Rectangle {
                 Row {
                     spacing: keyMargin
                     CharacterKey { caption: ","; captionShifted: ","; width: 120; height: keyHeight; sizeType: "keyboard-key-120x46.png" }
-                    CharacterKey { caption: " "; width: 228; height: keyHeight; sizeType: "keyboard-key-228x46.png"  }
-                    CharacterKey { caption: "."; captionShifted: "."; width: 120; height: keyHeight; sizeType: "keyboard-key-120x46.png"  }
+                    CharacterKey { caption: " "; captionShifted: " "; width: 228; height: keyHeight; sizeType: "keyboard-key-228x46.png" }
+                    CharacterKey { caption: "."; captionShifted: "."; width: 120; height: keyHeight; sizeType: "keyboard-key-120x46.png" }
                 }
                 FunctionKey {
                     width: 145; height: keyHeight
