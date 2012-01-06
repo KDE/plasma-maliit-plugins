@@ -98,6 +98,7 @@ Rectangle {
         Row { //Row 3
             anchors.horizontalCenter: parent.horizontalCenter
             spacing: (columns == 11) ? 6 : 8
+
             FunctionKey {
                 width: 110; height: keyHeight
                 landscape: true
@@ -123,6 +124,7 @@ Rectangle {
                     }
                 }
             }
+
             Row {
                 spacing: keyMargin
                 Repeater {
@@ -137,11 +139,13 @@ Rectangle {
                     }
                 }
             }
+
             FunctionKey {
                 width: 110; height: keyHeight
                 landscape: true
+                repeat: true
                 icon: "icon-m-input-methods-backspace.svg"
-                onClickedPass: { MInputMethodQuick.sendCommit("\b"); }
+                onClickedPass: MInputMethodQuick.sendCommit("\b");
             }
         } //end Row3
 
@@ -152,22 +156,23 @@ Rectangle {
                 width: 145; height: keyHeight
                 landscape: true
                 caption: inSymView ? "ABC" : "?123"
-                onClickedPass: { inSymView = (!inSymView) }
+                onClickedPass: inSymView = (!inSymView)
             }
+
             Row {
                 spacing: keyMargin
                 CharacterKey { caption: ","; captionShifted: ","; width: 120; height: keyHeight; sizeType: "keyboard-key-120x46.png" }
                 CharacterKey { caption: " "; captionShifted: " "; width: 228; height: keyHeight; sizeType: "keyboard-key-228x46.png" }
                 CharacterKey { caption: "."; captionShifted: "."; width: 120; height: keyHeight; sizeType: "keyboard-key-120x46.png" }
             }
+
             FunctionKey {
                 width: 145; height: keyHeight
                 landscape: true
+                repeat: true
                 icon: MInputMethodQuick.actionKeyOverride.icon
                 caption: MInputMethodQuick.actionKeyOverride.label
-                onReleased: {
-                    MInputMethodQuick.activateActionKey()
-                }
+                onClickedPass: MInputMethodQuick.activateActionKey()
             }
         } //end Row4
     }//end Column
