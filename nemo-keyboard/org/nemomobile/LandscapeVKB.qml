@@ -165,7 +165,7 @@ Rectangle {
                 FunctionKey {
                     width: 145; height: keyHeight
                     landscape: true
-                    caption: "?123"
+                    caption: inSymView ? "ABC" : "?123"
                     onClickedPass: { inSymView = (!inSymView) }
                 }
                 Row {

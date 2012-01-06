@@ -137,7 +137,7 @@ Column {
         spacing: (columns == 11) ? 19 : 16
         FunctionKey {
             width: UI.PORTRAIT_OTT_WIDTH; height: keyHeight
-            caption: "?123"
+            caption: inSymView ? "ABC" : "?123"
             onClickedPass: { inSymView = (!inSymView) }
         }
         Row {
@@ -156,4 +156,3 @@ Column {
         }
     }
 }
-
