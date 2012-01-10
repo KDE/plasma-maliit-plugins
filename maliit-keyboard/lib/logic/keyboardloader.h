@@ -66,6 +66,7 @@ public:
     virtual Keyboard shiftedKeyboard() const;
     virtual Keyboard symbolsKeyboard(int page = 0) const;
     virtual Keyboard deadKeyboard(const Key &dead) const;
+    virtual Keyboard shiftedDeadKeyboard(const Key &dead) const;
     virtual Keyboard extendedKeyboard(const Key &key) const;
     virtual Keyboard numberKeyboard() const;
     virtual Keyboard phoneNumberKeyboard() const;

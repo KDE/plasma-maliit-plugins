@@ -424,6 +424,14 @@ Keyboard KeyboardLoader::deadKeyboard(const Key &dead) const
     return get_keyboard(keyboard, d->currently_shifted, 0, dead.text());
 }
 
+Keyboard KeyboardLoader::shiftedDeadKeyboard(const Key &dead) const
+{
+    Q_D(const KeyboardLoader);
+    TagKeyboardPtr keyboard(get_tag_keyboard(d->active_id));
+
+    return get_keyboard(keyboard, true, 0, dead.label().text());
+}
+
 Keyboard KeyboardLoader::extendedKeyboard(const Key &key) const
 {
     Q_D(const KeyboardLoader);
