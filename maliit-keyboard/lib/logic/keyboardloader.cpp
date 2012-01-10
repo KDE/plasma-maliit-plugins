@@ -47,6 +47,8 @@ using namespace MaliitKeyboard;
 // to the underlying operating system.
 const char *const languages_dir(MALIIT_PLUGINS_DATA_DIR "/languages");
 
+typedef const QStringList (LayoutParser::*ParserFunc)() const;
+
 TagKeyboardPtr get_tag_keyboard(const QString& id)
 {
     QFile file(QString::fromLatin1(languages_dir) + "/" + id + ".xml");
@@ -204,35 +206,13 @@ QPair<TagKeyPtr, TagBindingPtr> get_tag_key_and_binding(const TagKeyboardPtr &ke
     return pair;
 }
 
-}
-
-namespace MaliitKeyboard {
-
-class KeyboardLoaderPrivate
+Keyboard get_imported_keyboard(const QString &id,
+                               ParserFunc func,
+                               const QString &file_prefix,
+                               const QString &default_file,
+                               int page = 0)
 {
-public:
-    typedef const QStringList (LayoutParser::*ParserFunc)() const;
-
-    // TODO: Move this to anonymous namespace when we get rid of currently_shifted member.
-    // TODO: When move is done then active_id parameter will have to be added.
-    Keyboard get_imported_keyboard(ParserFunc func,
-                                   const QString &file_prefix,
-                                   const QString &default_file,
-                                   int page = 0) const;
-
-    QString active_id;
-
-    explicit KeyboardLoaderPrivate()
-        : active_id()
-    {}
-};
-
-Keyboard KeyboardLoaderPrivate::get_imported_keyboard(KeyboardLoaderPrivate::ParserFunc func,
-                                                      const QString &file_prefix,
-                                                      const QString &default_file,
-                                                      int page) const
-{
-    QFile file(QString::fromLatin1(languages_dir) + "/" + active_id + ".xml");
+    QFile file(QString::fromLatin1(languages_dir) + "/" + id + ".xml");
 
     if (file.exists()) {
         file.open(QIODevice::ReadOnly);
@@ -282,6 +262,17 @@ Keyboard KeyboardLoaderPrivate::get_imported_keyboard(KeyboardLoaderPrivate::Par
     }
     return Keyboard();
 }
+
+} // anonymous namespace
+
+namespace MaliitKeyboard {
+
+class KeyboardLoaderPrivate
+{
+public:
+
+    QString active_id;
+};
 
 KeyboardLoader::KeyboardLoader(QObject *parent)
     : QObject(parent)
@@ -405,7 +396,7 @@ Keyboard KeyboardLoader::symbolsKeyboard(int page) const
 {
     Q_D(const KeyboardLoader);
 
-    return d->get_imported_keyboard(&LayoutParser::symviews, "symbols", "symbols_en.xml", page);
+    return get_imported_keyboard(d->active_id, &LayoutParser::symviews, "symbols", "symbols_en.xml", page);
 }
 
 Keyboard KeyboardLoader::deadKeyboard(const Key &dead) const
@@ -413,7 +404,7 @@ Keyboard KeyboardLoader::deadKeyboard(const Key &dead) const
     Q_D(const KeyboardLoader);
     TagKeyboardPtr keyboard(get_tag_keyboard(d->active_id));
 
-    return get_keyboard(keyboard, false, 0, dead.label().text());
+    return get_keyboard(keyboard, false, 0, dead.text());
 }
 
 Keyboard KeyboardLoader::shiftedDeadKeyboard(const Key &dead) const
@@ -421,7 +412,7 @@ Keyboard KeyboardLoader::shiftedDeadKeyboard(const Key &dead) const
     Q_D(const KeyboardLoader);
     TagKeyboardPtr keyboard(get_tag_keyboard(d->active_id));
 
-    return get_keyboard(keyboard, true, 0, dead.label().text());
+    return get_keyboard(keyboard, true, 0, dead.text());
 }
 
 Keyboard KeyboardLoader::extendedKeyboard(const Key &key) const
@@ -455,14 +446,14 @@ Keyboard KeyboardLoader::numberKeyboard() const
 {
     Q_D(const KeyboardLoader);
 
-    return d->get_imported_keyboard(&LayoutParser::numbers, "number", "number.xml");
+    return get_imported_keyboard(d->active_id, &LayoutParser::numbers, "number", "number.xml");
 }
 
 Keyboard KeyboardLoader::phoneNumberKeyboard() const
 {
     Q_D(const KeyboardLoader);
 
-    return d->get_imported_keyboard(&LayoutParser::phonenumbers, "phonenumber", "phonenumber.xml");
+    return get_imported_keyboard(d->active_id, &LayoutParser::phonenumbers, "phonenumber", "phonenumber.xml");
 }
 
 } // namespace MaliitKeyboard
