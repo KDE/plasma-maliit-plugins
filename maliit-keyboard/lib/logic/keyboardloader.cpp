@@ -221,11 +221,9 @@ public:
                                    int page = 0) const;
 
     QString active_id;
-    mutable bool currently_shifted;
 
     explicit KeyboardLoaderPrivate()
         : active_id()
-        , currently_shifted(false)
     {}
 };
 
@@ -246,7 +244,6 @@ Keyboard KeyboardLoaderPrivate::get_imported_keyboard(KeyboardLoaderPrivate::Par
         if (result) {
             const QStringList f_results((parser.*func)());
 
-            currently_shifted = false;
             Q_FOREACH (const QString &f_result, f_results) {
                 const QFileInfo file_info(QString::fromLatin1(languages_dir) + "/" + f_result);
 
@@ -351,7 +348,6 @@ Keyboard KeyboardLoader::keyboard() const
     Q_D(const KeyboardLoader);
     TagKeyboardPtr keyboard(get_tag_keyboard(d->active_id));
 
-    d->currently_shifted = false;
     return get_keyboard(keyboard);
 }
 
@@ -373,7 +369,6 @@ Keyboard KeyboardLoader::nextKeyboard() const
 
     TagKeyboardPtr keyboard(get_tag_keyboard(all_ids[next_index]));
 
-    d->currently_shifted = false;
     return get_keyboard(keyboard);
 }
 
@@ -395,7 +390,6 @@ Keyboard KeyboardLoader::previousKeyboard() const
 
     TagKeyboardPtr keyboard(get_tag_keyboard(all_ids[previous_index]));
 
-    d->currently_shifted = false;
     return get_keyboard(keyboard);
 }
 
@@ -404,7 +398,6 @@ Keyboard KeyboardLoader::shiftedKeyboard() const
     Q_D(const KeyboardLoader);
     TagKeyboardPtr keyboard(get_tag_keyboard(d->active_id));
 
-    d->currently_shifted = true;
     return get_keyboard(keyboard, true);
 }
 
@@ -420,8 +413,7 @@ Keyboard KeyboardLoader::deadKeyboard(const Key &dead) const
     Q_D(const KeyboardLoader);
     TagKeyboardPtr keyboard(get_tag_keyboard(d->active_id));
 
-    // TODO: detect whether we want it shifted or not.
-    return get_keyboard(keyboard, d->currently_shifted, 0, dead.text());
+    return get_keyboard(keyboard, false, 0, dead.label().text());
 }
 
 Keyboard KeyboardLoader::shiftedDeadKeyboard(const Key &dead) const
