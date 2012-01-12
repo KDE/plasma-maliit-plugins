@@ -56,7 +56,8 @@ void ShiftMachine::setup(LayoutUpdater *updater)
     QState *latched_shift = 0;
     QState *caps_lock = 0;
 
-    // TODO: does ShiftMachine really take ownership?
+    // addState makes state machine to be a parent of passed state,
+    // so we don't have to care about deleting states explicitly.
     addState(no_shift = new QState);
     addState(shift = new QState);
     addState(latched_shift = new QState);

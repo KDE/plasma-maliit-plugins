@@ -66,7 +66,8 @@ void DeadkeyMachine::setup(LayoutUpdater *updater)
     QState *deadkey = 0;
     QState *latched_deadkey = 0;
 
-
+    // addState makes state machine to be a parent of passed state,
+    // so we don't have to care about deleting states explicitly.
     addState(no_deadkey = new QState);
     addState(deadkey = new QState);
     addState(latched_deadkey = new QState);

@@ -55,7 +55,8 @@ void ViewMachine::setup(LayoutUpdater *updater)
     QState *symbols0 = 0;
     QState *symbols1 = 0;
 
-    // TODO: does ViewMachine really take ownership?
+    // addState makes state machine to be a parent of passed state,
+    // so we don't have to care about deleting states explicitly.
     addState(main = new QState);
     addState(symbols0 = new QState);
     addState(symbols1 = new QState);
