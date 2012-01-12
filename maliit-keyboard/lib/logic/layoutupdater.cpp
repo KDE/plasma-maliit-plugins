@@ -1,3 +1,4 @@
+// -*- mode: C++; c-basic-offset: 4; indent-tabs-mode: nil; c-file-offsets: ((innamespace . 0)); -*-
 /*
  * This file is part of Maliit Plugins
  *
@@ -314,7 +315,7 @@ Key magnifyKey(const Key &key,
     return magnifier;
 }
 
-}
+} // anonymous namespace
 
 class LayoutUpdaterPrivate
 {
@@ -341,6 +342,13 @@ public:
         , style()
     {
         style.setProfile("nokia-n9");
+    }
+
+    bool inShiftedState() const
+    {
+        return (shift_machine.inState(ShiftMachine::shift_state) or
+                shift_machine.inState(ShiftMachine::caps_lock_state) or
+                shift_machine.inState(ShiftMachine::latched_shift_state));
     }
 };
 
@@ -425,13 +433,12 @@ void LayoutUpdater::setOrientation(Layout::Orientation orientation)
         d->layout->setOrientation(orientation);
 
         // FIXME: reposition extended keys, too (and left/right?).
-        // FIXME: consider shift state.
         d->anchor = computeAnchor(d->screen_size, orientation);
         d->layout->setCenterPanel(createFromKeyboard(&d->style,
-                                                     d->loader->keyboard(),
+                                                     d->inShiftedState() ? d->loader->shiftedKeyboard()
+                                                                         : d->loader->keyboard(),
                                                      d->anchor,
                                                      orientation));
-
         clearActiveKeysAndMagnifier();
         Q_EMIT layoutChanged(d->layout);
     }
@@ -589,7 +596,8 @@ void LayoutUpdater::onKeyboardsChanged()
     d->layout->clearActiveKeys();
     d->layout->clearMagnifierKey();
     d->layout->setCenterPanel(createFromKeyboard(&d->style,
-                                                 d->loader->keyboard(),
+                                                 d->inShiftedState() ? d->loader->shiftedKeyboard()
+                                                                     : d->loader->keyboard(),
                                                  d->anchor,
                                                  d->layout->orientation()));
     Q_EMIT layoutChanged(d->layout);
@@ -646,10 +654,10 @@ void LayoutUpdater::switchToAccentedView()
     }
 
     d->layout->setCenterPanel(createFromKeyboard(&d->style,
-                                                 d->loader->deadKeyboard(d->deadkey_machine.accentKey()),
+                                                 d->inShiftedState() ? d->loader->shiftedDeadKeyboard(d->deadkey_machine.accentKey())
+                                                                     : d->loader->deadKeyboard(d->deadkey_machine.accentKey()),
                                                  d->anchor,
                                                  d->layout->orientation()));
-
     Q_EMIT layoutChanged(d->layout);
 }
 
