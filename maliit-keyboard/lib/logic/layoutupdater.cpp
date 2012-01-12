@@ -42,11 +42,6 @@ namespace MaliitKeyboard {
 
 namespace {
 
-enum Transform {
-    TransformToUpper,
-    TransformToLower
-};
-
 bool verify(const QScopedPointer<KeyboardLoader> &loader,
             const SharedLayout &layout)
 {
@@ -79,42 +74,6 @@ QPoint computeAnchor(const QSize &size,
     }
 
     return anchor;
-}
-
-KeyArea transformKeyArea(const KeyArea &ka,
-                         Transform t)
-{
-    KeyArea new_ka;
-    new_ka.rect = ka.rect;
-
-    Q_FOREACH (Key key, ka.keys) {
-        switch (t) {
-        case TransformToUpper:
-            key.setText(key.text().toUpper());
-            break;
-
-        case TransformToLower:
-            key.setText(key.text().toLower());
-            break;
-        }
-
-        new_ka.keys.append(key);
-    }
-
-    return new_ka;
-}
-
-KeyArea replaceKey(const KeyArea &ka,
-                   const Key &replace)
-{
-    KeyArea new_ka;
-    new_ka.rect = ka.rect;
-
-    Q_FOREACH (const Key &key, ka.keys) {
-        new_ka.keys.append((key.text() == replace.text()) ? replace : key);
-    }
-
-    return new_ka;
 }
 
 KeyArea createFromKeyboard(Style *style,
