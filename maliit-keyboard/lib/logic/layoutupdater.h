@@ -83,8 +83,7 @@ private:
     Q_SIGNAL void autoCapsActivated();
     Q_SIGNAL void shiftCancelled();
 
-    Q_SLOT void switchLayoutToUpper();
-    Q_SLOT void switchLayoutToLower();
+    Q_SLOT void syncLayoutToView();
     Q_SLOT void onKeyboardsChanged();
 
     Q_SIGNAL void symKeyReleased();

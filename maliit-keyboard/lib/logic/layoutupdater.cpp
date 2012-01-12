@@ -350,6 +350,18 @@ public:
                 shift_machine.inState(ShiftMachine::caps_lock_state) or
                 shift_machine.inState(ShiftMachine::latched_shift_state));
     }
+
+    bool areSymbolsShown() const
+    {
+        return (view_machine.inState(ViewMachine::symbols0_state) or
+                view_machine.inState(ViewMachine::symbols1_state));
+    }
+
+    bool inDeadkeyState() const
+    {
+        return (deadkey_machine.inState(DeadkeyMachine::deadkey_state) or
+                deadkey_machine.inState(DeadkeyMachine::latched_deadkey_state));
+    }
 };
 
 LayoutUpdater::LayoutUpdater(QObject *parent)
@@ -561,7 +573,7 @@ void LayoutUpdater::clearActiveKeysAndMagnifier()
     d->layout->clearMagnifierKey();
 }
 
-void LayoutUpdater::switchLayoutToUpper()
+void LayoutUpdater::syncLayoutToView()
 {
     Q_D(const LayoutUpdater);
 
@@ -569,23 +581,31 @@ void LayoutUpdater::switchLayoutToUpper()
         return;
     }
 
-    d->layout->setActiveKeyArea(transformKeyArea(d->layout->activeKeyArea(), TransformToUpper));
-    Q_EMIT layoutChanged(d->layout);
-}
-
-void LayoutUpdater::switchLayoutToLower()
-{
-    Q_D(const LayoutUpdater);
-
-    if (not d->layout) {
+    // Symbols do not care about shift state.
+    if (d->areSymbolsShown()) {
         return;
     }
 
-    d->layout->setActiveKeyArea(transformKeyArea(d->layout->activeKeyArea(), TransformToLower));
-    Q_EMIT layoutChanged(d->layout);
+    if (d->inDeadkeyState()) {
+        switchToAccentedView();
+    } else {
+        switchToMainView();
+    }
 }
 
 void LayoutUpdater::onKeyboardsChanged()
+{
+    Q_D(LayoutUpdater);
+
+    // Resetting state machines should reset layout also.
+    // FIXME: Most probably reloading will happen three
+    // times, which is not what we want.
+    d->shift_machine.restart();
+    d->deadkey_machine.restart();
+    d->view_machine.restart();
+}
+
+void LayoutUpdater::switchToMainView()
 {
     Q_D(LayoutUpdater);
 
@@ -601,14 +621,6 @@ void LayoutUpdater::onKeyboardsChanged()
                                                  d->anchor,
                                                  d->layout->orientation()));
     Q_EMIT layoutChanged(d->layout);
-}
-
-void LayoutUpdater::switchToMainView()
-{
-    // This will undo the changes done by shift, which is perhaps what we want.
-    // But if shift state is actually dependent on view state, then that's
-    // needs to be modelled as part of the state machines, or not?
-     onKeyboardsChanged();
 }
 
 void LayoutUpdater::switchToPrimarySymView()

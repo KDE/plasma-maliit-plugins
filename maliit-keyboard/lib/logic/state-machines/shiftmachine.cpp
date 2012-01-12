@@ -78,12 +78,12 @@ void ShiftMachine::setup(LayoutUpdater *updater)
     no_shift->addTransition(updater, SIGNAL(shiftPressed()), shift);
     no_shift->addTransition(updater, SIGNAL(autoCapsActivated()), latched_shift);
     connect(no_shift, SIGNAL(entered()),
-            updater,  SLOT(switchLayoutToLower()));
+            updater,  SLOT(syncLayoutToView()));
 
     shift->addTransition(updater, SIGNAL(shiftCancelled()), no_shift);
     shift->addTransition(updater, SIGNAL(shiftReleased()), latched_shift);
     connect(shift,   SIGNAL(entered()),
-            updater, SLOT(switchLayoutToUpper()));
+            updater, SLOT(syncLayoutToView()));
 
     latched_shift->addTransition(updater, SIGNAL(shiftCancelled()), no_shift);
     latched_shift->addTransition(updater, SIGNAL(shiftReleased()), caps_lock);
