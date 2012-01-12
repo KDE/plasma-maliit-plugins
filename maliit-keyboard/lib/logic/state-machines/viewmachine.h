@@ -1,3 +1,4 @@
+// -*- mode: C++; c-basic-offset: 4; indent-tabs-mode: nil; c-file-offsets: ((innamespace . 0)); -*-
 /*
  * This file is part of Maliit Plugins
  *
@@ -51,6 +52,16 @@ public:
     virtual ~ViewMachine();
 
     virtual void setup(LayoutUpdater *updater);
+
+    //! This state means that main layout is currently active.
+    //! This is initial state.
+    static const char *const main_state;
+    //! This state means that first page of symbols layout is
+    //! currently active.
+    static const char *const symbols0_state;
+    //! This state means that second page of symbols layout is
+    //! currently active.
+    static const char *const symbols1_state;
 };
 
 } // namespace MaliitKeyboard

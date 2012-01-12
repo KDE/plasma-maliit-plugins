@@ -1,3 +1,4 @@
+// -*- mode: C++; c-basic-offset: 4; indent-tabs-mode: nil; c-file-offsets: ((innamespace . 0)); -*-
 /*
  * This file is part of Maliit Plugins
  *
@@ -57,6 +58,18 @@ public:
 
     virtual void setAccentKey(const Key &accent_key);
     Key accentKey() const;
+
+    //! This state means that deadkey wasn't pressed. No accented
+    //! characters may be entered now. This is initial state.
+    static const char *const no_deadkey_state;
+    //! This state means that deadkey was pressed but not yet released.
+    //! In this state either single accented character can be entered
+    //! or deadkey can be released to latch it.
+    static const char *const deadkey_state;
+    //! This state means that deadkey was pressed and released and thus
+    //! several accented characters can be entered. Pressing deadkey
+    //! again switches to initial state.
+    static const char *const latched_deadkey_state;
 
 private:
     const QScopedPointer<DeadkeyMachinePrivate> d_ptr;

@@ -1,3 +1,4 @@
+// -*- mode: C++; c-basic-offset: 4; indent-tabs-mode: nil; c-file-offsets: ((innamespace . 0)); -*-
 /*
  * This file is part of Maliit Plugins
  *
@@ -33,6 +34,10 @@
 #include "logic/layoutupdater.h"
 
 namespace MaliitKeyboard {
+
+const char *const DeadkeyMachine::no_deadkey_state = "no-deadkey";
+const char *const DeadkeyMachine::latched_deadkey_state = "latched-deadkey";
+const char *const DeadkeyMachine::deadkey_state = "deadkey";
 
 class DeadkeyMachinePrivate
 {
@@ -73,9 +78,9 @@ void DeadkeyMachine::setup(LayoutUpdater *updater)
     addState(latched_deadkey = new QState);
     setInitialState(no_deadkey);
 
-    no_deadkey->setObjectName("no-deadkey");
-    deadkey->setObjectName("deadkey");
-    latched_deadkey->setObjectName("latched-deadkey");
+    no_deadkey->setObjectName(no_deadkey_state);
+    deadkey->setObjectName(deadkey_state);
+    latched_deadkey->setObjectName(latched_deadkey_state);
 
     no_deadkey->addTransition(updater, SIGNAL(deadkeyPressed()), deadkey);
     connect(no_deadkey, SIGNAL(entered()),

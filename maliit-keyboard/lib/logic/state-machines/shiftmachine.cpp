@@ -1,3 +1,4 @@
+// -*- mode: C++; c-basic-offset: 4; indent-tabs-mode: nil; c-file-offsets: ((innamespace . 0)); -*-
 /*
  * This file is part of Maliit Plugins
  *
@@ -34,6 +35,11 @@
 
 namespace MaliitKeyboard {
 
+const char *const ShiftMachine::no_shift_state = "no-shift";
+const char *const ShiftMachine::shift_state = "shift";
+const char *const ShiftMachine::latched_shift_state = "latched-shift";
+const char *const ShiftMachine::caps_lock_state = "caps-lock";
+
 ShiftMachine::ShiftMachine(QObject *parent)
     : QStateMachine(parent)
 {}
@@ -64,10 +70,10 @@ void ShiftMachine::setup(LayoutUpdater *updater)
     addState(caps_lock = new QState);
     setInitialState(no_shift);
 
-    no_shift->setObjectName("no-shift");
-    shift->setObjectName("shift");
-    latched_shift->setObjectName("latched-shift");
-    caps_lock->setObjectName("caps-lock");
+    no_shift->setObjectName(no_shift_state);
+    shift->setObjectName(shift_state);
+    latched_shift->setObjectName(latched_shift_state);
+    caps_lock->setObjectName(caps_lock_state);
 
     no_shift->addTransition(updater, SIGNAL(shiftPressed()), shift);
     no_shift->addTransition(updater, SIGNAL(autoCapsActivated()), latched_shift);

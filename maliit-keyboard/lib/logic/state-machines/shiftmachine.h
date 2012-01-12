@@ -1,3 +1,4 @@
+// -*- mode: C++; c-basic-offset: 4; indent-tabs-mode: nil; c-file-offsets: ((innamespace . 0)); -*-
 /*
  * This file is part of Maliit Plugins
  *
@@ -51,6 +52,19 @@ public:
     virtual ~ShiftMachine();
 
     virtual void setup(LayoutUpdater *updater);
+
+    //! This state means that neither shift nor caps-lock wasn't pressed.
+    //! Entered characters are lowercased. This is initial state.
+    static const char *const no_shift_state;
+    //! This state means that shift was pressed but not yet released.
+    //! Now user can either release shift state to latch it or press
+    //! a key to enter one uppercased character.
+    static const char *const shift_state;
+    //! This state means that shift was pressed and released and thus
+    //! user can enter several uppercased characters.
+    static const char *const latched_shift_state;
+    //! Same as latched shift?
+    static const char *const caps_lock_state;
 };
 
 } // namespace MaliitKeyboard

@@ -1,3 +1,4 @@
+// -*- mode: C++; c-basic-offset: 4; indent-tabs-mode: nil; c-file-offsets: ((innamespace . 0)); -*-
 /*
  * This file is part of Maliit Plugins
  *
@@ -34,6 +35,10 @@
 
 namespace MaliitKeyboard {
 
+const char *const ViewMachine::main_state = "main";
+const char *const ViewMachine::symbols0_state = "symbols0";
+const char *const ViewMachine::symbols1_state = "symbols1";
+
 ViewMachine::ViewMachine(QObject *parent)
     : QStateMachine(parent)
 {}
@@ -62,9 +67,9 @@ void ViewMachine::setup(LayoutUpdater *updater)
     addState(symbols1 = new QState);
     setInitialState(main);
 
-    main->setObjectName("main");
-    symbols0->setObjectName("symbols0");
-    symbols1->setObjectName("symbols1");
+    main->setObjectName(main_state);
+    symbols0->setObjectName(symbols0_state);
+    symbols1->setObjectName(symbols1_state);
 
     main->addTransition(updater, SIGNAL(symKeyReleased()), symbols0);
     connect(main,    SIGNAL(entered()),
