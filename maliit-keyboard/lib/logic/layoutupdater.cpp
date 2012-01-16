@@ -484,11 +484,11 @@ void LayoutUpdater::onKeyReleased(const Key &key,
         break;
 
     case Key::ActionInsert:
-        if (d->shift_machine.inState("latched-shift")) {
+        if (d->shift_machine.inState(ShiftMachine::latched_shift_state)) {
             Q_EMIT shiftCancelled();
         }
 
-        if (d->deadkey_machine.inState("latched-deadkey")) {
+        if (d->deadkey_machine.inState(DeadkeyMachine::latched_deadkey_state)) {
             Q_EMIT deadkeyCancelled();
         }
 
