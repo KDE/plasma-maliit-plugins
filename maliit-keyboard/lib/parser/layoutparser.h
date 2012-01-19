@@ -72,7 +72,9 @@ private:
 
     void parseKeyboard();
     void parseImport();
+    void parseNewStyleImport();
     void parseImportChild(QStringList *target_list);
+    bool validateOldStyleImport();
     void parseLayout();
     void parseSection();
     void parseRow();

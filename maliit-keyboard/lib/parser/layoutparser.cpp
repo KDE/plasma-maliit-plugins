@@ -146,36 +146,37 @@ void LayoutParser::parseImport()
     const QString file(attributes.value(QLatin1String("file")).toString());
 
     if (file.isEmpty()) {
-        bool found_anything(false);
-
-        while (m_xml.readNextStartElement()) {
-            const QStringRef name(m_xml.name());
-
-            if (name == QLatin1String("symview")) {
-                found_anything = true;
-                parseImportChild(&m_symviews);
-            } else if (name == QLatin1String("number")) {
-                found_anything = true;
-                parseImportChild(&m_numbers);
-            } else if (name == QLatin1String("phonenumber")) {
-                found_anything = true;
-                parseImportChild(&m_phonenumbers);
-            } else {
-                error(QString::fromLatin1("Expected '<symview>' or '<number>' or '<phonenumber>', but got '<%1>'.").arg(name.toString()));
-            }
-        }
-        if (not found_anything) {
-            error(QString::fromLatin1("Expected '<symview>' or '<number>' or '<phonenumber>'."));
-        }
+        parseNewStyleImport();
     } else {
-        if (m_xml.readNextStartElement()) {
-            error(QString::fromLatin1("Expected no child tags, because 'file' attribute exists, but got '<%1>'.").arg(m_xml.name().toString()));
-        } else {
+        if (validateOldStyleImport()) {
             m_imports.append(file);
-            m_xml.skipCurrentElement();
         }
     }
+}
 
+void LayoutParser::parseNewStyleImport()
+{
+    bool found_anything(false);
+
+    while (m_xml.readNextStartElement()) {
+        const QStringRef name(m_xml.name());
+
+        if (name == QLatin1String("symview")) {
+            found_anything = true;
+            parseImportChild(&m_symviews);
+        } else if (name == QLatin1String("number")) {
+            found_anything = true;
+            parseImportChild(&m_numbers);
+        } else if (name == QLatin1String("phonenumber")) {
+            found_anything = true;
+            parseImportChild(&m_phonenumbers);
+        } else {
+            error(QString::fromLatin1("Expected '<symview>' or '<number>' or '<phonenumber>', but got '<%1>'.").arg(name.toString()));
+        }
+    }
+    if (not found_anything) {
+        error(QString::fromLatin1("Expected '<symview>' or '<number>' or '<phonenumber>'."));
+    }
 }
 
 void LayoutParser::parseImportChild(QStringList *target_list)
@@ -190,6 +191,45 @@ void LayoutParser::parseImportChild(QStringList *target_list)
     }
 
     m_xml.skipCurrentElement();
+}
+
+bool LayoutParser::validateOldStyleImport()
+{
+    QXmlStreamReader::TokenType token_type(QXmlStreamReader::Invalid);
+
+    do {
+        token_type = m_xml.readNext();
+
+        switch (token_type) {
+        case QXmlStreamReader::EndElement:
+            // that is what we expect:
+            // <import file="..."/>
+            // or:
+            // <import file="..."></import>
+            return true;
+        case QXmlStreamReader::Characters:
+            // just in case when we have a newline between
+            // opening and closing tag:
+            // <import file="...">
+            // </import>
+            if (not m_xml.isWhitespace()) {
+                error(QString::fromLatin1("Stray text in import tag: '%1'.").arg(m_xml.text().toString()));
+                return false;
+            }
+            break;
+        case QXmlStreamReader::Invalid:
+        case QXmlStreamReader::Comment:
+            break;
+        case QXmlStreamReader::StartElement:
+            error(QString::fromLatin1("Expected no child tags, because 'file' attribute exists, but got '<%1>'.").arg(m_xml.name().toString()));
+            return false;
+        default:
+            error("Wrong use of import tag.");
+            return false;
+        }
+    } while (token_type != QXmlStreamReader::Invalid);
+
+    return false;
 }
 
 void LayoutParser::parseLayout()
@@ -299,7 +339,7 @@ void LayoutParser::parseRow()
     m_last_section->appendRow(m_last_row);
 
     while (m_xml.readNextStartElement()) {
-        QStringRef name(m_xml.name());
+        const QStringRef name(m_xml.name());
 
         if (name == QLatin1String("key")) {
             parseKey();
@@ -331,7 +371,7 @@ void LayoutParser::parseKey()
     bool found_binding(false);
 
     while (m_xml.readNextStartElement()) {
-        QStringRef name(m_xml.name());
+        const QStringRef name(m_xml.name());
 
         if (name == QLatin1String("binding")) {
             parseBinding();
