@@ -46,16 +46,18 @@ Rectangle {
         color: "transparent"
         opacity: 1
 
-        LandscapeVKB {
-            id: vkb_landscape
-            anchors.bottom: parent.bottom
-            anchors.horizontalCenter: parent.horizontalCenter
-        }
+        PluginClose {
+            LandscapeVKB {
+                id: vkb_landscape
+                anchors.bottom: parent.bottom
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
 
-        PortraitVKB {
-            id: vkb_portrait
-            anchors.bottom: parent.bottom
-            anchors.horizontalCenter: parent.horizontalCenter
+            PortraitVKB {
+                id: vkb_portrait
+                anchors.bottom: parent.bottom
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
         }
 
         Component.onCompleted: {
