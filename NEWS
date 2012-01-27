@@ -1,3 +1,15 @@
+0.81.3
+======
+
+CHANGES SINCE 0.81.2
+* Many improvements to Maliit Keyboard
+
+BUG FIXES
+* Fixes: Tests fail in legacy-mode
+* Fixes: Tests fail if framework not installed to system dirs
+* Fixes: MALIIT#39 - Maliit Keyboard doesn't allow input of accented characters
+* Fixes: MALIIT#56 - libmaliitkeyboard must not use QPixmap
+
 0.81.2
 ======
 
