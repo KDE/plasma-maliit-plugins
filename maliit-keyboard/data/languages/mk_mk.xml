@@ -146,19 +146,15 @@
       </row>
 
       <row>
-        <key style="special" width="x-large">
+        <key style="special" width="large">
           <binding action="sym" label="?123"/>
         </key>
-
-        <spacer/>
 
         <key><binding label=";"/></key>
         <key id="emailUrlKey"><binding label=","/></key>
         <key width="xx-large"><binding action="space"/></key>
         <key><binding label="."/></key>
         <key><binding label=":"/></key>
-
-        <spacer/>
 
         <key style="special" width="x-large" id="actionKey">
           <binding action="return"/>
