@@ -35,6 +35,7 @@ namespace MaliitKeyboard {
 
 Layout::Layout()
     : m_orientation(Landscape)
+    , m_alignment(Bottom)
     , m_active_panel(CenterPanel)
     , m_left()
     , m_right()
@@ -52,6 +53,16 @@ Layout::Orientation Layout::orientation() const
 void Layout::setOrientation(Orientation orientation)
 {
     m_orientation = orientation;
+}
+
+Layout::Alignment Layout::alignemnt() const
+{
+    return m_alignment;
+}
+
+void Layout::setAlignment(Alignment alignment)
+{
+    m_alignment = alignment;
 }
 
 Layout::Panel Layout::activePanel() const

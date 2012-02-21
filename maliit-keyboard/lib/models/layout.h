@@ -48,6 +48,13 @@ public:
         Portrait
     };
 
+    enum Alignment {
+        Left,
+        Top,
+        Right,
+        Bottom
+    };
+
     enum Panel {
         LeftPanel,
         RightPanel,
@@ -61,6 +68,7 @@ public:
 
 private:
     Orientation m_orientation;
+    Alignment m_alignment;
     Panel m_active_panel;
     KeyArea m_left;
     KeyArea m_right;
@@ -81,6 +89,9 @@ public:
 
     Orientation orientation() const;
     void setOrientation(Orientation orientation);
+
+    Alignment alignemnt() const;
+    void setAlignment(Alignment alignment);
 
     Panel activePanel() const;
     void setActivePanel(Panel panel);

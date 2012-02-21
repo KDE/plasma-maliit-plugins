@@ -196,6 +196,7 @@ void Dashboard::onOrientationChangeClicked()
 {
     Q_D(Dashboard);
 
+    onShow();
     d->orientation = (d->orientation == Layout::Landscape ? Layout::Portrait : Layout::Landscape);
     Q_EMIT orientationChanged(d->orientation);
 }

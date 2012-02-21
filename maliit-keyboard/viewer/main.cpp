@@ -109,11 +109,13 @@ int main(int argc,
     MaliitKeyboard::LayoutUpdater lu0;
 
     MaliitKeyboard::SharedLayout l0(new MaliitKeyboard::Layout);
+    l0->setAlignment(MaliitKeyboard::Layout::Bottom);
     renderer.addLayout(l0);
     glass.addLayout(l0);
     lu0.setLayout(l0);
 
     MaliitKeyboard::SharedLayout l1(new MaliitKeyboard::Layout);
+    l1->setAlignment(MaliitKeyboard::Layout::Top);
     renderer.addLayout(l1);
     glass.addLayout(l1);
 

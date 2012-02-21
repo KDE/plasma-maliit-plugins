@@ -45,6 +45,7 @@ KeyArea createFromKeyboard(Style *style,
                            const Keyboard &source,
                            const QPoint &anchor,
                            Layout::Orientation orientation,
+                           Layout::Alignment alignment,
                            bool is_extended_keyarea = false)
 {
     // An ad-hoc geometry updater that also uses styling information.
@@ -180,8 +181,9 @@ KeyArea createFromKeyboard(Style *style,
     ka.background = style->keyAreaBackground();
     ka.background_borders = style->keyAreaBackgroundBorders();
     ka.keys = kb.keys;
+    // FIXME: left, right aligment does not work as expected (treated as top alignment currently).
     ka.rect =  QRectF(anchor.x() - (is_extended_keyarea ? consumed_width : max_width) / 2,
-                      anchor.y() - height,
+                      (alignment == Layout::Bottom ? anchor.y() - height : 0),
                       (is_extended_keyarea ? consumed_width : max_width),
                       height);
 
@@ -205,68 +207,78 @@ KeyAreaConverter::KeyAreaConverter(Style *style,
 KeyAreaConverter::~KeyAreaConverter()
 {}
 
-KeyArea KeyAreaConverter::keyArea(Layout::Orientation orientation) const
+KeyArea KeyAreaConverter::keyArea(Layout::Orientation orientation,
+                                  Layout::Alignment alignment) const
 {
     return createFromKeyboard(m_style, m_loader->keyboard(),
-                              m_anchor, orientation);
+                              m_anchor, orientation, alignment);
 }
 
-KeyArea KeyAreaConverter::nextKeyArea(Layout::Orientation orientation) const
+KeyArea KeyAreaConverter::nextKeyArea(Layout::Orientation orientation,
+                                      Layout::Alignment alignment) const
 {
     return createFromKeyboard(m_style, m_loader->nextKeyboard(),
-                              m_anchor, orientation);
+                              m_anchor, orientation, alignment);
 }
 
-KeyArea KeyAreaConverter::previousKeyArea(Layout::Orientation orientation) const
+KeyArea KeyAreaConverter::previousKeyArea(Layout::Orientation orientation,
+                                          Layout::Alignment alignment) const
 {
     return createFromKeyboard(m_style, m_loader->previousKeyboard(),
-                              m_anchor, orientation);
+                              m_anchor, orientation, alignment);
 }
 
-KeyArea KeyAreaConverter::shiftedKeyArea(Layout::Orientation orientation) const
+KeyArea KeyAreaConverter::shiftedKeyArea(Layout::Orientation orientation,
+                                         Layout::Alignment alignment) const
 {
     return createFromKeyboard(m_style, m_loader->shiftedKeyboard(),
-                              m_anchor, orientation);
+                              m_anchor, orientation, alignment);
 }
 
 KeyArea KeyAreaConverter::symbolsKeyArea(Layout::Orientation orientation,
+                                         Layout::Alignment alignment,
                                          int page) const
 {
     return createFromKeyboard(m_style, m_loader->symbolsKeyboard(page),
-                              m_anchor, orientation);
+                              m_anchor, orientation, alignment);
 }
 
 KeyArea KeyAreaConverter::deadKeyArea(Layout::Orientation orientation,
+                                      Layout::Alignment alignment,
                                       const Key &dead) const
 {
     return createFromKeyboard(m_style, m_loader->deadKeyboard(dead),
-                              m_anchor, orientation);
+                              m_anchor, orientation, alignment);
 }
 
 KeyArea KeyAreaConverter::shiftedDeadKeyArea(Layout::Orientation orientation,
+                                             Layout::Alignment alignment,
                                              const Key &dead) const
 {
     return createFromKeyboard(m_style, m_loader->shiftedDeadKeyboard(dead),
-                              m_anchor, orientation);
+                              m_anchor, orientation, alignment);
 }
 
 KeyArea KeyAreaConverter::extendedKeyArea(Layout::Orientation orientation,
+                                          Layout::Alignment alignment,
                                           const Key &key) const
 {
     return createFromKeyboard(m_style, m_loader->extendedKeyboard(key),
-                              m_anchor, orientation, true);
+                              m_anchor, orientation, alignment, true);
 }
 
-KeyArea KeyAreaConverter::numberKeyArea(Layout::Orientation orientation) const
+KeyArea KeyAreaConverter::numberKeyArea(Layout::Orientation orientation,
+                                        Layout::Alignment alignment) const
 {
     return createFromKeyboard(m_style, m_loader->numberKeyboard(),
-                              m_anchor, orientation);
+                              m_anchor, orientation, alignment);
 }
 
-KeyArea KeyAreaConverter::phoneNumberKeyArea(Layout::Orientation orientation) const
+KeyArea KeyAreaConverter::phoneNumberKeyArea(Layout::Orientation orientation,
+                                             Layout::Alignment alignment) const
 {
     return createFromKeyboard(m_style, m_loader->phoneNumberKeyboard(),
-                              m_anchor, orientation);
+                              m_anchor, orientation, alignment);
 }
 
 } // namespace MaliitKeyboard

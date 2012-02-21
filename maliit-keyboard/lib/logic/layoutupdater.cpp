@@ -244,13 +244,14 @@ void LayoutUpdater::setOrientation(Layout::Orientation orientation)
 
     if (d->layout && d->layout->orientation() != orientation) {
         d->layout->setOrientation(orientation);
+        const Layout::Alignment alignment(d->layout->alignemnt());
 
         // FIXME: reposition extended keys, too (and left/right?).
         // FIXME: Move anchor into converter?
         d->anchor = computeAnchor(d->screen_size, orientation);
         const KeyAreaConverter converter(&d->style, &d->loader, d->anchor);
-        d->layout->setCenterPanel(d->inShiftedState() ? converter.shiftedKeyArea(orientation)
-                                                      : converter.keyArea(orientation));
+        d->layout->setCenterPanel(d->inShiftedState() ? converter.shiftedKeyArea(orientation, alignment)
+                                                      : converter.keyArea(orientation, alignment));
 
         clearActiveKeysAndMagnifier();
         Q_EMIT layoutChanged(d->layout);
@@ -302,8 +303,9 @@ void LayoutUpdater::onKeyLongPressed(const Key &key,
     clearActiveKeysAndMagnifier();
 
     const Layout::Orientation orientation(d->layout->orientation());
+    const Layout::Alignment alignment(d->layout->alignemnt());
     const KeyAreaConverter converter(&d->extended_keys_style, &d->loader, d->anchor);
-    KeyArea ext_ka(converter.extendedKeyArea(orientation, key));
+    KeyArea ext_ka(converter.extendedKeyArea(orientation, alignment, key));
 
     if (ext_ka.keys.isEmpty()) {
         return;
@@ -470,8 +472,9 @@ void LayoutUpdater::switchToMainView()
 
     const KeyAreaConverter converter(&d->style, &d->loader, d->anchor);
     const Layout::Orientation orientation(d->layout->orientation());
-    d->layout->setCenterPanel(d->inShiftedState() ? converter.shiftedKeyArea(orientation)
-                                                  : converter.keyArea(orientation));
+    const Layout::Alignment alignment(d->layout->alignemnt());
+    d->layout->setCenterPanel(d->inShiftedState() ? converter.shiftedKeyArea(orientation, alignment)
+                                                  : converter.keyArea(orientation, alignment));
 
     Q_EMIT layoutChanged(d->layout);
 }
@@ -486,7 +489,8 @@ void LayoutUpdater::switchToPrimarySymView()
 
     const KeyAreaConverter converter(&d->style, &d->loader, d->anchor);
     const Layout::Orientation orientation(d->layout->orientation());
-    d->layout->setCenterPanel(converter.symbolsKeyArea(orientation, 0));
+    const Layout::Alignment alignment(d->layout->alignemnt());
+    d->layout->setCenterPanel(converter.symbolsKeyArea(orientation, alignment, 0));
 
     // Reset shift state machine, also see switchToMainView.
     d->shift_machine.restart();
@@ -505,7 +509,8 @@ void LayoutUpdater::switchToSecondarySymView()
 
     const KeyAreaConverter converter(&d->style, &d->loader, d->anchor);
     const Layout::Orientation orientation(d->layout->orientation());
-    d->layout->setCenterPanel(converter.symbolsKeyArea(orientation, 1));
+    const Layout::Alignment alignment(d->layout->alignemnt());
+    d->layout->setCenterPanel(converter.symbolsKeyArea(orientation, alignment, 1));
 
     Q_EMIT layoutChanged(d->layout);
 }
@@ -520,9 +525,10 @@ void LayoutUpdater::switchToAccentedView()
 
     const KeyAreaConverter converter(&d->style, &d->loader, d->anchor);
     const Layout::Orientation orientation(d->layout->orientation());
+    const Layout::Alignment alignment(d->layout->alignemnt());
     const Key accent(d->deadkey_machine.accentKey());
-    d->layout->setCenterPanel(d->inShiftedState() ? converter.shiftedDeadKeyArea(orientation, accent)
-                                                  : converter.deadKeyArea(orientation, accent));
+    d->layout->setCenterPanel(d->inShiftedState() ? converter.shiftedDeadKeyArea(orientation, alignment, accent)
+                                                  : converter.deadKeyArea(orientation, alignment, accent));
 
     Q_EMIT layoutChanged(d->layout);
 }
