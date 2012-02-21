@@ -195,7 +195,12 @@ KeyAreaConverter::KeyAreaConverter(Style *style,
     : m_style(style)
     , m_loader(loader)
     , m_anchor(anchor)
-{}
+{
+    if (not style || not loader) {
+        qCritical() << __PRETTY_FUNCTION__
+                    << "Neither style nor loader can be null.";
+    }
+}
 
 KeyAreaConverter::~KeyAreaConverter()
 {}
