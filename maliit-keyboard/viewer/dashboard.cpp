@@ -44,6 +44,7 @@ class DashboardPrivate
 public:
     Renderer *renderer;
     QTextEdit *text_entry;
+    QGraphicsProxyWidget *proxy_widget;
     QVBoxLayout *vbox;
     QSpacerItem *top;
     QSpacerItem *bottom;
@@ -53,6 +54,7 @@ public:
     explicit DashboardPrivate()
         : renderer(0)
         , text_entry(new QTextEdit)
+        , proxy_widget(0)
         , vbox(new QVBoxLayout)
         , top(new QSpacerItem(0, 0))
         , bottom(new QSpacerItem(0, 0))
@@ -68,9 +70,16 @@ Dashboard::Dashboard(QWidget *parent)
     setWindowTitle("Maliit Keyboard Viewer");
     resize(854, 480);
 
-    QWidget *w = new QWidget;
-    setCentralWidget(w);
-    w->show();
+    QGraphicsView *v = new QGraphicsView;
+    v->setScene(new QGraphicsScene(v));
+    v->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    v->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setCentralWidget(v);
+    v->show();
+    QWidget *w = 0;
+    d_ptr->proxy_widget = v->scene()->addWidget(w = new QWidget);
+    d_ptr->proxy_widget->setTransformOriginPoint(d_ptr->proxy_widget->geometry().center());
+    w->resize(size());
 
     QVBoxLayout *vbox = d_ptr->vbox;
     w->setLayout(vbox);
@@ -177,8 +186,8 @@ void Dashboard::onShow()
         d->renderer->show();
     }
 
-    d->top->changeSize(0, 50);
-    d->bottom->changeSize(0, 250);
+    d->top->changeSize(0, d->orientation == Layout::Landscape ? 50 : 80);
+    d->bottom->changeSize(0, d->orientation == Layout::Landscape ? 250 : 350);
     d->vbox->invalidate();
     d->buttons->hide();
 }
@@ -196,8 +205,11 @@ void Dashboard::onOrientationChangeClicked()
 {
     Q_D(Dashboard);
 
-    onShow();
     d->orientation = (d->orientation == Layout::Landscape ? Layout::Portrait : Layout::Landscape);
+    static_cast<QGraphicsView *>(centralWidget())->rotate(d->orientation == Layout::Landscape ? 90 : 270);
+    const QSize &s(centralWidget()->size());
+    d->proxy_widget->resize(d->orientation == Layout::Landscape ? s : QSize(s.height(), s.width()));
+    onShow();
     Q_EMIT orientationChanged(d->orientation);
 }
 
