@@ -43,12 +43,6 @@ namespace MaliitKeyboard {
 
 namespace {
 
-bool verify(const QScopedPointer<KeyboardLoader> &loader,
-            const SharedLayout &layout)
-{
-    return (not loader.isNull() && not layout.isNull());
-}
-
 // FIXME: only access settings *once*
 QPoint computeAnchor(const QSize &size,
                      Layout::Orientation orientation)
@@ -130,7 +124,7 @@ class LayoutUpdaterPrivate
 public:
     bool initialized;
     SharedLayout layout;
-    QScopedPointer<KeyboardLoader> loader;
+    KeyboardLoader loader;
     ShiftMachine shift_machine;
     ViewMachine view_machine;
     DeadkeyMachine deadkey_machine;
@@ -142,7 +136,7 @@ public:
     explicit LayoutUpdaterPrivate()
         : initialized(false)
         , layout()
-        , loader(new KeyboardLoader)
+        , loader()
         , shift_machine()
         , view_machine()
         , deadkey_machine()
@@ -185,8 +179,8 @@ LayoutUpdater::LayoutUpdater(QObject *parent)
     : QObject(parent)
     , d_ptr(new LayoutUpdaterPrivate)
 {
-    connect(d_ptr->loader.data(), SIGNAL(keyboardsChanged()),
-            this,                 SLOT(onKeyboardsChanged()),
+    connect(&d_ptr->loader, SIGNAL(keyboardsChanged()),
+            this,           SLOT(onKeyboardsChanged()),
             Qt::UniqueConnection);
 }
 
@@ -205,26 +199,26 @@ void LayoutUpdater::init()
 QStringList LayoutUpdater::keyboardIds() const
 {
     Q_D(const LayoutUpdater);
-    return d->loader->ids();
+    return d->loader.ids();
 }
 
 QString LayoutUpdater::activeKeyboardId() const
 {
     Q_D(const LayoutUpdater);
-    return d->loader->activeId();
+    return d->loader.activeId();
 }
 
 void LayoutUpdater::setActiveKeyboardId(const QString &id)
 {
     Q_D(LayoutUpdater);
-    d->loader->setActiveId(id);
+    d->loader.setActiveId(id);
     d->anchor = computeAnchor(d->screen_size, Layout::Landscape);
 }
 
 QString LayoutUpdater::keyboardTitle(const QString &id) const
 {
     Q_D(const LayoutUpdater);
-    return d->loader->title(id);
+    return d->loader.title(id);
 }
 
 void LayoutUpdater::setScreenSize(const QSize &size)
@@ -244,22 +238,6 @@ void LayoutUpdater::setLayout(const SharedLayout &layout)
     }
 }
 
-//! Replace internal KeyboardLoader with another instance or completely
-//! disable it (when set to 0). LayoutUpdater takes ownership.
-void LayoutUpdater::resetKeyboardLoader(KeyboardLoader *loader)
-{
-    Q_D(LayoutUpdater);
-    d->loader.reset(loader);
-
-    if (d->loader.isNull()) {
-        return;
-    }
-
-    connect(loader, SIGNAL(keyboardsChanged()),
-            this,   SLOT(onKeyboardsChanged()),
-            Qt::UniqueConnection);
-}
-
 void LayoutUpdater::setOrientation(Layout::Orientation orientation)
 {
     Q_D(LayoutUpdater);
@@ -270,7 +248,7 @@ void LayoutUpdater::setOrientation(Layout::Orientation orientation)
         // FIXME: reposition extended keys, too (and left/right?).
         // FIXME: Move anchor into converter?
         d->anchor = computeAnchor(d->screen_size, orientation);
-        const KeyAreaConverter converter(&d->style, d->loader.data(), d->anchor);
+        const KeyAreaConverter converter(&d->style, &d->loader, d->anchor);
         d->layout->setCenterPanel(d->inShiftedState() ? converter.shiftedKeyArea(orientation)
                                                       : converter.keyArea(orientation));
 
@@ -317,14 +295,14 @@ void LayoutUpdater::onKeyLongPressed(const Key &key,
     Q_UNUSED(key);
     Q_D(LayoutUpdater);
 
-    if (d->layout != layout || not verify(d->loader, d->layout)) {
+    if (d->layout != layout || d->layout.isNull()) {
         return;
     }
 
     clearActiveKeysAndMagnifier();
 
     const Layout::Orientation orientation(d->layout->orientation());
-    const KeyAreaConverter converter(&d->extended_keys_style, d->loader.data(), d->anchor);
+    const KeyAreaConverter converter(&d->extended_keys_style, &d->loader, d->anchor);
     KeyArea ext_ka(converter.extendedKeyArea(orientation, key));
 
     if (ext_ka.keys.isEmpty()) {
@@ -483,14 +461,14 @@ void LayoutUpdater::switchToMainView()
 {
     Q_D(LayoutUpdater);
 
-    if (not verify(d->loader, d->layout)) {
+    if (d->layout.isNull()) {
         return;
     }
 
     d->layout->clearActiveKeys();
     d->layout->clearMagnifierKey();
 
-    const KeyAreaConverter converter(&d->style, d->loader.data(), d->anchor);
+    const KeyAreaConverter converter(&d->style, &d->loader, d->anchor);
     const Layout::Orientation orientation(d->layout->orientation());
     d->layout->setCenterPanel(d->inShiftedState() ? converter.shiftedKeyArea(orientation)
                                                   : converter.keyArea(orientation));
@@ -502,11 +480,11 @@ void LayoutUpdater::switchToPrimarySymView()
 {
     Q_D(LayoutUpdater);
 
-    if (not verify(d->loader, d->layout)) {
+    if (d->layout.isNull()) {
         return;
     }
 
-    const KeyAreaConverter converter(&d->style, d->loader.data(), d->anchor);
+    const KeyAreaConverter converter(&d->style, &d->loader, d->anchor);
     const Layout::Orientation orientation(d->layout->orientation());
     d->layout->setCenterPanel(converter.symbolsKeyArea(orientation, 0));
 
@@ -521,11 +499,11 @@ void LayoutUpdater::switchToSecondarySymView()
 {
     Q_D(LayoutUpdater);
 
-    if (not verify(d->loader, d->layout)) {
+    if (d->layout.isNull()) {
         return;
     }
 
-    const KeyAreaConverter converter(&d->style, d->loader.data(), d->anchor);
+    const KeyAreaConverter converter(&d->style, &d->loader, d->anchor);
     const Layout::Orientation orientation(d->layout->orientation());
     d->layout->setCenterPanel(converter.symbolsKeyArea(orientation, 1));
 
@@ -536,11 +514,11 @@ void LayoutUpdater::switchToAccentedView()
 {
     Q_D(LayoutUpdater);
 
-    if (not verify(d->loader, d->layout)) {
+    if (d->layout.isNull()) {
         return;
     }
 
-    const KeyAreaConverter converter(&d->style, d->loader.data(), d->anchor);
+    const KeyAreaConverter converter(&d->style, &d->loader, d->anchor);
     const Layout::Orientation orientation(d->layout->orientation());
     const Key accent(d->deadkey_machine.accentKey());
     d->layout->setCenterPanel(d->inShiftedState() ? converter.shiftedDeadKeyArea(orientation, accent)

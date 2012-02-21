@@ -124,7 +124,6 @@ int main(int argc,
     MaliitKeyboard::LayoutUpdater lu1;
     lu1.setLayout(l1);
     lu1.setScreenSize(dashboard->size());
-    lu1.resetKeyboardLoader();
 
     MaliitKeyboard::Setup::connectGlassToLayoutUpdater(&glass, &lu1);
     MaliitKeyboard::Setup::connectLayoutUpdaterToRenderer(&lu1, &renderer);
