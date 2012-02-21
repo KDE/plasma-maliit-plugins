@@ -32,6 +32,8 @@
 #ifndef MALIIT_KEYBOARD_DASHBOARD_H
 #define MALIIT_KEYBOARD_DASHBOARD_H
 
+#include "models/layout.h"
+
 #include <QtCore>
 #include <QMainWindow>
 
@@ -55,10 +57,12 @@ public:
     void setRenderer(Renderer *renderer);
 
     Q_SLOT void onKeyReleased(const Key &key);
+    Q_SIGNAL void orientationChanged(Layout::Orientation orientation);
 
 private:
     Q_SLOT void onShow();
     Q_SLOT void onHide();
+    Q_SLOT void onOrientationChangeClicked();
 
     const QScopedPointer<DashboardPrivate> d_ptr;
 };

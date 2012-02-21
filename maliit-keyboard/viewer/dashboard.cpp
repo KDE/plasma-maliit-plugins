@@ -30,7 +30,9 @@
  */
 
 #include "models/key.h"
+#include "models/layout.h"
 #include "view/renderer.h"
+#include "logic/keyareaconverter.h"
 #include "dashboard.h"
 
 #include <QInputMethodEvent>
@@ -46,6 +48,7 @@ public:
     QSpacerItem *top;
     QSpacerItem *bottom;
     QWidget *buttons;
+    Layout::Orientation orientation;
 
     explicit DashboardPrivate()
         : renderer(0)
@@ -54,6 +57,7 @@ public:
         , top(new QSpacerItem(0, 0))
         , bottom(new QSpacerItem(0, 0))
         , buttons(new QWidget)
+        , orientation(Layout::Landscape)
     {}
 };
 
@@ -85,6 +89,12 @@ Dashboard::Dashboard(QWidget *parent)
             this, SLOT(onShow()));
     hbox->addWidget(show);
     show->show();
+
+    QPushButton *orientation_changed = new QPushButton("Change orientation");
+    connect(orientation_changed, SIGNAL(clicked()),
+            this, SLOT(onOrientationChangeClicked()));
+    hbox->addWidget(orientation_changed);
+    orientation_changed->show();
 
     QPushButton *close = new QPushButton("Close application");
     connect(close, SIGNAL(clicked()),
@@ -180,6 +190,14 @@ void Dashboard::onHide()
     d->bottom->changeSize(0, 0);
     d->vbox->invalidate();
     d->buttons->show();
+}
+
+void Dashboard::onOrientationChangeClicked()
+{
+    Q_D(Dashboard);
+
+    d->orientation = (d->orientation == Layout::Landscape ? Layout::Portrait : Layout::Landscape);
+    Q_EMIT orientationChanged(d->orientation);
 }
 
 } // namespace MaliitKeyboard

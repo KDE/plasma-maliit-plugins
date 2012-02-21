@@ -106,12 +106,12 @@ int main(int argc,
 
     // One layout updater can only manage one layout. If more layouts need to
     // be managed, then more layout updaters are required.
-    MaliitKeyboard::LayoutUpdater updater;
+    MaliitKeyboard::LayoutUpdater lu0;
 
     MaliitKeyboard::SharedLayout l0(new MaliitKeyboard::Layout);
     renderer.addLayout(l0);
     glass.addLayout(l0);
-    updater.setLayout(l0);
+    lu0.setLayout(l0);
 
     MaliitKeyboard::SharedLayout l1(new MaliitKeyboard::Layout);
     renderer.addLayout(l1);
@@ -128,17 +128,23 @@ int main(int argc,
     MaliitKeyboard::Setup::connectGlassToLayoutUpdater(&glass, &lu1);
     MaliitKeyboard::Setup::connectLayoutUpdaterToRenderer(&lu1, &renderer);
 
-    updater.setScreenSize(dashboard->size());
+    lu0.setScreenSize(dashboard->size());
 
-    MaliitKeyboard::Setup::connectGlassToLayoutUpdater(&glass, &updater);
+    MaliitKeyboard::Setup::connectGlassToLayoutUpdater(&glass, &lu0);
     MaliitKeyboard::Setup::connectGlassToRenderer(&glass, &renderer);
-    MaliitKeyboard::Setup::connectLayoutUpdaterToRenderer(&updater, &renderer);
+    MaliitKeyboard::Setup::connectLayoutUpdaterToRenderer(&lu0, &renderer);
 
     QObject::connect(&glass,    SIGNAL(keyReleased(Key,SharedLayout)),
                      dashboard, SLOT(onKeyReleased(Key)));
 
     QObject::connect(&glass,    SIGNAL(keyboardClosed()),
                      dashboard, SLOT(onHide()));
+
+    QObject::connect(dashboard, SIGNAL(orientationChanged(Layout::Orientation)),
+                     &lu0,      SLOT(setOrientation(Layout::Orientation)));
+
+    QObject::connect(dashboard, SIGNAL(orientationChanged(Layout::Orientation)),
+                     &lu1,      SLOT(setOrientation(Layout::Orientation)));
 
     // Allow to specify keyboard id via command line:
     QString keyboard_id("en_gb");
@@ -154,7 +160,7 @@ int main(int argc,
         }
     }
 
-    updater.setActiveKeyboardId(keyboard_id);
+    lu0.setActiveKeyboardId(keyboard_id);
     renderer.show();
 
     return app.exec();
