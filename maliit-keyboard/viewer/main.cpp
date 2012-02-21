@@ -65,28 +65,6 @@ MaliitKeyboard::Key createKey(const QByteArray &id,
     return k;
 }
 
-MaliitKeyboard::KeyArea createToolbar(int key_width,
-                                      int key_height)
-{
-    typedef QByteArray QBA;
-    const QBA bg("key-background.png");
-
-    MaliitKeyboard::KeyFont font;
-    font.setSize(24);
-    font.setColor("#fffbed");
-
-    MaliitKeyboard::KeyArea ka;
-    ka.background = QByteArray("background.png");
-    QMargins margins(4, 4, 4, 4);
-
-    ka.keys.append(createKey(bg, font, QRect(0, 0, key_width, key_height),
-                             QBA("<"), margins, MaliitKeyboard::Key::ActionLeft));
-    ka.keys.append(createKey(bg, font, QRect(key_width + 8, 0, key_width, key_height),
-                             QBA(">"), margins, MaliitKeyboard::Key::ActionRight));
-
-    return ka;
-}
-
 }
 
 int main(int argc,
@@ -118,10 +96,6 @@ int main(int argc,
     l1->setAlignment(MaliitKeyboard::Layout::Top);
     renderer.addLayout(l1);
     glass.addLayout(l1);
-
-    MaliitKeyboard::KeyArea ka(createToolbar(80, 48));
-    ka.rect = QRect(0, 0, dashboard->width(), 48);
-    l1->setCenterPanel(ka);
 
     MaliitKeyboard::LayoutUpdater lu1;
     lu1.setLayout(l1);
@@ -163,6 +137,7 @@ int main(int argc,
     }
 
     lu0.setActiveKeyboardId(keyboard_id);
+    lu1.setActiveKeyboardId("toolbar");
     renderer.show();
 
     return app.exec();
