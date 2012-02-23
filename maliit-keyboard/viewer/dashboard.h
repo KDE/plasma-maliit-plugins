@@ -58,6 +58,7 @@ public:
 
     Q_SLOT void onKeyReleased(const Key &key);
     Q_SIGNAL void orientationChanged(Layout::Orientation orientation);
+    Q_SIGNAL void keyboardClosed();
 
 private:
     Q_SLOT void onShow();

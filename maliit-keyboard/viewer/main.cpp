@@ -113,14 +113,26 @@ int main(int argc,
     QObject::connect(&glass,    SIGNAL(keyReleased(Key,SharedLayout)),
                      dashboard, SLOT(onKeyReleased(Key)));
 
-    QObject::connect(&glass,    SIGNAL(keyboardClosed()),
-                     dashboard, SLOT(onHide()));
-
     QObject::connect(dashboard, SIGNAL(orientationChanged(Layout::Orientation)),
                      &lu0,      SLOT(setOrientation(Layout::Orientation)));
 
     QObject::connect(dashboard, SIGNAL(orientationChanged(Layout::Orientation)),
                      &lu1,      SLOT(setOrientation(Layout::Orientation)));
+
+    QObject::connect(&glass,    SIGNAL(keyboardClosed()),
+                     dashboard, SIGNAL(keyboardClosed()));
+
+    QObject::connect(dashboard, SIGNAL(keyboardClosed()),
+                     &lu0,      SLOT(clearActiveKeysAndMagnifier()));
+
+    QObject::connect(dashboard, SIGNAL(keyboardClosed()),
+                     &lu1,      SLOT(clearActiveKeysAndMagnifier()));
+
+    QObject::connect(dashboard, SIGNAL(keyboardClosed()),
+                     &renderer, SLOT(hide()));
+
+    QObject::connect(dashboard, SIGNAL(keyboardClosed()),
+                     dashboard, SLOT(onHide()));
 
     // Allow to specify keyboard id via command line:
     QString keyboard_id("en_gb");
