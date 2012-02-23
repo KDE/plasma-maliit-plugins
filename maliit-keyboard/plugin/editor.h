@@ -66,6 +66,8 @@ public:
     Q_SLOT void onKeyEntered(const Key &key);
     Q_SLOT void onKeyExited(const Key &key);
 
+    Q_SIGNAL void keyboardClosed();
+
 private:
     Q_SLOT void autoRepeatBackspace();
 
