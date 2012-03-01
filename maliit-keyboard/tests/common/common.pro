@@ -16,6 +16,12 @@ HEADERS += \
 OBJECTS_DIR = .obj
 MOC_DIR = .moc
 
+contains(QT_MAJOR_VERSION, 4) {
+    QT = core gui
+} else {
+    QT = core gui widgets
+}
+
 QMAKE_EXTRA_TARGETS += check
 check.target = check
 check.command = $$system(true)
