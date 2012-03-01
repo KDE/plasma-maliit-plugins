@@ -1,3 +1,16 @@
+0.90.0
+======
+
+CHANGES SINCE 0.81.3
+* Add auto-repeat for backspace (maliit-keyboard only).
+* Add rotation support to maliit-keyboard-viewer.
+  * This makes it easier to test language layouts in landscape and portrait
+    mode, without requiring a running maliit-server.
+* Add support for close button in language layouts.
+  * Layouts can now use a special key that will close the keyboard when
+    pressed, if action="close" is used in the key binding.
+* Add Macedonian language layout.
+
 0.81.3
 ======
 
