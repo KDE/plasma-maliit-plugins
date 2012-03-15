@@ -59,6 +59,7 @@ public:
     void addLayout(const SharedLayout &layout);
     void clearLayouts();
 
+    // Key signals:
     Q_SIGNAL void keyPressed(const Key &key,
                              const SharedLayout &layout);
     Q_SIGNAL void keyLongPressed(const Key &key,
@@ -69,6 +70,12 @@ public:
                              const SharedLayout &layout);
     Q_SIGNAL void keyExited(const Key &key,
                             const SharedLayout &layout);
+
+    // WordCandidate signals:
+    Q_SIGNAL void wordCandidatePressed(const WordCandidate &candidate,
+                                       const SharedLayout &layout);
+    Q_SIGNAL void wordCandidateReleased(const WordCandidate &candidate,
+                                        const SharedLayout &layout);
 
     Q_SIGNAL void switchLeft(const SharedLayout &layout);
     Q_SIGNAL void switchRight(const SharedLayout &layout);
