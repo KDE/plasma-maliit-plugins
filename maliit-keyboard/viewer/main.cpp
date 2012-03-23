@@ -140,10 +140,10 @@ int main(int argc,
                      dashboard, SIGNAL(keyboardClosed()));
 
     QObject::connect(dashboard, SIGNAL(keyboardClosed()),
-                     &lu0,      SLOT(clearActiveKeysAndMagnifier()));
+                     &lu0,      SLOT(resetOnKeyboardClosed()));
 
     QObject::connect(dashboard, SIGNAL(keyboardClosed()),
-                     &lu1,      SLOT(clearActiveKeysAndMagnifier()));
+                     &lu1,      SLOT(resetOnKeyboardClosed()));
 
     QObject::connect(dashboard, SIGNAL(keyboardClosed()),
                      &renderer, SLOT(hide()));

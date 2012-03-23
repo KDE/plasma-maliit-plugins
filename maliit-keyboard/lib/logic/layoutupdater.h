@@ -77,6 +77,7 @@ public:
     Q_SLOT void onKeyExited(const Key &key,
                             const SharedLayout &layout);
     Q_SLOT void clearActiveKeysAndMagnifier();
+    Q_SLOT void resetOnKeyboardClosed();
     Q_SLOT void onCandidatesUpdated(const QStringList &candidates);
 
     // WordCandidate signal handlers:

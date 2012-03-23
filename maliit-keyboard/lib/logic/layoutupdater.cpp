@@ -458,6 +458,17 @@ void LayoutUpdater::clearActiveKeysAndMagnifier()
     d->layout->clearMagnifierKey();
 }
 
+void LayoutUpdater::resetOnKeyboardClosed()
+{
+    Q_D(const LayoutUpdater);
+
+    clearActiveKeysAndMagnifier();
+    d->layout->setExtendedPanel(KeyArea());
+    d->layout->setActivePanel(Layout::CenterPanel);
+    // we do not emit layoutChanged(): there is no need to do it at close and
+    // if we do, rendered re-shows the keyboard
+}
+
 void LayoutUpdater::onCandidatesUpdated(const QStringList &candidates)
 {
     Q_D(LayoutUpdater);

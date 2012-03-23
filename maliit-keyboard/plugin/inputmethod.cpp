@@ -162,7 +162,7 @@ void InputMethod::hide()
 {
     Q_D(InputMethod);
     d->renderer.hide();
-    d->layout_updater.clearActiveKeysAndMagnifier();
+    d->layout_updater.resetOnKeyboardClosed();
     inputMethodHost()->notifyImInitiatedHiding();
 }
 
