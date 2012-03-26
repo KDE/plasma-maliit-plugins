@@ -12,3 +12,5 @@ include(parser/parser.pri)
 
 HEADERS += coreutils.h
 SOURCES += coreutils.cpp
+
+include(../word-prediction.pri)

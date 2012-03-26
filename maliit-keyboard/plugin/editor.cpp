@@ -34,6 +34,7 @@
 
 #include <QtGui/QKeyEvent>
 #include <QTimer>
+#include <maliit/namespace.h>
 
 namespace MaliitKeyboard {
 
@@ -58,7 +59,7 @@ void Editor::sendPreeditString(const QString &preedit)
                    << "Host not set, ignoring.";
     }
 
-    m_host->sendPreeditString(preedit, QList<MInputMethod::PreeditTextFormat>());
+    m_host->sendPreeditString(preedit, QList<Maliit::PreeditTextFormat>());
 }
 
 void Editor::sendCommitString(const QString &commit)

@@ -15,3 +15,4 @@ HEADERS += \
 SOURCES += \
     main.cpp \
 
+include(../../word-prediction.pri)
