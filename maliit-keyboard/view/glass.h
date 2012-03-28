@@ -79,6 +79,10 @@ public:
     Q_SIGNAL void wordCandidateReleased(const WordCandidate &candidate,
                                         const SharedLayout &layout);
 
+    // KeyArea signals:
+    Q_SIGNAL void keyAreaPressed(Layout::Panel panel, const SharedLayout &layout);
+    Q_SIGNAL void keyAreaReleased(Layout::Panel panel, const SharedLayout &layout);
+
     Q_SIGNAL void switchLeft(const SharedLayout &layout);
     Q_SIGNAL void switchRight(const SharedLayout &layout);
     Q_SIGNAL void keyboardClosed();
