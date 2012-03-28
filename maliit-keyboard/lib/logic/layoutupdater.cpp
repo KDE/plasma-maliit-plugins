@@ -201,6 +201,7 @@ public:
     DeadkeyMachine deadkey_machine;
     QPoint anchor;
     SharedStyle style;
+    Layout::Panel close_extended_on_release;
 
     explicit LayoutUpdaterPrivate()
         : initialized(false)
@@ -211,6 +212,7 @@ public:
         , deadkey_machine()
         , anchor()
         , style()
+        , close_extended_on_release(Layout::NumPanels) // NumPanels counts as invalid panel.
     {}
 
     bool inShiftedState() const
@@ -445,6 +447,36 @@ void LayoutUpdater::onKeyReleased(const Key &key,
     }
 
     Q_EMIT keysChanged(layout);
+}
+
+void LayoutUpdater::onKeyAreaPressed(Layout::Panel panel, const SharedLayout &layout)
+{
+    Q_D(LayoutUpdater);
+
+    if (d->layout != layout) {
+        return;
+    }
+
+    if (d->layout->activePanel() == Layout::ExtendedPanel && panel != Layout::ExtendedPanel) {
+        d->close_extended_on_release = panel;
+    }
+}
+
+void LayoutUpdater::onKeyAreaReleased(Layout::Panel panel, const SharedLayout &layout)
+{
+    Q_D(LayoutUpdater);
+
+    if (d->layout != layout) {
+        return;
+    }
+
+    if (d->close_extended_on_release == panel) {
+        d->layout->setExtendedPanel(KeyArea());
+        d->layout->setActivePanel(Layout::CenterPanel);
+        Q_EMIT layoutChanged(d->layout);
+    }
+
+    d->close_extended_on_release = Layout::NumPanels;
 }
 
 void LayoutUpdater::onKeyEntered(const Key &key,
