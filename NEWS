@@ -1,3 +1,12 @@
+0.90.1
+======
+
+CHANGES SINCE 0.90.0
+* Improved build
+  - Uses qmake "features" instead of pkg-config to find framework
+  - Utilities are installed with the same prefix as the framework
+    unless overridden at configuration
+
 0.90.0
 ======
 
