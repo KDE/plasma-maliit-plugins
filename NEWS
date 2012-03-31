@@ -1,11 +1,22 @@
-0.90.1
+0.91.0
 ======
 
 CHANGES SINCE 0.90.0
-* Improved build
+* Improved build:
   - Uses qmake "features" instead of pkg-config to find framework
   - Utilities are installed with the same prefix as the framework
     unless overridden at configuration
+* Added Estonian language layout.
+* Added a "close" action to be used by keys in language layouts:
+  - <key><binding action="close" [label="…"]/></key>
+  - If tapped by user, this key will close virtual keyboard. Can be used in
+    parallel to swipe-to-close gesture.
+
+BUG FIXES
+* Fix Windows-specific library prefixes and suffixes
+* Fix include order of static libs for tests, maliit-keyboard-viewer and
+  maliit-keyboard-plugin
+* Fixed padding value handling for right margin.
 
 0.90.0
 ======
@@ -13,10 +24,10 @@ CHANGES SINCE 0.90.0
 CHANGES SINCE 0.81.3
 * Add auto-repeat for backspace (maliit-keyboard only).
 * Add rotation support to maliit-keyboard-viewer.
-  * This makes it easier to test language layouts in landscape and portrait
+  - This makes it easier to test language layouts in landscape and portrait
     mode, without requiring a running maliit-server.
 * Add support for close button in language layouts.
-  * Layouts can now use a special key that will close the keyboard when
+  - Layouts can now use a special key that will close the keyboard when
     pressed, if action="close" is used in the key binding.
 * Add Macedonian language layout.
 
