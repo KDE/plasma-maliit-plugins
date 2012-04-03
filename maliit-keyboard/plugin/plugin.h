@@ -37,10 +37,10 @@
 #include <QtGui>
 
 class MaliitKeyboardPlugin
-    : public QObject, public MInputMethodPlugin
+    : public QObject, public Maliit::Plugins::InputMethodPlugin
 {
     Q_OBJECT
-    Q_INTERFACES(MInputMethodPlugin)
+    Q_INTERFACES(Maliit::Plugins::InputMethodPlugin)
 
 public:
     explicit MaliitKeyboardPlugin(QObject *parent = 0);

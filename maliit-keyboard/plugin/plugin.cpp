@@ -34,7 +34,7 @@
 
 MaliitKeyboardPlugin::MaliitKeyboardPlugin(QObject *parent)
     : QObject(parent)
-    , MInputMethodPlugin()
+    , Maliit::Plugins::InputMethodPlugin()
 {}
 
 QString MaliitKeyboardPlugin::name() const
