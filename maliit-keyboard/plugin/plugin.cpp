@@ -42,14 +42,6 @@ QString MaliitKeyboardPlugin::name() const
     return QString("Maliit Keyboard");
 }
 
-QStringList MaliitKeyboardPlugin::languages() const
-{
-    QStringList list;
-    list.append("en");
-
-    return list;
-}
-
 MAbstractInputMethod * MaliitKeyboardPlugin::createInputMethod(MAbstractInputMethodHost *host,
                                                                QWidget *window)
 {

@@ -47,7 +47,6 @@ public:
 
     //! \reimpl
     virtual QString name() const;
-    virtual QStringList languages() const;
     virtual MAbstractInputMethod * createInputMethod(MAbstractInputMethodHost *host,
                                                      QWidget *window);
     virtual QSet<Maliit::HandlerState> supportedStates() const;
