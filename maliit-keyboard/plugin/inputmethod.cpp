@@ -40,7 +40,7 @@
 #include "models/layout.h"
 #include "models/wordribbon.h"
 
-#include <mimsubviewdescription.h>
+#include <maliit/plugins/subviewdescription.h>
 #include <QApplication>
 #include <QWidget>
 #include <QDesktopWidget>

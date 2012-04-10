@@ -34,7 +34,7 @@
 
 #include "models/key.h"
 
-#include <mabstractinputmethodhost.h>
+#include <maliit/plugins/abstractinputmethodhost.h>
 #include <QtCore>
 
 namespace MaliitKeyboard {

@@ -32,8 +32,8 @@
 #ifndef MALIIT_KEYBOARD_INPUTMETHOD_H
 #define MALIIT_KEYBOARD_INPUTMETHOD_H
 
-#include <mabstractinputmethod.h>
-#include <mabstractinputmethodhost.h>
+#include <maliit/plugins/abstractinputmethod.h>
+#include <maliit/plugins/abstractinputmethodhost.h>
 #include <QtGui>
 
 namespace MaliitKeyboard {

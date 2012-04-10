@@ -32,7 +32,7 @@
 #ifndef MALIIT_KEYBOARD_PLUGIN_H
 #define MALIIT_KEYBOARD_PLUGIN_H
 
-#include <minputmethodplugin.h>
+#include <maliit/plugins/inputmethodplugin.h>
 #include <QtCore>
 #include <QtGui>
 

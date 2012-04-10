@@ -32,8 +32,8 @@
 #ifndef INPUTMETHODHOSTPROBE_H
 #define INPUTMETHODHOSTPROBE_H
 
-#include <mabstractinputmethodhost.h>
-#include <mimplugindescription.h>
+#include <maliit/plugins/abstractinputmethodhost.h>
+#include <maliit/plugins/plugindescription.h>
 
 #include <QKeyEvent>
 
