@@ -42,6 +42,12 @@
 #include <QGLWidget>
 #endif
 
+#include <maliit/plugins/abstractwidgetssurface.h>
+
+using Maliit::Plugins::AbstractGraphicsViewSurface;
+using Maliit::Plugins::AbstractSurface;
+using Maliit::Plugins::AbstractSurfaceFactory;
+
 namespace MaliitKeyboard {
 
 namespace {
@@ -119,6 +125,7 @@ public:
     }
 
     void show(QGraphicsItem *root,
+              QGraphicsItem *extendedRoot,
               QRegion *region)
     {
         if (layout.isNull() || not region) {
@@ -133,7 +140,7 @@ public:
         }
 
         if (not extended_item) {
-            extended_item = new KeyAreaItem(root);
+            extended_item = new KeyAreaItem(extendedRoot);
             extended_item->setZValue(ExtendedPanelZIndex);
         }
 
@@ -148,7 +155,7 @@ public:
         center_item->show();
         *region |= QRegion(mapToScreenCoordinates(layout->centerPanelGeometry(), layout->orientation()));
 
-        extended_item->setParentItem(root);
+        extended_item->setParentItem(extendedRoot);
         extended_item->setKeyArea(layout->extendedPanel(), layout->extendedPanelGeometry());
         extended_item->update();
 
@@ -286,22 +293,21 @@ void recycleKeyItem(QVector<KeyItem *> *key_items,
 class RendererPrivate
 {
 public:
-    QWidget *window;
-    QScopedPointer<QGraphicsView> view;
-    AbstractBackgroundBuffer *buffer;
+    Maliit::Plugins::AbstractSurfaceFactory *factory;
+    QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> surface;
+    QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> extendedSurface;
     QRegion region;
     QVector<LayoutItem> layout_items;
     QVector<KeyItem *> key_items;
-    RootItem *root;
+    QVector<KeyItem *> extended_key_items;
 
     explicit RendererPrivate()
-        : window(0)
-        , view(0)
-        , buffer(0)
+        : factory(0)
+        , surface()
         , region()
         , layout_items()
         , key_items()
-        , root(0)
+        , extended_key_items()
     {}
 };
 
@@ -313,14 +319,13 @@ Renderer::Renderer(QObject *parent)
 Renderer::~Renderer()
 {}
 
-void Renderer::setWindow(QWidget *window,
-                         AbstractBackgroundBuffer *buffer)
+void Renderer::setSurfaceFactory(AbstractSurfaceFactory *factory)
 {
     Q_D(Renderer);
-    d->window = window;
+    d->factory = factory;
 
-    d->buffer = buffer;
-    d->view.reset(createView(d->window, d->buffer));
+    d->surface = qSharedPointerDynamicCast<AbstractGraphicsViewSurface>(factory->create(AbstractSurface::PositionCenterBottom | AbstractSurface::TypeGraphicsView));
+    d->extendedSurface = qSharedPointerDynamicCast<AbstractGraphicsViewSurface>(factory->create(AbstractSurface::PositionOverlay | AbstractSurface::TypeGraphicsView, d->surface));
 }
 
 QRegion Renderer::region() const
@@ -332,7 +337,9 @@ QRegion Renderer::region() const
 QWidget * Renderer::viewport() const
 {
     Q_D(const Renderer);
-    return d->view->viewport();
+    if (d->surface)
+        return d->surface->view()->viewport();
+    return 0;
 }
 
 void Renderer::addLayout(const SharedLayout &layout)
@@ -350,28 +357,26 @@ void Renderer::clearLayouts()
 
     d->layout_items.clear();
     d->key_items.clear();
-    d->root = 0;
-    d->view->scene()->clear();
+    d->extended_key_items.clear();
+    d->surface->clear();
+    d->extendedSurface->clear();
 }
 
 void Renderer::show()
 {
     Q_D(Renderer);
 
-    const QRect &rect(d->view->rect());
+    d->surface->show();
 
-    if (not d->root) {
-        d->view->scene()->addItem(d->root = new RootItem);
-        d->root->setRect(rect);
-        d->root->show();
-    }
-
-    if (not d->view || d->layout_items.isEmpty()) {
+    if (not d->surface->view() || d->layout_items.isEmpty()) {
         qCritical() << __PRETTY_FUNCTION__
                     << "No view or no layouts exists, aborting!";
     }
 
     Q_FOREACH (QGraphicsItem *key_item, d->key_items) {
+        key_item->hide();
+    }
+    Q_FOREACH (QGraphicsItem *key_item, d->extended_key_items) {
         key_item->hide();
     }
 
@@ -385,26 +390,17 @@ void Renderer::show()
             orientation = li.layout->orientation(); // last layout wins ...
         }
 
-        li.show(d->root, &d->region);
+        li.show(d->surface->root(), d->extendedSurface->root(), &d->region);
+        d->surface->setSize(QSize(li.layout->centerPanelGeometry().width(), li.layout->centerPanelGeometry().height() + li.layout->wordRibbonGeometry().height()));
+        if (li.layout->activePanel() != Layout::ExtendedPanel) {
+            d->extendedSurface->hide();
+        } else {
+            d->extendedSurface->setSize(li.layout->extendedPanelGeometry().size());
+            d->extendedSurface->setRelativePosition(li.layout->extendedPanelGeometry().bottomLeft());
+            d->extendedSurface->show();
+        }
     }
 
-
-    switch (orientation) {
-    case Layout::Landscape:
-        d->root->setRect(rect);
-        d->root->setRotation(0);
-        d->root->setPos(0, 0);
-        break;
-
-    case Layout::Portrait:
-        d->root->setRect(QRectF(rect.x(), rect.y(), rect.height(), rect.width()));
-        d->root->setRotation(-90);
-        d->root->setPos(0, rect.height());
-        break;
-    }
-
-    d->view->show();
-    d->view->raise();
     Q_EMIT regionChanged(d->region);
 }
 
@@ -416,7 +412,8 @@ void Renderer::hide()
         li.hide();
     }
 
-    d->view->hide();
+    d->surface->hide();
+    d->extendedSurface->hide();
     d->region = QRegion();
     Q_EMIT regionChanged(d->region);
 }
@@ -453,24 +450,26 @@ void Renderer::onKeysChanged(const SharedLayout &layout)
         }
     }
 
+    QVector<KeyItem *> *key_items = layout->activePanel() == Layout::ExtendedPanel ? &d->extended_key_items : &d->key_items;
+
     int index = 0;
     // Found the KeyAreaItem, which means layout is known by the renderer, too.
     if (parent) {
         const QVector<Key> &active_keys(layout->activeKeys());
 
         for (; index < active_keys.count(); ++index) {
-            recycleKeyItem(&d->key_items, index, active_keys.at(index), parent);
+            recycleKeyItem(key_items, index, active_keys.at(index), parent);
         }
 
         if (layout->magnifierKey().valid()) {
-            recycleKeyItem(&d->key_items, index, layout->magnifierKey(), parent);
+            recycleKeyItem(key_items, index, layout->magnifierKey(), parent);
             ++index;
         }
     }
 
     // Hide remaining, currently unneeded key items:
-    for (; index < d->key_items.count(); ++index) {
-        d->key_items.at(index)->hide();
+    for (; index < key_items->count(); ++index) {
+        key_items->at(index)->hide();
     }
 }
 

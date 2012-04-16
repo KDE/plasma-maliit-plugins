@@ -41,6 +41,8 @@
 #include <QtWidgets>
 #endif
 
+#include <maliit/plugins/abstractsurfacefactory.h>
+
 namespace MaliitKeyboard {
 
 class RendererPrivate;
@@ -56,8 +58,7 @@ public:
     explicit Renderer(QObject *parent = 0);
     virtual ~Renderer();
 
-    void setWindow(QWidget *window,
-                   AbstractBackgroundBuffer *buffer = 0);
+    void setSurfaceFactory(Maliit::Plugins::AbstractSurfaceFactory *factory);
 
     QRegion region() const;
     Q_SIGNAL void regionChanged(const QRegion &region);

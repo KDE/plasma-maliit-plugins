@@ -84,20 +84,14 @@ public:
     LayoutUpdater layout_updater;
     Editor editor;
 
-    explicit InputMethodPrivate(MAbstractInputMethodHost *host,
-                                QWidget *new_window)
-        : window(new_window)
-        , buffer(host)
+    explicit InputMethodPrivate(MAbstractInputMethodHost *host)
+        : buffer(host)
         , renderer()
         , glass()
         , layout_updater()
         , editor()
     {
-        if (qApp && qApp->desktop()) {
-            window->resize(qApp->desktop()->screenGeometry().size());
-        }
-
-        renderer.setWindow(window, &buffer);
+        renderer.setSurfaceFactory(host->surfaceFactory());
         glass.setWindow(renderer.viewport());
         editor.setHost(host);
 
@@ -121,10 +115,9 @@ public:
     }
 };
 
-InputMethod::InputMethod(MAbstractInputMethodHost *host,
-                         QWidget *window)
+InputMethod::InputMethod(MAbstractInputMethodHost *host)
     : MAbstractInputMethod(host)
-    , d_ptr(new InputMethodPrivate(host, window))
+    , d_ptr(new InputMethodPrivate(host))
 {
     Q_D(InputMethod);
 

@@ -313,24 +313,6 @@ KeyArea Layout::lookup(Panel panel) const
 
 QPoint Layout::origin() const
 {
-    const QSize size(m_orientation == Landscape ? m_screen_size
-                                                : QSize(m_screen_size.height(), m_screen_size.width()));
-    const QSize &center_size(m_center.area().size());
-
-
-    switch(m_alignment) {
-    case Top:
-        return QPoint(size.width() / 2 - center_size.width() / 2, 0);
-
-    case Bottom:
-        return QPoint(size.width() / 2 - center_size.width() / 2,
-                      size.height() - center_size.height() - m_ribbon.area().size().height());
-    default:
-        break;
-    }
-
-    qCritical() << __PRETTY_FUNCTION__
-                << "Should not be reached, invalid alignment:" << m_alignment;
     return QPoint();
 }
 

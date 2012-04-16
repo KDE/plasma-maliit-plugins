@@ -88,6 +88,7 @@ public:
     void setSelection(int, int) {}
     void setOrientationAngleLocked(bool) {}
     QList<MImPluginDescription> pluginDescriptions(Maliit::HandlerState) const {return QList<MImPluginDescription>();}
+    Maliit::Plugins::AbstractSurfaceFactory* surfaceFactory() { return 0; }
 };
 
 #endif // INPUTMETHODHOSTPROBE_H

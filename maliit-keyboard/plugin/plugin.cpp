@@ -43,9 +43,9 @@ QString MaliitKeyboardPlugin::name() const
 }
 
 MAbstractInputMethod * MaliitKeyboardPlugin::createInputMethod(MAbstractInputMethodHost *host,
-                                                               QWidget *window)
+                                                               QWidget *)
 {
-    return new MaliitKeyboard::InputMethod(host, window);
+    return new MaliitKeyboard::InputMethod(host);
 }
 
 QSet<Maliit::HandlerState> MaliitKeyboardPlugin::supportedStates() const

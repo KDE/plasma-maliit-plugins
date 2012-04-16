@@ -79,7 +79,7 @@ int main(int argc,
     dashboard->show();
 
     MaliitKeyboard::Renderer renderer;
-    renderer.setWindow(dashboard);
+//    renderer.setSurfaceFactory(dashboard);
     dashboard->setRenderer(&renderer);
 
     MaliitKeyboard::Glass glass;

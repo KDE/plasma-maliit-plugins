@@ -48,9 +48,7 @@ class InputMethod
     Q_DECLARE_PRIVATE(InputMethod)
 
 public:
-    explicit InputMethod(MAbstractInputMethodHost *host,
-                         QWidget *window);
-
+    explicit InputMethod(MAbstractInputMethodHost *host);
     virtual ~InputMethod();
 
     //! \reimp
