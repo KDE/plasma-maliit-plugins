@@ -42,8 +42,7 @@ QString MaliitKeyboardPlugin::name() const
     return QString("Maliit Keyboard");
 }
 
-MAbstractInputMethod * MaliitKeyboardPlugin::createInputMethod(MAbstractInputMethodHost *host,
-                                                               QWidget *)
+MAbstractInputMethod * MaliitKeyboardPlugin::createInputMethod(MAbstractInputMethodHost *host)
 {
     return new MaliitKeyboard::InputMethod(host);
 }
