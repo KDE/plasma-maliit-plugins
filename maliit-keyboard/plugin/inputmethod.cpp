@@ -123,7 +123,7 @@ public:
 
 InputMethod::InputMethod(MAbstractInputMethodHost *host,
                          QWidget *window)
-    : MAbstractInputMethod(host, window)
+    : MAbstractInputMethod(host)
     , d_ptr(new InputMethodPrivate(host, window))
 {
     Q_D(InputMethod);
