@@ -381,14 +381,9 @@ void Renderer::show()
     }
 
     d->region = QRegion();
-    Layout::Orientation orientation = Layout::Landscape;
 
     for (int index = 0; index < d->layout_items.count(); ++index) {
         LayoutItem &li(d->layout_items[index]);
-
-        if (li.layout) {
-            orientation = li.layout->orientation(); // last layout wins ...
-        }
 
         li.show(d->surface->root(), d->extendedSurface->root(), &d->region);
         d->surface->setSize(QSize(li.layout->centerPanelGeometry().width(), li.layout->centerPanelGeometry().height() + li.layout->wordRibbonGeometry().height()));
