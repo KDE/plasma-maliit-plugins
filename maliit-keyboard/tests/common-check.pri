@@ -8,7 +8,9 @@ qws {
     test_arguments += -qws
 }
 
-DATA_DIR = $$OUT_PWD/../../data
+# Note that if datafiles are generated they would end out in
+# $$OUT_PWD and this would fail
+DATA_DIR = $$IN_PWD/../data
 
 check.commands = \
     MALIIT_PLUGINS_DATADIR=$$DATA_DIR \
