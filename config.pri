@@ -21,6 +21,10 @@ isEmpty(LIBDIR) {
    LIBDIR = $$PREFIX/lib
 }
 
+contains(QT_CONFIG, embedded) {
+    CONFIG += qws
+}
+
 INSTALL_BIN = $$PREFIX/bin
 INSTALL_LIBS = $$LIBDIR
 INSTALL_HEADERS = $$PREFIX/include
