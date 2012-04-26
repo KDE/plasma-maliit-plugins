@@ -132,6 +132,7 @@ public:
     KeyArea extendedPanel() const;
     void setExtendedPanel(const KeyArea &extended);
     QRect extendedPanelGeometry() const;
+    QPoint extendedPanelOrigin() const;
 
     WordRibbon wordRibbon() const;
     void setWordRibbon(const WordRibbon &ribbon);
