@@ -114,10 +114,27 @@ void Glass::setWindow(QWidget *window)
 {
     Q_D(Glass);
 
+    if (not window) {
+        qCritical() << __PRETTY_FUNCTION__
+                    << "No window given";
+        return;
+    }
+
     d->window = window;
     clearLayouts();
 
     d->window->installEventFilter(this);
+}
+
+void Glass::addExtendedWindow(QWidget *window)
+{
+    if (not window) {
+        qCritical() << __PRETTY_FUNCTION__
+                    << "No window given";
+        return;
+    }
+
+    window->installEventFilter(this);
 }
 
 void Glass::addLayout(const SharedLayout &layout)
