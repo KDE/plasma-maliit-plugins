@@ -60,6 +60,9 @@ class GlassPrivate
 {
 public:
     QWidget *window;
+    QWidget *extendedWindow;
+    QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> surface;
+    QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> extendedSurface;
     QVector<SharedLayout> layouts;
     QVector<Key> active_keys;
     WordCandidate active_candidate;
@@ -72,6 +75,9 @@ public:
 
     explicit GlassPrivate()
         : window(0)
+        , extendedWindow(0)
+        , surface()
+        , extendedSurface()
         , layouts()
         , active_keys()
         , active_candidate()
@@ -99,9 +105,11 @@ Glass::Glass(QObject *parent)
 Glass::~Glass()
 {}
 
-void Glass::setWindow(QWidget *window)
+void Glass::setSurface(const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> &surface)
 {
     Q_D(Glass);
+
+    QWidget *window = surface ? surface->view()->viewport() : 0;
 
     if (not window) {
         qCritical() << __PRETTY_FUNCTION__
@@ -109,19 +117,27 @@ void Glass::setWindow(QWidget *window)
         return;
     }
 
+    d->surface = surface;
     d->window = window;
     clearLayouts();
 
     d->window->installEventFilter(this);
 }
 
-void Glass::addExtendedWindow(QWidget *window)
+void Glass::setExtendedSurface(const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> &surface)
 {
+    Q_D(Glass);
+
+    QWidget *window = surface ? surface->view()->viewport() : 0;
+
     if (not window) {
         qCritical() << __PRETTY_FUNCTION__
                     << "No window given";
         return;
     }
+
+    d->extendedSurface = surface;
+    d->extendedWindow = window;
 
     window->installEventFilter(this);
 }
@@ -148,6 +164,8 @@ bool Glass::eventFilter(QObject *obj,
         return false;
     }
 
+    const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> &eventSurface(obj == d->extendedWindow ? d->extendedSurface : d->surface);
+
     switch(ev->type()) {
     case QEvent::Paint: {
         if (measure_fps) {
@@ -169,7 +187,7 @@ bool Glass::eventFilter(QObject *obj,
         d->gesture_timer.restart();
         d->gesture_triggered = false;
 
-        return handlePressReleaseEvent(ev);
+        return handlePressReleaseEvent(ev, eventSurface);
 
     case QKeyEvent::MouseButtonRelease:
         d->long_press_timer.stop();
@@ -178,7 +196,7 @@ bool Glass::eventFilter(QObject *obj,
             return false;
         }
 
-        return handlePressReleaseEvent(ev);
+        return handlePressReleaseEvent(ev, eventSurface);
 
     case QKeyEvent::MouseMove: {
         if (d->gesture_triggered) {
@@ -189,14 +207,13 @@ bool Glass::eventFilter(QObject *obj,
         ev->accept();
 
         Q_FOREACH (const SharedLayout &layout, d->layouts) {
-            const QPoint &pos(layout->orientation() == Layout::Landscape
-                              ? qme->pos() : QPoint(d->window->height() - qme->pos().y(), qme->pos().x()));
-            const QPoint &last_pos(layout->orientation() == Layout::Landscape
-                                   ? d->last_pos : QPoint(d->window->height() - d->last_pos.y(), d->last_pos.x()));
+            const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> targetSurface(layout->activePanel() == Layout::ExtendedPanel ? d->extendedSurface : d->surface);
+
+            const QPoint &pos(targetSurface->translateEventPosition(qme->pos(), eventSurface));
+            const QPoint &last_pos(targetSurface->translateEventPosition(d->last_pos, eventSurface));
             d->last_pos = qme->pos();
 
-            const QPoint &press_pos(layout->orientation() == Layout::Landscape
-                                    ? d->press_pos : QPoint(d->window->height() - d->press_pos.y(), d->press_pos.x()));
+            const QPoint &press_pos(targetSurface->translateEventPosition(d->press_pos, eventSurface));
 
             const QRect &rect(layout->activeKeyAreaGeometry());
 
@@ -280,7 +297,7 @@ void Glass::onLongPressTriggered()
     d->active_keys.clear();
 }
 
-bool Glass::handlePressReleaseEvent(QEvent *ev)
+bool Glass::handlePressReleaseEvent(QEvent *ev, const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> &eventSurface)
 {
     if (not ev) {
         return false;
@@ -295,8 +312,9 @@ bool Glass::handlePressReleaseEvent(QEvent *ev)
     ev->accept();
 
     Q_FOREACH (const SharedLayout &layout, d->layouts) {
-        const QPoint &pos(layout->orientation() == Layout::Landscape
-                          ? qme->pos() : QPoint(d->window->height() - qme->pos().y(), qme->pos().x()));
+        const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> targetSurface(layout->activePanel() == Layout::ExtendedPanel ? d->extendedSurface : d->surface);
+
+        const QPoint &pos(targetSurface->translateEventPosition(qme->pos(), eventSurface));
 
         switch (qme->type()) {
         case QKeyEvent::MouseButtonPress: {

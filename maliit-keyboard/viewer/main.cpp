@@ -84,7 +84,7 @@ int main(int argc,
     dashboard->setRenderer(&renderer);
 
     MaliitKeyboard::Glass glass;
-    glass.setWindow(renderer.viewport());
+//    glass.setWindow(renderer.viewport());
 
     // One layout updater can only manage one layout. If more layouts need to
     // be managed, then more layout updaters are required.

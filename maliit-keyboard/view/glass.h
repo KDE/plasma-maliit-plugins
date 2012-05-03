@@ -38,6 +38,8 @@
 
 #include <QtGui>
 
+#include <maliit/plugins/abstractwidgetssurface.h>
+
 namespace MaliitKeyboard {
 
 class GlassPrivate;
@@ -53,8 +55,8 @@ public:
     explicit Glass(QObject *parent = 0);
     virtual ~Glass();
 
-    void setWindow(QWidget *window);
-    void addExtendedWindow(QWidget *window);
+    void setSurface(const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> &surface);
+    void setExtendedSurface(const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> &surface);
 
     void addLayout(const SharedLayout &layout);
     void clearLayouts();
@@ -89,7 +91,7 @@ protected:
 
 private:
     Q_SLOT void onLongPressTriggered();
-    bool handlePressReleaseEvent(QEvent *ev);
+    bool handlePressReleaseEvent(QEvent *ev, const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> &eventSurface);
 
     const QScopedPointer<GlassPrivate> d_ptr;
 };

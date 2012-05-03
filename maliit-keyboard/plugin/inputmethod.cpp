@@ -98,8 +98,8 @@ public:
         , word_engine()
     {
         renderer.setSurfaceFactory(host->surfaceFactory());
-        glass.setWindow(renderer.viewport());
-        glass.addExtendedWindow(renderer.extendedViewport());
+        glass.setSurface(renderer.surface());
+        glass.setExtendedSurface(renderer.extendedSurface());
         editor.setHost(host);
 
         WordRibbon ribbon;

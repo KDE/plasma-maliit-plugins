@@ -346,16 +346,18 @@ QRegion Renderer::region() const
     return d->region;
 }
 
-QWidget * Renderer::viewport() const
+const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> Renderer::surface() const
 {
     Q_D(const Renderer);
-    return (d->surface.isNull() ? 0 : d->surface->view()->viewport());
+
+    return d->surface;
 }
 
-QWidget * Renderer::extendedViewport() const
+const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> Renderer::extendedSurface() const
 {
     Q_D(const Renderer);
-    return (d->extended_surface.isNull() ? 0 : d->extended_surface->view()->viewport());
+
+    return d->extended_surface;
 }
 
 void Renderer::addLayout(const SharedLayout &layout)

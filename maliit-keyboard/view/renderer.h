@@ -44,6 +44,7 @@
 // FIXME: Remove maliit-plugins dependency from renderer, because otherwise
 // maliit-keyboard-viewer can't be used w/o the Maliit framework.
 #include <maliit/plugins/abstractsurfacefactory.h>
+#include <maliit/plugins/abstractwidgetssurface.h>
 
 namespace MaliitKeyboard {
 
@@ -68,8 +69,8 @@ public:
     QRegion region() const;
     Q_SIGNAL void regionChanged(const QRegion &region);
 
-    QWidget * viewport() const;
-    QWidget * extendedViewport() const;
+    const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> surface() const;
+    const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> extendedSurface() const;
 
     void addLayout(const SharedLayout &layout);
     void clearLayouts();
