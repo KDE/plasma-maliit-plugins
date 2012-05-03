@@ -58,19 +58,6 @@ const qreal ExtendedPanelZIndex = 20.0f;
 
 const qreal ActiveKeyZIndex = 0.0f;
 
-QRect mapToScreenCoordinates(const QRectF &rect,
-                             Layout::Orientation o)
-{
-    switch (o) {
-    case Layout::Landscape:
-        return rect.toRect();
-    case Layout::Portrait:
-        return QRect(rect.y(), rect.x(), rect.height(), rect.width());
-    }
-
-    return QRect();
-}
-
 class LayoutItem {
 public:
     SharedLayout layout;
@@ -153,7 +140,6 @@ public:
         center_item->setKeyArea(layout->centerPanel(), layout->centerPanelGeometry());
         center_item->update();
         center_item->show();
-        *region |= QRegion(mapToScreenCoordinates(layout->centerPanelGeometry(), layout->orientation()));
 
         extended_item->setParentItem(extended_root);
         extended_item->setKeyArea(layout->extendedPanel(), layout->extendedPanelGeometry());
@@ -163,13 +149,11 @@ public:
         ribbon_item->setWordRibbon(layout->wordRibbon(), layout->wordRibbonGeometry());
         ribbon_item->update();
         ribbon_item->show();
-        *region |= QRegion(mapToScreenCoordinates(layout->wordRibbonGeometry(), layout->orientation()));
 
         if (layout->activePanel() != Layout::ExtendedPanel) {
             extended_item->hide();
         } else {
             extended_item->show();
-            *region |= QRegion(mapToScreenCoordinates(layout->extendedPanelGeometry(), layout->orientation()));
         }
 
         root->show();
