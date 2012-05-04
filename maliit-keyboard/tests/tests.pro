@@ -6,7 +6,7 @@ SUBDIRS = \
     repeat-backspace \
 
 language-layout-switching.depends = common
-commit-string.depends = common
+preedit-string.depends = common
 repeat-backspace.depends = common
 
 QMAKE_EXTRA_TARGETS += check
