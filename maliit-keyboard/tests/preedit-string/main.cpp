@@ -206,7 +206,11 @@ private:
 
     Q_SLOT void test()
     {
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
         QSKIP("TODO: Glass::setSurface needs to be used.", SkipAll);
+#else
+        QSKIP("TODO: Glass::setSurface needs to be used.");
+#endif
 
         QFETCH(Layout::Orientation, orientation);
         QFETCH(QList<QMouseEvent*>, mouse_events);
