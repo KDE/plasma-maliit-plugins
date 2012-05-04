@@ -280,19 +280,23 @@ public:
     Maliit::Plugins::AbstractSurfaceFactory *factory;
     QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> surface;
     QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> extended_surface;
+    QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> magnifier_surface;
     QRegion region;
     QVector<LayoutItem> layout_items;
     QVector<KeyItem *> key_items;
     QVector<KeyItem *> extended_key_items;
+    QVector<KeyItem *> magnifier_key_items;
 
     explicit RendererPrivate()
         : factory(0)
         , surface()
         , extended_surface()
+        , magnifier_surface()
         , region()
         , layout_items()
         , key_items()
         , extended_key_items()
+        , magnifier_key_items()
     {}
 };
 
@@ -314,6 +318,7 @@ void Renderer::setSurfaceFactory(AbstractSurfaceFactory *factory)
         // Drop references => shared surface instances are eventually deleted:
         d->surface.clear();
         d->extended_surface.clear();
+        d->magnifier_surface.clear();
         return;
     }
 
@@ -321,6 +326,9 @@ void Renderer::setSurfaceFactory(AbstractSurfaceFactory *factory)
         factory->create(AbstractSurface::PositionCenterBottom | AbstractSurface::TypeGraphicsView));
 
     d->extended_surface = qSharedPointerDynamicCast<AbstractGraphicsViewSurface>(
+        factory->create(AbstractSurface::PositionOverlay | AbstractSurface::TypeGraphicsView, d->surface));
+
+    d->magnifier_surface = qSharedPointerDynamicCast<AbstractGraphicsViewSurface>(
         factory->create(AbstractSurface::PositionOverlay | AbstractSurface::TypeGraphicsView, d->surface));
 }
 
@@ -360,8 +368,10 @@ void Renderer::clearLayouts()
     d->layout_items.clear();
     d->key_items.clear();
     d->extended_key_items.clear();
+    d->magnifier_key_items.clear();
     d->surface->clear();
     d->extended_surface->clear();
+    d->magnifier_surface->clear();
 }
 
 void Renderer::show()
@@ -379,6 +389,9 @@ void Renderer::show()
         key_item->hide();
     }
     Q_FOREACH (QGraphicsItem *key_item, d->extended_key_items) {
+        key_item->hide();
+    }
+    Q_FOREACH (QGraphicsItem *key_item, d->magnifier_key_items) {
         key_item->hide();
     }
 
@@ -412,6 +425,7 @@ void Renderer::hide()
 
     d->surface->hide();
     d->extended_surface->hide();
+    d->magnifier_surface->hide();
     d->region = QRegion();
     Q_EMIT regionChanged(d->region);
 }
@@ -451,6 +465,7 @@ void Renderer::onKeysChanged(const SharedLayout &layout)
     QVector<KeyItem *> *key_items = layout->activePanel() == Layout::ExtendedPanel ? &d->extended_key_items : &d->key_items;
 
     int index = 0;
+    int magnifier_index = 0;
     // Found the KeyAreaItem, which means layout is known by the renderer, too.
     if (parent) {
         const QVector<Key> &active_keys(layout->activeKeys());
@@ -459,9 +474,13 @@ void Renderer::onKeysChanged(const SharedLayout &layout)
             recycleKeyItem(key_items, index, active_keys.at(index), parent);
         }
 
+        d->magnifier_surface->hide();
         if (layout->magnifierKey().valid()) {
-            recycleKeyItem(key_items, index, layout->magnifierKey(), parent);
-            ++index;
+            d->magnifier_surface->setSize(layout->magnifierKey().area().size());
+            d->magnifier_surface->setRelativePosition(layout->magnifierKeyOrigin());
+            d->magnifier_surface->show();
+            recycleKeyItem(&d->magnifier_key_items, magnifier_index, layout->magnifierKey(), d->magnifier_surface->root());
+            ++magnifier_index;
         }
     }
 
@@ -469,6 +488,9 @@ void Renderer::onKeysChanged(const SharedLayout &layout)
     for (; index < key_items->count(); ++index) {
         key_items->at(index)->hide();
     }
+//    for (; magnifier_index < d->magnifier_key_items.count(); ++magnifier_index) {
+//        d->magnifier_key_items.at(magnifier_index)->hide();
+//    }
 }
 
 void Renderer::onWordCandidatesChanged(const SharedLayout &layout)

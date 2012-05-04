@@ -46,6 +46,7 @@ Layout::Layout()
     , m_ribbon()
     , m_active_keys()
     , m_magnifier_key()
+    , m_magnifier_key_origin()
 {}
 
 QSize Layout::screenSize() const
@@ -291,9 +292,16 @@ Key Layout::magnifierKey() const
     return m_magnifier_key;
 }
 
+QPoint Layout::magnifierKeyOrigin() const
+{
+    return m_magnifier_key_origin;
+}
+
 void Layout::setMagnifierKey(const Key &key)
 {
     m_magnifier_key = key;
+    m_magnifier_key_origin = m_magnifier_key.origin() + panelOrigin();
+    m_magnifier_key.setOrigin(QPoint());
 }
 
 void Layout::clearMagnifierKey()

@@ -93,6 +93,7 @@ private:
     } m_active_keys;
 
     Key m_magnifier_key;
+    QPoint m_magnifier_key_origin;
 
 public:
     explicit Layout();
@@ -144,6 +145,7 @@ public:
     void removeActiveKey(const Key &key);
 
     Key magnifierKey() const;
+    QPoint magnifierKeyOrigin() const;
     void setMagnifierKey(const Key &key);
     void clearMagnifierKey();
 
