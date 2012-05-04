@@ -34,6 +34,7 @@
 #include "models/keyarea.h"
 #include "models/wordribbon.h"
 
+#include <QGraphicsView>
 #include <QWidget>
 
 namespace MaliitKeyboard {
