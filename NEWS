@@ -1,3 +1,30 @@
+0.92.0
+======
+
+CHANGES SINCE 0.91.0
+* Adapted to maliit-framework plugins API changes
+* Use new surfaces API.
+* Added word correction/prediction support
+  - Enable correction support using hunspell with CONFIG+=enable-hunspell
+  - Enable prediction support using presage with CONFIG+=enable-presage
+* Simplified tests by using QTEST_MAIN
+* Allow datadirectory for maliit-keyboard to be overriden at runtime
+
+BUG FIXES
+* MALIIT#38 - Maliit Keyboard has no word correction/prediction 
+* Fix QSKIP for Qt 5
+* Add QGraphicsView include
+* Fix test dependencies
+* Fix commit-string test
+* Fixes: Non-regular keys are valid even with empty label
+* Fix extended keys not visible when first shown
+* Fix extended keys not shown on surface
+* Fix potential crash when setting surface factory in MaliitKeyboard::Renderer
+* Fix coding style in MaliitKeyboard::Renderer implementation
+* Fix variable names in MaliitKeyboard::Renderer implementation
+* Fix failing make check in out-of-tree build
+* Remove unused orientation variable
+
 0.91.0
 ======
 
