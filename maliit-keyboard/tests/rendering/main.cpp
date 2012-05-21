@@ -34,30 +34,39 @@
 #include "view/glass.h"
 
 
-#include <maliit/plugins/abstractsurface.h>
+#include <maliit/plugins/abstractwidgetssurface.h>
 #include <maliit/plugins/abstractsurfacefactory.h>
 
 #include <QtCore>
+#include <QtGui>
 #include <QtTest>
 
 using namespace MaliitKeyboard;
 
 namespace {
 const QSize g_screen_size(200, 100);
+bool g_create_overlay_surfaces(false);
 }
 
 namespace Maliit {
 namespace Plugins {
 
 class SurfaceProbe
-    : public AbstractSurface
+    : public virtual AbstractSurface
 {
 private:
     QSize m_size;
     QPoint m_relpos;
+    QGraphicsScene *m_scene;
+    QGraphicsView *m_view;
+    QGraphicsItem *m_root;
 
 public:
-    explicit SurfaceProbe() {}
+    explicit SurfaceProbe()
+        : m_size()
+        , m_relpos()
+    {}
+
     virtual ~SurfaceProbe() {}
 
     //! \reimp
@@ -116,13 +125,76 @@ public:
         return true;
     }
 
-    virtual QSharedPointer<AbstractSurface> create(AbstractSurface::Options options,
-                                                   const QSharedPointer<AbstractSurface> &parent = QSharedPointer<AbstractSurface>())
+    QSharedPointer<AbstractSurface> create(AbstractSurface::Options options,
+                                           const QSharedPointer<AbstractSurface> &parent = QSharedPointer<AbstractSurface>())
     {
-        Q_UNUSED(options)
         Q_UNUSED(parent)
 
+        if (not g_create_overlay_surfaces
+            && (options & AbstractSurface::PositionOverlay)) {
+            return QSharedPointer<AbstractSurface>();
+        }
+
         QSharedPointer<AbstractSurface> surface(new SurfaceProbe);
+        return surface;
+    }
+};
+
+class GraphicsViewSurfaceProbe
+    : public SurfaceProbe, public AbstractGraphicsViewSurface
+{
+private:
+    QGraphicsScene *m_scene;
+    QGraphicsView *m_view;
+    QGraphicsItem *m_root;
+
+public:
+    explicit GraphicsViewSurfaceProbe()
+        : SurfaceProbe()
+        , m_scene(new QGraphicsScene)
+        , m_view(new QGraphicsView(m_scene))
+        , m_root(new QGraphicsRectItem(0, m_scene))
+    {}
+
+    virtual ~GraphicsViewSurfaceProbe() {}
+
+    QGraphicsScene * scene() const
+    {
+        return m_scene;
+    }
+
+    QGraphicsView * view() const
+    {
+        return m_view;
+    }
+
+    QGraphicsItem * root() const
+    {
+        return m_root;
+    }
+
+    void clear() {};
+};
+
+class GraphicsViewFactoryProbe
+    : public FactoryProbe
+{
+public:
+    explicit GraphicsViewFactoryProbe() {}
+    virtual ~GraphicsViewFactoryProbe() {}
+
+    //! \reimp
+    QSharedPointer<AbstractSurface> create(AbstractSurface::Options options,
+                                           const QSharedPointer<AbstractSurface> &parent = QSharedPointer<AbstractSurface>())
+    {
+        Q_UNUSED(parent)
+
+        if (not g_create_overlay_surfaces
+            && (options & AbstractSurface::PositionOverlay)) {
+            return QSharedPointer<AbstractSurface>();
+        }
+
+        QSharedPointer<AbstractSurface> surface(new GraphicsViewSurfaceProbe);
         return surface;
     }
 };
@@ -146,18 +218,35 @@ private:
         using namespace Maliit::Plugins;
         AbstractSurfaceFactory *invalid(0);
         AbstractSurfaceFactory *probe(new FactoryProbe);
+        AbstractSurfaceFactory *specialized_probe(new GraphicsViewFactoryProbe);
 
         QTest::addColumn<Maliit::Plugins::AbstractSurfaceFactory *>("factory");
+        QTest::addColumn<bool>("create_overlay_surfaces");
         QTest::addColumn<bool>("expected_surface_valid");
 
-        QTest::newRow("invalid factory") << invalid << false;
-        QTest::newRow("use factory probe") << probe << true;
+        QTest::newRow("invalid factory")
+            << invalid << false << false;
+        QTest::newRow("invalid factory (w/ overlay surfaces)")
+            << invalid << true << false;
+
+        QTest::newRow("use valid, but wrong factory probe")
+            << probe << false << false;
+        QTest::newRow("use valid, but wrong factory probe (w/ overlay surfaces)")
+            << probe << true << false;
+
+        QTest::newRow("use valid, specialized factory probe")
+            << specialized_probe << false << true;
+        QTest::newRow("use valid, specialized factory probe (w/ overlay surfaces)")
+            << specialized_probe << true << true;
     }
 
     Q_SLOT void testSurfaceFactory()
     {
         QFETCH(Maliit::Plugins::AbstractSurfaceFactory *, factory);
+        QFETCH(bool, create_overlay_surfaces);
         QFETCH(bool, expected_surface_valid);
+
+        g_create_overlay_surfaces = create_overlay_surfaces;
 
         Renderer renderer;
         renderer.setSurfaceFactory(factory);
@@ -166,8 +255,8 @@ private:
         glass.setSurface(renderer.surface());
         glass.setExtendedSurface(renderer.extendedSurface());
 
-        QCOMPARE(renderer.surface().isNull(), not expected_surface_valid);
-        QCOMPARE(renderer.extendedSurface().isNull(), not expected_surface_valid);
+        QCOMPARE(not renderer.surface().isNull(), expected_surface_valid);
+        QCOMPARE(not renderer.extendedSurface().isNull(), expected_surface_valid && create_overlay_surfaces);
 
         renderer.show();
         renderer.hide();
