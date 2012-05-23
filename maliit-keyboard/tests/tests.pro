@@ -6,10 +6,7 @@ SUBDIRS = \
     repeat-backspace \
     rendering \
 
-language-layout-switching.depends = common
-preedit-string.depends = common
-repeat-backspace.depends = common
-
+CONFIG += ordered
 QMAKE_EXTRA_TARGETS += check
 check.target = check
 check.CONFIG = recursive
