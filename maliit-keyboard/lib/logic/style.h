@@ -53,10 +53,12 @@ public:
     void setProfile(const QString &profile);
     void setStyleName(const QString &name);
 
+    QByteArray wordRibbonBackground() const;
     QByteArray keyAreaBackground() const;
     QByteArray keyBackground(KeyDescription::Style style,
                              KeyDescription::State state) const;
 
+    QMargins wordRibbonBackgroundBorders() const;
     QMargins keyAreaBackgroundBorders() const;
     QMargins keyBackgroundBorders() const;
 
@@ -66,6 +68,7 @@ public:
     QByteArray fontName(const QByteArray &group_id = QByteArray()) const;
     qreal fontSize(const QByteArray &group_id = QByteArray()) const;
 
+    qreal wordRibbonHeight(Layout::Orientation orientation) const;
     qreal keyHeight(Layout::Orientation orientation) const;
     qreal keyWidth(Layout::Orientation orientation,
                    KeyDescription::Width width) const;
