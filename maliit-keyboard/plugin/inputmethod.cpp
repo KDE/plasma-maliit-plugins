@@ -46,6 +46,8 @@
 #include "view/soundfeedback.h"
 
 #include <maliit/plugins/subviewdescription.h>
+#include <maliit/plugins/abstractsurfacefactory.h>
+
 #include <QApplication>
 #include <QWidget>
 #include <QDesktopWidget>
@@ -82,7 +84,7 @@ public:
 class InputMethodPrivate
 {
 public:
-    QWidget *window;
+    Maliit::Plugins::AbstractSurfaceFactory *surfaceFactory;
     BackgroundBuffer buffer;
     Renderer renderer;
     Glass glass;
@@ -90,17 +92,20 @@ public:
     Editor editor;
     Logic::WordEngine word_engine;
     SoundFeedback feedback;
+    SharedLayout layout;
 
     explicit InputMethodPrivate(MAbstractInputMethodHost *host)
-        : buffer(host)
+        : surfaceFactory(host->surfaceFactory())
+        , buffer(host)
         , renderer()
         , glass()
         , layout_updater()
         , editor(EditorOptions())
         , word_engine()
         , feedback()
+        , layout(new Layout)
     {
-        renderer.setSurfaceFactory(host->surfaceFactory());
+        renderer.setSurfaceFactory(surfaceFactory);
         glass.setSurface(renderer.surface());
         glass.setExtendedSurface(renderer.extendedSurface());
         editor.setHost(host);
@@ -112,16 +117,15 @@ public:
         area.setSize(QSize(854, 40));
         ribbon.setArea(area);
 
-        SharedLayout layout(new Layout);
         layout->setWordRibbon(ribbon);
         renderer.addLayout(layout);
         glass.addLayout(layout);
         layout_updater.setLayout(layout);
 
-        const QRect screen_area(QApplication::desktop() ? QApplication::desktop()->screenGeometry()
-                                                        : QRect(0, 0, 480, 854));
-        layout->setScreenSize(screen_area.size());
+        const QSize &screen_size(surfaceFactory->screenSize());
+        layout->setScreenSize(screen_size);
         layout->setAlignment(Layout::Bottom);
+        layout_updater.setOrientation(screen_size.width() >= screen_size.height() ? Layout::Landscape : Layout::Portrait);
     }
 };
 
@@ -141,6 +145,8 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
 
     connect(&d->glass, SIGNAL(switchRight(SharedLayout)),
             this,      SLOT(onSwitchRight()));
+    connect(d->surfaceFactory, SIGNAL(screenSizeChanged(QSize)),
+            this,              SLOT(onScreenSizeChange(QSize)));
 }
 
 InputMethod::~InputMethod()
@@ -230,6 +236,14 @@ void InputMethod::onSwitchRight()
     if (list.count() > 1) {
         Q_EMIT activeSubViewChanged(list.at(1).id());
     }
+}
+
+void InputMethod::onScreenSizeChange(const QSize &size)
+{
+    Q_D(InputMethod);
+
+    d->layout->setScreenSize(size);
+    d->layout_updater.setOrientation(size.width() >= size.height() ? Layout::Landscape : Layout::Portrait);
 }
 
 } // namespace MaliitKeyboard

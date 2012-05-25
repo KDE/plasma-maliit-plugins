@@ -68,6 +68,8 @@ private:
     Q_SLOT void onSwitchLeft();
     Q_SLOT void onSwitchRight();
 
+    Q_SLOT void onScreenSizeChange(const QSize &size);
+
     const QScopedPointer<InputMethodPrivate> d_ptr;
 };
 
