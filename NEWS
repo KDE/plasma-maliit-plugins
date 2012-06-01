@@ -1,8 +1,23 @@
-NEXT
-====
+0.92.1
+======
 
 CHANGES SINCE 0.92.0
 * Added simple sound feedback
+  - Requires QtMobility. Use qmake CONFIG+=enable-qt-mobility to enable sound
+    feedback.
+* Make style self-contained:
+  - Each styling profile has its own directory structure,
+    maliit-keyboard/data/styles/README for more.
+* Better styling support
+  - Magnifier, word candidates and extended keys gained more styling
+    attributes. Please check
+    maliit-keyboard/data/styles/nokia-n9/[main,extended_keys].ini for details.
+
+BUG FIXES
+* Fixes: MALIIT#115 - Can only dismiss extended panel by selecting one of the letters
+* Fixes Glass keyExited/keyEntered signals emission
+* Fixes: MALIIT#Bug 161 - Pre-edit text is not cleared when closing and re-opening VKB
+* Fixes: MALIIT#114 - Extended panel not closed when closing and re-opening VKB
 
 0.92.0
 ======
