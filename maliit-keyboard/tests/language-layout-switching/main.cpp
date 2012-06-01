@@ -34,6 +34,7 @@
 #include "models/keyarea.h"
 #include "models/layout.h"
 #include "logic/layoutupdater.h"
+#include "logic/style.h"
 
 #include <QtCore>
 #include <QtTest>
@@ -67,8 +68,13 @@ private:
         QFETCH(int, expected_key_count);
 
         LayoutUpdater layout_updater;
+
         SharedLayout layout(new Layout);
         layout_updater.setLayout(layout);
+
+        SharedStyle style(new Style);
+        style->setProfile("nokia-n9");
+        layout_updater.setStyle(style);
 
         layout_updater.setActiveKeyboardId(keyboard_id);
         TestUtils::waitForSignal(&layout_updater, SIGNAL(layoutChanged(SharedLayout)));
