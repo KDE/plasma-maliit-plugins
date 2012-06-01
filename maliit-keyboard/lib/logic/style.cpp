@@ -150,19 +150,33 @@ QString Style::directoryPath(Directory directory) const
 
 
 //! \brief Query the main style attributes.
-//! @returns The style attributes used for the main key area.
+//! @returns The style attributes used for the main key area. Returns empty
+//! attributes in case no valid profile is not set.
 StyleAttributes * Style::attributes() const
 {
     Q_D(const Style);
+
+    if (d->attributes.isNull()) {
+        Style *s = const_cast<Style *>(this);
+        s->d_ptr->attributes.reset(new StyleAttributes(new QSettings));
+    }
+
     return d->attributes.data();
 }
 
 
 //! \brief Query the extened keys style attributes.
-//! @returns The style attributes used for the extended key area.
+//! @returns The style attributes used for the extended key area. Returns empty
+//! attributes in case no valid profile is not set.
 StyleAttributes * Style::extendedKeysAttributes() const
 {
     Q_D(const Style);
+
+    if (d->extended_keys_attributes.isNull()) {
+        Style *s = const_cast<Style *>(this);
+        s->d_ptr->extended_keys_attributes.reset(new StyleAttributes(new QSettings));
+    }
+
     return d->extended_keys_attributes.data();
 }
 
