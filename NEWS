@@ -1,3 +1,12 @@
+NEXT
+====
+
+CHANGES SINCE 0.92.1
+* Implemented spell checking with Hunspell
+  - Requires Hunspell's development files. Use qmake CONFIG+=enable-hunspell
+    to enable this feature.
+  - Used best together with presage.
+
 0.92.1
 ======
 
