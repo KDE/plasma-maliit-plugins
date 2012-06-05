@@ -42,7 +42,7 @@
 //!
 //! Feedback implementations that depend on style attributes should probably
 //! refresh all their feedback effects when this method is called.
-//! AbstractFeedback does store the Style instance in any way.
+//! AbstractFeedback does not store the Style instance in any way.
 
 //! \fn MaliitKeyboard::AbstractFeedback::playPressFeedback
 //! \brief Plays feedback when pressing a key.
