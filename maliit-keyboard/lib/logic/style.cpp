@@ -2,6 +2,7 @@
  * This file is part of Maliit Plugins
  *
  * Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies). All rights reserved.
+ * Copyright (C) 2012 One Laptop per Child Association
  *
  * Contact: Mohammad Anwari <Mohammad.Anwari@nokia.com>
  *
