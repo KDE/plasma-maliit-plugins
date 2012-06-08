@@ -6,6 +6,8 @@ CHANGES SINCE 0.92.1
   - Requires Hunspell's development files. Use qmake CONFIG+=enable-hunspell
     to enable this feature.
   - Used best together with presage.
+* Expose keyboard style as a plugin setting.
+  - Add MALIIT_DEFAULT_PROFILE option to specify default keyboard style.
 
 0.92.1
 ======
