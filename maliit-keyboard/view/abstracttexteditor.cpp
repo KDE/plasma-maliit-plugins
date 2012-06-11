@@ -132,6 +132,8 @@ void AbstractTextEditor::onKeyReleased(const Key &key)
         sendPreeditString(d->text->preedit());
 #endif
         Q_EMIT textChanged(d->text);
+
+        sendPreeditString(d->text->preedit(), d->text->preeditFace());
         break;
 
     case Key::ActionBackspace: {
@@ -225,6 +227,8 @@ void AbstractTextEditor::replacePreedit(const QString &replacement,
     switch (policy) {
     case ReplaceOnly:
         Q_EMIT textChanged(d->text);
+
+        sendPreeditString(d->text->preedit(), d->text->preeditFace());
         break;
 
     case ReplaceAndCommit:

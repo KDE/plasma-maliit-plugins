@@ -89,7 +89,8 @@ public:
 private:
     const QScopedPointer<AbstractTextEditorPrivate> d_ptr;
 
-    virtual void sendPreeditString(const QString &preedit) = 0;
+    virtual void sendPreeditString(const QString &preedit,
+                                   Model::Text::PreeditFace face) = 0;
     virtual void sendCommitString(const QString &commit) = 0;
     virtual void sendKeyEvent(const QKeyEvent &ev) = 0;
 

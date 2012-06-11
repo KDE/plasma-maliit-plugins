@@ -52,14 +52,23 @@ void Editor::setHost(MAbstractInputMethodHost *host)
     m_host = host;
 }
 
-void Editor::sendPreeditString(const QString &preedit)
+void Editor::sendPreeditString(const QString &preedit,
+                               Model::Text::PreeditFace face)
 {
     if (not m_host) {
         qWarning() << __PRETTY_FUNCTION__
                    << "Host not set, ignoring.";
     }
 
-    m_host->sendPreeditString(preedit, QList<Maliit::PreeditTextFormat>());
+    QList<Maliit::PreeditTextFormat> format_list;
+    const int start (0);
+    const int length (preedit.length());
+
+    format_list.append(Maliit::PreeditTextFormat(start,
+                                                 length,
+                                                 static_cast< ::Maliit::PreeditFace>(face)));
+
+    m_host->sendPreeditString(preedit, format_list);
 }
 
 void Editor::sendCommitString(const QString &commit)

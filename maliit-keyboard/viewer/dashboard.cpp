@@ -37,6 +37,7 @@
 #include "dashboard.h"
 
 #include <QInputMethodEvent>
+#include <QTextCharFormat>
 
 namespace MaliitKeyboard {
 
@@ -53,7 +54,8 @@ public:
 
 private:
     //! \reimp
-    virtual void sendPreeditString(const QString &preedit);
+    virtual void sendPreeditString(const QString &preedit,
+                                   Model::Text::PreeditFace face);
     virtual void sendCommitString(const QString &commit);
     virtual void sendKeyEvent(const QKeyEvent &ev);
     //! \reimp_end
@@ -66,9 +68,39 @@ DashboardEditor::DashboardEditor(QTextEdit *target,
     , m_target(target)
 {}
 
-void DashboardEditor::sendPreeditString(const QString &preedit)
+void DashboardEditor::sendPreeditString(const QString &preedit,
+                                        Model::Text::PreeditFace face)
 {
-    QInputMethodEvent *ev = new QInputMethodEvent(preedit, QList<QInputMethodEvent::Attribute>());
+    QList<QInputMethodEvent::Attribute> attribute_list;
+    QTextCharFormat char_format;
+    const int start(0);
+    const int length(preedit.length());
+
+    switch (face) {
+    case Model::Text::PreeditNoCandidates:
+        char_format.setFontUnderline(true);
+        char_format.setUnderlineStyle(QTextCharFormat::SpellCheckUnderline);
+        char_format.setUnderlineColor(Qt::red);
+        break;
+
+    case Model::Text::PreeditActive:
+        char_format.setForeground(QBrush(QColor(153, 50, 204)));
+        char_format.setFontWeight(QFont::Bold);
+        break;
+
+    case Model::Text::PreeditDefault:
+    default:
+        char_format.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+        char_format.setUnderlineColor(QColor(0, 0, 0));
+        break;
+    }
+
+    attribute_list.append(QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat,
+                                                       start,
+                                                       length,
+                                                       char_format));
+
+    QInputMethodEvent *ev = new QInputMethodEvent(preedit, attribute_list);
     qApp->postEvent(m_target, ev);
 }
 
