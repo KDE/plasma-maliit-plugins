@@ -50,10 +50,20 @@ typedef QSharedPointer<Text> SharedText;
 //! master copy.
 class Text
 {
+public:
+    enum PreeditFace {
+        PreeditDefault,       //!< Used when none of below cases applies.
+        PreeditNoCandidates,  //!< Used when no candidates are available for misspelled word.
+        PreeditKeyPress,      //!< Used for displaying the hwkbd key just pressed.
+        PreeditUnconvertible, //!< Inactive preedit region, not clickable.
+        PreeditActive         //!< Preedit region with active suggestions.
+    };
+
 private:
     QString m_preedit; //!< current text segment that is edited.
     QString m_surrounding; //!< text to left and right side of cursor position, in current text block.
-    uint m_surrounding_offset; //! offset of cursor position in surrounding text.
+    uint m_surrounding_offset; //!< offset of cursor position in surrounding text.
+    PreeditFace m_face; //!< face of preedit.
 
 public:
     //! C'tor
@@ -87,6 +97,12 @@ public:
     //! surroundingLeft and surroundingRight.
     //! \param offset the updated offset.
     void setSurroundingOffset(uint offset);
+
+    //! Returns face of preedit.
+    PreeditFace preeditFace() const;
+    //! Sets face of preedit.
+    //! \param face new face of preedit.
+    void setPreeditFace(PreeditFace face);
 };
 
 }} // namespace Model, MaliitKeyboard

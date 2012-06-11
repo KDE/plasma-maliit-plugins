@@ -38,6 +38,7 @@ Text::Text()
     : m_preedit()
     , m_surrounding()
     , m_surrounding_offset(0)
+    , m_face(PreeditDefault)
 {}
 
 QString Text::preedit() const
@@ -94,6 +95,16 @@ uint Text::surroundingOffset() const
 void Text::setSurroundingOffset(uint offset)
 {
     m_surrounding_offset = offset;
+}
+
+Text::PreeditFace Text::preeditFace() const
+{
+    return m_face;
+}
+
+void Text::setPreeditFace(PreeditFace face)
+{
+    m_face = face;
 }
 
 }} // namespace Model, MaliitKeyboard
