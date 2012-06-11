@@ -126,6 +126,7 @@ void WordEngine::onTextChanged(const Model::SharedText &text)
     if (preedit.isEmpty()) {
         if (not d->candidates.isEmpty()) {
             d->candidates.clear();
+            text->setPreeditFace(Model::Text::PreeditDefault);
             Q_EMIT candidatesUpdated(d->candidates);
         }
         return;
@@ -134,8 +135,6 @@ void WordEngine::onTextChanged(const Model::SharedText &text)
     d->candidates.clear();
 
 #ifdef HAVE_PRESAGE
-    // FIXME: Using surroundingLeft + preedit throws an exception in presage.
-    // Using only preedit for now.
     const QString &context = (text->surroundingLeft() + preedit);
     d->candidates_context = context.toStdString();
     const std::vector<std::string> predictions = d->presage.predict();
@@ -148,6 +147,7 @@ void WordEngine::onTextChanged(const Model::SharedText &text)
         for (int index = 0; index < count; ++index) {
             const QString &prediction(QString::fromStdString(predictions.at(index)));
 
+            // FIXME: don't show the word we typed as a candidate.
             if (d->candidates.contains(prediction)) {
                 continue;
             }
@@ -157,9 +157,15 @@ void WordEngine::onTextChanged(const Model::SharedText &text)
     }
 #endif
 
-    if (d->candidates.isEmpty()) {
+    const bool correct_spelling(d->spell_checker.spell(preedit));
+
+    if (d->candidates.isEmpty() and not correct_spelling) {
         d->candidates.append(d->spell_checker.suggest(preedit, 5));
     }
+
+    text->setPreeditFace(d->candidates.isEmpty() ? (correct_spelling ? Model::Text::PreeditDefault
+                                                                     : Model::Text::PreeditNoCandidates)
+                                                 : Model::Text::PreeditActive);
 
     Q_EMIT candidatesUpdated(d->candidates);
 #endif

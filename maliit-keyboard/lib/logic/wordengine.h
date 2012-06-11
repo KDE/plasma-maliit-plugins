@@ -61,7 +61,8 @@ public:
     virtual ~WordEngine();
 
     //! Called when text model changed. Can trigger emission of
-    //! candidatesUpdated signal.
+    //! candidatesUpdated signal. Can update face of preedit in
+    //! \a text.
     //! \param text the shared text model
     Q_SLOT virtual void onTextChanged(const Model::SharedText &text);
     //! Emitted when new candidates have been calculuated, usually as a result
