@@ -76,6 +76,7 @@ class WordEnginePrivate
 public:
     QStringList candidates;
     SpellChecker spell_checker;
+    bool enabled;
 #ifdef HAVE_PRESAGE
     std::string candidates_context;
     CandidatesCallback presage_candidates;
@@ -88,15 +89,18 @@ public:
 WordEnginePrivate::WordEnginePrivate()
     : candidates()
     , spell_checker()
+    , enabled(false)
 #ifdef HAVE_PRESAGE
     , candidates_context()
     , presage_candidates(CandidatesCallback(candidates_context))
     , presage(&presage_candidates)
 #endif
 {
+    // FIXME: Check whether spellchecker is enabled, and update enabled flag!
 #ifdef HAVE_PRESAGE
     presage.config("Presage.Selector.SUGGESTIONS", "6");
     presage.config("Presage.Selector.REPEAT_SUGGESTIONS", "yes");
+    enabled = true;
 #endif
 }
 
@@ -108,6 +112,22 @@ WordEngine::WordEngine(QObject *parent)
 
 WordEngine::~WordEngine()
 {}
+
+bool WordEngine::isEnabled() const
+{
+    Q_D(const WordEngine);
+    return d->enabled;
+}
+
+void WordEngine::setEnabled(bool enabled)
+{
+    Q_D(WordEngine);
+
+    if (d->enabled != enabled) {
+        d->enabled = enabled;
+        Q_EMIT enabledChanged(d->enabled);
+    }
+}
 
 void WordEngine::onTextChanged(const Model::SharedText &text)
 {
@@ -126,6 +146,10 @@ void WordEngine::onTextChanged(const Model::SharedText &text)
     }
 
     Q_D(WordEngine);
+
+    if (not d->enabled) {
+        return;
+    }
 
     const QString &preedit(text->preedit());
     if (preedit.isEmpty()) {
