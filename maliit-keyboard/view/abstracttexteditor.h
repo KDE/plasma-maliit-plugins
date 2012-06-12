@@ -57,6 +57,9 @@ class AbstractTextEditor
     Q_OBJECT
     Q_DISABLE_COPY(AbstractTextEditor)
     Q_DECLARE_PRIVATE(AbstractTextEditor)
+    Q_PROPERTY(bool preeditEnabled READ isPreeditEnabled
+                                   WRITE setPreeditEnabled
+                                   NOTIFY preeditEnabledChanged)
 
 public:
     enum ReplacementPolicy {
@@ -80,6 +83,10 @@ public:
     Q_SLOT void replacePreedit(const QString &replacement,
                                ReplacementPolicy policy = ReplaceAndCommit);
     Q_SLOT void clearPreedit();
+
+    bool isPreeditEnabled() const;
+    Q_SLOT void setPreeditEnabled(bool enabled);
+    Q_SIGNAL void preeditEnabledChanged(bool enabled);
 
     Q_SIGNAL void textChanged(const Model::SharedText &text);
     Q_SIGNAL void keyboardClosed();

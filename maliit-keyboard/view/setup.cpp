@@ -172,6 +172,9 @@ void connectTextEditorToWordEngine(AbstractTextEditor *editor,
 {
     QObject::connect(editor, SIGNAL(textChanged(Model::SharedText)),
                      engine, SLOT(onTextChanged(Model::SharedText)));
+
+    QObject::connect(engine, SIGNAL(enabledChanged(bool)),
+                     editor, SLOT(setPreeditEnabled(bool)));
 }
 
 }} // namespace Setup, MaliitKeyboard

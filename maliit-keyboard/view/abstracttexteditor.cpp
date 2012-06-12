@@ -46,6 +46,7 @@ public:
     bool backspace_sent;
     EditorOptions options;
     Model::SharedText text;
+    bool preedit_enabled;
 
     explicit AbstractTextEditorPrivate(const EditorOptions &new_options,
                                        const Model::SharedText &new_text);
@@ -58,6 +59,7 @@ AbstractTextEditorPrivate::AbstractTextEditorPrivate(const EditorOptions &new_op
     , backspace_sent(false)
     , options(new_options)
     , text(new_text)
+    , preedit_enabled(false)
 {
     auto_repeat_backspace_timer.setSingleShot(true);
     (void) valid();
@@ -129,11 +131,15 @@ void AbstractTextEditor::onKeyReleased(const Key &key)
 #ifdef DISABLE_PREEDIT
         commitPreedit();
 #else
-        sendPreeditString(d->text->preedit());
-#endif
-        Q_EMIT textChanged(d->text);
-
         sendPreeditString(d->text->preedit(), d->text->preeditFace());
+#endif
+
+        if (d->preedit_enabled) {
+            Q_EMIT textChanged(d->text);
+        } else {
+            commitPreedit();
+        }
+
         break;
 
     case Key::ActionBackspace: {
@@ -241,6 +247,22 @@ void AbstractTextEditor::replacePreedit(const QString &replacement,
 void AbstractTextEditor::clearPreedit()
 {
     replacePreedit("", ReplaceOnly);
+}
+
+bool AbstractTextEditor::isPreeditEnabled() const
+{
+    Q_D(const AbstractTextEditor);
+    return d->preedit_enabled;
+}
+
+void AbstractTextEditor::setPreeditEnabled(bool enabled)
+{
+    Q_D(AbstractTextEditor);
+
+    if (d->preedit_enabled != enabled) {
+        d->preedit_enabled = enabled;
+        Q_EMIT preeditEnabledChanged(d->preedit_enabled);
+    }
 }
 
 void AbstractTextEditor::commitPreedit()
