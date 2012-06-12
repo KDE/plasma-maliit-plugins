@@ -55,7 +55,7 @@ public:
     virtual ~WordEngine();
 
     virtual bool isEnabled() const;
-    virtual void setEnabled(bool enabled);
+    Q_SLOT virtual void setEnabled(bool enabled);
     Q_SIGNAL void enabledChanged(bool enabled);
 
     Q_SLOT virtual void onTextChanged(const Model::SharedText &text);

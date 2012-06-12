@@ -218,6 +218,7 @@ public:
     DeadkeyMachine deadkey_machine;
     QPoint anchor;
     SharedStyle style;
+    bool word_ribbon_visible;
     Layout::Panel close_extended_on_release;
 
     explicit LayoutUpdaterPrivate()
@@ -229,6 +230,7 @@ public:
         , deadkey_machine()
         , anchor()
         , style()
+        , word_ribbon_visible(false)
         , close_extended_on_release(Layout::NumPanels) // NumPanels counts as invalid panel.
     {}
 
@@ -354,6 +356,32 @@ void LayoutUpdater::setStyle(const SharedStyle &style)
         d->style = style;
         connect(d->style.data(), SIGNAL(profileChanged()),
                 this,            SLOT(applyProfile()));
+    }
+}
+
+bool LayoutUpdater::isWordRibbonVisible() const
+{
+    Q_D(const LayoutUpdater);
+    return d->word_ribbon_visible;
+}
+
+void LayoutUpdater::setWordRibbonVisible(bool visible)
+{
+    Q_D(LayoutUpdater);
+
+    if (d->word_ribbon_visible != visible) {
+        d->word_ribbon_visible = visible;
+
+        if (d->layout && d->style && d->word_ribbon_visible) {
+            WordRibbon ribbon;
+            applyStyleToWordRibbon(&ribbon, d->style, d->layout->orientation());
+            d->layout->setWordRibbon(ribbon);
+        } else if (d->layout) {
+            d->layout->setWordRibbon(WordRibbon());
+        }
+
+        Q_EMIT wordRibbonVisibleChanged(visible);
+        Q_EMIT layoutChanged(d->layout);
     }
 }
 
@@ -674,12 +702,6 @@ void LayoutUpdater::onKeyboardsChanged()
     d->shift_machine.restart();
     d->deadkey_machine.restart();
     d->view_machine.restart();
-
-    if (not d->layout.isNull() || not d->style.isNull()) {
-        WordRibbon ribbon(d->layout->wordRibbon());
-        applyStyleToWordRibbon(&ribbon, d->style, d->layout->orientation());
-        d->layout->setWordRibbon(ribbon);
-    }
 }
 
 void LayoutUpdater::switchToMainView()

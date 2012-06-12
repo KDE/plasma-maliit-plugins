@@ -114,7 +114,6 @@ WordEnginePrivate::WordEnginePrivate()
 #ifdef HAVE_PRESAGE
     presage.config("Presage.Selector.SUGGESTIONS", "6");
     presage.config("Presage.Selector.REPEAT_SUGGESTIONS", "yes");
-    enabled = true;
 #endif
 }
 
@@ -144,6 +143,17 @@ bool WordEngine::isEnabled() const
 //!                prediction or error correction backend available.
 void WordEngine::setEnabled(bool enabled)
 {
+ // Don't allow to enable word engine if no backends are available:
+#if defined(HAVE_PRESAGE) || defined(HAVE_HUNSPELL)
+#else
+    if (enabled) {
+        qWarning() << __PRETTY_FUNCTION__
+                   << "No backend available, cannot enable word engine!";
+    }
+
+    enabled = false;
+#endif
+
     Q_D(WordEngine);
 
     if (d->enabled != enabled) {

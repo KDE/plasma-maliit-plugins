@@ -154,6 +154,7 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
     Q_D(InputMethod);
 
     Setup::connectAll(&d->glass, &d->layout_updater, &d->renderer, &d->editor, &d->word_engine, &d->feedback);
+    d->word_engine.setEnabled(true);
 
     connect(&d->glass, SIGNAL(keyboardClosed()),
             this,      SLOT(onKeyboardClosed()));

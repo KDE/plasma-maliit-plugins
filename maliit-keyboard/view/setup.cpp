@@ -162,6 +162,9 @@ void connectWordEngineToLayoutUpdater(Logic::WordEngine *engine,
 {
     QObject::connect(engine,  SIGNAL(candidatesUpdated(QStringList)),
                      updater, SLOT(onCandidatesUpdated(QStringList)));
+
+    QObject::connect(engine,  SIGNAL(enabledChanged(bool)),
+                     updater, SLOT(setWordRibbonVisible(bool)));
 }
 
 void connectTextEditorToWordEngine(AbstractTextEditor *editor,
