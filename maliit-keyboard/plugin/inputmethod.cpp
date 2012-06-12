@@ -154,6 +154,8 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
     Q_D(InputMethod);
 
     Setup::connectAll(&d->glass, &d->layout_updater, &d->renderer, &d->editor, &d->word_engine, &d->feedback);
+
+    // TODO: Let this be driven through content type, and/or a plugin setting:
     d->word_engine.setEnabled(true);
 
     connect(&d->glass, SIGNAL(keyboardClosed()),
