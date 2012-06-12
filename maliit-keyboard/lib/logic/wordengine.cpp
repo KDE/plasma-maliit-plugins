@@ -36,6 +36,20 @@
 #include <presage.h>
 #endif
 
+//! \class MaliitKeyboard::Logic::WordEngine
+//! Provides error correction based on preedit (default engine: hunspell) and
+//! word prediction based on surrounding text and preedit (default engine:
+//! presage). The word engine requires to be notifed on text model changes,
+//! \sa MaliitKeyboard::Model::Text and
+//! \sa MaliitKeyboard::Logic::WordEngine::onTextChanged().
+
+//! \fn MaliitKeyboard::Logic::WordEngine::enabledChanged
+//! \brief Emitted when word engine toggles word candidate updates on/off.
+//! \param enabled Whether word engine is enabled.
+
+//! \fn MaliitKeyboard::Logic::WordEngine::candidatesUpdated
+//! \brief Emitted when new candidates have been computed.
+//! \param candidates The list of updated candidates.
 namespace MaliitKeyboard {
 namespace Logic {
 
@@ -105,20 +119,29 @@ WordEnginePrivate::WordEnginePrivate()
 }
 
 
+//! \param parent The owner of this instance. Can be 0, in case QObject
+//!               ownership is not required.
 WordEngine::WordEngine(QObject *parent)
     : QObject(parent)
     , d_ptr(new WordEnginePrivate)
 {}
 
+
 WordEngine::~WordEngine()
 {}
 
+
+//! \brief Returns whether the engine provides updates for word candidates.
 bool WordEngine::isEnabled() const
 {
     Q_D(const WordEngine);
     return d->enabled;
 }
 
+
+//! \brief Set whether the engine should provide updates for word candidates.
+//! \param enabled Setting to true will be ignored if there's no word
+//!                prediction or error correction backend available.
 void WordEngine::setEnabled(bool enabled)
 {
     Q_D(WordEngine);
@@ -129,6 +152,11 @@ void WordEngine::setEnabled(bool enabled)
     }
 }
 
+
+//! \brief Respond to changes in text model.
+//! \param text The shared text model. Can trigger emission of
+//!             \sa candidatesUpdated() if new candidates are available.
+//!             Can update face of preedit in text.
 void WordEngine::onTextChanged(const Model::SharedText &text)
 {
 #ifdef DISABLE_PREEDIT

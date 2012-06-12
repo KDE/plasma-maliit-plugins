@@ -40,12 +40,6 @@ namespace Logic {
 
 class WordEnginePrivate;
 
-//! \brief Provides word prediction and error correction
-//!
-//! Provides error correction based on preedit (default engine: hunspell) and
-//! word predication based on surrounding text and preedit (default engine:
-//! presage). WordEngine is a consumer of the shared Model::Text master copy,
-//! but does not modify it.
 class WordEngine
     : public QObject
 {
@@ -57,32 +51,14 @@ class WordEngine
                             NOTIFY enabledChanged)
 
 public:
-    //! C'tor.
-    //! \param parent the parent object, takes ownership if valid.
     explicit WordEngine(QObject *parent = 0);
-    //! D'tor.
     virtual ~WordEngine();
 
-    //! \brief Returns whether the engine provides updates for word candidates.
     virtual bool isEnabled() const;
-
-    //! \brief Set whether the engine should provide updates for word candidates.
-    //! @param enabled Setting to true will be ignored if there's no word
-    //!                prediction or error correction backend available.
     virtual void setEnabled(bool enabled);
-
-    //! \brief Emitted when word engine toggles word candidate updates on/off.
-    //! @param enabled Whether word engine is enabled.
     Q_SIGNAL void enabledChanged(bool enabled);
 
-    //! Called when text model changed. Can trigger emission of
-    //! candidatesUpdated signal. Can update face of preedit in
-    //! \a text.
-    //! \param text the shared text model
     Q_SLOT virtual void onTextChanged(const Model::SharedText &text);
-    //! Emitted when new candidates have been calculuated, usually as a result
-    //! of text changes.
-    //! \param candidates the list of updated candidates
     Q_SIGNAL void candidatesUpdated(const QStringList &candidates);
 
 private:
