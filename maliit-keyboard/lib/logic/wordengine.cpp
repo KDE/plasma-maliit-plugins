@@ -115,6 +115,11 @@ void WordEngine::onTextChanged(const Model::SharedText &text)
     Q_UNUSED(text)
     return;
 #else
+    // FIXME: add possiblity to turn off the error correction for
+    // entries that does not need it (like password entries).  Also,
+    // with that we probably will want to turn off preedit styling at
+    // all.
+
     if (text.isNull()) {
         qWarning() << __PRETTY_FUNCTION__
                    << "No text model specified.";

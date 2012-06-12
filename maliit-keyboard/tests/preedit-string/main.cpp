@@ -212,6 +212,14 @@ private:
         QSKIP("TODO: Glass::setSurface needs to be used.");
 #endif
 
+        // FIXME: mikhas: We should have tests for the preedit &
+        // preedit correctness stuff, and how it blends with word
+        // prediction. I guess you will need to add
+        // WordEngine::setSpellChecker() API so that you can inject a
+        // fake spellchecker, for the tests. Otherwise, the test would
+        // have to be skipped when there's no hunspell/presage, which
+        // I wouldn't like to have.
+
         QFETCH(Layout::Orientation, orientation);
         QFETCH(QList<QMouseEvent*>, mouse_events);
         QFETCH(QString, expected_last_preedit_string);
