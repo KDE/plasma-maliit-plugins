@@ -1,8 +1,8 @@
-// -*- mode: C++; c-basic-offset: 4; indent-tabs-mode: nil; c-file-offsets: ((innamespace . 0)); -*-
 /*
  * This file is part of Maliit Plugins
  *
  * Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies). All rights reserved.
+ * Copyright (C) 2012 Openismus GmbH
  *
  * Contact: Mohammad Anwari <Mohammad.Anwari@nokia.com>
  *
