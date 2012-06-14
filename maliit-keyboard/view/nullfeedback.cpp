@@ -41,7 +41,10 @@ namespace MaliitKeyboard {
 //!               ownership is not required.
 NullFeedback::NullFeedback(QObject *parent)
     : AbstractFeedback(parent)
-{}
+{
+    connect(this, SIGNAL(enabledChanged(bool)),
+            this, SLOT(onEnabledChanged(bool)));
+}
 
 NullFeedback::~NullFeedback()
 {}
@@ -49,6 +52,16 @@ NullFeedback::~NullFeedback()
 void NullFeedback::setStyle(const SharedStyle &style)
 {
     Q_UNUSED(style)
+}
+
+void NullFeedback::onEnabledChanged(bool enabled)
+{
+    if (enabled) {
+        qWarning() << __PRETTY_FUNCTION__
+                   << "Null feedback is used. Cannot enable.";
+
+        setEnabled(false);
+    }
 }
 
 void NullFeedback::playPressFeedback()
