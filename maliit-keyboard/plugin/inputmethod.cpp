@@ -104,6 +104,7 @@ public:
     SharedLayout layout;
     SharedStyle style;
     QScopedPointer<Maliit::Plugins::AbstractPluginSetting> style_setting;
+    QScopedPointer<Maliit::Plugins::AbstractPluginSetting> feedback_setting;
 
     explicit InputMethodPrivate(MAbstractInputMethodHost *host)
         : surface_factory(host->surfaceFactory())
@@ -117,6 +118,7 @@ public:
         , layout(new Layout)
         , style(new Style)
         , style_setting()
+        , feedback_setting()
     {
         renderer.setSurfaceFactory(surface_factory);
         glass.setSurface(renderer.surface());
@@ -142,6 +144,15 @@ public:
         renderer.setStyle(style);
         layout_updater.setStyle(style);
         feedback.setStyle(style);
+
+        QVariantMap feedback_attrs;
+
+        feedback_attrs[Maliit::SettingEntryAttributes::defaultValue] = feedback.isEnabled();
+        feedback_setting.reset(host->registerPluginSetting("feedback_enabled",
+                                                           QT_TR_NOOP("Feedback enabled"),
+                                                           Maliit::BoolType,
+                                                           feedback_attrs));
+        feedback.setEnabled(feedback_setting->value().toBool());
 
         const QSize &screen_size(surface_factory->screenSize());
         layout->setScreenSize(screen_size);
@@ -183,6 +194,10 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
     connect(d->style_setting.data(), SIGNAL(valueChanged()),
             this,                    SLOT(onStyleSettingChanged()));
 
+    connect(d->feedback_setting.data(), SIGNAL(valueChanged()),
+            this,                       SLOT(onFeedbackSettingChanged()));
+    connect(&d->feedback, SIGNAL(enabledChanged(bool)),
+            this,        SLOT(onFeedbackEnabledChanged(bool)));
 }
 
 InputMethod::~InputMethod()
@@ -299,6 +314,20 @@ void InputMethod::onKeyboardClosed()
 {
     hide();
     inputMethodHost()->notifyImInitiatedHiding();
+}
+
+void InputMethod::onFeedbackSettingChanged()
+{
+    Q_D(InputMethod);
+    d->feedback.setEnabled(d->feedback_setting->value().toBool());
+}
+
+void InputMethod::onFeedbackEnabledChanged(bool enabled)
+{
+    Q_D(InputMethod);
+    if (d->feedback_setting->value().toBool() != enabled) {
+        d->feedback_setting->set(enabled);
+    }
 }
 
 } // namespace MaliitKeyboard
