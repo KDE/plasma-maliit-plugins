@@ -93,7 +93,7 @@ public:
 class InputMethodPrivate
 {
 public:
-    Maliit::Plugins::AbstractSurfaceFactory *surfaceFactory;
+    Maliit::Plugins::AbstractSurfaceFactory *surface_factory;
     BackgroundBuffer buffer;
     Renderer renderer;
     Glass glass;
@@ -103,10 +103,10 @@ public:
     DefaultFeedback feedback;
     SharedLayout layout;
     SharedStyle style;
-    QScopedPointer<Maliit::Plugins::AbstractPluginSetting> styleSetting;
+    QScopedPointer<Maliit::Plugins::AbstractPluginSetting> style_setting;
 
     explicit InputMethodPrivate(MAbstractInputMethodHost *host)
-        : surfaceFactory(host->surfaceFactory())
+        : surface_factory(host->surfaceFactory())
         , buffer(host)
         , renderer()
         , glass()
@@ -116,8 +116,9 @@ public:
         , feedback()
         , layout(new Layout)
         , style(new Style)
+        , style_setting()
     {
-        renderer.setSurfaceFactory(surfaceFactory);
+        renderer.setSurfaceFactory(surface_factory);
         glass.setSurface(renderer.surface());
         glass.setExtendedSurface(renderer.extendedSurface());
         editor.setHost(host);
@@ -126,21 +127,23 @@ public:
         glass.addLayout(layout);
         layout_updater.setLayout(layout);
 
-        QVariantMap attrs;
+        QVariantMap style_attrs;
         QStringList available_styles = style->availableProfiles();
 
-        attrs[Maliit::SettingEntryAttributes::defaultValue] = MALIIT_DEFAULT_PROFILE;
-        attrs[Maliit::SettingEntryAttributes::valueDomain] = available_styles;
-        attrs[Maliit::SettingEntryAttributes::valueDomainDescriptions] = available_styles;
+        style_attrs[Maliit::SettingEntryAttributes::defaultValue] = MALIIT_DEFAULT_PROFILE;
+        style_attrs[Maliit::SettingEntryAttributes::valueDomain] = available_styles;
+        style_attrs[Maliit::SettingEntryAttributes::valueDomainDescriptions] = available_styles;
 
-        styleSetting.reset(host->registerPluginSetting("current_style", QT_TR_NOOP("Keyboard style"),
-                                                       Maliit::StringType, attrs));
-        style->setProfile(styleSetting->value().toString());
+        style_setting.reset(host->registerPluginSetting("current_style",
+                                                        QT_TR_NOOP("Keyboard style"),
+                                                        Maliit::StringType,
+                                                        style_attrs));
+        style->setProfile(style_setting->value().toString());
         renderer.setStyle(style);
         layout_updater.setStyle(style);
         feedback.setStyle(style);
 
-        const QSize &screen_size(surfaceFactory->screenSize());
+        const QSize &screen_size(surface_factory->screenSize());
         layout->setScreenSize(screen_size);
         layout->setAlignment(Layout::Bottom);
         layout_updater.setOrientation(screen_size.width() >= screen_size.height() ? Layout::Landscape : Layout::Portrait);
@@ -174,11 +177,12 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
     connect(&d->editor, SIGNAL(rightLayoutSelected()),
             this,       SLOT(onRightLayoutSelected()));
 
-    connect(d->surfaceFactory, SIGNAL(screenSizeChanged(QSize)),
-            this,              SLOT(onScreenSizeChange(QSize)));
+    connect(d->surface_factory, SIGNAL(screenSizeChanged(QSize)),
+            this,               SLOT(onScreenSizeChange(QSize)));
 
-    connect(d->styleSetting.data(), SIGNAL(valueChanged()),
-            this,                   SLOT(onStyleSettingChanged()));
+    connect(d->style_setting.data(), SIGNAL(valueChanged()),
+            this,                    SLOT(onStyleSettingChanged()));
+
 }
 
 InputMethod::~InputMethod()
@@ -288,7 +292,7 @@ void InputMethod::onScreenSizeChange(const QSize &size)
 void InputMethod::onStyleSettingChanged()
 {
     Q_D(InputMethod);
-    d->style->setProfile(d->styleSetting->value().toString());
+    d->style->setProfile(d->style_setting->value().toString());
 }
 
 void InputMethod::onKeyboardClosed()
