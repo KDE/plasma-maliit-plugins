@@ -125,7 +125,9 @@ void SoundFeedbackPrivate::setupEffect(EffectIndex index,
 SoundFeedback::SoundFeedback(QObject *parent)
     : AbstractFeedback(parent)
     , d_ptr(new SoundFeedbackPrivate)
-{}
+{
+    setEnabled(true);
+}
 
 SoundFeedback::~SoundFeedback()
 {}

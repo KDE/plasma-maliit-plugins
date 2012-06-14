@@ -37,17 +37,27 @@
 
 namespace MaliitKeyboard {
 
+class AbstractFeedbackPrivate;
+
 class AbstractFeedback
     : public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY(AbstractFeedback)
+    Q_DECLARE_PRIVATE(AbstractFeedback)
+    Q_PROPERTY(bool enabled READ isEnabled
+                            WRITE setEnabled
+                            NOTIFY enabledChanged)
 
 public:
     explicit AbstractFeedback(QObject *parent = 0);
     virtual ~AbstractFeedback() = 0;
 
     virtual void setStyle(const SharedStyle &style) = 0;
+
+    Q_SLOT void setEnabled(bool enabled);
+    bool isEnabled() const;
+    Q_SIGNAL void enabledChanged(bool enabled);
 
     Q_SLOT void onKeyPressed();
     Q_SLOT void onKeyReleased();
@@ -61,6 +71,8 @@ private:
     virtual void playReleaseFeedback() = 0;
     virtual void playLayoutChangeFeedback() = 0;
     virtual void playKeyboardHideFeedback() = 0;
+
+    const QScopedPointer<AbstractFeedbackPrivate> d_ptr;
 };
 
 } // namespace MaliitKeyboard

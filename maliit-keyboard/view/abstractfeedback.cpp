@@ -59,37 +59,87 @@
 namespace MaliitKeyboard
 {
 
+class AbstractFeedbackPrivate
+{
+public:
+    AbstractFeedbackPrivate();
+
+    bool enabled;
+};
+
+AbstractFeedbackPrivate::AbstractFeedbackPrivate()
+    : enabled(false)
+{}
+
 //! @param parent The owner of this instance. Can be 0, in case QObject
 //!               ownership is not required.
 AbstractFeedback::AbstractFeedback(QObject *parent)
     : QObject(parent)
+    , d_ptr(new AbstractFeedbackPrivate)
 {}
 
 AbstractFeedback::~AbstractFeedback()
 {}
 
+//! \brief Set whether the feedback should be triggered.
+//! Emits enableChanged() signal if change occurs.
+//! @param enabled Whether feedback should be triggered.
+void AbstractFeedback::setEnabled(bool enabled)
+{
+    Q_D(AbstractFeedback);
+
+    if (d->enabled != enabled) {
+        d->enabled = enabled;
+        Q_EMIT enabledChanged(enabled);
+    }
+}
+
+//! \brief Returns whether feedback is triggered.
+bool AbstractFeedback::isEnabled() const
+{
+    Q_D(const AbstractFeedback);
+
+    return d->enabled;
+}
+
 //! \brief Triggers feedback by calling playPressFeedback().
 void AbstractFeedback::onKeyPressed()
 {
-    playPressFeedback();
+    Q_D(AbstractFeedback);
+
+    if (d->enabled) {
+        playPressFeedback();
+    }
 }
 
 //! \brief Triggers feedback by calling playReleaseFeedback().
 void AbstractFeedback::onKeyReleased()
 {
-    playReleaseFeedback();
+    Q_D(AbstractFeedback);
+
+    if (d->enabled) {
+        playReleaseFeedback();
+    }
 }
 
 //! \brief Triggers feedback by calling playLayoutChangeFeedback().
 void AbstractFeedback::onLayoutChanged()
 {
-    playLayoutChangeFeedback();
+    Q_D(AbstractFeedback);
+
+    if (d->enabled) {
+        playLayoutChangeFeedback();
+    }
 }
 
 //! \brief Triggers feedback by calling playKeyboardHideFeedback().
 void AbstractFeedback::onKeyboardHidden()
 {
-    playKeyboardHideFeedback();
+    Q_D(AbstractFeedback);
+
+    if (d->enabled) {
+        playKeyboardHideFeedback();
+    }
 }
 
 } // namespace MaliitKeyboard
