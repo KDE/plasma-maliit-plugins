@@ -60,6 +60,9 @@ class AbstractTextEditor
     Q_PROPERTY(bool preeditEnabled READ isPreeditEnabled
                                    WRITE setPreeditEnabled
                                    NOTIFY preeditEnabledChanged)
+    Q_PROPERTY(bool autoCorrectEnabled READ isAutoCorrectEnabled
+                                       WRITE setAutoCorrectEnabled
+                                       NOTIFY autoCorrectEnabledChanged)
 
 public:
     enum ReplacementPolicy {
@@ -87,6 +90,10 @@ public:
     bool isPreeditEnabled() const;
     Q_SLOT void setPreeditEnabled(bool enabled);
     Q_SIGNAL void preeditEnabledChanged(bool enabled);
+
+    bool isAutoCorrectEnabled() const;
+    Q_SLOT void setAutoCorrectEnabled(bool enabled);
+    Q_SIGNAL void autoCorrectEnabledChanged(bool enabled);
 
     Q_SIGNAL void textChanged(const Model::SharedText &text);
     Q_SIGNAL void keyboardClosed();

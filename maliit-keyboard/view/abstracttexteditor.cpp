@@ -47,6 +47,7 @@ public:
     EditorOptions options;
     Model::SharedText text;
     bool preedit_enabled;
+    bool auto_correct_enabled;
 
     explicit AbstractTextEditorPrivate(const EditorOptions &new_options,
                                        const Model::SharedText &new_text);
@@ -60,6 +61,7 @@ AbstractTextEditorPrivate::AbstractTextEditorPrivate(const EditorOptions &new_op
     , options(new_options)
     , text(new_text)
     , preedit_enabled(false)
+    , auto_correct_enabled(false)
 {
     auto_repeat_backspace_timer.setSingleShot(true);
     (void) valid();
@@ -262,6 +264,22 @@ void AbstractTextEditor::setPreeditEnabled(bool enabled)
     if (d->preedit_enabled != enabled) {
         d->preedit_enabled = enabled;
         Q_EMIT preeditEnabledChanged(d->preedit_enabled);
+    }
+}
+
+bool AbstractTextEditor::isAutoCorrectEnabled() const
+{
+    Q_D(const AbstractTextEditor);
+    return d->auto_correct_enabled;
+}
+
+void AbstractTextEditor::setAutoCorrectEnabled(bool enabled)
+{
+    Q_D(AbstractTextEditor);
+
+    if (d->auto_correct_enabled != enabled) {
+        d->auto_correct_enabled = enabled;
+        Q_EMIT autoCorrectEnabledChanged(d->auto_correct_enabled);
     }
 }
 
