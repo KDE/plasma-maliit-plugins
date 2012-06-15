@@ -155,6 +155,10 @@ void AbstractTextEditor::onKeyReleased(const Key &key)
      } break;
 
     case Key::ActionSpace:
+        if (d->auto_correct_enabled && not d->text->primaryCandidate().isEmpty()) {
+            d->text->setPreedit(d->text->primaryCandidate());
+        }
+
         d->text->appendToPreedit(" ");
         commitPreedit();
         break;

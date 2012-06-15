@@ -62,6 +62,7 @@ public:
 private:
     QString m_preedit; //!< current text segment that is edited.
     QString m_surrounding; //!< text to left and right side of cursor position, in current text block.
+    QString m_primary_candidate; //!< the primary candidate from the word engine.
     uint m_surrounding_offset; //!< offset of cursor position in surrounding text.
     PreeditFace m_face; //!< face of preedit.
 
@@ -80,6 +81,12 @@ public:
     //! Commits current preedit. Insert preedit into surrounding text and
     //! updates surrounding offset to match expected cursor position.
     void commitPreedit();
+
+    //! Returns the primary candidate, usually provided by word engine.
+    QString primaryCandidate() const;
+    //! Set the primary candidate.
+    //! \param candidate the primary candidate
+    void setPrimaryCandidate(const QString &candidate);
 
     //! Returns text surrounding cursor position.
     QString surrounding() const;

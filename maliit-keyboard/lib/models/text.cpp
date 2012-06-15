@@ -65,6 +65,17 @@ void Text::commitPreedit()
     m_surrounding = m_preedit;
     m_surrounding_offset = m_preedit.length();
     m_preedit.clear();
+    m_primary_candidate.clear();
+}
+
+QString Text::primaryCandidate() const
+{
+    return m_primary_candidate;
+}
+
+void Text::setPrimaryCandidate(const QString &candidate)
+{
+    m_primary_candidate = candidate;
 }
 
 QString Text::surrounding() const

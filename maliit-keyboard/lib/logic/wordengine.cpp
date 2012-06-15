@@ -234,6 +234,10 @@ void WordEngine::onTextChanged(const Model::SharedText &text)
                                                                      : Model::Text::PreeditNoCandidates)
                                                  : Model::Text::PreeditActive);
 
+    text->setPrimaryCandidate(d->candidates.isEmpty() ? QString()
+                                                      : d->candidates.first());
+
+    Q_EMIT textChanged(text);
     Q_EMIT candidatesUpdated(d->candidates);
 #endif
 }

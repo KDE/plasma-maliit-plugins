@@ -60,6 +60,7 @@ public:
 
     Q_SLOT virtual void onTextChanged(const Model::SharedText &text);
     Q_SIGNAL void candidatesUpdated(const QStringList &candidates);
+    Q_SIGNAL void textChanged(const Model::SharedText &text);
 
 private:
     const QScopedPointer<WordEnginePrivate> d_ptr;
