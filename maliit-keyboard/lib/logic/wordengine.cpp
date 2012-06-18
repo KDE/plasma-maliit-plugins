@@ -39,9 +39,9 @@
 //! \class MaliitKeyboard::Logic::WordEngine
 //! Provides error correction based on preedit (default engine: hunspell) and
 //! word prediction based on surrounding text and preedit (default engine:
-//! presage). The word engine requires to be notifed on text model changes,
+//! presage). The word engine takes both from the text model,
 //! \sa MaliitKeyboard::Model::Text and
-//! \sa MaliitKeyboard::Logic::WordEngine::onTextChanged().
+//! \sa MaliitKeyboard::Logic::WordEngine::computeCandidates()
 
 //! \fn MaliitKeyboard::Logic::WordEngine::enabledChanged
 //! \brief Emitted when word engine toggles word candidate updates on/off.
@@ -145,10 +145,10 @@ void WordEngine::setEnabled(bool enabled)
 
 
 //! \brief Respond to changes in text model.
-//! \param text The shared text model. Can trigger emission of
-//!             \sa candidatesUpdated() if new candidates are available.
-//!             Can update face of preedit in text.
-void WordEngine::onTextChanged(const Model::SharedText &text)
+//! \param text The text model. Can trigger emission of
+//!             \sa candidatesChanged() if new candidates are available.
+//!             Can update preedit face in text.
+void WordEngine::computeCandidates(Model::Text *text)
 {
 #ifdef DISABLE_PREEDIT
     Q_UNUSED(text)
@@ -159,7 +159,7 @@ void WordEngine::onTextChanged(const Model::SharedText &text)
     // with that we probably will want to turn off preedit styling at
     // all.
 
-    if (text.isNull()) {
+    if (not text) {
         qWarning() << __PRETTY_FUNCTION__
                    << "No text model specified.";
     }
@@ -175,7 +175,7 @@ void WordEngine::onTextChanged(const Model::SharedText &text)
         if (not d->candidates.isEmpty()) {
             d->candidates.clear();
             text->setPreeditFace(Model::Text::PreeditDefault);
-            Q_EMIT candidatesUpdated(d->candidates);
+            Q_EMIT candidatesChanged(d->candidates);
         }
         return;
     }
@@ -218,8 +218,7 @@ void WordEngine::onTextChanged(const Model::SharedText &text)
     text->setPrimaryCandidate(d->candidates.isEmpty() ? QString()
                                                       : d->candidates.first());
 
-    Q_EMIT textChanged(text);
-    Q_EMIT candidatesUpdated(d->candidates);
+    Q_EMIT candidatesChanged(d->candidates);
 #endif
 }
 

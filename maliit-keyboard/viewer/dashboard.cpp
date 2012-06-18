@@ -65,7 +65,7 @@ private:
 DashboardEditor::DashboardEditor(QTextEdit *target,
                                  const EditorOptions &options,
                                  QObject *parent)
-    : AbstractTextEditor(options, Model::SharedText(new Model::Text), new Logic::WordEngine, parent)
+    : AbstractTextEditor(options, new Model::Text, new Logic::WordEngine, parent)
     , m_target(target)
 {}
 

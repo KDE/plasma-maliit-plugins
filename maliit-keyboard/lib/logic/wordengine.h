@@ -54,7 +54,7 @@ public:
     virtual ~WordEngine();
 
     virtual void setEnabled(bool enabled);
-    virtual void onTextChanged(const Model::SharedText &text);
+    virtual void computeCandidates(Model::Text *text);
 
 private:
     const QScopedPointer<WordEnginePrivate> d_ptr;

@@ -45,27 +45,27 @@ public:
     QTimer auto_repeat_backspace_timer;
     bool backspace_sent;
     EditorOptions options;
-    Model::SharedText text;
+    QScopedPointer<Model::Text> text;
+    QScopedPointer<Logic::AbstractWordEngine> word_engine;
     bool preedit_enabled;
     bool auto_correct_enabled;
-    QScopedPointer<Logic::AbstractWordEngine> word_engine;
 
     explicit AbstractTextEditorPrivate(const EditorOptions &new_options,
-                                       const Model::SharedText &new_text,
+                                       Model::Text *new_text,
                                        Logic::AbstractWordEngine *new_word_engine);
     bool valid() const;
 };
 
 AbstractTextEditorPrivate::AbstractTextEditorPrivate(const EditorOptions &new_options,
-                                                     const Model::SharedText &new_text,
+                                                     Model::Text *new_text,
                                                      Logic::AbstractWordEngine *new_word_engine)
     : auto_repeat_backspace_timer()
     , backspace_sent(false)
     , options(new_options)
     , text(new_text)
+    , word_engine(new_word_engine)
     , preedit_enabled(false)
     , auto_correct_enabled(false)
-    , word_engine(new_word_engine)
 {
     auto_repeat_backspace_timer.setSingleShot(true);
     (void) valid();
@@ -84,7 +84,7 @@ bool AbstractTextEditorPrivate::valid() const
 }
 
 AbstractTextEditor::AbstractTextEditor(const EditorOptions &options,
-                                       const Model::SharedText &text,
+                                       Model::Text *text,
                                        Logic::AbstractWordEngine *word_engine,
                                        QObject *parent)
     : QObject(parent)
@@ -92,15 +92,21 @@ AbstractTextEditor::AbstractTextEditor(const EditorOptions &options,
 {
     connect(&d_ptr->auto_repeat_backspace_timer, SIGNAL(timeout()),
             this,                                SLOT(autoRepeatBackspace()));
+
+    connect(word_engine, SIGNAL(enabledChanged(bool)),
+            this,        SLOT(setPreeditEnabled(bool)));
+
+    connect(word_engine, SIGNAL(candidatesChanged(QStringList)),
+            this,        SIGNAL(wordCandidatesChanged(QStringList)));
 }
 
 AbstractTextEditor::~AbstractTextEditor()
 {}
 
-Model::SharedText AbstractTextEditor::text() const
+Model::Text * AbstractTextEditor::text() const
 {
     Q_D(const AbstractTextEditor);
-    return d->text;
+    return d->text.data();
 }
 
 Logic::AbstractWordEngine * AbstractTextEditor::wordEngine() const
@@ -120,8 +126,6 @@ void AbstractTextEditor::onKeyPressed(const Key &key)
     if (key.action() == Key::ActionBackspace) {
         sendCommitString(d->text->preedit());
         d->text->commitPreedit();
-        Q_EMIT textChanged(d->text);
-
         d->backspace_sent = false;
         d->auto_repeat_backspace_timer.start(d->options.backspace_auto_repeat_delay);
     }
@@ -147,9 +151,15 @@ void AbstractTextEditor::onKeyReleased(const Key &key)
         sendPreeditString(d->text->preedit(), d->text->preeditFace());
 #endif
 
+        // computeCandidates can change preedit face, so needs to happen
+        // before sending preedit:
         if (d->preedit_enabled) {
-            Q_EMIT textChanged(d->text);
-        } else {
+            d->word_engine->computeCandidates(d->text.data());
+        }
+
+        sendPreeditString(d->text->preedit(), d->text->preeditFace());
+
+        if (not d->preedit_enabled) {
             commitPreedit();
         }
 
@@ -249,8 +259,9 @@ void AbstractTextEditor::replacePreedit(const QString &replacement,
 
     switch (policy) {
     case ReplaceOnly:
-        Q_EMIT textChanged(d->text);
-
+        // computeCandidates can change preedit face, so needs to happen
+        // before sending preedit:
+        d->word_engine->computeCandidates(d->text.data());
         sendPreeditString(d->text->preedit(), d->text->preeditFace());
         break;
 
@@ -308,7 +319,7 @@ void AbstractTextEditor::commitPreedit()
 
     sendCommitString(d->text->preedit());
     d->text->commitPreedit();
-    Q_EMIT textChanged(d->text);
+    d->word_engine->clearCandidates();
 }
 
 // TODO: this implementation does not take into account following features:

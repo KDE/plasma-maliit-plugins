@@ -90,7 +90,7 @@ public:
                             const SharedLayout &layout);
     Q_SLOT void clearActiveKeysAndMagnifier();
     Q_SLOT void resetOnKeyboardClosed();
-    Q_SLOT void onCandidatesUpdated(const QStringList &candidates);
+    Q_SLOT void onWordCandidatesUpdated(const QStringList &candidates);
 
     // WordCandidate signal handlers:
     Q_SLOT void onWordCandidatePressed(const WordCandidate &candidate,

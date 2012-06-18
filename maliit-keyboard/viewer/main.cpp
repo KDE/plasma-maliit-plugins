@@ -128,9 +128,8 @@ int main(int argc,
     MaliitKeyboard::LayoutUpdater lu1;
     lu1.setLayout(l1);
 
-    MaliitKeyboard::Logic::WordEngine word_engine;
     DefaultFeedback feedback;
-    MaliitKeyboard::Setup::connectAll(&glass, &lu0, &renderer, dashboard->editor(), &word_engine, &feedback);
+    MaliitKeyboard::Setup::connectAll(&glass, &lu0, &renderer, dashboard->editor(), &feedback);
 
     MaliitKeyboard::Setup::connectGlassToLayoutUpdater(&glass, &lu1);
     MaliitKeyboard::Setup::connectLayoutUpdaterToRenderer(&lu1, &renderer);

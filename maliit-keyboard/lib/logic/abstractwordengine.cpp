@@ -81,4 +81,11 @@ void AbstractWordEngine::setEnabled(bool enabled)
     }
 }
 
+
+//! \brief Clears the current candidates.
+void AbstractWordEngine::clearCandidates()
+{
+    Q_EMIT candidatesChanged(QStringList());
+}
+
 }} // namespace MaliitKeyboard, Logic

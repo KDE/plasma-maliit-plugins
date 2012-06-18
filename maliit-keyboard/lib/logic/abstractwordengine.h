@@ -59,9 +59,9 @@ public:
     Q_SLOT virtual void setEnabled(bool enabled);
     Q_SIGNAL void enabledChanged(bool enabled);
 
-    Q_SLOT virtual void onTextChanged(const Model::SharedText &text) = 0;
-    Q_SIGNAL void candidatesUpdated(const QStringList &candidates);
-    Q_SIGNAL void textChanged(const Model::SharedText &text);
+    virtual void clearCandidates();
+    Q_SLOT virtual void computeCandidates(Model::Text *text) = 0;
+    Q_SIGNAL void candidatesChanged(const QStringList &candidates);
 
 private:
     const QScopedPointer<AbstractWordEnginePrivate> d_ptr;

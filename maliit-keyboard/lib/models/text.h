@@ -37,17 +37,10 @@
 namespace MaliitKeyboard {
 namespace Model {
 
-class Text;
-typedef QSharedPointer<Text> SharedText;
-
 //! \brief Represents the text state of the editor
 //!
-//! To avoid needless copying and to keep synchronization between consumers of
-//! this model simple, the master copy is shared as SharedText between
-//! AbstractTextEditor, LayoutUpdater and WordEngine.
-//!     The model itself is a passive component; users of this model are
-//! responsible for notifying other users whenever they update the shared
-//! master copy.
+//! Both MaliitKeyboard::AbstractTextEditor and
+//! MaliitKeyboard::Logic::AbstractWordEngine operate on the text model.
 class Text
 {
 public:

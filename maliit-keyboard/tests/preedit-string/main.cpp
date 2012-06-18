@@ -35,8 +35,10 @@
 #include "models/key.h"
 #include "models/keyarea.h"
 #include "models/layout.h"
+#include "models/text.h"
 #include "view/glass.h"
 #include "view/setup.h"
+#include "logic/wordengine.h"
 #include "plugin/editor.h"
 #include "inputmethodhostprobe.h"
 
@@ -227,7 +229,7 @@ private:
 
         QWidget window;
         Glass glass;
-        Editor editor(EditorOptions(), 0);
+        Editor editor(EditorOptions(), new Model::Text, new Logic::WordEngine, 0);
         InputMethodHostProbe host;
         SharedLayout layout(new Layout);
 

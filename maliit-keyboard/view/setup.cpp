@@ -41,7 +41,6 @@
 #include "models/text.h"
 
 #include "logic/layoutupdater.h"
-#include "logic/abstractwordengine.h"
 
 namespace MaliitKeyboard {
 namespace Setup {
@@ -50,7 +49,6 @@ void connectAll(Glass *glass,
                 LayoutUpdater *updater,
                 Renderer *renderer,
                 AbstractTextEditor *editor,
-                Logic::AbstractWordEngine *engine,
                 AbstractFeedback *feedback)
 {
     connectGlassToLayoutUpdater(glass, updater);
@@ -59,9 +57,6 @@ void connectAll(Glass *glass,
 
     connectLayoutUpdaterToRenderer(updater, renderer);
     connectLayoutUpdaterToTextEditor(updater, editor);
-
-    connectWordEngineToLayoutUpdater(engine, updater);
-    connectTextEditorToWordEngine(editor, engine);
 }
 
 void connectGlassToLayoutUpdater(Glass *glass,
@@ -142,6 +137,12 @@ void connectLayoutUpdaterToTextEditor(LayoutUpdater *updater,
 {
     QObject::connect(updater, SIGNAL(wordCandidateSelected(QString)),
                      editor,  SLOT(replacePreedit(QString)));
+
+    QObject::connect(editor,  SIGNAL(preeditEnabledChanged(bool)),
+                     updater, SLOT(setWordRibbonVisible(bool)));
+
+    QObject::connect(editor,  SIGNAL(wordCandidatesChanged(QStringList)),
+                     updater, SLOT(onWordCandidatesUpdated(QStringList)));
 }
 
 void connectLayoutUpdaterToRenderer(LayoutUpdater *updater,
@@ -155,26 +156,6 @@ void connectLayoutUpdaterToRenderer(LayoutUpdater *updater,
 
     QObject::connect(updater,  SIGNAL(wordCandidatesChanged(SharedLayout)),
                      renderer, SLOT(onWordCandidatesChanged(SharedLayout)));
-}
-
-void connectWordEngineToLayoutUpdater(Logic::AbstractWordEngine *engine,
-                                      LayoutUpdater *updater)
-{
-    QObject::connect(engine,  SIGNAL(candidatesUpdated(QStringList)),
-                     updater, SLOT(onCandidatesUpdated(QStringList)));
-
-    QObject::connect(engine,  SIGNAL(enabledChanged(bool)),
-                     updater, SLOT(setWordRibbonVisible(bool)));
-}
-
-void connectTextEditorToWordEngine(AbstractTextEditor *editor,
-                                   Logic::AbstractWordEngine *engine)
-{
-    QObject::connect(editor, SIGNAL(textChanged(Model::SharedText)),
-                     engine, SLOT(onTextChanged(Model::SharedText)));
-
-    QObject::connect(engine, SIGNAL(enabledChanged(bool)),
-                     editor, SLOT(setPreeditEnabled(bool)));
 }
 
 }} // namespace Setup, MaliitKeyboard

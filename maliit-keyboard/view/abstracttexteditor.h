@@ -74,12 +74,12 @@ public:
     Q_ENUMS(ReplacementPolicy)
 
     explicit AbstractTextEditor(const EditorOptions &options,
-                                const Model::SharedText &text,
+                                Model::Text *text,
                                 Logic::AbstractWordEngine *word_engine,
                                 QObject *parent = 0);
     virtual ~AbstractTextEditor() = 0;
 
-    Model::SharedText text() const;
+    Model::Text * text() const;
     Logic::AbstractWordEngine * wordEngine() const;
 
     Q_SLOT void onKeyPressed(const Key &key);
@@ -98,10 +98,10 @@ public:
     Q_SLOT void setAutoCorrectEnabled(bool enabled);
     Q_SIGNAL void autoCorrectEnabledChanged(bool enabled);
 
-    Q_SIGNAL void textChanged(const Model::SharedText &text);
     Q_SIGNAL void keyboardClosed();
     Q_SIGNAL void leftLayoutSelected();
     Q_SIGNAL void rightLayoutSelected();
+    Q_SIGNAL void wordCandidatesChanged(const QStringList &word_candidates);
 
 private:
     const QScopedPointer<AbstractTextEditorPrivate> d_ptr;

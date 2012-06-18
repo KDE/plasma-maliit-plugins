@@ -599,7 +599,7 @@ void LayoutUpdater::resetOnKeyboardClosed()
     // if we do, rendered re-shows the keyboard
 }
 
-void LayoutUpdater::onCandidatesUpdated(const QStringList &candidates)
+void LayoutUpdater::onWordCandidatesUpdated(const QStringList &candidates)
 {
     Q_D(LayoutUpdater);
 
