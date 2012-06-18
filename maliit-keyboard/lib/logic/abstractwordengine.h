@@ -1,9 +1,9 @@
 /*
  * This file is part of Maliit Plugins
  *
- * Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies). All rights reserved.
+ * Copyright (C) 2012 Openismus GmbH
  *
- * Contact: Mohammad Anwari <Mohammad.Anwari@nokia.com>
+ * Contact: maliit-discuss@lists.maliit.org
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -29,37 +29,44 @@
  *
  */
 
-#ifndef MALIIT_KEYBOARD_WORDENGINE_H
-#define MALIIT_KEYBOARD_WORDENGINE_H
+#ifndef MALIIT_KEYBOARD_ABSTRACTWORDENGINE_H
+#define MALIIT_KEYBOARD_ABSTRACTWORDENGINE_H
 
 #include "models/text.h"
-#include "logic/abstractwordengine.h"
-
 #include <QtCore>
 
 namespace MaliitKeyboard {
 namespace Logic {
 
-class WordEnginePrivate;
+class AbstractWordEnginePrivate;
 
-class WordEngine
-    : public AbstractWordEngine
+class AbstractWordEngine
+    : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(WordEngine)
-    Q_DECLARE_PRIVATE(WordEngine)
+    Q_DISABLE_COPY(AbstractWordEngine)
+    Q_DECLARE_PRIVATE(AbstractWordEngine)
+
+    Q_PROPERTY(bool enabled READ isEnabled
+                            WRITE setEnabled
+                            NOTIFY enabledChanged)
 
 public:
-    explicit WordEngine(QObject *parent = 0);
-    virtual ~WordEngine();
+    explicit AbstractWordEngine(QObject *parent = 0);
+    virtual ~AbstractWordEngine();
 
-    virtual void setEnabled(bool enabled);
-    virtual void onTextChanged(const Model::SharedText &text);
+    virtual bool isEnabled() const;
+    Q_SLOT virtual void setEnabled(bool enabled);
+    Q_SIGNAL void enabledChanged(bool enabled);
+
+    Q_SLOT virtual void onTextChanged(const Model::SharedText &text) = 0;
+    Q_SIGNAL void candidatesUpdated(const QStringList &candidates);
+    Q_SIGNAL void textChanged(const Model::SharedText &text);
 
 private:
-    const QScopedPointer<WordEnginePrivate> d_ptr;
+    const QScopedPointer<AbstractWordEnginePrivate> d_ptr;
 };
 
-}} // namespace Logic, MaliitKeyboard
+}} // namespace MaliitKeyboard, Logic
 
-#endif // MALIIT_KEYBOARD_WORDENGINE_H
+#endif // MALIIT_KEYBOARD_ABSTRACTWORDENGINE_H

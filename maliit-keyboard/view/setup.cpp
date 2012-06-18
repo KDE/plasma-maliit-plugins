@@ -41,7 +41,7 @@
 #include "models/text.h"
 
 #include "logic/layoutupdater.h"
-#include "logic/wordengine.h"
+#include "logic/abstractwordengine.h"
 
 namespace MaliitKeyboard {
 namespace Setup {
@@ -50,7 +50,7 @@ void connectAll(Glass *glass,
                 LayoutUpdater *updater,
                 Renderer *renderer,
                 AbstractTextEditor *editor,
-                Logic::WordEngine *engine,
+                Logic::AbstractWordEngine *engine,
                 AbstractFeedback *feedback)
 {
     connectGlassToLayoutUpdater(glass, updater);
@@ -157,7 +157,7 @@ void connectLayoutUpdaterToRenderer(LayoutUpdater *updater,
                      renderer, SLOT(onWordCandidatesChanged(SharedLayout)));
 }
 
-void connectWordEngineToLayoutUpdater(Logic::WordEngine *engine,
+void connectWordEngineToLayoutUpdater(Logic::AbstractWordEngine *engine,
                                       LayoutUpdater *updater)
 {
     QObject::connect(engine,  SIGNAL(candidatesUpdated(QStringList)),
@@ -168,7 +168,7 @@ void connectWordEngineToLayoutUpdater(Logic::WordEngine *engine,
 }
 
 void connectTextEditorToWordEngine(AbstractTextEditor *editor,
-                                   Logic::WordEngine *engine)
+                                   Logic::AbstractWordEngine *engine)
 {
     QObject::connect(editor, SIGNAL(textChanged(Model::SharedText)),
                      engine, SLOT(onTextChanged(Model::SharedText)));

@@ -90,7 +90,6 @@ class WordEnginePrivate
 public:
     QStringList candidates;
     SpellChecker spell_checker;
-    bool enabled;
 #ifdef HAVE_PRESAGE
     std::string candidates_context;
     CandidatesCallback presage_candidates;
@@ -103,7 +102,6 @@ public:
 WordEnginePrivate::WordEnginePrivate()
     : candidates()
     , spell_checker()
-    , enabled(false)
 #ifdef HAVE_PRESAGE
     , candidates_context()
     , presage_candidates(CandidatesCallback(candidates_context))
@@ -121,7 +119,7 @@ WordEnginePrivate::WordEnginePrivate()
 //! \param parent The owner of this instance. Can be 0, in case QObject
 //!               ownership is not required.
 WordEngine::WordEngine(QObject *parent)
-    : QObject(parent)
+    : AbstractWordEngine(parent)
     , d_ptr(new WordEnginePrivate)
 {}
 
@@ -130,17 +128,6 @@ WordEngine::~WordEngine()
 {}
 
 
-//! \brief Returns whether the engine provides updates for word candidates.
-bool WordEngine::isEnabled() const
-{
-    Q_D(const WordEngine);
-    return d->enabled;
-}
-
-
-//! \brief Set whether the engine should provide updates for word candidates.
-//! \param enabled Setting to true will be ignored if there's no word
-//!                prediction or error correction backend available.
 void WordEngine::setEnabled(bool enabled)
 {
  // Don't allow to enable word engine if no backends are available:
@@ -153,13 +140,7 @@ void WordEngine::setEnabled(bool enabled)
 
     enabled = false;
 #endif
-
-    Q_D(WordEngine);
-
-    if (d->enabled != enabled) {
-        d->enabled = enabled;
-        Q_EMIT enabledChanged(d->enabled);
-    }
+    AbstractWordEngine::setEnabled(enabled);
 }
 
 
@@ -185,7 +166,7 @@ void WordEngine::onTextChanged(const Model::SharedText &text)
 
     Q_D(WordEngine);
 
-    if (not d->enabled) {
+    if (not isEnabled()) {
         return;
     }
 

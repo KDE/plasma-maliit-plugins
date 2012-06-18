@@ -7,6 +7,7 @@ HEADERS += \
     logic/keyareaconverter.h \
     logic/style.h \
     logic/spellchecker.h \
+    logic/abstractwordengine.h \
     logic/wordengine.h \
 
 SOURCES += \
@@ -16,6 +17,7 @@ SOURCES += \
     logic/keyareaconverter.cpp \
     logic/style.cpp \
     logic/spellchecker.cpp \
+    logic/abstractwordengine.cpp \
     logic/wordengine.cpp \
 
 DEPENDPATH += $$LOGIC_DIR

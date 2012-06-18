@@ -1,9 +1,9 @@
 /*
  * This file is part of Maliit Plugins
  *
- * Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies). All rights reserved.
+ * Copyright (C) 2012 Openismus GmbH
  *
- * Contact: Mohammad Anwari <Mohammad.Anwari@nokia.com>
+ * Contact: maliit-discuss@lists.maliit.org
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -29,37 +29,56 @@
  *
  */
 
-#ifndef MALIIT_KEYBOARD_WORDENGINE_H
-#define MALIIT_KEYBOARD_WORDENGINE_H
-
-#include "models/text.h"
-#include "logic/abstractwordengine.h"
-
-#include <QtCore>
+#include "abstractwordengine.h"
 
 namespace MaliitKeyboard {
 namespace Logic {
 
-class WordEnginePrivate;
-
-class WordEngine
-    : public AbstractWordEngine
+class AbstractWordEnginePrivate
 {
-    Q_OBJECT
-    Q_DISABLE_COPY(WordEngine)
-    Q_DECLARE_PRIVATE(WordEngine)
-
 public:
-    explicit WordEngine(QObject *parent = 0);
-    virtual ~WordEngine();
+    bool enabled;
 
-    virtual void setEnabled(bool enabled);
-    virtual void onTextChanged(const Model::SharedText &text);
-
-private:
-    const QScopedPointer<WordEnginePrivate> d_ptr;
+    explicit AbstractWordEnginePrivate();
 };
 
-}} // namespace Logic, MaliitKeyboard
 
-#endif // MALIIT_KEYBOARD_WORDENGINE_H
+AbstractWordEnginePrivate::AbstractWordEnginePrivate()
+    : enabled(false)
+{}
+
+
+//! \param parent The owner of this instance. Can be 0, in case QObject
+//!               ownership is not required.
+AbstractWordEngine::AbstractWordEngine(QObject *parent)
+    : QObject(parent)
+    , d_ptr(new AbstractWordEnginePrivate)
+{}
+
+
+AbstractWordEngine::~AbstractWordEngine()
+{}
+
+
+//! \brief Returns whether the engine provides updates for word candidates.
+bool AbstractWordEngine::isEnabled() const
+{
+    Q_D(const AbstractWordEngine);
+    return d->enabled;
+}
+
+
+//! \brief Set whether the engine should provide updates for word candidates.
+//! \param enabled Setting to true will be ignored if there's no word
+//!                prediction or error correction backend available.
+void AbstractWordEngine::setEnabled(bool enabled)
+{
+    Q_D(AbstractWordEngine);
+
+    if (d->enabled != enabled) {
+        d->enabled = enabled;
+        Q_EMIT enabledChanged(d->enabled);
+    }
+}
+
+}} // namespace MaliitKeyboard, Logic
