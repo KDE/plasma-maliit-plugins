@@ -5,6 +5,7 @@ SUBDIRS = \
     preedit-string \
     repeat-backspace \
     rendering \
+    word-candidates \
 
 CONFIG += ordered
 QMAKE_EXTRA_TARGETS += check
