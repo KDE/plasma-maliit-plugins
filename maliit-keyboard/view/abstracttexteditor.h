@@ -35,6 +35,7 @@
 #include "models/key.h"
 #include "models/wordcandidate.h"
 #include "models/text.h"
+#include "logic/abstractwordengine.h"
 
 #include <QtCore>
 #include <QtGui/QKeyEvent>
@@ -74,10 +75,12 @@ public:
 
     explicit AbstractTextEditor(const EditorOptions &options,
                                 const Model::SharedText &text,
+                                Logic::AbstractWordEngine *word_engine,
                                 QObject *parent = 0);
     virtual ~AbstractTextEditor() = 0;
 
     Model::SharedText text() const;
+    Logic::AbstractWordEngine * wordEngine() const;
 
     Q_SLOT void onKeyPressed(const Key &key);
     Q_SLOT void onKeyReleased(const Key &key);

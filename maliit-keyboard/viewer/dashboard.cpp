@@ -34,6 +34,7 @@
 #include "view/renderer.h"
 #include "view/abstracttexteditor.h"
 #include "logic/keyareaconverter.h"
+#include "logic/wordengine.h"
 #include "dashboard.h"
 
 #include <QInputMethodEvent>
@@ -64,7 +65,7 @@ private:
 DashboardEditor::DashboardEditor(QTextEdit *target,
                                  const EditorOptions &options,
                                  QObject *parent)
-    : AbstractTextEditor(options, Model::SharedText(new Model::Text), parent)
+    : AbstractTextEditor(options, Model::SharedText(new Model::Text), new Logic::WordEngine, parent)
     , m_target(target)
 {}
 

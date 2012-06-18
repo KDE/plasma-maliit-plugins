@@ -48,20 +48,24 @@ public:
     Model::SharedText text;
     bool preedit_enabled;
     bool auto_correct_enabled;
+    QScopedPointer<Logic::AbstractWordEngine> word_engine;
 
     explicit AbstractTextEditorPrivate(const EditorOptions &new_options,
-                                       const Model::SharedText &new_text);
+                                       const Model::SharedText &new_text,
+                                       Logic::AbstractWordEngine *new_word_engine);
     bool valid() const;
 };
 
 AbstractTextEditorPrivate::AbstractTextEditorPrivate(const EditorOptions &new_options,
-                                                     const Model::SharedText &new_text)
+                                                     const Model::SharedText &new_text,
+                                                     Logic::AbstractWordEngine *new_word_engine)
     : auto_repeat_backspace_timer()
     , backspace_sent(false)
     , options(new_options)
     , text(new_text)
     , preedit_enabled(false)
     , auto_correct_enabled(false)
+    , word_engine(new_word_engine)
 {
     auto_repeat_backspace_timer.setSingleShot(true);
     (void) valid();
@@ -69,11 +73,11 @@ AbstractTextEditorPrivate::AbstractTextEditorPrivate(const EditorOptions &new_op
 
 bool AbstractTextEditorPrivate::valid() const
 {
-    const bool is_invalid(text.isNull());
+    const bool is_invalid(text.isNull() || word_engine.isNull());
 
     if (is_invalid) {
         qCritical() << __PRETTY_FUNCTION__
-                    << "Invalid text model! The text editor will not function properly.";
+                    << "Invalid text model, or no word engine given! The text editor will not function properly.";
     }
 
     return (not is_invalid);
@@ -81,9 +85,10 @@ bool AbstractTextEditorPrivate::valid() const
 
 AbstractTextEditor::AbstractTextEditor(const EditorOptions &options,
                                        const Model::SharedText &text,
+                                       Logic::AbstractWordEngine *word_engine,
                                        QObject *parent)
     : QObject(parent)
-    , d_ptr(new AbstractTextEditorPrivate(options, text))
+    , d_ptr(new AbstractTextEditorPrivate(options, text, word_engine))
 {
     connect(&d_ptr->auto_repeat_backspace_timer, SIGNAL(timeout()),
             this,                                SLOT(autoRepeatBackspace()));
@@ -96,6 +101,12 @@ Model::SharedText AbstractTextEditor::text() const
 {
     Q_D(const AbstractTextEditor);
     return d->text;
+}
+
+Logic::AbstractWordEngine * AbstractTextEditor::wordEngine() const
+{
+    Q_D(const AbstractTextEditor);
+    return d->word_engine.data();
 }
 
 void AbstractTextEditor::onKeyPressed(const Key &key)

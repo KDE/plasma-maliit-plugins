@@ -52,6 +52,8 @@ private:
 
 public:
     explicit Editor(const EditorOptions &options,
+                    const Model::SharedText &text,
+                    Logic::AbstractWordEngine *word_engine,
                     QObject *parent = 0);
     virtual ~Editor();
 

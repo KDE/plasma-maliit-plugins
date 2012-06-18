@@ -99,7 +99,6 @@ public:
     Glass glass;
     LayoutUpdater layout_updater;
     Editor editor;
-    Logic::WordEngine word_engine;
     DefaultFeedback feedback;
     SharedLayout layout;
     SharedStyle style;
@@ -112,8 +111,7 @@ public:
         , renderer()
         , glass()
         , layout_updater()
-        , editor(EditorOptions())
-        , word_engine()
+        , editor(EditorOptions(), Model::SharedText(new Model::Text), new Logic::WordEngine)
         , feedback()
         , layout(new Layout)
         , style(new Style)
@@ -167,10 +165,10 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
 {
     Q_D(InputMethod);
 
-    Setup::connectAll(&d->glass, &d->layout_updater, &d->renderer, &d->editor, &d->word_engine, &d->feedback);
+    Setup::connectAll(&d->glass, &d->layout_updater, &d->renderer, &d->editor, d->editor.wordEngine(), &d->feedback);
 
     // TODO: Let this be driven through content type, and/or a plugin setting:
-    d->word_engine.setEnabled(true);
+    d->editor.wordEngine()->setEnabled(true);
     d->editor.setAutoCorrectEnabled(false);
 
     connect(&d->glass, SIGNAL(keyboardClosed()),
