@@ -34,6 +34,24 @@
 namespace MaliitKeyboard {
 namespace Logic {
 
+//! \class AbstractWordEngine
+//! Provides word candidates based on text model. Derived classes need to
+//! provide an implementation for \a computeCandidate() but need to check
+//! whether candidates can be computed at all.
+//! \sa Model::Text, canComputeCandidates() and computeCandidates().
+
+//! \fn computeCandidates
+//! \brief Computes candidates based on text.
+//! \param text The text model. Can trigger emission of candidatesChanged.
+
+//! \fn enabledChanged
+//! \brief Emitted when word engine toggles word candidate updates on/off.
+//! \param enabled Whether word engine is enabled.
+
+//! \fn candidatesChanged
+//! \brief Emitted when new candidates have been computed.
+//! \param candidates The list of updated candidates.
+
 class AbstractWordEnginePrivate
 {
 public:

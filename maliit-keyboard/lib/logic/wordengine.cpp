@@ -36,22 +36,12 @@
 #include <presage.h>
 #endif
 
-//! \class MaliitKeyboard::Logic::WordEngine
-//! Provides error correction based on preedit (default engine: hunspell) and
-//! word prediction based on surrounding text and preedit (default engine:
-//! presage). The word engine takes both from the text model,
-//! \sa MaliitKeyboard::Model::Text and
-//! \sa MaliitKeyboard::Logic::WordEngine::computeCandidates()
-
-//! \fn MaliitKeyboard::Logic::WordEngine::enabledChanged
-//! \brief Emitted when word engine toggles word candidate updates on/off.
-//! \param enabled Whether word engine is enabled.
-
-//! \fn MaliitKeyboard::Logic::WordEngine::candidatesUpdated
-//! \brief Emitted when new candidates have been computed.
-//! \param candidates The list of updated candidates.
 namespace MaliitKeyboard {
 namespace Logic {
+
+//! \class WordEngine
+//! Provides error correction (based on Hunspell) and word prediction (based
+//! on Presage).
 
 #ifdef HAVE_PRESAGE
 class CandidatesCallback
