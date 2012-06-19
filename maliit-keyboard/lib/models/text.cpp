@@ -66,6 +66,7 @@ void Text::commitPreedit()
     m_surrounding_offset = m_preedit.length();
     m_preedit.clear();
     m_primary_candidate.clear();
+    m_face = PreeditDefault;
 }
 
 QString Text::primaryCandidate() const

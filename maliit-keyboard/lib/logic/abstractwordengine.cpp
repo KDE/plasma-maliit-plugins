@@ -36,13 +36,8 @@ namespace Logic {
 
 //! \class AbstractWordEngine
 //! Provides word candidates based on text model. Derived classes need to
-//! provide an implementation for \a computeCandidate() but need to check
-//! whether candidates can be computed at all.
-//! \sa Model::Text, canComputeCandidates() and computeCandidates().
-
-//! \fn computeCandidates
-//! \brief Computes candidates based on text.
-//! \param text The text model. Can trigger emission of candidatesChanged.
+//! provide an implementation for \a fetchCandidates().
+//! \sa Model::Text, computeCandidates().
 
 //! \fn enabledChanged
 //! \brief Emitted when word engine toggles word candidate updates on/off.
@@ -51,6 +46,13 @@ namespace Logic {
 //! \fn candidatesChanged
 //! \brief Emitted when new candidates have been computed.
 //! \param candidates The list of updated candidates.
+
+//! \fn fetchCandidates
+//! \brief Returns a list of candidates.
+//!
+//! Needs to be implemented by derived classes. Will not be called if engine
+//! is disabled or text model has no preedit.
+//! \param text The text model.
 
 class AbstractWordEnginePrivate
 {
@@ -104,6 +106,23 @@ void AbstractWordEngine::setEnabled(bool enabled)
 void AbstractWordEngine::clearCandidates()
 {
     Q_EMIT candidatesChanged(QStringList());
+}
+
+
+//! \brief Computes new candidates, based on text model.
+//! \param text The text model. Can trigger emission of candidatesChanged.
+void AbstractWordEngine::computeCandidates(Model::Text *text)
+{
+    // FIXME: add possiblity to turn off the error correction for
+    // entries that does not need it (like password entries).  Also,
+    // with that we probably will want to turn off preedit styling at
+    // all.
+
+    if (not isEnabled() || not text || text->preedit().isEmpty()) {
+        return;
+    }
+
+    Q_EMIT candidatesChanged(fetchCandidates(text));
 }
 
 }} // namespace MaliitKeyboard, Logic

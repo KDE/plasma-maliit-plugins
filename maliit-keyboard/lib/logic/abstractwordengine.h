@@ -59,11 +59,12 @@ public:
     Q_SLOT virtual void setEnabled(bool enabled);
     Q_SIGNAL void enabledChanged(bool enabled);
 
-    virtual void clearCandidates();
-    Q_SLOT virtual void computeCandidates(Model::Text *text) = 0;
+    void clearCandidates();
+    void computeCandidates(Model::Text *text);
     Q_SIGNAL void candidatesChanged(const QStringList &candidates);
 
 private:
+    virtual QStringList fetchCandidates(Model::Text *text) = 0;
     const QScopedPointer<AbstractWordEnginePrivate> d_ptr;
 };
 

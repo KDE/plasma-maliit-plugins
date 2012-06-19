@@ -54,9 +54,10 @@ public:
     virtual ~WordEngine();
 
     virtual void setEnabled(bool enabled);
-    virtual void computeCandidates(Model::Text *text);
 
 private:
+    virtual QStringList fetchCandidates(Model::Text *text);
+
     const QScopedPointer<WordEnginePrivate> d_ptr;
 };
 

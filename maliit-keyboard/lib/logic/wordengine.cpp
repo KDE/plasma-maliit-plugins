@@ -78,7 +78,6 @@ std::string CandidatesCallback::get_future_stream() const
 class WordEnginePrivate
 {
 public:
-    QStringList candidates;
     SpellChecker spell_checker;
 #ifdef HAVE_PRESAGE
     std::string candidates_context;
@@ -90,8 +89,7 @@ public:
 };
 
 WordEnginePrivate::WordEnginePrivate()
-    : candidates()
-    , spell_checker()
+    : spell_checker()
 #ifdef HAVE_PRESAGE
     , candidates_context()
     , presage_candidates(CandidatesCallback(candidates_context))
@@ -134,46 +132,20 @@ void WordEngine::setEnabled(bool enabled)
 }
 
 
-//! \brief Respond to changes in text model.
-//! \param text The text model. Can trigger emission of
-//!             \sa candidatesChanged() if new candidates are available.
-//!             Can update preedit face in text.
-void WordEngine::computeCandidates(Model::Text *text)
+//! \brief Returns new candidates.
+//! \param text The text model. Can update preedit face in text.
+QStringList WordEngine::fetchCandidates(Model::Text *text)
 {
 #ifdef DISABLE_PREEDIT
     Q_UNUSED(text)
     return;
 #else
-    // FIXME: add possiblity to turn off the error correction for
-    // entries that does not need it (like password entries).  Also,
-    // with that we probably will want to turn off preedit styling at
-    // all.
-
-    if (not text) {
-        qWarning() << __PRETTY_FUNCTION__
-                   << "No text model specified.";
-    }
-
     Q_D(WordEngine);
 
-    if (not isEnabled()) {
-        return;
-    }
-
-    const QString &preedit(text->preedit());
-    if (preedit.isEmpty()) {
-        if (not d->candidates.isEmpty()) {
-            d->candidates.clear();
-            text->setPreeditFace(Model::Text::PreeditDefault);
-            Q_EMIT candidatesChanged(d->candidates);
-        }
-        return;
-    }
-
-    d->candidates.clear();
+    QStringList candidates;
 
 #ifdef HAVE_PRESAGE
-    const QString &context = (text->surroundingLeft() + preedit);
+    const QString &context = (text->surroundingLeft() + text->preedit());
     d->candidates_context = context.toStdString();
     const std::vector<std::string> predictions = d->presage.predict();
 
@@ -186,29 +158,30 @@ void WordEngine::computeCandidates(Model::Text *text)
             const QString &prediction(QString::fromStdString(predictions.at(index)));
 
             // FIXME: don't show the word we typed as a candidate.
-            if (d->candidates.contains(prediction)) {
+            if (candidates.contains(prediction)) {
                 continue;
             }
 
-            d->candidates.append(prediction);
+            candidates.append(prediction);
         }
     }
 #endif
 
-    const bool correct_spelling(d->spell_checker.spell(preedit));
+    const bool correct_spelling(d->spell_checker.spell(text->preedit()));
 
-    if (d->candidates.isEmpty() and not correct_spelling) {
-        d->candidates.append(d->spell_checker.suggest(preedit, 5));
+    if (candidates.isEmpty() and not correct_spelling) {
+        candidates.append(d->spell_checker.suggest(text->preedit(), 5));
     }
 
-    text->setPreeditFace(d->candidates.isEmpty() ? (correct_spelling ? Model::Text::PreeditDefault
-                                                                     : Model::Text::PreeditNoCandidates)
-                                                 : Model::Text::PreeditActive);
+    text->setPreeditFace(candidates.isEmpty() ? (correct_spelling ? Model::Text::PreeditDefault
+                                                                  : Model::Text::PreeditNoCandidates)
+                                              : Model::Text::PreeditActive);
 
-    text->setPrimaryCandidate(d->candidates.isEmpty() ? QString()
-                                                      : d->candidates.first());
+    text->setPrimaryCandidate(candidates.isEmpty() ? QString()
+                                                   : candidates.first());
 
-    Q_EMIT candidatesChanged(d->candidates);
+
+    return candidates;
 #endif
 }
 
