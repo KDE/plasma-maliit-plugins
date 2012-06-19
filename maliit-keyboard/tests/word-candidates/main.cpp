@@ -30,10 +30,12 @@
  */
 
 #include "utils.h"
+#include "wordengineprobe.h"
+#include "common/inputmethodhostprobe.h"
 
-// FIXME: Remove this header if not needed. Serves as dummy include to make
-// MaliitKeyboard namespace known.
+#include "plugin/editor.h"
 #include "models/key.h"
+#include "models/text.h"
 
 #include <QtCore>
 #include <QtTest>
@@ -48,6 +50,45 @@ class TestWordCandidates
 private:
     Q_SLOT void initTestCase()
     {}
+
+    Q_SLOT void testPrediction()
+    {
+        Editor editor(EditorOptions(), new Model::Text, new Logic::WordEngineProbe);
+
+        InputMethodHostProbe host;
+        editor.setHost(&host);
+
+        QSignalSpy preedit_enabled_spy(&editor, SIGNAL(preeditEnabledChanged(bool)));
+        QSignalSpy spy(&editor, SIGNAL(wordCandidatesChanged(QStringList)));
+
+        QVERIFY(not editor.isPreeditEnabled());
+        editor.wordEngine()->setEnabled(true);
+        QCOMPARE(preedit_enabled_spy.count(), 1);
+        QVERIFY(editor.isPreeditEnabled());
+
+        const QString preedit("preedit");
+        Q_FOREACH(const QChar &c, preedit) {
+            Key k;
+            QCOMPARE(k.action(), Key::ActionInsert);
+
+            k.rLabel().setText(QString(c));
+            editor.onKeyReleased(k);
+        }
+
+        QVERIFY(spy.count() > 0);
+        QCOMPARE(spy.takeLast().first().toStringList().first(), QString("tideerp"));
+
+        // Force a commit:
+        Key space;
+        space.setAction(Key::ActionSpace);
+        editor.onKeyReleased(space);
+
+        QCOMPARE(editor.text()->preedit(), QString());
+        QCOMPARE(host.commitStringHistory(), QString("preedit "));
+
+        QVERIFY(spy.count() > 0);
+        QCOMPARE(spy.takeLast().first().toStringList(), QStringList());
+    }
 };
 
 QTEST_MAIN(TestWordCandidates)
