@@ -47,12 +47,10 @@ class KeyAreaConverter
 private:
     StyleAttributes * const m_attributes;
     KeyboardLoader * const m_loader;
-    const QPoint m_anchor;
 
 public:
     explicit KeyAreaConverter(StyleAttributes *attributes,
-                              KeyboardLoader *loader,
-                              const QPoint &anchor);
+                              KeyboardLoader *loader);
     virtual ~KeyAreaConverter();
 
     virtual KeyArea keyArea(Layout::Orientation orientation) const;

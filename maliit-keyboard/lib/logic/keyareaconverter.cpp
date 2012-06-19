@@ -198,13 +198,10 @@ KeyArea createFromKeyboard(StyleAttributes *attributes,
 //! \param attributes The styling attributes that should be applied to the
 //!                   created key areas.
 //! \param loader The keyboard layout loader.
-//! \param anchor (deprecated)
 KeyAreaConverter::KeyAreaConverter(StyleAttributes *attributes,
-                                   KeyboardLoader *loader,
-                                   const QPoint &anchor)
+                                   KeyboardLoader *loader)
     : m_attributes(attributes)
     , m_loader(loader)
-    , m_anchor(anchor)
 {
     if (not attributes || not loader) {
         qFatal("Neither attributes nor loader can be null.");
