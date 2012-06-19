@@ -33,6 +33,8 @@
 #include "style.h"
 #include "coreutils.h"
 
+namespace MaliitKeyboard {
+
 //! \class Style
 //! Style is a container for StyleAttributes, which can read style attributes
 //! from INI files. Style makes sure that the proper style directories are
@@ -40,8 +42,6 @@
 //! the StyleAttributes instances.
 //!
 //! This class is uncopyable; use SharedStyle instead.
-
-namespace MaliitKeyboard {
 
 namespace {
 const QString g_styles_dir_path(MaliitKeyboard::CoreUtils::maliitKeyboardDataDirectory() + "/styles");
@@ -71,6 +71,7 @@ public:
 };
 
 
+//! \param parent The owner of this instance (optional).
 Style::Style(QObject *parent)
     : QObject(parent),
       d_ptr(new StylePrivate)

@@ -44,7 +44,8 @@ class StylePrivate;
 class Style;
 typedef QSharedPointer<Style> SharedStyle;
 
-class Style : public QObject
+class Style
+    : public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY(Style)
