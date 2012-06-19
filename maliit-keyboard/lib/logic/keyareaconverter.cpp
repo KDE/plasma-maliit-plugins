@@ -202,6 +202,7 @@ KeyAreaConverter::KeyAreaConverter(StyleAttributes *attributes,
                                    KeyboardLoader *loader)
     : m_attributes(attributes)
     , m_loader(loader)
+    , m_orientation(Layout::Landscape)
 {
     if (not attributes || not loader) {
         qFatal("Neither attributes nor loader can be null.");
@@ -213,91 +214,84 @@ KeyAreaConverter::~KeyAreaConverter()
 {}
 
 
-//! \brief Returns the main key area.
-//! \param orientation The layout orientation.
-KeyArea KeyAreaConverter::keyArea(Layout::Orientation orientation) const
+//! \brief Sets the layout orientation used for creating key areas.
+//! \param orientation The layout orientation. Default: landscape.
+void KeyAreaConverter::setLayoutOrientation(Layout::Orientation orientation)
 {
-    return createFromKeyboard(m_attributes, m_loader->keyboard(), orientation);
+    m_orientation = orientation;
+}
+
+//! \brief Returns the main key area.
+KeyArea KeyAreaConverter::keyArea() const
+{
+    return createFromKeyboard(m_attributes, m_loader->keyboard(), m_orientation);
 }
 
 
 //! \brief Returns the next key area (right of main key area).
-//! \param orientation The layout orientation.
-KeyArea KeyAreaConverter::nextKeyArea(Layout::Orientation orientation) const
+KeyArea KeyAreaConverter::nextKeyArea() const
 {
-    return createFromKeyboard(m_attributes, m_loader->nextKeyboard(), orientation);
+    return createFromKeyboard(m_attributes, m_loader->nextKeyboard(), m_orientation);
 }
 
 
 //! \brief Returns the previous key area (left of main key area).
-//! \param orientation The layout orientation.
-KeyArea KeyAreaConverter::previousKeyArea(Layout::Orientation orientation) const
+KeyArea KeyAreaConverter::previousKeyArea() const
 {
-    return createFromKeyboard(m_attributes, m_loader->previousKeyboard(), orientation);
+    return createFromKeyboard(m_attributes, m_loader->previousKeyboard(), m_orientation);
 }
 
 
 //! \brief Returns the main key area with shift bindings activated.
-//! \param orientation The layout orientation.
-KeyArea KeyAreaConverter::shiftedKeyArea(Layout::Orientation orientation) const
+KeyArea KeyAreaConverter::shiftedKeyArea() const
 {
-    return createFromKeyboard(m_attributes, m_loader->shiftedKeyboard(), orientation);
+    return createFromKeyboard(m_attributes, m_loader->shiftedKeyboard(), m_orientation);
 }
 
 
 //! \brief Returns the symbols key area.
-//! \param orientation The layout orientation.
-//! \param page The symbols page to return.
-KeyArea KeyAreaConverter::symbolsKeyArea(Layout::Orientation orientation,
-                                         int page) const
+//! \param page The symbols page to return (optional).
+KeyArea KeyAreaConverter::symbolsKeyArea(int page) const
 {
-    return createFromKeyboard(m_attributes, m_loader->symbolsKeyboard(page), orientation);
+    return createFromKeyboard(m_attributes, m_loader->symbolsKeyboard(page), m_orientation);
 }
 
 
 //! \brief Returns the main key area with dead key bindings activated.
-//! \param orientation The layout orientation.
 //! \param dead The key used to look up the dead keys.
-KeyArea KeyAreaConverter::deadKeyArea(Layout::Orientation orientation,
-                                      const Key &dead) const
+KeyArea KeyAreaConverter::deadKeyArea(const Key &dead) const
 {
-    return createFromKeyboard(m_attributes, m_loader->deadKeyboard(dead), orientation);
+    return createFromKeyboard(m_attributes, m_loader->deadKeyboard(dead), m_orientation);
 }
 
 
 //! \brief Returns the main key area with dead key bindings activated.
-//! \param orientation The layout orientation.
 //! \param dead The key used to look up the dead keys.
-KeyArea KeyAreaConverter::shiftedDeadKeyArea(Layout::Orientation orientation,
-                                             const Key &dead) const
+KeyArea KeyAreaConverter::shiftedDeadKeyArea(const Key &dead) const
 {
-    return createFromKeyboard(m_attributes, m_loader->shiftedDeadKeyboard(dead), orientation);
+    return createFromKeyboard(m_attributes, m_loader->shiftedDeadKeyboard(dead), m_orientation);
 }
 
 
 //! Returns an extended key area.
-//! \param orientation The layout orientation.
 //! \param key The key used to look up the extended key binding.
-KeyArea KeyAreaConverter::extendedKeyArea(Layout::Orientation orientation,
-                                          const Key &key) const
+KeyArea KeyAreaConverter::extendedKeyArea(const Key &key) const
 {
-    return createFromKeyboard(m_attributes, m_loader->extendedKeyboard(key), orientation, true);
+    return createFromKeyboard(m_attributes, m_loader->extendedKeyboard(key), m_orientation, true);
 }
 
 
 //! Returns the number key area.
-//! \param orientation The layout orientation.
-KeyArea KeyAreaConverter::numberKeyArea(Layout::Orientation orientation) const
+KeyArea KeyAreaConverter::numberKeyArea() const
 {
-    return createFromKeyboard(m_attributes, m_loader->numberKeyboard(), orientation);
+    return createFromKeyboard(m_attributes, m_loader->numberKeyboard(), m_orientation);
 }
 
 
 //! Returns the phone number key area.
-//! \param orientation The layout orientation.
-KeyArea KeyAreaConverter::phoneNumberKeyArea(Layout::Orientation orientation) const
+KeyArea KeyAreaConverter::phoneNumberKeyArea() const
 {
-    return createFromKeyboard(m_attributes, m_loader->phoneNumberKeyboard(), orientation);
+    return createFromKeyboard(m_attributes, m_loader->phoneNumberKeyboard(), m_orientation);
 }
 
 } // namespace MaliitKeyboard

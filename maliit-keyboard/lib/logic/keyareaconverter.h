@@ -47,27 +47,26 @@ class KeyAreaConverter
 private:
     StyleAttributes * const m_attributes;
     KeyboardLoader * const m_loader;
+    Layout::Orientation m_orientation;
 
 public:
     explicit KeyAreaConverter(StyleAttributes *attributes,
                               KeyboardLoader *loader);
     virtual ~KeyAreaConverter();
 
-    virtual KeyArea keyArea(Layout::Orientation orientation) const;
-    virtual KeyArea nextKeyArea(Layout::Orientation orientation) const;
-    virtual KeyArea previousKeyArea(Layout::Orientation orientation) const;
+    void setLayoutOrientation(Layout::Orientation orientation);
 
-    virtual KeyArea shiftedKeyArea(Layout::Orientation orientation) const;
-    virtual KeyArea symbolsKeyArea(Layout::Orientation orientation,
-                                   int page = 0) const;
-    virtual KeyArea deadKeyArea(Layout::Orientation orientation,
-                                const Key &dead) const;
-    virtual KeyArea shiftedDeadKeyArea(Layout::Orientation orientation,
-                                       const Key &dead) const;
-    virtual KeyArea extendedKeyArea(Layout::Orientation orientation,
-                                    const Key &key) const;
-    virtual KeyArea numberKeyArea(Layout::Orientation orientation) const;
-    virtual KeyArea phoneNumberKeyArea(Layout::Orientation orientation) const;
+    virtual KeyArea keyArea() const;
+    virtual KeyArea nextKeyArea() const;
+    virtual KeyArea previousKeyArea() const;
+
+    virtual KeyArea shiftedKeyArea() const;
+    virtual KeyArea symbolsKeyArea(int page = 0) const;
+    virtual KeyArea deadKeyArea(const Key &dead) const;
+    virtual KeyArea shiftedDeadKeyArea(const Key &dead) const;
+    virtual KeyArea extendedKeyArea(const Key &key) const;
+    virtual KeyArea numberKeyArea() const;
+    virtual KeyArea phoneNumberKeyArea() const;
 };
 
 } // namespace MaliitKeyboard

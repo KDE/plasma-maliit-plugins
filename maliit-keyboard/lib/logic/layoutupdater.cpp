@@ -330,9 +330,10 @@ void LayoutUpdater::setOrientation(Layout::Orientation orientation)
     if (d->layout && d->style && d->layout->orientation() != orientation) {
         d->layout->setOrientation(orientation);
 
-        const KeyAreaConverter converter(d->style->attributes(), &d->loader);
-        d->layout->setCenterPanel(d->inShiftedState() ? converter.shiftedKeyArea(orientation)
-                                                      : converter.keyArea(orientation));
+        KeyAreaConverter converter(d->style->attributes(), &d->loader);
+        converter.setLayoutOrientation(orientation);
+        d->layout->setCenterPanel(d->inShiftedState() ? converter.shiftedKeyArea()
+                                                      : converter.keyArea());
 
         WordRibbon ribbon(d->layout->wordRibbon());
         applyStyleToWordRibbon(&ribbon, d->style, orientation);
@@ -431,8 +432,9 @@ void LayoutUpdater::onKeyLongPressed(const Key &key,
     const Layout::Orientation orientation(d->layout->orientation());
     StyleAttributes * const extended_attributes(d->style->extendedKeysAttributes());
     const qreal vertical_offset(d->style->attributes()->verticalOffset(orientation));
-    const KeyAreaConverter converter(extended_attributes, &d->loader);
-    KeyArea ext_ka(converter.extendedKeyArea(orientation, key));
+    KeyAreaConverter converter(extended_attributes, &d->loader);
+    converter.setLayoutOrientation(orientation);
+    KeyArea ext_ka(converter.extendedKeyArea(key));
 
     if (not ext_ka.hasKeys()) {
         return;
@@ -713,10 +715,11 @@ void LayoutUpdater::switchToMainView()
     d->layout->clearActiveKeys();
     d->layout->clearMagnifierKey();
 
-    const KeyAreaConverter converter(d->style->attributes(), &d->loader);
     const Layout::Orientation orientation(d->layout->orientation());
-    d->layout->setCenterPanel(d->inShiftedState() ? converter.shiftedKeyArea(orientation)
-                                                  : converter.keyArea(orientation));
+    KeyAreaConverter converter(d->style->attributes(), &d->loader);
+    converter.setLayoutOrientation(orientation);
+    d->layout->setCenterPanel(d->inShiftedState() ? converter.shiftedKeyArea()
+                                                  : converter.keyArea());
 
     Q_EMIT layoutChanged(d->layout);
 }
@@ -729,9 +732,10 @@ void LayoutUpdater::switchToPrimarySymView()
         return;
     }
 
-    const KeyAreaConverter converter(d->style->attributes(), &d->loader);
     const Layout::Orientation orientation(d->layout->orientation());
-    d->layout->setCenterPanel(converter.symbolsKeyArea(orientation, 0));
+    KeyAreaConverter converter(d->style->attributes(), &d->loader);
+    converter.setLayoutOrientation(orientation);
+    d->layout->setCenterPanel(converter.symbolsKeyArea(0));
 
     // Reset shift state machine, also see switchToMainView.
     d->shift_machine.restart();
@@ -748,9 +752,10 @@ void LayoutUpdater::switchToSecondarySymView()
         return;
     }
 
-    const KeyAreaConverter converter(d->style->attributes(), &d->loader);
     const Layout::Orientation orientation(d->layout->orientation());
-    d->layout->setCenterPanel(converter.symbolsKeyArea(orientation, 1));
+    KeyAreaConverter converter(d->style->attributes(), &d->loader);
+    converter.setLayoutOrientation(orientation);
+    d->layout->setCenterPanel(converter.symbolsKeyArea(1));
 
     Q_EMIT layoutChanged(d->layout);
 }
@@ -763,11 +768,13 @@ void LayoutUpdater::switchToAccentedView()
         return;
     }
 
-    const KeyAreaConverter converter(d->style->attributes(), &d->loader);
+
     const Layout::Orientation orientation(d->layout->orientation());
+    KeyAreaConverter converter(d->style->attributes(), &d->loader);
+    converter.setLayoutOrientation(orientation);
     const Key accent(d->deadkey_machine.accentKey());
-    d->layout->setCenterPanel(d->inShiftedState() ? converter.shiftedDeadKeyArea(orientation, accent)
-                                                  : converter.deadKeyArea(orientation, accent));
+    d->layout->setCenterPanel(d->inShiftedState() ? converter.shiftedDeadKeyArea(accent)
+                                                  : converter.deadKeyArea(accent));
 
     Q_EMIT layoutChanged(d->layout);
 }
