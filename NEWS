@@ -10,6 +10,8 @@ CHANGES SINCE 0.92.1
   - Add MALIIT_DEFAULT_PROFILE option to specify default keyboard style.
 * New Gnome3 style:
   - Use qmake MALIIT_DEFAULT_PROFILE=gnome3 to activate.
+* New OLPC XO style:
+  - Use qmake MALIIT_DEFAULT_PROFILE=olpc-xo to activate.
 * Improved magnifier key styling:
   - Can specify separate background graphics: "background\magnifier-key",
     "background\magnifier-key-borders".
