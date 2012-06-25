@@ -61,6 +61,9 @@ private:
 
         QTest::newRow("preedit enabled")
                 << true << false << "preedit" << "tideerp" << "preedit ";
+
+        QTest::newRow("preedit + auto-correct enabled")
+                << true << true << "preedit" << "tideerp" << "tideerp ";
     }
 
     Q_SLOT void testPrediction()
