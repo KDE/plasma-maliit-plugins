@@ -42,6 +42,8 @@
 #include "plugin/editor.h"
 #include "inputmethodhostprobe.h"
 
+#include <maliit/plugins/testsurfacefactory.h>
+
 #include <QtCore>
 #include <QtTest>
 #include <QWidget>
@@ -208,12 +210,6 @@ private:
 
     Q_SLOT void test()
     {
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-        QSKIP("TODO: Glass::setSurface needs to be used.", SkipAll);
-#else
-        QSKIP("TODO: Glass::setSurface needs to be used.");
-#endif
-
         // FIXME: mikhas: We should have tests for the preedit &
         // preedit correctness stuff, and how it blends with word
         // prediction. I guess you will need to add
@@ -227,14 +223,20 @@ private:
         QFETCH(QString, expected_last_preedit_string);
         QFETCH(QString, expected_commit_string);
 
-        QWidget window;
         Glass glass;
         Editor editor(EditorOptions(), new Model::Text, new Logic::WordEngine, 0);
         InputMethodHostProbe host;
         SharedLayout layout(new Layout);
+        QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> surface(Maliit::Plugins::createTestGraphicsViewSurface());
+        QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> extended_surface(Maliit::Plugins::createTestGraphicsViewSurface(surface));
 
-        window.setGeometry(0, 0, g_size, g_size);
-        // TODO: glass.setWindow(&window);
+        // geometry stuff is usually done by maliit-server, so we need
+        // to do it manually here:
+        //surface->view()->viewport()->setGeometry(0, 0, g_size, g_size);
+        surface->view()->setSceneRect(0, 0, g_size, g_size);
+        surface->scene()->setSceneRect(0, 0, g_size, g_size);
+        glass.setSurface(surface);
+        glass.setExtendedSurface(extended_surface);
         glass.addLayout(layout);
         editor.setHost(&host);
         layout->setOrientation(orientation);
@@ -246,7 +248,7 @@ private:
         layout->setActivePanel(Layout::ExtendedPanel);
 
         Q_FOREACH (QMouseEvent *ev, mouse_events) {
-            QApplication::instance()->postEvent(&window, ev);
+            QApplication::instance()->postEvent(surface->view()->viewport(), ev);
         }
 
         TestUtils::waitForSignal(&glass, SIGNAL(keyReleased(Key,SharedLayout)));
