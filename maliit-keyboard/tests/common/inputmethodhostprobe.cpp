@@ -37,6 +37,7 @@ InputMethodHostProbe::InputMethodHostProbe()
     , m_last_preedit_string()
     , m_last_key_event(QEvent::None, 0, Qt::NoModifier)
     , m_key_event_count(0)
+    , m_last_preedit_text_format_list()
 {}
 
 QString InputMethodHostProbe::commitStringHistory() const
@@ -67,12 +68,12 @@ void InputMethodHostProbe::sendPreeditString(const QString &string,
                                              int replace_length,
                                              int cursor_pos)
 {
-    Q_UNUSED(format)
     Q_UNUSED(replace_start)
     Q_UNUSED(replace_length)
     Q_UNUSED(cursor_pos)
 
     m_last_preedit_string = string;
+    m_last_preedit_text_format_list = format;
 }
 
 QKeyEvent InputMethodHostProbe::lastKeyEvent() const
@@ -89,4 +90,9 @@ void InputMethodHostProbe::sendKeyEvent(const QKeyEvent& event, Maliit::EventReq
 {
     m_last_key_event = event;
     ++m_key_event_count;
+}
+
+QList<Maliit::PreeditTextFormat> InputMethodHostProbe::lastPreeditTextFormatList() const
+{
+    return m_last_preedit_text_format_list;
 }

@@ -142,11 +142,13 @@ class TestPreeditString
     Q_OBJECT
 
 private:
+    typedef QList<Maliit::PreeditTextFormat> FormatList;
 
     Q_SLOT void initTestCase()
     {
         qRegisterMetaType<QList<QMouseEvent*> >();
         qRegisterMetaType<Layout::Orientation>();
+        qRegisterMetaType<FormatList>();
     }
 
     Q_SLOT void test_data()
@@ -155,6 +157,7 @@ private:
         QTest::addColumn<QList<QMouseEvent*> >("mouse_events");
         QTest::addColumn<QString>("expected_last_preedit_string");
         QTest::addColumn<QString>("expected_commit_string");
+        QTest::addColumn<FormatList>("expected_preedit_format");
 
         for (int orientation = 0; orientation < 2; ++orientation) {
             const Layout::Orientation layout_orientation(orientation == 0 ? Layout::Landscape
@@ -162,29 +165,29 @@ private:
             QTest::newRow("No mouse events: expect empty commit string.")
                 << layout_orientation
                 << (QList<QMouseEvent *>())
-                << "" << "";
+                << "" << "" << FormatList();
 
             QTest::newRow("Only return pressed: expect empty commit string.")
                 << layout_orientation
                 << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("return"), layout_orientation))
-                << "" << "";
+                << "" << "" << FormatList();
 
             QTest::newRow("Release outside of widget: expect empty commit string.")
                 << layout_orientation
                 << (QList<QMouseEvent *>() << createPressReleaseEvent(QPoint(g_size * 2, g_size * 2), layout_orientation)
                                            << createPressReleaseEvent(keyOriginLookup("return"), layout_orientation))
-                << "" << "";
+                << "" << "" << FormatList();
 
             QTest::newRow("Release button over key 'a': expect commit string 'a'.")
                 << layout_orientation
                 << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("a"), layout_orientation)
                                            << createPressReleaseEvent(keyOriginLookup("return"), layout_orientation))
-                << "a" << "a";
+                << "a" << "a" << (FormatList() << Maliit::PreeditTextFormat(0, 1, Maliit::PreeditDefault));
 
             QTest::newRow("Release button over key 'a', but no commit: expect empty commit string.")
                 << layout_orientation
                 << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("a"), layout_orientation))
-                << "a" << "";
+                << "a" << "" << (FormatList() << Maliit::PreeditTextFormat(0, 1, Maliit::PreeditDefault));
 
             QTest::newRow("Release button over keys 'c, b, d, a': expect commit string 'cbda'.")
                 << layout_orientation
@@ -193,7 +196,7 @@ private:
                                            << createPressReleaseEvent(keyOriginLookup("d"), layout_orientation)
                                            << createPressReleaseEvent(keyOriginLookup("a"), layout_orientation)
                                            << createPressReleaseEvent(keyOriginLookup("space"), layout_orientation))
-                << "cbda" << "cbda ";
+                << "cbda" << "cbda " << (FormatList() << Maliit::PreeditTextFormat(0, 4, Maliit::PreeditDefault));
 
             QTest::newRow("Typing two words: expect commit string 'ab cd', with last preedit being 'cd'.")
                 << layout_orientation
@@ -203,7 +206,7 @@ private:
                                            << createPressReleaseEvent(keyOriginLookup("c"), layout_orientation)
                                            << createPressReleaseEvent(keyOriginLookup("d"), layout_orientation)
                                            << createPressReleaseEvent(keyOriginLookup("return"), layout_orientation))
-                << "cd" << "ab cd";
+                << "cd" << "ab cd" << (FormatList() << Maliit::PreeditTextFormat(0, 2, Maliit::PreeditDefault));
 
         }
     }
@@ -222,6 +225,7 @@ private:
         QFETCH(QList<QMouseEvent*>, mouse_events);
         QFETCH(QString, expected_last_preedit_string);
         QFETCH(QString, expected_commit_string);
+        QFETCH(QList<Maliit::PreeditTextFormat>, expected_preedit_format);
 
         Glass glass;
         Editor editor(EditorOptions(), new Model::Text, new Logic::WordEngine, 0);
@@ -240,6 +244,7 @@ private:
         glass.addLayout(layout);
         editor.setHost(&host);
         layout->setOrientation(orientation);
+        editor.setPreeditEnabled(true);
 
         Setup::connectGlassToTextEditor(&glass, &editor);
         const KeyArea &key_area(createAbcdArea());
@@ -254,6 +259,7 @@ private:
         TestUtils::waitForSignal(&glass, SIGNAL(keyReleased(Key,SharedLayout)));
         QCOMPARE(host.lastPreeditString(), expected_last_preedit_string);
         QCOMPARE(host.commitStringHistory(), expected_commit_string);
+        QCOMPARE(host.lastPreeditTextFormatList(), expected_preedit_format);
     }
 };
 

@@ -47,6 +47,7 @@ private:
     QString m_last_preedit_string;
     QKeyEvent m_last_key_event;
     int m_key_event_count;
+    QList<Maliit::PreeditTextFormat> m_last_preedit_text_format_list;
 
 public:
     InputMethodHostProbe();
@@ -67,6 +68,7 @@ public:
     QKeyEvent lastKeyEvent() const;
     int keyEventCount() const;
     void sendKeyEvent(const QKeyEvent& event, Maliit::EventRequestType);
+    QList<Maliit::PreeditTextFormat> lastPreeditTextFormatList() const;
 
     // unused reimpl
     int contentType(bool&) {return 0;}
