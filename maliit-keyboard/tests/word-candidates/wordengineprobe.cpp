@@ -59,6 +59,8 @@ QStringList WordEngineProbe::fetchCandidates(Model::Text *text)
         reverse.prepend(c);
     }
 
+    text->setPrimaryCandidate(reverse);
+
     QStringList result;
     result.append(reverse);
 

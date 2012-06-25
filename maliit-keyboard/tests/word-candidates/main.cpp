@@ -51,22 +51,44 @@ private:
     Q_SLOT void initTestCase()
     {}
 
+    Q_SLOT void testPrediction_data()
+    {
+        QTest::addColumn<bool>("enable_preedit");
+        QTest::addColumn<bool>("enable_auto_correct");
+        QTest::addColumn<QString>("preedit");
+        QTest::addColumn<QString>("expected_word_candidate");
+        QTest::addColumn<QString>("expected_commit_history");
+
+        QTest::newRow("preedit enabled")
+                << true << false << "preedit" << "tideerp" << "preedit ";
+    }
+
     Q_SLOT void testPrediction()
     {
+        QFETCH(bool, enable_preedit);
+        QFETCH(bool, enable_auto_correct);
+        QFETCH(QString, preedit);
+        QFETCH(QString, expected_word_candidate);
+        QFETCH(QString, expected_commit_history);
+
         Editor editor(EditorOptions(), new Model::Text, new Logic::WordEngineProbe);
+        QSignalSpy spy(&editor, SIGNAL(wordCandidatesChanged(QStringList)));
+        QSignalSpy preedit_enabled_spy(&editor, SIGNAL(preeditEnabledChanged(bool)));
+        QSignalSpy auto_correct_enabled_spy(&editor, SIGNAL(autoCorrectEnabledChanged(bool)));
 
         InputMethodHostProbe host;
         editor.setHost(&host);
 
-        QSignalSpy preedit_enabled_spy(&editor, SIGNAL(preeditEnabledChanged(bool)));
-        QSignalSpy spy(&editor, SIGNAL(wordCandidatesChanged(QStringList)));
-
         QVERIFY(not editor.isPreeditEnabled());
-        editor.wordEngine()->setEnabled(true);
-        QCOMPARE(preedit_enabled_spy.count(), 1);
-        QVERIFY(editor.isPreeditEnabled());
+        editor.wordEngine()->setEnabled(enable_preedit);
+        QCOMPARE(preedit_enabled_spy.count(), enable_preedit ? 1 : 0);
+        QCOMPARE(editor.isPreeditEnabled(), enable_preedit);
 
-        const QString preedit("preedit");
+        QVERIFY(not editor.isAutoCorrectEnabled());
+        editor.setAutoCorrectEnabled(enable_auto_correct);
+        QCOMPARE(auto_correct_enabled_spy.count(), enable_auto_correct ? 1 : 0);
+        QCOMPARE(editor.isAutoCorrectEnabled(), enable_auto_correct);
+
         Q_FOREACH(const QChar &c, preedit) {
             Key k;
             QCOMPARE(k.action(), Key::ActionInsert);
@@ -76,7 +98,7 @@ private:
         }
 
         QVERIFY(spy.count() > 0);
-        QCOMPARE(spy.takeLast().first().toStringList().first(), QString("tideerp"));
+        QCOMPARE(spy.takeLast().first().toStringList().first(), expected_word_candidate);
 
         // Force a commit:
         Key space;
@@ -84,7 +106,7 @@ private:
         editor.onKeyReleased(space);
 
         QCOMPARE(editor.text()->preedit(), QString());
-        QCOMPARE(host.commitStringHistory(), QString("preedit "));
+        QCOMPARE(host.commitStringHistory(), expected_commit_history);
 
         QVERIFY(spy.count() > 0);
         QCOMPARE(spy.takeLast().first().toStringList(), QStringList());
