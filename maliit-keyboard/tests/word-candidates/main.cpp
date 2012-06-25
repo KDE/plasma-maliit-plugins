@@ -56,14 +56,18 @@ private:
         QTest::addColumn<bool>("enable_preedit");
         QTest::addColumn<bool>("enable_auto_correct");
         QTest::addColumn<QString>("preedit");
+        QTest::addColumn<int>("expected_word_candidate_updates");
         QTest::addColumn<QString>("expected_word_candidate");
         QTest::addColumn<QString>("expected_commit_history");
 
         QTest::newRow("preedit enabled")
-                << true << false << "preedit" << "tideerp" << "preedit ";
+                << true << false << "preedit" << 7 << "tideerp" << "preedit ";
 
         QTest::newRow("preedit + auto-correct enabled")
-                << true << true << "preedit" << "tideerp" << "tideerp ";
+                << true << true << "preedit" << 7 << "tideerp" << "tideerp ";
+
+        QTest::newRow("no preedit")
+                << false << false << "commit" << 0 << "" << "commit ";
     }
 
     Q_SLOT void testPrediction()
@@ -71,6 +75,7 @@ private:
         QFETCH(bool, enable_preedit);
         QFETCH(bool, enable_auto_correct);
         QFETCH(QString, preedit);
+        QFETCH(int, expected_word_candidate_updates);
         QFETCH(QString, expected_word_candidate);
         QFETCH(QString, expected_commit_history);
 
@@ -100,8 +105,14 @@ private:
             editor.onKeyReleased(k);
         }
 
-        QVERIFY(spy.count() > 0);
-        QCOMPARE(spy.takeLast().first().toStringList().first(), expected_word_candidate);
+        QCOMPARE(editor.text()->primaryCandidate(), expected_word_candidate);
+        QCOMPARE(spy.count(), expected_word_candidate_updates);
+
+        if (spy.count() > 0) {
+            QStringList expected_word_candidate_list;
+            expected_word_candidate_list.append(expected_word_candidate);
+            QCOMPARE(spy.takeLast().first().toStringList(), expected_word_candidate_list);
+        }
 
         // Force a commit:
         Key space;
@@ -111,8 +122,9 @@ private:
         QCOMPARE(editor.text()->preedit(), QString());
         QCOMPARE(host.commitStringHistory(), expected_commit_history);
 
-        QVERIFY(spy.count() > 0);
-        QCOMPARE(spy.takeLast().first().toStringList(), QStringList());
+        if (spy.count() > 0) {
+            QCOMPARE(spy.takeLast().first().toStringList(), QStringList());
+        }
     }
 };
 

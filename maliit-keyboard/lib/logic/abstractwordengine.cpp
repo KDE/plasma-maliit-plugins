@@ -103,14 +103,19 @@ void AbstractWordEngine::setEnabled(bool enabled)
 
 
 //! \brief Clears the current candidates.
+//!
+//! Only has an effect when word engine is enabled, in which case
+//! candidatesCanged() is emitted.
 void AbstractWordEngine::clearCandidates()
 {
-    Q_EMIT candidatesChanged(QStringList());
+    if (isEnabled()) {
+        Q_EMIT candidatesChanged(QStringList());
+    }
 }
 
 
 //! \brief Computes new candidates, based on text model.
-//! \param text The text model. Can trigger emission of candidatesChanged.
+//! \param text The text model. Can trigger emission of candidatesChanged().
 void AbstractWordEngine::computeCandidates(Model::Text *text)
 {
     // FIXME: add possiblity to turn off the error correction for
