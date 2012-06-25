@@ -66,8 +66,6 @@ QPoint keyOriginLookup(const QString &name)
         return QPoint(0, 0);
     } else if (name == "b") {
         return QPoint(distance, 0);
-    } else if (name == "b") {
-        return QPoint(distance, 0);
     } else if (name == "c") {
         return QPoint(0, distance);
     } else if (name == "d") {
