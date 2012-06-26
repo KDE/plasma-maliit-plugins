@@ -38,9 +38,9 @@
 #include "models/text.h"
 #include "view/glass.h"
 #include "view/setup.h"
-#include "logic/wordengine.h"
 #include "plugin/editor.h"
 #include "inputmethodhostprobe.h"
+#include "wordengineprobe.h"
 
 #include <maliit/plugins/testsurfacefactory.h>
 
@@ -233,7 +233,7 @@ private:
         QFETCH(QList<Maliit::PreeditTextFormat>, expected_preedit_format);
 
         Glass glass;
-        Editor editor(EditorOptions(), new Model::Text, new Logic::WordEngine, 0);
+        Editor editor(EditorOptions(), new Model::Text, new Logic::WordEngineProbe, 0);
         InputMethodHostProbe host;
         SharedLayout layout(new Layout);
         QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> surface(Maliit::Plugins::createTestGraphicsViewSurface());
