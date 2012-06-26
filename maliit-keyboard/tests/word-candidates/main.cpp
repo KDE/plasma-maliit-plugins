@@ -42,6 +42,28 @@
 
 using namespace MaliitKeyboard;
 
+namespace {
+
+void appendToPreedit(Editor *editor,
+                     const QString &appendix)
+{
+    Key k;
+    QCOMPARE(k.action(), Key::ActionInsert);
+
+    k.rLabel().setText(appendix);
+    editor->onKeyReleased(k);
+}
+
+
+void enforceCommit(Editor *editor)
+{
+    Key space;
+    space.setAction(Key::ActionSpace);
+    editor->onKeyReleased(space);
+}
+
+} // namespace
+
 class TestWordCandidates
     : public QObject
 {
@@ -101,11 +123,7 @@ private:
         QCOMPARE(editor.isAutoCorrectEnabled(), enable_auto_correct);
 
         Q_FOREACH(const QChar &c, preedit) {
-            Key k;
-            QCOMPARE(k.action(), Key::ActionInsert);
-
-            k.rLabel().setText(QString(c));
-            editor.onKeyReleased(k);
+            appendToPreedit(&editor, QString(c));
         }
 
         QCOMPARE(editor.text()->primaryCandidate(), expected_word_candidate);
@@ -114,20 +132,57 @@ private:
         if (spy.count() > 0) {
             QStringList expected_word_candidate_list;
             expected_word_candidate_list.append(expected_word_candidate);
-            QCOMPARE(spy.takeLast().first().toStringList(), expected_word_candidate_list);
+            QCOMPARE(spy.last().first().toStringList(), expected_word_candidate_list);
         }
 
-        // Force a commit:
-        Key space;
-        space.setAction(Key::ActionSpace);
-        editor.onKeyReleased(space);
-
+        enforceCommit(&editor);
         QCOMPARE(editor.text()->preedit(), QString());
         QCOMPARE(host.commitStringHistory(), expected_commit_history);
 
         if (spy.count() > 0) {
             QCOMPARE(spy.takeLast().first().toStringList(), QStringList());
         }
+    }
+
+
+    Q_SLOT void testWordCandidatesChanged()
+    {
+        Editor editor(EditorOptions(), new Model::Text, new Logic::WordEngineProbe);
+        QSignalSpy spy(&editor, SIGNAL(wordCandidatesChanged(QStringList)));
+
+        InputMethodHostProbe host;
+        editor.setHost(&host);
+
+        // no preedit => auto-commit:
+        appendToPreedit(&editor, "a");
+        QCOMPARE(spy.count(), 0);
+        QCOMPARE(host.commitStringHistory(), QString("a"));
+
+        // preedit changes => new word candidates:
+        editor.wordEngine()->setEnabled(true);
+        appendToPreedit(&editor, "b");
+        QCOMPARE(spy.count(), 1);
+
+        // check disabled-before-commit corner case:
+        editor.wordEngine()->setEnabled(false);
+        QCOMPARE(spy.count(), 2);
+
+        // word engine already disabled
+        // => clearCandidates() skips signal emission:
+        enforceCommit(&editor);
+        QCOMPARE(spy.count(), 2);
+        QCOMPARE(host.commitStringHistory(), QString("ab "));
+
+        // preedit changes => new word candidates:
+        editor.wordEngine()->setEnabled(true);
+        appendToPreedit(&editor, "c");
+        QCOMPARE(spy.count(), 3);
+
+        // preedit gets committed
+        // => candidates get cleared & candidatesChanged() emitted:
+        enforceCommit(&editor);
+        QCOMPARE(spy.count(), 4);
+        QCOMPARE(host.commitStringHistory(), QString("ab c "));
     }
 };
 

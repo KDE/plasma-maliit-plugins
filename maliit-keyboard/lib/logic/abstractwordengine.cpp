@@ -96,6 +96,7 @@ void AbstractWordEngine::setEnabled(bool enabled)
     Q_D(AbstractWordEngine);
 
     if (d->enabled != enabled) {
+        clearCandidates();
         d->enabled = enabled;
         Q_EMIT enabledChanged(d->enabled);
     }
