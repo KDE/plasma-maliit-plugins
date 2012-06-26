@@ -131,7 +131,12 @@ QList<QMouseEvent *> createPressReleaseEvent(const QPoint &origin,
 
     return result;
 }
+
+bool operator==(const Maliit::PreeditTextFormat &a, const Maliit::PreeditTextFormat &b) {
+    return ((a.start == b.start) and (a.length == b.length) and (a.preeditFace == b.preeditFace));
 }
+
+} // unnamed namespace
 
 
 class TestPreeditString
