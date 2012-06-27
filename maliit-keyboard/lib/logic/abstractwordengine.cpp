@@ -125,6 +125,11 @@ void AbstractWordEngine::computeCandidates(Model::Text *text)
     // all.
 
     if (not isEnabled() || not text || text->preedit().isEmpty()) {
+        // FIXME: We should here set some special preedit face in text
+        // model (say Disabled or None) which would be interpreted by
+        // editor to send no formatting informations along with
+        // preedit string. When this is done, preedit-string test
+        // needs to be adapted.
         return;
     }
 
