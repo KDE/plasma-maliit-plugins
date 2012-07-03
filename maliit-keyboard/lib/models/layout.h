@@ -40,6 +40,7 @@
 
 namespace MaliitKeyboard {
 
+class LayoutPrivate;
 class Layout;
 typedef QSharedPointer<Layout> SharedLayout;
 
@@ -47,7 +48,12 @@ typedef QSharedPointer<Layout> SharedLayout;
 // Should return invalid key/wc, or found key/wc.
 // Would be used by Glass.
 class Layout
+    : public QObject
 {
+    Q_OBJECT
+    Q_DISABLE_COPY(Layout)
+    Q_DECLARE_PRIVATE(Layout)
+
 public:
     enum Orientation {
         Landscape,
@@ -72,31 +78,8 @@ public:
     Q_ENUMS(Orientation)
     Q_ENUMS(Panel)
 
-private:
-    QSize m_screen_size;
-    QPoint m_origin;
-    QPoint m_extended_panel_offset;
-    Orientation m_orientation;
-    Alignment m_alignment;
-    Panel m_active_panel;
-    KeyArea m_left;
-    KeyArea m_right;
-    KeyArea m_center;
-    KeyArea m_extended;
-    WordRibbon m_ribbon;
-
-    struct {
-        QVector<Key> left;
-        QVector<Key> right;
-        QVector<Key> center;
-        QVector<Key> extended;
-    } m_active_keys;
-
-    Key m_magnifier_key;
-    QPoint m_magnifier_key_origin;
-
-public:
-    explicit Layout();
+    explicit Layout(QObject *parent = 0);
+    virtual ~Layout();
 
     QSize screenSize() const;
     void setScreenSize(const QSize &size);
@@ -154,6 +137,8 @@ private:
     KeyArea lookup(Panel panel) const;
     QPoint origin() const;
     QPoint panelOrigin() const;
+
+    const QScopedPointer<LayoutPrivate> d_ptr;
 };
 
 } // namespace MaliitKeyboard

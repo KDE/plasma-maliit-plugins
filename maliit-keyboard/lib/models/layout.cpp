@@ -33,71 +33,117 @@
 
 namespace MaliitKeyboard {
 
-Layout::Layout()
-    : m_screen_size()
-    , m_extended_panel_offset()
-    , m_orientation(Landscape)
-    , m_alignment(Bottom)
-    , m_active_panel(CenterPanel)
-    , m_left()
-    , m_right()
-    , m_center()
-    , m_extended()
-    , m_ribbon()
-    , m_active_keys()
-    , m_magnifier_key()
-    , m_magnifier_key_origin()
+class LayoutPrivate
+{
+public:
+    QSize screen_size;
+    QPoint origin;
+    QPoint extended_panel_offset;
+    Layout::Orientation orientation;
+    Layout::Alignment alignment;
+    Layout::Panel active_panel;
+    KeyArea left;
+    KeyArea right;
+    KeyArea center;
+    KeyArea extended;
+    WordRibbon ribbon;
+
+    struct {
+        QVector<Key> left;
+        QVector<Key> right;
+        QVector<Key> center;
+        QVector<Key> extended;
+    } active_keys;
+
+    Key magnifier_key;
+    QPoint magnifier_key_origin;
+
+    explicit LayoutPrivate();
+};
+
+LayoutPrivate::LayoutPrivate()
+    : screen_size()
+    , extended_panel_offset()
+    , orientation(Layout::Landscape)
+    , alignment(Layout::Bottom)
+    , active_panel(Layout::CenterPanel)
+    , left()
+    , right()
+    , center()
+    , extended()
+    , ribbon()
+    , active_keys()
+    , magnifier_key()
+    , magnifier_key_origin()
+{}
+
+Layout::Layout(QObject *parent)
+    : QObject(parent)
+    , d_ptr(new LayoutPrivate)
+{}
+
+Layout::~Layout()
 {}
 
 QSize Layout::screenSize() const
 {
-    return m_screen_size;
+    Q_D(const Layout);
+    return d->screen_size;
 }
 
 void Layout::setScreenSize(const QSize &size)
 {
-    m_screen_size = size;
+    Q_D(Layout);
+    d->screen_size = size;
 }
 
 QPoint Layout::extendedPanelOffset() const
 {
-    return m_extended_panel_offset;
+    Q_D(const Layout);
+    return d->extended_panel_offset;
 }
 
 void Layout::setExtendedPanelOffset(const QPoint &offset)
 {
-    m_extended_panel_offset = offset;
+    Q_D(Layout);
+    d->extended_panel_offset = offset;
 }
 
 Layout::Orientation Layout::orientation() const
 {
-    return m_orientation;
+    Q_D(const Layout);
+    return d->orientation;
 }
 
 void Layout::setOrientation(Orientation orientation)
 {
-    m_orientation = orientation;
+    Q_D(Layout);
+    d->orientation = orientation;
 }
 
 Layout::Alignment Layout::alignment() const
 {
-    return m_alignment;
+    Q_D(const Layout);
+    return d->alignment;
 }
 
 void Layout::setAlignment(Alignment alignment)
 {
-    m_alignment = alignment;
+    Q_D(Layout);
+    d->alignment = alignment;
 }
 
 Layout::Panel Layout::activePanel() const
 {
-    return m_active_panel;
+    Q_D(const Layout);
+    return d->active_panel;
 }
 
 void Layout::setActivePanel(Panel panel)
 {
     if (panel != NumPanels) {
-        m_active_panel = panel;
+        Q_D(Layout);
+        d->active_panel = panel;
     }
 }
 
@@ -129,7 +175,9 @@ void Layout::setActiveKeyArea(const KeyArea &active)
 
 QRect Layout::activeKeyAreaGeometry() const
 {
-    switch(m_active_panel) {
+    Q_D(const Layout);
+
+    switch(d->active_panel) {
     case LeftPanel: return leftPanelGeometry();
     case RightPanel: return rightPanelGeometry();
     case CenterPanel: return centerPanelGeometry();
@@ -140,19 +188,22 @@ QRect Layout::activeKeyAreaGeometry() const
     }
 
     qCritical() << __PRETTY_FUNCTION__
-                << "Should not be reached, invalid panel:" << m_active_panel;
+                << "Should not be reached, invalid panel:" << d->active_panel;
     return QRect();
 }
 
 KeyArea Layout::leftPanel() const
 {
-    return m_left;
+    Q_D(const Layout);
+    return d->left;
 }
 
 void Layout::setLeftPanel(const KeyArea &left)
 {
-    if (m_left != left) {
-        m_left = left;
+    Q_D(Layout);
+
+    if (d->left != left) {
+        d->left = left;
     }
 }
 
@@ -163,13 +214,16 @@ QRect Layout::leftPanelGeometry() const
 
 KeyArea Layout::rightPanel() const
 {
-    return m_right;
+    Q_D(const Layout);
+    return d->right;
 }
 
 void Layout::setRightPanel(const KeyArea &right)
 {
-    if (m_right != right) {
-        m_right = right;
+    Q_D(Layout);
+
+    if (d->right != right) {
+        d->right = right;
     }
 }
 
@@ -180,65 +234,79 @@ QRect Layout::rightPanelGeometry() const
 
 KeyArea Layout::centerPanel() const
 {
-    return m_center;
+    Q_D(const Layout);
+    return d->center;
 }
 
 void Layout::setCenterPanel(const KeyArea &center)
 {
-    if (m_center != center) {
-        m_center = center;
+    Q_D(Layout);
+
+    if (d->center != center) {
+        d->center = center;
     }
 }
 
 QRect Layout::centerPanelGeometry() const
 {
-    return QRect(panelOrigin(), m_center.area().size());
+    Q_D(const Layout);
+    return QRect(panelOrigin(), d->center.area().size());
 }
 
 KeyArea Layout::extendedPanel() const
 {
-    return m_extended;
+    Q_D(const Layout);
+    return d->extended;
 }
 
 void Layout::setExtendedPanel(const KeyArea &extended)
 {
-    if (m_extended != extended) {
-        m_extended = extended;
+    Q_D(Layout);
+
+    if (d->extended != extended) {
+        d->extended = extended;
     }
 }
 
 QRect Layout::extendedPanelGeometry() const
 {
-    return QRect(QPoint(), m_extended.area().size());
+    Q_D(const Layout);
+    return QRect(QPoint(), d->extended.area().size());
 }
 
 QPoint Layout::extendedPanelOrigin() const
 {
-    return panelOrigin() + m_extended_panel_offset;
+    Q_D(const Layout);
+    return panelOrigin() + d->extended_panel_offset;
 }
 
 WordRibbon Layout::wordRibbon() const
 {
-    return m_ribbon;
+    Q_D(const Layout);
+    return d->ribbon;
 }
 
 void Layout::setWordRibbon(const WordRibbon &ribbon)
 {
-    m_ribbon = ribbon;
+    Q_D(Layout);
+    d->ribbon = ribbon;
 }
 
 QRect Layout::wordRibbonGeometry() const
 {
-    return QRect(origin(), m_ribbon.area().size());
+    Q_D(const Layout);
+    return QRect(origin(), d->ribbon.area().size());
 }
 
 QVector<Key> Layout::activeKeys() const
 {
-    switch (m_active_panel) {
-    case LeftPanel: return m_active_keys.left;
-    case RightPanel: return m_active_keys.right;
-    case CenterPanel: return m_active_keys.center;
-    case ExtendedPanel: return m_active_keys.extended;
+    Q_D(const Layout);
+
+    switch (d->active_panel) {
+    case LeftPanel: return d->active_keys.left;
+    case RightPanel: return d->active_keys.right;
+    case CenterPanel: return d->active_keys.center;
+    case ExtendedPanel: return d->active_keys.extended;
     case NumPanels: break;
     }
 
@@ -247,31 +315,37 @@ QVector<Key> Layout::activeKeys() const
 
 void Layout::clearActiveKeys()
 {
-    m_active_keys.left.clear();
-    m_active_keys.right.clear();
-    m_active_keys.center.clear();
-    m_active_keys.extended.clear();
+    Q_D(Layout);
+
+    d->active_keys.left.clear();
+    d->active_keys.right.clear();
+    d->active_keys.center.clear();
+    d->active_keys.extended.clear();
 }
 
 void Layout::appendActiveKey(const Key &key)
 {
-    switch (m_active_panel) {
-    case LeftPanel: m_active_keys.left.append(key); break;
-    case RightPanel: m_active_keys.right.append(key); break;
-    case CenterPanel: m_active_keys.center.append(key); break;
-    case ExtendedPanel: m_active_keys.extended.append(key); break;
+    Q_D(Layout);
+
+    switch (d->active_panel) {
+    case LeftPanel: d->active_keys.left.append(key); break;
+    case RightPanel: d->active_keys.right.append(key); break;
+    case CenterPanel: d->active_keys.center.append(key); break;
+    case ExtendedPanel: d->active_keys.extended.append(key); break;
     case NumPanels: break;
     }
 }
 
 void Layout::removeActiveKey(const Key &key)
 {
+    Q_D(Layout);
+
     QVector<Key> *active_keys = 0;
-    switch (m_active_panel) {
-    case LeftPanel: active_keys = &m_active_keys.left; break;
-    case RightPanel: active_keys = &m_active_keys.right; break;
-    case CenterPanel: active_keys = &m_active_keys.center; break;
-    case ExtendedPanel: active_keys = &m_active_keys.extended; break;
+    switch (d->active_panel) {
+    case LeftPanel: active_keys = &d->active_keys.left; break;
+    case RightPanel: active_keys = &d->active_keys.right; break;
+    case CenterPanel: active_keys = &d->active_keys.center; break;
+    case ExtendedPanel: active_keys = &d->active_keys.extended; break;
     case NumPanels: break;
     }
 
@@ -289,19 +363,23 @@ void Layout::removeActiveKey(const Key &key)
 
 Key Layout::magnifierKey() const
 {
-    return m_magnifier_key;
+    Q_D(const Layout);
+    return d->magnifier_key;
 }
 
 QPoint Layout::magnifierKeyOrigin() const
 {
-    return m_magnifier_key_origin;
+    Q_D(const Layout);
+    return d->magnifier_key_origin;
 }
 
 void Layout::setMagnifierKey(const Key &key)
 {
-    m_magnifier_key = key;
-    m_magnifier_key_origin = m_magnifier_key.origin() + panelOrigin();
-    m_magnifier_key.setOrigin(QPoint());
+    Q_D(Layout);
+
+    d->magnifier_key = key;
+    d->magnifier_key_origin = d->magnifier_key.origin() + panelOrigin();
+    d->magnifier_key.setOrigin(QPoint());
 }
 
 void Layout::clearMagnifierKey()
@@ -311,11 +389,13 @@ void Layout::clearMagnifierKey()
 
 KeyArea Layout::lookup(Panel panel) const
 {
+    Q_D(const Layout);
+
     switch(panel) {
-    case LeftPanel: return m_left;
-    case RightPanel: return m_right;
-    case CenterPanel: return m_center;
-    case ExtendedPanel: return m_extended;
+    case LeftPanel: return d->left;
+    case RightPanel: return d->right;
+    case CenterPanel: return d->center;
+    case ExtendedPanel: return d->extended;
     case NumPanels: break;
     }
 
@@ -331,7 +411,8 @@ QPoint Layout::origin() const
 
 QPoint Layout::panelOrigin() const
 {
-    return (origin() + QPoint(0, m_ribbon.area().size().height()));
+    Q_D(const Layout);
+    return (origin() + QPoint(0, d->ribbon.area().size().height()));
 }
 
 } // namespace MaliitKeyboard
