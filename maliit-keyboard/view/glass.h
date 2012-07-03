@@ -34,7 +34,7 @@
 
 #include "models/key.h"
 #include "models/wordcandidate.h"
-#include "models/layout.h"
+#include "logic/layout.h"
 
 #include <QtGui>
 
@@ -58,33 +58,35 @@ public:
     void setSurface(const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> &surface);
     void setExtendedSurface(const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> &surface);
 
-    void addLayout(const SharedLayout &layout);
+    void addLayout(const Logic::SharedLayout &layout);
     void clearLayouts();
 
     // Key signals:
     Q_SIGNAL void keyPressed(const Key &key,
-                             const SharedLayout &layout);
+                             const Logic::SharedLayout &layout);
     Q_SIGNAL void keyLongPressed(const Key &key,
-                                 const SharedLayout &layout);
+                                 const Logic::SharedLayout &layout);
     Q_SIGNAL void keyReleased(const Key &key,
-                              const SharedLayout &layout);
+                              const Logic::SharedLayout &layout);
     Q_SIGNAL void keyEntered(const Key &key,
-                             const SharedLayout &layout);
+                             const Logic::SharedLayout &layout);
     Q_SIGNAL void keyExited(const Key &key,
-                            const SharedLayout &layout);
+                            const Logic::SharedLayout &layout);
 
     // WordCandidate signals:
     Q_SIGNAL void wordCandidatePressed(const WordCandidate &candidate,
-                                       const SharedLayout &layout);
+                                       const Logic::SharedLayout &layout);
     Q_SIGNAL void wordCandidateReleased(const WordCandidate &candidate,
-                                        const SharedLayout &layout);
+                                        const Logic::SharedLayout &layout);
 
     // KeyArea signals:
-    Q_SIGNAL void keyAreaPressed(Layout::Panel panel, const SharedLayout &layout);
-    Q_SIGNAL void keyAreaReleased(Layout::Panel panel, const SharedLayout &layout);
+    Q_SIGNAL void keyAreaPressed(Logic::Layout::Panel panel,
+                                 const Logic::SharedLayout &layout);
+    Q_SIGNAL void keyAreaReleased(Logic::Layout::Panel panel,
+                                  const Logic::SharedLayout &layout);
 
-    Q_SIGNAL void switchLeft(const SharedLayout &layout);
-    Q_SIGNAL void switchRight(const SharedLayout &layout);
+    Q_SIGNAL void switchLeft(const Logic::SharedLayout &layout);
+    Q_SIGNAL void switchRight(const Logic::SharedLayout &layout);
     Q_SIGNAL void keyboardClosed();
 
 protected:
@@ -95,7 +97,8 @@ protected:
 
 private:
     Q_SLOT void onLongPressTriggered();
-    bool handlePressReleaseEvent(QEvent *ev, const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> &eventSurface);
+    bool handlePressReleaseEvent(QEvent *ev,
+                                 const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> &eventSurface);
 
     const QScopedPointer<GlassPrivate> d_ptr;
 };

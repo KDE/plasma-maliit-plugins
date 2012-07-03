@@ -32,6 +32,7 @@
 #include "layout.h"
 
 namespace MaliitKeyboard {
+namespace Logic {
 
 class LayoutPrivate
 {
@@ -415,4 +416,4 @@ QPoint Layout::panelOrigin() const
     return (origin() + QPoint(0, d->ribbon.area().size().height()));
 }
 
-} // namespace MaliitKeyboard
+}} // namespace Logic, MaliitKeyboard

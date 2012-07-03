@@ -30,7 +30,7 @@
  */
 
 #include "utils.h"
-#include "models/layout.h"
+#include "logic/layout.h"
 #include "view/renderer.h"
 #include "view/glass.h"
 
@@ -258,7 +258,7 @@ private:
         glass.setSurface(renderer.surface());
         glass.setExtendedSurface(renderer.extendedSurface());
 
-        SharedLayout layout(new Layout);
+        Logic::SharedLayout layout(new Logic::Layout);
         renderer.addLayout(layout);
         glass.addLayout(layout);
 

@@ -32,7 +32,7 @@
 #include "utils.h"
 #include "models/key.h"
 #include "models/keyarea.h"
-#include "models/layout.h"
+#include "logic/layout.h"
 #include "view/setup.h"
 #include "plugin/editor.h"
 #include "logic/layoutupdater.h"
@@ -70,9 +70,9 @@ private:
         QFETCH(QString, keyboard_id);
         QFETCH(int, expected_key_count);
 
-        LayoutUpdater layout_updater;
+        Logic::LayoutUpdater layout_updater;
 
-        SharedLayout layout(new Layout);
+        Logic::SharedLayout layout(new Logic::Layout);
         layout_updater.setLayout(layout);
 
         SharedStyle style(new Style);
@@ -81,7 +81,7 @@ private:
         layout_updater.setActiveKeyboardId(keyboard_id);
         TestUtils::waitForSignal(&layout_updater, SIGNAL(layoutChanged(SharedLayout)));
 
-        QCOMPARE(layout->activePanel(), Layout::CenterPanel);
+        QCOMPARE(layout->activePanel(), Logic::Layout::CenterPanel);
         QCOMPARE(layout->activeKeyArea().keys().count(), expected_key_count);
     }
 

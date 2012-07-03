@@ -36,12 +36,13 @@
 
 #include "models/key.h"
 #include "models/wordcandidate.h"
-#include "models/layout.h"
+#include "logic/layout.h"
 #include "logic/style.h"
 
 #include <QtCore>
 
 namespace MaliitKeyboard {
+namespace Logic {
 
 class LayoutUpdaterPrivate;
 
@@ -130,6 +131,6 @@ private:
     const QScopedPointer<LayoutUpdaterPrivate> d_ptr;
 };
 
-} // namespace MaliitKeyboard
+}} // namespace Logic, MaliitKeyboard
 
 #endif // MALIIT_KEYBOARD_LAYOUTUPDATER_H

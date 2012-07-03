@@ -47,7 +47,7 @@
 #include "logic/state-machines/deadkeymachine.h"
 
 namespace MaliitKeyboard {
-namespace {
+namespace Logic {
 
 enum ActivationPolicy {
     ActivateElement,
@@ -204,8 +204,6 @@ Key magnifyKey(const Key &key,
 
     return magnifier;
 }
-
-} // anonymous namespace
 
 class LayoutUpdaterPrivate
 {
@@ -779,4 +777,4 @@ void LayoutUpdater::switchToAccentedView()
     Q_EMIT layoutChanged(d->layout);
 }
 
-} // namespace MaliitKeyboard
+}} // namespace Logic, MaliitKeyboard

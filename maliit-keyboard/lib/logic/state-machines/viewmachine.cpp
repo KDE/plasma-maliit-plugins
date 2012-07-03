@@ -34,6 +34,7 @@
 #include "logic/layoutupdater.h"
 
 namespace MaliitKeyboard {
+namespace Logic {
 
 const char *const ViewMachine::main_state = "main";
 const char *const ViewMachine::symbols0_state = "symbols0";
@@ -89,4 +90,4 @@ void ViewMachine::setup(LayoutUpdater *updater)
     QTimer::singleShot(0, this, SLOT(start()));
 }
 
-} // namespace MaliitKeyboard
+}} // namespace Logic, MaliitKeyboard

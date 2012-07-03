@@ -39,6 +39,7 @@
 #include <QtCore>
 
 namespace MaliitKeyboard {
+namespace Logic {
 
 class DeadkeyMachinePrivate;
 
@@ -75,6 +76,6 @@ private:
     const QScopedPointer<DeadkeyMachinePrivate> d_ptr;
 };
 
-} // namespace MaliitKeyboard
+}} // namespace Logic, MaliitKeyboard
 
 #endif // MALIIT_KEYBOARD_DEADKEYMACHINE_H

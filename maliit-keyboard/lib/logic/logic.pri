@@ -2,6 +2,7 @@ LOGIC_DIR = ./logic
 
 HEADERS += \
     logic/hitlogic.h \
+    logic/layout.h \
     logic/layoutupdater.h \
     logic/keyboardloader.h \
     logic/keyareaconverter.h \
@@ -12,6 +13,7 @@ HEADERS += \
 
 SOURCES += \
     logic/hitlogic.cpp \
+    logic/layout.cpp \
     logic/layoutupdater.cpp \
     logic/keyboardloader.cpp \
     logic/keyareaconverter.cpp \

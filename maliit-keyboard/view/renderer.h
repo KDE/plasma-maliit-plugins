@@ -33,7 +33,7 @@
 #define MALIIT_KEYBOARD_RENDERER_H
 
 #include "abstractbackgroundbuffer.h"
-#include "models/layout.h"
+#include "logic/layout.h"
 #include "logic/style.h"
 
 #include <QtGui>
@@ -70,16 +70,16 @@ public:
     const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> surface() const;
     const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> extendedSurface() const;
 
-    void addLayout(const SharedLayout &layout);
+    void addLayout(const Logic::SharedLayout &layout);
     void clearLayouts();
     void setStyle(const SharedStyle &style);
 
     Q_SLOT void show();
     Q_SLOT void hide();
 
-    Q_SLOT void onLayoutChanged(const SharedLayout &layout);
-    Q_SLOT void onKeysChanged(const SharedLayout &layout);
-    Q_SLOT void onWordCandidatesChanged(const SharedLayout &layout);
+    Q_SLOT void onLayoutChanged(const Logic::SharedLayout &layout);
+    Q_SLOT void onKeysChanged(const Logic::SharedLayout &layout);
+    Q_SLOT void onWordCandidatesChanged(const Logic::SharedLayout &layout);
 
 
 private:

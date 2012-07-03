@@ -37,6 +37,7 @@
 #include <QtCore>
 
 namespace MaliitKeyboard {
+namespace Logic {
 
 class LayoutUpdater;
 
@@ -67,6 +68,6 @@ public:
     static const char *const caps_lock_state;
 };
 
-} // namespace MaliitKeyboard
+}} // namespace Logic, MaliitKeyboard
 
 #endif // MALIIT_KEYBOARD_SHIFTMACHINE_H

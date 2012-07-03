@@ -62,7 +62,7 @@ const qreal ActiveKeyZIndex = 0.0f;
 
 class LayoutItem {
 public:
-    SharedLayout layout;
+    Logic::SharedLayout layout;
     KeyAreaItem *left_item;
     KeyAreaItem *right_item;
     KeyAreaItem *center_item;
@@ -87,16 +87,16 @@ public:
         }
 
         switch(layout->activePanel()) {
-        case Layout::LeftPanel:
+        case Logic::Layout::LeftPanel:
             return left_item;
 
-        case Layout::RightPanel:
+        case Logic::Layout::RightPanel:
             return right_item;
 
-        case Layout::CenterPanel:
+        case Logic::Layout::CenterPanel:
             return center_item;
 
-        case Layout::ExtendedPanel:
+        case Logic::Layout::ExtendedPanel:
             return extended_item;
 
         default:
@@ -149,7 +149,7 @@ public:
         ribbon_item->update();
         ribbon_item->show();
 
-        if (layout->activePanel() != Layout::ExtendedPanel) {
+        if (layout->activePanel() != Logic::Layout::ExtendedPanel) {
             extended_item->hide();
         } else {
             extended_item->show();
@@ -345,7 +345,7 @@ const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> Renderer::ext
     return d->extended_surface;
 }
 
-void Renderer::addLayout(const SharedLayout &layout)
+void Renderer::addLayout(const Logic::SharedLayout &layout)
 {
     Q_D(Renderer);
 
@@ -418,7 +418,7 @@ void Renderer::show()
         LayoutItem &li(d->layout_items[index]);
 
         // Show first the extended keys surface before trying to add QGraphicsItem into it
-        if (li.layout->activePanel() != Layout::ExtendedPanel) {
+        if (li.layout->activePanel() != Logic::Layout::ExtendedPanel) {
             d->extended_surface->hide();
         } else {
             d->extended_surface->setSize(li.layout->extendedPanelGeometry().size());
@@ -452,13 +452,13 @@ void Renderer::hide()
     d->magnifier_surface->hide();
 }
 
-void Renderer::onLayoutChanged(const SharedLayout &layout)
+void Renderer::onLayoutChanged(const Logic::SharedLayout &layout)
 {
     Q_UNUSED(layout)
     show();
 }
 
-void Renderer::onKeysChanged(const SharedLayout &layout)
+void Renderer::onKeysChanged(const Logic::SharedLayout &layout)
 {
     if (layout.isNull()) {
         qCritical() << __PRETTY_FUNCTION__
@@ -484,7 +484,7 @@ void Renderer::onKeysChanged(const SharedLayout &layout)
         }
     }
 
-    QVector<KeyItem *> *key_items = layout->activePanel() == Layout::ExtendedPanel ? &d->extended_key_items : &d->key_items;
+    QVector<KeyItem *> *key_items = layout->activePanel() == Logic::Layout::ExtendedPanel ? &d->extended_key_items : &d->key_items;
 
     int index = 0;
     int magnifier_index = 0;
@@ -516,7 +516,7 @@ void Renderer::onKeysChanged(const SharedLayout &layout)
 //    }
 }
 
-void Renderer::onWordCandidatesChanged(const SharedLayout &layout)
+void Renderer::onWordCandidatesChanged(const Logic::SharedLayout &layout)
 {
     Q_D(Renderer);
 

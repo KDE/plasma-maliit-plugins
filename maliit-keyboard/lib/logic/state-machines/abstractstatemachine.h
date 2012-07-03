@@ -35,6 +35,7 @@
 class QString;
 
 namespace MaliitKeyboard {
+namespace Logic {
 
 class LayoutUpdater;
 
@@ -49,6 +50,6 @@ public:
     virtual void restart();
 };
 
-} // namespace MaliitKeyboard
+}} // namespace Logic, MaliitKeyboard
 
 #endif // MALIIT_KEYBOARD_ABSTRACTSTATEMACHINE_H

@@ -37,6 +37,7 @@
 #include <QtCore>
 
 namespace MaliitKeyboard {
+namespace Logic {
 
 class LayoutUpdater;
 
@@ -64,6 +65,6 @@ public:
     static const char *const symbols1_state;
 };
 
-} // namespace MaliitKeyboard
+}} // namespace Logic, MaliitKeyboard
 
 #endif // MALIIT_KEYBOARD_VIEWMACHINE_H

@@ -35,29 +35,32 @@
 namespace MaliitKeyboard {
 
 class Glass;
-class LayoutUpdater;
 class Renderer;
 class AbstractTextEditor;
 class AbstractFeedback;
 
+namespace Logic {
+class LayoutUpdater;
+}
+
 namespace Setup {
 
 void connectAll(Glass *glass,
-                LayoutUpdater *updater,
+                Logic::LayoutUpdater *updater,
                 Renderer *renderer,
                 AbstractTextEditor *editor,
                 AbstractFeedback *feedback);
 
 void connectGlassToLayoutUpdater(Glass *glass,
-                                 LayoutUpdater *updater);
+                                 Logic::LayoutUpdater *updater);
 void connectGlassToTextEditor(Glass *glass,
                               AbstractTextEditor *editor);
 void connectGlassToFeedback(Glass *glass,
                             AbstractFeedback *feedback);
 
-void connectLayoutUpdaterToTextEditor(LayoutUpdater *updater,
+void connectLayoutUpdaterToTextEditor(Logic::LayoutUpdater *updater,
                                       AbstractTextEditor *editor);
-void connectLayoutUpdaterToRenderer(LayoutUpdater *updater,
+void connectLayoutUpdaterToRenderer(Logic::LayoutUpdater *updater,
                                     Renderer *renderer);
 
 }} // namespace Setup, MaliitKeyboard

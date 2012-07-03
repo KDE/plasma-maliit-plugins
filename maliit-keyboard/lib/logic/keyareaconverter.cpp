@@ -40,6 +40,7 @@
 #include <QtCore>
 
 namespace MaliitKeyboard {
+namespace Logic {
 
 //! \class KeyAreaConverter
 //! Reads keyboard layouts and converts them into key areas. It can apply
@@ -49,7 +50,6 @@ namespace MaliitKeyboard {
 //! the valid combinations.
 
 namespace {
-
 //! \brief Creates a key area from a keyboard.
 //! \param attributes The styling attributes that get applied to the key area.
 //! \param source The keyboard layout used for the key area.
@@ -294,4 +294,4 @@ KeyArea KeyAreaConverter::phoneNumberKeyArea() const
     return createFromKeyboard(m_attributes, m_loader->phoneNumberKeyboard(), m_orientation);
 }
 
-} // namespace MaliitKeyboard
+}} // namespace Logic, MaliitKeyboard

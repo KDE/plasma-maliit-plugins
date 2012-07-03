@@ -34,6 +34,7 @@
 #include "logic/layoutupdater.h"
 
 namespace MaliitKeyboard {
+namespace Logic {
 
 const char *const DeadkeyMachine::no_deadkey_state = "no-deadkey";
 const char *const DeadkeyMachine::latched_deadkey_state = "latched-deadkey";
@@ -111,4 +112,4 @@ Key DeadkeyMachine::accentKey() const
     return d->accent_key;
 }
 
-} // namespace MaliitKeyboard
+}} // namespace Logic, MaliitKeyboard

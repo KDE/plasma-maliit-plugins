@@ -56,8 +56,8 @@ int main(int argc,
         mode = 1;
     }
 
-    MaliitKeyboard::SharedLayout layout(new MaliitKeyboard::Layout);
-    MaliitKeyboard::LayoutUpdater updater;
+    MaliitKeyboard::Logic::SharedLayout layout(new MaliitKeyboard::Logic::Layout);
+    MaliitKeyboard::Logic::LayoutUpdater updater;
     const QStringList ids (updater.keyboardIds());
     const int count(ids.size());
 

@@ -32,7 +32,7 @@
 #ifndef MALIIT_KEYBOARD_KEYAREACONVERTER_H
 #define MALIIT_KEYBOARD_KEYAREACONVERTER_H
 
-#include "models/layout.h"
+#include "logic/layout.h"
 #include <QPoint>
 
 namespace MaliitKeyboard {
@@ -41,6 +41,8 @@ class StyleAttributes;
 class KeyboardLoader;
 class KeyArea;
 class Key;
+
+namespace Logic {
 
 class KeyAreaConverter
 {
@@ -69,6 +71,6 @@ public:
     virtual KeyArea phoneNumberKeyArea() const;
 };
 
-} // namespace MaliitKeyboard
+}} // namespace Logic, MaliitKeyboard
 
 #endif // MALIIT_KEYBOARD_KEYAREACONVERTER_H

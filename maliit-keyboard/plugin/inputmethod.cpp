@@ -33,9 +33,9 @@
 #include "editor.h"
 
 #include "models/keyarea.h"
-#include "models/layout.h"
 #include "models/wordribbon.h"
 
+#include "logic/layout.h"
 #include "logic/layoutupdater.h"
 #include "logic/wordengine.h"
 #include "logic/style.h"
@@ -97,10 +97,10 @@ public:
     BackgroundBuffer buffer;
     Renderer renderer;
     Glass glass;
-    LayoutUpdater layout_updater;
+    Logic::LayoutUpdater layout_updater;
     Editor editor;
     DefaultFeedback feedback;
-    SharedLayout layout;
+    Logic::SharedLayout layout;
     SharedStyle style;
     QScopedPointer<Maliit::Plugins::AbstractPluginSetting> style_setting;
     QScopedPointer<Maliit::Plugins::AbstractPluginSetting> feedback_setting;
@@ -113,7 +113,7 @@ public:
         , layout_updater()
         , editor(EditorOptions(), new Model::Text, new Logic::WordEngine)
         , feedback()
-        , layout(new Layout)
+        , layout(new Logic::Layout)
         , style(new Style)
         , style_setting()
         , feedback_setting()
@@ -154,8 +154,9 @@ public:
 
         const QSize &screen_size(surface_factory->screenSize());
         layout->setScreenSize(screen_size);
-        layout->setAlignment(Layout::Bottom);
-        layout_updater.setOrientation(screen_size.width() >= screen_size.height() ? Layout::Landscape : Layout::Portrait);
+        layout->setAlignment(Logic::Layout::Bottom);
+        layout_updater.setOrientation(screen_size.width() >= screen_size.height()
+                                      ? Logic::Layout::Landscape : Logic::Layout::Portrait);
     }
 };
 
@@ -268,8 +269,9 @@ QString InputMethod::activeSubView(Maliit::HandlerState state) const
 void InputMethod::handleAppOrientationChanged(int angle)
 {
     Q_D(InputMethod);
-    d->layout_updater.setOrientation((angle == 0 || angle == 180) ? Layout::Landscape
-                                                                  : Layout::Portrait);
+    d->layout_updater.setOrientation((angle == 0 || angle == 180)
+                                     ? Logic::Layout::Landscape
+                                     : Logic::Layout::Portrait);
 }
 
 void InputMethod::onLeftLayoutSelected()
@@ -299,7 +301,9 @@ void InputMethod::onScreenSizeChange(const QSize &size)
     Q_D(InputMethod);
 
     d->layout->setScreenSize(size);
-    d->layout_updater.setOrientation(size.width() >= size.height() ? Layout::Landscape : Layout::Portrait);
+    d->layout_updater.setOrientation(size.width() >= size.height()
+                                     ? Logic::Layout::Landscape
+                                     : Logic::Layout::Portrait);
 }
 
 void InputMethod::onStyleSettingChanged()

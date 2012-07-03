@@ -37,16 +37,16 @@
 
 #include "models/key.h"
 #include "models/wordcandidate.h"
-#include "models/layout.h"
 #include "models/text.h"
 
+#include "logic/layout.h"
 #include "logic/layoutupdater.h"
 
 namespace MaliitKeyboard {
 namespace Setup {
 
 void connectAll(Glass *glass,
-                LayoutUpdater *updater,
+                Logic::LayoutUpdater *updater,
                 Renderer *renderer,
                 AbstractTextEditor *editor,
                 AbstractFeedback *feedback)
@@ -60,7 +60,7 @@ void connectAll(Glass *glass,
 }
 
 void connectGlassToLayoutUpdater(Glass *glass,
-                                 LayoutUpdater *updater)
+                                 Logic::LayoutUpdater *updater)
 {
     QObject::connect(glass,   SIGNAL(switchLeft(SharedLayout)),
                      updater, SLOT(clearActiveKeysAndMagnifier()));
@@ -132,7 +132,7 @@ void connectGlassToFeedback (Glass *glass,
                      feedback, SLOT(onKeyboardHidden()));
 }
 
-void connectLayoutUpdaterToTextEditor(LayoutUpdater *updater,
+void connectLayoutUpdaterToTextEditor(Logic::LayoutUpdater *updater,
                                       AbstractTextEditor *editor)
 {
     QObject::connect(updater, SIGNAL(wordCandidateSelected(QString)),
@@ -145,7 +145,7 @@ void connectLayoutUpdaterToTextEditor(LayoutUpdater *updater,
                      updater, SLOT(onWordCandidatesUpdated(QStringList)));
 }
 
-void connectLayoutUpdaterToRenderer(LayoutUpdater *updater,
+void connectLayoutUpdaterToRenderer(Logic::LayoutUpdater *updater,
                                     Renderer *renderer)
 {
     QObject::connect(updater,  SIGNAL(layoutChanged(SharedLayout)),

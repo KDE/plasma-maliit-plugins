@@ -34,10 +34,10 @@
 #include "models/keyarea.h"
 #include "models/key.h"
 #include "models/font.h"
-#include "models/layout.h"
 #include "models/wordcandidate.h"
 #include "models/wordribbon.h"
 
+#include "logic/layout.h"
 #include "logic/layoutupdater.h"
 #include "logic/wordengine.h"
 
@@ -96,10 +96,10 @@ int main(int argc,
 
     // One layout updater can only manage one layout. If more layouts need to
     // be managed, then more layout updaters are required.
-    MaliitKeyboard::LayoutUpdater lu0;
+    MaliitKeyboard::Logic::LayoutUpdater lu0;
 
-    MaliitKeyboard::SharedLayout l0(new MaliitKeyboard::Layout);
-    l0->setAlignment(MaliitKeyboard::Layout::Bottom);
+    MaliitKeyboard::Logic::SharedLayout l0(new MaliitKeyboard::Logic::Layout);
+    l0->setAlignment(MaliitKeyboard::Logic::Layout::Bottom);
     l0->setScreenSize(dashboard->size());
 
     MaliitKeyboard::Font font;
@@ -119,13 +119,13 @@ int main(int argc,
     glass.addLayout(l0);
     lu0.setLayout(l0);
 
-    MaliitKeyboard::SharedLayout l1(new MaliitKeyboard::Layout);
-    l1->setAlignment(MaliitKeyboard::Layout::Top);
+    MaliitKeyboard::Logic::SharedLayout l1(new MaliitKeyboard::Logic::Layout);
+    l1->setAlignment(MaliitKeyboard::Logic::Layout::Top);
     l1->setScreenSize(dashboard->size());
     renderer.addLayout(l1);
     glass.addLayout(l1);
 
-    MaliitKeyboard::LayoutUpdater lu1;
+    MaliitKeyboard::Logic::LayoutUpdater lu1;
     lu1.setLayout(l1);
 
     DefaultFeedback feedback;

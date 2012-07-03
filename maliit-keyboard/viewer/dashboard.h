@@ -34,7 +34,7 @@
 
 #include "models/key.h"
 #include "models/wordcandidate.h"
-#include "models/layout.h"
+#include "logic/layout.h"
 
 #include <QtCore>
 #include <QMainWindow>
@@ -60,7 +60,7 @@ public:
     void setRenderer(Renderer *renderer);
     AbstractTextEditor * editor() const;
 
-    Q_SIGNAL void orientationChanged(Layout::Orientation orientation);
+    Q_SIGNAL void orientationChanged(Logic::Layout::Orientation orientation);
     Q_SIGNAL void keyboardClosed();
 
 private:

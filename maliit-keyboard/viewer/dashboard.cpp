@@ -30,9 +30,9 @@
  */
 
 #include "models/key.h"
-#include "models/layout.h"
 #include "view/renderer.h"
 #include "view/abstracttexteditor.h"
+#include "logic/layout.h"
 #include "logic/keyareaconverter.h"
 #include "logic/wordengine.h"
 #include "dashboard.h"
@@ -129,7 +129,7 @@ public:
     QSpacerItem *top;
     QSpacerItem *bottom;
     QWidget *buttons;
-    Layout::Orientation orientation;
+    Logic::Layout::Orientation orientation;
 
     explicit DashboardPrivate(Dashboard *q)
         : renderer(0)
@@ -140,7 +140,7 @@ public:
         , top(new QSpacerItem(0, 0))
         , bottom(new QSpacerItem(0, 0))
         , buttons(new QWidget)
-        , orientation(Layout::Landscape)
+        , orientation(Logic::Layout::Landscape)
     {}
 };
 
@@ -226,8 +226,8 @@ void Dashboard::onShow()
         d->renderer->show();
     }
 
-    d->top->changeSize(0, d->orientation == Layout::Landscape ? 50 : 80);
-    d->bottom->changeSize(0, d->orientation == Layout::Landscape ? 250 : 350);
+    d->top->changeSize(0, d->orientation == Logic::Layout::Landscape ? 50 : 80);
+    d->bottom->changeSize(0, d->orientation == Logic::Layout::Landscape ? 250 : 350);
     d->vbox->invalidate();
     d->buttons->hide();
 }
@@ -245,10 +245,11 @@ void Dashboard::onOrientationChangeClicked()
 {
     Q_D(Dashboard);
 
-    d->orientation = (d->orientation == Layout::Landscape ? Layout::Portrait : Layout::Landscape);
-    static_cast<QGraphicsView *>(centralWidget())->rotate(d->orientation == Layout::Landscape ? 90 : 270);
+    d->orientation = (d->orientation == Logic::Layout::Landscape
+                      ? Logic::Layout::Portrait : Logic::Layout::Landscape);
+    static_cast<QGraphicsView *>(centralWidget())->rotate(d->orientation == Logic::Layout::Landscape ? 90 : 270);
     const QSize &s(centralWidget()->size());
-    d->proxy_widget->resize(d->orientation == Layout::Landscape ? s : QSize(s.height(), s.width()));
+    d->proxy_widget->resize(d->orientation == Logic::Layout::Landscape ? s : QSize(s.height(), s.width()));
     onShow();
     Q_EMIT orientationChanged(d->orientation);
 }

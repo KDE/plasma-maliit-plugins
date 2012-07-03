@@ -32,13 +32,14 @@
 #ifndef MALIIT_KEYBOARD_LAYOUT_H
 #define MALIIT_KEYBOARD_LAYOUT_H
 
-#include "key.h"
-#include "keyarea.h"
-#include "wordribbon.h"
+#include "models/key.h"
+#include "models/keyarea.h"
+#include "models/wordribbon.h"
 
 #include <QtCore>
 
 namespace MaliitKeyboard {
+namespace Logic {
 
 class LayoutPrivate;
 class Layout;
@@ -141,6 +142,6 @@ private:
     const QScopedPointer<LayoutPrivate> d_ptr;
 };
 
-} // namespace MaliitKeyboard
+}} // namespace Logic, MaliitKeyboard
 
 #endif // MALIIT_KEYBOARD_LAYOUT_H

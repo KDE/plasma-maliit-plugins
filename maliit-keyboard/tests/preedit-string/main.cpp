@@ -34,8 +34,8 @@
 #include "models/area.h"
 #include "models/key.h"
 #include "models/keyarea.h"
-#include "models/layout.h"
 #include "models/text.h"
+#include "logic/layout.h"
 #include "view/glass.h"
 #include "view/setup.h"
 #include "plugin/editor.h"
@@ -51,7 +51,7 @@
 #include <QMouseEvent>
 
 using namespace MaliitKeyboard;
-Q_DECLARE_METATYPE(Layout::Orientation)
+Q_DECLARE_METATYPE(Logic::Layout::Orientation)
 Q_DECLARE_METATYPE(QList<QMouseEvent*>)
 
 namespace {
@@ -118,13 +118,14 @@ KeyArea createAbcdArea()
 }
 
 QList<QMouseEvent *> createPressReleaseEvent(const QPoint &origin,
-                                             Layout::Orientation orientation)
+                                             Logic::Layout::Orientation orientation)
 {
     static const int offset(g_size / (g_divider * 2));
 
     QList<QMouseEvent *> result;
-    QPoint pos = (orientation == Layout::Landscape) ? QPoint(origin.x() + offset, origin.y() + offset)
-                                                    : QPoint(origin.y() + offset, g_size - (origin.x() + offset));
+    QPoint pos = (orientation == Logic::Layout::Landscape)
+                  ? QPoint(origin.x() + offset, origin.y() + offset)
+                  : QPoint(origin.y() + offset, g_size - (origin.x() + offset));
 
     result.append(new QMouseEvent(QKeyEvent::MouseButtonPress, pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier));
     result.append(new QMouseEvent(QKeyEvent::MouseButtonRelease, pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier));
@@ -150,13 +151,13 @@ private:
     Q_SLOT void initTestCase()
     {
         qRegisterMetaType<QList<QMouseEvent*> >();
-        qRegisterMetaType<Layout::Orientation>();
+        qRegisterMetaType<Logic::Layout::Orientation>();
         qRegisterMetaType<FormatList>();
     }
 
     Q_SLOT void test_data()
     {
-        QTest::addColumn<Layout::Orientation>("orientation");
+        QTest::addColumn<Logic::Layout::Orientation>("orientation");
         QTest::addColumn<QList<QMouseEvent*> >("mouse_events");
         QTest::addColumn<QString>("expected_last_preedit_string");
         QTest::addColumn<QString>("expected_commit_string");
@@ -166,8 +167,9 @@ private:
         for (int orientation = 0; orientation < 1; ++orientation) {
             // FIXME: here should be 2          ^
             // FIXME: tests fail for portrait layouts
-            const Layout::Orientation layout_orientation(orientation == 0 ? Layout::Landscape
-                                                                          : Layout::Portrait);
+            const Logic::Layout::Orientation layout_orientation(orientation == 0
+                                                                ? Logic::Layout::Landscape
+                                                                : Logic::Layout::Portrait);
             QTest::newRow("No mouse events: expect empty commit string, should be no preedit face")
                 << layout_orientation
                 << (QList<QMouseEvent *>())
@@ -255,7 +257,7 @@ private:
         // have to be skipped when there's no hunspell/presage, which
         // I wouldn't like to have.
 
-        QFETCH(Layout::Orientation, orientation);
+        QFETCH(Logic::Layout::Orientation, orientation);
         QFETCH(QList<QMouseEvent*>, mouse_events);
         QFETCH(QString, expected_last_preedit_string);
         QFETCH(QString, expected_commit_string);
@@ -265,7 +267,7 @@ private:
         Glass glass;
         Editor editor(EditorOptions(), new Model::Text, new Logic::WordEngineProbe, 0);
         InputMethodHostProbe host;
-        SharedLayout layout(new Layout);
+        Logic::SharedLayout layout(new Logic::Layout);
         QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> surface(Maliit::Plugins::createTestGraphicsViewSurface());
         QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> extended_surface(Maliit::Plugins::createTestGraphicsViewSurface(surface));
 
@@ -285,7 +287,7 @@ private:
         const KeyArea &key_area(createAbcdArea());
 
         layout->setExtendedPanel(key_area);
-        layout->setActivePanel(Layout::ExtendedPanel);
+        layout->setActivePanel(Logic::Layout::ExtendedPanel);
 
         Q_FOREACH (QMouseEvent *ev, mouse_events) {
             QApplication::instance()->postEvent(surface->view()->viewport(), ev);

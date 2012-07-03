@@ -10,7 +10,6 @@ HEADERS += \
     models/keydescription.h \
     models/wordcandidate.h \
     models/wordribbon.h \
-    models/layout.h \
     models/text.h \
     models/styleattributes.h \
 
@@ -22,7 +21,6 @@ SOURCES += \
     models/keyarea.cpp \
     models/wordcandidate.cpp \
     models/wordribbon.cpp \
-    models/layout.cpp \
     models/text.cpp \
     models/styleattributes.cpp \
 

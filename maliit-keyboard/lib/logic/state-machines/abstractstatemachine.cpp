@@ -33,6 +33,7 @@
 #include <QtCore>
 
 namespace MaliitKeyboard {
+namespace Logic {
 
 AbstractStateMachine::AbstractStateMachine()
 {}
@@ -61,4 +62,4 @@ void AbstractStateMachine::restart()
     }
 }
 
-} // namespace MaliitKeyboard
+}} // namespace Logic, MaliitKeyboard
