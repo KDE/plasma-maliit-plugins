@@ -117,12 +117,12 @@ void applyStyleToWordRibbon(WordRibbon *ribbon,
     ribbon->setArea(area);
 }
 
-bool updateWordRibbon(const SharedLayout &layout,
+bool updateWordRibbon(Layout *layout,
                       const WordCandidate &candidate,
                       const StyleAttributes *attributes,
                       ActivationPolicy policy)
 {
-    if (layout.isNull() || not attributes) {
+    if (not layout || not attributes) {
         return false;
     }
 
@@ -209,7 +209,7 @@ class LayoutUpdaterPrivate
 {
 public:
     bool initialized;
-    SharedLayout layout;
+    Layout *layout;
     KeyboardLoader loader;
     ShiftMachine shift_machine;
     ViewMachine view_machine;
@@ -220,7 +220,7 @@ public:
 
     explicit LayoutUpdaterPrivate()
         : initialized(false)
-        , layout()
+        , layout(0)
         , loader()
         , shift_machine()
         , view_machine()
@@ -310,7 +310,7 @@ QString LayoutUpdater::keyboardTitle(const QString &id) const
     return d->loader.title(id);
 }
 
-void LayoutUpdater::setLayout(const SharedLayout &layout)
+void LayoutUpdater::setLayout(Layout *layout)
 {
     Q_D(LayoutUpdater);
     d->layout = layout;
@@ -383,7 +383,7 @@ void LayoutUpdater::setWordRibbonVisible(bool visible)
 }
 
 void LayoutUpdater::onKeyPressed(const Key &key,
-                                 const SharedLayout &layout)
+                                 Layout *layout)
 {
     Q_D(LayoutUpdater);
 
@@ -416,12 +416,12 @@ void LayoutUpdater::onKeyPressed(const Key &key,
 }
 
 void LayoutUpdater::onKeyLongPressed(const Key &key,
-                                     const SharedLayout &layout)
+                                     Layout *layout)
 {
     Q_UNUSED(key);
     Q_D(LayoutUpdater);
 
-    if (d->layout != layout || d->layout.isNull() || d->style.isNull()) {
+    if (d->layout != layout || not d->layout || d->style.isNull()) {
         return;
     }
 
@@ -457,7 +457,7 @@ void LayoutUpdater::onKeyLongPressed(const Key &key,
 }
 
 void LayoutUpdater::onKeyReleased(const Key &key,
-                                  const SharedLayout &layout)
+                                  Layout *layout)
 {
     Q_D(const LayoutUpdater);
 
@@ -510,7 +510,7 @@ void LayoutUpdater::onKeyReleased(const Key &key,
     Q_EMIT keysChanged(layout);
 }
 
-void LayoutUpdater::onKeyAreaPressed(Layout::Panel panel, const SharedLayout &layout)
+void LayoutUpdater::onKeyAreaPressed(Layout::Panel panel, Layout *layout)
 {
     Q_D(LayoutUpdater);
 
@@ -523,7 +523,7 @@ void LayoutUpdater::onKeyAreaPressed(Layout::Panel panel, const SharedLayout &la
     }
 }
 
-void LayoutUpdater::onKeyAreaReleased(Layout::Panel panel, const SharedLayout &layout)
+void LayoutUpdater::onKeyAreaReleased(Layout::Panel panel, Layout *layout)
 {
     Q_D(LayoutUpdater);
 
@@ -541,7 +541,7 @@ void LayoutUpdater::onKeyAreaReleased(Layout::Panel panel, const SharedLayout &l
 }
 
 void LayoutUpdater::onKeyEntered(const Key &key,
-                                 const SharedLayout &layout)
+                                 Layout *layout)
 {
     Q_D(const LayoutUpdater);
 
@@ -559,7 +559,7 @@ void LayoutUpdater::onKeyEntered(const Key &key,
     Q_EMIT keysChanged(layout);
 }
 
-void LayoutUpdater::onKeyExited(const Key &key, const SharedLayout &layout)
+void LayoutUpdater::onKeyExited(const Key &key, Layout *layout)
 {
     Q_D(const LayoutUpdater);
 
@@ -576,7 +576,7 @@ void LayoutUpdater::clearActiveKeysAndMagnifier()
 {
     Q_D(const LayoutUpdater);
 
-    if (d->layout.isNull()) {
+    if (not d->layout) {
         qCritical() << __PRETTY_FUNCTION__
                     << "No layout specified.";
         return;
@@ -601,7 +601,7 @@ void LayoutUpdater::onWordCandidatesUpdated(const QStringList &candidates)
 {
     Q_D(LayoutUpdater);
 
-    if (d->layout.isNull()) {
+    if (not d->layout) {
         qWarning() << __PRETTY_FUNCTION__
                    << "No layout specified.";
         return;
@@ -629,7 +629,7 @@ void LayoutUpdater::onWordCandidatesUpdated(const QStringList &candidates)
 }
 
 void LayoutUpdater::onWordCandidatePressed(const WordCandidate &candidate,
-                                           const SharedLayout &layout)
+                                           Layout *layout)
 {
     Q_D(LayoutUpdater);
 
@@ -640,7 +640,7 @@ void LayoutUpdater::onWordCandidatePressed(const WordCandidate &candidate,
 }
 
 void LayoutUpdater::onWordCandidateReleased(const WordCandidate &candidate,
-                                            const SharedLayout &layout)
+                                            Layout *layout)
 {
     Q_D(LayoutUpdater);
 
@@ -706,7 +706,7 @@ void LayoutUpdater::switchToMainView()
 {
     Q_D(LayoutUpdater);
 
-    if (d->layout.isNull() || d->style.isNull()) {
+    if (not d->layout || d->style.isNull()) {
         return;
     }
 
@@ -726,7 +726,7 @@ void LayoutUpdater::switchToPrimarySymView()
 {
     Q_D(LayoutUpdater);
 
-    if (d->layout.isNull() || d->style.isNull()) {
+    if (not d->layout || d->style.isNull()) {
         return;
     }
 
@@ -746,7 +746,7 @@ void LayoutUpdater::switchToSecondarySymView()
 {
     Q_D(LayoutUpdater);
 
-    if (d->layout.isNull() || d->style.isNull()) {
+    if (not d->layout || d->style.isNull()) {
         return;
     }
 
@@ -762,7 +762,7 @@ void LayoutUpdater::switchToAccentedView()
 {
     Q_D(LayoutUpdater);
 
-    if (d->layout.isNull() || d->style.isNull()) {
+    if (not d->layout || d->style.isNull()) {
         return;
     }
 

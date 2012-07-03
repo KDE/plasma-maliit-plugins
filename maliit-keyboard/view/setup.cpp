@@ -62,55 +62,55 @@ void connectAll(Glass *glass,
 void connectGlassToLayoutUpdater(Glass *glass,
                                  Logic::LayoutUpdater *updater)
 {
-    QObject::connect(glass,   SIGNAL(switchLeft(SharedLayout)),
+    QObject::connect(glass,   SIGNAL(switchLeft(Layout)),
                      updater, SLOT(clearActiveKeysAndMagnifier()));
 
-    QObject::connect(glass,   SIGNAL(switchRight(SharedLayout)),
+    QObject::connect(glass,   SIGNAL(switchRight(Layout)),
                      updater, SLOT(clearActiveKeysAndMagnifier()));
 
     // Connect key signals to key signal handlers:
-    QObject::connect(glass,   SIGNAL(keyPressed(Key,SharedLayout)),
-                     updater, SLOT(onKeyPressed(Key,SharedLayout)));
+    QObject::connect(glass,   SIGNAL(keyPressed(Key,Layout)),
+                     updater, SLOT(onKeyPressed(Key,Layout)));
 
-    QObject::connect(glass,   SIGNAL(keyLongPressed(Key,SharedLayout)),
-                     updater, SLOT(onKeyLongPressed(Key,SharedLayout)));
+    QObject::connect(glass,   SIGNAL(keyLongPressed(Key,Layout)),
+                     updater, SLOT(onKeyLongPressed(Key,Layout)));
 
-    QObject::connect(glass,   SIGNAL(keyReleased(Key,SharedLayout)),
-                     updater, SLOT(onKeyReleased(Key,SharedLayout)));
+    QObject::connect(glass,   SIGNAL(keyReleased(Key,Layout)),
+                     updater, SLOT(onKeyReleased(Key,Layout)));
 
-    QObject::connect(glass,   SIGNAL(keyAreaPressed(Layout::Panel,SharedLayout)),
-                     updater, SLOT(onKeyAreaPressed(Layout::Panel,SharedLayout)));
+    QObject::connect(glass,   SIGNAL(keyAreaPressed(Layout::Panel,Layout)),
+                     updater, SLOT(onKeyAreaPressed(Layout::Panel,Layout)));
 
-    QObject::connect(glass,   SIGNAL(keyAreaReleased(Layout::Panel,SharedLayout)),
-                     updater, SLOT(onKeyAreaReleased(Layout::Panel,SharedLayout)));
+    QObject::connect(glass,   SIGNAL(keyAreaReleased(Layout::Panel,Layout)),
+                     updater, SLOT(onKeyAreaReleased(Layout::Panel,Layout)));
 
-    QObject::connect(glass,   SIGNAL(keyEntered(Key,SharedLayout)),
-                     updater, SLOT(onKeyEntered(Key,SharedLayout)));
+    QObject::connect(glass,   SIGNAL(keyEntered(Key,Layout)),
+                     updater, SLOT(onKeyEntered(Key,Layout)));
 
-    QObject::connect(glass,   SIGNAL(keyExited(Key,SharedLayout)),
-                     updater, SLOT(onKeyExited(Key,SharedLayout)));
+    QObject::connect(glass,   SIGNAL(keyExited(Key,Layout)),
+                     updater, SLOT(onKeyExited(Key,Layout)));
 
     // Connect word candidate signals to word candidate handlers:
-    QObject::connect(glass,   SIGNAL(wordCandidatePressed(WordCandidate,SharedLayout)),
-                     updater, SLOT(onWordCandidatePressed(WordCandidate,SharedLayout)));
+    QObject::connect(glass,   SIGNAL(wordCandidatePressed(WordCandidate,Layout)),
+                     updater, SLOT(onWordCandidatePressed(WordCandidate,Layout)));
 
-    QObject::connect(glass,   SIGNAL(wordCandidateReleased(WordCandidate,SharedLayout)),
-                     updater, SLOT(onWordCandidateReleased(WordCandidate,SharedLayout)));
+    QObject::connect(glass,   SIGNAL(wordCandidateReleased(WordCandidate,Layout)),
+                     updater, SLOT(onWordCandidateReleased(WordCandidate,Layout)));
 }
 
 void connectGlassToTextEditor(Glass *glass,
                               AbstractTextEditor *editor)
 {
-    QObject::connect(glass,  SIGNAL(keyPressed(Key,SharedLayout)),
+    QObject::connect(glass,  SIGNAL(keyPressed(Key,Layout)),
                      editor, SLOT(onKeyPressed(Key)));
 
-    QObject::connect(glass,  SIGNAL(keyReleased(Key,SharedLayout)),
+    QObject::connect(glass,  SIGNAL(keyReleased(Key,Layout)),
                      editor, SLOT(onKeyReleased(Key)));
 
-    QObject::connect(glass,  SIGNAL(keyEntered(Key,SharedLayout)),
+    QObject::connect(glass,  SIGNAL(keyEntered(Key,Layout)),
                      editor, SLOT(onKeyEntered(Key)));
 
-    QObject::connect(glass,  SIGNAL(keyExited(Key,SharedLayout)),
+    QObject::connect(glass,  SIGNAL(keyExited(Key,Layout)),
                      editor, SLOT(onKeyExited(Key)));
 
     QObject::connect(editor, SIGNAL(keyboardClosed()),
@@ -120,13 +120,13 @@ void connectGlassToTextEditor(Glass *glass,
 void connectGlassToFeedback (Glass *glass,
                              AbstractFeedback *feedback)
 {
-    QObject::connect(glass,    SIGNAL(keyPressed(Key,SharedLayout)),
+    QObject::connect(glass,    SIGNAL(keyPressed(Key,Layout)),
                      feedback, SLOT(onKeyPressed()));
-    QObject::connect(glass,    SIGNAL(keyReleased(Key,SharedLayout)),
+    QObject::connect(glass,    SIGNAL(keyReleased(Key,Layout)),
                      feedback, SLOT(onKeyReleased()));
-    QObject::connect(glass,    SIGNAL(switchLeft(SharedLayout)),
+    QObject::connect(glass,    SIGNAL(switchLeft(Layout)),
                      feedback, SLOT(onLayoutChanged()));
-    QObject::connect(glass,    SIGNAL(switchRight(SharedLayout)),
+    QObject::connect(glass,    SIGNAL(switchRight(Layout)),
                      feedback, SLOT(onLayoutChanged()));
     QObject::connect(glass,    SIGNAL(keyboardClosed()),
                      feedback, SLOT(onKeyboardHidden()));
@@ -148,14 +148,14 @@ void connectLayoutUpdaterToTextEditor(Logic::LayoutUpdater *updater,
 void connectLayoutUpdaterToRenderer(Logic::LayoutUpdater *updater,
                                     Renderer *renderer)
 {
-    QObject::connect(updater,  SIGNAL(layoutChanged(SharedLayout)),
-                     renderer, SLOT(onLayoutChanged(SharedLayout)));
+    QObject::connect(updater,  SIGNAL(layoutChanged(Layout)),
+                     renderer, SLOT(onLayoutChanged(Layout)));
 
-    QObject::connect(updater,  SIGNAL(keysChanged(SharedLayout)),
-                     renderer, SLOT(onKeysChanged(SharedLayout)));
+    QObject::connect(updater,  SIGNAL(keysChanged(Layout)),
+                     renderer, SLOT(onKeysChanged(Layout)));
 
-    QObject::connect(updater,  SIGNAL(wordCandidatesChanged(SharedLayout)),
-                     renderer, SLOT(onWordCandidatesChanged(SharedLayout)));
+    QObject::connect(updater,  SIGNAL(wordCandidatesChanged(Layout)),
+                     renderer, SLOT(onWordCandidatesChanged(Layout)));
 }
 
 }} // namespace Setup, MaliitKeyboard

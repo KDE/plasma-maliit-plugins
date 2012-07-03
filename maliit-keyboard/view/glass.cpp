@@ -64,7 +64,7 @@ public:
     QWidget *extendedWindow;
     QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> surface;
     QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> extendedSurface;
-    QVector<Logic::SharedLayout> layouts;
+    QVector<Logic::Layout *> layouts;
     QVector<Key> active_keys;
     WordCandidate active_candidate;
     QPoint last_pos;
@@ -72,7 +72,7 @@ public:
     QElapsedTimer gesture_timer;
     bool gesture_triggered;
     QTimer long_press_timer;
-    Logic::SharedLayout long_press_layout;
+    Logic::Layout *long_press_layout;
 
     explicit GlassPrivate()
         : window(0)
@@ -143,7 +143,7 @@ void Glass::setExtendedSurface(const QSharedPointer<Maliit::Plugins::AbstractGra
     window->installEventFilter(this);
 }
 
-void Glass::addLayout(const Logic::SharedLayout &layout)
+void Glass::addLayout(Logic::Layout *layout)
 {
     Q_D(Glass);
     d->layouts.append(layout);
@@ -207,7 +207,7 @@ bool Glass::eventFilter(QObject *obj,
         QMouseEvent *qme = static_cast<QMouseEvent *>(ev);
         ev->accept();
 
-        Q_FOREACH (const Logic::SharedLayout &layout, d->layouts) {
+        Q_FOREACH (Logic::Layout *layout, d->layouts) {
             const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> targetSurface(layout->activePanel() == Logic::Layout::ExtendedPanel ? d->extendedSurface : d->surface);
 
             const QPoint &pos(targetSurface->translateEventPosition(qme->pos(), eventSurface));
@@ -288,8 +288,9 @@ void Glass::onLongPressTriggered()
 {
     Q_D(Glass);
 
-    if (d->gesture_triggered || d->active_keys.isEmpty()
-        || d->long_press_layout.isNull()
+    if (d->gesture_triggered
+        || d->active_keys.isEmpty()
+        || not d->long_press_layout
         || d->long_press_layout->activePanel() == Logic::Layout::ExtendedPanel) {
         return;
     }
@@ -317,7 +318,7 @@ bool Glass::handlePressReleaseEvent(QEvent *ev,
     d->press_pos = qme->pos(); // FIXME: dont update on mouse release, clear instead.
     ev->accept();
 
-    Q_FOREACH (const Logic::SharedLayout &layout, d->layouts) {
+    Q_FOREACH (Logic::Layout *layout, d->layouts) {
         const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> targetSurface(layout->activePanel() == Logic::Layout::ExtendedPanel ? d->extendedSurface : d->surface);
 
         const QPoint &pos(targetSurface->translateEventPosition(qme->pos(), eventSurface));

@@ -267,7 +267,7 @@ private:
         Glass glass;
         Editor editor(EditorOptions(), new Model::Text, new Logic::WordEngineProbe, 0);
         InputMethodHostProbe host;
-        Logic::SharedLayout layout(new Logic::Layout);
+        Logic::Layout layout(new Logic::Layout);
         QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> surface(Maliit::Plugins::createTestGraphicsViewSurface());
         QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> extended_surface(Maliit::Plugins::createTestGraphicsViewSurface(surface));
 
@@ -278,22 +278,22 @@ private:
         surface->scene()->setSceneRect(0, 0, g_size, g_size);
         glass.setSurface(surface);
         glass.setExtendedSurface(extended_surface);
-        glass.addLayout(layout);
+        glass.addLayout(&layout);
         editor.setHost(&host);
-        layout->setOrientation(orientation);
+        layout.setOrientation(orientation);
         editor.wordEngine()->setEnabled(word_engine_enabled);
 
         Setup::connectGlassToTextEditor(&glass, &editor);
         const KeyArea &key_area(createAbcdArea());
 
-        layout->setExtendedPanel(key_area);
-        layout->setActivePanel(Logic::Layout::ExtendedPanel);
+        layout.setExtendedPanel(key_area);
+        layout.setActivePanel(Logic::Layout::ExtendedPanel);
 
         Q_FOREACH (QMouseEvent *ev, mouse_events) {
             QApplication::instance()->postEvent(surface->view()->viewport(), ev);
         }
 
-        TestUtils::waitForSignal(&glass, SIGNAL(keyReleased(Key,SharedLayout)));
+        TestUtils::waitForSignal(&glass, SIGNAL(keyReleased(Key,Layout)));
         QCOMPARE(host.lastPreeditString(), expected_last_preedit_string);
         QCOMPARE(host.commitStringHistory(), expected_commit_string);
         QCOMPARE(host.lastPreeditTextFormatList(), expected_preedit_format);

@@ -42,8 +42,6 @@ namespace MaliitKeyboard {
 namespace Logic {
 
 class LayoutPrivate;
-class Layout;
-typedef QSharedPointer<Layout> SharedLayout;
 
 // TODO: Implement hit test on Layout, one to check whether key was hit, one to check whether word candidate was hit.
 // Should return invalid key/wc, or found key/wc.

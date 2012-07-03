@@ -98,9 +98,9 @@ int main(int argc,
     // be managed, then more layout updaters are required.
     MaliitKeyboard::Logic::LayoutUpdater lu0;
 
-    MaliitKeyboard::Logic::SharedLayout l0(new MaliitKeyboard::Logic::Layout);
-    l0->setAlignment(MaliitKeyboard::Logic::Layout::Bottom);
-    l0->setScreenSize(dashboard->size());
+    MaliitKeyboard::Logic::Layout l0;
+    l0.setAlignment(MaliitKeyboard::Logic::Layout::Bottom);
+    l0.setScreenSize(dashboard->size());
 
     MaliitKeyboard::Font font;
     font.setColor(QByteArray("#ddd"));
@@ -113,20 +113,20 @@ int main(int argc,
     area.setSize(QSize(856, 40));
     ribbon.setArea(area);
 
-    l0->setWordRibbon(ribbon);
+    l0.setWordRibbon(ribbon);
 
-    renderer.addLayout(l0);
-    glass.addLayout(l0);
-    lu0.setLayout(l0);
+    renderer.addLayout(&l0);
+    glass.addLayout(&l0);
+    lu0.setLayout(&l0);
 
-    MaliitKeyboard::Logic::SharedLayout l1(new MaliitKeyboard::Logic::Layout);
-    l1->setAlignment(MaliitKeyboard::Logic::Layout::Top);
-    l1->setScreenSize(dashboard->size());
-    renderer.addLayout(l1);
-    glass.addLayout(l1);
+    MaliitKeyboard::Logic::Layout l1;
+    l1.setAlignment(MaliitKeyboard::Logic::Layout::Top);
+    l1.setScreenSize(dashboard->size());
+    renderer.addLayout(&l1);
+    glass.addLayout(&l1);
 
     MaliitKeyboard::Logic::LayoutUpdater lu1;
-    lu1.setLayout(l1);
+    lu1.setLayout(&l1);
 
     DefaultFeedback feedback;
     MaliitKeyboard::Setup::connectAll(&glass, &lu0, &renderer, dashboard->editor(), &feedback);

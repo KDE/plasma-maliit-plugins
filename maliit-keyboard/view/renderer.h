@@ -70,16 +70,16 @@ public:
     const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> surface() const;
     const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> extendedSurface() const;
 
-    void addLayout(const Logic::SharedLayout &layout);
+    void addLayout(Logic::Layout *layout);
     void clearLayouts();
     void setStyle(const SharedStyle &style);
 
     Q_SLOT void show();
     Q_SLOT void hide();
 
-    Q_SLOT void onLayoutChanged(const Logic::SharedLayout &layout);
-    Q_SLOT void onKeysChanged(const Logic::SharedLayout &layout);
-    Q_SLOT void onWordCandidatesChanged(const Logic::SharedLayout &layout);
+    Q_SLOT void onLayoutChanged(Logic::Layout *layout);
+    Q_SLOT void onKeysChanged(Logic::Layout *layout);
+    Q_SLOT void onWordCandidatesChanged(Logic::Layout *layout);
 
 
 private:

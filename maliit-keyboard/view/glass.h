@@ -58,35 +58,35 @@ public:
     void setSurface(const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> &surface);
     void setExtendedSurface(const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> &surface);
 
-    void addLayout(const Logic::SharedLayout &layout);
+    void addLayout(Logic::Layout *layout);
     void clearLayouts();
 
     // Key signals:
     Q_SIGNAL void keyPressed(const Key &key,
-                             const Logic::SharedLayout &layout);
+                             Logic::Layout *layout);
     Q_SIGNAL void keyLongPressed(const Key &key,
-                                 const Logic::SharedLayout &layout);
+                                 Logic::Layout *layout);
     Q_SIGNAL void keyReleased(const Key &key,
-                              const Logic::SharedLayout &layout);
+                              Logic::Layout *layout);
     Q_SIGNAL void keyEntered(const Key &key,
-                             const Logic::SharedLayout &layout);
+                             Logic::Layout *layout);
     Q_SIGNAL void keyExited(const Key &key,
-                            const Logic::SharedLayout &layout);
+                            Logic::Layout *layout);
 
     // WordCandidate signals:
     Q_SIGNAL void wordCandidatePressed(const WordCandidate &candidate,
-                                       const Logic::SharedLayout &layout);
+                                       Logic::Layout *layout);
     Q_SIGNAL void wordCandidateReleased(const WordCandidate &candidate,
-                                        const Logic::SharedLayout &layout);
+                                        Logic::Layout *layout);
 
     // KeyArea signals:
     Q_SIGNAL void keyAreaPressed(Logic::Layout::Panel panel,
-                                 const Logic::SharedLayout &layout);
+                                 Logic::Layout *layout);
     Q_SIGNAL void keyAreaReleased(Logic::Layout::Panel panel,
-                                  const Logic::SharedLayout &layout);
+                                  Logic::Layout *layout);
 
-    Q_SIGNAL void switchLeft(const Logic::SharedLayout &layout);
-    Q_SIGNAL void switchRight(const Logic::SharedLayout &layout);
+    Q_SIGNAL void switchLeft(Logic::Layout *layout);
+    Q_SIGNAL void switchRight(Logic::Layout *layout);
     Q_SIGNAL void keyboardClosed();
 
 protected:

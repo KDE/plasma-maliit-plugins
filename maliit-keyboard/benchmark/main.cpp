@@ -56,7 +56,7 @@ int main(int argc,
         mode = 1;
     }
 
-    MaliitKeyboard::Logic::SharedLayout layout(new MaliitKeyboard::Logic::Layout);
+    MaliitKeyboard::Logic::Layout layout;
     MaliitKeyboard::Logic::LayoutUpdater updater;
     const QStringList ids (updater.keyboardIds());
     const int count(ids.size());
@@ -67,7 +67,7 @@ int main(int argc,
         qDebug("No language files found.");
         return 1;
     }
-    updater.setLayout(layout);
+    updater.setLayout(&layout);
 
     double total_time(0);
     double meeting_total_time(0);

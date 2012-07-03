@@ -100,7 +100,7 @@ public:
     Logic::LayoutUpdater layout_updater;
     Editor editor;
     DefaultFeedback feedback;
-    Logic::SharedLayout layout;
+    Logic::Layout layout;
     SharedStyle style;
     QScopedPointer<Maliit::Plugins::AbstractPluginSetting> style_setting;
     QScopedPointer<Maliit::Plugins::AbstractPluginSetting> feedback_setting;
@@ -123,9 +123,9 @@ public:
         glass.setExtendedSurface(renderer.extendedSurface());
         editor.setHost(host);
 
-        renderer.addLayout(layout);
-        glass.addLayout(layout);
-        layout_updater.setLayout(layout);
+        renderer.addLayout(&layout);
+        glass.addLayout(&layout);
+        layout_updater.setLayout(&layout);
 
         QVariantMap style_attrs;
         QStringList available_styles = style->availableProfiles();
@@ -153,8 +153,8 @@ public:
         feedback.setEnabled(feedback_setting->value().toBool());
 
         const QSize &screen_size(surface_factory->screenSize());
-        layout->setScreenSize(screen_size);
-        layout->setAlignment(Logic::Layout::Bottom);
+        layout.setScreenSize(screen_size);
+        layout.setAlignment(Logic::Layout::Bottom);
         layout_updater.setOrientation(screen_size.width() >= screen_size.height()
                                       ? Logic::Layout::Landscape : Logic::Layout::Portrait);
     }
@@ -175,10 +175,10 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
     connect(&d->glass, SIGNAL(keyboardClosed()),
             this,      SLOT(onKeyboardClosed()));
 
-    connect(&d->glass, SIGNAL(switchLeft(SharedLayout)),
+    connect(&d->glass, SIGNAL(switchLeft(Layout)),
             this,      SLOT(onLeftLayoutSelected()));
 
-    connect(&d->glass, SIGNAL(switchRight(SharedLayout)),
+    connect(&d->glass, SIGNAL(switchRight(Layout)),
             this,      SLOT(onRightLayoutSelected()));
 
     connect(&d->editor, SIGNAL(leftLayoutSelected()),
@@ -300,7 +300,7 @@ void InputMethod::onScreenSizeChange(const QSize &size)
 {
     Q_D(InputMethod);
 
-    d->layout->setScreenSize(size);
+    d->layout.setScreenSize(size);
     d->layout_updater.setOrientation(size.width() >= size.height()
                                      ? Logic::Layout::Landscape
                                      : Logic::Layout::Portrait);

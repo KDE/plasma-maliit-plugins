@@ -67,7 +67,7 @@ public:
     void setActiveKeyboardId(const QString &id);
     QString keyboardTitle(const QString &id) const;
 
-    void setLayout(const SharedLayout &layout);
+    void setLayout(Layout *layout);
     Q_SLOT void setOrientation(Layout::Orientation orientation);
 
     void setStyle(const SharedStyle &style);
@@ -78,30 +78,30 @@ public:
 
     // Key signal handlers:
     Q_SLOT void onKeyPressed(const Key &key,
-                             const SharedLayout &layout);
+                             Layout *layout);
     Q_SLOT void onKeyLongPressed(const Key &key,
-                                 const SharedLayout &layout);
+                                 Layout *layout);
     Q_SLOT void onKeyReleased(const Key &key,
-                              const SharedLayout &layout);
-    Q_SLOT void onKeyAreaPressed(Layout::Panel panel, const SharedLayout &layout);
-    Q_SLOT void onKeyAreaReleased(Layout::Panel panel, const SharedLayout &layout);
+                              Layout *layout);
+    Q_SLOT void onKeyAreaPressed(Layout::Panel panel, Layout *layout);
+    Q_SLOT void onKeyAreaReleased(Layout::Panel panel, Layout *layout);
     Q_SLOT void onKeyEntered(const Key &key,
-                             const SharedLayout &layout);
+                             Layout *layout);
     Q_SLOT void onKeyExited(const Key &key,
-                            const SharedLayout &layout);
+                            Layout *layout);
     Q_SLOT void clearActiveKeysAndMagnifier();
     Q_SLOT void resetOnKeyboardClosed();
     Q_SLOT void onWordCandidatesUpdated(const QStringList &candidates);
 
     // WordCandidate signal handlers:
     Q_SLOT void onWordCandidatePressed(const WordCandidate &candidate,
-                                       const SharedLayout &layout);
+                                       Layout *layout);
     Q_SLOT void onWordCandidateReleased(const WordCandidate &candidate,
-                                        const SharedLayout &layout);
+                                        Layout *layout);
 
-    Q_SIGNAL void layoutChanged(const SharedLayout &layout);
-    Q_SIGNAL void keysChanged(const SharedLayout &layout);
-    Q_SIGNAL void wordCandidatesChanged(const SharedLayout &layout);
+    Q_SIGNAL void layoutChanged(Layout *layout);
+    Q_SIGNAL void keysChanged(Layout *layout);
+    Q_SIGNAL void wordCandidatesChanged(Layout *layout);
     Q_SIGNAL void wordCandidateSelected(const QString &candidate);
 
 private:

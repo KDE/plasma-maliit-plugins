@@ -72,17 +72,17 @@ private:
 
         Logic::LayoutUpdater layout_updater;
 
-        Logic::SharedLayout layout(new Logic::Layout);
-        layout_updater.setLayout(layout);
+        Logic::Layout layout(new Logic::Layout);
+        layout_updater.setLayout(&layout);
 
         SharedStyle style(new Style);
         layout_updater.setStyle(style);
 
         layout_updater.setActiveKeyboardId(keyboard_id);
-        TestUtils::waitForSignal(&layout_updater, SIGNAL(layoutChanged(SharedLayout)));
+        TestUtils::waitForSignal(&layout_updater, SIGNAL(layoutChanged(Layout)));
 
-        QCOMPARE(layout->activePanel(), Logic::Layout::CenterPanel);
-        QCOMPARE(layout->activeKeyArea().keys().count(), expected_key_count);
+        QCOMPARE(layout.activePanel(), Logic::Layout::CenterPanel);
+        QCOMPARE(layout.activeKeyArea().keys().count(), expected_key_count);
     }
 
     // This test is very trivial. It's required however because none of the

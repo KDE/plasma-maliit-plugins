@@ -62,7 +62,7 @@ const qreal ActiveKeyZIndex = 0.0f;
 
 class LayoutItem {
 public:
-    Logic::SharedLayout layout;
+    Logic::Layout *layout;
     KeyAreaItem *left_item;
     KeyAreaItem *right_item;
     KeyAreaItem *center_item;
@@ -70,7 +70,7 @@ public:
     WordRibbonItem *ribbon_item;
 
     explicit LayoutItem()
-        : layout()
+        : layout(0)
         , left_item(0)
         , right_item(0)
         , center_item(0)
@@ -80,7 +80,7 @@ public:
 
     KeyAreaItem *activeItem() const
     {
-        if (layout.isNull()) {
+        if (not layout) {
             qCritical() << __PRETTY_FUNCTION__
                         << "Invalid layout!";
             return 0;
@@ -114,7 +114,7 @@ public:
     void show(QGraphicsItem *root,
               QGraphicsItem *extended_root)
     {
-        if (layout.isNull()) {
+        if (not layout) {
             qCritical() << __PRETTY_FUNCTION__
                         << "Invalid layout!";
             return;
@@ -345,7 +345,7 @@ const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> Renderer::ext
     return d->extended_surface;
 }
 
-void Renderer::addLayout(const Logic::SharedLayout &layout)
+void Renderer::addLayout(Logic::Layout *layout)
 {
     Q_D(Renderer);
 
@@ -452,15 +452,15 @@ void Renderer::hide()
     d->magnifier_surface->hide();
 }
 
-void Renderer::onLayoutChanged(const Logic::SharedLayout &layout)
+void Renderer::onLayoutChanged(Logic::Layout *layout)
 {
     Q_UNUSED(layout)
     show();
 }
 
-void Renderer::onKeysChanged(const Logic::SharedLayout &layout)
+void Renderer::onKeysChanged(Logic::Layout *layout)
 {
-    if (layout.isNull()) {
+    if (not layout) {
         qCritical() << __PRETTY_FUNCTION__
                     << "Invalid layout.";
         return;
@@ -516,11 +516,11 @@ void Renderer::onKeysChanged(const Logic::SharedLayout &layout)
 //    }
 }
 
-void Renderer::onWordCandidatesChanged(const Logic::SharedLayout &layout)
+void Renderer::onWordCandidatesChanged(Logic::Layout *layout)
 {
     Q_D(Renderer);
 
-    if (layout.isNull()) {
+    if (not layout) {
         qCritical() << __PRETTY_FUNCTION__
                     << "Invalid layout.";
         return;
