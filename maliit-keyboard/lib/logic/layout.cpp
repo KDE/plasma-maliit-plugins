@@ -60,7 +60,6 @@ public:
     } active_keys;
 
     Key magnifier_key;
-    QPoint magnifier_key_origin;
 
     explicit LayoutPrivate();
 
@@ -81,7 +80,6 @@ LayoutPrivate::LayoutPrivate()
     , ribbon()
     , active_keys()
     , magnifier_key()
-    , magnifier_key_origin()
 {}
 
 KeyArea LayoutPrivate::lookup(Layout::Panel panel) const
@@ -409,20 +407,13 @@ Key Layout::magnifierKey() const
     return d->magnifier_key;
 }
 
-QPoint Layout::magnifierKeyOrigin() const
-{
-    Q_D(const Layout);
-    return d->magnifier_key_origin;
-}
-
 void Layout::setMagnifierKey(const Key &key)
 {
     Q_D(Layout);
 
     if (d->magnifier_key != key) {
         d->magnifier_key = key;
-        d->magnifier_key_origin = d->magnifier_key.origin() + d->panelOrigin();
-        d->magnifier_key.setOrigin(QPoint());
+        d->magnifier_key.setOrigin(d->magnifier_key.origin() + d->panelOrigin());
         Q_EMIT magnifierKeyChanged(d->magnifier_key);
     }
 }

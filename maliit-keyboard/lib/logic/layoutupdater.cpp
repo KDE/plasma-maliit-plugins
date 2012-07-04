@@ -555,8 +555,6 @@ void LayoutUpdater::onKeyEntered(const Key &key,
         layout->setMagnifierKey(magnifyKey(key, d->activeStyleAttributes(), d->layout->orientation(),
                                            d->layout->centerPanelGeometry()));
     }
-
-    Q_EMIT keysChanged(layout);
 }
 
 void LayoutUpdater::onKeyExited(const Key &key, Layout *layout)

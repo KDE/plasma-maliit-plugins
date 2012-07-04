@@ -166,7 +166,8 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
 {
     Q_D(InputMethod);
 
-    Setup::connectAll(&d->glass, &d->layout_updater, &d->renderer, &d->editor, &d->feedback);
+    Setup::connectAll(&d->glass, &d->layout, &d->layout_updater,
+                      &d->renderer, &d->editor, &d->feedback);
 
     // TODO: Let this be driven through content type, and/or a plugin setting:
     d->editor.wordEngine()->setEnabled(true);

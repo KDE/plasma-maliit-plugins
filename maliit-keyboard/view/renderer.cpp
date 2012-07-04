@@ -487,7 +487,6 @@ void Renderer::onKeysChanged(Logic::Layout *layout)
     QVector<KeyItem *> *key_items = layout->activePanel() == Logic::Layout::ExtendedPanel ? &d->extended_key_items : &d->key_items;
 
     int index = 0;
-    int magnifier_index = 0;
     // Found the KeyAreaItem, which means layout is known by the renderer, too.
     if (parent) {
         const QVector<Key> &active_keys(layout->activeKeys());
@@ -495,25 +494,28 @@ void Renderer::onKeysChanged(Logic::Layout *layout)
         for (; index < active_keys.count(); ++index) {
             recycleKeyItem(key_items, index, active_keys.at(index), parent);
         }
-
-        if (layout->magnifierKey().valid()) {
-            d->magnifier_surface->setSize(layout->magnifierKey().area().size());
-            d->magnifier_surface->setRelativePosition(layout->magnifierKeyOrigin());
-            d->magnifier_surface->show();
-            recycleKeyItem(&d->magnifier_key_items, magnifier_index, layout->magnifierKey(), d->magnifier_surface->root());
-            ++magnifier_index;
-        } else {
-            d->magnifier_surface->hide();
-        }
     }
 
     // Hide remaining, currently unneeded key items:
     for (; index < key_items->count(); ++index) {
         key_items->at(index)->hide();
     }
-//    for (; magnifier_index < d->magnifier_key_items.count(); ++magnifier_index) {
-//        d->magnifier_key_items.at(magnifier_index)->hide();
-//    }
+}
+
+void Renderer::onMagnifierKeyChanged(const Key &key)
+{
+    Q_D(Renderer);
+
+    if (key.valid()) {
+        Key magnifier_key(key);
+        d->magnifier_surface->setSize(magnifier_key.area().size());
+        d->magnifier_surface->setRelativePosition(magnifier_key.origin());
+        magnifier_key.setOrigin(QPoint());
+        d->magnifier_surface->show();
+        recycleKeyItem(&d->magnifier_key_items, 0, magnifier_key, d->magnifier_surface->root());
+    } else {
+        d->magnifier_surface->hide();
+    }
 }
 
 void Renderer::onWordCandidatesChanged(Logic::Layout *layout)

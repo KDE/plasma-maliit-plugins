@@ -46,6 +46,7 @@ namespace MaliitKeyboard {
 namespace Setup {
 
 void connectAll(Glass *glass,
+                Logic::Layout *layout,
                 Logic::LayoutUpdater *updater,
                 Renderer *renderer,
                 AbstractTextEditor *editor,
@@ -55,6 +56,7 @@ void connectAll(Glass *glass,
     connectGlassToTextEditor(glass, editor);
     connectGlassToFeedback(glass, feedback);
 
+    connectLayoutToRenderer(layout, renderer);
     connectLayoutUpdaterToRenderer(updater, renderer);
     connectLayoutUpdaterToTextEditor(updater, editor);
 }
@@ -130,6 +132,13 @@ void connectGlassToFeedback (Glass *glass,
                      feedback, SLOT(onLayoutChanged()));
     QObject::connect(glass,    SIGNAL(keyboardClosed()),
                      feedback, SLOT(onKeyboardHidden()));
+}
+
+void connectLayoutToRenderer(Logic::Layout *layout,
+                             Renderer *renderer)
+{
+    QObject::connect(layout,   SIGNAL(magnifierKeyChanged(Key)),
+                     renderer, SLOT(onMagnifierKeyChanged(Key)));
 }
 
 void connectLayoutUpdaterToTextEditor(Logic::LayoutUpdater *updater,

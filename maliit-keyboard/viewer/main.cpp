@@ -129,7 +129,8 @@ int main(int argc,
     lu1.setLayout(&l1);
 
     DefaultFeedback feedback;
-    MaliitKeyboard::Setup::connectAll(&glass, &lu0, &renderer, dashboard->editor(), &feedback);
+    MaliitKeyboard::Setup::connectAll(&glass, &l0, &lu0, &renderer,
+                                      dashboard->editor(), &feedback);
 
     MaliitKeyboard::Setup::connectGlassToLayoutUpdater(&glass, &lu1);
     MaliitKeyboard::Setup::connectLayoutUpdaterToRenderer(&lu1, &renderer);

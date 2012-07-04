@@ -136,7 +136,6 @@ public:
     Q_SIGNAL void activeKeysChanged(const QVector<Key> &keys);
 
     Key magnifierKey() const;
-    QPoint magnifierKeyOrigin() const;
     void setMagnifierKey(const Key &key);
     void clearMagnifierKey();
     Q_SIGNAL void magnifierKeyChanged(const Key &key);
