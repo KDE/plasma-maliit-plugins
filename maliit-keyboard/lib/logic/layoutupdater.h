@@ -78,30 +78,32 @@ public:
 
     // Key signal handlers:
     Q_SLOT void onKeyPressed(const Key &key,
-                             Layout *layout);
+                             Logic::Layout *layout);
     Q_SLOT void onKeyLongPressed(const Key &key,
-                                 Layout *layout);
+                                 Logic::Layout *layout);
     Q_SLOT void onKeyReleased(const Key &key,
-                              Layout *layout);
-    Q_SLOT void onKeyAreaPressed(Layout::Panel panel, Layout *layout);
-    Q_SLOT void onKeyAreaReleased(Layout::Panel panel, Layout *layout);
+                              Logic::Layout *layout);
+    Q_SLOT void onKeyAreaPressed(Logic::Layout::Panel panel,
+                                 Logic::Layout *layout);
+    Q_SLOT void onKeyAreaReleased(Logic::Layout::Panel panel,
+                                  Logic::Layout *layout);
     Q_SLOT void onKeyEntered(const Key &key,
-                             Layout *layout);
+                             Logic::Layout *layout);
     Q_SLOT void onKeyExited(const Key &key,
-                            Layout *layout);
+                            Logic::Layout *layout);
     Q_SLOT void clearActiveKeysAndMagnifier();
     Q_SLOT void resetOnKeyboardClosed();
     Q_SLOT void onWordCandidatesUpdated(const QStringList &candidates);
 
     // WordCandidate signal handlers:
     Q_SLOT void onWordCandidatePressed(const WordCandidate &candidate,
-                                       Layout *layout);
+                                       Logic::Layout *layout);
     Q_SLOT void onWordCandidateReleased(const WordCandidate &candidate,
-                                        Layout *layout);
+                                        Logic::Layout *layout);
 
-    Q_SIGNAL void layoutChanged(Layout *layout);
-    Q_SIGNAL void keysChanged(Layout *layout);
-    Q_SIGNAL void wordCandidatesChanged(Layout *layout);
+    Q_SIGNAL void layoutChanged(Logic::Layout *layout);
+    Q_SIGNAL void keysChanged(Logic::Layout *layout);
+    Q_SIGNAL void wordCandidatesChanged(Logic::Layout *layout);
     Q_SIGNAL void wordCandidateSelected(const QString &candidate);
 
 private:
