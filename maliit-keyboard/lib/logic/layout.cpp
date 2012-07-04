@@ -47,8 +47,11 @@ public:
     KeyArea right;
     KeyArea center;
     KeyArea extended;
+
+    // TODO: Make WordCandidates part of KeyArea
     WordRibbon ribbon;
 
+    // TODO: Store active keys in KeyArea
     struct {
         QVector<Key> left;
         QVector<Key> right;
@@ -95,7 +98,11 @@ QSize Layout::screenSize() const
 void Layout::setScreenSize(const QSize &size)
 {
     Q_D(Layout);
-    d->screen_size = size;
+
+    if (d->screen_size != size) {
+        d->screen_size = size;
+        Q_EMIT screenSizeChanged(d->screen_size);
+    }
 }
 
 QPoint Layout::extendedPanelOffset() const
@@ -107,7 +114,11 @@ QPoint Layout::extendedPanelOffset() const
 void Layout::setExtendedPanelOffset(const QPoint &offset)
 {
     Q_D(Layout);
-    d->extended_panel_offset = offset;
+
+    if (d->extended_panel_offset != offset) {
+        d->extended_panel_offset = offset;
+        Q_EMIT extendedPanelOffsetChanged(d->extended_panel_offset);
+    }
 }
 
 Layout::Orientation Layout::orientation() const
@@ -119,7 +130,11 @@ Layout::Orientation Layout::orientation() const
 void Layout::setOrientation(Orientation orientation)
 {
     Q_D(Layout);
-    d->orientation = orientation;
+
+    if (d->orientation != orientation) {
+        d->orientation = orientation;
+        Q_EMIT orientationChanged(d->orientation);
+    }
 }
 
 Layout::Alignment Layout::alignment() const
@@ -131,7 +146,11 @@ Layout::Alignment Layout::alignment() const
 void Layout::setAlignment(Alignment alignment)
 {
     Q_D(Layout);
-    d->alignment = alignment;
+
+    if (d->alignment != alignment) {
+        d->alignment = alignment;
+        Q_EMIT alignmentChanged(d->alignment);
+    }
 }
 
 Layout::Panel Layout::activePanel() const
@@ -142,9 +161,11 @@ Layout::Panel Layout::activePanel() const
 
 void Layout::setActivePanel(Panel panel)
 {
-    if (panel != NumPanels) {
-        Q_D(Layout);
+    Q_D(Layout);
+
+    if (panel != NumPanels && d->active_panel != panel) {
         d->active_panel = panel;
+        Q_EMIT activePanelChanged(d->active_panel);
     }
 }
 
@@ -184,6 +205,7 @@ void Layout::setLeftPanel(const KeyArea &left)
 
     if (d->left != left) {
         d->left = left;
+        Q_EMIT leftPanelChanged(d->left);
     }
 }
 
@@ -204,6 +226,7 @@ void Layout::setRightPanel(const KeyArea &right)
 
     if (d->right != right) {
         d->right = right;
+        Q_EMIT rightPanelChanged(d->right);
     }
 }
 
@@ -224,6 +247,7 @@ void Layout::setCenterPanel(const KeyArea &center)
 
     if (d->center != center) {
         d->center = center;
+        Q_EMIT centerPanelChanged(d->center);
     }
 }
 
@@ -245,6 +269,7 @@ void Layout::setExtendedPanel(const KeyArea &extended)
 
     if (d->extended != extended) {
         d->extended = extended;
+        Q_EMIT extendedPanelChanged(d->extended);
     }
 }
 
@@ -269,7 +294,11 @@ WordRibbon Layout::wordRibbon() const
 void Layout::setWordRibbon(const WordRibbon &ribbon)
 {
     Q_D(Layout);
-    d->ribbon = ribbon;
+
+    if (d->ribbon != ribbon) {
+        d->ribbon = ribbon;
+        Q_EMIT wordRibbonChanged(d->ribbon);
+    }
 }
 
 QRect Layout::wordRibbonGeometry() const
@@ -301,18 +330,26 @@ void Layout::clearActiveKeys()
     d->active_keys.right.clear();
     d->active_keys.center.clear();
     d->active_keys.extended.clear();
+
+    Q_EMIT activeKeysChanged(QVector<Key>());
 }
 
 void Layout::appendActiveKey(const Key &key)
 {
     Q_D(Layout);
 
+    QVector<Key> *active_keys = 0;
     switch (d->active_panel) {
-    case LeftPanel: d->active_keys.left.append(key); break;
-    case RightPanel: d->active_keys.right.append(key); break;
-    case CenterPanel: d->active_keys.center.append(key); break;
-    case ExtendedPanel: d->active_keys.extended.append(key); break;
+    case LeftPanel: active_keys = &d->active_keys.left; break;
+    case RightPanel: active_keys = &d->active_keys.right; break;
+    case CenterPanel: active_keys = &d->active_keys.center; break;
+    case ExtendedPanel: active_keys = &d->active_keys.extended; break;
     case NumPanels: break;
+    }
+
+    if (active_keys) {
+        active_keys->append(key);
+        Q_EMIT activeKeysChanged(*active_keys);
     }
 }
 
@@ -335,6 +372,7 @@ void Layout::removeActiveKey(const Key &key)
             if (current.origin() == key.origin()
                 && current.label() == key.label()) {
                 active_keys->remove(index);
+                Q_EMIT activeKeysChanged(*active_keys);
                 break;
             }
         }
@@ -357,9 +395,12 @@ void Layout::setMagnifierKey(const Key &key)
 {
     Q_D(Layout);
 
-    d->magnifier_key = key;
-    d->magnifier_key_origin = d->magnifier_key.origin() + panelOrigin();
-    d->magnifier_key.setOrigin(QPoint());
+    if (d->magnifier_key != key) {
+        d->magnifier_key = key;
+        d->magnifier_key_origin = d->magnifier_key.origin() + panelOrigin();
+        d->magnifier_key.setOrigin(QPoint());
+        Q_EMIT magnifierKeyChanged(d->magnifier_key);
+    }
 }
 
 void Layout::clearMagnifierKey()

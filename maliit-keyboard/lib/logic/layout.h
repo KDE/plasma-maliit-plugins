@@ -82,52 +82,64 @@ public:
 
     QSize screenSize() const;
     void setScreenSize(const QSize &size);
+    Q_SIGNAL void screenSizeChanged(const QSize &size);
 
     QPoint extendedPanelOffset() const;
     void setExtendedPanelOffset(const QPoint &offset);
+    Q_SIGNAL void extendedPanelOffsetChanged(const QPoint &offset);
 
     Orientation orientation() const;
     void setOrientation(Orientation orientation);
+    Q_SIGNAL void orientationChanged(Orientation orientation);
 
     Alignment alignment() const;
     void setAlignment(Alignment alignment);
+    Q_SIGNAL void alignmentChanged(Alignment alignment);
 
     Panel activePanel() const;
     void setActivePanel(Panel panel);
+    Q_SIGNAL void activePanelChanged(Panel panel);
 
     KeyArea activeKeyArea() const;
     QRect activeKeyAreaGeometry() const;
 
     KeyArea leftPanel() const;
     void setLeftPanel(const KeyArea &left);
+    Q_SIGNAL void leftPanelChanged(const KeyArea &left);
     QRect leftPanelGeometry() const;
 
     KeyArea rightPanel() const;
     void setRightPanel(const KeyArea &right);
+    Q_SIGNAL void rightPanelChanged(const KeyArea &right);
     QRect rightPanelGeometry() const;
 
     KeyArea centerPanel() const;
     void setCenterPanel(const KeyArea &center);
+    Q_SIGNAL void centerPanelChanged(const KeyArea &center);
     QRect centerPanelGeometry() const;
 
     KeyArea extendedPanel() const;
     void setExtendedPanel(const KeyArea &extended);
+    Q_SIGNAL void extendedPanelChanged(const KeyArea &extended);
     QRect extendedPanelGeometry() const;
     QPoint extendedPanelOrigin() const;
 
     WordRibbon wordRibbon() const;
     void setWordRibbon(const WordRibbon &ribbon);
+    Q_SIGNAL void wordRibbonChanged(const WordRibbon &ribbon);
     QRect wordRibbonGeometry() const;
 
     QVector<Key> activeKeys() const;
     void clearActiveKeys();
     void appendActiveKey(const Key &key);
     void removeActiveKey(const Key &key);
+    Q_SIGNAL void activeKeysChanged(const QVector<Key> &keys);
 
     Key magnifierKey() const;
     QPoint magnifierKeyOrigin() const;
     void setMagnifierKey(const Key &key);
     void clearMagnifierKey();
+    Q_SIGNAL void magnifierKeyChanged(const Key &key);
 
 private:
     // TODO: Move into .cpp file instead.
