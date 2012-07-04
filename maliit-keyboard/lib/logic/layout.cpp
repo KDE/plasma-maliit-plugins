@@ -63,6 +63,9 @@ public:
     QPoint magnifier_key_origin;
 
     explicit LayoutPrivate();
+
+    KeyArea lookup(Layout::Panel panel) const;
+    QPoint panelOrigin() const;
 };
 
 LayoutPrivate::LayoutPrivate()
@@ -80,6 +83,26 @@ LayoutPrivate::LayoutPrivate()
     , magnifier_key()
     , magnifier_key_origin()
 {}
+
+KeyArea LayoutPrivate::lookup(Layout::Panel panel) const
+{
+    switch(panel) {
+    case Layout::LeftPanel: return left;
+    case Layout::RightPanel: return right;
+    case Layout::CenterPanel: return center;
+    case Layout::ExtendedPanel: return extended;
+    case Layout::NumPanels: break;
+    }
+
+    qCritical() << __PRETTY_FUNCTION__
+                << "Should not be reached, invalid panel:" << panel;
+    return KeyArea();
+}
+
+QPoint LayoutPrivate::panelOrigin() const
+{
+    return QPoint(0, ribbon.area().size().height());
+}
 
 Layout::Layout(QObject *parent)
     : QObject(parent)
@@ -171,7 +194,8 @@ void Layout::setActivePanel(Panel panel)
 
 KeyArea Layout::activeKeyArea() const
 {
-    return lookup(activePanel());
+    Q_D(const Layout);
+    return d->lookup(activePanel());
 }
 
 QRect Layout::activeKeyAreaGeometry() const
@@ -254,7 +278,7 @@ void Layout::setCenterPanel(const KeyArea &center)
 QRect Layout::centerPanelGeometry() const
 {
     Q_D(const Layout);
-    return QRect(panelOrigin(), d->center.area().size());
+    return QRect(d->panelOrigin(), d->center.area().size());
 }
 
 KeyArea Layout::extendedPanel() const
@@ -282,7 +306,7 @@ QRect Layout::extendedPanelGeometry() const
 QPoint Layout::extendedPanelOrigin() const
 {
     Q_D(const Layout);
-    return panelOrigin() + d->extended_panel_offset;
+    return d->panelOrigin() + d->extended_panel_offset;
 }
 
 WordRibbon Layout::wordRibbon() const
@@ -397,7 +421,7 @@ void Layout::setMagnifierKey(const Key &key)
 
     if (d->magnifier_key != key) {
         d->magnifier_key = key;
-        d->magnifier_key_origin = d->magnifier_key.origin() + panelOrigin();
+        d->magnifier_key_origin = d->magnifier_key.origin() + d->panelOrigin();
         d->magnifier_key.setOrigin(QPoint());
         Q_EMIT magnifierKeyChanged(d->magnifier_key);
     }
@@ -406,29 +430,6 @@ void Layout::setMagnifierKey(const Key &key)
 void Layout::clearMagnifierKey()
 {
     setMagnifierKey(Key());
-}
-
-KeyArea Layout::lookup(Panel panel) const
-{
-    Q_D(const Layout);
-
-    switch(panel) {
-    case LeftPanel: return d->left;
-    case RightPanel: return d->right;
-    case CenterPanel: return d->center;
-    case ExtendedPanel: return d->extended;
-    case NumPanels: break;
-    }
-
-    qCritical() << __PRETTY_FUNCTION__
-                << "Should not be reached, invalid panel:" << panel;
-    return KeyArea();
-}
-
-QPoint Layout::panelOrigin() const
-{
-    Q_D(const Layout);
-    return QPoint(0, d->ribbon.area().size().height());
 }
 
 }} // namespace Logic, MaliitKeyboard

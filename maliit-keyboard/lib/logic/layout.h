@@ -142,10 +142,6 @@ public:
     Q_SIGNAL void magnifierKeyChanged(const Key &key);
 
 private:
-    // TODO: Move into .cpp file instead.
-    KeyArea lookup(Panel panel) const;
-    QPoint panelOrigin() const;
-
     const QScopedPointer<LayoutPrivate> d_ptr;
 };
 
