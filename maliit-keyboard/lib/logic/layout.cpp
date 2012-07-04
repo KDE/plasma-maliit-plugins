@@ -148,30 +148,9 @@ void Layout::setActivePanel(Panel panel)
     }
 }
 
-QRect Layout::geometry(Panel panel) const
-{
-    Q_UNUSED(panel)
-    return QRect();
-}
-
 KeyArea Layout::activeKeyArea() const
 {
     return lookup(activePanel());
-}
-
-void Layout::setActiveKeyArea(const KeyArea &active)
-{
-    switch (activePanel()) {
-    case LeftPanel: setLeftPanel(active); break;
-    case RightPanel: setRightPanel(active); break;
-    case CenterPanel: setCenterPanel(active); break;
-    case ExtendedPanel: setExtendedPanel(active); break;
-
-    default:
-        qCritical() << __PRETTY_FUNCTION__
-                    << "Should not be reached, invalid panel:" << activePanel();
-        break;
-    }
 }
 
 QRect Layout::activeKeyAreaGeometry() const
@@ -296,7 +275,7 @@ void Layout::setWordRibbon(const WordRibbon &ribbon)
 QRect Layout::wordRibbonGeometry() const
 {
     Q_D(const Layout);
-    return QRect(origin(), d->ribbon.area().size());
+    return QRect(QPoint(), d->ribbon.area().size());
 }
 
 QVector<Key> Layout::activeKeys() const
@@ -405,15 +384,10 @@ KeyArea Layout::lookup(Panel panel) const
     return KeyArea();
 }
 
-QPoint Layout::origin() const
-{
-    return QPoint();
-}
-
 QPoint Layout::panelOrigin() const
 {
     Q_D(const Layout);
-    return (origin() + QPoint(0, d->ribbon.area().size().height()));
+    return QPoint(0, d->ribbon.area().size().height());
 }
 
 }} // namespace Logic, MaliitKeyboard

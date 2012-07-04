@@ -94,10 +94,8 @@ public:
 
     Panel activePanel() const;
     void setActivePanel(Panel panel);
-    QRect geometry(Panel panel) const;
 
     KeyArea activeKeyArea() const;
-    void setActiveKeyArea(const KeyArea &active);
     QRect activeKeyAreaGeometry() const;
 
     KeyArea leftPanel() const;
@@ -134,7 +132,6 @@ public:
 private:
     // TODO: Move into .cpp file instead.
     KeyArea lookup(Panel panel) const;
-    QPoint origin() const;
     QPoint panelOrigin() const;
 
     const QScopedPointer<LayoutPrivate> d_ptr;
