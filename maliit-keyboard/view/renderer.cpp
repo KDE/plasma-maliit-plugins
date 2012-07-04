@@ -271,6 +271,22 @@ void recycleKeyItem(QVector<KeyItem *> *key_items,
     item->show();
 }
 
+void updateActiveKeys(const QVector<Key> &active_keys,
+                      QVector<KeyItem *> *key_items,
+                      QGraphicsItem *parent)
+{
+    int index = 0;
+
+    for (; index < active_keys.count(); ++index) {
+        recycleKeyItem(key_items, index, active_keys.at(index), parent);
+    }
+
+    // Hide remaining, currently unneeded key items:
+    for (; index < key_items->count(); ++index) {
+        key_items->at(index)->hide();
+    }
+}
+
 } // namespace
 
 class RendererPrivate
@@ -458,48 +474,16 @@ void Renderer::onLayoutChanged(Logic::Layout *layout)
     show();
 }
 
-void Renderer::onKeysChanged(Logic::Layout *layout)
+void Renderer::onActiveKeysChanged(const QVector<Key> &active_keys)
 {
-    if (not layout) {
-        qCritical() << __PRETTY_FUNCTION__
-                    << "Invalid layout.";
-        return;
-     }
-
     Q_D(Renderer);
+    updateActiveKeys(active_keys, &d->key_items, d->layout_items.first().activeItem());
+}
 
-    if (d->key_items.count() > 10) {
-        qWarning() << __PRETTY_FUNCTION__
-                   << "Unusal amount of key items:" << d->key_items.count()
-                   << ", amount of active keys:" << layout->activeKeys().count();
-    }
-
-    KeyAreaItem *parent = 0;
-    for (int index = 0; index < d->layout_items.count(); ++index) {
-        const LayoutItem &li(d->layout_items.at(index));
-
-        if (li.layout == layout) {
-            parent = li.activeItem();
-            break;
-        }
-    }
-
-    QVector<KeyItem *> *key_items = layout->activePanel() == Logic::Layout::ExtendedPanel ? &d->extended_key_items : &d->key_items;
-
-    int index = 0;
-    // Found the KeyAreaItem, which means layout is known by the renderer, too.
-    if (parent) {
-        const QVector<Key> &active_keys(layout->activeKeys());
-
-        for (; index < active_keys.count(); ++index) {
-            recycleKeyItem(key_items, index, active_keys.at(index), parent);
-        }
-    }
-
-    // Hide remaining, currently unneeded key items:
-    for (; index < key_items->count(); ++index) {
-        key_items->at(index)->hide();
-    }
+void Renderer::onActiveExtendedKeysChanged(const QVector<Key> &active_keys)
+{
+    Q_D(Renderer);
+    updateActiveKeys(active_keys, &d->extended_key_items, d->layout_items.first().activeItem());
 }
 
 void Renderer::onMagnifierKeyChanged(const Key &key)

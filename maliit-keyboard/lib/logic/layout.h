@@ -134,6 +134,7 @@ public:
     void appendActiveKey(const Key &key);
     void removeActiveKey(const Key &key);
     Q_SIGNAL void activeKeysChanged(const QVector<Key> &keys);
+    Q_SIGNAL void activeExtendedKeysChanged(const QVector<Key> &keys);
 
     Key magnifierKey() const;
     void setMagnifierKey(const Key &key);

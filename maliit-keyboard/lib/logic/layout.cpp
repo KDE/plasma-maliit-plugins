@@ -34,6 +34,27 @@
 namespace MaliitKeyboard {
 namespace Logic {
 
+namespace {
+bool removeKey(QVector<Key> *keys,
+               const Key &key)
+{
+    if (not keys) {
+        return false;
+    }
+
+    for (int index = 0; index < keys->count(); ++index) {
+        const Key &current(keys->at(index));
+        if (current.origin() == key.origin()
+                && current.label() == key.label()) {
+            keys->remove(index);
+            return true;
+        }
+    }
+
+    return false;
+}
+} // namespace
+
 class LayoutPrivate
 {
 public:
@@ -353,25 +374,29 @@ void Layout::clearActiveKeys()
     d->active_keys.center.clear();
     d->active_keys.extended.clear();
 
-    Q_EMIT activeKeysChanged(QVector<Key>());
+    QVector<Key> empty;
+    Q_EMIT activeKeysChanged(empty);
+    Q_EMIT activeExtendedKeysChanged(empty);
 }
 
 void Layout::appendActiveKey(const Key &key)
 {
     Q_D(Layout);
 
-    QVector<Key> *active_keys = 0;
     switch (d->active_panel) {
-    case LeftPanel: active_keys = &d->active_keys.left; break;
-    case RightPanel: active_keys = &d->active_keys.right; break;
-    case CenterPanel: active_keys = &d->active_keys.center; break;
-    case ExtendedPanel: active_keys = &d->active_keys.extended; break;
+    case LeftPanel:
+    case RightPanel:
     case NumPanels: break;
-    }
 
-    if (active_keys) {
-        active_keys->append(key);
-        Q_EMIT activeKeysChanged(*active_keys);
+    case CenterPanel:
+        d->active_keys.center.append(key);
+        Q_EMIT activeKeysChanged(d->active_keys.center);
+        break;
+
+    case ExtendedPanel:
+        d->active_keys.extended.append(key);
+        Q_EMIT activeExtendedKeysChanged(d->active_keys.extended);
+        break;
     }
 }
 
@@ -379,25 +404,22 @@ void Layout::removeActiveKey(const Key &key)
 {
     Q_D(Layout);
 
-    QVector<Key> *active_keys = 0;
     switch (d->active_panel) {
-    case LeftPanel: active_keys = &d->active_keys.left; break;
-    case RightPanel: active_keys = &d->active_keys.right; break;
-    case CenterPanel: active_keys = &d->active_keys.center; break;
-    case ExtendedPanel: active_keys = &d->active_keys.extended; break;
+    case LeftPanel:
+    case RightPanel:
     case NumPanels: break;
-    }
 
-    if (active_keys) {
-        for (int index = 0; index < active_keys->count(); ++index) {
-            const Key &current(active_keys->at(index));
-            if (current.origin() == key.origin()
-                && current.label() == key.label()) {
-                active_keys->remove(index);
-                Q_EMIT activeKeysChanged(*active_keys);
-                break;
-            }
+    case CenterPanel:
+        if (removeKey(&d->active_keys.center, key)) {
+            Q_EMIT activeKeysChanged(d->active_keys.center);
         }
+        break;
+
+    case ExtendedPanel:
+        if (removeKey(&d->active_keys.extended, key)) {
+            Q_EMIT activeExtendedKeysChanged(d->active_keys.extended);
+        }
+        break;
     }
 }
 

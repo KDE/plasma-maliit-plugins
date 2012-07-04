@@ -78,7 +78,8 @@ public:
     Q_SLOT void hide();
 
     Q_SLOT void onLayoutChanged(Logic::Layout *layout);
-    Q_SLOT void onKeysChanged(Logic::Layout *layout);
+    Q_SLOT void onActiveKeysChanged(const QVector<Key> &active_keys);
+    Q_SLOT void onActiveExtendedKeysChanged(const QVector<Key> &active_keys);
     Q_SLOT void onMagnifierKeyChanged(const Key &key);
     Q_SLOT void onWordCandidatesChanged(Logic::Layout *layout);
 

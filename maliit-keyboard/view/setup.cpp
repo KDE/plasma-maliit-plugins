@@ -139,6 +139,12 @@ void connectLayoutToRenderer(Logic::Layout *layout,
 {
     QObject::connect(layout,   SIGNAL(magnifierKeyChanged(Key)),
                      renderer, SLOT(onMagnifierKeyChanged(Key)));
+
+    QObject::connect(layout,   SIGNAL(activeKeysChanged(QVector<Key>)),
+                     renderer, SLOT(onActiveKeysChanged(QVector<Key>)));
+
+    QObject::connect(layout,   SIGNAL(activeExtendedKeysChanged(QVector<Key>)),
+                     renderer, SLOT(onActiveExtendedKeysChanged(QVector<Key>)));
 }
 
 void connectLayoutUpdaterToTextEditor(Logic::LayoutUpdater *updater,
@@ -159,9 +165,6 @@ void connectLayoutUpdaterToRenderer(Logic::LayoutUpdater *updater,
 {
     QObject::connect(updater,  SIGNAL(layoutChanged(Logic::Layout *)),
                      renderer, SLOT(onLayoutChanged(Logic::Layout *)));
-
-    QObject::connect(updater,  SIGNAL(keysChanged(Logic::Layout *)),
-                     renderer, SLOT(onKeysChanged(Logic::Layout *)));
 
     QObject::connect(updater,  SIGNAL(wordCandidatesChanged(Logic::Layout *)),
                      renderer, SLOT(onWordCandidatesChanged(Logic::Layout *)));
