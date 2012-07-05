@@ -595,7 +595,7 @@ void LayoutUpdater::resetOnKeyboardClosed()
     // if we do, rendered re-shows the keyboard
 }
 
-void LayoutUpdater::onWordCandidatesUpdated(const QStringList &candidates)
+void LayoutUpdater::onWordCandidatesChanged(const QStringList &candidates)
 {
     Q_D(LayoutUpdater);
 
@@ -623,7 +623,6 @@ void LayoutUpdater::onWordCandidatesUpdated(const QStringList &candidates)
     }
 
     d->layout->setWordRibbon(ribbon);
-    Q_EMIT wordCandidatesChanged(d->layout);
 }
 
 void LayoutUpdater::onWordCandidatePressed(const WordCandidate &candidate,
@@ -633,7 +632,6 @@ void LayoutUpdater::onWordCandidatePressed(const WordCandidate &candidate,
 
     if (layout == d->layout
         && updateWordRibbon(d->layout, candidate, d->activeStyleAttributes(), ActivateElement)) {
-        Q_EMIT wordCandidatesChanged(d->layout);
     }
 }
 
@@ -644,7 +642,6 @@ void LayoutUpdater::onWordCandidateReleased(const WordCandidate &candidate,
 
     if (layout == d->layout
         && updateWordRibbon(d->layout, candidate, d->activeStyleAttributes(), DeactivateElement)) {
-        Q_EMIT wordCandidatesChanged(d->layout);
         Q_EMIT wordCandidateSelected(candidate.label().text());
     }
 }
@@ -716,6 +713,10 @@ void LayoutUpdater::switchToMainView()
     converter.setLayoutOrientation(orientation);
     d->layout->setCenterPanel(d->inShiftedState() ? converter.shiftedKeyArea()
                                                   : converter.keyArea());
+
+    WordRibbon ribbon(d->layout->wordRibbon());
+    applyStyleToWordRibbon(&ribbon, d->style, orientation);
+    d->layout->setWordRibbon(ribbon);
 
     Q_EMIT layoutChanged(d->layout);
 }

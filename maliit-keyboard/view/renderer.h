@@ -81,8 +81,8 @@ public:
     Q_SLOT void onActiveKeysChanged(const QVector<Key> &active_keys);
     Q_SLOT void onActiveExtendedKeysChanged(const QVector<Key> &active_keys);
     Q_SLOT void onMagnifierKeyChanged(const Key &key);
-    Q_SLOT void onWordCandidatesChanged(Logic::Layout *layout);
-
+    Q_SLOT void onWordRibbonChanged(const WordRibbon &ribbon,
+                                    const QRect &geometry);
 
 private:
     Q_SLOT void applyProfile();

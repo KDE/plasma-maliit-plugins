@@ -145,6 +145,9 @@ void connectLayoutToRenderer(Logic::Layout *layout,
 
     QObject::connect(layout,   SIGNAL(activeExtendedKeysChanged(QVector<Key>)),
                      renderer, SLOT(onActiveExtendedKeysChanged(QVector<Key>)));
+
+    QObject::connect(layout,   SIGNAL(wordRibbonChanged(WordRibbon,QRect)),
+                     renderer, SLOT(onWordRibbonChanged(WordRibbon,QRect)));
 }
 
 void connectLayoutUpdaterToTextEditor(Logic::LayoutUpdater *updater,
@@ -157,7 +160,7 @@ void connectLayoutUpdaterToTextEditor(Logic::LayoutUpdater *updater,
                      updater, SLOT(setWordRibbonVisible(bool)));
 
     QObject::connect(editor,  SIGNAL(wordCandidatesChanged(QStringList)),
-                     updater, SLOT(onWordCandidatesUpdated(QStringList)));
+                     updater, SLOT(onWordCandidatesChanged(QStringList)));
 }
 
 void connectLayoutUpdaterToRenderer(Logic::LayoutUpdater *updater,
@@ -165,9 +168,6 @@ void connectLayoutUpdaterToRenderer(Logic::LayoutUpdater *updater,
 {
     QObject::connect(updater,  SIGNAL(layoutChanged(Logic::Layout *)),
                      renderer, SLOT(onLayoutChanged(Logic::Layout *)));
-
-    QObject::connect(updater,  SIGNAL(wordCandidatesChanged(Logic::Layout *)),
-                     renderer, SLOT(onWordCandidatesChanged(Logic::Layout *)));
 }
 
 }} // namespace Setup, MaliitKeyboard

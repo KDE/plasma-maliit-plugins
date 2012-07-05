@@ -130,10 +130,6 @@ public:
             extended_item->setZValue(ExtendedPanelZIndex);
         }
 
-        if (not ribbon_item) {
-            ribbon_item = new WordRibbonItem(root);
-            ribbon_item->setZValue(WordRibbonZIndex);
-        }
 
         center_item->setParentItem(root);
         center_item->setKeyArea(layout->centerPanel(), layout->centerPanelGeometry());
@@ -144,18 +140,11 @@ public:
         extended_item->setKeyArea(layout->extendedPanel(), layout->extendedPanelGeometry());
         extended_item->update();
 
-        ribbon_item->setParentItem(root);
-        ribbon_item->setWordRibbon(layout->wordRibbon(), layout->wordRibbonGeometry());
-        ribbon_item->update();
-        ribbon_item->show();
-
         if (layout->activePanel() != Logic::Layout::ExtendedPanel) {
             extended_item->hide();
         } else {
             extended_item->show();
         }
-
-        root->show();
     }
 
     void hide()
@@ -502,25 +491,21 @@ void Renderer::onMagnifierKeyChanged(const Key &key)
     }
 }
 
-void Renderer::onWordCandidatesChanged(Logic::Layout *layout)
+void Renderer::onWordRibbonChanged(const WordRibbon &ribbon,
+                                   const QRect &geometry)
 {
     Q_D(Renderer);
 
-    if (not layout) {
-        qCritical() << __PRETTY_FUNCTION__
-                    << "Invalid layout.";
-        return;
-     }
+    LayoutItem &li(d->layout_items.first());
 
-    for (int index = 0; index < d->layout_items.count(); ++index) {
-        const LayoutItem &li(d->layout_items.at(index));
-
-        if (li.layout == layout) {
-            li.ribbon_item->setWordRibbon(layout->wordRibbon(), layout->wordRibbonGeometry());
-            break;
-        }
+    if (not li.ribbon_item) {
+        li.ribbon_item = new WordRibbonItem;
+        li.ribbon_item->setZValue(WordRibbonZIndex);
     }
 
+    li.ribbon_item->setParentItem(d->surface->root());
+    li.ribbon_item->setWordRibbon(ribbon, geometry);
+    li.ribbon_item->setVisible(geometry.isValid());
 }
 
 void Renderer::applyProfile()

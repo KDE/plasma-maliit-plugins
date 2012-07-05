@@ -340,7 +340,7 @@ void Layout::setWordRibbon(const WordRibbon &ribbon)
 
     if (d->ribbon != ribbon) {
         d->ribbon = ribbon;
-        Q_EMIT wordRibbonChanged(d->ribbon);
+        Q_EMIT wordRibbonChanged(d->ribbon, wordRibbonGeometry());
     }
 }
 

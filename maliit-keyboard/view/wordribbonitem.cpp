@@ -49,12 +49,7 @@ void WordRibbonItem::setWordRibbon(const WordRibbon &ribbon,
 {
     m_ribbon = ribbon;
     m_ribbon_geometry = geometry;
-
-    if (boundingRect().isEmpty()) {
-        hide();
-    } else {
-        update();
-    }
+    update();
 }
 
 QRectF WordRibbonItem::boundingRect() const

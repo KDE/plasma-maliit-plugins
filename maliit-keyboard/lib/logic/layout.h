@@ -126,7 +126,8 @@ public:
 
     WordRibbon wordRibbon() const;
     void setWordRibbon(const WordRibbon &ribbon);
-    Q_SIGNAL void wordRibbonChanged(const WordRibbon &ribbon);
+    Q_SIGNAL void wordRibbonChanged(const WordRibbon &ribbon,
+                                    const QRect &geometry);
     QRect wordRibbonGeometry() const;
 
     QVector<Key> activeKeys() const;
