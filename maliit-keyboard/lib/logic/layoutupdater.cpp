@@ -450,10 +450,9 @@ void LayoutUpdater::onKeyLongPressed(const Key &key,
         offset.rx() = center_panel_size.width() - ext_panel_size.width() - safety_margin;
     }
 
+    d->layout->setActivePanel(Layout::ExtendedPanel);
     d->layout->setExtendedPanelOffset(offset);
     d->layout->setExtendedPanel(ext_ka);
-    d->layout->setActivePanel(Layout::ExtendedPanel);
-    Q_EMIT layoutChanged(d->layout);
 }
 
 void LayoutUpdater::onKeyReleased(const Key &key,
@@ -472,7 +471,6 @@ void LayoutUpdater::onKeyReleased(const Key &key,
         d->layout->clearActiveKeys();
         d->layout->setExtendedPanel(KeyArea());
         d->layout->setActivePanel(Layout::CenterPanel);
-        Q_EMIT layoutChanged(d->layout);
     }
 
     switch (key.action()) {
@@ -534,7 +532,6 @@ void LayoutUpdater::onKeyAreaReleased(Layout::Panel panel, Layout *layout)
     if (d->close_extended_on_release == panel) {
         d->layout->setExtendedPanel(KeyArea());
         d->layout->setActivePanel(Layout::CenterPanel);
-        Q_EMIT layoutChanged(d->layout);
     }
 
     d->close_extended_on_release = Layout::NumPanels;
@@ -591,8 +588,6 @@ void LayoutUpdater::resetOnKeyboardClosed()
     clearActiveKeysAndMagnifier();
     d->layout->setExtendedPanel(KeyArea());
     d->layout->setActivePanel(Layout::CenterPanel);
-    // we do not emit layoutChanged(): there is no need to do it at close and
-    // if we do, rendered re-shows the keyboard
 }
 
 void LayoutUpdater::onWordCandidatesChanged(const QStringList &candidates)

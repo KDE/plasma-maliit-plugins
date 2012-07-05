@@ -135,16 +135,6 @@ public:
         center_item->setKeyArea(layout->centerPanel(), layout->centerPanelGeometry());
         center_item->update();
         center_item->show();
-
-        extended_item->setParentItem(extended_root);
-        extended_item->setKeyArea(layout->extendedPanel(), layout->extendedPanelGeometry());
-        extended_item->update();
-
-        if (layout->activePanel() != Logic::Layout::ExtendedPanel) {
-            extended_item->hide();
-        } else {
-            extended_item->show();
-        }
     }
 
     void hide()
@@ -488,6 +478,32 @@ void Renderer::onMagnifierKeyChanged(const Key &key)
         recycleKeyItem(&d->magnifier_key_items, 0, magnifier_key, d->magnifier_surface->root());
     } else {
         d->magnifier_surface->hide();
+    }
+}
+
+void Renderer::onExtendedPanelChanged(const KeyArea &key_area,
+                                      const QPoint &origin)
+{
+    Q_D(Renderer);
+
+    const QSize &ka_size(key_area.area().size());
+    LayoutItem &li(d->layout_items.first());
+
+    if (not li.extended_item) {
+        li.extended_item = new KeyAreaItem;
+        li.extended_item->setZValue(ExtendedPanelZIndex);
+    }
+
+    li.extended_item->setParentItem(d->extended_surface->root());
+    li.extended_item->setKeyArea(key_area, QRect(QPoint(), ka_size));
+    li.extended_item->setVisible(ka_size.isValid());
+
+    if (li.extended_item->isVisible()) {
+        d->extended_surface->setSize(ka_size);
+        d->extended_surface->setRelativePosition(origin);
+        d->extended_surface->show();
+    } else {
+        d->extended_surface->hide();
     }
 }
 

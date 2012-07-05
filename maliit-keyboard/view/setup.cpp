@@ -146,6 +146,9 @@ void connectLayoutToRenderer(Logic::Layout *layout,
     QObject::connect(layout,   SIGNAL(activeExtendedKeysChanged(QVector<Key>)),
                      renderer, SLOT(onActiveExtendedKeysChanged(QVector<Key>)));
 
+    QObject::connect(layout,   SIGNAL(extendedPanelChanged(KeyArea,QPoint)),
+                     renderer, SLOT(onExtendedPanelChanged(KeyArea,QPoint)));
+
     QObject::connect(layout,   SIGNAL(wordRibbonChanged(WordRibbon,QRect)),
                      renderer, SLOT(onWordRibbonChanged(WordRibbon,QRect)));
 }

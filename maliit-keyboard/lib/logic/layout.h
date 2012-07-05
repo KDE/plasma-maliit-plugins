@@ -120,7 +120,8 @@ public:
 
     KeyArea extendedPanel() const;
     void setExtendedPanel(const KeyArea &extended);
-    Q_SIGNAL void extendedPanelChanged(const KeyArea &extended);
+    Q_SIGNAL void extendedPanelChanged(const KeyArea &extended,
+                                       const QPoint &origin);
     QRect extendedPanelGeometry() const;
     QPoint extendedPanelOrigin() const;
 

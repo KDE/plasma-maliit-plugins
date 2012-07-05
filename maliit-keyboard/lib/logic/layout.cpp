@@ -312,7 +312,7 @@ void Layout::setExtendedPanel(const KeyArea &extended)
 
     if (d->extended != extended) {
         d->extended = extended;
-        Q_EMIT extendedPanelChanged(d->extended);
+        Q_EMIT extendedPanelChanged(d->extended, extendedPanelOrigin());
     }
 }
 
