@@ -101,7 +101,6 @@ public:
     Q_SLOT void onWordCandidateReleased(const WordCandidate &candidate,
                                         Logic::Layout *layout);
 
-    Q_SIGNAL void layoutChanged(Logic::Layout *layout);
     Q_SIGNAL void keysChanged(Logic::Layout *layout);
     Q_SIGNAL void wordCandidateSelected(const QString &candidate);
 

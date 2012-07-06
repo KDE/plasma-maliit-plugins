@@ -56,7 +56,8 @@ void KeyItem::setKey(const Key &key)
 
 QRectF KeyItem::boundingRect() const
 {
-    return QRectF(m_key.rect()).translated(parentItem()->boundingRect().topLeft());
+    return QRectF(m_key.rect()).translated(parentItem() ? parentItem()->boundingRect().topLeft()
+                                                        : QPoint());
 }
 
 void KeyItem::paint(QPainter *painter,

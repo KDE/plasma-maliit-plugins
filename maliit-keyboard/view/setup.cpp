@@ -57,7 +57,6 @@ void connectAll(Glass *glass,
     connectGlassToFeedback(glass, feedback);
 
     connectLayoutToRenderer(layout, renderer);
-    connectLayoutUpdaterToRenderer(updater, renderer);
     connectLayoutUpdaterToTextEditor(updater, editor);
 }
 
@@ -146,6 +145,9 @@ void connectLayoutToRenderer(Logic::Layout *layout,
     QObject::connect(layout,   SIGNAL(activeExtendedKeysChanged(QVector<Key>)),
                      renderer, SLOT(onActiveExtendedKeysChanged(QVector<Key>)));
 
+    QObject::connect(layout,   SIGNAL(centerPanelChanged(KeyArea,QPoint)),
+                     renderer, SLOT(onCenterPanelChanged(KeyArea,QPoint)));
+
     QObject::connect(layout,   SIGNAL(extendedPanelChanged(KeyArea,QPoint)),
                      renderer, SLOT(onExtendedPanelChanged(KeyArea,QPoint)));
 
@@ -164,13 +166,6 @@ void connectLayoutUpdaterToTextEditor(Logic::LayoutUpdater *updater,
 
     QObject::connect(editor,  SIGNAL(wordCandidatesChanged(QStringList)),
                      updater, SLOT(onWordCandidatesChanged(QStringList)));
-}
-
-void connectLayoutUpdaterToRenderer(Logic::LayoutUpdater *updater,
-                                    Renderer *renderer)
-{
-    QObject::connect(updater,  SIGNAL(layoutChanged(Logic::Layout *)),
-                     renderer, SLOT(onLayoutChanged(Logic::Layout *)));
 }
 
 }} // namespace Setup, MaliitKeyboard

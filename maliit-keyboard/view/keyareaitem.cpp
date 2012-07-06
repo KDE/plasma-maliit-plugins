@@ -65,7 +65,6 @@ void KeyAreaItem::setKeyArea(const KeyArea &ka,
 
 QRectF KeyAreaItem::boundingRect() const
 {
-    // TODO: translate to parentItem's topLeft corner?
     return m_key_area_geometry;
 }
 

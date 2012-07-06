@@ -65,9 +65,6 @@ void connectLayoutToRenderer(Logic::Layout *layout,
 
 void connectLayoutUpdaterToTextEditor(Logic::LayoutUpdater *updater,
                                       AbstractTextEditor *editor);
-void connectLayoutUpdaterToRenderer(Logic::LayoutUpdater *updater,
-                                    Renderer *renderer);
-
 }} // namespace Setup, MaliitKeyboard
 
 #endif // MALIIT_KEYBOARD_SETUP_H

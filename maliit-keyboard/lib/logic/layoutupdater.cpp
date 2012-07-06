@@ -338,7 +338,6 @@ void LayoutUpdater::setOrientation(Layout::Orientation orientation)
         d->layout->setWordRibbon(ribbon);
 
         clearActiveKeysAndMagnifier();
-        Q_EMIT layoutChanged(d->layout);
     }
 }
 
@@ -378,7 +377,6 @@ void LayoutUpdater::setWordRibbonVisible(bool visible)
         }
 
         Q_EMIT wordRibbonVisibleChanged(visible);
-        Q_EMIT layoutChanged(d->layout);
     }
 }
 
@@ -712,8 +710,6 @@ void LayoutUpdater::switchToMainView()
     WordRibbon ribbon(d->layout->wordRibbon());
     applyStyleToWordRibbon(&ribbon, d->style, orientation);
     d->layout->setWordRibbon(ribbon);
-
-    Q_EMIT layoutChanged(d->layout);
 }
 
 void LayoutUpdater::switchToPrimarySymView()
@@ -731,9 +727,6 @@ void LayoutUpdater::switchToPrimarySymView()
 
     // Reset shift state machine, also see switchToMainView.
     d->shift_machine.restart();
-
-    //d->shift_machine->start();
-    Q_EMIT layoutChanged(d->layout);
 }
 
 void LayoutUpdater::switchToSecondarySymView()
@@ -748,8 +741,6 @@ void LayoutUpdater::switchToSecondarySymView()
     KeyAreaConverter converter(d->style->attributes(), &d->loader);
     converter.setLayoutOrientation(orientation);
     d->layout->setCenterPanel(converter.symbolsKeyArea(1));
-
-    Q_EMIT layoutChanged(d->layout);
 }
 
 void LayoutUpdater::switchToAccentedView()
@@ -767,8 +758,6 @@ void LayoutUpdater::switchToAccentedView()
     const Key accent(d->deadkey_machine.accentKey());
     d->layout->setCenterPanel(d->inShiftedState() ? converter.shiftedDeadKeyArea(accent)
                                                   : converter.deadKeyArea(accent));
-
-    Q_EMIT layoutChanged(d->layout);
 }
 
 }} // namespace Logic, MaliitKeyboard

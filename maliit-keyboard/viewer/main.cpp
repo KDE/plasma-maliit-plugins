@@ -133,7 +133,7 @@ int main(int argc,
                                       dashboard->editor(), &feedback);
 
     MaliitKeyboard::Setup::connectGlassToLayoutUpdater(&glass, &lu1);
-    MaliitKeyboard::Setup::connectLayoutUpdaterToRenderer(&lu1, &renderer);
+    MaliitKeyboard::Setup::connectLayoutToRenderer(&l1, &renderer);
 
 
     QObject::connect(&glass,    SIGNAL(keyboardClosed()),

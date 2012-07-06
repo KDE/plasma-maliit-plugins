@@ -115,7 +115,8 @@ public:
 
     KeyArea centerPanel() const;
     void setCenterPanel(const KeyArea &center);
-    Q_SIGNAL void centerPanelChanged(const KeyArea &center);
+    Q_SIGNAL void centerPanelChanged(const KeyArea &center,
+                                     const QPoint &origin);
     QRect centerPanelGeometry() const;
 
     KeyArea extendedPanel() const;

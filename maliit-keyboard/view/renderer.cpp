@@ -110,51 +110,6 @@ public:
                     << "Should not be reached!";
         return 0;
     }
-
-    void show(QGraphicsItem *root,
-              QGraphicsItem *extended_root)
-    {
-        if (not layout) {
-            qCritical() << __PRETTY_FUNCTION__
-                        << "Invalid layout!";
-            return;
-        }
-
-        if (not center_item) {
-            center_item = new KeyAreaItem(root);
-            center_item->setZValue(CenterPanelZIndex);
-        }
-
-        if (not extended_item) {
-            extended_item = new KeyAreaItem(extended_root);
-            extended_item->setZValue(ExtendedPanelZIndex);
-        }
-
-
-        center_item->setParentItem(root);
-        center_item->setKeyArea(layout->centerPanel(), layout->centerPanelGeometry());
-        center_item->update();
-        center_item->show();
-    }
-
-    void hide()
-    {
-        if (left_item) {
-            left_item->hide();
-        }
-
-        if (right_item) {
-            right_item->hide();
-        }
-
-        if (center_item) {
-            center_item->hide();
-        }
-
-        if (extended_item) {
-            extended_item->hide();
-        }
-    }
 };
 
 class RootItem
@@ -390,39 +345,12 @@ void Renderer::show()
         return;
     }
 
-    d->surface->show();
-
-    if (not d->surface->view() || d->layout_items.isEmpty()) {
-        qCritical() << __PRETTY_FUNCTION__
-                    << "No view or no layouts exists!"
-                    << "Discarding show request";
-        return;
-    }
-
-    Q_FOREACH (QGraphicsItem *key_item, d->key_items) {
-        key_item->hide();
-    }
-    Q_FOREACH (QGraphicsItem *key_item, d->extended_key_items) {
-        key_item->hide();
-    }
-    Q_FOREACH (QGraphicsItem *key_item, d->magnifier_key_items) {
-        key_item->hide();
-    }
-
-    for (int index = 0; index < d->layout_items.count(); ++index) {
-        LayoutItem &li(d->layout_items[index]);
-
-        // Show first the extended keys surface before trying to add QGraphicsItem into it
-        if (li.layout->activePanel() != Logic::Layout::ExtendedPanel) {
-            d->extended_surface->hide();
-        } else {
-            d->extended_surface->setSize(li.layout->extendedPanelGeometry().size());
-            d->extended_surface->setRelativePosition(li.layout->extendedPanelOrigin());
-            d->extended_surface->show();
-        }
-        li.show(d->surface->root(), d->extended_surface->root());
-        d->surface->setSize(QSize(li.layout->centerPanelGeometry().width(), li.layout->centerPanelGeometry().height() + li.layout->wordRibbonGeometry().height()));
-    }
+    // FIXME: Sinister hack to force rendering on show. Need to find out why
+    // items are not available otherwise.
+    LayoutItem &li(d->layout_items.first());
+    onCenterPanelChanged(li.layout->centerPanel(), li.layout->centerPanelGeometry().topLeft());
+    onExtendedPanelChanged(li.layout->extendedPanel(), li.layout->extendedPanelOffset());
+    onWordRibbonChanged(li.layout->wordRibbon(), li.layout->wordRibbonGeometry());
 }
 
 void Renderer::hide()
@@ -438,19 +366,9 @@ void Renderer::hide()
         return;
     }
 
-    Q_FOREACH (LayoutItem li, d->layout_items) {
-        li.hide();
-    }
-
     d->surface->hide();
     d->extended_surface->hide();
     d->magnifier_surface->hide();
-}
-
-void Renderer::onLayoutChanged(Logic::Layout *layout)
-{
-    Q_UNUSED(layout)
-    show();
 }
 
 void Renderer::onActiveKeysChanged(const QVector<Key> &active_keys)
@@ -478,6 +396,32 @@ void Renderer::onMagnifierKeyChanged(const Key &key)
         recycleKeyItem(&d->magnifier_key_items, 0, magnifier_key, d->magnifier_surface->root());
     } else {
         d->magnifier_surface->hide();
+    }
+}
+
+void Renderer::onCenterPanelChanged(const KeyArea &key_area,
+                                    const QPoint &origin)
+{
+    Q_D(Renderer);
+
+    const QSize &ka_size(key_area.area().size());
+    LayoutItem &li(d->layout_items.first());
+
+    if (not li.center_item) {
+        li.center_item = new KeyAreaItem;
+        li.center_item->setZValue(CenterPanelZIndex);
+    }
+
+    li.center_item->setParentItem(d->surface->root());
+    li.center_item->setKeyArea(key_area, QRect(origin, ka_size));
+    li.center_item->setVisible(ka_size.isValid());
+
+    if (li.center_item->isVisible()) {
+        d->surface->setSize(QSize(ka_size.width() + origin.x(),
+                                  ka_size.height() + origin.y()));
+        d->surface->show();
+    } else {
+        d->surface->hide();
     }
 }
 

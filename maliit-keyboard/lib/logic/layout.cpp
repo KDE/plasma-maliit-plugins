@@ -290,7 +290,7 @@ void Layout::setCenterPanel(const KeyArea &center)
 
     if (d->center != center) {
         d->center = center;
-        Q_EMIT centerPanelChanged(d->center);
+        Q_EMIT centerPanelChanged(d->center, d->panelOrigin());
     }
 }
 
