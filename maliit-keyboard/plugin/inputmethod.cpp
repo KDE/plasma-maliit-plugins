@@ -123,7 +123,6 @@ public:
         glass.setExtendedSurface(renderer.extendedSurface());
         editor.setHost(host);
 
-        renderer.addLayout(&layout);
         glass.addLayout(&layout);
         layout_updater.setLayout(&layout);
 

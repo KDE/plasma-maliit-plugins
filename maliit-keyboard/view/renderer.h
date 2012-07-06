@@ -70,8 +70,6 @@ public:
     const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> surface() const;
     const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> extendedSurface() const;
 
-    void addLayout(Logic::Layout *layout);
-    void clearLayouts();
     void setStyle(const SharedStyle &style);
 
     Q_SLOT void show();

@@ -57,90 +57,7 @@ namespace {
 const qreal WordRibbonZIndex = 0.0f;
 const qreal CenterPanelZIndex = 1.0f;
 const qreal ExtendedPanelZIndex = 20.0f;
-
 const qreal ActiveKeyZIndex = 0.0f;
-
-class LayoutItem {
-public:
-    Logic::Layout *layout;
-    KeyAreaItem *left_item;
-    KeyAreaItem *right_item;
-    KeyAreaItem *center_item;
-    KeyAreaItem *extended_item;
-    WordRibbonItem *ribbon_item;
-
-    explicit LayoutItem()
-        : layout(0)
-        , left_item(0)
-        , right_item(0)
-        , center_item(0)
-        , extended_item(0)
-        , ribbon_item(0)
-    {}
-
-    KeyAreaItem *activeItem() const
-    {
-        if (not layout) {
-            qCritical() << __PRETTY_FUNCTION__
-                        << "Invalid layout!";
-            return 0;
-        }
-
-        switch(layout->activePanel()) {
-        case Logic::Layout::LeftPanel:
-            return left_item;
-
-        case Logic::Layout::RightPanel:
-            return right_item;
-
-        case Logic::Layout::CenterPanel:
-            return center_item;
-
-        case Logic::Layout::ExtendedPanel:
-            return extended_item;
-
-        default:
-            qCritical() << __PRETTY_FUNCTION__
-                        << "Invalid case - should not be reached!"
-                        << layout->activePanel();
-            return 0;
-        }
-
-        qCritical() << __PRETTY_FUNCTION__
-                    << "Should not be reached!";
-        return 0;
-    }
-};
-
-class RootItem
-    : public QGraphicsItem
-{
-private:
-    QRectF m_rect;
-
-public:
-    explicit RootItem(QGraphicsItem *parent = 0)
-        : QGraphicsItem(parent)
-        , m_rect()
-    {
-        setFlag(QGraphicsItem::ItemHasNoContents);
-    }
-
-    void setRect(const QRectF &rect)
-    {
-        m_rect = rect;
-    }
-
-    virtual QRectF boundingRect() const
-    {
-        return m_rect;
-    }
-
-    virtual void paint(QPainter *,
-                       const QStyleOptionGraphicsItem *,
-                       QWidget *)
-    {}
-};
 
 QGraphicsView * createView(QWidget *widget,
                            AbstractBackgroundBuffer *buffer)
@@ -231,7 +148,9 @@ public:
     QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> extended_surface;
     QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> magnifier_surface;
     SharedStyle style;
-    QVector<LayoutItem> layout_items;
+    KeyAreaItem *center_item;
+    KeyAreaItem *extended_item;
+    WordRibbonItem *ribbon_item;
     QVector<KeyItem *> key_items;
     QVector<KeyItem *> extended_key_items;
     QVector<KeyItem *> magnifier_key_items;
@@ -242,11 +161,17 @@ public:
         , surface()
         , extended_surface()
         , magnifier_surface()
-        , layout_items()
+        , center_item(new KeyAreaItem)
+        , extended_item(new KeyAreaItem)
+        , ribbon_item(new WordRibbonItem)
         , key_items()
         , extended_key_items()
         , magnifier_key_items()
-    {}
+    {
+        center_item->setZValue(CenterPanelZIndex);
+        extended_item->setZValue(ExtendedPanelZIndex);
+        ribbon_item->setZValue(WordRibbonZIndex);
+    }
 };
 
 Renderer::Renderer(QObject *parent)
@@ -295,28 +220,6 @@ const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> Renderer::ext
     return d->extended_surface;
 }
 
-void Renderer::addLayout(Logic::Layout *layout)
-{
-    Q_D(Renderer);
-
-    LayoutItem li;
-    li.layout = layout;
-    d->layout_items.append(li);
-}
-
-void Renderer::clearLayouts()
-{
-    Q_D(Renderer);
-
-    d->layout_items.clear();
-    d->key_items.clear();
-    d->extended_key_items.clear();
-    d->magnifier_key_items.clear();
-    d->surface->clear();
-    d->extended_surface->clear();
-    d->magnifier_surface->clear();
-}
-
 void Renderer::setStyle(const SharedStyle &style)
 {
     Q_D(Renderer);
@@ -345,12 +248,15 @@ void Renderer::show()
         return;
     }
 
-    // FIXME: Sinister hack to force rendering on show. Need to find out why
-    // items are not available otherwise.
-    LayoutItem &li(d->layout_items.first());
-    onCenterPanelChanged(li.layout->centerPanel(), li.layout->centerPanelGeometry().topLeft());
-    onExtendedPanelChanged(li.layout->extendedPanel(), li.layout->extendedPanelOffset());
-    onWordRibbonChanged(li.layout->wordRibbon(), li.layout->wordRibbonGeometry());
+    d->surface->show();
+    d->extended_surface->show();
+    d->magnifier_surface->show();
+
+    // The root item of a surface only becomes valid after being shown (for
+    // the first time):
+    d->center_item->setParentItem(d->surface->root());
+    d->extended_item->setParentItem(d->extended_surface->root());
+    d->ribbon_item->setParentItem(d->surface->root());
 }
 
 void Renderer::hide()
@@ -374,13 +280,13 @@ void Renderer::hide()
 void Renderer::onActiveKeysChanged(const QVector<Key> &active_keys)
 {
     Q_D(Renderer);
-    updateActiveKeys(active_keys, &d->key_items, d->layout_items.first().activeItem());
+    updateActiveKeys(active_keys, &d->key_items, d->center_item);
 }
 
 void Renderer::onActiveExtendedKeysChanged(const QVector<Key> &active_keys)
 {
     Q_D(Renderer);
-    updateActiveKeys(active_keys, &d->extended_key_items, d->layout_items.first().activeItem());
+    updateActiveKeys(active_keys, &d->extended_key_items, d->extended_item);
 }
 
 void Renderer::onMagnifierKeyChanged(const Key &key)
@@ -405,18 +311,10 @@ void Renderer::onCenterPanelChanged(const KeyArea &key_area,
     Q_D(Renderer);
 
     const QSize &ka_size(key_area.area().size());
-    LayoutItem &li(d->layout_items.first());
+    d->center_item->setKeyArea(key_area, QRect(origin, ka_size));
+    d->center_item->setVisible(ka_size.isValid());
 
-    if (not li.center_item) {
-        li.center_item = new KeyAreaItem;
-        li.center_item->setZValue(CenterPanelZIndex);
-    }
-
-    li.center_item->setParentItem(d->surface->root());
-    li.center_item->setKeyArea(key_area, QRect(origin, ka_size));
-    li.center_item->setVisible(ka_size.isValid());
-
-    if (li.center_item->isVisible()) {
+    if (d->center_item->isVisible()) {
         d->surface->setSize(QSize(ka_size.width() + origin.x(),
                                   ka_size.height() + origin.y()));
         d->surface->show();
@@ -431,18 +329,10 @@ void Renderer::onExtendedPanelChanged(const KeyArea &key_area,
     Q_D(Renderer);
 
     const QSize &ka_size(key_area.area().size());
-    LayoutItem &li(d->layout_items.first());
+    d->extended_item->setKeyArea(key_area, QRect(QPoint(), ka_size));
+    d->extended_item->setVisible(ka_size.isValid());
 
-    if (not li.extended_item) {
-        li.extended_item = new KeyAreaItem;
-        li.extended_item->setZValue(ExtendedPanelZIndex);
-    }
-
-    li.extended_item->setParentItem(d->extended_surface->root());
-    li.extended_item->setKeyArea(key_area, QRect(QPoint(), ka_size));
-    li.extended_item->setVisible(ka_size.isValid());
-
-    if (li.extended_item->isVisible()) {
+    if (d->extended_item->isVisible()) {
         d->extended_surface->setSize(ka_size);
         d->extended_surface->setRelativePosition(origin);
         d->extended_surface->show();
@@ -456,16 +346,8 @@ void Renderer::onWordRibbonChanged(const WordRibbon &ribbon,
 {
     Q_D(Renderer);
 
-    LayoutItem &li(d->layout_items.first());
-
-    if (not li.ribbon_item) {
-        li.ribbon_item = new WordRibbonItem;
-        li.ribbon_item->setZValue(WordRibbonZIndex);
-    }
-
-    li.ribbon_item->setParentItem(d->surface->root());
-    li.ribbon_item->setWordRibbon(ribbon, geometry);
-    li.ribbon_item->setVisible(geometry.isValid());
+    d->ribbon_item->setWordRibbon(ribbon, geometry);
+    d->ribbon_item->setVisible(geometry.isValid());
 }
 
 void Renderer::applyProfile()

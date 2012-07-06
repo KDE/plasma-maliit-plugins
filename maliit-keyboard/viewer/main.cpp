@@ -115,14 +115,12 @@ int main(int argc,
 
     l0.setWordRibbon(ribbon);
 
-    renderer.addLayout(&l0);
     glass.addLayout(&l0);
     lu0.setLayout(&l0);
 
     MaliitKeyboard::Logic::Layout l1;
     l1.setAlignment(MaliitKeyboard::Logic::Layout::Top);
     l1.setScreenSize(dashboard->size());
-    renderer.addLayout(&l1);
     glass.addLayout(&l1);
 
     MaliitKeyboard::Logic::LayoutUpdater lu1;

@@ -259,7 +259,6 @@ private:
         glass.setExtendedSurface(renderer.extendedSurface());
 
         Logic::Layout layout;
-        renderer.addLayout(&layout);
         glass.addLayout(&layout);
 
         QCOMPARE(not renderer.surface().isNull(), expected_surface_valid);
