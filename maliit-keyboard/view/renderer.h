@@ -32,7 +32,6 @@
 #ifndef MALIIT_KEYBOARD_RENDERER_H
 #define MALIIT_KEYBOARD_RENDERER_H
 
-#include "abstractbackgroundbuffer.h"
 #include "logic/layout.h"
 #include "logic/style.h"
 

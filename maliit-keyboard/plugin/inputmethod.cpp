@@ -41,7 +41,6 @@
 #include "logic/style.h"
 
 #include "view/renderer.h"
-#include "view/abstractbackgroundbuffer.h"
 #include "view/glass.h"
 #include "view/setup.h"
 
@@ -63,38 +62,10 @@ typedef MaliitKeyboard::NullFeedback DefaultFeedback;
 
 namespace MaliitKeyboard {
 
-class BackgroundBuffer
-    : public AbstractBackgroundBuffer
-{
-private:
-    MAbstractInputMethodHost *m_host;
-
-public:
-    explicit BackgroundBuffer(MAbstractInputMethodHost *host)
-        : AbstractBackgroundBuffer()
-    {
-        m_host = host;
-    }
-
-    virtual ~BackgroundBuffer()
-    {}
-
-    QPixmap background() const
-    {
-        if (not m_host) {
-            static QPixmap empty;
-            return empty;
-        }
-
-        return m_host->background();
-    }
-};
-
 class InputMethodPrivate
 {
 public:
     Maliit::Plugins::AbstractSurfaceFactory *surface_factory;
-    BackgroundBuffer buffer;
     Renderer renderer;
     Glass glass;
     Logic::LayoutUpdater layout_updater;
@@ -107,7 +78,6 @@ public:
 
     explicit InputMethodPrivate(MAbstractInputMethodHost *host)
         : surface_factory(host->surfaceFactory())
-        , buffer(host)
         , renderer()
         , glass()
         , layout_updater()

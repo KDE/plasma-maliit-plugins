@@ -26,8 +26,6 @@ HEADERS += \
     keyareaitem.h \
     keyitem.h \
     wordribbonitem.h \
-    abstractbackgroundbuffer.h \
-    graphicsview.h \
     abstractfeedback.h \
     nullfeedback.h \
 
@@ -40,8 +38,6 @@ SOURCES += \
     keyareaitem.cpp \
     keyitem.cpp \
     wordribbonitem.cpp \
-    abstractbackgroundbuffer.cpp \
-    graphicsview.cpp \
     abstractfeedback.cpp \
     nullfeedback.cpp \
 
