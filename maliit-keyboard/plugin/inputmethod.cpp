@@ -76,58 +76,76 @@ public:
     QScopedPointer<Maliit::Plugins::AbstractPluginSetting> style_setting;
     QScopedPointer<Maliit::Plugins::AbstractPluginSetting> feedback_setting;
 
-    explicit InputMethodPrivate(MAbstractInputMethodHost *host)
-        : surface_factory(host->surfaceFactory())
-        , renderer()
-        , glass()
-        , layout_updater()
-        , editor(EditorOptions(), new Model::Text, new Logic::WordEngine)
-        , feedback()
-        , layout(new Logic::Layout)
-        , style(new Style)
-        , style_setting()
-        , feedback_setting()
-    {
-        renderer.setSurfaceFactory(surface_factory);
-        glass.setSurface(renderer.surface());
-        glass.setExtendedSurface(renderer.extendedSurface());
-        editor.setHost(host);
+    explicit InputMethodPrivate(MAbstractInputMethodHost *host);
 
-        glass.addLayout(&layout);
-        layout_updater.setLayout(&layout);
-
-        QVariantMap style_attrs;
-        QStringList available_styles = style->availableProfiles();
-
-        style_attrs[Maliit::SettingEntryAttributes::defaultValue] = MALIIT_DEFAULT_PROFILE;
-        style_attrs[Maliit::SettingEntryAttributes::valueDomain] = available_styles;
-        style_attrs[Maliit::SettingEntryAttributes::valueDomainDescriptions] = available_styles;
-
-        style_setting.reset(host->registerPluginSetting("current_style",
-                                                        QT_TR_NOOP("Keyboard style"),
-                                                        Maliit::StringType,
-                                                        style_attrs));
-        style->setProfile(style_setting->value().toString());
-        renderer.setStyle(style);
-        layout_updater.setStyle(style);
-        feedback.setStyle(style);
-
-        QVariantMap feedback_attrs;
-
-        feedback_attrs[Maliit::SettingEntryAttributes::defaultValue] = feedback.isEnabled();
-        feedback_setting.reset(host->registerPluginSetting("feedback_enabled",
-                                                           QT_TR_NOOP("Feedback enabled"),
-                                                           Maliit::BoolType,
-                                                           feedback_attrs));
-        feedback.setEnabled(feedback_setting->value().toBool());
-
-        const QSize &screen_size(surface_factory->screenSize());
-        layout.setScreenSize(screen_size);
-        layout.setAlignment(Logic::Layout::Bottom);
-        layout_updater.setOrientation(screen_size.width() >= screen_size.height()
-                                      ? Logic::Layout::Landscape : Logic::Layout::Portrait);
-    }
+    void registerStyleSettings(MAbstractInputMethodHost *host);
+    void registerFeedbackSettings(MAbstractInputMethodHost *host);
 };
+
+
+InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
+    : surface_factory(host->surfaceFactory())
+    , renderer()
+    , glass()
+    , layout_updater()
+    , editor(EditorOptions(), new Model::Text, new Logic::WordEngine)
+    , feedback()
+    , layout(new Logic::Layout)
+    , style(new Style)
+    , style_setting()
+    , feedback_setting()
+{
+    renderer.setSurfaceFactory(surface_factory);
+    glass.setSurface(renderer.surface());
+    glass.setExtendedSurface(renderer.extendedSurface());
+    editor.setHost(host);
+
+    glass.addLayout(&layout);
+    layout_updater.setLayout(&layout);
+
+    renderer.setStyle(style);
+    layout_updater.setStyle(style);
+    feedback.setStyle(style);
+
+    const QSize &screen_size(surface_factory->screenSize());
+    layout.setScreenSize(screen_size);
+    layout.setAlignment(Logic::Layout::Bottom);
+    layout_updater.setOrientation(screen_size.width() >= screen_size.height()
+                                  ? Logic::Layout::Landscape : Logic::Layout::Portrait);
+
+    registerStyleSettings(host);
+    registerFeedbackSettings(host);
+}
+
+
+void InputMethodPrivate::registerStyleSettings(MAbstractInputMethodHost *host)
+{
+    QVariantMap attributes;
+    QStringList available_styles = style->availableProfiles();
+    attributes[Maliit::SettingEntryAttributes::defaultValue] = MALIIT_DEFAULT_PROFILE;
+    attributes[Maliit::SettingEntryAttributes::valueDomain] = available_styles;
+    attributes[Maliit::SettingEntryAttributes::valueDomainDescriptions] = available_styles;
+
+    style_setting.reset(host->registerPluginSetting("current_style",
+                                                    QT_TR_NOOP("Keyboard style"),
+                                                    Maliit::StringType,
+                                                    attributes));
+    style->setProfile(style_setting->value().toString());
+}
+
+
+void InputMethodPrivate::registerFeedbackSettings(MAbstractInputMethodHost *host)
+{
+    QVariantMap attributes;
+    attributes[Maliit::SettingEntryAttributes::defaultValue] = feedback.isEnabled();
+
+    feedback_setting.reset(host->registerPluginSetting("feedback_enabled",
+                                                       QT_TR_NOOP("Feedback enabled"),
+                                                       Maliit::BoolType,
+                                                       attributes));
+    feedback.setEnabled(feedback_setting->value().toBool());
+}
+
 
 InputMethod::InputMethod(MAbstractInputMethodHost *host)
     : MAbstractInputMethod(host)
