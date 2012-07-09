@@ -62,6 +62,8 @@ typedef MaliitKeyboard::NullFeedback DefaultFeedback;
 
 namespace MaliitKeyboard {
 
+typedef QScopedPointer<Maliit::Plugins::AbstractPluginSetting> ScopedSetting;
+
 class InputMethodPrivate
 {
 public:
@@ -73,13 +75,15 @@ public:
     DefaultFeedback feedback;
     Logic::Layout layout;
     SharedStyle style;
-    QScopedPointer<Maliit::Plugins::AbstractPluginSetting> style_setting;
-    QScopedPointer<Maliit::Plugins::AbstractPluginSetting> feedback_setting;
+    ScopedSetting style_setting;
+    ScopedSetting feedback_setting;
+    ScopedSetting auto_correct_setting;
 
     explicit InputMethodPrivate(MAbstractInputMethodHost *host);
 
     void registerStyleSettings(MAbstractInputMethodHost *host);
     void registerFeedbackSettings(MAbstractInputMethodHost *host);
+    void registerAutoCorrectSettings(MAbstractInputMethodHost *host);
 };
 
 
@@ -94,6 +98,7 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     , style(new Style)
     , style_setting()
     , feedback_setting()
+    , auto_correct_setting()
 {
     renderer.setSurfaceFactory(surface_factory);
     glass.setSurface(renderer.surface());
@@ -115,6 +120,7 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
 
     registerStyleSettings(host);
     registerFeedbackSettings(host);
+    registerAutoCorrectSettings(host);
 }
 
 
@@ -144,6 +150,20 @@ void InputMethodPrivate::registerFeedbackSettings(MAbstractInputMethodHost *host
                                                        Maliit::BoolType,
                                                        attributes));
     feedback.setEnabled(feedback_setting->value().toBool());
+}
+
+
+void InputMethodPrivate::registerAutoCorrectSettings(MAbstractInputMethodHost *host)
+{
+    QVariantMap attributes;
+    attributes[Maliit::SettingEntryAttributes::defaultValue] = editor.isAutoCorrectEnabled();
+
+    auto_correct_setting.reset(host->registerPluginSetting("auto_correct_enabled",
+                                                           QT_TR_NOOP("Auto-correct enabled"),
+                                                           Maliit::BoolType,
+                                                           attributes));
+
+    editor.setAutoCorrectEnabled(auto_correct_setting->value().toBool());
 }
 
 
@@ -185,6 +205,9 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
             this,                       SLOT(onFeedbackSettingChanged()));
     connect(&d->feedback, SIGNAL(enabledChanged(bool)),
             this,        SLOT(onFeedbackEnabledChanged(bool)));
+
+    connect(d->auto_correct_setting.data(), SIGNAL(valueChanged()),
+            this,                           SLOT(onAutoCorrectSettingChanged()));
 }
 
 InputMethod::~InputMethod()
@@ -318,6 +341,12 @@ void InputMethod::onFeedbackEnabledChanged(bool enabled)
     if (d->feedback_setting->value().toBool() != enabled) {
         d->feedback_setting->set(enabled);
     }
+}
+
+void InputMethod::onAutoCorrectSettingChanged()
+{
+    Q_D(InputMethod);
+    d->editor.setAutoCorrectEnabled(d->auto_correct_setting->value().toBool());
 }
 
 } // namespace MaliitKeyboard
