@@ -203,8 +203,6 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
 
     connect(d->feedback_setting.data(), SIGNAL(valueChanged()),
             this,                       SLOT(onFeedbackSettingChanged()));
-    connect(&d->feedback, SIGNAL(enabledChanged(bool)),
-            this,        SLOT(onFeedbackEnabledChanged(bool)));
 
     connect(d->auto_correct_setting.data(), SIGNAL(valueChanged()),
             this,                           SLOT(onAutoCorrectSettingChanged()));
@@ -333,14 +331,6 @@ void InputMethod::onFeedbackSettingChanged()
 {
     Q_D(InputMethod);
     d->feedback.setEnabled(d->feedback_setting->value().toBool());
-}
-
-void InputMethod::onFeedbackEnabledChanged(bool enabled)
-{
-    Q_D(InputMethod);
-    if (d->feedback_setting->value().toBool() != enabled) {
-        d->feedback_setting->set(enabled);
-    }
 }
 
 void InputMethod::onAutoCorrectSettingChanged()

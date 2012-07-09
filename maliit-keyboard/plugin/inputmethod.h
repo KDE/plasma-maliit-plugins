@@ -74,7 +74,6 @@ private:
     Q_SLOT void onStyleSettingChanged();
     Q_SLOT void onKeyboardClosed();
     Q_SLOT void onFeedbackSettingChanged();
-    Q_SLOT void onFeedbackEnabledChanged(bool enabled);
     Q_SLOT void onAutoCorrectSettingChanged();
 
     const QScopedPointer<InputMethodPrivate> d_ptr;
