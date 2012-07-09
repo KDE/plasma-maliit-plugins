@@ -78,12 +78,14 @@ public:
     ScopedSetting style_setting;
     ScopedSetting feedback_setting;
     ScopedSetting auto_correct_setting;
+    ScopedSetting word_engine_setting;
 
     explicit InputMethodPrivate(MAbstractInputMethodHost *host);
 
-    void registerStyleSettings(MAbstractInputMethodHost *host);
-    void registerFeedbackSettings(MAbstractInputMethodHost *host);
-    void registerAutoCorrectSettings(MAbstractInputMethodHost *host);
+    void registerStyleSetting(MAbstractInputMethodHost *host);
+    void registerFeedbackSetting(MAbstractInputMethodHost *host);
+    void registerAutoCorrectSetting(MAbstractInputMethodHost *host);
+    void registerWordEngineSetting(MAbstractInputMethodHost *host);
 };
 
 
@@ -99,6 +101,7 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     , style_setting()
     , feedback_setting()
     , auto_correct_setting()
+    , word_engine_setting()
 {
     renderer.setSurfaceFactory(surface_factory);
     glass.setSurface(renderer.surface());
@@ -118,13 +121,14 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     layout_updater.setOrientation(screen_size.width() >= screen_size.height()
                                   ? Logic::Layout::Landscape : Logic::Layout::Portrait);
 
-    registerStyleSettings(host);
-    registerFeedbackSettings(host);
-    registerAutoCorrectSettings(host);
+    registerStyleSetting(host);
+    registerFeedbackSetting(host);
+    registerAutoCorrectSetting(host);
+    registerWordEngineSetting(host);
 }
 
 
-void InputMethodPrivate::registerStyleSettings(MAbstractInputMethodHost *host)
+void InputMethodPrivate::registerStyleSetting(MAbstractInputMethodHost *host)
 {
     QVariantMap attributes;
     QStringList available_styles = style->availableProfiles();
@@ -140,7 +144,7 @@ void InputMethodPrivate::registerStyleSettings(MAbstractInputMethodHost *host)
 }
 
 
-void InputMethodPrivate::registerFeedbackSettings(MAbstractInputMethodHost *host)
+void InputMethodPrivate::registerFeedbackSetting(MAbstractInputMethodHost *host)
 {
     QVariantMap attributes;
     attributes[Maliit::SettingEntryAttributes::defaultValue] = feedback.isEnabled();
@@ -153,7 +157,7 @@ void InputMethodPrivate::registerFeedbackSettings(MAbstractInputMethodHost *host
 }
 
 
-void InputMethodPrivate::registerAutoCorrectSettings(MAbstractInputMethodHost *host)
+void InputMethodPrivate::registerAutoCorrectSetting(MAbstractInputMethodHost *host)
 {
     QVariantMap attributes;
     attributes[Maliit::SettingEntryAttributes::defaultValue] = editor.isAutoCorrectEnabled();
@@ -166,6 +170,18 @@ void InputMethodPrivate::registerAutoCorrectSettings(MAbstractInputMethodHost *h
     editor.setAutoCorrectEnabled(auto_correct_setting->value().toBool());
 }
 
+
+void InputMethodPrivate::registerWordEngineSetting(MAbstractInputMethodHost *host)
+{
+    QVariantMap attributes;
+    attributes[Maliit::SettingEntryAttributes::defaultValue] = editor.wordEngine()->isEnabled();
+
+    word_engine_setting.reset(host->registerPluginSetting("word_engine_enabled",
+                                                          QT_TR_NOOP("Error correction/word prediction enabled"),
+                                                          Maliit::BoolType,
+                                                          attributes));
+    editor.wordEngine()->setEnabled(word_engine_setting->value().toBool());
+}
 
 InputMethod::InputMethod(MAbstractInputMethodHost *host)
     : MAbstractInputMethod(host)
@@ -206,6 +222,9 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
 
     connect(d->auto_correct_setting.data(), SIGNAL(valueChanged()),
             this,                           SLOT(onAutoCorrectSettingChanged()));
+
+    connect(d->word_engine_setting.data(), SIGNAL(valueChanged()),
+            this,                          SLOT(onWordEngineSettingChanged()));
 }
 
 InputMethod::~InputMethod()
@@ -337,6 +356,14 @@ void InputMethod::onAutoCorrectSettingChanged()
 {
     Q_D(InputMethod);
     d->editor.setAutoCorrectEnabled(d->auto_correct_setting->value().toBool());
+}
+
+void InputMethod::onWordEngineSettingChanged()
+{
+    // FIXME: Renderer doesn't seem to update graphics properly. Word ribbon
+    // is still visible until next VKB show/hide.
+    Q_D(InputMethod);
+    d->editor.wordEngine()->setEnabled(d->word_engine_setting->value().toBool());
 }
 
 } // namespace MaliitKeyboard
