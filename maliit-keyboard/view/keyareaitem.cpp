@@ -57,6 +57,7 @@ void KeyAreaItem::setKeyArea(const KeyArea &ka,
                              const QRect &geometry)
 {
     if (m_key_area != ka) {
+        prepareGeometryChange();
         m_key_area = ka;
         m_key_area_geometry = geometry;
         update();

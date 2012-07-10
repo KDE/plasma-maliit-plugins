@@ -44,13 +44,9 @@ KeyItem::KeyItem(QGraphicsItem *parent)
 void KeyItem::setKey(const Key &key)
 {
     if (m_key != key) {
+        prepareGeometryChange();
         m_key = key;
-
-        if (boundingRect().isEmpty()) {
-            hide();
-        } else {
-            update();
-        }
+        update();
     }
 }
 

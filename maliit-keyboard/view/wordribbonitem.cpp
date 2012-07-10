@@ -47,9 +47,12 @@ WordRibbonItem::WordRibbonItem(QGraphicsItem *parent)
 void WordRibbonItem::setWordRibbon(const WordRibbon &ribbon,
                                    const QRect &geometry)
 {
-    m_ribbon = ribbon;
-    m_ribbon_geometry = geometry;
-    update();
+    if (m_ribbon != ribbon) {
+        prepareGeometryChange();
+        m_ribbon = ribbon;
+        m_ribbon_geometry = geometry;
+        update();
+    }
 }
 
 QRectF WordRibbonItem::boundingRect() const
