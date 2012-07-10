@@ -192,10 +192,6 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
     Setup::connectAll(&d->glass, &d->layout, &d->layout_updater,
                       &d->renderer, &d->editor, &d->feedback);
 
-    // TODO: Let this be driven through content type, and/or a plugin setting:
-    d->editor.wordEngine()->setEnabled(true);
-    d->editor.setAutoCorrectEnabled(false);
-
     connect(&d->glass, SIGNAL(keyboardClosed()),
             this,      SLOT(onKeyboardClosed()));
 
