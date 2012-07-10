@@ -48,7 +48,6 @@ public:
 
     virtual void setStyle(const SharedStyle &style);
 
-    Q_SLOT void onEnabledChanged(bool enabled);
 private:
     virtual void playPressFeedback();
     virtual void playReleaseFeedback();
