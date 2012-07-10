@@ -206,7 +206,6 @@ void Renderer::show()
 
     d->surface->show();
     d->extended_surface->show();
-    d->magnifier_surface->show();
 
     // The root item of a surface only becomes valid after being shown (for
     // the first time):
