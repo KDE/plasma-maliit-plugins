@@ -582,7 +582,7 @@ void LayoutUpdater::resetOnKeyboardClosed()
     d->layout->setActivePanel(Layout::CenterPanel);
 }
 
-void LayoutUpdater::onWordCandidatesChanged(const QStringList &candidates)
+void LayoutUpdater::onWordCandidatesChanged(const WordCandidateList &candidates)
 {
     Q_D(LayoutUpdater);
 
@@ -601,8 +601,7 @@ void LayoutUpdater::onWordCandidatesChanged(const QStringList &candidates)
     const int candidate_width(attributes->keyAreaWidth(orientation) / (orientation == Layout::Landscape ? 6 : 4));
 
     for (int index = 0; index < candidates.count(); ++index) {
-        WordCandidate word_candidate;
-        word_candidate.rLabel().setText(candidates.at(index));
+        WordCandidate word_candidate(candidates.at(index));
         word_candidate.rArea().setSize(QSize(candidate_width, 56));
         word_candidate.setOrigin(QPoint(index * candidate_width, 0));
         applyStyleToCandidate(&word_candidate, d->activeStyleAttributes(), orientation, DeactivateElement);
@@ -631,7 +630,12 @@ void LayoutUpdater::onWordCandidateReleased(const WordCandidate &candidate,
     if (layout == d->layout
         && isWordRibbonVisible()
         && updateWordRibbon(d->layout, candidate, d->activeStyleAttributes(), DeactivateElement)) {
-        Q_EMIT wordCandidateSelected(candidate.label().text());
+        if (candidate.source() == WordCandidate::SourcePrediction
+            || candidate.source() == WordCandidate::SourceSpellChecking) {
+            Q_EMIT wordCandidateSelected(candidate.word());
+        } else if (candidate.source() == WordCandidate::SourceUser) {
+            Q_EMIT userCandidateSelected(candidate.word());
+        }
     }
 }
 

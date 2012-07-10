@@ -119,8 +119,8 @@ AbstractTextEditor::AbstractTextEditor(const EditorOptions &options,
     connect(word_engine, SIGNAL(enabledChanged(bool)),
             this,        SLOT(setPreeditEnabled(bool)));
 
-    connect(word_engine, SIGNAL(candidatesChanged(QStringList)),
-            this,        SIGNAL(wordCandidatesChanged(QStringList)));
+    connect(word_engine, SIGNAL(candidatesChanged(WordCandidateList)),
+            this,        SIGNAL(wordCandidatesChanged(WordCandidateList)));
 
     setPreeditEnabled(word_engine->isEnabled());
 }

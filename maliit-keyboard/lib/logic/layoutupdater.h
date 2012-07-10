@@ -93,7 +93,7 @@ public:
                             Logic::Layout *layout);
     Q_SLOT void clearActiveKeysAndMagnifier();
     Q_SLOT void resetOnKeyboardClosed();
-    Q_SLOT void onWordCandidatesChanged(const QStringList &candidates);
+    Q_SLOT void onWordCandidatesChanged(const WordCandidateList &candidates);
 
     // WordCandidate signal handlers:
     Q_SLOT void onWordCandidatePressed(const WordCandidate &candidate,
@@ -103,6 +103,7 @@ public:
 
     Q_SIGNAL void keysChanged(Logic::Layout *layout);
     Q_SIGNAL void wordCandidateSelected(const QString &candidate);
+    Q_SIGNAL void userCandidateSelected(const QString &candidate);
 
 private:
     Q_SIGNAL void shiftPressed();

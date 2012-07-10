@@ -56,7 +56,7 @@ public:
     virtual void setEnabled(bool enabled);
 
 private:
-    virtual QStringList fetchCandidates(Model::Text *text);
+    virtual WordCandidateList fetchCandidates(Model::Text *text);
 
     const QScopedPointer<WordEnginePrivate> d_ptr;
 };

@@ -37,7 +37,23 @@ WordCandidate::WordCandidate()
     : m_origin()
     , m_area()
     , m_label()
+    , m_source(SourceUnknown)
+    , m_word()
 {}
+
+WordCandidate::WordCandidate(Source source, const QString &word)
+    : m_origin()
+    , m_area()
+    , m_label()
+    , m_source(source)
+    , m_word(word)
+{
+    if (source == WordCandidate::SourceUser) {
+        m_label.setText(QString(QT_TR_NOOP("Add '%1' to user dictionary")).arg(word));
+    } else {
+        m_label.setText(word);
+    }
+}
 
 bool WordCandidate::valid() const
 {
@@ -90,12 +106,33 @@ void WordCandidate::setLabel(const Label &label)
     m_label = label;
 }
 
+WordCandidate::Source WordCandidate::source() const
+{
+    return m_source;
+}
+
+void WordCandidate::setSource(Source source)
+{
+    m_source = source;
+}
+
+QString WordCandidate::word() const
+{
+    return m_word;
+}
+
+void WordCandidate::setWord(const QString &word)
+{
+    m_word = word;
+}
+
 bool operator==(const WordCandidate &lhs,
                 const WordCandidate &rhs)
 {
     return (lhs.origin() == rhs.origin()
             && lhs.area() == rhs.area()
-            && lhs.label() == rhs.label());
+            && lhs.label() == rhs.label()
+            && lhs.source() == rhs.source());
 }
 
 bool operator!=(const WordCandidate &lhs,

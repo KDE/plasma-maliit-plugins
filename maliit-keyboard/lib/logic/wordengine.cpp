@@ -41,7 +41,8 @@ namespace Logic {
 
 namespace {
 
-void appendToCandidates(QStringList *candidates,
+void appendToCandidates(WordCandidateList *candidates,
+                        WordCandidate::Source source,
                         const QString &candidate,
                         bool is_preedit_capitalized)
 {
@@ -55,8 +56,10 @@ void appendToCandidates(QStringList *candidates,
         changed_candidate[0] = changed_candidate.at(0).toUpper();
     }
 
-    if (not candidates->contains(changed_candidate)) {
-        candidates->append(changed_candidate);
+    WordCandidate word_candidate(source, changed_candidate);
+
+    if (not candidates->contains(word_candidate)) {
+        candidates->append(word_candidate);
     }
 }
 
@@ -157,15 +160,16 @@ void WordEngine::setEnabled(bool enabled)
 
 //! \brief Returns new candidates.
 //! \param text The text model. Can update preedit face in text.
-QStringList WordEngine::fetchCandidates(Model::Text *text)
+WordCandidateList WordEngine::fetchCandidates(Model::Text *text)
 {
+    WordCandidateList candidates;
+ 
 #ifdef DISABLE_PREEDIT
     Q_UNUSED(text)
-    return;
+    return candidates;
 #else
     Q_D(WordEngine);
 
-    QStringList candidates;
     const QString &preedit(text->preedit());
     const bool is_preedit_capitalized(not preedit.isEmpty() && preedit.at(0).isUpper());
 
@@ -180,7 +184,7 @@ QStringList WordEngine::fetchCandidates(Model::Text *text)
         const static unsigned int max_candidates = 7;
         const int count(qMin<int>(predictions.size(), max_candidates));
         for (int index = 0; index < count; ++index) {
-            appendToCandidates(&candidates, QString::fromStdString(predictions.at(index)),
+            appendToCandidates(&candidates, WordCandidate::SourcePrediction, QString::fromStdString(predictions.at(index)),
                                is_preedit_capitalized);
         }
     }
@@ -190,7 +194,7 @@ QStringList WordEngine::fetchCandidates(Model::Text *text)
 
     if (candidates.isEmpty() and not correct_spelling) {
         Q_FOREACH(const QString &correction, d->spell_checker.suggest(preedit, 5)) {
-            appendToCandidates(&candidates, correction, is_preedit_capitalized);
+            appendToCandidates(&candidates, WordCandidate::SourceSpellChecking, correction, is_preedit_capitalized);
         }
     }
 
@@ -199,7 +203,7 @@ QStringList WordEngine::fetchCandidates(Model::Text *text)
                                               : Model::Text::PreeditActive);
 
     text->setPrimaryCandidate(candidates.isEmpty() ? QString()
-                                                   : candidates.first());
+                                                   : candidates.first().label().text());
 
 
     return candidates;

@@ -33,6 +33,7 @@
 #define MALIIT_KEYBOARD_ABSTRACTWORDENGINE_H
 
 #include "models/text.h"
+#include "models/wordcandidate.h"
 #include <QtCore>
 
 namespace MaliitKeyboard {
@@ -61,10 +62,10 @@ public:
 
     void clearCandidates();
     void computeCandidates(Model::Text *text);
-    Q_SIGNAL void candidatesChanged(const QStringList &candidates);
+    Q_SIGNAL void candidatesChanged(const WordCandidateList &candidates);
 
 private:
-    virtual QStringList fetchCandidates(Model::Text *text) = 0;
+    virtual WordCandidateList fetchCandidates(Model::Text *text) = 0;
     const QScopedPointer<AbstractWordEnginePrivate> d_ptr;
 };
 

@@ -41,13 +41,24 @@ namespace MaliitKeyboard {
 
 class WordCandidate
 {
+public:
+    enum Source {
+        SourceUnknown,
+        SourceSpellChecking,
+        SourcePrediction,
+        SourceUser // Candidate based on current preedit word for adding to the user dictionary
+    };
+
 private:
     QPoint m_origin;
     Area m_area;
     Label m_label;
+    Source m_source;
+    QString m_word;
 
 public:
     explicit WordCandidate();
+    WordCandidate(Source source, const QString &word);
 
     // read-only properties:
     bool valid() const;
@@ -63,7 +74,15 @@ public:
     Label label() const;
     Label & rLabel();
     void setLabel(const Label &label);
+
+    Source source() const;
+    void setSource(Source source);
+
+    QString word() const;
+    void setWord(const QString &word);
 };
+
+typedef QList<WordCandidate> WordCandidateList;
 
 bool operator==(const WordCandidate &lhs,
                 const WordCandidate &rhs);

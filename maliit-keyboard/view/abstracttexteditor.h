@@ -94,7 +94,7 @@ public:
     Q_SIGNAL void keyboardClosed();
     Q_SIGNAL void leftLayoutSelected();
     Q_SIGNAL void rightLayoutSelected();
-    Q_SIGNAL void wordCandidatesChanged(const QStringList &word_candidates);
+    Q_SIGNAL void wordCandidatesChanged(const WordCandidateList &word_candidates);
     Q_SIGNAL void autoCapsActivated();
 
 private:

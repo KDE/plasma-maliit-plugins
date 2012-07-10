@@ -110,7 +110,7 @@ void AbstractWordEngine::setEnabled(bool enabled)
 void AbstractWordEngine::clearCandidates()
 {
     if (isEnabled()) {
-        Q_EMIT candidatesChanged(QStringList());
+        Q_EMIT candidatesChanged(WordCandidateList());
     }
 }
 

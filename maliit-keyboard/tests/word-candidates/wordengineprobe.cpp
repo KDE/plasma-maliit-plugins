@@ -52,7 +52,7 @@ WordEngineProbe::~WordEngineProbe()
 //! \brief Returns new candidates.
 //! \param text Preedit of text model is reversed and emitted as only word
 //!             candidate. Special characters (e.g., punctuation) are skipped.
-QStringList WordEngineProbe::fetchCandidates(Model::Text *text)
+WordCandidateList WordEngineProbe::fetchCandidates(Model::Text *text)
 {
     QString reverse;
     Q_FOREACH(const QChar &c, text->preedit()) {
@@ -63,8 +63,10 @@ QStringList WordEngineProbe::fetchCandidates(Model::Text *text)
 
     text->setPrimaryCandidate(reverse);
 
-    QStringList result;
-    result.append(reverse);
+    WordCandidateList result;
+    WordCandidate candidate;
+    candidate.rLabel().setText(reverse);
+    result.append(candidate);
 
     return result;
 }

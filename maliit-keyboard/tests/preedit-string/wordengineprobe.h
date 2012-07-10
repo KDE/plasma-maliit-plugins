@@ -49,7 +49,7 @@ public:
     virtual ~WordEngineProbe();
 
 private:
-    virtual QStringList fetchCandidates(Model::Text *text);
+    virtual WordCandidateList fetchCandidates(Model::Text *text);
 };
 
 }} // namespace MaliitKeyboard

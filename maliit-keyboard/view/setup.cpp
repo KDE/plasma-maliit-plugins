@@ -164,8 +164,8 @@ void connectLayoutUpdaterToTextEditor(Logic::LayoutUpdater *updater,
     QObject::connect(editor,  SIGNAL(preeditEnabledChanged(bool)),
                      updater, SLOT(setWordRibbonVisible(bool)));
 
-    QObject::connect(editor,  SIGNAL(wordCandidatesChanged(QStringList)),
-                     updater, SLOT(onWordCandidatesChanged(QStringList)));
+    QObject::connect(editor,  SIGNAL(wordCandidatesChanged(WordCandidateList)),
+                     updater, SLOT(onWordCandidatesChanged(WordCandidateList)));
 
     QObject::connect(editor,  SIGNAL(autoCapsActivated()),
                      updater, SIGNAL(autoCapsActivated()));

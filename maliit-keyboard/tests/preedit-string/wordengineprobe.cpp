@@ -56,10 +56,10 @@ WordEngineProbe::~WordEngineProbe()
 
 //! \brief Returns new candidates.
 //! \param text Text model.
-QStringList WordEngineProbe::fetchCandidates(Model::Text *text)
+WordCandidateList WordEngineProbe::fetchCandidates(Model::Text *text)
 {
     const QString preedit(text->preedit());
-    QStringList result;
+    WordCandidateList result;
     Model::Text::PreeditFace face;
 
     if (preedit.left(1) == "a") {
@@ -70,7 +70,9 @@ QStringList WordEngineProbe::fetchCandidates(Model::Text *text)
         } else {
             // simulates case when there are some candidates, preedit
             // spelling correctnes is not important here.
-            result << (preedit + "d");
+            WordCandidate candidate;
+            candidate.rLabel().setText(preedit + "d");
+            result << candidate;
             face = Model::Text::PreeditActive;
         }
     } else {
