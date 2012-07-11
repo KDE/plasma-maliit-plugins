@@ -39,6 +39,29 @@
 namespace MaliitKeyboard {
 namespace Logic {
 
+namespace {
+
+void appendToCandidates(QStringList *candidates,
+                        const QString &candidate,
+                        bool is_preedit_capitalized)
+{
+    if (not candidates) {
+        return;
+    }
+
+    QString changed_candidate(candidate);
+
+    if (not changed_candidate.isEmpty() && is_preedit_capitalized) {
+        changed_candidate[0] = changed_candidate.at(0).toUpper();
+    }
+
+    if (not candidates->contains(changed_candidate)) {
+        candidates->append(changed_candidate);
+    }
+}
+
+} // namespace
+
 //! \class WordEngine
 //! Provides error correction (based on Hunspell) and word prediction (based
 //! on Presage).
@@ -143,9 +166,11 @@ QStringList WordEngine::fetchCandidates(Model::Text *text)
     Q_D(WordEngine);
 
     QStringList candidates;
+    const QString &preedit(text->preedit());
+    const bool is_preedit_capitalized(not preedit.isEmpty() && preedit.at(0).isUpper());
 
 #ifdef HAVE_PRESAGE
-    const QString &context = (text->surroundingLeft() + text->preedit());
+    const QString &context = (text->surroundingLeft() + preedit);
     d->candidates_context = context.toStdString();
     const std::vector<std::string> predictions = d->presage.predict();
 
@@ -155,22 +180,18 @@ QStringList WordEngine::fetchCandidates(Model::Text *text)
         const static unsigned int max_candidates = 7;
         const int count(qMin<int>(predictions.size(), max_candidates));
         for (int index = 0; index < count; ++index) {
-            const QString &prediction(QString::fromStdString(predictions.at(index)));
-
-            // FIXME: don't show the word we typed as a candidate.
-            if (candidates.contains(prediction)) {
-                continue;
-            }
-
-            candidates.append(prediction);
+            appendToCandidates(&candidates, QString::fromStdString(predictions.at(index)),
+                               is_preedit_capitalized);
         }
     }
 #endif
 
-    const bool correct_spelling(d->spell_checker.spell(text->preedit()));
+    const bool correct_spelling(d->spell_checker.spell(preedit));
 
     if (candidates.isEmpty() and not correct_spelling) {
-        candidates.append(d->spell_checker.suggest(text->preedit(), 5));
+        Q_FOREACH(const QString &correction, d->spell_checker.suggest(preedit, 5)) {
+            appendToCandidates(&candidates, correction, is_preedit_capitalized);
+        }
     }
 
     text->setPreeditFace(candidates.isEmpty() ? (correct_spelling ? Model::Text::PreeditDefault
