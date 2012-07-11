@@ -679,8 +679,6 @@ void LayoutUpdater::switchToMainView()
     const Layout::Orientation orientation(d->layout->orientation());
 
     if (d->word_ribbon_visible) {
-        // Need to set word ribbon before center panel, otherwise center panel's
-        // origin (which is relative to word ribbon height) will be wrong.
         WordRibbon ribbon(d->layout->wordRibbon());
         applyStyleToWordRibbon(&ribbon, d->style, orientation);
         d->layout->setWordRibbon(ribbon);
