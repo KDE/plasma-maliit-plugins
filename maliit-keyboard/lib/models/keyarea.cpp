@@ -35,12 +35,28 @@ namespace MaliitKeyboard {
 
 KeyArea::KeyArea()
     : m_keys()
+    , m_origin()
     , m_area()
 {}
 
 bool KeyArea::hasKeys() const
 {
     return (not m_keys.isEmpty());
+}
+
+QRect KeyArea::rect() const
+{
+    return QRect(m_origin, m_area.size());
+}
+
+QPoint KeyArea::origin() const
+{
+    return m_origin;
+}
+
+void KeyArea::setOrigin(const QPoint &origin)
+{
+    m_origin = origin;
 }
 
 QVector<Key> KeyArea::keys() const

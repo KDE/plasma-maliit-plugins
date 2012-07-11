@@ -41,6 +41,7 @@ class KeyArea
 {
 private:
     QVector<Key> m_keys;
+    QPoint m_origin;
     Area m_area;
     qreal m_margin;
 
@@ -48,6 +49,10 @@ public:
     explicit KeyArea();
 
     bool hasKeys() const;
+    QRect rect() const;
+
+    QPoint origin() const;
+    void setOrigin(const QPoint &origin);
 
     QVector<Key> keys() const;
     QVector<Key> & rKeys();
