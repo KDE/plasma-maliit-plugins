@@ -98,6 +98,8 @@ AbstractTextEditor::AbstractTextEditor(const EditorOptions &options,
 
     connect(word_engine, SIGNAL(candidatesChanged(QStringList)),
             this,        SIGNAL(wordCandidatesChanged(QStringList)));
+
+    setPreeditEnabled(word_engine->isEnabled());
 }
 
 AbstractTextEditor::~AbstractTextEditor()

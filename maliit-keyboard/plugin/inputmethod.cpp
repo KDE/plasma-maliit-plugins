@@ -81,11 +81,6 @@ public:
     ScopedSetting word_engine_setting;
 
     explicit InputMethodPrivate(MAbstractInputMethodHost *host);
-
-    void registerStyleSetting(MAbstractInputMethodHost *host);
-    void registerFeedbackSetting(MAbstractInputMethodHost *host);
-    void registerAutoCorrectSetting(MAbstractInputMethodHost *host);
-    void registerWordEngineSetting(MAbstractInputMethodHost *host);
 };
 
 
@@ -120,68 +115,8 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     layout.setAlignment(Logic::Layout::Bottom);
     layout_updater.setOrientation(screen_size.width() >= screen_size.height()
                                   ? Logic::Layout::Landscape : Logic::Layout::Portrait);
-
-    registerStyleSetting(host);
-    registerFeedbackSetting(host);
-    registerAutoCorrectSetting(host);
-    registerWordEngineSetting(host);
 }
 
-
-void InputMethodPrivate::registerStyleSetting(MAbstractInputMethodHost *host)
-{
-    QVariantMap attributes;
-    QStringList available_styles = style->availableProfiles();
-    attributes[Maliit::SettingEntryAttributes::defaultValue] = MALIIT_DEFAULT_PROFILE;
-    attributes[Maliit::SettingEntryAttributes::valueDomain] = available_styles;
-    attributes[Maliit::SettingEntryAttributes::valueDomainDescriptions] = available_styles;
-
-    style_setting.reset(host->registerPluginSetting("current_style",
-                                                    QT_TR_NOOP("Keyboard style"),
-                                                    Maliit::StringType,
-                                                    attributes));
-    style->setProfile(style_setting->value().toString());
-}
-
-
-void InputMethodPrivate::registerFeedbackSetting(MAbstractInputMethodHost *host)
-{
-    QVariantMap attributes;
-    attributes[Maliit::SettingEntryAttributes::defaultValue] = feedback.isEnabled();
-
-    feedback_setting.reset(host->registerPluginSetting("feedback_enabled",
-                                                       QT_TR_NOOP("Feedback enabled"),
-                                                       Maliit::BoolType,
-                                                       attributes));
-    feedback.setEnabled(feedback_setting->value().toBool());
-}
-
-
-void InputMethodPrivate::registerAutoCorrectSetting(MAbstractInputMethodHost *host)
-{
-    QVariantMap attributes;
-    attributes[Maliit::SettingEntryAttributes::defaultValue] = editor.isAutoCorrectEnabled();
-
-    auto_correct_setting.reset(host->registerPluginSetting("auto_correct_enabled",
-                                                           QT_TR_NOOP("Auto-correct enabled"),
-                                                           Maliit::BoolType,
-                                                           attributes));
-
-    editor.setAutoCorrectEnabled(auto_correct_setting->value().toBool());
-}
-
-
-void InputMethodPrivate::registerWordEngineSetting(MAbstractInputMethodHost *host)
-{
-    QVariantMap attributes;
-    attributes[Maliit::SettingEntryAttributes::defaultValue] = editor.wordEngine()->isEnabled();
-
-    word_engine_setting.reset(host->registerPluginSetting("word_engine_enabled",
-                                                          QT_TR_NOOP("Error correction/word prediction enabled"),
-                                                          Maliit::BoolType,
-                                                          attributes));
-    editor.wordEngine()->setEnabled(word_engine_setting->value().toBool());
-}
 
 InputMethod::InputMethod(MAbstractInputMethodHost *host)
     : MAbstractInputMethod(host)
@@ -210,17 +145,10 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
     connect(d->surface_factory, SIGNAL(screenSizeChanged(QSize)),
             this,               SLOT(onScreenSizeChange(QSize)));
 
-    connect(d->style_setting.data(), SIGNAL(valueChanged()),
-            this,                    SLOT(onStyleSettingChanged()));
-
-    connect(d->feedback_setting.data(), SIGNAL(valueChanged()),
-            this,                       SLOT(onFeedbackSettingChanged()));
-
-    connect(d->auto_correct_setting.data(), SIGNAL(valueChanged()),
-            this,                           SLOT(onAutoCorrectSettingChanged()));
-
-    connect(d->word_engine_setting.data(), SIGNAL(valueChanged()),
-            this,                          SLOT(onWordEngineSettingChanged()));
+    registerStyleSetting(host);
+    registerFeedbackSetting(host);
+    registerAutoCorrectSetting(host);
+    registerWordEngineSetting(host);
 }
 
 InputMethod::~InputMethod()
@@ -297,6 +225,85 @@ void InputMethod::handleAppOrientationChanged(int angle)
                                      ? Logic::Layout::Landscape
                                      : Logic::Layout::Portrait);
 }
+
+void InputMethod::registerStyleSetting(MAbstractInputMethodHost *host)
+{
+    Q_D(InputMethod);
+
+    QVariantMap attributes;
+    QStringList available_styles = d->style->availableProfiles();
+    attributes[Maliit::SettingEntryAttributes::defaultValue] = MALIIT_DEFAULT_PROFILE;
+    attributes[Maliit::SettingEntryAttributes::valueDomain] = available_styles;
+    attributes[Maliit::SettingEntryAttributes::valueDomainDescriptions] = available_styles;
+
+    d->style_setting.reset(host->registerPluginSetting("current_style",
+                                                       QT_TR_NOOP("Keyboard style"),
+                                                       Maliit::StringType,
+                                                       attributes));
+
+    connect(d->style_setting.data(), SIGNAL(valueChanged()),
+            this,                    SLOT(onStyleSettingChanged()));
+
+    d->style->setProfile(d->style_setting->value().toString());
+}
+
+
+void InputMethod::registerFeedbackSetting(MAbstractInputMethodHost *host)
+{
+    Q_D(InputMethod);
+
+    QVariantMap attributes;
+    attributes[Maliit::SettingEntryAttributes::defaultValue] = d->feedback.isEnabled();
+
+    d->feedback_setting.reset(host->registerPluginSetting("feedback_enabled",
+                                                          QT_TR_NOOP("Feedback enabled"),
+                                                          Maliit::BoolType,
+                                                          attributes));
+
+    connect(d->feedback_setting.data(), SIGNAL(valueChanged()),
+            this,                       SLOT(onFeedbackSettingChanged()));
+
+    d->feedback.setEnabled(d->feedback_setting->value().toBool());
+}
+
+
+void InputMethod::registerAutoCorrectSetting(MAbstractInputMethodHost *host)
+{
+    Q_D(InputMethod);
+
+    QVariantMap attributes;
+    attributes[Maliit::SettingEntryAttributes::defaultValue] = d->editor.isAutoCorrectEnabled();
+
+    d->auto_correct_setting.reset(host->registerPluginSetting("auto_correct_enabled",
+                                                              QT_TR_NOOP("Auto-correct enabled"),
+                                                              Maliit::BoolType,
+                                                              attributes));
+
+    connect(d->auto_correct_setting.data(), SIGNAL(valueChanged()),
+            this,                           SLOT(onAutoCorrectSettingChanged()));
+
+    d->editor.setAutoCorrectEnabled(d->auto_correct_setting->value().toBool());
+}
+
+
+void InputMethod::registerWordEngineSetting(MAbstractInputMethodHost *host)
+{
+    Q_D(InputMethod);
+
+    QVariantMap attributes;
+    attributes[Maliit::SettingEntryAttributes::defaultValue] = d->editor.wordEngine()->isEnabled();
+
+    d->word_engine_setting.reset(host->registerPluginSetting("word_engine_enabled",
+                                                             QT_TR_NOOP("Error correction/word prediction enabled"),
+                                                             Maliit::BoolType,
+                                                             attributes));
+
+    connect(d->word_engine_setting.data(), SIGNAL(valueChanged()),
+            this,                          SLOT(onWordEngineSettingChanged()));
+
+    d->editor.wordEngine()->setEnabled(d->word_engine_setting->value().toBool());
+}
+
 
 void InputMethod::onLeftLayoutSelected()
 {

@@ -67,6 +67,11 @@ public:
     //! \reimp_end
 
 private:
+    void registerStyleSetting(MAbstractInputMethodHost *host);
+    void registerFeedbackSetting(MAbstractInputMethodHost *host);
+    void registerAutoCorrectSetting(MAbstractInputMethodHost *host);
+    void registerWordEngineSetting(MAbstractInputMethodHost *host);
+
     Q_SLOT void onLeftLayoutSelected();
     Q_SLOT void onRightLayoutSelected();
 
