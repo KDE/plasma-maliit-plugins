@@ -149,9 +149,14 @@ void AbstractTextEditor::onKeyPressed(const Key &key)
     }
 
     if (key.action() == Key::ActionBackspace) {
-        sendCommitString(d->text->preedit());
-        d->text->commitPreedit();
-        d->backspace_sent = false;
+        if (d->auto_correct_enabled && not d->text->primaryCandidate().isEmpty()) {
+            d->text->setPrimaryCandidate(QString());
+            d->backspace_sent = true;
+        } else {
+            d->backspace_sent = false;
+        }
+
+        commitPreedit();
         d->auto_repeat_backspace_timer.start(d->options.backspace_auto_repeat_delay);
     }
 }
