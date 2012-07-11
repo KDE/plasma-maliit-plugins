@@ -35,12 +35,28 @@ namespace MaliitKeyboard {
 
 WordRibbon::WordRibbon()
     : m_candidates()
+    , m_origin()
     , m_area()
 {}
 
 bool WordRibbon::valid() const
 {
     return not m_area.size().isEmpty();
+}
+
+QRect WordRibbon::rect() const
+{
+    return QRect(m_origin, m_area.size());
+}
+
+QPoint WordRibbon::origin() const
+{
+    return m_origin;
+}
+
+void WordRibbon::setOrigin(const QPoint &origin)
+{
+    m_origin = origin;
 }
 
 void WordRibbon::appendCandidate(const WordCandidate &candidate)

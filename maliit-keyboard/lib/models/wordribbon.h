@@ -44,12 +44,18 @@ class WordRibbon
 {
 private:
     QVector<WordCandidate> m_candidates;
+    QPoint m_origin;
     Area m_area;
 
 public:
     explicit WordRibbon();
 
     bool valid() const;
+    QRect rect() const;
+
+    QPoint origin() const;
+    void setOrigin(const QPoint &origin);
+
     QVector<WordCandidate> candidates() const;
     QVector<WordCandidate> & rCandidates();
     void appendCandidate(const WordCandidate &candidate);
