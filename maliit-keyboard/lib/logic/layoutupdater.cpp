@@ -344,15 +344,7 @@ void LayoutUpdater::setOrientation(Layout::Orientation orientation)
 void LayoutUpdater::setStyle(const SharedStyle &style)
 {
     Q_D(LayoutUpdater);
-    if (d->style != style) {
-        if (d->style) {
-            disconnect(d->style.data(), SIGNAL(profileChanged()),
-                       this,            SLOT(applyProfile()));
-        }
-        d->style = style;
-        connect(d->style.data(), SIGNAL(profileChanged()),
-                this,            SLOT(applyProfile()));
-    }
+    d->style = style;
 }
 
 bool LayoutUpdater::isWordRibbonVisible() const
@@ -659,25 +651,6 @@ void LayoutUpdater::syncLayoutToView()
     }
 }
 
-void LayoutUpdater::applyProfile()
-{
-    Q_D(const LayoutUpdater);
-
-    if (not d->layout) {
-        return;
-    }
-
-    if (d->arePrimarySymbolsShown()) {
-        switchToPrimarySymView();
-    } else if (d->areSecondarySymbolsShown()) {
-        switchToSecondarySymView();
-    } else if (d->inDeadkeyState()) {
-        switchToAccentedView();
-    } else {
-        switchToMainView();
-    }
-}
-
 void LayoutUpdater::onKeyboardsChanged()
 {
     Q_D(LayoutUpdater);
@@ -702,14 +675,17 @@ void LayoutUpdater::switchToMainView()
     d->layout->clearMagnifierKey();
 
     const Layout::Orientation orientation(d->layout->orientation());
+
+    // Need to set word ribbon before center panel, otherwise center panel's
+    // origin (which is relative to word ribbon height) will be wrong.
+    WordRibbon ribbon(d->layout->wordRibbon());
+    applyStyleToWordRibbon(&ribbon, d->style, orientation);
+    d->layout->setWordRibbon(ribbon);
+
     KeyAreaConverter converter(d->style->attributes(), &d->loader);
     converter.setLayoutOrientation(orientation);
     d->layout->setCenterPanel(d->inShiftedState() ? converter.shiftedKeyArea()
                                                   : converter.keyArea());
-
-    WordRibbon ribbon(d->layout->wordRibbon());
-    applyStyleToWordRibbon(&ribbon, d->style, orientation);
-    d->layout->setWordRibbon(ribbon);
 }
 
 void LayoutUpdater::switchToPrimarySymView()
