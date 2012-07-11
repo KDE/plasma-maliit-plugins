@@ -584,9 +584,9 @@ void LayoutUpdater::onWordCandidatesChanged(const QStringList &candidates)
 {
     Q_D(LayoutUpdater);
 
-    if (not d->layout) {
+    if (not d->layout || not isWordRibbonVisible()) {
         qWarning() << __PRETTY_FUNCTION__
-                   << "No layout specified.";
+                   << "No layout specified or word ribbon not visible.";
         return;
     }
 
@@ -616,6 +616,7 @@ void LayoutUpdater::onWordCandidatePressed(const WordCandidate &candidate,
     Q_D(LayoutUpdater);
 
     if (layout == d->layout
+        && isWordRibbonVisible()
         && updateWordRibbon(d->layout, candidate, d->activeStyleAttributes(), ActivateElement)) {
     }
 }
@@ -626,6 +627,7 @@ void LayoutUpdater::onWordCandidateReleased(const WordCandidate &candidate,
     Q_D(LayoutUpdater);
 
     if (layout == d->layout
+        && isWordRibbonVisible()
         && updateWordRibbon(d->layout, candidate, d->activeStyleAttributes(), DeactivateElement)) {
         Q_EMIT wordCandidateSelected(candidate.label().text());
     }
@@ -676,11 +678,13 @@ void LayoutUpdater::switchToMainView()
 
     const Layout::Orientation orientation(d->layout->orientation());
 
-    // Need to set word ribbon before center panel, otherwise center panel's
-    // origin (which is relative to word ribbon height) will be wrong.
-    WordRibbon ribbon(d->layout->wordRibbon());
-    applyStyleToWordRibbon(&ribbon, d->style, orientation);
-    d->layout->setWordRibbon(ribbon);
+    if (d->word_ribbon_visible) {
+        // Need to set word ribbon before center panel, otherwise center panel's
+        // origin (which is relative to word ribbon height) will be wrong.
+        WordRibbon ribbon(d->layout->wordRibbon());
+        applyStyleToWordRibbon(&ribbon, d->style, orientation);
+        d->layout->setWordRibbon(ribbon);
+    }
 
     KeyAreaConverter converter(d->style->attributes(), &d->loader);
     converter.setLayoutOrientation(orientation);
