@@ -36,6 +36,10 @@
 #include "plugin/editor.h"
 #include "models/key.h"
 #include "models/text.h"
+#include "logic/layout.h"
+#include "logic/layoutupdater.h"
+#include "logic/style.h"
+#include "view/setup.h"
 
 #include <QtCore>
 #include <QtTest>
@@ -183,6 +187,48 @@ private:
         enforceCommit(&editor);
         QCOMPARE(spy.count(), 4);
         QCOMPARE(host.commitStringHistory(), QString("ab c "));
+    }
+
+    Q_SLOT void testWordRibbonVisible()
+    {
+        Editor editor(EditorOptions(), new Model::Text, new Logic::WordEngineProbe);
+        InputMethodHostProbe host;
+        editor.setHost(&host);
+
+        Logic::LayoutUpdater updater;
+        Logic::Layout layout;
+        updater.setLayout(&layout);
+
+        SharedStyle style(new Style);
+        style->setProfile("nokia-n9");
+        updater.setStyle(style);
+
+        Setup::connectLayoutUpdaterToTextEditor(&updater, &editor);
+        QSignalSpy spy(&updater, SIGNAL(wordRibbonVisibleChanged(bool)));
+        QCOMPARE(editor.wordEngine()->isEnabled(), false);
+        QCOMPARE(editor.isPreeditEnabled(), false);
+        QCOMPARE(updater.isWordRibbonVisible(), false);
+
+        appendToPreedit(&editor, "a");
+        QCOMPARE(host.commitStringHistory(), QString("a"));
+        QCOMPARE(layout.wordRibbon().candidates().isEmpty(), true);
+
+        editor.wordEngine()->setEnabled(true);
+        QCOMPARE(spy.count(), 1);
+        QCOMPARE(editor.wordEngine()->isEnabled(), true);
+        QCOMPARE(editor.isPreeditEnabled(), true);
+        QCOMPARE(updater.isWordRibbonVisible(), true);
+
+        appendToPreedit(&editor, "bcd");
+        const WordCandidate &candidate(layout.wordRibbon().candidates().first());
+        QCOMPARE(candidate.label().text(), QString("dcb"));
+
+        editor.wordEngine()->setEnabled(false);
+        QCOMPARE(spy.count(), 2);
+        QCOMPARE(editor.wordEngine()->isEnabled(), false);
+        QCOMPARE(editor.isPreeditEnabled(), false);
+        QCOMPARE(updater.isWordRibbonVisible(), false);
+        QCOMPARE(layout.wordRibbon().candidates().isEmpty(), true);
     }
 };
 
