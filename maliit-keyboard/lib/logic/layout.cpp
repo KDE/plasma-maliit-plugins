@@ -60,7 +60,6 @@ class LayoutPrivate
 public:
     QSize screen_size;
     QPoint origin;
-    QPoint extended_panel_offset;
     Layout::Orientation orientation;
     Layout::Alignment alignment;
     Layout::Panel active_panel;
@@ -90,7 +89,6 @@ public:
 
 LayoutPrivate::LayoutPrivate()
     : screen_size()
-    , extended_panel_offset()
     , orientation(Layout::Landscape)
     , alignment(Layout::Bottom)
     , active_panel(Layout::CenterPanel)
@@ -144,22 +142,6 @@ void Layout::setScreenSize(const QSize &size)
     if (d->screen_size != size) {
         d->screen_size = size;
         Q_EMIT screenSizeChanged(d->screen_size);
-    }
-}
-
-QPoint Layout::extendedPanelOffset() const
-{
-    Q_D(const Layout);
-    return d->extended_panel_offset;
-}
-
-void Layout::setExtendedPanelOffset(const QPoint &offset)
-{
-    Q_D(Layout);
-
-    if (d->extended_panel_offset != offset) {
-        d->extended_panel_offset = offset;
-        Q_EMIT extendedPanelOffsetChanged(d->extended_panel_offset);
     }
 }
 
@@ -222,10 +204,11 @@ QRect Layout::activeKeyAreaGeometry() const
     Q_D(const Layout);
 
     switch(d->active_panel) {
-    case LeftPanel: return leftPanelGeometry();
-    case RightPanel: return rightPanelGeometry();
-    case CenterPanel: return centerPanelGeometry();
-    case ExtendedPanel: return extendedPanelGeometry();
+    case LeftPanel: return d->left.rect();
+    case RightPanel: return d->right.rect();
+    case CenterPanel: return d->center.rect();
+    // FIXME: Dirty hack, because we don't want the glass to take extended key origin into account:
+    case ExtendedPanel: return QRect(QPoint(), d->extended.area().size());
 
     default:
         break;
@@ -252,11 +235,6 @@ void Layout::setLeftPanel(const KeyArea &left)
     }
 }
 
-QRect Layout::leftPanelGeometry() const
-{
-    return QRect();
-}
-
 KeyArea Layout::rightPanel() const
 {
     Q_D(const Layout);
@@ -273,11 +251,6 @@ void Layout::setRightPanel(const KeyArea &right)
     }
 }
 
-QRect Layout::rightPanelGeometry() const
-{
-    return QRect();
-}
-
 KeyArea Layout::centerPanel() const
 {
     Q_D(const Layout);
@@ -290,14 +263,8 @@ void Layout::setCenterPanel(const KeyArea &center)
 
     if (d->center != center) {
         d->center = center;
-        Q_EMIT centerPanelChanged(d->center, d->panelOrigin());
+        Q_EMIT centerPanelChanged(d->center);
     }
-}
-
-QRect Layout::centerPanelGeometry() const
-{
-    Q_D(const Layout);
-    return QRect(d->panelOrigin(), d->center.area().size());
 }
 
 KeyArea Layout::extendedPanel() const
@@ -312,20 +279,8 @@ void Layout::setExtendedPanel(const KeyArea &extended)
 
     if (d->extended != extended) {
         d->extended = extended;
-        Q_EMIT extendedPanelChanged(d->extended, extendedPanelOrigin());
+        Q_EMIT extendedPanelChanged(d->extended);
     }
-}
-
-QRect Layout::extendedPanelGeometry() const
-{
-    Q_D(const Layout);
-    return QRect(QPoint(), d->extended.area().size());
-}
-
-QPoint Layout::extendedPanelOrigin() const
-{
-    Q_D(const Layout);
-    return d->panelOrigin() + d->extended_panel_offset;
 }
 
 WordRibbon Layout::wordRibbon() const
@@ -340,14 +295,8 @@ void Layout::setWordRibbon(const WordRibbon &ribbon)
 
     if (d->ribbon != ribbon) {
         d->ribbon = ribbon;
-        Q_EMIT wordRibbonChanged(d->ribbon, wordRibbonGeometry());
+        Q_EMIT wordRibbonChanged(d->ribbon);
     }
-}
-
-QRect Layout::wordRibbonGeometry() const
-{
-    Q_D(const Layout);
-    return QRect(QPoint(), d->ribbon.area().size());
 }
 
 QVector<Key> Layout::activeKeys() const

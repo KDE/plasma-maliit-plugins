@@ -260,13 +260,14 @@ void Renderer::onMagnifierKeyChanged(const Key &key)
     }
 }
 
-void Renderer::onCenterPanelChanged(const KeyArea &key_area,
-                                    const QPoint &origin)
+void Renderer::onCenterPanelChanged(const KeyArea &key_area)
 {
     Q_D(Renderer);
 
     const QSize &ka_size(key_area.area().size());
-    d->center_item->setKeyArea(key_area, QRect(origin, ka_size));
+    const QPoint &origin(key_area.origin());
+
+    d->center_item->setKeyArea(key_area);
     d->center_item->setVisible(ka_size.isValid());
 
     if (d->center_item->isVisible()) {
@@ -278,13 +279,18 @@ void Renderer::onCenterPanelChanged(const KeyArea &key_area,
     }
 }
 
-void Renderer::onExtendedPanelChanged(const KeyArea &key_area,
-                                      const QPoint &origin)
+void Renderer::onExtendedPanelChanged(const KeyArea &key_area)
 {
     Q_D(Renderer);
 
     const QSize &ka_size(key_area.area().size());
-    d->extended_item->setKeyArea(key_area, QRect(QPoint(), ka_size));
+    const QPoint &origin(key_area.origin());
+
+    // For extended keys, we move the surface itself, not the key area:
+    KeyArea extended_key_area(key_area);
+    extended_key_area.setOrigin(QPoint());
+
+    d->extended_item->setKeyArea(extended_key_area);
     d->extended_item->setVisible(ka_size.isValid());
 
     if (d->extended_item->isVisible()) {
@@ -296,13 +302,12 @@ void Renderer::onExtendedPanelChanged(const KeyArea &key_area,
     }
 }
 
-void Renderer::onWordRibbonChanged(const WordRibbon &ribbon,
-                                   const QRect &geometry)
+void Renderer::onWordRibbonChanged(const WordRibbon &ribbon)
 {
     Q_D(Renderer);
 
-    d->ribbon_item->setWordRibbon(ribbon, geometry);
-    d->ribbon_item->setVisible(geometry.isValid());
+    d->ribbon_item->setWordRibbon(ribbon);
+    d->ribbon_item->setVisible(ribbon.rect().isValid());
 }
 
 void Renderer::applyProfile()

@@ -385,7 +385,7 @@ void LayoutUpdater::onKeyPressed(const Key &key,
 
     if (d->layout->activePanel() == Layout::CenterPanel) {
         layout->setMagnifierKey(magnifyKey(key, d->activeStyleAttributes(), d->layout->orientation(),
-                                           d->layout->centerPanelGeometry()));
+                                           d->layout->centerPanel().rect()));
     }
 
     switch (key.action()) {
@@ -440,9 +440,9 @@ void LayoutUpdater::onKeyLongPressed(const Key &key,
         offset.rx() = center_panel_size.width() - ext_panel_size.width() - safety_margin;
     }
 
-    d->layout->setActivePanel(Layout::ExtendedPanel);
-    d->layout->setExtendedPanelOffset(offset);
+    ext_ka.setOrigin(offset);
     d->layout->setExtendedPanel(ext_ka);
+    d->layout->setActivePanel(Layout::ExtendedPanel);
 }
 
 void LayoutUpdater::onKeyReleased(const Key &key,
@@ -540,7 +540,7 @@ void LayoutUpdater::onKeyEntered(const Key &key,
 
     if (d->layout->activePanel() == Layout::CenterPanel) {
         layout->setMagnifierKey(magnifyKey(key, d->activeStyleAttributes(), d->layout->orientation(),
-                                           d->layout->centerPanelGeometry()));
+                                           d->layout->centerPanel().rect()));
     }
 }
 

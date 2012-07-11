@@ -342,7 +342,7 @@ bool Glass::handlePressReleaseEvent(QEvent *ev,
                 consumed = true;
             } else {
                 const WordCandidate &candidate(Logic::wordCandidateHit(layout->wordRibbon().candidates(),
-                                                                       layout->wordRibbonGeometry(),
+                                                                       layout->wordRibbon().rect(),
                                                                        pos));
 
                 if (candidate.valid()) {
@@ -365,7 +365,7 @@ bool Glass::handlePressReleaseEvent(QEvent *ev,
                 consumed = true;
             } else {
                 const WordCandidate &candidate(Logic::wordCandidateHit(layout->wordRibbon().candidates(),
-                                                                       layout->wordRibbonGeometry(),
+                                                                       layout->wordRibbon().rect(),
                                                                        pos));
 
                 if (candidate.valid() && candidate == d->active_candidate) {
@@ -383,13 +383,13 @@ bool Glass::handlePressReleaseEvent(QEvent *ev,
 
         Logic::Layout::Panel panel = Logic::Layout::NumPanels;
 
-        if (layout->centerPanelGeometry().contains(pos))
+        if (layout->centerPanel().rect().contains(pos))
             panel = Logic::Layout::CenterPanel;
-        else if (layout->extendedPanelGeometry().contains(pos))
+        else if (QRect(d->extendedSurface->relativePosition(), d->extendedSurface->size()).contains(pos))
             panel = Logic::Layout::ExtendedPanel;
-        else if (layout->leftPanelGeometry().contains(pos))
+        else if (layout->leftPanel().rect().contains(pos))
             panel = Logic::Layout::LeftPanel;
-        else if (layout->rightPanelGeometry().contains(pos))
+        else if (layout->rightPanel().rect().contains(pos))
             panel = Logic::Layout::RightPanel;
 
         if (panel != Logic::Layout::NumPanels) {

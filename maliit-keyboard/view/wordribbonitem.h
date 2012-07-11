@@ -42,13 +42,11 @@ class WordRibbonItem
 {
 private:
     WordRibbon m_ribbon;
-    QRect m_ribbon_geometry;
 
 public:
     explicit WordRibbonItem(QGraphicsItem *parent = 0);
 
-    void setWordRibbon(const WordRibbon &ribbon,
-                       const QRect &geometry);
+    void setWordRibbon(const WordRibbon &ribbon);
 
     //! \reimp
     virtual QRectF boundingRect() const;

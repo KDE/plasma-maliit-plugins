@@ -145,14 +145,14 @@ void connectLayoutToRenderer(Logic::Layout *layout,
     QObject::connect(layout,   SIGNAL(activeExtendedKeysChanged(QVector<Key>)),
                      renderer, SLOT(onActiveExtendedKeysChanged(QVector<Key>)));
 
-    QObject::connect(layout,   SIGNAL(centerPanelChanged(KeyArea,QPoint)),
-                     renderer, SLOT(onCenterPanelChanged(KeyArea,QPoint)));
+    QObject::connect(layout,   SIGNAL(centerPanelChanged(KeyArea)),
+                     renderer, SLOT(onCenterPanelChanged(KeyArea)));
 
-    QObject::connect(layout,   SIGNAL(extendedPanelChanged(KeyArea,QPoint)),
-                     renderer, SLOT(onExtendedPanelChanged(KeyArea,QPoint)));
+    QObject::connect(layout,   SIGNAL(extendedPanelChanged(KeyArea)),
+                     renderer, SLOT(onExtendedPanelChanged(KeyArea)));
 
-    QObject::connect(layout,   SIGNAL(wordRibbonChanged(WordRibbon,QRect)),
-                     renderer, SLOT(onWordRibbonChanged(WordRibbon,QRect)));
+    QObject::connect(layout,   SIGNAL(wordRibbonChanged(WordRibbon)),
+                     renderer, SLOT(onWordRibbonChanged(WordRibbon)));
 }
 
 void connectLayoutUpdaterToTextEditor(Logic::LayoutUpdater *updater,

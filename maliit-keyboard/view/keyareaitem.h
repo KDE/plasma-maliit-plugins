@@ -43,15 +43,13 @@ class KeyAreaItem
 {
 private:
     KeyArea m_key_area;
-    QRect m_key_area_geometry;
 
 public:
     explicit KeyAreaItem(QGraphicsItem *parent = 0);
     virtual ~KeyAreaItem();
 
     KeyArea keyArea() const;
-    void setKeyArea(const KeyArea &ka,
-                    const QRect &geometry);
+    void setKeyArea(const KeyArea &ka);
 
     //! \reimp
     virtual QRectF boundingRect() const;

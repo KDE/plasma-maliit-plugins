@@ -39,26 +39,22 @@ namespace MaliitKeyboard {
 WordRibbonItem::WordRibbonItem(QGraphicsItem *parent)
     : QGraphicsItem(parent)
     , m_ribbon()
-    , m_ribbon_geometry()
 {
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
 }
 
-void WordRibbonItem::setWordRibbon(const WordRibbon &ribbon,
-                                   const QRect &geometry)
+void WordRibbonItem::setWordRibbon(const WordRibbon &ribbon)
 {
     if (m_ribbon != ribbon) {
         prepareGeometryChange();
         m_ribbon = ribbon;
-        m_ribbon_geometry = geometry;
         update();
     }
 }
 
 QRectF WordRibbonItem::boundingRect() const
 {
-    // TODO: translate to parentItem's topLeft corner?
-    return QRectF(m_ribbon_geometry);
+    return m_ribbon.rect();
 }
 
 void WordRibbonItem::paint(QPainter *painter,

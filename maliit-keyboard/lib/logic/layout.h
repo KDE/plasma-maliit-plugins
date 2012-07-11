@@ -84,10 +84,6 @@ public:
     void setScreenSize(const QSize &size);
     Q_SIGNAL void screenSizeChanged(const QSize &size);
 
-    QPoint extendedPanelOffset() const;
-    void setExtendedPanelOffset(const QPoint &offset);
-    Q_SIGNAL void extendedPanelOffsetChanged(const QPoint &offset);
-
     Orientation orientation() const;
     void setOrientation(Orientation orientation);
     Q_SIGNAL void orientationChanged(Orientation orientation);
@@ -106,31 +102,22 @@ public:
     KeyArea leftPanel() const;
     void setLeftPanel(const KeyArea &left);
     Q_SIGNAL void leftPanelChanged(const KeyArea &left);
-    QRect leftPanelGeometry() const;
 
     KeyArea rightPanel() const;
     void setRightPanel(const KeyArea &right);
     Q_SIGNAL void rightPanelChanged(const KeyArea &right);
-    QRect rightPanelGeometry() const;
 
     KeyArea centerPanel() const;
     void setCenterPanel(const KeyArea &center);
-    Q_SIGNAL void centerPanelChanged(const KeyArea &center,
-                                     const QPoint &origin);
-    QRect centerPanelGeometry() const;
+    Q_SIGNAL void centerPanelChanged(const KeyArea &center);
 
     KeyArea extendedPanel() const;
     void setExtendedPanel(const KeyArea &extended);
-    Q_SIGNAL void extendedPanelChanged(const KeyArea &extended,
-                                       const QPoint &origin);
-    QRect extendedPanelGeometry() const;
-    QPoint extendedPanelOrigin() const;
+    Q_SIGNAL void extendedPanelChanged(const KeyArea &extended);
 
     WordRibbon wordRibbon() const;
     void setWordRibbon(const WordRibbon &ribbon);
-    Q_SIGNAL void wordRibbonChanged(const WordRibbon &ribbon,
-                                    const QRect &geometry);
-    QRect wordRibbonGeometry() const;
+    Q_SIGNAL void wordRibbonChanged(const WordRibbon &ribbon);
 
     QVector<Key> activeKeys() const;
     void clearActiveKeys();

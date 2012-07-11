@@ -40,7 +40,6 @@ namespace MaliitKeyboard {
 KeyAreaItem::KeyAreaItem(QGraphicsItem *parent)
     : QGraphicsItem(parent)
     , m_key_area()
-    , m_key_area_geometry()
 {
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
 }
@@ -53,20 +52,18 @@ KeyArea KeyAreaItem::keyArea() const
     return m_key_area;
 }
 
-void KeyAreaItem::setKeyArea(const KeyArea &ka,
-                             const QRect &geometry)
+void KeyAreaItem::setKeyArea(const KeyArea &ka)
 {
     if (m_key_area != ka) {
         prepareGeometryChange();
         m_key_area = ka;
-        m_key_area_geometry = geometry;
         update();
     }
 }
 
 QRectF KeyAreaItem::boundingRect() const
 {
-    return m_key_area_geometry;
+    return m_key_area.rect();
 }
 
 void KeyAreaItem::paint(QPainter *painter,

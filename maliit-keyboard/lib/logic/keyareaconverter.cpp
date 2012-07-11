@@ -188,6 +188,8 @@ KeyArea createFromKeyboard(StyleAttributes *attributes,
                        pos.y() + key_height));
 
     ka.setArea(area);
+    ka.setOrigin(is_extended_keyarea ? QPoint(0, -attributes->verticalOffset(orientation))
+                                     : QPoint(0, attributes->wordRibbonHeight(orientation)));
     ka.setKeys(kb.keys);
 
     return ka;
