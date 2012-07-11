@@ -39,6 +39,22 @@ EditorOptions::EditorOptions()
     , backspace_auto_repeat_interval(300)
 {}
 
+
+QString autoAppendix(const QString &preedit)
+{
+    const QString &last_char(preedit.right(1));
+    QString appendix;
+
+    if (not last_char.isEmpty()
+        && not last_char.at(0).isLetterOrNumber()) {
+        appendix.append(last_char);
+    }
+
+    appendix.append(" ");
+    return appendix;
+}
+
+
 class AbstractTextEditorPrivate
 {
 public:
@@ -177,14 +193,16 @@ void AbstractTextEditor::onKeyReleased(const Key &key)
         d->auto_repeat_backspace_timer.stop();
      } break;
 
-    case Key::ActionSpace:
+    case Key::ActionSpace: {
+        const QString &appendix(autoAppendix(d->text->preedit()));
+
         if (d->auto_correct_enabled && not d->text->primaryCandidate().isEmpty()) {
             d->text->setPreedit(d->text->primaryCandidate());
         }
 
-        d->text->appendToPreedit(" ");
-        commitPreedit();
-        break;
+        d->text->appendToPreedit(appendix);
+        commitPreedit();  
+    } break;
 
     case Key::ActionReturn:
         event_key = Qt::Key_Return;
@@ -248,8 +266,7 @@ void AbstractTextEditor::onKeyExited(const Key &key)
     }
 }
 
-void AbstractTextEditor::replacePreedit(const QString &replacement,
-                                        ReplacementPolicy policy)
+void AbstractTextEditor::replacePreedit(const QString &replacement)
 {
     Q_D(AbstractTextEditor);
 
@@ -258,25 +275,29 @@ void AbstractTextEditor::replacePreedit(const QString &replacement,
     }
 
     d->text->setPreedit(replacement);
+    // computeCandidates can change preedit face, so needs to happen
+    // before sending preedit:
+    d->word_engine->computeCandidates(d->text.data());
+    sendPreeditString(d->text->preedit(), d->text->preeditFace());
+}
 
-    switch (policy) {
-    case ReplaceOnly:
-        // computeCandidates can change preedit face, so needs to happen
-        // before sending preedit:
-        d->word_engine->computeCandidates(d->text.data());
-        sendPreeditString(d->text->preedit(), d->text->preeditFace());
-        break;
+void AbstractTextEditor::replaceAndCommitPreedit(const QString &replacement)
+{
+    Q_D(AbstractTextEditor);
 
-    case ReplaceAndCommit:
-        d->text->appendToPreedit(" ");
-        commitPreedit();
-        break;
+    if (not d->valid()) {
+        return;
     }
+
+    const QString &appendix(autoAppendix(d->text->preedit()));
+    d->text->setPreedit(replacement);
+    d->text->appendToPreedit(appendix);
+    commitPreedit();
 }
 
 void AbstractTextEditor::clearPreedit()
 {
-    replacePreedit("", ReplaceOnly);
+    replacePreedit("");
 }
 
 bool AbstractTextEditor::isPreeditEnabled() const

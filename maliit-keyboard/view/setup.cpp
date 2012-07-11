@@ -159,7 +159,7 @@ void connectLayoutUpdaterToTextEditor(Logic::LayoutUpdater *updater,
                                       AbstractTextEditor *editor)
 {
     QObject::connect(updater, SIGNAL(wordCandidateSelected(QString)),
-                     editor,  SLOT(replacePreedit(QString)));
+                     editor,  SLOT(replaceAndCommitPreedit(QString)));
 
     QObject::connect(editor,  SIGNAL(preeditEnabledChanged(bool)),
                      updater, SLOT(setWordRibbonVisible(bool)));

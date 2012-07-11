@@ -173,7 +173,7 @@ void InputMethod::setPreedit(const QString &preedit,
 {
     Q_UNUSED(cursor_position)
     Q_D(InputMethod);
-    d->editor.replacePreedit(preedit, AbstractTextEditor::ReplaceOnly);
+    d->editor.replacePreedit(preedit);
 }
 
 void InputMethod::switchContext(Maliit::SwitchDirection direction,

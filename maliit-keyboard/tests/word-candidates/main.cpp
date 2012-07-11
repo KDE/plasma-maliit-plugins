@@ -92,6 +92,9 @@ private:
         QTest::newRow("preedit + auto-correct enabled")
                 << true << true << "preedit" << 7 << "tideerp" << "tideerp ";
 
+        QTest::newRow("punctuated preedit + auto-correct enabled")
+                << true << true << "preedit." << 7 << "tideerp" << "tideerp. ";
+
         QTest::newRow("preedit + auto-correct disabled")
                 << false << false << "commit" << 0 << "" << "commit ";
 

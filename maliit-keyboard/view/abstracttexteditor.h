@@ -66,13 +66,6 @@ class AbstractTextEditor
                                        NOTIFY autoCorrectEnabledChanged)
 
 public:
-    enum ReplacementPolicy {
-        ReplaceAndCommit, // Will replace, add space & commit
-        ReplaceOnly,
-    };
-
-    Q_ENUMS(ReplacementPolicy)
-
     explicit AbstractTextEditor(const EditorOptions &options,
                                 Model::Text *text,
                                 Logic::AbstractWordEngine *word_engine,
@@ -86,8 +79,8 @@ public:
     Q_SLOT void onKeyReleased(const Key &key);
     Q_SLOT void onKeyEntered(const Key &key);
     Q_SLOT void onKeyExited(const Key &key);
-    Q_SLOT void replacePreedit(const QString &replacement,
-                               ReplacementPolicy policy = ReplaceAndCommit);
+    Q_SLOT void replacePreedit(const QString &replacement);
+    Q_SLOT void replaceAndCommitPreedit(const QString &replacement);
     Q_SLOT void clearPreedit();
 
     bool isPreeditEnabled() const;
