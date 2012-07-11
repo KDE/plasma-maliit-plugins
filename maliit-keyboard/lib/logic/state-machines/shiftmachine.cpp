@@ -88,6 +88,8 @@ void ShiftMachine::setup(LayoutUpdater *updater)
 
     latched_shift->addTransition(updater, SIGNAL(shiftCancelled()), no_shift);
     latched_shift->addTransition(updater, SIGNAL(shiftReleased()), caps_lock);
+    connect(latched_shift, SIGNAL(entered()),
+            updater,  SLOT(syncLayoutToView()));
 
     caps_lock->addTransition(updater, SIGNAL(shiftReleased()), no_shift);
 

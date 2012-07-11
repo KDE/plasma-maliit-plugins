@@ -166,6 +166,9 @@ void connectLayoutUpdaterToTextEditor(Logic::LayoutUpdater *updater,
 
     QObject::connect(editor,  SIGNAL(wordCandidatesChanged(QStringList)),
                      updater, SLOT(onWordCandidatesChanged(QStringList)));
+
+    QObject::connect(editor,  SIGNAL(autoCapsActivated()),
+                     updater, SIGNAL(autoCapsActivated()));
 }
 
 }} // namespace Setup, MaliitKeyboard

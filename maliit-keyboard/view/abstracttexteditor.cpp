@@ -40,13 +40,20 @@ EditorOptions::EditorOptions()
 {}
 
 
-QString autoAppendix(const QString &preedit)
+QString autoAppendix(const QString &preedit,
+                     bool *auto_caps_activated)
 {
+    if (not auto_caps_activated) {
+        return QString(" ");
+    }
+
+    *auto_caps_activated = false;
     const QString &last_char(preedit.right(1));
     QString appendix;
 
     if (not last_char.isEmpty()
-        && not last_char.at(0).isLetterOrNumber()) {
+        && last_char.at(0).isPunct()) {
+        *auto_caps_activated = true;
         appendix.append(last_char);
     }
 
@@ -194,14 +201,19 @@ void AbstractTextEditor::onKeyReleased(const Key &key)
      } break;
 
     case Key::ActionSpace: {
-        const QString &appendix(autoAppendix(d->text->preedit()));
+        bool auto_caps_activated = false;
+        const QString &appendix(autoAppendix(d->text->preedit(), &auto_caps_activated));
 
         if (d->auto_correct_enabled && not d->text->primaryCandidate().isEmpty()) {
             d->text->setPreedit(d->text->primaryCandidate());
         }
 
         d->text->appendToPreedit(appendix);
-        commitPreedit();  
+        commitPreedit();
+
+        if (auto_caps_activated) {
+            Q_EMIT autoCapsActivated();
+        }
     } break;
 
     case Key::ActionReturn:
@@ -289,10 +301,15 @@ void AbstractTextEditor::replaceAndCommitPreedit(const QString &replacement)
         return;
     }
 
-    const QString &appendix(autoAppendix(d->text->preedit()));
+    bool auto_caps_activated = false;
+    const QString &appendix(autoAppendix(d->text->preedit(), &auto_caps_activated));
     d->text->setPreedit(replacement);
     d->text->appendToPreedit(appendix);
     commitPreedit();
+
+    if (auto_caps_activated) {
+        Q_EMIT autoCapsActivated();
+    }
 }
 
 void AbstractTextEditor::clearPreedit()

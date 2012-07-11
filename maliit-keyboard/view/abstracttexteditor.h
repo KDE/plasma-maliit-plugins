@@ -95,6 +95,7 @@ public:
     Q_SIGNAL void leftLayoutSelected();
     Q_SIGNAL void rightLayoutSelected();
     Q_SIGNAL void wordCandidatesChanged(const QStringList &word_candidates);
+    Q_SIGNAL void autoCapsActivated();
 
 private:
     const QScopedPointer<AbstractTextEditorPrivate> d_ptr;
