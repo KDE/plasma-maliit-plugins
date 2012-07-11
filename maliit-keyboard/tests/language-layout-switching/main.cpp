@@ -79,7 +79,7 @@ private:
         layout_updater.setStyle(style);
 
         layout_updater.setActiveKeyboardId(keyboard_id);
-        TestUtils::waitForSignal(&layout_updater, SIGNAL(layoutChanged(Layout)));
+        TestUtils::waitForSignal(&layout, SIGNAL(centerPanelChanged(KeyArea)));
 
         QCOMPARE(layout.activePanel(), Logic::Layout::CenterPanel);
         QCOMPARE(layout.activeKeyArea().keys().count(), expected_key_count);

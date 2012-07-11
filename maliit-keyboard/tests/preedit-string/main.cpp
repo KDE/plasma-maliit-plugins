@@ -293,7 +293,7 @@ private:
             QApplication::instance()->postEvent(surface->view()->viewport(), ev);
         }
 
-        TestUtils::waitForSignal(&glass, SIGNAL(keyReleased(Key,Layout)));
+        TestUtils::waitForSignal(&glass, SIGNAL(keyReleased(Key,Logic::Layout *)));
         QCOMPARE(host.lastPreeditString(), expected_last_preedit_string);
         QCOMPARE(host.commitStringHistory(), expected_commit_string);
         QCOMPARE(host.lastPreeditTextFormatList(), expected_preedit_format);
