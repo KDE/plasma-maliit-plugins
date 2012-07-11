@@ -79,8 +79,11 @@ public:
     ScopedSetting feedback_setting;
     ScopedSetting auto_correct_setting;
     ScopedSetting word_engine_setting;
+    ScopedSetting hide_word_ribbon_in_portrait_mode_setting;
 
     explicit InputMethodPrivate(MAbstractInputMethodHost *host);
+    void setLayoutOrientation(Logic::Layout::Orientation orientation);
+    void syncWordEngine(Logic::Layout::Orientation orientation);
 };
 
 
@@ -97,6 +100,7 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     , feedback_setting()
     , auto_correct_setting()
     , word_engine_setting()
+    , hide_word_ribbon_in_portrait_mode_setting()
 {
     renderer.setSurfaceFactory(surface_factory);
     glass.setSurface(renderer.surface());
@@ -113,8 +117,25 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     const QSize &screen_size(surface_factory->screenSize());
     layout.setScreenSize(screen_size);
     layout.setAlignment(Logic::Layout::Bottom);
-    layout_updater.setOrientation(screen_size.width() >= screen_size.height()
-                                  ? Logic::Layout::Landscape : Logic::Layout::Portrait);
+}
+
+
+void InputMethodPrivate::setLayoutOrientation(Logic::Layout::Orientation orientation)
+{
+    syncWordEngine(orientation);
+    layout_updater.setOrientation(orientation);
+}
+
+
+void InputMethodPrivate::syncWordEngine(Logic::Layout::Orientation orientation)
+{
+    // hide_word_ribbon_in_potrait_mode_setting overrides word_engine_setting:
+    const bool override_activation(hide_word_ribbon_in_portrait_mode_setting->value().toBool()
+                                   && orientation == Logic::Layout::Portrait);
+
+    editor.wordEngine()->setEnabled(override_activation
+                                    ? false
+                                    : word_engine_setting->value().toBool());
 }
 
 
@@ -149,6 +170,13 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
     registerFeedbackSetting(host);
     registerAutoCorrectSetting(host);
     registerWordEngineSetting(host);
+    registerHideWordRibbonInPortraitModeSetting(host);
+
+    // Setting layout orientation depends on word engine and hide word ribbon
+    // settings to be initialized first:
+    const QSize &screen_size(d->surface_factory->screenSize());
+    d->setLayoutOrientation(screen_size.width() >= screen_size.height()
+                         ? Logic::Layout::Landscape : Logic::Layout::Portrait);
 }
 
 InputMethod::~InputMethod()
@@ -221,9 +249,9 @@ QString InputMethod::activeSubView(Maliit::HandlerState state) const
 void InputMethod::handleAppOrientationChanged(int angle)
 {
     Q_D(InputMethod);
-    d->layout_updater.setOrientation((angle == 0 || angle == 180)
-                                     ? Logic::Layout::Landscape
-                                     : Logic::Layout::Portrait);
+    d->setLayoutOrientation((angle == 0 || angle == 180)
+                            ? Logic::Layout::Landscape
+                            : Logic::Layout::Portrait);
 }
 
 void InputMethod::registerStyleSetting(MAbstractInputMethodHost *host)
@@ -304,6 +332,23 @@ void InputMethod::registerWordEngineSetting(MAbstractInputMethodHost *host)
     d->editor.wordEngine()->setEnabled(d->word_engine_setting->value().toBool());
 }
 
+void InputMethod::registerHideWordRibbonInPortraitModeSetting(MAbstractInputMethodHost *host)
+{
+    Q_D(InputMethod);
+
+    QVariantMap attributes;
+    attributes[Maliit::SettingEntryAttributes::defaultValue] = false;
+
+    d->hide_word_ribbon_in_portrait_mode_setting.reset(
+        host->registerPluginSetting("hide_word_ribbon_in_potrait_mode",
+                                    QT_TR_NOOP("Disable word engine in portrait mode"),
+                                    Maliit::BoolType,
+                                    attributes));
+
+    connect(d->hide_word_ribbon_in_portrait_mode_setting.data(), SIGNAL(valueChanged()),
+            this, SLOT(onHideWordRibbonInPortraitModeSettingChanged()));
+}
+
 
 void InputMethod::onLeftLayoutSelected()
 {
@@ -332,9 +377,9 @@ void InputMethod::onScreenSizeChange(const QSize &size)
     Q_D(InputMethod);
 
     d->layout.setScreenSize(size);
-    d->layout_updater.setOrientation(size.width() >= size.height()
-                                     ? Logic::Layout::Landscape
-                                     : Logic::Layout::Portrait);
+    d->setLayoutOrientation(size.width() >= size.height()
+                            ? Logic::Layout::Landscape
+                            : Logic::Layout::Portrait);
 }
 
 void InputMethod::onStyleSettingChanged()
@@ -366,7 +411,13 @@ void InputMethod::onWordEngineSettingChanged()
     // FIXME: Renderer doesn't seem to update graphics properly. Word ribbon
     // is still visible until next VKB show/hide.
     Q_D(InputMethod);
-    d->editor.wordEngine()->setEnabled(d->word_engine_setting->value().toBool());
+    d->syncWordEngine(d->layout.orientation());
+}
+
+void InputMethod::onHideWordRibbonInPortraitModeSettingChanged()
+{
+    Q_D(InputMethod);
+    d->setLayoutOrientation(d->layout.orientation());
 }
 
 } // namespace MaliitKeyboard

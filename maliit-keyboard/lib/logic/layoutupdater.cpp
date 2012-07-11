@@ -333,9 +333,11 @@ void LayoutUpdater::setOrientation(Layout::Orientation orientation)
         d->layout->setCenterPanel(d->inShiftedState() ? converter.shiftedKeyArea()
                                                       : converter.keyArea());
 
-        WordRibbon ribbon(d->layout->wordRibbon());
-        applyStyleToWordRibbon(&ribbon, d->style, orientation);
-        d->layout->setWordRibbon(ribbon);
+        if (isWordRibbonVisible()) {
+            WordRibbon ribbon(d->layout->wordRibbon());
+            applyStyleToWordRibbon(&ribbon, d->style, orientation);
+            d->layout->setWordRibbon(ribbon);
+        }
 
         clearActiveKeysAndMagnifier();
     }

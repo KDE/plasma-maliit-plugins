@@ -71,6 +71,7 @@ private:
     void registerFeedbackSetting(MAbstractInputMethodHost *host);
     void registerAutoCorrectSetting(MAbstractInputMethodHost *host);
     void registerWordEngineSetting(MAbstractInputMethodHost *host);
+    void registerHideWordRibbonInPortraitModeSetting(MAbstractInputMethodHost *host);
 
     Q_SLOT void onLeftLayoutSelected();
     Q_SLOT void onRightLayoutSelected();
@@ -81,6 +82,7 @@ private:
     Q_SLOT void onFeedbackSettingChanged();
     Q_SLOT void onAutoCorrectSettingChanged();
     Q_SLOT void onWordEngineSettingChanged();
+    Q_SLOT void onHideWordRibbonInPortraitModeSettingChanged();
 
     const QScopedPointer<InputMethodPrivate> d_ptr;
 };
