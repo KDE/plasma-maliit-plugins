@@ -34,6 +34,96 @@
 
 namespace MaliitKeyboard {
 
+namespace {
+
+//! Checks whether given \a c is a word separator.
+//! \param c char to test
+//!
+//! Other way to do checks would be using isLetterOrNumber() + some
+//! other methods. But UTF is so crazy that I am not sure whether
+//! other strange categories are parts of the word or not. It is
+//! easier to specify punctuations and whitespaces.
+inline bool isSeparator(const QChar &c)
+{
+    return (c.isPunct() or c.isSpace());
+}
+
+//! Extracts a word boundaries at cursor position.
+//! \param surrounding_text text from which extraction will happen
+//! \param cursor_position position of cursor within \a surrounding_text
+//! \param replacement place where replacement data will be stored
+//!
+//! \return whether surrounding text was valid (not empty).
+//!
+//! If cursor is placed right after the word, boundaries of this word
+//! are extracted.  Otherwise if cursor is placed right before the
+//! word, then no word boundaries are stored - instead invalid
+//! replacement is stored. It might happen that cursor position is
+//! outside the string, so \a replacement will have fixed position.
+bool extractWordBoundariesAtCursor(const QString& surrounding_text,
+                                   int cursor_position,
+                                   AbstractTextEditor::Replacement *replacement)
+{
+    const int text_length(surrounding_text.length());
+
+    if (text_length == 0) {
+        return false;
+    }
+
+    // just in case - if cursor is far after last char in surrounding
+    // text we place it right after last char.
+    cursor_position = qBound(0, cursor_position, text_length);
+
+    // cursor might be placed in after last char (that is to say - its
+    // index might be the one of string terminator) - for simplifying
+    // the algorithm below we fake it as cursor is put on delimiter:
+    // "abc" - surrounding text
+    //     | - cursor placement
+    // "abc " - fake surrounding text
+    const QString fake_surrounding_text(surrounding_text + " ");
+    const QChar *const fake_data(fake_surrounding_text.constData());
+    // begin is index of first char in a word
+    int begin(-1);
+    // end is index of a char after last char in a word.
+    // -2, because -2 - (-1) = -1 and we would like to
+    // have -1 as invalid length.
+    int end(-2);
+
+    for (int iter(cursor_position); iter >= 0; --iter) {
+        const QChar &c(fake_data[iter]);
+
+        if (isSeparator(c)) {
+            if (iter != cursor_position) {
+                break;
+            }
+        } else {
+            begin = iter;
+        }
+    }
+
+    if (begin >= 0) {
+        // take note that fake_data's last QChar is always a space.
+        for (int iter(cursor_position); iter <= text_length; ++iter) {
+            const QChar &c(fake_data[iter]);
+
+            end = iter;
+            if (isSeparator(c)) {
+                break;
+            }
+        }
+    }
+
+    if (replacement) {
+        replacement->start = begin;
+        replacement->length = end - begin;
+        replacement->cursor_position = cursor_position;
+    }
+
+    return true;
+}
+
+} // unnamed namespace
+
 EditorOptions::EditorOptions()
     : backspace_auto_repeat_delay(500)
     , backspace_auto_repeat_interval(300)
@@ -72,6 +162,8 @@ public:
     QScopedPointer<Logic::AbstractWordEngine> word_engine;
     bool preedit_enabled;
     bool auto_correct_enabled;
+    int ignore_next_cursor_position;
+    QString ignore_next_surrounding_text;
 
     explicit AbstractTextEditorPrivate(const EditorOptions &new_options,
                                        Model::Text *new_text,
@@ -89,6 +181,8 @@ AbstractTextEditorPrivate::AbstractTextEditorPrivate(const EditorOptions &new_op
     , word_engine(new_word_engine)
     , preedit_enabled(false)
     , auto_correct_enabled(false)
+    , ignore_next_cursor_position(-1)
+    , ignore_next_surrounding_text()
 {
     auto_repeat_backspace_timer.setSingleShot(true);
     (void) valid();
@@ -413,6 +507,46 @@ void AbstractTextEditor::sendPreeditString(const QString &preedit,
                                            Model::Text::PreeditFace face)
 {
     sendPreeditString(preedit, face, Replacement());
+}
+
+void AbstractTextEditor::onCursorPositionChanged(int cursor_position,
+                                                 const QString &surrounding_text)
+{
+    Q_D(AbstractTextEditor);
+    Replacement r;
+
+    if (not extractWordBoundariesAtCursor(surrounding_text, cursor_position, &r)) {
+        return;
+    }
+
+    if (r.start < 0 or r.length < 0) {
+        if (d->ignore_next_surrounding_text == surrounding_text and
+            d->ignore_next_cursor_position == cursor_position) {
+            d->ignore_next_surrounding_text.clear();
+            d->ignore_next_cursor_position = -1;
+        } else {
+            d->text->setPreedit("");
+            d->text->setCursorPosition(0);
+        }
+    } else {
+        const int cursor_pos_relative_word_begin(r.start - r.cursor_position);
+        const int word_begin_relative_cursor_pos(r.cursor_position - r.start);
+        const QString word(surrounding_text.mid(r.start, r.length));
+        Replacement word_r(cursor_pos_relative_word_begin, r.length,
+                           word_begin_relative_cursor_pos);
+
+        d->text->setCursorPosition(word_begin_relative_cursor_pos);
+        d->text->setPreedit(word);
+        // computeCandidates can change preedit face, so needs to happen
+        // before sending preedit:
+        d->word_engine->computeCandidates(d->text.data());
+        sendPreeditString(d->text->preedit(), d->text->preeditFace(), word_r);
+        // Qt is going to send us an event with cursor position places
+        // at the beginning of replaced word and surrounding text
+        // without the replaced word. We want to ignore it.
+        d->ignore_next_cursor_position = r.start;
+        d->ignore_next_surrounding_text = QString(surrounding_text).remove(r.start, r.length);
+    }
 }
 
 } // namespace MaliitKeyboard

@@ -106,6 +106,8 @@ public:
     Q_SLOT void onKeyReleased(const Key &key);
     Q_SLOT void onKeyEntered(const Key &key);
     Q_SLOT void onKeyExited(const Key &key);
+    Q_SLOT void onCursorPositionChanged(int cursor_position,
+                                        const QString &surrounding_text);
     Q_SLOT void replacePreedit(const QString &replacement);
     Q_SLOT void replaceAndCommitPreedit(const QString &replacement);
     Q_SLOT void clearPreedit();
