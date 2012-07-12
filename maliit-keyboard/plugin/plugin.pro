@@ -23,11 +23,13 @@ HEADERS += \
     plugin.h \
     inputmethod.h \
     editor.h \
+    updatenotifier.h \
 
 SOURCES += \
     plugin.cpp \
     inputmethod.cpp \
     editor.cpp \
+    updatenotifier.cpp \
 
 target.path += $${MALIIT_PLUGINS_DIR}
 INSTALLS += target
