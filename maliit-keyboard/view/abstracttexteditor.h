@@ -66,6 +66,33 @@ class AbstractTextEditor
                                        NOTIFY autoCorrectEnabledChanged)
 
 public:
+    struct Replacement
+    {
+        Replacement()
+            : start(0)
+            , length(0)
+            , cursor_position(-1)
+        {}
+
+        Replacement(int position)
+            : start(0)
+            , length(0)
+            , cursor_position(position)
+        {}
+
+        Replacement(int r_start,
+                    int r_length,
+                    int position)
+            : start(r_start)
+            , length(r_length)
+            , cursor_position(position)
+        {}
+
+        int start;
+        int length;
+        int cursor_position;
+    };
+
     explicit AbstractTextEditor(const EditorOptions &options,
                                 Model::Text *text,
                                 Logic::AbstractWordEngine *word_engine,
@@ -103,8 +130,12 @@ public:
 private:
     const QScopedPointer<AbstractTextEditorPrivate> d_ptr;
 
+    void sendPreeditString(const QString &preedit,
+                           Model::Text::PreeditFace face);
+
     virtual void sendPreeditString(const QString &preedit,
-                                   Model::Text::PreeditFace face) = 0;
+                                   Model::Text::PreeditFace face,
+                                   const Replacement &replacement) = 0;
     virtual void sendCommitString(const QString &commit) = 0;
     virtual void sendKeyEvent(const QKeyEvent &ev) = 0;
 

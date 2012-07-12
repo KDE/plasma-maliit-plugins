@@ -56,7 +56,8 @@ public:
 private:
     //! \reimp
     virtual void sendPreeditString(const QString &preedit,
-                                   Model::Text::PreeditFace face);
+                                   Model::Text::PreeditFace face,
+                                   const Replacement &replacement);
     virtual void sendCommitString(const QString &commit);
     virtual void sendKeyEvent(const QKeyEvent &ev);
     //! \reimp_end
@@ -70,7 +71,8 @@ DashboardEditor::DashboardEditor(QTextEdit *target,
 {}
 
 void DashboardEditor::sendPreeditString(const QString &preedit,
-                                        Model::Text::PreeditFace face)
+                                        Model::Text::PreeditFace face,
+                                        const Replacement &replacement)
 {
     QList<QInputMethodEvent::Attribute> attribute_list;
     QTextCharFormat char_format;
@@ -100,8 +102,15 @@ void DashboardEditor::sendPreeditString(const QString &preedit,
                                                        start,
                                                        length,
                                                        char_format));
+    if (replacement.cursor_position >= 0) {
+        attribute_list << QInputMethodEvent::Attribute(QInputMethodEvent::Cursor, replacement.cursor_position, 1, QVariant());
+    }
 
     QInputMethodEvent *ev = new QInputMethodEvent(preedit, attribute_list);
+
+    if (replacement.start || replacement.length) {
+        ev->setCommitString("", replacement.start, replacement.length);
+    }
     qApp->postEvent(m_target, ev);
 }
 

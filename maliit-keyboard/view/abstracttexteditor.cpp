@@ -187,7 +187,8 @@ void AbstractTextEditor::onKeyReleased(const Key &key)
             d->word_engine->computeCandidates(d->text.data());
         }
 
-        sendPreeditString(d->text->preedit(), d->text->preeditFace());
+        sendPreeditString(d->text->preedit(), d->text->preeditFace(),
+                          Replacement(d->text->cursorPosition()));
 
         if (not d->preedit_enabled) {
             commitPreedit();
@@ -406,6 +407,12 @@ void AbstractTextEditor::addToUserDictionary(const QString &word)
     d->text->setPrimaryCandidate(word);
 
     Q_EMIT wordCandidatesChanged(WordCandidateList());
+}
+
+void AbstractTextEditor::sendPreeditString(const QString &preedit,
+                                           Model::Text::PreeditFace face)
+{
+    sendPreeditString(preedit, face, Replacement());
 }
 
 } // namespace MaliitKeyboard

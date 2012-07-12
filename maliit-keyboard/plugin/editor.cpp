@@ -55,7 +55,8 @@ void Editor::setHost(MAbstractInputMethodHost *host)
 }
 
 void Editor::sendPreeditString(const QString &preedit,
-                               Model::Text::PreeditFace face)
+                               Model::Text::PreeditFace face,
+                               const Replacement &replacement)
 {
     if (not m_host) {
         qWarning() << __PRETTY_FUNCTION__
@@ -70,7 +71,8 @@ void Editor::sendPreeditString(const QString &preedit,
                                                  length,
                                                  static_cast< ::Maliit::PreeditFace>(face)));
 
-    m_host->sendPreeditString(preedit, format_list);
+    m_host->sendPreeditString(preedit, format_list, replacement.start,
+                              replacement.length, replacement.cursor_position);
 }
 
 void Editor::sendCommitString(const QString &commit)

@@ -62,7 +62,8 @@ public:
 private:
     //! \reimp
     virtual void sendPreeditString(const QString &preedit,
-                                   Model::Text::PreeditFace face);
+                                   Model::Text::PreeditFace face,
+                                   const Replacement &replacement);
     virtual void sendCommitString(const QString &commit);
     virtual void sendKeyEvent(const QKeyEvent &ev);
     //! \reimp_end
