@@ -97,6 +97,9 @@ public:
     Q_SIGNAL void wordCandidatesChanged(const WordCandidateList &word_candidates);
     Q_SIGNAL void autoCapsActivated();
 
+    Q_SLOT void showUserCandidate();
+    Q_SLOT void addToUserDictionary(const QString &word);
+
 private:
     const QScopedPointer<AbstractTextEditorPrivate> d_ptr;
 

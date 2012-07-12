@@ -386,4 +386,25 @@ void AbstractTextEditor::autoRepeatBackspace()
     d->auto_repeat_backspace_timer.start(d->options.backspace_auto_repeat_interval);
 }
 
+void AbstractTextEditor::showUserCandidate()
+{
+    Q_D(AbstractTextEditor);
+
+    WordCandidateList candidates;
+    WordCandidate candidate(WordCandidate::SourceUser, d->text->preedit());
+
+    candidates << candidate;
+
+    Q_EMIT wordCandidatesChanged(candidates);
+}
+
+void AbstractTextEditor::addToUserDictionary(const QString &word)
+{
+    Q_D(AbstractTextEditor);
+
+    d->word_engine->addToUserDictionary(word);
+
+    Q_EMIT wordCandidatesChanged(WordCandidateList());
+}
+
 } // namespace MaliitKeyboard

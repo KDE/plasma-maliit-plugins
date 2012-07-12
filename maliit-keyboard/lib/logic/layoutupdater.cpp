@@ -427,6 +427,9 @@ void LayoutUpdater::onKeyLongPressed(const Key &key,
     KeyArea ext_ka(converter.extendedKeyArea(key));
 
     if (not ext_ka.hasKeys()) {
+        if (key.action() == Key::ActionSpace) {
+            Q_EMIT addToUserDictionary();
+        }
         return;
     }
 

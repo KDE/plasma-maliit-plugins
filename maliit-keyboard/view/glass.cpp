@@ -264,7 +264,7 @@ bool Glass::eventFilter(QObject *obj,
                 if (key.valid()) {
                     d->active_keys.append(key);
 
-                    if (key.hasExtendedKeys()) {
+                    if (key.hasExtendedKeys() || key.action() == Key::ActionSpace) {
                         d->long_press_timer.start();
                         d->long_press_layout = layout;
                     }
@@ -334,7 +334,7 @@ bool Glass::handlePressReleaseEvent(QEvent *ev,
                 Q_EMIT keyPressed(key, layout);
                 Q_EMIT keyAreaPressed(layout->activePanel(), layout);
 
-                if (key.hasExtendedKeys()) {
+                if (key.hasExtendedKeys() || key.action() == Key::ActionSpace) {
                     d->long_press_timer.start();
                     d->long_press_layout = layout;
                 }

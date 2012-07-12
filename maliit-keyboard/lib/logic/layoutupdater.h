@@ -105,6 +105,8 @@ public:
     Q_SIGNAL void wordCandidateSelected(const QString &candidate);
     Q_SIGNAL void userCandidateSelected(const QString &candidate);
 
+    Q_SIGNAL void addToUserDictionary();
+
 private:
     Q_SIGNAL void shiftPressed();
     Q_SIGNAL void shiftReleased();
