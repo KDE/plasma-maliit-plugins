@@ -210,4 +210,11 @@ WordCandidateList WordEngine::fetchCandidates(Model::Text *text)
 #endif
 }
 
+void WordEngine::addToUserDictionary(const QString &word)
+{
+    Q_D(WordEngine);
+
+    d->spell_checker.addToUserWordlist(word);
+}
+
 }} // namespace Logic, MaliitKeyboard

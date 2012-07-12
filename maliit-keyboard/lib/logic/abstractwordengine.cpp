@@ -139,4 +139,9 @@ void AbstractWordEngine::computeCandidates(Model::Text *text)
     Q_EMIT candidatesChanged(fetchCandidates(text));
 }
 
+void AbstractWordEngine::addToUserDictionary(const QString &word)
+{
+    Q_UNUSED(word);
+}
+
 }} // namespace MaliitKeyboard, Logic

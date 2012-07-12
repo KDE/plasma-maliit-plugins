@@ -55,6 +55,8 @@ public:
 
     virtual void setEnabled(bool enabled);
 
+    virtual void addToUserDictionary(const QString &word);
+
 private:
     virtual WordCandidateList fetchCandidates(Model::Text *text);
 
