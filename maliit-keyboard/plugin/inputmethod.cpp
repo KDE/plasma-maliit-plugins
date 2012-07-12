@@ -31,6 +31,7 @@
 
 #include "inputmethod.h"
 #include "editor.h"
+#include "updatenotifier.h"
 
 #include "models/keyarea.h"
 #include "models/wordribbon.h"
@@ -55,10 +56,13 @@ typedef MaliitKeyboard::NullFeedback DefaultFeedback;
 #include <maliit/plugins/subviewdescription.h>
 #include <maliit/plugins/abstractsurfacefactory.h>
 #include <maliit/plugins/abstractpluginsetting.h>
+#include <maliit/plugins/updateevent.h>
 
 #include <QApplication>
 #include <QWidget>
 #include <QDesktopWidget>
+
+class MImUpdateEvent;
 
 namespace MaliitKeyboard {
 
@@ -75,6 +79,7 @@ public:
     DefaultFeedback feedback;
     Logic::Layout layout;
     SharedStyle style;
+    UpdateNotifier notifier;
     ScopedSetting style_setting;
     ScopedSetting feedback_setting;
     ScopedSetting auto_correct_setting;
@@ -84,6 +89,8 @@ public:
     explicit InputMethodPrivate(MAbstractInputMethodHost *host);
     void setLayoutOrientation(Logic::Layout::Orientation orientation);
     void syncWordEngine(Logic::Layout::Orientation orientation);
+
+    void connectToNotifier();
 };
 
 
@@ -96,6 +103,7 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     , feedback()
     , layout(new Logic::Layout)
     , style(new Style)
+    , notifier()
     , style_setting()
     , feedback_setting()
     , auto_correct_setting()
@@ -117,6 +125,8 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     const QSize &screen_size(surface_factory->screenSize());
     layout.setScreenSize(screen_size);
     layout.setAlignment(Logic::Layout::Bottom);
+
+    connectToNotifier();
 }
 
 
@@ -138,6 +148,11 @@ void InputMethodPrivate::syncWordEngine(Logic::Layout::Orientation orientation)
                                     : word_engine_setting->value().toBool());
 }
 
+void InputMethodPrivate::connectToNotifier()
+{
+    QObject::connect(&notifier, SIGNAL(cursorPositionChanged(int, QString)),
+                     &editor,   SLOT(onCursorPositionChanged(int, QString)));
+}
 
 InputMethod::InputMethod(MAbstractInputMethodHost *host)
     : MAbstractInputMethod(host)
@@ -253,6 +268,22 @@ void InputMethod::handleAppOrientationChanged(int angle)
                             ? Logic::Layout::Landscape
                             : Logic::Layout::Portrait);
 }
+
+bool InputMethod::imExtensionEvent(MImExtensionEvent *event)
+{
+    Q_D(InputMethod);
+
+    if (not event or event->type() != MImExtensionEvent::Update) {
+        return false;
+    }
+
+    MImUpdateEvent *update_event(static_cast<MImUpdateEvent *>(event));
+
+    d->notifier.notify(update_event);
+
+    return true;
+}
+
 
 void InputMethod::registerStyleSetting(MAbstractInputMethodHost *host)
 {

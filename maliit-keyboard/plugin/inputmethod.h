@@ -64,6 +64,7 @@ public:
                                   Maliit::HandlerState state = Maliit::OnScreen);
     virtual QString activeSubView(Maliit::HandlerState state = Maliit::OnScreen) const;
     virtual void handleAppOrientationChanged(int angle);
+    virtual bool imExtensionEvent(MImExtensionEvent *event);
     //! \reimp_end
 
 private:
