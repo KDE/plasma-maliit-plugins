@@ -54,6 +54,7 @@ private:
     QString m_primary_candidate; //!< the primary candidate from the word engine.
     uint m_surrounding_offset; //!< offset of cursor position in surrounding text.
     PreeditFace m_face; //!< face of preedit.
+    int m_cursor_position; //!< position of cursor in preedit string.
 
 public:
     explicit Text();
@@ -76,6 +77,9 @@ public:
 
     PreeditFace preeditFace() const;
     void setPreeditFace(PreeditFace face);
+
+    int cursorPosition() const;
+    void setCursorPosition(int cursor_position);
 };
 
 }} // namespace Model, MaliitKeyboard

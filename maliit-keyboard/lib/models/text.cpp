@@ -46,6 +46,7 @@ Text::Text()
     , m_surrounding()
     , m_surrounding_offset(0)
     , m_face(PreeditDefault)
+    , m_cursor_position(0)
 {}
 
 //! Returns current preedit.
@@ -65,7 +66,8 @@ void Text::setPreedit(const QString &preedit)
 //! \param appendix the string to append to current preedit.
 void Text::appendToPreedit(const QString &appendix)
 {
-    m_preedit.append(appendix);
+    m_preedit.insert(m_cursor_position, appendix);
+    m_cursor_position += appendix.length();
 }
 
 //! Commits current preedit. Insert preedit into surrounding text and
@@ -81,6 +83,7 @@ void Text::commitPreedit()
     m_preedit.clear();
     m_primary_candidate.clear();
     m_face = PreeditDefault;
+    m_cursor_position = 0;
 }
 
 //! Returns the primary candidate, usually provided by word engine.
@@ -146,6 +149,19 @@ Text::PreeditFace Text::preeditFace() const
 void Text::setPreeditFace(PreeditFace face)
 {
     m_face = face;
+}
+
+//! Returns cursor position in preedit.
+int Text::cursorPosition() const
+{
+    return m_cursor_position;
+}
+
+//! Sets cursor position in preedit.
+//! \param cursor_position new position.
+void Text::setCursorPosition(int cursor_position)
+{
+    m_cursor_position = cursor_position;
 }
 
 }} // namespace Model, MaliitKeyboard
