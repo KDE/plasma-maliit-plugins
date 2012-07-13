@@ -38,6 +38,10 @@ InputMethodHostProbe::InputMethodHostProbe()
     , m_last_key_event(QEvent::None, 0, Qt::NoModifier)
     , m_key_event_count(0)
     , m_last_preedit_text_format_list()
+    , m_last_replace_start(0)
+    , m_last_replace_length(0)
+    , m_last_cursor_pos(0)
+    , m_preedit_string_sent(false)
 {}
 
 QString InputMethodHostProbe::commitStringHistory() const
@@ -46,9 +50,9 @@ QString InputMethodHostProbe::commitStringHistory() const
 }
 
 void InputMethodHostProbe::sendCommitString(const QString &string,
-                      int replace_start,
-                      int replace_length,
-                      int cursor_pos)
+                                            int replace_start,
+                                            int replace_length,
+                                            int cursor_pos)
 {
     Q_UNUSED(replace_start)
     Q_UNUSED(replace_length)
@@ -62,18 +66,38 @@ QString InputMethodHostProbe::lastPreeditString() const
     return m_last_preedit_string;
 }
 
+int InputMethodHostProbe::lastReplaceStart() const
+{
+    return m_last_replace_start;
+}
+
+int InputMethodHostProbe::lastReplaceLength() const
+{
+    return m_last_replace_length;
+}
+
+int InputMethodHostProbe::lastCursorPos() const
+{
+    return m_last_cursor_pos;
+}
+
+bool InputMethodHostProbe::preeditStringSent() const
+{
+    return m_preedit_string_sent;
+}
+
 void InputMethodHostProbe::sendPreeditString(const QString &string,
                                              const QList<Maliit::PreeditTextFormat> &format,
                                              int replace_start,
                                              int replace_length,
                                              int cursor_pos)
 {
-    Q_UNUSED(replace_start)
-    Q_UNUSED(replace_length)
-    Q_UNUSED(cursor_pos)
-
+    m_preedit_string_sent = true;
     m_last_preedit_string = string;
     m_last_preedit_text_format_list = format;
+    m_last_replace_start = replace_start;
+    m_last_replace_length = replace_length;
+    m_last_cursor_pos = cursor_pos;
 }
 
 QKeyEvent InputMethodHostProbe::lastKeyEvent() const

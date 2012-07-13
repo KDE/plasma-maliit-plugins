@@ -48,6 +48,10 @@ private:
     QKeyEvent m_last_key_event;
     int m_key_event_count;
     QList<Maliit::PreeditTextFormat> m_last_preedit_text_format_list;
+    int m_last_replace_start;
+    int m_last_replace_length;
+    int m_last_cursor_pos;
+    bool m_preedit_string_sent;
 
 public:
     InputMethodHostProbe();
@@ -59,6 +63,10 @@ public:
                           int cursor_pos);
 
     QString lastPreeditString() const;
+    int lastReplaceStart() const;
+    int lastReplaceLength() const;
+    int lastCursorPos() const;
+    bool preeditStringSent() const;
     void sendPreeditString(const QString &string,
                            const QList<Maliit::PreeditTextFormat> &format,
                            int replace_start, 
