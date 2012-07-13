@@ -231,6 +231,7 @@ private:
         QTest::addColumn<QString>("expected_commit_string");
         QTest::addColumn<FormatList>("expected_preedit_format");
         QTest::addColumn<bool>("word_engine_enabled");
+        QTest::addColumn<int>("expected_cursor_position");
 
         for (int orientation = 0; orientation < 1; ++orientation) {
             // FIXME: here should be 2          ^
@@ -241,29 +242,29 @@ private:
             QTest::newRow("No mouse events: expect empty commit string, should be no preedit face")
                 << layout_orientation
                 << (QList<QMouseEvent *>())
-                << "" << "" << FormatList() << true;
+                << "" << "" << FormatList() << true << 0;
 
             QTest::newRow("Only return pressed: expect empty commit string, should be no preedit face")
                 << layout_orientation
                 << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("return"), layout_orientation))
-                << "" << "" << FormatList() << true;
+                << "" << "" << FormatList() << true << 0;
 
             QTest::newRow("Release outside of widget: expect empty commit string, should be no preedit face")
                 << layout_orientation
                 << (QList<QMouseEvent *>() << createPressReleaseEvent(QPoint(g_size * 2, g_size * 2), layout_orientation)
                                            << createPressReleaseEvent(keyOriginLookup("return"), layout_orientation))
-                << "" << "" << FormatList() << true;
+                << "" << "" << FormatList() << true << 0;
 
             QTest::newRow("Release button over key 'a': expect commit string 'a', preedit face should be active.")
                 << layout_orientation
                 << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("a"), layout_orientation)
                                            << createPressReleaseEvent(keyOriginLookup("return"), layout_orientation))
-                << "a" << "a" << (FormatList() << Maliit::PreeditTextFormat(0, 1, Maliit::PreeditActive)) << true;
+                << "a" << "a" << (FormatList() << Maliit::PreeditTextFormat(0, 1, Maliit::PreeditActive)) << true << 0;
 
             QTest::newRow("Release button over key 'a', but no commit: expect empty commit string.")
                 << layout_orientation
                 << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("a"), layout_orientation))
-                << "a" << "" << (FormatList() << Maliit::PreeditTextFormat(0, 1, Maliit::PreeditActive)) << true;
+                << "a" << "" << (FormatList() << Maliit::PreeditTextFormat(0, 1, Maliit::PreeditActive)) << true << 1;
 
             QTest::newRow("Release button over keys 'c, b, d, a': expect commit string 'cbda', preedit face should be no candidates")
                 << layout_orientation
@@ -272,7 +273,7 @@ private:
                                            << createPressReleaseEvent(keyOriginLookup("d"), layout_orientation)
                                            << createPressReleaseEvent(keyOriginLookup("a"), layout_orientation)
                                            << createPressReleaseEvent(keyOriginLookup("space"), layout_orientation))
-                << "cbda" << "cbda " << (FormatList() << Maliit::PreeditTextFormat(0, 4, Maliit::PreeditNoCandidates)) << true;
+                << "cbda" << "cbda " << (FormatList() << Maliit::PreeditTextFormat(0, 4, Maliit::PreeditNoCandidates)) << true << 0;
 
             QTest::newRow("Typing two words: expect commit string 'ab cd', with last preedit being 'cd', preedit face should be no candidates.")
                 << layout_orientation
@@ -282,7 +283,7 @@ private:
                                            << createPressReleaseEvent(keyOriginLookup("c"), layout_orientation)
                                            << createPressReleaseEvent(keyOriginLookup("d"), layout_orientation)
                                            << createPressReleaseEvent(keyOriginLookup("return"), layout_orientation))
-                << "cd" << "ab cd" << (FormatList() << Maliit::PreeditTextFormat(0, 2, Maliit::PreeditNoCandidates)) << true;
+                << "cd" << "ab cd" << (FormatList() << Maliit::PreeditTextFormat(0, 2, Maliit::PreeditNoCandidates)) << true << 0;
 
             QTest::newRow("Typing one word 'abd': expect commit string 'abd', with last preedit being 'abd', preedit face should be default")
                 << layout_orientation
@@ -290,7 +291,7 @@ private:
                                            << createPressReleaseEvent(keyOriginLookup("b"), layout_orientation)
                                            << createPressReleaseEvent(keyOriginLookup("d"), layout_orientation)
                                            << createPressReleaseEvent(keyOriginLookup("return"), layout_orientation))
-                << "abd" << "abd" << (FormatList() << Maliit::PreeditTextFormat(0, 3, Maliit::PreeditDefault)) << true;
+                << "abd" << "abd" << (FormatList() << Maliit::PreeditTextFormat(0, 3, Maliit::PreeditDefault)) << true << 0;
 
             // TODO: we probably should not sent any preedit formats when word engine is turned off.
             QTest::newRow("Typing one word 'abd' with word engine turned off: expect commit string 'abd', with preedit being last char, should be no preedit face")
@@ -298,19 +299,19 @@ private:
                 << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("a"), layout_orientation)
                                            << createPressReleaseEvent(keyOriginLookup("b"), layout_orientation)
                                            << createPressReleaseEvent(keyOriginLookup("d"), layout_orientation))
-                << "d" << "abd" << (FormatList() << Maliit::PreeditTextFormat(0, 1, Maliit::PreeditDefault)) << false;
+                << "d" << "abd" << (FormatList() << Maliit::PreeditTextFormat(0, 1, Maliit::PreeditDefault)) << false << 0;
 
             QTest::newRow("Typing one word 'ab' with word engine turned off: expect commit string 'ab', with preedit being last char, should be no preedit face")
                 << layout_orientation
                 << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("a"), layout_orientation)
                                            << createPressReleaseEvent(keyOriginLookup("b"), layout_orientation))
-                << "b" << "ab" << (FormatList() << Maliit::PreeditTextFormat(0, 1, Maliit::PreeditDefault)) << false;
+                << "b" << "ab" << (FormatList() << Maliit::PreeditTextFormat(0, 1, Maliit::PreeditDefault)) << false << 0;
 
             QTest::newRow("Typing one word 'bd' with word engine turned off: expect commit string 'bd', with preedit being last char, face should be for one char with default face")
                 << layout_orientation
                 << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("b"), layout_orientation)
                                            << createPressReleaseEvent(keyOriginLookup("d"), layout_orientation))
-                << "d" << "bd" << (FormatList() << Maliit::PreeditTextFormat(0, 1, Maliit::PreeditDefault)) << false;
+                << "d" << "bd" << (FormatList() << Maliit::PreeditTextFormat(0, 1, Maliit::PreeditDefault)) << false << 0;
 
         }
     }
@@ -331,6 +332,7 @@ private:
         QFETCH(QString, expected_commit_string);
         QFETCH(QList<Maliit::PreeditTextFormat>, expected_preedit_format);
         QFETCH(bool, word_engine_enabled);
+        QFETCH(int, expected_cursor_position);
 
         SetupTest test_setup(orientation, word_engine_enabled);
 
@@ -342,6 +344,7 @@ private:
         QCOMPARE(test_setup.host.lastPreeditString(), expected_last_preedit_string);
         QCOMPARE(test_setup.host.commitStringHistory(), expected_commit_string);
         QCOMPARE(test_setup.host.lastPreeditTextFormatList(), expected_preedit_format);
+        QCOMPARE(test_setup.editor.text()->cursorPosition(), expected_cursor_position);
     }
 
     Q_SLOT void testPreeditActivation_data()
