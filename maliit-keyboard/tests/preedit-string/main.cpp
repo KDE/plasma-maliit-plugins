@@ -44,6 +44,7 @@
 #include "wordengineprobe.h"
 
 #include <maliit/plugins/testsurfacefactory.h>
+#include <maliit/plugins/updateevent.h>
 
 #include <QtCore>
 #include <QtTest>
@@ -136,6 +137,19 @@ QList<QMouseEvent *> createPressReleaseEvent(const QPoint &origin,
 
 bool operator==(const Maliit::PreeditTextFormat &a, const Maliit::PreeditTextFormat &b) {
     return ((a.start == b.start) and (a.length == b.length) and (a.preeditFace == b.preeditFace));
+}
+
+MImUpdateEvent *createUpdateEvent(const QString &surrounding_text,
+                                  int cursor_position)
+{
+    const char *const cur_pos("cursorPosition");
+    QStringList properties_changed(cur_pos);
+    QMap<QString, QVariant> update;
+
+    update.insert(cur_pos, cursor_position);
+    update.insert("surroundingText", surrounding_text);
+
+    return new MImUpdateEvent(update, properties_changed);
 }
 
 } // unnamed namespace
@@ -328,6 +342,161 @@ private:
         QCOMPARE(test_setup.host.lastPreeditString(), expected_last_preedit_string);
         QCOMPARE(test_setup.host.commitStringHistory(), expected_commit_string);
         QCOMPARE(test_setup.host.lastPreeditTextFormatList(), expected_preedit_format);
+    }
+
+    Q_SLOT void testPreeditActivation_data()
+    {
+        QTest::addColumn<QString>("surrounding_text");
+        QTest::addColumn<int>("cursor_position");
+        QTest::addColumn<QString>("expected_preedit");
+        QTest::addColumn<int>("expected_replace_start");
+        QTest::addColumn<int>("expected_replace_length");
+        QTest::addColumn<int>("expected_cursor_position");
+        QTest::addColumn<bool>("expected_preedit_string_sent");
+
+        QTest::newRow("'aaa bbb', select first 'a'")
+            << "aaa bbbb" // surrounding text
+            << 0 // chosen cursor position
+            << "aaa" // expected preedit
+            << 0 // expected replace start (relative to cursor position in a preedit)
+            << 3 // expected replace length
+            << 0 // expected cursor position (relative to the beginning of preedit)
+            << true; // whether preedit is sent
+
+        QTest::newRow("'aaa bbb', select second 'a'")
+            << "aaa bbbb" // surrounding text
+            << 1 // chosen cursor position
+            << "aaa" // expected preedit
+            << -1 // expected replace start (relative to cursor position in a preedit)
+            << 3 // expected replace length
+            << 1 // expected cursor position (relative to the beginning of preedit)
+            << true; // whether preedit is sent
+
+        QTest::newRow("'aaa bbb', select third 'a'")
+            << "aaa bbbb" // surrounding text
+            << 2 // chosen cursor position
+            << "aaa" // expected preedit
+            << -2 // expected replace start (relative to cursor position in a preedit)
+            << 3 // expected replace length
+            << 2 // expected cursor position (relative to the beginning of preedit)
+            << true; // whether preedit is sent
+
+        QTest::newRow("'aaa bbb', select space between words")
+            << "aaa bbbb" // surrounding text
+            << 3 // chosen cursor position
+            << "aaa" // expected preedit
+            << -3 // expected replace start (relative to cursor position in a preedit)
+            << 3 // expected replace length
+            << 3 // expected cursor position (relative to the beginning of preedit)
+            << true; // whether preedit is sent
+
+        QTest::newRow("'aaa bbb', select first 'b'")
+            << "aaa bbbb" // surrounding text
+            << 4 // chosen cursor position
+            << "bbbb" // expected preedit
+            << 0 // expected replace start (relative to cursor position in a preedit)
+            << 4 // expected replace length
+            << 0 // expected cursor position (relative to the beginning of preedit)
+            << true; // whether preedit is sent
+
+        QTest::newRow("'aaa bbb', select after last 'b'")
+            << "aaa bbbb" // surrounding text
+            << 8 // chosen cursor position
+            << "bbbb" // expected preedit
+            << -4 // expected replace start (relative to cursor position in a preedit)
+            << 4 // expected replace length
+            << 4 // expected cursor position (relative to the beginning of preedit)
+            << true; // whether preedit is sent
+
+        QTest::newRow("' aaa', select leading space")
+            << " aaa" // surrounding text
+            << 0 // chosen cursor position
+            << "" // expected preedit
+            << 0 // expected replace start (relative to cursor position in a preedit)
+            << 0 // expected replace length
+            << 0 // expected cursor position (relative to the beginning of preedit)
+            << false; // whether preedit is sent
+
+        QTest::newRow("'a  b', select space before 'b'")
+            << "a  b" // surrounding text
+            << 2 // chosen cursor position
+            << "" // expected preedit
+            << 0 // expected replace start (relative to cursor position in a preedit)
+            << 0 // expected replace length
+            << 0 // expected cursor position (relative to the beginning of preedit)
+            << false; // whether preedit is sent
+
+        QTest::newRow("'a  ', select last space")
+            << "a  " // surrounding text
+            << 2 // chosen cursor position
+            << "" // expected preedit
+            << 0 // expected replace start (relative to cursor position in a preedit)
+            << 0 // expected replace length
+            << 0 // expected cursor position (relative to the beginning of preedit)
+            << false; // whether preedit is sent
+
+        QTest::newRow("'a ', select after last space")
+            << "a " // surrounding text
+            << 2 // chosen cursor position
+            << "" // expected preedit
+            << 0 // expected replace start (relative to cursor position in a preedit)
+            << 0 // expected replace length
+            << 0 // expected cursor position (relative to the beginning of preedit)
+            << false; // whether preedit is sent
+
+        QTest::newRow("'aaa', select far after last char")
+            << "aaa" // surrounding text
+            << 200 // chosen cursor position
+            << "aaa" // expected preedit
+            << -3 // expected replace start (relative to cursor position in a preedit)
+            << 3 // expected replace length
+            << 3 // expected cursor position (relative to the beginning of preedit)
+            << true; // whether preedit is sent
+
+        QTest::newRow("'aaa', select far before first char")
+            << "aaa" // surrounding text
+            << -200 // chosen cursor position
+            << "aaa" // expected preedit
+            << 0 // expected replace start (relative to cursor position in a preedit)
+            << 3 // expected replace length
+            << 0 // expected cursor position (relative to the beginning of preedit)
+            << true; // whether preedit is sent
+
+        QTest::newRow("' aaa ', select trailing space")
+            << " aaa " // surrounding text
+            << 4 // chosen cursor position
+            << "aaa" // expected preedit
+            << -3 // expected replace start (relative to cursor position in a preedit)
+            << 3 // expected replace length
+            << 3 // expected cursor position (relative to the beginning of preedit)
+            << true; // whether preedit is sent
+    }
+
+    Q_SLOT void testPreeditActivation()
+    {
+        QFETCH(QString, surrounding_text);
+        QFETCH(int, cursor_position);
+        QFETCH(QString, expected_preedit);
+        QFETCH(int, expected_replace_start);
+        QFETCH(int, expected_replace_length);
+        QFETCH(int, expected_cursor_position);
+        QFETCH(bool, expected_preedit_string_sent);
+
+        BasicSetupTest test_setup;
+        QScopedPointer<MImUpdateEvent> update_event(createUpdateEvent(surrounding_text,
+                                                                      cursor_position));
+
+        test_setup.notifier.notify(update_event.data());
+
+        QCOMPARE(test_setup.host.preeditStringSent(), expected_preedit_string_sent);
+        if (expected_preedit_string_sent) {
+            QCOMPARE(test_setup.host.lastPreeditString(), expected_preedit);
+            QCOMPARE(test_setup.host.lastReplaceStart(), expected_replace_start);
+            QCOMPARE(test_setup.host.lastReplaceLength(), expected_replace_length);
+            QCOMPARE(test_setup.host.lastCursorPos(), expected_cursor_position);
+        }
+        QCOMPARE(test_setup.editor.text()->preedit(), expected_preedit);
+        QCOMPARE(test_setup.editor.text()->cursorPosition(), expected_cursor_position);
     }
 };
 
