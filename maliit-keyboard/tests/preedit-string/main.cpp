@@ -120,7 +120,7 @@ KeyArea createAbcdArea()
 }
 
 QList<QMouseEvent *> createPressReleaseEvent(const QPoint &origin,
-                                             Logic::Layout::Orientation orientation)
+                                             Logic::Layout::Orientation orientation = Logic::Layout::Landscape)
 {
     static const int offset(g_size / (g_divider * 2));
 
@@ -499,6 +499,129 @@ private:
             QCOMPARE(test_setup.host.lastCursorPos(), expected_cursor_position);
         }
         QCOMPARE(test_setup.editor.text()->preedit(), expected_preedit);
+        QCOMPARE(test_setup.editor.text()->cursorPosition(), expected_cursor_position);
+    }
+
+    Q_SLOT void testPreeditActivationTyping_data()
+    {
+        QTest::addColumn<QString>("surrounding_text");
+        QTest::addColumn<int>("cursor_position");
+        QTest::addColumn<QList<QMouseEvent *> >("events");
+        QTest::addColumn<QString>("expected_preedit_string");
+        QTest::addColumn<int>("expected_cursor_position");
+
+        QTest::newRow("'aaa bbb', select first 'a', then type 'd'")
+            << "aaa bbbb" // surrounding text
+            << 0 // chosen cursor position
+            << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("d")))
+            << "daaa" // expected preedit
+            << 1; // expected cursor position (relative to the beginning of preedit)
+
+        QTest::newRow("'aaa bbb', select second 'a', then type 'd'")
+            << "aaa bbbb" // surrounding text
+            << 1 // chosen cursor position
+            << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("d")))
+            << "adaa" // expected preedit
+            << 2; // expected cursor position (relative to the beginning of preedit)
+
+        QTest::newRow("'aaa bbb', select third 'a', then type 'd'")
+            << "aaa bbbb" // surrounding text
+            << 2 // chosen cursor position
+            << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("d")))
+            << "aada" // expected preedit
+            << 3; // expected cursor position (relative to the beginning of preedit)
+
+        QTest::newRow("'aaa bbb', select space between words, then type 'd'")
+            << "aaa bbbb" // surrounding text
+            << 3 // chosen cursor position
+            << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("d")))
+            << "aaad" // expected preedit
+            << 4; // expected cursor position (relative to the beginning of preedit)
+
+        QTest::newRow("'aaa bbb', select first 'b', then type 'd'")
+            << "aaa bbbb" // surrounding text
+            << 4 // chosen cursor position
+            << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("d")))
+            << "dbbbb" // expected preedit
+            << 1; // expected cursor position (relative to the beginning of preedit)
+
+        QTest::newRow("'aaa bbb', select after last 'b', then type 'd'")
+            << "aaa bbbb" // surrounding text
+            << 8 // chosen cursor position
+            << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("d")))
+            << "bbbbd" // expected preedit
+            << 5; // expected cursor position (relative to the beginning of preedit)
+
+        QTest::newRow("' aaa', select leading space, then type 'd'")
+            << " aaa" // surrounding text
+            << 0 // chosen cursor position
+            << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("d")))
+            << "d" // expected preedit
+            << 1; // expected cursor position (relative to the beginning of preedit)
+
+        QTest::newRow("'a  b', select space before 'b', then type 'd'")
+            << "a  b" // surrounding text
+            << 2 // chosen cursor position
+            << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("d")))
+            << "d" // expected preedit
+            << 1; // expected cursor position (relative to the beginning of preedit)
+
+        QTest::newRow("'a  ', select last space, then type 'd'")
+            << "a  " // surrounding text
+            << 2 // chosen cursor position
+            << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("d")))
+            << "d" // expected preedit
+            << 1; // expected cursor position (relative to the beginning of preedit)
+
+        QTest::newRow("'a ', select after last space, then type 'd'")
+            << "a " // surrounding text
+            << 2 // chosen cursor position
+            << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("d")))
+            << "d" // expected preedit
+            << 1; // expected cursor position (relative to the beginning of preedit)
+
+        QTest::newRow("'aaa', select far after last char, then type 'd'")
+            << "aaa" // surrounding text
+            << 200 // chosen cursor position
+            << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("d")))
+            << "aaad" // expected preedit
+            << 4; // expected cursor position (relative to the beginning of preedit)
+
+        QTest::newRow("'aaa', select far before first char, then type 'd'")
+            << "aaa" // surrounding text
+            << -200 // chosen cursor position
+            << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("d")))
+            << "daaa" // expected preedit
+            << 1; // expected cursor position (relative to the beginning of preedit)
+
+        QTest::newRow("' aaa ', select trailing space, then type 'd'")
+            << " aaa " // surrounding text
+            << 4 // chosen cursor position
+            << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("d")))
+            << "aaad" // expected preedit
+            << 4; // expected cursor position (relative to the beginning of preedit)
+    }
+
+    Q_SLOT void testPreeditActivationTyping()
+    {
+        QFETCH(QString, surrounding_text);
+        QFETCH(int, cursor_position);
+        QFETCH(QList<QMouseEvent*>, events);
+        QFETCH(QString, expected_preedit_string);
+        QFETCH(int, expected_cursor_position);
+
+        SetupTest test_setup;
+        QScopedPointer<MImUpdateEvent> update_event(createUpdateEvent(surrounding_text,
+                                                                      cursor_position));
+
+        test_setup.notifier.notify(update_event.data());
+
+        Q_FOREACH (QMouseEvent *ev, events) {
+            QApplication::instance()->postEvent(test_setup.surface->view()->viewport(), ev);
+        }
+
+        TestUtils::waitForSignal(&test_setup.glass, SIGNAL(keyReleased(Key,Logic::Layout *)));
+        QCOMPARE(test_setup.host.lastPreeditString(), expected_preedit_string);
         QCOMPARE(test_setup.editor.text()->cursorPosition(), expected_cursor_position);
     }
 };
