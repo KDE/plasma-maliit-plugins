@@ -605,7 +605,9 @@ void LayoutUpdater::onWordCandidatesChanged(const WordCandidateList &candidates)
 
     for (int index = 0; index < candidates.count(); ++index) {
         WordCandidate word_candidate(candidates.at(index));
-        word_candidate.rArea().setSize(QSize(candidate_width, 56));
+        // FIXME candidate height needs to come from word ribbon height
+        word_candidate.rArea().setSize(QSize(word_candidate.source() == WordCandidate::SourceUser
+                                             ? attributes->keyAreaWidth(orientation) : candidate_width, 56));
         word_candidate.setOrigin(QPoint(index * candidate_width, 0));
         applyStyleToCandidate(&word_candidate, d->activeStyleAttributes(), orientation, DeactivateElement);
         ribbon.appendCandidate(word_candidate);
