@@ -47,7 +47,7 @@ public:
     // FIXME: Find better way to discover default dictionaries.
     // FIXME: Allow changing languages in between.
     explicit SpellChecker(const QString &dictionary_path = QString("/usr/share/hunspell/en_GB"),
-                          const QString &user_dictionary = QString("%1/.config/hunspell/en_GB.dic").arg(QDir::homePath()));
+                          const QString &user_dictionary = QString("%1/.config/maliit/userwords.txt").arg(QDir::homePath()));
 
     ~SpellChecker();
 

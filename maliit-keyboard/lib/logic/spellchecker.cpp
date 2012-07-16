@@ -72,6 +72,7 @@ struct SpellCheckerPrivate
     QTextCodec *codec; //!< Which codec to use.
     bool enabled; //!< Whether the spellchecker is enabled.
     QSet<QString> ignored_words; //!< The words to ignore.
+    QString user_dictionary_file;
 
     SpellCheckerPrivate(const QString &dictionary_path,
                         const QString &user_dictionary);
@@ -86,18 +87,23 @@ SpellCheckerPrivate::SpellCheckerPrivate(const QString &dictionary_path,
     , codec(QTextCodec::codecForName(hunspell.get_dic_encoding()))
     , enabled(false)
     , ignored_words()
+    , user_dictionary_file(user_dictionary)
 {
-    if (not user_dictionary.isEmpty() and QFile::exists(user_dictionary)) {
-        // Non-zero status means some error.
-        if (hunspell.add_dic(user_dictionary.toUtf8().constData())) {
-            qWarning() << __PRETTY_FUNCTION__ << ": Failed to add user dictionary (" << user_dictionary << ").";
-        }
-    }
-
     if (not codec) {
         qWarning () << __PRETTY_FUNCTION__ << ":Could not find codec for" << hunspell.get_dic_encoding() << "- turning off spellchecking and suggesting.";
         return;
     }
+
+    if (not user_dictionary.isEmpty() and QFile::exists(user_dictionary)) {
+        QFile file(user_dictionary);
+        if (file.open(QFile::ReadOnly)) {
+            QTextStream stream(&file);
+            while (!stream.atEnd()) {
+                hunspell.add(codec->fromUnicode(stream.readLine()));
+            }
+        }
+    }
+
     enabled = true;
 }
 
@@ -187,6 +193,13 @@ void SpellChecker::addToUserWordlist(const QString &word)
 
     if (not d->enabled) {
         return;
+    }
+
+    QFile user_dictionary(d->user_dictionary_file);
+    QDir::home().mkpath(QFileInfo(user_dictionary).absolutePath());
+    if (user_dictionary.open(QFile::Append)) {
+        QTextStream stream(&user_dictionary);
+        stream << word << endl;
     }
 
     // Non-zero return value means some error.
