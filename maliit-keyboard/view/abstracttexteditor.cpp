@@ -403,6 +403,7 @@ void AbstractTextEditor::addToUserDictionary(const QString &word)
     Q_D(AbstractTextEditor);
 
     d->word_engine->addToUserDictionary(word);
+    d->text->setPrimaryCandidate(word);
 
     Q_EMIT wordCandidatesChanged(WordCandidateList());
 }
