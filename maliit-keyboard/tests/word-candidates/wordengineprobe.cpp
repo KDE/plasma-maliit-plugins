@@ -64,8 +64,7 @@ WordCandidateList WordEngineProbe::fetchCandidates(Model::Text *text)
     text->setPrimaryCandidate(reverse);
 
     WordCandidateList result;
-    WordCandidate candidate;
-    candidate.rLabel().setText(reverse);
+    WordCandidate candidate(WordCandidate::SourcePrediction, reverse);
     result.append(candidate);
 
     return result;

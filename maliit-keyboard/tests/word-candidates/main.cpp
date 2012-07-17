@@ -46,6 +46,8 @@
 
 using namespace MaliitKeyboard;
 
+Q_DECLARE_METATYPE(WordCandidateList)
+
 namespace {
 
 void appendToPreedit(Editor *editor,
@@ -75,7 +77,9 @@ class TestWordCandidates
 
 private:
     Q_SLOT void initTestCase()
-    {}
+    {
+        qRegisterMetaType<WordCandidateList>("WordCandidateList");
+    }
 
     Q_SLOT void testPrediction_data()
     {
@@ -112,7 +116,7 @@ private:
         QFETCH(QString, expected_commit_history);
 
         Editor editor(EditorOptions(), new Model::Text, new Logic::WordEngineProbe);
-        QSignalSpy spy(&editor, SIGNAL(wordCandidatesChanged(QStringList)));
+        QSignalSpy spy(&editor, SIGNAL(wordCandidatesChanged(WordCandidateList)));
         QSignalSpy preedit_enabled_spy(&editor, SIGNAL(preeditEnabledChanged(bool)));
         QSignalSpy auto_correct_enabled_spy(&editor, SIGNAL(autoCorrectEnabledChanged(bool)));
 
@@ -137,9 +141,9 @@ private:
         QCOMPARE(spy.count(), expected_word_candidate_updates);
 
         if (spy.count() > 0) {
-            QStringList expected_word_candidate_list;
-            expected_word_candidate_list.append(expected_word_candidate);
-            QCOMPARE(spy.last().first().toStringList(), expected_word_candidate_list);
+            WordCandidateList expected_word_candidate_list;
+            expected_word_candidate_list.append(WordCandidate(WordCandidate::SourcePrediction, expected_word_candidate));
+            QCOMPARE(spy.last().first().value<WordCandidateList>(), expected_word_candidate_list);
         }
 
         enforceCommit(&editor);
@@ -147,7 +151,7 @@ private:
         QCOMPARE(host.commitStringHistory(), expected_commit_history);
 
         if (spy.count() > 0) {
-            QCOMPARE(spy.takeLast().first().toStringList(), QStringList());
+            QCOMPARE(spy.takeLast().first().value<WordCandidateList>(), WordCandidateList());
         }
     }
 
@@ -155,7 +159,7 @@ private:
     Q_SLOT void testWordCandidatesChanged()
     {
         Editor editor(EditorOptions(), new Model::Text, new Logic::WordEngineProbe);
-        QSignalSpy spy(&editor, SIGNAL(wordCandidatesChanged(QStringList)));
+        QSignalSpy spy(&editor, SIGNAL(wordCandidatesChanged(WordCandidateList)));
 
         InputMethodHostProbe host;
         editor.setHost(&host);
