@@ -39,6 +39,7 @@
 #include "view/glass.h"
 #include "view/setup.h"
 #include "plugin/editor.h"
+#include "plugin/updatenotifier.h"
 #include "inputmethodhostprobe.h"
 #include "wordengineprobe.h"
 
@@ -139,6 +140,59 @@ bool operator==(const Maliit::PreeditTextFormat &a, const Maliit::PreeditTextFor
 
 } // unnamed namespace
 
+struct BasicSetupTest
+{
+    BasicSetupTest(bool enable_word_engine = true)
+        : editor(EditorOptions(), new Model::Text, new Logic::WordEngineProbe, 0)
+        , host()
+        , notifier()
+    {
+        editor.setHost(&host);
+        editor.wordEngine()->setEnabled(enable_word_engine);
+
+        QObject::connect(&notifier, SIGNAL(cursorPositionChanged(int, QString)),
+                         &editor,   SLOT(onCursorPositionChanged(int, QString)));
+
+    }
+
+    Editor editor;
+    InputMethodHostProbe host;
+    UpdateNotifier notifier;
+};
+
+struct SetupTest : public BasicSetupTest
+{
+    SetupTest(Logic::Layout::Orientation orientation = Logic::Layout::Landscape,
+              bool enable_word_engine = true)
+        : BasicSetupTest(enable_word_engine)
+        , glass()
+        , layout(new Logic::Layout)
+        , surface(Maliit::Plugins::createTestGraphicsViewSurface())
+        , extended_surface(Maliit::Plugins::createTestGraphicsViewSurface(surface))
+        , key_area(createAbcdArea())
+    {
+        // geometry stuff is usually done by maliit-server, so we need
+        // to do it manually here:
+        //surface->view()->viewport()->setGeometry(0, 0, g_size, g_size);
+        surface->view()->setSceneRect(0, 0, g_size, g_size);
+        surface->scene()->setSceneRect(0, 0, g_size, g_size);
+        glass.setSurface(surface);
+        glass.setExtendedSurface(extended_surface);
+        glass.addLayout(&layout);
+        layout.setOrientation(orientation);
+
+        Setup::connectGlassToTextEditor(&glass, &editor);
+
+        layout.setExtendedPanel(key_area);
+        layout.setActivePanel(Logic::Layout::ExtendedPanel);
+    }
+
+    Glass glass;
+    Logic::Layout layout;
+    QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> surface;
+    QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> extended_surface;
+    KeyArea key_area;
+};
 
 class TestPreeditString
     : public QObject
