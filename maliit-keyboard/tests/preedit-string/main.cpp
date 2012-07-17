@@ -318,39 +318,16 @@ private:
         QFETCH(QList<Maliit::PreeditTextFormat>, expected_preedit_format);
         QFETCH(bool, word_engine_enabled);
 
-        Glass glass;
-        Editor editor(EditorOptions(), new Model::Text, new Logic::WordEngineProbe, 0);
-        InputMethodHostProbe host;
-        Logic::Layout layout(new Logic::Layout);
-        QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> surface(Maliit::Plugins::createTestGraphicsViewSurface());
-        QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> extended_surface(Maliit::Plugins::createTestGraphicsViewSurface(surface));
-
-        // geometry stuff is usually done by maliit-server, so we need
-        // to do it manually here:
-        //surface->view()->viewport()->setGeometry(0, 0, g_size, g_size);
-        surface->view()->setSceneRect(0, 0, g_size, g_size);
-        surface->scene()->setSceneRect(0, 0, g_size, g_size);
-        glass.setSurface(surface);
-        glass.setExtendedSurface(extended_surface);
-        glass.addLayout(&layout);
-        editor.setHost(&host);
-        layout.setOrientation(orientation);
-        editor.wordEngine()->setEnabled(word_engine_enabled);
-
-        Setup::connectGlassToTextEditor(&glass, &editor);
-        const KeyArea &key_area(createAbcdArea());
-
-        layout.setExtendedPanel(key_area);
-        layout.setActivePanel(Logic::Layout::ExtendedPanel);
+        SetupTest test_setup(orientation, word_engine_enabled);
 
         Q_FOREACH (QMouseEvent *ev, mouse_events) {
-            QApplication::instance()->postEvent(surface->view()->viewport(), ev);
+            QApplication::instance()->postEvent(test_setup.surface->view()->viewport(), ev);
         }
 
-        TestUtils::waitForSignal(&glass, SIGNAL(keyReleased(Key,Logic::Layout *)));
-        QCOMPARE(host.lastPreeditString(), expected_last_preedit_string);
-        QCOMPARE(host.commitStringHistory(), expected_commit_string);
-        QCOMPARE(host.lastPreeditTextFormatList(), expected_preedit_format);
+        TestUtils::waitForSignal(&test_setup.glass, SIGNAL(keyReleased(Key,Logic::Layout *)));
+        QCOMPARE(test_setup.host.lastPreeditString(), expected_last_preedit_string);
+        QCOMPARE(test_setup.host.commitStringHistory(), expected_commit_string);
+        QCOMPARE(test_setup.host.lastPreeditTextFormatList(), expected_preedit_format);
     }
 };
 
