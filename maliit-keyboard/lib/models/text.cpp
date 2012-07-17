@@ -31,9 +31,16 @@
 
 #include "text.h"
 
+//! \class Text
+//! \brief Represents the text state of the editor
+//!
+//! Both MaliitKeyboard::AbstractTextEditor and
+//! MaliitKeyboard::Logic::AbstractWordEngine operate on the text model.
+
 namespace MaliitKeyboard {
 namespace Model {
 
+//! C'tor
 Text::Text()
     : m_preedit()
     , m_surrounding()
@@ -41,21 +48,28 @@ Text::Text()
     , m_face(PreeditDefault)
 {}
 
+//! Returns current preedit.
 QString Text::preedit() const
 {
     return m_preedit;
 }
 
+//! Set current preedit.
+//! \param preedit the updated preedit.
 void Text::setPreedit(const QString &preedit)
 {
     m_preedit = preedit;
 }
 
+//! Append to preedit.
+//! \param appendix the string to append to current preedit.
 void Text::appendToPreedit(const QString &appendix)
 {
     m_preedit.append(appendix);
 }
 
+//! Commits current preedit. Insert preedit into surrounding text and
+//! updates surrounding offset to match expected cursor position.
 void Text::commitPreedit()
 {
     // FIXME: Guessing the surrounding text like this might not be quite right;
@@ -69,51 +83,66 @@ void Text::commitPreedit()
     m_face = PreeditDefault;
 }
 
+//! Returns the primary candidate, usually provided by word engine.
 QString Text::primaryCandidate() const
 {
     return m_primary_candidate;
 }
 
+//! Set the primary candidate.
+//! \param candidate the primary candidate
 void Text::setPrimaryCandidate(const QString &candidate)
 {
     m_primary_candidate = candidate;
 }
 
+//! Returns text surrounding cursor position.
 QString Text::surrounding() const
 {
     return m_surrounding;
 }
 
+//! Returns text left of cursor position. Depends on surroundingOffset.
 QString Text::surroundingLeft() const
 {
     return m_surrounding.left(m_surrounding_offset);
 }
 
+//! Returns text right of cursor position. Depends on surroundingOffset.
 QString Text::surroundingRight() const
 {
     return m_surrounding.mid(m_surrounding_offset);
 }
 
+//! Set text surrounding cursor position.
+//! \param surrounding the updated surrounding text.
 void Text::setSurrounding(const QString &surrounding)
 {
     m_surrounding = surrounding;
 }
 
+//! Returns offset of cursor position in surrounding text.
 uint Text::surroundingOffset() const
 {
     return m_surrounding_offset;
 }
 
+//! Set offset of cursor position in surrounding text. Affects
+//! surroundingLeft and surroundingRight.
+//! \param offset the updated offset.
 void Text::setSurroundingOffset(uint offset)
 {
     m_surrounding_offset = offset;
 }
 
+//! Returns face of preedit.
 Text::PreeditFace Text::preeditFace() const
 {
     return m_face;
 }
 
+//! Sets face of preedit.
+//! \param face new face of preedit.
 void Text::setPreeditFace(PreeditFace face)
 {
     m_face = face;

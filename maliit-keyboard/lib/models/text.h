@@ -37,10 +37,6 @@
 namespace MaliitKeyboard {
 namespace Model {
 
-//! \brief Represents the text state of the editor
-//!
-//! Both MaliitKeyboard::AbstractTextEditor and
-//! MaliitKeyboard::Logic::AbstractWordEngine operate on the text model.
 class Text
 {
 public:
@@ -60,48 +56,25 @@ private:
     PreeditFace m_face; //!< face of preedit.
 
 public:
-    //! C'tor
     explicit Text();
 
-    //! Returns current preedit.
     QString preedit() const;
-    //! Set current preedit.
-    //! \param preedit the updated preedit.
     void setPreedit(const QString &preedit);
-    //! Append to preedit.
-    //! \param appendix the string to append to current preedit.
     void appendToPreedit(const QString &appendix);
-    //! Commits current preedit. Insert preedit into surrounding text and
-    //! updates surrounding offset to match expected cursor position.
     void commitPreedit();
 
-    //! Returns the primary candidate, usually provided by word engine.
     QString primaryCandidate() const;
-    //! Set the primary candidate.
-    //! \param candidate the primary candidate
     void setPrimaryCandidate(const QString &candidate);
 
-    //! Returns text surrounding cursor position.
     QString surrounding() const;
-    //! Returns text left of cursor position. Depends on surroundingOffset.
     QString surroundingLeft() const;
-    //! Returns text right of cursor position. Depends on surroundingOffset.
     QString surroundingRight() const;
-    //! Set text surrounding cursor position.
-    //! \param surrounding the updated surrounding text.
     void setSurrounding(const QString &surrounding);
 
-    //! Returns offset of cursor position in surrounding text.
     uint surroundingOffset() const;
-    //! Set offset of cursor position in surrounding text. Affects
-    //! surroundingLeft and surroundingRight.
-    //! \param offset the updated offset.
     void setSurroundingOffset(uint offset);
 
-    //! Returns face of preedit.
     PreeditFace preeditFace() const;
-    //! Sets face of preedit.
-    //! \param face new face of preedit.
     void setPreeditFace(PreeditFace face);
 };
 
