@@ -34,10 +34,135 @@
 
 namespace MaliitKeyboard {
 
+//! \class EditorOptions
+//! \brief Plain struct implementing editor options.
+
+//! \fn EditorOptions::EditorOptions()
+//! \brief Constructor.
+//!
+//! Sets backspace_auto_repeat_delay to 500 miliseconds and backspace_auto_repeat_interval to 300 miliseconds.
+
+//! \var EditorOptions::backspace_auto_repeat_delay
+//! \brief Delay before first automatically repeated key in miliseconds.
+
+//! \var EditorOptions::backspace_auto_repeat_interval
+//! \brief Interval between automatically repeated key in miliseconds.
+
+//! \class AbstractTextEditor
+//! \brief Class implementing preedit edition.
+//!
+//! It owns a text model (which can be gotten by text() method) and a
+//! word engine (word_engine()). The class has to be subclassed and
+//! subclass has to provide sendPreeditString(), sendCommitString(),
+//! sendKeyEvent() and destructor implementations.
+
+// The function declaration has to be in one line, because \fn is a
+// single line parameter.
+//! \fn void AbstractTextEditor::sendPreeditString(const QString &preedit, Model::Text::PreeditFace face, const Replacement &replacement)
+//! \brief Sends preedit to application.
+//! \param preedit Preedit to send.
+//! \param face Face of the preedit.
+//! \param replacement Struct describing replacement of the text.
+//!
+//! Implementations of this pure virtual method have to convert \a
+//! face into specific attributes used by backend they
+//! support. Preedit text has to be sent as-is. Replacement members
+//! should be understood as follows: if either start or length are
+//! lesser than zero or both of them are zeros then those parameters
+//! should be ignored. Otherwise they mark the beginning and length of
+//! a surrounding text's substring that is going to be replaced by
+//! given \a preedit. Cursor position member of replacement should be
+//! ignored if its value is lesser than zero. Otherwise it describes a
+//! position of cursor relatively to the beginning of preedit.
+
+//! \fn void AbstractTextEditor::sendCommitString(const QString &commit)
+//! \brief Commits a string to application.
+//! \param commit String to be commited in place of preedit.
+//!
+//! Implementations of this method should discard current preedit and
+//! commit given \a commit in its place.
+
+//! \fn void AbstractTextEditor::sendKeyEvent(const QKeyEvent &ev)
+//! \brief Sends a key event to application.
+//! \param ev Key event to send.
+//!
+//! The implementation should translate passed \a ev to values their
+//! backend understands and pass this to application.
+
+//! \property AbstractTextEditor::preeditEnabled
+//! \brief Describes whether preedit is enabled.
+//!
+//! When it is \c false then everything typed by virtual keyboard is
+//! immediately commited.
+
+//! \property AbstractTextEditor::autoCorrectEnabled
+//! \brief Describes whether auto correction on space is enabled.
+//!
+//! When it is \c true then pressing space will commit corrected word
+//! if it was misspelled. Otherwise it will just commit what was in
+//! preedit.
+
+//! \fn void AbstractTextEditor::autoCapsActivated()
+//! \brief Emitted when auto capitalization mode is enabled for
+//! following input.
+
+//! \fn void AbstractTextEditor::autoCorrectEnabledChanged(bool enabled)
+//! \brief Emitted when auto correction setting changes.
+//! \param enabled New setting.
+
+//! \fn void AbstractTextEditor::preeditEnabledChanged(bool enabled)
+//! \brief Emitted when preedit setting changes.
+//! \param enabled New setting.
+
+//! \fn void AbstractTextEditor::wordCandidatesChanged(const WordCandidateList &word_candidates)
+//! \brief Emitted when new word candidates are generated.
+//! \param word_candidates New word candidates.
+//!
+//! Note that the list might be empty as well to indicate that there
+//! should be no word candidates.
+
+//! \fn void AbstractTextEditor::keyboardClosed()
+//! \brief Emitted when keyboard close is requested.
+
+//! \class AbstractTextEditor::Replacement
+//! \brief Plain struct containing beginning and length of replacement and
+//! desired cursor position.
+//!
+//! Mostly used by sendPreeditString() implementations.
+
+//! \fn AbstractTextEditor::Replacement::Replacement()
+//! \brief Constructor.
+//!
+//! Constructs an instance with no replacement and no cursor position
+//! change.
+
+//! \fn AbstractTextEditor::Replacement::Replacement(int position)
+//! \brief Constructor.
+//! \param position New cursor position.
+//!
+//! Constructs an instance with no replacement and new cursor position.
+
+//! \fn AbstractTextEditor::Replacement::Replacement(int r_start, int r_length, int position)
+//! \brief Constructor.
+//! \param r_start Replacement start.
+//! \param r_length Replacement length.
+//! \param position New cursor position.
+//!
+//! Constructs an instance with a replacement and new cursor position.
+
+//! \var AbstractTextEditor::Replacement::start
+//! \brief Beginning of replacement.
+
+//! \var AbstractTextEditor::Replacement::length
+//! \brief Length of replacement.
+
+//! \var AbstractTextEditor::Replacement::cursor_position
+//! \brief New cursor position relative to the beginning of preedit.
+
 namespace {
 
-//! Checks whether given \a c is a word separator.
-//! \param c char to test
+//! \brief Checks whether given \a c is a word separator.
+//! \param c Char to test.
 //!
 //! Other way to do checks would be using isLetterOrNumber() + some
 //! other methods. But UTF is so crazy that I am not sure whether
@@ -48,10 +173,10 @@ inline bool isSeparator(const QChar &c)
     return (c.isPunct() or c.isSpace());
 }
 
-//! Extracts a word boundaries at cursor position.
-//! \param surrounding_text text from which extraction will happen
-//! \param cursor_position position of cursor within \a surrounding_text
-//! \param replacement place where replacement data will be stored
+//! \brief Extracts a word boundaries at cursor position.
+//! \param surrounding_text Text from which extraction will happen.
+//! \param cursor_position Position of cursor within \a surrounding_text.
+//! \param replacement Place where replacement data will be stored.
 //!
 //! \return whether surrounding text was valid (not empty).
 //!
@@ -183,6 +308,14 @@ bool AbstractTextEditorPrivate::valid() const
     return (not is_invalid);
 }
 
+//! \brief Constructor.
+//! \param options Editor options.
+//! \param text Text model.
+//! \param word_engine Word engine.
+//! \param language_features Language features.
+//! \param parent Parent of this instance or \c NULL if none is needed.
+//!
+//! Takes ownership of \a text, \a word_engine and \a language_features.
 AbstractTextEditor::AbstractTextEditor(const EditorOptions &options,
                                        Model::Text *text,
                                        Logic::AbstractWordEngine *word_engine,
@@ -203,21 +336,29 @@ AbstractTextEditor::AbstractTextEditor(const EditorOptions &options,
     setPreeditEnabled(word_engine->isEnabled());
 }
 
+//! \brief Destructor.
 AbstractTextEditor::~AbstractTextEditor()
 {}
 
+//! \brief Gets editor's text model.
 Model::Text * AbstractTextEditor::text() const
 {
     Q_D(const AbstractTextEditor);
     return d->text.data();
 }
 
+//! \brief Gets editor's word engine.
 Logic::AbstractWordEngine * AbstractTextEditor::wordEngine() const
 {
     Q_D(const AbstractTextEditor);
     return d->word_engine.data();
 }
 
+//! \brief Reacts to key press.
+//! \param key Pressed key.
+//!
+//! For now it only checks whether backspace was pressed. In such case
+//! preedit is commited and primary candidate is cleared.
 void AbstractTextEditor::onKeyPressed(const Key &key)
 {
     Q_D(AbstractTextEditor);
@@ -239,6 +380,14 @@ void AbstractTextEditor::onKeyPressed(const Key &key)
     }
 }
 
+//! \brief Reacts to key release.
+//! \param key Released key.
+//!
+//! If common key is pressed then it is appended to preedit.  If
+//! backspace was pressed then preedit is commited and a character
+//! before cursor is removed. If space is pressed then primary
+//! candidate is applied if enabled. In other cases standard behaviour
+//! applies.
 void AbstractTextEditor::onKeyReleased(const Key &key)
 {
     Q_D(AbstractTextEditor);
@@ -345,6 +494,11 @@ void AbstractTextEditor::onKeyReleased(const Key &key)
     }
 }
 
+//! \brief Reacts to sliding into a key.
+//! \param key Slid in key.
+//!
+//! For now it only set backspace repeat timer if we slide into
+//! backspace.
 void AbstractTextEditor::onKeyEntered(const Key &key)
 {
     Q_D(AbstractTextEditor);
@@ -355,6 +509,11 @@ void AbstractTextEditor::onKeyEntered(const Key &key)
     }
 }
 
+//! \brief Reacts to sliding out of a key.
+//! \param key Slid out key.
+//!
+//! For now it only stops backspace repeat timer if we slide out
+//! from backspace.
 void AbstractTextEditor::onKeyExited(const Key &key)
 {
     Q_D(AbstractTextEditor);
@@ -364,6 +523,8 @@ void AbstractTextEditor::onKeyExited(const Key &key)
     }
 }
 
+//! \brief Replaces current preedit with given replacement
+//! \param replacement New preedit.
 void AbstractTextEditor::replacePreedit(const QString &replacement)
 {
     Q_D(AbstractTextEditor);
@@ -379,6 +540,9 @@ void AbstractTextEditor::replacePreedit(const QString &replacement)
     sendPreeditString(d->text->preedit(), d->text->preeditFace());
 }
 
+//! \brief Replaces current preedit with given replacement and then
+//! commits it.
+//! \param replacement New preedit string to commit.
 void AbstractTextEditor::replaceAndCommitPreedit(const QString &replacement)
 {
     Q_D(AbstractTextEditor);
@@ -398,17 +562,23 @@ void AbstractTextEditor::replaceAndCommitPreedit(const QString &replacement)
     }
 }
 
+//! \brief Clears preedit.
 void AbstractTextEditor::clearPreedit()
 {
     replacePreedit("");
 }
 
+//! \brief Returns whether preedit functionality is enabled.
+//! \sa preeditEnabled
 bool AbstractTextEditor::isPreeditEnabled() const
 {
     Q_D(const AbstractTextEditor);
     return d->preedit_enabled;
 }
 
+//! \brief Sets whether enable preedit functionality.
+//! \param enabled \c true to enable preedit functionality.
+//! \sa preeditEnabled
 void AbstractTextEditor::setPreeditEnabled(bool enabled)
 {
     Q_D(AbstractTextEditor);
@@ -419,12 +589,17 @@ void AbstractTextEditor::setPreeditEnabled(bool enabled)
     }
 }
 
+//! \brief Returns whether auto-correct functionality is enabled.
+//! \sa autoCorrectEnabled
 bool AbstractTextEditor::isAutoCorrectEnabled() const
 {
     Q_D(const AbstractTextEditor);
     return d->auto_correct_enabled;
 }
 
+//! \brief Sets whether enable the auto-correct functionality.
+//! \param enabled \c true to enable auto-correct functionality.
+//! \sa autoCorrectEnabled
 void AbstractTextEditor::setAutoCorrectEnabled(bool enabled)
 {
     Q_D(AbstractTextEditor);
@@ -451,6 +626,7 @@ void AbstractTextEditor::setAutoCapsEnabled(bool enabled)
     }
 }
 
+//! \brief Commits current preedit.
 void AbstractTextEditor::commitPreedit()
 {
     Q_D(AbstractTextEditor);
@@ -473,6 +649,7 @@ void AbstractTextEditor::commitPreedit()
 //      but we can follow the strategy from meego-keyboard - release pressed
 //      key when user press another one at the same time. Then we do not need to
 //      change anything in this method
+//! \brief Sends backspace and sets backspace repeat timer.
 void AbstractTextEditor::autoRepeatBackspace()
 {
     Q_D(AbstractTextEditor);
@@ -483,6 +660,8 @@ void AbstractTextEditor::autoRepeatBackspace()
     d->auto_repeat_backspace_timer.start(d->options.backspace_auto_repeat_interval);
 }
 
+//! \brief Emits wordCandidatesChanged() signal with current preedit
+//! as a candidate.
 void AbstractTextEditor::showUserCandidate()
 {
     Q_D(AbstractTextEditor);
@@ -495,6 +674,8 @@ void AbstractTextEditor::showUserCandidate()
     Q_EMIT wordCandidatesChanged(candidates);
 }
 
+//! \brief Adds \a word to user dictionary.
+//! \param word Word to be added.
 void AbstractTextEditor::addToUserDictionary(const QString &word)
 {
     Q_D(AbstractTextEditor);
@@ -505,12 +686,22 @@ void AbstractTextEditor::addToUserDictionary(const QString &word)
     Q_EMIT wordCandidatesChanged(WordCandidateList());
 }
 
+//! \brief Sends preedit string to application with no replacement.
+//! \param preedit Preedit to send.
+//! \param face Face of the preedit.
 void AbstractTextEditor::sendPreeditString(const QString &preedit,
                                            Model::Text::PreeditFace face)
 {
     sendPreeditString(preedit, face, Replacement());
 }
 
+//! \brief Reacts to cursor position change in application's text
+//! field.
+//! \param cursor_position new cursor position
+//! \param surrounding_text surrounding text of a preedit
+//!
+//! Extract words with the cursor inside and replaces it with a preedit.
+//! This is called preedit activation.
 void AbstractTextEditor::onCursorPositionChanged(int cursor_position,
                                                  const QString &surrounding_text)
 {
