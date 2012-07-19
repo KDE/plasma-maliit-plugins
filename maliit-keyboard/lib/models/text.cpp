@@ -60,6 +60,7 @@ QString Text::preedit() const
 void Text::setPreedit(const QString &preedit)
 {
     m_preedit = preedit;
+    m_cursor_position = preedit.length();
 }
 
 //! Append to preedit.

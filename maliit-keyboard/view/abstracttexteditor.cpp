@@ -535,8 +535,11 @@ void AbstractTextEditor::onCursorPositionChanged(int cursor_position,
         Replacement word_r(cursor_pos_relative_word_begin, r.length,
                            word_begin_relative_cursor_pos);
 
-        d->text->setCursorPosition(word_begin_relative_cursor_pos);
+        // We have to first set preedit string, then cursor position.
+        // Setting preedit string sets cursor position to preedit's
+        // end.
         d->text->setPreedit(word);
+        d->text->setCursorPosition(word_begin_relative_cursor_pos);
         // computeCandidates can change preedit face, so needs to happen
         // before sending preedit:
         d->word_engine->computeCandidates(d->text.data());
