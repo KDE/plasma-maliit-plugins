@@ -30,7 +30,12 @@ SEPARATE_MEMBER_PAGES  = NO
 
 TAB_SIZE               = 8
 
-ALIASES                =
+# This does not work now:
+# http://sourceforge.net/mailarchive/message.php?msg_id=23227476
+ALIASES                = "reimp=\cond REIMPLEMENTATION" \
+                         "reimp_end=\endcond" \
+                         "internal=\cond INTERNAL" \
+                         "internal_end=\endcond"
 TCL_SUBST              =
 
 OPTIMIZE_OUTPUT_FOR_C  = NO
@@ -106,7 +111,7 @@ WARN_IF_UNDOCUMENTED   = YES
 WARN_IF_DOC_ERROR      = YES
 WARN_NO_PARAMDOC       = NO
 WARN_FORMAT            = "$file:$line: $text"
-WARN_LOGFILE           =
+WARN_LOGFILE           = doxygen_warnings.log
 
 INPUT                  = @IN_PWD@/../maliit-keyboard
 INPUT_ENCODING         = UTF-8
@@ -114,7 +119,8 @@ FILE_PATTERNS          =
 RECURSIVE              = YES
 EXCLUDE                =
 EXCLUDE_SYMLINKS       = NO
-EXCLUDE_PATTERNS       = */tests/*
+EXCLUDE_PATTERNS       = */tests/* \
+                         */moc_*.cpp
 EXCLUDE_SYMBOLS        = MaliitKeyboard::*Private
 
 EXAMPLE_PATH           =

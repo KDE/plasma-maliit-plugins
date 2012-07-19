@@ -39,15 +39,15 @@ namespace Logic {
 //! provide an implementation for \a fetchCandidates().
 //! \sa Model::Text, computeCandidates().
 
-//! \fn enabledChanged
+//! \fn void AbstractWordEngine::enabledChanged(bool enabled)
 //! \brief Emitted when word engine toggles word candidate updates on/off.
 //! \param enabled Whether word engine is enabled.
 
-//! \fn candidatesChanged
+//! \fn void AbstractWordEngine::candidatesChanged(const WordCandidateList &candidates)
 //! \brief Emitted when new candidates have been computed.
 //! \param candidates The list of updated candidates.
 
-//! \fn fetchCandidates
+//! \fn WordCandidateList AbstractWordEngine::fetchCandidates(Model::Text *text)
 //! \brief Returns a list of candidates.
 //!
 //! Needs to be implemented by derived classes. Will not be called if engine

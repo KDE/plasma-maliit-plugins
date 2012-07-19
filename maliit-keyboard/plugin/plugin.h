@@ -49,11 +49,11 @@ class MaliitKeyboardPlugin
 public:
     explicit MaliitKeyboardPlugin(QObject *parent = 0);
 
-    //! \reimpl
+    //! \reimp
     virtual QString name() const;
     virtual MAbstractInputMethod * createInputMethod(MAbstractInputMethodHost *host);
     virtual QSet<Maliit::HandlerState> supportedStates() const;
-    //! \reimpl_end
+    //! \reimp_end
 };
 
 #endif // MALIIT_KEYBOARD_PLUGIN_H
