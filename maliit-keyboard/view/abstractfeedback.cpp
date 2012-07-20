@@ -31,33 +31,45 @@
 
 #include "abstractfeedback.h"
 
-//! \class MaliitKeyboard::AbstractFeedback
-//! An abstract class to play various kind of feedback for certain keyboard
-//! interactions, such as key presses or gestures.
-//! Derived classes provide the actual feedback functionality. They need to
-//! implement (but never call) the private virtual playSomething methods.
+namespace MaliitKeyboard
+{
 
-//! \fn MaliitKeyboard::AbstractFeedback::setStyle
+//! \class AbstractFeedback
+//! \brief An abstract class to play various kind of feedback for
+//! certain keyboard interactions, such as key presses or gestures.
+//!
+//! Derived classes have to provide the actual feedback
+//! functionality. They need to implement (but never call) the private
+//! virtual playSomething methods. A setStyle() method has to be
+//! implemented as well.
+
+//! \fn AbstractFeedback::setStyle
 //! \brief Sets the shared Style instance.
+//! \param style A style to use.
 //!
 //! Feedback implementations that depend on style attributes should probably
 //! refresh all their feedback effects when this method is called.
 //! AbstractFeedback does not store the Style instance in any way.
 
-//! \fn MaliitKeyboard::AbstractFeedback::playPressFeedback
+//! \fn AbstractFeedback::playPressFeedback
 //! \brief Plays feedback when pressing a key.
 
-//! \fn MaliitKeyboard::AbstractFeedback::playReleaseFeedback
+//! \fn AbstractFeedback::playReleaseFeedback
 //! \brief Plays feedback when releasing a key.
 
-//! \fn MaliitKeyboard::AbstractFeedback::playLayoutChangeFeedback
+//! \fn AbstractFeedback::playLayoutChangeFeedback
 //! \brief Plays feedback when changing a keyboard layout.
 
-//! \fn MaliitKeyboard::AbstractFeedback::playKeyboardHideFeedback
+//! \fn AbstractFeedback::playKeyboardHideFeedback
 //! \brief Plays feedback when hiding the keyboard.
 
-namespace MaliitKeyboard
-{
+//! \property AbstractFeedback::enabled
+//! \brief Describes whether feedback should be triggered.
+
+//! \fn void AbstractFeedback::enabledChanged(bool enabled)
+//! \brief Emitted when enable setting has changed.
+//! \param enabled Whether feedback provider is enabled.
+//! \sa AbstractFeedback::enabled
 
 class AbstractFeedbackPrivate
 {
@@ -71,19 +83,23 @@ AbstractFeedbackPrivate::AbstractFeedbackPrivate()
     : enabled(false)
 {}
 
-//! @param parent The owner of this instance. Can be 0, in case QObject
+//! \brief Constructor.
+//! \param parent The owner of this instance. Can be 0, in case QObject
 //!               ownership is not required.
 AbstractFeedback::AbstractFeedback(QObject *parent)
     : QObject(parent)
     , d_ptr(new AbstractFeedbackPrivate)
 {}
 
+//! \brief Destructor.
 AbstractFeedback::~AbstractFeedback()
 {}
 
-//! \brief Set whether the feedback should be triggered.
+//! \brief Set whether the feedback provider is enabled.
+//! \param enabled Whether to enable feedback provider.
+//!
 //! Emits enableChanged() signal if change occurs.
-//! @param enabled Whether feedback should be triggered.
+//! \sa AbstractFeedback::enabled
 void AbstractFeedback::setEnabled(bool enabled)
 {
     Q_D(AbstractFeedback);
@@ -95,6 +111,7 @@ void AbstractFeedback::setEnabled(bool enabled)
 }
 
 //! \brief Returns whether feedback is triggered.
+//! \sa AbstractFeedback::enabled
 bool AbstractFeedback::isEnabled() const
 {
     Q_D(const AbstractFeedback);
