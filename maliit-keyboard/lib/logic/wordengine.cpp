@@ -66,9 +66,10 @@ void appendToCandidates(WordCandidateList *candidates,
 } // namespace
 
 //! \class WordEngine
-//! Provides error correction (based on Hunspell) and word prediction (based
-//! on Presage).
+//! \brief Provides error correction (based on Hunspell) and word
+//! prediction (based on Presage).
 
+//! \internal
 #ifdef HAVE_PRESAGE
 class CandidatesCallback
     : public PresageCallback
@@ -99,7 +100,7 @@ std::string CandidatesCallback::get_future_stream() const
     return m_empty;
 }
 #endif
-
+//! \internal_end
 
 class WordEnginePrivate
 {
@@ -130,6 +131,7 @@ WordEnginePrivate::WordEnginePrivate()
 }
 
 
+//! \brief Constructor.
 //! \param parent The owner of this instance. Can be 0, in case QObject
 //!               ownership is not required.
 WordEngine::WordEngine(QObject *parent)
@@ -137,7 +139,7 @@ WordEngine::WordEngine(QObject *parent)
     , d_ptr(new WordEnginePrivate)
 {}
 
-
+//! \brief Destructor.
 WordEngine::~WordEngine()
 {}
 
@@ -158,8 +160,6 @@ void WordEngine::setEnabled(bool enabled)
 }
 
 
-//! \brief Returns new candidates.
-//! \param text The text model. Can update preedit face in text.
 WordCandidateList WordEngine::fetchCandidates(Model::Text *text)
 {
     WordCandidateList candidates;

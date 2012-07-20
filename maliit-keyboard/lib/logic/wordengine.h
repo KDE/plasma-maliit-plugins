@@ -53,12 +53,16 @@ public:
     explicit WordEngine(QObject *parent = 0);
     virtual ~WordEngine();
 
+    //! \reimp
     virtual void setEnabled(bool enabled);
 
     virtual void addToUserDictionary(const QString &word);
+    //! \reimp_end
 
 private:
+    //! \reimp
     virtual WordCandidateList fetchCandidates(Model::Text *text);
+    //! \reimp_end
 
     const QScopedPointer<WordEnginePrivate> d_ptr;
 };
