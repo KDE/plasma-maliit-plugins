@@ -35,8 +35,10 @@ namespace MaliitKeyboard {
 namespace Logic {
 
 //! \class AbstractWordEngine
-//! Provides word candidates based on text model. Derived classes need to
-//! provide an implementation for \a fetchCandidates().
+//! \brief Provides word candidates based on text model.
+//!
+//! Derived classes need to provide an implementation for
+//! fetchCandidates() and, optionally, addToUserDictionary().
 //! \sa Model::Text, computeCandidates().
 
 //! \fn void AbstractWordEngine::enabledChanged(bool enabled)
@@ -49,10 +51,13 @@ namespace Logic {
 
 //! \fn WordCandidateList AbstractWordEngine::fetchCandidates(Model::Text *text)
 //! \brief Returns a list of candidates.
+//! \param text The text model.
 //!
 //! Needs to be implemented by derived classes. Will not be called if engine
 //! is disabled or text model has no preedit.
-//! \param text The text model.
+
+//! \property AbstractWordEngine::enabled
+//! \brief Whether the engine provides updates for word candidates.
 
 class AbstractWordEnginePrivate
 {
@@ -62,12 +67,12 @@ public:
     explicit AbstractWordEnginePrivate();
 };
 
-
 AbstractWordEnginePrivate::AbstractWordEnginePrivate()
     : enabled(false)
 {}
 
 
+//! \brief Constructor.
 //! \param parent The owner of this instance. Can be 0, in case QObject
 //!               ownership is not required.
 AbstractWordEngine::AbstractWordEngine(QObject *parent)
@@ -75,12 +80,15 @@ AbstractWordEngine::AbstractWordEngine(QObject *parent)
     , d_ptr(new AbstractWordEnginePrivate)
 {}
 
-
+//! \brief Destructor.
+//!
+//! Needs to be implemented in derived classes.
 AbstractWordEngine::~AbstractWordEngine()
 {}
 
 
-//! \brief Returns whether the engine provides updates for word candidates.
+//! \brief Returns whether the word engine is enabled.
+//! \sa AbstractWordEngine::enabled
 bool AbstractWordEngine::isEnabled() const
 {
     Q_D(const AbstractWordEngine);
@@ -88,9 +96,10 @@ bool AbstractWordEngine::isEnabled() const
 }
 
 
-//! \brief Set whether the engine should provide updates for word candidates.
+//! \brief Set whether the engine should be enabled.
 //! \param enabled Setting to true will be ignored if there's no word
 //!                prediction or error correction backend available.
+//! \sa AbstractWordEngine::enabled
 void AbstractWordEngine::setEnabled(bool enabled)
 {
     Q_D(AbstractWordEngine);
@@ -116,7 +125,9 @@ void AbstractWordEngine::clearCandidates()
 
 
 //! \brief Computes new candidates, based on text model.
-//! \param text The text model. Can trigger emission of candidatesChanged().
+//! \param text The text model.
+//!
+//! Can trigger emission of candidatesChanged().
 void AbstractWordEngine::computeCandidates(Model::Text *text)
 {
     // FIXME: add possiblity to turn off the error correction for
@@ -139,6 +150,10 @@ void AbstractWordEngine::computeCandidates(Model::Text *text)
     Q_EMIT candidatesChanged(fetchCandidates(text));
 }
 
+//! \brief Adds a word to user dictionary.
+//! \param word A word.
+//!
+//! Needs to be implemented in derived classes. This does nothing.
 void AbstractWordEngine::addToUserDictionary(const QString &word)
 {
     Q_UNUSED(word);
