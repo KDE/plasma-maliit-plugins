@@ -129,29 +129,6 @@ EditorOptions::EditorOptions()
     , backspace_auto_repeat_interval(300)
 {}
 
-
-QString autoAppendix(const QString &preedit,
-                     bool *auto_caps_activated)
-{
-    if (not auto_caps_activated) {
-        return QString(" ");
-    }
-
-    *auto_caps_activated = false;
-    const QString &last_char(preedit.right(1));
-    QString appendix;
-
-    if (not last_char.isEmpty()
-        && last_char.at(0).isPunct()) {
-        *auto_caps_activated = true;
-        appendix.append(last_char);
-    }
-
-    appendix.append(" ");
-    return appendix;
-}
-
-
 class AbstractTextEditorPrivate
 {
 public:
@@ -160,6 +137,7 @@ public:
     EditorOptions options;
     QScopedPointer<Model::Text> text;
     QScopedPointer<Logic::AbstractWordEngine> word_engine;
+    QScopedPointer<Logic::AbstractLanguageFeatures> language_features;
     bool preedit_enabled;
     bool auto_correct_enabled;
     bool auto_caps_enabled;
@@ -168,18 +146,21 @@ public:
 
     explicit AbstractTextEditorPrivate(const EditorOptions &new_options,
                                        Model::Text *new_text,
-                                       Logic::AbstractWordEngine *new_word_engine);
+                                       Logic::AbstractWordEngine *new_word_engine,
+                                       Logic::AbstractLanguageFeatures *new_language_features);
     bool valid() const;
 };
 
 AbstractTextEditorPrivate::AbstractTextEditorPrivate(const EditorOptions &new_options,
                                                      Model::Text *new_text,
-                                                     Logic::AbstractWordEngine *new_word_engine)
+                                                     Logic::AbstractWordEngine *new_word_engine,
+                                                     Logic::AbstractLanguageFeatures *new_language_features)
     : auto_repeat_backspace_timer()
     , backspace_sent(false)
     , options(new_options)
     , text(new_text)
     , word_engine(new_word_engine)
+    , language_features(new_language_features)
     , preedit_enabled(false)
     , auto_correct_enabled(false)
     , auto_caps_enabled(false)
@@ -192,7 +173,7 @@ AbstractTextEditorPrivate::AbstractTextEditorPrivate(const EditorOptions &new_op
 
 bool AbstractTextEditorPrivate::valid() const
 {
-    const bool is_invalid(text.isNull() || word_engine.isNull());
+    const bool is_invalid(text.isNull() || word_engine.isNull() || language_features.isNull());
 
     if (is_invalid) {
         qCritical() << __PRETTY_FUNCTION__
@@ -205,9 +186,10 @@ bool AbstractTextEditorPrivate::valid() const
 AbstractTextEditor::AbstractTextEditor(const EditorOptions &options,
                                        Model::Text *text,
                                        Logic::AbstractWordEngine *word_engine,
+                                       Logic::AbstractLanguageFeatures *language_features,
                                        QObject *parent)
     : QObject(parent)
-    , d_ptr(new AbstractTextEditorPrivate(options, text, word_engine))
+    , d_ptr(new AbstractTextEditorPrivate(options, text, word_engine, language_features))
 {
     connect(&d_ptr->auto_repeat_backspace_timer, SIGNAL(timeout()),
             this,                                SLOT(autoRepeatBackspace()));
@@ -303,14 +285,16 @@ void AbstractTextEditor::onKeyReleased(const Key &key)
      } break;
 
     case Key::ActionSpace: {
-        bool auto_caps_activated = false;
-        const QString &appendix(autoAppendix(d->text->preedit(), &auto_caps_activated));
+        const bool auto_caps_activated = d->language_features->activateAutoCaps(d->text->preedit());
+        const bool replace_preedit = d->auto_correct_enabled && not d->text->primaryCandidate().isEmpty();
 
-        if (d->auto_correct_enabled && not d->text->primaryCandidate().isEmpty()) {
+        if (replace_preedit) {
+            const QString &appendix = d->language_features->appendixForReplacedPreedit(d->text->preedit());
             d->text->setPreedit(d->text->primaryCandidate());
+            d->text->appendToPreedit(appendix);
+        } else {
+            d->text->appendToPreedit(" ");
         }
-
-        d->text->appendToPreedit(appendix);
         commitPreedit();
 
         if (auto_caps_activated && d->auto_caps_enabled) {
@@ -403,8 +387,8 @@ void AbstractTextEditor::replaceAndCommitPreedit(const QString &replacement)
         return;
     }
 
-    bool auto_caps_activated = false;
-    const QString &appendix(autoAppendix(d->text->preedit(), &auto_caps_activated));
+    const bool auto_caps_activated = d->language_features->activateAutoCaps(d->text->preedit());
+    const QString &appendix(d->language_features->appendixForReplacedPreedit(d->text->preedit()));
     d->text->setPreedit(replacement);
     d->text->appendToPreedit(appendix);
     commitPreedit();

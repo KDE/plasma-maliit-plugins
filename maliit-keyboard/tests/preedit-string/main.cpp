@@ -35,6 +35,7 @@
 #include "models/key.h"
 #include "models/keyarea.h"
 #include "models/text.h"
+#include "logic/languagefeatures.h"
 #include "logic/layout.h"
 #include "view/glass.h"
 #include "view/setup.h"
@@ -157,7 +158,7 @@ MImUpdateEvent *createUpdateEvent(const QString &surrounding_text,
 struct BasicSetupTest
 {
     BasicSetupTest(bool enable_word_engine = true)
-        : editor(EditorOptions(), new Model::Text, new Logic::WordEngineProbe, 0)
+        : editor(EditorOptions(), new Model::Text, new Logic::WordEngineProbe, new Logic::LanguageFeatures, 0)
         , host()
         , notifier()
     {

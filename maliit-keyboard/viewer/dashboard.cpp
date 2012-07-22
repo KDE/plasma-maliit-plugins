@@ -32,6 +32,7 @@
 #include "models/key.h"
 #include "view/renderer.h"
 #include "view/abstracttexteditor.h"
+#include "logic/languagefeatures.h"
 #include "logic/layout.h"
 #include "logic/keyareaconverter.h"
 #include "logic/wordengine.h"
@@ -66,7 +67,7 @@ private:
 DashboardEditor::DashboardEditor(QTextEdit *target,
                                  const EditorOptions &options,
                                  QObject *parent)
-    : AbstractTextEditor(options, new Model::Text, new Logic::WordEngine, parent)
+    : AbstractTextEditor(options, new Model::Text, new Logic::WordEngine, new Logic::LanguageFeatures, parent)
     , m_target(target)
 {}
 

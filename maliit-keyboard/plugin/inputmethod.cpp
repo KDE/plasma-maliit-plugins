@@ -40,6 +40,7 @@
 #include "logic/layoutupdater.h"
 #include "logic/wordengine.h"
 #include "logic/style.h"
+#include "logic/languagefeatures.h"
 
 #include "view/renderer.h"
 #include "view/glass.h"
@@ -100,7 +101,7 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     , renderer()
     , glass()
     , layout_updater()
-    , editor(EditorOptions(), new Model::Text, new Logic::WordEngine)
+    , editor(EditorOptions(), new Model::Text, new Logic::WordEngine, new Logic::LanguageFeatures)
     , feedback()
     , layout(new Logic::Layout)
     , style(new Style)

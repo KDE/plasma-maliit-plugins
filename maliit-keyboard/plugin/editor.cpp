@@ -41,8 +41,9 @@ namespace MaliitKeyboard {
 Editor::Editor(const EditorOptions &options,
                Model::Text *text,
                Logic::AbstractWordEngine *word_engine,
+               Logic::AbstractLanguageFeatures *language_features,
                QObject *parent)
-    : AbstractTextEditor(options, text, word_engine, parent)
+    : AbstractTextEditor(options, text, word_engine, language_features, parent)
     , m_host(0)
 {}
 
