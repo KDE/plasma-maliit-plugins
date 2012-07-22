@@ -1,6 +1,7 @@
 TEMPLATE = subdirs
 SUBDIRS = \
     common \
+    editor \
     language-layout-switching \
     preedit-string \
     repeat-backspace \
