@@ -315,7 +315,7 @@ void InputMethod::registerFeedbackSetting(MAbstractInputMethodHost *host)
     Q_D(InputMethod);
 
     QVariantMap attributes;
-    attributes[Maliit::SettingEntryAttributes::defaultValue] = d->feedback.isEnabled();
+    attributes[Maliit::SettingEntryAttributes::defaultValue] = true;
 
     d->feedback_setting.reset(host->registerPluginSetting("feedback_enabled",
                                                           QT_TR_NOOP("Feedback enabled"),
@@ -334,7 +334,7 @@ void InputMethod::registerAutoCorrectSetting(MAbstractInputMethodHost *host)
     Q_D(InputMethod);
 
     QVariantMap attributes;
-    attributes[Maliit::SettingEntryAttributes::defaultValue] = d->editor.isAutoCorrectEnabled();
+    attributes[Maliit::SettingEntryAttributes::defaultValue] = true;
 
     d->auto_correct_setting.reset(host->registerPluginSetting("auto_correct_enabled",
                                                               QT_TR_NOOP("Auto-correct enabled"),
@@ -353,7 +353,7 @@ void InputMethod::registerAutoCapsSetting(MAbstractInputMethodHost *host)
     Q_D(InputMethod);
 
     QVariantMap attributes;
-    attributes[Maliit::SettingEntryAttributes::defaultValue] = d->editor.isAutoCapsEnabled();
+    attributes[Maliit::SettingEntryAttributes::defaultValue] = true;
 
     d->auto_caps_setting.reset(host->registerPluginSetting("auto_caps_enabled",
                                                            QT_TR_NOOP("Auto-capitalization enabled"),
@@ -372,7 +372,7 @@ void InputMethod::registerWordEngineSetting(MAbstractInputMethodHost *host)
     Q_D(InputMethod);
 
     QVariantMap attributes;
-    attributes[Maliit::SettingEntryAttributes::defaultValue] = d->editor.wordEngine()->isEnabled();
+    attributes[Maliit::SettingEntryAttributes::defaultValue] = true;
 
     d->word_engine_setting.reset(host->registerPluginSetting("word_engine_enabled",
                                                              QT_TR_NOOP("Error correction/word prediction enabled"),
