@@ -60,7 +60,8 @@ public:
     explicit Text();
 
     QString preedit() const;
-    void setPreedit(const QString &preedit);
+    void setPreedit(const QString &preedit,
+                    int cursor_pos_override = -1);
     void appendToPreedit(const QString &appendix);
     void commitPreedit();
 

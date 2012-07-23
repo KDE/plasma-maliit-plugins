@@ -56,11 +56,22 @@ QString Text::preedit() const
 }
 
 //! Set current preedit.
-//! \param preedit the updated preedit.
-void Text::setPreedit(const QString &preedit)
+//! \param preedit The updated preedit.
+//! \param cursor_pos_override New cursor position.
+//!
+//! If \a cursor_pos_override is lower than 0 then cursor is set at
+//! the end of preedit.
+void Text::setPreedit(const QString &preedit,
+                      int cursor_pos_override /* = -1 */)
 {
+    const int preedit_len(preedit.length());
+
+    if (cursor_pos_override < 0 or cursor_pos_override > preedit_len) {
+        cursor_pos_override = preedit_len;
+    }
+
     m_preedit = preedit;
-    m_cursor_position = preedit.length();
+    m_cursor_position = cursor_pos_override;
 }
 
 //! Append to preedit.
