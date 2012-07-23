@@ -64,6 +64,9 @@ class AbstractTextEditor
     Q_PROPERTY(bool autoCorrectEnabled READ isAutoCorrectEnabled
                                        WRITE setAutoCorrectEnabled
                                        NOTIFY autoCorrectEnabledChanged)
+    Q_PROPERTY(bool autoCapsEnabled READ isAutoCapsEnabled
+                                    WRITE setAutoCapsEnabled
+                                    NOTIFY autoCapsEnabledChanged)
 
 public:
     struct Replacement
@@ -119,6 +122,10 @@ public:
     bool isAutoCorrectEnabled() const;
     Q_SLOT void setAutoCorrectEnabled(bool enabled);
     Q_SIGNAL void autoCorrectEnabledChanged(bool enabled);
+
+    bool isAutoCapsEnabled() const;
+    Q_SLOT void setAutoCapsEnabled(bool enabled);
+    Q_SIGNAL void autoCapsEnabledChanged(bool enabled);
 
     Q_SIGNAL void keyboardClosed();
     Q_SIGNAL void leftLayoutSelected();

@@ -162,6 +162,7 @@ public:
     QScopedPointer<Logic::AbstractWordEngine> word_engine;
     bool preedit_enabled;
     bool auto_correct_enabled;
+    bool auto_caps_enabled;
     int ignore_next_cursor_position;
     QString ignore_next_surrounding_text;
 
@@ -181,6 +182,7 @@ AbstractTextEditorPrivate::AbstractTextEditorPrivate(const EditorOptions &new_op
     , word_engine(new_word_engine)
     , preedit_enabled(false)
     , auto_correct_enabled(false)
+    , auto_caps_enabled(false)
     , ignore_next_cursor_position(-1)
     , ignore_next_surrounding_text()
 {
@@ -311,7 +313,7 @@ void AbstractTextEditor::onKeyReleased(const Key &key)
         d->text->appendToPreedit(appendix);
         commitPreedit();
 
-        if (auto_caps_activated) {
+        if (auto_caps_activated && d->auto_caps_enabled) {
             Q_EMIT autoCapsActivated();
         }
     } break;
@@ -407,7 +409,7 @@ void AbstractTextEditor::replaceAndCommitPreedit(const QString &replacement)
     d->text->appendToPreedit(appendix);
     commitPreedit();
 
-    if (auto_caps_activated) {
+    if (auto_caps_activated && d->auto_caps_enabled) {
         Q_EMIT autoCapsActivated();
     }
 }
@@ -446,6 +448,22 @@ void AbstractTextEditor::setAutoCorrectEnabled(bool enabled)
     if (d->auto_correct_enabled != enabled) {
         d->auto_correct_enabled = enabled;
         Q_EMIT autoCorrectEnabledChanged(d->auto_correct_enabled);
+    }
+}
+
+bool AbstractTextEditor::isAutoCapsEnabled() const
+{
+    Q_D(const AbstractTextEditor);
+    return d->auto_caps_enabled;
+}
+
+void AbstractTextEditor::setAutoCapsEnabled(bool enabled)
+{
+    Q_D(AbstractTextEditor);
+
+    if (d->auto_caps_enabled != enabled) {
+        d->auto_caps_enabled = enabled;
+        Q_EMIT autoCapsEnabledChanged(d->auto_caps_enabled);
     }
 }
 
