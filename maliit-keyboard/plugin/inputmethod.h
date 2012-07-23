@@ -71,6 +71,7 @@ private:
     void registerStyleSetting(MAbstractInputMethodHost *host);
     void registerFeedbackSetting(MAbstractInputMethodHost *host);
     void registerAutoCorrectSetting(MAbstractInputMethodHost *host);
+    void registerAutoCapsSetting(MAbstractInputMethodHost *host);
     void registerWordEngineSetting(MAbstractInputMethodHost *host);
     void registerHideWordRibbonInPortraitModeSetting(MAbstractInputMethodHost *host);
 
@@ -82,6 +83,7 @@ private:
     Q_SLOT void onKeyboardClosed();
     Q_SLOT void onFeedbackSettingChanged();
     Q_SLOT void onAutoCorrectSettingChanged();
+    Q_SLOT void onAutoCapsSettingChanged();
     Q_SLOT void onWordEngineSettingChanged();
     Q_SLOT void onHideWordRibbonInPortraitModeSettingChanged();
 

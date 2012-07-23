@@ -83,6 +83,7 @@ public:
     ScopedSetting style_setting;
     ScopedSetting feedback_setting;
     ScopedSetting auto_correct_setting;
+    ScopedSetting auto_caps_setting;
     ScopedSetting word_engine_setting;
     ScopedSetting hide_word_ribbon_in_portrait_mode_setting;
 
@@ -107,6 +108,7 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     , style_setting()
     , feedback_setting()
     , auto_correct_setting()
+    , auto_caps_setting()
     , word_engine_setting()
     , hide_word_ribbon_in_portrait_mode_setting()
 {
@@ -184,6 +186,7 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
     registerStyleSetting(host);
     registerFeedbackSetting(host);
     registerAutoCorrectSetting(host);
+    registerAutoCapsSetting(host);
     registerWordEngineSetting(host);
     registerHideWordRibbonInPortraitModeSetting(host);
 
@@ -345,6 +348,25 @@ void InputMethod::registerAutoCorrectSetting(MAbstractInputMethodHost *host)
 }
 
 
+void InputMethod::registerAutoCapsSetting(MAbstractInputMethodHost *host)
+{
+    Q_D(InputMethod);
+
+    QVariantMap attributes;
+    attributes[Maliit::SettingEntryAttributes::defaultValue] = d->editor.isAutoCapsEnabled();
+
+    d->auto_caps_setting.reset(host->registerPluginSetting("auto_caps_enabled",
+                                                           QT_TR_NOOP("Auto-capitalization enabled"),
+                                                           Maliit::BoolType,
+                                                           attributes));
+
+    connect(d->auto_caps_setting.data(), SIGNAL(valueChanged()),
+            this,                        SLOT(onAutoCapsSettingChanged()));
+
+    d->editor.setAutoCapsEnabled(d->auto_caps_setting->value().toBool());
+}
+
+
 void InputMethod::registerWordEngineSetting(MAbstractInputMethodHost *host)
 {
     Q_D(InputMethod);
@@ -435,6 +457,12 @@ void InputMethod::onAutoCorrectSettingChanged()
 {
     Q_D(InputMethod);
     d->editor.setAutoCorrectEnabled(d->auto_correct_setting->value().toBool());
+}
+
+void InputMethod::onAutoCapsSettingChanged()
+{
+    Q_D(InputMethod);
+    d->editor.setAutoCapsEnabled(d->auto_caps_setting->value().toBool());
 }
 
 void InputMethod::onWordEngineSettingChanged()
