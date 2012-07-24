@@ -10,6 +10,8 @@ HEADERS += \
     logic/spellchecker.h \
     logic/abstractwordengine.h \
     logic/wordengine.h \
+    logic/abstractlanguagefeatures.h \
+    logic/languagefeatures.h \
 
 SOURCES += \
     logic/hitlogic.cpp \
@@ -21,6 +23,8 @@ SOURCES += \
     logic/spellchecker.cpp \
     logic/abstractwordengine.cpp \
     logic/wordengine.cpp \
+    logic/abstractlanguagefeatures.cpp \
+    logic/languagefeatures.cpp \
 
 DEPENDPATH += $$LOGIC_DIR
 
