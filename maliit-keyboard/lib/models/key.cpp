@@ -134,6 +134,16 @@ void Key::setExtendedKeysEnabled(bool enable)
     m_has_extended_keys = enable;
 }
 
+QString Key::commandSequence() const
+{
+    return m_command_sequence;
+}
+
+void Key::setCommandSequence(const QString &command_sequence)
+{
+    m_command_sequence = command_sequence;
+}
+
 bool operator==(const Key &lhs,
                 const Key &rhs)
 {

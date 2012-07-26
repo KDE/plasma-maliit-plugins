@@ -43,6 +43,7 @@ TagBinding::TagBinding(Action action,
                        const QString &accented_labels,
                        const QString &extended_labels,
                        const QString &cycle_set,
+                       const QString &sequence,
                        bool dead,
                        bool quick_pick,
                        bool rtl,
@@ -56,6 +57,7 @@ TagBinding::TagBinding(Action action,
     , m_accented_labels(accented_labels)
     , m_extended_labels(extended_labels)
     , m_cycle_set(cycle_set)
+    , m_sequence(sequence)
     , m_dead(dead)
     , m_quick_pick(quick_pick)
     , m_rtl (rtl)
@@ -105,6 +107,11 @@ const QString TagBinding::extended_labels() const
 const QString TagBinding::cycle_set() const
 {
     return m_cycle_set;
+}
+
+const QString TagBinding::sequence() const
+{
+    return m_sequence;
 }
 
 bool TagBinding::dead() const

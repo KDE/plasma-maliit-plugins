@@ -61,6 +61,7 @@ private:
                                    const Replacement &replacement);
     virtual void sendCommitString(const QString &commit);
     virtual void sendKeyEvent(const QKeyEvent &ev);
+    virtual void invokeAction(const QString &command, const QKeySequence &sequence);
     //! \reimp_end
 };
 
@@ -126,6 +127,13 @@ void DashboardEditor::sendKeyEvent(const QKeyEvent &ev)
 {
     QKeyEvent *new_ev = new QKeyEvent(ev.type(), ev.key(), ev.modifiers(), ev.text(), ev.isAutoRepeat(), ev.count());
     qApp->postEvent(m_target, new_ev);
+}
+
+void DashboardEditor::invokeAction(const QString &command, const QKeySequence &sequence)
+{
+    Q_UNUSED(command);
+    Q_UNUSED(sequence);
+    // FIXME implement
 }
 
 class DashboardPrivate

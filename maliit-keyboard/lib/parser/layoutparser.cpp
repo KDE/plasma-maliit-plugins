@@ -392,7 +392,7 @@ void LayoutParser::parseBinding()
     static const QStringList actionValues(QString::fromLatin1(
         "insert,shift,backspace,space,cycle,layout_menu,sym,return,commit,"
         "decimal_separator,plus_minus_toggle,switch,on_off_toggle,compose,"
-        "left,up,right,down,close,tab,dead,left-layout,right-layout"
+        "left,up,right,down,close,tab,dead,left-layout,right-layout,command"
     ).split(','));
     Q_ASSERT(actionValues.count() == Key::NumActions);
 
@@ -406,6 +406,7 @@ void LayoutParser::parseBinding()
     const QString accented_labels(attributes.value(QLatin1String("accented_labels")).toString());
     const QString extended_labels(attributes.value(QLatin1String("extended_labels")).toString());
     const QString cycleset(attributes.value(QLatin1String("cycleset")).toString());
+    const QString sequence(attributes.value(QLatin1String("sequence")).toString());
     const bool dead(boolValue(attributes.value(QLatin1String("dead")), false));
     const bool quick_pick(boolValue(attributes.value(QLatin1String("quick_pick")), false));
     const bool rtl(boolValue(attributes.value(QLatin1String("rtl")), false));
@@ -420,6 +421,7 @@ void LayoutParser::parseBinding()
                                                            accented_labels,
                                                            extended_labels,
                                                            cycleset,
+                                                           sequence,
                                                            dead,
                                                            quick_pick,
                                                            rtl,

@@ -65,6 +65,7 @@ public:
         ActionRight, //!< Key moves cursor position to right, in text editor.
         ActionDown, //!< Key moves cursor position to next line, in text editor.
         ActionClose, //!< Key closes the virtual keyboard.
+        ActionCommand, //!< Key executes a command.
         ActionTab, //!< Key moves cursor position by one tab, in text editor.
         ActionDead, //!< Switches keyboard to deadkey variation, using key's label as lookup.
         ActionLeftLayout, //!< Switch to left/previous language layout.
@@ -81,6 +82,7 @@ private:
     QByteArray m_icon;
     bool m_has_extended_keys: 1;
     int m_flags_padding: 7;
+    QString m_command_sequence;
 
 public:
     explicit Key();
@@ -111,6 +113,9 @@ public:
 
     bool hasExtendedKeys() const;
     void setExtendedKeysEnabled(bool enable);
+
+    QString commandSequence() const;
+    void setCommandSequence(const QString &command_sequence);
 };
 
 bool operator==(const Key &lhs,

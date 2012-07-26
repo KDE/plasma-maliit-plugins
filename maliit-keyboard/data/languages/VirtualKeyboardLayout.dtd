@@ -57,7 +57,7 @@
   action (insert | shift | backspace | space | cycle | layout_menu | sym
           | return | commit | decimal_separator | plus_minus_toggle | switch
           | on_off_toggle | compose | left | up | right | down | close
-          | left-layout | right-layout) "insert"
+          | left-layout | right-layout | command) "insert"
   shift (true|false) "false"
   alt (true|false) "false"
   label CDATA #IMPLIED
@@ -70,4 +70,5 @@
   quickpick (true | false) "false"
   rtl (true | false) "false"
   enlarge (true | false) "false"
+  sequence CDATA #IMPLIED
 >

@@ -124,6 +124,7 @@ Keyboard get_keyboard(const TagKeyboardPtr& keyboard,
                             skey.setAction(static_cast<Key::Action>(the_binding->action()));
                         }
 
+                        skey.setCommandSequence(the_binding->sequence());
 
                         skeyboard.keys.append(skey);
 

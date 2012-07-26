@@ -91,6 +91,7 @@ public:
     int anchorPosition(bool&) {return 0;}
     QString selection(bool&) {return QString();}
     void notifyImInitiatedHiding() {}
+    void invokeAction(const QString &, const QKeySequence &) {}
     void setRedirectKeys(bool) {}
     void setDetectableAutoRepeat(bool) {}
     void setGlobalCorrectionEnabled(bool) {}
@@ -107,8 +108,6 @@ public:
                                                                   const QString &,
                                                                   Maliit::SettingEntryType ,
                                                                   const QVariantMap &) { return 0; }
-    void invokeAction(const QString &,
-                      const QKeySequence &) {}
 };
 
 #endif // INPUTMETHODHOSTPROBE_H

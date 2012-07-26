@@ -54,7 +54,7 @@ namespace MaliitKeyboard {
 //! It owns a text model (which can be gotten by text() method) and a
 //! word engine (word_engine()). The class has to be subclassed and
 //! subclass has to provide sendPreeditString(), sendCommitString(),
-//! sendKeyEvent() and destructor implementations.
+//! sendKeyEvent(), invokeAction() and destructor implementations.
 
 // The function declaration has to be in one line, because \fn is a
 // single line parameter.
@@ -88,6 +88,15 @@ namespace MaliitKeyboard {
 //!
 //! The implementation should translate passed \a ev to values their
 //! backend understands and pass this to application.
+
+//! \fn void AbstractTextEditor::invokeAction(const QString &action, const QKeySequence &sequence)
+//! \brief Invokes an action in the application
+//! \param action Action to invoke
+//! \param sequence Key sequence to emit when action cannot be called directly
+//!
+//! Application first tries to invoke a signal/slot \a action and when not available
+//! it will emit the key sequence \a sequence. One would call this method for
+//! example with "copy", "CTRL+C" arguments.
 
 //! \property AbstractTextEditor::preeditEnabled
 //! \brief Describes whether preedit is enabled.
@@ -481,6 +490,10 @@ void AbstractTextEditor::onKeyReleased(const Key &key)
 
     case Key::ActionRightLayout:
         Q_EMIT rightLayoutSelected();
+        break;
+
+    case Key::ActionCommand:
+        invokeAction(text, QKeySequence::fromString(key.commandSequence()));
         break;
 
     default:

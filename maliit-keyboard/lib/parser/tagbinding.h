@@ -62,7 +62,9 @@ public:
         Left,
         Up,
         Right,
-        Down
+        Down,
+        Close,
+        Command
     };
 
     TagBinding(Action action,
@@ -74,6 +76,7 @@ public:
                const QString &accented_labels,
                const QString &extended_labels,
                const QString &cycle_set,
+               const QString &sequence,
                bool dead,
                bool quick_pick,
                bool rtl,
@@ -88,6 +91,7 @@ public:
     const QString accented_labels() const;
     const QString extended_labels() const;
     const QString cycle_set() const;
+    const QString sequence() const;
     bool dead() const;
     bool quick_pick() const;
     bool rtl() const;
@@ -105,6 +109,7 @@ private:
     const QString m_accented_labels;
     const QString m_extended_labels;
     const QString m_cycle_set;
+    const QString m_sequence;
     const bool m_dead;
     const bool m_quick_pick;
     const bool m_rtl;

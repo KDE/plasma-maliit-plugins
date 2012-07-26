@@ -96,4 +96,14 @@ void Editor::sendKeyEvent(const QKeyEvent &ev)
     m_host->sendKeyEvent(ev);
 }
 
+void Editor::invokeAction(const QString &action, const QKeySequence &sequence)
+{
+    if (not m_host) {
+        qWarning() << __PRETTY_FUNCTION__
+                     << "Host not set, ignoring.";
+    }
+
+    m_host->invokeAction(action, sequence);
+}
+
 } // namespace MaliitKeyboard

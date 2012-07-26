@@ -150,6 +150,7 @@ private:
                                    const Replacement &replacement) = 0;
     virtual void sendCommitString(const QString &commit) = 0;
     virtual void sendKeyEvent(const QKeyEvent &ev) = 0;
+    virtual void invokeAction(const QString &action, const QKeySequence &sequence) = 0;
 
     void commitPreedit();
     Q_SLOT void autoRepeatBackspace();

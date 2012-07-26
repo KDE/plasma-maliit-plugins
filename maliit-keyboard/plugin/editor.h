@@ -67,6 +67,7 @@ private:
                                    const Replacement &replacement);
     virtual void sendCommitString(const QString &commit);
     virtual void sendKeyEvent(const QKeyEvent &ev);
+    virtual void invokeAction(const QString &command, const QKeySequence &sequence);
     //! \reimp_end
 };
 
