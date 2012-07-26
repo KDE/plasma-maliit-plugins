@@ -40,11 +40,22 @@ namespace
 
 const char* const g_surrounding_text_property("surroundingText");
 const char* const g_cursor_position_property("cursorPosition");
+const char* const g_anchor_position_property("anchorPosition");
+const char* const g_has_selection("hasSelection");
 
 } // unnamed namespace
 
 class UpdateNotifierPrivate
-{};
+{
+public:
+    UpdateNotifierPrivate();
+
+    bool has_selection;
+};
+
+UpdateNotifierPrivate::UpdateNotifierPrivate()
+    : has_selection(false)
+{}
 
 UpdateNotifier::UpdateNotifier(QObject *parent)
     : QObject(parent)
@@ -56,13 +67,30 @@ UpdateNotifier::~UpdateNotifier()
 
 void UpdateNotifier::notify(MImUpdateEvent* event)
 {
+    Q_D(UpdateNotifier);
+
     const QStringList properties_changed(event->propertiesChanged());
 
-    if (properties_changed.contains(g_cursor_position_property)) {
+    if (properties_changed.contains(g_has_selection)) {
+        const bool has_selection(event->value(g_has_selection).toBool());
+
+        d->has_selection = has_selection;
+    }
+
+    if (not d->has_selection and properties_changed.contains(g_cursor_position_property)) {
         const int cursor_position(event->value(g_cursor_position_property).toInt());
         const QString surrounding_text(event->value(g_surrounding_text_property).toString());
+        bool emit_a_signal(true);
 
-        Q_EMIT cursorPositionChanged(cursor_position, surrounding_text);
+        if (emit_a_signal and properties_changed.contains(g_anchor_position_property)) {
+            const int anchor_position(event->value(g_anchor_position_property).toInt());
+
+            emit_a_signal = (anchor_position == cursor_position);
+        }
+
+        if (emit_a_signal) {
+            Q_EMIT cursorPositionChanged(cursor_position, surrounding_text);
+        }
     }
 }
 
