@@ -1,8 +1,15 @@
 
 #include "coreutils.h"
 
+#include "models/key.h"
+
 namespace MaliitKeyboard {
 namespace CoreUtils {
+namespace {
+
+const char *const g_action_key_id = "actionKey";
+
+} // unnamed namespace
 
 const QString &pluginDataDirectory() {
     static QString pluginDataDirectory;
@@ -32,6 +39,21 @@ const QString &maliitKeyboardDataDirectory() {
     }
 
     return maliitKeyboardDataDirectory;
+}
+
+QString idFromKey(const Key &key)
+{
+    switch (key.action()) {
+    case Key::ActionReturn:
+        return g_action_key_id;
+
+    case Key::ActionInsert:
+        return key.label().text();
+
+    default:
+        // TODO: handle more key actions if needed.
+        return QString();
+    }
 }
 
 }

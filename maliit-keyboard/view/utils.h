@@ -32,6 +32,8 @@
 #ifndef MALIIT_KEYBOARD_UTILS_H
 #define MALIIT_KEYBOARD_UTILS_H
 
+#include "logic/layout.h"
+
 class QString;
 class QPixmap;
 class QByteArray;
@@ -53,6 +55,8 @@ void renderKey(QPainter *painter,
 void renderWordCandidate(QPainter *painter,
                          const WordCandidate &candidate,
                          const QPoint &origin);
+Key applyOverride(const Key &original_key,
+                  const Logic::KeyOverrides &overrides);
 
 }} // namespace Utils, MaliitKeyboard
 

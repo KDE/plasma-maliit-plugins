@@ -4,9 +4,13 @@
 #include <QString>
 
 namespace MaliitKeyboard {
+    class Key;
+
     namespace CoreUtils {
         const QString &pluginDataDirectory();
         const QString &maliitKeyboardDataDirectory();
+
+        QString idFromKey(const Key &key);
     }
 }
 

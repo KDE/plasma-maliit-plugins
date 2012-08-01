@@ -48,7 +48,7 @@ namespace {
 QString g_images_directory_path;
 QHash<QByteArray, QPixmap> g_pixmap_cache;
 
-}
+} // unnamed namespace
 
 namespace MaliitKeyboard {
 namespace Utils {
@@ -130,6 +130,28 @@ void renderWordCandidate(QPainter *painter,
     if (not text.isEmpty()) {
         painter->drawText(candidate_rect, Qt::AlignCenter, text);
     }
+}
+
+Key applyOverride(const Key &original_key,
+                  const Logic::KeyOverrides &overrides)
+{
+    Key overriden_key(original_key);
+    Logic::KeyOverrides::iterator override_iter(overrides.find(CoreUtils::idFromKey(original_key)));
+
+    if (override_iter != overrides.end()) {
+        const Key &override(override_iter.value());
+        const QString &text_override(override.label().text());
+        const QByteArray &icon_override(override.icon());
+
+        if (not text_override.isEmpty()) {
+            overriden_key.rLabel().setText(text_override);
+        }
+        if (not icon_override.isEmpty()) {
+            overriden_key.setIcon(icon_override);
+        }
+    }
+
+    return overriden_key;
 }
 
 }} // namespace Utils, MaliitKeyboard

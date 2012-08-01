@@ -33,6 +33,7 @@
 #include "editor.h"
 #include "updatenotifier.h"
 
+#include "models/key.h"
 #include "models/keyarea.h"
 #include "models/wordribbon.h"
 
@@ -68,6 +69,24 @@ class MImUpdateEvent;
 namespace MaliitKeyboard {
 
 typedef QScopedPointer<Maliit::Plugins::AbstractPluginSetting> ScopedSetting;
+typedef QSharedPointer<MKeyOverride> SharedOverride;
+typedef QMap<QString, SharedOverride>::iterator OverridesIterator;
+
+namespace {
+
+Key overrideToKey(const SharedOverride &override)
+{
+    Key key;
+
+    key.rLabel().setText(override->label());
+    key.setIcon(override->icon().toUtf8());
+    // TODO: hightlighted and enabled information are not available in
+    // Key. Should we just really create a KeyOverride model?
+
+    return key;
+}
+
+} // unnamed namespace
 
 class InputMethodPrivate
 {
