@@ -100,6 +100,7 @@ public:
     Logic::Layout layout;
     SharedStyle style;
     UpdateNotifier notifier;
+    QMap<QString, SharedOverride> key_overrides;
     ScopedSetting style_setting;
     ScopedSetting feedback_setting;
     ScopedSetting auto_correct_setting;
@@ -125,6 +126,7 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     , layout()
     , style(new Style)
     , notifier()
+    , key_overrides()
     , style_setting()
     , feedback_setting()
     , auto_correct_setting()
@@ -497,6 +499,53 @@ void InputMethod::onHideWordRibbonInPortraitModeSettingChanged()
 {
     Q_D(InputMethod);
     d->setLayoutOrientation(d->layout.orientation());
+}
+
+void InputMethod::setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides)
+{
+    Q_D(InputMethod);
+
+    for (OverridesIterator i(d->key_overrides.begin()), e(d->key_overrides.end()); i != e; ++i) {
+        SharedOverride &override(i.value());
+
+        if (override) {
+            disconnect(override.data(), SIGNAL(keyAttributesChanged(const QString &, const MKeyOverride::KeyOverrideAttributes)),
+                       this,            SLOT(updateKey(const QString &, const MKeyOverride::KeyOverrideAttributes)));
+        }
+    }
+
+    d->key_overrides.clear();
+    QMap<QString, Key> overriden_keys;
+
+    for (OverridesIterator i(overrides.begin()), e(overrides.end()); i != e; ++i) {
+        SharedOverride &override(i.value());
+
+        if (override) {
+            d->key_overrides.insert(i.key(), override);
+            connect(override.data(), SIGNAL(keyAttributesChanged(const QString &, const MKeyOverride::KeyOverrideAttributes)),
+                    this,            SLOT(updateKey(const QString &, const MKeyOverride::KeyOverrideAttributes)));
+            overriden_keys.insert(i.key(), overrideToKey(override));
+        }
+    }
+    d->notifier.notifyOverride(overriden_keys);
+}
+
+void InputMethod::updateKey(const QString &key_id,
+                            const MKeyOverride::KeyOverrideAttributes changed_attributes)
+{
+    Q_D(InputMethod);
+
+    Q_UNUSED(changed_attributes);
+
+    QMap<QString, SharedOverride>::iterator iter(d->key_overrides.find(key_id));
+
+    if (iter != d->key_overrides.end()) {
+        const Key &override_key(overrideToKey(iter.value()));
+        Logic::KeyOverrides overrides_update;
+
+        overrides_update.insert(key_id, override_key);
+        d->notifier.notifyOverride(overrides_update, true);
+    }
 }
 
 } // namespace MaliitKeyboard

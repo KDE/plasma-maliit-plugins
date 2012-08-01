@@ -34,6 +34,7 @@
 
 #include <maliit/plugins/abstractinputmethod.h>
 #include <maliit/plugins/abstractinputmethodhost.h>
+#include <maliit/plugins/keyoverride.h>
 #include <QtGui>
 
 namespace MaliitKeyboard {
@@ -65,6 +66,7 @@ public:
     virtual QString activeSubView(Maliit::HandlerState state = Maliit::OnScreen) const;
     virtual void handleAppOrientationChanged(int angle);
     virtual bool imExtensionEvent(MImExtensionEvent *event);
+    virtual void setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides);
     //! \reimp_end
 
 private:
@@ -86,6 +88,8 @@ private:
     Q_SLOT void onAutoCapsSettingChanged();
     Q_SLOT void onWordEngineSettingChanged();
     Q_SLOT void onHideWordRibbonInPortraitModeSettingChanged();
+    Q_SLOT void updateKey(const QString &key_id,
+                          const MKeyOverride::KeyOverrideAttributes changed_attributes);
 
     const QScopedPointer<InputMethodPrivate> d_ptr;
 };
