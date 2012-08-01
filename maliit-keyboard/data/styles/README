@@ -8,6 +8,7 @@ named "my-style", then the directory layout would be like so:
      +- my-style/
      |  +- images/
      |  +- sounds/
+     |  +- fonts/
      |  +- main.ini
      |  +- extended-keys.ini
      +- README
