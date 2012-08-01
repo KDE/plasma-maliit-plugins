@@ -304,12 +304,29 @@ QByteArray StyleAttributes::icon(KeyDescription::Icon icon,
 
 
 //! \brief Looks up the font name used for key labels.
-//! @param orientation The layout orientation (landscape or portrait).
-//! @returns Value currently hard-coded (FIXME).
+//! \param orientation The layout orientation (landscape or portrait).
+//! \returns Value of "${style}\${orientation}\font-name" or "Nokia
+//! Pure" if there was no such value in style.ini.
 QByteArray StyleAttributes::fontName(Logic::Layout::Orientation orientation) const
 {
-    Q_UNUSED(orientation)
-    return QByteArray("Nokia Pure");
+    const QByteArray font_name(lookup(m_store, orientation,
+                                      m_style_name.toLocal8Bit(),
+                                      QByteArray("font-name")).toByteArray());
+
+    if (font_name.isEmpty()) {
+        return "Nokia Pure";
+    }
+
+    return font_name;
+}
+
+
+//! \brief Looks up the font file that might hold a font used for key
+//! labels.
+//! \returns Value of "font\font-files"
+QStringList StyleAttributes::fontFiles() const
+{
+    return m_store->value("font/font-files").toStringList();
 }
 
 

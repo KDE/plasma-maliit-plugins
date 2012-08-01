@@ -49,7 +49,9 @@ const QString g_main_fn_format("%1/%2/main.ini");
 const QString g_extended_keys_fn_format("%1/%2/extended-keys.ini");
 const QString g_profile_image_directory_path_format("%1/%2/images");
 const QString g_profile_sounds_directory_path_format("%1/%2/sounds");
-}
+const QString g_profile_fonts_directory_path_format("%1/%2/fonts");
+
+} // unnamed namespace
 
 
 //! \class StylePrivate
@@ -148,6 +150,9 @@ QString Style::directoryPath(Directory directory) const
 
     case Sounds:
         return g_profile_sounds_directory_path_format.arg(g_styles_dir_path).arg(d->profile);
+
+    case Fonts:
+        return g_profile_fonts_directory_path_format.arg(g_styles_dir_path).arg(d->profile);
     }
 
     return QString();

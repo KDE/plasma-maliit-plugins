@@ -54,7 +54,8 @@ class Style
 public:
     enum Directory {
         Images, //!< used to query image directoryPath().
-        Sounds  //!< used to query sounds directoryPath().
+        Sounds, //!< used to query sounds directoryPath().
+        Fonts   //!< used to query fonts directoryPath().
     };
 
     explicit Style(QObject *parent = 0);

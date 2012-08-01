@@ -64,6 +64,8 @@ public:
     QByteArray icon(KeyDescription::Icon icon,
                     KeyDescription::State state) const;
 
+    QStringList fontFiles() const;
+
     QByteArray fontName(Logic::Layout::Orientation orientation) const;
     QByteArray fontColor(Logic::Layout::Orientation orientation) const;
     qreal fontSize(Logic::Layout::Orientation orientation) const;
