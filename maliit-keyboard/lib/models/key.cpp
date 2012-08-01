@@ -139,7 +139,8 @@ bool operator==(const Key &lhs,
 {
     return (lhs.origin() == rhs.origin()
             && lhs.area() == rhs.area()
-            && lhs.label() == rhs.label());
+            && lhs.label() == rhs.label()
+            && lhs.icon() == rhs.icon());
 }
 
 bool operator!=(const Key &lhs,
