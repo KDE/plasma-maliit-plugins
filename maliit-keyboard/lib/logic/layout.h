@@ -41,6 +41,8 @@
 namespace MaliitKeyboard {
 namespace Logic {
 
+typedef QMap<QString, Key> KeyOverrides;
+
 class LayoutPrivate;
 
 // TODO: Implement hit test on Layout, one to check whether key was hit, one to check whether word candidate was hit.
