@@ -74,11 +74,16 @@ public:
     Q_SLOT void show();
     Q_SLOT void hide();
 
-    Q_SLOT void onActiveKeysChanged(const QVector<Key> &active_keys);
-    Q_SLOT void onActiveExtendedKeysChanged(const QVector<Key> &active_keys);
-    Q_SLOT void onMagnifierKeyChanged(const Key &key);
-    Q_SLOT void onCenterPanelChanged(const KeyArea &key_area);
-    Q_SLOT void onExtendedPanelChanged(const KeyArea &key_area);
+    Q_SLOT void onActiveKeysChanged(const QVector<Key> &active_keys,
+                                    const Logic::KeyOverrides &overrides);
+    Q_SLOT void onActiveExtendedKeysChanged(const QVector<Key> &active_keys,
+                                            const Logic::KeyOverrides &overrides);
+    Q_SLOT void onMagnifierKeyChanged(const Key &key,
+                                      const Logic::KeyOverrides &overrides);
+    Q_SLOT void onCenterPanelChanged(const KeyArea &key_area,
+                                     const Logic::KeyOverrides &overrides);
+    Q_SLOT void onExtendedPanelChanged(const KeyArea &key_area,
+                                       const Logic::KeyOverrides &overrides);
     Q_SLOT void onWordRibbonChanged(const WordRibbon &ribbon);
 
 private:

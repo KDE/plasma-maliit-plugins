@@ -136,20 +136,20 @@ void connectGlassToFeedback (Glass *glass,
 void connectLayoutToRenderer(Logic::Layout *layout,
                              Renderer *renderer)
 {
-    QObject::connect(layout,   SIGNAL(magnifierKeyChanged(Key)),
-                     renderer, SLOT(onMagnifierKeyChanged(Key)));
+    QObject::connect(layout,   SIGNAL(magnifierKeyChanged(Key, Logic::KeyOverrides)),
+                     renderer, SLOT(onMagnifierKeyChanged(Key, Logic::KeyOverrides)));
 
-    QObject::connect(layout,   SIGNAL(activeKeysChanged(QVector<Key>)),
-                     renderer, SLOT(onActiveKeysChanged(QVector<Key>)));
+    QObject::connect(layout,   SIGNAL(activeKeysChanged(QVector<Key>, Logic::KeyOverrides)),
+                     renderer, SLOT(onActiveKeysChanged(QVector<Key>, Logic::KeyOverrides)));
 
-    QObject::connect(layout,   SIGNAL(activeExtendedKeysChanged(QVector<Key>)),
-                     renderer, SLOT(onActiveExtendedKeysChanged(QVector<Key>)));
+    QObject::connect(layout,   SIGNAL(activeExtendedKeysChanged(QVector<Key>, Logic::KeyOverrides)),
+                     renderer, SLOT(onActiveExtendedKeysChanged(QVector<Key>, Logic::KeyOverrides)));
 
-    QObject::connect(layout,   SIGNAL(centerPanelChanged(KeyArea)),
-                     renderer, SLOT(onCenterPanelChanged(KeyArea)));
+    QObject::connect(layout,   SIGNAL(centerPanelChanged(KeyArea, Logic::KeyOverrides)),
+                     renderer, SLOT(onCenterPanelChanged(KeyArea, Logic::KeyOverrides)));
 
-    QObject::connect(layout,   SIGNAL(extendedPanelChanged(KeyArea)),
-                     renderer, SLOT(onExtendedPanelChanged(KeyArea)));
+    QObject::connect(layout,   SIGNAL(extendedPanelChanged(KeyArea, Logic::KeyOverrides)),
+                     renderer, SLOT(onExtendedPanelChanged(KeyArea, Logic::KeyOverrides)));
 
     QObject::connect(layout,   SIGNAL(wordRibbonChanged(WordRibbon)),
                      renderer, SLOT(onWordRibbonChanged(WordRibbon)));

@@ -80,12 +80,15 @@ void recycleKeyItem(QVector<KeyItem *> *key_items,
 
 void updateActiveKeys(const QVector<Key> &active_keys,
                       QVector<KeyItem *> *key_items,
-                      QGraphicsItem *parent)
+                      QGraphicsItem *parent,
+                      const Logic::KeyOverrides& overrides)
 {
     int index = 0;
 
     for (; index < active_keys.count(); ++index) {
-        recycleKeyItem(key_items, index, active_keys.at(index), parent);
+        Key key(Utils::applyOverride(active_keys.at(index), overrides));
+
+        recycleKeyItem(key_items, index, key, parent);
     }
 
     // Hide remaining, currently unneeded key items:
@@ -232,24 +235,27 @@ void Renderer::hide()
     d->magnifier_surface->hide();
 }
 
-void Renderer::onActiveKeysChanged(const QVector<Key> &active_keys)
+void Renderer::onActiveKeysChanged(const QVector<Key> &active_keys,
+                                   const Logic::KeyOverrides &overrides)
 {
     Q_D(Renderer);
-    updateActiveKeys(active_keys, &d->key_items, d->center_item);
+    updateActiveKeys(active_keys, &d->key_items, d->center_item, overrides);
 }
 
-void Renderer::onActiveExtendedKeysChanged(const QVector<Key> &active_keys)
+void Renderer::onActiveExtendedKeysChanged(const QVector<Key> &active_keys,
+                                           const Logic::KeyOverrides &overrides)
 {
     Q_D(Renderer);
-    updateActiveKeys(active_keys, &d->extended_key_items, d->extended_item);
+    updateActiveKeys(active_keys, &d->extended_key_items, d->extended_item, overrides);
 }
 
-void Renderer::onMagnifierKeyChanged(const Key &key)
+void Renderer::onMagnifierKeyChanged(const Key &key,
+                                     const Logic::KeyOverrides &overrides)
 {
     Q_D(Renderer);
 
     if (key.valid()) {
-        Key magnifier_key(key);
+        Key magnifier_key(Utils::applyOverride(key, overrides));
         d->magnifier_surface->setSize(magnifier_key.area().size());
         d->magnifier_surface->setRelativePosition(magnifier_key.origin());
         magnifier_key.setOrigin(QPoint());
@@ -260,7 +266,8 @@ void Renderer::onMagnifierKeyChanged(const Key &key)
     }
 }
 
-void Renderer::onCenterPanelChanged(const KeyArea &key_area)
+void Renderer::onCenterPanelChanged(const KeyArea &key_area,
+                                    const Logic::KeyOverrides &overrides)
 {
     Q_D(Renderer);
 
@@ -268,6 +275,7 @@ void Renderer::onCenterPanelChanged(const KeyArea &key_area)
     const QPoint &origin(key_area.origin());
 
     d->center_item->setKeyArea(key_area);
+    d->center_item->setKeyOverrides(overrides);
     d->center_item->setVisible(ka_size.isValid());
 
     if (d->center_item->isVisible()) {
@@ -279,7 +287,8 @@ void Renderer::onCenterPanelChanged(const KeyArea &key_area)
     }
 }
 
-void Renderer::onExtendedPanelChanged(const KeyArea &key_area)
+void Renderer::onExtendedPanelChanged(const KeyArea &key_area,
+                                      const Logic::KeyOverrides &overrides)
 {
     Q_D(Renderer);
 
@@ -291,6 +300,7 @@ void Renderer::onExtendedPanelChanged(const KeyArea &key_area)
     extended_key_area.setOrigin(QPoint());
 
     d->extended_item->setKeyArea(extended_key_area);
+    d->extended_item->setKeyOverrides(overrides);
     d->extended_item->setVisible(ka_size.isValid());
 
     if (d->extended_item->isVisible()) {

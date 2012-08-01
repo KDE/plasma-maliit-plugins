@@ -33,6 +33,7 @@
 #define MALIIT_KEYBOARD_KEYAREAITEM_H
 
 #include "models/keyarea.h"
+#include "logic/layout.h"
 
 #include <QGraphicsItem>
 
@@ -43,6 +44,7 @@ class KeyAreaItem
 {
 private:
     KeyArea m_key_area;
+    Logic::KeyOverrides m_key_overrides;
 
 public:
     explicit KeyAreaItem(QGraphicsItem *parent = 0);
@@ -50,6 +52,9 @@ public:
 
     KeyArea keyArea() const;
     void setKeyArea(const KeyArea &ka);
+
+    Logic::KeyOverrides keyOverrides() const;
+    void setKeyOverrides(const Logic::KeyOverrides &overrides);
 
     //! \reimp
     virtual QRectF boundingRect() const;

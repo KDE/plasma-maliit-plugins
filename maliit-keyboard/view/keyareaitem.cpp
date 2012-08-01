@@ -61,6 +61,19 @@ void KeyAreaItem::setKeyArea(const KeyArea &ka)
     }
 }
 
+Logic::KeyOverrides KeyAreaItem::keyOverrides() const
+{
+    return m_key_overrides;
+}
+
+void KeyAreaItem::setKeyOverrides(const Logic::KeyOverrides &overrides)
+{
+    if (m_key_overrides != overrides) {
+        m_key_overrides = overrides;
+        update();
+    }
+}
+
 QRectF KeyAreaItem::boundingRect() const
 {
     return m_key_area.rect();
@@ -77,7 +90,9 @@ void KeyAreaItem::paint(QPainter *painter,
                       area.backgroundBorders(), Utils::loadPixmap(area.background()));
 
     Q_FOREACH (const Key &k, ka.keys()) {
-        Utils::renderKey(painter, k, boundingRect().topLeft().toPoint());
+        Key key(Utils::applyOverride(k, m_key_overrides));
+
+        Utils::renderKey(painter, key, boundingRect().topLeft().toPoint());
     }
 }
 
