@@ -94,4 +94,10 @@ void UpdateNotifier::notify(MImUpdateEvent* event)
     }
 }
 
+void UpdateNotifier::notifyOverride(const Logic::KeyOverrides &overriden_keys,
+                                    bool update /* = false */)
+{
+    Q_EMIT keysOverriden(overriden_keys, update);
+}
+
 } // namespace MaliitKeyboard

@@ -33,12 +33,16 @@
 #define MALIIT_KEYBOARD_UPDATENOTIFIER_H
 
 #include <QtCore>
+#include <maliit/plugins/keyoverride.h>
+
+#include "logic/layout.h"
 
 class MImUpdateEvent;
 
 namespace MaliitKeyboard {
 
 class UpdateNotifierPrivate;
+class Key;
 
 class UpdateNotifier
     : public QObject
@@ -52,9 +56,14 @@ public:
     virtual ~UpdateNotifier();
 
     void notify(MImUpdateEvent *event);
+    void notifyOverride(const Logic::KeyOverrides &overriden_keys,
+                        bool update = false);
 
     Q_SIGNAL void cursorPositionChanged(int cursor_position,
                                         const QString &surrounding_text);
+    Q_SIGNAL void keysOverriden(const Logic::KeyOverrides &overriden_keys,
+                                bool update);
+
 private:
     const QScopedPointer<UpdateNotifierPrivate> d_ptr;
 };
