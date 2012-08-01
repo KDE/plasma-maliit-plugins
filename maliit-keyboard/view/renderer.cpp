@@ -97,6 +97,19 @@ void updateActiveKeys(const QVector<Key> &active_keys,
     }
 }
 
+void loadFontFiles(const QString &fonts_dir,
+                   const QStringList &font_files)
+{
+    Q_FOREACH (const QString &font_file, font_files) {
+        const QString full_font_path(fonts_dir + "/" + font_file);
+
+        if (QFontDatabase::addApplicationFont(full_font_path) < 0) {
+            qCritical() << __PRETTY_FUNCTION__
+                        << "Could not load a font file" << full_font_path;
+        }
+    }
+}
+
 } // namespace
 
 class RendererPrivate
@@ -324,6 +337,12 @@ void Renderer::applyProfile()
 {
     Q_D(Renderer);
     Utils::setImagesDirectoryPath(d->style->directoryPath(Style::Images));
+
+    const QStringList font_files(d->style->attributes()->fontFiles());
+    const QString fonts_dir(d->style->directoryPath(Style::Fonts));
+
+    loadFontFiles(fonts_dir, d->style->attributes()->fontFiles());
+    loadFontFiles(fonts_dir, d->style->extendedKeysAttributes()->fontFiles());
 }
 
 } // namespace MaliitKeyboard
