@@ -1,7 +1,10 @@
 {NEXT}
-======
 
 CHANGES SINCE 0.94.0
+
+* Implemented action key overriding:
+  - It is possible to control label and icon of action key from
+    application through Maliit attribute extensions.
 
 0.94.0
 ======
@@ -60,7 +63,7 @@ BUG FIXES
 ======
 
 CHANGES SINCE 0.92.2
-* Add configure option to disable preedit
+* Add configure option to disable preedit:
   - In this mode, all text is committed immediately. Works around
     https://bugzilla.gnome.org/show_bug.cgi?id=680097 and can be used as a
     "fix" for the corresponding MALIIT#173.
