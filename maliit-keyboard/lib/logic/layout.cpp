@@ -29,12 +29,16 @@
  *
  */
 
+#include <tr1/functional>
+
 #include "layout.h"
+#include "coreutils.h"
 
 namespace MaliitKeyboard {
 namespace Logic {
 
 namespace {
+
 bool removeKey(QVector<Key> *keys,
                const Key &key)
 {
@@ -53,7 +57,24 @@ bool removeKey(QVector<Key> *keys,
 
     return false;
 }
+
+struct KeyPredicate
+{
+    KeyPredicate(const QSet<QString> &changed_ids)
+        : m_changed_ids(changed_ids)
+    {}
+
+    bool operator()(Key &key)
+    {
+        return (m_changed_ids.constFind(CoreUtils::idFromKey(key)) != m_changed_ids.constEnd());
+    }
+
+    const QSet<QString> &m_changed_ids;
+};
+
 } // namespace
+
+typedef std::tr1::function<void(const KeyArea &, const KeyOverrides &)> EmitFunc;
 
 class LayoutPrivate
 {
@@ -80,11 +101,15 @@ public:
     } active_keys;
 
     Key magnifier_key;
+    KeyOverrides overriden_keys;
 
     explicit LayoutPrivate();
 
     KeyArea lookup(Layout::Panel panel) const;
     QPoint panelOrigin() const;
+    void overrideCheck(const QSet<QString> &changed_ids,
+                       KeyArea &key_area,
+                       const EmitFunc& func);
 };
 
 LayoutPrivate::LayoutPrivate()
@@ -99,6 +124,7 @@ LayoutPrivate::LayoutPrivate()
     , ribbon()
     , active_keys()
     , magnifier_key()
+    , overriden_keys()
 {}
 
 KeyArea LayoutPrivate::lookup(Layout::Panel panel) const
@@ -119,6 +145,18 @@ KeyArea LayoutPrivate::lookup(Layout::Panel panel) const
 QPoint LayoutPrivate::panelOrigin() const
 {
     return QPoint(0, ribbon.area().size().height());
+}
+
+void LayoutPrivate::overrideCheck(const QSet<QString> &changed_ids,
+                                  KeyArea &key_area,
+                                  const EmitFunc &func)
+{
+    QVector<Key> &keys(key_area.rKeys());
+    KeyPredicate predicate(changed_ids);
+
+    if (std::find_if(keys.begin(), keys.end(), predicate) != keys.end()) {
+        func(key_area, overriden_keys);
+    }
 }
 
 Layout::Layout(QObject *parent)
@@ -231,7 +269,7 @@ void Layout::setLeftPanel(const KeyArea &left)
 
     if (d->left != left) {
         d->left = left;
-        Q_EMIT leftPanelChanged(d->left);
+        Q_EMIT leftPanelChanged(d->left, d->overriden_keys);
     }
 }
 
@@ -247,7 +285,7 @@ void Layout::setRightPanel(const KeyArea &right)
 
     if (d->right != right) {
         d->right = right;
-        Q_EMIT rightPanelChanged(d->right);
+        Q_EMIT rightPanelChanged(d->right, d->overriden_keys);
     }
 }
 
@@ -263,7 +301,7 @@ void Layout::setCenterPanel(const KeyArea &center)
 
     if (d->center != center) {
         d->center = center;
-        Q_EMIT centerPanelChanged(d->center);
+        Q_EMIT centerPanelChanged(d->center, d->overriden_keys);
     }
 }
 
@@ -279,7 +317,7 @@ void Layout::setExtendedPanel(const KeyArea &extended)
 
     if (d->extended != extended) {
         d->extended = extended;
-        Q_EMIT extendedPanelChanged(d->extended);
+        Q_EMIT extendedPanelChanged(d->extended, d->overriden_keys);
     }
 }
 
@@ -324,8 +362,9 @@ void Layout::clearActiveKeys()
     d->active_keys.extended.clear();
 
     QVector<Key> empty;
-    Q_EMIT activeKeysChanged(empty);
-    Q_EMIT activeExtendedKeysChanged(empty);
+    KeyOverrides empty_overrides;
+    Q_EMIT activeKeysChanged(empty, empty_overrides);
+    Q_EMIT activeExtendedKeysChanged(empty, empty_overrides);
 }
 
 void Layout::appendActiveKey(const Key &key)
@@ -339,12 +378,12 @@ void Layout::appendActiveKey(const Key &key)
 
     case CenterPanel:
         d->active_keys.center.append(key);
-        Q_EMIT activeKeysChanged(d->active_keys.center);
+        Q_EMIT activeKeysChanged(d->active_keys.center, d->overriden_keys);
         break;
 
     case ExtendedPanel:
         d->active_keys.extended.append(key);
-        Q_EMIT activeExtendedKeysChanged(d->active_keys.extended);
+        Q_EMIT activeExtendedKeysChanged(d->active_keys.extended, d->overriden_keys);
         break;
     }
 }
@@ -360,13 +399,13 @@ void Layout::removeActiveKey(const Key &key)
 
     case CenterPanel:
         if (removeKey(&d->active_keys.center, key)) {
-            Q_EMIT activeKeysChanged(d->active_keys.center);
+            Q_EMIT activeKeysChanged(d->active_keys.center, d->overriden_keys);
         }
         break;
 
     case ExtendedPanel:
         if (removeKey(&d->active_keys.extended, key)) {
-            Q_EMIT activeExtendedKeysChanged(d->active_keys.extended);
+            Q_EMIT activeExtendedKeysChanged(d->active_keys.extended, d->overriden_keys);
         }
         break;
     }
@@ -385,13 +424,43 @@ void Layout::setMagnifierKey(const Key &key)
     if (d->magnifier_key != key) {
         d->magnifier_key = key;
         d->magnifier_key.setOrigin(d->magnifier_key.origin() + d->panelOrigin());
-        Q_EMIT magnifierKeyChanged(d->magnifier_key);
+        Q_EMIT magnifierKeyChanged(d->magnifier_key, d->overriden_keys);
     }
 }
 
 void Layout::clearMagnifierKey()
 {
     setMagnifierKey(Key());
+}
+
+void Layout::onKeysOverriden(const KeyOverrides &overriden_keys,
+                             bool update)
+{
+    Q_D(Layout);
+    QSet<QString> changed_ids;
+
+    if (update) {
+        for (KeyOverrides::iterator i(overriden_keys.begin()), e(overriden_keys.end()); i != e; ++i) {
+            KeyOverrides::iterator override(d->overriden_keys.find(i.key()));
+
+            if (override != d->overriden_keys.end()
+                && override.value() != i.value()) {
+                override.value() = i.value();
+                changed_ids.insert(i.key());
+            }
+        }
+    } else if (d->overriden_keys != overriden_keys) {
+        changed_ids = QSet<QString>::fromList(d->overriden_keys.keys()).unite(QSet<QString>::fromList(overriden_keys.keys()));
+        d->overriden_keys = overriden_keys;
+    }
+
+    using std::tr1::placeholders::_1;
+    using std::tr1::placeholders::_2;
+
+    d->overrideCheck(changed_ids, d->left, std::tr1::bind(&Layout::leftPanelChanged, this, _1, _2));
+    d->overrideCheck(changed_ids, d->right, std::tr1::bind(&Layout::rightPanelChanged, this, _1, _2));
+    d->overrideCheck(changed_ids, d->center, std::tr1::bind(&Layout::centerPanelChanged, this, _1, _2));
+    d->overrideCheck(changed_ids, d->extended, std::tr1::bind(&Layout::extendedPanelChanged, this, _1, _2));
 }
 
 }} // namespace Logic, MaliitKeyboard

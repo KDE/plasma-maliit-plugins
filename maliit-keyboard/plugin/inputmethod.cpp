@@ -176,6 +176,9 @@ void InputMethodPrivate::connectToNotifier()
 {
     QObject::connect(&notifier, SIGNAL(cursorPositionChanged(int, QString)),
                      &editor,   SLOT(onCursorPositionChanged(int, QString)));
+
+    QObject::connect(&notifier, SIGNAL(keysOverriden(Logic::KeyOverrides, bool)),
+                     &layout,   SLOT(onKeysOverriden(Logic::KeyOverrides, bool)));
 }
 
 InputMethod::InputMethod(MAbstractInputMethodHost *host)

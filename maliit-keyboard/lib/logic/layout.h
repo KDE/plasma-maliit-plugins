@@ -103,19 +103,23 @@ public:
 
     KeyArea leftPanel() const;
     void setLeftPanel(const KeyArea &left);
-    Q_SIGNAL void leftPanelChanged(const KeyArea &left);
+    Q_SIGNAL void leftPanelChanged(const KeyArea &left,
+                                   const Logic::KeyOverrides &overrides);
 
     KeyArea rightPanel() const;
     void setRightPanel(const KeyArea &right);
-    Q_SIGNAL void rightPanelChanged(const KeyArea &right);
+    Q_SIGNAL void rightPanelChanged(const KeyArea &right,
+                                    const Logic::KeyOverrides &overrides);
 
     KeyArea centerPanel() const;
     void setCenterPanel(const KeyArea &center);
-    Q_SIGNAL void centerPanelChanged(const KeyArea &center);
+    Q_SIGNAL void centerPanelChanged(const KeyArea &center,
+                                     const Logic::KeyOverrides &overrides);
 
     KeyArea extendedPanel() const;
     void setExtendedPanel(const KeyArea &extended);
-    Q_SIGNAL void extendedPanelChanged(const KeyArea &extended);
+    Q_SIGNAL void extendedPanelChanged(const KeyArea &extended,
+                                       const Logic::KeyOverrides &overrides);
 
     WordRibbon wordRibbon() const;
     void setWordRibbon(const WordRibbon &ribbon);
@@ -125,13 +129,19 @@ public:
     void clearActiveKeys();
     void appendActiveKey(const Key &key);
     void removeActiveKey(const Key &key);
-    Q_SIGNAL void activeKeysChanged(const QVector<Key> &keys);
-    Q_SIGNAL void activeExtendedKeysChanged(const QVector<Key> &keys);
+    Q_SIGNAL void activeKeysChanged(const QVector<Key> &keys,
+                                    const Logic::KeyOverrides &overrides);
+    Q_SIGNAL void activeExtendedKeysChanged(const QVector<Key> &keys,
+                                            const Logic::KeyOverrides &overrides);
 
     Key magnifierKey() const;
     void setMagnifierKey(const Key &key);
     void clearMagnifierKey();
-    Q_SIGNAL void magnifierKeyChanged(const Key &key);
+    Q_SIGNAL void magnifierKeyChanged(const Key &key,
+                                      const Logic::KeyOverrides &overrides);
+
+    Q_SLOT void onKeysOverriden(const Logic::KeyOverrides &overriden_keys,
+                                bool update);
 
 private:
     const QScopedPointer<LayoutPrivate> d_ptr;
