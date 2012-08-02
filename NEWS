@@ -5,6 +5,13 @@ CHANGES SINCE 0.94.0
 * Implemented action key overriding:
   - It is possible to control label and icon of action key from
     application through Maliit attribute extensions.
+* New nokia-n9 with Droid fonts style
+  - Use qmake MALIIT_DEFAULT_PROFILE=nokia-n9-droid to activate.
+* Allow fonts to be styled:
+  - Font name for each layout can be specified.
+  - If font is not available system-wide then it is possible
+    to specify a font file.
+  - See new nokia-n9-droid style for example use.
 
 0.94.0
 ======
