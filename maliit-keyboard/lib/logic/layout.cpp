@@ -29,6 +29,7 @@
  *
  */
 
+#include <algorithm>
 #include <tr1/functional>
 
 #include "layout.h"
