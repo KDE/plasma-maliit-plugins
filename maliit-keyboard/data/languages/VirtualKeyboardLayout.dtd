@@ -71,4 +71,5 @@
   rtl (true | false) "false"
   enlarge (true | false) "false"
   sequence CDATA #IMPLIED
+  icon CDATA #IMPLIED
 >
