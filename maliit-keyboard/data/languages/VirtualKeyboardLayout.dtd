@@ -6,9 +6,10 @@
 <!ELEMENT layout (section+)>
 <!ELEMENT section (row+)>
 <!ELEMENT row (key | spacer)*>
-<!ELEMENT key (binding+)>
+<!ELEMENT key ((binding,extended) | binding | (extended,binding))>
 <!ELEMENT spacer EMPTY>
 <!ELEMENT binding EMPTY>
+<!ELEMENT extended (row+)>
 
 <!ATTLIST keyboard
   version CDATA "1.0"
@@ -64,7 +65,6 @@
   secondary_label CDATA #IMPLIED
   accents CDATA #IMPLIED
   accented_labels CDATA #IMPLIED
-  extended_labels CDATA #IMPLIED
   cycleset CDATA #IMPLIED
   dead (true | false) "false"
   quickpick (true | false) "false"
