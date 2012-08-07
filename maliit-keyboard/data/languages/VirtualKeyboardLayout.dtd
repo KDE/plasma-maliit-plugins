@@ -19,6 +19,9 @@
   catalog CDATA #IMPLIED
   autocapitalization (true | false) "true">
 
+<!--
+file: File to import, deprecated in favour of <symview>, <phonenumber> and <number>.
+-->
 <!ATTLIST import
   file CDATA #IMPLIED>
 
@@ -48,6 +51,12 @@
   height (small | medium | large | x-large | xx-large) "medium"
 >
 
+<!--
+style:
+width:
+rtl: Something with right-to-left, but the same exists for <binding>.
+id: An ID for key overrides, not used.
+-->
 <!ATTLIST key
   style (normal | special | deadkey) "normal"
   width (small | medium | large | x-large | xx-large | stretched) "medium"
@@ -55,6 +64,19 @@
   id CDATA #IMPLIED
 >
 
+<!--
+label: Key's label.
+secondary_label: ? Not used.
+accents: Which accents are activating accented_labels.
+accented_labels: What accented labels should be shown for given accents.
+cycleset: ? Not used.
+dead: Whether key is a dead key.
+quickpick: ? Not used.
+rtl: ? Not used.
+enlarge: ? Not used.
+sequence: Sequence of keys this key imitates, valid only for command action.
+icon: Icon to be used.
+-->
 <!ATTLIST binding
   action (insert | shift | backspace | space | cycle | layout_menu | sym
           | return | commit | decimal_separator | plus_minus_toggle | switch
