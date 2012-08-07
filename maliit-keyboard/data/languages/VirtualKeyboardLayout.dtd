@@ -8,8 +8,9 @@
 <!ELEMENT row (key | spacer)*>
 <!ELEMENT key ((binding,extended) | binding | (extended,binding))>
 <!ELEMENT spacer EMPTY>
-<!ELEMENT binding EMPTY>
+<!ELEMENT binding (modifiers)*>
 <!ELEMENT extended (row+)>
+<!ELEMENT modifiers (binding)>
 
 <!ATTLIST keyboard
   version CDATA "1.0"
@@ -59,8 +60,6 @@
           | return | commit | decimal_separator | plus_minus_toggle | switch
           | on_off_toggle | compose | left | up | right | down | close
           | left-layout | right-layout | command) "insert"
-  shift (true|false) "false"
-  alt (true|false) "false"
   label CDATA #IMPLIED
   secondary_label CDATA #IMPLIED
   accents CDATA #IMPLIED
@@ -72,4 +71,8 @@
   enlarge (true | false) "false"
   sequence CDATA #IMPLIED
   icon CDATA #IMPLIED
+>
+
+<!ATTLIST modifiers
+  keys (alt|shift|altshift) #REQUIRED
 >
