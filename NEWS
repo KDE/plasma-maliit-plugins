@@ -1,3 +1,9 @@
+0.92.4
+======
+
+BUG FIXES
+* Fixes: CONFIG+=disable-preedit
+
 0.92.3
 ======
 
