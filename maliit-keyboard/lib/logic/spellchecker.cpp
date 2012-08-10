@@ -208,4 +208,10 @@ void SpellChecker::addToUserWordlist(const QString &word)
     }
 }
 
+// static
+QString SpellChecker::dictPath()
+{
+    return QString(HUNSPELL_DICT_PATH);
+}
+
 }} // namespace Logic, MaliitKeyboard

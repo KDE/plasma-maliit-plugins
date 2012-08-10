@@ -22,7 +22,11 @@ isEmpty(LIBDIR) {
 }
 
 isEmpty(MALIIT_DEFAULT_PROFILE) {
-   MALIIT_DEFAULT_PROFILE = nokia-n9
+    MALIIT_DEFAULT_PROFILE = nokia-n9
+}
+
+isEmpty(HUNSPELL_DICT_PATH) {
+    HUNSPELL_DICT_PATH = $$PREFIX/share/hunspell
 }
 
 contains(QT_CONFIG, embedded) {

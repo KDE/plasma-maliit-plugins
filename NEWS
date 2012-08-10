@@ -1,7 +1,9 @@
 {NEXT}
 
 CHANGES SINCE 0.94.0
-
+* Added HUNSPELL_DICT_PATH parameter to qmake:
+  - use it if your distro uses different path for dictionaries (like
+    Fedora which keeps them in /usr/share/myspell).
 * Implemented action key overriding:
   - It is possible to control label and icon of action key from
     application through Maliit attribute extensions.

@@ -8,6 +8,7 @@ include(config.pri)
         \\n\\t\\t Note that the plugins themselves are installed under Maliit framework prefix \
         \\n\\t LIBDIR: Library install directory. Default: $$PREFIX/lib \
         \\n\\t MALIIT_DEFAULT_PROFILE: Default keyboard style. Default: nokia-n9 \
+        \\n\\t HUNSPELL_DICT_PATH: Path to hunspell dictionaries. Default: $$PREFIX/share/hunspell
         \\nRecognised CONFIG flags: \
         \\n\\t enable-presage: Use presage to calculate word candidates (maliit-keyboard-plugin only) \
         \\n\\t enable-hunspell: Use hunspell for error correction (maliit-keyboard-plugin only) \
