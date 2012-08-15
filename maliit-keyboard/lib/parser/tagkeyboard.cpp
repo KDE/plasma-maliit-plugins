@@ -1,4 +1,3 @@
-// -*- mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 /*
  * This file is part of Maliit Plugins
  *
@@ -72,7 +71,7 @@ bool TagKeyboard::autocapitalization() const
     return m_autocapitalization;
 }
 
-const TagKeyboard::TagLayouts TagKeyboard::layouts() const
+const TagLayoutPtrs TagKeyboard::layouts() const
 {
     return m_layouts;
 }

@@ -1,4 +1,3 @@
-// -*- mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 /*
  * This file is part of Maliit Plugins
  *
@@ -34,8 +33,9 @@
 #define MALIIT_KEYBOARD_TAG_BINDING_H
 
 #include <QtGlobal>
-#include <QSharedPointer>
 #include <QString>
+
+#include "alltagtypes.h"
 
 namespace MaliitKeyboard {
 
@@ -115,8 +115,6 @@ private:
     const bool m_rtl;
     const bool m_enlarge;
 };
-
-typedef QSharedPointer<TagBinding> TagBindingPtr;
 
 } // namespace MaliitKeyboard
 

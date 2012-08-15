@@ -1,4 +1,3 @@
-// -*- mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 /*
  * This file is part of Maliit Plugins
  *
@@ -34,11 +33,9 @@
 #define MALIIT_KEYBOARD_TAG_SECTION_H
 
 #include <QtGlobal>
-#include <QList>
-#include <QSharedPointer>
 #include <QString>
 
-#include "tagrow.h"
+#include "alltagtypes.h"
 
 namespace MaliitKeyboard {
 
@@ -47,7 +44,6 @@ class TagSection
     Q_DISABLE_COPY(TagSection)
 
 public:
-    typedef QList<TagRowPtr> TagRows;
     enum SectionType {
         Sloppy,
         Nonsloppy
@@ -63,7 +59,7 @@ public:
     bool movable() const;
     SectionType type() const;
     const QString style() const;
-    const TagRows rows() const;
+    const TagRowPtrs rows() const;
 
     void appendRow(const TagRowPtr &row);
 
@@ -74,10 +70,8 @@ private:
     const bool m_movable;
     const SectionType m_type;
     const QString m_style;
-    TagRows m_rows;
+    TagRowPtrs m_rows;
 };
-
-typedef QSharedPointer<TagSection> TagSectionPtr;
 
 } // namespace MaliitKeyboard
 

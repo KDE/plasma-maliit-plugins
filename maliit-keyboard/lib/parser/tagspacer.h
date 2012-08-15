@@ -1,4 +1,3 @@
-// -*- mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 /*
  * This file is part of Maliit Plugins
  *
@@ -35,6 +34,7 @@
 
 #include <QtGlobal>
 
+#include "alltagtypes.h"
 #include "tagrowelement.h"
 
 namespace MaliitKeyboard {
@@ -49,8 +49,6 @@ public:
 
     virtual ~TagSpacer();
 };
-
-typedef QSharedPointer<TagSpacer> TagSpacerPtr;
 
 } // namespace MaliitKeyboard
 

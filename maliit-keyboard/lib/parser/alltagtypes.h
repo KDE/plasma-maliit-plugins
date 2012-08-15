@@ -1,9 +1,9 @@
 /*
  * This file is part of Maliit Plugins
  *
- * Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies). All rights reserved.
+ * Copyright (C) 2012 Openismus GmbH. All rights reserved.
  *
- * Contact: Mohammad Anwari <Mohammad.Anwari@nokia.com>
+ * Contact: maliit-discuss@lists.maliit.org
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -29,34 +29,38 @@
  *
  */
 
-#include "tagrow.h"
+#ifndef MALIIT_KEYBOARD_ALL_TAG_TYPES_H
+#define MALIIT_KEYBOARD_ALL_TAG_TYPES_H
+
+#include <QList>
+#include <QSharedPointer>
 
 namespace MaliitKeyboard {
 
-TagRow::TagRow(Height height)
-    : m_height(height)
-    , m_elements()
-{}
+class TagBinding;
+class TagKeyboard;
+class TagKey;
+class TagLayout;
+class TagRowElement;
+class TagRow;
+class TagSection;
+class TagSpacer;
 
-TagRow::Height TagRow::height() const
-{
-    return m_height;
-}
+typedef QSharedPointer<TagBinding> TagBindingPtr;
+typedef QSharedPointer<TagKeyboard> TagKeyboardPtr;
+typedef QSharedPointer<TagKey> TagKeyPtr;
+typedef QSharedPointer<TagLayout> TagLayoutPtr;
+typedef QSharedPointer<TagRowElement> TagRowElementPtr;
+typedef QSharedPointer<TagRow> TagRowPtr;
+typedef QSharedPointer<TagSection> TagSectionPtr;
+typedef QSharedPointer<TagSpacer> TagSpacerPtr;
 
-const TagRowElementPtrs TagRow::elements() const
-{
-    return m_elements;
-}
-
-void TagRow::appendElement(const TagRowElementPtr &element)
-{
-    m_elements.append(element);
-}
-
-bool TagRow::operator==(const TagRow &other)
-{
-    Q_UNUSED(other)
-    return false;
-}
+typedef QList<TagBindingPtr> TagBindingPtrs;
+typedef QList<TagSectionPtr> TagSectionPtrs;
+typedef QList<TagLayoutPtr> TagLayoutPtrs;
+typedef QList<TagRowElementPtr> TagRowElementPtrs;
+typedef QList<TagRowPtr> TagRowPtrs;
 
 } // namespace MaliitKeyboard
+
+#endif // MALIIT_KEYBOARD_ALL_TAG_TYPES_H

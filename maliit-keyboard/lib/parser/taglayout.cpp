@@ -1,4 +1,3 @@
-// -*- mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 /*
  * This file is part of Maliit Plugins
  *
@@ -58,7 +57,7 @@ bool TagLayout::uniform_font_size() const
     return m_uniform_font_size;
 }
 
-const TagLayout::TagSections TagLayout::sections() const
+const TagSectionPtrs TagLayout::sections() const
 {
     return m_sections;
 }

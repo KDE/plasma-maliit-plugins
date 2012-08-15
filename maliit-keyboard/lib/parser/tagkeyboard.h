@@ -1,4 +1,3 @@
-// -*- mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 /*
  * This file is part of Maliit Plugins
  *
@@ -34,11 +33,9 @@
 #define MALIIT_KEYBOARD_TAG_KEYBOARD_H
 
 #include <QtGlobal>
-#include <QList>
-#include <QSharedPointer>
 #include <QString>
 
-#include "taglayout.h"
+#include "alltagtypes.h"
 
 namespace MaliitKeyboard {
 
@@ -47,8 +44,6 @@ class TagKeyboard
     Q_DISABLE_COPY(TagKeyboard)
 
 public:
-    typedef QList<TagLayoutPtr> TagLayouts;
-
     TagKeyboard(const QString &version,
                 const QString &title,
                 const QString &language,
@@ -60,7 +55,7 @@ public:
     const QString language() const;
     const QString catalog() const;
     bool autocapitalization() const;
-    const TagLayouts layouts() const;
+    const TagLayoutPtrs layouts() const;
 
     void appendLayout(const TagLayoutPtr &layout);
 
@@ -70,10 +65,8 @@ private:
     const QString m_language;
     const QString m_catalog;
     const bool m_autocapitalization;
-    TagLayouts m_layouts;
+    TagLayoutPtrs m_layouts;
 };
-
-typedef QSharedPointer<TagKeyboard> TagKeyboardPtr;
 
 } // namespace MaliitKeyboard
 

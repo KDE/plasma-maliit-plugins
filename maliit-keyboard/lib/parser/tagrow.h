@@ -1,4 +1,3 @@
-// -*- mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 /*
  * This file is part of Maliit Plugins
  *
@@ -34,9 +33,8 @@
 #define MALIIT_KEYBOARD_TAG_ROW_H
 
 #include <QtGlobal>
-#include <QSharedPointer>
 
-#include "tagrowelement.h"
+#include "alltagtypes.h"
 
 namespace MaliitKeyboard {
 
@@ -45,8 +43,6 @@ class TagRow
     Q_DISABLE_COPY(TagRow)
 
 public:
-    typedef QList<TagRowElementPtr> TagRowElements;
-
     enum Height {
         Small,
         Medium,
@@ -58,17 +54,15 @@ public:
     TagRow(Height height);
 
     Height height() const;
-    const TagRowElements elements() const;
+    const TagRowElementPtrs elements() const;
 
     void appendElement(const TagRowElementPtr &element);
 
     bool operator==(const TagRow &other);
 private:
     const Height m_height;
-    TagRowElements m_elements;
+    TagRowElementPtrs m_elements;
 };
-
-typedef QSharedPointer<TagRow> TagRowPtr;
 
 } // namespace MaliitKeyboard
 

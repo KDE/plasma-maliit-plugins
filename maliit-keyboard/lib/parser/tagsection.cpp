@@ -1,4 +1,3 @@
-// -*- mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 /*
  * This file is part of Maliit Plugins
  *
@@ -35,9 +34,9 @@
 namespace MaliitKeyboard {
 
 TagSection::TagSection(const QString &id,
-                      bool movable,
-                      SectionType type,
-                      const QString &style)
+                       bool movable,
+                       SectionType type,
+                       const QString &style)
     : m_id(id)
     , m_movable(movable)
     , m_type(type)
@@ -65,7 +64,7 @@ const QString TagSection::style() const
     return m_style;
 }
 
-const TagSection::TagRows TagSection::rows() const
+const TagRowPtrs TagSection::rows() const
 {
     return m_rows;
 }

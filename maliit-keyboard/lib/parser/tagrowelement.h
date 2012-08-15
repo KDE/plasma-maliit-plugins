@@ -1,4 +1,3 @@
-// -*- mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 /*
  * This file is part of Maliit Plugins
  *
@@ -34,7 +33,8 @@
 #define MALIIT_KEYBOARD_TAG_ROW_ELEMENT_H
 
 #include <QtGlobal>
-#include <QSharedPointer>
+
+#include "alltagtypes.h"
 
 namespace MaliitKeyboard {
 
@@ -59,8 +59,6 @@ public:
 private:
     const ElementType m_element_type;
 };
-
-typedef QSharedPointer<TagRowElement> TagRowElementPtr;
 
 } // namespace MaliitKeyboard
 

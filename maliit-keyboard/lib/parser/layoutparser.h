@@ -36,8 +36,15 @@
 #include <QXmlStreamReader>
 #include <QStringList>
 
+#include "alltagtypes.h"
+
+#include "tagbinding.h"
 #include "tagkeyboard.h"
 #include "tagkey.h"
+#include "taglayout.h"
+#include "tagrowelement.h"
+#include "tagrow.h"
+#include "tagsection.h"
 #include "tagspacer.h"
 
 namespace MaliitKeyboard {

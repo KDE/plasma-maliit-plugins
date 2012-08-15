@@ -1,4 +1,3 @@
-// -*- mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 /*
  * This file is part of Maliit Plugins
  *
@@ -69,7 +68,7 @@ const QString TagKey::id() const
     return m_id;
 }
 
-const TagKey::TagBindings TagKey::bindings() const
+const TagBindingPtrs TagKey::bindings() const
 {
     return m_bindings;
 }

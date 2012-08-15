@@ -1,6 +1,7 @@
 PARSER_DIR = ./parser
 
 HEADERS += \
+    parser/alltagtypes.h \
     parser/layoutparser.h \
     parser/tagbinding.h \
     parser/tagkeyboard.h \
@@ -17,8 +18,8 @@ SOURCES += \
     parser/tagkeyboard.cpp \
     parser/tagkey.cpp \
     parser/taglayout.cpp \
-    parser/tagrow.cpp \
     parser/tagrowelement.cpp \
+    parser/tagrow.cpp \
     parser/tagsection.cpp \
     parser/tagspacer.cpp
 
