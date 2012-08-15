@@ -87,6 +87,7 @@ private:
     void parseRow(const TagRowContainerPtr &row_container);
     void parseKey(const TagRowPtr &row);
     void parseBinding(const TagBindingContainerPtr &binding_container);
+    void parseExtended(const TagKeyPtr &key);
     void parseSpacer(const TagRowPtr &row);
     void goToRootElement();
     void readToEnd();

@@ -366,8 +366,14 @@ void LayoutParser::parseKey(const TagRowPtr &row)
             } else {
                 error(QString::fromLatin1("Expected only one '<binding>', but got another one."));
             }
+        } else if (name == QLatin1String("extended")) {
+            if (not new_key->extended()) {
+                parseExtended(new_key);
+            } else {
+                error(QString::fromLatin1("Expected only one '<extended>', but got another one."));
+            }
         } else {
-            error(QString::fromLatin1("Expected '<binding>', but got '<%1>'.").arg(name.toString()));
+            error(QString::fromLatin1("Expected '<binding>' or '<extended>', but got '<%1>'.").arg(name.toString()));
         }
     }
 
@@ -405,6 +411,29 @@ void LayoutParser::parseBinding(const TagBindingContainerPtr &binding_container)
     binding_container->setBinding(new_binding);
 
     m_xml.skipCurrentElement();
+}
+
+void LayoutParser::parseExtended(const TagKeyPtr &key)
+{
+    bool found_row(false);
+    TagExtendedPtr new_extended(new TagExtended);
+
+    key->setExtended(new_extended);
+
+    while (m_xml.readNextStartElement()) {
+        const QStringRef name(m_xml.name());
+
+        if (name == QLatin1String("row")) {
+            parseRow(new_extended);
+            found_row = true;
+        } else {
+            error(QString::fromLatin1("Expected '<row>', but got '<%1>'.").arg(name.toString()));
+        }
+    }
+
+    if (not found_row) {
+        error(QString::fromLatin1("Expected at least one '<row>', but got none."));
+    }
 }
 
 void LayoutParser::parseSpacer(const TagRowPtr &row)
