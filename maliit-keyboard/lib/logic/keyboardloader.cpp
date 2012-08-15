@@ -69,6 +69,61 @@ TagKeyboardPtr get_tag_keyboard(const QString& id)
     return TagKeyboardPtr();
 }
 
+QPair<Key, KeyDescription> key_and_desc_from_tags(const TagKeyPtr &key,
+                                                  const TagBindingPtr &binding,
+                                                  int row)
+{
+    Key skey;
+    KeyDescription skey_description;
+
+    skey.setExtendedKeysEnabled(not binding->extended_labels().isEmpty());
+    skey.rLabel().setText(binding->label());
+
+    if (binding->dead()) {
+        // TODO: document it.
+        skey.setAction(Key::ActionDead);
+    } else {
+        skey.setAction(static_cast<Key::Action>(binding->action()));
+    }
+
+    skey.setCommandSequence(binding->sequence());
+
+    skey_description.row = row;
+    skey_description.use_rtl_icon = key->rtl();
+    skey_description.left_spacer = false;
+    skey_description.right_spacer = false;
+    skey_description.style = static_cast<KeyDescription::Style>(key->style());
+    skey_description.width = static_cast<KeyDescription::Width>(key->width());
+
+    switch (skey.action()) {
+    case Key::ActionBackspace:
+        skey_description.icon = KeyDescription::BackspaceIcon;
+        break;
+    case Key::ActionReturn:
+        skey_description.icon = KeyDescription::ReturnIcon;
+        break;
+    case Key::ActionShift:
+        skey_description.icon = KeyDescription::ShiftIcon;
+        break;
+    case Key::ActionClose:
+        skey_description.icon = KeyDescription::CloseIcon;
+        break;
+    case Key::ActionLeftLayout:
+        skey_description.icon = KeyDescription::LeftLayoutIcon;
+        break;
+    case Key::ActionRightLayout:
+        skey_description.icon = KeyDescription::RightLayoutIcon;
+        break;
+    default:
+        skey_description.icon = KeyDescription::NoIcon;
+        break;
+    }
+
+    skey_description.font_group = KeyDescription::NormalFontGroup;
+
+    return qMakePair(skey, skey_description);
+}
+
 Keyboard get_keyboard(const TagKeyboardPtr& keyboard,
                       bool shifted = false,
                       int page = 0,
@@ -111,56 +166,15 @@ Keyboard get_keyboard(const TagKeyboardPtr& keyboard,
                         }
 
                         const int index(dead_key.isNull() ? -1 : the_binding->accents().indexOf(dead_key));
+                        QPair<Key, KeyDescription> key_and_desc(key_and_desc_from_tags(key, the_binding, row_num));
 
-                        Key skey;
-                        skey.setExtendedKeysEnabled(not the_binding->extended_labels().isEmpty());
-                        skey.rLabel().setText(index < 0 ? the_binding->label()
-                                                        : the_binding->accented_labels().at(index));
+                        key_and_desc.first.rLabel().setText(index < 0 ? the_binding->label()
+                                                                      : the_binding->accented_labels().at(index));
+                        key_and_desc.second.left_spacer = spacer_met;
+                        key_and_desc.second.right_spacer = false;
 
-                        if (the_binding->dead()) {
-                            // TODO: document it.
-                            skey.setAction(Key::ActionDead);
-                        } else {
-                            skey.setAction(static_cast<Key::Action>(the_binding->action()));
-                        }
-
-                        skey.setCommandSequence(the_binding->sequence());
-
-                        skeyboard.keys.append(skey);
-
-                        KeyDescription skey_description;
-
-                        skey_description.row = row_num;
-                        skey_description.use_rtl_icon = key->rtl();
-                        skey_description.left_spacer = spacer_met;
-                        skey_description.right_spacer = false;
-                        skey_description.style = static_cast<KeyDescription::Style>(key->style());
-                        skey_description.width = static_cast<KeyDescription::Width>(key->width());
-                        switch (skey.action()) {
-                        case Key::ActionBackspace:
-                            skey_description.icon = KeyDescription::BackspaceIcon;
-                            break;
-                        case Key::ActionReturn:
-                            skey_description.icon = KeyDescription::ReturnIcon;
-                            break;
-                        case Key::ActionShift:
-                            skey_description.icon = KeyDescription::ShiftIcon;
-                            break;
-                        case Key::ActionClose:
-                            skey_description.icon = KeyDescription::CloseIcon;
-                            break;
-                        case Key::ActionLeftLayout:
-                            skey_description.icon = KeyDescription::LeftLayoutIcon;
-                            break;
-                        case Key::ActionRightLayout:
-                            skey_description.icon = KeyDescription::RightLayoutIcon;
-                            break;
-                        default:
-                            skey_description.icon = KeyDescription::NoIcon;
-                            break;
-                        }
-                        skey_description.font_group = KeyDescription::NormalFontGroup;
-                        skeyboard.key_descriptions.append(skey_description);
+                        skeyboard.keys.append(key_and_desc.first);
+                        skeyboard.key_descriptions.append(key_and_desc.second);
                         spacer_met = false;
                     } else { // spacer
                         if (not skeyboard.key_descriptions.isEmpty()) {
