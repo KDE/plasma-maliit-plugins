@@ -78,25 +78,25 @@ Keyboard get_keyboard(const TagKeyboardPtr& keyboard,
     const QChar dead_key((dead_label.size() == 1) ? dead_label[0] : QChar::Null);
 
     if (keyboard) {
-        TagKeyboard::TagLayouts layouts(keyboard->layouts());
+        TagLayoutPtrs layouts(keyboard->layouts());
 
         if (not layouts.isEmpty()) {
-            const TagLayout::TagSections sections(layouts.first()->sections());
+            const TagSectionPtrs sections(layouts.first()->sections());
             // sections cannot be empty - parser does not allow that.
             const TagSectionPtr section(sections[page % sections.size()]);
-            const TagSection::TagRows rows(section->rows());
+            const TagRowPtrs rows(section->rows());
             int row_num(0);
             QString section_style(section->style());
             int key_count(0);
 
             Q_FOREACH (const TagRowPtr& row, rows) {
-                const TagRow::TagRowElements elements(row->elements());
+                const TagRowElementPtrs elements(row->elements());
                 bool spacer_met(false);
 
                 Q_FOREACH (const TagRowElementPtr& element, elements) {
                     if (element->element_type() == TagRowElement::Key) {
                         const TagKeyPtr key(element.staticCast<TagKey>());
-                        const TagKey::TagBindings bindings(key->bindings());
+                        const TagBindingPtrs bindings(key->bindings());
                         TagBindingPtr the_binding;
                         ++key_count;
 
@@ -190,19 +190,19 @@ QPair<TagKeyPtr, TagBindingPtr> get_tag_key_and_binding(const TagKeyboardPtr &ke
     QPair<TagKeyPtr, TagBindingPtr> pair;
 
     if (keyboard) {
-        TagKeyboard::TagLayouts layouts(keyboard->layouts());
+        TagLayoutPtrs layouts(keyboard->layouts());
 
         if (not layouts.isEmpty()) {
             // sections cannot be empty - parser does not allow that.
-            TagSection::TagRows rows(layouts.first()->sections().first()->rows());
+            TagRowPtrs rows(layouts.first()->sections().first()->rows());
 
             Q_FOREACH (const TagRowPtr& row, rows) {
-                TagRow::TagRowElements elements(row->elements());
+                TagRowElementPtrs elements(row->elements());
 
                 Q_FOREACH (const TagRowElementPtr& element, elements) {
                     if (element->element_type() == TagRowElement::Key) {
                         TagKeyPtr key(element.staticCast<TagKey>());
-                        TagKey::TagBindings bindings(key->bindings());
+                        TagBindingPtrs bindings(key->bindings());
 
                         Q_FOREACH (const TagBindingPtr& binding, bindings) {
                             if (binding->label() == label) {
