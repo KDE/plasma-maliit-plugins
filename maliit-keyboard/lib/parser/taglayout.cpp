@@ -67,10 +67,4 @@ void TagLayout::appendSection(const TagSectionPtr &section)
     m_sections.append(section);
 }
 
-bool TagLayout::operator==(const TagLayout &other) const
-{
-    Q_UNUSED(other)
-    return false;
-}
-
 } // namespace MaliitKeyboard

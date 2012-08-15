@@ -78,11 +78,4 @@ void TagKey::appendBinding(const TagBindingPtr &binding)
   m_bindings.append(binding);
 }
 
-// TODO: this is really boring. check if we need it.
-bool TagKey::operator==(const TagKey &other) const
-{
-    Q_UNUSED(other)
-    return false;
-}
-
 } // namespace MaliitKeyboard

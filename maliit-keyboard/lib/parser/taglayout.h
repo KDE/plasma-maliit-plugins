@@ -68,8 +68,6 @@ public:
 
     void appendSection(const TagSectionPtr &section);
 
-    bool operator==(const TagLayout &other) const;
-
 private:
     const LayoutType m_type;
     const LayoutOrientation m_orientation;

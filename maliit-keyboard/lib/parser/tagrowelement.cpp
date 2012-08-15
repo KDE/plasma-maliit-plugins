@@ -45,9 +45,4 @@ TagRowElement::ElementType TagRowElement::element_type() const
     return m_element_type;
 }
 
-bool TagRowElement::operator==(const TagRowElement &other) const
-{
-    return (m_element_type == other.m_element_type);
-}
-
 } // namespace MaliitKeyboard

@@ -54,8 +54,6 @@ public:
 
     ElementType element_type() const;
 
-    bool operator==(const TagRowElement &other) const;
-
 private:
     const ElementType m_element_type;
 };

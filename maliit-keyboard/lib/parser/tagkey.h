@@ -76,8 +76,6 @@ public:
 
     void appendBinding(const TagBindingPtr &binding);
 
-    bool operator==(const TagKey &other) const;
-
 private:
     const Style m_style;
     const Width m_width;

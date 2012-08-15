@@ -74,10 +74,4 @@ void TagSection::appendRow(const TagRowPtr &row)
     m_rows.append(row);
 }
 
-bool TagSection::operator==(const TagSection &other) const
-{
-    Q_UNUSED(other)
-    return false;
-}
-
 } // namespace MaliitKeyboard

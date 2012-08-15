@@ -97,8 +97,6 @@ public:
     bool rtl() const;
     bool enlarge() const;
 
-    bool operator==(const TagBinding &other) const;
-
 private:
     const Action m_action;
     const bool m_shift;

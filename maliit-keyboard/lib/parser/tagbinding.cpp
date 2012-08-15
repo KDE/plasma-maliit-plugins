@@ -133,11 +133,4 @@ bool TagBinding::enlarge() const
     return m_enlarge;
 }
 
-// TODO: this is really boring. check if we need it.
-bool TagBinding::operator==(const TagBinding &other) const
-{
-    Q_UNUSED(other)
-    return false;
-}
-
 } // namespace MaliitKeyboard

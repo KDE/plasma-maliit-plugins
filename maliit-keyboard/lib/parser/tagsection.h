@@ -63,8 +63,6 @@ public:
 
     void appendRow(const TagRowPtr &row);
 
-    bool operator==(const TagSection &other) const;
-
 private:
     const QString m_id;
     const bool m_movable;

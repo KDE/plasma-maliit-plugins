@@ -53,10 +53,4 @@ void TagRow::appendElement(const TagRowElementPtr &element)
     m_elements.append(element);
 }
 
-bool TagRow::operator==(const TagRow &other)
-{
-    Q_UNUSED(other)
-    return false;
-}
-
 } // namespace MaliitKeyboard

@@ -58,7 +58,6 @@ public:
 
     void appendElement(const TagRowElementPtr &element);
 
-    bool operator==(const TagRow &other);
 private:
     const Height m_height;
     TagRowElementPtrs m_elements;
