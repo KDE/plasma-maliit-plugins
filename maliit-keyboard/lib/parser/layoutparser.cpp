@@ -410,7 +410,44 @@ void LayoutParser::parseBinding(const TagBindingContainerPtr &binding_container)
 
     binding_container->setBinding(new_binding);
 
-    m_xml.skipCurrentElement();
+    while (m_xml.readNextStartElement()) {
+        const QStringRef name(m_xml.name());
+
+        if (name == QLatin1String("modifiers")) {
+            parseModifiers(new_binding);
+        } else {
+            error(QString::fromLatin1("Expected '<modifiers>', but got '<%1>'.").arg(name.toString()));
+        }
+    }
+}
+
+void LayoutParser::parseModifiers(const TagBindingPtr &binding)
+{
+    static const QStringList keys_values(QString::fromLatin1("alt,shift,altshift").split(','));
+
+    const QXmlStreamAttributes attributes(m_xml.attributes());
+    const TagModifiers::Keys keys(enumValue("keys", keys_values, TagModifiers::Shift));
+    TagModifiersPtr new_modifiers(new TagModifiers(keys));
+
+    binding->appendModifiers(new_modifiers);
+
+    while (m_xml.readNextStartElement()) {
+        const QStringRef name(m_xml.name());
+
+        if (name == QLatin1String("binding")) {
+            if (not new_modifiers->binding()) {
+                parseBinding(new_modifiers);
+            } else {
+                error(QString::fromLatin1("Expected only one '<binding>', but got another one."));
+            }
+        } else {
+            error(QString::fromLatin1("Expected '<binding>', but got '<%1>'.").arg(name.toString()));
+        }
+    }
+
+    if (not new_modifiers->binding()) {
+        error(QString::fromLatin1("Expected exactly one '<binding>', but got none."));
+    }
 }
 
 void LayoutParser::parseExtended(const TagKeyPtr &key)
