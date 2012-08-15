@@ -29,42 +29,32 @@
  *
  */
 
-#ifndef MALIIT_KEYBOARD_ALL_TAG_TYPES_H
-#define MALIIT_KEYBOARD_ALL_TAG_TYPES_H
+#ifndef MALIIT_KEYBOARD_TAG_ROW_CONTAINER_H
+#define MALIIT_KEYBOARD_TAG_ROW_CONTAINER_H
 
-#include <QList>
-#include <QSharedPointer>
+#include <QtGlobal>
+
+#include "alltagtypes.h"
 
 namespace MaliitKeyboard {
 
-class TagBinding;
-class TagBindingContainer;
-class TagKeyboard;
-class TagKey;
-class TagLayout;
-class TagRowContainer;
-class TagRowElement;
-class TagRow;
-class TagSection;
-class TagSpacer;
+class TagRowContainer
+{
+    Q_DISABLE_COPY(TagRowContainer)
 
-typedef QSharedPointer<TagBinding> TagBindingPtr;
-typedef QSharedPointer<TagBindingContainer> TagBindingContainerPtr;
-typedef QSharedPointer<TagKeyboard> TagKeyboardPtr;
-typedef QSharedPointer<TagKey> TagKeyPtr;
-typedef QSharedPointer<TagLayout> TagLayoutPtr;
-typedef QSharedPointer<TagRowContainer> TagRowContainerPtr;
-typedef QSharedPointer<TagRowElement> TagRowElementPtr;
-typedef QSharedPointer<TagRow> TagRowPtr;
-typedef QSharedPointer<TagSection> TagSectionPtr;
-typedef QSharedPointer<TagSpacer> TagSpacerPtr;
+public:
+    TagRowContainer();
 
-typedef QList<TagBindingPtr> TagBindingPtrs;
-typedef QList<TagSectionPtr> TagSectionPtrs;
-typedef QList<TagLayoutPtr> TagLayoutPtrs;
-typedef QList<TagRowElementPtr> TagRowElementPtrs;
-typedef QList<TagRowPtr> TagRowPtrs;
+    virtual ~TagRowContainer();
+
+    const TagRowPtrs rows() const;
+
+    void appendRow(const TagRowPtr &binding);
+
+private:
+    TagRowPtrs m_rows;
+};
 
 } // namespace MaliitKeyboard
 
-#endif // MALIIT_KEYBOARD_ALL_TAG_TYPES_H
+#endif // MALIIT_KEYBOARD_TAG_ROW_CONTAINER_H

@@ -38,10 +38,12 @@
 
 #include "alltagtypes.h"
 
+#include "tagbindingcontainer.h"
 #include "tagbinding.h"
 #include "tagkeyboard.h"
 #include "tagkey.h"
 #include "taglayout.h"
+#include "tagrowcontainer.h"
 #include "tagrowelement.h"
 #include "tagrow.h"
 #include "tagsection.h"
