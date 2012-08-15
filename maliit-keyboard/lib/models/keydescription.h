@@ -60,7 +60,8 @@ struct KeyDescription
         CapsLockIcon,
         CloseIcon,
         LeftLayoutIcon,
-        RightLayoutIcon
+        RightLayoutIcon,
+        CustomIcon
     };
 
     enum State {

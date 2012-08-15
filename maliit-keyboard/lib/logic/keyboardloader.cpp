@@ -87,6 +87,7 @@ QPair<Key, KeyDescription> key_and_desc_from_tags(const TagKeyPtr &key,
     }
 
     skey.setCommandSequence(binding->sequence());
+    skey.setIcon(binding->icon().toUtf8());
 
     skey_description.row = row;
     skey_description.use_rtl_icon = key->rtl();
@@ -115,7 +116,11 @@ QPair<Key, KeyDescription> key_and_desc_from_tags(const TagKeyPtr &key,
         skey_description.icon = KeyDescription::RightLayoutIcon;
         break;
     default:
-        skey_description.icon = KeyDescription::NoIcon;
+        if (skey.icon().isEmpty()) {
+            skey_description.icon = KeyDescription::NoIcon;
+        } else {
+            skey_description.icon = KeyDescription::CustomIcon;
+        }
         break;
     }
 

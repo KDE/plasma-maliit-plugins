@@ -71,6 +71,7 @@ QByteArray fromKeyIcon(KeyDescription::Icon icon)
     case KeyDescription::CloseIcon: return QByteArray("close");
     case KeyDescription::LeftLayoutIcon: return QByteArray("left-layout");
     case KeyDescription::RightLayoutIcon: return QByteArray("right-layout");
+    case KeyDescription::CustomIcon: return QByteArray();
 
     default:
         qWarning() << "No string conversion known for " << icon;
@@ -298,6 +299,18 @@ QByteArray StyleAttributes::icon(KeyDescription::Icon icon,
     QByteArray key("icon/");
     key.append(fromKeyIcon(icon));
     key.append(fromKeyState(state));
+
+    return m_store->value(key).toByteArray();
+}
+
+
+//! \brief Looks up the icon name for keys with icons.
+//! \param icon_name Custom icon name.
+//! \returns Value of "icon\${icon_name}".
+QByteArray StyleAttributes::customIcon(const QString &icon_name) const
+{
+    QByteArray key("icon/");
+    key.append(icon_name.toUtf8());
 
     return m_store->value(key).toByteArray();
 }

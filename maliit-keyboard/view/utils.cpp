@@ -102,12 +102,12 @@ void renderKey(QPainter *painter,
     const QRect &text_rect(key_label.rect().isEmpty() ? key_rect : key_label.rect());
     const QPixmap &icon(Utils::loadPixmap(key.icon()));
 
-    if (not text.isEmpty()) {
-        painter->drawText(text_rect, Qt::AlignCenter, text);
-    } else if (not icon.isNull()) {
+    if (not icon.isNull()) {
         const QPoint &c(key_rect.center());
         const QPoint tl(c.x() - icon.width() / 2, c.y() - icon.height() / 2);
         painter->drawPixmap(tl, icon);
+    } else if (not text.isEmpty()) {
+        painter->drawText(text_rect, Qt::AlignCenter, text);
     }
 }
 

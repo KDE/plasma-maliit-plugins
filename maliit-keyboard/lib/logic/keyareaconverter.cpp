@@ -128,9 +128,11 @@ KeyArea createFromKeyboard(StyleAttributes *attributes,
         const QString &text(key.label().text());
         key.rLabel().setFont(text.count() > 1 ? small_font : font);
 
-        if (text.isEmpty()) {
+        if (key.icon().isEmpty()) {
             key.setIcon(attributes->icon(desc.icon,
-                                    KeyDescription::NormalState));
+                                         KeyDescription::NormalState));
+        } else {
+            key.setIcon(attributes->customIcon(key.icon()));
         }
 
         pos.rx() += key.rect().width();
