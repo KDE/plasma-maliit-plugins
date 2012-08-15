@@ -29,46 +29,38 @@
  *
  */
 
-#ifndef MALIIT_KEYBOARD_ALL_TAG_TYPES_H
-#define MALIIT_KEYBOARD_ALL_TAG_TYPES_H
+#ifndef MALIIT_KEYBOARD_TAG_MODIFIERS_H
+#define MALIIT_KEYBOARD_TAG_MODIFIERS_H
 
-#include <QList>
-#include <QSharedPointer>
+#include <QtGlobal>
+
+#include "alltagtypes.h"
+#include "tagbindingcontainer.h"
 
 namespace MaliitKeyboard {
 
-class TagBinding;
-class TagBindingContainer;
-class TagExtended;
-class TagKeyboard;
-class TagKey;
-class TagLayout;
-class TagModifiers;
-class TagRowContainer;
-class TagRowElement;
-class TagRow;
-class TagSection;
-class TagSpacer;
+class TagModifiers
+    : public TagBindingContainer
+{
+    Q_DISABLE_COPY(TagModifiers)
 
-typedef QSharedPointer<TagBinding> TagBindingPtr;
-typedef QSharedPointer<TagBindingContainer> TagBindingContainerPtr;
-typedef QSharedPointer<TagExtended> TagExtendedPtr;
-typedef QSharedPointer<TagKeyboard> TagKeyboardPtr;
-typedef QSharedPointer<TagKey> TagKeyPtr;
-typedef QSharedPointer<TagLayout> TagLayoutPtr;
-typedef QSharedPointer<TagModifiers> TagModifiersPtr;
-typedef QSharedPointer<TagRowContainer> TagRowContainerPtr;
-typedef QSharedPointer<TagRowElement> TagRowElementPtr;
-typedef QSharedPointer<TagRow> TagRowPtr;
-typedef QSharedPointer<TagSection> TagSectionPtr;
-typedef QSharedPointer<TagSpacer> TagSpacerPtr;
+public:
+    enum Keys {
+        Alt,
+        Shift,
+        AltShift
+    };
 
-typedef QList<TagModifiersPtr> TagModifiersPtrs;
-typedef QList<TagSectionPtr> TagSectionPtrs;
-typedef QList<TagLayoutPtr> TagLayoutPtrs;
-typedef QList<TagRowElementPtr> TagRowElementPtrs;
-typedef QList<TagRowPtr> TagRowPtrs;
+    TagModifiers(Keys keys);
+
+    virtual ~TagModifiers();
+
+    Keys keys() const;
+
+private:
+    const Keys m_keys;
+};
 
 } // namespace MaliitKeyboard
 
-#endif // MALIIT_KEYBOARD_ALL_TAG_TYPES_H
+#endif // MALIIT_KEYBOARD_TAG_EXTENDED_H

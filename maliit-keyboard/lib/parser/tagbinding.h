@@ -92,6 +92,9 @@ public:
     bool quick_pick() const;
     bool rtl() const;
     bool enlarge() const;
+    const TagModifiersPtrs modifiers() const;
+
+    void appendModifiers(const TagModifiersPtr &modifiers);
 
 private:
     const Action m_action;
@@ -106,6 +109,7 @@ private:
     const bool m_quick_pick;
     const bool m_rtl;
     const bool m_enlarge;
+    TagModifiersPtrs m_modifiers;
 };
 
 } // namespace MaliitKeyboard

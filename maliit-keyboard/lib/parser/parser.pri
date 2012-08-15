@@ -9,6 +9,7 @@ HEADERS += \
     parser/tagkeyboard.h \
     parser/tagkey.h \
     parser/taglayout.h \
+    parser/tagmodifiers.h \
     parser/tagrowcontainer.h \
     parser/tagrowelement.h \
     parser/tagrow.h \
@@ -23,6 +24,7 @@ SOURCES += \
     parser/tagkeyboard.cpp \
     parser/tagkey.cpp \
     parser/taglayout.cpp \
+    parser/tagmodifiers.cpp \
     parser/tagrowcontainer.cpp \
     parser/tagrowelement.cpp \
     parser/tagrow.cpp \

@@ -119,4 +119,14 @@ const QString TagBinding::icon() const
     return m_icon;
 }
 
+const TagModifiersPtrs TagBinding::modifiers() const
+{
+    return m_modifiers;
+}
+
+void TagBinding::appendModifiers(const TagModifiersPtr &modifiers)
+{
+    m_modifiers.append(modifiers);
+}
+
 } // namespace MaliitKeyboard

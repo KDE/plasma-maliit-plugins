@@ -44,6 +44,7 @@
 #include "tagkeyboard.h"
 #include "tagkey.h"
 #include "taglayout.h"
+#include "tagmodifiers.h"
 #include "tagrowcontainer.h"
 #include "tagrowelement.h"
 #include "tagrow.h"
