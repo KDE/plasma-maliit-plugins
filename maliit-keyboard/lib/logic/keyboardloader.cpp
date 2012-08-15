@@ -50,7 +50,7 @@ QString languages_dir(CoreUtils::pluginDataDirectory() + "/languages");
 
 typedef const QStringList (LayoutParser::*ParserFunc)() const;
 
-TagKeyboardPtr get_tag_keyboard(const QString& id)
+TagKeyboardPtr getTagKeyboard(const QString &id)
 {
     QFile file(languages_dir + "/" + id + ".xml");
 
@@ -69,9 +69,9 @@ TagKeyboardPtr get_tag_keyboard(const QString& id)
     return TagKeyboardPtr();
 }
 
-QPair<Key, KeyDescription> key_and_desc_from_tags(const TagKeyPtr &key,
-                                                  const TagBindingPtr &binding,
-                                                  int row)
+QPair<Key, KeyDescription> keyAndDescFromTags(const TagKeyPtr &key,
+                                              const TagBindingPtr &binding,
+                                              int row)
 {
     Key skey;
     KeyDescription skey_description;
@@ -129,10 +129,10 @@ QPair<Key, KeyDescription> key_and_desc_from_tags(const TagKeyPtr &key,
     return qMakePair(skey, skey_description);
 }
 
-Keyboard get_keyboard(const TagKeyboardPtr& keyboard,
-                      bool shifted = false,
-                      int page = 0,
-                      const QString &dead_label = "")
+Keyboard getKeyboard(const TagKeyboardPtr &keyboard,
+                     bool shifted = false,
+                     int page = 0,
+                     const QString &dead_label = "")
 {
     Keyboard skeyboard;
     const QChar dead_key((dead_label.size() == 1) ? dead_label[0] : QChar::Null);
@@ -149,11 +149,11 @@ Keyboard get_keyboard(const TagKeyboardPtr& keyboard,
             QString section_style(section->style());
             int key_count(0);
 
-            Q_FOREACH (const TagRowPtr& row, rows) {
+            Q_FOREACH (const TagRowPtr &row, rows) {
                 const TagRowElementPtrs elements(row->elements());
                 bool spacer_met(false);
 
-                Q_FOREACH (const TagRowElementPtr& element, elements) {
+                Q_FOREACH (const TagRowElementPtr &element, elements) {
                     if (element->element_type() == TagRowElement::Key) {
                         const TagKeyPtr key(element.staticCast<TagKey>());
                         const TagBindingPtr binding(key->binding());
@@ -176,7 +176,7 @@ Keyboard get_keyboard(const TagKeyboardPtr& keyboard,
                         }
 
                         const int index(dead_key.isNull() ? -1 : the_binding->accents().indexOf(dead_key));
-                        QPair<Key, KeyDescription> key_and_desc(key_and_desc_from_tags(key, the_binding, row_num));
+                        QPair<Key, KeyDescription> key_and_desc(keyAndDescFromTags(key, the_binding, row_num));
 
                         key_and_desc.first.rLabel().setText(index < 0 ? the_binding->label()
                                                                       : the_binding->accented_labels().at(index));
@@ -188,7 +188,7 @@ Keyboard get_keyboard(const TagKeyboardPtr& keyboard,
                         spacer_met = false;
                     } else { // spacer
                         if (not skeyboard.key_descriptions.isEmpty()) {
-                            KeyDescription& previous_skey_description(skeyboard.key_descriptions.last());
+                            KeyDescription &previous_skey_description(skeyboard.key_descriptions.last());
 
                             if (previous_skey_description.row == row_num) {
                                 previous_skey_description.right_spacer = true;
@@ -208,9 +208,9 @@ Keyboard get_keyboard(const TagKeyboardPtr& keyboard,
     return skeyboard;
 }
 
-QPair<TagKeyPtr, TagBindingPtr> get_tag_key_and_binding(const TagKeyboardPtr &keyboard,
-                                                        const QString &label,
-                                                        bool *shifted)
+QPair<TagKeyPtr, TagBindingPtr> getTagKeyAndBinding(const TagKeyboardPtr &keyboard,
+                                                    const QString &label,
+                                                    bool *shifted)
 {
     QPair<TagKeyPtr, TagBindingPtr> pair;
 
@@ -221,10 +221,10 @@ QPair<TagKeyPtr, TagBindingPtr> get_tag_key_and_binding(const TagKeyboardPtr &ke
             // sections cannot be empty - parser does not allow that.
             TagRowPtrs rows(layouts.first()->sections().first()->rows());
 
-            Q_FOREACH (const TagRowPtr& row, rows) {
+            Q_FOREACH (const TagRowPtr &row, rows) {
                 TagRowElementPtrs elements(row->elements());
 
-                Q_FOREACH (const TagRowElementPtr& element, elements) {
+                Q_FOREACH (const TagRowElementPtr &element, elements) {
                     if (element->element_type() == TagRowElement::Key) {
                         TagKeyPtr key(element.staticCast<TagKey>());
                         TagBindingPtr the_binding;
@@ -260,11 +260,11 @@ QPair<TagKeyPtr, TagBindingPtr> get_tag_key_and_binding(const TagKeyboardPtr &ke
     return pair;
 }
 
-Keyboard get_imported_keyboard(const QString &id,
-                               ParserFunc func,
-                               const QString &file_prefix,
-                               const QString &default_file,
-                               int page = 0)
+Keyboard getImportedKeyboard(const QString &id,
+                             ParserFunc func,
+                             const QString &file_prefix,
+                             const QString &default_file,
+                             int page = 0)
 {
     QFile file(languages_dir + "/" + id + ".xml");
 
@@ -282,8 +282,8 @@ Keyboard get_imported_keyboard(const QString &id,
                 const QFileInfo file_info(languages_dir + "/" + f_result);
 
                 if (file_info.exists() and file_info.isFile()) {
-                    const TagKeyboardPtr keyboard(get_tag_keyboard(file_info.baseName()));
-                    return get_keyboard(keyboard, false, page);
+                    const TagKeyboardPtr keyboard(getTagKeyboard(file_info.baseName()));
+                    return getKeyboard(keyboard, false, page);
                 }
             }
 
@@ -299,8 +299,8 @@ Keyboard get_imported_keyboard(const QString &id,
                     QFileInfo file_info(languages_dir + "/" + import);
 
                     if (file_info.exists() and file_info.isFile()) {
-                        const TagKeyboardPtr keyboard(get_tag_keyboard(file_regexp.cap(1)));
-                        return get_keyboard(keyboard, false, page);
+                        const TagKeyboardPtr keyboard(getTagKeyboard(file_regexp.cap(1)));
+                        return getKeyboard(keyboard, false, page);
                     }
                 }
             }
@@ -309,8 +309,8 @@ Keyboard get_imported_keyboard(const QString &id,
             QFileInfo file_info(languages_dir + "/" + default_file);
 
             if (file_info.exists() and file_info.isFile()) {
-                const TagKeyboardPtr keyboard(get_tag_keyboard(file_info.baseName()));
-                return get_keyboard(keyboard, false);
+                const TagKeyboardPtr keyboard(getTagKeyboard(file_info.baseName()));
+                return getKeyboard(keyboard, false);
             }
         }
     }
@@ -347,7 +347,7 @@ QStringList KeyboardLoader::ids() const
     if (dir.exists()) {
         QFileInfoList file_infos(dir.entryInfoList());
 
-        Q_FOREACH (const QFileInfo& file_info, file_infos) {
+        Q_FOREACH (const QFileInfo &file_info, file_infos) {
             QFile file(file_info.filePath());
             file.open(QIODevice::ReadOnly);
             LayoutParser parser(&file);
@@ -380,7 +380,7 @@ void KeyboardLoader::setActiveId(const QString &id)
 
 QString KeyboardLoader::title(const QString &id) const
 {
-    TagKeyboardPtr keyboard(get_tag_keyboard(id));
+    TagKeyboardPtr keyboard(getTagKeyboard(id));
 
     if (keyboard) {
         return keyboard->title();
@@ -391,9 +391,9 @@ QString KeyboardLoader::title(const QString &id) const
 Keyboard KeyboardLoader::keyboard() const
 {
     Q_D(const KeyboardLoader);
-    TagKeyboardPtr keyboard(get_tag_keyboard(d->active_id));
+    TagKeyboardPtr keyboard(getTagKeyboard(d->active_id));
 
-    return get_keyboard(keyboard);
+    return getKeyboard(keyboard);
 }
 
 Keyboard KeyboardLoader::nextKeyboard() const
@@ -412,9 +412,9 @@ Keyboard KeyboardLoader::nextKeyboard() const
         next_index = 0;
     }
 
-    TagKeyboardPtr keyboard(get_tag_keyboard(all_ids[next_index]));
+    TagKeyboardPtr keyboard(getTagKeyboard(all_ids[next_index]));
 
-    return get_keyboard(keyboard);
+    return getKeyboard(keyboard);
 }
 
 Keyboard KeyboardLoader::previousKeyboard() const
@@ -433,48 +433,48 @@ Keyboard KeyboardLoader::previousKeyboard() const
         previous_index = 0;
     }
 
-    TagKeyboardPtr keyboard(get_tag_keyboard(all_ids[previous_index]));
+    TagKeyboardPtr keyboard(getTagKeyboard(all_ids[previous_index]));
 
-    return get_keyboard(keyboard);
+    return getKeyboard(keyboard);
 }
 
 Keyboard KeyboardLoader::shiftedKeyboard() const
 {
     Q_D(const KeyboardLoader);
-    TagKeyboardPtr keyboard(get_tag_keyboard(d->active_id));
+    TagKeyboardPtr keyboard(getTagKeyboard(d->active_id));
 
-    return get_keyboard(keyboard, true);
+    return getKeyboard(keyboard, true);
 }
 
 Keyboard KeyboardLoader::symbolsKeyboard(int page) const
 {
     Q_D(const KeyboardLoader);
 
-    return get_imported_keyboard(d->active_id, &LayoutParser::symviews, "symbols", "symbols_en.xml", page);
+    return getImportedKeyboard(d->active_id, &LayoutParser::symviews, "symbols", "symbols_en.xml", page);
 }
 
 Keyboard KeyboardLoader::deadKeyboard(const Key &dead) const
 {
     Q_D(const KeyboardLoader);
-    TagKeyboardPtr keyboard(get_tag_keyboard(d->active_id));
+    TagKeyboardPtr keyboard(getTagKeyboard(d->active_id));
 
-    return get_keyboard(keyboard, false, 0, dead.label().text());
+    return getKeyboard(keyboard, false, 0, dead.label().text());
 }
 
 Keyboard KeyboardLoader::shiftedDeadKeyboard(const Key &dead) const
 {
     Q_D(const KeyboardLoader);
-    TagKeyboardPtr keyboard(get_tag_keyboard(d->active_id));
+    TagKeyboardPtr keyboard(getTagKeyboard(d->active_id));
 
-    return get_keyboard(keyboard, true, 0, dead.label().text());
+    return getKeyboard(keyboard, true, 0, dead.label().text());
 }
 
 Keyboard KeyboardLoader::extendedKeyboard(const Key &key) const
 {
     Q_D(const KeyboardLoader);
-    const TagKeyboardPtr keyboard(get_tag_keyboard(d->active_id));
+    const TagKeyboardPtr keyboard(getTagKeyboard(d->active_id));
     bool shifted(false);
-    const QPair<TagKeyPtr, TagBindingPtr> pair(get_tag_key_and_binding(keyboard, key.label().text(), &shifted));
+    const QPair<TagKeyPtr, TagBindingPtr> pair(getTagKeyAndBinding(keyboard, key.label().text(), &shifted));
     Keyboard skeyboard;
 
     if (pair.first and pair.second) {
@@ -507,7 +507,7 @@ Keyboard KeyboardLoader::extendedKeyboard(const Key &key) const
                             the_binding = binding;
                         }
 
-                        QPair<Key, KeyDescription> key_and_desc(key_and_desc_from_tags(key, the_binding, row_index));
+                        QPair<Key, KeyDescription> key_and_desc(keyAndDescFromTags(key, the_binding, row_index));
 
                         skeyboard.keys.append(key_and_desc.first);
                         skeyboard.key_descriptions.append(key_and_desc.second);
@@ -537,14 +537,14 @@ Keyboard KeyboardLoader::numberKeyboard() const
 {
     Q_D(const KeyboardLoader);
 
-    return get_imported_keyboard(d->active_id, &LayoutParser::numbers, "number", "number.xml");
+    return getImportedKeyboard(d->active_id, &LayoutParser::numbers, "number", "number.xml");
 }
 
 Keyboard KeyboardLoader::phoneNumberKeyboard() const
 {
     Q_D(const KeyboardLoader);
 
-    return get_imported_keyboard(d->active_id, &LayoutParser::phonenumbers, "phonenumber", "phonenumber.xml");
+    return getImportedKeyboard(d->active_id, &LayoutParser::phonenumbers, "phonenumber", "phonenumber.xml");
 }
 
 } // namespace MaliitKeyboard
