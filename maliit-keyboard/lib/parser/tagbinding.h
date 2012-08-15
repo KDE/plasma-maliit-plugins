@@ -77,6 +77,7 @@ public:
                const QString &extended_labels,
                const QString &cycle_set,
                const QString &sequence,
+               const QString &icon,
                bool dead,
                bool quick_pick,
                bool rtl,
@@ -92,6 +93,7 @@ public:
     const QString extended_labels() const;
     const QString cycle_set() const;
     const QString sequence() const;
+    const QString icon() const;
     bool dead() const;
     bool quick_pick() const;
     bool rtl() const;
@@ -108,6 +110,7 @@ private:
     const QString m_extended_labels;
     const QString m_cycle_set;
     const QString m_sequence;
+    const QString m_icon;
     const bool m_dead;
     const bool m_quick_pick;
     const bool m_rtl;

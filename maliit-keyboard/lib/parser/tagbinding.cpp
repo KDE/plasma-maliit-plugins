@@ -43,6 +43,7 @@ TagBinding::TagBinding(Action action,
                        const QString &extended_labels,
                        const QString &cycle_set,
                        const QString &sequence,
+                       const QString &icon,
                        bool dead,
                        bool quick_pick,
                        bool rtl,
@@ -57,6 +58,7 @@ TagBinding::TagBinding(Action action,
     , m_extended_labels(extended_labels)
     , m_cycle_set(cycle_set)
     , m_sequence(sequence)
+    , m_icon(icon)
     , m_dead(dead)
     , m_quick_pick(quick_pick)
     , m_rtl (rtl)
@@ -131,6 +133,11 @@ bool TagBinding::rtl() const
 bool TagBinding::enlarge() const
 {
     return m_enlarge;
+}
+
+const QString TagBinding::icon() const
+{
+    return m_icon;
 }
 
 } // namespace MaliitKeyboard
