@@ -76,10 +76,6 @@ private:
     QStringList m_symviews;
     QStringList m_numbers;
     QStringList m_phonenumbers;
-    TagLayoutPtr m_last_layout;
-    TagSectionPtr m_last_section;
-    TagRowPtr m_last_row;
-    TagKeyPtr m_last_key;
 
     void parseKeyboard();
     void parseImport();
@@ -87,11 +83,11 @@ private:
     void parseImportChild(QStringList *target_list);
     bool validateOldStyleImport();
     void parseLayout();
-    void parseSection();
-    void parseRow();
-    void parseKey();
-    void parseBinding();
-    void parseSpacer();
+    void parseSection(const TagLayoutPtr &layout);
+    void parseRow(const TagRowContainerPtr &row_container);
+    void parseKey(const TagRowPtr &row);
+    void parseBinding(const TagBindingContainerPtr &binding_container);
+    void parseSpacer(const TagRowPtr &row);
     void goToRootElement();
     void readToEnd();
 

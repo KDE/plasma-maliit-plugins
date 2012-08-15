@@ -41,10 +41,9 @@ LayoutParser::LayoutParser(QIODevice *device)
     : m_xml(device)
     , m_keyboard()
     , m_imports()
-    , m_last_layout()
-    , m_last_section()
-    , m_last_row()
-    , m_last_key()
+    , m_symviews()
+    , m_numbers()
+    , m_phonenumbers()
 {}
 
 bool LayoutParser::parse()
@@ -104,11 +103,8 @@ void LayoutParser::parseKeyboard()
     const QString language(attributes.value(QLatin1String("language")).toString());
     const QString catalog(attributes.value(QLatin1String("catalog")).toString());
     const bool autocapitalization(boolValue(attributes.value(QLatin1String("autocapitalization")), true));
-    m_keyboard = TagKeyboardPtr(new TagKeyboard(actual_version,
-                                                title,
-                                                language,
-                                                catalog,
-                                                autocapitalization));
+    m_keyboard = TagKeyboardPtr(new TagKeyboard(actual_version, title, language,
+                                                catalog, autocapitalization));
 
     while (m_xml.readNextStartElement()) {
         const QStringRef name(m_xml.name());
@@ -242,11 +238,8 @@ void LayoutParser::parseLayout()
     const TagLayout::LayoutType type(enumValue("type", typeValues, TagLayout::General));
     const TagLayout::LayoutOrientation orientation(enumValue("orientation", orientationValues, TagLayout::Landscape));
     const bool uniform_font_size(boolValue(attributes.value(QLatin1String("uniform-font-size")), false));
-
-    m_last_layout = TagLayoutPtr(new TagLayout(type,
-                                               orientation,
-                                               uniform_font_size));
-    m_keyboard->appendLayout(m_last_layout);
+    TagLayoutPtr new_layout(TagLayoutPtr(new TagLayout(type, orientation, uniform_font_size)));
+    m_keyboard->appendLayout(new_layout);
 
     bool found_section(false);
 
@@ -255,7 +248,7 @@ void LayoutParser::parseLayout()
 
         if (name == QLatin1String("section")) {
             found_section = true;
-            parseSection();
+            parseSection(new_layout);
         } else {
             error(QString::fromLatin1("Expected '<section>', but got '<%1>'.").arg(name.toString()));
         }
@@ -290,7 +283,7 @@ E LayoutParser::enumValue(const char * const attribute, const QStringList &value
     return static_cast<E>(index);
 }
 
-void LayoutParser::parseSection()
+void LayoutParser::parseSection(const TagLayoutPtr &layout)
 {
     static const QStringList typeValues(QString::fromLatin1("sloppy,non-sloppy").split(','));
 
@@ -305,11 +298,9 @@ void LayoutParser::parseSection()
         return;
     }
 
-    m_last_section = TagSectionPtr(new TagSection(id,
-                                                  movable,
-                                                  type,
-                                                  style));
-    m_last_layout->appendSection(m_last_section);
+
+    TagSectionPtr new_section(new TagSection(id, movable, type, style));
+    layout->appendSection(new_section);
 
     bool found_row(false);
 
@@ -317,7 +308,7 @@ void LayoutParser::parseSection()
         const QStringRef name(m_xml.name());
 
         if (name == QLatin1String("row")) {
-            parseRow();
+            parseRow(new_section);
             found_row = true;
         } else {
             error(QString::fromLatin1("Expected '<row>', but got '<%1>'.").arg(name.toString()));
@@ -330,29 +321,29 @@ void LayoutParser::parseSection()
 
 }
 
-void LayoutParser::parseRow()
+void LayoutParser::parseRow(const TagRowContainerPtr &row_container)
 {
     static const QStringList heightValues(QString::fromLatin1("small,medium,large,x-large,xx-large").split(','));
 
     const TagRow::Height height(enumValue("height", heightValues, TagRow::Medium));
+    TagRowPtr new_row(new TagRow(height));
 
-    m_last_row = TagRowPtr(new TagRow(height));
-    m_last_section->appendRow(m_last_row);
+    row_container->appendRow (new_row);
 
     while (m_xml.readNextStartElement()) {
         const QStringRef name(m_xml.name());
 
         if (name == QLatin1String("key")) {
-            parseKey();
+            parseKey(new_row);
         } else if (name == QLatin1String("spacer")) {
-            parseSpacer();
+            parseSpacer(new_row);
         } else {
             error(QString::fromLatin1("Expected '<key>' or '<spacer>', but got '<%1>'.").arg(name.toString()));
         }
     }
 }
 
-void LayoutParser::parseKey()
+void LayoutParser::parseKey(const TagRowPtr &row)
 {
     static const QStringList styleValues(QString::fromLatin1("normal,special,deadkey").split(','));
     static const QStringList widthValues(QString::fromLatin1("small,medium,large,x-large,xx-large,stretched").split(','));
@@ -362,32 +353,30 @@ void LayoutParser::parseKey()
     const TagKey::Width width(enumValue("width", widthValues, TagKey::Medium));
     const bool rtl(boolValue(attributes.value(QLatin1String("rtl")), false));
     const QString id(attributes.value(QLatin1String("id")).toString());
+    TagKeyPtr new_key(new TagKey(style, width, rtl, id));
 
-    m_last_key = TagKeyPtr(new TagKey(style,
-                                      width,
-                                      rtl,
-                                      id));
-    m_last_row->appendElement(m_last_key);
-
-    bool found_binding(false);
+    row->appendElement(new_key);
 
     while (m_xml.readNextStartElement()) {
         const QStringRef name(m_xml.name());
 
         if (name == QLatin1String("binding")) {
-            parseBinding();
-            found_binding = true;
+            if (not new_key->binding()) {
+                parseBinding(new_key);
+            } else {
+                error(QString::fromLatin1("Expected only one '<binding>', but got another one."));
+            }
         } else {
             error(QString::fromLatin1("Expected '<binding>', but got '<%1>'.").arg(name.toString()));
         }
     }
 
-    if (not found_binding) {
-        error(QString::fromLatin1("Expected '<binding>'."));
+    if (not new_key->binding()) {
+        error(QString::fromLatin1("Expected exactly one '<binding>' but got none."));
     }
 }
 
-void LayoutParser::parseBinding()
+void LayoutParser::parseBinding(const TagBindingContainerPtr &binding_container)
 {
     static const QStringList actionValues(QString::fromLatin1(
         "insert,shift,backspace,space,cycle,layout_menu,sym,return,commit,"
@@ -398,40 +387,29 @@ void LayoutParser::parseBinding()
 
     const QXmlStreamAttributes attributes(m_xml.attributes());
     const TagBinding::Action action(enumValue("action", actionValues, TagBinding::Insert));
-    const bool shift(boolValue(attributes.value(QLatin1String("shift")), false));
-    const bool alt(boolValue(attributes.value(QLatin1String("alt")), false));
     const QString label(attributes.value(QLatin1String("label")).toString());
     const QString secondary_label(attributes.value(QLatin1String("secondary_label")).toString());
     const QString accents(attributes.value(QLatin1String("accents")).toString());
     const QString accented_labels(attributes.value(QLatin1String("accented_labels")).toString());
-    const QString extended_labels(attributes.value(QLatin1String("extended_labels")).toString());
     const QString cycleset(attributes.value(QLatin1String("cycleset")).toString());
     const QString sequence(attributes.value(QLatin1String("sequence")).toString());
+    const QString icon(attributes.value(QLatin1String("icon")).toString());
     const bool dead(boolValue(attributes.value(QLatin1String("dead")), false));
     const bool quick_pick(boolValue(attributes.value(QLatin1String("quick_pick")), false));
     const bool rtl(boolValue(attributes.value(QLatin1String("rtl")), false));
     const bool enlarge(boolValue(attributes.value(QLatin1String("enlarge")), false));
+    TagBindingPtr new_binding(new TagBinding(action, label, secondary_label, accents,
+                                             accented_labels, cycleset, sequence, icon,
+                                             dead, quick_pick, rtl, enlarge));
 
-    m_last_key->appendBinding(TagBindingPtr(new TagBinding(action,
-                                                           shift,
-                                                           alt,
-                                                           label,
-                                                           secondary_label,
-                                                           accents,
-                                                           accented_labels,
-                                                           extended_labels,
-                                                           cycleset,
-                                                           sequence,
-                                                           dead,
-                                                           quick_pick,
-                                                           rtl,
-                                                           enlarge)));
+    binding_container->setBinding(new_binding);
+
     m_xml.skipCurrentElement();
 }
 
-void LayoutParser::parseSpacer()
+void LayoutParser::parseSpacer(const TagRowPtr &row)
 {
-    m_last_row->appendElement(TagSpacerPtr(new TagSpacer));
+    row->appendElement(TagSpacerPtr(new TagSpacer));
     m_xml.skipCurrentElement();
 }
 
