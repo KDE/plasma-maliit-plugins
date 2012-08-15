@@ -76,7 +76,7 @@ QPair<Key, KeyDescription> key_and_desc_from_tags(const TagKeyPtr &key,
     Key skey;
     KeyDescription skey_description;
 
-    skey.setExtendedKeysEnabled(not binding->extended_labels().isEmpty());
+    skey.setExtendedKeysEnabled(key->extended());
     skey.rLabel().setText(binding->label());
 
     if (binding->dead()) {
@@ -209,7 +209,8 @@ Keyboard get_keyboard(const TagKeyboardPtr& keyboard,
 }
 
 QPair<TagKeyPtr, TagBindingPtr> get_tag_key_and_binding(const TagKeyboardPtr &keyboard,
-                                                        const QString &label)
+                                                        const QString &label,
+                                                        bool *shifted)
 {
     QPair<TagKeyPtr, TagBindingPtr> pair;
 
@@ -231,6 +232,7 @@ QPair<TagKeyPtr, TagBindingPtr> get_tag_key_and_binding(const TagKeyboardPtr &ke
 
                         if (binding->label() == label) {
                             the_binding = binding;
+                            *shifted = false;
                         } else {
                             const TagModifiersPtrs all_modifiers(binding->modifiers());
 
@@ -239,6 +241,7 @@ QPair<TagKeyPtr, TagBindingPtr> get_tag_key_and_binding(const TagKeyboardPtr &ke
 
                                 if (binding->label() == label) {
                                     the_binding = mod_binding;
+                                    *shifted = (modifiers->keys() == TagModifiers::Shift);
                                     break;
                                 }
                             }
@@ -470,29 +473,61 @@ Keyboard KeyboardLoader::extendedKeyboard(const Key &key) const
 {
     Q_D(const KeyboardLoader);
     const TagKeyboardPtr keyboard(get_tag_keyboard(d->active_id));
-    const QPair<TagKeyPtr, TagBindingPtr> pair(get_tag_key_and_binding(keyboard, key.label().text()));
+    bool shifted(false);
+    const QPair<TagKeyPtr, TagBindingPtr> pair(get_tag_key_and_binding(keyboard, key.label().text(), &shifted));
     Keyboard skeyboard;
 
     if (pair.first and pair.second) {
-        QString extended_labels(pair.second->extended_labels());
+        const TagExtendedPtr extended(pair.first->extended());
 
-        // Allow to enter original key, too (by making it part of extended keyboard):
-        if (not extended_labels.isEmpty()) {
-            extended_labels.prepend(key.label().text());
-        }
+        if (extended) {
+            const TagRowPtrs rows(extended->rows());
+            int row_index(0);
 
-        Q_FOREACH(const QChar &c, extended_labels) {
-            Key skey;
-            KeyDescription skey_description;
+            Q_FOREACH (const TagRowPtr &row, rows) {
+                const TagRowElementPtrs elements(row->elements());
 
-            skey.rLabel().setText(c);
-            skey.setAction(static_cast<Key::Action>(pair.second->action()));
-            skey_description.row = 0;
-            skey_description.width = static_cast<KeyDescription::Width>(pair.first->width());
-            skey_description.style = static_cast<KeyDescription::Style>(pair.first->style());
-            skey_description.use_rtl_icon = pair.first->rtl();
-            skeyboard.keys.append(skey);
-            skeyboard.key_descriptions.append(skey_description);
+                Q_FOREACH (const TagRowElementPtr &element, elements) {
+                    switch (element->element_type()) {
+                    case TagRowElement::Key: {
+                        const TagKeyPtr key(element.staticCast<TagKey>());
+                        const TagBindingPtr binding(key->binding());
+                        TagBindingPtr the_binding;
+
+                        if (shifted) {
+                            const TagModifiersPtrs all_modifiers(binding->modifiers());
+
+                            Q_FOREACH(const TagModifiersPtr &modifiers, all_modifiers) {
+                                if (modifiers->keys() == TagModifiers::Shift) {
+                                    the_binding = modifiers->binding();
+                                }
+                            }
+                        }
+                        if (not the_binding) {
+                            the_binding = binding;
+                        }
+
+                        QPair<Key, KeyDescription> key_and_desc(key_and_desc_from_tags(key, the_binding, row_index));
+
+                        skeyboard.keys.append(key_and_desc.first);
+                        skeyboard.key_descriptions.append(key_and_desc.second);
+                    } break;
+
+                    case TagRowElement::Spacer:
+                        break;
+                    }
+                }
+                ++row_index;
+            }
+            if (row_index == 1) {
+                Key first_key(skeyboard.keys.first());
+                KeyDescription first_desc(skeyboard.key_descriptions.first());
+
+                first_key.rLabel().setText(key.label().text());
+                first_key.setIcon(key.icon());
+                skeyboard.keys.prepend(first_key);
+                skeyboard.key_descriptions.prepend(first_desc);
+            }
         }
     }
     return skeyboard;
