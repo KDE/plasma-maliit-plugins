@@ -156,18 +156,23 @@ Keyboard get_keyboard(const TagKeyboardPtr& keyboard,
                 Q_FOREACH (const TagRowElementPtr& element, elements) {
                     if (element->element_type() == TagRowElement::Key) {
                         const TagKeyPtr key(element.staticCast<TagKey>());
-                        const TagBindingPtrs bindings(key->bindings());
+                        const TagBindingPtr binding(key->binding());
                         TagBindingPtr the_binding;
+                        const TagModifiersPtrs all_modifiers(binding->modifiers());
+
                         ++key_count;
 
-                        Q_FOREACH (const TagBindingPtr& binding, bindings) {
-                            if (binding->shift() == shifted and not binding->alt()) {
-                                the_binding = binding;
-                                break;
+                        if (not shifted or all_modifiers.isEmpty()) {
+                            the_binding = binding;
+                        } else {
+                            Q_FOREACH (const TagModifiersPtr &modifiers, all_modifiers) {
+                                if (modifiers->keys() == TagModifiers::Shift) {
+                                    the_binding = modifiers->binding();
+                                }
                             }
-                        }
-                        if (not the_binding) {
-                            the_binding = bindings.first();
+                            if (not the_binding) {
+                                the_binding = binding;
+                            }
                         }
 
                         const int index(dead_key.isNull() ? -1 : the_binding->accents().indexOf(dead_key));
@@ -221,14 +226,28 @@ QPair<TagKeyPtr, TagBindingPtr> get_tag_key_and_binding(const TagKeyboardPtr &ke
                 Q_FOREACH (const TagRowElementPtr& element, elements) {
                     if (element->element_type() == TagRowElement::Key) {
                         TagKeyPtr key(element.staticCast<TagKey>());
-                        TagBindingPtrs bindings(key->bindings());
+                        TagBindingPtr the_binding;
+                        TagBindingPtr binding(key->binding());
 
-                        Q_FOREACH (const TagBindingPtr& binding, bindings) {
-                            if (binding->label() == label) {
-                                pair.first = key;
-                                pair.second = binding;
-                                return pair;
+                        if (binding->label() == label) {
+                            the_binding = binding;
+                        } else {
+                            const TagModifiersPtrs all_modifiers(binding->modifiers());
+
+                            Q_FOREACH (const TagModifiersPtr &modifiers, all_modifiers) {
+                                const TagBindingPtr mod_binding(modifiers->binding());
+
+                                if (binding->label() == label) {
+                                    the_binding = mod_binding;
+                                    break;
+                                }
                             }
+                        }
+
+                        if (the_binding) {
+                            pair.first = key;
+                            pair.second = the_binding;
+                            return pair;
                         }
                     }
                 }
