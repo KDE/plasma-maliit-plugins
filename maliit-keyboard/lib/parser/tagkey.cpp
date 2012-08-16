@@ -43,6 +43,7 @@ TagKey::TagKey(Style style,
     , m_width(width)
     , m_rtl(rtl)
     , m_id(id)
+    , m_extended()
 {}
 
 TagKey::~TagKey()
@@ -66,6 +67,16 @@ bool TagKey::rtl() const
 const QString TagKey::id() const
 {
     return m_id;
+}
+
+const TagExtendedPtr TagKey::extended() const
+{
+    return m_extended;
+}
+
+void TagKey::setExtended(const TagExtendedPtr &extended)
+{
+    m_extended = extended;
 }
 
 } // namespace MaliitKeyboard

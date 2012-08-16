@@ -1,9 +1,9 @@
 /*
  * This file is part of Maliit Plugins
  *
- * Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies). All rights reserved.
+ * Copyright (C) 2012 Openismus GmbH. All rights reserved.
  *
- * Contact: Mohammad Anwari <Mohammad.Anwari@nokia.com>
+ * Contact: maliit-discuss@lists.maliit.org
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -29,63 +29,15 @@
  *
  */
 
-#ifndef MALIIT_KEYBOARD_TAG_KEY_H
-#define MALIIT_KEYBOARD_TAG_KEY_H
-
-#include <QtGlobal>
-#include <QString>
-
-#include "alltagtypes.h"
-#include "tagrowelement.h"
-#include "tagbindingcontainer.h"
+#include "tagextended.h"
 
 namespace MaliitKeyboard {
 
-class TagKey
-    : public TagRowElement
-    , public TagBindingContainer
-{
-    Q_DISABLE_COPY(TagKey)
+TagExtended::TagExtended()
+    : TagRowContainer()
+{}
 
-public:
-    enum Style {
-        Normal,
-        Special,
-        DeadKey
-    };
-
-    enum Width {
-        Small,
-        Medium,
-        Large,
-        XLarge,
-        XXLarge,
-        Stretched
-    };
-
-    TagKey(Style style,
-           Width width,
-           bool rtl,
-           const QString &id);
-
-    virtual ~TagKey();
-
-    Style style() const;
-    Width width() const;
-    bool rtl() const;
-    const QString id() const;
-    const TagExtendedPtr extended() const;
-
-    void setExtended(const TagExtendedPtr &extended);
-
-private:
-    const Style m_style;
-    const Width m_width;
-    const bool m_rtl;
-    const QString m_id;
-    TagExtendedPtr m_extended;
-};
+TagExtended::~TagExtended()
+{}
 
 } // namespace MaliitKeyboard
-
-#endif // MALIIT_KEYBOARD_TAG_KEY_H

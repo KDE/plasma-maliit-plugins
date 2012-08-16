@@ -39,6 +39,7 @@ namespace MaliitKeyboard {
 
 class TagBinding;
 class TagBindingContainer;
+class TagExtended;
 class TagKeyboard;
 class TagKey;
 class TagLayout;
@@ -50,6 +51,7 @@ class TagSpacer;
 
 typedef QSharedPointer<TagBinding> TagBindingPtr;
 typedef QSharedPointer<TagBindingContainer> TagBindingContainerPtr;
+typedef QSharedPointer<TagExtended> TagExtendedPtr;
 typedef QSharedPointer<TagKeyboard> TagKeyboardPtr;
 typedef QSharedPointer<TagKey> TagKeyPtr;
 typedef QSharedPointer<TagLayout> TagLayoutPtr;

@@ -5,6 +5,7 @@ HEADERS += \
     parser/layoutparser.h \
     parser/tagbindingcontainer.h \
     parser/tagbinding.h \
+    parser/tagbinding.h \
     parser/tagkeyboard.h \
     parser/tagkey.h \
     parser/taglayout.h \
@@ -18,6 +19,7 @@ SOURCES += \
     parser/layoutparser.cpp \
     parser/tagbindingcontainer.cpp \
     parser/tagbinding.cpp \
+    parser/tagextended.cpp \
     parser/tagkeyboard.cpp \
     parser/tagkey.cpp \
     parser/taglayout.cpp \

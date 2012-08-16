@@ -40,6 +40,7 @@
 
 #include "tagbindingcontainer.h"
 #include "tagbinding.h"
+#include "tagextended.h"
 #include "tagkeyboard.h"
 #include "tagkey.h"
 #include "taglayout.h"
