@@ -38,11 +38,11 @@ TagKey::TagKey(Style style,
                bool rtl,
                const QString &id)
     : TagRowElement(Key)
+    , TagBindingContainer()
     , m_style(style)
     , m_width(width)
     , m_rtl(rtl)
     , m_id(id)
-    , m_bindings()
 {}
 
 TagKey::~TagKey()
@@ -66,16 +66,6 @@ bool TagKey::rtl() const
 const QString TagKey::id() const
 {
     return m_id;
-}
-
-const TagBindingPtrs TagKey::bindings() const
-{
-    return m_bindings;
-}
-
-void TagKey::appendBinding(const TagBindingPtr &binding)
-{
-  m_bindings.append(binding);
 }
 
 } // namespace MaliitKeyboard

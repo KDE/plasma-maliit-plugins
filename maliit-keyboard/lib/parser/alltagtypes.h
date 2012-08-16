@@ -59,7 +59,6 @@ typedef QSharedPointer<TagRow> TagRowPtr;
 typedef QSharedPointer<TagSection> TagSectionPtr;
 typedef QSharedPointer<TagSpacer> TagSpacerPtr;
 
-typedef QList<TagBindingPtr> TagBindingPtrs;
 typedef QList<TagSectionPtr> TagSectionPtrs;
 typedef QList<TagLayoutPtr> TagLayoutPtrs;
 typedef QList<TagRowElementPtr> TagRowElementPtrs;

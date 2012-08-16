@@ -37,11 +37,13 @@
 
 #include "alltagtypes.h"
 #include "tagrowelement.h"
+#include "tagbindingcontainer.h"
 
 namespace MaliitKeyboard {
 
 class TagKey
     : public TagRowElement
+    , public TagBindingContainer
 {
     Q_DISABLE_COPY(TagKey)
 
@@ -72,16 +74,12 @@ public:
     Width width() const;
     bool rtl() const;
     const QString id() const;
-    const TagBindingPtrs bindings() const;
-
-    void appendBinding(const TagBindingPtr &binding);
 
 private:
     const Style m_style;
     const Width m_width;
     const bool m_rtl;
     const QString m_id;
-    TagBindingPtrs m_bindings;
 };
 
 } // namespace MaliitKeyboard

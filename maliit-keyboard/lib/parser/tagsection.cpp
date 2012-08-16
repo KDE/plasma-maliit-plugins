@@ -37,11 +37,11 @@ TagSection::TagSection(const QString &id,
                        bool movable,
                        SectionType type,
                        const QString &style)
-    : m_id(id)
+    : TagRowContainer()
+    , m_id(id)
     , m_movable(movable)
     , m_type(type)
     , m_style(style)
-    , m_rows()
 {}
 
 const QString TagSection::id() const
@@ -62,16 +62,6 @@ TagSection::SectionType TagSection::type() const
 const QString TagSection::style() const
 {
     return m_style;
-}
-
-const TagRowPtrs TagSection::rows() const
-{
-    return m_rows;
-}
-
-void TagSection::appendRow(const TagRowPtr &row)
-{
-    m_rows.append(row);
 }
 
 } // namespace MaliitKeyboard

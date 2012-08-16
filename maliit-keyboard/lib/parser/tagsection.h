@@ -36,10 +36,12 @@
 #include <QString>
 
 #include "alltagtypes.h"
+#include "tagrowcontainer.h"
 
 namespace MaliitKeyboard {
 
 class TagSection
+    : public TagRowContainer
 {
     Q_DISABLE_COPY(TagSection)
 
@@ -59,16 +61,12 @@ public:
     bool movable() const;
     SectionType type() const;
     const QString style() const;
-    const TagRowPtrs rows() const;
-
-    void appendRow(const TagRowPtr &row);
 
 private:
     const QString m_id;
     const bool m_movable;
     const SectionType m_type;
     const QString m_style;
-    TagRowPtrs m_rows;
 };
 
 } // namespace MaliitKeyboard
