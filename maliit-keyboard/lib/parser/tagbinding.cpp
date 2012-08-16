@@ -34,13 +34,10 @@
 namespace MaliitKeyboard {
 
 TagBinding::TagBinding(Action action,
-                       bool shift,
-                       bool alt,
                        const QString &label,
                        const QString &secondary_label,
                        const QString &accents,
                        const QString &accented_labels,
-                       const QString &extended_labels,
                        const QString &cycle_set,
                        const QString &sequence,
                        const QString &icon,
@@ -49,13 +46,10 @@ TagBinding::TagBinding(Action action,
                        bool rtl,
                        bool enlarge)
     : m_action(action)
-    , m_shift(shift)
-    , m_alt(alt)
     , m_label(label)
     , m_secondary_label(secondary_label)
     , m_accents(accents)
     , m_accented_labels(accented_labels)
-    , m_extended_labels(extended_labels)
     , m_cycle_set(cycle_set)
     , m_sequence(sequence)
     , m_icon(icon)
@@ -68,16 +62,6 @@ TagBinding::TagBinding(Action action,
 TagBinding::Action TagBinding::action() const
 {
     return m_action;
-}
-
-bool TagBinding::shift() const
-{
-    return m_shift;
-}
-
-bool TagBinding::alt() const
-{
-    return m_alt;
 }
 
 const QString TagBinding::label() const
@@ -98,11 +82,6 @@ const QString TagBinding::accents() const
 const QString TagBinding::accented_labels() const
 {
     return m_accented_labels;
-}
-
-const QString TagBinding::extended_labels() const
-{
-    return m_extended_labels;
 }
 
 const QString TagBinding::cycle_set() const

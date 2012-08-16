@@ -68,13 +68,10 @@ public:
     };
 
     TagBinding(Action action,
-               bool shift,
-               bool alt,
                const QString &label,
                const QString &secondary_label,
                const QString &accents,
                const QString &accented_labels,
-               const QString &extended_labels,
                const QString &cycle_set,
                const QString &sequence,
                const QString &icon,
@@ -84,13 +81,10 @@ public:
                bool enlarge);
 
     Action action() const;
-    bool shift() const;
-    bool alt() const;
     const QString label() const;
     const QString secondary_label() const;
     const QString accents() const;
     const QString accented_labels() const;
-    const QString extended_labels() const;
     const QString cycle_set() const;
     const QString sequence() const;
     const QString icon() const;
@@ -101,13 +95,10 @@ public:
 
 private:
     const Action m_action;
-    const bool m_shift;
-    const bool m_alt;
     const QString m_label;
     const QString m_secondary_label;
     const QString m_accents;
     const QString m_accented_labels;
-    const QString m_extended_labels;
     const QString m_cycle_set;
     const QString m_sequence;
     const QString m_icon;
