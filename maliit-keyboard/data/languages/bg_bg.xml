@@ -1,168 +1,337 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
-<keyboard title="Български фонетичен" version="1.0" catalog="bg_bg" language="bg_bg">
+<!DOCTYPE keyboard SYSTEM "VirtualKeyboardLayout.dtd">
+
+<keyboard catalog="bg_bg" language="bg_bg" title="Български фонетичен" version="1.0">
   <layout type="general">
     <section id="main">
       <row>
         <key>
-          <binding label="я"/>
-          <binding shift="true" label="Я"/>
+          <binding label="я">
+            <modifiers keys="shift">
+              <binding label="Я" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="в"/>
-          <binding shift="true" label="В"/>
+          <binding label="в">
+            <modifiers keys="shift">
+              <binding label="В" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="е" extended_labels="è€"/>
-          <binding shift="true" label="Е" extended_labels="È€"/>
+          <extended>
+            <row>
+              <key>
+                <binding label="è">
+                  <modifiers keys="shift">
+                    <binding label="È" />
+                  </modifiers>
+                </binding>
+              </key>
+              <key>
+                <binding label="€">
+                  <modifiers keys="shift">
+                    <binding label="€" />
+                  </modifiers>
+                </binding>
+              </key>
+            </row>
+          </extended>
+          <binding label="е">
+            <modifiers keys="shift">
+              <binding label="Е" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="р"/>
-          <binding shift="true" label="Р"/>
+          <binding label="р">
+            <modifiers keys="shift">
+              <binding label="Р" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="т" extended_labels="þ"/>
-          <binding shift="true" label="Т" extended_labels="Þ"/>
+          <extended>
+            <row>
+              <key>
+                <binding label="þ">
+                  <modifiers keys="shift">
+                    <binding label="Þ" />
+                  </modifiers>
+                </binding>
+              </key>
+            </row>
+          </extended>
+          <binding label="т">
+            <modifiers keys="shift">
+              <binding label="Т" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="ъ" extended_labels="¥"/>
-          <binding shift="true" label="Ъ" extended_labels="¥"/>
+          <extended>
+            <row>
+              <key>
+                <binding label="¥">
+                  <modifiers keys="shift">
+                    <binding label="¥" />
+                  </modifiers>
+                </binding>
+              </key>
+            </row>
+          </extended>
+          <binding label="ъ">
+            <modifiers keys="shift">
+              <binding label="Ъ" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="у"/>
-          <binding shift="true" label="У"/>
+          <binding label="у">
+            <modifiers keys="shift">
+              <binding label="У" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="и" extended_labels="ѝ"/>
-          <binding shift="true" label="И" extended_labels="ѝ"/>
+          <extended>
+            <row>
+              <key>
+                <binding label="ѝ">
+                  <modifiers keys="shift">
+                    <binding label="ѝ" />
+                  </modifiers>
+                </binding>
+              </key>
+            </row>
+          </extended>
+          <binding label="и">
+            <modifiers keys="shift">
+              <binding label="И" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="о"/>
-          <binding shift="true" label="O"/>
+          <binding label="о">
+            <modifiers keys="shift">
+              <binding label="O" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="п"/>
-          <binding shift="true" label="П"/>
+          <binding label="п">
+            <modifiers keys="shift">
+              <binding label="П" />
+            </modifiers>
+          </binding>
         </key>
       </row>
-
       <row>
-        <spacer/>
-
+        <spacer />
         <key>
-          <binding label="а" extended_labels="à"/>
-          <binding shift="true" label="А" extended_labels="À"/>
+          <extended>
+            <row>
+              <key>
+                <binding label="à">
+                  <modifiers keys="shift">
+                    <binding label="À" />
+                  </modifiers>
+                </binding>
+              </key>
+            </row>
+          </extended>
+          <binding label="а">
+            <modifiers keys="shift">
+              <binding label="А" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="с" extended_labels="$"/>
-          <binding shift="true" label="С" extended_labels="$"/>
+          <extended>
+            <row>
+              <key>
+                <binding label="$">
+                  <modifiers keys="shift">
+                    <binding label="$" />
+                  </modifiers>
+                </binding>
+              </key>
+            </row>
+          </extended>
+          <binding label="с">
+            <modifiers keys="shift">
+              <binding label="С" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="д" extended_labels="ð"/>
-          <binding shift="true" label="Д" extended_labels="Ð"/>
+          <extended>
+            <row>
+              <key>
+                <binding label="ð">
+                  <modifiers keys="shift">
+                    <binding label="Ð" />
+                  </modifiers>
+                </binding>
+              </key>
+            </row>
+          </extended>
+          <binding label="д">
+            <modifiers keys="shift">
+              <binding label="Д" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="ф"/>
-          <binding shift="true" label="Ф"/>
+          <binding label="ф">
+            <modifiers keys="shift">
+              <binding label="Ф" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="г"/>
-          <binding shift="true" label="Г"/>
+          <binding label="г">
+            <modifiers keys="shift">
+              <binding label="Г" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="х"/>
-          <binding shift="true" label="Х"/>
+          <binding label="х">
+            <modifiers keys="shift">
+              <binding label="Х" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="й"/>
-          <binding shift="true" label="Й"/>
+          <binding label="й">
+            <modifiers keys="shift">
+              <binding label="Й" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="к"/>
-          <binding shift="true" label="К"/>
+          <binding label="к">
+            <modifiers keys="shift">
+              <binding label="К" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="л"/>
-          <binding shift="true" label="Л"/>
+          <binding label="л">
+            <modifiers keys="shift">
+              <binding label="Л" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="ю"/>
-          <binding shift="true" label="Ю"/>
+          <binding label="ю">
+            <modifiers keys="shift">
+              <binding label="Ю" />
+            </modifiers>
+          </binding>
         </key>
-
-        <spacer/>
+        <spacer />
       </row>
-
       <row>
         <key style="special">
-          <binding action="shift"/>
-        </key>
-
-        <key>
-          <binding label="з"/>
-          <binding shift="true" label="З"/>
+          <binding action="shift" />
         </key>
         <key>
-          <binding label="ь"/>
-          <binding shift="true" label="ѝ"/>
+          <binding label="з">
+            <modifiers keys="shift">
+              <binding label="З" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="ц"/>
-          <binding shift="true" label="Ц"/>
+          <binding label="ь">
+            <modifiers keys="shift">
+              <binding label="ѝ" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="ж"/>
-          <binding shift="true" label="Ж"/>
+          <binding label="ц">
+            <modifiers keys="shift">
+              <binding label="Ц" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="б"/>
-          <binding shift="true" label="Б"/>
+          <binding label="ж">
+            <modifiers keys="shift">
+              <binding label="Ж" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="н"/>
-          <binding shift="true" label="Н"/>
+          <binding label="б">
+            <modifiers keys="shift">
+              <binding label="Б" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="м"/>
-          <binding shift="true" label="М"/>
+          <binding label="н">
+            <modifiers keys="shift">
+              <binding label="Н" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="ч"/>
-          <binding shift="true" label="Ч"/>
+          <binding label="м">
+            <modifiers keys="shift">
+              <binding label="М" />
+            </modifiers>
+          </binding>
         </key>
-
+        <key>
+          <binding label="ч">
+            <modifiers keys="shift">
+              <binding label="Ч" />
+            </modifiers>
+          </binding>
+        </key>
         <key style="special">
-          <binding action="backspace"/>
+          <binding action="backspace" />
         </key>
       </row>
-
       <row>
         <key style="special" width="large">
-          <binding action="sym" label="?123"/>
+          <binding action="sym" label="?123" />
         </key>
-
-        <spacer/>
-
+        <spacer />
         <key>
-          <binding label="ш"/>
-          <binding shift="true" label="Ш"/>
+          <binding label="ш">
+            <modifiers keys="shift">
+              <binding label="Ш" />
+            </modifiers>
+          </binding>
         </key>
-        <key id="emailUrlKey"><binding label=","/></key>
-        <key width="xx-large"><binding action="space"/></key>
-        <key><binding label="."/></key>
+        <key id="emailUrlKey">
+          <binding label="," />
+        </key>
+        <key width="xx-large">
+          <binding action="space" />
+        </key>
         <key>
-          <binding label="щ"/>
-          <binding shift="true" label="Щ"/>
+          <binding label="." />
         </key>
-
-        <spacer/>
-
-        <key style="special" width="x-large" id="actionKey">
-          <binding action="return"/>
+        <key>
+          <binding label="щ">
+            <modifiers keys="shift">
+              <binding label="Щ" />
+            </modifiers>
+          </binding>
+        </key>
+        <spacer />
+        <key id="actionKey" style="special" width="x-large">
+          <binding action="return" />
         </key>
       </row>
     </section>
   </layout>
-
-  <import file="symbols_ru_uk.xml"/>
+  <import file="symbols_ru_uk.xml" />
 </keyboard>

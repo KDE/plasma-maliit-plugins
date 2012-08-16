@@ -1,117 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
-<keyboard version="1.0" title="Phone Number" catalog="phonenumber">
-  <layout type="phonenumber" orientation="landscape">
+<!DOCTYPE keyboard SYSTEM "VirtualKeyboardLayout.dtd">
+
+<keyboard catalog="phonenumber" title="Phone Number" version="1.0">
+  <layout orientation="landscape" type="phonenumber">
     <section id="main" movable="false">
       <row height="x-large">
         <key>
-          <binding label="&#x06F1;"/>
+          <binding label="۱" />
         </key>
         <key>
-          <binding label="&#x06F2;" secondary_label="abc"/>
+          <binding label="۲" secondary_label="abc" />
         </key>
         <key>
-          <binding label="&#x06F3;" secondary_label="def"/>
+          <binding label="۳" secondary_label="def" />
         </key>
         <key>
-          <binding label="&#x06F4;" secondary_label="ghi"/>
+          <binding label="۴" secondary_label="ghi" />
         </key>
         <key>
-          <binding label="&#x06F5;" secondary_label="jkl"/>
+          <binding label="۵" secondary_label="jkl" />
         </key>
         <key>
-          <binding label="&#x06F6;" secondary_label="mno"/>
+          <binding label="۶" secondary_label="mno" />
         </key>
         <key>
-          <binding label="&#x06F7;" secondary_label="pqrs"/>
+          <binding label="۷" secondary_label="pqrs" />
         </key>
         <key>
-          <binding label="&#x06F8;" secondary_label="tuv"/>
+          <binding label="۸" secondary_label="tuv" />
         </key>
         <key>
-          <binding label="&#x06F9;" secondary_label="wxyz"/>
+          <binding label="۹" secondary_label="wxyz" />
         </key>
         <key>
-          <binding label="&#x06F0;"/>
+          <binding label="۰" />
         </key>
       </row>
-
       <row>
-        <spacer/>
-
+        <spacer />
         <key width="large">
-          <binding label="&#x002A;&#x002B;" cycleset="&#x002A;&#x002B;p" action="cycle"/>
+          <binding action="cycle" cycleset="*+p" label="*+" />
         </key>
         <key width="large">
-          <binding label="&#x0023;"/>
+          <binding label="#" />
         </key>
         <key style="special" width="large">
-          <binding label="" action="backspace"/>
+          <binding action="backspace" label="" />
         </key>
-        <key style="special" id="actionKey" width="large">
-          <binding action="return"/>
+        <key id="actionKey" style="special" width="large">
+          <binding action="return" />
         </key>
       </row>
     </section>
   </layout>
-
-  <layout type="phonenumber" orientation="portrait">
+  <layout orientation="portrait" type="phonenumber">
     <section id="main" movable="false">
       <row>
         <key>
-          <binding label="&#x06F1;"/>
+          <binding label="۱" />
         </key>
         <key>
-          <binding label="&#x06F2;" secondary_label="abc"/>
+          <binding label="۲" secondary_label="abc" />
         </key>
         <key>
-          <binding label="&#x06F3;" secondary_label="def"/>
+          <binding label="۳" secondary_label="def" />
         </key>
       </row>
-
-      <row> 
+      <row>
         <key>
-          <binding label="&#x06F4;" secondary_label="ghi"/>
+          <binding label="۴" secondary_label="ghi" />
         </key>
         <key>
-          <binding label="&#x06F5;" secondary_label="jkl"/>
+          <binding label="۵" secondary_label="jkl" />
         </key>
         <key>
-          <binding label="&#x06F6;" secondary_label="mno"/>
-        </key>
-      </row>
-
-      <row> 
-        <key>
-          <binding label="&#x06F7;" secondary_label="pqrs"/>
-        </key>
-        <key>
-          <binding label="&#x06F8;" secondary_label="tuv"/>
-        </key>
-        <key>
-          <binding label="&#x06F9;" secondary_label="wxyz"/>
+          <binding label="۶" secondary_label="mno" />
         </key>
       </row>
-
-      <row> 
+      <row>
         <key>
-          <binding label="&#x002A;&#x002B;" cycleset="&#x002A;&#x002B;p" action="cycle"/>
+          <binding label="۷" secondary_label="pqrs" />
         </key>
         <key>
-          <binding label="&#x06F0;"/>
+          <binding label="۸" secondary_label="tuv" />
         </key>
         <key>
-          <binding label="&#x0023;"/>
+          <binding label="۹" secondary_label="wxyz" />
         </key>
       </row>
-
+      <row>
+        <key>
+          <binding action="cycle" cycleset="*+p" label="*+" />
+        </key>
+        <key>
+          <binding label="۰" />
+        </key>
+        <key>
+          <binding label="#" />
+        </key>
+      </row>
       <row>
         <key style="special" width="large">
-          <binding label="" action="backspace"/>
+          <binding action="backspace" label="" />
         </key>
-        <spacer/>
-        <key style="special" id="actionKey">
-          <binding action="return"/>
+        <spacer />
+        <key id="actionKey" style="special">
+          <binding action="return" />
         </key>
       </row>
     </section>

@@ -1,307 +1,445 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
-<keyboard title="മലയാളം (Malayalam)" version="1.0" autocapitalization="false" catalog="ml_in" language="ml_in">
+<!DOCTYPE keyboard SYSTEM "VirtualKeyboardLayout.dtd">
+
+<keyboard autocapitalization="false" catalog="ml_in" language="ml_in" title="മലയാളം (Malayalam)" version="1.0">
   <layout type="general">
     <section id="main">
       <row>
         <key>
-          <binding label="ൌ"/>
-          <binding shift="true" label="ഔ"/>
+          <binding label="ൌ">
+            <modifiers keys="shift">
+              <binding label="ഔ" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="ൈ"/>
-          <binding shift="true" label="ഐ"/>
+          <binding label="ൈ">
+            <modifiers keys="shift">
+              <binding label="ഐ" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="ാ"/>
-          <binding shift="true" label="ആ"/>
+          <binding label="ാ">
+            <modifiers keys="shift">
+              <binding label="ആ" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="ീ"/>
-          <binding shift="true" label="ഈ"/>
+          <binding label="ീ">
+            <modifiers keys="shift">
+              <binding label="ഈ" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="ൂ"/>
-          <binding shift="true" label="ഊ"/>
-        </key>        
-	<key>
-          <binding label="ബ"/>
-          <binding shift="true" label="ഭ"/>
+          <binding label="ൂ">
+            <modifiers keys="shift">
+              <binding label="ഊ" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="ഹ"/>
-          <binding shift="true" label="ങ"/>
+          <binding label="ബ">
+            <modifiers keys="shift">
+              <binding label="ഭ" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="ഗ"/>
-          <binding shift="true" label="ഘ"/>
+          <binding label="ഹ">
+            <modifiers keys="shift">
+              <binding label="ങ" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="ദ"/>
-          <binding shift="true" label="ധ"/>
+          <binding label="ഗ">
+            <modifiers keys="shift">
+              <binding label="ഘ" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="ജ"/>
-          <binding shift="true" label="ഝ"/>
+          <binding label="ദ">
+            <modifiers keys="shift">
+              <binding label="ധ" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="ഡ"/>
-          <binding shift="true" label="ഢ"/>
+          <binding label="ജ">
+            <modifiers keys="shift">
+              <binding label="ഝ" />
+            </modifiers>
+          </binding>
+        </key>
+        <key>
+          <binding label="ഡ">
+            <modifiers keys="shift">
+              <binding label="ഢ" />
+            </modifiers>
+          </binding>
         </key>
       </row>
       <row>
         <key>
-          <binding label="ോ"/>
-          <binding shift="true" label="ഓ"/>
+          <binding label="ോ">
+            <modifiers keys="shift">
+              <binding label="ഓ" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="േ"/>
-          <binding shift="true" label="ഏ"/>
+          <binding label="േ">
+            <modifiers keys="shift">
+              <binding label="ഏ" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="്"/>
-          <binding shift="true" label="അ"/>
+          <binding label="്">
+            <modifiers keys="shift">
+              <binding label="അ" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="ി"/>
-          <binding shift="true" label="ഇ"/>
+          <binding label="ി">
+            <modifiers keys="shift">
+              <binding label="ഇ" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="ു"/>
-          <binding shift="true" label="ഉ"/>
-        </key>        
-	<key>
-          <binding label="പ"/>
-          <binding shift="true" label="ഫ"/>
+          <binding label="ു">
+            <modifiers keys="shift">
+              <binding label="ഉ" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="ര"/>
-          <binding shift="true" label="റ"/>
+          <binding label="പ">
+            <modifiers keys="shift">
+              <binding label="ഫ" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="ക"/>
-          <binding shift="true" label="ഖ"/>
+          <binding label="ര">
+            <modifiers keys="shift">
+              <binding label="റ" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="ത"/>
-          <binding shift="true" label="ഥ"/>
+          <binding label="ക">
+            <modifiers keys="shift">
+              <binding label="ഖ" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="ച"/>
-          <binding shift="true" label="ഛ"/>
+          <binding label="ത">
+            <modifiers keys="shift">
+              <binding label="ഥ" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="ട"/>
-          <binding shift="true" label="ഠ"/>
+          <binding label="ച">
+            <modifiers keys="shift">
+              <binding label="ഛ" />
+            </modifiers>
+          </binding>
+        </key>
+        <key>
+          <binding label="ട">
+            <modifiers keys="shift">
+              <binding label="ഠ" />
+            </modifiers>
+          </binding>
         </key>
       </row>
       <row>
         <key style="special" width="x-large">
-          <binding action="shift"/>
+          <binding action="shift" />
         </key>
         <key>
-          <binding label="െ"/>
-          <binding shift="true" label="എ"/>
+          <binding label="െ">
+            <modifiers keys="shift">
+              <binding label="എ" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="ം"/>
-          <binding shift="true" label="ൃ"/>
+          <binding label="ം">
+            <modifiers keys="shift">
+              <binding label="ൃ" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="മ"/>
-          <binding shift="true" label="ണ"/>
+          <binding label="മ">
+            <modifiers keys="shift">
+              <binding label="ണ" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="ന"/>
-          <binding shift="true" label="ഞ"/>
+          <binding label="ന">
+            <modifiers keys="shift">
+              <binding label="ഞ" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="വ"/>
-          <binding shift="true" label="ഴ"/>
+          <binding label="വ">
+            <modifiers keys="shift">
+              <binding label="ഴ" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="ല"/>
-          <binding shift="true" label="ള"/>
+          <binding label="ല">
+            <modifiers keys="shift">
+              <binding label="ള" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="സ"/>
-          <binding shift="true" label="ശ"/>
+          <binding label="സ">
+            <modifiers keys="shift">
+              <binding label="ശ" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="യ"/>
-          <binding shift="true" label="ഷ"/>
+          <binding label="യ">
+            <modifiers keys="shift">
+              <binding label="ഷ" />
+            </modifiers>
+          </binding>
         </key>
         <key style="special" width="x-large">
-          <binding action="backspace"/>
+          <binding action="backspace" />
         </key>
       </row>
       <row>
         <key style="special" width="x-large">
-          <binding action="sym" label="+!="/>
+          <binding action="sym" label="+!=" />
         </key>
         <key>
-          <binding label="ൊ"/>
-          <binding shift="true" label="ഒ"/>
+          <binding label="ൊ">
+            <modifiers keys="shift">
+              <binding label="ഒ" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="ന്‍"/>
-          <binding shift="true" label="ണ്‍"/>
+          <binding label="ന്‍">
+            <modifiers keys="shift">
+              <binding label="ണ്‍" />
+            </modifiers>
+          </binding>
         </key>
         <key style="special" width="stretched">
-          <binding action="space"/>
+          <binding action="space" />
         </key>
         <key>
-          <binding label="ല്‍"/>
-          <binding shift="true" label="ള്‍"/>
+          <binding label="ല്‍">
+            <modifiers keys="shift">
+              <binding label="ള്‍" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="ര്‍"/>
-          <binding shift="true" label="ല്‍"/>
+          <binding label="ര്‍">
+            <modifiers keys="shift">
+              <binding label="ല്‍" />
+            </modifiers>
+          </binding>
         </key>
-        <key style="special" width="x-large" id="actionKey">
-          <binding action="return"/>
+        <key id="actionKey" style="special" width="x-large">
+          <binding action="return" />
         </key>
       </row>
     </section>
     <section id="symbols0" type="non-sloppy">
       <row>
         <key>
-          <binding label="൧"/>
-          <binding shift="true" label="1"/>
-       </key>
-        <key>
-          <binding label="൨"/>
-          <binding shift="true" label="2"/>
+          <binding label="൧">
+            <modifiers keys="shift">
+              <binding label="1" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="൩"/>
-          <binding shift="true" label="3"/>
+          <binding label="൨">
+            <modifiers keys="shift">
+              <binding label="2" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="൪"/>
-          <binding shift="true" label="4"/>
+          <binding label="൩">
+            <modifiers keys="shift">
+              <binding label="3" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="൫"/>
-          <binding shift="true" label="5"/>
+          <binding label="൪">
+            <modifiers keys="shift">
+              <binding label="4" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="൬"/>
-          <binding shift="true" label="6"/>
+          <binding label="൫">
+            <modifiers keys="shift">
+              <binding label="5" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="൭"/>
-          <binding shift="true" label="7 "/>
+          <binding label="൬">
+            <modifiers keys="shift">
+              <binding label="6" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="൮"/>
-          <binding shift="true" label="8"/>
+          <binding label="൭">
+            <modifiers keys="shift">
+              <binding label="7 " />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="൯"/>
-          <binding shift="true" label="9"/>
+          <binding label="൮">
+            <modifiers keys="shift">
+              <binding label="8" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="൦"/>
-          <binding shift="true" label="0"/>
+          <binding label="൯">
+            <modifiers keys="shift">
+              <binding label="9" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="_"/>
+          <binding label="൦">
+            <modifiers keys="shift">
+              <binding label="0" />
+            </modifiers>
+          </binding>
+        </key>
+        <key>
+          <binding label="_" />
         </key>
       </row>
       <row>
         <key>
-          <binding label="൰"/>
+          <binding label="൰" />
         </key>
         <key>
-          <binding label="൱"/>
+          <binding label="൱" />
         </key>
         <key>
-          <binding label="൲"/>
+          <binding label="൲" />
         </key>
         <key>
-          <binding label="൳"/>
+          <binding label="൳" />
         </key>
         <key>
-          <binding label="൴"/>
+          <binding label="൴" />
         </key>
         <key>
-          <binding label="?"/>
+          <binding label="?" />
         </key>
         <key>
-          <binding label=","/>
+          <binding label="," />
         </key>
         <key>
-          <binding label="."/>
+          <binding label="." />
         </key>
         <key>
-          <binding label="ഃ"/>
-          <binding shift="true" label="&#x0022;"/>
+          <binding label="ഃ">
+            <modifiers keys="shift">
+              <binding label="&quot;" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="ഋ"/>
-          <binding shift="true" label="&#x0027;"/>
+          <binding label="ഋ">
+            <modifiers keys="shift">
+              <binding label="'" />
+            </modifiers>
+          </binding>
         </key>
         <key>
-          <binding label="@"/>
+          <binding label="@" />
         </key>
       </row>
       <row>
         <key style="special" width="x-large">
-          <binding action="shift"/>
+          <binding action="shift" />
         </key>
         <key>
-          <binding label="%"/>
+          <binding label="%" />
         </key>
         <key>
-          <binding label="#"/>
+          <binding label="#" />
         </key>
         <key>
-          <binding label="("/>
+          <binding label="(" />
         </key>
         <key>
-          <binding label=")"/>
+          <binding label=")" />
         </key>
         <key>
-          <binding label="!"/>
+          <binding label="!" />
         </key>
         <key>
-          <binding label="£"/>
+          <binding label="£" />
         </key>
         <key>
-          <binding label="$"/>
+          <binding label="$" />
         </key>
         <key>
-          <binding label="₹"/>
+          <binding label="₹" />
         </key>
         <key style="special" width="x-large">
-          <binding action="backspace"/>
+          <binding action="backspace" />
         </key>
       </row>
       <row>
         <key style="special" width="x-large">
-          <binding action="sym" label="അ"/>
+          <binding action="sym" label="അ" />
         </key>
         <key>
-          <binding label="="/>
-         </key>
+          <binding label="=" />
+        </key>
         <key>
-          <binding label="+"/>
+          <binding label="+" />
         </key>
         <key style="special" width="stretched">
-          <binding action="space"/>
+          <binding action="space" />
         </key>
         <key>
-          <binding label="-"/>
+          <binding label="-" />
         </key>
         <key>
-          <binding label="*"/>
+          <binding label="*" />
         </key>
-        <key style="special" width="x-large" id="actionKey">
-          <binding action="return"/>
+        <key id="actionKey" style="special" width="x-large">
+          <binding action="return" />
         </key>
       </row>
     </section>
   </layout>
-
 </keyboard>

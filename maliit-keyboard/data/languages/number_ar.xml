@@ -1,116 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
-<keyboard version="1.0" title="Number" catalog="number">
-  <layout type="number" orientation="landscape">
+<!DOCTYPE keyboard SYSTEM "VirtualKeyboardLayout.dtd">
+
+<keyboard catalog="number" title="Number" version="1.0">
+  <layout orientation="landscape" type="number">
     <section id="main" movable="false">
       <row>
         <key>
-          <binding label="&#x0661;"/>
+          <binding label="١" />
         </key>
         <key>
-          <binding label="&#x0662;"/>
+          <binding label="٢" />
         </key>
         <key>
-          <binding label="&#x0663;"/>
+          <binding label="٣" />
         </key>
         <key>
-          <binding label="&#x0664;"/>
+          <binding label="٤" />
         </key>
         <key>
-          <binding label="&#x0665;"/>
+          <binding label="٥" />
         </key>
         <key>
-          <binding label="&#x0666;"/>
+          <binding label="٦" />
         </key>
         <key>
-          <binding label="&#x0667;"/>
+          <binding label="٧" />
         </key>
         <key>
-          <binding label="&#x0668;"/>
+          <binding label="٨" />
         </key>
         <key>
-          <binding label="&#x0669;"/>
+          <binding label="٩" />
         </key>
         <key>
-          <binding label="&#x0660;"/>
+          <binding label="٠" />
         </key>
       </row>
       <row>
-        <spacer/>
-
+        <spacer />
         <key width="large">
-          <binding label="&#x002B;&#x002F;&#x002D;" action="plus_minus_toggle"/>
+          <binding action="plus_minus_toggle" label="+/-" />
         </key>
         <key width="large">
-          <binding action="decimal_separator"/>
+          <binding action="decimal_separator" />
         </key>
-        <key style="special" rtl="true" width="large">
-          <binding label="" action="backspace"/>
+        <key rtl="true" style="special" width="large">
+          <binding action="backspace" label="" />
         </key>
-        <key style="special" id="actionKey" width="large">
-          <binding action="return"/>
+        <key id="actionKey" style="special" width="large">
+          <binding action="return" />
         </key>
       </row>
     </section>
   </layout>
-
-  <layout type="number" orientation="portrait">
+  <layout orientation="portrait" type="number">
     <section id="main" movable="false">
       <row>
         <key>
-          <binding label="&#x0661;"/>
+          <binding label="١" />
         </key>
         <key>
-          <binding label="&#x0662;"/>
+          <binding label="٢" />
         </key>
         <key>
-          <binding label="&#x0663;"/>
+          <binding label="٣" />
         </key>
       </row>
-
       <row>
         <key>
-          <binding label="&#x0664;"/>
+          <binding label="٤" />
         </key>
         <key>
-          <binding label="&#x0665;"/>
+          <binding label="٥" />
         </key>
         <key>
-          <binding label="&#x0666;"/>
+          <binding label="٦" />
         </key>
       </row>
-
       <row>
         <key>
-          <binding label="&#x0667;"/>
+          <binding label="٧" />
         </key>
         <key>
-          <binding label="&#x0668;"/>
+          <binding label="٨" />
         </key>
         <key>
-          <binding label="&#x0669;"/>
+          <binding label="٩" />
         </key>
       </row>
-
       <row>
         <key>
-          <binding label="&#x002B;&#x002F;&#x002D;" action="plus_minus_toggle"/>
+          <binding action="plus_minus_toggle" label="+/-" />
         </key>
         <key>
-          <binding label="&#x0660;"/>
+          <binding label="٠" />
         </key>
         <key>
-          <binding action="decimal_separator"/>
+          <binding action="decimal_separator" />
         </key>
       </row>
-
       <row>
         <key style="special" width="large">
-          <binding label="" action="backspace"/>
+          <binding action="backspace" label="" />
         </key>
-        <spacer/>
-        <key style="special" id="actionKey">
-          <binding action="return"/>
+        <spacer />
+        <key id="actionKey" style="special">
+          <binding action="return" />
         </key>
       </row>
     </section>
