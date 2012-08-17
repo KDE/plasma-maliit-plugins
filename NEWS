@@ -14,6 +14,19 @@ CHANGES SINCE 0.94.0
   - If font is not available system-wide then it is possible
     to specify a font file.
   - See new nokia-n9-droid style for example use.
+* Extended and broke XML language file format:
+  - Instead of using "extended_labels" attribute of <binding>, use
+    <extended> child of <key>. It allows to specify extended keys with
+    actions, with icons or extended keyboards with several rows.
+  - Instead of using "shift" and "alt" attributes of <binding>, use
+    <modifiers> child of <binding>. This clearly shows that toplevel
+    <binding> is a fallback, when shift is pressed, but no <binding>
+    for this modifier was specified.
+  - For an example, please see:
+    maliit-keyboard/data/languages/debug/showcase.xml
+    It shows possibilities of new features.
+  - A tool name update-lang.pl converting old language layout files
+    into new ones is in maliit-keyboard/tools.
 
 0.94.0
 ======
