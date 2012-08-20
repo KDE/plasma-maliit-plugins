@@ -87,11 +87,7 @@
               </key>
             </row>
           </extended>
-          <binding label="t">
-            <modifiers keys="shift">
-              <binding label="T" />
-            </modifiers>
-          </binding>
+          <binding action="up" label="↑" />
         </key>
         <key>
           <extended>
@@ -346,36 +342,13 @@
           </binding>
         </key>
         <key>
-          <extended>
-            <row>
-              <key>
-                <binding label="ð">
-                  <modifiers keys="shift">
-                    <binding label="Ð" />
-                  </modifiers>
-                </binding>
-              </key>
-            </row>
-          </extended>
-          <binding label="d">
-            <modifiers keys="shift">
-              <binding label="D" />
-            </modifiers>
-          </binding>
+          <binding action="left" label="←" />
         </key>
         <key>
-          <binding label="f">
-            <modifiers keys="shift">
-              <binding label="F" />
-            </modifiers>
-          </binding>
+          <binding action="down" label="↓" />
         </key>
         <key>
-          <binding label="g">
-            <modifiers keys="shift">
-              <binding label="G" />
-            </modifiers>
-          </binding>
+          <binding action="right" label="→" />
         </key>
         <key>
           <binding label="h">
