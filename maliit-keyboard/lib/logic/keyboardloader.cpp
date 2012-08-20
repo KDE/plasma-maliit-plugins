@@ -471,6 +471,14 @@ Keyboard KeyboardLoader::shiftedDeadKeyboard(const Key &dead) const
 
 Keyboard KeyboardLoader::extendedKeyboard(const Key &key) const
 {
+    // Hotfix for suppressing long-press on space bringing up extended keys if
+    // another key has empty label, in given layout.
+    // FIXME: Make extended keyboard/keyarea part of key model instead, to
+    // avoid wrong lookups.
+    if (key.action() == Key::ActionSpace) {
+        return Keyboard();
+    }
+
     Q_D(const KeyboardLoader);
     const TagKeyboardPtr keyboard(getTagKeyboard(d->active_id));
     bool shifted(false);
