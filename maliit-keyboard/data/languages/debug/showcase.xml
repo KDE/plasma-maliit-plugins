@@ -260,7 +260,7 @@
             </row>
             <row>
               <key>
-                <binding action="command" label="cut" sequence="ctrl+x" />
+                <binding action="command" icon="cut" label="cut" sequence="ctrl+x" />
               </key>
               <key>
                 <binding action="command" label="paste" sequence="ctrl+v" />
