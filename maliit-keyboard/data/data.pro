@@ -3,7 +3,7 @@ include(../config.pri)
 TARGET = dummy
 TEMPLATE = lib
 
-languages.path = $$MALIIT_PLUGINS_DATA_DIR
+languages.path = $$MALIIT_PLUGINS_DATA_DIR/languages
 languages.files = languages/*.xml languages/*.dtd
 
 debug {
