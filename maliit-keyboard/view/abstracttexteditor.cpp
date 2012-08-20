@@ -679,6 +679,10 @@ void AbstractTextEditor::showUserCandidate()
 {
     Q_D(AbstractTextEditor);
 
+    if (d->text->preedit().isEmpty()) {
+        return;
+    }
+
     WordCandidateList candidates;
     WordCandidate candidate(WordCandidate::SourceUser, d->text->preedit());
 
