@@ -16,7 +16,4 @@ HEADERS += \
 SOURCES += \
     main.cpp \
 
-OBJECTS_DIR = .obj
-MOC_DIR = .moc
-
 include(../../word-prediction.pri)

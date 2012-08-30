@@ -13,9 +13,6 @@ HEADERS += \
            utils.h \
            inputmethodhostprobe.h \
 
-OBJECTS_DIR = .obj
-MOC_DIR = .moc
-
 contains(QT_MAJOR_VERSION, 4) {
     QT = core gui
 } else {
