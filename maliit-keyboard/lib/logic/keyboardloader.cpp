@@ -560,7 +560,11 @@ Keyboard KeyboardLoader::extendedKeyboard(const Key &key) const
                 }
                 ++row_index;
             }
-            if (row_index == 1) {
+            // I don't like this prepending source key idea - it should be done
+            // in language layout file.
+            if (row_index == 1
+                and not key.label().text().isEmpty()
+                and key.action() == Key::ActionInsert) {
                 Key first_key(skeyboard.keys.first());
                 KeyDescription first_desc(skeyboard.key_descriptions.first());
 
