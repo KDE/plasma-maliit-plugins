@@ -19,3 +19,8 @@ SOURCES += \
 
 include(../../word-prediction.pri)
 
+QMAKE_EXTRA_TARGETS += xml_check
+xml_check.commands = \
+    xmllint --path "$$IN_PWD/../../data/languages" --noout --dtdvalid "$$IN_PWD/../../data/languages/VirtualKeyboardLayout.dtd" "$$IN_PWD/languages/*.xml"
+
+check.depends += xml_check
