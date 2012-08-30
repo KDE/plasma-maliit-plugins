@@ -7,6 +7,7 @@ SUBDIRS = \
     repeat-backspace \
     rendering \
     word-candidates \
+    language-layout-loading \
 
 CONFIG += ordered
 QMAKE_EXTRA_TARGETS += check
