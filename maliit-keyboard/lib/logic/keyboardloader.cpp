@@ -267,7 +267,7 @@ QPair<TagKeyPtr, TagBindingPtr> getTagKeyAndBinding(const TagKeyboardPtr &keyboa
                             Q_FOREACH (const TagModifiersPtr &modifiers, all_modifiers) {
                                 const TagBindingPtr mod_binding(modifiers->binding());
 
-                                if (binding->label() == label) {
+                                if (mod_binding->label() == label) {
                                     the_binding = mod_binding;
                                     *shifted = (modifiers->keys() == TagModifiers::Shift);
                                     break;
