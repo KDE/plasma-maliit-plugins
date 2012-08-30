@@ -67,7 +67,8 @@ typedef const QStringList (LayoutParser::*ParserFunc)() const;
 
 TagKeyboardPtr getTagKeyboard(const QString &id)
 {
-    QFile file(getLanguagesDir() + "/" + id + ".xml");
+    const QString path(getLanguagesDir() + "/" + id + ".xml");
+    QFile file(path);
 
     if (file.exists()) {
         file.open(QIODevice::ReadOnly);
@@ -78,7 +79,11 @@ TagKeyboardPtr getTagKeyboard(const QString &id)
         file.close();
         if (result) {
             return parser.keyboard();
+        } else {
+            qWarning() << __PRETTY_FUNCTION__ << "Could not parse file:" << path << ", error:" << parser.errorString();
         }
+    } else {
+        qWarning() << __PRETTY_FUNCTION__ << "File not found:" << path;
     }
 
     return TagKeyboardPtr();
@@ -281,7 +286,8 @@ Keyboard getImportedKeyboard(const QString &id,
                              const QString &default_file,
                              int page = 0)
 {
-    QFile file(getLanguagesDir() + "/" + id + ".xml");
+    QString path(getLanguagesDir() + "/" + id + ".xml");
+    QFile file(path);
 
     if (file.exists()) {
         file.open(QIODevice::ReadOnly);
@@ -327,7 +333,11 @@ Keyboard getImportedKeyboard(const QString &id,
                 const TagKeyboardPtr keyboard(getTagKeyboard(file_info.baseName()));
                 return getKeyboard(keyboard, false);
             }
+        } else {
+            qWarning() << __PRETTY_FUNCTION__ << "Could not parse file:" << path << ", error:" << parser.errorString();
         }
+    } else {
+        qWarning() << __PRETTY_FUNCTION__ << "File not found:" << path;
     }
     return Keyboard();
 }
