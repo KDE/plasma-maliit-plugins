@@ -43,16 +43,31 @@ namespace {
 
 using namespace MaliitKeyboard;
 
-// From http://doc.qt.nokia.com/4.7/qdir.html#separator:
-// If you always use "/", Qt will translate your paths to conform
-// to the underlying operating system.
-QString languages_dir(CoreUtils::pluginDataDirectory() + "/languages");
+// For getting languages directory we use a function instead of global constant
+// because global constants are initialized before main runs. In this case that
+// would mean that CoreUtils::pluginDataDirectory is ran before any code in main
+// and it sets its static variable once. We want to be able to set the
+// environment variable altering behaviour of pluginDataDirectory for testing
+// purposes.
+QString getLanguagesDir()
+{
+    static QString languages_dir;
+
+    if (languages_dir.isEmpty()) {
+        // From http://doc.qt.nokia.com/4.7/qdir.html#separator: If you always
+        // use "/", Qt will translate your paths to conform to the underlying
+        // operating system.
+        languages_dir = CoreUtils::pluginDataDirectory() + "/languages";
+    }
+
+    return languages_dir;
+}
 
 typedef const QStringList (LayoutParser::*ParserFunc)() const;
 
 TagKeyboardPtr getTagKeyboard(const QString &id)
 {
-    QFile file(languages_dir + "/" + id + ".xml");
+    QFile file(getLanguagesDir() + "/" + id + ".xml");
 
     if (file.exists()) {
         file.open(QIODevice::ReadOnly);
@@ -266,7 +281,7 @@ Keyboard getImportedKeyboard(const QString &id,
                              const QString &default_file,
                              int page = 0)
 {
-    QFile file(languages_dir + "/" + id + ".xml");
+    QFile file(getLanguagesDir() + "/" + id + ".xml");
 
     if (file.exists()) {
         file.open(QIODevice::ReadOnly);
@@ -279,7 +294,7 @@ Keyboard getImportedKeyboard(const QString &id,
             const QStringList f_results((parser.*func)());
 
             Q_FOREACH (const QString &f_result, f_results) {
-                const QFileInfo file_info(languages_dir + "/" + f_result);
+                const QFileInfo file_info(getLanguagesDir() + "/" + f_result);
 
                 if (file_info.exists() and file_info.isFile()) {
                     const TagKeyboardPtr keyboard(getTagKeyboard(file_info.baseName()));
@@ -296,7 +311,7 @@ Keyboard getImportedKeyboard(const QString &id,
 
             Q_FOREACH (const QString &import, imports) {
                 if (file_regexp.exactMatch(import)) {
-                    QFileInfo file_info(languages_dir + "/" + import);
+                    QFileInfo file_info(getLanguagesDir() + "/" + import);
 
                     if (file_info.exists() and file_info.isFile()) {
                         const TagKeyboardPtr keyboard(getTagKeyboard(file_regexp.cap(1)));
@@ -306,7 +321,7 @@ Keyboard getImportedKeyboard(const QString &id,
             }
 
             // If we got there then we try to just load a file with name in default_file.
-            QFileInfo file_info(languages_dir + "/" + default_file);
+            QFileInfo file_info(getLanguagesDir() + "/" + default_file);
 
             if (file_info.exists() and file_info.isFile()) {
                 const TagKeyboardPtr keyboard(getTagKeyboard(file_info.baseName()));
@@ -339,7 +354,7 @@ KeyboardLoader::~KeyboardLoader()
 QStringList KeyboardLoader::ids() const
 {
     QStringList ids;
-    QDir dir(languages_dir,
+    QDir dir(getLanguagesDir(),
              "*.xml",
              QDir::Name | QDir::IgnoreCase,
              QDir::Files | QDir::NoSymLinks | QDir::Readable);
