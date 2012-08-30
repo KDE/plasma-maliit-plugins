@@ -6,7 +6,9 @@
 <!ELEMENT layout (section+)>
 <!ELEMENT section (row+)>
 <!ELEMENT row (key | spacer)*>
-<!ELEMENT key ((binding,extended) | binding | (extended,binding))>
+<!-- That is bit too broad - allows to specify two <extended> in <key>. Our
+layout parser will issue an error if this happens. -->
+<!ELEMENT key (extended?,binding,extended?)>
 <!ELEMENT spacer EMPTY>
 <!ELEMENT binding (modifiers)*>
 <!ELEMENT extended (row+)>
