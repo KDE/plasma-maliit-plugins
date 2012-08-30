@@ -250,6 +250,14 @@ QPair<TagKeyPtr, TagBindingPtr> getTagKeyAndBinding(const TagKeyboardPtr &keyboa
                         TagBindingPtr the_binding;
                         TagBindingPtr binding(key->binding());
 
+                        // Hotfix for suppressing long-press on space bringing
+                        // up extended keys if another key has empty label, in
+                        // given layout.
+                        // FIXME: Make extended keyboard/keyarea part of key
+                        // model instead, to avoid wrong lookups.
+                        if (binding->action() == TagBinding::Space) {
+                            continue;
+                        }
                         if (binding->label() == label) {
                             the_binding = binding;
                             *shifted = false;
