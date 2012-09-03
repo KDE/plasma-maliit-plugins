@@ -27,6 +27,18 @@ CHANGES SINCE 0.94.0
     It shows possibilities of new features.
   - A tool name update-lang.pl converting old language layout files
     into new ones is in maliit-keyboard/tools.
+* Added coverage reports.
+  - The build system now compiles project for coverage in coverage-build
+    and places coverage reports in coverage-reports.
+
+    To get coverage reports generate Makefiles with qmake and then run
+    'make coverage' from toplevel project's directory. Later, after some
+    changes in source code, you can enter the coverage-build directory and
+    run 'make coverage' to recompile the project, rerun the checks and
+    regenerate the reports.
+
+    Note that recent lcov is needed to be used as the older ones might
+    have issues with finding source files.
 
 0.94.0
 ======
