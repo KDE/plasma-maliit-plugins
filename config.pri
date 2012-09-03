@@ -43,11 +43,5 @@ enable-opengl {
     DEFINES += MALIIT_KEYBOARD_HAVE_OPENGL
 }
 
-enable-coverage {
-    LIBS += -lgcov
-    QMAKE_CXXFLAGS += -g -fprofile-arcs -ftest-coverage -O0
-    QMAKE_LDFLAGS += -g -fprofile-arcs -ftest-coverage  -O0
-}
-
 MALIIT_PACKAGENAME = maliit-plugins
 MALIIT_VERSION = $$system(cat $$PWD/VERSION)
