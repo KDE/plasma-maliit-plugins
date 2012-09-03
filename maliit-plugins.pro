@@ -33,7 +33,7 @@ include(config.pri)
     !build_pass:system(echo -e \"$$config_string\")
 }
 
-CONFIG += ordered 
+CONFIG += ordered
 TEMPLATE = subdirs
 
 !disable-nemo-keyboard:SUBDIRS += nemo-keyboard
@@ -51,3 +51,35 @@ QMAKE_EXTRA_TARGETS += dist
 dist.target = dist
 dist.commands += git archive HEAD --prefix=$$DIST_NAME/ | bzip2 > $$TARBALL_PATH;
 dist.commands += md5sum $$TARBALL_PATH | cut -d \' \' -f 1 > $$DIST_PATH\\.md5
+
+# The 'make coverage' target
+# Builds plugins with coverage libs in separate directory.
+COVERAGE_CONFIG_STRING = CONFIG+=debug CONFIG+=nodoc
+
+enable-presage {
+    COVERAGE_CONFIG_STRING += CONFIG+=enable-presage
+}
+
+enable-hunspell {
+    COVERAGE_CONFIG_STRING += CONFIG+=enable-hunspell
+}
+
+disable-preedit {
+    COVERAGE_CONFIG_STRING += CONFIG+=disable-preedit
+}
+
+enable-qt-mobility {
+    COVERAGE_CONFIG_STRING += CONFIG+=enable-qt-mobility
+}
+
+COVERAGE_DIR = coverage-build
+
+QMAKE_EXTRA_TARGETS += coverage
+coverage.target = coverage
+
+coverage.commands += $(MKDIR) $$COVERAGE_DIR &&
+coverage.commands += cd $$COVERAGE_DIR &&
+coverage.commands += $(QMAKE) -r PREFIX=\"$$PREFIX\" LIBDIR=\"$$LIBDIR\" MALIIT_DEFAULT_PROFILE=\"$$MALIIT_DEFAULT_PROFILE\" HUNSPELL_DICT_PATH=\"$$HUNSPELL_DICT_PATH\" $$COVERAGE_CONFIG_STRING LIBS+=\"$$LIBS\" INCLUDEPATH+=\"$$INCLUDEPATH\" LIBS+=-lgcov QMAKE_CXXFLAGS_DEBUG+=\"-fprofile-arcs -ftest-coverage\" QMAKE_LFLAGS_DEBUG+=\"-fprofile-arcs -ftest-coverage\" ../maliit-plugins.pro.coverage &&
+coverage.commands += make $(MAKEFLAGS) coverage
+
+coverage.clean_commands = rm -rf $$COVERAGE_DIR
