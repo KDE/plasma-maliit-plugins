@@ -54,7 +54,7 @@ dist.commands += md5sum $$TARBALL_PATH | cut -d \' \' -f 1 > $$DIST_PATH\\.md5
 
 # The 'make coverage' target
 # Builds plugins with coverage libs in separate directory.
-COVERAGE_CONFIG_STRING = CONFIG+=debug CONFIG+=nodoc
+COVERAGE_CONFIG_STRING = CONFIG+=debug CONFIG+=nodoc CONFIG+=no-werror
 
 enable-presage {
     COVERAGE_CONFIG_STRING += CONFIG+=enable-presage

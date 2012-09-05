@@ -50,6 +50,10 @@ class TagRow;
 class TagSection;
 class TagSpacer;
 
+// There may be some warnings caused by having forward declared shared
+// pointers to forward declared classes. We ignore them as this likely
+// is a bug in either Qt (QTBUG-18092) or g++ (seemingly 4.6 as I
+// don't have this issue in 4.7) or both.
 typedef QSharedPointer<TagBinding> TagBindingPtr;
 typedef QSharedPointer<TagBindingContainer> TagBindingContainerPtr;
 typedef QSharedPointer<TagExtended> TagExtendedPtr;
