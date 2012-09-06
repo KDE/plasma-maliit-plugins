@@ -150,9 +150,9 @@ Keyboard &operator<<(Keyboard &keyboard, const KeyDescriptionPair &value)
     return keyboard;
 }
 
-KeyDescriptionPair actionPair(Key::Action action = Key::ActionInsert,
-                       KeyDescription::Icon icon_type = KeyDescription::NoIcon,
-                       const QByteArray &icon = "")
+KeyDescriptionPair createActionPair(Key::Action action = Key::ActionInsert,
+                                    KeyDescription::Icon icon_type = KeyDescription::NoIcon,
+                                    const QByteArray &icon = "")
 {
     Key key;
     KeyDescription desc;
@@ -163,10 +163,10 @@ KeyDescriptionPair actionPair(Key::Action action = Key::ActionInsert,
     return KeyDescriptionPair(key, desc);
 }
 
-KeyDescriptionPair getPair(const QString &text,
-                    int row,
-                    bool left_spacer,
-                    bool right_spacer)
+KeyDescriptionPair createPair(const QString &text,
+                              int row,
+                              bool left_spacer,
+                              bool right_spacer)
 {
     Label label;
     Key key;
@@ -255,10 +255,10 @@ private:
         QTest::newRow("Complicated string")
             << " a b \n c|d|"
             << (kb
-                << getPair("a", 0, true, true)
-                << getPair("b", 0, true, true)
-                << getPair("c", 1, true, false)
-                << getPair("d", 1, false, false));
+                << createPair("a", 0, true, true)
+                << createPair("b", 0, true, true)
+                << createPair("c", 1, true, false)
+                << createPair("d", 1, false, false));
         clearKeyboard(kb);
     }
 
@@ -396,22 +396,22 @@ private:
         QTest::newRow("Implicit insert action")
             << "action_test1"
             << (kb
-                << actionPair());
+                << createActionPair());
         clearKeyboard(kb);
 
         QTest::newRow("Explicit actions")
             << "action_test2"
             << (kb
-                << actionPair()
-                << actionPair(Key::ActionShift)
-                << actionPair(Key::ActionBackspace)
-                << actionPair(Key::ActionReturn));
+                << createActionPair()
+                << createActionPair(Key::ActionShift)
+                << createActionPair(Key::ActionBackspace)
+                << createActionPair(Key::ActionReturn));
         clearKeyboard(kb);
 
         QTest::newRow("Dead action")
             << "action_test3"
             << (kb
-                << actionPair(Key::ActionDead));
+                << createActionPair(Key::ActionDead));
         clearKeyboard(kb);
     }
 
@@ -442,17 +442,17 @@ private:
         QTest::newRow("Default icons")
             << "icon_test1"
             << (kb
-                << actionPair(Key::ActionBackspace, KeyDescription::BackspaceIcon)
-                << actionPair(Key::ActionReturn, KeyDescription::ReturnIcon)
-                << actionPair(Key::ActionShift, KeyDescription::ShiftIcon)
-                << actionPair(Key::ActionClose, KeyDescription::CloseIcon));
+                << createActionPair(Key::ActionBackspace, KeyDescription::BackspaceIcon)
+                << createActionPair(Key::ActionReturn, KeyDescription::ReturnIcon)
+                << createActionPair(Key::ActionShift, KeyDescription::ShiftIcon)
+                << createActionPair(Key::ActionClose, KeyDescription::CloseIcon));
         clearKeyboard(kb);
 
         QTest::newRow("Custom or empty icons")
             << "icon_test2"
             << (kb
-                << actionPair()
-                << actionPair(Key::ActionInsert, KeyDescription::CustomIcon, "overriden_icon"));
+                << createActionPair()
+                << createActionPair(Key::ActionInsert, KeyDescription::CustomIcon, "overriden_icon"));
         clearKeyboard(kb);
 
         /* TODO: Commented out for now, as it is not not possible to override
