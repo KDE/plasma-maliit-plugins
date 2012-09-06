@@ -42,21 +42,21 @@
 
 using namespace MaliitKeyboard;
 
-typedef QSharedPointer<KeyboardLoader> KbLoaderPtr;
+typedef QSharedPointer<KeyboardLoader> SharedKeyboardLoader;
 
-typedef QPair<QString, QString> DictValue;
-typedef QMap<QString, QString> Dict;
+typedef QPair<QString, QString> DictionaryValue;
+typedef QMap<QString, QString> Dictionary;
 
-typedef QPair<Key, KeyDescription> KeyDescPair;
+typedef QPair<Key, KeyDescription> KeyDescriptionPair;
 
-Q_DECLARE_METATYPE(Dict)
+Q_DECLARE_METATYPE(Dictionary)
 Q_DECLARE_METATYPE(Keyboard)
 
 namespace {
 
-KbLoaderPtr getLoader(const QString &id)
+SharedKeyboardLoader getLoader(const QString &id)
 {
-    KbLoaderPtr loader(new KeyboardLoader);
+    SharedKeyboardLoader loader(new KeyboardLoader);
 
     loader->setActiveId(id);
     return loader;
@@ -137,20 +137,20 @@ Keyboard stringToKeyboard(const QString &str)
 }
 
 
-Dict &operator<<(Dict &dict, const DictValue &value)
+Dictionary &operator<<(Dictionary &dict, const DictionaryValue &value)
 {
     dict.insert(value.first, value.second);
     return dict;
 }
 
-Keyboard &operator<<(Keyboard &keyboard, const KeyDescPair &value)
+Keyboard &operator<<(Keyboard &keyboard, const KeyDescriptionPair &value)
 {
     keyboard.keys.append(value.first);
     keyboard.key_descriptions.append(value.second);
     return keyboard;
 }
 
-KeyDescPair actionPair(Key::Action action = Key::ActionInsert,
+KeyDescriptionPair actionPair(Key::Action action = Key::ActionInsert,
                        KeyDescription::Icon icon_type = KeyDescription::NoIcon,
                        const QByteArray &icon = "")
 {
@@ -160,10 +160,10 @@ KeyDescPair actionPair(Key::Action action = Key::ActionInsert,
     key.setAction(action);
     key.setIcon(icon);
     desc.icon = icon_type;
-    return KeyDescPair(key, desc);
+    return KeyDescriptionPair(key, desc);
 }
 
-KeyDescPair getPair(const QString &text,
+KeyDescriptionPair getPair(const QString &text,
                     int row,
                     bool left_spacer,
                     bool right_spacer)
@@ -178,7 +178,7 @@ KeyDescPair getPair(const QString &text,
     desc.left_spacer = left_spacer;
     desc.right_spacer = right_spacer;
 
-    return KeyDescPair(key, desc);
+    return KeyDescriptionPair(key, desc);
 }
 
 void clearKeyboard(Keyboard &kb)
@@ -277,14 +277,14 @@ private:
         QTest::addColumn<QString>("expected_shifted_keyboard");
         QTest::addColumn<QString>("expected_number_keyboard");
         QTest::addColumn<QString>("expected_phone_number_keyboard");
-        QTest::addColumn<Dict>("expected_dead_keyboards");
-        QTest::addColumn<Dict>("expected_shifted_dead_keyboards");
-        QTest::addColumn<Dict>("expected_extended_keyboards");
+        QTest::addColumn<Dictionary>("expected_dead_keyboards");
+        QTest::addColumn<Dictionary>("expected_shifted_dead_keyboards");
+        QTest::addColumn<Dictionary>("expected_extended_keyboards");
         QTest::addColumn<QStringList>("expected_symbols_keyboards");
 
-        Dict dead;
-        Dict sdead;
-        Dict ext;
+        Dictionary dead;
+        Dictionary sdead;
+        Dictionary ext;
 
         QTest::newRow("General test")
             << "general_test1"
@@ -293,16 +293,16 @@ private:
             << "|0|1|\n 2 3 "
             << " 9 8 \n 7|6 "
             << (dead
-                << DictValue(QString::fromUtf8("´"), "|q|e|\n p a ")
-                << DictValue(";", "|q|r|\n p a ")
-                << DictValue("'", "|q|t|\n p a "))
+                << DictionaryValue(QString::fromUtf8("´"), "|q|e|\n p a ")
+                << DictionaryValue(";", "|q|r|\n p a ")
+                << DictionaryValue("'", "|q|t|\n p a "))
             << (sdead
-                << DictValue(QString::fromUtf8("´"), "|Q|E|\n p a ")
-                << DictValue(";", "|Q|r|\n p a ")
-                << DictValue("'", "|Q|T|\n p a "))
+                << DictionaryValue(QString::fromUtf8("´"), "|Q|E|\n p a ")
+                << DictionaryValue(";", "|Q|r|\n p a ")
+                << DictionaryValue("'", "|Q|T|\n p a "))
             << (ext
-                << DictValue("q", "|y|u|\n|i|o|")
-                << DictValue("Q", "|Y|U|\n|I|O|"))
+                << DictionaryValue("q", "|y|u|\n|i|o|")
+                << DictionaryValue("Q", "|Y|U|\n|I|O|"))
             << (QStringList()
                 << "|1|\n|2|"
                 << "|3|\n|4|");
@@ -318,12 +318,12 @@ private:
         QFETCH(QString, expected_shifted_keyboard);
         QFETCH(QString, expected_number_keyboard);
         QFETCH(QString, expected_phone_number_keyboard);
-        QFETCH(Dict, expected_dead_keyboards);
-        QFETCH(Dict, expected_shifted_dead_keyboards);
-        QFETCH(Dict, expected_extended_keyboards);
+        QFETCH(Dictionary, expected_dead_keyboards);
+        QFETCH(Dictionary, expected_shifted_dead_keyboards);
+        QFETCH(Dictionary, expected_extended_keyboards);
         QFETCH(QStringList, expected_symbols_keyboards);
 
-        KbLoaderPtr loader(getLoader(keyboard_id));
+        SharedKeyboardLoader loader(getLoader(keyboard_id));
 
         QVERIFY(loader->ids().indexOf(keyboard_id) != -1);
         qDebug() << "Keyboard";
@@ -382,7 +382,7 @@ private:
         QFETCH(QString, keyboard_id);
         QFETCH(QString, expected_style);
 
-        KbLoaderPtr loader(getLoader(keyboard_id));
+        SharedKeyboardLoader loader(getLoader(keyboard_id));
         QCOMPARE(loader->keyboard().style_name, expected_style);
     }
 
@@ -420,7 +420,7 @@ private:
         QFETCH(QString, keyboard_id);
         QFETCH(Keyboard, expected_keyboard);
 
-        KbLoaderPtr loader(getLoader(keyboard_id));
+        SharedKeyboardLoader loader(getLoader(keyboard_id));
         Keyboard gotten_keyboard(loader->keyboard());
 
         QCOMPARE(gotten_keyboard.keys.size(), expected_keyboard.keys.size());
@@ -472,7 +472,7 @@ private:
         QFETCH(QString, keyboard_id);
         QFETCH(Keyboard, expected_keyboard);
 
-        KbLoaderPtr loader(getLoader(keyboard_id));
+        SharedKeyboardLoader loader(getLoader(keyboard_id));
         Keyboard gotten_keyboard(loader->keyboard());
 
         QCOMPARE(gotten_keyboard.keys.size(), expected_keyboard.keys.size());
@@ -541,7 +541,7 @@ private:
         QFETCH(Key, pressed_key);
         QFETCH(QString, expected_keyboard);
 
-        KbLoaderPtr loader(getLoader(keyboard_id));
+        SharedKeyboardLoader loader(getLoader(keyboard_id));
 
         COMPARE_KEYBOARDS(loader->extendedKeyboard(pressed_key), stringToKeyboard(expected_keyboard));
     }
