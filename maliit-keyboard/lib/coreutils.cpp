@@ -12,31 +12,19 @@ const char *const g_action_key_id = "actionKey";
 } // unnamed namespace
 
 const QString &pluginDataDirectory() {
-    static QString data_directory;
-
-    if (data_directory.isNull()) {
-        QByteArray env_data_directory = qgetenv("MALIIT_PLUGINS_DATADIR");
-        if (env_data_directory.isEmpty()) {
-            data_directory = QString::fromUtf8(MALIIT_PLUGINS_DATA_DIR);
-        } else {
-            data_directory = QString::fromUtf8(env_data_directory);
-        }
-    }
+    static const QByteArray env_data_directory = qgetenv("MALIIT_PLUGINS_DATADIR");
+    static const QString data_directory = QString::fromUtf8(env_data_directory.isEmpty()
+                                                            ? MALIIT_PLUGINS_DATA_DIR
+                                                            : env_data_directory);
 
     return data_directory;
 }
 
 const QString &maliitKeyboardDataDirectory() {
-    static QString data_directory;
-
-    if (data_directory.isNull()) {
-        QByteArray env_data_directory = qgetenv("MALIIT_KEYBOARD_DATADIR");
-        if (env_data_directory.isEmpty()) {
-            data_directory = QString::fromUtf8(MALIIT_KEYBOARD_DATA_DIR);
-        } else {
-            data_directory = QString::fromUtf8(env_data_directory);
-        }
-    }
+    static const QByteArray env_data_directory = qgetenv("MALIIT_KEYBOARD_DATADIR");
+    static const QString data_directory = QString::fromUtf8(env_data_directory.isEmpty()
+                                                            ? MALIIT_KEYBOARD_DATA_DIR
+                                                            : env_data_directory);
 
     return data_directory;
 }
