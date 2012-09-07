@@ -11,7 +11,8 @@ const char *const g_action_key_id = "actionKey";
 
 } // unnamed namespace
 
-const QString &pluginDataDirectory() {
+const QString &pluginDataDirectory()
+{
     static const QByteArray env_data_directory = qgetenv("MALIIT_PLUGINS_DATADIR");
     static const QString data_directory = QString::fromUtf8(env_data_directory.isEmpty()
                                                             ? MALIIT_PLUGINS_DATA_DIR
@@ -20,7 +21,8 @@ const QString &pluginDataDirectory() {
     return data_directory;
 }
 
-const QString &maliitKeyboardDataDirectory() {
+const QString &maliitKeyboardDataDirectory()
+{
     static const QByteArray env_data_directory = qgetenv("MALIIT_KEYBOARD_DATADIR");
     static const QString data_directory = QString::fromUtf8(env_data_directory.isEmpty()
                                                             ? MALIIT_KEYBOARD_DATA_DIR
@@ -44,5 +46,4 @@ QString idFromKey(const Key &key)
     }
 }
 
-}
-}
+}} // namespace CoreUtils, MaliitKeyboard
