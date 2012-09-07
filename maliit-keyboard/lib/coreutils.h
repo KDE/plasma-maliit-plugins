@@ -4,14 +4,12 @@
 #include <QString>
 
 namespace MaliitKeyboard {
-    class Key;
+class Key;
 
-    namespace CoreUtils {
-        const QString &pluginDataDirectory();
-        const QString &maliitKeyboardDataDirectory();
-
-        QString idFromKey(const Key &key);
-    }
-}
+namespace CoreUtils {
+const QString &pluginDataDirectory();
+const QString &maliitKeyboardDataDirectory();
+QString idFromKey(const Key &key);
+}} // namespace MaliitKeyboard, CoreUtils
 
 #endif // UTILS_H
