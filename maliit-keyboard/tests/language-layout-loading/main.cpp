@@ -30,11 +30,16 @@
  */
 
 #include "utils.h"
+#include "coreutils.h"
 
 #include "models/key.h"
 #include "models/keydescription.h"
 #include "models/keyboard.h"
+#include "models/styleattributes.h"
 #include "logic/keyboardloader.h"
+#include "logic/keyareaconverter.h"
+#include "logic/style.h"
+#include "logic/layout.h"
 
 #include <QtCore>
 #include <QtTest>
@@ -545,6 +550,47 @@ private:
         SharedKeyboardLoader loader(getLoader(keyboard_id));
 
         COMPARE_KEYBOARDS(loader->extendedKeyboard(pressed_key), stringToKeyboard(expected_keyboard));
+    }
+
+    Q_SLOT void testKeyGeometryStyling_data()
+    {
+        QTest::addColumn<int>("key_index");
+        QTest::addColumn<QString>("expected_label");
+        QTest::addColumn<int>("expected_left_distance");
+        QTest::addColumn<int>("expected_right_distance");
+        QTest::addColumn<int>("expected_left_edge");
+        QTest::addColumn<int>("expected_right_edge");
+
+        QTest::newRow("1st row: ' a|b ', testing geometry of 'a'.")
+            << 0 << QString("a") << 25 << 5 << 0 << 50;
+
+        QTest::newRow("1st row: ' a|b ', testing geometry of 'b'.")
+            << 1 << QString("b") << 5 << 25 << 50 << 100;
+    }
+
+    Q_SLOT void testKeyGeometryStyling()
+    {
+        QFETCH(int, key_index);
+        QFETCH(QString, expected_label);
+        QFETCH(int, expected_left_distance);
+        QFETCH(int, expected_right_distance);
+        QFETCH(int, expected_left_edge);
+        QFETCH(int, expected_right_edge);
+
+        Style style;
+        style.setProfile("test-profile");
+        StyleAttributes *attributes = style.attributes();
+        SharedKeyboardLoader loader(getLoader("styling_profile_test"));
+        Logic::KeyAreaConverter converter(attributes, loader.data());
+
+        const KeyArea key_area(converter.keyArea());
+        const Key key(key_area.keys().at(key_index));
+
+        QCOMPARE(key.label().text(), expected_label);
+        QCOMPARE(key.margins().left(), expected_left_distance);
+        QCOMPARE(key.margins().right(), expected_right_distance);
+        QCOMPARE(key.rect().x(), expected_left_edge);
+        QCOMPARE(key.rect().x() + key.rect().width(), expected_right_edge);
     }
 };
 
