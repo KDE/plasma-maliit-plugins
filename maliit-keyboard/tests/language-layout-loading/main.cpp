@@ -552,6 +552,33 @@ private:
         COMPARE_KEYBOARDS(loader->extendedKeyboard(pressed_key), stringToKeyboard(expected_keyboard));
     }
 
+    Q_SLOT void testStylingProfile()
+    {
+        const Logic::Layout::Orientation orientation(Logic::Layout::Landscape);
+        Style style;
+        QCOMPARE(style.availableProfiles().size(), 1);
+        QCOMPARE(style.availableProfiles().first(), QString("test-profile"));
+        QCOMPARE(style.profile(), QString());
+        QCOMPARE(style.attributes()->fontSize(orientation), 0.0);
+        QCOMPARE(style.extendedKeysAttributes()->fontSize(orientation), 0.0);
+        QCOMPARE(style.directoryPath(Style::Images), QString());
+        QCOMPARE(style.directoryPath(Style::Fonts), QString());
+        QCOMPARE(style.directoryPath(Style::Sounds), QString());
+
+        QSignalSpy profile_changed_spy(&style, SIGNAL(profileChanged()));
+        style.setProfile("test-profile");
+        QCOMPARE(profile_changed_spy.count(), 1);
+        QCOMPARE(style.profile(), QString("test-profile"));
+        QCOMPARE(style.attributes()->fontSize(orientation), 10.0);
+        QCOMPARE(style.extendedKeysAttributes()->fontSize(orientation), 0.0);
+
+        const QString test_profile_dir(QString::fromLatin1(TEST_MALIIT_KEYBOARD_DATADIR)
+                                       + "/styles/test-profile");
+        QCOMPARE(style.directoryPath(Style::Images), test_profile_dir + "/images");
+        QCOMPARE(style.directoryPath(Style::Fonts), test_profile_dir + "/fonts");
+        QCOMPARE(style.directoryPath(Style::Sounds), test_profile_dir + "/sounds");
+    }
+
     Q_SLOT void testKeyGeometryStyling_data()
     {
         QTest::addColumn<int>("key_index");
