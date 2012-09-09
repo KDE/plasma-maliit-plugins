@@ -153,11 +153,14 @@ KeyArea createFromKeyboard(StyleAttributes *attributes,
                     k.setOrigin(r.topLeft());
                     k.rArea().setSize(r.size());
 
-                    right_x = r.right();
+                    right_x = r.x() + r.width();
                 }
             }
 
-            consumed_width = qMax<qreal>(consumed_width, key.rect().right() + padding);
+            consumed_width = qMax<qreal>(consumed_width, key.rect().x()
+                                                         + key.rect().width()
+                                                         + padding);
+
             row_indices.clear();
             pos.setX(0);
             spacer_count = 0;

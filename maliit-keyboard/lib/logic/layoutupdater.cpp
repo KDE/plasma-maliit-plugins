@@ -175,9 +175,10 @@ Key magnifyKey(const Key &key,
     const int delta_left(mapped.left()
                          - (key_area_rect.left()
                          + attributes->safetyMargin(orientation)));
-    const int delta_right((key_area_rect.right()
+    const int delta_right((key_area_rect.x()
+                           + key_area_rect.width()
                            - attributes->safetyMargin(orientation))
-                          - mapped.right());
+                          - (mapped.x() + mapped.width()));
 
     if (delta_left < 0) {
         magnifier_rect.translate(qAbs<int>(delta_left), 0);
