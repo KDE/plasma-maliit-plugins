@@ -5,10 +5,8 @@ TEMPLATE = lib
 
 languages.path = $$MALIIT_PLUGINS_DATA_DIR/languages
 languages.files = languages/*.xml languages/*.dtd
-
-debug {
-    languages.files += languages/debug/showcase.xml
-}
+# make it available for testing, not intended for proper release though:
+languages.files += languages/debug/showcase.xml
 
 styles.path = $$MALIIT_KEYBOARD_DATA_DIR
 styles.files = styles
