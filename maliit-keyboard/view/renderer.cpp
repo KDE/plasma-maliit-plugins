@@ -245,6 +245,7 @@ void Renderer::hide()
 
     d->surface->hide();
     d->extended_surface->hide();
+    d->extended_surface->view()->viewport()->releaseMouse();
     d->magnifier_surface->hide();
 }
 
@@ -320,7 +321,11 @@ void Renderer::onExtendedPanelChanged(const KeyArea &key_area,
         d->extended_surface->setSize(ka_size);
         d->extended_surface->setRelativePosition(origin);
         d->extended_surface->show();
+        // TODO: Check how mouse grabbing affects touch events, because we'd
+        // want the same follow-mouse/follow-touchpint behaviour in that case.
+        d->extended_surface->view()->viewport()->grabMouse();
     } else {
+        d->extended_surface->view()->viewport()->releaseMouse();
         d->extended_surface->hide();
     }
 }

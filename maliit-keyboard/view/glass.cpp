@@ -349,6 +349,10 @@ bool Glass::handlePressReleaseEvent(QEvent *ev,
                     d->active_candidate = candidate;
                     Q_EMIT wordCandidatePressed(candidate, layout);
                     consumed = true;
+                } else {
+                    // Hit empty area, we use keyAreaReleased to cancel any user action.
+                    // TODO: Better introduce cancelled signal?
+                    Q_EMIT keyAreaReleased(Logic::Layout::NumPanels, layout);
                 }
             }
         } break;
