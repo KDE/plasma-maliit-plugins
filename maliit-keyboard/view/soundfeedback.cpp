@@ -34,9 +34,20 @@
 #include "logic/style.h"
 #include "models/styleattributes.h"
 
+#if QT_VERSION < 0x050000
 #include <QFeedbackFileEffect>
 
 QTM_USE_NAMESPACE
+#else
+class QFeedbackFileEffect
+{
+public:
+    void setSource(const QUrl &) {}
+    void start() {}
+    void stop() {}
+};
+#endif
+
 
 //! \class MaliitKeyboard::SoundFeedback
 //! Provides a sound-playing feedback backend. Used as default backend if

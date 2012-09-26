@@ -154,8 +154,10 @@ public:
         : SurfaceProbe()
         , m_scene(new QGraphicsScene)
         , m_view(new QGraphicsView(m_scene))
-        , m_root(new QGraphicsRectItem(0, m_scene))
-    {}
+        , m_root(new QGraphicsRectItem(0))
+    {
+        m_scene->addItem(m_root);
+    }
 
     virtual ~GraphicsViewSurfaceProbe() {}
 
