@@ -1,3 +1,13 @@
+{NEXT}
+======
+
+0.92.5
+======
+
+CHANGES SINCE 0.92.4
+* Make maliit-framework compile against Qt 5 beta release.
+* Update OLPC styling profile
+
 0.92.4
 ======
 
