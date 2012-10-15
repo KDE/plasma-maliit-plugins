@@ -70,7 +70,7 @@ namespace MaliitKeyboard {
 
 typedef QScopedPointer<Maliit::Plugins::AbstractPluginSetting> ScopedSetting;
 typedef QSharedPointer<MKeyOverride> SharedOverride;
-typedef QMap<QString, SharedOverride>::iterator OverridesIterator;
+typedef QMap<QString, SharedOverride>::const_iterator OverridesIterator;
 
 namespace {
 
@@ -509,7 +509,7 @@ void InputMethod::setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverrid
     Q_D(InputMethod);
 
     for (OverridesIterator i(d->key_overrides.begin()), e(d->key_overrides.end()); i != e; ++i) {
-        SharedOverride &override(i.value());
+        const SharedOverride &override(i.value());
 
         if (override) {
             disconnect(override.data(), SIGNAL(keyAttributesChanged(const QString &, const MKeyOverride::KeyOverrideAttributes)),
@@ -521,7 +521,7 @@ void InputMethod::setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverrid
     QMap<QString, Key> overriden_keys;
 
     for (OverridesIterator i(overrides.begin()), e(overrides.end()); i != e; ++i) {
-        SharedOverride &override(i.value());
+        const SharedOverride &override(i.value());
 
         if (override) {
             d->key_overrides.insert(i.key(), override);

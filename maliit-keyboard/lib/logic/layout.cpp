@@ -441,7 +441,7 @@ void Layout::onKeysOverriden(const KeyOverrides &overriden_keys,
     QSet<QString> changed_ids;
 
     if (update) {
-        for (KeyOverrides::iterator i(overriden_keys.begin()), e(overriden_keys.end()); i != e; ++i) {
+        for (KeyOverrides::const_iterator i(overriden_keys.begin()), e(overriden_keys.end()); i != e; ++i) {
             KeyOverrides::iterator override(d->overriden_keys.find(i.key()));
 
             if (override != d->overriden_keys.end()

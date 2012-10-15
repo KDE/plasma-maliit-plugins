@@ -47,11 +47,13 @@
 #include <maliit/plugins/testsurfacefactory.h>
 #include <maliit/plugins/updateevent.h>
 
-#include <QtCore>
 #include <QtTest>
-#include <QWidget>
-#include <QList>
-#include <QMouseEvent>
+#include <QtCore>
+#include <QtGui>
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+#include <QtWidgets>
+#endif
 
 using namespace MaliitKeyboard;
 Q_DECLARE_METATYPE(Logic::Layout::Orientation)

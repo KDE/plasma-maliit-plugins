@@ -136,7 +136,7 @@ Key applyOverride(const Key &original_key,
                   const Logic::KeyOverrides &overrides)
 {
     Key overriden_key(original_key);
-    Logic::KeyOverrides::iterator override_iter(overrides.find(CoreUtils::idFromKey(original_key)));
+    Logic::KeyOverrides::const_iterator override_iter(overrides.find(CoreUtils::idFromKey(original_key)));
 
     if (override_iter != overrides.end()) {
         const Key &override(override_iter.value());
