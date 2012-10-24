@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE keyboard SYSTEM 'VirtualKeyboardLayout.dtd'>
+<keyboard title="Հայերեն (հնչյունային)" version="1.0" catalog="hy" language="hy">
+  <layout type="general">
+    <section id="main">
+      <row>
+        <key>
+          <binding label="ք"/>
+          <binding shift="true" label="Ք"/>
+        </key>
+        <key>
+          <binding label="ո" extended_labels="օ"/>
+          <binding shift="true" label="Ո" extended_labels="Օ"/>
+        </key>
+		<key>
+          <binding label="ե"/>
+          <binding shift="true" label="Ե"/>
+        </key>
+        <key>
+          <binding label="ռ" extended_labels="12345"/>
+          <binding shift="true" label="Ռ" extended_labels="12345"/>
+        </key>
+        <key>
+          <binding label="տ" extended_labels="67890"/>
+          <binding shift="true" label="Տ" extended_labels="67890"/>
+        </key>
+        <key>
+          <binding label="ը"/>
+          <binding shift="true" label="Ը"/>
+        </key>
+        <key>
+          <binding label="ւ" extended_labels="()"/>
+          <binding shift="true" label="Ւ" extended_labels="()"/>
+        </key>
+        <key>
+          <binding label="ի"/>
+          <binding shift="true" label="Ի"/>
+        </key>
+        <key>
+          <binding label="շ"/>
+          <binding shift="true" label="Շ"/>
+        </key>
+
+		<key>
+          <binding label="պ" extended_labels="փ"/>
+          <binding shift="true" label="Պ" extended_labels="Փ"/>
+        </key>
+		<key>
+          <binding label="չ" extended_labels="ճ"/>
+          <binding shift="true" label="Չ" extended_labels="Ճ"/>
+        </key>        
+      </row>
+
+      <row>
+        <key>
+
+          <binding label="ա"/>
+          <binding shift="true" label="Ա"/>
+        </key>
+        <key>
+          <binding label="ս"/>
+          <binding shift="true" label="Ս"/>
+        </key>
+        <key>
+          <binding label="դ"/>
+          <binding shift="true" label="Դ"/>
+        </key>
+        <key>
+          <binding label="թ"/>
+          <binding shift="true" label="Թ"/>
+        </key>
+        <key>
+          <binding label="գ"/>
+          <binding shift="true" label="Գ"/>
+        </key>
+        <key>
+          <binding label="հ"/>
+          <binding shift="true" label="Հ"/>
+        </key>
+        <key>
+          <binding label="յ"/>
+          <binding shift="true" label="Յ"/>
+        </key>
+        <key>
+          <binding label="կ"/>
+          <binding shift="true" label="Կ"/>
+        </key>
+        <key>
+
+          <binding label="լ"/>
+          <binding shift="true" label="Լ"/>
+        </key>
+        <key>
+          <binding label="խ"/>
+          <binding shift="true" label="Խ"/>
+        </key>
+        <key>
+          <binding label="ծ"/>
+          <binding shift="true" label="Ծ"/>
+        </key>
+      </row>
+
+      <row>
+        <key style="special">
+          <binding action="shift" label=""/>
+        </key>
+
+        <key>
+          <binding label="զ"/>
+          <binding shift="true" label="Զ"/>
+        </key>
+        <key>
+          <binding label="ղ"/>
+          <binding shift="true" label="Ղ"/>
+        </key>
+        <key>
+          <binding label="ց"/>
+          <binding shift="true" label="Ց"/>
+        </key>
+        <key>
+          <binding label="վ" extended_labels="ֆ"/>
+          <binding shift="true" label="Վ" extended_labels="Ֆ"/>
+        </key>
+        <key>
+          <binding label="բ"/>
+          <binding shift="true" label="Բ"/>
+        </key>
+        <key>
+          <binding label="ն"/>
+          <binding shift="true" label="Ն"/>
+        </key>
+        <key>
+          <binding label="մ"/>
+          <binding shift="true" label="Մ"/>
+        </key>
+        <key>
+          <binding label="ձ"/>
+          <binding shift="true" label="Ձ"/>
+        </key>
+        <key>
+          <binding label="ժ"/>
+          <binding shift="true" label="Ժ"/>
+        </key>
+
+        <key style="special">
+          <binding action="backspace"/>
+        </key>
+      </row>
+
+      <row>
+        <key style="special" width="large">
+          <binding action="sym" label="՞123"/>
+        </key>
+
+        <key id="emailUrlKey"><binding label="," extended_labels="՞՛–՜"/></key>
+        <key>
+			<binding label="ր"/>
+			<binding shift="true" label="Ր"/>        
+		</key>
+		<key>
+			<binding label="ջ"/>
+			<binding shift="true" label="Ջ"/>        
+		</key>
+
+        <key width="stretched">
+          <binding action="space" label=""/>
+        </key>
+
+        <key><binding label="։" extended_labels="՝․"/></key>
+        <key>
+          <binding label="է"/>
+          <binding shift="true" label="Է"/>
+        </key>
+		
+		<key>
+          <binding label="և" extended_labels="«»"/>
+          <binding shift="true" label="ություն" extended_labels="«»"/>
+        </key>
+
+        <key style="special" width="x-large" id="actionKey">
+          <binding action="return"/>
+        </key>
+      </row>
+    </section>
+  </layout>
+
+  <import file="symbols_hy.xml"/>
+</keyboard>
