@@ -31,6 +31,7 @@
  */
 
 #include "layoutparser.h"
+#include "models/key.h"
 
 #include <QDebug>
 
@@ -388,7 +389,12 @@ void LayoutParser::parseKey()
 
 void LayoutParser::parseBinding()
 {
-    static const QStringList actionValues(QString::fromLatin1("insert,shift,backspace,space,cycle,layout_menu,sym,return,commit,decimal_separator,plus_minus_toggle,switch,on_off_toggle,compose,left,up,right,down,close").split(','));
+    static const QStringList actionValues(QString::fromLatin1(
+        "insert,shift,backspace,space,cycle,layout_menu,sym,return,commit,"
+        "decimal_separator,plus_minus_toggle,switch,on_off_toggle,compose,"
+        "left,up,right,down,close,tab,dead,left-layout,right-layout"
+    ).split(','));
+    Q_ASSERT(actionValues.count() == Key::NumActions);
 
     const QXmlStreamAttributes attributes(m_xml.attributes());
     const TagBinding::Action action(enumValue("action", actionValues, TagBinding::Insert));

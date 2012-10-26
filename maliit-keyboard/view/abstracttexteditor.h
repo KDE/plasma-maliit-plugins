@@ -83,6 +83,8 @@ public:
 
     Q_SIGNAL void textChanged(const Model::SharedText &text);
     Q_SIGNAL void keyboardClosed();
+    Q_SIGNAL void leftLayoutSelected();
+    Q_SIGNAL void rightLayoutSelected();
 
 private:
     const QScopedPointer<AbstractTextEditorPrivate> d_ptr;

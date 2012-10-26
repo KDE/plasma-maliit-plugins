@@ -159,10 +159,17 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
             this,      SLOT(onKeyboardClosed()));
 
     connect(&d->glass, SIGNAL(switchLeft(SharedLayout)),
-            this,      SLOT(onSwitchLeft()));
+            this,      SLOT(onLeftLayoutSelected()));
 
     connect(&d->glass, SIGNAL(switchRight(SharedLayout)),
-            this,      SLOT(onSwitchRight()));
+            this,      SLOT(onRightLayoutSelected()));
+
+    connect(&d->editor, SIGNAL(leftLayoutSelected()),
+            this,       SLOT(onLeftLayoutSelected()));
+
+    connect(&d->editor, SIGNAL(rightLayoutSelected()),
+            this,       SLOT(onRightLayoutSelected()));
+
     connect(d->surfaceFactory, SIGNAL(screenSizeChanged(QSize)),
             this,              SLOT(onScreenSizeChange(QSize)));
 
@@ -244,7 +251,7 @@ void InputMethod::handleAppOrientationChanged(int angle)
                                                                   : Layout::Portrait);
 }
 
-void InputMethod::onSwitchLeft()
+void InputMethod::onLeftLayoutSelected()
 {
     // This API smells real bad.
     const QList<MImSubViewDescription> &list =
@@ -255,7 +262,7 @@ void InputMethod::onSwitchLeft()
     }
 }
 
-void InputMethod::onSwitchRight()
+void InputMethod::onRightLayoutSelected()
 {
     // This API smells real bad.
     const QList<MImSubViewDescription> &list =

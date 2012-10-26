@@ -148,6 +148,12 @@ Keyboard get_keyboard(const TagKeyboardPtr& keyboard,
                         case Key::ActionClose:
                             skey_description.icon = KeyDescription::CloseIcon;
                             break;
+                        case Key::ActionLeftLayout:
+                            skey_description.icon = KeyDescription::LeftLayoutIcon;
+                            break;
+                        case Key::ActionRightLayout:
+                            skey_description.icon = KeyDescription::RightLayoutIcon;
+                            break;
                         default:
                             skey_description.icon = KeyDescription::NoIcon;
                             break;

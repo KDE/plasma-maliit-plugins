@@ -67,8 +67,8 @@ public:
     //! \reimp_end
 
 private:
-    Q_SLOT void onSwitchLeft();
-    Q_SLOT void onSwitchRight();
+    Q_SLOT void onLeftLayoutSelected();
+    Q_SLOT void onRightLayoutSelected();
 
     Q_SLOT void onScreenSizeChange(const QSize &size);
     Q_SLOT void onStyleSettingChanged();

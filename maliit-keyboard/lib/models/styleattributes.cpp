@@ -69,6 +69,12 @@ QByteArray fromKeyIcon(KeyDescription::Icon icon)
     case KeyDescription::ShiftLatchedIcon: return QByteArray("shift-latched");
     case KeyDescription::CapsLockIcon: return QByteArray("caps-lock");
     case KeyDescription::CloseIcon: return QByteArray("close");
+    case KeyDescription::LeftLayoutIcon: return QByteArray("left-layout");
+    case KeyDescription::RightLayoutIcon: return QByteArray("right-layout");
+
+    default:
+        qWarning() << "No string conversion known for " << icon;
+        break;
     }
 
     return QByteArray();

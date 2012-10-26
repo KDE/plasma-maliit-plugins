@@ -67,6 +67,8 @@ public:
         ActionClose, //!< Key closes the virtual keyboard.
         ActionTab, //!< Key moves cursor position by one tab, in text editor.
         ActionDead, //!< Switches keyboard to deadkey variation, using key's label as lookup.
+        ActionLeftLayout, //!< Switch to left/previous language layout.
+        ActionRightLayout, //!< Switch to right/next language layout.
         NumActions
     };
 
