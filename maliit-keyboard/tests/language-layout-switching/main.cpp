@@ -33,8 +33,11 @@
 #include "models/key.h"
 #include "models/keyarea.h"
 #include "models/layout.h"
+#include "view/setup.h"
+#include "plugin/editor.h"
 #include "logic/layoutupdater.h"
 #include "logic/style.h"
+#include "inputmethodhostprobe.h"
 
 #include <QtCore>
 #include <QtTest>
@@ -47,7 +50,7 @@ class TestLanguageLayoutSwitching
     Q_OBJECT
 
 private:
-    Q_SLOT void test_data()
+    Q_SLOT void testActiveKeyboardId_data()
     {
         QTest::addColumn<QString>("keyboard_id");
         QTest::addColumn<int>("expected_key_count");
@@ -62,7 +65,7 @@ private:
             << "de" << 36;
     }
 
-    Q_SLOT void test()
+    Q_SLOT void testActiveKeyboardId()
     {
         QFETCH(QString, keyboard_id);
         QFETCH(int, expected_key_count);
@@ -80,6 +83,39 @@ private:
 
         QCOMPARE(layout->activePanel(), Layout::CenterPanel);
         QCOMPARE(layout->activeKeyArea().keys().count(), expected_key_count);
+    }
+
+    // This test is very trivial. It's required however because none of the
+    // current mainline layouts feature layout switch keys, thus making
+    // regressions impossible to spot.
+    // TODO: Let this test run on actual language layouts w/ layout switch
+    // keys.
+    Q_SLOT void testLayoutSwitchKeys()
+    {
+        Key left_layout;
+        left_layout.setAction(Key::ActionLeftLayout);
+
+        Key right_layout;
+        right_layout.setAction(Key::ActionRightLayout);
+
+        Editor editor(EditorOptions(), 0);
+        InputMethodHostProbe probe;
+        editor.setHost(&probe);
+
+        QSignalSpy left_spy(&editor, SIGNAL(leftLayoutSelected()));
+        QSignalSpy right_spy(&editor, SIGNAL(rightLayoutSelected()));
+
+        editor.onKeyPressed(left_layout);
+        QCOMPARE(left_spy.count(), 0);
+
+        editor.onKeyReleased(left_layout);
+        QCOMPARE(left_spy.count(), 1);
+
+        editor.onKeyPressed(right_layout);
+        QCOMPARE(right_spy.count(), 0);
+
+        editor.onKeyReleased(right_layout);
+        QCOMPARE(right_spy.count(), 1);
     }
 };
 
