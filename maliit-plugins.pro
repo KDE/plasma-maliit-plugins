@@ -14,7 +14,9 @@ include(config.pri)
         \\n\\t disable-preedit: Always commit characters and never use preedit (maliit-keyboard-plugin only) \
         \\n\\t enable-qt-mobility: Enable use of QtMobility (enables sound and haptic feedback) \
         \\n\\t notests: Do not attempt to build tests \
-        \\n\\t nodoc : Do not build documentation \
+        \\n\\t nodoc: Do not build documentation \
+        \\n\\t disable-maliit-keyboard: Don't build the C++ reference keyboard (Maliit Keyboard) \
+        \\n\\t disable-nemo-keyboard: Don't build the QML reference keyboard (Nemo Keyboard) \
         \\nInfluential environment variables: \
         \\n\\t QMAKEFEATURES A mkspecs/features directory list to look for features. \
         \\n\\t\\t Use it if a dependency is installed to non-default location. \
@@ -32,10 +34,9 @@ include(config.pri)
 
 CONFIG += ordered 
 TEMPLATE = subdirs
-SUBDIRS = \
-    nemo-keyboard \
-    maliit-keyboard \
 
+!disable-nemo-keyboard:SUBDIRS += nemo-keyboard
+!disable-maliit-keyboard:SUBDIRS += maliit-keyboard
 !nodoc:SUBDIRS += doc
 
 DIST_NAME = $$MALIIT_PACKAGENAME-$$MALIIT_VERSION
