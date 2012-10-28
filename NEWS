@@ -1,6 +1,29 @@
 {NEXT}
 ======
 
+CHANGES SINCE 0.93.0
+
+0.93.0
+======
+
+CHANGES SINCE 0.92.5
+* Added 10 new language layouts
+  - Armenian, Bengali, French-Swiss, Gujarati, Hindi, Kannada, Malayalam,
+    Tamil, Telugu and Urdu. 
+* Implemented key actions to switch between language layouts
+  - Use <key action="[left|right]-layout">...</key> to define keys for
+    switching to surrounding language layouts (also known as subviews, from the
+    framework's perspective).
+* Various improvements to Nemo Keyboard plugin.
+* Allow to disable either Nemo or Maliit Keybord plugin
+  - Use qmake CONFIG+=disable-[nemo|maliit]-keyboard to prevent building and
+    installation of either the QML or the C++ reference plugin.
+
+BUG FIXES
+* Fixes: MALIIT#195 - Extended key feature does not work with any keys where a
+  width is specified in the layout
+* Fixes: NEMO#451 - Use a single MouseArea for the whole keyboard
+
 0.92.5
 ======
 
