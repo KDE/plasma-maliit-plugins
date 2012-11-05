@@ -29,7 +29,7 @@
  *
  */
 
-import QtQuick 1.1
+import QtQuick 2.0
 import org.nemomobile 1.0
 
 Item {

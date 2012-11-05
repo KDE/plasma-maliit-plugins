@@ -28,7 +28,7 @@
  *
  */
 
-import QtQuick 1.1
+import QtQuick 2.0
 import "KeyboardUiConstants.js" as UI
 
 MouseArea {
@@ -70,6 +70,8 @@ MouseArea {
         // Hide keyboard on flick down
         if (pressTimer.running && (mouse.y - _startY > (height * 0.3))) {
             MInputMethodQuick.userHide();
+            if (pressedKey == null)
+                return;
             pressedKey.pressed = false;
             pressedKey = null;
             return;
