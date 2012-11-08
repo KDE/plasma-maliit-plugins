@@ -46,4 +46,4 @@ enable-coverage {
 }
 
 MALIIT_PACKAGENAME = maliit-plugins
-MALIIT_VERSION = $$system(cat $$IN_PWD/VERSION)
+MALIIT_VERSION = $$system(cat $$PWD/VERSION)
