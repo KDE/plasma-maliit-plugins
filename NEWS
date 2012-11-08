@@ -1,7 +1,19 @@
 {NEXT}
 ======
 
+CHANGES SINCE 0.93.1
+
+0.93.1
+======
+
 CHANGES SINCE 0.93.0
+* More Nemo Keyboard improvements
+  - Remove unused KeyStyle and KeyboardStyle.
+  - Make close gesture less sensitive.
+  - More robust key detection.
+  - Code clean ups
+  - Remove executable bit from nemo-keyboard files.
+  - Use QtQuick2 (requires compilation against Qt5).
 
 0.93.0
 ======
