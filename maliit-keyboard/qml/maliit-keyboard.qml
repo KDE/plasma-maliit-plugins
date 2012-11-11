@@ -31,9 +31,37 @@
 
 import QtQuick 2.0
 
-Rectangle {
-    width: 854
-    height: 280
-    border.color: "green"
-    border.width: 3
+Item {
+    width: key_area.width
+    height: key_area.height
+
+    Repeater {
+        id: main
+        model: key_area
+        anchors.fill: parent
+
+        Rectangle {
+            x: key_rect.x
+            y: key_rect.y
+            width: key_rect.width
+            height: key_rect.height
+
+            border.color: "green"
+            border.width: 1
+
+            Image {
+                source: maliit.imageDirectoryPath() + "/" + key_background
+
+                Text {
+                    text: key_text
+                }
+
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: console.log("Clicked key#" + index)
+            }
+        }
+    }
 }

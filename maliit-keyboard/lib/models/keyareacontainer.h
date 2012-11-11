@@ -35,20 +35,53 @@
 #include <QtCore>
 
 namespace MaliitKeyboard {
+
+class KeyArea;
+
 namespace Model {
 
 class KeyAreaContainerPrivate;
 
+// TODO: Move the important/remaining layout handling features from
+// Logic::Layout into this, effectively merging the two classes.
 class KeyAreaContainer
-    : public QObject
+    : public QAbstractListModel
 {
     Q_OBJECT
     Q_DISABLE_COPY(KeyAreaContainer)
     Q_DECLARE_PRIVATE(KeyAreaContainer)
 
+    Q_PROPERTY(int width READ width
+                         NOTIFY widthChanged)
+    Q_PROPERTY(int height READ height
+                          NOTIFY heightChanged)
+
 public:
+    enum Roles {
+        RoleKeyRect = Qt::UserRole + 1,
+        RoleKeyBackground,
+        RoleKeyText,
+    };
+
     explicit KeyAreaContainer(QObject *parent = 0);
     virtual ~KeyAreaContainer();
+
+    Q_SLOT void setKeyArea(const KeyArea &area);
+    KeyArea keyArea() const;
+
+    Q_SLOT int width() const;
+    Q_SIGNAL void widthChanged(int changed);
+
+    Q_SLOT int height() const;
+    Q_SIGNAL void heightChanged(int changed);
+
+
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant data(const QModelIndex &index,
+                  int role) const;
+    Q_INVOKABLE QVariant data(int index,
+                              const QString &role) const;
+
 
 private:
     const QScopedPointer<KeyAreaContainerPrivate> d_ptr;

@@ -44,6 +44,7 @@
 #include "logic/wordengine.h"
 #include "logic/style.h"
 #include "logic/languagefeatures.h"
+#include "logic/maliitcontext.h"
 
 #include "view/renderer.h"
 #include "view/glass.h"
@@ -124,6 +125,7 @@ public:
     QMap<QString, SharedOverride> key_overrides;
     Settings settings;
     QScopedPointer<Model::KeyAreaContainer> key_area_container;
+    QScopedPointer<Logic::MaliitContext> context;
 
     explicit InputMethodPrivate(MAbstractInputMethodHost *host);
     void setLayoutOrientation(Logic::Layout::Orientation orientation);
@@ -145,6 +147,7 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     , key_overrides()
     , settings()
     , key_area_container(new Model::KeyAreaContainer)
+    , context(new Logic::MaliitContext(style))
 {
     editor.setHost(host);
 
@@ -153,22 +156,16 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     layout_updater.setStyle(style);
     feedback.setStyle(style);
 
-    // FIXME: Remove this hack. Get main surface size from QWERTY KeyArea.
-    surface->setSize(QSize(854, 280));
     const QSize &screen_size(surface_factory->screenSize());
     layout.setScreenSize(screen_size);
     layout.setAlignment(Logic::Layout::Bottom);
 
     connectToNotifier();
 
-    // Set up QtQuick engine:
-    // FIXME: Obviously, we need a non-zero context that carries all the
-    // properties we want to export to QML. Preferred way is to export the
-    // actual C++ objects (if they are QObjects) instead of extra wrapping.
     QQmlEngine *const engine(surface->view()->engine());
     engine->addImportPath(MALIIT_KEYBOARD_DATA_DIR);
-    engine->rootContext()->setContextProperty("MaliitKeyboard", 0);
-    engine->rootContext()->setContextProperty("MaliitKeyboardModel", key_area_container.data());
+    engine->rootContext()->setContextProperty("maliit", context.data());
+    engine->rootContext()->setContextProperty("key_area", key_area_container.data());
 
     surface->view()->setSource(QUrl::fromLocalFile(g_maliit_keyboard_qml));
 }
@@ -216,6 +213,8 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
     // instances. So setting them to 0 breaks nearly everything.
     Setup::connectAll(0, &d->layout, &d->layout_updater,
                       0, &d->editor, &d->feedback);
+    QObject::connect(&d->layout, SIGNAL(centerPanelChanged(KeyArea,Logic::KeyOverrides)),
+                     d->key_area_container.data(), SLOT(setKeyArea(KeyArea)));
 
     // FIXME: Reimplement keyboardClosed, switchLeft and switchRight
     // (triggered by glass).
@@ -237,7 +236,7 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
     // settings to be initialized first:
     const QSize &screen_size(d->surface_factory->screenSize());
     d->setLayoutOrientation(screen_size.width() >= screen_size.height()
-                         ? Logic::Layout::Landscape : Logic::Layout::Portrait);
+                            ? Logic::Layout::Landscape : Logic::Layout::Portrait);
 }
 
 InputMethod::~InputMethod()
@@ -246,6 +245,9 @@ InputMethod::~InputMethod()
 void InputMethod::show()
 {
     Q_D(InputMethod);
+    d->surface->setSize(QSize(d->key_area_container->width(),
+                              d->key_area_container->height()));
+
     d->surface->show();
 }
 
