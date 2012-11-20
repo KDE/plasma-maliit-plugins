@@ -109,6 +109,8 @@ Item {
                 rotation: MInputMethodQuick.appOrientation
                 x: 0
                 y: 0
+                width: parent.width
+                height: parent.height
             }
 
             PropertyChanges {
@@ -129,6 +131,9 @@ Item {
                 target: root
                 rotation: MInputMethodQuick.appOrientation
                 x: (parent.width - parent.height) / 2
+                y: (parent.height - parent.width) / 2
+                width: parent.height
+                height: parent.width
             }
 
             PropertyChanges {
