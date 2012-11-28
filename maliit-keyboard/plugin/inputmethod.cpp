@@ -89,6 +89,17 @@ Key overrideToKey(const SharedOverride &override)
 
 } // unnamed namespace
 
+class Settings
+{
+public:
+    ScopedSetting style;
+    ScopedSetting feedback;
+    ScopedSetting auto_correct;
+    ScopedSetting auto_caps;
+    ScopedSetting word_engine;
+    ScopedSetting hide_word_ribbon_in_portrait_mode;
+};
+
 class InputMethodPrivate
 {
 public:
@@ -102,12 +113,7 @@ public:
     SharedStyle style;
     UpdateNotifier notifier;
     QMap<QString, SharedOverride> key_overrides;
-    ScopedSetting style_setting;
-    ScopedSetting feedback_setting;
-    ScopedSetting auto_correct_setting;
-    ScopedSetting auto_caps_setting;
-    ScopedSetting word_engine_setting;
-    ScopedSetting hide_word_ribbon_in_portrait_mode_setting;
+    Settings settings;
 
     explicit InputMethodPrivate(MAbstractInputMethodHost *host);
     void setLayoutOrientation(Logic::Layout::Orientation orientation);
@@ -128,12 +134,7 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     , style(new Style)
     , notifier()
     , key_overrides()
-    , style_setting()
-    , feedback_setting()
-    , auto_correct_setting()
-    , auto_caps_setting()
-    , word_engine_setting()
-    , hide_word_ribbon_in_portrait_mode_setting()
+    , settings()
 {
     renderer.setSurfaceFactory(surface_factory);
     glass.setSurface(renderer.surface());
@@ -165,12 +166,17 @@ void InputMethodPrivate::setLayoutOrientation(Logic::Layout::Orientation orienta
 void InputMethodPrivate::syncWordEngine(Logic::Layout::Orientation orientation)
 {
     // hide_word_ribbon_in_potrait_mode_setting overrides word_engine_setting:
-    const bool override_activation(hide_word_ribbon_in_portrait_mode_setting->value().toBool()
+#ifndef DISABLE_PREEDIT
+    const bool override_activation(settings.hide_word_ribbon_in_portrait_mode->value().toBool()
                                    && orientation == Logic::Layout::Portrait);
+#else
+    Q_UNUSED(orientation)
+    const bool override_activation = true;
+#endif
 
     editor.wordEngine()->setEnabled(override_activation
                                     ? false
-                                    : word_engine_setting->value().toBool());
+                                    : settings.word_engine->value().toBool());
 }
 
 void InputMethodPrivate::connectToNotifier()
@@ -324,15 +330,15 @@ void InputMethod::registerStyleSetting(MAbstractInputMethodHost *host)
     attributes[Maliit::SettingEntryAttributes::valueDomain] = available_styles;
     attributes[Maliit::SettingEntryAttributes::valueDomainDescriptions] = available_styles;
 
-    d->style_setting.reset(host->registerPluginSetting("current_style",
-                                                       QT_TR_NOOP("Keyboard style"),
-                                                       Maliit::StringType,
-                                                       attributes));
+    d->settings.style.reset(host->registerPluginSetting("current_style",
+                                                        QT_TR_NOOP("Keyboard style"),
+                                                        Maliit::StringType,
+                                                        attributes));
 
-    connect(d->style_setting.data(), SIGNAL(valueChanged()),
-            this,                    SLOT(onStyleSettingChanged()));
+    connect(d->settings.style.data(), SIGNAL(valueChanged()),
+            this,                     SLOT(onStyleSettingChanged()));
 
-    d->style->setProfile(d->style_setting->value().toString());
+    d->style->setProfile(d->settings.style->value().toString());
 }
 
 
@@ -343,15 +349,15 @@ void InputMethod::registerFeedbackSetting(MAbstractInputMethodHost *host)
     QVariantMap attributes;
     attributes[Maliit::SettingEntryAttributes::defaultValue] = true;
 
-    d->feedback_setting.reset(host->registerPluginSetting("feedback_enabled",
-                                                          QT_TR_NOOP("Feedback enabled"),
-                                                          Maliit::BoolType,
-                                                          attributes));
+    d->settings.feedback.reset(host->registerPluginSetting("feedback_enabled",
+                                                           QT_TR_NOOP("Feedback enabled"),
+                                                           Maliit::BoolType,
+                                                           attributes));
 
-    connect(d->feedback_setting.data(), SIGNAL(valueChanged()),
-            this,                       SLOT(onFeedbackSettingChanged()));
+    connect(d->settings.feedback.data(), SIGNAL(valueChanged()),
+            this,                        SLOT(onFeedbackSettingChanged()));
 
-    d->feedback.setEnabled(d->feedback_setting->value().toBool());
+    d->feedback.setEnabled(d->settings.feedback->value().toBool());
 }
 
 
@@ -362,15 +368,15 @@ void InputMethod::registerAutoCorrectSetting(MAbstractInputMethodHost *host)
     QVariantMap attributes;
     attributes[Maliit::SettingEntryAttributes::defaultValue] = true;
 
-    d->auto_correct_setting.reset(host->registerPluginSetting("auto_correct_enabled",
-                                                              QT_TR_NOOP("Auto-correct enabled"),
-                                                              Maliit::BoolType,
-                                                              attributes));
+    d->settings.auto_correct.reset(host->registerPluginSetting("auto_correct_enabled",
+                                                               QT_TR_NOOP("Auto-correct enabled"),
+                                                               Maliit::BoolType,
+                                                               attributes));
 
-    connect(d->auto_correct_setting.data(), SIGNAL(valueChanged()),
-            this,                           SLOT(onAutoCorrectSettingChanged()));
+    connect(d->settings.auto_correct.data(), SIGNAL(valueChanged()),
+            this,                            SLOT(onAutoCorrectSettingChanged()));
 
-    d->editor.setAutoCorrectEnabled(d->auto_correct_setting->value().toBool());
+    d->editor.setAutoCorrectEnabled(d->settings.auto_correct->value().toBool());
 }
 
 
@@ -381,15 +387,15 @@ void InputMethod::registerAutoCapsSetting(MAbstractInputMethodHost *host)
     QVariantMap attributes;
     attributes[Maliit::SettingEntryAttributes::defaultValue] = true;
 
-    d->auto_caps_setting.reset(host->registerPluginSetting("auto_caps_enabled",
-                                                           QT_TR_NOOP("Auto-capitalization enabled"),
-                                                           Maliit::BoolType,
-                                                           attributes));
+    d->settings.auto_caps.reset(host->registerPluginSetting("auto_caps_enabled",
+                                                            QT_TR_NOOP("Auto-capitalization enabled"),
+                                                            Maliit::BoolType,
+                                                            attributes));
 
-    connect(d->auto_caps_setting.data(), SIGNAL(valueChanged()),
-            this,                        SLOT(onAutoCapsSettingChanged()));
+    connect(d->settings.auto_caps.data(), SIGNAL(valueChanged()),
+            this,                         SLOT(onAutoCapsSettingChanged()));
 
-    d->editor.setAutoCapsEnabled(d->auto_caps_setting->value().toBool());
+    d->editor.setAutoCapsEnabled(d->settings.auto_caps->value().toBool());
 }
 
 
@@ -400,15 +406,19 @@ void InputMethod::registerWordEngineSetting(MAbstractInputMethodHost *host)
     QVariantMap attributes;
     attributes[Maliit::SettingEntryAttributes::defaultValue] = true;
 
-    d->word_engine_setting.reset(host->registerPluginSetting("word_engine_enabled",
-                                                             QT_TR_NOOP("Error correction/word prediction enabled"),
-                                                             Maliit::BoolType,
-                                                             attributes));
+    d->settings.word_engine.reset(host->registerPluginSetting("word_engine_enabled",
+                                                              QT_TR_NOOP("Error correction/word prediction enabled"),
+                                                              Maliit::BoolType,
+                                                              attributes));
 
-    connect(d->word_engine_setting.data(), SIGNAL(valueChanged()),
-            this,                          SLOT(onWordEngineSettingChanged()));
+    connect(d->settings.word_engine.data(), SIGNAL(valueChanged()),
+            this,                           SLOT(onWordEngineSettingChanged()));
 
-    d->editor.wordEngine()->setEnabled(d->word_engine_setting->value().toBool());
+#ifndef DISABLE_PREEDIT
+    d->editor.wordEngine()->setEnabled(d->settings.word_engine->value().toBool());
+#else
+    d->editor.wordEngine()->setEnabled(false);
+#endif
 }
 
 void InputMethod::registerHideWordRibbonInPortraitModeSetting(MAbstractInputMethodHost *host)
@@ -418,13 +428,13 @@ void InputMethod::registerHideWordRibbonInPortraitModeSetting(MAbstractInputMeth
     QVariantMap attributes;
     attributes[Maliit::SettingEntryAttributes::defaultValue] = false;
 
-    d->hide_word_ribbon_in_portrait_mode_setting.reset(
+    d->settings.hide_word_ribbon_in_portrait_mode.reset(
         host->registerPluginSetting("hide_word_ribbon_in_potrait_mode",
                                     QT_TR_NOOP("Disable word engine in portrait mode"),
                                     Maliit::BoolType,
                                     attributes));
 
-    connect(d->hide_word_ribbon_in_portrait_mode_setting.data(), SIGNAL(valueChanged()),
+    connect(d->settings.hide_word_ribbon_in_portrait_mode.data(), SIGNAL(valueChanged()),
             this, SLOT(onHideWordRibbonInPortraitModeSettingChanged()));
 }
 
@@ -464,7 +474,7 @@ void InputMethod::onScreenSizeChange(const QSize &size)
 void InputMethod::onStyleSettingChanged()
 {
     Q_D(InputMethod);
-    d->style->setProfile(d->style_setting->value().toString());
+    d->style->setProfile(d->settings.style->value().toString());
 }
 
 void InputMethod::onKeyboardClosed()
@@ -476,19 +486,19 @@ void InputMethod::onKeyboardClosed()
 void InputMethod::onFeedbackSettingChanged()
 {
     Q_D(InputMethod);
-    d->feedback.setEnabled(d->feedback_setting->value().toBool());
+    d->feedback.setEnabled(d->settings.feedback->value().toBool());
 }
 
 void InputMethod::onAutoCorrectSettingChanged()
 {
     Q_D(InputMethod);
-    d->editor.setAutoCorrectEnabled(d->auto_correct_setting->value().toBool());
+    d->editor.setAutoCorrectEnabled(d->settings.auto_correct->value().toBool());
 }
 
 void InputMethod::onAutoCapsSettingChanged()
 {
     Q_D(InputMethod);
-    d->editor.setAutoCapsEnabled(d->auto_caps_setting->value().toBool());
+    d->editor.setAutoCapsEnabled(d->settings.auto_caps->value().toBool());
 }
 
 void InputMethod::onWordEngineSettingChanged()
