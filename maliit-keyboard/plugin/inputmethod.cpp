@@ -118,8 +118,6 @@ class InputMethodPrivate
 {
 public:
     Maliit::Plugins::AbstractSurfaceFactory *surface_factory;
-    Renderer renderer;
-    Glass glass;
     Logic::LayoutUpdater layout_updater;
     Editor editor;
     DefaultFeedback feedback;
@@ -147,8 +145,6 @@ Quick::Quick()
 
 InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     : surface_factory(host->surfaceFactory())
-    , renderer()
-    , glass()
     , layout_updater()
     , editor(EditorOptions(), new Model::Text, new Logic::WordEngine, new Logic::LanguageFeatures)
     , feedback()
@@ -159,15 +155,10 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     , settings()
     , quick()
 {
-    renderer.setSurfaceFactory(surface_factory);
-    glass.setSurface(renderer.surface());
-    glass.setExtendedSurface(renderer.extendedSurface());
     editor.setHost(host);
 
-    glass.addLayout(&layout);
     layout_updater.setLayout(&layout);
 
-    renderer.setStyle(style);
     layout_updater.setStyle(style);
     feedback.setStyle(style);
 
@@ -225,20 +216,13 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
 {
     Q_D(InputMethod);
 
-    Setup::connectAll(&d->glass, &d->layout, &d->layout_updater,
-                      &d->renderer, &d->editor, &d->feedback);
+    // FIXME: Pretty much every other component connects to glass and renderer
+    // instances. So setting them to 0 breaks nearly everything.
+    Setup::connectAll(0, &d->layout, &d->layout_updater,
+                      0, &d->editor, &d->feedback);
 
-    connect(&d->glass, SIGNAL(keyboardClosed()),
-            this,      SLOT(onKeyboardClosed()));
-
-    connect(&d->glass, SIGNAL(switchLeft(Logic::Layout)),
-            this,      SLOT(onLeftLayoutSelected()));
-
-    connect(&d->glass, SIGNAL(switchRight(Logic::Layout)),
-            this,      SLOT(onRightLayoutSelected()));
-
-    connect(&d->editor, SIGNAL(leftLayoutSelected()),
-            this,       SLOT(onLeftLayoutSelected()));
+    // FIXME: Reimplement keyboardClosed, switchLeft and switchRight
+    // (triggered by glass).
 
     connect(&d->editor, SIGNAL(rightLayoutSelected()),
             this,       SLOT(onRightLayoutSelected()));
@@ -264,15 +248,11 @@ InputMethod::~InputMethod()
 {}
 
 void InputMethod::show()
-{
-    Q_D(InputMethod);
-    d->renderer.show();
-}
+{}
 
 void InputMethod::hide()
 {
     Q_D(InputMethod);
-    d->renderer.hide();
     d->layout_updater.resetOnKeyboardClosed();
     d->editor.clearPreedit();
 }
