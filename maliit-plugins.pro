@@ -80,7 +80,7 @@ coverage.target = coverage
 
 coverage.commands += $(MKDIR) $$COVERAGE_DIR &&
 coverage.commands += cd $$COVERAGE_DIR &&
-coverage.commands += $(QMAKE) -r PREFIX=\"$$PREFIX\" LIBDIR=\"$$LIBDIR\" MALIIT_DEFAULT_PROFILE=\"$$MALIIT_DEFAULT_PROFILE\" HUNSPELL_DICT_PATH=\"$$HUNSPELL_DICT_PATH\" $$COVERAGE_CONFIG_STRING LIBS+=\"$$LIBS\" INCLUDEPATH+=\"$$INCLUDEPATH\" LIBS+=-lgcov QMAKE_CXXFLAGS_DEBUG+=\"-fprofile-arcs -ftest-coverage\" QMAKE_LFLAGS_DEBUG+=\"-fprofile-arcs -ftest-coverage\" $$IN_PWD/maliit-plugins.pro.coverage &&
+coverage.commands += $(QMAKE) -r PREFIX=\"$$PREFIX\" LIBDIR=\"$$LIBDIR\" MALIIT_DEFAULT_PROFILE=\"$$MALIIT_DEFAULT_PROFILE\" HUNSPELL_DICT_PATH=\"$$HUNSPELL_DICT_PATH\" $$COVERAGE_CONFIG_STRING LIBS+=\"$$LIBS\" INCLUDEPATH+=\"$$INCLUDEPATH\" LIBS+=-lgcov QMAKE_CXXFLAGS_DEBUG+=\"-fprofile-arcs -ftest-coverage\" QMAKE_LFLAGS_DEBUG+=\"-fprofile-arcs -ftest-coverage\" $$PWD/maliit-plugins.pro.coverage &&
 coverage.commands += make $(MAKEFLAGS) coverage
 
 coverage.clean_commands = rm -rf $$COVERAGE_DIR

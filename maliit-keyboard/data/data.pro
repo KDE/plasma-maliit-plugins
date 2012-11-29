@@ -17,4 +17,4 @@ QMAKE_EXTRA_TARGETS += check
 check.target = check
 
 check.commands = \
-    xmllint --noout --dtdvalid \"$$IN_PWD/languages/VirtualKeyboardLayout.dtd\" \"$$IN_PWD/languages/\"*.xml
+    xmllint --noout --dtdvalid \"$$PWD/languages/VirtualKeyboardLayout.dtd\" \"$$PWD/languages/\"*.xml
