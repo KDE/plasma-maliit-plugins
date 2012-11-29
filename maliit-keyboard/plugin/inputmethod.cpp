@@ -37,6 +37,7 @@
 #include "models/key.h"
 #include "models/keyarea.h"
 #include "models/wordribbon.h"
+#include "models/keyareacontainer.h"
 
 #include "logic/layout.h"
 #include "logic/layoutupdater.h"
@@ -64,6 +65,7 @@ typedef MaliitKeyboard::NullFeedback DefaultFeedback;
 #include <QApplication>
 #include <QWidget>
 #include <QDesktopWidget>
+#include <QtQuick>
 
 class MImUpdateEvent;
 
@@ -100,6 +102,18 @@ public:
     ScopedSetting hide_word_ribbon_in_portrait_mode;
 };
 
+
+class Quick
+{
+public:
+    QScopedPointer<QQmlEngine> engine;
+    QScopedPointer<QQmlComponent> component;
+    QScopedPointer<Model::KeyAreaContainer> container;
+
+    explicit Quick();
+};
+
+
 class InputMethodPrivate
 {
 public:
@@ -114,6 +128,7 @@ public:
     UpdateNotifier notifier;
     QMap<QString, SharedOverride> key_overrides;
     Settings settings;
+    Quick quick;
 
     explicit InputMethodPrivate(MAbstractInputMethodHost *host);
     void setLayoutOrientation(Logic::Layout::Orientation orientation);
@@ -121,6 +136,13 @@ public:
 
     void connectToNotifier();
 };
+
+
+Quick::Quick()
+    : engine(new QQmlEngine)
+    , component(new QQmlComponent)
+    , container(new Model::KeyAreaContainer)
+{}
 
 
 InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
@@ -135,6 +157,7 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     , notifier()
     , key_overrides()
     , settings()
+    , quick()
 {
     renderer.setSurfaceFactory(surface_factory);
     glass.setSurface(renderer.surface());
@@ -153,6 +176,14 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     layout.setAlignment(Logic::Layout::Bottom);
 
     connectToNotifier();
+
+    // Set up QtQuick engine:
+    quick.engine->addImportPath(MALIIT_KEYBOARD_DATA_DIR);
+    // FIXME: Obviously, we need a non-zero context that carries all the
+    // properties we want to export to QML. Preferred way is to export the
+    // actual C++ objects (if they are QObjects) instead of extra wrapping.
+    quick.engine->rootContext()->setContextProperty("MaliitKeyboard", 0);
+    quick.engine->rootContext()->setContextProperty("MaliitKeyboardModel", quick.container.data());
 }
 
 

@@ -13,7 +13,7 @@ DEFINES += MALIIT_DEFAULT_PROFILE=\\\"$$MALIIT_DEFAULT_PROFILE\\\"
 contains(QT_MAJOR_VERSION, 4) {
     QT = core gui
 } else {
-    QT = core gui widgets
+    QT = core gui widgets quick qml
 }
 
 CONFIG += \
