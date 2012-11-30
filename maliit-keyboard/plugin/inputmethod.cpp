@@ -82,6 +82,8 @@ const Maliit::Plugins::AbstractSurface::Options g_surface_options(
     Maliit::Plugins::AbstractSurface::TypeQuick2 | Maliit::Plugins::AbstractSurface::PositionCenterBottom
 );
 
+const QString g_maliit_keyboard_qml(MALIIT_KEYBOARD_DATA_DIR "/maliit-keyboard.qml");
+
 Key overrideToKey(const SharedOverride &override)
 {
     Key key;
@@ -151,6 +153,8 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     layout_updater.setStyle(style);
     feedback.setStyle(style);
 
+    // FIXME: Remove this hack. Get main surface size from QWERTY KeyArea.
+    surface->setSize(QSize(854, 280));
     const QSize &screen_size(surface_factory->screenSize());
     layout.setScreenSize(screen_size);
     layout.setAlignment(Logic::Layout::Bottom);
@@ -166,7 +170,7 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     engine->rootContext()->setContextProperty("MaliitKeyboard", 0);
     engine->rootContext()->setContextProperty("MaliitKeyboardModel", key_area_container.data());
 
-    surface->view()->setSource(QUrl::fromLocalFile("/usr/share/maliit/plugins/org/maliit/maliit-keyboard.qml"));
+    surface->view()->setSource(QUrl::fromLocalFile(g_maliit_keyboard_qml));
 }
 
 
