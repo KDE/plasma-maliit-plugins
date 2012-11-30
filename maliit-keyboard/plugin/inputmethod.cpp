@@ -59,6 +59,7 @@ typedef MaliitKeyboard::NullFeedback DefaultFeedback;
 
 #include <maliit/plugins/subviewdescription.h>
 #include <maliit/plugins/abstractsurfacefactory.h>
+#include <maliit/plugins/quickviewsurface.h>
 #include <maliit/plugins/abstractpluginsetting.h>
 #include <maliit/plugins/updateevent.h>
 
@@ -76,6 +77,10 @@ typedef QSharedPointer<MKeyOverride> SharedOverride;
 typedef QMap<QString, SharedOverride>::const_iterator OverridesIterator;
 
 namespace {
+
+const Maliit::Plugins::AbstractSurface::Options g_surface_options(
+    Maliit::Plugins::AbstractSurface::TypeQuick2 | Maliit::Plugins::AbstractSurface::PositionCenterBottom
+);
 
 Key overrideToKey(const SharedOverride &override)
 {
@@ -103,21 +108,11 @@ public:
 };
 
 
-class Quick
-{
-public:
-    QScopedPointer<QQmlEngine> engine;
-    QScopedPointer<QQmlComponent> component;
-    QScopedPointer<Model::KeyAreaContainer> container;
-
-    explicit Quick();
-};
-
-
 class InputMethodPrivate
 {
 public:
-    Maliit::Plugins::AbstractSurfaceFactory *surface_factory;
+    Maliit::Plugins::AbstractSurfaceFactory *const surface_factory;
+    QSharedPointer<Maliit::Plugins::QuickViewSurface> surface;
     Logic::LayoutUpdater layout_updater;
     Editor editor;
     DefaultFeedback feedback;
@@ -126,7 +121,7 @@ public:
     UpdateNotifier notifier;
     QMap<QString, SharedOverride> key_overrides;
     Settings settings;
-    Quick quick;
+    QScopedPointer<Model::KeyAreaContainer> key_area_container;
 
     explicit InputMethodPrivate(MAbstractInputMethodHost *host);
     void setLayoutOrientation(Logic::Layout::Orientation orientation);
@@ -136,15 +131,9 @@ public:
 };
 
 
-Quick::Quick()
-    : engine(new QQmlEngine)
-    , component(new QQmlComponent)
-    , container(new Model::KeyAreaContainer)
-{}
-
-
 InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     : surface_factory(host->surfaceFactory())
+    , surface(qSharedPointerDynamicCast<Maliit::Plugins::QuickViewSurface>(surface_factory->create(g_surface_options)))
     , layout_updater()
     , editor(EditorOptions(), new Model::Text, new Logic::WordEngine, new Logic::LanguageFeatures)
     , feedback()
@@ -153,7 +142,7 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     , notifier()
     , key_overrides()
     , settings()
-    , quick()
+    , key_area_container(new Model::KeyAreaContainer)
 {
     editor.setHost(host);
 
@@ -169,12 +158,15 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     connectToNotifier();
 
     // Set up QtQuick engine:
-    quick.engine->addImportPath(MALIIT_KEYBOARD_DATA_DIR);
     // FIXME: Obviously, we need a non-zero context that carries all the
     // properties we want to export to QML. Preferred way is to export the
     // actual C++ objects (if they are QObjects) instead of extra wrapping.
-    quick.engine->rootContext()->setContextProperty("MaliitKeyboard", 0);
-    quick.engine->rootContext()->setContextProperty("MaliitKeyboardModel", quick.container.data());
+    QQmlEngine *const engine(surface->view()->engine());
+    engine->addImportPath(MALIIT_KEYBOARD_DATA_DIR);
+    engine->rootContext()->setContextProperty("MaliitKeyboard", 0);
+    engine->rootContext()->setContextProperty("MaliitKeyboardModel", key_area_container.data());
+
+    surface->view()->setSource(QUrl::fromLocalFile("/usr/share/maliit/plugins/org/maliit/maliit-keyboard.qml"));
 }
 
 
@@ -248,13 +240,17 @@ InputMethod::~InputMethod()
 {}
 
 void InputMethod::show()
-{}
+{
+    Q_D(InputMethod);
+    d->surface->show();
+}
 
 void InputMethod::hide()
 {
     Q_D(InputMethod);
     d->layout_updater.resetOnKeyboardClosed();
     d->editor.clearPreedit();
+    d->surface->hide();
 }
 
 void InputMethod::setPreedit(const QString &preedit,
