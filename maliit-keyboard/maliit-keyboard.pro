@@ -4,7 +4,6 @@ SUBDIRS = \
     lib \
     view \
     plugin \
-    viewer \
     data \
     qml \
     benchmark \

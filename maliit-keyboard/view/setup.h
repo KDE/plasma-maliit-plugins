@@ -48,9 +48,7 @@ class LayoutUpdater;
 namespace Setup {
 
 void connectAll(Glass *glass,
-                Logic::Layout *layout,
                 Logic::LayoutUpdater *updater,
-                Renderer *renderer,
                 AbstractTextEditor *editor,
                 AbstractFeedback *feedback);
 
@@ -60,9 +58,6 @@ void connectGlassToTextEditor(Glass *glass,
                               AbstractTextEditor *editor);
 void connectGlassToFeedback(Glass *glass,
                             AbstractFeedback *feedback);
-
-void connectLayoutToRenderer(Logic::Layout *layout,
-                             Renderer *renderer);
 
 void connectLayoutUpdaterToTextEditor(Logic::LayoutUpdater *updater,
                                       AbstractTextEditor *editor);

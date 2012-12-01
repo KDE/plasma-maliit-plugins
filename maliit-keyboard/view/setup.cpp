@@ -32,7 +32,6 @@
 
 #include "setup.h"
 #include "glass.h"
-#include "renderer.h"
 #include "abstracttexteditor.h"
 #include "abstractfeedback.h"
 
@@ -47,17 +46,13 @@ namespace MaliitKeyboard {
 namespace Setup {
 
 void connectAll(Glass *glass,
-                Logic::Layout *layout,
                 Logic::LayoutUpdater *updater,
-                Renderer *renderer,
                 AbstractTextEditor *editor,
                 AbstractFeedback *feedback)
 {
     connectGlassToLayoutUpdater(glass, updater);
     connectGlassToTextEditor(glass, editor);
     connectGlassToFeedback(glass, feedback);
-
-    connectLayoutToRenderer(layout, renderer);
     connectLayoutUpdaterToTextEditor(updater, editor);
 }
 
@@ -132,28 +127,6 @@ void connectGlassToFeedback (Glass *glass,
                      feedback, SLOT(onLayoutChanged()));
     QObject::connect(glass,    SIGNAL(keyboardClosed()),
                      feedback, SLOT(onKeyboardHidden()));
-}
-
-void connectLayoutToRenderer(Logic::Layout *layout,
-                             Renderer *renderer)
-{
-    QObject::connect(layout,   SIGNAL(magnifierKeyChanged(Key, Logic::KeyOverrides)),
-                     renderer, SLOT(onMagnifierKeyChanged(Key, Logic::KeyOverrides)));
-
-    QObject::connect(layout,   SIGNAL(activeKeysChanged(QVector<Key>, Logic::KeyOverrides)),
-                     renderer, SLOT(onActiveKeysChanged(QVector<Key>, Logic::KeyOverrides)));
-
-    QObject::connect(layout,   SIGNAL(activeExtendedKeysChanged(QVector<Key>, Logic::KeyOverrides)),
-                     renderer, SLOT(onActiveExtendedKeysChanged(QVector<Key>, Logic::KeyOverrides)));
-
-    QObject::connect(layout,   SIGNAL(centerPanelChanged(KeyArea, Logic::KeyOverrides)),
-                     renderer, SLOT(onCenterPanelChanged(KeyArea, Logic::KeyOverrides)));
-
-    QObject::connect(layout,   SIGNAL(extendedPanelChanged(KeyArea, Logic::KeyOverrides)),
-                     renderer, SLOT(onExtendedPanelChanged(KeyArea, Logic::KeyOverrides)));
-
-    QObject::connect(layout,   SIGNAL(wordRibbonChanged(WordRibbon)),
-                     renderer, SLOT(onWordRibbonChanged(WordRibbon)));
 }
 
 void connectLayoutUpdaterToTextEditor(Logic::LayoutUpdater *updater,

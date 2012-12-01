@@ -5,7 +5,6 @@ SUBDIRS = \
     language-layout-switching \
     preedit-string \
     repeat-backspace \
-    rendering \
     word-candidates \
     language-layout-loading \
 

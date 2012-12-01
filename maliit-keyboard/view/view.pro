@@ -18,27 +18,17 @@ contains(QT_MAJOR_VERSION, 4) {
 }
 
 HEADERS += \
-    utils.h \
     setup.h \
     abstracttexteditor.h \
     glass.h \
-    renderer.h \
-    keyareaitem.h \
-    keyitem.h \
-    wordribbonitem.h \
     abstractfeedback.h \
     nullfeedback.h \
     surface.h \
 
 SOURCES += \
-    utils.cpp \
     setup.cpp \
     abstracttexteditor.cpp \
     glass.cpp \
-    renderer.cpp \
-    keyareaitem.cpp \
-    keyitem.cpp \
-    wordribbonitem.cpp \
     abstractfeedback.cpp \
     nullfeedback.cpp \
     surface.cpp \
