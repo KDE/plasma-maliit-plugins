@@ -137,8 +137,8 @@ QStringList Style::availableProfiles() const
 //! \brief Query the profile-dependent directory path for images, sounds, etc.
 //! @param directory The directory enum value for which we want to know the
 //!                  directory path.
-//! @returns The directory path. Will be empty if for example profile is empty.
-QString Style::directoryPath(Directory directory) const
+//! @returns The directory. Will be empty if for instance profile is empty.
+QString Style::directory(Directory directory) const
 {
     Q_D(const Style);
 

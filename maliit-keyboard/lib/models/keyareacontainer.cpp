@@ -35,12 +35,25 @@
 
 namespace MaliitKeyboard {
 namespace Model {
+namespace {
+QUrl toUrl(const QString &directory,
+            const QString &base_name)
+{
+    if (not (directory.isEmpty() || base_name.isEmpty())) {
+        return QUrl(directory + "/" + base_name);
+    }
+
+    return QUrl();
+
+}
+}
 
 
 class KeyAreaContainerPrivate
 {
 public:
     KeyArea key_area;
+    QString image_directory;
 
     explicit KeyAreaContainerPrivate();
 };
@@ -48,6 +61,7 @@ public:
 
 KeyAreaContainerPrivate::KeyAreaContainerPrivate()
     : key_area()
+    , image_directory()
 {}
 
 
@@ -58,8 +72,10 @@ KeyAreaContainer::KeyAreaContainer(QObject *parent)
     // Model roles are used as variables in QML, hence the under_score naming
     // convention:
     QHash<int, QByteArray> roles;
-    roles[RoleKeyRect] = "key_rect";
+    roles[RoleKeyRectangle] = "key_rectangle";
+    roles[RoleKeyReactiveArea] = "key_reactive_area";
     roles[RoleKeyBackground] = "key_background";
+    roles[RoleKeyBackgroundBorders] = "key_background_borders";
     roles[RoleKeyText] = "key_text";
     setRoleNames(roles);
 }
@@ -75,12 +91,17 @@ void KeyAreaContainer::setKeyArea(const KeyArea &area)
 
     Q_D(KeyAreaContainer);
     const bool geometry_changed(d->key_area.rect() != area.rect());
+    const bool background_changed(d->key_area.area().background() != area.area().background());
 
     d->key_area = area;
 
     if (geometry_changed) {
         Q_EMIT widthChanged(width());
         Q_EMIT heightChanged(height());
+    }
+
+    if (background_changed) {
+        Q_EMIT backgroundChanged(background());
     }
 
     endResetModel();
@@ -108,6 +129,27 @@ int KeyAreaContainer::height() const
 }
 
 
+QUrl KeyAreaContainer::background() const
+{
+    Q_D(const KeyAreaContainer);
+    return toUrl(d->image_directory, d->key_area.area().background());
+}
+
+
+void KeyAreaContainer::setImageDirectory(const QString &directory)
+{
+    Q_D(KeyAreaContainer);
+
+    if (d->image_directory != directory) {
+        d->image_directory = directory;
+        // TODO: Make sure we don't accidentially invalidate the whole model twice
+        beginResetModel();
+        backgroundChanged(background());
+        endResetModel();
+    }
+}
+
+
 int KeyAreaContainer::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent)
@@ -127,11 +169,28 @@ QVariant KeyAreaContainer::data(const QModelIndex &index,
                    : Key());
 
     switch(role) {
-    case RoleKeyRect:
+    case RoleKeyReactiveArea:
         return QVariant(key.rect());
 
+    case RoleKeyRectangle: {
+        const QRect &r(key.rect());
+        const QMargins &m(key.margins());
+
+        return QVariant(QRectF(m.left(), m.top(),
+                               r.width() - (m.left() + m.right()),
+                               r.height() - (m.top() + m.bottom())));
+    }
+
     case RoleKeyBackground:
-        return QVariant(key.area().background());
+        return QVariant(toUrl(d->image_directory, key.area().background()));
+
+    case RoleKeyBackgroundBorders: {
+        // Neither QML nor QVariant support QMargins type.
+        // We need to transform QMargins into a QRectF so that we can abuse
+        // left, top, right, bottom (of the QRectF) *as if* it was a QMargins.
+        const QMargins &m(key.area().backgroundBorders());
+        return QVariant(QRectF(m.left(), m.top(), m.right(), m.bottom()));
+    }
 
     case RoleKeyText:
         return QVariant(key.label().text());

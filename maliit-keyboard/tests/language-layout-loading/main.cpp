@@ -561,9 +561,9 @@ private:
         QCOMPARE(style.profile(), QString());
         QCOMPARE(style.attributes()->fontSize(orientation), 0.0);
         QCOMPARE(style.extendedKeysAttributes()->fontSize(orientation), 0.0);
-        QCOMPARE(style.directoryPath(Style::Images), QString());
-        QCOMPARE(style.directoryPath(Style::Fonts), QString());
-        QCOMPARE(style.directoryPath(Style::Sounds), QString());
+        QCOMPARE(style.directory(Style::Images), QString());
+        QCOMPARE(style.directory(Style::Fonts), QString());
+        QCOMPARE(style.directory(Style::Sounds), QString());
 
         QSignalSpy profile_changed_spy(&style, SIGNAL(profileChanged()));
         style.setProfile("test-profile");
@@ -574,9 +574,9 @@ private:
 
         const QString test_profile_dir(QString::fromLatin1(TEST_MALIIT_KEYBOARD_DATADIR)
                                        + "/styles/test-profile");
-        QCOMPARE(style.directoryPath(Style::Images), test_profile_dir + "/images");
-        QCOMPARE(style.directoryPath(Style::Fonts), test_profile_dir + "/fonts");
-        QCOMPARE(style.directoryPath(Style::Sounds), test_profile_dir + "/sounds");
+        QCOMPARE(style.directory(Style::Images), test_profile_dir + "/images");
+        QCOMPARE(style.directory(Style::Fonts), test_profile_dir + "/fonts");
+        QCOMPARE(style.directory(Style::Sounds), test_profile_dir + "/sounds");
     }
 
     Q_SLOT void testKeyGeometryStyling_data()

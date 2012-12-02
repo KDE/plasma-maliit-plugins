@@ -62,10 +62,18 @@ MaliitContext::~MaliitContext()
 {}
 
 
-QString MaliitContext::imageDirectoryPath() const
+//! \brief Converts image name to a fully qualified file name.
+//!
+//! Takes the currently chosen styling profile into account.
+//! \param base_name Base name of the image.
+QString MaliitContext::image(const QString &base_name) const
 {
-    Q_D(const MaliitContext);
-    return d->style->directoryPath(Style::Images);
+    if (not base_name.isEmpty()) {
+        Q_D(const MaliitContext);
+        return d->style->directory(Style::Images) + "/" + base_name;
+    }
+
+    return QString();
 }
 
 }} // namespace Logic, MaliitKeyboard

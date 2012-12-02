@@ -32,28 +32,43 @@
 import QtQuick 2.0
 
 Item {
-    width: key_area.width
-    height: key_area.height
+    width: maliit_layout.width
+    height: maliit_layout.height
+
+    BorderImage {
+        anchors.fill: parent
+        source: maliit_layout.background
+    }
 
     Repeater {
         id: main
-        model: key_area
+        model: maliit_layout
         anchors.fill: parent
 
-        Rectangle {
-            x: key_rect.x
-            y: key_rect.y
-            width: key_rect.width
-            height: key_rect.height
+        Item {
+            x: key_reactive_area.x
+            y: key_reactive_area.y
+            width: key_reactive_area.width
+            height: key_reactive_area.height
 
-            border.color: "green"
-            border.width: 1
+            BorderImage {
+                x: key_rectangle.x
+                y: key_rectangle.y
+                width: key_rectangle.width
+                height: key_rectangle.height
 
-            Image {
-                source: maliit.imageDirectoryPath() + "/" + key_background
+                border.left: key_background_borders.x
+                border.top: key_background_borders.y
+                border.right: key_background_borders.width
+                border.bottom: key_background_borders.height
+
+                source: key_background
 
                 Text {
+                    anchors.fill: parent
                     text: key_text
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
                 }
 
             }

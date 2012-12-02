@@ -55,11 +55,15 @@ class KeyAreaContainer
                          NOTIFY widthChanged)
     Q_PROPERTY(int height READ height
                           NOTIFY heightChanged)
+    Q_PROPERTY(QUrl background READ background
+                               NOTIFY backgroundChanged)
 
 public:
     enum Roles {
-        RoleKeyRect = Qt::UserRole + 1,
+        RoleKeyRectangle = Qt::UserRole + 1,
+        RoleKeyReactiveArea,
         RoleKeyBackground,
+        RoleKeyBackgroundBorders,
         RoleKeyText,
     };
 
@@ -75,6 +79,10 @@ public:
     Q_SLOT int height() const;
     Q_SIGNAL void heightChanged(int changed);
 
+    Q_SLOT QUrl background() const;
+    Q_SIGNAL void backgroundChanged(const QUrl &changed);
+
+    Q_SLOT void setImageDirectory(const QString &directory);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index,

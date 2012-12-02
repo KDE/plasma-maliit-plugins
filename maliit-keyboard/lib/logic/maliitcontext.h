@@ -52,7 +52,7 @@ public:
                            QObject *parent = 0);
     virtual ~MaliitContext();
 
-    Q_SLOT QString imageDirectoryPath() const;
+    Q_INVOKABLE QString image(const QString &base_name) const;
 
 private:
     const QScopedPointer<MaliitContextPrivate> d_ptr;

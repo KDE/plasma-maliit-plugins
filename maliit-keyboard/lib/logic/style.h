@@ -66,7 +66,7 @@ public:
     QString profile() const;
     QStringList availableProfiles() const;
 
-    virtual QString directoryPath(Directory directory) const;
+    virtual QString directory(Directory directory) const;
 
     StyleAttributes * attributes() const;
     StyleAttributes * extendedKeysAttributes() const;

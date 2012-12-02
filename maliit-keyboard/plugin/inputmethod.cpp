@@ -164,7 +164,7 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     QQmlEngine *const engine(surface->view()->engine());
     engine->addImportPath(MALIIT_KEYBOARD_DATA_DIR);
     engine->rootContext()->setContextProperty("maliit", context.data());
-    engine->rootContext()->setContextProperty("key_area", key_area_container.data());
+    engine->rootContext()->setContextProperty("maliit_layout", key_area_container.data());
 
     surface->view()->setSource(QUrl::fromLocalFile(g_maliit_keyboard_qml));
 }
@@ -349,7 +349,8 @@ void InputMethod::registerStyleSetting(MAbstractInputMethodHost *host)
     connect(d->settings.style.data(), SIGNAL(valueChanged()),
             this,                     SLOT(onStyleSettingChanged()));
 
-    d->style->setProfile(d->settings.style->value().toString());
+    // Call manually for the first time to initialize dependent values:
+    onStyleSettingChanged();
 }
 
 
@@ -486,6 +487,7 @@ void InputMethod::onStyleSettingChanged()
 {
     Q_D(InputMethod);
     d->style->setProfile(d->settings.style->value().toString());
+    d->key_area_container->setImageDirectory(d->style->directory(Style::Images));
 }
 
 void InputMethod::onKeyboardClosed()
