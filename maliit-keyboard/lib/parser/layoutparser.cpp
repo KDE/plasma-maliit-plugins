@@ -91,7 +91,13 @@ void LayoutParser::goToRootElement()
 void LayoutParser::error(const QString &message)
 {
     if (not m_xml.hasError()) {
-        m_xml.raiseError(message);
+        const QString full_message (QString::number(m_xml.lineNumber()) +
+                                    ":" +
+                                    QString::number(m_xml.columnNumber()) +
+                                    " - " +
+                                    message);
+
+        m_xml.raiseError(full_message);
     }
 }
 
