@@ -25,7 +25,7 @@ SOURCES += \
     logic/abstractwordengine.cpp \
     logic/wordengine.cpp \
     logic/abstractlanguagefeatures.cpp \
-    logic/languagefeatures.cpp\
+    logic/languagefeatures.cpp \
     logic/maliitcontext.cpp \
 
 DEFINES += HUNSPELL_DICT_PATH=\\\"$$HUNSPELL_DICT_PATH\\\"

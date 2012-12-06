@@ -5,7 +5,7 @@ HEADERS += \
     parser/layoutparser.h \
     parser/tagbindingcontainer.h \
     parser/tagbinding.h \
-    parser/tagbinding.h \
+    parser/tagextended.h \
     parser/tagkeyboard.h \
     parser/tagkey.h \
     parser/taglayout.h \
