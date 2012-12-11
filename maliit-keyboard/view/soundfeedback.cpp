@@ -156,7 +156,7 @@ void SoundFeedback::setStyle(const SharedStyle &style)
 void SoundFeedback::applyProfile()
 {
     Q_D(SoundFeedback);
-    const QString path(d->style->directoryPath(Style::Sounds));
+    const QString path(d->style->directory(Style::Sounds));
     const StyleAttributes *attributes(d->style->attributes());
 
     d->setupEffect(KeyPressEffect, path, attributes->keyPressSound());
