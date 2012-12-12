@@ -34,6 +34,9 @@
 
 #include <QtCore>
 
+#include "models/key.h"
+#include "logic/layout.h"
+
 namespace MaliitKeyboard {
 
 class KeyArea;
@@ -90,6 +93,23 @@ public:
     Q_INVOKABLE QVariant data(int index,
                               const QString &role) const;
 
+    Q_INVOKABLE void onEntered(int index);
+    Q_INVOKABLE void onExited(int index);
+    Q_INVOKABLE void onPressed(int index);
+    Q_INVOKABLE void onReleased(int index);
+    Q_INVOKABLE void onPressAndHold(int index);
+
+    // Key signals:
+    Q_SIGNAL void keyPressed(const Key &key,
+                             Logic::Layout *layout);
+    Q_SIGNAL void keyLongPressed(const Key &key,
+                                 Logic::Layout *layout);
+    Q_SIGNAL void keyReleased(const Key &key,
+                              Logic::Layout *layout);
+    Q_SIGNAL void keyEntered(const Key &key,
+                             Logic::Layout *layout);
+    Q_SIGNAL void keyExited(const Key &key,
+                            Logic::Layout *layout);
 
 private:
     const QScopedPointer<KeyAreaContainerPrivate> d_ptr;

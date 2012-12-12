@@ -199,7 +199,7 @@ struct SetupTest : public BasicSetupTest
         glass.addLayout(&layout);
         layout.setOrientation(orientation);
 
-        Setup::connectGlassToTextEditor(&glass, &editor);
+//        Setup::connectGlassToTextEditor(&glass, &editor);
 
         layout.setExtendedPanel(key_area);
         layout.setActivePanel(Logic::Layout::ExtendedPanel);

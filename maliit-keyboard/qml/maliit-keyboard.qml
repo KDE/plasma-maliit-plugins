@@ -75,7 +75,13 @@ Item {
 
             MouseArea {
                 anchors.fill: parent
-                onClicked: console.log("Clicked key#" + index)
+                hoverEnabled: true
+
+                onEntered: { maliit_layout.onEntered(index) }
+                onExited: { maliit_layout.onExited(index) }
+                onPressed: { maliit_layout.onPressed(index) }
+                onReleased: { maliit_layout.onReleased(index) }
+                onPressAndHold: { maliit_layout.onPressAndHold(index) }
             }
         }
     }

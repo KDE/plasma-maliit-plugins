@@ -45,17 +45,21 @@ class Layout;
 class LayoutUpdater;
 }
 
+namespace Model {
+class KeyAreaContainer;
+}
+
 namespace Setup {
 
-void connectAll(Glass *glass,
+void connectAll(Model::KeyAreaContainer *container,
                 Logic::LayoutUpdater *updater,
                 AbstractTextEditor *editor,
                 AbstractFeedback *feedback);
 
-void connectGlassToLayoutUpdater(Glass *glass,
-                                 Logic::LayoutUpdater *updater);
-void connectGlassToTextEditor(Glass *glass,
-                              AbstractTextEditor *editor);
+void connectContainerToLayoutUpdater(Model::KeyAreaContainer *container,
+                                     Logic::LayoutUpdater *updater);
+void connectContainerToTextEditor(Model::KeyAreaContainer *container,
+                                  AbstractTextEditor *editor);
 void connectGlassToFeedback(Glass *glass,
                             AbstractFeedback *feedback);
 

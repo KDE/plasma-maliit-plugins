@@ -210,7 +210,7 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
 
     // FIXME: Pretty much every other component connects to the glass instance.
     // Setting it to 0 therefore breaks nearly everything.
-    Setup::connectAll(0, &d->layout_updater, &d->editor, &d->feedback);
+    Setup::connectAll(d->key_area_container.data(), &d->layout_updater, &d->editor, &d->feedback);
     QObject::connect(&d->layout, SIGNAL(centerPanelChanged(KeyArea,Logic::KeyOverrides)),
                      d->key_area_container.data(), SLOT(setKeyArea(KeyArea)));
 

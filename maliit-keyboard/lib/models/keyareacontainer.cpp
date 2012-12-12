@@ -210,5 +210,65 @@ QVariant KeyAreaContainer::data(int index, const QString &role) const
     return data(idx, roleNames().key(role.toLatin1()));
 }
 
+void KeyAreaContainer::onEntered(int index)
+{
+    Q_D(KeyAreaContainer);
+
+    const QVector<Key> &keys(d->key_area.keys());
+    const Key &key(index < keys.count()
+                   ? keys.at(index)
+                   : Key());
+
+    Q_EMIT keyEntered(key, 0);
+}
+
+void KeyAreaContainer::onExited(int index)
+{
+    Q_D(KeyAreaContainer);
+
+    const QVector<Key> &keys(d->key_area.keys());
+    const Key &key(index < keys.count()
+                   ? keys.at(index)
+                   : Key());
+
+    Q_EMIT keyExited(key, 0);
+}
+
+void KeyAreaContainer::onPressed(int index)
+{
+    Q_D(KeyAreaContainer);
+
+    const QVector<Key> &keys(d->key_area.keys());
+    const Key &key(index < keys.count()
+                   ? keys.at(index)
+                   : Key());
+
+    Q_EMIT keyPressed(key, 0);
+}
+
+void KeyAreaContainer::onReleased(int index)
+{
+    Q_D(KeyAreaContainer);
+
+    const QVector<Key> &keys(d->key_area.keys());
+    const Key &key(index < keys.count()
+                   ? keys.at(index)
+                   : Key());
+
+    Q_EMIT keyReleased(key, 0);
+}
+
+void KeyAreaContainer::onPressAndHold(int index)
+{
+    Q_D(KeyAreaContainer);
+
+    const QVector<Key> &keys(d->key_area.keys());
+    const Key &key(index < keys.count()
+                   ? keys.at(index)
+                   : Key());
+
+    Q_EMIT keyLongPressed(key, 0);
+}
+
 
 }} // namespace Model, MaliitKeyboard
