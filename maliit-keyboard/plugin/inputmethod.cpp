@@ -159,6 +159,8 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     layout.setScreenSize(screen_size);
     layout.setAlignment(Logic::Layout::Bottom);
 
+    key_area_container->setLayout(&layout);
+
     connectToNotifier();
 
     QQmlEngine *const engine(surface->view()->engine());

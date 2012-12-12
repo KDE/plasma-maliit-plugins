@@ -53,6 +53,7 @@ class KeyAreaContainerPrivate
 {
 public:
     KeyArea key_area;
+    Logic::Layout *layout;
     QString image_directory;
 
     explicit KeyAreaContainerPrivate();
@@ -61,6 +62,7 @@ public:
 
 KeyAreaContainerPrivate::KeyAreaContainerPrivate()
     : key_area()
+    , layout()
     , image_directory()
 {}
 
@@ -114,6 +116,19 @@ KeyArea KeyAreaContainer::keyArea() const
     return d->key_area;
 }
 
+void KeyAreaContainer::setLayout(Logic::Layout *layout)
+{
+    Q_D(KeyAreaContainer);
+
+    d->layout = layout;
+}
+
+Logic::Layout *KeyAreaContainer::layout() const
+{
+    Q_D(const KeyAreaContainer);
+
+    return d->layout;
+}
 
 int KeyAreaContainer::width() const
 {
@@ -219,7 +234,7 @@ void KeyAreaContainer::onEntered(int index)
                    ? keys.at(index)
                    : Key());
 
-    Q_EMIT keyEntered(key, 0);
+    Q_EMIT keyEntered(key, d->layout);
 }
 
 void KeyAreaContainer::onExited(int index)
@@ -231,7 +246,7 @@ void KeyAreaContainer::onExited(int index)
                    ? keys.at(index)
                    : Key());
 
-    Q_EMIT keyExited(key, 0);
+    Q_EMIT keyExited(key, d->layout);
 }
 
 void KeyAreaContainer::onPressed(int index)
@@ -243,7 +258,7 @@ void KeyAreaContainer::onPressed(int index)
                    ? keys.at(index)
                    : Key());
 
-    Q_EMIT keyPressed(key, 0);
+    Q_EMIT keyPressed(key, d->layout);
 }
 
 void KeyAreaContainer::onReleased(int index)
@@ -255,7 +270,7 @@ void KeyAreaContainer::onReleased(int index)
                    ? keys.at(index)
                    : Key());
 
-    Q_EMIT keyReleased(key, 0);
+    Q_EMIT keyReleased(key, d->layout);
 }
 
 void KeyAreaContainer::onPressAndHold(int index)
@@ -267,7 +282,7 @@ void KeyAreaContainer::onPressAndHold(int index)
                    ? keys.at(index)
                    : Key());
 
-    Q_EMIT keyLongPressed(key, 0);
+    Q_EMIT keyLongPressed(key, d->layout);
 }
 
 

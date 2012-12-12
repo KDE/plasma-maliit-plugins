@@ -76,6 +76,9 @@ public:
     Q_SLOT void setKeyArea(const KeyArea &area);
     KeyArea keyArea() const;
 
+    void setLayout(Logic::Layout *layout);
+    Logic::Layout *layout() const;
+
     Q_SLOT int width() const;
     Q_SIGNAL void widthChanged(int changed);
 
