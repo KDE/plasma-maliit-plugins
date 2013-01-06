@@ -374,20 +374,19 @@ void LayoutUpdater::setWordRibbonVisible(bool visible)
     }
 }
 
-void LayoutUpdater::onKeyPressed(const Key &key,
-                                 Layout *layout)
+void LayoutUpdater::onKeyPressed(const Key &key)
 {
     Q_D(LayoutUpdater);
 
-    if (d->layout != layout) {
+    if (not d->layout) {
         return;
     }
 
-    layout->appendActiveKey(makeActive(key, d->activeStyleAttributes()));
+    d->layout->appendActiveKey(makeActive(key, d->activeStyleAttributes()));
 
     if (d->layout->activePanel() == Layout::CenterPanel) {
-        layout->setMagnifierKey(magnifyKey(key, d->activeStyleAttributes(), d->layout->orientation(),
-                                           d->layout->centerPanel().rect()));
+        d->layout->setMagnifierKey(magnifyKey(key, d->activeStyleAttributes(), d->layout->orientation(),
+                                              d->layout->centerPanel().rect()));
     }
 
     switch (key.action()) {
@@ -403,17 +402,14 @@ void LayoutUpdater::onKeyPressed(const Key &key,
     default:
         break;
     }
-
-    Q_EMIT keysChanged(layout);
 }
 
-void LayoutUpdater::onKeyLongPressed(const Key &key,
-                                     Layout *layout)
+void LayoutUpdater::onKeyLongPressed(const Key &key)
 {
     Q_UNUSED(key);
     Q_D(LayoutUpdater);
 
-    if (d->layout != layout || not d->layout || d->style.isNull()) {
+    if (not d->layout || d->style.isNull()) {
         return;
     }
 
@@ -450,17 +446,16 @@ void LayoutUpdater::onKeyLongPressed(const Key &key,
     d->layout->setActivePanel(Layout::ExtendedPanel);
 }
 
-void LayoutUpdater::onKeyReleased(const Key &key,
-                                  Layout *layout)
+void LayoutUpdater::onKeyReleased(const Key &key)
 {
     Q_D(const LayoutUpdater);
 
-    if (d->layout != layout) {
+    if (not d->layout) {
         return;
     }
 
-    layout->removeActiveKey(key);
-    layout->clearMagnifierKey();
+    d->layout->removeActiveKey(key);
+    d->layout->clearMagnifierKey();
 
     if (d->layout->activePanel() == Layout::ExtendedPanel) {
         d->layout->clearActiveKeys();
@@ -499,15 +494,13 @@ void LayoutUpdater::onKeyReleased(const Key &key,
     default:
         break;
     }
-
-    Q_EMIT keysChanged(layout);
 }
 
-void LayoutUpdater::onKeyAreaPressed(Layout::Panel panel, Layout *layout)
+void LayoutUpdater::onKeyAreaPressed(Layout::Panel panel)
 {
     Q_D(LayoutUpdater);
 
-    if (d->layout != layout) {
+    if (not d->layout) {
         return;
     }
 
@@ -516,11 +509,11 @@ void LayoutUpdater::onKeyAreaPressed(Layout::Panel panel, Layout *layout)
     }
 }
 
-void LayoutUpdater::onKeyAreaReleased(Layout::Panel panel, Layout *layout)
+void LayoutUpdater::onKeyAreaReleased(Layout::Panel panel)
 {
     Q_D(LayoutUpdater);
 
-    if (d->layout != layout) {
+    if (not d->layout) {
         return;
     }
 
@@ -532,34 +525,32 @@ void LayoutUpdater::onKeyAreaReleased(Layout::Panel panel, Layout *layout)
     d->close_extended_on_release = Layout::NumPanels;
 }
 
-void LayoutUpdater::onKeyEntered(const Key &key,
-                                 Layout *layout)
+void LayoutUpdater::onKeyEntered(const Key &key)
 {
     Q_D(const LayoutUpdater);
 
-    if (d->layout != layout) {
+    if (not d->layout) {
         return;
     }
 
-    layout->appendActiveKey(makeActive(key, d->activeStyleAttributes()));
+    d->layout->appendActiveKey(makeActive(key, d->activeStyleAttributes()));
 
     if (d->layout->activePanel() == Layout::CenterPanel) {
-        layout->setMagnifierKey(magnifyKey(key, d->activeStyleAttributes(), d->layout->orientation(),
-                                           d->layout->centerPanel().rect()));
+        d->layout->setMagnifierKey(magnifyKey(key, d->activeStyleAttributes(), d->layout->orientation(),
+                                              d->layout->centerPanel().rect()));
     }
 }
 
-void LayoutUpdater::onKeyExited(const Key &key, Layout *layout)
+void LayoutUpdater::onKeyExited(const Key &key)
 {
     Q_D(const LayoutUpdater);
 
-    if (d->layout != layout) {
+    if (not d->layout) {
         return;
     }
 
-    layout->removeActiveKey(key);
-    layout->clearMagnifierKey(); // FIXME: This is in a race with onKeyEntered.
-    Q_EMIT keysChanged(layout);
+    d->layout->removeActiveKey(key);
+    d->layout->clearMagnifierKey(); // FIXME: This is in a race with onKeyEntered.
 }
 
 void LayoutUpdater::clearActiveKeysAndMagnifier()
@@ -616,23 +607,21 @@ void LayoutUpdater::onWordCandidatesChanged(const WordCandidateList &candidates)
     d->layout->setWordRibbon(ribbon);
 }
 
-void LayoutUpdater::onWordCandidatePressed(const WordCandidate &candidate,
-                                           Layout *layout)
+void LayoutUpdater::onWordCandidatePressed(const WordCandidate &candidate)
 {
     Q_D(LayoutUpdater);
 
-    if (layout == d->layout
+    if (d->layout
         && isWordRibbonVisible()
         && updateWordRibbon(d->layout, candidate, d->activeStyleAttributes(), ActivateElement)) {
     }
 }
 
-void LayoutUpdater::onWordCandidateReleased(const WordCandidate &candidate,
-                                            Layout *layout)
+void LayoutUpdater::onWordCandidateReleased(const WordCandidate &candidate)
 {
     Q_D(LayoutUpdater);
 
-    if (layout == d->layout
+    if (d->layout
         && isWordRibbonVisible()
         && updateWordRibbon(d->layout, candidate, d->activeStyleAttributes(), DeactivateElement)) {
         if (candidate.source() == WordCandidate::SourcePrediction

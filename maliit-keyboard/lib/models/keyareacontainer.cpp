@@ -55,6 +55,7 @@ public:
     KeyArea key_area;
     Logic::Layout *layout;
     QString image_directory;
+    QHash<int, QByteArray> roles;
 
     explicit KeyAreaContainerPrivate();
 };
@@ -64,23 +65,22 @@ KeyAreaContainerPrivate::KeyAreaContainerPrivate()
     : key_area()
     , layout()
     , image_directory()
-{}
+    , roles()
+{
+    // Model roles are used as variables in QML, hence the under_score naming
+    // convention:
+    roles[KeyAreaContainer::RoleKeyRectangle] = "key_rectangle";
+    roles[KeyAreaContainer::RoleKeyReactiveArea] = "key_reactive_area";
+    roles[KeyAreaContainer::RoleKeyBackground] = "key_background";
+    roles[KeyAreaContainer::RoleKeyBackgroundBorders] = "key_background_borders";
+    roles[KeyAreaContainer::RoleKeyText] = "key_text";
+}
 
 
 KeyAreaContainer::KeyAreaContainer(QObject *parent)
     : QAbstractListModel(parent)
     , d_ptr(new KeyAreaContainerPrivate)
-{
-    // Model roles are used as variables in QML, hence the under_score naming
-    // convention:
-    QHash<int, QByteArray> roles;
-    roles[RoleKeyRectangle] = "key_rectangle";
-    roles[RoleKeyReactiveArea] = "key_reactive_area";
-    roles[RoleKeyBackground] = "key_background";
-    roles[RoleKeyBackgroundBorders] = "key_background_borders";
-    roles[RoleKeyText] = "key_text";
-    setRoleNames(roles);
-}
+{}
 
 
 KeyAreaContainer::~KeyAreaContainer()
@@ -116,6 +116,7 @@ KeyArea KeyAreaContainer::keyArea() const
     return d->key_area;
 }
 
+
 void KeyAreaContainer::setLayout(Logic::Layout *layout)
 {
     Q_D(KeyAreaContainer);
@@ -123,12 +124,14 @@ void KeyAreaContainer::setLayout(Logic::Layout *layout)
     d->layout = layout;
 }
 
+
 Logic::Layout *KeyAreaContainer::layout() const
 {
     Q_D(const KeyAreaContainer);
 
     return d->layout;
 }
+
 
 int KeyAreaContainer::width() const
 {
@@ -161,6 +164,30 @@ void KeyAreaContainer::setImageDirectory(const QString &directory)
         beginResetModel();
         backgroundChanged(background());
         endResetModel();
+    }
+}
+
+
+void KeyAreaContainer::onKeyPressed(int index)
+{
+    Q_D(KeyAreaContainer);
+
+    if (index < d->key_area.keys().count()) {
+        Q_EMIT dataChanged(this->index(index, 0),
+                           this->index(index, 0));
+        Q_EMIT keyPressed(d->key_area.keys().at(index));
+    }
+}
+
+
+void KeyAreaContainer::onKeyReleased(int index)
+{
+    Q_D(KeyAreaContainer);
+
+    if (index < d->key_area.keys().count()) {
+        Q_EMIT dataChanged(this->index(index, 0),
+                           this->index(index, 0));
+        Q_EMIT keyReleased(d->key_area.keys().at(index));
     }
 }
 
@@ -218,12 +245,20 @@ QVariant KeyAreaContainer::data(const QModelIndex &index,
 }
 
 
+QHash<int, QByteArray> KeyAreaContainer::roleNames() const
+{
+    Q_D(const KeyAreaContainer);
+    return d->roles;
+}
+
+
 QVariant KeyAreaContainer::data(int index, const QString &role) const
 {
 
     const QModelIndex idx(this->index(index, 0));
     return data(idx, roleNames().key(role.toLatin1()));
 }
+
 
 void KeyAreaContainer::onEntered(int index)
 {
@@ -234,8 +269,9 @@ void KeyAreaContainer::onEntered(int index)
                    ? keys.at(index)
                    : Key());
 
-    Q_EMIT keyEntered(key, d->layout);
+    Q_EMIT keyEntered(key);
 }
+
 
 void KeyAreaContainer::onExited(int index)
 {
@@ -246,8 +282,9 @@ void KeyAreaContainer::onExited(int index)
                    ? keys.at(index)
                    : Key());
 
-    Q_EMIT keyExited(key, d->layout);
+    Q_EMIT keyExited(key);
 }
+
 
 void KeyAreaContainer::onPressed(int index)
 {
@@ -258,8 +295,9 @@ void KeyAreaContainer::onPressed(int index)
                    ? keys.at(index)
                    : Key());
 
-    Q_EMIT keyPressed(key, d->layout);
+    Q_EMIT keyPressed(key);
 }
+
 
 void KeyAreaContainer::onReleased(int index)
 {
@@ -270,8 +308,9 @@ void KeyAreaContainer::onReleased(int index)
                    ? keys.at(index)
                    : Key());
 
-    Q_EMIT keyReleased(key, d->layout);
+    Q_EMIT keyReleased(key);
 }
+
 
 void KeyAreaContainer::onPressAndHold(int index)
 {
@@ -282,7 +321,7 @@ void KeyAreaContainer::onPressAndHold(int index)
                    ? keys.at(index)
                    : Key());
 
-    Q_EMIT keyLongPressed(key, d->layout);
+    Q_EMIT keyLongPressed(key);
 }
 
 

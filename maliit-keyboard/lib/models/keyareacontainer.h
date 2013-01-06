@@ -40,6 +40,7 @@
 namespace MaliitKeyboard {
 
 class KeyArea;
+class Key;
 
 namespace Model {
 
@@ -90,9 +91,14 @@ public:
 
     Q_SLOT void setImageDirectory(const QString &directory);
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index,
-                  int role) const;
+    Q_SLOT void onKeyPressed(int index);
+    Q_SLOT void onKeyReleased(int index);
+
+    virtual QHash<int, QByteArray> roleNames() const;
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    virtual QVariant data(const QModelIndex &index,
+                          int role) const;
+
     Q_INVOKABLE QVariant data(int index,
                               const QString &role) const;
 
@@ -103,16 +109,11 @@ public:
     Q_INVOKABLE void onPressAndHold(int index);
 
     // Key signals:
-    Q_SIGNAL void keyPressed(const Key &key,
-                             Logic::Layout *layout);
-    Q_SIGNAL void keyLongPressed(const Key &key,
-                                 Logic::Layout *layout);
-    Q_SIGNAL void keyReleased(const Key &key,
-                              Logic::Layout *layout);
-    Q_SIGNAL void keyEntered(const Key &key,
-                             Logic::Layout *layout);
-    Q_SIGNAL void keyExited(const Key &key,
-                            Logic::Layout *layout);
+    Q_SIGNAL void keyPressed(const Key &key);
+    Q_SIGNAL void keyLongPressed(const Key &key);
+    Q_SIGNAL void keyReleased(const Key &key);
+    Q_SIGNAL void keyEntered(const Key &key);
+    Q_SIGNAL void keyExited(const Key &key);
 
 private:
     const QScopedPointer<KeyAreaContainerPrivate> d_ptr;

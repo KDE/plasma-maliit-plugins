@@ -36,9 +36,10 @@
 #include "models/key.h"
 #include "models/keyarea.h"
 #include "models/text.h"
+#include "models/keyareacontainer.h"
+
 #include "logic/languagefeatures.h"
 #include "logic/layout.h"
-#include "view/glass.h"
 #include "view/setup.h"
 #include "plugin/editor.h"
 #include "plugin/updatenotifier.h"
@@ -178,12 +179,13 @@ struct BasicSetupTest
     UpdateNotifier notifier;
 };
 
-struct SetupTest : public BasicSetupTest
+struct SetupTest
+    : public BasicSetupTest
 {
     SetupTest(Logic::Layout::Orientation orientation = Logic::Layout::Landscape,
               bool enable_word_engine = true)
         : BasicSetupTest(enable_word_engine)
-        , glass()
+        , container()
         , layout(new Logic::Layout)
         , surface(Maliit::Plugins::createTestGraphicsViewSurface())
         , extended_surface(Maliit::Plugins::createTestGraphicsViewSurface(surface))
@@ -191,21 +193,19 @@ struct SetupTest : public BasicSetupTest
     {
         // geometry stuff is usually done by maliit-server, so we need
         // to do it manually here:
-        //surface->view()->viewport()->setGeometry(0, 0, g_size, g_size);
         surface->view()->setSceneRect(0, 0, g_size, g_size);
         surface->scene()->setSceneRect(0, 0, g_size, g_size);
-        glass.setSurface(surface);
-        glass.setExtendedSurface(extended_surface);
-        glass.addLayout(&layout);
         layout.setOrientation(orientation);
 
-//        Setup::connectGlassToTextEditor(&glass, &editor);
+        Setup::connectContainerToTextEditor(&container, &editor);
 
         layout.setExtendedPanel(key_area);
         layout.setActivePanel(Logic::Layout::ExtendedPanel);
+
+        container.setKeyArea(key_area);
     }
 
-    Glass glass;
+    Model::KeyAreaContainer container;
     Logic::Layout layout;
     QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> surface;
     QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> extended_surface;
@@ -344,7 +344,7 @@ private:
             QApplication::instance()->postEvent(test_setup.surface->view()->viewport(), ev);
         }
 
-        TestUtils::waitForSignal(&test_setup.glass, SIGNAL(keyReleased(Key,Logic::Layout *)));
+        TestUtils::waitForSignal(&test_setup.container, SIGNAL(keyReleased(Key)));
         QCOMPARE(test_setup.host.lastPreeditString(), expected_last_preedit_string);
         QCOMPARE(test_setup.host.commitStringHistory(), expected_commit_string);
         QCOMPARE(test_setup.host.lastPreeditTextFormatList(), expected_preedit_format);
@@ -624,7 +624,7 @@ private:
             QApplication::instance()->postEvent(test_setup.surface->view()->viewport(), ev);
         }
 
-        TestUtils::waitForSignal(&test_setup.glass, SIGNAL(keyReleased(Key,Logic::Layout *)));
+        TestUtils::waitForSignal(&test_setup.container, SIGNAL(keyReleased(Key)));
         QCOMPARE(test_setup.host.lastPreeditString(), expected_preedit_string);
         QCOMPARE(test_setup.editor.text()->cursorPosition(), expected_cursor_position);
     }

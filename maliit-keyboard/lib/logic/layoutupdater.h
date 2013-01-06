@@ -78,31 +78,21 @@ public:
     Q_SIGNAL void wordRibbonVisibleChanged(bool visible);
 
     // Key signal handlers:
-    Q_SLOT void onKeyPressed(const Key &key,
-                             Logic::Layout *layout);
-    Q_SLOT void onKeyLongPressed(const Key &key,
-                                 Logic::Layout *layout);
-    Q_SLOT void onKeyReleased(const Key &key,
-                              Logic::Layout *layout);
-    Q_SLOT void onKeyAreaPressed(Logic::Layout::Panel panel,
-                                 Logic::Layout *layout);
-    Q_SLOT void onKeyAreaReleased(Logic::Layout::Panel panel,
-                                  Logic::Layout *layout);
-    Q_SLOT void onKeyEntered(const Key &key,
-                             Logic::Layout *layout);
-    Q_SLOT void onKeyExited(const Key &key,
-                            Logic::Layout *layout);
+    Q_SLOT void onKeyPressed(const Key &key);
+    Q_SLOT void onKeyLongPressed(const Key &key);
+    Q_SLOT void onKeyReleased(const Key &key);
+    Q_SLOT void onKeyAreaPressed(Logic::Layout::Panel panel);
+    Q_SLOT void onKeyAreaReleased(Logic::Layout::Panel panel);
+    Q_SLOT void onKeyEntered(const Key &key);
+    Q_SLOT void onKeyExited(const Key &key);
     Q_SLOT void clearActiveKeysAndMagnifier();
     Q_SLOT void resetOnKeyboardClosed();
     Q_SLOT void onWordCandidatesChanged(const WordCandidateList &candidates);
 
     // WordCandidate signal handlers:
-    Q_SLOT void onWordCandidatePressed(const WordCandidate &candidate,
-                                       Logic::Layout *layout);
-    Q_SLOT void onWordCandidateReleased(const WordCandidate &candidate,
-                                        Logic::Layout *layout);
+    Q_SLOT void onWordCandidatePressed(const WordCandidate &candidate);
+    Q_SLOT void onWordCandidateReleased(const WordCandidate &candidate);
 
-    Q_SIGNAL void keysChanged(Logic::Layout *layout);
     Q_SIGNAL void wordCandidateSelected(const QString &candidate);
     Q_SIGNAL void userCandidateSelected(const QString &candidate);
 

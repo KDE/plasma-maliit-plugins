@@ -53,8 +53,7 @@ namespace Setup {
 
 void connectAll(Model::KeyAreaContainer *container,
                 Logic::LayoutUpdater *updater,
-                AbstractTextEditor *editor,
-                AbstractFeedback *feedback);
+                AbstractTextEditor *editor);
 
 void connectContainerToLayoutUpdater(Model::KeyAreaContainer *container,
                                      Logic::LayoutUpdater *updater);

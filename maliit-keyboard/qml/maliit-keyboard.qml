@@ -77,11 +77,11 @@ Item {
                 anchors.fill: parent
                 hoverEnabled: true
 
-                onEntered: { maliit_layout.onEntered(index) }
-                onExited: { maliit_layout.onExited(index) }
-                onPressed: { maliit_layout.onPressed(index) }
-                onReleased: { maliit_layout.onReleased(index) }
-                onPressAndHold: { maliit_layout.onPressAndHold(index) }
+                onEntered: maliit_layout.onEntered(index)
+                onExited: maliit_layout.onExited(index)
+                onPressed: maliit_layout.onPressed(index)
+                onReleased: maliit_layout.onReleased(index)
+                onPressAndHold: maliit_layout.onPressAndHold(index)
             }
         }
     }
