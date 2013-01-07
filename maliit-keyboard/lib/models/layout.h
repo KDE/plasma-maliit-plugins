@@ -50,7 +50,8 @@ namespace Model {
 class LayoutPrivate;
 
 // TODO: Move the important/remaining layout handling features from
-// Logic::Layout into this, effectively merging the two classes.
+// Logic::LayoutHelper into this, effectively merging the two classes.
+// TODO2: Have an ExtendedLayout subclass, instead of checking active panel flags.
 class Layout
     : public QAbstractListModel
 {
@@ -58,6 +59,8 @@ class Layout
     Q_DISABLE_COPY(Layout)
     Q_DECLARE_PRIVATE(Layout)
 
+    Q_PROPERTY(bool visible READ isVisible
+                            NOTIFY visibleChanged)
     Q_PROPERTY(int width READ width
                          NOTIFY widthChanged)
     Q_PROPERTY(int height READ height
@@ -84,6 +87,9 @@ public:
     void setLayout(Logic::LayoutHelper *layout);
     Logic::LayoutHelper *layout() const;
 
+    Q_SLOT bool isVisible() const;
+    Q_SIGNAL void visibleChanged(bool changed);
+
     Q_SLOT int width() const;
     Q_SIGNAL void widthChanged(int changed);
 
@@ -92,6 +98,10 @@ public:
 
     Q_SLOT QUrl background() const;
     Q_SIGNAL void backgroundChanged(const QUrl &changed);
+
+    Q_SLOT void onExtendedKeysShown(const Key &key);
+    Q_SIGNAL void extendedKeysShown(const Key &key);
+
 
     Q_SLOT void setImageDirectory(const QString &directory);
 
@@ -115,6 +125,7 @@ public:
     Q_SIGNAL void keyReleased(const Key &key);
     Q_SIGNAL void keyEntered(const Key &key);
     Q_SIGNAL void keyExited(const Key &key);
+
 
 private:
     const QScopedPointer<LayoutPrivate> d_ptr;

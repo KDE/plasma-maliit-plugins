@@ -624,6 +624,60 @@ void LayoutUpdater::onWordCandidatesChanged(const WordCandidateList &candidates)
     d->layout->setWordRibbon(ribbon);
 }
 
+void LayoutUpdater::onExtendedKeysShown(const Key &main_key)
+{
+    Q_D(LayoutUpdater);
+
+    if (not d->layout || d->style.isNull()) {
+        return;
+    }
+
+    clearActiveKeysAndMagnifier();
+
+    const LayoutHelper::Orientation orientation(d->layout->orientation());
+    StyleAttributes * const extended_attributes(d->style->extendedKeysAttributes());
+    const qreal vertical_offset(d->style->attributes()->verticalOffset(orientation));
+    KeyAreaConverter converter(extended_attributes, &d->loader);
+    converter.setLayoutOrientation(orientation);
+    KeyArea ext_ka(converter.extendedKeyArea(main_key));
+
+    if (not ext_ka.hasKeys()) {
+        if (main_key.action() == Key::ActionSpace) {
+            Q_EMIT addToUserDictionary();
+        }
+        return;
+    }
+
+    const QSize &ext_panel_size(ext_ka.area().size());
+    const QSize &center_panel_size(d->layout->centerPanel().area().size());
+    const QPointF &key_center(main_key.rect().center());
+    const qreal safety_margin(extended_attributes->safetyMargin(orientation));
+
+    QPoint offset(qMax<int>(safety_margin, key_center.x() - ext_panel_size.width() / 2),
+                  main_key.rect().top() - vertical_offset);
+
+    if (offset.x() + ext_panel_size.width() > center_panel_size.width()) {
+        offset.rx() = center_panel_size.width() - ext_panel_size.width() - safety_margin;
+    }
+
+    ext_ka.setOrigin(offset);
+    d->layout->setExtendedPanel(ext_ka);
+    d->layout->setActivePanel(LayoutHelper::ExtendedPanel);
+}
+
+void LayoutUpdater::onExtendedKeySelected(const Key &key)
+{
+    Q_UNUSED(key)
+    Q_D(LayoutUpdater);
+
+    if (not d->layout || d->style.isNull()) {
+        return;
+    }
+
+    d->layout->setExtendedPanel(KeyArea());
+    d->layout->setActivePanel(LayoutHelper::CenterPanel);
+}
+
 void LayoutUpdater::onWordCandidatePressed(const WordCandidate &candidate)
 {
     Q_D(LayoutUpdater);

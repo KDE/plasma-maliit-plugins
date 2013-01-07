@@ -32,56 +32,119 @@
 import QtQuick 2.0
 
 Item {
-    width: maliit_layout.width
-    height: maliit_layout.height
+    Item {
+        id: main_area
+        width: maliit_layout.width
+        height: maliit_layout.height
+        visible: maliit_layout.visible
 
-    BorderImage {
-        anchors.fill: parent
-        source: maliit_layout.background
-    }
+        BorderImage {
+            anchors.fill: parent
+            source: maliit_layout.background
+        }
 
-    Repeater {
-        id: main
-        model: maliit_layout
-        anchors.fill: parent
+        Repeater {
+            id: main
+            model: maliit_layout
+            anchors.fill: parent
 
-        Item {
-            x: key_reactive_area.x
-            y: key_reactive_area.y
-            width: key_reactive_area.width
-            height: key_reactive_area.height
+            Item {
+                x: key_reactive_area.x
+                y: key_reactive_area.y
+                width: key_reactive_area.width
+                height: key_reactive_area.height
 
-            BorderImage {
-                x: key_rectangle.x
-                y: key_rectangle.y
-                width: key_rectangle.width
-                height: key_rectangle.height
+                BorderImage {
+                    x: key_rectangle.x
+                    y: key_rectangle.y
+                    width: key_rectangle.width
+                    height: key_rectangle.height
 
-                border.left: key_background_borders.x
-                border.top: key_background_borders.y
-                border.right: key_background_borders.width
-                border.bottom: key_background_borders.height
+                    border.left: key_background_borders.x
+                    border.top: key_background_borders.y
+                    border.right: key_background_borders.width
+                    border.bottom: key_background_borders.height
 
-                source: key_background
+                    source: key_background
 
-                Text {
-                    anchors.fill: parent
-                    text: key_text
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
+                    Text {
+                        anchors.fill: parent
+                        text: key_text
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
                 }
 
+                MouseArea {
+                    enabled: !maliit_extended_layout.visible
+                    anchors.fill: parent
+                    hoverEnabled: true
+
+                    onEntered: maliit_layout.onEntered(index)
+                    onExited: maliit_layout.onExited(index)
+                    onPressed: maliit_layout.onPressed(index)
+                    onReleased: maliit_layout.onReleased(index)
+                    onPressAndHold: maliit_layout.onPressAndHold(index)
+                }
             }
+        }
+    }
 
-            MouseArea {
-                anchors.fill: parent
-                hoverEnabled: true
+    // TODO: Move to a separate file and bind to a separate surface, too.
+    Item {
+        id: extended_area
+        width: maliit_extended_layout.width
+        height: maliit_extended_layout.height
+        visible: maliit_extended_layout.visible
 
-                onEntered: maliit_layout.onEntered(index)
-                onExited: maliit_layout.onExited(index)
-                onPressed: maliit_layout.onPressed(index)
-                onReleased: maliit_layout.onReleased(index)
-                onPressAndHold: maliit_layout.onPressAndHold(index)
+        BorderImage {
+            anchors.fill: parent
+            source: maliit_extended_layout.background
+        }
+
+        Repeater {
+            id: extended
+            model: maliit_extended_layout
+            anchors.fill: parent
+
+            Item {
+                x: key_reactive_area.x
+                y: key_reactive_area.y
+                width: key_reactive_area.width
+                height: key_reactive_area.height
+
+                BorderImage {
+                    x: key_rectangle.x
+                    y: key_rectangle.y
+                    width: key_rectangle.width
+                    height: key_rectangle.height
+
+                    border.left: key_background_borders.x
+                    border.top: key_background_borders.y
+                    border.right: key_background_borders.width
+                    border.bottom: key_background_borders.height
+
+                    source: key_background
+
+                    Text {
+                        anchors.fill: parent
+                        text: key_text
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    hoverEnabled: true
+
+                    onEntered: maliit_extended_layout.onEntered(index)
+                    onExited: maliit_extended_layout.onExited(index)
+                    onPressed: maliit_extended_layout.onPressed(index)
+                    onReleased: maliit_extended_layout.onReleased(index)
+                }
             }
         }
     }

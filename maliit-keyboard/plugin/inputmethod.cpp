@@ -172,6 +172,9 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     layout->setLayout(&layout_helper);
     extended_layout->setLayout(&extended_layout_helper);
 
+    QObject::connect(layout.data(),          SIGNAL(extendedKeysShown(Key)),
+                     extended_layout.data(), SLOT(onExtendedKeysShown(Key)));
+
     connectToNotifier();
 
     QQmlEngine *const engine(surface->view()->engine());
@@ -225,8 +228,11 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
 
     // FIXME: Reconnect feedback instance.
     Setup::connectAll(d->layout.data(), &d->layout_updater, &d->editor);
+    Setup::connectAll(d->extended_layout.data(), &d->extended_layout_updater, &d->editor);
     QObject::connect(&d->layout_helper, SIGNAL(centerPanelChanged(KeyArea,Logic::KeyOverrides)),
                      d->layout.data(), SLOT(setKeyArea(KeyArea)));
+    QObject::connect(&d->extended_layout_helper, SIGNAL(extendedPanelChanged(KeyArea,Logic::KeyOverrides)),
+                     d->extended_layout.data(), SLOT(setKeyArea(KeyArea)));
 
     // FIXME: Reimplement keyboardClosed, switchLeft and switchRight
     // (triggered by glass).
@@ -310,7 +316,9 @@ void InputMethod::setActiveSubView(const QString &id,
     Q_UNUSED(state)
     Q_D(InputMethod);
 
+    // FIXME: Perhaps better to let both LayoutUpdater share the same KeyboardLoader instance?
     d->layout_updater.setActiveKeyboardId(id);
+    d->extended_layout_updater.setActiveKeyboardId(id);
 }
 
 QString InputMethod::activeSubView(Maliit::HandlerState state) const
@@ -503,6 +511,7 @@ void InputMethod::onStyleSettingChanged()
     Q_D(InputMethod);
     d->style->setProfile(d->settings.style->value().toString());
     d->layout->setImageDirectory(d->style->directory(Style::Images));
+    d->extended_layout->setImageDirectory(d->style->directory(Style::Images));
 }
 
 void InputMethod::onKeyboardClosed()

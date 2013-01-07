@@ -101,6 +101,8 @@ void Layout::setKeyArea(const KeyArea &area)
     Q_D(Layout);
     const bool geometry_changed(d->key_area.rect() != area.rect());
     const bool background_changed(d->key_area.area().background() != area.area().background());
+    const bool visible_changed((d->key_area.keys().isEmpty() && not area.keys().isEmpty())
+                               || (not d->key_area.keys().isEmpty() && area.keys().isEmpty()));
 
     d->key_area = area;
 
@@ -111,6 +113,10 @@ void Layout::setKeyArea(const KeyArea &area)
 
     if (background_changed) {
         Q_EMIT backgroundChanged(background());
+    }
+
+    if (visible_changed) {
+        Q_EMIT visibleChanged(not d->key_area.keys().isEmpty());
     }
 
     endResetModel();
@@ -140,6 +146,14 @@ Logic::LayoutHelper *Layout::layout() const
 }
 
 
+
+bool Layout::isVisible() const
+{
+    Q_D(const Layout);
+    return (not d->key_area.keys().isEmpty());
+}
+
+
 int Layout::width() const
 {
     Q_D(const Layout);
@@ -158,6 +172,16 @@ QUrl Layout::background() const
 {
     Q_D(const Layout);
     return toUrl(d->image_directory, d->key_area.area().background());
+}
+
+
+void Layout::onExtendedKeysShown(const Key &key)
+{
+    Q_D(Layout);
+
+    if (d->updater) {
+        d->updater->onExtendedKeysShown(key);
+    }
 }
 
 
@@ -311,7 +335,11 @@ void Layout::onReleased(int index)
     d->key_area.rKeys().replace(index, normal_key);
 
     if (d->updater) {
-        d->updater->onKeyReleased(normal_key);
+        if (d->layout->activePanel() == Logic::LayoutHelper::ExtendedPanel) {
+            d->updater->onExtendedKeySelected(normal_key);
+        } else {
+            d->updater->onKeyReleased(normal_key);
+        }
     }
 
     Q_EMIT dataChanged(this->index(index, 0), this->index(index, 0));
@@ -328,8 +356,9 @@ void Layout::onPressAndHold(int index)
                    ? keys.at(index)
                    : Key());
 
-    if (d->updater) {
-        d->updater->onKeyLongPressed(key);
+    // FIXME: long-press on space needs to work again to save words to dictionary!
+    if (key.hasExtendedKeys()) {
+        Q_EMIT extendedKeysShown(key);
     }
 
     Q_EMIT keyLongPressed(key);
