@@ -115,15 +115,18 @@ class InputMethodPrivate
 public:
     Maliit::Plugins::AbstractSurfaceFactory *const surface_factory;
     QSharedPointer<Maliit::Plugins::QuickViewSurface> surface;
-    Logic::LayoutUpdater layout_updater;
     Editor editor;
     DefaultFeedback feedback;
-    Logic::LayoutHelper layout_helper;
     SharedStyle style;
     UpdateNotifier notifier;
     QMap<QString, SharedOverride> key_overrides;
     Settings settings;
+    Logic::LayoutHelper layout_helper;
+    Logic::LayoutUpdater layout_updater;
     QScopedPointer<Model::Layout> layout;
+    Logic::LayoutHelper extended_layout_helper;
+    Logic::LayoutUpdater extended_layout_updater;
+    QScopedPointer<Model::Layout> extended_layout;
     QScopedPointer<Logic::MaliitContext> context;
 
     explicit InputMethodPrivate(MAbstractInputMethodHost *host);
@@ -137,29 +140,37 @@ public:
 InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     : surface_factory(host->surfaceFactory())
     , surface(qSharedPointerDynamicCast<Maliit::Plugins::QuickViewSurface>(surface_factory->create(g_surface_options)))
-    , layout_updater()
     , editor(EditorOptions(), new Model::Text, new Logic::WordEngine, new Logic::LanguageFeatures)
     , feedback()
-    , layout_helper()
     , style(new Style)
     , notifier()
     , key_overrides()
     , settings()
+    , layout_helper()
+    , layout_updater()
     , layout(new Model::Layout(&layout_updater))
+    , extended_layout_helper()
+    , extended_layout_updater()
+    , extended_layout(new Model::Layout(&extended_layout_updater))
     , context(new Logic::MaliitContext(style))
 {
     editor.setHost(host);
 
     layout_updater.setLayout(&layout_helper);
+    extended_layout_updater.setLayout(&extended_layout_helper);
 
     layout_updater.setStyle(style);
+    extended_layout_updater.setStyle(style);
     feedback.setStyle(style);
 
     const QSize &screen_size(surface_factory->screenSize());
     layout_helper.setScreenSize(screen_size);
     layout_helper.setAlignment(Logic::LayoutHelper::Bottom);
+    extended_layout_helper.setScreenSize(screen_size);
+    extended_layout_helper.setAlignment(Logic::LayoutHelper::Floating);
 
     layout->setLayout(&layout_helper);
+    extended_layout->setLayout(&extended_layout_helper);
 
     connectToNotifier();
 
@@ -167,6 +178,7 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     engine->addImportPath(MALIIT_KEYBOARD_DATA_DIR);
     engine->rootContext()->setContextProperty("maliit", context.data());
     engine->rootContext()->setContextProperty("maliit_layout", layout.data());
+    engine->rootContext()->setContextProperty("maliit_extended_layout", extended_layout.data());
 
     surface->view()->setSource(QUrl::fromLocalFile(g_maliit_keyboard_qml));
 }
@@ -176,6 +188,7 @@ void InputMethodPrivate::setLayoutOrientation(Logic::LayoutHelper::Orientation o
 {
     syncWordEngine(orientation);
     layout_updater.setOrientation(orientation);
+    extended_layout_updater.setOrientation(orientation);
 }
 
 
@@ -479,9 +492,10 @@ void InputMethod::onScreenSizeChange(const QSize &size)
     Q_D(InputMethod);
 
     d->layout_helper.setScreenSize(size);
+    d->extended_layout_helper.setScreenSize(d->layout_helper.screenSize());
+
     d->setLayoutOrientation(size.width() >= size.height()
-                            ? Logic::LayoutHelper::Landscape
-                            : Logic::LayoutHelper::Portrait);
+                            ? Logic::LayoutHelper::Landscape : Logic::LayoutHelper::Portrait);
 }
 
 void InputMethod::onStyleSettingChanged()

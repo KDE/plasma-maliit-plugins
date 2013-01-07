@@ -66,7 +66,8 @@ public:
         Left,
         Top,
         Right,
-        Bottom
+        Bottom,
+        Floating
     };
 
     enum Panel {
