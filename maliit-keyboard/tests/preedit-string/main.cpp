@@ -185,7 +185,7 @@ struct SetupTest
     SetupTest(Logic::Layout::Orientation orientation = Logic::Layout::Landscape,
               bool enable_word_engine = true)
         : BasicSetupTest(enable_word_engine)
-        , container()
+        , container(0) // TODO: Provide valid LayoutUpdater instance?
         , layout(new Logic::Layout)
         , surface(Maliit::Plugins::createTestGraphicsViewSurface())
         , extended_surface(Maliit::Plugins::createTestGraphicsViewSurface(surface))

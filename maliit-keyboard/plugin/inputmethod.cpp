@@ -145,7 +145,7 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     , notifier()
     , key_overrides()
     , settings()
-    , key_area_container(new Model::KeyAreaContainer)
+    , key_area_container(new Model::KeyAreaContainer(&layout_updater))
     , context(new Logic::MaliitContext(style))
 {
     editor.setHost(host);

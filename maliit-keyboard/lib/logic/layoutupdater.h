@@ -77,6 +77,9 @@ public:
     Q_SLOT void setWordRibbonVisible(bool visible);
     Q_SIGNAL void wordRibbonVisibleChanged(bool visible);
 
+    Key modifyKey(const Key &key,
+                  KeyDescription::State state) const;
+
     // Key signal handlers:
     Q_SLOT void onKeyPressed(const Key &key);
     Q_SLOT void onKeyLongPressed(const Key &key);

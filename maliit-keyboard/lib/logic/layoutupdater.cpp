@@ -54,8 +54,9 @@ enum ActivationPolicy {
     DeactivateElement
 };
 
-Key makeActive(const Key &key,
-               const StyleAttributes *attributes)
+Key modifyKey(const Key &key,
+              KeyDescription::State state,
+              const StyleAttributes *attributes)
 {
     if (not attributes) {
         return key;
@@ -64,7 +65,7 @@ Key makeActive(const Key &key,
     Key k(key);
 
     // FIXME: Use correct key style, but where to look it up?
-    k.rArea().setBackground(attributes->keyBackground(KeyDescription::NormalStyle, KeyDescription::PressedState));
+    k.rArea().setBackground(attributes->keyBackground(KeyDescription::NormalStyle, state));
     k.rArea().setBackgroundBorders(attributes->keyBackgroundBorders());
 
     return k;
@@ -374,6 +375,21 @@ void LayoutUpdater::setWordRibbonVisible(bool visible)
     }
 }
 
+//! \brief Modify visual appearance of a key, depending on state.
+//!
+//! Uses the currently active style and the key action to decide the visual
+//! appearance. Can be used to make a key appear pressed or a shift key appear
+//! locked.
+//!
+//! \param key The key to modify.
+//! \param state The key state (normal, pressed, disabled, highlighted).
+Key LayoutUpdater::modifyKey(const Key &key,
+                             KeyDescription::State state) const
+{
+    Q_D(const LayoutUpdater);
+    return MaliitKeyboard::Logic::modifyKey(key, state, d->activeStyleAttributes());
+}
+
 void LayoutUpdater::onKeyPressed(const Key &key)
 {
     Q_D(LayoutUpdater);
@@ -382,7 +398,8 @@ void LayoutUpdater::onKeyPressed(const Key &key)
         return;
     }
 
-    d->layout->appendActiveKey(makeActive(key, d->activeStyleAttributes()));
+    d->layout->appendActiveKey(MaliitKeyboard::Logic::modifyKey(key, KeyDescription::PressedState,
+                                                                d->activeStyleAttributes()));
 
     if (d->layout->activePanel() == Layout::CenterPanel) {
         d->layout->setMagnifierKey(magnifyKey(key, d->activeStyleAttributes(), d->layout->orientation(),
@@ -533,7 +550,8 @@ void LayoutUpdater::onKeyEntered(const Key &key)
         return;
     }
 
-    d->layout->appendActiveKey(makeActive(key, d->activeStyleAttributes()));
+    d->layout->appendActiveKey(MaliitKeyboard::Logic::modifyKey(key, KeyDescription::PressedState,
+                                                                d->activeStyleAttributes()));
 
     if (d->layout->activePanel() == Layout::CenterPanel) {
         d->layout->setMagnifierKey(magnifyKey(key, d->activeStyleAttributes(), d->layout->orientation(),

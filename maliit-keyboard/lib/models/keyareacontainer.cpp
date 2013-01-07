@@ -32,6 +32,10 @@
 #include "keyareacontainer.h"
 #include "keyarea.h"
 #include "key.h"
+#include "keydescription.h"
+
+#include "logic/layout.h"
+#include "logic/layoutupdater.h"
 
 namespace MaliitKeyboard {
 namespace Model {
@@ -53,17 +57,19 @@ class KeyAreaContainerPrivate
 {
 public:
     KeyArea key_area;
-    Logic::Layout *layout;
+    Logic::Layout *layout; // TODO: Get rid of this member.
+    Logic::LayoutUpdater *updater; // TODO: wrap into scoped pointer and assign ownership to this class.
     QString image_directory;
     QHash<int, QByteArray> roles;
 
-    explicit KeyAreaContainerPrivate();
+    explicit KeyAreaContainerPrivate(Logic::LayoutUpdater *new_updater);
 };
 
 
-KeyAreaContainerPrivate::KeyAreaContainerPrivate()
+KeyAreaContainerPrivate::KeyAreaContainerPrivate(Logic::LayoutUpdater *new_updater)
     : key_area()
     , layout()
+    , updater(new_updater)
     , image_directory()
     , roles()
 {
@@ -77,9 +83,10 @@ KeyAreaContainerPrivate::KeyAreaContainerPrivate()
 }
 
 
-KeyAreaContainer::KeyAreaContainer(QObject *parent)
+KeyAreaContainer::KeyAreaContainer(Logic::LayoutUpdater *updater,
+                                   QObject *parent)
     : QAbstractListModel(parent)
-    , d_ptr(new KeyAreaContainerPrivate)
+    , d_ptr(new KeyAreaContainerPrivate(updater))
 {}
 
 
@@ -164,30 +171,6 @@ void KeyAreaContainer::setImageDirectory(const QString &directory)
         beginResetModel();
         backgroundChanged(background());
         endResetModel();
-    }
-}
-
-
-void KeyAreaContainer::onKeyPressed(int index)
-{
-    Q_D(KeyAreaContainer);
-
-    if (index < d->key_area.keys().count()) {
-        Q_EMIT dataChanged(this->index(index, 0),
-                           this->index(index, 0));
-        Q_EMIT keyPressed(d->key_area.keys().at(index));
-    }
-}
-
-
-void KeyAreaContainer::onKeyReleased(int index)
-{
-    Q_D(KeyAreaContainer);
-
-    if (index < d->key_area.keys().count()) {
-        Q_EMIT dataChanged(this->index(index, 0),
-                           this->index(index, 0));
-        Q_EMIT keyReleased(d->key_area.keys().at(index));
     }
 }
 
@@ -292,10 +275,14 @@ void KeyAreaContainer::onPressed(int index)
 
     const QVector<Key> &keys(d->key_area.keys());
     const Key &key(index < keys.count()
-                   ? keys.at(index)
-                   : Key());
+                   ? keys.at(index) : Key());
+    const Key pressed_key(d->updater
+                         ? d->updater->modifyKey(key, KeyDescription::PressedState) : Key());
 
-    Q_EMIT keyPressed(key);
+    d->key_area.rKeys().replace(index, pressed_key);
+
+    Q_EMIT dataChanged(this->index(index, 0), this->index(index, 0));
+    Q_EMIT keyPressed(pressed_key);
 }
 
 
@@ -305,10 +292,14 @@ void KeyAreaContainer::onReleased(int index)
 
     const QVector<Key> &keys(d->key_area.keys());
     const Key &key(index < keys.count()
-                   ? keys.at(index)
-                   : Key());
+                   ? keys.at(index) : Key());
+    const Key normal_key(d->updater
+                         ? d->updater->modifyKey(key, KeyDescription::NormalState) : Key());
 
-    Q_EMIT keyReleased(key);
+    d->key_area.rKeys().replace(index, normal_key);
+
+    Q_EMIT dataChanged(this->index(index, 0), this->index(index, 0));
+    Q_EMIT keyReleased(normal_key);
 }
 
 

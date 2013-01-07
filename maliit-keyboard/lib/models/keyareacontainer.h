@@ -32,15 +32,18 @@
 #ifndef MALIIT_KEYBOARD_KEYAREACONTAINER_H
 #define MALIIT_KEYBOARD_KEYAREACONTAINER_H
 
-#include <QtCore>
-
 #include "models/key.h"
-#include "logic/layout.h"
+#include <QtCore>
 
 namespace MaliitKeyboard {
 
 class KeyArea;
 class Key;
+
+namespace Logic {
+class Layout;
+class LayoutUpdater;
+}
 
 namespace Model {
 
@@ -71,7 +74,8 @@ public:
         RoleKeyText,
     };
 
-    explicit KeyAreaContainer(QObject *parent = 0);
+    explicit KeyAreaContainer(Logic::LayoutUpdater *updater,
+                              QObject *parent = 0);
     virtual ~KeyAreaContainer();
 
     Q_SLOT void setKeyArea(const KeyArea &area);
@@ -90,9 +94,6 @@ public:
     Q_SIGNAL void backgroundChanged(const QUrl &changed);
 
     Q_SLOT void setImageDirectory(const QString &directory);
-
-    Q_SLOT void onKeyPressed(int index);
-    Q_SLOT void onKeyReleased(int index);
 
     virtual QHash<int, QByteArray> roleNames() const;
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
