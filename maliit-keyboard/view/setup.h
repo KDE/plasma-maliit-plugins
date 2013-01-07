@@ -41,21 +41,21 @@ class AbstractTextEditor;
 class AbstractFeedback;
 
 namespace Logic {
-class Layout;
+class LayoutHelper;
 class LayoutUpdater;
 }
 
 namespace Model {
-class KeyAreaContainer;
+class Layout;
 }
 
 namespace Setup {
 
-void connectAll(Model::KeyAreaContainer *container,
+void connectAll(Model::Layout *container,
                 Logic::LayoutUpdater *updater,
                 AbstractTextEditor *editor);
 
-void connectContainerToTextEditor(Model::KeyAreaContainer *container,
+void connectContainerToTextEditor(Model::Layout *container,
                                   AbstractTextEditor *editor);
 void connectGlassToFeedback(Glass *glass,
                             AbstractFeedback *feedback);

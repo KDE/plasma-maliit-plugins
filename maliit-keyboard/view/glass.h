@@ -35,7 +35,7 @@
 
 #include "models/key.h"
 #include "models/wordcandidate.h"
-#include "logic/layout.h"
+#include "logic/layouthelper.h"
 
 #include <QtGui>
 
@@ -59,35 +59,35 @@ public:
     void setSurface(const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> &surface);
     void setExtendedSurface(const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> &surface);
 
-    void addLayout(Logic::Layout *layout);
+    void addLayout(Logic::LayoutHelper *layout);
     void clearLayouts();
 
     // Key signals:
     Q_SIGNAL void keyPressed(const Key &key,
-                             Logic::Layout *layout);
+                             Logic::LayoutHelper *layout);
     Q_SIGNAL void keyLongPressed(const Key &key,
-                                 Logic::Layout *layout);
+                                 Logic::LayoutHelper *layout);
     Q_SIGNAL void keyReleased(const Key &key,
-                              Logic::Layout *layout);
+                              Logic::LayoutHelper *layout);
     Q_SIGNAL void keyEntered(const Key &key,
-                             Logic::Layout *layout);
+                             Logic::LayoutHelper *layout);
     Q_SIGNAL void keyExited(const Key &key,
-                            Logic::Layout *layout);
+                            Logic::LayoutHelper *layout);
 
     // WordCandidate signals:
     Q_SIGNAL void wordCandidatePressed(const WordCandidate &candidate,
-                                       Logic::Layout *layout);
+                                       Logic::LayoutHelper *layout);
     Q_SIGNAL void wordCandidateReleased(const WordCandidate &candidate,
-                                        Logic::Layout *layout);
+                                        Logic::LayoutHelper *layout);
 
     // KeyArea signals:
-    Q_SIGNAL void keyAreaPressed(Logic::Layout::Panel panel,
-                                 Logic::Layout *layout);
-    Q_SIGNAL void keyAreaReleased(Logic::Layout::Panel panel,
-                                  Logic::Layout *layout);
+    Q_SIGNAL void keyAreaPressed(Logic::LayoutHelper::Panel panel,
+                                 Logic::LayoutHelper *layout);
+    Q_SIGNAL void keyAreaReleased(Logic::LayoutHelper::Panel panel,
+                                  Logic::LayoutHelper *layout);
 
-    Q_SIGNAL void switchLeft(Logic::Layout *layout);
-    Q_SIGNAL void switchRight(Logic::Layout *layout);
+    Q_SIGNAL void switchLeft(Logic::LayoutHelper *layout);
+    Q_SIGNAL void switchRight(Logic::LayoutHelper *layout);
     Q_SIGNAL void keyboardClosed();
 
 protected:

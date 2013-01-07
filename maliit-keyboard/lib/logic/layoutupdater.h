@@ -37,7 +37,7 @@
 
 #include "models/key.h"
 #include "models/wordcandidate.h"
-#include "logic/layout.h"
+#include "logic/layouthelper.h"
 #include "logic/style.h"
 
 #include <QtCore>
@@ -68,8 +68,8 @@ public:
     void setActiveKeyboardId(const QString &id);
     QString keyboardTitle(const QString &id) const;
 
-    void setLayout(Layout *layout);
-    Q_SLOT void setOrientation(Layout::Orientation orientation);
+    void setLayout(LayoutHelper *layout);
+    Q_SLOT void setOrientation(LayoutHelper::Orientation orientation);
 
     void setStyle(const SharedStyle &style);
 
@@ -84,8 +84,8 @@ public:
     Q_SLOT void onKeyPressed(const Key &key);
     Q_SLOT void onKeyLongPressed(const Key &key);
     Q_SLOT void onKeyReleased(const Key &key);
-    Q_SLOT void onKeyAreaPressed(Logic::Layout::Panel panel);
-    Q_SLOT void onKeyAreaReleased(Logic::Layout::Panel panel);
+    Q_SLOT void onKeyAreaPressed(Logic::LayoutHelper::Panel panel);
+    Q_SLOT void onKeyAreaReleased(Logic::LayoutHelper::Panel panel);
     Q_SLOT void onKeyEntered(const Key &key);
     Q_SLOT void onKeyExited(const Key &key);
     Q_SLOT void clearActiveKeysAndMagnifier();

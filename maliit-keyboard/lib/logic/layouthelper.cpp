@@ -33,7 +33,7 @@
 #include <algorithm>
 #include <tr1/functional>
 
-#include "layout.h"
+#include "layouthelper.h"
 #include "coreutils.h"
 
 namespace MaliitKeyboard {
@@ -78,14 +78,14 @@ struct KeyPredicate
 
 typedef std::tr1::function<void(const KeyArea &, const KeyOverrides &)> EmitFunc;
 
-class LayoutPrivate
+class LayoutHelperPrivate
 {
 public:
     QSize screen_size;
     QPoint origin;
-    Layout::Orientation orientation;
-    Layout::Alignment alignment;
-    Layout::Panel active_panel;
+    LayoutHelper::Orientation orientation;
+    LayoutHelper::Alignment alignment;
+    LayoutHelper::Panel active_panel;
     KeyArea left;
     KeyArea right;
     KeyArea center;
@@ -105,20 +105,20 @@ public:
     Key magnifier_key;
     KeyOverrides overriden_keys;
 
-    explicit LayoutPrivate();
+    explicit LayoutHelperPrivate();
 
-    KeyArea lookup(Layout::Panel panel) const;
+    KeyArea lookup(LayoutHelper::Panel panel) const;
     QPoint panelOrigin() const;
     void overrideCheck(const QSet<QString> &changed_ids,
                        KeyArea &key_area,
                        const EmitFunc& func);
 };
 
-LayoutPrivate::LayoutPrivate()
+LayoutHelperPrivate::LayoutHelperPrivate()
     : screen_size()
-    , orientation(Layout::Landscape)
-    , alignment(Layout::Bottom)
-    , active_panel(Layout::CenterPanel)
+    , orientation(LayoutHelper::Landscape)
+    , alignment(LayoutHelper::Bottom)
+    , active_panel(LayoutHelper::CenterPanel)
     , left()
     , right()
     , center()
@@ -129,14 +129,14 @@ LayoutPrivate::LayoutPrivate()
     , overriden_keys()
 {}
 
-KeyArea LayoutPrivate::lookup(Layout::Panel panel) const
+KeyArea LayoutHelperPrivate::lookup(LayoutHelper::Panel panel) const
 {
     switch(panel) {
-    case Layout::LeftPanel: return left;
-    case Layout::RightPanel: return right;
-    case Layout::CenterPanel: return center;
-    case Layout::ExtendedPanel: return extended;
-    case Layout::NumPanels: break;
+    case LayoutHelper::LeftPanel: return left;
+    case LayoutHelper::RightPanel: return right;
+    case LayoutHelper::CenterPanel: return center;
+    case LayoutHelper::ExtendedPanel: return extended;
+    case LayoutHelper::NumPanels: break;
     }
 
     qCritical() << __PRETTY_FUNCTION__
@@ -144,12 +144,12 @@ KeyArea LayoutPrivate::lookup(Layout::Panel panel) const
     return KeyArea();
 }
 
-QPoint LayoutPrivate::panelOrigin() const
+QPoint LayoutHelperPrivate::panelOrigin() const
 {
     return QPoint(0, ribbon.area().size().height());
 }
 
-void LayoutPrivate::overrideCheck(const QSet<QString> &changed_ids,
+void LayoutHelperPrivate::overrideCheck(const QSet<QString> &changed_ids,
                                   KeyArea &key_area,
                                   const EmitFunc &func)
 {
@@ -161,23 +161,23 @@ void LayoutPrivate::overrideCheck(const QSet<QString> &changed_ids,
     }
 }
 
-Layout::Layout(QObject *parent)
+LayoutHelper::LayoutHelper(QObject *parent)
     : QObject(parent)
-    , d_ptr(new LayoutPrivate)
+    , d_ptr(new LayoutHelperPrivate)
 {}
 
-Layout::~Layout()
+LayoutHelper::~LayoutHelper()
 {}
 
-QSize Layout::screenSize() const
+QSize LayoutHelper::screenSize() const
 {
-    Q_D(const Layout);
+    Q_D(const LayoutHelper);
     return d->screen_size;
 }
 
-void Layout::setScreenSize(const QSize &size)
+void LayoutHelper::setScreenSize(const QSize &size)
 {
-    Q_D(Layout);
+    Q_D(LayoutHelper);
 
     if (d->screen_size != size) {
         d->screen_size = size;
@@ -185,15 +185,15 @@ void Layout::setScreenSize(const QSize &size)
     }
 }
 
-Layout::Orientation Layout::orientation() const
+LayoutHelper::Orientation LayoutHelper::orientation() const
 {
-    Q_D(const Layout);
+    Q_D(const LayoutHelper);
     return d->orientation;
 }
 
-void Layout::setOrientation(Orientation orientation)
+void LayoutHelper::setOrientation(Orientation orientation)
 {
-    Q_D(Layout);
+    Q_D(LayoutHelper);
 
     if (d->orientation != orientation) {
         d->orientation = orientation;
@@ -201,15 +201,15 @@ void Layout::setOrientation(Orientation orientation)
     }
 }
 
-Layout::Alignment Layout::alignment() const
+LayoutHelper::Alignment LayoutHelper::alignment() const
 {
-    Q_D(const Layout);
+    Q_D(const LayoutHelper);
     return d->alignment;
 }
 
-void Layout::setAlignment(Alignment alignment)
+void LayoutHelper::setAlignment(Alignment alignment)
 {
-    Q_D(Layout);
+    Q_D(LayoutHelper);
 
     if (d->alignment != alignment) {
         d->alignment = alignment;
@@ -217,15 +217,15 @@ void Layout::setAlignment(Alignment alignment)
     }
 }
 
-Layout::Panel Layout::activePanel() const
+LayoutHelper::Panel LayoutHelper::activePanel() const
 {
-    Q_D(const Layout);
+    Q_D(const LayoutHelper);
     return d->active_panel;
 }
 
-void Layout::setActivePanel(Panel panel)
+void LayoutHelper::setActivePanel(Panel panel)
 {
-    Q_D(Layout);
+    Q_D(LayoutHelper);
 
     if (panel != NumPanels && d->active_panel != panel) {
         d->active_panel = panel;
@@ -233,15 +233,15 @@ void Layout::setActivePanel(Panel panel)
     }
 }
 
-KeyArea Layout::activeKeyArea() const
+KeyArea LayoutHelper::activeKeyArea() const
 {
-    Q_D(const Layout);
+    Q_D(const LayoutHelper);
     return d->lookup(activePanel());
 }
 
-QRect Layout::activeKeyAreaGeometry() const
+QRect LayoutHelper::activeKeyAreaGeometry() const
 {
-    Q_D(const Layout);
+    Q_D(const LayoutHelper);
 
     switch(d->active_panel) {
     case LeftPanel: return d->left.rect();
@@ -259,15 +259,15 @@ QRect Layout::activeKeyAreaGeometry() const
     return QRect();
 }
 
-KeyArea Layout::leftPanel() const
+KeyArea LayoutHelper::leftPanel() const
 {
-    Q_D(const Layout);
+    Q_D(const LayoutHelper);
     return d->left;
 }
 
-void Layout::setLeftPanel(const KeyArea &left)
+void LayoutHelper::setLeftPanel(const KeyArea &left)
 {
-    Q_D(Layout);
+    Q_D(LayoutHelper);
 
     if (d->left != left) {
         d->left = left;
@@ -275,15 +275,15 @@ void Layout::setLeftPanel(const KeyArea &left)
     }
 }
 
-KeyArea Layout::rightPanel() const
+KeyArea LayoutHelper::rightPanel() const
 {
-    Q_D(const Layout);
+    Q_D(const LayoutHelper);
     return d->right;
 }
 
-void Layout::setRightPanel(const KeyArea &right)
+void LayoutHelper::setRightPanel(const KeyArea &right)
 {
-    Q_D(Layout);
+    Q_D(LayoutHelper);
 
     if (d->right != right) {
         d->right = right;
@@ -291,15 +291,15 @@ void Layout::setRightPanel(const KeyArea &right)
     }
 }
 
-KeyArea Layout::centerPanel() const
+KeyArea LayoutHelper::centerPanel() const
 {
-    Q_D(const Layout);
+    Q_D(const LayoutHelper);
     return d->center;
 }
 
-void Layout::setCenterPanel(const KeyArea &center)
+void LayoutHelper::setCenterPanel(const KeyArea &center)
 {
-    Q_D(Layout);
+    Q_D(LayoutHelper);
 
     if (d->center != center) {
         d->center = center;
@@ -307,15 +307,15 @@ void Layout::setCenterPanel(const KeyArea &center)
     }
 }
 
-KeyArea Layout::extendedPanel() const
+KeyArea LayoutHelper::extendedPanel() const
 {
-    Q_D(const Layout);
+    Q_D(const LayoutHelper);
     return d->extended;
 }
 
-void Layout::setExtendedPanel(const KeyArea &extended)
+void LayoutHelper::setExtendedPanel(const KeyArea &extended)
 {
-    Q_D(Layout);
+    Q_D(LayoutHelper);
 
     if (d->extended != extended) {
         d->extended = extended;
@@ -323,15 +323,15 @@ void Layout::setExtendedPanel(const KeyArea &extended)
     }
 }
 
-WordRibbon Layout::wordRibbon() const
+WordRibbon LayoutHelper::wordRibbon() const
 {
-    Q_D(const Layout);
+    Q_D(const LayoutHelper);
     return d->ribbon;
 }
 
-void Layout::setWordRibbon(const WordRibbon &ribbon)
+void LayoutHelper::setWordRibbon(const WordRibbon &ribbon)
 {
-    Q_D(Layout);
+    Q_D(LayoutHelper);
 
     if (d->ribbon != ribbon) {
         d->ribbon = ribbon;
@@ -339,9 +339,9 @@ void Layout::setWordRibbon(const WordRibbon &ribbon)
     }
 }
 
-QVector<Key> Layout::activeKeys() const
+QVector<Key> LayoutHelper::activeKeys() const
 {
-    Q_D(const Layout);
+    Q_D(const LayoutHelper);
 
     switch (d->active_panel) {
     case LeftPanel: return d->active_keys.left;
@@ -354,9 +354,9 @@ QVector<Key> Layout::activeKeys() const
     return QVector<Key>();
 }
 
-void Layout::clearActiveKeys()
+void LayoutHelper::clearActiveKeys()
 {
-    Q_D(Layout);
+    Q_D(LayoutHelper);
 
     d->active_keys.left.clear();
     d->active_keys.right.clear();
@@ -369,9 +369,9 @@ void Layout::clearActiveKeys()
     Q_EMIT activeExtendedKeysChanged(empty, empty_overrides);
 }
 
-void Layout::appendActiveKey(const Key &key)
+void LayoutHelper::appendActiveKey(const Key &key)
 {
-    Q_D(Layout);
+    Q_D(LayoutHelper);
 
     switch (d->active_panel) {
     case LeftPanel:
@@ -390,9 +390,9 @@ void Layout::appendActiveKey(const Key &key)
     }
 }
 
-void Layout::removeActiveKey(const Key &key)
+void LayoutHelper::removeActiveKey(const Key &key)
 {
-    Q_D(Layout);
+    Q_D(LayoutHelper);
 
     switch (d->active_panel) {
     case LeftPanel:
@@ -413,15 +413,15 @@ void Layout::removeActiveKey(const Key &key)
     }
 }
 
-Key Layout::magnifierKey() const
+Key LayoutHelper::magnifierKey() const
 {
-    Q_D(const Layout);
+    Q_D(const LayoutHelper);
     return d->magnifier_key;
 }
 
-void Layout::setMagnifierKey(const Key &key)
+void LayoutHelper::setMagnifierKey(const Key &key)
 {
-    Q_D(Layout);
+    Q_D(LayoutHelper);
 
     if (d->magnifier_key != key) {
         d->magnifier_key = key;
@@ -430,15 +430,15 @@ void Layout::setMagnifierKey(const Key &key)
     }
 }
 
-void Layout::clearMagnifierKey()
+void LayoutHelper::clearMagnifierKey()
 {
     setMagnifierKey(Key());
 }
 
-void Layout::onKeysOverriden(const KeyOverrides &overriden_keys,
+void LayoutHelper::onKeysOverriden(const KeyOverrides &overriden_keys,
                              bool update)
 {
-    Q_D(Layout);
+    Q_D(LayoutHelper);
     QSet<QString> changed_ids;
 
     if (update) {
@@ -459,10 +459,10 @@ void Layout::onKeysOverriden(const KeyOverrides &overriden_keys,
     using std::tr1::placeholders::_1;
     using std::tr1::placeholders::_2;
 
-    d->overrideCheck(changed_ids, d->left, std::tr1::bind(&Layout::leftPanelChanged, this, _1, _2));
-    d->overrideCheck(changed_ids, d->right, std::tr1::bind(&Layout::rightPanelChanged, this, _1, _2));
-    d->overrideCheck(changed_ids, d->center, std::tr1::bind(&Layout::centerPanelChanged, this, _1, _2));
-    d->overrideCheck(changed_ids, d->extended, std::tr1::bind(&Layout::extendedPanelChanged, this, _1, _2));
+    d->overrideCheck(changed_ids, d->left, std::tr1::bind(&LayoutHelper::leftPanelChanged, this, _1, _2));
+    d->overrideCheck(changed_ids, d->right, std::tr1::bind(&LayoutHelper::rightPanelChanged, this, _1, _2));
+    d->overrideCheck(changed_ids, d->center, std::tr1::bind(&LayoutHelper::centerPanelChanged, this, _1, _2));
+    d->overrideCheck(changed_ids, d->extended, std::tr1::bind(&LayoutHelper::extendedPanelChanged, this, _1, _2));
 }
 
 }} // namespace Logic, MaliitKeyboard

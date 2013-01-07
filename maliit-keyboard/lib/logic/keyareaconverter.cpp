@@ -59,7 +59,7 @@ namespace {
 //!        extended keys (optional).
 KeyArea createFromKeyboard(StyleAttributes *attributes,
                            const Keyboard &source,
-                           Layout::Orientation orientation,
+                           LayoutHelper::Orientation orientation,
                            bool is_extended_keyarea = false)
 {
     // An ad-hoc geometry updater that also uses styling information.
@@ -207,7 +207,7 @@ KeyAreaConverter::KeyAreaConverter(StyleAttributes *attributes,
                                    KeyboardLoader *loader)
     : m_attributes(attributes)
     , m_loader(loader)
-    , m_orientation(Layout::Landscape)
+    , m_orientation(LayoutHelper::Landscape)
 {
     if (not attributes || not loader) {
         qFatal("Neither attributes nor loader can be null.");
@@ -221,7 +221,7 @@ KeyAreaConverter::~KeyAreaConverter()
 
 //! \brief Sets the layout orientation used for creating key areas.
 //! \param orientation The layout orientation. Default: landscape.
-void KeyAreaConverter::setLayoutOrientation(Layout::Orientation orientation)
+void KeyAreaConverter::setLayoutOrientation(LayoutHelper::Orientation orientation)
 {
     m_orientation = orientation;
 }

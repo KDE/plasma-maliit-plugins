@@ -72,7 +72,7 @@ Key modifyKey(const Key &key,
 
 void applyStyleToCandidate(WordCandidate *candidate,
                            const StyleAttributes *attributes,
-                           Layout::Orientation orientation,
+                           LayoutHelper::Orientation orientation,
                            ActivationPolicy policy)
 {
     if (not candidate || not attributes) {
@@ -102,7 +102,7 @@ void applyStyleToCandidate(WordCandidate *candidate,
 // FIXME: Make word candidates fit word ribbon also after orientation change.
 void applyStyleToWordRibbon(WordRibbon *ribbon,
                             const SharedStyle &style,
-                            Layout::Orientation orientation)
+                            LayoutHelper::Orientation orientation)
 {
     if (not ribbon || style.isNull()) {
         return;
@@ -117,7 +117,7 @@ void applyStyleToWordRibbon(WordRibbon *ribbon,
     ribbon->setArea(area);
 }
 
-bool updateWordRibbon(Layout *layout,
+bool updateWordRibbon(LayoutHelper *layout,
                       const WordCandidate &candidate,
                       const StyleAttributes *attributes,
                       ActivationPolicy policy)
@@ -151,7 +151,7 @@ QRect adjustedRect(const QRect &rect, const QMargins &margins)
 
 Key magnifyKey(const Key &key,
                const StyleAttributes *attributes,
-               Layout::Orientation orientation,
+               LayoutHelper::Orientation orientation,
                const QRectF &key_area_rect)
 {
     Font magnifier_font;
@@ -209,14 +209,14 @@ class LayoutUpdaterPrivate
 {
 public:
     bool initialized;
-    Layout *layout;
+    LayoutHelper *layout;
     KeyboardLoader loader;
     ShiftMachine shift_machine;
     ViewMachine view_machine;
     DeadkeyMachine deadkey_machine;
     SharedStyle style;
     bool word_ribbon_visible;
-    Layout::Panel close_extended_on_release;
+    LayoutHelper::Panel close_extended_on_release;
 
     explicit LayoutUpdaterPrivate()
         : initialized(false)
@@ -227,7 +227,7 @@ public:
         , deadkey_machine()
         , style()
         , word_ribbon_visible(false)
-        , close_extended_on_release(Layout::NumPanels) // NumPanels counts as invalid panel.
+        , close_extended_on_release(LayoutHelper::NumPanels) // NumPanels counts as invalid panel.
     {}
 
     bool inShiftedState() const
@@ -260,7 +260,7 @@ public:
 
     const StyleAttributes * activeStyleAttributes() const
     {
-        return (layout->activePanel() == Layout::ExtendedPanel
+        return (layout->activePanel() == LayoutHelper::ExtendedPanel
                 ? style->extendedKeysAttributes() : style->attributes());
     }
 };
@@ -310,7 +310,7 @@ QString LayoutUpdater::keyboardTitle(const QString &id) const
     return d->loader.title(id);
 }
 
-void LayoutUpdater::setLayout(Layout *layout)
+void LayoutUpdater::setLayout(LayoutHelper *layout)
 {
     Q_D(LayoutUpdater);
     d->layout = layout;
@@ -321,7 +321,7 @@ void LayoutUpdater::setLayout(Layout *layout)
     }
 }
 
-void LayoutUpdater::setOrientation(Layout::Orientation orientation)
+void LayoutUpdater::setOrientation(LayoutHelper::Orientation orientation)
 {
     Q_D(LayoutUpdater);
 
@@ -400,7 +400,7 @@ void LayoutUpdater::onKeyPressed(const Key &key)
     d->layout->appendActiveKey(MaliitKeyboard::Logic::modifyKey(key, KeyDescription::PressedState,
                                                                 d->activeStyleAttributes()));
 
-    if (d->layout->activePanel() == Layout::CenterPanel) {
+    if (d->layout->activePanel() == LayoutHelper::CenterPanel) {
         d->layout->setMagnifierKey(magnifyKey(key, d->activeStyleAttributes(), d->layout->orientation(),
                                               d->layout->centerPanel().rect()));
     }
@@ -431,7 +431,7 @@ void LayoutUpdater::onKeyLongPressed(const Key &key)
 
     clearActiveKeysAndMagnifier();
 
-    const Layout::Orientation orientation(d->layout->orientation());
+    const LayoutHelper::Orientation orientation(d->layout->orientation());
     StyleAttributes * const extended_attributes(d->style->extendedKeysAttributes());
     const qreal vertical_offset(d->style->attributes()->verticalOffset(orientation));
     KeyAreaConverter converter(extended_attributes, &d->loader);
@@ -459,7 +459,7 @@ void LayoutUpdater::onKeyLongPressed(const Key &key)
 
     ext_ka.setOrigin(offset);
     d->layout->setExtendedPanel(ext_ka);
-    d->layout->setActivePanel(Layout::ExtendedPanel);
+    d->layout->setActivePanel(LayoutHelper::ExtendedPanel);
 }
 
 void LayoutUpdater::onKeyReleased(const Key &key)
@@ -473,10 +473,10 @@ void LayoutUpdater::onKeyReleased(const Key &key)
     d->layout->removeActiveKey(key);
     d->layout->clearMagnifierKey();
 
-    if (d->layout->activePanel() == Layout::ExtendedPanel) {
+    if (d->layout->activePanel() == LayoutHelper::ExtendedPanel) {
         d->layout->clearActiveKeys();
         d->layout->setExtendedPanel(KeyArea());
-        d->layout->setActivePanel(Layout::CenterPanel);
+        d->layout->setActivePanel(LayoutHelper::CenterPanel);
     }
 
     switch (key.action()) {
@@ -512,7 +512,7 @@ void LayoutUpdater::onKeyReleased(const Key &key)
     }
 }
 
-void LayoutUpdater::onKeyAreaPressed(Layout::Panel panel)
+void LayoutUpdater::onKeyAreaPressed(LayoutHelper::Panel panel)
 {
     Q_D(LayoutUpdater);
 
@@ -520,12 +520,12 @@ void LayoutUpdater::onKeyAreaPressed(Layout::Panel panel)
         return;
     }
 
-    if (d->layout->activePanel() == Layout::ExtendedPanel && panel != Layout::ExtendedPanel) {
+    if (d->layout->activePanel() == LayoutHelper::ExtendedPanel && panel != LayoutHelper::ExtendedPanel) {
         d->close_extended_on_release = panel;
     }
 }
 
-void LayoutUpdater::onKeyAreaReleased(Layout::Panel panel)
+void LayoutUpdater::onKeyAreaReleased(LayoutHelper::Panel panel)
 {
     Q_D(LayoutUpdater);
 
@@ -535,10 +535,10 @@ void LayoutUpdater::onKeyAreaReleased(Layout::Panel panel)
 
     if (d->close_extended_on_release == panel) {
         d->layout->setExtendedPanel(KeyArea());
-        d->layout->setActivePanel(Layout::CenterPanel);
+        d->layout->setActivePanel(LayoutHelper::CenterPanel);
     }
 
-    d->close_extended_on_release = Layout::NumPanels;
+    d->close_extended_on_release = LayoutHelper::NumPanels;
 }
 
 void LayoutUpdater::onKeyEntered(const Key &key)
@@ -552,7 +552,7 @@ void LayoutUpdater::onKeyEntered(const Key &key)
     d->layout->appendActiveKey(MaliitKeyboard::Logic::modifyKey(key, KeyDescription::PressedState,
                                                                 d->activeStyleAttributes()));
 
-    if (d->layout->activePanel() == Layout::CenterPanel) {
+    if (d->layout->activePanel() == LayoutHelper::CenterPanel) {
         d->layout->setMagnifierKey(magnifyKey(key, d->activeStyleAttributes(), d->layout->orientation(),
                                               d->layout->centerPanel().rect()));
     }
@@ -590,7 +590,7 @@ void LayoutUpdater::resetOnKeyboardClosed()
 
     clearActiveKeysAndMagnifier();
     d->layout->setExtendedPanel(KeyArea());
-    d->layout->setActivePanel(Layout::CenterPanel);
+    d->layout->setActivePanel(LayoutHelper::CenterPanel);
 }
 
 void LayoutUpdater::onWordCandidatesChanged(const WordCandidateList &candidates)
@@ -608,8 +608,8 @@ void LayoutUpdater::onWordCandidatesChanged(const WordCandidateList &candidates)
     ribbon.clearCandidates();
 
     const StyleAttributes * const attributes(d->activeStyleAttributes());
-    const Layout::Orientation orientation(d->layout->orientation());
-    const int candidate_width(attributes->keyAreaWidth(orientation) / (orientation == Layout::Landscape ? 6 : 4));
+    const LayoutHelper::Orientation orientation(d->layout->orientation());
+    const int candidate_width(attributes->keyAreaWidth(orientation) / (orientation == LayoutHelper::Landscape ? 6 : 4));
 
     for (int index = 0; index < candidates.count(); ++index) {
         WordCandidate word_candidate(candidates.at(index));
@@ -693,7 +693,7 @@ void LayoutUpdater::switchToMainView()
     d->layout->clearActiveKeys();
     d->layout->clearMagnifierKey();
 
-    const Layout::Orientation orientation(d->layout->orientation());
+    const LayoutHelper::Orientation orientation(d->layout->orientation());
 
     if (d->word_ribbon_visible) {
         WordRibbon ribbon(d->layout->wordRibbon());
@@ -715,7 +715,7 @@ void LayoutUpdater::switchToPrimarySymView()
         return;
     }
 
-    const Layout::Orientation orientation(d->layout->orientation());
+    const LayoutHelper::Orientation orientation(d->layout->orientation());
     KeyAreaConverter converter(d->style->attributes(), &d->loader);
     converter.setLayoutOrientation(orientation);
     d->layout->setCenterPanel(converter.symbolsKeyArea(0));
@@ -732,7 +732,7 @@ void LayoutUpdater::switchToSecondarySymView()
         return;
     }
 
-    const Layout::Orientation orientation(d->layout->orientation());
+    const LayoutHelper::Orientation orientation(d->layout->orientation());
     KeyAreaConverter converter(d->style->attributes(), &d->loader);
     converter.setLayoutOrientation(orientation);
     d->layout->setCenterPanel(converter.symbolsKeyArea(1));
@@ -747,7 +747,7 @@ void LayoutUpdater::switchToAccentedView()
     }
 
 
-    const Layout::Orientation orientation(d->layout->orientation());
+    const LayoutHelper::Orientation orientation(d->layout->orientation());
     KeyAreaConverter converter(d->style->attributes(), &d->loader);
     converter.setLayoutOrientation(orientation);
     const Key accent(d->deadkey_machine.accentKey());

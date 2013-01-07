@@ -37,9 +37,9 @@
 #include "models/key.h"
 #include "models/keyarea.h"
 #include "models/wordribbon.h"
-#include "models/keyareacontainer.h"
+#include "models/layout.h"
 
-#include "logic/layout.h"
+#include "logic/layouthelper.h"
 #include "logic/layoutupdater.h"
 #include "logic/wordengine.h"
 #include "logic/style.h"
@@ -118,17 +118,17 @@ public:
     Logic::LayoutUpdater layout_updater;
     Editor editor;
     DefaultFeedback feedback;
-    Logic::Layout layout;
+    Logic::LayoutHelper layout_helper;
     SharedStyle style;
     UpdateNotifier notifier;
     QMap<QString, SharedOverride> key_overrides;
     Settings settings;
-    QScopedPointer<Model::KeyAreaContainer> key_area_container;
+    QScopedPointer<Model::Layout> layout;
     QScopedPointer<Logic::MaliitContext> context;
 
     explicit InputMethodPrivate(MAbstractInputMethodHost *host);
-    void setLayoutOrientation(Logic::Layout::Orientation orientation);
-    void syncWordEngine(Logic::Layout::Orientation orientation);
+    void setLayoutOrientation(Logic::LayoutHelper::Orientation orientation);
+    void syncWordEngine(Logic::LayoutHelper::Orientation orientation);
 
     void connectToNotifier();
 };
@@ -140,51 +140,51 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     , layout_updater()
     , editor(EditorOptions(), new Model::Text, new Logic::WordEngine, new Logic::LanguageFeatures)
     , feedback()
-    , layout()
+    , layout_helper()
     , style(new Style)
     , notifier()
     , key_overrides()
     , settings()
-    , key_area_container(new Model::KeyAreaContainer(&layout_updater))
+    , layout(new Model::Layout(&layout_updater))
     , context(new Logic::MaliitContext(style))
 {
     editor.setHost(host);
 
-    layout_updater.setLayout(&layout);
+    layout_updater.setLayout(&layout_helper);
 
     layout_updater.setStyle(style);
     feedback.setStyle(style);
 
     const QSize &screen_size(surface_factory->screenSize());
-    layout.setScreenSize(screen_size);
-    layout.setAlignment(Logic::Layout::Bottom);
+    layout_helper.setScreenSize(screen_size);
+    layout_helper.setAlignment(Logic::LayoutHelper::Bottom);
 
-    key_area_container->setLayout(&layout);
+    layout->setLayout(&layout_helper);
 
     connectToNotifier();
 
     QQmlEngine *const engine(surface->view()->engine());
     engine->addImportPath(MALIIT_KEYBOARD_DATA_DIR);
     engine->rootContext()->setContextProperty("maliit", context.data());
-    engine->rootContext()->setContextProperty("maliit_layout", key_area_container.data());
+    engine->rootContext()->setContextProperty("maliit_layout", layout.data());
 
     surface->view()->setSource(QUrl::fromLocalFile(g_maliit_keyboard_qml));
 }
 
 
-void InputMethodPrivate::setLayoutOrientation(Logic::Layout::Orientation orientation)
+void InputMethodPrivate::setLayoutOrientation(Logic::LayoutHelper::Orientation orientation)
 {
     syncWordEngine(orientation);
     layout_updater.setOrientation(orientation);
 }
 
 
-void InputMethodPrivate::syncWordEngine(Logic::Layout::Orientation orientation)
+void InputMethodPrivate::syncWordEngine(Logic::LayoutHelper::Orientation orientation)
 {
     // hide_word_ribbon_in_potrait_mode_setting overrides word_engine_setting:
 #ifndef DISABLE_PREEDIT
     const bool override_activation(settings.hide_word_ribbon_in_portrait_mode->value().toBool()
-                                   && orientation == Logic::Layout::Portrait);
+                                   && orientation == Logic::LayoutHelper::Portrait);
 #else
     Q_UNUSED(orientation)
     const bool override_activation = true;
@@ -201,7 +201,7 @@ void InputMethodPrivate::connectToNotifier()
                      &editor,   SLOT(onCursorPositionChanged(int, QString)));
 
     QObject::connect(&notifier, SIGNAL(keysOverriden(Logic::KeyOverrides, bool)),
-                     &layout,   SLOT(onKeysOverriden(Logic::KeyOverrides, bool)));
+                     &layout_helper,   SLOT(onKeysOverriden(Logic::KeyOverrides, bool)));
 }
 
 InputMethod::InputMethod(MAbstractInputMethodHost *host)
@@ -211,9 +211,9 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
     Q_D(InputMethod);
 
     // FIXME: Reconnect feedback instance.
-    Setup::connectAll(d->key_area_container.data(), &d->layout_updater, &d->editor);
-    QObject::connect(&d->layout, SIGNAL(centerPanelChanged(KeyArea,Logic::KeyOverrides)),
-                     d->key_area_container.data(), SLOT(setKeyArea(KeyArea)));
+    Setup::connectAll(d->layout.data(), &d->layout_updater, &d->editor);
+    QObject::connect(&d->layout_helper, SIGNAL(centerPanelChanged(KeyArea,Logic::KeyOverrides)),
+                     d->layout.data(), SLOT(setKeyArea(KeyArea)));
 
     // FIXME: Reimplement keyboardClosed, switchLeft and switchRight
     // (triggered by glass).
@@ -235,7 +235,7 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
     // settings to be initialized first:
     const QSize &screen_size(d->surface_factory->screenSize());
     d->setLayoutOrientation(screen_size.width() >= screen_size.height()
-                            ? Logic::Layout::Landscape : Logic::Layout::Portrait);
+                            ? Logic::LayoutHelper::Landscape : Logic::LayoutHelper::Portrait);
 }
 
 InputMethod::~InputMethod()
@@ -244,8 +244,8 @@ InputMethod::~InputMethod()
 void InputMethod::show()
 {
     Q_D(InputMethod);
-    d->surface->setSize(QSize(d->key_area_container->width(),
-                              d->key_area_container->height()));
+    d->surface->setSize(QSize(d->layout->width(),
+                              d->layout->height()));
 
     d->surface->show();
 }
@@ -312,8 +312,8 @@ void InputMethod::handleAppOrientationChanged(int angle)
 {
     Q_D(InputMethod);
     d->setLayoutOrientation((angle == 0 || angle == 180)
-                            ? Logic::Layout::Landscape
-                            : Logic::Layout::Portrait);
+                            ? Logic::LayoutHelper::Landscape
+                            : Logic::LayoutHelper::Portrait);
 }
 
 bool InputMethod::imExtensionEvent(MImExtensionEvent *event)
@@ -478,17 +478,17 @@ void InputMethod::onScreenSizeChange(const QSize &size)
 {
     Q_D(InputMethod);
 
-    d->layout.setScreenSize(size);
+    d->layout_helper.setScreenSize(size);
     d->setLayoutOrientation(size.width() >= size.height()
-                            ? Logic::Layout::Landscape
-                            : Logic::Layout::Portrait);
+                            ? Logic::LayoutHelper::Landscape
+                            : Logic::LayoutHelper::Portrait);
 }
 
 void InputMethod::onStyleSettingChanged()
 {
     Q_D(InputMethod);
     d->style->setProfile(d->settings.style->value().toString());
-    d->key_area_container->setImageDirectory(d->style->directory(Style::Images));
+    d->layout->setImageDirectory(d->style->directory(Style::Images));
 }
 
 void InputMethod::onKeyboardClosed()
@@ -520,13 +520,13 @@ void InputMethod::onWordEngineSettingChanged()
     // FIXME: Renderer doesn't seem to update graphics properly. Word ribbon
     // is still visible until next VKB show/hide.
     Q_D(InputMethod);
-    d->syncWordEngine(d->layout.orientation());
+    d->syncWordEngine(d->layout_helper.orientation());
 }
 
 void InputMethod::onHideWordRibbonInPortraitModeSettingChanged()
 {
     Q_D(InputMethod);
-    d->setLayoutOrientation(d->layout.orientation());
+    d->setLayoutOrientation(d->layout_helper.orientation());
 }
 
 void InputMethod::setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides)

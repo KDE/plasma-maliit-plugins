@@ -39,7 +39,7 @@
 #include "logic/keyboardloader.h"
 #include "logic/keyareaconverter.h"
 #include "logic/style.h"
-#include "logic/layout.h"
+#include "logic/layouthelper.h"
 
 #include <QtCore>
 #include <QtTest>
@@ -554,7 +554,7 @@ private:
 
     Q_SLOT void testStylingProfile()
     {
-        const Logic::Layout::Orientation orientation(Logic::Layout::Landscape);
+        const Logic::LayoutHelper::Orientation orientation(Logic::LayoutHelper::Landscape);
         Style style;
         QCOMPARE(style.availableProfiles().size(), 1);
         QCOMPARE(style.availableProfiles().first(), QString("test-profile"));

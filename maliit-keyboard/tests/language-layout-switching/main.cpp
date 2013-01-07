@@ -33,7 +33,7 @@
 #include "utils.h"
 #include "models/key.h"
 #include "models/keyarea.h"
-#include "logic/layout.h"
+#include "logic/layouthelper.h"
 #include "view/setup.h"
 #include "plugin/editor.h"
 #include "logic/layoutupdater.h"
@@ -73,7 +73,7 @@ private:
 
         Logic::LayoutUpdater layout_updater;
 
-        Logic::Layout layout(new Logic::Layout);
+        Logic::LayoutHelper layout(new Logic::LayoutHelper);
         layout_updater.setLayout(&layout);
 
         SharedStyle style(new Style);
@@ -82,7 +82,7 @@ private:
         layout_updater.setActiveKeyboardId(keyboard_id);
         TestUtils::waitForSignal(&layout, SIGNAL(centerPanelChanged(KeyArea,Logic::KeyOverrides)));
 
-        QCOMPARE(layout.activePanel(), Logic::Layout::CenterPanel);
+        QCOMPARE(layout.activePanel(), Logic::LayoutHelper::CenterPanel);
         QCOMPARE(layout.activeKeyArea().keys().count(), expected_key_count);
     }
 

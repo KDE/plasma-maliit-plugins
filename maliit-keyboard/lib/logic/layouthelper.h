@@ -30,8 +30,8 @@
  *
  */
 
-#ifndef MALIIT_KEYBOARD_LAYOUT_H
-#define MALIIT_KEYBOARD_LAYOUT_H
+#ifndef MALIIT_KEYBOARD_LAYOUT_HELPER_H
+#define MALIIT_KEYBOARD_LAYOUT_HELPER_H
 
 #include "models/key.h"
 #include "models/keyarea.h"
@@ -44,17 +44,17 @@ namespace Logic {
 
 typedef QMap<QString, Key> KeyOverrides;
 
-class LayoutPrivate;
+class LayoutHelperPrivate;
 
 // TODO: Implement hit test on Layout, one to check whether key was hit, one to check whether word candidate was hit.
 // Should return invalid key/wc, or found key/wc.
 // Would be used by Glass.
-class Layout
+class LayoutHelper
     : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(Layout)
-    Q_DECLARE_PRIVATE(Layout)
+    Q_DISABLE_COPY(LayoutHelper)
+    Q_DECLARE_PRIVATE(LayoutHelper)
 
 public:
     enum Orientation {
@@ -80,8 +80,8 @@ public:
     Q_ENUMS(Orientation)
     Q_ENUMS(Panel)
 
-    explicit Layout(QObject *parent = 0);
-    virtual ~Layout();
+    explicit LayoutHelper(QObject *parent = 0);
+    virtual ~LayoutHelper();
 
     QSize screenSize() const;
     void setScreenSize(const QSize &size);
@@ -145,7 +145,7 @@ public:
                                 bool update);
 
 private:
-    const QScopedPointer<LayoutPrivate> d_ptr;
+    const QScopedPointer<LayoutHelperPrivate> d_ptr;
 };
 
 }} // namespace Logic, MaliitKeyboard

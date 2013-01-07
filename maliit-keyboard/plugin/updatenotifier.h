@@ -35,7 +35,7 @@
 #include <QtCore>
 #include <maliit/plugins/keyoverride.h>
 
-#include "logic/layout.h"
+#include "logic/layouthelper.h"
 
 class MImUpdateEvent;
 

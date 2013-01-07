@@ -37,7 +37,7 @@
 #include "models/key.h"
 #include "models/text.h"
 #include "logic/languagefeatures.h"
-#include "logic/layout.h"
+#include "logic/layouthelper.h"
 #include "logic/layoutupdater.h"
 #include "logic/style.h"
 #include "view/setup.h"

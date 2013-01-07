@@ -29,8 +29,8 @@
  *
  */
 
-#ifndef MALIIT_KEYBOARD_KEYAREACONTAINER_H
-#define MALIIT_KEYBOARD_KEYAREACONTAINER_H
+#ifndef MALIIT_KEYBOARD_LAYOUT_H
+#define MALIIT_KEYBOARD_LAYOUT_H
 
 #include "models/key.h"
 #include <QtCore>
@@ -41,22 +41,22 @@ class KeyArea;
 class Key;
 
 namespace Logic {
-class Layout;
+class LayoutHelper;
 class LayoutUpdater;
 }
 
 namespace Model {
 
-class KeyAreaContainerPrivate;
+class LayoutPrivate;
 
 // TODO: Move the important/remaining layout handling features from
 // Logic::Layout into this, effectively merging the two classes.
-class KeyAreaContainer
+class Layout
     : public QAbstractListModel
 {
     Q_OBJECT
-    Q_DISABLE_COPY(KeyAreaContainer)
-    Q_DECLARE_PRIVATE(KeyAreaContainer)
+    Q_DISABLE_COPY(Layout)
+    Q_DECLARE_PRIVATE(Layout)
 
     Q_PROPERTY(int width READ width
                          NOTIFY widthChanged)
@@ -74,15 +74,15 @@ public:
         RoleKeyText,
     };
 
-    explicit KeyAreaContainer(Logic::LayoutUpdater *updater,
+    explicit Layout(Logic::LayoutUpdater *updater,
                               QObject *parent = 0);
-    virtual ~KeyAreaContainer();
+    virtual ~Layout();
 
     Q_SLOT void setKeyArea(const KeyArea &area);
     KeyArea keyArea() const;
 
-    void setLayout(Logic::Layout *layout);
-    Logic::Layout *layout() const;
+    void setLayout(Logic::LayoutHelper *layout);
+    Logic::LayoutHelper *layout() const;
 
     Q_SLOT int width() const;
     Q_SIGNAL void widthChanged(int changed);
@@ -117,7 +117,7 @@ public:
     Q_SIGNAL void keyExited(const Key &key);
 
 private:
-    const QScopedPointer<KeyAreaContainerPrivate> d_ptr;
+    const QScopedPointer<LayoutPrivate> d_ptr;
 };
 
 }} // namespace Model, MaliitKeyboard

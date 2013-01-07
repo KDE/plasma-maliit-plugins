@@ -37,7 +37,7 @@
 #include "models/key.h"
 #include "models/text.h"
 #include "logic/languagefeatures.h"
-#include "logic/layout.h"
+#include "logic/layouthelper.h"
 #include "logic/layoutupdater.h"
 #include "logic/style.h"
 #include "view/setup.h"
@@ -204,7 +204,7 @@ private:
         editor.setHost(&host);
 
         Logic::LayoutUpdater updater;
-        Logic::Layout layout;
+        Logic::LayoutHelper layout;
         updater.setLayout(&layout);
 
         SharedStyle style(new Style);

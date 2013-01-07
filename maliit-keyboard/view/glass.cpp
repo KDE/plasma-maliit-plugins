@@ -65,7 +65,7 @@ public:
     QWidget *extendedWindow;
     QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> surface;
     QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> extendedSurface;
-    QVector<Logic::Layout *> layouts;
+    QVector<Logic::LayoutHelper *> layouts;
     QVector<Key> active_keys;
     WordCandidate active_candidate;
     QPoint last_pos;
@@ -73,7 +73,7 @@ public:
     QElapsedTimer gesture_timer;
     bool gesture_triggered;
     QTimer long_press_timer;
-    Logic::Layout *long_press_layout;
+    Logic::LayoutHelper *long_press_layout;
 
     explicit GlassPrivate()
         : window(0)
@@ -144,7 +144,7 @@ void Glass::setExtendedSurface(const QSharedPointer<Maliit::Plugins::AbstractGra
     window->installEventFilter(this);
 }
 
-void Glass::addLayout(Logic::Layout *layout)
+void Glass::addLayout(Logic::LayoutHelper *layout)
 {
     Q_D(Glass);
     d->layouts.append(layout);
@@ -208,8 +208,8 @@ bool Glass::eventFilter(QObject *obj,
         QMouseEvent *qme = static_cast<QMouseEvent *>(ev);
         ev->accept();
 
-        Q_FOREACH (Logic::Layout *layout, d->layouts) {
-            const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> targetSurface(layout->activePanel() == Logic::Layout::ExtendedPanel ? d->extendedSurface : d->surface);
+        Q_FOREACH (Logic::LayoutHelper *layout, d->layouts) {
+            const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> targetSurface(layout->activePanel() == Logic::LayoutHelper::ExtendedPanel ? d->extendedSurface : d->surface);
 
             const QPoint &pos(targetSurface->translateEventPosition(qme->pos(), eventSurface));
             const QPoint &last_pos(targetSurface->translateEventPosition(d->last_pos, eventSurface));
@@ -292,7 +292,7 @@ void Glass::onLongPressTriggered()
     if (d->gesture_triggered
         || d->active_keys.isEmpty()
         || not d->long_press_layout
-        || d->long_press_layout->activePanel() == Logic::Layout::ExtendedPanel) {
+        || d->long_press_layout->activePanel() == Logic::LayoutHelper::ExtendedPanel) {
         return;
     }
 
@@ -319,8 +319,8 @@ bool Glass::handlePressReleaseEvent(QEvent *ev,
     d->press_pos = qme->pos(); // FIXME: dont update on mouse release, clear instead.
     ev->accept();
 
-    Q_FOREACH (Logic::Layout *layout, d->layouts) {
-        const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> targetSurface(layout->activePanel() == Logic::Layout::ExtendedPanel ? d->extendedSurface : d->surface);
+    Q_FOREACH (Logic::LayoutHelper *layout, d->layouts) {
+        const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> targetSurface(layout->activePanel() == Logic::LayoutHelper::ExtendedPanel ? d->extendedSurface : d->surface);
 
         const QPoint &pos(targetSurface->translateEventPosition(qme->pos(), eventSurface));
 
@@ -353,7 +353,7 @@ bool Glass::handlePressReleaseEvent(QEvent *ev,
                 } else {
                     // Hit empty area, we use keyAreaReleased to cancel any user action.
                     // TODO: Better introduce cancelled signal?
-                    Q_EMIT keyAreaReleased(Logic::Layout::NumPanels, layout);
+                    Q_EMIT keyAreaReleased(Logic::LayoutHelper::NumPanels, layout);
                 }
             }
         } break;
@@ -386,18 +386,18 @@ bool Glass::handlePressReleaseEvent(QEvent *ev,
             break;
         }
 
-        Logic::Layout::Panel panel = Logic::Layout::NumPanels;
+        Logic::LayoutHelper::Panel panel = Logic::LayoutHelper::NumPanels;
 
         if (layout->centerPanel().rect().contains(pos))
-            panel = Logic::Layout::CenterPanel;
+            panel = Logic::LayoutHelper::CenterPanel;
         else if (QRect(d->extendedSurface->relativePosition(), d->extendedSurface->size()).contains(pos))
-            panel = Logic::Layout::ExtendedPanel;
+            panel = Logic::LayoutHelper::ExtendedPanel;
         else if (layout->leftPanel().rect().contains(pos))
-            panel = Logic::Layout::LeftPanel;
+            panel = Logic::LayoutHelper::LeftPanel;
         else if (layout->rightPanel().rect().contains(pos))
-            panel = Logic::Layout::RightPanel;
+            panel = Logic::LayoutHelper::RightPanel;
 
-        if (panel != Logic::Layout::NumPanels) {
+        if (panel != Logic::LayoutHelper::NumPanels) {
             if (qme->type() == QKeyEvent::MouseButtonPress) {
                 Q_EMIT keyAreaPressed(panel, layout);
             } else if (qme->type() == QKeyEvent::MouseButtonRelease) {

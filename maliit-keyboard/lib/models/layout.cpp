@@ -29,12 +29,12 @@
  *
  */
 
-#include "keyareacontainer.h"
+#include "layout.h"
 #include "keyarea.h"
 #include "key.h"
 #include "keydescription.h"
 
-#include "logic/layout.h"
+#include "logic/layouthelper.h"
 #include "logic/layoutupdater.h"
 
 namespace MaliitKeyboard {
@@ -53,20 +53,20 @@ QUrl toUrl(const QString &directory,
 }
 
 
-class KeyAreaContainerPrivate
+class LayoutPrivate
 {
 public:
     KeyArea key_area;
-    Logic::Layout *layout; // TODO: Get rid of this member.
+    Logic::LayoutHelper *layout; // TODO: Get rid of this member.
     Logic::LayoutUpdater *updater; // TODO: wrap into scoped pointer and assign ownership to this class.
     QString image_directory;
     QHash<int, QByteArray> roles;
 
-    explicit KeyAreaContainerPrivate(Logic::LayoutUpdater *new_updater);
+    explicit LayoutPrivate(Logic::LayoutUpdater *new_updater);
 };
 
 
-KeyAreaContainerPrivate::KeyAreaContainerPrivate(Logic::LayoutUpdater *new_updater)
+LayoutPrivate::LayoutPrivate(Logic::LayoutUpdater *new_updater)
     : key_area()
     , layout()
     , updater(new_updater)
@@ -75,30 +75,30 @@ KeyAreaContainerPrivate::KeyAreaContainerPrivate(Logic::LayoutUpdater *new_updat
 {
     // Model roles are used as variables in QML, hence the under_score naming
     // convention:
-    roles[KeyAreaContainer::RoleKeyRectangle] = "key_rectangle";
-    roles[KeyAreaContainer::RoleKeyReactiveArea] = "key_reactive_area";
-    roles[KeyAreaContainer::RoleKeyBackground] = "key_background";
-    roles[KeyAreaContainer::RoleKeyBackgroundBorders] = "key_background_borders";
-    roles[KeyAreaContainer::RoleKeyText] = "key_text";
+    roles[Layout::RoleKeyRectangle] = "key_rectangle";
+    roles[Layout::RoleKeyReactiveArea] = "key_reactive_area";
+    roles[Layout::RoleKeyBackground] = "key_background";
+    roles[Layout::RoleKeyBackgroundBorders] = "key_background_borders";
+    roles[Layout::RoleKeyText] = "key_text";
 }
 
 
-KeyAreaContainer::KeyAreaContainer(Logic::LayoutUpdater *updater,
+Layout::Layout(Logic::LayoutUpdater *updater,
                                    QObject *parent)
     : QAbstractListModel(parent)
-    , d_ptr(new KeyAreaContainerPrivate(updater))
+    , d_ptr(new LayoutPrivate(updater))
 {}
 
 
-KeyAreaContainer::~KeyAreaContainer()
+Layout::~Layout()
 {}
 
 
-void KeyAreaContainer::setKeyArea(const KeyArea &area)
+void Layout::setKeyArea(const KeyArea &area)
 {
     beginResetModel();
 
-    Q_D(KeyAreaContainer);
+    Q_D(Layout);
     const bool geometry_changed(d->key_area.rect() != area.rect());
     const bool background_changed(d->key_area.area().background() != area.area().background());
 
@@ -117,53 +117,53 @@ void KeyAreaContainer::setKeyArea(const KeyArea &area)
 }
 
 
-KeyArea KeyAreaContainer::keyArea() const
+KeyArea Layout::keyArea() const
 {
-    Q_D(const KeyAreaContainer);
+    Q_D(const Layout);
     return d->key_area;
 }
 
 
-void KeyAreaContainer::setLayout(Logic::Layout *layout)
+void Layout::setLayout(Logic::LayoutHelper *layout)
 {
-    Q_D(KeyAreaContainer);
+    Q_D(Layout);
 
     d->layout = layout;
 }
 
 
-Logic::Layout *KeyAreaContainer::layout() const
+Logic::LayoutHelper *Layout::layout() const
 {
-    Q_D(const KeyAreaContainer);
+    Q_D(const Layout);
 
     return d->layout;
 }
 
 
-int KeyAreaContainer::width() const
+int Layout::width() const
 {
-    Q_D(const KeyAreaContainer);
+    Q_D(const Layout);
     return d->key_area.rect().width();
 }
 
 
-int KeyAreaContainer::height() const
+int Layout::height() const
 {
-    Q_D(const KeyAreaContainer);
+    Q_D(const Layout);
     return d->key_area.rect().height();
 }
 
 
-QUrl KeyAreaContainer::background() const
+QUrl Layout::background() const
 {
-    Q_D(const KeyAreaContainer);
+    Q_D(const Layout);
     return toUrl(d->image_directory, d->key_area.area().background());
 }
 
 
-void KeyAreaContainer::setImageDirectory(const QString &directory)
+void Layout::setImageDirectory(const QString &directory)
 {
-    Q_D(KeyAreaContainer);
+    Q_D(Layout);
 
     if (d->image_directory != directory) {
         d->image_directory = directory;
@@ -175,18 +175,18 @@ void KeyAreaContainer::setImageDirectory(const QString &directory)
 }
 
 
-int KeyAreaContainer::rowCount(const QModelIndex &parent) const
+int Layout::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent)
-    Q_D(const KeyAreaContainer);
+    Q_D(const Layout);
     return d->key_area.keys().count();
 }
 
 
-QVariant KeyAreaContainer::data(const QModelIndex &index,
+QVariant Layout::data(const QModelIndex &index,
                                 int role) const
 {
-    Q_D(const KeyAreaContainer);
+    Q_D(const Layout);
 
     const QVector<Key> &keys(d->key_area.keys());
     const Key &key(index.row() < keys.count()
@@ -228,14 +228,14 @@ QVariant KeyAreaContainer::data(const QModelIndex &index,
 }
 
 
-QHash<int, QByteArray> KeyAreaContainer::roleNames() const
+QHash<int, QByteArray> Layout::roleNames() const
 {
-    Q_D(const KeyAreaContainer);
+    Q_D(const Layout);
     return d->roles;
 }
 
 
-QVariant KeyAreaContainer::data(int index, const QString &role) const
+QVariant Layout::data(int index, const QString &role) const
 {
 
     const QModelIndex idx(this->index(index, 0));
@@ -243,9 +243,9 @@ QVariant KeyAreaContainer::data(int index, const QString &role) const
 }
 
 
-void KeyAreaContainer::onEntered(int index)
+void Layout::onEntered(int index)
 {
-    Q_D(KeyAreaContainer);
+    Q_D(Layout);
 
     const QVector<Key> &keys(d->key_area.keys());
     const Key &key(index < keys.count()
@@ -260,9 +260,9 @@ void KeyAreaContainer::onEntered(int index)
 }
 
 
-void KeyAreaContainer::onExited(int index)
+void Layout::onExited(int index)
 {
-    Q_D(KeyAreaContainer);
+    Q_D(Layout);
 
     const QVector<Key> &keys(d->key_area.keys());
     const Key &key(index < keys.count()
@@ -277,9 +277,9 @@ void KeyAreaContainer::onExited(int index)
 }
 
 
-void KeyAreaContainer::onPressed(int index)
+void Layout::onPressed(int index)
 {
-    Q_D(KeyAreaContainer);
+    Q_D(Layout);
 
     const QVector<Key> &keys(d->key_area.keys());
     const Key &key(index < keys.count()
@@ -298,9 +298,9 @@ void KeyAreaContainer::onPressed(int index)
 }
 
 
-void KeyAreaContainer::onReleased(int index)
+void Layout::onReleased(int index)
 {
-    Q_D(KeyAreaContainer);
+    Q_D(Layout);
 
     const QVector<Key> &keys(d->key_area.keys());
     const Key &key(index < keys.count()
@@ -319,9 +319,9 @@ void KeyAreaContainer::onReleased(int index)
 }
 
 
-void KeyAreaContainer::onPressAndHold(int index)
+void Layout::onPressAndHold(int index)
 {
-    Q_D(KeyAreaContainer);
+    Q_D(Layout);
 
     const QVector<Key> &keys(d->key_area.keys());
     const Key &key(index < keys.count()

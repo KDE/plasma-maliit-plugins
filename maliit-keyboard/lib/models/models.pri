@@ -6,7 +6,7 @@ HEADERS += \
     models/label.h \
     models/key.h \
     models/keyarea.h \
-    models/keyareacontainer.h \
+    models/layout.h \
     models/keyboard.h \
     models/keydescription.h \
     models/wordcandidate.h \
@@ -20,7 +20,7 @@ SOURCES += \
     models/label.cpp \
     models/key.cpp \
     models/keyarea.cpp \
-    models/keyareacontainer.cpp \
+    models/layout.cpp \
     models/wordcandidate.cpp \
     models/wordribbon.cpp \
     models/text.cpp \

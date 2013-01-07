@@ -57,7 +57,7 @@ int main(int argc,
         mode = 1;
     }
 
-    MaliitKeyboard::Logic::Layout layout;
+    MaliitKeyboard::Logic::LayoutHelper layout;
     MaliitKeyboard::Logic::LayoutUpdater updater;
     const QStringList ids (updater.keyboardIds());
     const int count(ids.size());

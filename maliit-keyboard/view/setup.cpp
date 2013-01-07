@@ -34,18 +34,18 @@
 #include "abstracttexteditor.h"
 #include "abstractfeedback.h"
 
-#include "models/keyareacontainer.h"
+#include "models/layout.h"
 #include "models/key.h"
 #include "models/wordcandidate.h"
 #include "models/text.h"
 
-#include "logic/layout.h"
+#include "logic/layouthelper.h"
 #include "logic/layoutupdater.h"
 
 namespace MaliitKeyboard {
 namespace Setup {
 
-void connectAll(Model::KeyAreaContainer *container,
+void connectAll(Model::Layout *container,
                 Logic::LayoutUpdater *updater,
                 AbstractTextEditor *editor)
 {
@@ -53,7 +53,7 @@ void connectAll(Model::KeyAreaContainer *container,
     connectLayoutUpdaterToTextEditor(updater, editor);
 }
 
-void connectContainerToTextEditor(Model::KeyAreaContainer *container,
+void connectContainerToTextEditor(Model::Layout *container,
                                   AbstractTextEditor *editor)
 {
     QObject::connect(container, SIGNAL(keyPressed(Key)),
@@ -69,7 +69,7 @@ void connectContainerToTextEditor(Model::KeyAreaContainer *container,
                      editor,    SLOT(onKeyExited(Key)));
 }
 
-void connectLayoutToFeedback(Model::KeyAreaContainer *layout,
+void connectLayoutToFeedback(Model::Layout *layout,
                              AbstractFeedback *feedback)
 {
     QObject::connect(layout,   SIGNAL(keyPressed(Key)),

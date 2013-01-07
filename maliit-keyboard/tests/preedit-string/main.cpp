@@ -36,10 +36,10 @@
 #include "models/key.h"
 #include "models/keyarea.h"
 #include "models/text.h"
-#include "models/keyareacontainer.h"
+#include "models/layout.h"
 
 #include "logic/languagefeatures.h"
-#include "logic/layout.h"
+#include "logic/layouthelper.h"
 #include "view/setup.h"
 #include "plugin/editor.h"
 #include "plugin/updatenotifier.h"
@@ -58,7 +58,7 @@
 #endif
 
 using namespace MaliitKeyboard;
-Q_DECLARE_METATYPE(Logic::Layout::Orientation)
+Q_DECLARE_METATYPE(Logic::LayoutHelper::Orientation)
 Q_DECLARE_METATYPE(QList<QMouseEvent*>)
 
 namespace {
@@ -125,12 +125,12 @@ KeyArea createAbcdArea()
 }
 
 QList<QMouseEvent *> createPressReleaseEvent(const QPoint &origin,
-                                             Logic::Layout::Orientation orientation = Logic::Layout::Landscape)
+                                             Logic::LayoutHelper::Orientation orientation = Logic::LayoutHelper::Landscape)
 {
     static const int offset(g_size / (g_divider * 2));
 
     QList<QMouseEvent *> result;
-    QPoint pos = (orientation == Logic::Layout::Landscape)
+    QPoint pos = (orientation == Logic::LayoutHelper::Landscape)
                   ? QPoint(origin.x() + offset, origin.y() + offset)
                   : QPoint(origin.y() + offset, g_size - (origin.x() + offset));
 
@@ -182,11 +182,11 @@ struct BasicSetupTest
 struct SetupTest
     : public BasicSetupTest
 {
-    SetupTest(Logic::Layout::Orientation orientation = Logic::Layout::Landscape,
+    SetupTest(Logic::LayoutHelper::Orientation orientation = Logic::LayoutHelper::Landscape,
               bool enable_word_engine = true)
         : BasicSetupTest(enable_word_engine)
         , container(0) // TODO: Provide valid LayoutUpdater instance?
-        , layout(new Logic::Layout)
+        , layout(new Logic::LayoutHelper)
         , surface(Maliit::Plugins::createTestGraphicsViewSurface())
         , extended_surface(Maliit::Plugins::createTestGraphicsViewSurface(surface))
         , key_area(createAbcdArea())
@@ -200,13 +200,13 @@ struct SetupTest
         Setup::connectContainerToTextEditor(&container, &editor);
 
         layout.setExtendedPanel(key_area);
-        layout.setActivePanel(Logic::Layout::ExtendedPanel);
+        layout.setActivePanel(Logic::LayoutHelper::ExtendedPanel);
 
         container.setKeyArea(key_area);
     }
 
-    Model::KeyAreaContainer container;
-    Logic::Layout layout;
+    Model::Layout container;
+    Logic::LayoutHelper layout;
     QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> surface;
     QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> extended_surface;
     KeyArea key_area;
@@ -223,13 +223,13 @@ private:
     Q_SLOT void initTestCase()
     {
         qRegisterMetaType<QList<QMouseEvent*> >();
-        qRegisterMetaType<Logic::Layout::Orientation>();
+        qRegisterMetaType<Logic::LayoutHelper::Orientation>();
         qRegisterMetaType<FormatList>();
     }
 
     Q_SLOT void test_data()
     {
-        QTest::addColumn<Logic::Layout::Orientation>("orientation");
+        QTest::addColumn<Logic::LayoutHelper::Orientation>("orientation");
         QTest::addColumn<QList<QMouseEvent*> >("mouse_events");
         QTest::addColumn<QString>("expected_last_preedit_string");
         QTest::addColumn<QString>("expected_commit_string");
@@ -240,9 +240,9 @@ private:
         for (int orientation = 0; orientation < 1; ++orientation) {
             // FIXME: here should be 2          ^
             // FIXME: tests fail for portrait layouts
-            const Logic::Layout::Orientation layout_orientation(orientation == 0
-                                                                ? Logic::Layout::Landscape
-                                                                : Logic::Layout::Portrait);
+            const Logic::LayoutHelper::Orientation layout_orientation(orientation == 0
+                                                                ? Logic::LayoutHelper::Landscape
+                                                                : Logic::LayoutHelper::Portrait);
             QTest::newRow("No mouse events: expect empty commit string, should be no preedit face")
                 << layout_orientation
                 << (QList<QMouseEvent *>())
@@ -330,7 +330,7 @@ private:
         // have to be skipped when there's no hunspell/presage, which
         // I wouldn't like to have.
 
-        QFETCH(Logic::Layout::Orientation, orientation);
+        QFETCH(Logic::LayoutHelper::Orientation, orientation);
         QFETCH(QList<QMouseEvent*>, mouse_events);
         QFETCH(QString, expected_last_preedit_string);
         QFETCH(QString, expected_commit_string);

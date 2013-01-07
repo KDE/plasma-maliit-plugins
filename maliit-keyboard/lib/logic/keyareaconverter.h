@@ -33,7 +33,7 @@
 #ifndef MALIIT_KEYBOARD_KEYAREACONVERTER_H
 #define MALIIT_KEYBOARD_KEYAREACONVERTER_H
 
-#include "logic/layout.h"
+#include "logic/layouthelper.h"
 #include <QPoint>
 
 namespace MaliitKeyboard {
@@ -50,14 +50,14 @@ class KeyAreaConverter
 private:
     StyleAttributes * const m_attributes;
     KeyboardLoader * const m_loader;
-    Layout::Orientation m_orientation;
+    LayoutHelper::Orientation m_orientation;
 
 public:
     explicit KeyAreaConverter(StyleAttributes *attributes,
                               KeyboardLoader *loader);
     virtual ~KeyAreaConverter();
 
-    void setLayoutOrientation(Layout::Orientation orientation);
+    void setLayoutOrientation(LayoutHelper::Orientation orientation);
 
     virtual KeyArea keyArea() const;
     virtual KeyArea nextKeyArea() const;
