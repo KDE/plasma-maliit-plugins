@@ -252,6 +252,10 @@ void KeyAreaContainer::onEntered(int index)
                    ? keys.at(index)
                    : Key());
 
+    if (d->updater) {
+        d->updater->onKeyEntered(key);
+    }
+
     Q_EMIT keyEntered(key);
 }
 
@@ -264,6 +268,10 @@ void KeyAreaContainer::onExited(int index)
     const Key &key(index < keys.count()
                    ? keys.at(index)
                    : Key());
+
+    if (d->updater) {
+        d->updater->onKeyExited(key);
+    }
 
     Q_EMIT keyExited(key);
 }
@@ -280,6 +288,10 @@ void KeyAreaContainer::onPressed(int index)
                          ? d->updater->modifyKey(key, KeyDescription::PressedState) : Key());
 
     d->key_area.rKeys().replace(index, pressed_key);
+
+    if (d->updater) {
+        d->updater->onKeyPressed(pressed_key);
+    }
 
     Q_EMIT dataChanged(this->index(index, 0), this->index(index, 0));
     Q_EMIT keyPressed(pressed_key);
@@ -298,6 +310,10 @@ void KeyAreaContainer::onReleased(int index)
 
     d->key_area.rKeys().replace(index, normal_key);
 
+    if (d->updater) {
+        d->updater->onKeyReleased(normal_key);
+    }
+
     Q_EMIT dataChanged(this->index(index, 0), this->index(index, 0));
     Q_EMIT keyReleased(normal_key);
 }
@@ -311,6 +327,10 @@ void KeyAreaContainer::onPressAndHold(int index)
     const Key &key(index < keys.count()
                    ? keys.at(index)
                    : Key());
+
+    if (d->updater) {
+        d->updater->onKeyLongPressed(key);
+    }
 
     Q_EMIT keyLongPressed(key);
 }

@@ -55,8 +55,6 @@ void connectAll(Model::KeyAreaContainer *container,
                 Logic::LayoutUpdater *updater,
                 AbstractTextEditor *editor);
 
-void connectContainerToLayoutUpdater(Model::KeyAreaContainer *container,
-                                     Logic::LayoutUpdater *updater);
 void connectContainerToTextEditor(Model::KeyAreaContainer *container,
                                   AbstractTextEditor *editor);
 void connectGlassToFeedback(Glass *glass,

@@ -49,35 +49,8 @@ void connectAll(Model::KeyAreaContainer *container,
                 Logic::LayoutUpdater *updater,
                 AbstractTextEditor *editor)
 {
-    connectContainerToLayoutUpdater(container, updater);
     connectContainerToTextEditor(container, editor);
     connectLayoutUpdaterToTextEditor(updater, editor);
-}
-
-void connectContainerToLayoutUpdater(Model::KeyAreaContainer *container,
-                                     Logic::LayoutUpdater *updater)
-{
-    // Connect key signals to key signal handlers:
-    QObject::connect(container, SIGNAL(keyPressed(Key)),
-                     updater,   SLOT(onKeyPressed(Key)));
-
-    QObject::connect(container, SIGNAL(keyLongPressed(Key)),
-                     updater,   SLOT(onKeyLongPressed(Key)));
-
-    QObject::connect(container, SIGNAL(keyReleased(Key)),
-                     updater,   SLOT(onKeyReleased(Key)));
-
-    QObject::connect(container, SIGNAL(keyAreaPressed(Logic::Layout::Panel)),
-                     updater,   SLOT(onKeyAreaPressed(Logic::Layout::Panel)));
-
-    QObject::connect(container, SIGNAL(keyAreaReleased(Logic::Layout::Panel)),
-                     updater,   SLOT(onKeyAreaReleased(Logic::Layout::Panel)));
-
-    QObject::connect(container, SIGNAL(keyEntered(Key)),
-                     updater,   SLOT(onKeyEntered(Key)));
-
-    QObject::connect(container, SIGNAL(keyExited(Key)),
-                     updater,   SLOT(onKeyExited(Key)));
 }
 
 void connectContainerToTextEditor(Model::KeyAreaContainer *container,
