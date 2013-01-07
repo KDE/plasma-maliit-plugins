@@ -74,11 +74,18 @@ public:
         NumActions
     };
 
+    enum Style {
+        StyleNormalKey,
+        StyleSpecialKey,
+        StyleDeadKey
+    };
+
 private:
     QPoint m_origin;
     Area m_area;
     Label m_label;
     Action m_action;
+    Style m_style;
     QMargins m_margins;
     QByteArray m_icon;
     bool m_has_extended_keys: 1;
@@ -105,6 +112,9 @@ public:
 
     Action action() const;
     void setAction(Action action);
+
+    Style style() const;
+    void setStyle(Style style);
 
     QMargins margins() const;
     void setMargins(const QMargins &margins);

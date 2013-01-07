@@ -54,7 +54,7 @@ public:
     QByteArray wordRibbonBackground() const;
     QByteArray keyAreaBackground() const;
     QByteArray magnifierKeyBackground() const;
-    QByteArray keyBackground(KeyDescription::Style style,
+    QByteArray keyBackground(Key::Style style,
                              KeyDescription::State state) const;
 
     QMargins wordRibbonBackgroundBorders() const;

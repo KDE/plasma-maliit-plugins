@@ -37,12 +37,6 @@ namespace MaliitKeyboard {
 
 struct KeyDescription
 {
-    enum Style {
-        NormalStyle,
-        SpecialStyle,
-        DeadkeyStyle
-    };
-
     enum Width {
         Small,
         Medium,
@@ -81,7 +75,6 @@ struct KeyDescription
     bool use_rtl_icon: 1;
     bool left_spacer: 1;
     bool right_spacer: 1;
-    Style style;
     Width width;
     Icon icon;
     FontGroup font_group;

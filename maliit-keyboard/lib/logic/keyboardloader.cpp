@@ -109,12 +109,12 @@ QPair<Key, KeyDescription> keyAndDescFromTags(const TagKeyPtr &key,
 
     skey.setCommandSequence(binding->sequence());
     skey.setIcon(binding->icon().toUtf8());
+    skey.setStyle(static_cast<Key::Style>(key->style()));
 
     skey_description.row = row;
     skey_description.use_rtl_icon = key->rtl();
     skey_description.left_spacer = false;
     skey_description.right_spacer = false;
-    skey_description.style = static_cast<KeyDescription::Style>(key->style());
     skey_description.width = static_cast<KeyDescription::Width>(key->width());
 
     switch (skey.action()) {

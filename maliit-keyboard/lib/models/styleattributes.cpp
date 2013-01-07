@@ -86,12 +86,12 @@ QByteArray fromKeyIcon(KeyDescription::Icon icon)
 //! \brief Converts KeyDescription::Style enum values into string representations.
 //! @param style The enum value to convert.
 //! @returns The string representation.
-QByteArray fromKeyStyle(KeyDescription::Style style)
+QByteArray fromKeyStyle(Key::Style style)
 {
     switch (style) {
-    case KeyDescription::NormalStyle: return QByteArray("normal");
-    case KeyDescription::DeadkeyStyle: return QByteArray("dead");
-    case KeyDescription::SpecialStyle: return QByteArray("special");
+    case Key::StyleNormalKey: return QByteArray("normal");
+    case Key::StyleDeadKey: return QByteArray("dead");
+    case Key::StyleSpecialKey: return QByteArray("special");
     }
 
     return QByteArray();
@@ -247,7 +247,7 @@ QByteArray StyleAttributes::magnifierKeyBackground() const
 //! @param style The key style (normal, special, deadkey).
 //! @param state The key state (normal, pressed, disabled, highlighted).
 //! @returns Value of "background\${style}[-${state}]"
-QByteArray StyleAttributes::keyBackground(KeyDescription::Style style,
+QByteArray StyleAttributes::keyBackground(Key::Style style,
                                           KeyDescription::State state) const
 {
     QByteArray key("background/");

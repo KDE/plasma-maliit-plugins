@@ -64,8 +64,7 @@ Key modifyKey(const Key &key,
 
     Key k(key);
 
-    // FIXME: Use correct key style, but where to look it up?
-    k.rArea().setBackground(attributes->keyBackground(KeyDescription::NormalStyle, state));
+    k.rArea().setBackground(attributes->keyBackground(key.style(), state));
     k.rArea().setBackgroundBorders(attributes->keyBackgroundBorders());
 
     return k;

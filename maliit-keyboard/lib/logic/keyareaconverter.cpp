@@ -117,7 +117,7 @@ KeyArea createFromKeyboard(StyleAttributes *attributes,
         const qreal key_margin((at_row_start || at_row_end) ? margin + padding : margin * 2);
 
         Area area;
-        area.setBackground(attributes->keyBackground(desc.style, KeyDescription::NormalState));
+        area.setBackground(attributes->keyBackground(key.style(), KeyDescription::NormalState));
         area.setBackgroundBorders(bg_margins);
         area.setSize(QSize(width + key_margin, key_height));
         key.setArea(area);

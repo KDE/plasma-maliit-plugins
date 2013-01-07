@@ -39,6 +39,7 @@ Key::Key()
     , m_area()
     , m_label()
     , m_action(ActionInsert)
+    , m_style(StyleNormalKey)
     , m_margins()
     , m_icon()
     , m_has_extended_keys(false)
@@ -103,6 +104,16 @@ Key::Action Key::action() const
 void Key::setAction(Action action)
 {
     m_action = action;
+}
+
+Key::Style Key::style() const
+{
+    return m_style;
+}
+
+void Key::setStyle(Style style)
+{
+    m_style = style;
 }
 
 QMargins Key::margins() const
