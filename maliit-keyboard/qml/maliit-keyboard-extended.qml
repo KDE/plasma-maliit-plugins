@@ -32,19 +32,19 @@
 import QtQuick 2.0
 
 Item {
-    id: main_area
-    width: maliit_layout.width
-    height: maliit_layout.height
-    visible: maliit_layout.visible
+    id: extended_area
+    width: maliit_extended_layout.width
+    height: maliit_extended_layout.height
+    visible: maliit_extended_layout.visible
 
     BorderImage {
         anchors.fill: parent
-        source: maliit_layout.background
+        source: maliit_extended_layout.background
     }
 
     Repeater {
-        id: main
-        model: maliit_layout
+        id: extended
+        model: maliit_extended_layout
         anchors.fill: parent
 
         Item {
@@ -76,15 +76,13 @@ Item {
             }
 
             MouseArea {
-                enabled: !maliit_extended_layout.visible
                 anchors.fill: parent
                 hoverEnabled: true
 
-                onEntered: maliit_layout.onEntered(index)
-                onExited: maliit_layout.onExited(index)
-                onPressed: maliit_layout.onPressed(index)
-                onReleased: maliit_layout.onReleased(index)
-                onPressAndHold: maliit_layout.onPressAndHold(index)
+                onEntered: maliit_extended_layout.onEntered(index)
+                onExited: maliit_extended_layout.onExited(index)
+                onPressed: maliit_extended_layout.onPressed(index)
+                onReleased: maliit_extended_layout.onReleased(index)
             }
         }
     }

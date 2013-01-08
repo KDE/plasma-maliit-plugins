@@ -82,7 +82,12 @@ const Maliit::Plugins::AbstractSurface::Options g_surface_options(
     Maliit::Plugins::AbstractSurface::TypeQuick2 | Maliit::Plugins::AbstractSurface::PositionCenterBottom
 );
 
+const Maliit::Plugins::AbstractSurface::Options g_extended_surface_options(
+    Maliit::Plugins::AbstractSurface::TypeQuick2 | Maliit::Plugins::AbstractSurface::PositionOverlay
+);
+
 const QString g_maliit_keyboard_qml(MALIIT_KEYBOARD_DATA_DIR "/maliit-keyboard.qml");
+const QString g_maliit_keyboard_extended_qml(MALIIT_KEYBOARD_DATA_DIR "/maliit-keyboard-extended.qml");
 
 Key overrideToKey(const SharedOverride &override)
 {
@@ -113,8 +118,12 @@ public:
 class InputMethodPrivate
 {
 public:
+    typedef Maliit::Plugins::QuickViewSurface Surface;
+    typedef QSharedPointer<Surface> SharedSurface;
+
     Maliit::Plugins::AbstractSurfaceFactory *const surface_factory;
-    QSharedPointer<Maliit::Plugins::QuickViewSurface> surface;
+    SharedSurface surface;
+    SharedSurface extended_surface;
     Editor editor;
     DefaultFeedback feedback;
     SharedStyle style;
@@ -139,7 +148,8 @@ public:
 
 InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     : surface_factory(host->surfaceFactory())
-    , surface(qSharedPointerDynamicCast<Maliit::Plugins::QuickViewSurface>(surface_factory->create(g_surface_options)))
+    , surface(qSharedPointerDynamicCast<Surface>(surface_factory->create(g_surface_options)))
+    , extended_surface(qSharedPointerDynamicCast<Surface>(surface_factory->create(g_extended_surface_options)))
     , editor(EditorOptions(), new Model::Text, new Logic::WordEngine, new Logic::LanguageFeatures)
     , feedback()
     , style(new Style)
@@ -177,6 +187,7 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
 
     connectToNotifier();
 
+    // TODO: Figure out whether two views can share one engine.
     QQmlEngine *const engine(surface->view()->engine());
     engine->addImportPath(MALIIT_KEYBOARD_DATA_DIR);
     engine->rootContext()->setContextProperty("maliit", context.data());
@@ -184,6 +195,16 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     engine->rootContext()->setContextProperty("maliit_extended_layout", extended_layout.data());
 
     surface->view()->setSource(QUrl::fromLocalFile(g_maliit_keyboard_qml));
+
+    QQmlEngine *const extended_engine(extended_surface->view()->engine());
+    extended_engine->addImportPath(MALIIT_KEYBOARD_DATA_DIR);
+    extended_engine->rootContext()->setContextProperty("maliit", context.data());
+    extended_engine->rootContext()->setContextProperty("maliit_layout", layout.data());
+    extended_engine->rootContext()->setContextProperty("maliit_extended_layout", extended_layout.data());
+
+    extended_surface->view()->setSource(QUrl::fromLocalFile(g_maliit_keyboard_extended_qml));
+
+    extended_surface->setRelativePosition(QPoint(0, -100));
 }
 
 
@@ -229,10 +250,27 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
     // FIXME: Reconnect feedback instance.
     Setup::connectAll(d->layout.data(), &d->layout_updater, &d->editor);
     Setup::connectAll(d->extended_layout.data(), &d->extended_layout_updater, &d->editor);
-    QObject::connect(&d->layout_helper, SIGNAL(centerPanelChanged(KeyArea,Logic::KeyOverrides)),
-                     d->layout.data(), SLOT(setKeyArea(KeyArea)));
-    QObject::connect(&d->extended_layout_helper, SIGNAL(extendedPanelChanged(KeyArea,Logic::KeyOverrides)),
-                     d->extended_layout.data(), SLOT(setKeyArea(KeyArea)));
+
+    connect(&d->layout_helper, SIGNAL(centerPanelChanged(KeyArea,Logic::KeyOverrides)),
+            d->layout.data(), SLOT(setKeyArea(KeyArea)));
+
+    connect(&d->extended_layout_helper, SIGNAL(extendedPanelChanged(KeyArea,Logic::KeyOverrides)),
+            d->extended_layout.data(), SLOT(setKeyArea(KeyArea)));
+
+    connect(d->layout.data(), SIGNAL(widthChanged(int)),
+            this,             SLOT(onLayoutWidthChanged(int)));
+
+    connect(d->layout.data(), SIGNAL(heightChanged(int)),
+            this,             SLOT(onLayoutHeightChanged(int)));
+
+    connect(d->extended_layout.data(), SIGNAL(widthChanged(int)),
+            this,                      SLOT(onExtendedLayoutWidthChanged(int)));
+
+    connect(d->extended_layout.data(), SIGNAL(heightChanged(int)),
+            this,                      SLOT(onExtendedLayoutHeightChanged(int)));
+
+    connect(d->extended_layout.data(), SIGNAL(visibleChanged(bool)),
+            d->extended_surface->view(), SLOT(setVisible(bool)));
 
     // FIXME: Reimplement keyboardClosed, switchLeft and switchRight
     // (triggered by glass).
@@ -263,10 +301,12 @@ InputMethod::~InputMethod()
 void InputMethod::show()
 {
     Q_D(InputMethod);
+
     d->surface->setSize(QSize(d->layout->width(),
                               d->layout->height()));
 
     d->surface->show();
+    d->extended_surface->show();
 }
 
 void InputMethod::hide()
@@ -275,6 +315,7 @@ void InputMethod::hide()
     d->layout_updater.resetOnKeyboardClosed();
     d->editor.clearPreedit();
     d->surface->hide();
+    d->extended_surface->hide();
 }
 
 void InputMethod::setPreedit(const QString &preedit,
@@ -597,6 +638,36 @@ void InputMethod::updateKey(const QString &key_id,
         overrides_update.insert(key_id, override_key);
         d->notifier.notifyOverride(overrides_update, true);
     }
+}
+
+void InputMethod::onKeyboardClosed()
+{
+    hide();
+    inputMethodHost()->notifyImInitiatedHiding();
+}
+
+void InputMethod::onLayoutWidthChanged(int width)
+{
+    Q_D(InputMethod);
+    d->surface->setSize(QSize(width, d->surface->size().height()));
+}
+
+void InputMethod::onLayoutHeightChanged(int height)
+{
+    Q_D(InputMethod);
+    d->surface->setSize(QSize(d->surface->size().width(), height));
+}
+
+void InputMethod::onExtendedLayoutWidthChanged(int width)
+{
+    Q_D(InputMethod);
+    d->extended_surface->setSize(QSize(width, d->extended_surface->size().height()));
+}
+
+void InputMethod::onExtendedLayoutHeightChanged(int height)
+{
+    Q_D(InputMethod);
+    d->extended_surface->setSize(QSize(d->extended_surface->size().width(), height));
 }
 
 } // namespace MaliitKeyboard

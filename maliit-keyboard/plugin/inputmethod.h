@@ -92,6 +92,11 @@ private:
     Q_SLOT void updateKey(const QString &key_id,
                           const MKeyOverride::KeyOverrideAttributes changed_attributes);
 
+    Q_SLOT void onLayoutWidthChanged(int width);
+    Q_SLOT void onLayoutHeightChanged(int height);
+    Q_SLOT void onExtendedLayoutWidthChanged(int width);
+    Q_SLOT void onExtendedLayoutHeightChanged(int height);
+
     const QScopedPointer<InputMethodPrivate> d_ptr;
 };
 
