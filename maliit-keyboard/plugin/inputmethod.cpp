@@ -149,7 +149,7 @@ public:
 InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     : surface_factory(host->surfaceFactory())
     , surface(qSharedPointerDynamicCast<Surface>(surface_factory->create(g_surface_options)))
-    , extended_surface(qSharedPointerDynamicCast<Surface>(surface_factory->create(g_extended_surface_options)))
+    , extended_surface(qSharedPointerDynamicCast<Surface>(surface_factory->create(g_extended_surface_options, surface)))
     , editor(EditorOptions(), new Model::Text, new Logic::WordEngine, new Logic::LanguageFeatures)
     , feedback()
     , style(new Style)
