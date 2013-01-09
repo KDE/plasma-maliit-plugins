@@ -69,6 +69,8 @@ class Layout
                              NOTIFY originChanged)
     Q_PROPERTY(QUrl background READ background
                                NOTIFY backgroundChanged)
+    Q_PROPERTY(QRectF background_borders READ backgroundBorders
+                                         NOTIFY backgroundBordersChanged)
 
 public:
     enum Roles {
@@ -103,6 +105,9 @@ public:
 
     Q_SLOT QUrl background() const;
     Q_SIGNAL void backgroundChanged(const QUrl &changed);
+
+    Q_SLOT QRectF backgroundBorders() const;
+    Q_SIGNAL void backgroundBordersChanged(const QRectF &changed);
 
     Q_SLOT void onExtendedKeysShown(const Key &key);
     Q_SIGNAL void extendedKeysShown(const Key &key);

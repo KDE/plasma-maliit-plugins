@@ -40,6 +40,11 @@ Item {
     BorderImage {
         anchors.fill: parent
         source: maliit_extended_layout.background
+
+        border.left: maliit_extended_layout.background_borders.x
+        border.top: maliit_extended_layout.background_borders.y
+        border.right: maliit_extended_layout.background_borders.width
+        border.bottom: maliit_extended_layout.background_borders.height
     }
 
     Repeater {

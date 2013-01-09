@@ -101,6 +101,7 @@ void Layout::setKeyArea(const KeyArea &area)
     Q_D(Layout);
     const bool geometry_changed(d->key_area.rect() != area.rect());
     const bool background_changed(d->key_area.area().background() != area.area().background());
+    const bool background_borders_changed(d->key_area.area().backgroundBorders() != area.area().backgroundBorders());
     const bool visible_changed((d->key_area.keys().isEmpty() && not area.keys().isEmpty())
                                || (not d->key_area.keys().isEmpty() && area.keys().isEmpty()));
     const bool origin_changed(d->key_area.origin() != area.origin());
@@ -114,6 +115,10 @@ void Layout::setKeyArea(const KeyArea &area)
 
     if (background_changed) {
         Q_EMIT backgroundChanged(background());
+    }
+
+    if (background_borders_changed) {
+        Q_EMIT backgroundBordersChanged(backgroundBorders());
     }
 
     if (visible_changed) {
@@ -184,6 +189,15 @@ QUrl Layout::background() const
 {
     Q_D(const Layout);
     return toUrl(d->image_directory, d->key_area.area().background());
+}
+
+
+QRectF Layout::backgroundBorders() const
+{
+    Q_D(const Layout);
+
+    const QMargins &m(d->key_area.area().backgroundBorders());
+    return QRectF(m.left(), m.top(), m.right(), m.bottom());
 }
 
 
