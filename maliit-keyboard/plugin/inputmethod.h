@@ -96,6 +96,7 @@ private:
     Q_SLOT void onLayoutHeightChanged(int height);
     Q_SLOT void onExtendedLayoutWidthChanged(int width);
     Q_SLOT void onExtendedLayoutHeightChanged(int height);
+    Q_SLOT void onExtendedLayoutOriginChanged(const QPoint &origin);
 
     const QScopedPointer<InputMethodPrivate> d_ptr;
 };

@@ -272,6 +272,9 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
     connect(d->extended_layout.data(), SIGNAL(visibleChanged(bool)),
             d->extended_surface->view(), SLOT(setVisible(bool)));
 
+    connect(d->extended_layout.data(), SIGNAL(originChanged(QPoint)),
+            this,                      SLOT(onExtendedLayoutOriginChanged(QPoint)));
+
     // FIXME: Reimplement keyboardClosed, switchLeft and switchRight
     // (triggered by glass).
 
@@ -668,6 +671,12 @@ void InputMethod::onExtendedLayoutHeightChanged(int height)
 {
     Q_D(InputMethod);
     d->extended_surface->setSize(QSize(d->extended_surface->size().width(), height));
+}
+
+void InputMethod::onExtendedLayoutOriginChanged(const QPoint &origin)
+{
+    Q_D(InputMethod);
+    d->extended_surface->setRelativePosition(origin);
 }
 
 } // namespace MaliitKeyboard

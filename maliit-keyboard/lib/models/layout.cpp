@@ -103,6 +103,7 @@ void Layout::setKeyArea(const KeyArea &area)
     const bool background_changed(d->key_area.area().background() != area.area().background());
     const bool visible_changed((d->key_area.keys().isEmpty() && not area.keys().isEmpty())
                                || (not d->key_area.keys().isEmpty() && area.keys().isEmpty()));
+    const bool origin_changed(d->key_area.origin() != area.origin());
 
     d->key_area = area;
 
@@ -117,6 +118,10 @@ void Layout::setKeyArea(const KeyArea &area)
 
     if (visible_changed) {
         Q_EMIT visibleChanged(not d->key_area.keys().isEmpty());
+    }
+
+    if (origin_changed) {
+        Q_EMIT originChanged(d->key_area.origin());
     }
 
     endResetModel();
@@ -165,6 +170,13 @@ int Layout::height() const
 {
     Q_D(const Layout);
     return d->key_area.rect().height();
+}
+
+
+QPoint Layout::origin() const
+{
+    Q_D(const Layout);
+    return d->key_area.origin();
 }
 
 
