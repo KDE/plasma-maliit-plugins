@@ -10,3 +10,4 @@ INSTALLS += qml
 OTHER_FILES += \
     maliit-keyboard.qml \
     maliit-keyboard-extended.qml \
+    Keyboard.qml \

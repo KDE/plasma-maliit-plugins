@@ -29,68 +29,7 @@
  *
  */
 
-import QtQuick 2.0
-
-Item {
-    id: main_area
-    width: maliit_layout.width
-    height: maliit_layout.height
-    visible: maliit_layout.visible
-
-    BorderImage {
-        anchors.fill: parent
-        source: maliit_layout.background
-
-        border.left: maliit_layout.background_borders.x
-        border.top: maliit_layout.background_borders.y
-        border.right: maliit_layout.background_borders.width
-        border.bottom: maliit_layout.background_borders.height
-    }
-
-    Repeater {
-        id: main
-        model: maliit_layout
-        anchors.fill: parent
-
-        Item {
-            x: key_reactive_area.x
-            y: key_reactive_area.y
-            width: key_reactive_area.width
-            height: key_reactive_area.height
-
-            BorderImage {
-                x: key_rectangle.x
-                y: key_rectangle.y
-                width: key_rectangle.width
-                height: key_rectangle.height
-
-                border.left: key_background_borders.x
-                border.top: key_background_borders.y
-                border.right: key_background_borders.width
-                border.bottom: key_background_borders.height
-
-                source: key_background
-
-                Text {
-                    anchors.fill: parent
-                    text: key_text
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                }
-
-            }
-
-            MouseArea {
-                enabled: !maliit_extended_layout.visible
-                anchors.fill: parent
-                hoverEnabled: true
-
-                onEntered: maliit_layout.onEntered(index)
-                onExited: maliit_layout.onExited(index)
-                onPressed: maliit_layout.onPressed(index)
-                onReleased: maliit_layout.onReleased(index)
-                onPressAndHold: maliit_layout.onPressAndHold(index)
-            }
-        }
-    }
+Keyboard {
+    layout: maliit_layout
+    area_enabled: !maliit_extended_layout.visible
 }
