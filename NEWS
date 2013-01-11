@@ -1,7 +1,14 @@
 {NEXT}
 ======
 
+CHANGES SINCE 0.94.0
+
+0.94.0
+======
+
 CHANGES SINCE 0.93.1
+* Fix build for Qt 5 qmake.
+* Fix geometry of fullscreen item after rotation.
 
 0.93.1
 ======
