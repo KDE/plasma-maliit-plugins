@@ -191,9 +191,6 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     extended_layout.helper.setScreenSize(screen_size);
     extended_layout.helper.setAlignment(Logic::LayoutHelper::Floating);
 
-    layout.model.setLayout(&layout.helper);
-    extended_layout.model.setLayout(&extended_layout.helper);
-
     QObject::connect(&layout.event_handler,          SIGNAL(extendedKeysShown(Key)),
                      &extended_layout.event_handler, SLOT(onExtendedKeysShown(Key)));
 

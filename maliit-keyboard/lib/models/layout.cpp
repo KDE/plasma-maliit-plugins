@@ -57,7 +57,6 @@ class LayoutPrivate
 {
 public:
     KeyArea key_area;
-    Logic::LayoutHelper *layout; // TODO: Get rid of this member.
     QString image_directory;
     QHash<int, QByteArray> roles;
 
@@ -67,7 +66,6 @@ public:
 
 LayoutPrivate::LayoutPrivate()
     : key_area()
-    , layout()
     , image_directory()
     , roles()
 {
@@ -144,23 +142,6 @@ void Layout::replaceKey(int index,
     d->key_area.rKeys().replace(index, key);
     Q_EMIT dataChanged(this->index(index, 0), this->index(index, 0));
 }
-
-
-void Layout::setLayout(Logic::LayoutHelper *layout)
-{
-    Q_D(Layout);
-
-    d->layout = layout;
-}
-
-
-Logic::LayoutHelper *Layout::layout() const
-{
-    Q_D(const Layout);
-
-    return d->layout;
-}
-
 
 
 bool Layout::isVisible() const

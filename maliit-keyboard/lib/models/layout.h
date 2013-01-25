@@ -90,9 +90,6 @@ public:
     void replaceKey(int index,
                     const Key &key);
 
-    void setLayout(Logic::LayoutHelper *layout);
-    Logic::LayoutHelper *layout() const;
-
     Q_SLOT bool isVisible() const;
     Q_SIGNAL void visibleChanged(bool changed);
 
