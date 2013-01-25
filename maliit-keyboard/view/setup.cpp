@@ -41,47 +41,34 @@
 
 #include "logic/layouthelper.h"
 #include "logic/layoutupdater.h"
+#include "logic/eventhandler.h"
 
 namespace MaliitKeyboard {
 namespace Setup {
 
-void connectAll(Model::Layout *container,
+void connectAll(Logic::EventHandler *event_handler,
                 Logic::LayoutUpdater *updater,
                 AbstractTextEditor *editor)
 {
-    connectContainerToTextEditor(container, editor);
+    // TODO: Connect event handler to feedback.
+    connectEventHandlerToTextEditor(event_handler, editor);
     connectLayoutUpdaterToTextEditor(updater, editor);
 }
 
-void connectContainerToTextEditor(Model::Layout *container,
-                                  AbstractTextEditor *editor)
+void connectEventHandlerToTextEditor(Logic::EventHandler *event_handler,
+                                     AbstractTextEditor *editor)
 {
-    QObject::connect(container, SIGNAL(keyPressed(Key)),
-                     editor,    SLOT(onKeyPressed(Key)));
+    QObject::connect(event_handler, SIGNAL(keyPressed(Key)),
+                     editor,        SLOT(onKeyPressed(Key)));
 
-    QObject::connect(container, SIGNAL(keyReleased(Key)),
-                     editor,    SLOT(onKeyReleased(Key)));
+    QObject::connect(event_handler, SIGNAL(keyReleased(Key)),
+                     editor,        SLOT(onKeyReleased(Key)));
 
-    QObject::connect(container, SIGNAL(keyEntered(Key)),
-                     editor,    SLOT(onKeyEntered(Key)));
+    QObject::connect(event_handler, SIGNAL(keyEntered(Key)),
+                     editor,        SLOT(onKeyEntered(Key)));
 
-    QObject::connect(container, SIGNAL(keyExited(Key)),
-                     editor,    SLOT(onKeyExited(Key)));
-}
-
-void connectLayoutToFeedback(Model::Layout *layout,
-                             AbstractFeedback *feedback)
-{
-    QObject::connect(layout,   SIGNAL(keyPressed(Key)),
-                     feedback, SLOT(onKeyPressed()));
-    QObject::connect(layout,   SIGNAL(keyReleased(Key)),
-                     feedback, SLOT(onKeyReleased()));
-    QObject::connect(layout,   SIGNAL(switchLeft()),
-                     feedback, SLOT(onLayoutChanged()));
-    QObject::connect(layout,   SIGNAL(switchRight()),
-                     feedback, SLOT(onLayoutChanged()));
-    QObject::connect(layout,   SIGNAL(keyboardClosed()),
-                     feedback, SLOT(onKeyboardHidden()));
+    QObject::connect(event_handler, SIGNAL(keyExited(Key)),
+                     editor,        SLOT(onKeyExited(Key)));
 }
 
 void connectLayoutUpdaterToTextEditor(Logic::LayoutUpdater *updater,

@@ -81,12 +81,14 @@ public:
         RoleKeyText,
     };
 
-    explicit Layout(Logic::LayoutUpdater *updater,
-                    QObject *parent = 0);
+    explicit Layout(QObject *parent = 0);
     virtual ~Layout();
 
     Q_SLOT void setKeyArea(const KeyArea &area);
     KeyArea keyArea() const;
+
+    void replaceKey(int index,
+                    const Key &key);
 
     void setLayout(Logic::LayoutHelper *layout);
     Logic::LayoutHelper *layout() const;
@@ -109,10 +111,6 @@ public:
     Q_SLOT QRectF backgroundBorders() const;
     Q_SIGNAL void backgroundBordersChanged(const QRectF &changed);
 
-    Q_SLOT void onExtendedKeysShown(const Key &key);
-    Q_SIGNAL void extendedKeysShown(const Key &key);
-
-
     Q_SLOT void setImageDirectory(const QString &directory);
 
     virtual QHash<int, QByteArray> roleNames() const;
@@ -122,20 +120,6 @@ public:
 
     Q_INVOKABLE QVariant data(int index,
                               const QString &role) const;
-
-    Q_INVOKABLE void onEntered(int index);
-    Q_INVOKABLE void onExited(int index);
-    Q_INVOKABLE void onPressed(int index);
-    Q_INVOKABLE void onReleased(int index);
-    Q_INVOKABLE void onPressAndHold(int index);
-
-    // Key signals:
-    Q_SIGNAL void keyPressed(const Key &key);
-    Q_SIGNAL void keyLongPressed(const Key &key);
-    Q_SIGNAL void keyReleased(const Key &key);
-    Q_SIGNAL void keyEntered(const Key &key);
-    Q_SIGNAL void keyExited(const Key &key);
-
 
 private:
     const QScopedPointer<LayoutPrivate> d_ptr;

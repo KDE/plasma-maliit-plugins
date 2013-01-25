@@ -477,6 +477,7 @@ void LayoutUpdater::onKeyReleased(const Key &key)
         d->layout->clearActiveKeys();
         d->layout->setExtendedPanel(KeyArea());
         d->layout->setActivePanel(LayoutHelper::CenterPanel);
+        return;
     }
 
     switch (key.action()) {
@@ -663,19 +664,6 @@ void LayoutUpdater::onExtendedKeysShown(const Key &main_key)
     ext_ka.setOrigin(offset);
     d->layout->setExtendedPanel(ext_ka);
     d->layout->setActivePanel(LayoutHelper::ExtendedPanel);
-}
-
-void LayoutUpdater::onExtendedKeySelected(const Key &key)
-{
-    Q_UNUSED(key)
-    Q_D(LayoutUpdater);
-
-    if (not d->layout || d->style.isNull()) {
-        return;
-    }
-
-    d->layout->setExtendedPanel(KeyArea());
-    d->layout->setActivePanel(LayoutHelper::CenterPanel);
 }
 
 void LayoutUpdater::onWordCandidatePressed(const WordCandidate &candidate)

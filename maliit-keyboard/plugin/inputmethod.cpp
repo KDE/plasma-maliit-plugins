@@ -45,6 +45,7 @@
 #include "logic/style.h"
 #include "logic/languagefeatures.h"
 #include "logic/maliitcontext.h"
+#include "logic/eventhandler.h"
 
 #include "view/glass.h"
 #include "view/setup.h"
@@ -114,6 +115,24 @@ public:
     ScopedSetting hide_word_ribbon_in_portrait_mode;
 };
 
+class LayoutGroup
+{
+public:
+    Logic::LayoutHelper helper;
+    Logic::LayoutUpdater updater;
+    Model::Layout model;
+    Logic::EventHandler event_handler;
+
+    explicit LayoutGroup();
+};
+
+LayoutGroup::LayoutGroup()
+    : helper()
+    , updater()
+    , model()
+    , event_handler(&model, &updater)
+{}
+
 
 class InputMethodPrivate
 {
@@ -130,19 +149,16 @@ public:
     UpdateNotifier notifier;
     QMap<QString, SharedOverride> key_overrides;
     Settings settings;
-    Logic::LayoutHelper layout_helper;
-    Logic::LayoutUpdater layout_updater;
-    QScopedPointer<Model::Layout> layout;
-    Logic::LayoutHelper extended_layout_helper;
-    Logic::LayoutUpdater extended_layout_updater;
-    QScopedPointer<Model::Layout> extended_layout;
-    QScopedPointer<Logic::MaliitContext> context;
+    LayoutGroup layout;
+    LayoutGroup extended_layout;
+    Logic::MaliitContext context;
 
     explicit InputMethodPrivate(MAbstractInputMethodHost *host);
     void setLayoutOrientation(Logic::LayoutHelper::Orientation orientation);
     void syncWordEngine(Logic::LayoutHelper::Orientation orientation);
 
     void connectToNotifier();
+    void setContextProperties(QQmlContext *qml_context);
 };
 
 
@@ -156,54 +172,45 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     , notifier()
     , key_overrides()
     , settings()
-    , layout_helper()
-    , layout_updater()
-    , layout(new Model::Layout(&layout_updater))
-    , extended_layout_helper()
-    , extended_layout_updater()
-    , extended_layout(new Model::Layout(&extended_layout_updater))
-    , context(new Logic::MaliitContext(style))
+    , layout()
+    , extended_layout()
+    , context(style)
 {
     editor.setHost(host);
 
-    layout_updater.setLayout(&layout_helper);
-    extended_layout_updater.setLayout(&extended_layout_helper);
+    layout.updater.setLayout(&layout.helper);
+    extended_layout.updater.setLayout(&extended_layout.helper);
 
-    layout_updater.setStyle(style);
-    extended_layout_updater.setStyle(style);
+    layout.updater.setStyle(style);
+    extended_layout.updater.setStyle(style);
     feedback.setStyle(style);
 
     const QSize &screen_size(surface_factory->screenSize());
-    layout_helper.setScreenSize(screen_size);
-    layout_helper.setAlignment(Logic::LayoutHelper::Bottom);
-    extended_layout_helper.setScreenSize(screen_size);
-    extended_layout_helper.setAlignment(Logic::LayoutHelper::Floating);
+    layout.helper.setScreenSize(screen_size);
+    layout.helper.setAlignment(Logic::LayoutHelper::Bottom);
+    extended_layout.helper.setScreenSize(screen_size);
+    extended_layout.helper.setAlignment(Logic::LayoutHelper::Floating);
 
-    layout->setLayout(&layout_helper);
-    extended_layout->setLayout(&extended_layout_helper);
+    layout.model.setLayout(&layout.helper);
+    extended_layout.model.setLayout(&extended_layout.helper);
 
-    QObject::connect(layout.data(),          SIGNAL(extendedKeysShown(Key)),
-                     extended_layout.data(), SLOT(onExtendedKeysShown(Key)));
+    QObject::connect(&layout.event_handler,          SIGNAL(extendedKeysShown(Key)),
+                     &extended_layout.event_handler, SLOT(onExtendedKeysShown(Key)));
 
     connectToNotifier();
 
     // TODO: Figure out whether two views can share one engine.
     QQmlEngine *const engine(surface->view()->engine());
     engine->addImportPath(MALIIT_KEYBOARD_DATA_DIR);
-    engine->rootContext()->setContextProperty("maliit", context.data());
-    engine->rootContext()->setContextProperty("maliit_layout", layout.data());
-    engine->rootContext()->setContextProperty("maliit_extended_layout", extended_layout.data());
+    setContextProperties(engine->rootContext());
 
     surface->view()->setSource(QUrl::fromLocalFile(g_maliit_keyboard_qml));
 
     QQmlEngine *const extended_engine(extended_surface->view()->engine());
     extended_engine->addImportPath(MALIIT_KEYBOARD_DATA_DIR);
-    extended_engine->rootContext()->setContextProperty("maliit", context.data());
-    extended_engine->rootContext()->setContextProperty("maliit_layout", layout.data());
-    extended_engine->rootContext()->setContextProperty("maliit_extended_layout", extended_layout.data());
+    setContextProperties(extended_engine->rootContext());
 
     extended_surface->view()->setSource(QUrl::fromLocalFile(g_maliit_keyboard_extended_qml));
-
     extended_surface->setRelativePosition(QPoint(0, -100));
 }
 
@@ -211,8 +218,8 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
 void InputMethodPrivate::setLayoutOrientation(Logic::LayoutHelper::Orientation orientation)
 {
     syncWordEngine(orientation);
-    layout_updater.setOrientation(orientation);
-    extended_layout_updater.setOrientation(orientation);
+    layout.updater.setOrientation(orientation);
+    extended_layout.updater.setOrientation(orientation);
 }
 
 
@@ -237,8 +244,17 @@ void InputMethodPrivate::connectToNotifier()
     QObject::connect(&notifier, SIGNAL(cursorPositionChanged(int, QString)),
                      &editor,   SLOT(onCursorPositionChanged(int, QString)));
 
-    QObject::connect(&notifier, SIGNAL(keysOverriden(Logic::KeyOverrides, bool)),
-                     &layout_helper,   SLOT(onKeysOverriden(Logic::KeyOverrides, bool)));
+    QObject::connect(&notifier,      SIGNAL(keysOverriden(Logic::KeyOverrides, bool)),
+                     &layout.helper, SLOT(onKeysOverriden(Logic::KeyOverrides, bool)));
+}
+
+void InputMethodPrivate::setContextProperties(QQmlContext *qml_context)
+{
+    qml_context->setContextProperty("maliit", &context);
+    qml_context->setContextProperty("maliit_layout", &layout.model);
+    qml_context->setContextProperty("maliit_event_handler", &layout.event_handler);
+    qml_context->setContextProperty("maliit_extended_layout", &extended_layout.model);
+    qml_context->setContextProperty("maliit_extended_event_handler", &extended_layout.event_handler);
 }
 
 InputMethod::InputMethod(MAbstractInputMethodHost *host)
@@ -248,31 +264,31 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
     Q_D(InputMethod);
 
     // FIXME: Reconnect feedback instance.
-    Setup::connectAll(d->layout.data(), &d->layout_updater, &d->editor);
-    Setup::connectAll(d->extended_layout.data(), &d->extended_layout_updater, &d->editor);
+    Setup::connectAll(&d->layout.event_handler, &d->layout.updater, &d->editor);
+    Setup::connectAll(&d->extended_layout.event_handler, &d->extended_layout.updater, &d->editor);
 
-    connect(&d->layout_helper, SIGNAL(centerPanelChanged(KeyArea,Logic::KeyOverrides)),
-            d->layout.data(), SLOT(setKeyArea(KeyArea)));
+    connect(&d->layout.helper, SIGNAL(centerPanelChanged(KeyArea,Logic::KeyOverrides)),
+            &d->layout.model, SLOT(setKeyArea(KeyArea)));
 
-    connect(&d->extended_layout_helper, SIGNAL(extendedPanelChanged(KeyArea,Logic::KeyOverrides)),
-            d->extended_layout.data(), SLOT(setKeyArea(KeyArea)));
+    connect(&d->extended_layout.helper, SIGNAL(extendedPanelChanged(KeyArea,Logic::KeyOverrides)),
+            &d->extended_layout.model, SLOT(setKeyArea(KeyArea)));
 
-    connect(d->layout.data(), SIGNAL(widthChanged(int)),
+    connect(&d->layout.model, SIGNAL(widthChanged(int)),
             this,             SLOT(onLayoutWidthChanged(int)));
 
-    connect(d->layout.data(), SIGNAL(heightChanged(int)),
+    connect(&d->layout.model, SIGNAL(heightChanged(int)),
             this,             SLOT(onLayoutHeightChanged(int)));
 
-    connect(d->extended_layout.data(), SIGNAL(widthChanged(int)),
+    connect(&d->extended_layout.model, SIGNAL(widthChanged(int)),
             this,                      SLOT(onExtendedLayoutWidthChanged(int)));
 
-    connect(d->extended_layout.data(), SIGNAL(heightChanged(int)),
+    connect(&d->extended_layout.model, SIGNAL(heightChanged(int)),
             this,                      SLOT(onExtendedLayoutHeightChanged(int)));
 
-    connect(d->extended_layout.data(), SIGNAL(visibleChanged(bool)),
+    connect(&d->extended_layout.model,   SIGNAL(visibleChanged(bool)),
             d->extended_surface->view(), SLOT(setVisible(bool)));
 
-    connect(d->extended_layout.data(), SIGNAL(originChanged(QPoint)),
+    connect(&d->extended_layout.model, SIGNAL(originChanged(QPoint)),
             this,                      SLOT(onExtendedLayoutOriginChanged(QPoint)));
 
     // FIXME: Reimplement keyboardClosed, switchLeft and switchRight
@@ -305,8 +321,8 @@ void InputMethod::show()
 {
     Q_D(InputMethod);
 
-    d->surface->setSize(QSize(d->layout->width(),
-                              d->layout->height()));
+    d->surface->setSize(QSize(d->layout.model.width(),
+                              d->layout.model.height()));
 
     d->surface->show();
     d->extended_surface->show();
@@ -315,7 +331,7 @@ void InputMethod::show()
 void InputMethod::hide()
 {
     Q_D(InputMethod);
-    d->layout_updater.resetOnKeyboardClosed();
+    d->layout.updater.resetOnKeyboardClosed();
     d->editor.clearPreedit();
     d->surface->hide();
     d->extended_surface->hide();
@@ -344,10 +360,10 @@ InputMethod::subViews(Maliit::HandlerState state) const
 
     QList<MInputMethodSubView> views;
 
-    Q_FOREACH (const QString &id, d->layout_updater.keyboardIds()) {
+    Q_FOREACH (const QString &id, d->layout.updater.keyboardIds()) {
         MInputMethodSubView v;
         v.subViewId = id;
-        v.subViewTitle = d->layout_updater.keyboardTitle(id);
+        v.subViewTitle = d->layout.updater.keyboardTitle(id);
         views.append(v);
     }
 
@@ -361,8 +377,8 @@ void InputMethod::setActiveSubView(const QString &id,
     Q_D(InputMethod);
 
     // FIXME: Perhaps better to let both LayoutUpdater share the same KeyboardLoader instance?
-    d->layout_updater.setActiveKeyboardId(id);
-    d->extended_layout_updater.setActiveKeyboardId(id);
+    d->layout.updater.setActiveKeyboardId(id);
+    d->extended_layout.updater.setActiveKeyboardId(id);
 }
 
 QString InputMethod::activeSubView(Maliit::HandlerState state) const
@@ -370,7 +386,7 @@ QString InputMethod::activeSubView(Maliit::HandlerState state) const
     Q_UNUSED(state)
     Q_D(const InputMethod);
 
-    return d->layout_updater.activeKeyboardId();
+    return d->layout.updater.activeKeyboardId();
 }
 
 void InputMethod::handleAppOrientationChanged(int angle)
@@ -543,8 +559,8 @@ void InputMethod::onScreenSizeChange(const QSize &size)
 {
     Q_D(InputMethod);
 
-    d->layout_helper.setScreenSize(size);
-    d->extended_layout_helper.setScreenSize(d->layout_helper.screenSize());
+    d->layout.helper.setScreenSize(size);
+    d->extended_layout.helper.setScreenSize(d->layout.helper.screenSize());
 
     d->setLayoutOrientation(size.width() >= size.height()
                             ? Logic::LayoutHelper::Landscape : Logic::LayoutHelper::Portrait);
@@ -554,8 +570,8 @@ void InputMethod::onStyleSettingChanged()
 {
     Q_D(InputMethod);
     d->style->setProfile(d->settings.style->value().toString());
-    d->layout->setImageDirectory(d->style->directory(Style::Images));
-    d->extended_layout->setImageDirectory(d->style->directory(Style::Images));
+    d->layout.model.setImageDirectory(d->style->directory(Style::Images));
+    d->extended_layout.model.setImageDirectory(d->style->directory(Style::Images));
 }
 
 void InputMethod::onKeyboardClosed()
@@ -587,13 +603,13 @@ void InputMethod::onWordEngineSettingChanged()
     // FIXME: Renderer doesn't seem to update graphics properly. Word ribbon
     // is still visible until next VKB show/hide.
     Q_D(InputMethod);
-    d->syncWordEngine(d->layout_helper.orientation());
+    d->syncWordEngine(d->layout.helper.orientation());
 }
 
 void InputMethod::onHideWordRibbonInPortraitModeSettingChanged()
 {
     Q_D(InputMethod);
-    d->setLayoutOrientation(d->layout_helper.orientation());
+    d->setLayoutOrientation(d->layout.helper.orientation());
 }
 
 void InputMethod::setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides)

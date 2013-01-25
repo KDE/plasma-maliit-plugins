@@ -33,6 +33,7 @@ import QtQuick 2.0
 
 Item {
     property alias layout: main.model
+    property variant event_handler
     property bool area_enabled // MouseArea has no id property so we cannot alias its enabled property.
 
     width: layout.width
@@ -87,11 +88,11 @@ Item {
                 anchors.fill: parent
                 hoverEnabled: true
 
-                onEntered: layout.onEntered(index)
-                onExited: layout.onExited(index)
-                onPressed: layout.onPressed(index)
-                onReleased: layout.onReleased(index)
-                onPressAndHold: layout.onPressAndHold(index)
+                onEntered: event_handler.onEntered(index)
+                onExited: event_handler.onExited(index)
+                onPressed: event_handler.onPressed(index)
+                onReleased: event_handler.onReleased(index)
+                onPressAndHold: event_handler.onPressAndHold(index)
             }
         }
     }

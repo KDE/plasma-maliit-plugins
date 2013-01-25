@@ -58,18 +58,16 @@ class LayoutPrivate
 public:
     KeyArea key_area;
     Logic::LayoutHelper *layout; // TODO: Get rid of this member.
-    Logic::LayoutUpdater *updater; // TODO: wrap into scoped pointer and assign ownership to this class.
     QString image_directory;
     QHash<int, QByteArray> roles;
 
-    explicit LayoutPrivate(Logic::LayoutUpdater *new_updater);
+    explicit LayoutPrivate();
 };
 
 
-LayoutPrivate::LayoutPrivate(Logic::LayoutUpdater *new_updater)
+LayoutPrivate::LayoutPrivate()
     : key_area()
     , layout()
-    , updater(new_updater)
     , image_directory()
     , roles()
 {
@@ -83,10 +81,9 @@ LayoutPrivate::LayoutPrivate(Logic::LayoutUpdater *new_updater)
 }
 
 
-Layout::Layout(Logic::LayoutUpdater *updater,
-               QObject *parent)
+Layout::Layout(QObject *parent)
     : QAbstractListModel(parent)
-    , d_ptr(new LayoutPrivate(updater))
+    , d_ptr(new LayoutPrivate)
 {}
 
 
@@ -137,6 +134,15 @@ KeyArea Layout::keyArea() const
 {
     Q_D(const Layout);
     return d->key_area;
+}
+
+
+void Layout::replaceKey(int index,
+                        const Key &key)
+{
+    Q_D(Layout);
+    d->key_area.rKeys().replace(index, key);
+    Q_EMIT dataChanged(this->index(index, 0), this->index(index, 0));
 }
 
 
@@ -198,16 +204,6 @@ QRectF Layout::backgroundBorders() const
 
     const QMargins &m(d->key_area.area().backgroundBorders());
     return QRectF(m.left(), m.top(), m.right(), m.bottom());
-}
-
-
-void Layout::onExtendedKeysShown(const Key &key)
-{
-    Q_D(Layout);
-
-    if (d->updater) {
-        d->updater->onExtendedKeysShown(key);
-    }
 }
 
 
@@ -291,104 +287,6 @@ QVariant Layout::data(int index,
 
     const QModelIndex idx(this->index(index, 0));
     return data(idx, roleNames().key(role.toLatin1()));
-}
-
-
-void Layout::onEntered(int index)
-{
-    Q_D(Layout);
-
-    const QVector<Key> &keys(d->key_area.keys());
-    const Key &key(index < keys.count()
-                   ? keys.at(index)
-                   : Key());
-
-    if (d->updater) {
-        d->updater->onKeyEntered(key);
-    }
-
-    Q_EMIT keyEntered(key);
-}
-
-
-void Layout::onExited(int index)
-{
-    Q_D(Layout);
-
-    const QVector<Key> &keys(d->key_area.keys());
-    const Key &key(index < keys.count()
-                   ? keys.at(index)
-                   : Key());
-
-    if (d->updater) {
-        d->updater->onKeyExited(key);
-    }
-
-    Q_EMIT keyExited(key);
-}
-
-
-void Layout::onPressed(int index)
-{
-    Q_D(Layout);
-
-    const QVector<Key> &keys(d->key_area.keys());
-    const Key &key(index < keys.count()
-                   ? keys.at(index) : Key());
-    const Key pressed_key(d->updater
-                         ? d->updater->modifyKey(key, KeyDescription::PressedState) : Key());
-
-    d->key_area.rKeys().replace(index, pressed_key);
-
-    if (d->updater) {
-        d->updater->onKeyPressed(pressed_key);
-    }
-
-    Q_EMIT dataChanged(this->index(index, 0), this->index(index, 0));
-    Q_EMIT keyPressed(pressed_key);
-}
-
-
-void Layout::onReleased(int index)
-{
-    Q_D(Layout);
-
-    const QVector<Key> &keys(d->key_area.keys());
-    const Key &key(index < keys.count()
-                   ? keys.at(index) : Key());
-    const Key normal_key(d->updater
-                         ? d->updater->modifyKey(key, KeyDescription::NormalState) : Key());
-
-    d->key_area.rKeys().replace(index, normal_key);
-
-    if (d->updater) {
-        if (d->layout->activePanel() == Logic::LayoutHelper::ExtendedPanel) {
-            d->updater->onExtendedKeySelected(normal_key);
-        } else {
-            d->updater->onKeyReleased(normal_key);
-        }
-    }
-
-    Q_EMIT dataChanged(this->index(index, 0), this->index(index, 0));
-    Q_EMIT keyReleased(normal_key);
-}
-
-
-void Layout::onPressAndHold(int index)
-{
-    Q_D(Layout);
-
-    const QVector<Key> &keys(d->key_area.keys());
-    const Key &key(index < keys.count()
-                   ? keys.at(index)
-                   : Key());
-
-    // FIXME: long-press on space needs to work again to save words to dictionary!
-    if (key.hasExtendedKeys()) {
-        Q_EMIT extendedKeysShown(key);
-    }
-
-    Q_EMIT keyLongPressed(key);
 }
 
 

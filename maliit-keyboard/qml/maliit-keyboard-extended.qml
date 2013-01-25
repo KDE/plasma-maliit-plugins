@@ -31,5 +31,6 @@
 
 Keyboard {
     layout: maliit_extended_layout
+    event_handler: maliit_extended_event_handler
     area_enabled: maliit_extended_layout.visible
 }

@@ -1,10 +1,9 @@
 /*
  * This file is part of Maliit Plugins
  *
- * Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies). All rights reserved.
- * Copyright (C) 2012-2013 Canonical Ltd
+ * Copyright (C) 2012 Openismus GmbH. All rights reserved.
  *
- * Contact: Mohammad Anwari <Mohammad.Anwari@nokia.com>
+ * Contact: maliit-discuss@lists.maliit.org
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -30,37 +29,58 @@
  *
  */
 
-#ifndef MALIIT_KEYBOARD_SETUP_H
-#define MALIIT_KEYBOARD_SETUP_H
+#ifndef MALIIT_KEYBOARD_EVENTHANDLER_H
+#define MALIIT_KEYBOARD_EVENTHANDLER_H
+
+#include <QtCore>
 
 namespace MaliitKeyboard {
 
-class Glass;
-class Renderer;
-class AbstractTextEditor;
-class AbstractFeedback;
-
-namespace Logic {
-class LayoutHelper;
-class LayoutUpdater;
-class EventHandler;
-}
+class Key;
 
 namespace Model {
 class Layout;
 }
 
-namespace Setup {
+namespace Logic {
 
-void connectAll(Logic::EventHandler *event_handler,
-                Logic::LayoutUpdater *updater,
-                AbstractTextEditor *editor);
+class LayoutUpdater;
+class EventHandlerPrivate;
 
-void connectEventHandlerToTextEditor(Logic::EventHandler *event_handler,
-                                     AbstractTextEditor *editor);
+class EventHandler
+    : public QObject
+{
+    Q_OBJECT
+    Q_DISABLE_COPY(EventHandler)
+    Q_DECLARE_PRIVATE(EventHandler)
 
-void connectLayoutUpdaterToTextEditor(Logic::LayoutUpdater *updater,
-                                      AbstractTextEditor *editor);
-}} // namespace Setup, MaliitKeyboard
+public:
+    explicit EventHandler(Model::Layout * const layout,
+                          LayoutUpdater * const updater,
+                          QObject *parent = 0);
+    virtual ~EventHandler();
 
-#endif // MALIIT_KEYBOARD_SETUP_H
+
+    Q_SLOT void onExtendedKeysShown(const Key &key);
+    Q_SIGNAL void extendedKeysShown(const Key &key);
+
+    Q_INVOKABLE void onEntered(int index);
+    Q_INVOKABLE void onExited(int index);
+    Q_INVOKABLE void onPressed(int index);
+    Q_INVOKABLE void onReleased(int index);
+    Q_INVOKABLE void onPressAndHold(int index);
+
+    // Key signals:
+    Q_SIGNAL void keyPressed(const Key &key);
+    Q_SIGNAL void keyLongPressed(const Key &key);
+    Q_SIGNAL void keyReleased(const Key &key);
+    Q_SIGNAL void keyEntered(const Key &key);
+    Q_SIGNAL void keyExited(const Key &key);
+
+private:
+    const QScopedPointer<EventHandlerPrivate> d_ptr;
+};
+
+}} // namespace Logic, MaliitKeyboard
+
+#endif // MALIIT_KEYBOARD_EVENTHANDLER_H

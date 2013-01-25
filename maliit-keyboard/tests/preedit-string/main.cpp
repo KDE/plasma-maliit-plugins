@@ -40,6 +40,9 @@
 
 #include "logic/languagefeatures.h"
 #include "logic/layouthelper.h"
+#include "logic/layoutupdater.h"
+#include "logic/eventhandler.h"
+
 #include "view/setup.h"
 #include "plugin/editor.h"
 #include "plugin/updatenotifier.h"
@@ -179,14 +182,25 @@ struct BasicSetupTest
     UpdateNotifier notifier;
 };
 
-struct SetupTest
+class SetupTest
     : public BasicSetupTest
 {
+public:
+    Model::Layout layout;
+    Logic::LayoutUpdater layout_updater;
+    Logic::LayoutHelper layout_helper;
+    Logic::EventHandler event_handler;
+    QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> surface;
+    QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> extended_surface;
+    KeyArea key_area;
+
     SetupTest(Logic::LayoutHelper::Orientation orientation = Logic::LayoutHelper::Landscape,
               bool enable_word_engine = true)
         : BasicSetupTest(enable_word_engine)
-        , container(0) // TODO: Provide valid LayoutUpdater instance?
-        , layout(new Logic::LayoutHelper)
+        , layout()
+        , layout_updater()
+        , layout_helper()
+        , event_handler(&layout, &layout_updater)
         , surface(Maliit::Plugins::createTestGraphicsViewSurface())
         , extended_surface(Maliit::Plugins::createTestGraphicsViewSurface(surface))
         , key_area(createAbcdArea())
@@ -195,21 +209,15 @@ struct SetupTest
         // to do it manually here:
         surface->view()->setSceneRect(0, 0, g_size, g_size);
         surface->scene()->setSceneRect(0, 0, g_size, g_size);
-        layout.setOrientation(orientation);
+        layout_helper.setOrientation(orientation);
 
-        Setup::connectContainerToTextEditor(&container, &editor);
+        Setup::connectEventHandlerToTextEditor(&event_handler, &editor);
 
-        layout.setExtendedPanel(key_area);
-        layout.setActivePanel(Logic::LayoutHelper::ExtendedPanel);
+        layout_helper.setExtendedPanel(key_area);
+        layout_helper.setActivePanel(Logic::LayoutHelper::ExtendedPanel);
 
-        container.setKeyArea(key_area);
+        layout.setKeyArea(key_area);
     }
-
-    Model::Layout container;
-    Logic::LayoutHelper layout;
-    QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> surface;
-    QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> extended_surface;
-    KeyArea key_area;
 };
 
 class TestPreeditString
@@ -344,7 +352,7 @@ private:
             QApplication::instance()->postEvent(test_setup.surface->view()->viewport(), ev);
         }
 
-        TestUtils::waitForSignal(&test_setup.container, SIGNAL(keyReleased(Key)));
+        TestUtils::waitForSignal(&test_setup.layout, SIGNAL(keyReleased(Key)));
         QCOMPARE(test_setup.host.lastPreeditString(), expected_last_preedit_string);
         QCOMPARE(test_setup.host.commitStringHistory(), expected_commit_string);
         QCOMPARE(test_setup.host.lastPreeditTextFormatList(), expected_preedit_format);
@@ -624,7 +632,7 @@ private:
             QApplication::instance()->postEvent(test_setup.surface->view()->viewport(), ev);
         }
 
-        TestUtils::waitForSignal(&test_setup.container, SIGNAL(keyReleased(Key)));
+        TestUtils::waitForSignal(&test_setup.layout, SIGNAL(keyReleased(Key)));
         QCOMPARE(test_setup.host.lastPreeditString(), expected_preedit_string);
         QCOMPARE(test_setup.editor.text()->cursorPosition(), expected_cursor_position);
     }

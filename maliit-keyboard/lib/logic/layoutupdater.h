@@ -94,7 +94,6 @@ public:
 
     // ExtendedKeyArea signal handlers:
     Q_SLOT void onExtendedKeysShown(const Key &main_key);
-    Q_SLOT void onExtendedKeySelected(const Key &key);
 
     // WordCandidate signal handlers:
     Q_SLOT void onWordCandidatePressed(const WordCandidate &candidate);

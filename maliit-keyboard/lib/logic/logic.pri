@@ -13,6 +13,7 @@ HEADERS += \
     logic/abstractlanguagefeatures.h \
     logic/languagefeatures.h \
     logic/maliitcontext.h \
+    logic/eventhandler.h \
 
 SOURCES += \
     logic/hitlogic.cpp \
@@ -27,6 +28,7 @@ SOURCES += \
     logic/abstractlanguagefeatures.cpp \
     logic/languagefeatures.cpp \
     logic/maliitcontext.cpp \
+    logic/eventhandler.cpp \
 
 DEFINES += HUNSPELL_DICT_PATH=\\\"$$HUNSPELL_DICT_PATH\\\"
 
