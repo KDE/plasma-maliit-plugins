@@ -84,7 +84,7 @@ LayoutPrivate::LayoutPrivate(Logic::LayoutUpdater *new_updater)
 
 
 Layout::Layout(Logic::LayoutUpdater *updater,
-                                   QObject *parent)
+               QObject *parent)
     : QAbstractListModel(parent)
     , d_ptr(new LayoutPrivate(updater))
 {}
@@ -234,7 +234,7 @@ int Layout::rowCount(const QModelIndex &parent) const
 
 
 QVariant Layout::data(const QModelIndex &index,
-                                int role) const
+                      int role) const
 {
     Q_D(const Layout);
 
@@ -285,7 +285,8 @@ QHash<int, QByteArray> Layout::roleNames() const
 }
 
 
-QVariant Layout::data(int index, const QString &role) const
+QVariant Layout::data(int index,
+                      const QString &role) const
 {
 
     const QModelIndex idx(this->index(index, 0));

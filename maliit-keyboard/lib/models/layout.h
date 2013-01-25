@@ -82,7 +82,7 @@ public:
     };
 
     explicit Layout(Logic::LayoutUpdater *updater,
-                              QObject *parent = 0);
+                    QObject *parent = 0);
     virtual ~Layout();
 
     Q_SLOT void setKeyArea(const KeyArea &area);
