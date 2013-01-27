@@ -103,6 +103,10 @@ void Layout::setKeyArea(const KeyArea &area)
 
     d->key_area = area;
 
+    if (origin_changed) {
+        Q_EMIT originChanged(d->key_area.origin());
+    }
+
     if (geometry_changed) {
         Q_EMIT widthChanged(width());
         Q_EMIT heightChanged(height());
@@ -118,10 +122,6 @@ void Layout::setKeyArea(const KeyArea &area)
 
     if (visible_changed) {
         Q_EMIT visibleChanged(not d->key_area.keys().isEmpty());
-    }
-
-    if (origin_changed) {
-        Q_EMIT originChanged(d->key_area.origin());
     }
 
     endResetModel();

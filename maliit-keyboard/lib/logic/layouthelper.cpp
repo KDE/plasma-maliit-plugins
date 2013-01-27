@@ -425,8 +425,20 @@ void LayoutHelper::setMagnifierKey(const Key &key)
 
     if (d->magnifier_key != key) {
         d->magnifier_key = key;
-        d->magnifier_key.setOrigin(d->magnifier_key.origin() + d->panelOrigin());
-        Q_EMIT magnifierKeyChanged(d->magnifier_key, d->overriden_keys);
+
+        Key magnifier(d->magnifier_key);
+        magnifier.setOrigin(d->magnifier_key.origin());
+
+        // FIXME: Avoid this silly conversion by changing the API (also in LayoutUpdater) to take a KeyArea instead.
+        KeyArea area;
+        area.setOrigin(magnifier.origin());
+        magnifier.setOrigin(QPoint());
+
+        area.setArea(magnifier.area());
+        magnifier.rArea().setBackground(QByteArray());
+        area.rKeys().append(magnifier);
+
+        Q_EMIT magnifierChanged(area);
     }
 }
 

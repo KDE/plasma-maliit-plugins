@@ -108,6 +108,7 @@ public:
     Q_SLOT QRectF backgroundBorders() const;
     Q_SIGNAL void backgroundBordersChanged(const QRectF &changed);
 
+    // FIXME: Turn into class variable?
     Q_SLOT void setImageDirectory(const QString &directory);
 
     virtual QHash<int, QByteArray> roleNames() const;

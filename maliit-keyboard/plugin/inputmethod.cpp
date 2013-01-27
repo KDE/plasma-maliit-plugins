@@ -89,6 +89,7 @@ const Maliit::Plugins::AbstractSurface::Options g_extended_surface_options(
 
 const QString g_maliit_keyboard_qml(MALIIT_KEYBOARD_DATA_DIR "/maliit-keyboard.qml");
 const QString g_maliit_keyboard_extended_qml(MALIIT_KEYBOARD_DATA_DIR "/maliit-keyboard-extended.qml");
+const QString g_maliit_magnifier_qml(MALIIT_KEYBOARD_DATA_DIR "/maliit-magnifier.qml");
 
 Key overrideToKey(const SharedOverride &override)
 {
@@ -143,6 +144,7 @@ public:
     Maliit::Plugins::AbstractSurfaceFactory *const surface_factory;
     SharedSurface surface;
     SharedSurface extended_surface;
+    SharedSurface magnifier_surface;
     Editor editor;
     DefaultFeedback feedback;
     SharedStyle style;
@@ -151,6 +153,7 @@ public:
     Settings settings;
     LayoutGroup layout;
     LayoutGroup extended_layout;
+    Model::Layout magnifier_layout;
     Logic::MaliitContext context;
 
     explicit InputMethodPrivate(MAbstractInputMethodHost *host);
@@ -166,6 +169,7 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     : surface_factory(host->surfaceFactory())
     , surface(qSharedPointerDynamicCast<Surface>(surface_factory->create(g_surface_options)))
     , extended_surface(qSharedPointerDynamicCast<Surface>(surface_factory->create(g_extended_surface_options, surface)))
+    , magnifier_surface(qSharedPointerDynamicCast<Surface>(surface_factory->create(g_extended_surface_options, surface)))
     , editor(EditorOptions(), new Model::Text, new Logic::WordEngine, new Logic::LanguageFeatures)
     , feedback()
     , style(new Style)
@@ -174,6 +178,7 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     , settings()
     , layout()
     , extended_layout()
+    , magnifier_layout()
     , context(style)
 {
     editor.setHost(host);
@@ -208,7 +213,12 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     setContextProperties(extended_engine->rootContext());
 
     extended_surface->view()->setSource(QUrl::fromLocalFile(g_maliit_keyboard_extended_qml));
-    extended_surface->setRelativePosition(QPoint(0, -100));
+
+    QQmlEngine *const magnifier_engine(magnifier_surface->view()->engine());
+    magnifier_engine->addImportPath(MALIIT_KEYBOARD_DATA_DIR);
+    setContextProperties(magnifier_engine->rootContext());
+
+    magnifier_surface->view()->setSource(QUrl::fromLocalFile(g_maliit_magnifier_qml));
 }
 
 
@@ -252,6 +262,7 @@ void InputMethodPrivate::setContextProperties(QQmlContext *qml_context)
     qml_context->setContextProperty("maliit_event_handler", &layout.event_handler);
     qml_context->setContextProperty("maliit_extended_layout", &extended_layout.model);
     qml_context->setContextProperty("maliit_extended_event_handler", &extended_layout.event_handler);
+    qml_context->setContextProperty("maliit_magnifier_layout", &magnifier_layout);
 }
 
 InputMethod::InputMethod(MAbstractInputMethodHost *host)
@@ -270,6 +281,9 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
     connect(&d->extended_layout.helper, SIGNAL(extendedPanelChanged(KeyArea,Logic::KeyOverrides)),
             &d->extended_layout.model, SLOT(setKeyArea(KeyArea)));
 
+    connect(&d->layout.helper,    SIGNAL(magnifierChanged(KeyArea)),
+            &d->magnifier_layout, SLOT(setKeyArea(KeyArea)));
+
     connect(&d->layout.model, SIGNAL(widthChanged(int)),
             this,             SLOT(onLayoutWidthChanged(int)));
 
@@ -282,11 +296,17 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
     connect(&d->extended_layout.model, SIGNAL(heightChanged(int)),
             this,                      SLOT(onExtendedLayoutHeightChanged(int)));
 
-    connect(&d->extended_layout.model,   SIGNAL(visibleChanged(bool)),
-            d->extended_surface->view(), SLOT(setVisible(bool)));
-
     connect(&d->extended_layout.model, SIGNAL(originChanged(QPoint)),
             this,                      SLOT(onExtendedLayoutOriginChanged(QPoint)));
+
+    connect(&d->magnifier_layout, SIGNAL(widthChanged(int)),
+            this,                 SLOT(onMagnifierLayoutWidthChanged(int)));
+
+    connect(&d->magnifier_layout, SIGNAL(heightChanged(int)),
+            this,                 SLOT(onMagnifierLayoutHeightChanged(int)));
+
+    connect(&d->magnifier_layout, SIGNAL(originChanged(QPoint)),
+            this,                 SLOT(onMagnifierLayoutOriginChanged(QPoint)));
 
     // FIXME: Reimplement keyboardClosed, switchLeft and switchRight
     // (triggered by glass).
@@ -323,6 +343,7 @@ void InputMethod::show()
 
     d->surface->show();
     d->extended_surface->show();
+    d->magnifier_surface->show();
 }
 
 void InputMethod::hide()
@@ -332,6 +353,7 @@ void InputMethod::hide()
     d->editor.clearPreedit();
     d->surface->hide();
     d->extended_surface->hide();
+    d->magnifier_surface->hide();
 }
 
 void InputMethod::setPreedit(const QString &preedit,
@@ -569,6 +591,7 @@ void InputMethod::onStyleSettingChanged()
     d->style->setProfile(d->settings.style->value().toString());
     d->layout.model.setImageDirectory(d->style->directory(Style::Images));
     d->extended_layout.model.setImageDirectory(d->style->directory(Style::Images));
+    d->magnifier_layout.setImageDirectory(d->style->directory(Style::Images));
 }
 
 void InputMethod::onKeyboardClosed()
@@ -690,6 +713,24 @@ void InputMethod::onExtendedLayoutOriginChanged(const QPoint &origin)
 {
     Q_D(InputMethod);
     d->extended_surface->setRelativePosition(origin);
+}
+
+void InputMethod::onMagnifierLayoutWidthChanged(int width)
+{
+    Q_D(InputMethod);
+    d->magnifier_surface->setSize(QSize(width, d->magnifier_surface->size().height()));
+}
+
+void InputMethod::onMagnifierLayoutHeightChanged(int height)
+{
+    Q_D(InputMethod);
+    d->magnifier_surface->setSize(QSize(d->magnifier_surface->size().width(), height));
+}
+
+void InputMethod::onMagnifierLayoutOriginChanged(const QPoint &origin)
+{
+    Q_D(InputMethod);
+    d->magnifier_surface->setRelativePosition(origin);
 }
 
 } // namespace MaliitKeyboard

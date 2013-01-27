@@ -122,7 +122,6 @@ public:
     void setExtendedPanel(const KeyArea &extended);
     Q_SIGNAL void extendedPanelChanged(const KeyArea &extended,
                                        const Logic::KeyOverrides &overrides);
-
     WordRibbon wordRibbon() const;
     void setWordRibbon(const WordRibbon &ribbon);
     Q_SIGNAL void wordRibbonChanged(const WordRibbon &ribbon);
@@ -139,8 +138,8 @@ public:
     Key magnifierKey() const;
     void setMagnifierKey(const Key &key);
     void clearMagnifierKey();
-    Q_SIGNAL void magnifierKeyChanged(const Key &key,
-                                      const Logic::KeyOverrides &overrides);
+    Q_SIGNAL void magnifierChanged(const KeyArea &area);
+
 
     Q_SLOT void onKeysOverriden(const Logic::KeyOverrides &overriden_keys,
                                 bool update);
