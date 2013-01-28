@@ -33,6 +33,7 @@
 #include "inputmethod.h"
 #include "editor.h"
 #include "updatenotifier.h"
+#include "maliitcontext.h"
 
 #include "models/key.h"
 #include "models/keyarea.h"
@@ -44,7 +45,6 @@
 #include "logic/wordengine.h"
 #include "logic/style.h"
 #include "logic/languagefeatures.h"
-#include "logic/maliitcontext.h"
 #include "logic/eventhandler.h"
 
 #include "view/glass.h"
@@ -154,9 +154,10 @@ public:
     LayoutGroup layout;
     LayoutGroup extended_layout;
     Model::Layout magnifier_layout;
-    Logic::MaliitContext context;
+    MaliitContext context;
 
-    explicit InputMethodPrivate(MAbstractInputMethodHost *host);
+    explicit InputMethodPrivate(InputMethod * const q,
+                                MAbstractInputMethodHost *host);
     void setLayoutOrientation(Logic::LayoutHelper::Orientation orientation);
     void syncWordEngine(Logic::LayoutHelper::Orientation orientation);
 
@@ -165,7 +166,8 @@ public:
 };
 
 
-InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
+InputMethodPrivate::InputMethodPrivate(InputMethod *const q,
+                                       MAbstractInputMethodHost *host)
     : surface_factory(host->surfaceFactory())
     , surface(qSharedPointerDynamicCast<Surface>(surface_factory->create(g_surface_options)))
     , extended_surface(qSharedPointerDynamicCast<Surface>(surface_factory->create(g_extended_surface_options, surface)))
@@ -179,7 +181,7 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     , layout()
     , extended_layout()
     , magnifier_layout()
-    , context(style)
+    , context(q, style)
 {
     editor.setHost(host);
 
@@ -267,7 +269,7 @@ void InputMethodPrivate::setContextProperties(QQmlContext *qml_context)
 
 InputMethod::InputMethod(MAbstractInputMethodHost *host)
     : MAbstractInputMethod(host)
-    , d_ptr(new InputMethodPrivate(host))
+    , d_ptr(new InputMethodPrivate(this, host))
 {
     Q_D(InputMethod);
 

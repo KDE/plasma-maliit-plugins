@@ -36,8 +36,8 @@
 #include <QtCore>
 
 namespace MaliitKeyboard {
-namespace Logic {
 
+class InputMethod;
 class MaliitContextPrivate;
 
 class MaliitContext
@@ -48,16 +48,18 @@ class MaliitContext
     Q_DECLARE_PRIVATE(MaliitContext)
 
 public:
-    explicit MaliitContext(const SharedStyle &style,
+    explicit MaliitContext(InputMethod *input_method,
+                           const SharedStyle &style,
                            QObject *parent = 0);
     virtual ~MaliitContext();
 
     Q_INVOKABLE QString image(const QString &base_name) const;
+    Q_INVOKABLE void hide();
 
 private:
     const QScopedPointer<MaliitContextPrivate> d_ptr;
 };
 
-}} // namespace Logic, MaliitKeyboard
+} // MaliitKeyboard
 
 #endif // MALIIT_KEYBOARD_MALIITCONTEXT_H

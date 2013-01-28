@@ -30,9 +30,9 @@
  */
 
 #include "maliitcontext.h"
+#include "inputmethod.h"
 
 namespace MaliitKeyboard {
-namespace Logic {
 //! \class MaliitContext
 //! \brief Helper class to export properties and static data to QML
 
@@ -40,21 +40,29 @@ namespace Logic {
 class MaliitContextPrivate
 {
 public:
+    InputMethod * const input_method;
     SharedStyle style;
 
-    explicit MaliitContextPrivate(const SharedStyle &new_style);
+    explicit MaliitContextPrivate(InputMethod * const new_input_method,
+                                  const SharedStyle &new_style);
 };
 
 
-MaliitContextPrivate::MaliitContextPrivate(const SharedStyle &new_style)
-    : style(new_style)
-{}
+MaliitContextPrivate::MaliitContextPrivate(InputMethod *const new_input_method,
+                                           const SharedStyle &new_style)
+    : input_method(new_input_method)
+    , style(new_style)
+{
+    Q_ASSERT(input_method != 0);
+    Q_ASSERT(not style.isNull());
+}
 
 
-MaliitContext::MaliitContext(const SharedStyle &style,
+MaliitContext::MaliitContext(InputMethod *const input_method,
+                             const SharedStyle &style,
                              QObject *parent)
     : QObject(parent)
-    , d_ptr(new MaliitContextPrivate(style))
+    , d_ptr(new MaliitContextPrivate(input_method, style))
 {}
 
 
@@ -76,4 +84,12 @@ QString MaliitContext::image(const QString &base_name) const
     return QString();
 }
 
-}} // namespace Logic, MaliitKeyboard
+
+//! \brief Triggers user-initiated hiding of virtual keyboard.
+void MaliitContext::hide()
+{
+    Q_D(MaliitContext);
+    d->input_method->hide();
+}
+
+} // namespace MaliitKeyboard

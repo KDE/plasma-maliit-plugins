@@ -24,12 +24,14 @@ HEADERS += \
     inputmethod.h \
     editor.h \
     updatenotifier.h \
+    maliitcontext.h \
 
 SOURCES += \
     plugin.cpp \
     inputmethod.cpp \
     editor.cpp \
     updatenotifier.cpp \
+    maliitcontext.cpp \
 
 target.path += $${MALIIT_PLUGINS_DIR}
 INSTALLS += target

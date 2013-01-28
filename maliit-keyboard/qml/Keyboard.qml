@@ -94,15 +94,39 @@ Item {
             }
 
             MouseArea {
+                property real start_x
+                property real start_y
+
+                Timer {
+                    id: gesture_timeout
+                    interval: 500
+                }
+
                 enabled: area_enabled
                 anchors.fill: parent
                 hoverEnabled: true
 
                 onEntered: event_handler.onEntered(index)
                 onExited: event_handler.onExited(index)
-                onPressed: event_handler.onPressed(index)
+
+                onPressed: {
+                    start_x = mouse.x
+                    start_y = mouse.y
+                    gesture_timeout.start()
+
+                    event_handler.onPressed(index)
+                }
+
                 onReleased: event_handler.onReleased(index)
                 onPressAndHold: event_handler.onPressAndHold(index)
+
+                // Hide keyboard on flick-down gesture:
+                onPositionChanged: {
+                    if (gesture_timeout.running
+                        && (mouse.y - start_x > (layout.height * 0.3))) {
+                        maliit.hide()
+                    }
+                }
             }
         }
     }
