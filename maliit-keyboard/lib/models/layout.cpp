@@ -76,6 +76,11 @@ LayoutPrivate::LayoutPrivate()
     roles[Layout::RoleKeyBackground] = "key_background";
     roles[Layout::RoleKeyBackgroundBorders] = "key_background_borders";
     roles[Layout::RoleKeyText] = "key_text";
+    roles[Layout::RoleKeyFont] = "key_font";
+    roles[Layout::RoleKeyFontColor] = "key_font_color";
+    roles[Layout::RoleKeyFontSize] = "key_font_size";
+    roles[Layout::RoleKeyFontStretch] = "key_font_stretch";
+    roles[Layout::RoleKeyIcon] = "key_icon";
 }
 
 
@@ -246,6 +251,23 @@ QVariant Layout::data(const QModelIndex &index,
 
     case RoleKeyText:
         return QVariant(key.label().text());
+
+    case RoleKeyFont:
+        return QVariant(QString(key.label().font().name()));
+
+    case RoleKeyFontColor:
+        // FIXME: QML expects QVariant(QColor(...)) here, but then we'd have a QtGui dependency, no?
+        return QVariant(QString(key.label().font().color()));
+
+    case RoleKeyFontSize:
+        // FIXME: Using qMax to suppress warning about "invalid" 0.0 font sizes in QFont::setPointSizeF.
+        return QVariant(qMax<int>(1, key.label().font().size()));
+
+    case RoleKeyFontStretch:
+        return QVariant(key.label().font().stretch());
+
+    case RoleKeyIcon:
+        return QVariant(toUrl(d->image_directory, key.icon()));
     }
 
     qWarning() << __PRETTY_FUNCTION__

@@ -78,8 +78,18 @@ Item {
                 Text {
                     anchors.fill: parent
                     text: key_text
+                    font.family: key_font
+                    font.pointSize: key_font_size
+                    color: key_font_color
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
+                    visible: (key_text.length != 0)
+                }
+
+                Image {
+                    anchors.centerIn: parent
+                    source: key_icon
+                    visible: (key_icon.length != 0)
                 }
             }
 

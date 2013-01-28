@@ -79,6 +79,11 @@ public:
         RoleKeyBackground,
         RoleKeyBackgroundBorders,
         RoleKeyText,
+        RoleKeyFont,
+        RoleKeyFontColor,
+        RoleKeyFontSize,
+        RoleKeyFontStretch,
+        RoleKeyIcon,
     };
 
     explicit Layout(QObject *parent = 0);
