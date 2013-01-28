@@ -84,10 +84,20 @@ void EventHandler::onEntered(int index)
     Q_D(EventHandler);
 
     const QVector<Key> &keys(d->layout->keyArea().keys());
-    const Key &key(index < keys.count()
-                   ? keys.at(index) : Key());
 
+    if (index >= keys.count()) {
+        qWarning() << __PRETTY_FUNCTION__
+                   << "Invalid index:" << index
+                   << "Keys available:" << keys.count();
+        return;
+    }
+
+    const Key &key(keys.at(index));
+
+    const Key pressed_key(d->updater->modifyKey(key, KeyDescription::PressedState));
+    d->layout->replaceKey(index, pressed_key);
     d->updater->onKeyEntered(key);
+
     Q_EMIT keyEntered(key);
 }
 
@@ -97,10 +107,20 @@ void EventHandler::onExited(int index)
     Q_D(EventHandler);
 
     const QVector<Key> &keys(d->layout->keyArea().keys());
-    const Key &key(index < keys.count()
-                   ? keys.at(index) : Key());
 
-    d->updater->onKeyExited(key);
+    if (index >= keys.count()) {
+        qWarning() << __PRETTY_FUNCTION__
+                   << "Invalid index:" << index
+                   << "Keys available:" << keys.count();
+        return;
+    }
+
+    const Key &key(keys.at(index));
+
+    const Key normal_key(d->updater->modifyKey(key, KeyDescription::NormalState));
+    d->layout->replaceKey(index, normal_key);
+    d->updater->onKeyExited(normal_key);
+
     Q_EMIT keyExited(key);
 }
 
@@ -110,14 +130,20 @@ void EventHandler::onPressed(int index)
     Q_D(EventHandler);
 
     const QVector<Key> &keys(d->layout->keyArea().keys());
-    const Key &key(index < keys.count()
-                   ? keys.at(index) : Key());
-    const Key pressed_key(d->updater
-                          ? d->updater->modifyKey(key, KeyDescription::PressedState) : Key());
 
+    if (index >= keys.count()) {
+        qWarning() << __PRETTY_FUNCTION__
+                   << "Invalid index:" << index
+                   << "Keys available:" << keys.count();
+        return;
+    }
+
+    const Key &key(keys.at(index));
+
+    const Key pressed_key(d->updater->modifyKey(key, KeyDescription::PressedState));
     d->layout->replaceKey(index, pressed_key);
-
     d->updater->onKeyPressed(pressed_key);
+
     Q_EMIT keyPressed(pressed_key);
 }
 
@@ -127,11 +153,17 @@ void EventHandler::onReleased(int index)
     Q_D(EventHandler);
 
     const QVector<Key> &keys(d->layout->keyArea().keys());
-    const Key &key(index < keys.count()
-                   ? keys.at(index) : Key());
-    const Key normal_key(d->updater
-                         ? d->updater->modifyKey(key, KeyDescription::NormalState) : Key());
 
+    if (index >= keys.count()) {
+        qWarning() << __PRETTY_FUNCTION__
+                   << "Invalid index:" << index
+                   << "Keys available:" << keys.count();
+        return;
+    }
+
+    const Key &key(keys.at(index));
+
+    const Key normal_key(d->updater->modifyKey(key, KeyDescription::NormalState));
     d->layout->replaceKey(index, normal_key);
     d->updater->onKeyReleased(normal_key);
 
@@ -144,8 +176,15 @@ void EventHandler::onPressAndHold(int index)
     Q_D(EventHandler);
 
     const QVector<Key> &keys(d->layout->keyArea().keys());
-    const Key &key(index < keys.count()
-                   ? keys.at(index) : Key());
+
+    if (index >= keys.count()) {
+        qWarning() << __PRETTY_FUNCTION__
+                   << "Invalid index:" << index
+                   << "Keys available:" << keys.count();
+        return;
+    }
+
+    const Key &key(keys.at(index));
 
     // FIXME: long-press on space needs to work again to save words to dictionary!
     if (key.hasExtendedKeys()) {
