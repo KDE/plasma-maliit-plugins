@@ -120,11 +120,22 @@ Item {
                 onReleased: event_handler.onReleased(index)
                 onPressAndHold: event_handler.onPressAndHold(index)
 
-                // Hide keyboard on flick-down gesture:
+                // TODO: Move logic into EventHandler because gestures should depend on style?
+                // Hide keyboard on flick-down gesture (but only if there is an event_handler)
+                // or switch to left/right layout:
                 onPositionChanged: {
-                    if (gesture_timeout.running
-                        && (mouse.y - start_x > (layout.height * 0.3))) {
+                    if (event_handler
+                        && gesture_timeout.running
+                        && (mouse.y - start_y > (layout.height * 0.3))) {
                         maliit.hide()
+                    } else if (event_handler
+                               && gesture_timeout.running
+                               && (mouse.x - start_x > (layout.width * 0.2))) {
+                        maliit.selectLeftLayout()
+                    } else if (event_handler
+                               && gesture_timeout.running
+                               && (start_x - mouse.x > (layout.width * 0.2))) {
+                        maliit.selectRightLayout()
                     }
                 }
             }

@@ -55,6 +55,8 @@ public:
 
     Q_INVOKABLE QString image(const QString &base_name) const;
     Q_INVOKABLE void hide();
+    Q_INVOKABLE void selectLeftLayout();
+    Q_INVOKABLE void selectRightLayout();
 
 private:
     const QScopedPointer<MaliitContextPrivate> d_ptr;

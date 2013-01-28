@@ -92,4 +92,18 @@ void MaliitContext::hide()
     d->input_method->hide();
 }
 
+
+void MaliitContext::selectLeftLayout()
+{
+    Q_D(MaliitContext);
+    d->input_method->onLeftLayoutSelected();
+}
+
+
+void MaliitContext::selectRightLayout()
+{
+    Q_D(MaliitContext);
+    d->input_method->onRightLayoutSelected();
+}
+
 } // namespace MaliitKeyboard

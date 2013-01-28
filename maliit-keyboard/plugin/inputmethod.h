@@ -70,6 +70,9 @@ public:
     virtual void setKeyOverrides(const QMap<QString, QSharedPointer<MKeyOverride> > &overrides);
     //! \reimp_end
 
+    Q_SLOT void onLeftLayoutSelected();
+    Q_SLOT void onRightLayoutSelected();
+
 private:
     void registerStyleSetting(MAbstractInputMethodHost *host);
     void registerFeedbackSetting(MAbstractInputMethodHost *host);
@@ -77,9 +80,6 @@ private:
     void registerAutoCapsSetting(MAbstractInputMethodHost *host);
     void registerWordEngineSetting(MAbstractInputMethodHost *host);
     void registerHideWordRibbonInPortraitModeSetting(MAbstractInputMethodHost *host);
-
-    Q_SLOT void onLeftLayoutSelected();
-    Q_SLOT void onRightLayoutSelected();
 
     Q_SLOT void onScreenSizeChange(const QSize &size);
     Q_SLOT void onStyleSettingChanged();
