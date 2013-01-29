@@ -29,8 +29,21 @@
  *
  */
 
+import QtQuick 2.0
+
 Keyboard {
     layout: maliit_extended_layout
     event_handler: maliit_extended_event_handler
     area_enabled: maliit_extended_layout.visible
+
+    opacity: visible ? 1.0 : 0.0
+
+    // Only animates appearance because we reset extended keys model
+    // immediately after selecting a key.
+    Behavior on opacity {
+        PropertyAnimation {
+            duration: 300
+            easing.type: Easing.InOutQuad
+        }
+    }
 }
