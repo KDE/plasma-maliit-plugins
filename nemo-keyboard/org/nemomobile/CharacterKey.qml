@@ -32,7 +32,7 @@
 import QtQuick 2.0
 import "KeyboardUiConstants.js" as UI
 
-Item  {
+KeyBase  {
     id: aCharKey
 
     property string caption
@@ -40,14 +40,8 @@ Item  {
     property string symView
     property string symView2
     property string sizeType: "keyboard-key-43x60.png"
-    property bool pressed
     property int fontSize: UI.FONT_SIZE
     property alias text: key_label.text
-    property bool landscape
-    property int leftPadding
-    property int rightPadding
-    property int topPadding
-    property int bottomPadding
 
     Image {
         source: sizeType

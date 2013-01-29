@@ -1,7 +1,9 @@
 /*
  * This file is part of Maliit plugins
  *
- * Copyright (C) Jakub Pavelek <jpavelek@live.com>
+ * Copyright (C) 2013 Jolla ltd and/or its subsidiary(-ies). All rights reserved.
+ *
+ * Contact: Pekka Vuorela <pekka.vuorela@jollamobile.com>
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -30,58 +32,18 @@
 import QtQuick 2.0
 import "KeyboardUiConstants.js" as UI
 
-Image {
-    id: popper
-    source: "popper.png"
-    opacity: 0
+Item {
+    property int leftPadding
+    property int rightPadding
+    property int topPadding
+    property int bottomPadding
+    property bool landscape
+    property int fontSize: UI.FONT_SIZE
+    property bool pressed
+    property bool repeat
+    property string text
+    property int key: Qt.Key_unknown
+    property bool showPopper: true
 
-    property Item target: null
-
-    Text {
-        id: popperText
-        text: ""
-        anchors.centerIn: parent
-        horizontalAlignment: Text.AlignHCenter
-        verticalAlignment: Text.AlignVCenter
-        font.family: "sans"
-        font.pixelSize: UI.FONT_SIZE_POPPER
-        font.bold: true
-        color: UI.TEXT_COLOR_POPPER
-    }
-
-    states: State {
-        name: "active"
-        when: target !== null && target.showPopper
-
-        PropertyChanges {
-            target: popperText
-            text: target.text
-        }
-
-        PropertyChanges {
-            target: popper
-            opacity: 1
-
-            x: popper.parent.mapFromItem(target, 0, 0).x + (target.width - popper.width) / 2
-            y: popper.parent.mapFromItem(target, 0, 0).y - popper.height
-        }
-    }
-
-    transitions: Transition {
-        from: "active"
-
-        SequentialAnimation {
-            PauseAnimation {
-                duration: 50
-            }
-            PropertyAction {
-                target: popper
-                properties: "opacity, x, y"
-            }
-            PropertyAction {
-                target: popperText
-                property: "text"
-            }
-        }
-    }
+    signal clicked
 }
