@@ -42,6 +42,7 @@
 #include "logic/layouthelper.h"
 #include "logic/layoutupdater.h"
 #include "logic/eventhandler.h"
+#include "logic/style.h"
 
 #include "view/setup.h"
 #include "plugin/editor.h"
@@ -127,20 +128,23 @@ KeyArea createAbcdArea()
     return key_area;
 }
 
-QList<QMouseEvent *> createPressReleaseEvent(const QPoint &origin,
-                                             Logic::LayoutHelper::Orientation orientation = Logic::LayoutHelper::Landscape)
+int lookup(const QString &name)
 {
-    static const int offset(g_size / (g_divider * 2));
+    if (name == "a") {
+        return 0;
+    } else if (name == "b") {
+        return 1;
+    } else if (name == "c") {
+        return 2;
+    } else if (name == "d") {
+        return 3;
+    } else if (name == "space") {
+        return 4;
+    } else if (name == "return") {
+        return 5;
+    }
 
-    QList<QMouseEvent *> result;
-    QPoint pos = (orientation == Logic::LayoutHelper::Landscape)
-                  ? QPoint(origin.x() + offset, origin.y() + offset)
-                  : QPoint(origin.y() + offset, g_size - (origin.x() + offset));
-
-    result.append(new QMouseEvent(QKeyEvent::MouseButtonPress, pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier));
-    result.append(new QMouseEvent(QKeyEvent::MouseButtonRelease, pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier));
-
-    return result;
+    return -1;
 }
 
 bool operator==(const Maliit::PreeditTextFormat &a, const Maliit::PreeditTextFormat &b) {
@@ -190,6 +194,7 @@ public:
     Logic::LayoutUpdater layout_updater;
     Logic::LayoutHelper layout_helper;
     Logic::EventHandler event_handler;
+    SharedStyle style;
     QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> surface;
     QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> extended_surface;
     KeyArea key_area;
@@ -201,6 +206,7 @@ public:
         , layout_updater()
         , layout_helper()
         , event_handler(&layout, &layout_updater)
+        , style(new Style(qApp))
         , surface(Maliit::Plugins::createTestGraphicsViewSurface())
         , extended_surface(Maliit::Plugins::createTestGraphicsViewSurface(surface))
         , key_area(createAbcdArea())
@@ -215,6 +221,9 @@ public:
 
         layout_helper.setExtendedPanel(key_area);
         layout_helper.setActivePanel(Logic::LayoutHelper::ExtendedPanel);
+
+        layout_updater.setLayout(&layout_helper);
+        layout_updater.setStyle(style);
 
         layout.setKeyArea(key_area);
     }
@@ -238,7 +247,7 @@ private:
     Q_SLOT void test_data()
     {
         QTest::addColumn<Logic::LayoutHelper::Orientation>("orientation");
-        QTest::addColumn<QList<QMouseEvent*> >("mouse_events");
+        QTest::addColumn<QStringList>("keys");
         QTest::addColumn<QString>("expected_last_preedit_string");
         QTest::addColumn<QString>("expected_commit_string");
         QTest::addColumn<FormatList>("expected_preedit_format");
@@ -253,76 +262,53 @@ private:
                                                                 : Logic::LayoutHelper::Portrait);
             QTest::newRow("No mouse events: expect empty commit string, should be no preedit face")
                 << layout_orientation
-                << (QList<QMouseEvent *>())
+                << (QStringList())
                 << "" << "" << FormatList() << true << 0;
 
             QTest::newRow("Only return pressed: expect empty commit string, should be no preedit face")
                 << layout_orientation
-                << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("return"), layout_orientation))
-                << "" << "" << FormatList() << true << 0;
-
-            QTest::newRow("Release outside of widget: expect empty commit string, should be no preedit face")
-                << layout_orientation
-                << (QList<QMouseEvent *>() << createPressReleaseEvent(QPoint(g_size * 2, g_size * 2), layout_orientation)
-                                           << createPressReleaseEvent(keyOriginLookup("return"), layout_orientation))
+                << (QStringList() << "return")
                 << "" << "" << FormatList() << true << 0;
 
             QTest::newRow("Release button over key 'a': expect commit string 'a', preedit face should be active.")
                 << layout_orientation
-                << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("a"), layout_orientation)
-                                           << createPressReleaseEvent(keyOriginLookup("return"), layout_orientation))
+                << (QStringList() << "a" << "return")
                 << "a" << "a" << (FormatList() << Maliit::PreeditTextFormat(0, 1, Maliit::PreeditActive)) << true << 0;
 
             QTest::newRow("Release button over key 'a', but no commit: expect empty commit string.")
                 << layout_orientation
-                << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("a"), layout_orientation))
+                << (QStringList() << "a")
                 << "a" << "" << (FormatList() << Maliit::PreeditTextFormat(0, 1, Maliit::PreeditActive)) << true << 1;
 
             QTest::newRow("Release button over keys 'c, b, d, a': expect commit string 'cbda', preedit face should be no candidates")
                 << layout_orientation
-                << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("c"), layout_orientation)
-                                           << createPressReleaseEvent(keyOriginLookup("b"), layout_orientation)
-                                           << createPressReleaseEvent(keyOriginLookup("d"), layout_orientation)
-                                           << createPressReleaseEvent(keyOriginLookup("a"), layout_orientation)
-                                           << createPressReleaseEvent(keyOriginLookup("space"), layout_orientation))
+                << (QStringList() << "c" << "b" << "d" << "a" << "space")
                 << "cbda" << "cbda " << (FormatList() << Maliit::PreeditTextFormat(0, 4, Maliit::PreeditNoCandidates)) << true << 0;
 
             QTest::newRow("Typing two words: expect commit string 'ab cd', with last preedit being 'cd', preedit face should be no candidates.")
                 << layout_orientation
-                << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("a"), layout_orientation)
-                                           << createPressReleaseEvent(keyOriginLookup("b"), layout_orientation)
-                                           << createPressReleaseEvent(keyOriginLookup("space"), layout_orientation)
-                                           << createPressReleaseEvent(keyOriginLookup("c"), layout_orientation)
-                                           << createPressReleaseEvent(keyOriginLookup("d"), layout_orientation)
-                                           << createPressReleaseEvent(keyOriginLookup("return"), layout_orientation))
+                << (QStringList() << "a" << "b" << "space" << "c" << "d" << "return")
                 << "cd" << "ab cd" << (FormatList() << Maliit::PreeditTextFormat(0, 2, Maliit::PreeditNoCandidates)) << true << 0;
 
             QTest::newRow("Typing one word 'abd': expect commit string 'abd', with last preedit being 'abd', preedit face should be default")
                 << layout_orientation
-                << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("a"), layout_orientation)
-                                           << createPressReleaseEvent(keyOriginLookup("b"), layout_orientation)
-                                           << createPressReleaseEvent(keyOriginLookup("d"), layout_orientation)
-                                           << createPressReleaseEvent(keyOriginLookup("return"), layout_orientation))
+                << (QStringList() << "a" << "b" << "d" << "return")
                 << "abd" << "abd" << (FormatList() << Maliit::PreeditTextFormat(0, 3, Maliit::PreeditDefault)) << true << 0;
 
             // TODO: we probably should not sent any preedit formats when word engine is turned off.
             QTest::newRow("Typing one word 'abd' with word engine turned off: expect commit string 'abd', with preedit being last char, should be no preedit face")
                 << layout_orientation
-                << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("a"), layout_orientation)
-                                           << createPressReleaseEvent(keyOriginLookup("b"), layout_orientation)
-                                           << createPressReleaseEvent(keyOriginLookup("d"), layout_orientation))
+                << (QStringList() << "a" << "b" << "d")
                 << "d" << "abd" << (FormatList() << Maliit::PreeditTextFormat(0, 1, Maliit::PreeditDefault)) << false << 0;
 
             QTest::newRow("Typing one word 'ab' with word engine turned off: expect commit string 'ab', with preedit being last char, should be no preedit face")
                 << layout_orientation
-                << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("a"), layout_orientation)
-                                           << createPressReleaseEvent(keyOriginLookup("b"), layout_orientation))
+                << (QStringList() << "a" << "b")
                 << "b" << "ab" << (FormatList() << Maliit::PreeditTextFormat(0, 1, Maliit::PreeditDefault)) << false << 0;
 
             QTest::newRow("Typing one word 'bd' with word engine turned off: expect commit string 'bd', with preedit being last char, face should be for one char with default face")
                 << layout_orientation
-                << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("b"), layout_orientation)
-                                           << createPressReleaseEvent(keyOriginLookup("d"), layout_orientation))
+                << (QStringList() << "b" << "d")
                 << "d" << "bd" << (FormatList() << Maliit::PreeditTextFormat(0, 1, Maliit::PreeditDefault)) << false << 0;
 
         }
@@ -339,7 +325,7 @@ private:
         // I wouldn't like to have.
 
         QFETCH(Logic::LayoutHelper::Orientation, orientation);
-        QFETCH(QList<QMouseEvent*>, mouse_events);
+        QFETCH(QStringList, keys);
         QFETCH(QString, expected_last_preedit_string);
         QFETCH(QString, expected_commit_string);
         QFETCH(QList<Maliit::PreeditTextFormat>, expected_preedit_format);
@@ -348,11 +334,12 @@ private:
 
         SetupTest test_setup(orientation, word_engine_enabled);
 
-        Q_FOREACH (QMouseEvent *ev, mouse_events) {
-            QApplication::instance()->postEvent(test_setup.surface->view()->viewport(), ev);
+        Q_FOREACH (const QString &k, keys) {
+            test_setup.event_handler.onPressed(lookup(k));
+            test_setup.event_handler.onReleased(lookup(k));
         }
 
-        TestUtils::waitForSignal(&test_setup.layout, SIGNAL(keyReleased(Key)));
+        TestUtils::waitForSignal(&test_setup.event_handler, SIGNAL(keyReleased(Key)));
         QCOMPARE(test_setup.host.lastPreeditString(), expected_last_preedit_string);
         QCOMPARE(test_setup.host.commitStringHistory(), expected_commit_string);
         QCOMPARE(test_setup.host.lastPreeditTextFormatList(), expected_preedit_format);
@@ -518,98 +505,98 @@ private:
     {
         QTest::addColumn<QString>("surrounding_text");
         QTest::addColumn<int>("cursor_position");
-        QTest::addColumn<QList<QMouseEvent *> >("events");
+        QTest::addColumn<QStringList >("keys");
         QTest::addColumn<QString>("expected_preedit_string");
         QTest::addColumn<int>("expected_cursor_position");
 
         QTest::newRow("'aaa bbb', select first 'a', then type 'd'")
             << "aaa bbbb" // surrounding text
             << 0 // chosen cursor position
-            << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("d")))
+            << (QStringList() << "d")
             << "daaa" // expected preedit
             << 1; // expected cursor position (relative to the beginning of preedit)
 
         QTest::newRow("'aaa bbb', select second 'a', then type 'd'")
             << "aaa bbbb" // surrounding text
             << 1 // chosen cursor position
-            << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("d")))
+            << (QStringList() << "d")
             << "adaa" // expected preedit
             << 2; // expected cursor position (relative to the beginning of preedit)
 
         QTest::newRow("'aaa bbb', select third 'a', then type 'd'")
             << "aaa bbbb" // surrounding text
             << 2 // chosen cursor position
-            << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("d")))
+            << (QStringList() << "d")
             << "aada" // expected preedit
             << 3; // expected cursor position (relative to the beginning of preedit)
 
         QTest::newRow("'aaa bbb', select space between words, then type 'd'")
             << "aaa bbbb" // surrounding text
             << 3 // chosen cursor position
-            << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("d")))
+            << (QStringList() << "d")
             << "aaad" // expected preedit
             << 4; // expected cursor position (relative to the beginning of preedit)
 
         QTest::newRow("'aaa bbb', select first 'b', then type 'd'")
             << "aaa bbbb" // surrounding text
             << 4 // chosen cursor position
-            << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("d")))
+            << (QStringList() << "d")
             << "dbbbb" // expected preedit
             << 1; // expected cursor position (relative to the beginning of preedit)
 
         QTest::newRow("'aaa bbb', select after last 'b', then type 'd'")
             << "aaa bbbb" // surrounding text
             << 8 // chosen cursor position
-            << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("d")))
+            << (QStringList() << "d")
             << "bbbbd" // expected preedit
             << 5; // expected cursor position (relative to the beginning of preedit)
 
         QTest::newRow("' aaa', select leading space, then type 'd'")
             << " aaa" // surrounding text
             << 0 // chosen cursor position
-            << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("d")))
+            << (QStringList() << "d")
             << "d" // expected preedit
             << 1; // expected cursor position (relative to the beginning of preedit)
 
         QTest::newRow("'a  b', select space before 'b', then type 'd'")
             << "a  b" // surrounding text
             << 2 // chosen cursor position
-            << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("d")))
+            << (QStringList() << "d")
             << "d" // expected preedit
             << 1; // expected cursor position (relative to the beginning of preedit)
 
         QTest::newRow("'a  ', select last space, then type 'd'")
             << "a  " // surrounding text
             << 2 // chosen cursor position
-            << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("d")))
+            << (QStringList() << "d")
             << "d" // expected preedit
             << 1; // expected cursor position (relative to the beginning of preedit)
 
         QTest::newRow("'a ', select after last space, then type 'd'")
             << "a " // surrounding text
             << 2 // chosen cursor position
-            << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("d")))
+            << (QStringList() << "d")
             << "d" // expected preedit
             << 1; // expected cursor position (relative to the beginning of preedit)
 
         QTest::newRow("'aaa', select far after last char, then type 'd'")
             << "aaa" // surrounding text
             << 200 // chosen cursor position
-            << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("d")))
+            << (QStringList() << "d")
             << "aaad" // expected preedit
             << 4; // expected cursor position (relative to the beginning of preedit)
 
         QTest::newRow("'aaa', select far before first char, then type 'd'")
             << "aaa" // surrounding text
             << -200 // chosen cursor position
-            << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("d")))
+            << (QStringList() << "d")
             << "daaa" // expected preedit
             << 1; // expected cursor position (relative to the beginning of preedit)
 
         QTest::newRow("' aaa ', select trailing space, then type 'd'")
             << " aaa " // surrounding text
             << 4 // chosen cursor position
-            << (QList<QMouseEvent *>() << createPressReleaseEvent(keyOriginLookup("d")))
+            << (QStringList() << "d")
             << "aaad" // expected preedit
             << 4; // expected cursor position (relative to the beginning of preedit)
     }
@@ -618,7 +605,7 @@ private:
     {
         QFETCH(QString, surrounding_text);
         QFETCH(int, cursor_position);
-        QFETCH(QList<QMouseEvent*>, events);
+        QFETCH(QStringList, keys);
         QFETCH(QString, expected_preedit_string);
         QFETCH(int, expected_cursor_position);
 
@@ -628,11 +615,12 @@ private:
 
         test_setup.notifier.notify(update_event.data());
 
-        Q_FOREACH (QMouseEvent *ev, events) {
-            QApplication::instance()->postEvent(test_setup.surface->view()->viewport(), ev);
+        Q_FOREACH (const QString &k, keys) {
+            test_setup.event_handler.onPressed(lookup(k));
+            test_setup.event_handler.onReleased(lookup(k));
         }
 
-        TestUtils::waitForSignal(&test_setup.layout, SIGNAL(keyReleased(Key)));
+        TestUtils::waitForSignal(&test_setup.event_handler, SIGNAL(keyReleased(Key)));
         QCOMPARE(test_setup.host.lastPreeditString(), expected_preedit_string);
         QCOMPARE(test_setup.editor.text()->cursorPosition(), expected_cursor_position);
     }

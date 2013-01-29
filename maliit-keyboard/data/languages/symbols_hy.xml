@@ -91,13 +91,6 @@
           <binding label="՝" />
         </key>
         <key>
-          <extended>
-            <row>
-              <key>
-                <binding label=":" />
-              </key>
-            </row>
-          </extended>
           <binding label="։" />
         </key>
         <spacer />
