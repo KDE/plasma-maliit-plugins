@@ -68,6 +68,10 @@ typedef const QStringList (LayoutParser::*ParserFunc)() const;
 
 TagKeyboardPtr getTagKeyboard(const QString &id)
 {
+    if (id.isEmpty()) {
+        return TagKeyboardPtr();
+    }
+
     const QString path(getLanguagesDir() + "/" + id + ".xml");
     QFile file(path);
 

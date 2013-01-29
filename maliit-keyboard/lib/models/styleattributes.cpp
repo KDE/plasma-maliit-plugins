@@ -188,12 +188,6 @@ StyleAttributes::StyleAttributes(const QSettings *store)
     if (m_store.isNull()) {
         qFatal("QSettings store cannot be null!");
     }
-
-    if (m_store->status() != QSettings::NoError) {
-        qWarning() << __PRETTY_FUNCTION__
-                   << "Could not read INI file:"
-                   << m_store->fileName();
-    }
 }
 
 //! \brief Destructor
