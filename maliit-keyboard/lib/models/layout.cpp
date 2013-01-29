@@ -56,6 +56,7 @@ QUrl toUrl(const QString &directory,
 class LayoutPrivate
 {
 public:
+    QString title;
     KeyArea key_area;
     QString image_directory;
     QHash<int, QByteArray> roles;
@@ -65,7 +66,8 @@ public:
 
 
 LayoutPrivate::LayoutPrivate()
-    : key_area()
+    : title()
+    , key_area()
     , image_directory()
     , roles()
 {
@@ -92,6 +94,24 @@ Layout::Layout(QObject *parent)
 
 Layout::~Layout()
 {}
+
+
+void Layout::setTitle(const QString &title)
+{
+    Q_D(Layout);
+
+    if (d->title != title) {
+        d->title = title;
+        Q_EMIT titleChanged(d->title);
+    }
+}
+
+
+QString Layout::title() const
+{
+    Q_D(const Layout);
+    return d->title;
+}
 
 
 void Layout::setKeyArea(const KeyArea &area)

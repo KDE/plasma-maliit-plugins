@@ -104,6 +104,8 @@ public:
 
     Q_SIGNAL void addToUserDictionary();
 
+    Q_SIGNAL void keyboardTitleChanged(const QString &title);
+
 private:
     Q_SIGNAL void shiftPressed();
     Q_SIGNAL void shiftReleased();

@@ -292,6 +292,9 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
     connect(&d->layout.model, SIGNAL(heightChanged(int)),
             this,             SLOT(onLayoutHeightChanged(int)));
 
+    connect(&d->layout.updater, SIGNAL(keyboardTitleChanged(QString)),
+            &d->layout.model,   SLOT(setTitle(QString)));
+
     connect(&d->extended_layout.model, SIGNAL(widthChanged(int)),
             this,                      SLOT(onExtendedLayoutWidthChanged(int)));
 

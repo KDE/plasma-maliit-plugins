@@ -35,10 +35,19 @@ Item {
     property alias layout: main.model
     property variant event_handler
     property bool area_enabled // MouseArea has no id property so we cannot alias its enabled property.
+    property alias title: keyboard_title.text
 
     width: layout.width
     height: layout.height
     visible: layout.visible
+
+    Connections {
+        target: layout
+        onTitleChanged: {
+            console.debug("title:" + layout.title)
+            title_timeout.start()
+        }
+    }
 
     BorderImage {
         id: background
@@ -139,6 +148,55 @@ Item {
                     }
                 }
             }
+        }
+    }
+
+    // Keyboard title rendering
+    // TODO: Make separate component?
+    Item {
+        anchors.centerIn: parent
+        opacity: title_timeout.running ? 1.0 : 0.0
+
+        Behavior on opacity {
+            PropertyAnimation {
+                duration: 300
+                easing.type: Easing.InOutQuad
+            }
+        }
+
+        Timer {
+            id: title_timeout
+            interval: 1000
+        }
+
+        // TODO: Make title background part of styling profile.
+        BorderImage {
+            anchors.centerIn: parent
+
+            // Manual padding of text:
+            width: keyboard_title.width * 1.2
+            height: keyboard_title.height * 1.2
+
+            //anchors.fill: keyboard_title
+            source: layout.background
+            z: 1000 // Move behind Text element but in front of rest.
+
+            border.left: layout.background_borders.x
+            border.top: layout.background_borders.y
+            border.right: layout.background_borders.width
+            border.bottom: layout.background_borders.height
+        }
+
+        Text {
+            id: keyboard_title
+            anchors.centerIn: parent
+
+            text: title;
+            z: 1001
+
+            // TODO: Make title font part of styling profile.
+            font.pointSize: 48
+            color: "white"
         }
     }
 }

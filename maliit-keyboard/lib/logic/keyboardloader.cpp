@@ -414,12 +414,13 @@ void KeyboardLoader::setActiveId(const QString &id)
 
 QString KeyboardLoader::title(const QString &id) const
 {
-    TagKeyboardPtr keyboard(getTagKeyboard(id));
+    const TagKeyboardPtr keyboard(getTagKeyboard(id));
 
     if (keyboard) {
         return keyboard->title();
     }
-    return "invalid";
+
+    return QString();
 }
 
 Keyboard KeyboardLoader::keyboard() const

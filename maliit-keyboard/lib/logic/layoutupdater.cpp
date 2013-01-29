@@ -722,6 +722,8 @@ void LayoutUpdater::onKeyboardsChanged()
     d->shift_machine.restart();
     d->deadkey_machine.restart();
     d->view_machine.restart();
+
+    Q_EMIT keyboardTitleChanged(d->loader.title(d->loader.activeId()));
 }
 
 void LayoutUpdater::switchToMainView()

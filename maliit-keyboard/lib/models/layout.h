@@ -59,6 +59,8 @@ class Layout
     Q_DISABLE_COPY(Layout)
     Q_DECLARE_PRIVATE(Layout)
 
+    Q_PROPERTY(QString title READ title
+                             NOTIFY titleChanged)
     Q_PROPERTY(bool visible READ isVisible
                             NOTIFY visibleChanged)
     Q_PROPERTY(int width READ width
@@ -88,6 +90,10 @@ public:
 
     explicit Layout(QObject *parent = 0);
     virtual ~Layout();
+
+    Q_SLOT void setTitle(const QString &title);
+    Q_SLOT QString title() const;
+    Q_SIGNAL void titleChanged(const QString &changed);
 
     Q_SLOT void setKeyArea(const KeyArea &area);
     KeyArea keyArea() const;

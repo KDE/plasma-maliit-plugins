@@ -33,4 +33,5 @@ Keyboard {
     layout: maliit_layout
     event_handler: maliit_event_handler
     area_enabled: !maliit_extended_layout.visible
+    title: maliit_layout.title
 }
