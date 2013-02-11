@@ -117,6 +117,10 @@ Item {
                         hideAnimation.start()
                     }
                 }
+                onFocusTargetChanged: {
+                    if (activeEditor)
+                        keyboard.resetKeyboard()
+                }
             }
 
             SequentialAnimation {
@@ -135,7 +139,10 @@ Item {
                 }
 
                 ScriptAction {
-                    script: MInputMethodQuick.setScreenRegion(Qt.rect(0, 0, 0, 0))
+                    script: {
+                        MInputMethodQuick.setScreenRegion(Qt.rect(0, 0, 0, 0))
+                        keyboard.resetKeyboard()
+                    }
                 }
             }
 
