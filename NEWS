@@ -1,7 +1,10 @@
-{NEXT}
+0.94.2
 ======
 
 CHANGES SINCE 0.94.0
+* Backport nemo keyboard to Qt 4
+* Remove gaps between keys in nemo keyboard
+* Implement show/hide transition for nemo keyboard
 
 0.94.0
 ======
