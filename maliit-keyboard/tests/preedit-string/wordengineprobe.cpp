@@ -1,7 +1,7 @@
 /*
  * This file is part of Maliit Plugins
  *
- * Copyright (C) 2012 Openismus GmbH
+ * Copyright (C) 2012-2013 Canonical Ltd
  *
  * Contact: maliit-discuss@lists.maliit.org
  *

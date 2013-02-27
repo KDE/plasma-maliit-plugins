@@ -4,6 +4,7 @@
  * Copyright (C) 2011 Nokia Corporation and/or its subsidiary(-ies). All rights reserved.
  *
  * Contact: Mohammad Anwari <Mohammad.Anwari@nokia.com>
+ * Copyright (C) 2012-2013 Canonical Ltd
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:

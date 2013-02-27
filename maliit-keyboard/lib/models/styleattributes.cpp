@@ -2,6 +2,7 @@
  * This file is part of Maliit Plugins
  *
  * Copyright (C) 2012 One Laptop per Child Association
+ * Copyright (C) 2012-2013 Canonical Ltd
  *
  * Contact: maliit-discuss@lists.maliit.org
  *
