@@ -11,76 +11,77 @@ CHANGES SINCE 0.94.0
 * New LanguageFeatures class to deal with language-dependent features such as
   auto-caps.
 * New plugin settings:
-  - auto-caps-enabled: Looks for punctuation marks and auto-capitalizes next
-    letter.
-  - hide-word-ribbon-in-portrait-mode: Can be used to save screen real estate
-    in portrait mode (but disables word prediction).
-  - auto-correct-enabled: Use primary word candidate instead of what user
-    typed, if word is not in dictionary. Happens on pressing space or return.
-  - word-engine-enabled: Can be used to disable both word prediction and error
-    correction. Notice that if Maliit Keyboard is compiled without preedit
-    support, this setting has no effect.
-  - feedback-enabled: Controls (audio) feedback when pressing keys. Current
-    styling profile needs to provide audio files for this setting to take
+  - auto-caps-enabled: Looks for punctuation marks and auto-capitalizes the
+    next letter.
+  - hide-word-ribbon-in-portrait-mode: This can be used to save screen real 
+    estate in portrait mode (but disables word prediction).
+  - auto-correct-enabled: Use the primary word candidate instead of what the
+    user typed, if the word is not in dictionary. This haappens on pressing
+    space or return.
+  - word-engine-enabled: This can be used to disable both word prediction and
+    error correction. Notice that if Maliit Keyboard is compiled without preedit
+    support then this setting has no effect.
+  - feedback-enabled: This controls (audio) feedback when pressing keys. The
+    current styling profile needs to provide audio files for this setting to take
     effect.
-* Preedit activation allows to edit previously entered words and get full word
-  engine support.
+* Preedit activation allows the user to edit previously entered words and get
+  full word engine support.
 * Allow preedit styling.
-* Added HUNSPELL_DICT_PATH parameter to qmake:
-  - use it if your distro uses different path for dictionaries (like
+* Added a HUNSPELL_DICT_PATH parameter to qmake:
+  - Use this if your distro uses a different path for dictionaries (like
     Fedora which keeps them in /usr/share/myspell).
-* Users can add words to custom dictionary by long-pressing space key for
-  unknown words. Users need to confirm before new word is added to custom
-  dictionary.
+* Users can add words to custom dictionary by long-pressing the space key for
+  unknown words. Users need to confirm before the new word is added to the|
+  custom dictionary.
 * Implemented action key overriding:
-  - It is possible to control label and icon of action key from
-    application through Maliit attribute extensions.
+  - It is possible to control the label and icon of an action key from
+    the application via Maliit attribute extensions.
 * New nokia-n9 with Droid fonts style
-  - Use qmake MALIIT_DEFAULT_PROFILE=nokia-n9-droid to activate.
+  - Use qmake MALIIT_DEFAULT_PROFILE=nokia-n9-droid to activate this.
 * Allow fonts to be styled:
-  - Font name for each layout can be specified.
-  - If font is not available system-wide then it is possible
+  - The font name for each layout can be specified.
+  - If the font is not available system-wide then it is possible
     to specify a font file.
   - See new nokia-n9-droid style for example use.
 * Extended and broke XML language file format:
-  - Instead of using "extended_labels" attribute of <binding>, use
-    <extended> child of <key>. It allows to specify extended keys with
-    actions, with icons or extended keyboards with several rows.
-  - Instead of using "shift" and "alt" attributes of <binding>, use
-    <modifiers> child of <binding>. This clearly shows that toplevel
+  - Instead of using the "extended_labels" attribute of <binding>,
+    use an <extended> child of <key>. It allows us to specify extended keys
+    with actions, with icons or extended keyboards with several rows.
+  - Instead of using the "shift" and "alt" attributes of <binding>, use
+    a <modifiers> child of <binding>. This clearly shows that the toplevel
     <binding> is a fallback, when shift is pressed, but no <binding>
     for this modifier was specified.
-  - Allow to specify (custom) icon for each key, for instance:
+  - Allow specifing of a (custom) icon for each key. for instance:
     <binding icon="square-smiley" label=":-]" />
     This assumes square-smiley.png can be found in the images directory of the
-    current styling profile. The label text is send to the application as
-    preedit/commit string, not the icon.
+    current styling profile. The label text is sent to the application as
+    the preedit/commit string, but not the icon.
   - For a concrete example, please check
     maliit-keyboard/data/languages/debug/showcase.xml
-    It's a special layout that only gets installed in debug mode, to keep
+    That is a special layout that is only installed in debug mode, to keep
     regular users safe from it.
   - All language layout files have been updated to the new format. The
     maliit-keyboard/tools/update-lang.pl script can be used to convert old
     language layout files to use the new format.
 * Added coverage reports.
-  - The build system now compiles project for coverage in coverage-build
-    and places coverage reports in coverage-reports.
+  - The build system now compiles the project for coverage in
+    coverage-build and places coverage reports in coverage-reports.
 
-    To get coverage reports generate Makefiles with qmake and then run
-    'make coverage' from toplevel project's directory. Later, after some
+    To get coverage reports, generate Makefiles with qmake and then run
+    'make coverage' from the project's toplevel directory. Later, after some
     changes in source code, you can enter the coverage-build directory and
     run 'make coverage' to recompile the project, rerun the checks and
     regenerate the reports.
 
-    Note that recent lcov is needed to be used as the older ones might
-    have issues with finding source files.
+    Note that a recent lcov is needed because the older ones might
+    have issues with finding the source files.
 * More tests
   - Language and styling directory can be changed for tests.
   - maliit-keyboard/tests/language-layout-loading tests layouts (including
     parsing and modelling), basic styling support and pixel perfectness wrt.
     spacer elements.
   - maliit-keyboard/tests/editor tests word correction and auto capitalization.
-  - maliit-keyboard/tests/preedit-string now tests word engine, preedit
+  - maliit-keyboard/tests/preedit-string now tests the word engine, preedit
     activation and cursor position.
   - maliit-keyboard/tests/word-candidates/ now tests word ribbon visibility.
   - maliit-keyboard/tests/word-candidates/ tests word-engine, preedit, word
