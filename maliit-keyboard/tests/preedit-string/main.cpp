@@ -50,16 +50,13 @@
 #include "inputmethodhostprobe.h"
 #include "wordengineprobe.h"
 
-#include <maliit/plugins/testsurfacefactory.h>
 #include <maliit/plugins/updateevent.h>
 
 #include <QtTest>
 #include <QtCore>
 #include <QtGui>
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 #include <QtWidgets>
-#endif
 
 using namespace MaliitKeyboard;
 Q_DECLARE_METATYPE(Logic::LayoutHelper::Orientation)
@@ -195,8 +192,8 @@ public:
     Logic::LayoutHelper layout_helper;
     Logic::EventHandler event_handler;
     SharedStyle style;
-    QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> surface;
-    QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> extended_surface;
+    QScopedPointer<QGraphicsView> surface;
+    QScopedPointer<QGraphicsView> extended_surface;
     KeyArea key_area;
 
     SetupTest(Logic::LayoutHelper::Orientation orientation = Logic::LayoutHelper::Landscape,
@@ -207,13 +204,13 @@ public:
         , layout_helper()
         , event_handler(&layout, &layout_updater)
         , style(new Style(qApp))
-        , surface(Maliit::Plugins::createTestGraphicsViewSurface())
-        , extended_surface(Maliit::Plugins::createTestGraphicsViewSurface(surface))
+        , surface(new QGraphicsView)
+        , extended_surface(new QGraphicsView(surface.data()))
         , key_area(createAbcdArea())
     {
         // geometry stuff is usually done by maliit-server, so we need
         // to do it manually here:
-        surface->view()->setSceneRect(0, 0, g_size, g_size);
+        surface->setSceneRect(0, 0, g_size, g_size);
         surface->scene()->setSceneRect(0, 0, g_size, g_size);
         layout_helper.setOrientation(orientation);
 

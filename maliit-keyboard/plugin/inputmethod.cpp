@@ -59,8 +59,6 @@ typedef MaliitKeyboard::NullFeedback DefaultFeedback;
 #endif
 
 #include <maliit/plugins/subviewdescription.h>
-#include <maliit/plugins/abstractsurfacefactory.h>
-#include <maliit/plugins/quickviewsurface.h>
 #include <maliit/plugins/abstractpluginsetting.h>
 #include <maliit/plugins/updateevent.h>
 
@@ -79,13 +77,37 @@ typedef QMap<QString, SharedOverride>::const_iterator OverridesIterator;
 
 namespace {
 
-const Maliit::Plugins::AbstractSurface::Options g_surface_options(
-    Maliit::Plugins::AbstractSurface::TypeQuick2 | Maliit::Plugins::AbstractSurface::PositionCenterBottom
-);
+void makeQuickViewTransparent(QQuickView *view)
+{
+    QSurfaceFormat format;
+    format.setAlphaBufferSize(8);
+    view->setFormat(format);
+    view->setColor(QColor(Qt::transparent));
+}
 
-const Maliit::Plugins::AbstractSurface::Options g_extended_surface_options(
-    Maliit::Plugins::AbstractSurface::TypeQuick2 | Maliit::Plugins::AbstractSurface::PositionOverlay
-);
+QQuickView *getSurface (MAbstractInputMethodHost *host)
+{
+    QScopedPointer<QQuickView> view(new QQuickView (0));
+
+    host->registerWindow (view.data(), Maliit::PositionCenterBottom);
+
+    makeQuickViewTransparent(view.data());
+
+    return view.take ();
+}
+
+QQuickView *getOverlaySurface (MAbstractInputMethodHost *host, QQuickView *parent)
+{
+    QScopedPointer<QQuickView> view(new QQuickView (0));
+
+    view->setTransientParent(parent);
+
+    host->registerWindow (view.data(), Maliit::PositionOverlay);
+
+    makeQuickViewTransparent(view.data());
+
+    return view.take ();
+}
 
 const QString g_maliit_keyboard_qml(MALIIT_KEYBOARD_DATA_DIR "/maliit-keyboard.qml");
 const QString g_maliit_keyboard_extended_qml(MALIIT_KEYBOARD_DATA_DIR "/maliit-keyboard-extended.qml");
@@ -138,13 +160,9 @@ LayoutGroup::LayoutGroup()
 class InputMethodPrivate
 {
 public:
-    typedef Maliit::Plugins::QuickViewSurface Surface;
-    typedef QSharedPointer<Surface> SharedSurface;
-
-    Maliit::Plugins::AbstractSurfaceFactory *const surface_factory;
-    SharedSurface surface;
-    SharedSurface extended_surface;
-    SharedSurface magnifier_surface;
+    QScopedPointer<QQuickView> surface;
+    QScopedPointer<QQuickView> extended_surface;
+    QScopedPointer<QQuickView> magnifier_surface;
     Editor editor;
     DefaultFeedback feedback;
     SharedStyle style;
@@ -168,10 +186,9 @@ public:
 
 InputMethodPrivate::InputMethodPrivate(InputMethod *const q,
                                        MAbstractInputMethodHost *host)
-    : surface_factory(host->surfaceFactory())
-    , surface(qSharedPointerDynamicCast<Surface>(surface_factory->create(g_surface_options)))
-    , extended_surface(qSharedPointerDynamicCast<Surface>(surface_factory->create(g_extended_surface_options, surface)))
-    , magnifier_surface(qSharedPointerDynamicCast<Surface>(surface_factory->create(g_extended_surface_options, surface)))
+    : surface(getSurface(host))
+    , extended_surface(getOverlaySurface(host, surface.data()))
+    , magnifier_surface(getOverlaySurface(host, surface.data()))
     , editor(EditorOptions(), new Model::Text, new Logic::WordEngine, new Logic::LanguageFeatures)
     , feedback()
     , style(new Style)
@@ -192,7 +209,7 @@ InputMethodPrivate::InputMethodPrivate(InputMethod *const q,
     extended_layout.updater.setStyle(style);
     feedback.setStyle(style);
 
-    const QSize &screen_size(surface_factory->screenSize());
+    const QSize &screen_size(QGuiApplication::primaryScreen()->availableSize());
     layout.helper.setScreenSize(screen_size);
     layout.helper.setAlignment(Logic::LayoutHelper::Bottom);
     extended_layout.helper.setScreenSize(screen_size);
@@ -204,23 +221,23 @@ InputMethodPrivate::InputMethodPrivate(InputMethod *const q,
     connectToNotifier();
 
     // TODO: Figure out whether two views can share one engine.
-    QQmlEngine *const engine(surface->view()->engine());
+    QQmlEngine *const engine(surface->engine());
     engine->addImportPath(MALIIT_KEYBOARD_DATA_DIR);
     setContextProperties(engine->rootContext());
 
-    surface->view()->setSource(QUrl::fromLocalFile(g_maliit_keyboard_qml));
+    surface->setSource(QUrl::fromLocalFile(g_maliit_keyboard_qml));
 
-    QQmlEngine *const extended_engine(extended_surface->view()->engine());
+    QQmlEngine *const extended_engine(extended_surface->engine());
     extended_engine->addImportPath(MALIIT_KEYBOARD_DATA_DIR);
     setContextProperties(extended_engine->rootContext());
 
-    extended_surface->view()->setSource(QUrl::fromLocalFile(g_maliit_keyboard_extended_qml));
+    extended_surface->setSource(QUrl::fromLocalFile(g_maliit_keyboard_extended_qml));
 
-    QQmlEngine *const magnifier_engine(magnifier_surface->view()->engine());
+    QQmlEngine *const magnifier_engine(magnifier_surface->engine());
     magnifier_engine->addImportPath(MALIIT_KEYBOARD_DATA_DIR);
     setContextProperties(magnifier_engine->rootContext());
 
-    magnifier_surface->view()->setSource(QUrl::fromLocalFile(g_maliit_magnifier_qml));
+    magnifier_surface->setSource(QUrl::fromLocalFile(g_maliit_magnifier_qml));
 }
 
 
@@ -319,8 +336,8 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
     connect(&d->editor, SIGNAL(rightLayoutSelected()),
             this,       SLOT(onRightLayoutSelected()));
 
-    connect(d->surface_factory, SIGNAL(screenSizeChanged(QSize)),
-            this,               SLOT(onScreenSizeChange(QSize)));
+    connect(QGuiApplication::primaryScreen(), SIGNAL(geometryChanged(QRect)),
+            this,               SLOT(onScreenSizeChange(QRect)));
 
     registerStyleSetting(host);
     registerFeedbackSetting(host);
@@ -331,7 +348,7 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
 
     // Setting layout orientation depends on word engine and hide word ribbon
     // settings to be initialized first:
-    const QSize &screen_size(d->surface_factory->screenSize());
+    const QSize &screen_size(QGuiApplication::primaryScreen()->availableSize());
     d->setLayoutOrientation(screen_size.width() >= screen_size.height()
                             ? Logic::LayoutHelper::Landscape : Logic::LayoutHelper::Portrait);
 }
@@ -343,8 +360,12 @@ void InputMethod::show()
 {
     Q_D(InputMethod);
 
-    d->surface->setSize(QSize(d->layout.model.width(),
-                              d->layout.model.height()));
+    const QRect &rect = d->surface->screen()->availableGeometry();
+
+    d->surface->setGeometry(QRect(QPoint(rect.x() + (rect.width() - d->layout.model.width()) / 2,
+                                         rect.y() + rect.height() - d->layout.model.height()),
+                                  QSize(d->layout.model.width(),
+                                        d->layout.model.height())));
 
     d->surface->show();
     d->extended_surface->show();
@@ -579,9 +600,11 @@ void InputMethod::onRightLayoutSelected()
     }
 }
 
-void InputMethod::onScreenSizeChange(const QSize &size)
+void InputMethod::onScreenSizeChange(const QRect &)
 {
     Q_D(InputMethod);
+
+    const QSize &size(QGuiApplication::primaryScreen()->availableSize());
 
     d->layout.helper.setScreenSize(size);
     d->extended_layout.helper.setScreenSize(d->layout.helper.screenSize());
@@ -684,58 +707,52 @@ void InputMethod::updateKey(const QString &key_id,
     }
 }
 
-void InputMethod::onKeyboardClosed()
-{
-    hide();
-    inputMethodHost()->notifyImInitiatedHiding();
-}
-
 void InputMethod::onLayoutWidthChanged(int width)
 {
     Q_D(InputMethod);
-    d->surface->setSize(QSize(width, d->surface->size().height()));
+    d->surface->setWidth(width);
 }
 
 void InputMethod::onLayoutHeightChanged(int height)
 {
     Q_D(InputMethod);
-    d->surface->setSize(QSize(d->surface->size().width(), height));
+    d->surface->setHeight(height);
 }
 
 void InputMethod::onExtendedLayoutWidthChanged(int width)
 {
     Q_D(InputMethod);
-    d->extended_surface->setSize(QSize(width, d->extended_surface->size().height()));
+    d->extended_surface->setWidth(width);
 }
 
 void InputMethod::onExtendedLayoutHeightChanged(int height)
 {
     Q_D(InputMethod);
-    d->extended_surface->setSize(QSize(d->extended_surface->size().width(), height));
+    d->extended_surface->setHeight(height);
 }
 
 void InputMethod::onExtendedLayoutOriginChanged(const QPoint &origin)
 {
     Q_D(InputMethod);
-    d->extended_surface->setRelativePosition(origin);
+    d->extended_surface->setPosition(d->surface->position() + origin);
 }
 
 void InputMethod::onMagnifierLayoutWidthChanged(int width)
 {
     Q_D(InputMethod);
-    d->magnifier_surface->setSize(QSize(width, d->magnifier_surface->size().height()));
+    d->magnifier_surface->setWidth(width);
 }
 
 void InputMethod::onMagnifierLayoutHeightChanged(int height)
 {
     Q_D(InputMethod);
-    d->magnifier_surface->setSize(QSize(d->magnifier_surface->size().width(), height));
+    d->magnifier_surface->setHeight(height);
 }
 
 void InputMethod::onMagnifierLayoutOriginChanged(const QPoint &origin)
 {
     Q_D(InputMethod);
-    d->magnifier_surface->setRelativePosition(origin);
+    d->magnifier_surface->setPosition(d->surface->position() + origin);
 }
 
 } // namespace MaliitKeyboard

@@ -81,7 +81,7 @@ private:
     void registerWordEngineSetting(MAbstractInputMethodHost *host);
     void registerHideWordRibbonInPortraitModeSetting(MAbstractInputMethodHost *host);
 
-    Q_SLOT void onScreenSizeChange(const QSize &size);
+    Q_SLOT void onScreenSizeChange(const QRect &rect);
     Q_SLOT void onStyleSettingChanged();
     Q_SLOT void onKeyboardClosed();
     Q_SLOT void onFeedbackSettingChanged();
