@@ -47,7 +47,6 @@
 #include "logic/languagefeatures.h"
 #include "logic/eventhandler.h"
 
-#include "view/glass.h"
 #include "view/setup.h"
 
 #ifdef HAVE_QT_MOBILITY

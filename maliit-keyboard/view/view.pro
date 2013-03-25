@@ -20,7 +20,6 @@ contains(QT_MAJOR_VERSION, 4) {
 HEADERS += \
     setup.h \
     abstracttexteditor.h \
-    glass.h \
     abstractfeedback.h \
     nullfeedback.h \
     surface.h \
@@ -28,7 +27,6 @@ HEADERS += \
 SOURCES += \
     setup.cpp \
     abstracttexteditor.cpp \
-    glass.cpp \
     abstractfeedback.cpp \
     nullfeedback.cpp \
     surface.cpp \
