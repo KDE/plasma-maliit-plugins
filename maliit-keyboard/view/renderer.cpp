@@ -33,18 +33,21 @@
 #include "renderer.h"
 #include "keyareaitem.h"
 #include "keyitem.h"
-#include "surface.h"
 #include "wordribbonitem.h"
 #include "utils.h"
 
 #include "models/keyarea.h"
 #include "models/wordribbon.h"
 
-#include <maliit/plugins/abstractinputmethodhost.h>
-
 #ifdef MALIIT_KEYBOARD_HAVE_OPENGL
 #include <QGLWidget>
 #endif
+
+#include <maliit/plugins/abstractwidgetssurface.h>
+
+using Maliit::Plugins::AbstractGraphicsViewSurface;
+using Maliit::Plugins::AbstractSurface;
+using Maliit::Plugins::AbstractSurfaceFactory;
 
 namespace MaliitKeyboard {
 
@@ -112,10 +115,10 @@ void loadFontFiles(const QString &fonts_dir,
 class RendererPrivate
 {
 public:
-    MAbstractInputMethodHost *host;
-    QScopedPointer<Surface> surface;
-    QScopedPointer<Surface> extended_surface;
-    QScopedPointer<Surface> magnifier_surface;
+    Maliit::Plugins::AbstractSurfaceFactory *factory;
+    QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> surface;
+    QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> extended_surface;
+    QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> magnifier_surface;
     SharedStyle style;
     KeyAreaItem *center_item;
     KeyAreaItem *extended_item;
@@ -124,22 +127,18 @@ public:
     QVector<KeyItem *> extended_key_items;
     QVector<KeyItem *> magnifier_key_items;
     QString images_directory_path;
-    bool active;
 
     explicit RendererPrivate()
-        : host(0)
+        : factory(0)
         , surface()
         , extended_surface()
         , magnifier_surface()
-        , style()
         , center_item(new KeyAreaItem)
         , extended_item(new KeyAreaItem)
         , ribbon_item(new WordRibbonItem)
         , key_items()
         , extended_key_items()
         , magnifier_key_items()
-        , images_directory_path()
-        , active(false)
     {
         center_item->setZValue(CenterPanelZIndex);
         extended_item->setZValue(ExtendedPanelZIndex);
@@ -155,37 +154,42 @@ Renderer::Renderer(QObject *parent)
 Renderer::~Renderer()
 {}
 
-void Renderer::setHost(MAbstractInputMethodHost *host)
+void Renderer::setSurfaceFactory(AbstractSurfaceFactory *factory)
 {
-    if (not host) {
-        qCritical() << __PRETTY_FUNCTION__
-                    << "Passed NULL host, surfaces won't be created!";
+    Q_D(Renderer);
+    d->factory = factory;
+
+    // Assuming that factory == 0 means reset:
+    if (not d->factory) {
+        // Drop references => shared surface instances are eventually deleted:
+        d->surface.clear();
+        d->extended_surface.clear();
+        d->magnifier_surface.clear();
         return;
     }
 
+    d->surface = qSharedPointerDynamicCast<AbstractGraphicsViewSurface>(
+        factory->create(AbstractSurface::PositionCenterBottom | AbstractSurface::TypeGraphicsView));
 
-    Q_D(Renderer);
-    d->host = host;
+    d->extended_surface = qSharedPointerDynamicCast<AbstractGraphicsViewSurface>(
+        factory->create(AbstractSurface::PositionOverlay | AbstractSurface::TypeGraphicsView, d->surface));
 
-    d->surface.reset(new Surface(0, Maliit::PositionCenterBottom, host));
-    d->extended_surface.reset(new Surface(d->surface.data(), Maliit::PositionOverlay,
-                                          host));
-    d->magnifier_surface.reset(new Surface(d->surface.data(), Maliit::PositionOverlay,
-                                           host));
+    d->magnifier_surface = qSharedPointerDynamicCast<AbstractGraphicsViewSurface>(
+        factory->create(AbstractSurface::PositionOverlay | AbstractSurface::TypeGraphicsView, d->surface));
 }
 
-Surface *Renderer::surface() const
+const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> Renderer::surface() const
 {
     Q_D(const Renderer);
 
-    return d->surface.data();
+    return d->surface;
 }
 
-Surface *Renderer::extendedSurface() const
+const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> Renderer::extendedSurface() const
 {
     Q_D(const Renderer);
 
-    return d->extended_surface.data();
+    return d->extended_surface;
 }
 
 void Renderer::setStyle(const SharedStyle &style)
@@ -216,8 +220,6 @@ void Renderer::show()
         return;
     }
 
-    d->active = true;
-
     d->surface->show();
     d->extended_surface->show();
 
@@ -241,11 +243,9 @@ void Renderer::hide()
         return;
     }
 
-    d->active = false;
-
     d->surface->hide();
     d->extended_surface->hide();
-    d->extended_surface->viewport()->releaseMouse();
+    d->extended_surface->view()->viewport()->releaseMouse();
     d->magnifier_surface->hide();
 }
 
@@ -295,9 +295,7 @@ void Renderer::onCenterPanelChanged(const KeyArea &key_area,
     if (d->center_item->isVisible()) {
         d->surface->setSize(QSize(ka_size.width() + origin.x(),
                                   ka_size.height() + origin.y()));
-        if (d->active) {
-            d->surface->show();
-        }
+        d->surface->show();
     } else {
         d->surface->hide();
     }
@@ -325,9 +323,9 @@ void Renderer::onExtendedPanelChanged(const KeyArea &key_area,
         d->extended_surface->show();
         // TODO: Check how mouse grabbing affects touch events, because we'd
         // want the same follow-mouse/follow-touchpint behaviour in that case.
-        d->extended_surface->viewport()->grabMouse();
+        d->extended_surface->view()->viewport()->grabMouse();
     } else {
-        d->extended_surface->viewport()->releaseMouse();
+        d->extended_surface->view()->viewport()->releaseMouse();
         d->extended_surface->hide();
     }
 }

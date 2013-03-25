@@ -31,7 +31,6 @@
  */
 
 #include "glass.h"
-#include "surface.h"
 #include "logic/hitlogic.h"
 #include "models/keyarea.h"
 #include "models/wordribbon.h"
@@ -64,8 +63,8 @@ class GlassPrivate
 public:
     QWidget *window;
     QWidget *extendedWindow;
-    QPointer<Surface> surface;
-    QPointer<Surface> extendedSurface;
+    QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> surface;
+    QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> extendedSurface;
     QVector<Logic::Layout *> layouts;
     QVector<Key> active_keys;
     WordCandidate active_candidate;
@@ -108,11 +107,11 @@ Glass::Glass(QObject *parent)
 Glass::~Glass()
 {}
 
-void Glass::setSurface(Surface *surface)
+void Glass::setSurface(const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> &surface)
 {
     Q_D(Glass);
 
-    QWidget *window = surface ? surface->viewport() : 0;
+    QWidget *window = surface ? surface->view()->viewport() : 0;
 
     if (not window) {
         qCritical() << __PRETTY_FUNCTION__
@@ -127,11 +126,11 @@ void Glass::setSurface(Surface *surface)
     d->window->installEventFilter(this);
 }
 
-void Glass::setExtendedSurface(Surface *surface)
+void Glass::setExtendedSurface(const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> &surface)
 {
     Q_D(Glass);
 
-    QWidget *window = surface ? surface->viewport() : 0;
+    QWidget *window = surface ? surface->view()->viewport() : 0;
 
     if (not window) {
         qCritical() << __PRETTY_FUNCTION__
@@ -167,7 +166,7 @@ bool Glass::eventFilter(QObject *obj,
         return false;
     }
 
-    Surface *eventSurface(obj == d->extendedWindow ? d->extendedSurface : d->surface);
+    const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> &eventSurface(obj == d->extendedWindow ? d->extendedSurface : d->surface);
 
     switch(ev->type()) {
     case QEvent::Paint: {
@@ -210,7 +209,7 @@ bool Glass::eventFilter(QObject *obj,
         ev->accept();
 
         Q_FOREACH (Logic::Layout *layout, d->layouts) {
-            Surface *targetSurface(layout->activePanel() == Logic::Layout::ExtendedPanel ? d->extendedSurface : d->surface);
+            const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> targetSurface(layout->activePanel() == Logic::Layout::ExtendedPanel ? d->extendedSurface : d->surface);
 
             const QPoint &pos(targetSurface->translateEventPosition(qme->pos(), eventSurface));
             const QPoint &last_pos(targetSurface->translateEventPosition(d->last_pos, eventSurface));
@@ -306,7 +305,7 @@ void Glass::onLongPressTriggered()
 }
 
 bool Glass::handlePressReleaseEvent(QEvent *ev,
-                                    Surface *eventSurface)
+                                    const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> &eventSurface)
 {
     if (not ev) {
         return false;
@@ -321,7 +320,7 @@ bool Glass::handlePressReleaseEvent(QEvent *ev,
     ev->accept();
 
     Q_FOREACH (Logic::Layout *layout, d->layouts) {
-        Surface *targetSurface(layout->activePanel() == Logic::Layout::ExtendedPanel ? d->extendedSurface : d->surface);
+        const QSharedPointer<Maliit::Plugins::AbstractGraphicsViewSurface> targetSurface(layout->activePanel() == Logic::Layout::ExtendedPanel ? d->extendedSurface : d->surface);
 
         const QPoint &pos(targetSurface->translateEventPosition(qme->pos(), eventSurface));
 

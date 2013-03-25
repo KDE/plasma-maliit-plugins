@@ -57,6 +57,7 @@ typedef MaliitKeyboard::NullFeedback DefaultFeedback;
 #endif
 
 #include <maliit/plugins/subviewdescription.h>
+#include <maliit/plugins/abstractsurfacefactory.h>
 #include <maliit/plugins/abstractpluginsetting.h>
 #include <maliit/plugins/updateevent.h>
 
@@ -91,6 +92,7 @@ Key overrideToKey(const SharedOverride &override)
 class InputMethodPrivate
 {
 public:
+    Maliit::Plugins::AbstractSurfaceFactory *surface_factory;
     Renderer renderer;
     Glass glass;
     Logic::LayoutUpdater layout_updater;
@@ -116,7 +118,8 @@ public:
 
 
 InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
-    : renderer()
+    : surface_factory(host->surfaceFactory())
+    , renderer()
     , glass()
     , layout_updater()
     , editor(EditorOptions(), new Model::Text, new Logic::WordEngine, new Logic::LanguageFeatures)
@@ -132,7 +135,7 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     , word_engine_setting()
     , hide_word_ribbon_in_portrait_mode_setting()
 {
-    renderer.setHost(host);
+    renderer.setSurfaceFactory(surface_factory);
     glass.setSurface(renderer.surface());
     glass.setExtendedSurface(renderer.extendedSurface());
     editor.setHost(host);
@@ -144,7 +147,7 @@ InputMethodPrivate::InputMethodPrivate(MAbstractInputMethodHost *host)
     layout_updater.setStyle(style);
     feedback.setStyle(style);
 
-    const QSize &screen_size(QApplication::desktop()->screenGeometry().size());
+    const QSize &screen_size(surface_factory->screenSize());
     layout.setScreenSize(screen_size);
     layout.setAlignment(Logic::Layout::Bottom);
 
@@ -191,10 +194,10 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
     connect(&d->glass, SIGNAL(keyboardClosed()),
             this,      SLOT(onKeyboardClosed()));
 
-    connect(&d->glass, SIGNAL(switchLeft(Logic::Layout *)),
+    connect(&d->glass, SIGNAL(switchLeft(Logic::Layout)),
             this,      SLOT(onLeftLayoutSelected()));
 
-    connect(&d->glass, SIGNAL(switchRight(Logic::Layout *)),
+    connect(&d->glass, SIGNAL(switchRight(Logic::Layout)),
             this,      SLOT(onRightLayoutSelected()));
 
     connect(&d->editor, SIGNAL(leftLayoutSelected()),
@@ -203,7 +206,8 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
     connect(&d->editor, SIGNAL(rightLayoutSelected()),
             this,       SLOT(onRightLayoutSelected()));
 
-    // TODO: handle screen size changes
+    connect(d->surface_factory, SIGNAL(screenSizeChanged(QSize)),
+            this,               SLOT(onScreenSizeChange(QSize)));
 
     registerStyleSetting(host);
     registerFeedbackSetting(host);
@@ -214,7 +218,7 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
 
     // Setting layout orientation depends on word engine and hide word ribbon
     // settings to be initialized first:
-    const QSize &screen_size(QApplication::desktop()->screenGeometry().size());
+    const QSize &screen_size(d->surface_factory->screenSize());
     d->setLayoutOrientation(screen_size.width() >= screen_size.height()
                          ? Logic::Layout::Landscape : Logic::Layout::Portrait);
 }
