@@ -3,7 +3,7 @@
 
 CHANGES SINCE 0.94.0
 * Replaced the QGraphicsView renderer with a new renderer based on QtQuick2
-  and QML
+  and QML, which is more appropriate and better supported for Qt5.
   - Word candidates are not supported by the QML renderer yet
   - (Sound) feedback does not work yet
 * Adapt to maliit-framework changes
