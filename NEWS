@@ -1,7 +1,13 @@
-{NEXT}
+0.99.0
 ======
 
 CHANGES SINCE 0.94.0
+* Replaced the QGraphicsView renderer with a new renderer based on QtQuick2
+  and QML
+  - Word candidates are not supported by the QML renderer yet
+* Adapt to maliit-framework changes
+  - Switch to Qt 5
+  - Replace AbstractSurfaces with QQuickView
 * Due to QTBUG-18092, Maliit Keyboard will produce warnings when compiling
   against Qt4. A recent compiler (gcc-4.7) or Qt5 is required.
 * Documented styling profiles in maliit-keyboard/STYLING.
