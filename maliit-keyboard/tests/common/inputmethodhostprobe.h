@@ -96,7 +96,6 @@ public:
     void setRedirectKeys(bool) {}
     void setDetectableAutoRepeat(bool) {}
     void setGlobalCorrectionEnabled(bool) {}
-    void setInputModeIndicator(Maliit::InputModeIndicator) {}
     void switchPlugin(Maliit::SwitchDirection) {}
     void switchPlugin(const QString&) {}
     void setScreenRegion(const QRegion&, QWindow*) {}
