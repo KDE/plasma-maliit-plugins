@@ -469,6 +469,11 @@ void AbstractTextEditor::onKeyReleased(const Key &key)
         Q_EMIT keyboardClosed();
         break;
 
+    case Key::ActionCancel:
+        replacePreedit("");
+        Q_EMIT keyboardClosed();
+        break;
+
     case Key::ActionLeft:
         event_key = Qt::Key_Left;
         break;
