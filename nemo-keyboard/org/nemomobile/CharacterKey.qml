@@ -42,7 +42,7 @@ KeyBase  {
     property string sizeType: "keyboard-key-43x60.png"
     property int fontSize: UI.FONT_SIZE
     property alias text: key_label.text
-    property alias imagesrc: bgimage.source
+    property alias imagesrc: bgImage.source
 
     BorderImage {
         id: bgImage
