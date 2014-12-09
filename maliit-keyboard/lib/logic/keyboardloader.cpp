@@ -387,7 +387,9 @@ public:
 KeyboardLoader::KeyboardLoader(QObject *parent)
     : QObject(parent)
     , d_ptr(new KeyboardLoaderPrivate)
-{}
+{
+    setActiveId("en_us");
+}
 
 KeyboardLoader::~KeyboardLoader()
 {}
