@@ -79,10 +79,11 @@ const int AutoRepeatIntervalDefault = 50;
 
 void makeQuickViewTransparent(QQuickView *view)
 {
-    QSurfaceFormat format;
+    Q_UNUSED(view)
+    /*QSurfaceFormat format;
     format.setAlphaBufferSize(8);
     view->setFormat(format);
-    view->setColor(QColor(Qt::transparent));
+    view->setColor(QColor(Qt::transparent));*/
 }
 
 QQuickView *getSurface (MAbstractInputMethodHost *host)
