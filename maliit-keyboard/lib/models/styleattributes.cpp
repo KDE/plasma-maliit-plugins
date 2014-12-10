@@ -31,7 +31,6 @@
  */
 
 #include "styleattributes.h"
-#include <QGuiApplication>
 
 //! \class StyleAttributes
 //! This class allows to query style attributes, such as image names and font
@@ -204,7 +203,7 @@ StyleAttributes::StyleAttributes(const QSettings *store)
             m_style_name.toLocal8Bit(),
             QByteArray("key-area-width")).toReal();
 
-    m_scale_factor = (qreal)QGuiApplication::primaryScreen()->size().width() / width;
+    m_scale_factor = (qreal)qApp->primaryScreen()->size().width() / width;
 }
 
 //! \brief Destructor
