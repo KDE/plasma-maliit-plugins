@@ -45,7 +45,6 @@ class StyleAttributes
 private:
     const QScopedPointer<const QSettings> m_store;
     QString m_style_name;
-    qreal m_scale_factor;
 
 public:
     explicit StyleAttributes(const QSettings *store);
