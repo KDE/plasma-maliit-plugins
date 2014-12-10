@@ -198,6 +198,12 @@ StyleAttributes::StyleAttributes(const QSettings *store)
     if (m_store.isNull()) {
         qFatal("QSettings store cannot be null!");
     }
+
+    const qreal width = lookup(m_store, Logic::LayoutHelper::Landscape,
+            m_style_name.toLocal8Bit(),
+            QByteArray("key-area-width")).toReal();
+
+    m_scale_factor = (qreal)qApp->primaryScreen()->size().width() / width;
 }
 
 //! \brief Destructor
@@ -425,7 +431,7 @@ qreal StyleAttributes::wordRibbonHeight(Logic::LayoutHelper::Orientation orienta
 {
     return lookup(m_store, orientation,
                   m_style_name.toLocal8Bit(),
-                  QByteArray("word-ribbon-height")).toReal();
+                  QByteArray("word-ribbon-height")).toReal() * m_scale_factor;
 }
 
 
@@ -436,7 +442,7 @@ qreal StyleAttributes::magnifierKeyHeight(Logic::LayoutHelper::Orientation orien
 {
     return lookup(m_store, orientation,
                   m_style_name.toLocal8Bit(),
-                  QByteArray("magnifier-key-height")).toReal();
+                  QByteArray("magnifier-key-height")).toReal() * m_scale_factor;
 }
 
 
@@ -447,7 +453,7 @@ qreal StyleAttributes::keyHeight(Logic::LayoutHelper::Orientation orientation) c
 {
     return lookup(m_store, orientation,
                   m_style_name.toLocal8Bit(),
-                  QByteArray("key-height")).toReal();
+                  QByteArray("key-height")).toReal() * m_scale_factor;
 }
 
 
@@ -458,7 +464,7 @@ qreal StyleAttributes::keyTopRowHeight(Logic::LayoutHelper::Orientation orientat
 {
     return lookup(m_store, orientation,
                   m_style_name.toLocal8Bit(),
-                  QByteArray("key-top-row-height")).toReal();
+                  QByteArray("key-top-row-height")).toReal() * m_scale_factor;
 }
 
 
@@ -469,7 +475,7 @@ qreal StyleAttributes::keyBottomRowHeight(Logic::LayoutHelper::Orientation orien
 {
     return lookup(m_store, orientation,
                   m_style_name.toLocal8Bit(),
-                  QByteArray("key-bottom-row-height")).toReal();
+                  QByteArray("key-bottom-row-height")).toReal() * m_scale_factor;
 }
 
 
@@ -480,7 +486,7 @@ qreal StyleAttributes::magnifierKeyWidth(Logic::LayoutHelper::Orientation orient
 {
     return lookup(m_store, orientation,
                   m_style_name.toLocal8Bit(),
-                  QByteArray("magnifier-key-width")).toReal();
+                  QByteArray("magnifier-key-width")).toReal() * m_scale_factor;
 }
 
 
@@ -493,7 +499,7 @@ qreal StyleAttributes::keyWidth(Logic::LayoutHelper::Orientation orientation,
 {
     return lookup(m_store, orientation,
                   m_style_name.toLocal8Bit(),
-                  QByteArray("key-width").append(fromKeyWidth(width))).toReal();
+                  QByteArray("key-width").append(fromKeyWidth(width))).toReal() * m_scale_factor;
 }
 
 
@@ -504,7 +510,7 @@ qreal StyleAttributes::keyAreaWidth(Logic::LayoutHelper::Orientation orientation
 {
     return lookup(m_store, orientation,
                   m_style_name.toLocal8Bit(),
-                  QByteArray("key-area-width")).toReal();
+                  QByteArray("key-area-width")).toReal() * m_scale_factor;
 }
 
 
@@ -519,7 +525,7 @@ qreal StyleAttributes::keyMargin(Logic::LayoutHelper::Orientation orientation) c
 {
     return lookup(m_store, orientation,
                   m_style_name.toLocal8Bit(),
-                  QByteArray("key-margins")).toReal();
+                  QByteArray("key-margins")).toReal() * m_scale_factor;
 }
 
 //! \brief Looks up the key area paddings.
@@ -534,7 +540,7 @@ qreal StyleAttributes::keyAreaPadding(Logic::LayoutHelper::Orientation orientati
 {
     return lookup(m_store, orientation,
                   m_style_name.toLocal8Bit(),
-                  QByteArray("key-area-paddings")).toReal();
+                  QByteArray("key-area-paddings")).toReal() * m_scale_factor;
 }
 
 
@@ -548,7 +554,7 @@ qreal StyleAttributes::verticalOffset(Logic::LayoutHelper::Orientation orientati
 {
     return lookup(m_store, orientation,
                   m_style_name.toLocal8Bit(),
-                  QByteArray("vertical-offset")).toReal();
+                  QByteArray("vertical-offset")).toReal() * m_scale_factor;
 }
 
 
@@ -559,7 +565,7 @@ qreal StyleAttributes::magnifierKeyLabelVerticalOffset(Logic::LayoutHelper::Orie
 {
     return lookup(m_store, orientation,
                   m_style_name.toLocal8Bit(),
-                  QByteArray("magnifier-key-label-vertical-offset")).toReal();
+                  QByteArray("magnifier-key-label-vertical-offset")).toReal() * m_scale_factor;
 }
 
 
@@ -573,7 +579,7 @@ qreal StyleAttributes::safetyMargin(Logic::LayoutHelper::Orientation orientation
 {
     return lookup(m_store, orientation,
                   m_style_name.toLocal8Bit(),
-                  QByteArray("safety-margin")).toReal();
+                  QByteArray("safety-margin")).toReal() * m_scale_factor;
 }
 
 
