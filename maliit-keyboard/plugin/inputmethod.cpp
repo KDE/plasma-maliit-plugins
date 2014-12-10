@@ -372,6 +372,8 @@ void InputMethod::show()
 
     const QRect &rect = d->surface->screen()->availableGeometry();
 
+    d->layout.model.setScaleRatio(rect.width() / (d->layout.model.width() / d->layout.model.scaleRatio()));
+
     d->surface->setGeometry(QRect(QPoint(rect.x() + (rect.width() - d->layout.model.width()) / 2,
                                          rect.y() + rect.height() - d->layout.model.height()),
                                   QSize(d->layout.model.width(),
@@ -793,7 +795,7 @@ void InputMethod::onMagnifierLayoutHeightChanged(int height)
 void InputMethod::onMagnifierLayoutOriginChanged(const QPoint &origin)
 {
     Q_D(InputMethod);
-    d->magnifier_surface->setPosition(d->surface->position() + origin);
+    d->magnifier_surface->setPosition(d->surface->position() + origin * d->layout.model.scaleRatio());
 }
 
 } // namespace MaliitKeyboard

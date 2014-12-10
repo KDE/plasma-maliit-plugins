@@ -60,6 +60,7 @@ public:
     KeyArea key_area;
     QString image_directory;
     QHash<int, QByteArray> roles;
+    qreal scaleRatio;
 
     explicit LayoutPrivate();
 };
@@ -70,6 +71,7 @@ LayoutPrivate::LayoutPrivate()
     , key_area()
     , image_directory()
     , roles()
+    , scaleRatio(1)
 {
     // Model roles are used as variables in QML, hence the under_score naming
     // convention:
@@ -95,6 +97,23 @@ Layout::Layout(QObject *parent)
 Layout::~Layout()
 {}
 
+qreal Layout::scaleRatio() const
+{
+    return d_ptr->scaleRatio;
+}
+
+void Layout::setScaleRatio(qreal ratio)
+{
+    if (qFuzzyCompare(ratio, d_ptr->scaleRatio)) {
+        return;
+    }
+
+    beginResetModel();
+    d_ptr->scaleRatio = ratio;
+    endResetModel();
+    Q_EMIT widthChanged(width());
+    Q_EMIT heightChanged(height());
+}
 
 void Layout::setTitle(const QString &title)
 {
@@ -179,14 +198,14 @@ bool Layout::isVisible() const
 int Layout::width() const
 {
     Q_D(const Layout);
-    return d->key_area.rect().width();
+    return d->key_area.rect().width() * d->scaleRatio;
 }
 
 
 int Layout::height() const
 {
     Q_D(const Layout);
-    return d->key_area.rect().height();
+    return d->key_area.rect().height() * d->scaleRatio;
 }
 
 
@@ -247,15 +266,17 @@ QVariant Layout::data(const QModelIndex &index,
 
     switch(role) {
     case RoleKeyReactiveArea:
-        return QVariant(key.rect());
+        return QVariant(QRectF(key.rect().x() * d->scaleRatio, key.rect().y() * d->scaleRatio,
+                               key.rect().width() * d->scaleRatio, key.rect().height() * d->scaleRatio));
 
     case RoleKeyRectangle: {
-        const QRect &r(key.rect());
+        const QRectF &r = QRectF(key.rect().x() * d->scaleRatio, key.rect().y() * d->scaleRatio,
+                       key.rect().width() * d->scaleRatio, key.rect().height() * d->scaleRatio);
         const QMargins &m(key.margins());
 
-        return QVariant(QRectF(m.left(), m.top(),
-                               r.width() - (m.left() + m.right()),
-                               r.height() - (m.top() + m.bottom())));
+        return QVariant(QRectF(m.left() * d->scaleRatio, m.top() * d->scaleRatio,
+                               r.width() - (m.left() * d->scaleRatio + m.right() * d->scaleRatio),
+                               r.height() - (m.top() * d->scaleRatio + m.bottom() * d->scaleRatio)));
     }
 
     case RoleKeyBackground:
@@ -266,7 +287,7 @@ QVariant Layout::data(const QModelIndex &index,
         // We need to transform QMargins into a QRectF so that we can abuse
         // left, top, right, bottom (of the QRectF) *as if* it was a QMargins.
         const QMargins &m(key.area().backgroundBorders());
-        return QVariant(QRectF(m.left(), m.top(), m.right(), m.bottom()));
+        return QVariant(QRectF(m.left() * d->scaleRatio, m.top() * d->scaleRatio, m.right() * d->scaleRatio, m.bottom() * d->scaleRatio));
     }
 
     case RoleKeyText:

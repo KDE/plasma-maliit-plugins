@@ -110,6 +110,9 @@ public:
     Q_SLOT int height() const;
     Q_SIGNAL void heightChanged(int changed);
 
+    qreal scaleRatio() const;
+    void setScaleRatio(qreal ratio);
+
     Q_SLOT QPoint origin() const;
     Q_SIGNAL void originChanged(const QPoint &changed);
 
