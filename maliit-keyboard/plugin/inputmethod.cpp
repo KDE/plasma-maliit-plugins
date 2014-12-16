@@ -249,6 +249,7 @@ InputMethodPrivate::InputMethodPrivate(InputMethod *const q,
 
 void InputMethodPrivate::setLayoutOrientation(Logic::LayoutHelper::Orientation orientation)
 {
+    qDebug()<<"Setting maliit-keyboard orientation:"<<orientation;
     syncWordEngine(orientation);
     layout.updater.setOrientation(orientation);
     extended_layout.updater.setOrientation(orientation);
