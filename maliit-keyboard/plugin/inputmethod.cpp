@@ -99,7 +99,7 @@ QQuickView *getSurface (MAbstractInputMethodHost *host)
 
 QQuickView *getOverlaySurface (MAbstractInputMethodHost *host, QQuickView *parent)
 {
-    QScopedPointer<QQuickView> view(new QQuickView (0));
+    QScopedPointer<QQuickView> view(new QQuickView (parent));
 
     view->setTransientParent(parent);
 
