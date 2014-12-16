@@ -360,6 +360,10 @@ InputMethod::InputMethod(MAbstractInputMethodHost *host)
     // Setting layout orientation depends on word engine and hide word ribbon
     // settings to be initialized first:
     const QSize &screen_size(QGuiApplication::primaryScreen()->availableSize());
+
+    qDebug()<<"Screen size"<<screen_size<<"Setting orientation"<< (screen_size.width() >= screen_size.height()
+                            ? Logic::LayoutHelper::Landscape : Logic::LayoutHelper::Portrait);
+
     d->setLayoutOrientation(screen_size.width() >= screen_size.height()
                             ? Logic::LayoutHelper::Landscape : Logic::LayoutHelper::Portrait);
 }
