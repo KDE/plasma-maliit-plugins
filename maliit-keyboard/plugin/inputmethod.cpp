@@ -249,8 +249,7 @@ InputMethodPrivate::InputMethodPrivate(InputMethod *const q,
 
 void InputMethodPrivate::setLayoutOrientation(Logic::LayoutHelper::Orientation orientation)
 {
-    orientation = Logic::LayoutHelper::Portrait;
-    qDebug()<<"Setting maliit-keyboard orientation:"<<orientation;
+    qWarning()<<"Setting maliit-keyboard orientation:"<<orientation;
     syncWordEngine(orientation);
     layout.updater.setOrientation(orientation);
     extended_layout.updater.setOrientation(orientation);
@@ -456,8 +455,8 @@ void InputMethod::handleAppOrientationChanged(int angle)
 {
     Q_D(InputMethod);
     d->setLayoutOrientation((angle == 0 || angle == 180)
-                            ? Logic::LayoutHelper::Landscape
-                            : Logic::LayoutHelper::Portrait);
+                            ? Logic::LayoutHelper::Portrait
+                            : Logic::LayoutHelper::Landscape);
 }
 
 bool InputMethod::imExtensionEvent(MImExtensionEvent *event)
