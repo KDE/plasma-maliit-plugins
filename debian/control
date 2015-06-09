@@ -1,0 +1,38 @@
+Source: plasma-maliit-plugins
+Section: kde
+Priority: extra
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+XSBC-Original-Maintainer: Boudewijn Rempt <boud@kde.org>
+Build-Depends: debhelper (>= 9),
+               libpulse-mainloop-glib0,
+               libdbus-1-dev,
+               pkg-config,
+               pkg-kde-tools (>= 0.9),
+               libmtdev-dev,
+               qtwayland5,
+               libudev-dev,
+               libxcb-composite0-dev,
+               libxcb-damage0-dev,
+               libxcb-xfixes0-dev,
+               libxext-dev,
+               pkg-config,
+               qt5-default,
+               qtbase5-dev (>= 5.2),
+               qtbase5-private-dev,
+               qtdeclarative5-dev,
+               plasma-maliit-framework
+Standards-Version: 3.9.6
+Homepage: https://github.com/plasma-mobile/plasma-maliit-plugins
+
+Package: plasma-maliit-plugins
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends},
+               plasma-maliit-framework
+Recommends: maliit-inputmethod-plugin
+Description: Maliit Input Method Framework
+ Plasma Maliit provides a flexible and cross-platform input method framework. It has a
+ plugin-based client-server architecture where applications act as clients and
+ communicate with the Maliit server via input context plugins. The communication
+ link currently uses D-Bus. Maliit is an open source framework (LGPL 2) with
+ open source plugins (BSD).
+

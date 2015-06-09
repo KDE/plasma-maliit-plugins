@@ -1,0 +1,87 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: maliit-plugins
+
+Files: debian/* connection/waylandinputmethodconnection.*
+Copyright: 2013 Canonical Ltd
+           2012 Canonical Ltd
+License: LGPL-2.1
+
+Files: src/mimsettingsqsettings.*
+Copyright: 2012 Mattia Barbon <mattia@develer.com>
+           2012 Canonical Ltd
+License: LGPL-2.1
+
+Files: connection/dbuscustomarguments src/maliit/plugins/abstractpluginsetting.h src/msharedattributeextensionmanager.*
+Copyright: 2012 Mattia Barbon <mattia@develer.com>
+License: LGPL-2.1
+
+Files: src/unknownplatform.* src/abstractplatform.* src/windowdata.* src/windowgroup.* src/waylandplatform.* src/mimpluginmanager_p.h src/mimpluginmanager.h src/xcbplatform.* src/mimserveroptions.cpp
+Copyright: 2013 Openismus GmbH
+License: LGPL-2.1
+
+Files: input-context/minputcontext.cpp
+Copyright: 2013 Jolla Ltd
+           2013 Digia Plc and/or its subsidiary(-ies)
+           2010 Nokia Corporation and/or its subsidiary(-ies)
+License: LGPL-2.1
+
+Files: input-context/main.cpp
+Copyright:  2013 Digia Plc and/or its subsidiary(-ies)
+License: LGPL-2.1
+
+Files: tests/ut_mimpluginmanagerconfig/ut_mimpluginmanagerconfig.h tests/ut_mimpluginmanagerconfig/ut_mimpluginmanagerconfig.cpp ./src/mimhwkeyboardtracker
+Copyright: 2012 One Laptop per Child Association
+License: LGPL-2.1
+
+Files: src/mimhwkeyboardtracker_stub.cpp
+Copyright: 2013 Gianni Valdambrini <aleister@develer.com>
+License: LGPL-2.1
+
+Files: weston-protocols/*
+Copyright: 2012, 2013 Intel Corporation
+License: Intel
+ Permission to use, copy, modify, distribute, and sell this
+ software and its documentation for any purpose is hereby granted
+ without fee, provided that the above copyright notice appear in
+ all copies and that both that copyright notice and this permission
+ notice appear in supporting documentation, and that the name of
+ the copyright holders not be used in advertising or publicity
+ pertaining to distribution of the software without specific,
+ written prior permission.  The copyright holders make no
+ representations about the suitability of this software for any
+ purpose.  It is provided "as is" without express or implied
+ warranty.
+ .
+ THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS
+ SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ FITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
+ AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
+ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+ THIS SOFTWARE.
+
+Files: *
+Copyright: 2011 Nokia Corporation and/or its subsidiary(-ies)
+           2010 Nokia Corporation and/or its subsidiary(-ies)
+License: LGPL-2.1
+
+License: LGPL-2.1
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation, version 2.1
+ of the License.
+ .
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+ .
+ You should have received a copy of the GNU Lesser General Public
+ License along with this library; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ Boston, MA  02110-1301  USA
+ .
+ On Debian systems, the full text of the GNU Lesser General Public
+ License version 2.1 can be found in the file
+ `/usr/share/common-licenses/LGPL-2.1'.

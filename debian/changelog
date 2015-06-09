@@ -1,0 +1,12 @@
+plasma-maliit-plugins (0.1+git20150609-0ubuntu1~ubuntu15.04~ppa2) vivid; urgency=medium
+
+  * hard-code the includes, the prf file isn't found 
+
+ -- Boudewijn Rempt <boud@kde.org>  Tue, 09 Jun 2015 18:09:00 +0000
+
+plasma-maliit-plugins (0.0+git20150609-0ubuntu1~ubuntu15.04~ppa1) vivid; urgency=medium
+
+  * Initial package
+
+ -- Boudewijn Rempt <boud@kde.org>  Tue, 09 Jun 2015 15:53:38 +0000
+
