@@ -12,9 +12,14 @@ CONFIG += no_keywords
 
 # The feature maliit-defines initializes some variables related for MALIIT, such as installation paths
 # here have to load it early, to start using the defines immediately
-!load(maliit-defines) {
-   error(Cannot find $$[QT_INSTALL_DATA]/mkspecs/features/maliit-defines.prf. Probably Maliit framework not installed)
-}
+#!load(maliit-defines) {
+#   error(Cannot find $$[QT_INSTALL_DATA]/mkspecs/features/maliit-defines.prf. Probably Maliit framework not installed)
+#}
+MALIIT_PREFIX=/usr
+MALIIT_PLUGINS_DIR = /usr/lib/maliit/plugins
+MALIIT_PLUGINS_DATA_DIR = /usr/share/maliit/plugins
+MALIIT_INSTALL_LIBS = /usr/lib
+
 # This enables the maliit library for C++ code
 CONFIG += maliit-plugins
 
