@@ -1,7 +1,0 @@
-XIM=none
-XIM_PROGRAM=/usr/bin/maliit-server
-XIM_ARGS=
-
-QT_IM_MODULE=MaliitPhablet
-
-DEPENDS="maliit-framework"
