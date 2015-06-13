@@ -137,7 +137,8 @@ Item {
                 ScriptAction {
                     script: {
                         MInputMethodQuick.setScreenRegion(Qt.rect(0, 0, 0, 0))
-                        keyboard.resetKeyboard()
+                        keyboard.resetKeyboard();
+                        MInputMethodQuick.userHide();
                     }
                 }
             }
