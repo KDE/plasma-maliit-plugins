@@ -31,6 +31,8 @@
 
 import QtQuick 2.0
 import "KeyboardUiConstants.js" as UI
+import org.kde.plasma.core 2.0 as PlasmaCore
+import org.kde.plasma.components 2.0 as PlasmaComponents
 
 KeyBase  {
     id: aCharKey
@@ -42,31 +44,20 @@ KeyBase  {
     property string sizeType: "keyboard-key-43x60.png"
     property int fontSize: UI.FONT_SIZE
     property alias text: key_label.text
-    property alias imagesrc: bgImage.source
+    property string imagesrc
 
-    BorderImage {
-        id: bgImage
-        width: 38; height: 60
-        border {left: 1; top:4; right:1;bottom:0}
-        horizontalTileMode: BorderImage.Repeat
-        verticalTileMode: BorderImage.Repeat
-        source: parent.pressed ? "keyboard-key-portrait-pressed.png" : "keyboard-key-portrait.png"
-        anchors.fill: parent
-        anchors.leftMargin: leftPadding
-        anchors.rightMargin: rightPadding
-        anchors.topMargin: topPadding
-        anchors.bottomMargin: bottomPadding
+    PlasmaCore.FrameSvgItem {
+        imagePath: "widgets/button"
+        prefix: parent.pressed? "pressed" : "normal"
+        width: parent.width;
+        height: parent.height;
     }
 
-    Text {
+    PlasmaComponents.Label {
         id: key_label
         anchors.centerIn: parent
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
-        font.family: "sans"
-        font.pixelSize: fontSize
-        font.bold: true
-        color: UI.TEXT_COLOR
         text: (inSymView && symView.length) > 0 ? (inSymView2 ? symView2 : symView)
                                                 : (isShifted ? captionShifted : caption)
     }

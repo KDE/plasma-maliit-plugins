@@ -31,6 +31,7 @@
 import QtQuick 2.0
 import "KeyboardUiConstants.js" as UI
 import com.meego.maliitquick 1.0
+import org.kde.plasma.core 2.0 as PlasmaCore
 
 MouseArea {
     id: keyboard
@@ -58,8 +59,8 @@ MouseArea {
     Rectangle {
         id: tracker
         width: 30
-        height: 30
-        radius: 30
+        height: units.gridUnit
+        radius: units.gridUnit
         border.width: 2
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
@@ -75,8 +76,8 @@ MouseArea {
         }
 
         MouseArea {
-            width: 45
-            height: 45
+            width: units.gridUnit * 1.5
+            height: width
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
             property int _startlX
@@ -104,12 +105,12 @@ MouseArea {
         }
     }
 
-    BorderImage {
-        width: 480; height: 318;
-        border { left: 1; top: 4; right: 1; bottom:0 }
-        horizontalTileMode: BorderImage.Repeat
-        verticalTileMode: BorderImage.Repeat
-        source: "vkb-body.png"
+    PlasmaCore.FrameSvgItem {
+        imagePath: "widgets/background"
+        y: -margins.top
+        width: parent.width;
+        height: parent.height + margins.top;
+        enabledBorders: PlasmaCore.FrameSvgItem.TopBorder
     }
 
     Connections {

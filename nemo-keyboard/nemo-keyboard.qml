@@ -87,8 +87,8 @@ Item {
         KeyboardBase {
             id: keyboard
             layout: root.landscape ? vkb_landscape : vkb_portrait
-            width: layout ? layout.width : 0
-            height: layout ? layout.height : 0
+            width: MInputMethodQuick.screenWidth
+            height: units.gridUnit * 10
             anchors.horizontalCenter: parent.horizontalCenter
 
             onHeightChanged: {

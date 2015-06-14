@@ -31,6 +31,8 @@
 
 import QtQuick 2.0
 import "KeyboardUiConstants.js" as UI
+import org.kde.plasma.core 2.0 as PlasmaCore
+import org.kde.plasma.components 2.0 as PlasmaComponents
 
 KeyBase {
     id: aFunctKey
@@ -48,21 +50,11 @@ KeyBase {
 
     showPopper: false
 
-    BorderImage {
-        id: bgimg
-        width: 38; height: 60;
-        border { left: 1; top: 4; right: 1; bottom:0 }
-        horizontalTileMode: BorderImage.Repeat
-        verticalTileMode: BorderImage.Repeat
-        source: parent.pressed ? "keyboard-key-portrait-function-pressed.png" : "keyboard-key-portrait-function.png"
-        anchors {
-            left: parent.left
-            right: parent.right
-            top: parent.top
-            topMargin: topPadding
-            leftMargin: leftPadding
-            rightMargin: rightPadding
-        }
+    PlasmaCore.FrameSvgItem {
+        imagePath: "widgets/button"
+        prefix: parent.pressed ? "pressed" : "normal"
+        width: parent.width;
+        height: parent.height;
     }
 
     Image {
@@ -72,14 +64,10 @@ KeyBase {
         sourceSize.height: (sourceHeight == -1) ? height : sourceHeight
     }
 
-    Text {
+    PlasmaComponents.Label {
         anchors.centerIn: parent
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
-        font.family: "sans"
-        font.pixelSize: fontSize
-        font.bold: true
-        color: UI.TEXT_COLOR
         text: caption
     }
 }

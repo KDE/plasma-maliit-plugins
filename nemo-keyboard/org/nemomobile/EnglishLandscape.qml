@@ -31,12 +31,13 @@
 
 import QtQuick 2.0
 import "KeyboardUiConstants.js" as UI
+import org.kde.plasma.core 2.0 as PlasmaCore
 
 Column {
     id: keyArea
 
-    width: UI.LANDSCAPE_WIDTH
-    height: UI.LANDSCAPE_HEIGHT
+    width: parent.width
+    height: parent.height
 
     property bool isShifted
     property bool isShiftLocked
@@ -54,7 +55,7 @@ Column {
     property int bottomPadding: UI.landscapeVerticalPadding
     property int leftPadding: UI.landscapeHorizontalPadding
     property int rightPadding: UI.landscapeHorizontalPadding
-    property int keyHeight: UI.landscapeHeight
+    property int keyHeight: parent.height / 4
 
     Row { //Row 1
         anchors.horizontalCenter: parent.horizontalCenter
@@ -90,7 +91,7 @@ Column {
         anchors.horizontalCenter: parent.horizontalCenter
 
         ShiftKey {
-            width: 110
+            width: units.gridUnit * 5
             height: keyHeight
             topPadding: keyArea.topPadding
             leftPadding: keyArea.leftPadding
@@ -110,7 +111,7 @@ Column {
         }
 
         BackspaceKey {
-            width: 120
+            width: keyArea.width / 8
             height: keyHeight
             topPadding: keyArea.topPadding
             leftPadding: keyArea.leftPadding
@@ -123,7 +124,7 @@ Column {
         anchors.horizontalCenter: parent.horizontalCenter
 
         SymbolKey {
-            width: 145
+            width: keyArea.width / 9
             height: keyHeight
             landscape: true
             topPadding: keyArea.topPadding
@@ -132,27 +133,27 @@ Column {
         }
 
         LandscapeCharacterKey {
-            width: 120
+            width: keyArea.width / 10
             caption: ","
             captionShifted: ","
             sizeType: "keyboard-key-120x46.png"
         }
         LandscapeCharacterKey {
-            width: 228
+            width: keyArea.width / 2
             caption: " "
             captionShifted: " "
             showPopper: false
             sizeType: "keyboard-key-228x46.png"
         }
         LandscapeCharacterKey {
-            width: 120
+            width: units.gridUnit * 5
             caption: "."
             captionShifted: "."
             sizeType: "keyboard-key-120x46.png"
         }
 
         EnterKey {
-            width: 155
+            width: keyArea.width / 9
             height: keyHeight
             topPadding: keyArea.topPadding
             leftPadding: keyArea.leftPadding
