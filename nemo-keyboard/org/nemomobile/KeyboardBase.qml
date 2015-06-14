@@ -58,8 +58,8 @@ MouseArea {
 
     Rectangle {
         id: tracker
-        width: 30
-        height: units.gridUnit
+        width: units.gridUnit
+        height: width
         radius: units.gridUnit
         border.width: 2
         anchors.horizontalCenter: parent.horizontalCenter

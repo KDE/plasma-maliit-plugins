@@ -91,7 +91,7 @@ Column {
         anchors.horizontalCenter: parent.horizontalCenter
 
         ShiftKey {
-            width: units.gridUnit * 5
+            width: keyArea.width / 8
             height: keyHeight
             topPadding: keyArea.topPadding
             leftPadding: keyArea.leftPadding
@@ -146,7 +146,7 @@ Column {
             sizeType: "keyboard-key-228x46.png"
         }
         LandscapeCharacterKey {
-            width: units.gridUnit * 5
+            width: keyArea.width / 10
             caption: "."
             captionShifted: "."
             sizeType: "keyboard-key-120x46.png"
