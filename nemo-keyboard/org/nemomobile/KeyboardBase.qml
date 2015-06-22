@@ -147,7 +147,7 @@ MouseArea {
     onPositionChanged: {
         // Hide keyboard on flick down
         if (pressTimer.running && (mouse.y - _startY > (height * 0.3))) {
-            MInputMethodQuick.userHide()
+            hideAnimation.running = true;
             if (pressedKey) {
                 inputHandler._handleKeyRelease()
                 pressedKey.pressed = false
