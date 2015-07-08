@@ -73,14 +73,9 @@ Item {
 
         property bool landscape: MInputMethodQuick.appOrientation == 0 || MInputMethodQuick.appOrientation == 180
 
-        width: landscape ? parent.width : parent.height
+        width: parent.width
         height: 1
-        transformOrigin: Item.TopLeft
-        rotation: MInputMethodQuick.appOrientation
-        x: MInputMethodQuick.appOrientation == 180 || MInputMethodQuick.appOrientation == 270
-           ? parent.width : 0
-        y: MInputMethodQuick.appOrientation == 0 || MInputMethodQuick.appOrientation == 270
-           ? parent.height : 0
+        y: parent.height
 
         onRotationChanged: updateIMArea()
 
@@ -88,7 +83,7 @@ Item {
             id: keyboard
             layout: root.landscape ? vkb_landscape : vkb_portrait
             width: MInputMethodQuick.screenWidth
-            height: units.gridUnit * 10
+            height: root.landscape ? canvas.height/4 : canvas.height/3
             anchors.horizontalCenter: parent.horizontalCenter
 
             onHeightChanged: {

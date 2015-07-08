@@ -2,8 +2,8 @@ import QtQuick 2.0
 import "KeyboardUiConstants.js" as UI
 
 CharacterKey {
-    width: UI.portraitWidth
-    height: UI.portraitHeight
+    width: keyArea.width / 10
+    height: keyArea.height / 4
 
     topPadding: UI.portraitVerticalPadding
     bottomPadding: UI.portraitVerticalPadding

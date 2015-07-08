@@ -35,8 +35,8 @@ import "KeyboardUiConstants.js" as UI
 Column {
     id: keyArea
 
-    width: UI.PORTRAIT_WIDTH
-    height: UI.PORTRAIT_HEIGHT
+    width: parent.width
+    height: parent.height
 
     property int topPadding: UI.portraitVerticalPadding
     property int bottomPadding: UI.portraitVerticalPadding
@@ -55,7 +55,8 @@ Column {
     property variant accents_row2: ["aäàâáãå", "", "dð", "", "", "", "", "", ""]
     property variant accents_row3: ["", "", "cç", "", "", "nñ", ""]
 
-    property int keyHeight: UI.portraitHeight
+    property int keyHeight: keyArea.height / 4
+    property int keyWidth: keyArea.width / 10
 
     Row { //Row 1
         anchors.horizontalCenter: parent.horizontalCenter
@@ -86,7 +87,7 @@ Column {
     Row { //Row 3
         anchors.horizontalCenter: parent.horizontalCenter
         ShiftKey {
-            width: UI.PORTRAIT_SHIFT_WIDTH
+            width: keyWidth
             height: keyHeight
             topPadding: keyArea.topPadding
         }
@@ -104,7 +105,7 @@ Column {
         }
 
         BackspaceKey {
-            width: UI.PORTRAIT_SHIFT_WIDTH
+            width: keyWidth
             height: keyHeight
             topPadding: keyArea.topPadding
             leftPadding: keyArea.leftPadding
@@ -116,7 +117,7 @@ Column {
         anchors.horizontalCenter: parent.horizontalCenter
 
         SymbolKey {
-            width: 104
+            width: keyWidth
             height: keyHeight
             topPadding: keyArea.topPadding
         }
@@ -124,7 +125,6 @@ Column {
         PortraitCharacterKey {
             caption: ","
             captionShifted: ","
-            width: 56
             sizeType: "keyboard-key-56x60.png"
         }
 
@@ -132,19 +132,18 @@ Column {
             caption: " "
             captionShifted: " "
             showPopper: false
-            width: 146
+            width: keyArea.width/2
             sizeType: "keyboard-key-136x60.png"
         }
 
         PortraitCharacterKey {
             caption: "."
             captionShifted: "."
-            width: 56
             sizeType: "keyboard-key-56x60.png"
         }
 
         EnterKey {
-            width: 64
+            width: keyWidth
             height: keyHeight
             topPadding: keyArea.topPadding
         }
