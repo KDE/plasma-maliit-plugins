@@ -31,12 +31,13 @@
 
 import QtQuick 2.0
 import org.nemomobile 1.0
+import QtQuick.Window 2.2
 
 Item {
     id: canvas
 
-    width: MInputMethodQuick.screenWidth
-    height: MInputMethodQuick.screenHeight
+    width: Screen.desktopAvailableWidth
+    height: Screen.desktopAvailableHeight
 
     function updateIMArea() {
         if (!MInputMethodQuick.active)
