@@ -43,25 +43,12 @@ Item {
             return
 
         var x = 0, y = 0, width = 0, height = 0;
-        var angle = MInputMethodQuick.appOrientation
 
-        switch (angle) {
-        case 0:
-            y = MInputMethodQuick.screenHeight - vkb_landscape.height
-        case 180:
-            x = (MInputMethodQuick.screenWidth - vkb_landscape.width) / 2
-            width = vkb_landscape.width
-            height = vkb_landscape.height
-            break;
-
-        case 270:
-            x = MInputMethodQuick.screenWidth - vkb_portrait.height
-        case 90:
-            y = (MInputMethodQuick.screenHeight - vkb_portrait.width) / 2
-            width = vkb_portrait.height
-            height = vkb_portrait.width
-            break;
-        }
+        var pos = keyboard.mapToItem(canvas, 0, -keyboard.height);
+        y = pos.y;
+        x = pos.x;
+        width = keyboard.width;
+        height = keyboard.height;
 
         MInputMethodQuick.setInputMethodArea(Qt.rect(x, y, width, height))
         MInputMethodQuick.setScreenRegion(Qt.rect(x, y, width, height))
